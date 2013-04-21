@@ -1,0 +1,1 @@
+{extends file="themes/default/default.tpl"}

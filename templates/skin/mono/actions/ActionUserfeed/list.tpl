@@ -1,0 +1,20 @@
+{extends file='_index.tpl'}
+
+{block name="vars"}
+    {$menu="blog"}
+{/block}
+
+{block name="content"}
+{include file='topic_list.tpl'}
+
+{if count($aTopics)}
+    {if !$bDisableGetMoreButton}
+        <div id="userfeed_loaded_topics"></div>
+        <input type="hidden" id="userfeed_last_id" value="{$iUserfeedLastId}" />
+        <a class="stream-get-more" id="userfeed_get_more" href="javascript:ls.userfeed.getMore()">{$aLang.userfeed_get_more} &darr;</a>
+    {/if}
+{else}
+    {$aLang.userfeed_no_events}
+{/if}
+
+{/block}

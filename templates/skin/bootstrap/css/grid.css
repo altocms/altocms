@@ -1,0 +1,19 @@
+/* --------------------------------------------
+	СЕТКА
+-------------------------------------------- */
+
+#container 	{ margin: 0 auto; margin-bottom: 20px; }
+#header 	{ position: relative; }
+#nav 		{  }
+#wrapper 	{ overflow: hidden; zoom: 1; }
+#content 	{ position: relative; }
+#sidebar	{  }
+#footer 	{ overflow: hidden; zoom: 1; margin-bottom: 10px; padding: 10px 0; color: #777; font-size: 11px; }
+
+
+#content.content-full-width { width: 100%; margin-right: 0; }
+
+#content.content-right 		{  }
+#sidebar.sidebar-left 		{  }
+
+

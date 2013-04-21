@@ -1,0 +1,167 @@
+/* --------------------------------------------
+	МОДАЛЬНЫЕ ОКНА
+-------------------------------------------- */
+
+.b-modal,
+[class^=b-modal_] {
+    display: none;
+
+    position: fixed;
+    top: 25%;
+    left: 50%;
+
+    width: 300px;
+    margin-left: -150px;
+
+    color: #333;
+    border: 1px solid #666;
+    background-color: #fff;
+    border-radius: 0;
+    -webkit-box-shadow: 0 0 15px rgba(0, 0, 0, .5);
+    box-shadow: 0 0 15px rgba(0, 0, 0, .5);
+    overflow: hidden;
+}
+
+.b-modal-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 14px;
+    height: 14px;
+    background: url(../images/icons.png) -312px 0 no-repeat;
+    opacity: .3;
+    filter: alpha(opacity = 30);
+}
+
+.b-modal-close:hover {
+    opacity: 1;
+    filter: alpha(opacity = 100);
+}
+
+.b-modal-header {
+    background: #f0f0f0;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 5px 20px;
+}
+
+.b-modal-header h3 {
+    font-size: 20px;
+    font-weight: bold;
+    margin-right: 20px;
+}
+
+.b-modal-content {
+    padding: 20px;
+}
+
+.b-modal-footer {
+    background: #f7f7f7;
+    border-top: 1px solid #e0e0e0;
+    padding: 10px 20px;
+}
+
+.jqmOverlay {
+    background-color: #000;
+}
+
+* html .b-modal,
+* html [class^=b-modal_] {
+    position: absolute;
+    top: expression((document.documentElement.scrollTop || document.body.scrollTop) + Math.round(17 * (document.documentElement.offsetHeight || document.body.clientHeight) / 100) + 'px');
+}
+
+/* Форма входа */
+.b-modal_login {
+    width: 450px;
+    margin-left: -225px;
+    top: 50px;
+}
+
+.b-modal_login .nav {
+    margin-bottom: 30px;
+}
+
+/* Добавление топика */
+.b-modal_write {
+    width: 640px;
+    margin-left: -370px;
+    top: 50px;
+}
+
+.b-modal_write .modal-content {
+    padding: 20px 10px 0;
+    *padding: 20px 10px 15px;
+}
+
+.b-modal_write .write-list {
+    *overflow: hidden;
+    *zoom: 1;
+}
+
+.b-modal_write .write-list li {
+    width: 100px;
+    margin: 10px 10px 20px;
+    text-align: center;
+    overflow: hidden;
+    display: inline-table;
+    *float: left;
+    border: 1px solid #fff;
+}
+
+.b-modal_write .write-list li:hover {
+    border: 1px solid #CCC;
+}
+
+.b-modal_write .write-list li a {
+    color: #39576B;
+}
+
+.b-modal_write .write-list li .write-item-image {
+    display: block;
+    width: 100px;
+    height: 100px;
+    text-align: center;
+    background: url(../images/write.png) no-repeat;
+    margin-bottom: 10px;
+}
+
+.b-modal_write .write-list li.write-item-type-topic .write-item-image {
+    background-position: 0 0;
+}
+
+.b-modal_write .write-list li.write-item-type-poll .write-item-image {
+    background-position: -100px 0;
+}
+
+.b-modal_write .write-list li.write-item-type-link .write-item-image {
+    background-position: -200px 0;
+}
+
+.b-modal_write .write-list li.write-item-type-photoset .write-item-image {
+    background-position: -300px 0;
+}
+
+.b-modal_write .write-list li.write-item-type-blog .write-item-image {
+    background-position: -400px 0;
+}
+
+.b-modal_write .write-list li.write-item-type-draft .write-item-image {
+    background-position: -500px 0;
+}
+
+.b-modal_write .write-list li.write-item-type-category .write-item-image {
+    background-position: -600px 0;
+}
+
+.b-modal_write .write-list li.write-item-type-message .write-item-image {
+    background-position: -700px 0;
+}
+
+/* Upload Image */
+.b-modal_image-upload {
+    width: 500px;
+    margin-left: -250px;
+}
+
+
+

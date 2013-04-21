@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+    <name>
+        <lang name="default">LS Compatibility</lang>
+    </name>
+    <author>
+        <lang name="default">Alto CMS Team</lang>
+    </author>
+    <homepage>http://altocms.com</homepage>
+    <version>1.0</version>
+    <requires>
+        <livestreet>1.0.2</livestreet>
+        <alto>
+            <version>0.8</version>
+        </alto>
+        <plugins></plugins>
+        <system>
+            <php>5.3.0</php>
+        </system>
+    </requires>
+    <description>
+        <lang name="default">LiveStreet Compatibility</lang>
+        <lang name="russian">LiveStreet Compatibility</lang>
+    </description>
+</plugin>

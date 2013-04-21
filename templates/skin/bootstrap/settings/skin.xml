@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<skin>
+    <name>
+        <lang name="default">Bootstrap</lang>
+    </name>
+    <author>
+        <lang name="default">wstandart.ru</lang>
+    </author>
+    <homepage>http://wstandart.ru</homepage>
+    <version>1.0</version>
+    <requires>
+        <alto>
+            <version>0.8</version>
+        </alto>
+        <plugins></plugins>
+        <system>
+            <php>5.3.0</php>
+        </system>
+    </requires>
+    <description>
+        <lang name="default">Bootstrap template</lang>
+        <lang name="russian">Bootstrap шаблон</lang>
+    </description>
+    <info>
+        <screenshots>
+            <screenshot file="screenshot.png" />
+        </screenshots>
+        
+        <wgroups>
+            <wgroup name="right" />
+        </wgroups>
+    </info>
+</skin>

@@ -1,0 +1,13 @@
+User-Agent: *
+Disallow: /login/
+Disallow: /registration/
+Disallow: /feed/
+Disallow: /admin/
+Disallow: /stream/
+Disallow: /search/
+Disallow: /blog/draft/
+Disallow: /content/draft/
+Disallow: /draft/
+#
+#Sitemap: http://site.com/sitemap.xml
+#Host: site.com

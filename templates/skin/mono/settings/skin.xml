@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<skin>
+    <name>
+        <lang name="default">Mono</lang>
+    </name>
+    <author>
+        <lang name="default">Alto CMS Team</lang>
+    </author>
+    <homepage>http://altocms.com</homepage>
+    <version>1.0</version>
+    <requires>
+        <alto>
+            <version>0.8</version>
+        </alto>
+        <plugins></plugins>
+        <system>
+            <php>5.3.0</php>
+        </system>
+    </requires>
+    <description>
+        <lang name="default">Simple skin without any frills</lang>
+        <lang name="russian">Простой скин без всяких излишеств</lang>
+    </description>
+    <info>
+        <screenshots>
+            <screenshot file="screenshot.png" />
+        </screenshots>
+        <themes>
+            <theme code="default" name="Default" />
+            <theme code="brown" name="Brown" color="#894000" />
+            <theme code="dark-blue" name="Dark Blue" color="#203060" />
+            <theme code="dark-green" name="Dark Green" color="#0d3d10" />
+            <theme code="dark-plum" name="Dark Plum" color="#2a0e2c" />
+        </themes>
+        <wgroups>
+            <wgroup name="right" />
+        </wgroups>
+    </info>
+</skin>

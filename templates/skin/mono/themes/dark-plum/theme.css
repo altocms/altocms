@@ -1,0 +1,34 @@
+/*
+ * Scheme dark indigo
+ */
+body {
+    background-color: #fff7ff;
+}
+.b-header a {
+    color: #2a0e2c;
+}
+.b-nav-main {
+    background: #2a0e2c; /* 1 */
+}
+
+.b-nav-main li.active a {
+    background: #98359f; /* 2 */
+    color: #fff;
+}
+.b-nav-filter {
+    border-bottom-color: #2a0e2c;
+}
+.b-nav-filter li.active a {
+    background: #2a0e2c;
+    color: #fff;
+}
+
+.b-nav-pills li.active a, .b-nav-pills li.active a:hover {
+    background: #d592da; /* 3 */
+    color: #2a0e2c;
+    border-color: #2a0e2c;
+}
+.b-nav-pills li a {
+    color: #777;
+    border-color: #d592da;
+}

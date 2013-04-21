@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+    <name>
+        <lang name="default">Sphinx search</lang>
+    </name>
+    <author>
+        <lang name="default">Alto CMS Team</lang>
+    </author>
+    <homepage>http://altocms.com</homepage>
+    <version>1.0</version>
+    <requires>
+        <plugins>
+        </plugins>
+    </requires>
+    <description>
+        <lang name="default">Plugin for Sphinx - SQL full-text search engine</lang>
+    </description>
+</plugin>
