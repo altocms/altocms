@@ -2,3 +2,5 @@ config/config.local.php
 config/config.test.php
 templates/cache/*
 templates/compiled/*
+uploads/*
+plugins/plugins.dat
