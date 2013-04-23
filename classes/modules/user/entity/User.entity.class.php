@@ -28,14 +28,15 @@ class ModuleUser_EntityUser extends Entity
      *
      * @var array
      */
-    protected $aValidateRules = array(
-        array('login', 'login', 'on' => array('registration', '')), // '' - означает дефолтный сценарий
-        array('login', 'login_exists', 'on' => array('registration')),
-        array('mail', 'email', 'allowEmpty' => false, 'on' => array('registration', '')),
-        array('mail', 'mail_exists', 'on' => array('registration')),
-        array('password', 'string', 'allowEmpty' => false, 'min' => 5, 'on' => array('registration')),
-        array('password_confirm', 'compare', 'compareField' => 'password', 'on' => array('registration')),
-    );
+	public function Init() {
+		parent::Init();
+		$this->aValidateRules[]=array('login', 'login', 'on' => array('registration', '')); // '' - означает дефолтный сценарий
+        $this->aValidateRules[]=array('login', 'login_exists', 'on' => array('registration'));
+        $this->aValidateRules[]=array('mail', 'email', 'allowEmpty' => false, 'on' => array('registration', ''));
+        $this->aValidateRules[]=array('mail', 'mail_exists', 'on' => array('registration'));
+        $this->aValidateRules[]=array('password', 'string', 'allowEmpty' => false, 'min' => 5, 'on' => array('registration'));
+        $this->aValidateRules[]=array('password_confirm', 'compare', 'compareField' => 'password', 'on' => array('registration'));
+	}
 
     /**
      * Определяем дополнительные правила валидации
