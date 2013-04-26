@@ -6,14 +6,14 @@
 .topic:last-child { margin-bottom: 0; }
 
 /* Header */
-.topic .topic-header .topic-title 				{ font-size: 26px; line-height: 1.1em; font-weight: bold; margin: 0; }
+.topic .topic-header .topic-title 				{ font-size: 26px; line-height: 1.1em; font-weight: bold; margin: 0 0 3px 0; }
 .topic .topic-header .topic-title a 			{ text-decoration: none; }
 .topic .topic-header .topic-title .btn-group 	{ top: -3px; }
 .topic .topic-header .topic-title .btn-group .caret 	{ position:relative; top: 2px; }
 .topic .topic-header .topic-url 				{ margin-bottom: 15px; }
 .topic .topic-header .topic-url a 				{ background: #eee; border-radius: 3px; padding: 3px 10px 4px; text-decoration: none; }
 .topic .topic-header .published 				{ color: #7E7E7E; font-size: 11px; margin-bottom: 2px; }
-.topic .topic-header .topic-info 				{ margin-bottom: 15px; color: #777; font-size: 11px; }
+.topic .topic-header .topic-info 				{ margin-bottom: 8px; color: #777; font-size: 11px; }
 .topic .topic-header .topic-info .topic-blog i 	{ margin-right: 5px; margin-top: 0; }
 
 /* Content */

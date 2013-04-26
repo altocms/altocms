@@ -113,9 +113,36 @@ div.one .bsa_it_ad {
 }
 
 .navbar .writes {
-    float: left;
     margin-right: 15px;
     position: relative;
+}
+.navbar .writes .dropdown-menu  {
+    margin: 3px -1px 0 0;
+}
+
+.navbar .pull-right > .dropdown-menu {
+    right: 0;
+    left: auto;
+}
+
+.navbar .pull-right > .dropdown-menu:before {
+    right: 12px;
+    left: auto;
+}
+
+.navbar .pull-right > .dropdown-menu:after {
+    right: 13px;
+    left: auto;
+}
+
+.navbar .pull-right > .dropdown-menu .dropdown-menu {
+    right: 100%;
+    left: auto;
+    margin-right: -1px;
+    margin-left: 0;
+    -webkit-border-radius: 6px 0 6px 6px;
+    -moz-border-radius: 6px 0 6px 6px;
+    border-radius: 6px 0 6px 6px;
 }
 
 .search-menu .btn {
@@ -123,6 +150,14 @@ div.one .bsa_it_ad {
 }
 
 /*ls*/
+.topic .topic-header .topic-title .actions {
+    display: inline-block;
+    position: relative;
+    top: 7px;
+    height: auto;
+    margin: 0;
+}
+
 .search-block input[type="text"] {
     height: 40px;
     border-radius: 4px;

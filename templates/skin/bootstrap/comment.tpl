@@ -18,9 +18,8 @@
 		<a id="comment{$oComment->getId()}"></a>
 		
 		
-		<a href="{$oUser->getUserWebPath()}" class="avatar">
-            <img src="{$oUser->getProfileAvatarPath(48)}" alt="{$oUser->getLogin()}" title="{$oUser->getLogin()}" class="comment-avatar" />
-            <span class="{if $iAuthorId == $oUser->getId()}comment-topic-author{else}comment-topic{/if}" title="{$sAuthorNotice}">{$oUser->getLogin()}</span>
+		<a href="{$oUser->getUserWebPath()}" class="avatar {if $iAuthorId == $oUser->getId()}comment-topic-author{else}comment-topic{/if}">
+            <img src="{$oUser->getProfileAvatarPath(48)}" alt="{$oUser->getLogin()}" title="{$oUser->getLogin()}{if $iAuthorId == $oUser->getId()} - {$sAuthorNotice}{/if}" class="comment-avatar" />
         </a>
 
         <div class="wraps">

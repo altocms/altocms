@@ -1,7 +1,7 @@
 {*For desktop*}
 <div class="visible-desktop"><div id="navmain-fantom"></div></div>
 
-<div id="navmain" class="navbar navbar-inverse subnav visible-desktop">
+<div id="navmain" class="navbar subnav visible-desktop">
     <div class="navbar-inner">
         <div class="container">
             <div>
@@ -19,13 +19,26 @@
                     {hook run='main_menu_item'}
                 </ul>
 
-
-                <form class="search-menu navbar-form pull-right" action="{router page='search'}topics/">
-                    <div class="input-append">
-                        <input type="text" class="span2" placeholder="{$aLang.search}" name="q">
-                        <input type="submit" value="{$aLang.search_submit}" class="btn btn-primary span">
-                    </div>
-                </form>
+            {if $oUserCurrent}
+                <div class="writes btn-group pull-right">
+                    <a href="{router page='content'}/topic/add/" class="btn btn-primary pull-left write">
+                        <i class="icon-plus-sign icon-white"></i>
+                        {$aLang.block_create}
+                    </a>
+                    <a class="btn btn-primary pull-left write dropdown-toggle" data-toggle="dropdown">
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu pull-right">
+                        {foreach from=$aContentTypes item=oType}
+                            <li><a href="{router page='content'}{$oType->getContentUrl()}/add/">{$oType->getContentTitle()|escape:'html'}</a></li>
+                        {/foreach}
+                        <li><a href="{router page='talk'}add/">{$aLang.block_create_talk}</a></li>
+                        <li><a href="{router page='blog'}add" class="write-item-link">{$aLang.block_create_blog}</a></li>
+                        <li class="divider"></li>
+                        <li><a href="{router page='content'}saved/" class="write-item-link">{$aLang.topic_menu_saved} {if $iUserCurrentCountTopicDraft}({$iUserCurrentCountTopicDraft}){/if}</a></li>
+                    </ul>
+                </div>
+            {/if}
 
                 {hook run='main_menu'}
             </div><!-- /.nav-collapse -->
@@ -34,7 +47,7 @@
 </div>
 
 {*For tablet & phone*}
-<div class="navbar navbar-inverse subnav hidden-desktop">
+<div class="navbar subnav hidden-desktop">
     <div class="navbar-inner">
         <div class="container">
             <a class="btn btn-navbar" data-toggle="collapse" data-target="#navmain-list">
@@ -58,10 +71,3 @@
         </div>
     </div><!-- /navbar-inner -->
 </div>
-
-<form class="search-block hidden-desktop" action="{router page='search'}topics/">
-    <div class="input-append">
-        <input type="text" placeholder="{$aLang.search}">
-        <input type="submit" value="{$aLang.search_submit}" class="btn btn-primary">
-    </div>
-</form>

@@ -57,7 +57,7 @@
 
 .comment .avatar { position: absolute; top: 10px; left: 5px; }
 .comment .avatar .comment-author a { font-weight: bold; }
-.comment .avatar .comment-topic-author { background: #C9A518; color: #fff; font-size: 11px; position: absolute; bottom: 0; display: block; width: 48px; text-align: center; }
+.comment .avatar.comment-topic-author { outline: 2px solid #C9A518!important; }
 .comment .avatar .comment-topic { background: #F5F5F5; color: #000; font-size: 11px; position: absolute; bottom: 0; display: block; width: 48px; text-align: center; }
 
 /* Info Block */

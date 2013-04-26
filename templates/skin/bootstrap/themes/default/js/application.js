@@ -19,12 +19,12 @@
 				isFixed = 1;
 				$nav.addClass('subnav-fixed');
 				$('#navmain-fantom').show();
-                $nav.removeClass('navbar-inverse');
+                //$nav.removeClass('navbar-inverse');
 			} else if (scrollTop <= navTop && isFixed) {
 				isFixed = 0;
 				$nav.removeClass('subnav-fixed');
                 $('#navmain-fantom').hide();
-                $nav.addClass('navbar-inverse');
+                //$nav.addClass('navbar-inverse');
 			}
 		}
 

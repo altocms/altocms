@@ -51,9 +51,9 @@
 /* Toolbar 
 ---------------------------------------------------- */
 .toolbar 					{ float: right; position: fixed; top: 220px; right: 10px; z-index: 100; }
-.toolbar section 			{ width: 34px; line-height: 14px; background: #fff; -webkit-box-shadow: 0 0 5px rgba(0,0,0,.05); box-shadow: 0 0 5px rgba(0,0,0,.05); margin-bottom: 10px; }
+.toolbar section 			{ width: 34px; line-height: 14px; margin-bottom: 10px; }
 .toolbar section a			{ display: block; padding: 10px; }
-.toolbar section a:hover	{ background: #fafafa; }
+.toolbar section a:hover	{  }
 .toolbar section i			{ display: block; }
 
 /* Admin button */
@@ -67,7 +67,7 @@
 .toolbar .toolbar-update .new-comments 				{ border-top: 1px solid #eee; padding: 10px 0; color: #333; text-align: center; font-size: 11px; }
 
 /* Topic navigation */
-.toolbar .toolbar-topic a.toolbar-topic-prev { border-bottom: 1px solid #eee; }
+.toolbar .toolbar-topic a.toolbar-topic-prev {  }
 
 /* Scroll up */
 .toolbar .toolbar-scrollup { display: none; }
