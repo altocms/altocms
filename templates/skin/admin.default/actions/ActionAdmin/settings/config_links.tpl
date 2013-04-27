@@ -50,7 +50,6 @@
                     <input type="radio" name="draft_link" value="off" {if !Config::Get('module.topic.draft_link')}checked{/if}/>
                     {$aLang.action.admin.word_no}
                 </label>
-                {hook run='admin_select_homepage'}
             </div>
         </div>
     </div>
