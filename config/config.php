@@ -176,15 +176,15 @@ $config['sys']['logs']['hacker_console']  = false;  		// позволяет уд
 
 /*
  * Параметры для определения IP-адрес посетителя:
- *   'trasted'          - ключи переменной $_SERVER, где нужно искать IP-адрес
- *   'non_trasted'      - ключи переменной $_SERVER, где НЕ нужно искать IP-адрес
+ *   'trusted'          - ключи переменной $_SERVER, где нужно искать IP-адрес
+ *   'non_trusted'      - ключи переменной $_SERVER, где НЕ нужно искать IP-адрес
  *   'multi_backward'   - если в $_SERVER[<key>] несколько адресов, то выбираем с конца
  *   'exclude'          - список исключаемых IP-адресов
  *   'exclude_server'   - IP-адрес посетителя не может совпадать с IP-адресом сервера
  *   'default'          - если IP так и не определен
  */
-$config['sys']['ip']['trasted'] = array('REMOTE_ADDR', 'HTTP_X_REAL_IP', 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_VIA');
-$config['sys']['ip']['non_trasted'] = array();
+$config['sys']['ip']['trusted'] = array('REMOTE_ADDR', 'HTTP_X_REAL_IP', 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_VIA');
+$config['sys']['ip']['non_trusted'] = array();
 $config['sys']['ip']['backward'] = true;
 $config['sys']['ip']['exclude'] = array('127.0.0.1', 'fe80::1', '::1');
 $config['sys']['ip']['exclude_server'] = true;

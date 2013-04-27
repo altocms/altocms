@@ -170,18 +170,18 @@ class AltoFunc_Main {
     /**
      * Returns all IP of current user
      *
-     * @param   array|string|null   $aTrasted
-     * @param   array|string|null   $aNonTrasted
+     * @param   array|string|null   $aTrusted
+     * @param   array|string|null   $aNonTrusted
      *
      * @return  array
      */
-    static public function GetAllUserIp($aTrasted = null, $aNonTrasted = null) {
-        if (!$aTrasted) {
+    static public function GetAllUserIp($aTrusted = null, $aNonTrusted = null) {
+        if (!$aTrusted) {
             if (class_exists('Config', false)) {
-                $aTrasted = (array)Config::Get('sys.ip.trasted');
+                $aTrusted = (array)Config::Get('sys.ip.trusted');
             }
-            if (!$aTrasted)
-                $aTrasted = array(
+            if (!$aTrusted)
+                $aTrusted = array(
                     'REMOTE_ADDR',
                     'HTTP_X_REAL_IP',
                     'HTTP_CLIENT_IP',
@@ -189,18 +189,18 @@ class AltoFunc_Main {
                     'HTTP_VIA',
                 );
         } else {
-            $aTrasted = (array)$aTrasted;
+            $aTrusted = (array)$aTrusted;
         }
 
-        if (!$aNonTrasted) {
-            $aNonTrasted = F::_getConfig('sys.ip.non_trasted', array());
+        if (!$aNonTrusted) {
+            $aNonTrusted = F::_getConfig('sys.ip.non_trusted', array());
         } else {
-            $aNonTrasted = (array)$aNonTrasted;
+            $aNonTrusted = (array)$aNonTrusted;
         }
 
         $aIp = array();
-        foreach ($aTrasted as $sParam) {
-            if (isset($_SERVER[$sParam]) && (!$aNonTrasted || !in_array($sParam, $aNonTrasted))) {
+        foreach ($aTrusted as $sParam) {
+            if (isset($_SERVER[$sParam]) && (!$aNonTrusted || !in_array($sParam, $aNonTrusted))) {
                 // sometimes IPs separated by space
                 $sIp = str_replace(' ', ',', trim($_SERVER[$sParam]));
                 if (strpos($sIp, ',')) {
@@ -239,13 +239,13 @@ class AltoFunc_Main {
     /**
      * Returns user's IP
      *
-     * @param   array|string|null   $aTrasted
-     * @param   array|string|null   $aNonTrasted
+     * @param   array|string|null   $aTrusted
+     * @param   array|string|null   $aNonTrusted
      *
      * @return  string
      */
-    static public function GetUserIp($aTrasted = null, $aNonTrasted = null) {
-        $aIpParams = self::GetAllUserIp($aTrasted, $aNonTrasted);
+    static public function GetUserIp($aTrusted = null, $aNonTrusted = null) {
+        $aIpParams = self::GetAllUserIp($aTrusted, $aNonTrusted);
         $aExcludeIp = (array)F::_getConfig('sys.ip.exclude', array('127.0.0.1', 'fe80::1', '::1'));
         if (F::_getConfig('sys.ip.exclude_server', true) && isset($_SERVER['SERVER_ADDR'])) {
             $aExcludeIp[] = $_SERVER['SERVER_ADDR'];
