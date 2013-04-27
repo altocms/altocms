@@ -19,6 +19,7 @@ class AltoFunc_Array {
      * @param   array   $aData
      * @param   string  $sBefore
      * @param   string  $sAfter
+     *
      * @return  array
      */
     static public function ChangeValues($aData, $sBefore = '', $sAfter = '') {
@@ -38,11 +39,12 @@ class AltoFunc_Array {
      *
      * @param   array   $aData
      * @param   mixed   $xDefValue
+     *
      * @return  array
      */
     static public function FlipIntKeys($aData, $xDefValue = 1) {
         foreach ($aData as $key => $value) {
-            if (is_int($key) and is_string($value)) {
+            if (is_int($key) && is_string($value)) {
                 unset($aData[$key]);
                 $aData[$value] = $xDefValue;
             }
@@ -55,6 +57,7 @@ class AltoFunc_Array {
      *
      * @param   array   $aData
      * @param   array   $aKeys
+     *
      * @return  array
      */
     static public function SortByKeysArray($aData, $aKeys) {
@@ -72,6 +75,7 @@ class AltoFunc_Array {
      *
      * @param   array   $aData1
      * @param   array   $aData2
+     *
      * @return  array
      */
     static public function Merge($aData1, $aData2) {
@@ -101,6 +105,7 @@ class AltoFunc_Array {
      * Рекурсивный вариант array_keys
      *
      * @param  array $aData     Массив
+     *
      * @return array
      */
     static public function KeysRecursive($aData) {
@@ -141,8 +146,9 @@ class AltoFunc_Array {
 
         $aResult = array();
         foreach ($aData as $sStr) {
-            if ($sStr || !$bSkipEmpty)
+            if ($sStr || !$bSkipEmpty) {
                 $aResult[] = trim($sStr);
+            }
         }
         return $aResult;
     }

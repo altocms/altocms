@@ -35,24 +35,14 @@ class Func {
      * @return string
      */
     static public function _errorLogFile() {
-        if (class_exists('Config', false)) {
-            $sResult = Config::Get('sys.logs.error_file');
-        } else {
-            $sResult = self::ERROR_LOG;
-        }
-        return $sResult;
+        return self::_getConfig('sys.logs.error_file', self::ERROR_LOG);
     }
 
     /**
      * @return bool
      */
     static public function _errorLogExtInfo() {
-        if (class_exists('Config', false)) {
-            $bResult = Config::Get('sys.logs.error_extinfo');
-        } else {
-            $bResult = true;
-        }
-        return $bResult;
+        return (bool)self::_getConfig('sys.logs.error_extinfo', true);
     }
 
     static public function _errorLog($sError) {
@@ -71,7 +61,7 @@ class Func {
             // Если загружен модуль Logger, то логгируем ошибку с его помощью
             Engine::getInstance()->Logger_Dump(self::_errorLogFile(), $sText);
         } elseif (class_exists('Config', false)) {
-            // Если логгера нет, но есть когфиг, то самостоятельно пишем в файл
+            // Если логгера нет, но есть конфиг, то самостоятельно пишем в файл
             $sFile = Config::Get('sys.logs.dir') . self::_errorLogFile();
             $sText = '[' . date('Y-m-d H:i:s') . ']' . "\n" . $sText;
             F::File_PutContents($sFile, $sText, FILE_APPEND | LOCK_EX);
@@ -190,6 +180,15 @@ class Func {
     static protected function _CallStack($nOffset = 1, $nLength = null) {
         $aStack = array_slice(debug_backtrace(), $nOffset, $nLength);
         return $aStack;
+    }
+
+    static public function _getConfig($sParam, $xDefault = null) {
+        if (class_exists('Config', false)) {
+            $xResult = Config::Get($sParam);
+        } else {
+            $xResult = $xDefault;
+        }
+        return $xResult;
     }
 
     /**

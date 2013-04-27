@@ -12,18 +12,15 @@
 /**
  * Common functions for Alto CMS
  */
-class AltoFunc_Main
-{
+class AltoFunc_Main {
     static protected $sRandChars = '!#$%()*+-0123456789:<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_abcdefghijklmnopqrstuvwxyz|~';
     static protected $aMemSizeUnits = array('B', 'K', 'M', 'G', 'T', 'P');
 
-    static function StrUnderscore($sStr)
-    {
+    static function StrUnderscore($sStr) {
         return strtolower(preg_replace('/([^A-Z])([A-Z])/', "$1_$2", $sStr));
     }
 
-    static public function StrCamelize($sStr)
-    {
+    static public function StrCamelize($sStr) {
         $aParts = explode('_', $sStr);
         $sCamelized = '';
         foreach ($aParts as $sPart) {
@@ -32,18 +29,15 @@ class AltoFunc_Main
         return $sCamelized;
     }
 
-    static public function Str2Array($sStr, $sSeparator = ',', $bSkipEmpty = false)
-    {
+    static public function Str2Array($sStr, $sSeparator = ',', $bSkipEmpty = false) {
         return F::Array_Str2Array($sStr, $sSeparator, $bSkipEmpty);
     }
 
-    static public function Str2ArrayInt($sStr, $sSeparator = ',', $bUnique = true)
-    {
+    static public function Str2ArrayInt($sStr, $sSeparator = ',', $bUnique = true) {
         return F::Array_Str2ArrayInt($sStr, $sSeparator, $bUnique);
     }
 
-    static public function Val2Array($xVal, $sSeparator = ',', $bSkipEmpty = false)
-    {
+    static public function Val2Array($xVal, $sSeparator = ',', $bSkipEmpty = false) {
         return F::Array_Val2Array($xVal, $sSeparator, $bSkipEmpty);
     }
 
@@ -52,10 +46,10 @@ class AltoFunc_Main
      *
      * @param   int     $nLen   - длина строка
      * @param   bool    $bHex   - только шестнадцатиричные символы [0-9a-f]
+     *
      * @return  string
      */
-    static public function RandomStr($nLen = 32, $bHex = true)
-    {
+    static public function RandomStr($nLen = 32, $bHex = true) {
         $sResult = '';
         if ($bHex) {
             while (strlen($sResult) < $nLen) {
@@ -75,11 +69,11 @@ class AltoFunc_Main
 
     /**
      * @param   float $nValue
-     * @param   int $nDecimal
+     * @param   int   $nDecimal
+     *
      * @return  string
      */
-    static public function MemSizeFormat($nValue, $nDecimal = 0)
-    {
+    static public function MemSizeFormat($nValue, $nDecimal = 0) {
         $aUnits = self::$aMemSizeUnits;
         $nIndex = 0;
         $nResult = intval($nValue);
@@ -102,13 +96,15 @@ class AltoFunc_Main
      *      '187X'  => 187 - invalid unit
      *
      * @param $sNum
+     *
      * @return int|number
      */
-    static public function MemSize2Int($sNum)
-    {
+    static public function MemSize2Int($sNum) {
         $nValue = floatval($sNum);
         if (!is_numeric($sChar = strtoupper(substr($sNum, -1)))) {
-            if ($sChar == 'B') $sChar = substr($sNum, -1);
+            if ($sChar == 'B') {
+                $sChar = substr($sNum, -1);
+            }
             if (($nIdx = array_search(strtoupper($sChar), self::$aMemSizeUnits)) !== false) {
                 $nValue *= pow(1024, $nIdx);
             }
@@ -118,16 +114,22 @@ class AltoFunc_Main
 
     /**
      * @param   mixed $xData
+     *
      * @return  string
      */
-    static public function JsonEncode($xData)
-    {
+    static public function JsonEncode($xData) {
         if (function_exists('json_encode')) {
             return json_encode($xData);
         }
-        if (is_null($xData)) return 'null';
-        if ($xData === false) return 'false';
-        if ($xData === true) return 'true';
+        if (is_null($xData)) {
+            return 'null';
+        }
+        if ($xData === false) {
+            return 'false';
+        }
+        if ($xData === true) {
+            return 'true';
+        }
         if (is_scalar($xData)) {
             if (is_float($xData)) {
                 // Always use "." for floats.
@@ -135,10 +137,13 @@ class AltoFunc_Main
             }
 
             if (is_string($xData)) {
-                static $jsonReplaces = array(array("\\", "/", "\n", "\t", "\r", "\b", "\f", '"'), array('\\\\', '\\/', '\\n', '\\t', '\\r', '\\b', '\\f', '\"'));
+                static $jsonReplaces
+                = array(array("\\", "/", "\n", "\t", "\r", "\b", "\f", '"'),
+                        array('\\\\', '\\/', '\\n', '\\t', '\\r', '\\b', '\\f', '\"'));
                 return '"' . str_replace($jsonReplaces[0], $jsonReplaces[1], $xData) . '"';
-            } else
+            } else {
                 return $xData;
+            }
         }
         $isList = true;
         for ($i = 0, reset($xData); $i < count($xData); $i++, next($xData)) {
@@ -149,10 +154,14 @@ class AltoFunc_Main
         }
         $result = array();
         if ($isList) {
-            foreach ($xData as $v) $result[] = self::jsonEncode($v);
+            foreach ($xData as $v) {
+                $result[] = self::jsonEncode($v);
+            }
             return '[' . join(',', $result) . ']';
         } else {
-            foreach ($xData as $k => $v) $result[] = self::jsonEncode($k) . ':' . self::jsonEncode($v);
+            foreach ($xData as $k => $v) {
+                $result[] = self::jsonEncode($k) . ':' . self::jsonEncode($v);
+            }
             return '{' . join(',', $result) . '}';
         }
 
@@ -161,49 +170,111 @@ class AltoFunc_Main
     /**
      * Returns all IP of current user
      *
-     * @return array
+     * @param   array|string|null   $aTrasted
+     * @param   array|string|null   $aNonTrasted
+     *
+     * @return  array
      */
-    static public function GetAllUserIp()
-    {
-        $aKeys = array(
-            'HTTP_CLIENT_IP',
-            'HTTP_X_FORWARDED_FOR',
-            'HTTP_X_REAL_IP',
-            'HTTP_VIA',
-        );
+    static public function GetAllUserIp($aTrasted = null, $aNonTrasted = null) {
+        if (!$aTrasted) {
+            if (class_exists('Config', false)) {
+                $aTrasted = (array)Config::Get('sys.ip.trasted');
+            }
+            if (!$aTrasted)
+                $aTrasted = array(
+                    'REMOTE_ADDR',
+                    'HTTP_X_REAL_IP',
+                    'HTTP_CLIENT_IP',
+                    'HTTP_X_FORWARDED_FOR',
+                    'HTTP_VIA',
+                );
+        } else {
+            $aTrasted = (array)$aTrasted;
+        }
+
+        if (!$aNonTrasted) {
+            $aNonTrasted = F::_getConfig('sys.ip.non_trasted', array());
+        } else {
+            $aNonTrasted = (array)$aNonTrasted;
+        }
 
         $aIp = array();
-        if (isset($_SERVER['REMOTE_ADDR'])) $aIp['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
-        foreach ($aKeys as $sKey) {
-            if (isset($_SERVER[$sKey])) {
-                if (preg_match('/\d+\.\d+\.\d+\.\d+/', $_SERVER[$sKey], $m)) $aIp[$sKey] = $m[0];
+        foreach ($aTrasted as $sParam) {
+            if (isset($_SERVER[$sParam]) && (!$aNonTrasted || !in_array($sParam, $aNonTrasted))) {
+                // sometimes IPs separated by space
+                $sIp = str_replace(' ', ',', trim($_SERVER[$sParam]));
+                if (strpos($sIp, ',')) {
+                    // several IPs
+                    $aData = explode(',', $sIp);
+                    $aIp[$sParam] = '';
+                    foreach ($aData as $sData) {
+                        if ($sData && filter_var($sData, FILTER_VALIDATE_IP)) {
+                            if ($aIp[$sParam]) {
+                                $aIp[$sParam] .= ',';
+                            }
+                            $aIp[$sParam] .= $sData;
+                        }
+                    }
+                    if (!$aIp[$sParam]) {
+                        unset($aIp[$sParam]);
+                    }
+                } else {
+                    // single IP
+                    if ($sIp && filter_var($sIp, FILTER_VALIDATE_IP)) {
+                        $aIp[$sParam] = $sIp;
+                    }
+                }
             }
         }
-        if (!$aIp) $aIp[] = '127.0.0.1';
+        if (!$aIp) {
+            $sIp = F::_getConfig('sys.ip.default');
+            if (!$sIp || !filter_var($sIp, FILTER_VALIDATE_IP)) {
+                $sIp = '127.0.0.1';
+            }
+            $aIp['FAKE_ADDR'] = $sIp;
+        }
         return $aIp;
     }
 
     /**
      * Returns user's IP
      *
-     * @return string
+     * @param   array|string|null   $aTrasted
+     * @param   array|string|null   $aNonTrasted
+     *
+     * @return  string
      */
-    static public function GetUserIp()
-    {
-        $aIp = self::GetAllUserIp();
-        if (isset($_SERVER['SERVER_ADDR'])) {
-            foreach ($aIp as $sIp) {
-                if ($sIp !== $_SERVER['SERVER_ADDR']) {
-                    return $sIp;
+    static public function GetUserIp($aTrasted = null, $aNonTrasted = null) {
+        $aIpParams = self::GetAllUserIp($aTrasted, $aNonTrasted);
+        $aExcludeIp = (array)F::_getConfig('sys.ip.exclude', array('127.0.0.1', 'fe80::1', '::1'));
+        if (F::_getConfig('sys.ip.exclude_server', true) && isset($_SERVER['SERVER_ADDR'])) {
+            $aExcludeIp[] = $_SERVER['SERVER_ADDR'];
+        }
+
+        $bSeekBackward = F::_getConfig('sys.ip.backward', true);
+        // collect all ip
+        $aIp = array();
+        foreach ($aIpParams as $sIp) {
+            if (strpos($sIp, ',')) {
+                $aSeveralIps = explode(',', $sIp);
+                if ($bSeekBackward) {
+                    $aSeveralIps = array_reverse($aSeveralIps);
                 }
+                $aIp = array_merge($aIp, $aSeveralIps);
+            } else {
+                $aIp[] = $sIp;
+            }
+        }
+        foreach ($aIp as $sIp) {
+            if (!in_array($sIp, $aExcludeIp)) {
+                return $sIp;
             }
         }
         $sIp = array_shift($aIp);
         return $sIp;
     }
 
-    static public function CheckVal($sValue, $sParam, $iMin = 1, $iMax = 100)
-    {
+    static public function CheckVal($sValue, $sParam, $iMin = 1, $iMax = 100) {
         if (!is_scalar($sValue)) {
             return false;
         }
@@ -242,7 +313,7 @@ class AltoFunc_Main
                 }
                 break;
             case 'text':
-                if (mb_strlen($sValue, 'UTF-8') >= $iMin and mb_strlen($sValue, 'UTF-8') <= $iMax) {
+                if (mb_strlen($sValue, 'UTF-8') >= $iMin && mb_strlen($sValue, 'UTF-8') <= $iMax) {
                     return true;
                 }
                 break;
@@ -255,14 +326,18 @@ class AltoFunc_Main
     /**
      * Вовзвращает "соленый" хеш
      *
-     * @param   mixed $xData  - хешируемая переменная
+     * @param   mixed  $xData  - хешируемая переменная
      * @param   string $sSalt  - "соль"
+     *
      * @return  string
      */
-    static public function DoSalt($xData, $sSalt)
-    {
-        if (!is_string($xData)) $sData = serialize($xData);
-        else $sData = (string)$xData;
+    static public function DoSalt($xData, $sSalt) {
+        if (!is_string($xData)) {
+            $sData = serialize($xData);
+        }
+        else {
+            $sData = (string)$xData;
+        }
         return '0x:' . F::DoHashe($sData . '::' . $sSalt);
     }
 
@@ -270,12 +345,16 @@ class AltoFunc_Main
      * Вовзвращает "чистый" хеш
      *
      * @param   mixed $xData  - хешируемая переменная
+     *
      * @return  string
      */
-    static public function DoHashe($xData)
-    {
-        if (!is_string($xData)) $sData = serialize($xData);
-        else $sData = (string)$xData;
+    static public function DoHashe($xData) {
+        if (!is_string($xData)) {
+            $sData = serialize($xData);
+        }
+        else {
+            $sData = (string)$xData;
+        }
         return (md5(sha1($sData)));
     }
 
@@ -285,10 +364,10 @@ class AltoFunc_Main
      * @param   string  $sText
      * @param   int     $nLen
      * @param   string  $sPostfix
+     *
      * @return  string
      */
-    static public function TruncateText($sText, $nLen, $sPostfix = '')
-    {
+    static public function TruncateText($sText, $nLen, $sPostfix = '') {
         if (mb_strlen($sText, 'UTF-8') > $nLen) {
             $sText = mb_substr($sText, 0, $nLen - mb_strlen($sPostfix)) . $sPostfix;
         }
@@ -299,11 +378,11 @@ class AltoFunc_Main
      * Возвращает текст, обрезанный по заданное число слов
      *
      * @param   string $sText
-     * @param   int $iCountWords
+     * @param   int    $iCountWords
+     *
      * @return  string
      */
-    static public function CatText($sText, $iCountWords)
-    {
+    static public function CatText($sText, $iCountWords) {
         $aWords = preg_split('#[\s\r\n]+#um', $sText);
         if ($iCountWords < count($aWords)) {
             $aWords = array_slice($aWords, 0, $iCountWords);
@@ -315,10 +394,10 @@ class AltoFunc_Main
      * Аналог serialize() с контролем CRC32
      *
      * @param $xData
+     *
      * @return string
      */
-    static public function Serialize($xData)
-    {
+    static public function Serialize($xData) {
         $sData = serialize($xData);
         $sCrc32 = dechex(crc32($sData));
         return $sCrc32 . '|' . $sData;
@@ -329,10 +408,10 @@ class AltoFunc_Main
      * Аналог unserialize() с контролем CRC32
      *
      * @param $sData
+     *
      * @return mixed|null
      */
-    static public function Unserialize($sData)
-    {
+    static public function Unserialize($sData) {
         if (is_string($sData) && strpos($sData, '|')) {
             list($sCrc32, $sData) = explode('|', $sData);
             if ($sCrc32 && $sData && $sCrc32 == dechex(crc32($sData))) {
@@ -343,8 +422,7 @@ class AltoFunc_Main
         return null;
     }
 
-    static public function IpRange($sIp)
-    {
+    static public function IpRange($sIp) {
         $aIp = explode('.', $sIp) + array(0, 0, 0, 0);
         $aIp = array_map('intval', $aIp);
 
@@ -376,10 +454,10 @@ class AltoFunc_Main
      * Преобразует интервал в число секунд
      *
      * @param   string  $sInterval  - значение интервала по спецификации ISO 8601 или в человекочитаемом виде
+     *
      * @return  int|null
      */
-    static public function ToSeconds($sInterval)
-    {
+    static public function ToSeconds($sInterval) {
         if (is_numeric($sInterval)) {
             return intval($sInterval);
         }
@@ -395,23 +473,20 @@ class AltoFunc_Main
         return $oInterval->Seconds();
     }
 
-    static public function DateTimeAdd($sDate, $sInterval)
-    {
+    static public function DateTimeAdd($sDate, $sInterval) {
         $date = new DateTime($sDate);
         $date->add(new DateInterval('PT' . self::ToSeconds($sInterval) . 'S'));
         return $date->format('Y-m-d H:i:s');
     }
 
-    static public function DateDiffSeconds($sDate1, $sDate2)
-    {
+    static public function DateDiffSeconds($sDate1, $sDate2) {
         $oDatetime1 = date_create($sDate1);
         $oDatetime2 = date_create($sDate2);
         $nDiff = $oDatetime2->getTimestamp() - $oDatetime1->getTimestamp();
         return intval($nDiff);
     }
 
-    static public function Now()
-    {
+    static public function Now() {
         return date('Y-m-d H:i:s');
     }
 
