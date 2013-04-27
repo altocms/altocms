@@ -20,33 +20,38 @@ F::IncludeFile(__DIR__ . '/LangArray.class.php');
  * Модуль поддержки языковых файлов
  *
  * @package engine.modules
- * @since 1.0
+ * @since   1.0
  */
 class ModuleLang extends Module {
+
     /**
      * Текущий язык ресурса
      *
      * @var string
      */
     protected $sCurrentLang;
+
     /**
      * Язык ресурса, используемый по умолчанию
      *
      * @var string
      */
     protected $sDefaultLang;
+
     /**
      * Путь к языковым файлам
      *
      * @var string
      */
     protected $sLangPath;
+
     /**
      * Список языковых текстовок
      *
      * @var array
      */
     protected $aLangMsg = array();
+
     /**
      * Список текстовок для JS
      *
@@ -94,8 +99,12 @@ class ModuleLang extends Module {
     }
 
     public function __get($sName) {
-        if (substr($sName, 0, 1) == '_') $sKey = substr($sName, 1);
-        else $sKey = $sName;
+        if (substr($sName, 0, 1) == '_') {
+            $sKey = substr($sName, 1);
+        }
+        else {
+            $sKey = $sName;
+        }
         return $this->Get($sKey);
     }
 
@@ -104,11 +113,13 @@ class ModuleLang extends Module {
      *
      */
     protected function InitLang($sLang = null) {
-        if (!$sLang) $sLang = $this->sCurrentLang;
+        if (!$sLang) {
+            $sLang = $this->sCurrentLang;
+        }
 
         UserLocale::setLocale(
             Config::Get('lang.current'),
-            array('local'=>Config::get('i18n.locale'), 'timezone'=>Config::get('i18n.timezone'))
+            array('locale' => Config::get('i18n.locale'), 'timezone' => Config::get('i18n.timezone'))
         );
 
         // * Если используется кеширование через memcaсhed, то сохраняем данные языкового файла в кеш
@@ -123,7 +134,9 @@ class ModuleLang extends Module {
             }
         } else {
             $this->LoadLangFiles($this->sDefaultLang);
-            if ($sLang != $this->sDefaultLang) $this->LoadLangFiles($sLang);
+            if ($sLang != $this->sDefaultLang) {
+                $this->LoadLangFiles($sLang);
+            }
         }
         if ($sLang != Config::Get('lang.current')) {
             Config::Set('lang.current', $sLang);
@@ -166,7 +179,7 @@ class ModuleLang extends Module {
         $this->aLangMsgJs = array_merge($this->aLangMsgJs, $aKeys);
     }
 
-    protected function _loadSingleFile($sPath, $sLang, $aParams=null) {
+    protected function _loadSingleFile($sPath, $sLang, $aParams = null) {
         $sLangFile = $sPath . '/' . $sLang . '.php';
         if (F::File_Exists($sLangFile)) {
             $this->AddMessages(F::File_IncludeFile($sLangFile), $aParams);
@@ -234,7 +247,7 @@ class ModuleLang extends Module {
             $sDir = Config::Get('path.root.server') . '/plugins/';
 
             foreach ($aPluginList as $sPluginName) {
-				$aParams=array('name'=>$sPluginName,'category'=>'plugin');
+                $aParams = array('name' => $sPluginName, 'category' => 'plugin');
                 $this->_loadSingleFile($sDir . $sPluginName . '/templates/language/', $sLangName, $aParams);
             }
 
@@ -272,12 +285,39 @@ class ModuleLang extends Module {
     }
 
     /**
+     * Получить алиасы текущего языка
+     *
+     * @return array
+     */
+    public function GetLangAliases() {
+        return F::Str2Array(Config::Get('lang.aliases.' . $this->GetLang()));
+    }
+
+    /**
+     * Получить язык по умолчанию
+     *
+     * @return string
+     */
+    public function GetDefaultLang() {
+        return $this->sDefaultLang;
+    }
+
+    /**
+     * Получить алиасы языка по умолчанию
+     *
+     * @return array
+     */
+    public function GetDefaultLangAliases() {
+        return F::Str2Array(Config::Get('lang.aliases.' . $this->GetDefaultLang()));
+    }
+
+    /**
      * Получить дефолтный язык
      *
      * @return string
      */
     public function GetLangDefault() {
-        return $this->sDefaultLang;
+        return $this->GetDefaultLang();
     }
 
     /**
@@ -289,17 +329,17 @@ class ModuleLang extends Module {
         return $this->aLangMsg;
     }
 
-    public function GetLangArray()
-    {
+    public function GetLangArray() {
         return new LangArray();
     }
 
     /**
      * Получает текстовку по её имени
      *
-     * @param  string $sName    Имя текстовки
-     * @param  array $aReplace    Список параметром для замены в текстовке
-     * @param  bool $bDelete    Удалять или нет параметры, которые не были заменены
+     * @param  string $sName       Имя текстовки
+     * @param  array  $aReplace    Список параметром для замены в текстовке
+     * @param  bool   $bDelete     Удалять или нет параметры, которые не были заменены
+     *
      * @return string
      */
     public function Get($sName, $aReplace = array(), $bDelete = true) {
@@ -339,8 +379,8 @@ class ModuleLang extends Module {
     /**
      * Добавить к текстовкам массив сообщений
      *
-     * @param array $aMessages     - Список текстовок для добавления
-     * @param array|null $aParams  - Параметры, позволяют хранить текстовки в структурированном виде,
+     * @param array      $aMessages     - Список текстовок для добавления
+     * @param array|null $aParams       - Параметры, позволяют хранить текстовки в структурированном виде,
      *                               например, тестовки плагина "test" получать как Get('plugin.name.test')
      */
     public function AddMessages($aMessages, $aParams = null) {
@@ -375,7 +415,9 @@ class ModuleLang extends Module {
     }
 
     public function Dictionary($sLang = null) {
-        if ($sLang && $sLang !== $this->sCurrentLang) $this->InitLang($sLang);
+        if ($sLang && $sLang !== $this->sCurrentLang) {
+            $this->InitLang($sLang);
+        }
         return $this;
     }
 
@@ -387,10 +429,15 @@ class ModuleLang extends Module {
         // * Делаем выгрузку необходимых текстовок в шаблон в виде js
         $this->AssignToJs();
         if (Config::Get('lang.multilang')) {
-            $this->Viewer_AddHtmlHeadTag('<link rel="alternate" hreflang="x-default" href="' . Router::Url('link') . '">');
+            $this->Viewer_AddHtmlHeadTag(
+                '<link rel="alternate" hreflang="x-default" href="' . Router::Url('link') . '">'
+            );
             $aLangs = Config::Get('lang.allow');
-            foreach($aLangs as $sLang) {
-                $this->Viewer_AddHtmlHeadTag('<link rel="alternate" hreflang="' . $sLang . '" href="' . trim(F::File_RootUrl($sLang), '/') . Router::Url('path') . '">');
+            foreach ($aLangs as $sLang) {
+                $this->Viewer_AddHtmlHeadTag(
+                    '<link rel="alternate" hreflang="' . $sLang . '" href="' . trim(F::File_RootUrl($sLang), '/')
+                        . Router::Url('path') . '">'
+                );
             }
         }
     }
