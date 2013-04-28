@@ -33,6 +33,7 @@ return array(
 
     'menu_config' => 'Настройки',
     'menu_config_site' => 'Настройки сайта',
+    'menu_config_lang' => 'Языки',
     'menu_config_content' => 'Типы контента',
     'menu_config_userfields' => 'Пользовательские поля',
 
@@ -124,14 +125,6 @@ return array(
 
     'button_report' => 'Сформировать отчет',
     'button_checkin' => 'Включить в отчет',
-
-    /* CONFIG */
-    'config_title' => 'Настройки сайта',
-    'menu_close_site' => 'Закрыть сайт',
-    'menu_cache' => 'Кеширование',
-
-    'menu_languages' => 'Языки',
-    'menu_installed' => 'Установленные',
 
     /* BLOGS */
     'blogs_title' => 'Блоги',
@@ -268,6 +261,7 @@ return array(
     'seek' => 'Искать',
     'save' => 'Сохранить',
     'reset' => 'Сброс',
+    'cancel' => 'Отмена',
     'continue' => 'Продолжить',
     'saved_ok' => 'Данные сохранены',
     'saved_err' => 'Ошибка сохранения данных',
@@ -276,18 +270,6 @@ return array(
     'config_err_backup' => 'Ошибка создания бэкап-файла',
     'config_err_save' => 'Ошибка сохранения файла конфигурации',
     'config_save_ok' => 'Измененный файл конфигурации сохранен',
-
-    'activate_language' => 'Активировать язык',
-    'compare_language' => 'Сравнить языковые файлы',
-    'languages_select' => 'Выбрать язык',
-    'languages_activate' => 'Активировать',
-    'languages_compare' => 'Сравнить',
-    'languages_default' => 'По умолчанию',
-    'languages_activate_label' => 'Выберите язык для активации',
-    'languages_activate_notice' => 'Выберите язык для активации из списка установленных языков',
-    'language_not_found' => 'Язык не определен',
-    'current_language' => 'Текущий язык',
-    'selected_language' => 'Выбран язык',
 
     'include_admin' => 'Добавить администратора',
     'exclude_admin' => 'Исключить администратора',
@@ -355,6 +337,14 @@ return array(
     'admin_list_recalcvote' => 'Пересчитать счетчики голосований',
     'admin_list_recalctopic' => 'Пересчитать количество статей в блогах',
 
+    /* CONFIG */
+    'config_title' => 'Настройки сайта',
+    'menu_close_site' => 'Закрыть сайт',
+    'menu_cache' => 'Кеширование',
+
+    'menu_languages' => 'Языки',
+    'menu_installed' => 'Установленные',
+
     'settings_title' => 'Настройки',
     'settings_base' => 'Основные',
     'settings_edit' => 'Редактирование',
@@ -386,9 +376,23 @@ return array(
     'set_general_reg_invite' => 'Регистрация доступна только по приглашениям',
     'set_general_reg_activation' => 'При регистрации использовать активацию пользователей',
 
-    'set_section_sys_lang' => 'Языки',
-    'set_lang_current' => 'Текущий язык',
+    'set_title_lang' => 'Языки',
+    'set_lang_current' => 'Основной язык',
     'set_lang_default' => 'Язык по умолчанию (если нет фразы на текущем языке)',
+    'set_lang_used' => 'Используемые языки',
+    'set_lang_avail' => 'Доступные языки',
+
+    'activate_language' => 'Активировать язык',
+    'compare_language' => 'Сравнить языковые файлы',
+    'languages_select' => 'Выбрать язык',
+    'languages_activate' => 'Активировать',
+    'languages_compare' => 'Сравнить',
+    'languages_default' => 'По умолчанию',
+    'languages_activate_label' => 'Выберите язык для активации',
+    'languages_activate_notice' => 'Выберите язык для активации из списка установленных языков',
+    'language_not_found' => 'Язык не определен',
+    'current_language' => 'Текущий язык',
+    'selected_language' => 'Выбран язык',
 
     'set_section_edit' => 'Редактирование',
     'set_view_tinymce' => 'Использовать визуальный редактор TinyMCE',

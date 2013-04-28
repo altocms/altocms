@@ -41,6 +41,7 @@ textarea {
 ul, ol {
     list-style: none outside none;
 }
+
 .navbar.navbar-fixed-top {
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
 }
@@ -366,8 +367,12 @@ td.adm_var {
 td.adm_field .adm_field_value {
     padding:4px;
 }
+.adm_field_edit {
+    width: 98%;
+}
 #user_profile_about_edit {
-    overflow: auto;padding:4px;
+    overflow: auto;
+    padding:4px;
 }
 
 .b-users-list [class|=status] {
@@ -602,4 +607,41 @@ button[name=mblog_category_add_blog], button[name=mblog_category_del_blog] {
 .b-dashboard-info iframe, .b-dashboard-updates iframe {
     border: 0;
     width: 100%;
+}
+
+.b-set-lang-allow {
+    margin: 20px 50px 10px;
+}
+.b-set-lang-allow-item {
+    width: 300px;
+    border: 1px solid #f9f9f9;
+    padding: 4px 10px 0 0;
+    margin: 2px;
+}
+.b-set-lang-current {
+    font-weight: bold;
+}
+.b-set-lang-exclude {
+    cursor: pointer;
+}
+.b-set-lang-avail {
+    margin: 20px 40px 10px;
+}
+.b-set-lang-close {
+    float: right;
+    cursor: pointer;
+    margin: 10px;
+}
+.b-set-lang-avail-item {
+    float: left;
+    width: 300px;
+    border: 1px solid #f9f9f9;
+    cursor: pointer;
+    padding: 4px 2px 0;
+    margin: 2px;
+}
+
+.b-set-lang-allow-item:hover, .b-set-lang-avail-item:hover {
+    background-color: #efefef;
+    border: 1px solid #d9d9d9;
 }

@@ -66,6 +66,7 @@ class ActionAdmin extends Action {
         $this->AddEvent('invites', 'EventInvites');
 
         $this->AddEvent('config', 'EventConfig');
+        $this->AddEvent('lang', 'EventLang');
         $this->AddEvent('userfields', 'EventUserfields');
 
         $this->AddEvent('skins', 'EventSkins');
@@ -91,6 +92,9 @@ class ActionAdmin extends Action {
         $this->AddEvent('fielddelete', 'EventDeleteField');
         $this->AddEvent('ajaxchangeordertypes', 'EventAjaxChangeOrderTypes');
         $this->AddEvent('ajaxchangeorderfields', 'EventAjaxChangeOrderFields');
+
+        $this->AddEvent('ajaxvote', 'EventAjaxVote');
+        $this->AddEvent('ajaxsetprofile', 'EventAjaxSetProfile');
     }
 
     protected function _getMode($nParam = 0, $sDefault, $aAvail = null) {
@@ -402,6 +406,7 @@ class ActionAdmin extends Action {
                 $aConfig = array(
                     'router.config.action_default' => 'homepage',
                     'router.config.homepage' => $sHomePage,
+                    'router.config.homepage_select' => '',
                 );
             }
             if ($sDraftLink = $this->GetPost('draft_link')) {
@@ -413,10 +418,10 @@ class ActionAdmin extends Action {
             }
             Config::WriteCustomConfig($aConfig);
             Router::Location('admin/config/links/');
-            exit;
         }
         $this->SetTemplateAction('settings/config_links');
         $sHomePage = Config::Get('router.config.homepage');
+
         $sHomePageUrl = '';
         if (!$sHomePage || $sHomePage == 'index') {
             $sHomePageSelect = 'index';
@@ -427,6 +432,7 @@ class ActionAdmin extends Action {
             $sHomePageSelect = $sHomePage;
         }
         $aPages = $this->Page_GetPages();
+
         $this->Viewer_Assign('sHomePageSelect', $sHomePageSelect);
         $this->Viewer_Assign('sHomePageUrl', $sHomePageUrl);
         $this->Viewer_Assign('aPages', $aPages);
@@ -1329,7 +1335,7 @@ class ActionAdmin extends Action {
         $this->Viewer_Assign('sMode', $sMode);
         $this->Viewer_Assign('oUserProfile', $oUserProfile);
         //$this->Viewer_Assign('aUserVoteStat', $aUserVoteStat);
-        //$this->Viewer_Assign('nParamVoteValue', $this->aConfig['vote_value']);
+        $this->Viewer_Assign('nParamVoteValue', 1);
 
     }
 
@@ -1885,6 +1891,80 @@ class ActionAdmin extends Action {
     }
 
     /**********************************************************************************/
+
+    /**
+     *
+     */
+    protected function EventLang() {
+        $aLanguages = $this->Lang_GetAvailableLanguages();
+        $aAllows = (array)Config::Get('lang.allow');
+        if (!$aAllows) $aAllows = array(Config::Get('lang.current'));
+        if (!$aAllows) $aAllows = array(Config::Get('lang.default'));
+        if (!$aAllows) $aAllows = array('ru');
+        $aLangAllow = array();
+        foreach($aAllows as $sLang) {
+            if (isset($aLanguages[$sLang])) {
+                $aLangAllow[$sLang] = $aLanguages[$sLang];
+                if ($sLang == Config::Get('lang.current')) {
+                    $aLangAllow[$sLang]['current'] = true;
+                } else {
+                    $aLangAllow[$sLang]['current'] = false;
+                }
+                unset($aLanguages[$sLang]);
+            }
+        }
+
+        if ($this->GetPost('submit_data_save')) {
+            $aConfig = array();
+
+            // добавление новых языков в список используемых
+            $aAddLangs = $this->GetPost('lang_allow');
+            if ($aAddLangs) {
+                $aAliases = (array)Config::Get('lang.aliases');
+                foreach($aAddLangs as $sLang) {
+                    if (isset($aLanguages[$sLang])) {
+                        $aLangAllow[$sLang] = $aLanguages[$sLang];
+                        if (!isset($aAliases[$sLang]) && isset($aLanguages[$sLang]['name'])) {
+                            $aAliases[$sLang] = strtolower($aLanguages[$sLang]['name']);
+                        }
+                    }
+                }
+                $aConfig['lang.allow'] = array_keys($aLangAllow);
+                $aConfig['lang.aliases'] = $aAliases;
+            }
+
+            // смена текущего языка
+            $sCurrent = $this->GetPost('lang_current');
+            if ($sCurrent && isset($aLangAllow[$sCurrent])) {
+                $aConfig['lang.current'] = $sCurrent;
+            }
+
+            // исключение языков из списка используемых
+            $sExclude = $this->GetPost('lang_exclude');
+            if ($sExclude) {
+                $aExclude = array_unique(F::Array_Str2Array($sExclude, ',', true));
+                if ($aExclude) {
+                    foreach($aExclude as $sLang) {
+                        if (isset($aLangAllow[$sLang]) && sizeof($aLangAllow) > 1) {
+                            unset($aLangAllow[$sLang]);
+                        }
+                    }
+                    $aConfig['lang.allow'] = array_keys($aLangAllow);
+                }
+            }
+
+            if ($aConfig) {
+                Config::WriteCustomConfig($aConfig);
+            }
+            Router::Location('admin/lang/');
+        }
+
+        $this->_setTitle($this->Lang_Get('action.admin.set_title_lang'));
+        $this->SetTemplateAction('settings/config_lang');
+
+        $this->Viewer_Assign('aLanguages', $aLanguages);
+        $this->Viewer_Assign('aLangAllow', $aLangAllow);
+    }
 
     /**
      * Управление полями пользователя
@@ -2520,6 +2600,100 @@ class ActionAdmin extends Action {
         }
 
         return $bOk;
+    }
+
+    /**
+     * Голосование админа
+     */
+    public function EventAjaxVote() {
+        // * Устанавливаем формат ответа
+        $this->Viewer_SetResponseAjax('json');
+
+        if (!E::IsAdmin()) {
+            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            return;
+        }
+
+        $nUserId = $this->GetPost('idUser');
+        if (!$nUserId || !($oUser = $this->User_GetUserById($nUserId))) {
+            $this->Message_AddErrorSingle($this->Lang_Get('user_not_found'), $this->Lang_Get('error'));
+            return;
+        }
+
+        $nValue = $this->GetPost('value');
+
+        if (!($oUserVote = $this->Vote_GetVote($oUser->getId(), 'user', $this->oUserCurrent->getId()))) {
+            // первичное голосование
+            $oUserVote = Engine::GetEntity('Vote');
+            $oUserVote->setTargetId($oUser->getId());
+            $oUserVote->setTargetType('user');
+            $oUserVote->setVoterId($this->oUserCurrent->getId());
+            $oUserVote->setDirection($nValue);
+            $oUserVote->setDate(F::Now());
+            $iVal = (float)$this->Rating_VoteUser($this->oUserCurrent, $oUser, $nValue);
+            $oUserVote->setValue($iVal);
+            $oUser->setCountVote($oUser->getCountVote() + 1);
+            if ($this->Vote_AddVote($oUserVote) && $this->User_Update($oUser)) {
+                $this->Viewer_AssignAjax('iRating', $oUser->getRating());
+                $this->Viewer_AssignAjax('iSkill', $oUser->getSkill());
+                $this->Viewer_AssignAjax('iCountVote', $oUser->getCountVote());
+                // * Добавляем событие в ленту
+                //$this->Stream_write($oUserVote->getVoterId(), 'vote_user', $oUser->getId());
+                $this->Message_AddNoticeSingle($this->Lang_Get('user_vote_ok'), $this->Lang_Get('attention'));
+            } else {
+                $this->Message_AddErrorSingle($this->Lang_Get('action.admin.vote_error'), $this->Lang_Get('error'));
+            }
+        } else {
+            // * Повторное голосование админа
+            $iNewValue = $oUserVote->getValue() + $nValue;
+            $oUserVote->setDirection($iNewValue);
+            $oUserVote->setDate(F::Now());
+            $iVal = (float)$this->Rating_VoteUser($this->oUserCurrent, $oUser, $nValue);
+            $oUserVote->setValue($oUserVote->getValue() + $iVal);
+            $oUser->setCountVote($oUser->getCountVote() + 1);
+            if ($this->Vote_Update($oUserVote) && $this->User_Update($oUser)) {
+                $this->Viewer_AssignAjax('iRating', $oUser->getRating());
+                $this->Viewer_AssignAjax('iSkill', $oUser->getSkill());
+                $this->Viewer_AssignAjax('iCountVote', $oUser->getCountVote());
+                $this->Message_AddNoticeSingle($this->Lang_Get('user_vote_ok'), $this->Lang_Get('attention'));
+            } else {
+                $this->Message_AddErrorSingle($this->Lang_Get('action.admin.repeat_vote_error'), $this->Lang_Get('error'));
+            }
+        }
+    }
+
+    public function EventAjaxSetProfile() {
+        // * Устанавливаем формат ответа
+        $this->Viewer_SetResponseAjax('json');
+
+        if (!E::IsAdmin()) {
+            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            return;
+        }
+
+        $nUserId = intval($this->GetPost('user_id'));
+        if ($nUserId && ($oUser = $this->User_GetUserById($nUserId))) {
+            $sData = $this->GetPost('profile_about');
+            if (!is_null($sData)) {
+                $oUser->setProfileAbout($sData);
+            }
+            $sData = $this->GetPost('profile_site');
+            if (!is_null($sData)) {
+                $oUser->setUserProfileSite(trim($sData));
+            }
+            $sData = $this->GetPost('profile_email');
+            if (!is_null($sData)) {
+                $oUser->setMail(trim($sData));
+            }
+
+            if ($this->User_Update($oUser) !== false) {
+                $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.saved_ok'));
+            } else {
+                $this->Message_AddErrorSingle($this->Lang_Get('action.admin.saved_err'));
+            }
+        } else {
+            $this->Message_AddErrorSingle($this->Lang_Get('user_not_found'), $this->Lang_Get('error'));
+        }
     }
 
     /**

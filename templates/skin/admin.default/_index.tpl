@@ -78,6 +78,9 @@
     <li class="nav-menu_config {if $sEvent=='config'}active{/if}">
         <a href="{router page="admin"}config/">{$aLang.action.admin.menu_config_site}</a>
     </li>
+    <li class="nav-menu_lang {if $sEvent=='lang'}active{/if}">
+        <a href="{router page="admin"}lang/">{$aLang.action.admin.menu_config_lang}</a>
+    </li>
     <li class="nav-menu_content {if $sEvent=='content'}active{/if}">
         <a href="{router page="admin"}content/">{$aLang.action.admin.menu_config_content}</a>
     </li>

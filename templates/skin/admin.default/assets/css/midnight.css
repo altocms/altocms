@@ -9,13 +9,13 @@
  */
 
 * {
-	outline:none !important;
-	-moz-outline: none !important;
+    outline:none !important;
+    -moz-outline: none !important;
 }
 /* Main */
 body {
     font-size: 12px;
-	overflow-x: hidden;
+    overflow-x: hidden;
     margin-top: -9px;
     background-color: #2D335B;
 }
@@ -34,7 +34,7 @@ dd {
     font-style: italic;
 }
 a:hover {
-	text-decoration: none;
+    text-decoration: none;
 }
 .btn, .btn-group>.btn, .btn-group>.dropdown-menu {
     font-size: 12px;
@@ -287,6 +287,11 @@ table.no-border, table.no-border tr, table.no-border th, table.no-border td {
 .container-fluid .row-fluid:first-child {
 	margin-top: 20px;
 }
+
+label.checked {
+    color: #9C0000;
+}
+
 /* Breadcrumb */
 #breadcrumb {
 	background-color: #e5e5e5;

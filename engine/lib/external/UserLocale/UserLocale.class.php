@@ -86,6 +86,38 @@ class UserLocale
         self::$sCurrentLanguage = $sLang;
     }
 
+    static function getAvailableLanguages($bScanDir = false)
+    {
+        $aLanguages = array();
+        $sFile = __DIR__ . '/i18n/_languages.php';
+        if (is_file($sFile)) {
+            $aLanguages = include($sFile);
+            if (!$aLanguages || !is_array($aLanguages)) {
+                $aLanguages = array();
+            }
+        }
+        if ($bScanDir) {
+            $aFiles = glob(__DIR__ . '/i18n/*.php');
+            foreach ($aFiles as $sFile) {
+                if (preg_match('/^([a-z]\w+)\.php$/', basename($sFile), $m)) {
+                    $locale = array();
+                    if (isset($aLanguages[$m[1]])) {
+                        $locale = $aLanguages[$m[1]];
+                        include $sFile;
+                        $aLanguages[$m[1]] = $locale;
+                    } else {
+                        include $sFile;
+                        if (!isset($locale['lang'])) {
+                            $locale['lang'] = $m[1];
+                        }
+                        $aLanguages[$locale['lang']] = $locale;
+                    }
+                }
+            }
+        }
+        return $aLanguages;
+    }
+
 }
 
 // EOF

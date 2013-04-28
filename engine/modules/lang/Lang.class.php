@@ -139,7 +139,7 @@ class ModuleLang extends Module {
             }
         }
         if ($sLang != Config::Get('lang.current')) {
-            Config::Set('lang.current', $sLang);
+            //Config::Set('lang.current', $sLang);
         }
         $this->LoadLangJs();
     }
@@ -419,6 +419,19 @@ class ModuleLang extends Module {
             $this->InitLang($sLang);
         }
         return $this;
+    }
+
+    /**
+     * Возвращает список доступных языков
+     */
+    public function GetAvailableLanguages() {
+        $aLanguages = UserLocale::getAvailableLanguages(true);
+        foreach ($aLanguages as $sLang=>$aLang) {
+            if (!isset($aLang['aliases']) && isset($aLang['name'])) {
+                $aLanguages[$sLang]['aliases'] = strtolower($aLang['name']);
+            }
+        }
+        return $aLanguages;
     }
 
     /**

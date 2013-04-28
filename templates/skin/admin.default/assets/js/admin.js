@@ -249,7 +249,114 @@ var admin = admin || {};
         }
     };
 
+    $this.vote = function (type, idTarget, value, viewElements, funcDone) {
+        var options = {
+            classes_action:{
+                voted:'voted',
+                plus:'plus',
+                minus:'minus',
+                positive:'positive',
+                negative:'negative',
+                quest:'quest'
+            },
+            classes_element:{
+                voting:'voting',
+                count:'count',
+                total:'total',
+                plus:'plus',
+                minus:'minus'
+            }
+        };
+
+        var typeVote = {
+            user:{
+                url:'/admin/ajaxvote/user/',
+                targetName:'idUser'
+            }
+        };
+
+        var voteResult = function (result) {
+            if (!result) {
+                ls.msg.error('Error', 'Please try again later');
+            }
+            if (result.bStateError) {
+                ls.msg.error(result.sMsgTitle, result.sMsg);
+            } else {
+                if (viewElements.skill) {
+                    $(viewElements.skill).text(result.iSkill);
+                    if (type == 'user' && $('user_skill_' + idTarget)) {
+                        $('#user_skill_' + idTarget).text(result.iSkill);
+                    }
+                }
+
+                if (viewElements['rating']) {
+                    var view = $(viewElements['rating']);
+
+                    result.iRating = parseFloat(result.iRating);
+                    if (result.iRating > 0) {
+                        result.iRating = '+' + result.iRating;
+                    } else if (result.iRating == 0) {
+                        result.iRating = '0';
+                    }
+                    view.removeClass(options.classes_action.negative)
+                        .removeClass(options.classes_action.positive)
+                        .text(result.iRating);
+                    if (result.iRating < 0) {
+                        view.addClass(options.classes_action.negative)
+                    } else {
+                        view.addClass(options.classes_action.positive)
+                    }
+                }
+
+                if (viewElements['voteCount']) {
+                    $(viewElements.voteCount).text(result.iCountVote);
+                }
+
+                ls.msg.notice(result.sMsgTitle, result.sMsg);
+            }
+            if (funcDone) funcDone();
+        };
+
+        // do
+        if (!typeVote[type]) {
+            return false;
+        }
+
+        $this.vote.idTarget = idTarget;
+        $this.vote.value = value;
+        $this.vote.type = type;
+
+        var params = {}, more;
+        params['value'] = value;
+        params[typeVote[type].targetName] = idTarget;
+
+        ls.ajax(typeVote[type].url, params, function (result) {
+            if (!result) {
+                ls.msg.error('Error', 'Please try again later');
+            }
+            if (result.bStateError) {
+                ls.msg.error(result.sMsgTitle || 'Error', result.sMsg || 'Please try again later');
+            } else {
+                voteResult(result, $this.vote);
+            }
+        }, more);
+
+    }
+
 })(jQuery);
+
+!function ($) {
+    "use strict"; // jshint ;_;
+
+    $.fn.progressOn = function () {
+        return admin.progressOn(this);
+    }
+
+    $.fn.progressOff = function () {
+        return admin.progressOff(this);
+    }
+
+}(window.jQuery);
 
 $(function () {
     admin.init();
@@ -322,6 +429,13 @@ $(function(){
             $(".uniform select, .uniform :file, .uniform :radio, .uniform :checkbox:not([name|=b-switch])").uniform({
                 fileDefaultText: ls.lang.get("action.admin.form_no_file_selected"),
                 fileBtnText:  ls.lang.get("action.admin.form_choose_file")
+            });
+            $(".uniform label.checkbox :checkbox").change(function(event){
+                if ($(this).prop('checked')) {
+                    $(this).parents('label').first().addClass('checked');
+                } else {
+                    $(this).parents('label').first().removeClass('checked');
+                }
             });
         });
     }

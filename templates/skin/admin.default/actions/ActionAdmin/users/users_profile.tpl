@@ -2,7 +2,7 @@
 
 {block name="content-body-sidebar" prepend}
 <script type="text/javascript">
-    aceAdmin.formVote = function (button, value) {
+    admin.formVote = function (button, value) {
 
         button = $(button);
         value = parseInt(value);
@@ -23,6 +23,7 @@
                 result += '<button class="btn btn-mini btn-success pull-right confirm"><i class="icon-ok icon-white"></i></button>'
                 return result;
             },
+            html: true,
             title:false,
             attr:{
                 'class':'adm_vote'
@@ -36,14 +37,14 @@
                         rating:$('.sidebar .voting .total'),
                         voteCount:$('.sidebar .voting .count')
                     };
-                    aceAdmin.vote('user', '{$oUserProfile->getId()}', val, views, function () {
+                    admin.vote('user', '{$oUserProfile->getId()}', val, views, function () {
                         $(event.currentTarget).progressOff();
                     });
                 }
             }
         };
 
-        var popup = aceAdmin.pointup(button, options);
+        var popup = admin.pointup(button, options);
         button.popover('show');
         return false;
     }
@@ -99,14 +100,14 @@
 
                 <div style="display: inline-block; margin: auto;">
                     <i class="icon-arrow-up icon-green adm_vote_plus"
-                       onclick="aceAdmin.formVote(this, '{$nParamVoteValue}'); return false;"></i>
+                       onclick="admin.formVote(this, '{$nParamVoteValue}'); return false;"></i>
 
                     <div class="total {if $oUserProfile->getRating()>=0}positive{else}negative{/if}"
                          style="display: inline-block;">{if $oUserProfile->getRating()>0}
                         +{/if}{$oUserProfile->getRating()}</div>
 
                     <i class="icon-arrow-down icon-red adm_vote_minus"
-                       onclick="aceAdmin.formVote(this, '-{$nParamVoteValue}'); return false;"></i>
+                       onclick="admin.formVote(this, '-{$nParamVoteValue}'); return false;"></i>
                 </div>
             </div>
 
