@@ -75,7 +75,7 @@ $config['path']['dir']['lib']           = '___path.dir.engine___/lib/';     // �
 
 $config['path']['root']['engine_lib']   = '___path.root.web___/engine/lib/';  // Путь до библиотек в файловой системе
 $config['path']['static']['skin']       = '___path.static.url___/templates/skin/___view.skin___/';
-$config['path']['uploads']['root']      = '/uploads/';                          // папка для загрузки файлов
+$config['path']['uploads']['root']      = '/uploads';                          // папка для загрузки файлов
 $config['path']['uploads']['images']    = '___path.uploads.root___/images/';
 
 $config['path']['offset_request_url']   = 0;                                   // иногда помогает если сервер использует внутренние реврайты

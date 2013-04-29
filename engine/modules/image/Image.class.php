@@ -395,7 +395,7 @@ class ModuleImage extends Module {
 	 * @return string
 	 */
 	public function GetIdDir($sId) {
-		return Config::Get('path.uploads.images').'/'.preg_replace('~(.{2})~U', "\\1/", str_pad($sId, 6, "0", STR_PAD_LEFT)).date('Y/m/d');
+		return Config::Get('path.uploads.images').preg_replace('~(.{2})~U', "\\1/", str_pad($sId, 6, "0", STR_PAD_LEFT)).date('Y/m/d');
 	}
 	/**
 	 * Возвращает валидный Html код тега <img>
