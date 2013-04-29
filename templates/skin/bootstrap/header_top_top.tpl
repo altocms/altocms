@@ -82,7 +82,7 @@
 
                 {if $oUserCurrent}
                     <div class="writes btn-group">
-                        <a href="{router page='content'}/topic/add/" class="btn pull-left write">
+                        <a href="{router page='content'}topic/add/" class="btn pull-left write">
                             <i class="icon-plus-sign"></i>
                             {$aLang.block_create}
                         </a>

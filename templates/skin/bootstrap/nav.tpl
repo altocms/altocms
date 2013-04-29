@@ -21,7 +21,7 @@
 
             {if $oUserCurrent}
                 <div class="writes btn-group pull-right">
-                    <a href="{router page='content'}/topic/add/" class="btn btn-primary pull-left write">
+                    <a href="{router page='content'}topic/add/" class="btn btn-primary pull-left write">
                         <i class="icon-plus-sign icon-white"></i>
                         {$aLang.block_create}
                     </a>
