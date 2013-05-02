@@ -645,3 +645,6 @@ button[name=mblog_category_add_blog], button[name=mblog_category_del_blog] {
     background-color: #efefef;
     border: 1px solid #d9d9d9;
 }
+.b-topic-url-demo {
+    font-weight: bold;
+}

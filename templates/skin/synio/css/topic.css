@@ -157,3 +157,10 @@
 .topic-preview .topic { margin-bottom: 20px; }
 
 .vote-topic-info li { margin-bottom: 3px; }
+
+[class|=b-topic_url_demo] {
+    font-weight: bold;
+}
+.b-topic_url_demo-edit {
+    background-color: #ffee99;
+}

@@ -209,6 +209,78 @@ class ModuleAdmin extends Module {
         return $bOk;
     }
 
+    /**
+     * Число топиков без URL
+     */
+    public function GetNumTopicsWithoutUrl() {
+        return $this->oMapper->GetNumTopicsWithoutUrl();
+    }
+
+    /**
+     * Генерация URL топиков. Процесс может быть долгим, поэтому стараемся предотвратить ошибку по таймауту
+     */
+    public function GenerateTopicsUrl() {
+        $nRecLimit = 500;
+
+        $nTimeLimit = F::ToSeconds(ini_get('max_execution_time')) * 0.8 - 5 + time();
+
+        $nResult = -1;
+        while (true) {
+            $aData = $this->oMapper->GetTitleTopicsWithoutUrl($nRecLimit);
+            if (!$aData) {
+                $nResult = 0;
+                break;
+            }
+            foreach ($aData as $nTopicId=>$sTopicTitle) {
+                $aData[$nTopicId]['topic_url'] = substr(F::TranslitUrl($aData[$nTopicId]['topic_title']), 0, 240);
+            }
+            if (!$this->oMapper->SaveTopicsUrl($aData)) {
+                return -1;
+            }
+
+            // если время на исходе, то завершаем
+            if (time() >= $nTimeLimit) {
+                break;
+            }
+        }
+        if ($nResult == 0) {
+            $this->CheckDuplicateTopicsUrl();
+        } else {
+            $nResult = $this->GetNumTopicsWithoutUrl();
+        }
+        return $nResult;
+    }
+
+    /**
+     * Контроль дублей URL топиков и исправление, если нужно
+     *
+     * @return bool
+     */
+    public function CheckDuplicateTopicsUrl() {
+        $aData = $this->oMapper->GetDuplicateTopicsUrl();
+        if ($aData) {
+            $aUrls = array();
+            foreach ($aData as $aRec) {
+                $aUrls[] = $aRec['topic_url'];
+            }
+        }
+        $aData = $this->oMapper->GetTopicsDataByUrl($aUrls);
+        $aUrls = array();
+        $aUpdateData = array();
+        foreach ($aData as $nKey => $aRec) {
+            if (!isset($aUrls[$aRec['topic_url']])) {
+                $aUrls[$aRec['topic_url']] = 1;
+                unset($aData[$nKey]);
+            } else {
+                $aUpdateData[$aRec['topic_id']]['topic_url'] = $aRec['topic_url'] . '-' . (++$aUrls[$aRec['topic_url']]);
+            }
+        }
+        if ($aUpdateData) {
+            return $this->oMapper->SaveTopicsUrl($aUpdateData);
+        }
+        return true;
+    }
+
 }
 
 // EOF

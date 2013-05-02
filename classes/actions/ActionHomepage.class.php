@@ -11,22 +11,22 @@
 
 /**
  * @package actions
- * @since 1.0
+ * @since   1.0
  */
 class ActionHomepage extends Action {
 
     /**
      * Инициализация
-	 * 
+     *
      */
     public function Init() {
         $this->SetDefaultEvent('default');
     }
 
-	/**
-	 * Регистрация евентов
-	 *
-	 */
+    /**
+     * Регистрация евентов
+     *
+     */
     protected function RegisterEvent() {
         $this->AddEvent('default', 'EventDefault');
     }

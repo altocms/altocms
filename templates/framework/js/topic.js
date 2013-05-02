@@ -34,3 +34,17 @@ ls.topic = (function ($) {
 
 	return this;
 }).call(ls.topic || {},jQuery);
+
+/**
+ * Topic URL
+ */
+ls.topic = (function ($) {
+
+    this.editUrl = function(button) {
+        var input = $(button).parents('p').first();
+        $(button).siblings('.b-topic_url_demo-edit').hide();
+        $(button).siblings('[name=topic_url]').show();
+   };
+
+    return this;
+}).call(ls.topic || {},jQuery);

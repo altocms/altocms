@@ -19,10 +19,9 @@
  * Модуль для работы с пользователями
  *
  * @package modules.user
- * @since 1.0
+ * @since   1.0
  */
-class ModuleUser extends Module
-{
+class ModuleUser extends Module {
     const USER_SESSION_KEY = 'user_key';
     /**
      * Статусы дружбы между пользователями
@@ -55,16 +54,16 @@ class ModuleUser extends Module
      *
      * @var array
      */
-    protected $aUserFieldTypes = array(
-        'social', 'contact'
-    );
+    protected $aUserFieldTypes
+        = array(
+            'social', 'contact'
+        );
 
     /**
      * Инициализация
      *
      */
-    public function Init()
-    {
+    public function Init() {
         $this->oMapper = Engine::GetMapper(__CLASS__);
         /**
          * Проверяем есть ли у юзера сессия, т.е. залогинен или нет
@@ -101,8 +100,7 @@ class ModuleUser extends Module
      *
      * @return array
      */
-    public function GetUserFieldTypes()
-    {
+    public function GetUserFieldTypes() {
         return $this->aUserFieldTypes;
     }
 
@@ -110,10 +108,10 @@ class ModuleUser extends Module
      * Добавляет новый тип с пользовательские поля
      *
      * @param string $sType    Тип
+     *
      * @return bool
      */
-    public function AddUserFieldTypes($sType)
-    {
+    public function AddUserFieldTypes($sType) {
         if (!in_array($sType, $this->aUserFieldTypes)) {
             $this->aUserFieldTypes[] = $sType;
             return true;
@@ -124,12 +122,12 @@ class ModuleUser extends Module
     /**
      * Получает дополнительные данные(объекты) для юзеров по их ID
      *
-     * @param array $aUserId    Список ID пользователей
+     * @param array      $aUserId       Список ID пользователей
      * @param array|null $aAllowData    Список типод дополнительных данных для подгрузки у пользователей
+     *
      * @return array
      */
-    public function GetUsersAdditionalData($aUserId, $aAllowData = null)
-    {
+    public function GetUsersAdditionalData($aUserId, $aAllowData = null) {
         if (is_null($aAllowData)) {
             $aAllowData = array('vote', 'session', 'friend', 'geo_target', 'note');
         }
@@ -207,10 +205,10 @@ class ModuleUser extends Module
      * Список юзеров по ID
      *
      * @param array $aUserId Список ID пользователей
+     *
      * @return array
      */
-    public function GetUsersByArrayId($aUserId)
-    {
+    public function GetUsersByArrayId($aUserId) {
         if (!$aUserId) {
             return array();
         }
@@ -274,10 +272,10 @@ class ModuleUser extends Module
      * Алиас для корректной работы ORM
      *
      * @param array $aUserId    Список ID пользователей
+     *
      * @return array
      */
-    public function GetUserItemsByArrayId($aUserId)
-    {
+    public function GetUserItemsByArrayId($aUserId) {
         return $this->GetUsersByArrayId($aUserId);
     }
 
@@ -285,10 +283,10 @@ class ModuleUser extends Module
      * Получение пользователей по списку ID используя общий кеш
      *
      * @param array $aUserId    Список ID пользователей
+     *
      * @return array
      */
-    public function GetUsersByArrayIdSolid($aUserId)
-    {
+    public function GetUsersByArrayIdSolid($aUserId) {
         if (!is_array($aUserId)) {
             $aUserId = array($aUserId);
         }
@@ -310,10 +308,10 @@ class ModuleUser extends Module
      * Список сессий юзеров по ID
      *
      * @param array $aUserId    Список ID пользователей
+     *
      * @return array
      */
-    public function GetSessionsByArrayId($aUserId)
-    {
+    public function GetSessionsByArrayId($aUserId) {
         if (!$aUserId) {
             return array();
         }
@@ -356,7 +354,10 @@ class ModuleUser extends Module
                  * Добавляем к результату и сохраняем в кеш
                  */
                 $aSessions[$oSession->getUserId()] = $oSession;
-                $this->Cache_Set(array('time' => time(), 'session' => $oSession), "user_session_{$oSession->getUserId()}", array(), 'P4D');
+                $this->Cache_Set(
+                    array('time' => time(), 'session' => $oSession), "user_session_{$oSession->getUserId()}", array(),
+                    'P4D'
+                );
                 $aUserIdNeedStore = array_diff($aUserIdNeedStore, array($oSession->getUserId()));
             }
         }
@@ -377,10 +378,10 @@ class ModuleUser extends Module
      * Получить список сессий по списку айдишников, но используя единый кеш
      *
      * @param array $aUserId    Список ID пользователей
+     *
      * @return array
      */
-    public function GetSessionsByArrayIdSolid($aUserId)
-    {
+    public function GetSessionsByArrayIdSolid($aUserId) {
         if (!is_array($aUserId)) {
             $aUserId = array($aUserId);
         }
@@ -402,10 +403,10 @@ class ModuleUser extends Module
      * Получает сессию юзера
      *
      * @param int $sUserId    ID пользователя
+     *
      * @return ModuleUser_EntitySession|null
      */
-    public function GetSessionByUserId($sUserId)
-    {
+    public function GetSessionByUserId($sUserId) {
         $aSessions = $this->GetSessionsByArrayId($sUserId);
         if (isset($aSessions[$sUserId])) {
             return $aSessions[$sUserId];
@@ -417,12 +418,15 @@ class ModuleUser extends Module
      * При завершенни модуля загружаем в шалон объект текущего юзера
      *
      */
-    public function Shutdown()
-    {
+    public function Shutdown() {
         if ($this->oUserCurrent) {
-            $this->Viewer_Assign('iUserCurrentCountTrack', $this->Userfeed_GetCountTrackNew($this->oUserCurrent->getId()));
+            $this->Viewer_Assign(
+                'iUserCurrentCountTrack', $this->Userfeed_GetCountTrackNew($this->oUserCurrent->getId())
+            );
             $this->Viewer_Assign('iUserCurrentCountTalkNew', $this->Talk_GetCountTalkNew($this->oUserCurrent->getId()));
-            $this->Viewer_Assign('iUserCurrentCountTopicDraft', $this->Topic_GetCountDraftTopicsByUserId($this->oUserCurrent->getId()));
+            $this->Viewer_Assign(
+                'iUserCurrentCountTopicDraft', $this->Topic_GetCountDraftTopicsByUserId($this->oUserCurrent->getId())
+            );
         }
         $this->Viewer_Assign('oUserCurrent', $this->oUserCurrent);
         $this->Viewer_Assign('aContentTypes', $this->Topic_getContentTypes(array('content_active' => 1)));
@@ -433,10 +437,10 @@ class ModuleUser extends Module
      * Добавляет юзера
      *
      * @param ModuleUser_EntityUser $oUser    Объект пользователя
+     *
      * @return ModuleUser_EntityUser|bool
      */
-    public function Add(ModuleUser_EntityUser $oUser)
-    {
+    public function Add(ModuleUser_EntityUser $oUser) {
         if ($sId = $this->oMapper->Add($oUser)) {
             $oUser->setId($sId);
             //чистим зависимые кеши
@@ -454,10 +458,10 @@ class ModuleUser extends Module
      * Получить юзера по ключу активации
      *
      * @param string $sKey    Ключ активации
+     *
      * @return ModuleUser_EntityUser|null
      */
-    public function GetUserByActivateKey($sKey)
-    {
+    public function GetUserByActivateKey($sKey) {
         $id = $this->oMapper->GetUserByActivateKey($sKey);
         return $this->GetUserById($id);
     }
@@ -466,10 +470,10 @@ class ModuleUser extends Module
      * Получить юзера по ключу сессии
      *
      * @param   string $sKey    Сессионный ключ
+     *
      * @return  ModuleUser_EntityUser|null
      */
-    public function GetUserBySessionKey($sKey)
-    {
+    public function GetUserBySessionKey($sKey) {
         $nUserId = $this->oMapper->GetUserBySessionKey($sKey);
         return $this->GetUserById($nUserId);
     }
@@ -478,10 +482,10 @@ class ModuleUser extends Module
      * Получить юзера по мылу
      *
      * @param   string $sMail
+     *
      * @return  ModuleUser_EntityUser|null
      */
-    public function GetUserByMail($sMail)
-    {
+    public function GetUserByMail($sMail) {
         $sMail = strtolower($sMail);
         $sCacheKey = "user_mail_{$sMail}";
         if (false === ($nUserId = $this->Cache_Get($sCacheKey))) {
@@ -499,10 +503,10 @@ class ModuleUser extends Module
      * Получить юзера по логину
      *
      * @param string $sLogin
+     *
      * @return ModuleUser_EntityUser|null
      */
-    public function GetUserByLogin($sLogin)
-    {
+    public function GetUserByLogin($sLogin) {
         $sLogin = strtolower($sLogin);
         $sCacheKey = "user_login_{$sLogin}";
         if (false === ($nUserId = $this->Cache_Get($sCacheKey))) {
@@ -520,10 +524,10 @@ class ModuleUser extends Module
      * Получить юзера по ID
      *
      * @param int $nId    ID пользователя
+     *
      * @return ModuleUser_EntityUser|null
      */
-    public function GetUserById($nId)
-    {
+    public function GetUserById($nId) {
         if (!is_numeric($nId)) {
             return null;
         }
@@ -538,10 +542,10 @@ class ModuleUser extends Module
      * Обновляет юзера
      *
      * @param ModuleUser_EntityUser $oUser    Объект пользователя
+     *
      * @return bool
      */
-    public function Update(ModuleUser_EntityUser $oUser)
-    {
+    public function Update(ModuleUser_EntityUser $oUser) {
         //чистим зависимые кеши
         $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array('user_update'));
         $this->Cache_Delete("user_{$oUser->getId()}");
@@ -551,13 +555,13 @@ class ModuleUser extends Module
     /**
      * Авторизация юзера
      *
-     * @param   ModuleUser_EntityUser $oUser    - Объект пользователя
-     * @param   bool    $bRemember              - Запоминать пользователя или нет
-     * @param   null    $sSessionKey            - Ключ сессии
+     * @param   ModuleUser_EntityUser $oUser                  - Объект пользователя
+     * @param   bool                  $bRemember              - Запоминать пользователя или нет
+     * @param   null                  $sSessionKey            - Ключ сессии
+     *
      * @return  bool
      */
-    public function Authorization(ModuleUser_EntityUser $oUser, $bRemember = true, $sSessionKey = null)
-    {
+    public function Authorization(ModuleUser_EntityUser $oUser, $bRemember = true, $sSessionKey = null) {
         if (!$oUser->getId() || !$oUser->getActivate()) {
             return false;
         }
@@ -591,8 +595,7 @@ class ModuleUser extends Module
      * Автоматическое заллогинивание по ключу из куков
      *
      */
-    protected function AutoLogin()
-    {
+    protected function AutoLogin() {
         if ($this->oUserCurrent) {
             return;
         }
@@ -606,9 +609,10 @@ class ModuleUser extends Module
         }
     }
 
-    protected function GetKeyName()
-    {
-        if (!($sKeyName = Config::Get('security.user_session_key'))) $sKeyName = self::USER_SESSION_KEY;
+    protected function GetKeyName() {
+        if (!($sKeyName = Config::Get('security.user_session_key'))) {
+            $sKeyName = self::USER_SESSION_KEY;
+        }
         return $sKeyName;
     }
 
@@ -617,8 +621,7 @@ class ModuleUser extends Module
      *
      * @return string|null
      */
-    protected function RestoreSessionKey()
-    {
+    protected function RestoreSessionKey() {
         $sSessionKey = $this->Session_GetCookie($this->GetKeyName());
         if ($sSessionKey && is_string($sSessionKey)) {
             return $sSessionKey;
@@ -630,8 +633,7 @@ class ModuleUser extends Module
      *
      * @return  bool
      */
-    public function IsAuthorization()
-    {
+    public function IsAuthorization() {
         if ($this->oUserCurrent) {
             return true;
         } else {
@@ -644,8 +646,7 @@ class ModuleUser extends Module
      *
      * @return ModuleUser_EntityUser|null
      */
-    public function GetUserCurrent()
-    {
+    public function GetUserCurrent() {
         return $this->oUserCurrent;
     }
 
@@ -653,8 +654,7 @@ class ModuleUser extends Module
      * Разлогинивание
      *
      */
-    public function Logout()
-    {
+    public function Logout() {
         if ($this->oSession) {
             // Обновляем сессию
             $this->oMapper->UpdateSession($this->oSession);
@@ -677,13 +677,12 @@ class ModuleUser extends Module
      * Обновление данных сессии
      * Важный момент: сессию обновляем в кеше и раз в 10 минут скидываем в БД
      */
-    protected function UpdateSession()
-    {
+    protected function UpdateSession() {
         $this->oSession->setDateLast(date('Y-m-d H:i:s'));
         $this->oSession->setIpLast(func_getIp());
         if (false === ($data = $this->Cache_Get("user_session_{$this->oSession->getUserId()}"))) {
             $data = array(
-                'time' => time(),
+                'time'    => time(),
                 'session' => $this->oSession
             );
         } else {
@@ -702,9 +701,10 @@ class ModuleUser extends Module
      *
      * @param null $oUser
      */
-    public function CloseAllSessions($oUser = null)
-    {
-        if (!$oUser) $oUser = $this->oUserCurrent;
+    public function CloseAllSessions($oUser = null) {
+        if (!$oUser) {
+            $oUser = $this->oUserCurrent;
+        }
         $this->oMapper->CloseUserSessions($oUser);
         $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array('user_session_update'));
     }
@@ -712,12 +712,12 @@ class ModuleUser extends Module
     /**
      * Создание пользовательской сессии
      *
-     * @param ModuleUser_EntityUser $oUser  - Объект пользователя
-     * @param string $sKey    Сессионный ключ
+     * @param ModuleUser_EntityUser $oUser   - Объект пользователя
+     * @param string                $sKey    Сессионный ключ
+     *
      * @return bool
      */
-    protected function CreateSession(ModuleUser_EntityUser $oUser, $sKey)
-    {
+    protected function CreateSession(ModuleUser_EntityUser $oUser, $sKey) {
         $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array('user_session_update'));
         $this->Cache_Delete("user_session_{$oUser->getId()}");
 
@@ -744,8 +744,7 @@ class ModuleUser extends Module
         return false;
     }
 
-    protected function LimitSession($oUser, $nSessionLimit)
-    {
+    protected function LimitSession($oUser, $nSessionLimit) {
         return $this->oMapper->LimitSession($oUser, $nSessionLimit);
     }
 
@@ -753,10 +752,10 @@ class ModuleUser extends Module
      * Получить список юзеров по дате последнего визита
      *
      * @param int $iLimit Количество
+     *
      * @return array
      */
-    public function GetUsersByDateLast($iLimit = 20)
-    {
+    public function GetUsersByDateLast($iLimit = 20) {
         if ($this->IsAuthorization()) {
             $data = $this->oMapper->GetUsersByDateLast($iLimit);
         } elseif (false === ($data = $this->Cache_Get("user_date_last_{$iLimit}"))) {
@@ -772,16 +771,18 @@ class ModuleUser extends Module
      *
      * @param   array $aFilter    - Фильтр
      * @param   array $aOrder     - Сортировка
-     * @param   int $iCurrPage  - Номер страницы
-     * @param   int $iPerPage   - Количество элментов на страницу
+     * @param   int   $iCurrPage  - Номер страницы
+     * @param   int   $iPerPage   - Количество элментов на страницу
      * @param   array $aAllowData - Список типо данных для подгрузки к пользователям
+     *
      * @return  array('collection'=>array,'count'=>int)
      */
-    public function GetUsersByFilter($aFilter, $aOrder, $iCurrPage, $iPerPage, $aAllowData = null)
-    {
+    public function GetUsersByFilter($aFilter, $aOrder, $iCurrPage, $iPerPage, $aAllowData = null) {
         $sCacheKey = "user_filter_" . serialize($aFilter) . serialize($aOrder) . "_{$iCurrPage}_{$iPerPage}";
         if (false === ($data = $this->Cache_Get($sCacheKey))) {
-            $data = array('collection' => $this->oMapper->GetUsersByFilter($aFilter, $aOrder, $iCount, $iCurrPage, $iPerPage), 'count' => $iCount);
+            $data = array('collection' => $this->oMapper->GetUsersByFilter(
+                $aFilter, $aOrder, $iCount, $iCurrPage, $iPerPage
+            ), 'count'                 => $iCount);
             $this->Cache_Set($data, $sCacheKey, array('user_update', 'user_new'), 'P2D');
         }
         $data['collection'] = $this->GetUsersAdditionalData($data['collection'], $aAllowData);
@@ -792,10 +793,10 @@ class ModuleUser extends Module
      * Получить список юзеров по дате регистрации
      *
      * @param int $iLimit    Количество
+     *
      * @return array
      */
-    public function GetUsersByDateRegister($iLimit = 20)
-    {
+    public function GetUsersByDateRegister($iLimit = 20) {
         $aResult = $this->GetUsersByFilter(array('activate' => 1), array('id' => 'desc'), 1, $iLimit);
         return $aResult['collection'];
     }
@@ -805,8 +806,7 @@ class ModuleUser extends Module
      *
      * @return array
      */
-    public function GetStatUsers()
-    {
+    public function GetStatUsers() {
         if (false === ($aStat = $this->Cache_Get('user_stats'))) {
             $aStat['count_all'] = $this->oMapper->GetCountUsers();
             $sDate = date('Y-m-d H:i:s', time() - Config::Get('module.user.time_active'));
@@ -826,11 +826,11 @@ class ModuleUser extends Module
      * Получить список юзеров по первым  буквам логина
      *
      * @param string $sUserLogin    Логин
-     * @param int $iLimit    Количество
+     * @param int    $iLimit        Количество
+     *
      * @return array
      */
-    public function GetUsersByLoginLike($sUserLogin, $iLimit)
-    {
+    public function GetUsersByLoginLike($sUserLogin, $iLimit) {
         if (false === ($data = $this->Cache_Get("user_like_{$sUserLogin}_{$iLimit}"))) {
             $data = $this->oMapper->GetUsersByLoginLike($sUserLogin, $iLimit);
             $this->Cache_Set($data, "user_like_{$sUserLogin}_{$iLimit}", array("user_new"), 'P2D');
@@ -843,11 +843,11 @@ class ModuleUser extends Module
      * Получить список отношений друзей
      *
      * @param  array $aUserId    Список ID пользователей проверяемых на дружбу
-     * @param  int $sUserId    ID пользователя у которого проверяем друзей
+     * @param  int   $sUserId    ID пользователя у которого проверяем друзей
+     *
      * @return array
      */
-    public function GetFriendsByArray($aUserId, $sUserId)
-    {
+    public function GetFriendsByArray($aUserId, $sUserId) {
         if (!$aUserId) {
             return array();
         }
@@ -895,7 +895,9 @@ class ModuleUser extends Module
                  * Пока не трогаю, ибо этот код все равно не выполняется.
                  * by Kachaev
                  */
-                $this->Cache_Set($oFriend, "user_friend_{$oFriend->getFriendId()}_{$oFriend->getUserId()}", array(), 'P4D');
+                $this->Cache_Set(
+                    $oFriend, "user_friend_{$oFriend->getFriendId()}_{$oFriend->getUserId()}", array(), 'P4D'
+                );
                 $aUserIdNeedStore = array_diff($aUserIdNeedStore, array($oFriend->getFriendId()));
             }
         }
@@ -916,11 +918,11 @@ class ModuleUser extends Module
      * Получить список отношений друзей используя единый кеш
      *
      * @param  array $aUserId    Список ID пользователей проверяемых на дружбу
-     * @param  int $sUserId    ID пользователя у которого проверяем друзей
+     * @param  int   $sUserId    ID пользователя у которого проверяем друзей
+     *
      * @return array
      */
-    public function GetFriendsByArraySolid($aUserId, $sUserId)
-    {
+    public function GetFriendsByArraySolid($aUserId, $sUserId) {
         if (!is_array($aUserId)) {
             $aUserId = array($aUserId);
         }
@@ -933,7 +935,9 @@ class ModuleUser extends Module
                 $aFriends[$oFriend->getFriendId($sUserId)] = $oFriend;
             }
 
-            $this->Cache_Set($aFriends, "user_friend_{$sUserId}_id_{$s}", array("friend_change_user_{$sUserId}"), 'P1D');
+            $this->Cache_Set(
+                $aFriends, "user_friend_{$sUserId}_id_{$s}", array("friend_change_user_{$sUserId}"), 'P1D'
+            );
             return $aFriends;
         }
         return $data;
@@ -943,11 +947,11 @@ class ModuleUser extends Module
      * Получаем привязку друга к юзеру(есть ли у юзера данный друг)
      *
      * @param  int $sFriendId    ID пользователя друга
-     * @param  int $sUserId    ID пользователя
+     * @param  int $sUserId      ID пользователя
+     *
      * @return ModuleUser_EntityFriend|null
      */
-    public function GetFriend($sFriendId, $sUserId)
-    {
+    public function GetFriend($sFriendId, $sUserId) {
         $data = $this->GetFriendsByArray($sFriendId, $sUserId);
         if (isset($data[$sFriendId])) {
             return $data[$sFriendId];
@@ -959,12 +963,15 @@ class ModuleUser extends Module
      * Добавляет друга
      *
      * @param  ModuleUser_EntityFriend $oFriend    Объект дружбы(связи пользователей)
+     *
      * @return bool
      */
-    public function AddFriend(ModuleUser_EntityFriend $oFriend)
-    {
+    public function AddFriend(ModuleUser_EntityFriend $oFriend) {
         //чистим зависимые кеши
-        $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("friend_change_user_{$oFriend->getUserFrom()}", "friend_change_user_{$oFriend->getUserTo()}"));
+        $this->Cache_Clean(
+            Zend_Cache::CLEANING_MODE_MATCHING_TAG,
+            array("friend_change_user_{$oFriend->getUserFrom()}", "friend_change_user_{$oFriend->getUserTo()}")
+        );
         $this->Cache_Delete("user_friend_{$oFriend->getUserFrom()}_{$oFriend->getUserTo()}");
         $this->Cache_Delete("user_friend_{$oFriend->getUserTo()}_{$oFriend->getUserFrom()}");
 
@@ -975,12 +982,15 @@ class ModuleUser extends Module
      * Удаляет друга
      *
      * @param  ModuleUser_EntityFriend $oFriend Объект дружбы(связи пользователей)
+     *
      * @return bool
      */
-    public function DeleteFriend(ModuleUser_EntityFriend $oFriend)
-    {
+    public function DeleteFriend(ModuleUser_EntityFriend $oFriend) {
         //чистим зависимые кеши
-        $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("friend_change_user_{$oFriend->getUserFrom()}", "friend_change_user_{$oFriend->getUserTo()}"));
+        $this->Cache_Clean(
+            Zend_Cache::CLEANING_MODE_MATCHING_TAG,
+            array("friend_change_user_{$oFriend->getUserFrom()}", "friend_change_user_{$oFriend->getUserTo()}")
+        );
         $this->Cache_Delete("user_friend_{$oFriend->getUserFrom()}_{$oFriend->getUserTo()}");
         $this->Cache_Delete("user_friend_{$oFriend->getUserTo()}_{$oFriend->getUserFrom()}");
 
@@ -993,12 +1003,15 @@ class ModuleUser extends Module
      * Удаляет информацию о дружбе из базы данных
      *
      * @param  ModuleUser_EntityFriend $oFriend    Объект дружбы(связи пользователей)
+     *
      * @return bool
      */
-    public function EraseFriend(ModuleUser_EntityFriend $oFriend)
-    {
+    public function EraseFriend(ModuleUser_EntityFriend $oFriend) {
         //чистим зависимые кеши
-        $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("friend_change_user_{$oFriend->getUserFrom()}", "friend_change_user_{$oFriend->getUserTo()}"));
+        $this->Cache_Clean(
+            Zend_Cache::CLEANING_MODE_MATCHING_TAG,
+            array("friend_change_user_{$oFriend->getUserFrom()}", "friend_change_user_{$oFriend->getUserTo()}")
+        );
         $this->Cache_Delete("user_friend_{$oFriend->getUserFrom()}_{$oFriend->getUserTo()}");
         $this->Cache_Delete("user_friend_{$oFriend->getUserTo()}_{$oFriend->getUserFrom()}");
         return $this->oMapper->EraseFriend($oFriend);
@@ -1008,12 +1021,15 @@ class ModuleUser extends Module
      * Обновляет информацию о друге
      *
      * @param  ModuleUser_EntityFriend $oFriend    Объект дружбы(связи пользователей)
+     *
      * @return bool
      */
-    public function UpdateFriend(ModuleUser_EntityFriend $oFriend)
-    {
+    public function UpdateFriend(ModuleUser_EntityFriend $oFriend) {
         //чистим зависимые кеши
-        $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("friend_change_user_{$oFriend->getUserFrom()}", "friend_change_user_{$oFriend->getUserTo()}"));
+        $this->Cache_Clean(
+            Zend_Cache::CLEANING_MODE_MATCHING_TAG,
+            array("friend_change_user_{$oFriend->getUserFrom()}", "friend_change_user_{$oFriend->getUserTo()}")
+        );
         $this->Cache_Delete("user_friend_{$oFriend->getUserFrom()}_{$oFriend->getUserTo()}");
         $this->Cache_Delete("user_friend_{$oFriend->getUserTo()}_{$oFriend->getUserFrom()}");
         return $this->oMapper->UpdateFriend($oFriend);
@@ -1022,16 +1038,17 @@ class ModuleUser extends Module
     /**
      * Получает список друзей
      *
-     * @param  int $sUserId    ID пользователя
-     * @param  int $iPage    Номер страницы
+     * @param  int $sUserId     ID пользователя
+     * @param  int $iPage       Номер страницы
      * @param  int $iPerPage    Количество элементов на страницу
+     *
      * @return array
      */
-    public function GetUsersFriend($sUserId, $iPage = 1, $iPerPage = 10)
-    {
+    public function GetUsersFriend($sUserId, $iPage = 1, $iPerPage = 10) {
         $sKey = "user_friend_{$sUserId}_{$iPage}_{$iPerPage}";
         if (false === ($data = $this->Cache_Get($sKey))) {
-            $data = array('collection' => $this->oMapper->GetUsersFriend($sUserId, $iCount, $iPage, $iPerPage), 'count' => $iCount);
+            $data = array('collection' => $this->oMapper->GetUsersFriend($sUserId, $iCount, $iPage, $iPerPage),
+                          'count'      => $iCount);
             $this->Cache_Set($data, $sKey, array("friend_change_user_{$sUserId}"), 'P2D');
         }
         $data['collection'] = $this->GetUsersAdditionalData($data['collection']);
@@ -1042,10 +1059,10 @@ class ModuleUser extends Module
      * Получает количество друзей
      *
      * @param  int $sUserId    ID пользователя
+     *
      * @return int
      */
-    public function GetCountUsersFriend($sUserId)
-    {
+    public function GetCountUsersFriend($sUserId) {
         $sKey = "count_user_friend_{$sUserId}";
         if (false === ($data = $this->Cache_Get($sKey))) {
             $data = $this->oMapper->GetCountUsersFriend($sUserId);
@@ -1058,11 +1075,11 @@ class ModuleUser extends Module
      * Получает инвайт по его коду
      *
      * @param  string $sCode    Код инвайта
-     * @param  int $iUsed    Флаг испольщования инвайта
+     * @param  int    $iUsed    Флаг испольщования инвайта
+     *
      * @return ModuleUser_EntityInvite|null
      */
-    public function GetInviteByCode($sCode, $iUsed = 0)
-    {
+    public function GetInviteByCode($sCode, $iUsed = 0) {
         return $this->oMapper->GetInviteByCode($sCode, $iUsed);
     }
 
@@ -1070,10 +1087,10 @@ class ModuleUser extends Module
      * Добавляет новый инвайт
      *
      * @param ModuleUser_EntityInvite $oInvite    Объект инвайта
+     *
      * @return ModuleUser_EntityInvite|bool
      */
-    public function AddInvite(ModuleUser_EntityInvite $oInvite)
-    {
+    public function AddInvite(ModuleUser_EntityInvite $oInvite) {
         if ($sId = $this->oMapper->AddInvite($oInvite)) {
             $oInvite->setId($sId);
             return $oInvite;
@@ -1085,12 +1102,15 @@ class ModuleUser extends Module
      * Обновляет инвайт
      *
      * @param ModuleUser_EntityInvite $oInvite    бъект инвайта
+     *
      * @return bool
      */
-    public function UpdateInvite(ModuleUser_EntityInvite $oInvite)
-    {
+    public function UpdateInvite(ModuleUser_EntityInvite $oInvite) {
         //чистим зависимые кеши
-        $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("invate_new_to_{$oInvite->getUserToId()}", "invate_new_from_{$oInvite->getUserFromId()}"));
+        $this->Cache_Clean(
+            Zend_Cache::CLEANING_MODE_MATCHING_TAG,
+            array("invate_new_to_{$oInvite->getUserToId()}", "invate_new_from_{$oInvite->getUserFromId()}")
+        );
         return $this->oMapper->UpdateInvite($oInvite);
     }
 
@@ -1098,10 +1118,10 @@ class ModuleUser extends Module
      * Генерирует новый инвайт
      *
      * @param ModuleUser_EntityUser $oUser    Объект пользователя
+     *
      * @return ModuleUser_EntityInvite|bool
      */
-    public function GenerateInvite($oUser)
-    {
+    public function GenerateInvite($oUser) {
         $oInvite = Engine::GetEntity('User_Invite');
         $oInvite->setCode(func_generator(32));
         $oInvite->setDateAdd(date('Y-m-d H:i:s'));
@@ -1112,12 +1132,12 @@ class ModuleUser extends Module
     /**
      * Получает число использованых приглашений юзером за определенную дату
      *
-     * @param int $sUserIdFrom    ID пользователя
-     * @param string $sDate    Дата
+     * @param int    $sUserIdFrom    ID пользователя
+     * @param string $sDate          Дата
+     *
      * @return int
      */
-    public function GetCountInviteUsedByDate($sUserIdFrom, $sDate)
-    {
+    public function GetCountInviteUsedByDate($sUserIdFrom, $sDate) {
         return $this->oMapper->GetCountInviteUsedByDate($sUserIdFrom, $sDate);
     }
 
@@ -1125,10 +1145,10 @@ class ModuleUser extends Module
      * Получает полное число использованных приглашений юзера
      *
      * @param int $sUserIdFrom    ID пользователя
+     *
      * @return int
      */
-    public function GetCountInviteUsed($sUserIdFrom)
-    {
+    public function GetCountInviteUsed($sUserIdFrom) {
         return $this->oMapper->GetCountInviteUsed($sUserIdFrom);
     }
 
@@ -1136,12 +1156,14 @@ class ModuleUser extends Module
      * Получаем число доступных приглашений для юзера
      *
      * @param ModuleUser_EntityUser $oUserFrom Объект пользователя
+     *
      * @return int
      */
-    public function GetCountInviteAvailable(ModuleUser_EntityUser $oUserFrom)
-    {
+    public function GetCountInviteAvailable(ModuleUser_EntityUser $oUserFrom) {
         $sDay = 7;
-        $iCountUsed = $this->GetCountInviteUsedByDate($oUserFrom->getId(), date("Y-m-d 00:00:00", mktime(0, 0, 0, date("m"), date("d") - $sDay, date("Y"))));
+        $iCountUsed = $this->GetCountInviteUsedByDate(
+            $oUserFrom->getId(), date("Y-m-d 00:00:00", mktime(0, 0, 0, date("m"), date("d") - $sDay, date("Y")))
+        );
         $iCountAllAvailable = round($oUserFrom->getRating() + $oUserFrom->getSkill());
         $iCountAllAvailable = $iCountAllAvailable < 0 ? 0 : $iCountAllAvailable;
         $iCountAvailable = $iCountAllAvailable - $iCountUsed;
@@ -1153,10 +1175,10 @@ class ModuleUser extends Module
      * Получает список приглашенных юзеров
      *
      * @param int $sUserId    ID пользователя
+     *
      * @return array
      */
-    public function GetUsersInvite($sUserId)
-    {
+    public function GetUsersInvite($sUserId) {
         if (false === ($data = $this->Cache_Get("users_invite_{$sUserId}"))) {
             $data = $this->oMapper->GetUsersInvite($sUserId);
             $this->Cache_Set($data, "users_invite_{$sUserId}", array("invate_new_from_{$sUserId}"), 'P1D');
@@ -1169,10 +1191,10 @@ class ModuleUser extends Module
      * Получает юзера который пригласил
      *
      * @param int $sUserIdTo    ID пользователя
+     *
      * @return ModuleUser_EntityUser|null
      */
-    public function GetUserInviteFrom($sUserIdTo)
-    {
+    public function GetUserInviteFrom($sUserIdTo) {
         if (false === ($id = $this->Cache_Get("user_invite_from_{$sUserIdTo}"))) {
             $id = $this->oMapper->GetUserInviteFrom($sUserIdTo);
             $this->Cache_Set($id, "user_invite_from_{$sUserIdTo}", array("invate_new_to_{$sUserIdTo}"), 'P1D');
@@ -1184,10 +1206,10 @@ class ModuleUser extends Module
      * Добавляем воспоминание(восстановление) пароля
      *
      * @param ModuleUser_EntityReminder $oReminder    Объект восстановления пароля
+     *
      * @return bool
      */
-    public function AddReminder(ModuleUser_EntityReminder $oReminder)
-    {
+    public function AddReminder(ModuleUser_EntityReminder $oReminder) {
         return $this->oMapper->AddReminder($oReminder);
     }
 
@@ -1195,10 +1217,10 @@ class ModuleUser extends Module
      * Сохраняем воспомнинание(восстановление) пароля
      *
      * @param ModuleUser_EntityReminder $oReminder    Объект восстановления пароля
+     *
      * @return bool
      */
-    public function UpdateReminder(ModuleUser_EntityReminder $oReminder)
-    {
+    public function UpdateReminder(ModuleUser_EntityReminder $oReminder) {
         return $this->oMapper->UpdateReminder($oReminder);
     }
 
@@ -1206,23 +1228,23 @@ class ModuleUser extends Module
      * Получаем запись восстановления пароля по коду
      *
      * @param string $sCode    Код восстановления пароля
+     *
      * @return ModuleUser_EntityReminder|null
      */
-    public function GetReminderByCode($sCode)
-    {
+    public function GetReminderByCode($sCode) {
         return $this->oMapper->GetReminderByCode($sCode);
     }
 
     /**
      * Загрузка аватара пользователя
      *
-     * @param  string $sFileTmp    Серверный путь до временного аватара
-     * @param  ModuleUser_EntityUser $oUser    Объект пользователя
-     * @param  array $aSize Размер области из которой нужно вырезать картинку - array('x1'=>0,'y1'=>0,'x2'=>100,'y2'=>100)
+     * @param  string                $sFileTmp    Серверный путь до временного аватара
+     * @param  ModuleUser_EntityUser $oUser       Объект пользователя
+     * @param  array                 $aSize       Размер области из которой нужно вырезать картинку - array('x1'=>0,'y1'=>0,'x2'=>100,'y2'=>100)
+     *
      * @return string|bool
      */
-    public function UploadAvatar($sFileTmp, $oUser, $aSize = array())
-    {
+    public function UploadAvatar($sFileTmp, $oUser, $aSize = array()) {
         if (!file_exists($sFileTmp)) {
             return false;
         }
@@ -1293,13 +1315,23 @@ class ModuleUser extends Module
             $oImage->output(null, $sFileTmp);
         }
 
-        if ($sFileAvatar = $this->Image_Resize($sFileTmp, $sPath, 'avatar_100x100', Config::Get('view.img_max_width'), Config::Get('view.img_max_height'), 100, 100, false, $aParams)) {
+        if ($sFileAvatar = $this->Image_Resize(
+            $sFileTmp, $sPath, 'avatar_100x100', Config::Get('view.img_max_width'), Config::Get('view.img_max_height'),
+            100, 100, false, $aParams
+        )
+        ) {
             $aSize = Config::Get('module.user.avatar_size');
             foreach ($aSize as $iSize) {
                 if ($iSize == 0) {
-                    $this->Image_Resize($sFileTmp, $sPath, 'avatar', Config::Get('view.img_max_width'), Config::Get('view.img_max_height'), null, null, false, $aParams);
+                    $this->Image_Resize(
+                        $sFileTmp, $sPath, 'avatar', Config::Get('view.img_max_width'),
+                        Config::Get('view.img_max_height'), null, null, false, $aParams
+                    );
                 } else {
-                    $this->Image_Resize($sFileTmp, $sPath, "avatar_{$iSize}x{$iSize}", Config::Get('view.img_max_width'), Config::Get('view.img_max_height'), $iSize, $iSize, false, $aParams);
+                    $this->Image_Resize(
+                        $sFileTmp, $sPath, "avatar_{$iSize}x{$iSize}", Config::Get('view.img_max_width'),
+                        Config::Get('view.img_max_height'), $iSize, $iSize, false, $aParams
+                    );
                 }
             }
             @unlink($sFileTmp);
@@ -1320,8 +1352,7 @@ class ModuleUser extends Module
      *
      * @param ModuleUser_EntityUser $oUser Объект пользователя
      */
-    public function DeleteAvatar($oUser)
-    {
+    public function DeleteAvatar($oUser) {
         /**
          * Если аватар есть, удаляем его и его рейсайзы
          */
@@ -1336,13 +1367,13 @@ class ModuleUser extends Module
     /**
      * загрузка фотографии пользователя
      *
-     * @param  string $sFileTmp    Серверный путь до временной фотографии
-     * @param  ModuleUser_EntityUser $oUser    Объект пользователя
-     * @param  array $aSize Размер области из которой нужно вырезать картинку - array('x1'=>0,'y1'=>0,'x2'=>100,'y2'=>100)
+     * @param  string                $sFileTmp    Серверный путь до временной фотографии
+     * @param  ModuleUser_EntityUser $oUser       Объект пользователя
+     * @param  array                 $aSize       Размер области из которой нужно вырезать картинку - array('x1'=>0,'y1'=>0,'x2'=>100,'y2'=>100)
+     *
      * @return string|bool
      */
-    public function UploadFoto($sFileTmp, $oUser, $aSize = array())
-    {
+    public function UploadFoto($sFileTmp, $oUser, $aSize = array()) {
         if (!file_exists($sFileTmp)) {
             return false;
         }
@@ -1404,7 +1435,11 @@ class ModuleUser extends Module
             $oImage->output(null, $sFileTmp);
         }
 
-        if ($sFileFoto = $this->Image_Resize($sFileTmp, $sDirUpload, func_generator(6), Config::Get('view.img_max_width'), Config::Get('view.img_max_height'), Config::Get('module.user.profile_photo_width'), null, true, $aParams)) {
+        if ($sFileFoto = $this->Image_Resize(
+            $sFileTmp, $sDirUpload, func_generator(6), Config::Get('view.img_max_width'),
+            Config::Get('view.img_max_height'), Config::Get('module.user.profile_photo_width'), null, true, $aParams
+        )
+        ) {
             @unlink($sFileTmp);
             /**
              * удаляем старое фото
@@ -1421,8 +1456,7 @@ class ModuleUser extends Module
      *
      * @param ModuleUser_EntityUser $oUser
      */
-    public function DeleteFoto($oUser)
-    {
+    public function DeleteFoto($oUser) {
         $this->Image_RemoveFile($this->Image_GetServerPath($oUser->getProfileFoto()));
     }
 
@@ -1430,14 +1464,25 @@ class ModuleUser extends Module
      * Проверяет логин на корректность
      *
      * @param string $sLogin    Логин пользователя
+     *
      * @return bool
      */
-    public function CheckLogin($sLogin)
-    {
-        $charset = Config::Get('module.user.login.charset');
-        $min = Config::Get('module.user.login.min_size');
-        $max = Config::Get('module.user.login.max_size');
-        if (preg_match('/^[' . $charset . ']{' . $min . ',' . $max . '}$/i', $sLogin)) {
+    public function CheckLogin($sLogin) {
+        // проверка на допустимость логина
+        $aDisabledLogins = F::Array_Str2Array(Config::Get('module.user.login.disabled'));
+        if (F::Array_StrInArray($sLogin, $aDisabledLogins)) {
+            return false;
+        }
+
+        $sCharset = Config::Get('module.user.login.charset');
+        $nMin = intval(Config::Get('module.user.login.min_size'));
+        $nMax = intval(Config::Get('module.user.login.max_size'));
+        // Если какой-то из трех параметров не задан, то проверка не выполняется
+        if (!$sCharset || $nMin || $nMax) {
+            return true;
+        }
+        // поверка на набор символов и длину логина
+        if (preg_match('/^[' . $sCharset . ']{' . $nMin . ',' . $nMax . '}$/i', $sLogin)) {
             return true;
         }
         return false;
@@ -1447,48 +1492,48 @@ class ModuleUser extends Module
      * Получить дополнительные поля профиля пользователя
      *
      * @param array|null $aType Типы полей, null - все типы
+     *
      * @return array
      */
-    public function getUserFields($aType = null)
-    {
+    public function getUserFields($aType = null) {
         return $this->oMapper->getUserFields($aType);
     }
 
     /**
      * Получить значения дополнительных полей профиля пользователя
      *
-     * @param int $iUserId ID пользователя
-     * @param bool $bOnlyNoEmpty Загружать только непустые поля
-     * @param array $aType Типы полей, null - все типы
+     * @param int   $iUserId      ID пользователя
+     * @param bool  $bOnlyNoEmpty Загружать только непустые поля
+     * @param array $aType        Типы полей, null - все типы
+     *
      * @return array
      */
-    public function getUserFieldsValues($iUserId, $bOnlyNoEmpty = true, $aType = array(''))
-    {
+    public function getUserFieldsValues($iUserId, $bOnlyNoEmpty = true, $aType = array('')) {
         return $this->oMapper->getUserFieldsValues($iUserId, $bOnlyNoEmpty, $aType);
     }
 
     /**
      * Получить по имени поля его значение дял определённого пользователя
      *
-     * @param int $iUserId    ID пользователя
-     * @param string $sName Имя поля
+     * @param int    $iUserId    ID пользователя
+     * @param string $sName      Имя поля
+     *
      * @return string
      */
-    public function getUserFieldValueByName($iUserId, $sName)
-    {
+    public function getUserFieldValueByName($iUserId, $sName) {
         return $this->oMapper->getUserFieldValueByName($iUserId, $sName);
     }
 
     /**
      * Установить значения дополнительных полей профиля пользователя
      *
-     * @param int $iUserId    ID пользователя
-     * @param array $aFields Ассоциативный массив полей id => value
-     * @param int $iCountMax Максимальное количество одинаковых полей
+     * @param int   $iUserId    ID пользователя
+     * @param array $aFields    Ассоциативный массив полей id => value
+     * @param int   $iCountMax  Максимальное количество одинаковых полей
+     *
      * @return bool
      */
-    public function setUserFieldsValues($iUserId, $aFields, $iCountMax = 1)
-    {
+    public function setUserFieldsValues($iUserId, $aFields, $iCountMax = 1) {
         return $this->oMapper->setUserFieldsValues($iUserId, $aFields, $iCountMax);
     }
 
@@ -1496,10 +1541,10 @@ class ModuleUser extends Module
      * Добавить поле
      *
      * @param ModuleUser_EntityField $oField    Объект пользовательского поля
+     *
      * @return bool
      */
-    public function addUserField($oField)
-    {
+    public function addUserField($oField) {
         return $this->oMapper->addUserField($oField);
     }
 
@@ -1507,10 +1552,10 @@ class ModuleUser extends Module
      * Изменить поле
      *
      * @param ModuleUser_EntityField $oField    Объект пользовательского поля
+     *
      * @return bool
      */
-    public function updateUserField($oField)
-    {
+    public function updateUserField($oField) {
         return $this->oMapper->updateUserField($oField);
     }
 
@@ -1518,22 +1563,22 @@ class ModuleUser extends Module
      * Удалить поле
      *
      * @param int $iId    ID пользовательского поля
+     *
      * @return bool
      */
-    public function deleteUserField($iId)
-    {
+    public function deleteUserField($iId) {
         return $this->oMapper->deleteUserField($iId);
     }
 
     /**
      * Проверяет существует ли поле с таким именем
      *
-     * @param string $sName Имя поля
+     * @param string   $sName  Имя поля
      * @param int|null $iId    ID поля
+     *
      * @return bool
      */
-    public function userFieldExistsByName($sName, $iId = null)
-    {
+    public function userFieldExistsByName($sName, $iId = null) {
         return $this->oMapper->userFieldExistsByName($sName, $iId);
     }
 
@@ -1541,35 +1586,35 @@ class ModuleUser extends Module
      * Проверяет существует ли поле с таким ID
      *
      * @param int $iId    ID поля
+     *
      * @return bool
      */
-    public function userFieldExistsById($iId)
-    {
+    public function userFieldExistsById($iId) {
         return $this->oMapper->userFieldExistsById($iId);
     }
 
     /**
      * Удаляет у пользователя значения полей
      *
-     * @param   int|array $aUsersId   ID пользователя
+     * @param   int|array  $aUsersId   ID пользователя
      * @param   array|null $aTypes     Список типов для удаления
+     *
      * @return bool
      */
-    public function DeleteUserFieldValues($aUsersId, $aTypes = null)
-    {
+    public function DeleteUserFieldValues($aUsersId, $aTypes = null) {
         return $this->oMapper->DeleteUserFieldValues($aUsersId, $aTypes);
     }
 
     /**
      * Возвращает список заметок пользователя
      *
-     * @param int $iUserId    ID пользователя
+     * @param int $iUserId      ID пользователя
      * @param int $iCurrPage    Номер страницы
-     * @param int $iPerPage    Количество элементов на страницу
+     * @param int $iPerPage     Количество элементов на страницу
+     *
      * @return array('collection'=>array,'count'=>int)
      */
-    public function GetUserNotesByUserId($iUserId, $iCurrPage, $iPerPage)
-    {
+    public function GetUserNotesByUserId($iUserId, $iCurrPage, $iPerPage) {
         $aResult = $this->oMapper->GetUserNotesByUserId($iUserId, $iCount, $iCurrPage, $iPerPage);
         /**
          * Цепляем пользователей
@@ -1583,7 +1628,9 @@ class ModuleUser extends Module
             if (isset($aUsers[$oNote->getTargetUserId()])) {
                 $oNote->setTargetUser($aUsers[$oNote->getTargetUserId()]);
             } else {
-                $oNote->setTargetUser(Engine::GetEntity('User')); // пустого пользователя во избеания ошибок, т.к. пользователь всегда должен быть
+                $oNote->setTargetUser(
+                    Engine::GetEntity('User')
+                ); // пустого пользователя во избеания ошибок, т.к. пользователь всегда должен быть
             }
         }
         return array('collection' => $aResult, 'count' => $iCount);
@@ -1593,10 +1640,10 @@ class ModuleUser extends Module
      * Возвращает количество заметок у пользователя
      *
      * @param int $iUserId    ID пользователя
+     *
      * @return int
      */
-    public function GetCountUserNotesByUserId($iUserId)
-    {
+    public function GetCountUserNotesByUserId($iUserId) {
         return $this->oMapper->GetCountUserNotesByUserId($iUserId);
     }
 
@@ -1604,11 +1651,11 @@ class ModuleUser extends Module
      * Возвращет заметку по автору и пользователю
      *
      * @param int $iTargetUserId    ID пользователя о ком заметка
-     * @param int $iUserId    ID пользователя автора заметки
+     * @param int $iUserId          ID пользователя автора заметки
+     *
      * @return ModuleUser_EntityNote
      */
-    public function GetUserNote($iTargetUserId, $iUserId)
-    {
+    public function GetUserNote($iTargetUserId, $iUserId) {
         return $this->oMapper->GetUserNote($iTargetUserId, $iUserId);
     }
 
@@ -1616,10 +1663,10 @@ class ModuleUser extends Module
      * Возвращает заметку по ID
      *
      * @param int $iId    ID заметки
+     *
      * @return ModuleUser_EntityNote
      */
-    public function GetUserNoteById($iId)
-    {
+    public function GetUserNoteById($iId) {
         return $this->oMapper->GetUserNoteById($iId);
     }
 
@@ -1627,11 +1674,11 @@ class ModuleUser extends Module
      * Возвращает список заметок пользователя по ID целевых юзеров
      *
      * @param array $aUserId    Список ID целевых пользователей
-     * @param int $sUserId    ID пользователя, кто оставлял заметки
+     * @param int   $sUserId    ID пользователя, кто оставлял заметки
+     *
      * @return array
      */
-    public function GetUserNotesByArray($aUserId, $sUserId)
-    {
+    public function GetUserNotesByArray($aUserId, $sUserId) {
         if (!$aUserId) {
             return array();
         }
@@ -1647,7 +1694,9 @@ class ModuleUser extends Module
                 $aNotes[$oNote->getTargetUserId()] = $oNote;
             }
 
-            $this->Cache_Set($aNotes, "user_notes_{$sUserId}_id_{$s}", array("user_note_change_by_user_{$sUserId}"), 'P1D');
+            $this->Cache_Set(
+                $aNotes, "user_notes_{$sUserId}_id_{$s}", array("user_note_change_by_user_{$sUserId}"), 'P1D'
+            );
             return $aNotes;
         }
         return $data;
@@ -1657,12 +1706,14 @@ class ModuleUser extends Module
      * Удаляет заметку по ID
      *
      * @param int $iId    ID заметки
+     *
      * @return bool
      */
-    public function DeleteUserNoteById($iId)
-    {
+    public function DeleteUserNoteById($iId) {
         if ($oNote = $this->GetUserNoteById($iId)) {
-            $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("user_note_change_by_user_{$oNote->getUserId()}"));
+            $this->Cache_Clean(
+                Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("user_note_change_by_user_{$oNote->getUserId()}")
+            );
         }
         return $this->oMapper->DeleteUserNoteById($iId);
     }
@@ -1671,15 +1722,17 @@ class ModuleUser extends Module
      * Сохраняет заметку в БД, если ее нет то создает новую
      *
      * @param ModuleUser_EntityNote $oNote    Объект заметки
+     *
      * @return bool|ModuleUser_EntityNote
      */
-    public function SaveNote($oNote)
-    {
+    public function SaveNote($oNote) {
         if (!$oNote->getDateAdd()) {
             $oNote->setDateAdd(date('Y-m-d H:i:s'));
         }
 
-        $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("user_note_change_by_user_{$oNote->getUserId()}"));
+        $this->Cache_Clean(
+            Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("user_note_change_by_user_{$oNote->getUserId()}")
+        );
         if ($oNoteOld = $this->GetUserNote($oNote->getTargetUserId(), $oNote->getUserId())) {
             $oNoteOld->setText($oNote->getText());
             $this->oMapper->UpdateUserNote($oNoteOld);
@@ -1697,10 +1750,10 @@ class ModuleUser extends Module
      * Возвращает список префиксов логинов пользователей (для алфавитного указателя)
      *
      * @param int $iPrefixLength    Длина префикса
+     *
      * @return array
      */
-    public function GetGroupPrefixUser($iPrefixLength = 1)
-    {
+    public function GetGroupPrefixUser($iPrefixLength = 1) {
         if (false === ($data = $this->Cache_Get("group_prefix_user_{$iPrefixLength}"))) {
             $data = $this->oMapper->GetGroupPrefixUser($iPrefixLength);
             $this->Cache_Set($data, "group_prefix_user_{$iPrefixLength}", array("user_new"), 'P1D');
@@ -1712,10 +1765,10 @@ class ModuleUser extends Module
      * Добавляет запись о смене емайла
      *
      * @param ModuleUser_EntityChangemail $oChangemail    Объект смены емайла
+     *
      * @return bool|ModuleUser_EntityChangemail
      */
-    public function AddUserChangemail($oChangemail)
-    {
+    public function AddUserChangemail($oChangemail) {
         if ($sId = $this->oMapper->AddUserChangemail($oChangemail)) {
             $oChangemail->setId($sId);
             return $oChangemail;
@@ -1727,10 +1780,10 @@ class ModuleUser extends Module
      * Обновляет запись о смене емайла
      *
      * @param ModuleUser_EntityChangemail $oChangemail    Объект смены емайла
+     *
      * @return int
      */
-    public function UpdateUserChangemail($oChangemail)
-    {
+    public function UpdateUserChangemail($oChangemail) {
         return $this->oMapper->UpdateUserChangemail($oChangemail);
     }
 
@@ -1738,10 +1791,10 @@ class ModuleUser extends Module
      * Возвращает объект смены емайла по коду подтверждения
      *
      * @param string $sCode Код подтверждения
+     *
      * @return ModuleUser_EntityChangemail|null
      */
-    public function GetUserChangemailByCodeFrom($sCode)
-    {
+    public function GetUserChangemailByCodeFrom($sCode) {
         return $this->oMapper->GetUserChangemailByCodeFrom($sCode);
     }
 
@@ -1749,22 +1802,22 @@ class ModuleUser extends Module
      * Возвращает объект смены емайла по коду подтверждения
      *
      * @param string $sCode Код подтверждения
+     *
      * @return ModuleUser_EntityChangemail|null
      */
-    public function GetUserChangemailByCodeTo($sCode)
-    {
+    public function GetUserChangemailByCodeTo($sCode) {
         return $this->oMapper->GetUserChangemailByCodeTo($sCode);
     }
 
     /**
      * Формирование процесса смены емайла в профиле пользователя
      *
-     * @param ModuleUser_EntityUser $oUser    Объект пользователя
-     * @param string $sMailNew    Новый емайл
+     * @param ModuleUser_EntityUser $oUser       Объект пользователя
+     * @param string                $sMailNew    Новый емайл
+     *
      * @return bool|ModuleUser_EntityChangemail
      */
-    public function MakeUserChangemail($oUser, $sMailNew)
-    {
+    public function MakeUserChangemail($oUser, $sMailNew) {
         $oChangemail = Engine::GetEntity('ModuleUser_EntityChangemail');
         $oChangemail->setUserId($oUser->getId());
         $oChangemail->setDateAdd(date('Y-m-d H:i:s'));
@@ -1783,38 +1836,40 @@ class ModuleUser extends Module
                 /**
                  * Отправляем уведомление на новый емайл
                  */
-                $this->Notify_Send($oChangemail->getMailTo(),
+                $this->Notify_Send(
+                    $oChangemail->getMailTo(),
                     'notify.user_changemail_to.tpl',
                     $this->Lang_Get('notify_subject_user_changemail'),
                     array(
-                        'oUser' => $oUser,
-                        'oChangemail' => $oChangemail,
-                    ));
+                         'oUser'       => $oUser,
+                         'oChangemail' => $oChangemail,
+                    )
+                );
 
             } else {
                 /**
                  * Отправляем уведомление на старый емайл
                  */
-                $this->Notify_Send($oUser,
+                $this->Notify_Send(
+                    $oUser,
                     'notify.user_changemail_from.tpl',
                     $this->Lang_Get('notify_subject_user_changemail'),
                     array(
-                        'oUser' => $oUser,
-                        'oChangemail' => $oChangemail,
-                    ));
+                         'oUser'       => $oUser,
+                         'oChangemail' => $oChangemail,
+                    )
+                );
             }
             return $oChangemail;
         }
         return false;
     }
 
-    public function GetCountUsers()
-    {
+    public function GetCountUsers() {
         return $this->oMapper->GetCountUsers();
     }
 
-    public function GetCountAdmins()
-    {
+    public function GetCountAdmins() {
         return $this->oMapper->GetCountAdmins();
     }
 
@@ -1823,9 +1878,10 @@ class ModuleUser extends Module
      *
      * @param $aUsersId
      */
-    public function DeleteUsers($aUsersId)
-    {
-        if (!is_array($aUsersId)) $aUsersId = array(intval($aUsersId));
+    public function DeleteUsers($aUsersId) {
+        if (!is_array($aUsersId)) {
+            $aUsersId = array(intval($aUsersId));
+        }
         $this->Blog_DeleteBlogsByUsers($aUsersId);
         $this->Topic_DeleteTopicsByUsersId($aUsersId);
 

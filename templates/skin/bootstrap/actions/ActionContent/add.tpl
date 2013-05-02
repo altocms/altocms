@@ -69,8 +69,19 @@
 	<input type="text" id="topic_title" name="topic_title" value="{$_aRequest.topic_title}" class="input-text input-width-full" />
 	<small class="note">{$aLang.topic_create_title_notice}</small></p>
 
+    {if $aParams[0] != 'add'}
+    <p><label for="topic_url">{$aLang.topic_create_url}:</label>
+        <span class="b-topic-url-demo">{$_aRequest.topic_url_before}</span><span
+                class="b-topic_url_demo-edit">{$_aRequest.topic_url}</span>{if $_aRequest.topic_url}<input
+        type="text" id="topic_url" name="topic_url" value="{$_aRequest.topic_url}"
+        class="input-text input-width-300" style="display: none;"/>{/if}<span
+                class="b-topic_url_demo">{$_aRequest.topic_url_after}</span>
+        <button class="button" onclick="ls.topic.editUrl(this); return false;"><i class="icon-edit"></i></button>
+        <small class="note"></small>
+    </p>
+    {/if}
 
-	<label for="topic_text">{$aLang.topic_create_text}:</label>
+    <label for="topic_text">{$aLang.topic_create_text}:</label>
 	<textarea name="topic_text" id="topic_text" class="mce-editor markitup-editor input-width-full" rows="20">{$_aRequest.topic_text}</textarea>
 
 	{if !$oConfig->GetValue('view.tinymce')}

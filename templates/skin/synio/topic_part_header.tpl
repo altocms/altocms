@@ -30,7 +30,7 @@
 		</div>
 		
 		{if $oTopic->getIsAllowAction()}
-			<ul class="topic-actions">								   
+			<ul class="topic-actions">
 				{if $oTopic->getIsAllowEdit()}
 					<li class="edit"><i class="icon-synio-actions-edit"></i><a href="{$oTopic->getUrlEdit()}" title="{$aLang.topic_edit}" class="actions-edit">{$aLang.topic_edit}</a></li>
 				{/if}

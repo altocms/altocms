@@ -481,6 +481,7 @@ CREATE TABLE IF NOT EXISTS `prefix_topic` (
   `topic_cut_text` varchar(100) DEFAULT NULL,
   `topic_forbid_comment` tinyint(1) NOT NULL DEFAULT '0',
   `topic_text_hash` varchar(32) NOT NULL,
+  `topic_url` varchar(250) DEFAULT NULL,
   PRIMARY KEY (`topic_id`),
   KEY `blog_id` (`blog_id`),
   KEY `user_id` (`user_id`),
@@ -488,7 +489,8 @@ CREATE TABLE IF NOT EXISTS `prefix_topic` (
   KEY `topic_rating` (`topic_rating`),
   KEY `topic_publish` (`topic_publish`),
   KEY `topic_text_hash` (`topic_text_hash`),
-  KEY `topic_count_comment` (`topic_count_comment`)
+  KEY `topic_count_comment` (`topic_count_comment`),
+  KEY `topic_url` (`topic_url`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 --

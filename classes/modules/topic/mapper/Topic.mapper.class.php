@@ -43,20 +43,21 @@ class ModuleTopic_MapperTopic extends Mapper {
 			topic_publish_index,
 			topic_cut_text,
 			topic_forbid_comment,
-			topic_text_hash
+			topic_text_hash,
+			topic_url
 			)
-			VALUES(?d,  ?d, ?, ?, ?, ?, ?, ?d, ?d, ?d, ?, ?, ?)
+			VALUES(?d, ?d, ?, ?, ?, ?, ?, ?d, ?d, ?d, ?, ?, ?, ?)
 		";
-        if ($iId = $this->oDb->query(
+        $nId = $this->oDb->query(
             $sql, $oTopic->getBlogId(), $oTopic->getUserId(), $oTopic->getType(), $oTopic->getTitle(),
             $oTopic->getTags(), $oTopic->getDateAdd(), $oTopic->getUserIp(), $oTopic->getPublish(),
             $oTopic->getPublishDraft(), $oTopic->getPublishIndex(), $oTopic->getCutText(), $oTopic->getForbidComment(),
-            $oTopic->getTextHash()
-        )
-        ) {
-            $oTopic->setId($iId);
+            $oTopic->getTextHash(), $oTopic->getTopicUrl()
+        );
+        if ($nId) {
+            $oTopic->setId($nId);
             $this->AddTopicContent($oTopic);
-            return $iId;
+            return $nId;
         }
         return false;
     }
@@ -78,14 +79,11 @@ class ModuleTopic_MapperTopic extends Mapper {
 			)
 			VALUES(?d, ?, ?, ?, ? )
 		";
-        if ($iId = $this->oDb->query(
+        $nId = $this->oDb->query(
             $sql, $oTopic->getId(), $oTopic->getText(),
             $oTopic->getTextShort(), $oTopic->getTextSource(), $oTopic->getExtra()
-        )
-        ) {
-            return $iId;
-        }
-        return false;
+        );
+        return $nId ? $nId : false;
     }
 
     /**
@@ -104,13 +102,10 @@ class ModuleTopic_MapperTopic extends Mapper {
 			)
 			VALUES(?d, ?d, ?d, ?)
 		";
-        if ($iId = $this->oDb->query(
+        $nId = $this->oDb->query(
             $sql, $oTopicTag->getTopicId(), $oTopicTag->getUserId(), $oTopicTag->getBlogId(), $oTopicTag->getText()
-        )
-        ) {
-            return $iId;
-        }
-        return false;
+        );
+        return $nId ? $nId : false;
     }
 
     /**
@@ -182,6 +177,42 @@ class ModuleTopic_MapperTopic extends Mapper {
     }
 
     /**
+     * Получает ID топика по URL
+     *
+     * @param string    $sUrl
+     *
+     * @return int
+     */
+    public function GetTopicIdByUrl($sUrl) {
+        $sql = "
+            SELECT topic_id FROM " . Config::Get('db.table.topic') . "
+            WHERE
+                topic_url =?
+            LIMIT 0,1
+            ";
+        $xResult = $this->oDb->selectCell($sql, $sUrl);
+        return intval($xResult);
+    }
+
+    /**
+     * Получает ID топиков по похожим URL
+     *
+     * @param $sUrl
+     *
+     * @return int
+     */
+    public function GetTopicsIdLikeUrl($sUrl) {
+        $sql = "
+            SELECT topic_id FROM " . Config::Get('db.table.topic') . "
+            WHERE
+                topic_url = '" . $sUrl . "'
+                OR topic_url RLIKE '^" . $sUrl . "-[0-9]+$'
+            ";
+        $xResult = $this->oDb->selectCol($sql, $sUrl);
+        return $xResult;
+    }
+
+    /**
      * Получить список топиков по списку айдишников
      *
      * @param array $aArrayId    Список ID топиков
@@ -189,7 +220,7 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return array
      */
     public function GetTopicsByArrayId($aArrayId) {
-        if (!is_array($aArrayId) or count($aArrayId) == 0) {
+        if (!is_array($aArrayId) || count($aArrayId) == 0) {
             return array();
         }
 
@@ -504,26 +535,27 @@ class ModuleTopic_MapperTopic extends Mapper {
     public function UpdateTopic(ModuleTopic_EntityTopic $oTopic) {
         $sql = "UPDATE " . Config::Get('db.table.topic') . "
 			SET 
-				blog_id= ?d,
-				topic_title= ?,
-				topic_tags= ?,
+				blog_id = ?d,
+				topic_title = ?,
+				topic_tags = ?,
 				topic_date_add = ?,
 				topic_date_edit = ?,
-				topic_user_ip= ?,
-				topic_publish= ?d ,
-				topic_publish_draft= ?d ,
-				topic_publish_index= ?d,
-				topic_rating= ?f,
-				topic_count_vote= ?d,
-				topic_count_vote_up= ?d,
-				topic_count_vote_down= ?d,
-				topic_count_vote_abstain= ?d,
-				topic_count_read= ?d,
-				topic_count_comment= ?d, 
-				topic_count_favourite= ?d,
+				topic_user_ip = ?,
+				topic_publish = ?d ,
+				topic_publish_draft = ?d ,
+				topic_publish_index = ?d,
+				topic_rating = ?f,
+				topic_count_vote = ?d,
+				topic_count_vote_up = ?d,
+				topic_count_vote_down = ?d,
+				topic_count_vote_abstain = ?d,
+				topic_count_read = ?d,
+				topic_count_comment = ?d,
+				topic_count_favourite = ?d,
 				topic_cut_text = ? ,
 				topic_forbid_comment = ? ,
-				topic_text_hash = ? 
+				topic_text_hash = ?,
+				topic_url = ?
 			WHERE
 				topic_id = ?d
 		";
@@ -533,7 +565,8 @@ class ModuleTopic_MapperTopic extends Mapper {
             $oTopic->getPublishIndex(), $oTopic->getRating(), $oTopic->getCountVote(), $oTopic->getCountVoteUp(),
             $oTopic->getCountVoteDown(), $oTopic->getCountVoteAbstain(), $oTopic->getCountRead(),
             $oTopic->getCountComment(), $oTopic->getCountFavourite(), $oTopic->getCutText(),
-            $oTopic->getForbidComment(), $oTopic->getTextHash(), $oTopic->getId()
+            $oTopic->getForbidComment(), $oTopic->getTextHash(), $oTopic->getTopicUrl(),
+            $oTopic->getId()
         );
         if ($bResult !== false) {
             $this->UpdateTopicContent($oTopic);
@@ -581,10 +614,10 @@ class ModuleTopic_MapperTopic extends Mapper {
         if (isset($aFilter['topic_publish'])) {
             $sWhere .= " AND t.topic_publish =  " . (int)$aFilter['topic_publish'];
         }
-        if (isset($aFilter['topic_rating']) and is_array($aFilter['topic_rating'])) {
+        if (isset($aFilter['topic_rating']) && is_array($aFilter['topic_rating'])) {
             $sPublishIndex = '';
-            if (isset($aFilter['topic_rating']['publish_index']) and $aFilter['topic_rating']['publish_index'] == 1) {
-                $sPublishIndex = " or topic_publish_index=1 ";
+            if (isset($aFilter['topic_rating']['publish_index']) && $aFilter['topic_rating']['publish_index'] == 1) {
+                $sPublishIndex = " OR topic_publish_index=1 ";
             }
             if ($aFilter['topic_rating']['type'] == 'top') {
                 $sWhere
@@ -607,7 +640,7 @@ class ModuleTopic_MapperTopic extends Mapper {
             }
             $sWhere .= " AND t.blog_id IN ('" . join("','", $aFilter['blog_id']) . "')";
         }
-        if (isset($aFilter['blog_type']) and is_array($aFilter['blog_type'])) {
+        if (isset($aFilter['blog_type']) && is_array($aFilter['blog_type'])) {
             $aBlogTypes = array();
             foreach ($aFilter['blog_type'] as $sType => $aBlogId) {
                 /**
@@ -706,13 +739,13 @@ class ModuleTopic_MapperTopic extends Mapper {
 				comment_count_last = ? ,
 				comment_id_last = ? ,
 				date_read = ? ,
-				topic_id = ? ,							
+				topic_id = ? ,
 				user_id = ? 
 		";
         return $this->oDb->query(
             $sql, $oTopicRead->getCommentCountLast(), $oTopicRead->getCommentIdLast(), $oTopicRead->getDateRead(),
             $oTopicRead->getTopicId(), $oTopicRead->getUserId()
-        );
+        ) !== false;
     }
 
     /**
@@ -739,7 +772,7 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return array
      */
     public function GetTopicsReadByArray($aArrayId, $sUserId) {
-        if (!is_array($aArrayId) or count($aArrayId) == 0) {
+        if (!is_array($aArrayId) || count($aArrayId) == 0) {
             return array();
         }
 
@@ -774,13 +807,10 @@ class ModuleTopic_MapperTopic extends Mapper {
                 (topic_id, user_voter_id, answer)
 			VALUES(?d, ?d, ?f)
 		";
-        if ($this->oDb->query(
+        $bResult = $this->oDb->query(
             $sql, $oTopicQuestionVote->getTopicId(), $oTopicQuestionVote->getVoterId(), $oTopicQuestionVote->getAnswer()
-        ) === 0
-        ) {
-            return true;
-        }
-        return false;
+        );
+        return $bResult !== false;
     }
 
     /**
@@ -792,7 +822,7 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return array
      */
     public function GetTopicsQuestionVoteByArray($aArrayId, $sUserId) {
-        if (!is_array($aArrayId) or count($aArrayId) == 0) {
+        if (!is_array($aArrayId) || count($aArrayId) == 0) {
             return array();
         }
 
@@ -906,16 +936,16 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return array
      */
     public function GetTopicPhotosByArrayId($aArrayId) {
-        if (!is_array($aArrayId) or count($aArrayId) == 0) {
+        if (!is_array($aArrayId) || count($aArrayId) == 0) {
             return array();
         }
 
         $sql = "SELECT
-					*							 
+					*
 				FROM 
 					" . Config::Get('db.table.topic_photo') . "
 				WHERE 
-					id IN(?a) 								
+					id IN(?a)
 				ORDER BY FIELD(id,?a) ";
         $aReturn = array();
         if ($aRows = $this->oDb->select($sql, $aArrayId, $aArrayId)) {
@@ -1032,6 +1062,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * Обновить данные по изображению
      *
      * @param ModuleTopic_EntityTopicPhoto $oPhoto Объект фото
+     *
+     * @return  bool
      */
     public function updateTopicPhoto($oPhoto) {
         if (!$oPhoto->getTopicId() && !$oPhoto->getTargetTmp()) {
@@ -1055,9 +1087,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @param int $iPhotoId    ID фото
      */
     public function deleteTopicPhoto($iPhotoId) {
-        $sql = 'DELETE FROM ' . Config::Get('db.table.topic_photo') . ' WHERE
-                        id= ?d';
-        $this->oDb->query($sql, $iPhotoId);
+        $sql = "DELETE FROM " . Config::Get('db.table.topic_photo') . " WHERE  id= ?d";
+        return $this->oDb->query($sql, $iPhotoId) !== false;
     }
 
     /**
@@ -1380,11 +1411,8 @@ class ModuleTopic_MapperTopic extends Mapper {
 					ORDER BY field_sort desc
 					";
         $aFields = array();
-        if ($aRows = $this->oDb->select(
-            $sql,
-            (isset($aFilter['content_id']) ? $aFilter['content_id'] : DBSIMPLE_SKIP)
-        )
-        ) {
+        $aRows = $this->oDb->select($sql, (isset($aFilter['content_id']) ? $aFilter['content_id'] : DBSIMPLE_SKIP));
+        if ($aRows) {
             foreach ($aRows as $aField) {
                 $aFields[] = Engine::GetEntity('Topic_Field', $aField);
             }
@@ -1401,7 +1429,7 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @TODO рефакторинг + solid
      */
     public function GetFieldsByArrayId($aArrayId) {
-        if (!is_array($aArrayId) or count($aArrayId) == 0) {
+        if (!is_array($aArrayId) || count($aArrayId) == 0) {
             return array();
         }
 
@@ -1454,10 +1482,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 			WHERE
 				field_id = ?d
 		";
-        if ($this->oDb->query($sql, $oField->getFieldId())) {
-            return true;
-        }
-        return false;
+        return $this->oDb->query($sql, $oField->getFieldId()) !== false;
     }
 
 
@@ -1475,10 +1500,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 				AND
 				target_type = 'topic'
 		";
-        if ($this->oDb->query($sql, $sTopicId)) {
-            return true;
-        }
-        return false;
+        return $this->oDb->query($sql, $sTopicId) !== false;
     }
 
     /**
@@ -1500,7 +1522,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 			)
 			VALUES(?d, ?, ?d, ?, ?, ?, ?)
 		";
-        if ($iId = $this->oDb->query(
+        $nId = $this->oDb->query(
             $sql,
             $oValue->getTargetId(),
             $oValue->getTargetType(),
@@ -1509,11 +1531,8 @@ class ModuleTopic_MapperTopic extends Mapper {
             $oValue->getValue(),
             $oValue->getValueVarchar(),
             $oValue->getValueSource()
-        )
-        ) {
-            return $iId;
-        }
-        return false;
+        );
+        return $nId ? $nId : false;
     }
 
     /**
@@ -1551,7 +1570,7 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @TODO рефакторинг + solid
      */
     public function GetTopicValuesByArrayId($aArrayId) {
-        if (!is_array($aArrayId) or count($aArrayId) == 0) {
+        if (!is_array($aArrayId) || count($aArrayId) == 0) {
             return array();
         }
 

@@ -204,12 +204,53 @@ class AltoFunc_Array {
         return $aResult;
     }
 
+    /**
+     * Returns the first key of array
+     *
+     * @param $aData
+     *
+     * @return mixed
+     */
     static public function FirstKey($aData) {
         if (is_array($aData)) {
             $aKeys = array_keys($aData);
             return array_shift($aKeys);
         }
     }
+
+    /**
+     * Returns the last key of array
+     *
+     * @param $aData
+     *
+     * @return mixed
+     */
+    static public function LastKey($aData) {
+        if (is_array($aData)) {
+            $aKeys = array_keys($aData);
+            return array_pop($aKeys);
+        }
+    }
+
+    /**
+     * Search string in array with case-insensitive string comparison
+     *
+     * @param $sStr
+     * @param $aArray
+     *
+     * @return bool
+     */
+    static public function StrInArray($sStr, $aArray) {
+        $sStr = mb_strtolower($sStr);
+        foreach ($aArray as $sCompare) {
+            $sCompare = mb_strtolower($sCompare);
+            if (strcmp($sStr, mb_strtolower($sCompare)) === 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
 
 // EOF

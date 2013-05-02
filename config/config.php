@@ -225,35 +225,56 @@ $config['acl']['vote']['comment']['limit_time']           = 60*60*24*5;  // ог
  * Настройки модулей
  */
 // Модуль Blog
-$config['module']['blog']['per_page']        = 20;   // Число блогов на страницу
-$config['module']['blog']['users_per_page']  = 20;   // Число пользователей блога на страницу
-$config['module']['blog']['personal_good']   = -5;   // Рейтинг топика в персональном блоге ниже которого он считается плохим
-$config['module']['blog']['collective_good'] = -3;   // рейтинг топика в коллективных блогах ниже которого он считается плохим
-$config['module']['blog']['index_good']      =  8;   // Рейтинг топика выше которого(включительно) он попадает на главную
-$config['module']['blog']['encrypt']         = 'alto'; // Ключ XXTEA шифрования идентификаторов в ссылках приглашения в блоги
-$config['module']['blog']['avatar_size'] = array(100,64,48,24,0); // Список размеров аватаров у блога. 0 - исходный размер
+$config['module']['blog']['per_page']        = 20;                  // Число блогов на страницу
+$config['module']['blog']['users_per_page']  = 20;                  // Число пользователей блога на страницу
+$config['module']['blog']['personal_good']   = -5;                  // Рейтинг топика в персональном блоге ниже которого он считается плохим
+$config['module']['blog']['collective_good'] = -3;                  // рейтинг топика в коллективных блогах ниже которого он считается плохим
+$config['module']['blog']['index_good']      =  8;                  // Рейтинг топика выше которого(включительно) он попадает на главную
+$config['module']['blog']['encrypt']         = 'alto';              // Ключ XXTEA шифрования идентификаторов в ссылках приглашения в блоги
+$config['module']['blog']['avatar_size'] = array(100,64,48,24,0);   // Список размеров аватаров у блога. 0 - исходный размер
 
 // Модуль Topic
-$config['module']['topic']['new_time']   = 60*60*24*1;          // Время в секундах в течении которого топик считается новым
-$config['module']['topic']['per_page']   = 10;                  // Число топиков на одну страницу
-$config['module']['topic']['max_length'] = 15000;               // Максимальное количество символов в одном топике
-$config['module']['topic']['link_max_length'] = 500;            // Максимальное количество символов в одном топике-ссылке
-$config['module']['topic']['question_max_length'] = 500;        // Максимальное количество символов в одном топике-опросе
-$config['module']['topic']['allow_empty_tags'] = true;          // Разрешать или нет не заполнять теги
-$config['module']['topic']['max_filesize_limit'] = 2*1024*1024; // максимальный размер загружаемого файла в байтах (по умолчанию 2мб)
+$config['module']['topic']['new_time']   = 60*60*24*1;              // Время в секундах в течении которого топик считается новым
+$config['module']['topic']['per_page']   = 10;                      // Число топиков на одну страницу
+$config['module']['topic']['max_length'] = 15000;                   // Максимальное количество символов в одном топике
+$config['module']['topic']['link_max_length'] = 500;                // Максимальное количество символов в одном топике-ссылке
+$config['module']['topic']['question_max_length'] = 500;            // Максимальное количество символов в одном топике-опросе
+$config['module']['topic']['allow_empty_tags'] = true;              // Разрешать или нет не заполнять теги
+$config['module']['topic']['max_filesize_limit'] = 2*1024*1024;     // максимальный размер загружаемого файла в байтах (по умолчанию 2мб)
 $config['module']['topic']['upload_mime_types'] = array('zip','rar','gz','mp3','png', 'doc', 'docx', 'pdf','djv','djvu'); //расширения файлов, которые можно прикреплять к топикам
-$config['module']['topic']['draft_link'] = false;                // разрешить показывать черновик по прямой ссылке
+$config['module']['topic']['draft_link'] = false;                   // разрешить показывать черновик по прямой ссылке
+
+/*
+ * Настройка ЧПУ топика
+ * Допустимые параметры:
+ *      %year% - год топика
+ *      %month% - месяц
+ *      %day% - день
+ *      %hour% - час
+ *      %minute% - минуты
+ *      %second% - секунды (54)
+ *      %login% - логин автора топика (admin)
+ *      %blog_url% - url коллективного блога (для личных блогов будет заменен на логин автора)
+ *      %topic_id% - id топика (то же самое, что %id%)
+ *      %topic_url% - id топика (то же самое, что %id%)
+ *
+ * В шаблоне обязательно должен быть %topic_id% или %topic_url%
+ */
+$config['module']['topic']['url'] = '%topic_id%.html';          // постоянная ссылка на топик (permalink)
 
 // Модуль User
-$config['module']['user']['per_page']    = 15;          // Число юзеров на страницу на странице статистики и в профиле пользователя
-$config['module']['user']['friend_on_profile']    = 15;          // Ограничение на вывод числа друзей пользователя на странице его профиля
-$config['module']['user']['friend_notice']['delete'] = false; // Отправить talk-сообщение в случае удаления пользователя из друзей
-$config['module']['user']['friend_notice']['accept'] = false; // Отправить talk-сообщение в случае одобрения заявки на добавление в друзья
-$config['module']['user']['friend_notice']['reject'] = false; // Отправить talk-сообщение в случае отклонения заявки на добавление в друзья
+$config['module']['user']['per_page']    = 15;                  // Число юзеров на страницу на странице статистики и в профиле пользователя
+$config['module']['user']['friend_on_profile']    = 15;         // Ограничение на вывод числа друзей пользователя на странице его профиля
+$config['module']['user']['friend_notice']['delete'] = false;   // Отправить talk-сообщение в случае удаления пользователя из друзей
+$config['module']['user']['friend_notice']['accept'] = false;   // Отправить talk-сообщение в случае одобрения заявки на добавление в друзья
+$config['module']['user']['friend_notice']['reject'] = false;   // Отправить talk-сообщение в случае отклонения заявки на добавление в друзья
 $config['module']['user']['avatar_size'] = array(100,64,48,24,0); // Список размеров аватаров у пользователя. 0 - исходный размер
-$config['module']['user']['login']['min_size'] = 3; // Минимальное количество символов в логине
-$config['module']['user']['login']['max_size'] = 30; // Максимальное количество символов в логине
-$config['module']['user']['login']['charset'] = '0-9a-z_\-'; // Допустимые в имени пользователя символы
+
+$config['module']['user']['login']['min_size'] = 3;             // Минимальное количество символов в логине
+$config['module']['user']['login']['max_size'] = 30;            // Максимальное количество символов в логине
+$config['module']['user']['login']['charset'] = '0-9a-z_\-';    // Допустимые в имени пользователя символы
+$config['module']['user']['login']['disabled'] = array('admin', 'administrator', 'moderator', 'new');  // недопустимые имена логинов
+
 $config['module']['user']['time_active'] = 60*60*24*7;          // Число секунд с момента последнего посещения пользователем сайта, в течение которых он считается активным
 $config['module']['user']['usernote_text_max'] = 250;           // Максимальный размер заметки о пользователе
 $config['module']['user']['usernote_per_page'] = 20;            // Число заметок на одну страницу
@@ -443,8 +464,6 @@ $config['router']['rewrite'] = array();
 
 // Правила реврайта для REQUEST_URI
 $config['router']['uri'] = array(
-    // короткий вызов топиков из личных блогов
-    '~^(\d+)\.html~i' => 'blog/\\1.html',
     // запрет обработки статичных файлов с заданными расширениями
     /* допустимые значения:
      *  - @ignore   - запрос игнорируется и его обработка прекращается

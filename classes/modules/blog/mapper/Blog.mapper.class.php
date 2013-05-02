@@ -552,7 +552,7 @@ class ModuleBlog_MapperBlog extends Mapper {
                         t.topic_publish = 1
                 )
                 WHERE 1=1
-                	{ and b.blog_id = ?d }
+                    { AND b.blog_id = ?d }
             ";
         $bResult = $this->oDb->query($sql, is_null($iBlogId) ? DBSIMPLE_SKIP : $iBlogId);
         return $bResult !== false;

@@ -255,6 +255,8 @@ return array(
 	'topic_create_title' => 'Заголовок',
 	'topic_create_title_notice' => 'Заголовок должен быть наполнен смыслом, чтобы можно было понять, о чем будет статья.',
 	'topic_create_title_error' => 'Название статьи должно быть от 2 до 200 символов',
+    'topic_create_url' => 'Ссылка на статью',
+    'topic_create_url_notice' => '',
 	'topic_create_question_title' => 'Опрос',
 	'topic_create_question_title_notice' => 'Текст вопроса',
 	'topic_create_question_title_error' => 'Вопрос должен быть от 2 до 200 символов',

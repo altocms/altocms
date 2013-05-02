@@ -416,7 +416,39 @@ class ActionAdmin extends Action {
                     $aConfig['module.topic.draft_link'] = false;
                 }
             }
-            Config::WriteCustomConfig($aConfig);
+            if ($sTopicLink = $this->GetPost('topic_link')) {
+                $aConfig['module.topic.url_mode'] = $sTopicLink;
+                if ($sTopicLink == 'ls') {
+                    $aConfig['module.topic.url'] = '';
+                } elseif ($sTopicLink == 'id') {
+                    $aConfig['module.topic.url'] = '%topic_id%';
+                } elseif ($sTopicLink == 'day_name') {
+                    $aConfig['module.topic.url'] = '%year%/%month%/%day%/%topic_url%/';
+                } elseif ($sTopicLink == 'month_name') {
+                    $aConfig['module.topic.url'] = '%year%/%month%/%topic_url%/';
+                } else {
+                    if ($sTopicUrl = $this->GetPost('topic_link_url')) {
+                        $aConfig['module.topic.url'] = $sTopicUrl;
+                    } else {
+                        $aConfig['module.topic.url'] = '';
+                    }
+                }
+            }
+            if ($aConfig) {
+                Config::WriteCustomConfig($aConfig);
+                Router::Location('admin/config/links/');
+            }
+        }
+        if ($this->GetPost('adm_cmd') == 'generate_topics_url') {
+            // Генерация URL топиков
+            $nRest = $this->Admin_GenerateTopicsUrl();
+            if ($nRest > 0) {
+                $this->Message_AddNotice($this->Lang_Get('action.admin.set_links_generate_next', array('num' => $nRest)), null, true);
+            } elseif ($nRest < 0) {
+                $this->Message_AddNotice($this->Lang_Get('action.admin.set_links_generate_done'), null, true);
+            } else {
+                $this->Message_AddNotice($this->Lang_Get('action.admin.set_links_generate_done'), null, true);
+            }
             Router::Location('admin/config/links/');
         }
         $this->SetTemplateAction('settings/config_links');
@@ -433,9 +465,25 @@ class ActionAdmin extends Action {
         }
         $aPages = $this->Page_GetPages();
 
+        $sPermalinkUrl = trim(Config::Get('module.topic.url'), '/');
+        if (!$sPermalinkUrl) {
+            $sPermalinkMode = 'ls';
+        } elseif ($sPermalinkUrl == '%topic_id%') {
+            $sPermalinkMode = 'id';
+        } elseif ($sPermalinkUrl == '%year%/%month%/%day%/%topic_url%') {
+            $sPermalinkMode = 'day_name';
+        } elseif ($sPermalinkUrl == '%year%/%month%/%topic_url%') {
+            $sPermalinkMode = 'month_name';
+        } else {
+            $sPermalinkMode = 'custom';
+        }
+
         $this->Viewer_Assign('sHomePageSelect', $sHomePageSelect);
         $this->Viewer_Assign('sHomePageUrl', $sHomePageUrl);
         $this->Viewer_Assign('aPages', $aPages);
+        $this->Viewer_Assign('sPermalinkMode', $sPermalinkMode);
+        $this->Viewer_Assign('sPermalinkUrl', $sPermalinkUrl);
+        $this->Viewer_Assign('nTopicsWithoutUrl', $this->Admin_GetNumTopicsWithoutUrl());
     }
 
     /**
@@ -767,7 +815,7 @@ class ActionAdmin extends Action {
         if ($this->GetParam(0) == 'delete') {
             $this->Security_ValidateSendForm();
             if ($this->Page_deletePageById($this->GetParam(1))) {
-                $this->Message_AddNotice($this->Lang_Get('action.admin.pages_admin_action_delete_ok', true));
+                $this->Message_AddNotice($this->Lang_Get('action.admin.pages_admin_action_delete_ok'). null, true);
                 Router::Location('admin/pages/');
             } else {
                 $this->Message_AddError($this->Lang_Get('action.admin.pages_admin_action_delete_error'), $this->Lang_Get('error'));
@@ -1269,7 +1317,7 @@ class ActionAdmin extends Action {
         if ($aUserLogins)
             foreach ($aUserLogins as $sUserLogin) {
                 if (!$sUserLogin || !($oUser = $this->User_GetUserByLogin($sUserLogin))) {
-                    $this->Message_AddError($this->Lang_Get('action.admin.user_not_found', $sUserLogin));
+                    $this->Message_AddError($this->Lang_Get('action.admin.user_not_found', array('user' => $sUserLogin)));
                 } elseif ($oUser->IsBanned()) {
                     $this->Message_AddError($this->Lang_Get('action.admin.cannot_banned_admin'));
                 } elseif ($oUser->IsAdministrator()) {
@@ -1290,7 +1338,7 @@ class ActionAdmin extends Action {
         if ($aUserLogins)
             foreach ($aUserLogins as $sUserLogin) {
                 if (!$sUserLogin || !($oUser = $this->User_GetUserByLogin($sUserLogin))) {
-                    $this->Message_AddError($this->Lang_Get('action.admin.user_not_found', $sUserLogin), 'admins:delete');
+                    $this->Message_AddError($this->Lang_Get('action.admin.user_not_found', array('user' => $sUserLogin)), 'admins:delete');
                 } else {
                     if (mb_strtolower($sUserLogin) == 'admin') {
                         $this->Message_AddError($this->Lang_Get('action.admin.cannot_with_admin'), 'admins:delete');

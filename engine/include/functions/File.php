@@ -502,6 +502,32 @@ class AltoFunc_File {
     }
 
     /**
+     * Порционная отдача файла
+     *
+     * @param $sFilename
+     *
+     * @return bool
+     */
+    static public function PrintChunked($sFilename) {
+        $nChunkSize = 1 * (1024 * 1024);
+        $xHandle = fopen($sFilename, 'rb');
+        if ($xHandle === false) {
+            return false;
+        }
+        $sBuffer = '';
+        while (!feof($xHandle)) {
+            $sBuffer = fread($xHandle, $nChunkSize);
+            if ($sBuffer !== false) {
+                print $sBuffer;
+            } else {
+                return false;
+            }
+        }
+        fclose($xHandle);
+        return true;
+    }
+
+    /**
      * Разбирает полный путь файла
      * В отличии от стандартной функции pathinfo() выделяет GET-параметры и очищает от них имя и расширение файла
      *

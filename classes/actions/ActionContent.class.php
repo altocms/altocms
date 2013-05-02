@@ -189,7 +189,28 @@ class ActionContent extends Action {
 					$_REQUEST['fields'][$oField->getFieldId()]=$sValue;
 				}
 			}
-		}
+            $sUrlMask = Router::GetTopicUrlMask();
+            if (strpos($sUrlMask, '%topic_url%') === false) {
+                // Нет в маске URL
+                $_REQUEST['topic_url_before'] = $oTopic->getUrl($sUrlMask);
+                $_REQUEST['topic_url'] = '';
+                $_REQUEST['topic_url_after'] = '';
+            } else {
+                // В маске есть URL, вместо него нужно вставить <input>
+                $aUrlMaskParts = explode('%topic_url%', $sUrlMask);
+                    $_REQUEST['topic_url_before'] = $aUrlMaskParts[0];
+                    if (isset($aUrlMaskParts[1])) {
+                        $_REQUEST['topic_url_after'] = $aUrlMaskParts[1];
+                    } else {
+                        $_REQUEST['topic_url_after'] = '';
+                    }
+                if ($oTopic->getTopicUrl()) {
+                    $_REQUEST['topic_url'] = $oTopic->getTopicUrl();
+                } else {
+                    $_REQUEST['topic_url'] = $oTopic->getTitleTranslit();
+                }
+            }
+        }
 		$this->Viewer_Assign('aPhotos', $this->Topic_getPhotosByTopicId($oTopic->getId()));
 	}
 	/**
@@ -324,8 +345,11 @@ class ActionContent extends Action {
 		if ($this->oType->isAllow('link')){
 			$oTopic->setLinkUrl(getRequestStr('topic_link_url'));
 		}
-		$oTopic->setDateAdd(date("Y-m-d H:i:s"));
+		$oTopic->setDateAdd(F::Now());
 		$oTopic->setUserIp(func_getIp());
+
+        $sTopicUrl = $this->Topic_CorrectTopicUrl($oTopic->getTitleTranslit());
+        $oTopic->setTopicUrl($sTopicUrl);
 		/**
 		 * Проверка корректности полей формы
 		 */
@@ -517,6 +541,8 @@ class ActionContent extends Action {
 		}
 		$oTopic->setTags(getRequestStr('topic_tags'));
 		$oTopic->setUserIp(func_getIp());
+
+        $oTopic->setTopicUrl(getRequestStr('topic_url'));
 		/**
 		 * Проверка корректности полей формы
 		 */

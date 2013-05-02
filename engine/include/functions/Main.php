@@ -490,6 +490,55 @@ class AltoFunc_Main {
         return date('Y-m-d H:i:s');
     }
 
+    /**
+     * Транслитерация строки
+     *
+     * @param   string      $sText
+     * @param   string|bool $xLang  - true - использовать установки текущего языка/локали
+     *                              - false - использовать системную локаль
+     *                              - <string> - использовать установки заданного языка/локали
+     *
+     * @return  string
+     */
+    static public function Translit($sText, $xLang = true) {
+        if ($xLang === true) {
+            if (class_exists('ModuleLang', false)) {
+                $xLang = E::Lang_GetLang();
+            } elseif (class_exists('Config', false)) {
+                $xLang = Config::Get('lang.current');
+            } else {
+                $xLang = false;
+            }
+        }
+
+        if ($xLang === false) {
+            $sText = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $sText);
+        } else {
+            $aChars = UserLocale::getLocale($xLang, 'translit');
+            if ($aChars) {
+                $sText = str_replace(array_keys($aChars), array_values($aChars), $sText);
+            }
+            $sText = preg_replace('/[-]{2,}/', '-', $sText);
+            $sText = strtolower(iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $sText));
+        }
+        return $sText;
+    }
+
+    static public function TranslitUrl($sText, $xLang = true) {
+        $aSymbols = array(
+            "_" => "-", "'" => "", "`" => "", "^" => "", " " => "-", '.' => '', ',' => '', ':' => '', '"' => '',
+            "'" => '', '<' => '', '>' => '', '«' => '', '»' => '', ' ' => '-', '(' => '-', ')' => '-'
+        );
+        $sText = self::Translit($sText, $xLang);
+        $sText = str_replace(array_keys($aSymbols), array_values($aSymbols), $sText);
+        $sText = preg_replace('/[^a-z0-9\-]/', '-', $sText);
+        $sText = preg_replace('/\s/', '-', $sText);
+        $sText = preg_replace('/[-]{2,}/', '-', $sText);
+        $sText = trim($sText, '-');
+        return $sText;
+    }
+
+
 }
 
 // EOF

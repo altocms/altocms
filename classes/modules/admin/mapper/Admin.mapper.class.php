@@ -250,6 +250,57 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         return $this->oDb->query($sql, $nUserId) !== false;
     }
 
+    public function GetNumTopicsWithoutUrl() {
+        $sql = "
+            SELECT Count(topic_id) as cnt
+            FROM " . Config::Get('db.table.topic') . "
+            WHERE (Trim(topic_url)='') OR (topic_url IS NULL)";
+        return intval($this->oDb->selectCell($sql));
+    }
+
+    public function GetTitleTopicsWithoutUrl($nLimit) {
+        $sql = "
+            SELECT
+                topic_id AS ARRAY_KEY, topic_id, topic_title
+            FROM " . Config::Get('db.table.topic') . "
+            WHERE (Trim(topic_url)='') OR (topic_url IS NULL)
+            ORDER BY topic_date_add ASC
+            LIMIT ?d
+            ";
+        return $this->oDb->select($sql, $nLimit);
+    }
+
+    public function SaveTopicsUrl($aData) {
+        $sql = '';
+        foreach ($aData as $nId => $aRec) {
+            $sql .= " WHEN $nId THEN '" . $aRec['topic_url'] . "'";
+        }
+        $sql = "UPDATE " . Config::Get('db.table.topic')
+            . " SET topic_url=CASE topic_id " . $sql . " ELSE topic_url END "
+            . " WHERE topic_id IN (?a)";
+        return $this->oDb->query($sql, array_keys($aData)) !== false;
+    }
+
+    public function GetDuplicateTopicsUrl() {
+        $sql = "
+            SELECT Count( topic_id ) AS cnt, topic_url
+            FROM " . Config::Get('db.table.topic') . "
+            WHERE topic_url > ''
+            GROUP BY topic_url
+            HAVING cnt >2
+            ";
+        return $this->oDb->select($sql);
+    }
+
+    public function GetTopicsDataByUrl($aUrls) {
+        $sql = "
+            SELECT topic_id, topic_url
+            FROM " . Config::Get('db.table.topic') . "
+            WHERE topic_url IN (?a)
+            ORDER BY topic_date_add ASC
+            ";
+        return $this->oDb->select($sql, $aUrls);
+    }
 
 }
 

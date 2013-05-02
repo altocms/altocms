@@ -18,13 +18,14 @@ F::IncludeFile('Action.class.php');
 F::IncludeFile('ActionPlugin.class.php');
 
 /**
- * Класс роутинга(контроллера)
+ * Класс роутинга
  * Инициализирует ядро, определяет какой экшен запустить согласно URL'у и запускает его.
  *
  * @package engine
  * @since 1.0
  */
 class Router extends LsObject {
+
     const BACKWARD_COOKIE = 'route_backward';
     /**
      * Конфигурация роутинга, получается из конфига
@@ -86,24 +87,28 @@ class Router extends LsObject {
     protected $aCurrentUrl = array();
 
     protected $aBackwardUrl = array();
+
     /**
      * Объект текущего экшена
      *
      * @var Action|null
      */
     protected $oAction = null;
+
     /**
      * Объект ядра
      *
      * @var Engine|null
      */
     protected $oEngine = null;
+
     /**
      * Покаывать или нет статистику выполнения
      *
      * @var bool
      */
     static protected $bShowStats = true;
+
     /**
      * Объект роутинга
      * @see getInstance
@@ -111,6 +116,13 @@ class Router extends LsObject {
      * @var Router|null
      */
     static protected $oInstance = null;
+
+    /**
+     * Маска фомирования URL топика
+     *
+     * @var null
+     */
+    static protected $sTopicUrlMask = null;
 
     /**
      * Делает возможным только один экземпляр этого класса
@@ -240,12 +252,17 @@ class Router extends LsObject {
      */
     protected function GetRequestUri() {
         $sReq = preg_replace('/\/+/', '/', $_SERVER['REQUEST_URI']);
-        $sReq = preg_replace('/^\/(.*)\/?$/U', '\\1', $sReq);
-        $sReq = preg_replace('/^(.*)\?.*$/U', '\\1', $sReq);
+        if (substr($sReq, -1) == '/') {
+            $sLastChar = '/';
+        } else {
+            $sLastChar = '';
+        }
+        $sReq = preg_replace('/^\/(.*)\/?$/U', '$1', $sReq);
+        $sReq = preg_replace('/^(.*)\?.*$/U', '$1', $sReq);
 
         // * Формируем $sPathWebCurrent ДО применения реврайтов
         self::$sPathWebCurrent = Config::Get('path.root.url') . join('/', $this->GetRequestArray($sReq));
-        return $sReq;
+        return $sReq . $sLastChar;
     }
 
     /**
@@ -263,6 +280,15 @@ class Router extends LsObject {
         return $aRequestUrl;
     }
 
+    protected function GetRouterUriRules() {
+        $aRewrite = (array)Config::Get('router.uri');
+        $sTopicUrlPattern = self::GetTopicUrlPattern();
+        if ($sTopicUrlPattern) {
+            $aRewrite = array_merge($aRewrite, array($sTopicUrlPattern => 'blog/$1.html'));
+        }
+        return $aRewrite;
+    }
+
     /**
      * Применяет к реквесту правила реврайта из конфига Config::Get('router.uri')
      *
@@ -270,17 +296,15 @@ class Router extends LsObject {
      * @return array
      */
     protected function RewriteRequest($aRequestUrl) {
-        /**
-         * Правила Rewrite для REQUEST_URI
-         */
+        // * Правила Rewrite для REQUEST_URI
         $sReq = implode('/', $aRequestUrl);
-        if ($aRewrite = Config::Get('router.uri')) {
+        if ($aRewrite = $this->GetRouterUriRules()) {
             $sReq = preg_replace(array_keys($aRewrite), array_values($aRewrite), $sReq);
         }
         if (substr($sReq, 0, 1) == '@') {
             $this->SpecialAction($sReq);
         }
-        return ($sReq == '') ? array() : explode('/', $sReq);
+        return (trim($sReq, '/') == '') ? array() : explode('/', $sReq);
     }
 
     /**
@@ -401,7 +425,7 @@ class Router extends LsObject {
      * @return string
      */
     protected function DefineActionClass() {
-        if (self::$sAction === null) {
+        if (!self::$sAction) {
             $sActionClass = $this->DetermineClass($this->aConfigRoute['config']['action_default'], self::$sActionEvent);
             if ($sActionClass) {
                 self::$sAction = $this->aConfigRoute['config']['action_default'];
@@ -815,6 +839,69 @@ class Router extends LsObject {
         }
         self::GotoBack();
     }
+
+    /**
+     * Возвращает маску формирования URL топика
+     *
+     * @param  bool     $bEmptyIfWrong
+     * @return string
+     */
+    static public function GetTopicUrlMask($bEmptyIfWrong = true) {
+        if (is_null(self::$sTopicUrlMask)) {
+            $sUrlMask = Config::Get('module.topic.url');
+            if ($sUrlMask) {
+                // WP compatible
+                $sUrlMask = str_replace('%post_id%', '%topic_id%', $sUrlMask);
+                $sUrlMask = str_replace('%postname%', '%topic_url%', $sUrlMask);
+                $sUrlMask = str_replace('%author%', '%login%', $sUrlMask);
+
+                // NuceURL compatible
+                $sUrlMask = str_replace('%id%', '%topic_id%', $sUrlMask);
+                $sUrlMask = str_replace('%blog%', '%blog_url%', $sUrlMask);
+                $sUrlMask = str_replace('%title%', '%topic_url%', $sUrlMask);
+
+                // В маске может быть только одно входение '%topic_id%' и '%topic_url%'
+                if (substr_count($sUrlMask, '%topic_id%') > 1) {
+                    $aParts = explode('%topic_id%', $sUrlMask, 2);
+                    $sUrlMask = $aParts[0] . '%topic_id%' . str_replace('%topic_id%', '', $aParts[1]);
+                }
+                if (substr_count($sUrlMask, '%topic_url%') > 1) {
+                    $aParts = explode('%topic_url%', $sUrlMask, 2);
+                    $sUrlMask = $aParts[0] . '%topic_url%' . str_replace('%topic_url%', '', $aParts[1]);
+                }
+                $sUrlMask = preg_replace('~\/+~', '/', $sUrlMask);
+            }
+        } else {
+            $sUrlMask = self::$sTopicUrlMask;
+        }
+
+        if ($bEmptyIfWrong && (strpos($sUrlMask, '%topic_id%') === false) && (strpos($sUrlMask, '%topic_url%') === false)) {
+            // В маске обязательно должны быть либо '%topic_id%', либо '%topic_url%'
+            $sUrlMask = '';
+        }
+        return $sUrlMask;
+    }
+
+    static public function GetTopicUrlPattern() {
+        $sUrlPattern = self::GetTopicUrlMask();
+        if ($sUrlPattern) {
+            $aReplace = array(
+                '%year%' => '\d{4}',
+                '%month%' => '\d{2}',
+                '%day%' => '\d{2}',
+                '%hour%' => '\d{2}',
+                '%minute%' => '\d{2}',
+                '%second%' => '\d{2}',
+                '%login%' => '[\w_\-]+',
+                '%blog_url%' => '[\w_\-]+',
+                '%topic_id%' => '(\d+)',
+                '%topic_url%' => '([\w\-]+)',
+            );
+            $sUrlPattern = '~^' . strtr(preg_quote($sUrlPattern), $aReplace) . '~i';
+        }
+        return $sUrlPattern;
+    }
+
 }
 
 // EOF

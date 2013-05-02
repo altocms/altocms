@@ -362,6 +362,22 @@ return array(
     'set_links_drafts' => 'Черновики',
     'set_links_drafts_enable' => 'Показывать черновики по прямой ссылке',
 
+    'set_links_topics' => 'Статьи',
+    'set_links_topics_mode' => 'Ссылки на статьи',
+    'set_links_topics_mode_ls' => 'Как в LiveStreet',
+    'set_links_topics_mode_id' => 'ID статьи (числовой)',
+    'set_links_topics_mode_day_name' => 'День и название',
+    'set_links_topics_mode_month_name' => 'Месяц и название',
+    'set_links_topics_mode_custom' => 'Произвольная',
+
+    'set_links_generate' => 'Генерация ссылок',
+    'set_links_generate_text' => 'Вы можете выполнить генерацию ссылок для всех статей. Это может быть необходимо, если Вы перешли на Alto CMS с какой-нибудь другой системы управления сайтом. Вы также можете выполнить эту операцию для каждой статьи в отдельности, входя в режим редактиования статьи.',
+    'set_links_generate_button' => 'Выполнить генерацию ссылок для статей',
+    'set_links_generate_count' => 'Количество статей без ссылок: ',
+    'set_links_generate_done' => 'Ссылки для статей сгенерированы',
+    'set_links_generate_next' => 'Ссылки сгенерированы, но не для всех статей. Осталось %%num%% статей без ссылок. Необходимо продолжить генерацию ссылок.',
+    'set_links_generate_error' => 'Ошибка генерации ссылок для статей',
+
     'set_edit_comment' => 'Редактирование комментариев',
     'set_edit_comment_disabled' => 'Запрещено',
     'set_edit_comment_enabled' => 'Разрешено в течение',
