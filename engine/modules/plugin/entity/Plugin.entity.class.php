@@ -9,10 +9,9 @@
  *----------------------------------------------------------------------------
  */
 
-class ModulePlugin_EntityPlugin extends Entity
-{
-    public function __construct($aParams = false)
-    {
+class ModulePlugin_EntityPlugin extends Entity {
+
+    public function __construct($aParams = false) {
         if (is_array($aParams)) {
             $this->_setData($aParams);
         } elseif($aParams) {
@@ -22,8 +21,7 @@ class ModulePlugin_EntityPlugin extends Entity
         if (!$this->GetNum()) $this->SetNum(-1);
     }
 
-    public function LoadFromXmlFile($sPluginId, $aData = null)
-    {
+    public function LoadFromXmlFile($sPluginId, $aData = null) {
         $sPluginXML = $this->Plugin_GetPluginManifest($sPluginId);
         if (is_null($aData)) {
             $aData = array(
@@ -34,8 +32,7 @@ class ModulePlugin_EntityPlugin extends Entity
         $this->LoadFromXml($sPluginXML, $aData);
     }
 
-    public function LoadFromXml($sPluginXML, $aData = null)
-    {
+    public function LoadFromXml($sPluginXML, $aData = null) {
         if ($oXml = @simplexml_load_string($sPluginXML)) {
             if (is_null($aData)) {
                 $aData = array(
@@ -69,8 +66,7 @@ class ModulePlugin_EntityPlugin extends Entity
      * @param string           $sProperty    Свойство, которое нужно вернуть
      * @param string           $sLang    Название языка
      */
-    protected function _xlang($oXml, $sProperty, $sLang)
-    {
+    protected function _xlang($oXml, $sProperty, $sLang) {
         $sProperty = trim($sProperty);
 
         if (!count($data = $oXml->xpath("{$sProperty}/lang[@name='{$sLang}']"))) {
@@ -79,24 +75,21 @@ class ModulePlugin_EntityPlugin extends Entity
         $oXml->$sProperty->data = $this->Text_Parser(trim((string)array_shift($data)));
     }
 
-    protected function _getDataItem($sKey)
-    {
+    protected function _getDataItem($sKey) {
         if (isset($this->_aData[$sKey]))
             return $this->_aData[$sKey];
         else
             return null;
     }
 
-    public function _getDataProperty($sProp = null)
-    {
+    public function _getDataProperty($sProp = null) {
         if (is_null($sProp))
             return $this->_aData['property'];
         else
             return $this->_aData['property']->$sProp;
     }
 
-    public function GetName()
-    {
+    public function GetName() {
         $xProp = $this->_getDataProperty('name');
         if ($xProp->data)
             return $xProp->data;
@@ -104,8 +97,7 @@ class ModulePlugin_EntityPlugin extends Entity
             return $xProp->lang;
     }
 
-    public function GetDescription()
-    {
+    public function GetDescription() {
         $xProp = $this->_getDataProperty('description');
         if ($xProp->data)
             return $xProp->data;
@@ -113,8 +105,7 @@ class ModulePlugin_EntityPlugin extends Entity
             return $xProp->lang;
     }
 
-    public function GetAuthor()
-    {
+    public function GetAuthor() {
         $xProp = $this->_getDataProperty('author');
         if ($xProp->data)
             return $xProp->data;
@@ -122,13 +113,11 @@ class ModulePlugin_EntityPlugin extends Entity
             return $xProp->lang;
     }
 
-    public function GetPluginClass()
-    {
+    public function GetPluginClass() {
         return 'Plugin' . ucfirst($this->GetCode());
     }
 
-    public function GetAdminClass()
-    {
+    public function GetAdminClass() {
         $aAdminPanel = $this->_getDataItem('adminpanel');
         if (isset($aAdminPanel['class']))
             return $aAdminPanel['class'];
@@ -137,8 +126,7 @@ class ModulePlugin_EntityPlugin extends Entity
         }
     }
 
-    public function HasAdminpanel()
-    {
+    public function HasAdminpanel() {
         $sClass = $this->GetAdminClass();
         try {
             if (class_exists($sClass, true)) {
@@ -150,8 +138,7 @@ class ModulePlugin_EntityPlugin extends Entity
         return false;
     }
 
-    public function GetAdminMenuEvents()
-    {
+    public function GetAdminMenuEvents() {
         if ($this->IsActive()) {
             $aEvents = array();
             $sPluginClass = $this->GetPluginClass();
@@ -172,38 +159,31 @@ class ModulePlugin_EntityPlugin extends Entity
         return false;
     }
 
-    public function GetVersion()
-    {
+    public function GetVersion() {
         return (string)$this->_getDataProperty('version');
     }
 
-    public function GetHomepage()
-    {
+    public function GetHomepage() {
         return (string)$this->_getDataProperty('homepage');
     }
 
-    public function GetEmail()
-    {
+    public function GetEmail() {
         return (string)$this->_getDataProperty('author')->email;
     }
 
-    public function IsActive()
-    {
+    public function IsActive() {
         return (bool)$this->_getDataItem('is_active');
     }
 
-    public function isTop()
-    {
+    public function isTop() {
         return ($sVal = $this->GetPriority()) && strtolower($sVal) == 'top';
     }
 
-    public function Requires()
-    {
+    public function Requires() {
         return $this->_getDataProperty('requires');
     }
 
-    public function RequiredAltoVersion()
-    {
+    public function RequiredAltoVersion() {
         $oRequires = $this->Requires();
         $sAltoVersion = (string)$oRequires->alto->version;
         if (!$sAltoVersion)
@@ -211,24 +191,21 @@ class ModulePlugin_EntityPlugin extends Entity
         return $sAltoVersion;
     }
 
-    public function RequiredPhpVersion()
-    {
+    public function RequiredPhpVersion() {
         $oRequires = $this->Requires();
         if ($oRequires->system && $oRequires->system->php) {
             return (string)$oRequires->system->php;
         }
     }
 
-    public function RequiredPlugins()
-    {
+    public function RequiredPlugins() {
         $oRequires = $this->Requires();
         if ($oRequires->plugins) {
             return $oRequires->plugins->children();
         }
     }
 
-    public function EngineCompatible()
-    {
+    public function EngineCompatible() {
         $oRequires = $this->Requires();
 
         $sLsVersion = (string)$oRequires->livestreet;

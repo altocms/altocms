@@ -12,8 +12,7 @@
 /**
  * Модуль управления блоками
  */
-class ModuleWidget extends Module
-{
+class ModuleWidget extends Module {
     protected $aWidgets = array();
     protected $aConfig = array();
 
@@ -26,8 +25,7 @@ class ModuleWidget extends Module
      * @param   bool            $bDefault
      * @return  bool
      */
-    protected function _checkPath($aPaths, $bDefault = true)
-    {
+    protected function _checkPath($aPaths, $bDefault = true) {
         $aPaths = F::Val2Array($aPaths);
         if ($aPaths) {
             foreach($aPaths as $nKey => $sPath) {
@@ -47,8 +45,7 @@ class ModuleWidget extends Module
     /**
      * Инициализация модуля
      */
-    public function Init()
-    {
+    public function Init() {
         $this->sCurentPath = Router::GetCurrentPath();
     }
 
@@ -57,8 +54,7 @@ class ModuleWidget extends Module
      *
      * @return array
      */
-    protected function _loadWidgetsList()
-    {
+    protected function _loadWidgetsList() {
         // Список виджетов из основного конфига
         $aWidgets = (array)Config::Get('widgets');
 
@@ -93,8 +89,7 @@ class ModuleWidget extends Module
      * @param   array                       $aWidgetData
      * @return  ModuleWidget_EntityWidget
      */
-    public function MakeWidget($aWidgetData)
-    {
+    public function MakeWidget($aWidgetData) {
         $oWidget = Engine::GetEntity('Widget', $aWidgetData);
         /*
          * Перенесено в конструктор
@@ -113,8 +108,7 @@ class ModuleWidget extends Module
      * @param   bool    $bAll   - если true, то все виджеты, иначе - только те, что должны быть отображены
      * @return  array
      */
-    public function GetWidgets($bAll = false)
-    {
+    public function GetWidgets($bAll = false) {
         $aWidgets = $this->_loadWidgetsList();
 
         // Если массив пустой или фильтровать не нужно, то возвращаем, как есть
@@ -139,8 +133,7 @@ class ModuleWidget extends Module
      * @param   bool        $bReturnClassName
      * @return  string|bool
      */
-    public function FileClassExists($sName, $sPlugin = null, $bReturnClassName = false)
-    {
+    public function FileClassExists($sName, $sPlugin = null, $bReturnClassName = false) {
         $sName = ucfirst($sName);
         if (!$sPlugin) {
             $sFile = Config::Get('path.root.dir') . '/classes/widgets/Widget' . $sName . '.class.php';

@@ -29,8 +29,7 @@
  * @package engine.modules
  * @since 1.0
  */
-class ModuleSecurity extends Module
-{
+class ModuleSecurity extends Module {
     protected $sKeyName;
     protected $sKeyLen;
 
@@ -38,8 +37,7 @@ class ModuleSecurity extends Module
      * Инициализируем модуль
      *
      */
-    public function Init()
-    {
+    public function Init() {
         $this->sKeyName = 'ALTO_SECURITY_KEY';
         $this->sKeyLen = 32;
     }
@@ -50,8 +48,7 @@ class ModuleSecurity extends Module
      * @param   bool $bBreak - немедленно прекратить работу
      * @return  bool
      */
-    public function ValidateSendForm($bBreak = true)
-    {
+    public function ValidateSendForm($bBreak = true) {
         if (!($this->ValidateSessionKey())) {
             if ($bBreak) {
                 die('Hacking attempt!');
@@ -67,8 +64,7 @@ class ModuleSecurity extends Module
      *
      * @return bool
      */
-    public function ValidateReferal()
-    {
+    public function ValidateReferal() {
         if (isset($_SERVER['HTTP_REFERER'])) {
             $aUrl = parse_url($_SERVER['HTTP_REFERER']);
             if (strcasecmp($aUrl['host'], $_SERVER['HTTP_HOST']) == 0) {
@@ -86,14 +82,12 @@ class ModuleSecurity extends Module
      * @param   string|null $sCode  - Код для проверки, если нет то берется из реквеста
      * @return  bool
      */
-    public function ValidateSessionKey($sCode = null)
-    {
+    public function ValidateSessionKey($sCode = null) {
         if (!$sCode) $sCode = getRequestStr('security_ls_key');
         return ($sCode == $this->GetSessionKey());
     }
 
-    public function GetSessionKey()
-    {
+    public function GetSessionKey() {
         $sSessionKey = $this->Session_Get($this->sKeyName);
         if (is_null($sSessionKey)) {
             $sSessionKey = $this->_generateSessionKey();
@@ -106,8 +100,7 @@ class ModuleSecurity extends Module
      *
      * @return string
      */
-    public function SetSessionKey()
-    {
+    public function SetSessionKey() {
         $sSessionKey = $this->_generateSessionKey();
 
         $this->Session_Set($this->sKeyName, $sSessionKey);
@@ -122,8 +115,7 @@ class ModuleSecurity extends Module
      *
      * @return string
      */
-    protected function _generateSessionKey()
-    {
+    protected function _generateSessionKey() {
         // Сохраняем текущий ключ для ajax-запросов
         if (F::AjaxRequest() && ($sKey = $this->Session_Get($this->sKeyName))) {
             return $sKey;
@@ -143,8 +135,7 @@ class ModuleSecurity extends Module
      * @param   string|null $sType
      * @return  string
      */
-    public function Salted($sData, $sType = null)
-    {
+    public function Salted($sData, $sType = null) {
         $sSalt = Config::Get('security.salt_' . $sType);
         if ($sSalt !== false && !$sSalt) {
             $sSalt = $sType;
@@ -160,8 +151,7 @@ class ModuleSecurity extends Module
      * @param   string $sType      - тип "соли"
      * @return  bool
      */
-    public function CheckSalted($sSalted, $sData, $sType = null)
-    {
+    public function CheckSalted($sSalted, $sData, $sType = null) {
         if (substr($sSalted, 0, 3) == '0x:') {
             return $sSalted == $this->Salted($sData, $sType);
         } else {
@@ -169,14 +159,12 @@ class ModuleSecurity extends Module
         }
     }
 
-    public function GetUserAgentHash()
-    {
+    public function GetUserAgentHash() {
         $sUserAgent = ((isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : '');
         return $this->Salted($sUserAgent, 'auth');
     }
 
-    public function GetClientHash()
-    {
+    public function GetClientHash() {
         $sClientHash = $this->GetUserAgentHash();
         if (isset($_SERVER['REMOTE_ADDR'])) $sClientHash .= $_SERVER['REMOTE_ADDR'];
         //if ($sVizId = $this->Session_GetCookie('visitor_id')) $sClientHash .= $sVizId;
@@ -184,15 +172,13 @@ class ModuleSecurity extends Module
         return $this->Salted($sClientHash, 'auth');
     }
 
-    public function GenerateUniqKey()
-    {
+    public function GenerateUniqKey() {
         $sData = serialize(Config::Get('path.root'));
         if (isset($_SERVER['SERVER_ADDR'])) $sData .= $_SERVER['SERVER_ADDR'];
         return $this->Salted(md5($sData), 'auth');
     }
 
-    public function GetUniqKey()
-    {
+    public function GetUniqKey() {
         $sUniqKey = Config::Get('alto.uniq_key');
         if (!$sUniqKey) {
             $sUniqKey = $this->GenerateUniqKey();
@@ -205,8 +191,7 @@ class ModuleSecurity extends Module
     /**
      * Завершение модуля
      */
-    public function Shutdown()
-    {
+    public function Shutdown() {
         // перенесено во Viewer, т.к. новый ключ нужно задавать только при рендеринге
         //$this->SetSessionKey();
     }

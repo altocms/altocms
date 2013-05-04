@@ -22,8 +22,8 @@
  * @param   Smarty_Internal_Template $oSmartyTemplate
  * @return  string
  */
-function smarty_function_wgroup($aParams, $oSmartyTemplate)
-{
+function smarty_function_wgroup($aParams, $oSmartyTemplate) {
+	
     if (!isset($aParams['group'])) {
         trigger_error('Parameter "group" does not define in {wgroup ...} function', E_USER_WARNING);
         return;

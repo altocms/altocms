@@ -23,8 +23,8 @@
  * @param Smarty $oSmarty
  * @return string
  */
-function smarty_insert_block($aParams, &$oSmarty)
-{
+function smarty_insert_block($aParams, &$oSmarty) {
+	
     if (!isset($aParams['block'])) {
         trigger_error('Parameter "block" not define in {insert name="block" ...}', E_USER_WARNING);
         return;

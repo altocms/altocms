@@ -21,8 +21,7 @@
  * @package engine.modules
  * @since 1.0
  */
-class ModuleSession extends Module
-{
+class ModuleSession extends Module {
     /**
      * ID  сессии
      *
@@ -56,8 +55,7 @@ class ModuleSession extends Module
      * Инициализация модуля
      *
      */
-    public function Init()
-    {
+    public function Init() {
         $this->bUseStandartSession = Config::Get('sys.session.standart');
 
         // * Стартуем сессию
@@ -69,8 +67,7 @@ class ModuleSession extends Module
      * Старт сессии
      *
      */
-    protected function Start()
-    {
+    protected function Start() {
         if ($this->bUseStandartSession) {
             session_name(Config::Get('sys.session.name'));
             session_set_cookie_params(
@@ -112,8 +109,7 @@ class ModuleSession extends Module
      * Устанавливает уникальный идентификатор сессии
      *
      */
-    protected function SetId()
-    {
+    protected function SetId() {
         // * Если идентификатор есть в куках то берем его
         if (isset($_COOKIE[Config::Get('sys.session.name')])) {
             $this->sId = $_COOKIE[Config::Get('sys.session.name')];
@@ -134,8 +130,7 @@ class ModuleSession extends Module
      * Получает идентификатор текущей сессии
      *
      */
-    public function GetId()
-    {
+    public function GetId() {
         if ($this->bUseStandartSession) {
             return session_id();
         } else {
@@ -146,8 +141,7 @@ class ModuleSession extends Module
     /**
      * Returns hash-key of current session
      */
-    public function GetKey()
-    {
+    public function GetKey() {
         return $this->Security_Salted($this->GetId(), 'sess');
     }
 
@@ -156,8 +150,7 @@ class ModuleSession extends Module
      *
      * @return string
      */
-    protected function GenerateId()
-    {
+    protected function GenerateId() {
         return md5(func_generator() . time());
     }
 
@@ -165,8 +158,7 @@ class ModuleSession extends Module
      * Читает данные сессии в aData
      *
      */
-    protected function ReadData()
-    {
+    protected function ReadData() {
         $this->aData = $this->Cache_Get($this->sId);
     }
 
@@ -174,8 +166,7 @@ class ModuleSession extends Module
      * Сохраняет данные сессии
      *
      */
-    protected function Save()
-    {
+    protected function Save() {
         $this->Cache_Set($this->aData, $this->sId, array(), Config::Get('sys.session.timeout'));
     }
 
@@ -186,8 +177,7 @@ class ModuleSession extends Module
      * @param   string|null $sDefault Значение по умолчанию
      * @return  mixed|null
      */
-    public function Get($sName = null, $sDefault = null)
-    {
+    public function Get($sName = null, $sDefault = null) {
         if (is_null($sName)) {
             return $this->GetData();
         } else {
@@ -205,8 +195,7 @@ class ModuleSession extends Module
      * @param string $sName    Имя параметра
      * @param mixed $data    Данные
      */
-    public function Set($sName, $data)
-    {
+    public function Set($sName, $data) {
         if ($this->bUseStandartSession) {
             $_SESSION[$sName] = $data;
         } else {
@@ -220,8 +209,7 @@ class ModuleSession extends Module
      *
      * @param string $sName    Имя параметра
      */
-    public function Drop($sName)
-    {
+    public function Drop($sName) {
         if ($this->bUseStandartSession) {
             unset($_SESSION[$sName]);
         } else {
@@ -236,8 +224,7 @@ class ModuleSession extends Module
      *
      * @return array
      */
-    public function GetData()
-    {
+    public function GetData() {
         if ($this->bUseStandartSession) {
             return $_SESSION;
         } else {
@@ -249,8 +236,7 @@ class ModuleSession extends Module
      * Завершает сессию, дропая все данные
      *
      */
-    public function DropSession()
-    {
+    public function DropSession() {
         if ($this->bUseStandartSession) {
             unset($_SESSION);
             session_destroy();
@@ -268,8 +254,7 @@ class ModuleSession extends Module
      * @param $sValue
      * @param mixed|null $xPeriod
      */
-    public function SetCookie($sName, $sValue, $xPeriod = null)
-    {
+    public function SetCookie($sName, $sValue, $xPeriod = null) {
         if ($xPeriod) {
             $nTime = time() + intval($xPeriod);
         } else {
@@ -284,8 +269,7 @@ class ModuleSession extends Module
      * @param   string  $sName
      * @return  string|null
      */
-    public function GetCookie($sName)
-    {
+    public function GetCookie($sName) {
         if (isset($_COOKIE[$sName])) {
             return $_COOKIE[$sName];
         }
@@ -297,8 +281,7 @@ class ModuleSession extends Module
      *
      * @param   string  $sName
      */
-    public function DelCookie($sName)
-    {
+    public function DelCookie($sName) {
         setcookie($sName, '', time() - 3600, Config::Get('sys.cookie.path'), Config::Get('sys.cookie.host'));
     }
 }

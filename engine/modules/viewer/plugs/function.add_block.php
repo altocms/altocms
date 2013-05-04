@@ -21,8 +21,8 @@
  * @param   $params
  * @param   $smarty
  */
-function smarty_function_add_block($params, &$smarty)
-{
+function smarty_function_add_block($params, &$smarty) {
+	
     if (!array_key_exists('group', $params)) {
         trigger_error("add_block: missing 'group' parameter", E_USER_WARNING);
         return;

@@ -18,17 +18,14 @@
  * @package engine.modules
  * @since 1.0
  */
-class ModuleSkin extends Module
-{
+class ModuleSkin extends Module {
     const SKIN_XML_FILE = 'skin.xml';
 
-    public function Init()
-    {
+    public function Init() {
 
     }
 
-    public function GetSkinManifest($sSkin)
-    {
+    public function GetSkinManifest($sSkin) {
         $sXmlFile = Config::Get('path.skins.dir') . $sSkin . '/settings/' . self::SKIN_XML_FILE;
         if ($sXml = F::File_GetContents($sXmlFile)) {
             return $sXml;
@@ -41,8 +38,7 @@ class ModuleSkin extends Module
      * @param   array   $aFilter    - array('type' => 'site'|'admin')
      * @return  array(ModuleSkin_EntitySkin)
      */
-    public function GetSkinsList($aFilter = array())
-    {
+    public function GetSkinsList($aFilter = array()) {
         $aSkinList = array();
         $aList = glob(Config::Get('path.skins.dir') . '*', GLOB_ONLYDIR);
         if ($aList) {
@@ -66,8 +62,7 @@ class ModuleSkin extends Module
      * @param   string|null $sType
      * @return  array(string)
      */
-    public function GetSkinsArray($sType = null)
-    {
+    public function GetSkinsArray($sType = null) {
         if ($sType) {
             $aFilter = array('type' => $sType);
         } else {

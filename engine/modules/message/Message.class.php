@@ -24,8 +24,7 @@
  * @package engine.modules
  * @since 1.0
  */
-class ModuleMessage extends Module
-{
+class ModuleMessage extends Module {
     /**
      * Массив сообщений со статусом ОШИБКА
      *
@@ -55,8 +54,7 @@ class ModuleMessage extends Module
      * Инициализация модуля
      *
      */
-    public function Init()
-    {
+    public function Init() {
         if (!$this->isInit()) {
             /**
              * Добавляем сообщения и ошибки, которые содержались в сессии
@@ -76,8 +74,7 @@ class ModuleMessage extends Module
      * При завершении работы модуля передаем списки сообщений в шаблоны Smarty
      *
      */
-    public function Shutdown()
-    {
+    public function Shutdown() {
         /**
          * Добавляем в сессию те сообщения, которые были отмечены для сессионного использования
          */
@@ -95,8 +92,7 @@ class ModuleMessage extends Module
      * @param string $sTitle    Заголовок
      * @param bool   $bUseSession    Показать сообщение при следующей загрузке страницы
      */
-    public function AddError($sMsg, $sTitle = null, $bUseSession = false)
-    {
+    public function AddError($sMsg, $sTitle = null, $bUseSession = false) {
         if (!$bUseSession) {
             $this->aMsgError[] = array('msg' => $sMsg, 'title' => $sTitle);
         } else {
@@ -111,8 +107,7 @@ class ModuleMessage extends Module
      * @param string $sTitle    Заголовок
      * @param bool   $bUseSession    Показать сообщение при следующем обращении пользователя к сайту
      */
-    public function AddErrorSingle($sMsg, $sTitle = null, $bUseSession = false)
-    {
+    public function AddErrorSingle($sMsg, $sTitle = null, $bUseSession = false) {
         $this->ClearError();
         $this->AddError($sMsg, $sTitle, $bUseSession);
     }
@@ -124,8 +119,7 @@ class ModuleMessage extends Module
      * @param string $sTitle    Заголовок
      * @param bool   $bUseSession    Показать сообщение при следующем обращении пользователя к сайту
      */
-    public function AddNotice($sMsg, $sTitle = null, $bUseSession = false)
-    {
+    public function AddNotice($sMsg, $sTitle = null, $bUseSession = false) {
         if (!$bUseSession) {
             $this->aMsgNotice[] = array('msg' => $sMsg, 'title' => $sTitle);
         } else {
@@ -140,8 +134,7 @@ class ModuleMessage extends Module
      * @param string $sTitle    Заголовок
      * @param bool   $bUseSession    Показать сообщение при следующем обращении пользователя к сайту
      */
-    public function AddNoticeSingle($sMsg, $sTitle = null, $bUseSession = false)
-    {
+    public function AddNoticeSingle($sMsg, $sTitle = null, $bUseSession = false) {
         $this->ClearNotice();
         $this->AddNotice($sMsg, $sTitle, $bUseSession);
     }
@@ -150,8 +143,7 @@ class ModuleMessage extends Module
      * Очищает стек сообщений
      *
      */
-    public function ClearNotice()
-    {
+    public function ClearNotice() {
         $this->aMsgNotice = array();
         $this->aMsgNoticeSession = array();
     }
@@ -160,8 +152,7 @@ class ModuleMessage extends Module
      * Очищает стек ошибок
      *
      */
-    public function ClearError()
-    {
+    public function ClearError() {
         $this->aMsgError = array();
         $this->aMsgErrorSession = array();
     }
@@ -171,8 +162,7 @@ class ModuleMessage extends Module
      *
      * @return array
      */
-    public function GetError()
-    {
+    public function GetError() {
         return $this->aMsgError;
     }
 
@@ -181,8 +171,7 @@ class ModuleMessage extends Module
      *
      * @return array
      */
-    public function GetNotice()
-    {
+    public function GetNotice() {
         return $this->aMsgNotice;
     }
 
@@ -192,8 +181,7 @@ class ModuleMessage extends Module
      *
      * @return array
      */
-    public function GetNoticeSession()
-    {
+    public function GetNoticeSession() {
         return $this->aMsgNoticeSession;
     }
 
@@ -203,8 +191,7 @@ class ModuleMessage extends Module
      *
      * @return array
      */
-    public function GetErrorSession()
-    {
+    public function GetErrorSession() {
         return $this->aMsgErrorSession;
     }
 }

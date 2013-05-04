@@ -34,8 +34,7 @@
  * поддержка плейсхолдера ?s — подзапрос с проверкой типов, тоесть неэкранированные данные вставить нельзя, а кусок запроса с подстановкой параметров можно
  * поддержка конструкций {?… } — условная вставка и {… |… } — аналог else
  */
-class ModuleDatabase extends Module
-{
+class ModuleDatabase extends Module {
     /**
      * Массив инстанцируемых объектов БД, или проще говоря уникальных коннектов к БД
      *
@@ -51,13 +50,11 @@ class ModuleDatabase extends Module
      * Инициализация модуля
      *
      */
-    public function Init()
-    {
+    public function Init() {
 
     }
 
-    protected function _getDbConnect($sDsn)
-    {
+    protected function _getDbConnect($sDsn) {
         if (Config::Get('db.params.lazy')) {
             // lazy connection
             F::File_IncludeFile(Config::Get('path.root.engine') . '/lib/external/DbSimple3/lib/DbSimple/Connect.php');
@@ -81,8 +78,7 @@ class ModuleDatabase extends Module
      *                                  если null, то используются параметры из конфига Config::Get('db.params')
      * @return  DbSimple_Connect|null
      */
-    public function GetConnect($aConfig = null)
-    {
+    public function GetConnect($aConfig = null) {
         /**
          * Если конфиг не передан то используем главный конфиг БД из config.php
          */
@@ -126,8 +122,7 @@ class ModuleDatabase extends Module
      *
      * @return array
      */
-    public function GetStats()
-    {
+    public function GetStats() {
         $aQueryStats = array('time' => 0, 'count' => -1); // не считаем тот самый костыльный запрос, который устанавливает настройки DB соединения
         foreach ($this->aInstance as $oDb) {
             $aStats = $oDb->getStatistics();
@@ -138,16 +133,14 @@ class ModuleDatabase extends Module
         return $aQueryStats;
     }
 
-    public function SetLoggerOn()
-    {
+    public function SetLoggerOn() {
         foreach ($this->aInstance as $sDsn => $oDb) {
             $oDb->setLogger(array($this, 'Logger'));
             $this->aInstance[$sDsn] = $oDb;
         }
     }
 
-    public function SetLoggerOff()
-    {
+    public function SetLoggerOff() {
         foreach ($this->aInstance as $sDsn => $oDb) {
             $oDb->setLogger(null);
             $this->aInstance[$sDsn] = $oDb;
@@ -160,8 +153,7 @@ class ModuleDatabase extends Module
      * @param   object $oDb
      * @param   array $sSql
      */
-    function Logger($oDb, $sSql)
-    {
+    function Logger($oDb, $sSql) {
         // Получаем информацию о запросе и сохраняем её в лог
         $sMsg = print_r($sSql, true);
         //Engine::getInstance()->Logger_Dump(Config::Get('sys.logs.sql_query_file'), $sMsg);
@@ -182,8 +174,7 @@ class ModuleDatabase extends Module
      * @param   string $sMessage    Сообщение об ошибке
      * @param   array $aInfo        Информация об ошибке
      */
-    function ErrorHandler($sMessage, $aInfo)
-    {
+    function ErrorHandler($sMessage, $aInfo) {
         /**
          * Формируем текст сообщения об ошибке
          */
@@ -211,8 +202,7 @@ class ModuleDatabase extends Module
      * @param array|null $aConfig    Конфиг подключения к БД
      * @return array
      */
-    public function ExportSQL($sFilePath, $aConfig = null)
-    {
+    public function ExportSQL($sFilePath, $aConfig = null) {
         if (!is_file($sFilePath)) {
             return array('result' => false, 'errors' => array("cant find file '$sFilePath'"));
         } elseif (!is_readable($sFilePath)) {
@@ -229,8 +219,7 @@ class ModuleDatabase extends Module
      * @param array|null $aConfig    Конфиг подключения к БД
      * @return array    Возвращает массив вида array('result'=>bool,'errors'=>array())
      */
-    public function ExportSQLQuery($sFileQuery, $aConfig = null)
-    {
+    public function ExportSQLQuery($sFileQuery, $aConfig = null) {
         /**
          * Замена префикса таблиц
          */
@@ -273,8 +262,7 @@ class ModuleDatabase extends Module
      * @param   array|null $aConfig     - Конфиг подключения к БД
      * @return  bool
      */
-    public function isTableExists($sTableName, $aConfig = null)
-    {
+    public function isTableExists($sTableName, $aConfig = null) {
         $sTableName = str_replace('prefix_', Config::Get('db.table.prefix'), $sTableName);
         $sQuery = "SHOW TABLES LIKE '{$sTableName}'";
         if ($aRows = $this->GetConnect($aConfig)->select($sQuery)) {
@@ -292,8 +280,7 @@ class ModuleDatabase extends Module
      * @param   array|null $aConfig     - Конфиг подключения к БД
      * @return  bool
      */
-    public function isFieldExists($sTableName, $sFieldName, $aConfig = null)
-    {
+    public function isFieldExists($sTableName, $sFieldName, $aConfig = null) {
         $sTableName = str_replace('prefix_', Config::Get('db.table.prefix'), $sTableName);
         $sQuery = "SHOW FIELDS FROM `{$sTableName}`";
         if ($aRows = $this->GetConnect($aConfig)->select($sQuery)) {
@@ -316,8 +303,7 @@ class ModuleDatabase extends Module
      * @param   array|null $aConfig     - Конфиг подключения к БД
      * @return  null|bool
      */
-    public function AddEnumType($sTableName, $sFieldName, $sType, $aConfig = null)
-    {
+    public function AddEnumType($sTableName, $sFieldName, $sType, $aConfig = null) {
         $sTableName = str_replace('prefix_', Config::Get('db.table.prefix'), $sTableName);
         $sQuery = "SHOW COLUMNS FROM  `{$sTableName}`";
 
@@ -336,8 +322,7 @@ class ModuleDatabase extends Module
         }
     }
 
-    public function AddField($sTableName, $sFieldName, $sFieldType, $sDefault = null, $bNull = null, $sAdditional = '', $aConfig = null)
-    {
+    public function AddField($sTableName, $sFieldName, $sFieldType, $sDefault = null, $bNull = null, $sAdditional = '', $aConfig = null) {
         $sTableName = str_replace('prefix_', Config::Get('db.table.prefix'), $sTableName);
         if (is_null($sDefault) && is_null($bNull)) {
             $sNull = '';
@@ -354,8 +339,7 @@ class ModuleDatabase extends Module
         $this->GetConnect($aConfig)->query($sQuery);
     }
 
-    public function AddIndex($sTableName, $aIndexFields, $sIndexType = null, $sIndexName = null, $aConfig = null)
-    {
+    public function AddIndex($sTableName, $aIndexFields, $sIndexType = null, $sIndexName = null, $aConfig = null) {
         $sTableName = str_replace('prefix_', Config::Get('db.table.prefix'), $sTableName);
         if (!is_array($aIndexFields)) $aIndexFields = array($aIndexFields);
         $sFields = implode(',', $aIndexFields);

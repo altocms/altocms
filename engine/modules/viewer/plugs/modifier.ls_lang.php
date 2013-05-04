@@ -1,7 +1,6 @@
 <?php
 
-function smarty_modifier_ls_lang($sString)
-{
+function smarty_modifier_ls_lang($sString) {
     $aArgs = func_get_args();
     if (count($aArgs) ==1 || !$sString) return $sString;
     array_shift($aArgs);

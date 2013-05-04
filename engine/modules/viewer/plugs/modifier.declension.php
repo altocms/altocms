@@ -12,8 +12,7 @@
  * @param int $count
  * @return string
  */
-function smarty_modifier_declension_english($forms, $count)
-{
+function smarty_modifier_declension_english($forms, $count) {
 	if ($count==1)
 		return $forms[0];
 	else
@@ -27,8 +26,7 @@ function smarty_modifier_declension_english($forms, $count)
  * @param int $count
  * @return string
  */
-function smarty_modifier_declension_russian($forms, $count)
-{
+function smarty_modifier_declension_russian($forms, $count) {
 	$mod100 = $count % 100;
 	switch ($count%10) {
 		case 1:
@@ -62,8 +60,7 @@ function smarty_modifier_declension_russian($forms, $count)
  * @param string $language
  * @return string
  */
-function smarty_modifier_declension($count, $forms, $language='')
-{	
+function smarty_modifier_declension($count, $forms, $language='') {
 	if (!$language)
 		$language = Engine::getInstance()->Lang_GetLang();
 
