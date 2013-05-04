@@ -16,8 +16,8 @@
  * -------------------------------------------------------
  */
 
-class UserLocale
-{
+class UserLocale {
+
     static $sDefaultLanguage = 'ru';
     static $aDefaultLocale = array(
         'name' => 'Russian',
@@ -34,8 +34,7 @@ class UserLocale
     static $sCurrentLanguage = 'ru';
     static $aLocales = array();
 
-    static function initLocales($aLangs = null)
-    {
+    static function initLocales($aLangs = null) {
         if (!$aLangs) {
             self::$aLocales[self::$aDefaultLocale] = self::$aDefaultLocale;
         } else {
@@ -51,8 +50,7 @@ class UserLocale
         }
     }
 
-    static function getLocale($sLang = '', $sItem = '')
-    {
+    static function getLocale($sLang = '', $sItem = '') {
         $xResult = self::$aLocales;
         if (!$sLang) $sLang = self::$sCurrentLanguage;
         if ($sLang AND isset($xResult[$sLang])) $xResult = $xResult[$sLang];
@@ -60,8 +58,7 @@ class UserLocale
         return $xResult;
     }
 
-    static function setLocaleSys($sLocale)
-    {
+    static function setLocaleSys($sLocale) {
         if (is_string($sLocale) AND strpos($sLocale, ',')) {
             $aLocales = array_map('trim', explode(',', $sLocale));
             return setlocale(LC_ALL, $aLocales);
@@ -69,8 +66,7 @@ class UserLocale
         return setlocale(LC_ALL, $sLocale);
     }
 
-    static function setLocale($sLang = null, $aParam = array())
-    {
+    static function setLocale($sLang = null, $aParam = array()) {
         if (!$sLang) $sLang = self::$aDefaultLocale;
         if (!isset(self::$aLocales[$sLang])) self::initLocales($sLang);
         if (isset(self::$aLocales[$sLang])) {
@@ -86,8 +82,7 @@ class UserLocale
         self::$sCurrentLanguage = $sLang;
     }
 
-    static function getAvailableLanguages($bScanDir = false)
-    {
+    static function getAvailableLanguages($bScanDir = false) {
         $aLanguages = array();
         $sFile = __DIR__ . '/i18n/_languages.php';
         if (is_file($sFile)) {
