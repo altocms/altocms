@@ -542,7 +542,12 @@ class ActionContent extends Action {
 		$oTopic->setTags(getRequestStr('topic_tags'));
 		$oTopic->setUserIp(func_getIp());
 
-        $oTopic->setTopicUrl(getRequestStr('topic_url'));
+		if($this->oUserCurrent && $this->oUserCurrent->isAdministrator()){
+			if(getRequestStr('topic_url') && $oTopic->getTopicUrl()!=getRequestStr('topic_url')){
+				$sTopicUrl = $this->Topic_CorrectTopicUrl(F::TranslitUrl(getRequestStr('topic_url')));
+				$oTopic->setTopicUrl($sTopicUrl);
+			}
+		}
 		/**
 		 * Проверка корректности полей формы
 		 */

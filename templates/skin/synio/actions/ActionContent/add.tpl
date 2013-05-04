@@ -69,7 +69,7 @@
 	<input type="text" id="topic_title" name="topic_title" value="{$_aRequest.topic_title}" class="input-text input-width-full" />
 	<small class="note">{$aLang.topic_create_title_notice}</small></p>
 
-    {if $aParams[0] != 'add'}
+    {if $aParams[0] != 'add' && $oUserCurrent->isAdministrator()}
     <p><label for="topic_url">{$aLang.topic_create_url}:</label>
         <span class="b-topic-url-demo">{$_aRequest.topic_url_before}</span><span
                 class="b-topic_url_demo-edit">{$_aRequest.topic_url}</span>{if $_aRequest.topic_url}<input
