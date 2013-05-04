@@ -1,19 +1,18 @@
 <?php
-/*-------------------------------------------------------
-*
-*   LiveStreet Engine Social Networking
-*   Copyright © 2008 Mzhelskiy Maxim
-*
-*--------------------------------------------------------
-*
-*   Official site: www.livestreet.ru
-*   Contact e-mail: rus.engine@gmail.com
-*
-*   GNU General Public License, version 2:
-*   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-*
----------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Version: 0.9a
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
 
 /**
  * Versions
@@ -26,6 +25,9 @@ define('ALTO_MYSQL_REQUIRED', '5.0'); // required version of PHP
 if (version_compare(phpversion(), ALTO_PHP_REQUIRED) < 0) {
     die ('PHP version ' . ALTO_PHP_REQUIRED . ' or more requires for Alto CMS');
 }
+
+define('ALTO_DEBUG_PROFILE', 1);
+define('ALTO_DEBUG_FILES', 2);
 
 // load system functions
 require_once(dirname(dirname(__FILE__)) . '/engine/include/Func.php');
@@ -42,7 +44,7 @@ if (!defined('NO_LOADER')) {
 }
 
 if (!defined('DEBUG')) {
-    define('DEBUG', false);
+    define('DEBUG', 0);
 }
 
 if (isset($_SERVER['SCRIPT_NAME']) && isset($_SERVER['REQUEST_URI']) && $_SERVER['SCRIPT_NAME'] == $_SERVER['REQUEST_URI']) {

@@ -263,8 +263,8 @@ class ModuleAdmin extends Module {
             foreach ($aData as $aRec) {
                 $aUrls[] = $aRec['topic_url'];
             }
-			$aData = $this->oMapper->GetTopicsDataByUrl($aUrls);
-		}
+            $aData = $this->oMapper->GetTopicsDataByUrl($aUrls);
+        }
         $aUrls = array();
         $aUpdateData = array();
         foreach ($aData as $nKey => $aRec) {

@@ -9,8 +9,7 @@
  *----------------------------------------------------------------------------
  */
 
-class ModuleLogger_EntityLog extends Entity
-{
+class ModuleLogger_EntityLog extends Entity {
     protected $aLogs = array();
 
     /**
@@ -19,15 +18,14 @@ class ModuleLogger_EntityLog extends Entity
      * @var array
      */
     protected $aLogLevels = array(
-        'DEBUG',
-        'NOTICE',
-        'ERROR',
-    );
+            'DEBUG',
+            'NOTICE',
+            'ERROR',
+        );
 
     protected $aRecord = array();
 
-    public function __construct($aParam = false)
-    {
+    public function __construct($aParam = false) {
         $this->SetFileName(Config::Get('sys.logs.file'));
         $this->SetFileDir(Config::Get('sys.logs.dir'));
 
@@ -43,20 +41,18 @@ class ModuleLogger_EntityLog extends Entity
         parent::__construct($aParam);
     }
 
-    public function __destruct()
-    {
+    public function __destruct() {
         // Если есть несоханенная запись, то сохраняем ее
-        if ($this->aRecord)
+        if ($this->aRecord) {
             $this->DumpEnd();
+        }
     }
 
-    public function GetRandom()
-    {
+    public function GetRandom() {
         return rand(1000, 9999);
     }
 
-    public function SetSizeForRotate($nSize)
-    {
+    public function SetSizeForRotate($nSize) {
         if ($nSize && intval($nSize) > 0) {
             $this->setProp('size_for_rotate', intval($nSize));
             $this->SetUseRotate(true);
@@ -71,24 +67,22 @@ class ModuleLogger_EntityLog extends Entity
      * @param   string $sMsg
      * @param   string $sLevel
      */
-    public function Dump($sMsg, $sLevel = 'DEBUG')
-    {
-        /**
-         * Если уровень записи в лог больше либо равен текущему уровню, то пишем
-         */
-        if (!$sLevel || ($nLevelIndex = array_search(strtoupper($sLevel), $this->aLogLevels)) == false)
+    public function Dump($sMsg, $sLevel = 'DEBUG') {
+        // * Если уровень записи в лог больше либо равен текущему уровню, то пишем
+        if (!$sLevel || ($nLevelIndex = array_search(strtoupper($sLevel), $this->aLogLevels)) == false) {
             $nLevelIndex = 0;
+        }
         if ($nLevelIndex >= $this->GetLogLevel()) {
             $this->DumpBegin($sMsg, $sLevel);
-            $this->DumpEnd();
+            return $this->DumpEnd();
         }
     }
 
-    protected function _checlLogLevel($sLevel)
-    {
+    protected function _checlLogLevel($sLevel) {
         // Если уровень записи в лог больше либо равен текущему уровню, то создаем запись
-        if (!$sLevel || ($nLevelIndex = array_search(strtoupper($sLevel), $this->aLogLevels)) == false)
+        if (!$sLevel || ($nLevelIndex = array_search(strtoupper($sLevel), $this->aLogLevels)) == false) {
             $nLevelIndex = 0;
+        }
 
         if ($nLevelIndex >= $this->GetLogLevel()) {
             return $this->aLogLevels[$nLevelIndex];
@@ -97,18 +91,17 @@ class ModuleLogger_EntityLog extends Entity
     }
 
     // Начало записи
-    public function DumpBegin($sMsg, $sLevel = 'DEBUG')
-    {
+    public function DumpBegin($sMsg, $sLevel = 'DEBUG') {
         if ($sLogLevel = $this->_checlLogLevel($sLevel)) {
 
             // Формируем запись
             $this->aRecord = array(
-                'id' => sprintf('%014.2F-%4d', microtime(true), $this->GetRandom()),
-                'time' => date('Y-m-d H:i:s'),
-                'pid' => getmypid(),
+                'id'    => sprintf('%014.2F-%4d', microtime(true), $this->GetRandom()),
+                'time'  => date('Y-m-d H:i:s'),
+                'pid'   => getmypid(),
                 'level' => $sLogLevel,
                 'trace' => null,
-                'info' => array($sMsg),
+                'info'  => array($sMsg),
             );
 
             if ($this->getUseTrace()) {
@@ -118,8 +111,7 @@ class ModuleLogger_EntityLog extends Entity
     }
 
     // Добавление информации к записи
-    public function DumpAppend($sMsg, $sLevel = 'DEBUG')
-    {
+    public function DumpAppend($sMsg, $sLevel = 'DEBUG') {
         if ($sLogLevel = $this->_checlLogLevel($sLevel)) {
             if (!$this->aRecord) {
                 // Запись не создавалась, надо ее создать
@@ -135,15 +127,15 @@ class ModuleLogger_EntityLog extends Entity
         }
     }
 
-    public function DumpEnd($sMsg = null, $sLevel = 'DEBUG')
-    {
+    public function DumpEnd($sMsg = null, $sLevel = 'DEBUG') {
+        $xResult = false;
         // Если аргументы не переданы, а запись есть, то сохраняем ее
         $bForce = ((func_num_args() == 0) && $this->aRecord);
         if (($sLogLevel = $this->_checlLogLevel($sLevel)) || $bForce) {
             if (!$this->aRecord) {
                 // Запись не создавалась, надо ее создать
                 return $this->DumpBegin($sMsg, $sLevel);
-            } elseif (($this->aRecord['level'] != $sLogLevel) && $sMsg){
+            } elseif (($this->aRecord['level'] != $sLogLevel) && $sMsg) {
                 // Если уровень логгирования изменился, то пишем текущую запись и создаем новую
                 $this->DumpEnd();
                 return $this->DumpBegin($sMsg, $sLevel);
@@ -151,7 +143,9 @@ class ModuleLogger_EntityLog extends Entity
 
             // Формируем текст лога со служебной информацией
             if ($this->aRecord) {
-                if ($sMsg) $this->aRecord['info'][] = $sMsg;
+                if ($sMsg) {
+                    $this->aRecord['info'][] = $sMsg;
+                }
 
                 $sMsgOut = '[LOG:' . $this->aRecord['id'] . ']';
                 $sMsgOut .= '[' . $this->aRecord['time'] . ']';
@@ -160,8 +154,10 @@ class ModuleLogger_EntityLog extends Entity
 
                 if (count($this->aRecord['info']) > 1) {
                     $sMsgText = '';
-                    foreach($this->aRecord['info'] as $sTxt) {
-                        if ($sMsgText) $sMsgText .= "\n";
+                    foreach ($this->aRecord['info'] as $sTxt) {
+                        if ($sMsgText) {
+                            $sMsgText .= "\n";
+                        }
                         $sMsgText .= $sTxt;
                     }
                 } else {
@@ -176,52 +172,49 @@ class ModuleLogger_EntityLog extends Entity
                 $sMsgOut .= '[END:' . $this->aRecord['id'] . "]\n";
 
                 // Записываем
-                $this->write($sMsgOut);
+                $xResult = $this->write($sMsgOut);
 
                 // Очищаем текущую запись
                 $this->aRecord = array();
             }
         }
+        return $xResult;
     }
 
     /**
      * Производит сохранение в файл
      *
-     * @param string $msg    Сообщение
+     * @param   string $msg    Сообщение
+     *
      * @return bool
      */
-    protected function write($msg)
-    {
-        /**
-         * Если имя файла не задано то ничего не делаем
-         */
+    protected function write($msg) {
+        $xResult = false;
+        // * Если имя файла не задано то ничего не делаем
         if (!($sFileName = $this->GetFileName())) {
             //throw new Exception("Empty file name for log!");
             return false;
         }
-        /**
-         * Если имя файла равно '-' то выводим сообщение лога в браузер
-         */
+        // * Если имя файла равно '-' то выводим сообщение лога в браузер
         if ($sFileName == '-') {
             echo($msg . "<br>\n");
         } else {
             // * Запись в файл
-            if (F::File_PutContents($this->GetFileDir() . $sFileName, $msg . "\n", FILE_APPEND | LOCK_EX)) {
+            if ($xResult = F::File_PutContents($this->GetFileDir() . $sFileName, $msg . "\n", FILE_APPEND | LOCK_EX)) {
                 // * Если нужно, то делаем ротацию
                 if ($this->GetUseRotate() && $this->GetSizeForRotate()) {
                     $this->rotate();
                 }
             }
         }
-        return true;
+        return $xResult;
     }
 
     /**
      * Производит ротацию логов
      *
      */
-    protected function rotate()
-    {
+    protected function rotate() {
         clearstatcache();
         /**
          * Если размер файла лога привысил максимальный то сохраняем текущий файл в архивный, а текущий становится пустым
@@ -248,8 +241,7 @@ class ModuleLogger_EntityLog extends Entity
      *
      * @param int $numberLast
      */
-    protected function rotateRename($numberLast)
-    {
+    protected function rotateRename($numberLast) {
         $pathinfo = pathinfo($this->GetFileDir() . $this->GetFileName());
         $aName = explode('.', $pathinfo['basename']);
         for ($i = $numberLast; $i > 0; $i--) {
@@ -264,10 +256,10 @@ class ModuleLogger_EntityLog extends Entity
      * Выполняет форматирование трассировки
      *
      * @param array $aTrace
+     *
      * @return string
      */
-    protected function parserTrace($aTrace)
-    {
+    protected function parserTrace($aTrace) {
         $sMsg = '';
         for ($i = count($aTrace) - 1; $i >= 0; $i--) {
             if (isset($aTrace[$i]['class'])) {

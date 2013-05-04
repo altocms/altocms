@@ -403,6 +403,7 @@ class AltoFunc_File {
 
     /**
      * Проверяет наличие файла
+     *
      * В отличие от системной функции file_exists() проверяет именно наличие файла, не папки
      * И может проверить наличие файла в конкретной папке или в одной из нескольких папок
      *     F::File_Exists('c:\dir\file.txt') - проверка существования файла 'c:\dir\file.txt'
@@ -416,11 +417,10 @@ class AltoFunc_File {
      * @return  bool|string
      */
     static public function Exists($sFile, $aDirs = array()) {
+        $xResult = false;
         if (!$aDirs) {
             if (is_file($sFile)) {
-                return self::NormPath($sFile);
-            } else {
-                return false;
+                $xResult = self::NormPath($sFile);
             }
         } elseif (!is_array($aDirs)) {
             return F::File_Exists((string)$aDirs . '/' . $sFile);
@@ -428,11 +428,12 @@ class AltoFunc_File {
             foreach ($aDirs as $sDir) {
                 $sResult = F::File_Exists($sFile, (string)$sDir);
                 if ($sResult) {
-                    return $sResult;
+                    $xResult = $sResult;
+                    break;
                 }
             }
         }
-        return is_file($sFile);
+        return $xResult;
     }
 
     /**

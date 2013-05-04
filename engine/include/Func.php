@@ -57,6 +57,10 @@ class Func {
             $sText = $sError;
         }
 
+        if (!self::_log($sText, self::_errorLogFile())) {
+            // Если не получилось вывести в лог-файл, то выводим ошибку на экран
+            echo $sError;
+        }
         if (class_exists('ModuleLogger', false) || Loader::Autoload('ModuleLogger')) {
             // Если загружен модуль Logger, то логгируем ошибку с его помощью
             Engine::getInstance()->Logger_Dump(self::_errorLogFile(), $sText);
@@ -69,6 +73,19 @@ class Func {
             // В противном случае выводим ошибку на экран
             echo $sError;
         }
+    }
+
+    static public function _log($sText, $sLogFile) {
+        if (class_exists('ModuleLogger', false) || Loader::Autoload('ModuleLogger')) {
+            // Если загружен модуль Logger, то логгируем ошибку с его помощью
+            return E::Logger_Dump($sLogFile, $sText);
+        } elseif (class_exists('Config', false)) {
+            // Если логгера нет, но есть конфиг, то самостоятельно пишем в файл
+            $sFile = Config::Get('sys.logs.dir') . $sLogFile;
+            $sText = '[' . date('Y-m-d H:i:s') . ']' . "\n" . $sText;
+            return F::File_PutContents($sFile, $sText, FILE_APPEND | LOCK_EX);
+        }
+        return false;
     }
 
     static public function _errorDisplay($sError) {

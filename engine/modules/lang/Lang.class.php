@@ -88,14 +88,34 @@ class ModuleLang extends Module {
             if (!$this->sCurrentLang) {
                 $this->sCurrentLang = Config::Get('lang.current');
             }
-            // Пишем в куки, если требуется
-            if ($this->sCurrentLang && $nSavePeriod) {
-                $this->Session_SetCookie($sLangKey, $this->sCurrentLang, $nSavePeriod);
-            }
         } else {
             $this->sCurrentLang = Config::Get('lang.current');
         }
+        // Проверяем на случай старого обозначения языков
+        $this->sDefaultLang = $this->_checkLang($this->sDefaultLang);
+        $this->sCurrentLang = $this->_checkLang($this->sCurrentLang);
+
+        if ($this->sCurrentLang && Config::Get('lang.multilang') && $nSavePeriod) {
+            // Пишем в куки, если требуется
+            $this->Session_SetCookie($sLangKey, $this->sCurrentLang, $nSavePeriod);
+        }
+
         $this->InitLang();
+    }
+
+    protected function _checkLang($sLang) {
+        if (!UserLocale::getLocale($sLang)) {
+            $aLangs = UserLocale::getAvailableLanguages();
+            if (!isset($aLangs[$sLang])) {
+                // Возможно в $sLang полное название языка, поэтому проверяем
+                foreach($aLangs as $sLangCode=>$aLangInfo) {
+                    if (strtolower($sLang) == strtolower($aLangInfo['name'])) {
+                        return $sLangCode;
+                    }
+                }
+            }
+        }
+        return $sLang;
     }
 
     public function __get($sName) {
