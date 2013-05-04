@@ -1368,16 +1368,6 @@ class ActionBlog extends Action {
             return;
         }
 
-        // * Проверка на дублирующий коммент
-        if ($this->Comment_GetCommentUnique(
-            $oComment->getTargetId(), $oComment->getTargetType(), $this->oUserCurrent->getId(),
-            $oComment->getParentId(), md5($sNewText)
-        )
-        ) {
-            $this->Message_AddErrorSingle($this->Lang_Get('topic_comment_spam'), $this->Lang_Get('error'));
-            return;
-        }
-
         // Если все нормально, то обновляем текст
         $oComment->setText($sNewText);
         if ($this->Comment_UpdateComment($oComment)) {
