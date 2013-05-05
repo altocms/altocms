@@ -46,5 +46,10 @@ ls.topic = (function ($) {
         $(button).siblings('[name=topic_url]').show();
    };
 
+    this.shortUrl = function(url) {
+        prompt('URL:', url);
+        return false;
+    };
+
     return this;
 }).call(ls.topic || {},jQuery);

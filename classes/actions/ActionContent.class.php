@@ -210,8 +210,9 @@ class ActionContent extends Action {
                     $_REQUEST['topic_url'] = $oTopic->getTitleTranslit();
                 }
             }
+            $_REQUEST['topic_url_short'] = $oTopic->getUrlShort();
         }
-		$this->Viewer_Assign('aPhotos', $this->Topic_getPhotosByTopicId($oTopic->getId()));
+        $this->Viewer_Assign('aPhotos', $this->Topic_getPhotosByTopicId($oTopic->getId()));
 	}
 	/**
 	 * Удаление топика

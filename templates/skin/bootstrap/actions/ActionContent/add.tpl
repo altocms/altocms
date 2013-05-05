@@ -76,7 +76,8 @@
         type="text" id="topic_url" name="topic_url" value="{$_aRequest.topic_url}"
         class="input-text input-width-300" style="display: none;"/>{/if}<span
                 class="b-topic_url_demo">{$_aRequest.topic_url_after}</span>
-        <button class="button" onclick="ls.topic.editUrl(this); return false;"><i class="icon-edit"></i></button>
+        <button class="button js-tip-help" title="{$aLang.topic_create_url_edit}" onclick="ls.topic.editUrl(this); return false;"><i class="icon-edit"></i></button>
+        <button class="button js-tip-help" title="{$aLang.topic_create_url_short}" onclick="ls.topic.shortUrl('{$_aRequest.topic_url_short}'); return false;"><i class="icon-share-alt"></i></button>
         <small class="note"></small>
     </p>
     {/if}
