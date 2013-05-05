@@ -118,6 +118,7 @@ class ActionAdmin extends Action {
      */
 
     public function EventDashboard() {
+
         $this->_setTitle($this->Lang_Get('action.admin.menu_info_dashboard'));
         $this->SetTemplateAction('info/index');
 
@@ -127,6 +128,18 @@ class ActionAdmin extends Action {
             $aData['p-' . $oPlugin->GetId()] = $oPlugin->GetVersion();
         }
 
+        $bDashboardEnable = Config::Get('admin.dashboard.enable');
+        if (is_null($bDashboardEnable)) {
+            $bDashboardEnable = true;
+        }
+
+        if ($sVal = $this->GetPost('dashboard_enable')) {
+            $aConfig['admin.dashboard.enable'] = ($sVal == 'off') ? false: true;
+            Config::WriteCustomConfig($aConfig);
+            Router::Location('admin/');
+        }
+
+        $this->Viewer_Assign('bDashboardEnable', $bDashboardEnable);
         $this->Viewer_Assign('sUpdatesRequest', base64_encode(http_build_query($aData)));
         $this->Viewer_Assign('sUpdatesRefresh', true);
     }

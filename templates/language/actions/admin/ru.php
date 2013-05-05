@@ -58,6 +58,9 @@ return array(
     /* DASHBOARD */
     'dashboard_updates_title' => 'Обновления',
     'dashboard_news_title' => 'Новости Alto CMS',
+    'dashboard_turn_title' => 'Отключение консоли',
+    'dashboard_turn_on_text' => 'Если Вы не хотите получать информацию о новостях Alto CMS и о новых версиях плагинов, Вы можете отключить эту функцию',
+    'dashboard_turn_off_text' => 'Вы отключили получение информации с сервера Alto CMS.<br/><br/>Если Вы хотите получать информацию о новостях Alto CMS и о новых версиях плагинов, Вы можете включить эту функцию',
 
     /* common texts */
     'word_yes' => 'Да',
@@ -76,6 +79,8 @@ return array(
 
     'menu_list' => 'Список',
     'menu_options' => 'Опции',
+    'turn_on' => 'Включить',
+    'turn_off' => 'Выключить',
 
     'file_write_error' => 'Ошибка записи в файл <b>%%file%%</b>',
     'file_not_found' => 'Файл не найден <b>%%file%%</b>',
