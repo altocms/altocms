@@ -37,10 +37,15 @@ class HookMain extends Hook {
         $this->AddHook('template_topic_content_end', 'showfields', __CLASS__, 150);
 		$this->AddHook('template_topic_preview_content_end', 'showfields', __CLASS__, 150);
 
-		/*
-		 * Упрощенный вывод JS в футере, для проблемных файлов
-		 */
-		$this->AddHook('template_body_end', 'buildfooterJsCss', __CLASS__, -150);
+        /*
+         * Упрощенный вывод JS в футере, для проблемных файлов
+         */
+        $this->AddHook('template_body_end', 'buildfooterJsCss', __CLASS__, -150);
+
+        /*
+         * Улучшенный share при просмотре топика
+         */
+        $this->AddHook('template_block_topic_share', 'addSharer');
     }
 
     public function SessionInitAfter() {
@@ -124,6 +129,32 @@ class HookMain extends Hook {
 		return $sCssFooter.$sJsFooter;
 
 	}
+
+    public function addSharer($aParams){
+
+        $oTopic=$aParams['topic'];
+        $bList=$aParams['bTopicList'];
+
+        if(!$bList){
+            //заменяем скрипт шарера на продвинутый со счетчиками
+            $aFooterJs=Config::Get('footer.default.js');
+            if(is_array($aFooterJs)){
+                if(($key = array_search('http://yandex.st/share/share.js', $aFooterJs)) !== false) {
+                    unset($aFooterJs[$key]);
+                }
+            } else {
+                $aFooterJs=array();
+            }
+
+            $aFooterJs[]='//yandex.st/share/cnt.share.js';
+            Config::Set('footer.default.js',$aFooterJs);
+        }
+
+        $oViewer=$this->Viewer_GetLocalViewer();
+        $oViewer->Assign('oTopic',$oTopic);
+        $oViewer->Assign('bTopicList',$bList);
+        return $oViewer->Fetch('sharer.tpl');
+    }
 	
 }
 

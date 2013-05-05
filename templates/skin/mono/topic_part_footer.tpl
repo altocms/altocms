@@ -34,8 +34,8 @@
 		
 		<div class="topic-share" id="topic_share_{$oTopic->getId()}">
 			{hookb run="topic_share" topic=$oTopic bTopicList=$bTopicList}
-				<div class="yashare-auto-init" data-yashareTitle="{$oTopic->getTitle()|escape:'html'}" data-yashareLink="{$oTopic->getUrl()}" data-yashareL10n="ru" data-yashareType="button" data-yashareQuickServices="yaru,vkontakte,facebook,twitter,odnoklassniki,moimir,lj,gplus"></div>
-			{/hookb}
+                {include file='sharer.tpl'}
+            {/hookb}
 		</div>
 
 

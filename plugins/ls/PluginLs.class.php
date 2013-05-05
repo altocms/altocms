@@ -22,6 +22,7 @@ class PluginLs extends Plugin {
         'template' => array(
             'page_main_menu.tpl' => '_page_main_menu.tpl',
             'window_write.tpl' => '_window_write.tpl',
+            'sharer.tpl' => '_sharer.tpl',
         ),
     );
 
