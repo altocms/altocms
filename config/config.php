@@ -560,8 +560,11 @@ $config['head']['default']['js']  = array(
 	'___path.root.web___/templates/framework/js/toolbar.js',
 	'___path.root.web___/templates/framework/js/settings.js',
 	'___path.root.web___/templates/framework/js/topic.js',
-	'___path.root.web___/templates/framework/js/hook.js',
-	'http://yandex.st/share/share.js' => array('merge'=>false),
+	'___path.root.web___/templates/framework/js/hook.js'
+);
+//потенциально проблемные файлы выводим в футере
+$config['footer']['default']['js']  = array(
+	'http://yandex.st/share/share.js',
 );
 $config['head']['default']['css'] = array(
 	'___path.static.skin___/css/reset.css',

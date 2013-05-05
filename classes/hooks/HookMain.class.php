@@ -36,6 +36,11 @@ class HookMain extends Hook {
          */
         $this->AddHook('template_topic_content_end', 'showfields', __CLASS__, 150);
 		$this->AddHook('template_topic_preview_content_end', 'showfields', __CLASS__, 150);
+
+		/*
+		 * Упрощенный вывод JS в футере, для проблемных файлов
+		 */
+		$this->AddHook('template_body_end', 'buildfooterJsCss', __CLASS__, -150);
     }
 
     public function SessionInitAfter() {
@@ -94,6 +99,32 @@ class HookMain extends Hook {
         }
         return $sReturn;
     }
+
+    public function buildfooterJsCss(){
+
+        $sCssFooter='';
+        $sJsFooter ='';
+
+        foreach (array('js', 'css') as $sType) {
+			/**
+             * Проверяем наличие списка файлов данного типа
+             */
+            $aFiles = Config::Get('footer.default.' . $sType);
+            if (is_array($aFiles) && count($aFiles)) {
+                foreach ($aFiles as $sFile) {
+                    if ($sType == 'js') {
+                        $sJsFooter.="<script type='text/javascript' src='".$sFile."'></script>";
+                    } elseif ($sType == 'css') {
+                        $sCssFooter.= "<link rel='stylesheet' type='text/css' href='".$sFile."' />";
+                    }
+                }
+            }
+        }
+
+		return $sCssFooter.$sJsFooter;
+
+	}
+	
 }
 
 // EOF
