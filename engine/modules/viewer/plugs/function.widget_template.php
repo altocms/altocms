@@ -23,7 +23,7 @@
  * @return  string
  */
 function smarty_function_widget_template($aParams, $oSmartyTemplate) {
-	
+
     if (!isset($aParams['name'])) {
         trigger_error('Parameter "name" does not define in {widget ...} function', E_USER_WARNING);
         return;

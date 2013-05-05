@@ -19,6 +19,7 @@
  * @since 1.0
  */
 class ModuleSkin extends Module {
+
     const SKIN_XML_FILE = 'skin.xml';
 
     public function Init() {

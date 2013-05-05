@@ -13,6 +13,7 @@
  * Common functions for Alto CMS
  */
 class AltoFunc_Main {
+
     static protected $sRandChars = '!#$%()*+-0123456789:<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_abcdefghijklmnopqrstuvwxyz|~';
     static protected $aMemSizeUnits = array('B', 'K', 'M', 'G', 'T', 'P');
 

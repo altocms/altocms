@@ -13,6 +13,7 @@
  * Модуль управления блоками
  */
 class ModuleWidget extends Module {
+
     protected $aWidgets = array();
     protected $aConfig = array();
 

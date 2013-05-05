@@ -17,6 +17,7 @@ if (!class_exists('Plugin')) {
 }
 
 class PluginLs extends Plugin {
+
     protected $aDelegates = array(
         'template' => array(
             'page_main_menu.tpl' => '_page_main_menu.tpl',

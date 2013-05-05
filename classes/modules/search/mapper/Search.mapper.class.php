@@ -10,11 +10,9 @@
  */
 
 
-class ModuleSearch_MapperSearch extends Mapper
-{
+class ModuleSearch_MapperSearch extends Mapper {
 
-    protected function PrepareRegExp($sRegExp)
-    {
+    protected function PrepareRegExp($sRegExp) {
         $sRegExpPrim = str_replace('[[:>:]]|[[:<:]]', '[[:space:]]+', $sRegExp);
         $sRegExpPrim = str_replace('|[[:<:]]', '[[:alnum:]]+[[:space:]]+', $sRegExpPrim);
         $sRegExpPrim = str_replace('[[:>:]]|', '[[:space:]]+[[:alnum:]]+', $sRegExpPrim);
@@ -26,18 +24,19 @@ class ModuleSearch_MapperSearch extends Mapper
      * Поиск текста по топикам
      *
      * @param string $sRegExp
-     * @param int $iCount
-     * @param int $iCurrPage
-     * @param int $iPerPage
-     * @param array $aParams
+     * @param int    $iCount
+     * @param int    $iCurrPage
+     * @param int    $iPerPage
+     * @param array  $aParams
+     *
      * @return array
      */
-    public function GetTopicsIdByRegexp($sRegExp, &$iCount, $iCurrPage, $iPerPage, $aParams)
-    {
+    public function GetTopicsIdByRegexp($sRegExp, &$iCount, $iCurrPage, $iPerPage, $aParams) {
         $aRegExp = $this->PrepareRegExp($sRegExp);
         $aResult = array();
         if (!$aParams['bSkipTags']) {
-            $sql = "
+            $sql
+                = "
                 SELECT DISTINCT t.topic_id, 
                     CASE WHEN (LOWER(t.topic_title) REGEXP ?) THEN 1 ELSE 0 END +
                     CASE WHEN (LOWER(tc.topic_text_source) REGEXP ?) THEN 1 ELSE 0 END AS weight
@@ -55,12 +54,14 @@ class ModuleSearch_MapperSearch extends Mapper
                     t.topic_id ASC
                 LIMIT ?d, ?d
             ";
-            $aRows = $this->oDb->selectPage($iCount, $sql,
+            $aRows = $this->oDb->selectPage(
+                $iCount, $sql,
                 $aRegExp[0],
                 $aRegExp[0],
                 $aRegExp[0], (isset($aRegExp[1]) ? $aRegExp[1] : DBSIMPLE_SKIP),
                 $aRegExp[0], (isset($aRegExp[1]) ? $aRegExp[1] : DBSIMPLE_SKIP),
-                ($iCurrPage - 1) * $iPerPage, $iPerPage);
+                ($iCurrPage - 1) * $iPerPage, $iPerPage
+            );
         }
 
         if ($aRows) {
@@ -75,14 +76,14 @@ class ModuleSearch_MapperSearch extends Mapper
      * Поиск текста по комментариям
      *
      * @param string $sRegExp
-     * @param int $iCount
-     * @param int $iCurrPage
-     * @param int $iPerPage
-     * @param array $aParams
+     * @param int    $iCount
+     * @param int    $iCurrPage
+     * @param int    $iPerPage
+     * @param array  $aParams
+     *
      * @return array
      */
-    public function GetCommentsIdByRegexp($sRegExp, &$iCount, $iCurrPage, $iPerPage, $aParams)
-    {
+    public function GetCommentsIdByRegexp($sRegExp, &$iCount, $iCurrPage, $iPerPage, $aParams) {
         $aRegExp = $this->PrepareRegExp($sRegExp);
         $aResult = array();
         if (!$aParams['bSkipTags']) {
@@ -102,10 +103,12 @@ class ModuleSearch_MapperSearch extends Mapper
                     c.comment_id ASC
                 LIMIT ?d, ?d
             ";
-            $aRows = $this->oDb->selectPage($iCount, $sql,
+            $aRows = $this->oDb->selectPage(
+                $iCount, $sql,
                 $aRegExp[0],
                 $aRegExp[0], (isset($aRegExp[1]) ? $aRegExp[1] : DBSIMPLE_SKIP),
-                ($iCurrPage - 1) * $iPerPage, $iPerPage);
+                ($iCurrPage - 1) * $iPerPage, $iPerPage
+            );
         }
 
         if ($aRows) {
@@ -120,14 +123,14 @@ class ModuleSearch_MapperSearch extends Mapper
      * Поиск текста по блогам
      *
      * @param string $sRegExp
-     * @param int $iCount
-     * @param int $iCurrPage
-     * @param int $iPerPage
-     * @param array $aParams
+     * @param int    $iCount
+     * @param int    $iCurrPage
+     * @param int    $iPerPage
+     * @param array  $aParams
+     *
      * @return array
      */
-    public function GetBlogsIdByRegexp($sRegExp, &$iCount, $iCurrPage, $iPerPage, $aParams)
-    {
+    public function GetBlogsIdByRegexp($sRegExp, &$iCount, $iCurrPage, $iPerPage, $aParams) {
         $aRegExp = $this->PrepareRegExp($sRegExp);
         $aResult = array();
         if (!$aParams['bSkipTags']) {
@@ -145,10 +148,12 @@ class ModuleSearch_MapperSearch extends Mapper
                     b.blog_id ASC
                 LIMIT ?d, ?d
             ";
-            $aRows = $this->oDb->selectPage($iCount, $sql,
+            $aRows = $this->oDb->selectPage(
+                $iCount, $sql,
                 $aRegExp[0],
                 $aRegExp[0], (isset($aRegExp[1]) ? $aRegExp[1] : DBSIMPLE_SKIP),
-                ($iCurrPage - 1) * $iPerPage, $iPerPage);
+                ($iCurrPage - 1) * $iPerPage, $iPerPage
+            );
         }
 
         if ($aRows) {

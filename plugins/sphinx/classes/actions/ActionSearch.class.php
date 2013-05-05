@@ -21,6 +21,7 @@
  * @since 1.0
  */
 class PluginSphinx_ActionSearch extends ActionPlugin {
+
     /**
      * Допустимые типы поиска с параметрами
      *

@@ -28,7 +28,7 @@ F::IncludeFile(Config::Get('path.root.engine') . '/lib/external/JSMin-1.1.1/jsmi
  * @since 1.0
  */
 class ModuleViewer extends Module {
-	
+
     /** @var bool Устанавливаем признак предзагрузки (влияет на порядок шатдауна) */
     protected $bPreloaded = true;
 
@@ -40,6 +40,7 @@ class ModuleViewer extends Module {
     protected $oSmarty;
 
     protected $aPresetTemplateDirs = array();
+
     /**
      * Коллекция(массив) виджетов
      *
@@ -53,12 +54,14 @@ class ModuleViewer extends Module {
      * @var bool
      */
     protected $bWidgetsSorted = false;
+
     /**
      * Массив правил организации виджетов
      *
      * @var array
      */
     protected $aBlockRules = array();
+
     /**
      * Стандартные настройки вывода js, css файлов
      *
@@ -68,6 +71,7 @@ class ModuleViewer extends Module {
         'js' => array(),
         'css' => array()
     );
+
     /**
      * Параметры отображения js- и css-файлов
      *
@@ -77,6 +81,7 @@ class ModuleViewer extends Module {
         'js' => array(),
         'css' => array()
     );
+
     /**
      * Наборы сливаемых js- и css-файлов
      *
@@ -86,12 +91,14 @@ class ModuleViewer extends Module {
         'js' => array(),
         'css' => array()
     );
+
     /**
      * Правила переопределение массивов js и css
      *
      * @var array
      */
     protected $aFileRules = array();
+
     /**
      * Список JS, которые нужно добавить в начало и в конец
      *
@@ -101,6 +108,7 @@ class ModuleViewer extends Module {
         'append' => array(),
         'prepend' => array()
     );
+
     /**
      * Список CSS, которые нужно добавить в начало и в конец
      *
@@ -110,54 +118,63 @@ class ModuleViewer extends Module {
         'append' => array(),
         'prepend' => array()
     );
+
     /**
      * Каталог для кешировния js,css файлов
      *
      * @var string
      */
     protected $sCacheDir = '';
+
     /**
      * Объект CSSTidy для компрессии css-файлов
      *
      * @var csstidy
      */
     protected $oCssCompressor = null;
+
     /**
      * Заголовок HTML страницы
      *
      * @var string
      */
     protected $sHtmlTitle;
+
     /**
      * SEO ключевые слова страницы
      *
      * @var string
      */
     protected $sHtmlKeywords;
+
     /**
      * SEO описание страницы
      *
      * @var string
      */
     protected $sHtmlDescription;
+
     /**
      * Разделитель заголовка HTML страницы
      *
      * @var string
      */
     protected $sHtmlTitleSeparation = ' / ';
+
     /**
      * Альтернативный адрес страницы по RSS
      *
      * @var array
      */
     protected $aHtmlRssAlternate = null;
+
     /**
      * Указание поисковику основного URL страницы, для борьбы с дублями
      *
      * @var string
      */
     protected $sHtmlCanonical;
+
     /**
      * Html код для подключения js,css
      *
@@ -181,24 +198,28 @@ class ModuleViewer extends Module {
      * @var array
      */
     protected $aVarsAjax = array();
+
     /**
      * Определяет тип ответа при ajax запросе
      *
      * @var string
      */
     protected $sResponseAjax = null;
+
     /**
      * Отправляет специфичный для ответа header
      *
      * @var bool
      */
     protected $bResponseSpecificHeader = true;
+
     /**
      * Список меню для рендеринга
      *
      * @var array
      */
     protected $aMenu = array();
+
     /**
      * Скомпилированные меню
      *
@@ -893,8 +914,8 @@ class ModuleViewer extends Module {
      */
     protected function DefineWidgetType(&$sName, $sDir = null, $sPlugin = null) {
         // Добавляем проверку на рсширение, чтобы не делать лишних телодвижений
-        $bTpl = (substr($sName, -4) !== '.tpl');
-        if ($bTpl) {
+        $bTpl = (substr($sName, -4) == '.tpl');
+        if (!$bTpl) {
             if ($this->Widget_FileClassExists($sName, $sPlugin)) {
                 // Если найден файл класса виджета, то это исполняемый виджет
                 return 'exec';

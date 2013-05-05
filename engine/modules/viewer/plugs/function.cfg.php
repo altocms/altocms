@@ -23,7 +23,7 @@
  * @return  string
  */
 function smarty_function_cfg($aParams, $oSmartyTemplate) {
-	
+
     if (empty($aParams['name'])) {
         trigger_error('Config: missing "name" parametr', E_USER_WARNING);
         return;

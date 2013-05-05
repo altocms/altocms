@@ -39,14 +39,11 @@ class ModuleVote_MapperVote extends Mapper {
 			)
 			VALUES(?d, ?, ?d, ?d, ?f, ?, ?)
 		";
-        if ($this->oDb->query(
+        $xResult = $this->oDb->query(
             $sql, $oVote->getTargetId(), $oVote->getTargetType(), $oVote->getVoterId(), $oVote->getDirection(),
             $oVote->getValue(), $oVote->getDate(), $oVote->getIp()
-        ) === 0
-        ) {
-            return true;
-        }
-        return false;
+        );
+        return $xResult;
     }
 
     /**
@@ -59,7 +56,7 @@ class ModuleVote_MapperVote extends Mapper {
      * @return array
      */
     public function GetVoteByArray($aArrayId, $sTargetType, $sUserId) {
-        if (!is_array($aArrayId) or count($aArrayId) == 0) {
+        if (!is_array($aArrayId) || count($aArrayId) == 0) {
             return array();
         }
         $sql = "SELECT
@@ -91,8 +88,7 @@ class ModuleVote_MapperVote extends Mapper {
      */
     public function DeleteVoteByTarget($aTargetsId, $sTargetType) {
         $aTargetsId = $this->_arrayId($aTargetsId);
-        $sql
-            = "
+        $sql = "
 			DELETE FROM " . Config::Get('db.table.vote') . "
 			WHERE
 				target_id IN(?a)
@@ -105,7 +101,7 @@ class ModuleVote_MapperVote extends Mapper {
     public function Update($oVote) {
         $sql = "UPDATE " . Config::Get('db.table.vote') . "
                     SET vote_direction=?d, vote_value=?f, vote_date=?
-                    WHERE target_id=?d and target_type=? and user_voter_id=?d
+                    WHERE target_id=?d AND target_type=? AND user_voter_id=?d
         ";
         $bResult = $this->oDb->query(
             $sql, $oVote->getDirection(), $oVote->getValue(), $oVote->getDate(), $oVote->getTargetId(),

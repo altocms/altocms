@@ -10,6 +10,7 @@
  */
 
 class ModuleLogger_EntityLog extends Entity {
+
     protected $aLogs = array();
 
     /**

@@ -12,6 +12,7 @@
 require_once (Config::Get('path.root.engine') . '/lib/external/lessphp/lessc.inc.php');
 
 class ModuleLess extends Module {
+
     /** @var lessc */
     protected $oLessCompiler;
 

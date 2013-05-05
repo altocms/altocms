@@ -23,6 +23,7 @@
  * @return  string
  */
 function smarty_function_widget($aParams, $oSmartyTemplate) {
+
     if (!isset($aParams['name']) && !isset($aParams['object']) && !isset($aParams['group']) && !isset($aParams['id'])) {
         trigger_error('Parameter "name" or "object" or "id" not define in {widget ...} function', E_USER_WARNING);
         return;

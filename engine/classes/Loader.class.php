@@ -11,10 +11,9 @@
 
 F::IncludeFile('LsObject.class.php');
 
-class Loader extends LsObject
-{
-    static public function init($sConfigDir)
-    {
+class Loader extends LsObject {
+
+    static public function init($sConfigDir) {
         // Load main config
         Config::LoadFromFile($sConfigDir . '/config.php');
 
@@ -35,7 +34,7 @@ class Loader extends LsObject
                 $aConfig = F::IncludeFile($sFileConfig, true, true);
                 if (!empty($aConfig) && is_array($aConfig)) {
                     // Если конфиг этого модуля пуст, то загружаем массив целиком
-                    $sKey = "module.$sDirModule";
+                    $sKey = 'module.' . $sDirModule;
                     if (!Config::isExist($sKey)) {
                         Config::Set($sKey, $aConfig);
                     } else {
@@ -62,19 +61,18 @@ class Loader extends LsObject
         }
 
         /**
-         * Ищет routes-конфиги модулей вида /config/modules/[module_name]/config.php и объединяет их с текущим
+         * Ищет routes-конфиги модулей вида /config/modules/[module_name]/config.route.php и объединяет их с текущим
          *
          * @see Router.class.php
          */
-        $sDirConfig = Config::get('path.root.server') . '/config/modules/';
+        $sDirConfig = Config::get('path.root.dir') . '/config/modules/';
         $aFiles = glob($sDirConfig . '*/config.route.php');
         if ($aFiles) {
             foreach ($aFiles as $sFileConfig) {
-                $sDirModule = basename(dirname($sFileConfig));
                 $aConfig = F::IncludeFile($sFileConfig, true, true);
                 if (!empty($aConfig) && is_array($aConfig)) {
                     // Если конфиг этого модуля пуст, то загружаем массив целиком
-                    $sKey = "router";
+                    $sKey = 'router';
                     if (!Config::isExist($sKey)) {
                         Config::Set($sKey, $aConfig);
                     } else {
@@ -189,13 +187,13 @@ class Loader extends LsObject
     /**
      * Автоопределение класса или фала экшена
      *
-     * @param   string $sAction
+     * @param   string      $sAction
      * @param   string|null $sEvent
-     * @param   bool $bFullPath
+     * @param   bool        $bFullPath
+     *
      * @return  string
      */
-    static public function SeekActionClass($sAction, $sEvent = null, $bFullPath = false)
-    {
+    static public function SeekActionClass($sAction, $sEvent = null, $bFullPath = false) {
         $bOk = false;
         $sFileName = 'Action' . ucfirst($sAction) . '.class.php';
 
@@ -220,8 +218,7 @@ class Loader extends LsObject
         }
     }
 
-    static protected function _includeFile($sFile)
-    {
+    static protected function _includeFile($sFile) {
         if (class_exists('F', false)) {
             F::IncludeFile($sFile);
         } else {
@@ -233,10 +230,10 @@ class Loader extends LsObject
      * Автозагрузка классов
      *
      * @param string $sClassName    Название класса
+     *
      * @return bool
      */
-    static public function Autoload($sClassName)
-    {
+    static public function Autoload($sClassName) {
         if (!class_exists('Engine', false) || (Engine::GetStage() < Engine::STAGE_INIT)) {
             //self::_includeFile(Config::Get('path.dir.engine') . '/classes/Engine.class.php');
             return false;

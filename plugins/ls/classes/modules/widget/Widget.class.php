@@ -13,6 +13,7 @@
  * Добавляет старые LS-методы для совместимости
  */
 class PluginLs_ModuleWidget extends PluginLs_Inherit_ModuleWidget {
+
     /**
      * Загружает виджеты, указанные в правилах
      *

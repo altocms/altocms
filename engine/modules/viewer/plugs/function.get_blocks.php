@@ -23,6 +23,7 @@
  * @return  string
  */
 function smarty_function_get_blocks($params, &$smarty) {
+
     if (!array_key_exists('assign', $params)) {
         trigger_error('get_blocks: missing "assign" parameter', E_USER_WARNING);
         return;
