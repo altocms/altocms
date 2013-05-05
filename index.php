@@ -3,7 +3,6 @@
  * @Project: Alto CMS
  * @Project URI: http://altocms.com
  * @Description: Advanced Community Engine
- * @Version: 0.9a
  * @Copyright: Alto CMS Team
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
@@ -28,7 +27,7 @@ require_once('./config/loader.php');
 require_once(Config::Get('path.root.engine') . '/classes/Engine.class.php');
 
 if (is_file('./install/index.php') && (!isset($_SERVER['HTTP_APP_ENV']) || $_SERVER['HTTP_APP_ENV']!='test')) {
-    F::HeaderLocation('install/', true);
+    F::HttpLocation('install/', true);
     exit;
 }
 

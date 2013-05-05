@@ -31,7 +31,7 @@ function func_getIp() {
 }
 
 function func_header_location($sLocation) {
-    F::HeaderLocation($sLocation);
+    F::HttpLocation($sLocation);
 }
 
 function func_rmdir($sPath) {

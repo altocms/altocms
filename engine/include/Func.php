@@ -3,7 +3,6 @@
  * @Project: Alto CMS
  * @Project URI: http://altocms.com
  * @Description: Advanced Community Engine
- * @Version: 0.9a
  * @Copyright: Alto CMS Team
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
@@ -400,23 +399,27 @@ class Func {
     }
 
     /**
-     * Переход по заданному адресу
+     * Приведение адреса к абсолютному виду
      *
      * Путь в $sLocation может быть как абсолютным, так и относительным.
      * Абсолютный путь определяется по наличию хоста
      *
-     * Если задан относительный путь, итоговый URL определяется в зависимости от второго парамтера.
-     * Если $bRealUrl == false (по умолчанию), то за основу берется root-адрес сайта, который задан в конфигурации.
+     * Если задан относительный путь, то итоговый URL определяется в зависимости от второго парамтера.
+     * Если $bRealHost == false (по умолчанию), то за основу берется root-адрес сайта, который задан в конфигурации.
      * В противном случае основа адреса - это реальный адрес хоста из $_SERVER['SERVER_NAME']
      *
      * @param   string  $sLocation  - адрес перехода (напр., 'http://ya.ru/demo/', '/123.html', 'blog/add/')
-     * @param   bool    $bRealUrl   - в случае относительной адресации брать адрес хоста из конфига или реальный
+     * @param   bool    $bRealHost  - в случае относительной адресации брать адрес хоста из конфига или реальный
+     *
+     * @return  string
      */
-    static public function HeaderLocation($sLocation, $bRealUrl = false) {
-        $sProtocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.1';
+    static public function RealUrl($sLocation, $bRealHost = false) {
+        $sProtocol = self::HttpProtocol();
+
         $aParts = parse_url($sLocation);
+        // если парсером хост не обнаружен, то задан относительный путь
         if (!isset($aParts['host'])) {
-            if (!$bRealUrl) {
+            if (!$bRealHost) {
                 $sUrl = F::File_RootUrl() . $sLocation;
             } else {
                 if (strpos($sProtocol, 'HTTPS') === 0) {
@@ -444,23 +447,178 @@ class Func {
         } else {
             $sUrl = $sLocation;
         }
-        $sUrl = F::File_NormPath($sUrl);
+
+        return F::File_NormPath($sUrl);
+    }
+
+    /**
+     * Определение текущего HTTP-протокола для заголовка
+     *
+     * @return string
+     */
+    static public function HttpProtocol() {
+        $sProtocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0';
+        return $sProtocol;
+    }
+
+    /**
+     * Получает или устанавливает код ответа HTTP
+     *
+     * @param null $nResponseCode
+     *
+     * @return int|null
+     */
+    static public function HttpResponseCode($nResponseCode = null) {
+
+        if (!is_null($nResponseCode)) {
+            $nResponseCode = intval($nResponseCode);
+        }
+        // function http_response_code() added in PHP 5.4
+        if (function_exists('http_response_code')) {
+            return http_response_code($nResponseCode);
+        } else {
+            if (!is_null($nResponseCode)) {
+                switch ($nResponseCode) {
+                    case 100: $sText = 'Continue'; break;
+                    case 101: $sText = 'Switching Protocols'; break;
+                    case 200: $sText = 'OK'; break;
+                    case 201: $sText = 'Created'; break;
+                    case 202: $sText = 'Accepted'; break;
+                    case 203: $sText = 'Non-Authoritative Information'; break;
+                    case 204: $sText = 'No Content'; break;
+                    case 205: $sText = 'Reset Content'; break;
+                    case 206: $sText = 'Partial Content'; break;
+                    case 300: $sText = 'Multiple Choices'; break;
+                    case 301: $sText = 'Moved Permanently'; break;
+                    case 302: $sText = 'Moved Temporarily'; break;
+                    case 303: $sText = 'See Other'; break;
+                    case 304: $sText = 'Not Modified'; break;
+                    case 305: $sText = 'Use Proxy'; break;
+                    case 400: $sText = 'Bad Request'; break;
+                    case 401: $sText = 'Unauthorized'; break;
+                    case 402: $sText = 'Payment Required'; break;
+                    case 403: $sText = 'Forbidden'; break;
+                    case 404: $sText = 'Not Found'; break;
+                    case 405: $sText = 'Method Not Allowed'; break;
+                    case 406: $sText = 'Not Acceptable'; break;
+                    case 407: $sText = 'Proxy Authentication Required'; break;
+                    case 408: $sText = 'Request Time-out'; break;
+                    case 409: $sText = 'Conflict'; break;
+                    case 410: $sText = 'Gone'; break;
+                    case 411: $sText = 'Length Required'; break;
+                    case 412: $sText = 'Precondition Failed'; break;
+                    case 413: $sText = 'Request Entity Too Large'; break;
+                    case 414: $sText = 'Request-URI Too Large'; break;
+                    case 415: $sText = 'Unsupported Media Type'; break;
+                    case 500: $sText = 'Internal Server Error'; break;
+                    case 501: $sText = 'Not Implemented'; break;
+                    case 502: $sText = 'Bad Gateway'; break;
+                    case 503: $sText = 'Service Unavailable'; break;
+                    case 504: $sText = 'Gateway Time-out'; break;
+                    case 505: $sText = 'HTTP Version not supported'; break;
+                    default:
+                        exit('Unknown http status code "' . $nResponseCode . '"');
+                        break;
+                }
+
+                header(self::HttpProtocol() . ' ' . $nResponseCode . ' ' . $sText);
+
+                $GLOBALS['http_response_code'] = $nResponseCode;
+            } else {
+                $nResponseCode = (isset($GLOBALS['http_response_code']) ? $GLOBALS['http_response_code'] : 200);
+            }
+
+            return $nResponseCode;
+        }
+    }
+
+    static public function HeaderLocation($sLocation, $bRealHost = false) {
+        return HttpLocation($sLocation, $bRealHost);
+    }
+
+    /**
+     * Переход по заданному адресу
+     *
+     * Путь в $sLocation может быть как абсолютным, так и относительным.
+     * Абсолютный путь определяется по наличию хоста
+     *
+     * Если задан относительный путь, итоговый URL определяется в зависимости от второго парамтера.
+     * Если $bRealHost == false (по умолчанию), то за основу берется root-адрес сайта, который задан в конфигурации.
+     * В противном случае основа адреса - это реальный адрес хоста из $_SERVER['SERVER_NAME']
+     *
+     * @param   string  $sLocation  - адрес перехода (напр., 'http://ya.ru/demo/', '/123.html', 'blog/add/')
+     * @param   bool    $bRealHost  - в случае относительной адресации брать адрес хоста из конфига или реальный
+     */
+    static public function HttpLocation($sLocation, $bRealHost = false) {
+
+        // Приведение адреса к абсолютному виду
+        $sUrl = self::RealUrl($sLocation, $bRealHost);
+
+        $aHeaders = array(
+            'Expires: Fri, 01 Jan 2010 05:00:00 GMT',
+            'Last-Modified: ' . gmdate('D, d M Y H:i:s').' GMT',
+            'Cache-Control: no-cache, must-revalidate',
+            array('Cache-Control: post-check=0,pre-check=0', false),
+            array('Cache-Control: max-age=0', false),
+            array('Pragma: no-cache'),
+        );
+
+        self::HttpHeader(303, $aHeaders, $sUrl);
+    }
+
+    /**
+     * Постоянный редирект (с кодом 301)
+     *
+     * @param      $sLocation
+     * @param bool $bRealHost
+     */
+    static public function HttpRedirect($sLocation, $bRealHost = false) {
+
+        // Приведение адреса к абсолютному виду
+        $sUrl = self::RealUrl($sLocation, $bRealHost);
+
+        self::HttpHeader(301, null, $sUrl);
+    }
+
+    /**
+     * Отправляет HTTP-заголовки и (опционально) адрес для редиректа
+     *
+     * @param   int         $nHttpStatusCode
+     * @param   array|null  $aHeaders
+     * @param   string|null $sUrl
+     */
+    static public function HttpHeader($nHttpStatusCode, $aHeaders = array(), $sUrl = null) {
+
+        // Можем работать с заголовком, только если он еще не отправлялся
         if (!headers_sent()) {
             session_commit();
 
-            header('Expires: Fri, 01 Jan 2010 05:00:00 GMT');
-            header('Last-Modified: ' . gmdate('D, d M Y H:i:s').' GMT');
-            header('Cache-Control: no-cache, must-revalidate');
-            header('Cache-Control: post-check=0,pre-check=0', false);
-            header('Cache-Control: max-age=0', false);
-            header('Pragma: no-cache');
-
-            header($sProtocol . ' 303 See Other');
-
-            header('Location: ' . $sUrl, true);
+            // Добавляем HTTP-заголовки
+            if ($aHeaders && is_array($aHeaders)) {
+                foreach ($aHeaders as $xHeaderParam) {
+                    if (is_array($xHeaderParam)) {
+                        if (sizeof($xHeaderParam) > 1) {
+                            header((string)$xHeaderParam[0], (bool)$xHeaderParam[1]);
+                        } else {
+                            header((string)$xHeaderParam[0]);
+                        }
+                    } else {
+                        header((string)$xHeaderParam);
+                    }
+                }
+            }
+            // Устанавливаем HTTP-код
+            F::HttpResponseCode($nHttpStatusCode);
+            if ($sUrl) {
+                header('Location: ' . $sUrl, true);
+            }
             exit;
-        }
-        echo '<!DOCTYPE HTML>
+        } elseif ($sUrl) {
+            // Альтернативный редирект, если заголовок уже отправлен
+            if (ob_get_level()) {
+                @ob_end_clean();
+            }
+            echo '<!DOCTYPE HTML>
 <html>
 <head>
 <script type="text/javascript">
@@ -476,6 +634,7 @@ location.replace("' . $sUrl . '");
 Redirect to <a href="' . $sUrl . '">' . $sUrl . '</a>
 </body>
 </html>';
+        }
         exit;
     }
 

@@ -151,8 +151,6 @@ class ActionBlog extends Action {
         $this->AddEventPreg('/^[\w\-\_]+$/i', '/^(\d+)\.html$/i', array('EventShowTopic', 'topic'));
         $this->AddEventPreg('/^([a-z][\w\-\_]+)\.html$/i', array('EventShowTopicByUrl', 'topic'));
 
-        $this->AddEventPreg('/^draft$/i', '/^(\d+)$/', '/^([a-z0-9]+)$/i', 'EventShowDraft');
-
         $this->AddEventPreg('/^[\w\-\_]+$/i', '/^(page([1-9]\d{0,5}))?$/i', array('EventShowBlog', 'blog'));
         $this->AddEventPreg('/^[\w\-\_]+$/i', '/^bad$/i', '/^(page([1-9]\d{0,5}))?$/i', array('EventShowBlog', 'blog'));
         $this->AddEventPreg('/^[\w\-\_]+$/i', '/^new$/i', '/^(page([1-9]\d{0,5}))?$/i', array('EventShowBlog', 'blog'));
@@ -720,6 +718,28 @@ class ActionBlog extends Action {
                 return parent::EventNotFound();
             }
         }
+        if (!$oTopic->getPublish()) {
+            // По умолчанию черновик смотреть можно только автору или админу
+            if ($this->oUserCurrent && ($this->oUserCurrent->getId() == $oTopic->getUserId() || $this->oUserCurrent->isAdministrator())) {
+                $bOk = true;
+            } else {
+                $bOk = false;
+            }
+            // Если режим просмотра по прямой ссылке включен, то проверяем параметры
+            if (Config::Get('module.topic.draft_link')) {
+                if ($sDraftCode = F::GetRequestStr('draft', null, 'get')) {
+                    if (strpos($sDraftCode, ':')) {
+                        list($nUser, $sHash) = explode(':', $sDraftCode);
+                        if ($oTopic->GetUserId() == $nUser && $oTopic->getTextHash() == $sHash) {
+                            $bOk = true;
+                        }
+                    }
+                }
+            }
+            if (!$bOk) {
+                return parent::EventNotFound();
+            }
+        }
 
         // * Определяем права на отображение записи из закрытого блога
         if ($oTopic->getBlog()->getType() == 'close') {
@@ -800,22 +820,6 @@ class ActionBlog extends Action {
         // * Устанавливаем шаблон вывода
         $this->SetTemplateAction('topic');
     }
-
-    /**
-     * Просмотр топика-черновика
-     *
-     * @return string
-     */
-    protected function EventShowDraft() {
-        $nUserId = $this->GetParam(0);
-        $sHash = $this->GetParam(1);
-        $oTopic = $this->Topic_GetTopicUnique($nUserId, $sHash);
-        if ($oTopic && ($sPath = F::File_LocalUrl($oTopic->getUrl()))) {
-            return Router::Action($sPath);
-        }
-        $this->EventNotFound();
-    }
-
 
     /**
      * Страница со списком читателей блога

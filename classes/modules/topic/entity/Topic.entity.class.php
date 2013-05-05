@@ -1,19 +1,17 @@
 <?php
-/*-------------------------------------------------------
-*
-*   LiveStreet Engine Social Networking
-*   Copyright © 2008 Mzhelskiy Maxim
-*
-*--------------------------------------------------------
-*
-*   Official site: www.livestreet.ru
-*   Contact e-mail: rus.engine@gmail.com
-*
-*   GNU General Public License, version 2:
-*   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-*
----------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
 
 /**
  * Объект сущности топика
@@ -482,6 +480,10 @@ class ModuleTopic_EntityTopic extends Entity {
         return F::TranslitUrl($this->getTitle());
     }
 
+    public function getUrlShort() {
+        return Router::GetPath('t') . $this->getId() . '/';
+    }
+
     /**
      * Возвращает полный URL до страницы редактировани топика
      *
@@ -595,19 +597,21 @@ class ModuleTopic_EntityTopic extends Entity {
     /**
      * Возвращает объект файла, привязанного к топику
      *
+     * @param $nId
+     *
      * @return ModuleTopic_EntityTopicFile|null
      */
-    public function getFile($id) {
-        if ($this->getField($id)) {
+    public function getFile($nId) {
+        if ($this->getField($nId)) {
             return Engine::GetEntity(
-                'ModuleTopic_EntityTopicFile', unserialize($this->getField($id)->getValueSource())
+                'ModuleTopic_EntityTopicFile', unserialize($this->getField($nId)->getValueSource())
             );
         }
         return null;
     }
 
     public function getDraftUrl() {
-        return Router::GetPath('blog') . 'draft/' . $this->GetUserId() . '/' . $this->getTextHash() . '/';
+        return $this->GetUrl() . '?draft=' . $this->GetUserId() . ':' . $this->getTextHash();
     }
 
     /***************************************************************************************************************************************************

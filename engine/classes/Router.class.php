@@ -3,7 +3,6 @@
  * @Project: Alto CMS
  * @Project URI: http://altocms.com
  * @Description: Advanced Community Engine
- * @Version: 0.9a
  * @Copyright: Alto CMS Team
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
@@ -296,6 +295,7 @@ class Router extends LsObject {
      * @return array
      */
     protected function RewriteRequest($aRequestUrl) {
+
         // * Правила Rewrite для REQUEST_URI
         $sReq = implode('/', $aRequestUrl);
         if ($aRewrite = $this->GetRouterUriRules()) {
@@ -313,9 +313,9 @@ class Router extends LsObject {
      * @param $sReq
      */
     protected function SpecialAction($sReq) {
+
         if (substr($sReq, 0, 4) == '@404') {
-            $sProtocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.1';
-            header("{$sProtocol} 404 Not Found");
+            F::HttpHeader('404 Not Found');
             exit;
         } elseif (preg_match('~@die(.*)~i', $sReq, $aMatches)) {
             if (isset($aMatches[1]) && $aMatches[1]) {
@@ -335,6 +335,7 @@ class Router extends LsObject {
      *
      */
     protected function LoadConfig() {
+
         //Конфиг роутинга, содержит соответствия URL и классов экшенов
         $this->aConfigRoute = Config::Get('router');
         // Переписываем конфиг согласно правилу rewrite
@@ -741,7 +742,7 @@ class Router extends LsObject {
                 $sLocation = self::GetPath($sAction) . '/' . $sRest;
             }
         }
-        F::HeaderLocation($sLocation);
+        F::HttpLocation($sLocation);
     }
 
     /**
