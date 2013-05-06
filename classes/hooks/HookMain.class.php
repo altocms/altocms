@@ -71,7 +71,7 @@ class HookMain extends Hook {
          * Проверка на закрытый режим
          */
         $oUserCurrent = $this->User_GetUserCurrent();
-        if (!$oUserCurrent and Config::Get('general.close') and Router::GetAction() != 'registration' and Router::GetAction() != 'login') {
+        if (!$oUserCurrent && Config::Get('general.close') && Router::GetAction() != 'registration' && Router::GetAction() != 'login') {
             Router::Action('login');
         }
     }

@@ -819,6 +819,15 @@ class ActionBlog extends Action {
 
         // * Устанавливаем шаблон вывода
         $this->SetTemplateAction('topic');
+        // Запрещаем индексирование черновиков
+        if (!$oTopic->getPublish()) {
+            $sFunc = create_function(
+                '', 'return "<meta name=\"robots\" content=\"noindex\"/>'
+                . '<meta name=\"robots\" content=\"nofollow\"/>'
+                . '<meta name=\"robots\" content=\"none\"/>";'
+            );
+            $this->Hook_AddExecFunction('template_html_head_begin', $sFunc);
+        }
     }
 
     /**
