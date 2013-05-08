@@ -67,10 +67,12 @@
                     </td>
                     <td class="number"> {$oUser->getId()} &nbsp;</td>
                     <td>
-                        <i class="icon-user {$classIcon}"></i>
                         <a href="{router page='admin'}users/profile/{$oUser->getId()}/"
                            {if $oUserCurrent->GetId()==$oUser->getId()}style="font-weight:bold;"{/if}
-                           class="link">{$oUser->getLogin()}</a>
+                           class="link">
+                            <i class="icon-user {$classIcon}"></i>
+                            {$oUser->getLogin()}
+                        </a>
                         <div class="pull-right">
                         <i class="icon-globe {if $oUser->IsOnline()}icon-green{else}icon-gray{/if}" data-toggle="popover" data-popover="#user-win-iplist"
                            onclick="admin.user.setIpInfo('{$oUser->getIpRegister()}', '{$sLastIp}')"></i>

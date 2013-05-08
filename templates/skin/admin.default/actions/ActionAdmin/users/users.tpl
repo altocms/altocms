@@ -1,21 +1,20 @@
 {extends file='_index.tpl'}
 
+{block name="content-bar"}
+    <div class="btn-group">
+        <a href="#" class="btn btn-primary disabled"><i class="icon-plus-sign"></i></a>
+    </div>
+    <div class="btn-group">
+        <a class="btn {if $sMode=='list'}active{/if}" href="{router page='admin'}users/list/">
+            All users <span class="badge badge-up">{$nCountUsers}</span>
+        </a>
+        <a class="btn {if $sMode=='admins'}active{/if}" href="{router page='admin'}users/admins/">
+            Admins <span class="badge badge-up">{$nCountAdmins}</span>
+        </a>
+    </div>
+{/block}
+
 {block name="content-body"}
-
-<div class="span12">
-
-<div class="btn-group">
-    <a href="#" class="btn btn-primary disabled"><i class="icon-plus-sign"></i></a>
-</div>
-<div class="btn-group">
-    <a class="btn {if $sMode=='list'}active{/if}" href="{router page='admin'}users/list/">
-        All users <span class="badge badge-up">{$nCountUsers}</span>
-    </a>
-    <a class="btn {if $sMode=='admins'}active{/if}" href="{router page='admin'}users/admins/">
-        Admins <span class="badge badge-up">{$nCountAdmins}</span>
-    </a>
-</div>
-</div>
 
 <div class="span12">
 <div class="span9">

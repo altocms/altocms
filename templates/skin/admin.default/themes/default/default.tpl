@@ -157,9 +157,17 @@
         {block name="sysmessage"}{/block}
 
         <div class="row-fluid">
+            <div class="span12">
+            {block name="content-bar"}
+            {/block}
+            </div>
+
+            <div class="span12">
             {block name="content-body"}
             {/block}
+            </div>
         </div>
+
     </div>
 {/block}
 

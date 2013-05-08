@@ -1,5 +1,11 @@
 {extends file='_index.tpl'}
 
+{block name="content-bar"}
+    <div class="btn-group">
+        <a href="{router page='admin'}widgets/" class="btn"><i class="icon-chevron-left"></i></a>
+    </div>
+{/block}
+
 {block name="content-body"}
     <div class="span12">
         <form method="post" action="" class="form-horizontal uniform">

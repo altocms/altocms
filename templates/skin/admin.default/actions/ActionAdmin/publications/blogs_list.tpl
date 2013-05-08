@@ -1,10 +1,6 @@
 {extends file='_index.tpl'}
 
-{block name="content-body"}
-
-
-<div class="span12">
-
+{block name="content-bar"}
     <div class="btn-group">
         <a href="#" class="btn btn-primary disabled"><i class="icon-plus-sign"></i></a>
     </div>
@@ -13,11 +9,16 @@
             all <span class="badge badge-up">{$nBlogsTotal}</span>
         </a>
         {foreach $aBlogTypes as $aBlogType}
-                <a class="btn {if $sMode==$aBlogType.blog_type}active{/if}" href="{router page='admin'}blogs/list/{$aBlogType.blog_type}/">
-                    {$aBlogType.blog_type} <span class="badge badge-up">{$aBlogType.blog_cnt}</span>
-                </a>
+            <a class="btn {if $sMode==$aBlogType.blog_type}active{/if}" href="{router page='admin'}blogs/list/{$aBlogType.blog_type}/">
+                {$aBlogType.blog_type} <span class="badge badge-up">{$aBlogType.blog_cnt}</span>
+            </a>
         {/foreach}
     </div>
+{/block}
+
+{block name="content-body"}
+
+<div class="span12">
 
     <div class="b-wbox">
         <div class="b-wbox-content nopadding">

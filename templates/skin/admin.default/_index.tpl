@@ -34,7 +34,7 @@
 
 {block name="sidebar"}
 <ul class="b-sidebar-menu">
-	{hook run='admin_menu_top'}
+    {hook run='admin_menu_top'}
     <li class="nav-header"><i class="icon-info-sign"></i>{$aLang.action.admin.menu_info}</li>
     <li class="nav-menu_dashboard {if $sEvent=='' OR $sEvent=='dashboard'}active{/if}">
         <a href="{router page='admin'}dashboard/">{$aLang.action.admin.menu_info_dashboard}</a>
@@ -45,7 +45,7 @@
     <li class="nav-menu_phpinfo {if $sEvent=='phpinfo'}active{/if}">
         <a href="{router page='admin'}phpinfo/">{$aLang.action.admin.menu_info_php}</a>
     </li>
-	{hook run='admin_menu_info'}
+    {hook run='admin_menu_info'}
 
     <li class="nav-header"><i class="icon-file"></i>{$aLang.action.admin.menu_content}</li>
     <li class="nav-menu_pages {if $sEvent=='pages'}active{/if}">
@@ -60,7 +60,7 @@
     <li class="nav-menu_comments {if $sEvent=='comments'}active{/if}">
         <a href="{router page="admin"}comments/">{$aLang.action.admin.menu_content_comments}</a>
     </li>
-	{hook run='admin_menu_content'}
+    {hook run='admin_menu_content'}
 
     <li class="nav-header"><i class="icon-user"></i>{$aLang.action.admin.menu_users}</li>
     <li class="nav-menu_users {if $sEvent=='users'}active{/if}">
@@ -72,7 +72,7 @@
     <!-- li class="nav-menu_invites {if $sEvent=='invites'}active{/if}">
         <a href="{router page="admin"}invites/">{$aLang.action.admin.menu_users_invites}</a>
     </li -->
-	{hook run='admin_menu_users'}
+    {hook run='admin_menu_users'}
 
     <li class="nav-header"><i class="icon-cog"></i>{$aLang.action.admin.menu_config}</li>
     <li class="nav-menu_config {if $sEvent=='config'}active{/if}">
@@ -87,7 +87,7 @@
     <li class="nav-menu_userfields {if $sEvent=='userfields'}active{/if}">
         <a href="{router page="admin"}userfields/">{$aLang.action.admin.menu_config_userfields}</a>
     </li>
-	{hook run='admin_menu_config'}
+    {hook run='admin_menu_config'}
 
     <li class="nav-header"><i class="icon-th"></i>{$aLang.action.admin.menu_site}</li>
     <li class="nav-menu_skins {if $sEvent=='skins'}active{/if}">
@@ -99,7 +99,7 @@
     <li class="nav-menu_plugins {if $sEvent=='plugins'}active{/if}">
         <a href="{router page="admin"}plugins/">{$aLang.action.admin.menu_plugins}</a>
     </li>
-	{hook run='admin_menu_site'}
+    {hook run='admin_menu_site'}
 
     <li class="nav-header"><i class="icon-list-alt"></i>{$aLang.action.admin.menu_logs}</li>
     <li class="nav-menu_logs_errors {if $sEvent=='logs' and $sMode=='errors'}active{/if}">
@@ -111,7 +111,7 @@
     <li class="nav-menu_logs_sql {if $sEvent=='logs' and $sMode=='sql'}active{/if}">
         <a href="{router page="admin"}logs/sql/">{$aLang.action.admin.menu_logs_sql_log}</a>
     </li>
-	{hook run='admin_menu_logs'}
+    {hook run='admin_menu_logs'}
 
     <li class="nav-header"><i class="icon-wrench"></i>{$aLang.action.admin.menu_tools}</li>
     <li class="nav-menu_reset {if $sEvent=='reset'}active{/if}">

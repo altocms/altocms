@@ -1,9 +1,6 @@
 {extends file='_index.tpl'}
 
-{block name="content-body"}
-
-<div class="span12">
-
+{block name="content-bar"}
     <div class="btn-group">
         <a href="#" class="btn btn-primary disabled"><i class="icon-plus-sign"></i></a>
     </div>
@@ -15,9 +12,11 @@
             {$aLang.action.admin.banlist_ips}
         </a>
     </div>
-</div>
+{/block}
 
-    <div class="span12">
+{block name="content-body"}
+
+<div class="span12">
     <div class="span9">
         {block name="content-body-main"}
 

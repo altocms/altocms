@@ -1,12 +1,14 @@
 {extends file='_index.tpl'}
 
-{block name="content-body"}
-
-<div class="span12">
-
+{block name="content-bar"}
     <div class="btn-group">
         <a href="#" class="btn btn-primary disabled"><i class="icon-plus-sign"></i></a>
     </div>
+{/block}
+
+{block name="content-body"}
+
+<div class="span12">
 
     <div class="b-wbox">
         <div class="b-wbox-content nopadding">

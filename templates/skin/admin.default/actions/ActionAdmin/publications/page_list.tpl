@@ -1,20 +1,22 @@
 {extends file='_index.tpl'}
 
+{block name="content-bar"}
+    <div class="btn-group">
+        <a href="{router page='admin'}pages/add/" class="btn btn-primary"><i class="icon-plus-sign"></i></a>
+    </div>
+{/block}
+
 {block name="content-body"}
 
 <div class="span12">
 
-    {if $aParams.0=='new'}
+    {if $aParams.0=='add'}
         <h3 class="page-sub-header">{$aLang.action.admin.pages_create}</h3>
-    {include file='actions/ActionAdmin/page/page_add.tpl'}
-        {elseif $aParams.0=='edit'}
+        {include file='actions/ActionAdmin/page/page_add.tpl'}
+    {elseif $aParams.0=='edit'}
         <h3 class="page-sub-header">{$aLang.action.admin.pages_edit} «{$oPageEdit->getTitle()}»</h3>
     {include file='actions/ActionAdmin/page/page_add.tpl'}
     {/if}
-
-    <div class="btn-group">
-        <a href="{router page='admin'}pages/add/" class="btn btn-primary"><i class="icon-plus-sign"></i></a>
-    </div>
 
     <div class="b-wbox">
         <div class="b-wbox-content nopadding">

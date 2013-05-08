@@ -1,5 +1,12 @@
 {extends file='_index.tpl'}
 
+{block name="content-bar"}
+    <div class="btn-group">
+        <a href="#" class="btn btn-primary tip-top" onclick="ls.userfield.showAddForm(); return false;"
+           title="{$aLang.action.admin.user_field_add}"><i class="icon-plus-sign"></i></a>
+    </div>
+{/block}
+
 {block name="content-body"}
 
 <div class="span12">
@@ -33,11 +40,6 @@
             <button type="button" onclick="ls.userfield.applyForm(); return false;"
                     class="btn btn-primary">{$aLang.action.admin.user_field_add}</button>
         </form>
-    </div>
-
-    <div class="btn-group">
-        <a href="#" class="btn btn-primary tip-top" onclick="ls.userfield.showAddForm(); return false;"
-           title="{$aLang.action.admin.user_field_add}"><i class="icon-plus-sign"></i></a>
     </div>
 
     <div class="b-wbox">

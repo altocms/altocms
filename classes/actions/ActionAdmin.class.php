@@ -3,7 +3,6 @@
  * @Project: Alto CMS
  * @Project URI: http://altocms.com
  * @Description: Advanced Community Engine
- * @Version: 0.9a
  * @Copyright: Alto CMS Team
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
@@ -97,6 +96,13 @@ class ActionAdmin extends Action {
         $this->AddEvent('ajaxsetprofile', 'EventAjaxSetProfile');
     }
 
+    /**
+     * @param   int         $nParam
+     * @param   string      $sDefault
+     * @param   array|null  $aAvail
+     *
+     * @return mixed
+     */
     protected function _getMode($nParam = 0, $sDefault, $aAvail = null) {
         $sKey = Router::GetAction() . '.' . Router::GetActionEvent() . '.' . $nParam;
         $sMode = $this->GetParam($nParam, $this->Session_Get($sKey, $sDefault));
@@ -112,6 +118,16 @@ class ActionAdmin extends Action {
         $this->Session_Set($sKey, $sData);
     }
 
+    protected function _getPageNum($nNumParam = null) {
+        $nPage = 1;
+        if (!is_null($nNumParam) && preg_match("/^page(\d+)$/i", $this->GetParam(intval($nNumParam)), $aMatch)) {
+            $nPage = $aMatch[1];
+        } elseif (preg_match("/^page(\d+)$/i", $this->GetLastParam(), $aMatch)) {
+            $nPage = $aMatch[1];
+        }
+        return $nPage;
+    }
+
     /**********************************************************************************
      ************************ РЕАЛИЗАЦИЯ ЭКШЕНА ***************************************
      **********************************************************************************
@@ -121,6 +137,8 @@ class ActionAdmin extends Action {
 
         $this->_setTitle($this->Lang_Get('action.admin.menu_info_dashboard'));
         $this->SetTemplateAction('info/index');
+
+        $this->sMenuItem = $this->_getMode(0, 'index');
 
         $aData = array('e-alto' => ALTO_VERSION, 'e-uniq' => $this->Security_GetUniqKey());
         $aPlugins = $this->Plugin_GetPluginsList(true);
@@ -134,7 +152,7 @@ class ActionAdmin extends Action {
         }
 
         if ($sVal = $this->GetPost('dashboard_enable')) {
-            $aConfig['admin.dashboard.enable'] = ($sVal == 'off') ? false: true;
+            $aConfig['admin.dashboard.enable'] = ($sVal == 'off') ? false : true;
             Config::WriteCustomConfig($aConfig);
             Router::Location('admin/');
         }
@@ -2762,9 +2780,7 @@ class ActionAdmin extends Action {
      *
      */
     public function EventShutdown() {
-        /**
-         * Загружаем в шаблон необходимые переменные
-         */
+        // * Загружаем в шаблон необходимые переменные
         $this->Viewer_Assign('sMenuItem', $this->sMenuItem);
     }
 
@@ -2774,15 +2790,6 @@ class ActionAdmin extends Action {
 
     }
 
-    protected function _getPageNum($nNumParam = null) {
-        $nPage = 1;
-        if (!is_null($nNumParam) && preg_match("/^page(\d+)$/i", $this->GetParam(intval($nNumParam)), $aMatch)) {
-            $nPage = $aMatch[1];
-        } elseif (preg_match("/^page(\d+)$/i", $this->GetLastParam(), $aMatch)) {
-            $nPage = $aMatch[1];
-        }
-        return $nPage;
-    }
 
 
 }

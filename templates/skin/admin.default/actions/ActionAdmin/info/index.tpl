@@ -1,7 +1,17 @@
 {extends file='_index.tpl'}
 
+{block name="content-bar"}
+    <div class="btn-group">
+        <a href="{router page='admin'}dasboard/index/" class="btn {if $sMenuItem=='index'}active{/if}">
+            {$aLang.action.admin.dashboard_main}
+        </a>
+    </div>
+    {hook run='admin_dashboard_index_box'}
+{/block}
+
 {block name="content-body"}
-{if $bDashboardEnable}
+
+    {if $bDashboardEnable}
 <div class="span6">
     <div class="b-wbox">
         <div class="b-wbox-header">
