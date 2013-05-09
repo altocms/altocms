@@ -43,7 +43,7 @@ class ModuleVote_MapperVote extends Mapper {
             $sql, $oVote->getTargetId(), $oVote->getTargetType(), $oVote->getVoterId(), $oVote->getDirection(),
             $oVote->getValue(), $oVote->getDate(), $oVote->getIp()
         );
-        return $xResult;
+        return $xResult !== false;
     }
 
     /**
