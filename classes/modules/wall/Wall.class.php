@@ -51,7 +51,7 @@ class ModuleWall extends Module {
 	 */
 	public function AddWall($oWall) {
 		if (!$oWall->getDateAdd()) {
-			$oWall->setDateAdd(date("Y-m-d H:i:s"));
+			$oWall->setDateAdd(F::Now());
 		}
 		if (!$oWall->getIp()) {
 			$oWall->setIp(func_getIp());
@@ -155,7 +155,7 @@ class ModuleWall extends Module {
 			/**
 			 * Список последних записей хранится в строке через запятую
 			 */
-			if (isset($aAllowData['reply']) and is_null($oWall->getPid()) and $oWall->getLastReply()) {
+			if (isset($aAllowData['reply']) && is_null($oWall->getPid()) && $oWall->getLastReply()) {
 				$aReply=explode(',',trim($oWall->getLastReply()));
 				$aWallReplyId=array_merge($aWallReplyId,$aReply);
 			}
@@ -166,7 +166,7 @@ class ModuleWall extends Module {
 		$aUsers=isset($aAllowData['user']) && is_array($aAllowData['user']) ? $this->User_GetUsersAdditionalData($aUserId,$aAllowData['user']) : $this->User_GetUsersAdditionalData($aUserId);
 		$aWallUsers=isset($aAllowData['wall_user']) && is_array($aAllowData['wall_user']) ? $this->User_GetUsersAdditionalData($aWallUserId,$aAllowData['wall_user']) : $this->User_GetUsersAdditionalData($aWallUserId);
 		$aWallReply=array();
-		if (isset($aAllowData['reply']) and count($aWallReplyId)) {
+		if (isset($aAllowData['reply']) && count($aWallReplyId)) {
 			$aWallReply=$this->GetWallAdditionalData($aWallReplyId,array('user'=>array()));
 		}
 		/**

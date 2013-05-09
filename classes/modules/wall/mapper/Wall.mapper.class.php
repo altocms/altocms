@@ -112,7 +112,7 @@ class ModuleWall_MapperWall extends Mapper {
             WHERE
 					1 = 1
 					{ AND pid = ?d }
-					{ AND pid IS NULL AND 1 = ?d }
+					{ AND (pid IS NULL OR pid = 0) AND 1 = ?d }
 					{ AND wall_user_id = ?d }
 					{ AND user_id = ?d }
 					{ AND ip = ? }
@@ -123,7 +123,7 @@ class ModuleWall_MapperWall extends Mapper {
 			LIMIT ?d, ?d ;
 			";
         $aResult = array();
-        if ($aRows = $this->oDb->selectPage(
+        $aRows = $this->oDb->selectPage(
             $iCount, $sql,
             (isset($aFilter['pid']) && !is_null($aFilter['pid'])) ? $aFilter['pid'] : DBSIMPLE_SKIP,
             (array_key_exists('pid', $aFilter) && is_null($aFilter['pid'])) ? 1 : DBSIMPLE_SKIP,
@@ -134,8 +134,8 @@ class ModuleWall_MapperWall extends Mapper {
             isset($aFilter['id_less']) ? $aFilter['id_less'] : DBSIMPLE_SKIP,
             isset($aFilter['id_more']) ? $aFilter['id_more'] : DBSIMPLE_SKIP,
             ($iCurrPage - 1) * $iPerPage, $iPerPage
-        )
-        ) {
+        );
+        if ($aRows) {
             foreach ($aRows as $aRow) {
                 $aResult[] = $aRow['id'];
             }
@@ -159,7 +159,7 @@ class ModuleWall_MapperWall extends Mapper {
 				WHERE
 					1 = 1
 					{ AND pid = ?d }
-					{ AND pid IS NULL AND 1 = ?d }
+					{ AND (pid IS NULL OR pid = 0) AND 1 = ?d }
 					{ AND wall_user_id = ?d }
 					{ AND ip = ? }
 					{ AND id = ?d }

@@ -733,11 +733,13 @@ class Router extends LsObject {
     static public function Location($sLocation) {
         self::getInstance()->oEngine->Shutdown();
         if (substr($sLocation, 0, 1) !== '/') {
-            // Проверка на "относительный" путь
+            // Проверка на "виртуальный" путь
             $sRelLocation = trim($sLocation, '/');
             if (preg_match('|^[a-z][\w\-]+$|', $sRelLocation)) {
+                // задан action
                 $sLocation = self::GetPath($sRelLocation);
             } elseif (preg_match('|^([a-z][\w\-]+)(\/.+)$|', $sRelLocation)) {
+                // задан action/event/...
                 list($sAction, $sRest) = explode('/', $sLocation, 2);
                 $sLocation = self::GetPath($sAction) . '/' . $sRest;
             }
