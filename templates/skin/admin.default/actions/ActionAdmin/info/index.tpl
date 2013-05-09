@@ -2,11 +2,14 @@
 
 {block name="content-bar"}
     <div class="btn-group">
-        <a href="{router page='admin'}dasboard/index/" class="btn {if $sMenuItem=='index'}active{/if}">
+        <a href="{router page='admin'}dashboard/index/" class="btn {if $sMenuItem=='index'}active{/if}">
             {$aLang.action.admin.dashboard_main}
         </a>
+        {hook run='admin_dashboard_left_items'}
     </div>
-    {hook run='admin_dashboard_index_box'}
+    <div class="btn-group pull-right">
+        {hook run='admin_dashboard_right_items'}
+    </div>
 {/block}
 
 {block name="content-body"}
