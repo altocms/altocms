@@ -59,36 +59,37 @@ class ModuleUser_MapperUser extends Mapper {
      * @return bool
      */
     public function Update(ModuleUser_EntityUser $oUser) {
-        $sql = "UPDATE " . Config::Get('db.table.user') . "
-			SET
-				user_password = ? ,
-				user_mail = ? ,
-				user_skill = ? ,
-				user_date_activate = ? ,
-				user_date_comment_last = ? ,
-				user_rating = ? ,
-				user_count_vote = ? ,
-				user_activate = ? ,
-                user_activate_key = ? ,
-				user_profile_name = ? ,
-				user_profile_sex = ? ,
-				user_profile_country = ? ,
-				user_profile_region = ? ,
-				user_profile_city = ? ,
-				user_profile_birthday = ? ,
-				user_profile_about = ? ,
-				user_profile_date = ? ,
-				user_profile_avatar = ?	,
-				user_profile_foto = ? ,
-				user_settings_notice_new_topic = ?	,
-				user_settings_notice_new_comment = ? ,
-				user_settings_notice_new_talk = ?	,
-				user_settings_notice_reply_comment = ? ,
-				user_settings_notice_new_friend = ? ,
-				user_settings_timezone = ?,
-				user_last_session = ?
-			WHERE user_id = ?
-		";
+        $sql = "
+            UPDATE " . Config::Get('db.table.user') . "
+            SET
+                user_password = ?,
+                user_mail = ?,
+                user_skill = ?,
+                user_date_activate = ?,
+                user_date_comment_last = ?,
+                user_rating = ?,
+                user_count_vote = ?,
+                user_activate = ?,
+                user_activate_key = ?,
+                user_profile_name = ?,
+                user_profile_sex = ?,
+                user_profile_country = ?,
+                user_profile_region = ?,
+                user_profile_city = ?,
+                user_profile_birthday = ?,
+                user_profile_about = ?,
+                user_profile_date = ?,
+                user_profile_avatar = ?,
+                user_profile_foto = ?,
+                user_settings_notice_new_topic = ?,
+                user_settings_notice_new_comment = ?,
+                user_settings_notice_new_talk = ?,
+                user_settings_notice_reply_comment = ?,
+                user_settings_notice_new_friend = ?,
+                user_settings_timezone = ?,
+                user_last_session = ?
+            WHERE user_id = ?
+        ";
         $bResult = $this->oDb->query(
             $sql,
             $oUser->getPassword(),

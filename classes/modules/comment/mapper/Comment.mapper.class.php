@@ -741,7 +741,7 @@ class ModuleComment_MapperComment extends Mapper {
     public function SetCommentsPublish($sTargetId, $sTargetType, $iPublish) {
         $sql = "UPDATE " . Config::Get('db.table.comment') . "
 			SET 
-				comment_publish= ? 				
+				comment_publish = ?
 			WHERE
 				target_id = ?d AND target_type = ? 
 		";

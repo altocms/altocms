@@ -44,7 +44,7 @@ class ModuleVote extends Module {
      */
     public function AddVote(ModuleVote_EntityVote $oVote) {
         if (!$oVote->getIp()) {
-            $oVote->setIp(func_getIp());
+            $oVote->setIp(F::GetUserIp());
         }
         if ($this->oMapper->AddVote($oVote)) {
             $this->Cache_Delete("vote_{$oVote->getTargetType()}_{$oVote->getTargetId()}_{$oVote->getVoterId()}");

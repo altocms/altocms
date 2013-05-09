@@ -1,19 +1,18 @@
 <?php
-/*-------------------------------------------------------
-*
-*   LiveStreet Engine Social Networking
-*   Copyright © 2008 Mzhelskiy Maxim
-*
-*--------------------------------------------------------
-*
-*   Official site: www.livestreet.ru
-*   Contact e-mail: rus.engine@gmail.com
-*
-*   GNU General Public License, version 2:
-*   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-*
----------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
+
 
 /**
  * Объект маппера для работы с БД
@@ -36,17 +35,14 @@ class ModuleFavourite_MapperFavourite extends Mapper {
 			VALUES
 				(?d, ?, ?d, ?)
 		";
-        if ($this->oDb->query(
+        $bResult = $this->oDb->query(
             $sql,
             $oFavourite->getTargetId(),
             $oFavourite->getTargetType(),
             $oFavourite->getUserId(),
             $oFavourite->getTags()
-        ) === 0
-        ) {
-            return true;
-        }
-        return false;
+        );
+        return $bResult !== false;
     }
 
     /**
@@ -86,10 +82,10 @@ class ModuleFavourite_MapperFavourite extends Mapper {
         }
         $sql = "SELECT *
 				FROM " . Config::Get('db.table.favourite') . "
-				WHERE 			
+				WHERE
 					user_id = ?d
-					AND		
-					target_id IN(?a) 	
+					AND
+					target_id IN(?a)
 					AND
 					target_type = ? ";
         $aFavourites = array();
@@ -116,18 +112,15 @@ class ModuleFavourite_MapperFavourite extends Mapper {
 			AND
 				target_id = ?d
 			AND 
-				target_type = ?				
+				target_type = ?
 		";
-        if ($this->oDb->query(
+        $bResult = $this->oDb->query(
             $sql,
             $oFavourite->getUserId(),
             $oFavourite->getTargetId(),
             $oFavourite->getTargetType()
-        )
-        ) {
-            return true;
-        }
-        return false;
+        );
+        return $bResult !== false;
     }
 
     /**
@@ -147,16 +140,13 @@ class ModuleFavourite_MapperFavourite extends Mapper {
 				AND
 				target_id = ?d
 		";
-        if ($this->oDb->query(
+        $bResult = $this->oDb->query(
             $sql,
             $oFavourite->getUserId(),
             $oFavourite->getTargetType(),
             $oFavourite->getTargetId()
-        )
-        ) {
-            return true;
-        }
-        return false;
+        );
+        return $bResult !== false;
     }
 
     /**
@@ -171,18 +161,15 @@ class ModuleFavourite_MapperFavourite extends Mapper {
 			INSERT INTO " . Config::Get('db.table.favourite_tag') . "
 				SET target_id = ?d, target_type = ?, user_id = ?d, is_user = ?d, text =?
 		";
-        if ($this->oDb->query(
+        $bResult = $this->oDb->query(
             $sql,
             $oTag->getTargetId(),
             $oTag->getTargetType(),
             $oTag->getUserId(),
             $oTag->getIsUser(),
             $oTag->getText()
-        ) === 0
-        ) {
-            return true;
-        }
-        return false;
+        );
+        return $bResult !== false;
     }
 
     /**
@@ -199,10 +186,10 @@ class ModuleFavourite_MapperFavourite extends Mapper {
 			UPDATE " . Config::Get('db.table.favourite') . "
 			SET 
 				target_publish = ?d
-			WHERE				
+			WHERE
 				target_id IN(?a)
 			AND
-				target_type = ?				
+				target_type = ?
 		";
         $bResult = $this->oDb->query($sql, $iPublish, $aTargetId, $sTargetType);
         return $bResult !== false;
@@ -220,11 +207,9 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      *
      * @return array
      */
-    public function GetFavouritesByUserId(
-        $sUserId, $sTargetType, &$iCount, $iCurrPage, $iPerPage, $aExcludeTarget = array()
-    ) {
+    public function GetFavouritesByUserId($sUserId, $sTargetType, &$iCount, $iCurrPage, $iPerPage, $aExcludeTarget = array()) {
         $sql = "
-			SELECT target_id										
+			SELECT target_id
 			FROM " . Config::Get('db.table.favourite') . "
 			WHERE 
 					user_id = ?
@@ -232,12 +217,12 @@ class ModuleFavourite_MapperFavourite extends Mapper {
 					target_publish = 1
 				AND
 					target_type = ? 
-				{ AND target_id NOT IN (?a) }		
+				{ AND target_id NOT IN (?a) }
             ORDER BY target_id DESC	
             LIMIT ?d, ?d ";
 
         $aFavourites = array();
-        if ($aRows = $this->oDb->selectPage(
+        $aRows = $this->oDb->selectPage(
             $iCount,
             $sql,
             $sUserId,
@@ -245,8 +230,8 @@ class ModuleFavourite_MapperFavourite extends Mapper {
             (count($aExcludeTarget) ? $aExcludeTarget : DBSIMPLE_SKIP),
             ($iCurrPage - 1) * $iPerPage,
             $iPerPage
-        )
-        ) {
+        );
+        if ($aRows) {
             foreach ($aRows as $aFavourite) {
                 $aFavourites[] = $aFavourite['target_id'];
             }
@@ -276,14 +261,12 @@ class ModuleFavourite_MapperFavourite extends Mapper {
 						target_type = ?
 					{ AND target_id NOT IN (?a) }
 					;";
-        return ($aRow = $this->oDb->selectRow(
+        $aRow = $this->oDb->selectRow(
             $sql, $sUserId,
             $sTargetType,
             (count($aExcludeTarget) ? $aExcludeTarget : DBSIMPLE_SKIP)
-        )
-        )
-            ? $aRow['count']
-            : false;
+        );
+        return $aRow ? $aRow['count'] : false;
     }
 
     /**
@@ -323,11 +306,11 @@ class ModuleFavourite_MapperFavourite extends Mapper {
             LIMIT ?d, ?d ";
 
         $aFavourites = array();
-        if ($aRows = $this->oDb->selectPage(
+        $aRows = $this->oDb->selectPage(
             $iCount, $sql, $sUserId,
             ($iCurrPage - 1) * $iPerPage, $iPerPage
-        )
-        ) {
+        );
+        if ($aRows) {
             foreach ($aRows as $aFavourite) {
                 $aFavourites[] = $aFavourite['target_id'];
             }
@@ -363,11 +346,10 @@ class ModuleFavourite_MapperFavourite extends Mapper {
 					AND 
 						t.blog_id = b.blog_id
 					AND 
-						b.blog_type IN ('open', 'personal')		
+						b.blog_type IN ('open', 'personal')
 					;";
-        return ($aRow = $this->oDb->selectRow($sql, $sUserId))
-            ? $aRow['count']
-            : false;
+        $aRow = $this->oDb->selectRow($sql, $sUserId);
+        return $aRow ? $aRow['count'] : false;
     }
 
     /**
@@ -399,16 +381,16 @@ class ModuleFavourite_MapperFavourite extends Mapper {
 				AND 
 					t.blog_id = b.blog_id
 				AND 
-					b.blog_type IN ('open', 'personal')	
-            ORDER BY target_id DESC	
+					b.blog_type IN ('open', 'personal')
+            ORDER BY target_id DESC
             LIMIT ?d, ?d ";
 
         $aFavourites = array();
-        if ($aRows = $this->oDb->selectPage(
+        $aRows = $this->oDb->selectPage(
             $iCount, $sql, $sUserId,
             ($iCurrPage - 1) * $iPerPage, $iPerPage
-        )
-        ) {
+        );
+        if ($aRows) {
             foreach ($aRows as $aFavourite) {
                 $aFavourites[] = $aFavourite['target_id'];
             }

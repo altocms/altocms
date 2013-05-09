@@ -546,10 +546,11 @@ class ModuleUser extends Module {
      * @return bool
      */
     public function Update(ModuleUser_EntityUser $oUser) {
+        $bResult = $this->oMapper->Update($oUser);
         //чистим зависимые кеши
         $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array('user_update'));
         $this->Cache_Delete("user_{$oUser->getId()}");
-        return $this->oMapper->Update($oUser);
+        return $bResult;
     }
 
     /**
@@ -967,6 +968,7 @@ class ModuleUser extends Module {
      * @return bool
      */
     public function AddFriend(ModuleUser_EntityFriend $oFriend) {
+        $bResult = $this->oMapper->AddFriend($oFriend);
         //чистим зависимые кеши
         $this->Cache_Clean(
             Zend_Cache::CLEANING_MODE_MATCHING_TAG,
@@ -975,7 +977,7 @@ class ModuleUser extends Module {
         $this->Cache_Delete("user_friend_{$oFriend->getUserFrom()}_{$oFriend->getUserTo()}");
         $this->Cache_Delete("user_friend_{$oFriend->getUserTo()}_{$oFriend->getUserFrom()}");
 
-        return $this->oMapper->AddFriend($oFriend);
+        return $bResult;
     }
 
     /**
@@ -986,7 +988,8 @@ class ModuleUser extends Module {
      * @return bool
      */
     public function DeleteFriend(ModuleUser_EntityFriend $oFriend) {
-        //чистим зависимые кеши
+        $bResult = $this->oMapper->UpdateFriend($oFriend);
+        // чистим зависимые кеши
         $this->Cache_Clean(
             Zend_Cache::CLEANING_MODE_MATCHING_TAG,
             array("friend_change_user_{$oFriend->getUserFrom()}", "friend_change_user_{$oFriend->getUserTo()}")
@@ -996,7 +999,7 @@ class ModuleUser extends Module {
 
         // устанавливаем статус дружбы "удалено"
         $oFriend->setStatusByUserId(ModuleUser::USER_FRIEND_DELETE, $oFriend->getUserId());
-        return $this->oMapper->UpdateFriend($oFriend);
+        return $bResult;
     }
 
     /**
@@ -1007,14 +1010,15 @@ class ModuleUser extends Module {
      * @return bool
      */
     public function EraseFriend(ModuleUser_EntityFriend $oFriend) {
-        //чистим зависимые кеши
+        $bResult = $this->oMapper->EraseFriend($oFriend);
+        // чистим зависимые кеши
         $this->Cache_Clean(
             Zend_Cache::CLEANING_MODE_MATCHING_TAG,
             array("friend_change_user_{$oFriend->getUserFrom()}", "friend_change_user_{$oFriend->getUserTo()}")
         );
         $this->Cache_Delete("user_friend_{$oFriend->getUserFrom()}_{$oFriend->getUserTo()}");
         $this->Cache_Delete("user_friend_{$oFriend->getUserTo()}_{$oFriend->getUserFrom()}");
-        return $this->oMapper->EraseFriend($oFriend);
+        return $bResult;
     }
 
     /**
@@ -1025,14 +1029,15 @@ class ModuleUser extends Module {
      * @return bool
      */
     public function UpdateFriend(ModuleUser_EntityFriend $oFriend) {
-        //чистим зависимые кеши
+        $bResult = $this->oMapper->UpdateFriend($oFriend);
+        // чистим зависимые кеши
         $this->Cache_Clean(
             Zend_Cache::CLEANING_MODE_MATCHING_TAG,
             array("friend_change_user_{$oFriend->getUserFrom()}", "friend_change_user_{$oFriend->getUserTo()}")
         );
         $this->Cache_Delete("user_friend_{$oFriend->getUserFrom()}_{$oFriend->getUserTo()}");
         $this->Cache_Delete("user_friend_{$oFriend->getUserTo()}_{$oFriend->getUserFrom()}");
-        return $this->oMapper->UpdateFriend($oFriend);
+        return $bResult;
     }
 
     /**
@@ -1106,12 +1111,13 @@ class ModuleUser extends Module {
      * @return bool
      */
     public function UpdateInvite(ModuleUser_EntityInvite $oInvite) {
-        //чистим зависимые кеши
+        $bResult = $this->oMapper->UpdateInvite($oInvite);
+        // чистим зависимые кеши
         $this->Cache_Clean(
             Zend_Cache::CLEANING_MODE_MATCHING_TAG,
             array("invate_new_to_{$oInvite->getUserToId()}", "invate_new_from_{$oInvite->getUserFromId()}")
         );
-        return $this->oMapper->UpdateInvite($oInvite);
+        return $bResult;
     }
 
     /**
@@ -1710,12 +1716,13 @@ class ModuleUser extends Module {
      * @return bool
      */
     public function DeleteUserNoteById($iId) {
+        $bResult = $this->oMapper->DeleteUserNoteById($iId);
         if ($oNote = $this->GetUserNoteById($iId)) {
             $this->Cache_Clean(
                 Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("user_note_change_by_user_{$oNote->getUserId()}")
             );
         }
-        return $this->oMapper->DeleteUserNoteById($iId);
+        return $bResult;
     }
 
     /**
