@@ -16,18 +16,15 @@ F::IncludeLib('kcaptcha/kcaptcha.php');
  */
 class ActionCaptcha extends Action {
 
-	/**
-	 * Инициализация
-	 *
-	 */
+    /**
+     * Инициализация
+     *
+     */
     public function Init() {
         //$this->Viewer_SetResponseAjax('json');
         $this->SetDefaultEvent('index');
     }
-	/**
-	 * Регистрация евентов
-	 *
-	 */
+
     protected function RegisterEvent() {
         $this->AddEvent('index', 'EventIndex');
     }
@@ -38,3 +35,5 @@ class ActionCaptcha extends Action {
         exit;
     }
 }
+
+// EOF

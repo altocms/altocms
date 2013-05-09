@@ -123,6 +123,7 @@
 	
 	<div id="container" class="{hook run='container_class'}">
 		{include file='header_top.tpl'}
+        <noscript><div class="b-noscript">{$aLang.noscript_message}</div></noscript>
 		{include file='nav.tpl'}
 
 		<div id="wrapper" class="{if $noSidebar}no-sidebar{/if}{hook run='wrapper_class'}">

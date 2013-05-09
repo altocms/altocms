@@ -128,3 +128,12 @@ h2.header-table { margin-bottom: 0; border-bottom: 1px solid #eee; padding-botto
 .help .help-item:last-child { margin-bottom: 0; }
 .help .help-item h4 { font-family: monospace; font-weight: bold; margin-bottom: 3px; }
 .help .help-item h4 a { color: #5055B2; border-bottom: 1px dotted #727a90; }
+
+.b-noscript {
+    text-align: center;
+    border: 1px solid #cc3333;
+    background-color: #ffdddd;
+    color: #cc3333;
+    font-weight: bold;
+    padding: 10px;
+}

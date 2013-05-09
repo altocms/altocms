@@ -22,8 +22,10 @@
  * @since   1.0
  */
 class ModuleUser_EntityUser extends Entity {
+
     /**
      * Определяем правила валидации
+     * Правила валидации нужно определять только здесь!
      *
      * @var array
      */
@@ -35,6 +37,10 @@ class ModuleUser_EntityUser extends Entity {
         $this->aValidateRules[] = array('mail', 'mail_exists', 'on' => array('registration'));
         $this->aValidateRules[] = array('password', 'string', 'allowEmpty' => false, 'min' => 5, 'on' => array('registration'));
         $this->aValidateRules[] = array('password_confirm', 'compare', 'compareField' => 'password', 'on' => array('registration'));
+        // Определяем дополнительные правила валидации
+        if (Config::Get('module.user.captcha_use_registration')) {
+            $this->aValidateRules[] = array('captcha', 'captcha', 'on' => array('registration'));
+        }
     }
 
     /**
@@ -43,10 +49,6 @@ class ModuleUser_EntityUser extends Entity {
      * @param   array|null      $aParam
      */
     public function __construct($aParam = null) {
-        if (Config::Get('module.user.captcha_use_registration')) {
-            $this->aValidateRules[] = array('captcha', 'captcha', 'on' => array('registration'));
-        }
-
         parent::__construct($aParam);
     }
 
@@ -59,7 +61,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return bool
      */
     public function ValidateLogin($sValue, $aParams) {
-        if ($this->User_CheckLogin($sValue)) {
+        if ($sValue && $this->User_CheckLogin($sValue)) {
             return true;
         }
         return $this->Lang_Get('registration_login_error');

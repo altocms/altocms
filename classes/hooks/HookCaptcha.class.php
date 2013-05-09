@@ -29,7 +29,6 @@ class HookCaptcha extends Hook {
      * @return string
      */
     public function TemplateCaptcha() {
-        $s = $this->Viewer_Fetch('inc.captcha.tpl');
         return $this->Viewer_Fetch('inc.captcha.tpl');
     }
 }

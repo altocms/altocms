@@ -1,4 +1,5 @@
 <nav id="userbar" class="b-userbar i-container clearfix">
+    <noscript><div class="b-noscript">{$aLang.noscript_message}</div></noscript>
 	<form action="{router page='search'}topics/" class="search">
         {hook run='search_form_begin'}
 		<input type="text" value="{$aReq.q|escape:'html'}" placeholder="{$aLang.search}" maxlength="255" name="q" class="input-text">
