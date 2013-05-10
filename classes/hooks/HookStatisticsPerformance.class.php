@@ -19,7 +19,7 @@
  * Регистрация хука для вывода статистики производительности
  *
  * @package hooks
- * @since 1.0
+ * @since   1.0
  */
 class HookStatisticsPerformance extends Hook {
     /**

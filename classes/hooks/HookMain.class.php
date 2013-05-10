@@ -19,7 +19,7 @@
  * Регистрация основных хуков
  *
  * @package hooks
- * @since 1.0
+ * @since   1.0
  */
 class HookMain extends Hook {
     /**
@@ -35,7 +35,7 @@ class HookMain extends Hook {
          * Показывавем поля при просмотре топика
          */
         $this->AddHook('template_topic_content_end', 'showfields', __CLASS__, 150);
-		$this->AddHook('template_topic_preview_content_end', 'showfields', __CLASS__, 150);
+        $this->AddHook('template_topic_preview_content_end', 'showfields', __CLASS__, 150);
 
         /*
          * Упрощенный вывод JS в футере, для проблемных файлов
@@ -71,7 +71,9 @@ class HookMain extends Hook {
          * Проверка на закрытый режим
          */
         $oUserCurrent = $this->User_GetUserCurrent();
-        if (!$oUserCurrent && Config::Get('general.close') && Router::GetAction() != 'registration' && Router::GetAction() != 'login') {
+        if (!$oUserCurrent && Config::Get('general.close') && Router::GetAction() != 'registration'
+            && Router::GetAction() != 'login'
+        ) {
             Router::Action('login');
         }
     }
@@ -105,57 +107,57 @@ class HookMain extends Hook {
         return $sReturn;
     }
 
-    public function buildfooterJsCss(){
+    public function buildfooterJsCss() {
 
-        $sCssFooter='';
-        $sJsFooter ='';
+        $sCssFooter = '';
+        $sJsFooter = '';
 
         foreach (array('js', 'css') as $sType) {
-			/**
+            /**
              * Проверяем наличие списка файлов данного типа
              */
             $aFiles = Config::Get('footer.default.' . $sType);
             if (is_array($aFiles) && count($aFiles)) {
                 foreach ($aFiles as $sFile) {
                     if ($sType == 'js') {
-                        $sJsFooter.="<script type='text/javascript' src='".$sFile."'></script>";
+                        $sJsFooter .= "<script type='text/javascript' src='" . $sFile . "'></script>";
                     } elseif ($sType == 'css') {
-                        $sCssFooter.= "<link rel='stylesheet' type='text/css' href='".$sFile."' />";
+                        $sCssFooter .= "<link rel='stylesheet' type='text/css' href='" . $sFile . "' />";
                     }
                 }
             }
         }
 
-		return $sCssFooter.$sJsFooter;
+        return $sCssFooter . $sJsFooter;
 
-	}
+    }
 
-    public function addSharer($aParams){
+    public function addSharer($aParams) {
 
-        $oTopic=$aParams['topic'];
-        $bList=$aParams['bTopicList'];
+        $oTopic = $aParams['topic'];
+        $bList = $aParams['bTopicList'];
 
-        if(!$bList){
+        if (!$bList) {
             //заменяем скрипт шарера на продвинутый со счетчиками
-            $aFooterJs=Config::Get('footer.default.js');
-            if(is_array($aFooterJs)){
-                if(($key = array_search('http://yandex.st/share/share.js', $aFooterJs)) !== false) {
+            $aFooterJs = Config::Get('footer.default.js');
+            if (is_array($aFooterJs)) {
+                if (($key = array_search('http://yandex.st/share/share.js', $aFooterJs)) !== false) {
                     unset($aFooterJs[$key]);
                 }
             } else {
-                $aFooterJs=array();
+                $aFooterJs = array();
             }
 
-            $aFooterJs[]='//yandex.st/share/cnt.share.js';
-            Config::Set('footer.default.js',$aFooterJs);
+            $aFooterJs[] = '//yandex.st/share/cnt.share.js';
+            Config::Set('footer.default.js', $aFooterJs);
         }
 
-        $oViewer=$this->Viewer_GetLocalViewer();
-        $oViewer->Assign('oTopic',$oTopic);
-        $oViewer->Assign('bTopicList',$bList);
+        $oViewer = $this->Viewer_GetLocalViewer();
+        $oViewer->Assign('oTopic', $oTopic);
+        $oViewer->Assign('bTopicList', $bList);
         return $oViewer->Fetch('sharer.tpl');
     }
-	
+
 }
 
 // EOF
