@@ -3,8 +3,8 @@
 
 
 <div class="content-error">
-	<p>{$sText}</p>
-	<br />
+    <p>{$sText}</p>
+    <br/>
 </div>
 
 

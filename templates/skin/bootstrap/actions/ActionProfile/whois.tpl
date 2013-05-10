@@ -6,8 +6,6 @@
 {assign var="oVote" value=$oUserProfile->getVote()}
 {assign var="oGeoTarget" value=$oUserProfile->getGeoTarget()}
 
-
-			
 {include file='actions/ActionProfile/profile_top.tpl'}
 
 {assign var="aUserFieldValues" value=$oUserProfile->getUserFieldValues(true,array(''))}
@@ -16,7 +14,7 @@
 	<h2 class="header-table">{$aLang.profile_privat}</h2>
 
 
-	<table class="table table-profile-info">		
+	<table class="table table-profile-info">
 		{if $oUserProfile->getProfileSex()!='other'}
 			<tr>
 				<td class="cell-label">{$aLang.profile_sex}:</td>
@@ -29,16 +27,16 @@
 				</td>
 			</tr>
 		{/if}
-			
-			
+
+
 		{if $oUserProfile->getProfileBirthday()}
 			<tr>
 				<td class="cell-label">{$aLang.profile_birthday}:</td>
 				<td>{date_format date=$oUserProfile->getProfileBirthday() format="j F Y" notz=true}</td>
 			</tr>
 		{/if}
-		
-		
+
+
 		{if $oGeoTarget}
 			<tr>
 				<td class="cell-label">{$aLang.profile_place}:</td>
@@ -114,8 +112,7 @@
 			</td>
 		</tr>
 	{/if}
-	
-	
+
 	{if $oConfig->GetValue('general.reg.invite') and $aUsersInvite}
 		<tr>
 			<td class="cell-label">{$aLang.profile_invite_to}:</td>
@@ -126,8 +123,7 @@
 			</td>
 		</tr>
 	{/if}
-	
-	
+
 	{if $aBlogsOwner}
 		<tr>
 			<td class="cell-label">{$aLang.profile_blogs_self}:</td>
@@ -138,8 +134,7 @@
 			</td>
 		</tr>
 	{/if}
-	
-	
+
 	{if $aBlogAdministrators}
 		<tr>
 			<td class="cell-label">{$aLang.profile_blogs_administration}:</td>
@@ -151,8 +146,7 @@
 			</td>
 		</tr>
 	{/if}
-	
-	
+
 	{if $aBlogModerators}
 		<tr>
 			<td class="cell-label">{$aLang.profile_blogs_moderation}:</td>
@@ -164,8 +158,7 @@
 			</td>
 		</tr>
 	{/if}
-	
-	
+
 	{if $aBlogUsers}
 		<tr>
 			<td class="cell-label">{$aLang.profile_blogs_join}:</td>
@@ -178,25 +171,20 @@
 		</tr>
 	{/if}
 
-	
 	{hook run='profile_whois_activity_item' oUserProfile=$oUserProfile}
-	
-	
+
 	<tr>
 		<td class="cell-label">{$aLang.profile_date_registration}:</td>
 		<td>{date_format date=$oUserProfile->getDateRegister()}</td>
-	</tr>	
-	
-	
-	{if $oSession}				
+	</tr>
+
+	{if $oSession}
 		<tr>
 			<td class="cell-label">{$aLang.profile_date_last}:</td>
 			<td>{date_format date=$oSession->getDateLast()}</td>
 		</tr>
 	{/if}
 </table>
-
-
 
 {if $aUsersFriend}
 	<h2 class="header-table mb-15"><a href="{$oUserProfile->getUserWebPath()}friends/">{$aLang.profile_friends}</a> ({$iCountFriendsUser})</h2>
