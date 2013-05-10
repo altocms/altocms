@@ -1,4 +1,5 @@
-Пользователь «<a href="{$oUserFrom->getUserWebPath()}">{$oUserFrom->getLogin()}</a>»</b> приглашает вас вступить в блог <a href="{$oBlog->getUrlFull()}">"{$oBlog->getTitle()|escape:'html'}"</a>.
+Пользователь <b>«<a href="{$oUserFrom->getUserWebPath()}">{$oUserFrom->getLogin()}</a>»</b>
+приглашает вас вступить в блог <a href="{$oBlog->getUrlFull()}">"{$oBlog->getTitle()|escape:'html'}"</a>.
 <br /><br />
 <a href='{$sPath}'>Посмотреть приглашение</a> (Не забудьте предварительно авторизоваться!)
 <br />
