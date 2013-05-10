@@ -1,8 +1,6 @@
 {include file='header.tpl' menu='blog' menu_content='feed'}
 {include file='topic_list.tpl'}
 
-
-
 {if count($aTopics)}
     {if !$bDisableGetMoreButton}
         <div id="userfeed_loaded_topics"></div>
@@ -12,7 +10,5 @@
 {else}
     {$aLang.userfeed_no_events}
 {/if}
-
-
 
 {include file='footer.tpl'}

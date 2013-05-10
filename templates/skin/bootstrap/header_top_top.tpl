@@ -91,8 +91,12 @@
                         </a>
                         <ul class="dropdown-menu">
                             {foreach from=$aContentTypes item=oType}
-								<li {if $sEvent==$oType->getContentUrl()}class="active"{/if}><a href="{router page='content'}{$oType->getContentUrl()}/add/">{$oType->getContentTitle()|escape:'html'}</a></li>
-							{/foreach}
+                                <li {if $sEvent==$oType->getContentUrl()}class="active"{/if}>
+                                    <a href="{router page='content'}{$oType->getContentUrl()}/add/">
+                                        {$oType->getContentTitle()|escape:'html'}
+                                    </a>
+                                </li>
+                            {/foreach}
                             <li><a href="{router page='blog'}add" class="write-item-link">{$aLang.block_create_blog}</a></li>
                             <li class="divider"></li>
                             <li><a href="{router page='content'}saved/" class="write-item-link">{$aLang.topic_menu_saved} {if $iUserCurrentCountTopicDraft}({$iUserCurrentCountTopicDraft}){/if}</a></li>

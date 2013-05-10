@@ -10,16 +10,16 @@
 			</tr>
 		</thead>
 	{else}
-		<thead>
-			<tr>
-				<th class="cell-name">{$aLang.user}</th>
-				<th class="cell-date">{$aLang.user_date_last}</th>
-				<th class="cell-date">{$aLang.user_date_registration}</th>
-				<th class="cell-skill">{$aLang.user_skill}</th>
-				<th class="cell-rating">{$aLang.user_rating}</th>
-			</tr>
-		</thead>
-	{/if}
+        <thead>
+        <tr>
+            <th class="cell-name">{$aLang.user}</th>
+            <th class="cell-date">{$aLang.user_date_last}</th>
+            <th class="cell-date">{$aLang.user_date_registration}</th>
+            <th class="cell-skill">{$aLang.user_skill}</th>
+            <th class="cell-rating">{$aLang.user_rating}</th>
+        </tr>
+        </thead>
+    {/if}
 
 	<tbody>
 		{if $aUsersList}
@@ -42,16 +42,16 @@
 				</tr>
 			{/foreach}
 		{else}
-			<tr>
-				<td colspan="5">
-					{if $sUserListEmpty}
-						{$sUserListEmpty}
-					{else}
-						{$aLang.user_empty}
-					{/if}
-				</td>
-			</tr>
-		{/if}
+            <tr>
+                <td colspan="5">
+                    {if $sUserListEmpty}
+                        {$sUserListEmpty}
+                    {else}
+                        {$aLang.user_empty}
+                    {/if}
+                </td>
+            </tr>
+        {/if}
 	</tbody>
 </table>
 

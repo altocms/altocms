@@ -3,7 +3,6 @@
 		<h3><a href="#" class="link-dotted" onclick="jQuery('#block_talk_friends_content').toggle(); return false;"><i class="icon-arrow-down icon-white"></i>{$aLang.block_friends}</a></h3>
 	</header>
 
-	
 	<div class="block-content" id="block_talk_friends_content">
 		{if $aUsersFriend}
 			<ul class="list" id="friends">

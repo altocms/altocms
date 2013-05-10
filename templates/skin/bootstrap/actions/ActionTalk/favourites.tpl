@@ -4,8 +4,6 @@
 {include file='actions/ActionProfile/profile_top.tpl'}
 {include file='menu.talk.tpl'}
 
-
-
 {if $aTalks}
 	<table class="table table-talk">
 		<thead>
@@ -52,8 +50,6 @@
 {else}
 	<div class="notice-empty">{$aLang.talk_favourite_empty}</div>
 {/if}
-
-
 
 {include file='paging.tpl' aPaging=$aPaging}
 {include file='footer.tpl'}

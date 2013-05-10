@@ -1,10 +1,10 @@
 <div class="modal modal-write" id="modal_write">
-	<header class="modal-header">
-		<h3>{$aLang.block_create}</h3>
-		<a href="#" class="close jqmClose"></a>
-	</header>
-	
-	{strip}
+    <header class="modal-header">
+        <h3>{$aLang.block_create}</h3>
+        <a href="#" class="close jqmClose"></a>
+    </header>
+
+    {strip}
 	<div class="modal-content">
 		<ul class="write-list">
 			{if $iUserCurrentCountTopicDraft}
@@ -32,4 +32,3 @@
 	</div>
 	{/strip}
 </div>
-	

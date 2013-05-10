@@ -1,22 +1,22 @@
 {if !$oUserCurrent}
 	<div class="modal modal-login" id="window_login_form">
-		<header class="modal-header">
-			<h3>{$aLang.user_authorization}</h3>
-			<a href="#" class="close jqmClose"></a>
-		</header>
-		
-		
-		<script type="text/javascript">
-			jQuery(function($){
-				$('#popup-login-form').bind('submit',function(){
-					ls.user.login('popup-login-form');
-					return false;
-				});
-				$('#popup-login-form-submit').attr('disabled',false);
-			});
-		</script>
-		
-		<div class="modal-content">
+        <header class="modal-header">
+            <h3>{$aLang.user_authorization}</h3>
+            <a href="#" class="close jqmClose"></a>
+        </header>
+
+
+        <script type="text/javascript">
+            jQuery(function ($) {
+                $('#popup-login-form').bind('submit', function () {
+                    ls.user.login('popup-login-form');
+                    return false;
+                });
+                $('#popup-login-form-submit').attr('disabled', false);
+            });
+        </script>
+
+        <div class="modal-content">
 			<ul class="nav nav-pills nav-pills-tabs">
 				<li class="active js-block-popup-login-item" data-type="login"><a href="#">{$aLang.user_login_submit}</a></li>
 				{if !$oConfig->GetValue('general.reg.invite')}
@@ -26,8 +26,8 @@
 				{/if}
 				<li class="js-block-popup-login-item" data-type="reminder"><a href="#">{$aLang.password_reminder}</a></li>
 			</ul>
-			
-			
+
+
 			<div class="tab-content js-block-popup-login-content" data-type="login">
 				{hook run='login_popup_begin'}
 				<form action="{router page='login'}" method="post" id="popup-login-form">
@@ -36,11 +36,11 @@
 
 					<p><label for="popup-login">{$aLang.user_login}:</label>
 					<input type="text" name="login" id="popup-login" class="input-text input-width-300"></p>
-					
+
 					<p><label for="popup-password">{$aLang.user_password}:</label>
 					<input type="password" name="password" id="popup-password" class="input-text input-width-300">
 					<small class="validate-error-hide validate-error-login"></small></p>
-					
+
 					<p><label><input type="checkbox" name="remember" class="input-checkbox" checked> {$aLang.user_login_remember}</label></p>
 
 					{hook run='form_login_popup_end'}
@@ -82,36 +82,46 @@
                     <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}" />
 					{hook run='form_registration_begin' isPopup=true}
 
-					<p><label for="popup-registration-login">{$aLang.registration_login}</label>
+					<p>
+                        <label for="popup-registration-login">{$aLang.registration_login}</label>
 					<input type="text" name="login" id="popup-registration-login" value="{$_aRequest.login}" class="input-text input-width-300 js-ajax-validate" />
 					<i class="icon-ok-circle validate-ok-field-login" style="display: none"></i>
 					<i class="icon-question-sign js-tip-help" title="{$aLang.registration_login_notice}"></i>
-					<small class="validate-error-hide validate-error-field-login"></small></p>
+					<small class="validate-error-hide validate-error-field-login"></small>
+                    </p>
 
-					<p><label for="popup-registration-mail">{$aLang.registration_mail}</label>
+					<p>
+                        <label for="popup-registration-mail">{$aLang.registration_mail}</label>
 					<input type="text" name="mail" id="popup-registration-mail" value="{$_aRequest.mail}" class="input-text input-width-300 js-ajax-validate" />
 					<i class="icon-ok-circle validate-ok-field-mail" style="display: none"></i>
 					<i class="icon-question-sign js-tip-help" title="{$aLang.registration_mail_notice}"></i>
-					<small class="validate-error-hide validate-error-field-mail"></small></p>
+					<small class="validate-error-hide validate-error-field-mail"></small>
+                    </p>
 
-					<p><label for="popup-registration-user-password">{$aLang.registration_password}</label>
+					<p>
+                        <label for="popup-registration-user-password">{$aLang.registration_password}</label>
 					<input type="password" name="password" id="popup-registration-user-password" value="" class="input-text input-width-300 js-ajax-validate" />
 					<i class="icon-ok-circle validate-ok-field-password" style="display: none"></i>
 					<i class="icon-question-sign js-tip-help" title="{$aLang.registration_password_notice}"></i>
-					<small class="validate-error-hide validate-error-field-password"></small></p>
+					<small class="validate-error-hide validate-error-field-password"></small>
+                    </p>
 
-					<p><label for="popup-registration-user-password-confirm">{$aLang.registration_password_retry}</label>
+					<p>
+                        <label for="popup-registration-user-password-confirm">{$aLang.registration_password_retry}</label>
 					<input type="password" value="" id="popup-registration-user-password-confirm" name="password_confirm" class="input-text input-width-300 js-ajax-validate" />
 					<i class="icon-ok-circle validate-ok-field-password_confirm" style="display: none"></i>
-					<small class="validate-error-hide validate-error-field-password_confirm"></small></p>
+					<small class="validate-error-hide validate-error-field-password_confirm"></small>
+                    </p>
 
 					{hookb run="popup_registration_captcha"}
-					<p><label for="popup-registration-captcha">{$aLang.registration_captcha}</label>
+					<p>
+                        <label for="popup-registration-captcha">{$aLang.registration_captcha}</label>
 					<img src="{cfg name='path.root.engine_lib'}/external/kcaptcha/index.php?{$_sPhpSessionName}={$_sPhpSessionId}" 
 						 onclick="this.src='{cfg name='path.root.engine_lib'}/external/kcaptcha/index.php?{$_sPhpSessionName}={$_sPhpSessionId}&n='+Math.random();"
 						 class="captcha-image" />
 					<input type="text" name="captcha" id="popup-registration-captcha" value="" maxlength="3" class="input-text input-width-100 js-ajax-validate" />
-					<small class="validate-error-hide validate-error-field-captcha"></small></p>
+					<small class="validate-error-hide validate-error-field-captcha"></small>
+                    </p>
 					{/hookb}
 
 					{hook run='form_registration_end' isPopup=true}
@@ -122,8 +132,8 @@
 				{hook run='registration_end' isPopup=true}
 			</div>
 			{/if}
-			
-			
+
+
 			<div data-type="reminder" class="tab-content js-block-popup-login-content" style="display:none;">
 				<script type="text/javascript">
 					jQuery(document).ready(function($){

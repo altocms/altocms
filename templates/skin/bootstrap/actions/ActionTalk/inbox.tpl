@@ -73,6 +73,5 @@
 	<div class="notice-empty">{$aLang.talk_inbox_empty}</div>
 {/if}
 
-			
 {include file='paging.tpl' aPaging=$aPaging}
 {include file='footer.tpl'}

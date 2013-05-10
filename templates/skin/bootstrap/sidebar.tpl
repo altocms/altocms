@@ -3,5 +3,5 @@
               {if $sidebarPosition == 'left'} sidebar-left{/if}
               {if $noSidebarRespon} respon-sidebar{/if}
               ">
-	{include file='blocks.tpl' group='right'}
+    {include file='blocks.tpl' group='right'}
 </aside>

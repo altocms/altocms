@@ -4,5 +4,3 @@
 		<a href="#" onclick="return ls.toolbar.topic.goNext();" title="{$aLang.toolbar_topic_next}" class="toolbar-topic-next"><i class="icon-arrow-down"></i></a>
 	</section>
 {/if}
-
-	

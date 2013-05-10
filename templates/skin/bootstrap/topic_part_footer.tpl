@@ -1,13 +1,13 @@
-	{assign var="oBlog" value=$oTopic->getBlog()}
-	{assign var="oUser" value=$oTopic->getUser()}
-	{assign var="oVote" value=$oTopic->getVote()}
-	{assign var="oFavourite" value=$oTopic->getFavourite()}
+{assign var="oBlog" value=$oTopic->getBlog()}
+{assign var="oUser" value=$oTopic->getUser()}
+{assign var="oVote" value=$oTopic->getVote()}
+{assign var="oFavourite" value=$oTopic->getFavourite()}
 
-    <div class="topic-share" id="topic_share_{$oTopic->getId()}">
+<div class="topic-share" id="topic_share_{$oTopic->getId()}">
     {hookb run="topic_share" topic=$oTopic bTopicList=$bTopicList}
         {include file='sharer.tpl'}
     {/hookb}
-    </div>
+</div>
 
     {if !$bTopicList}
     <ul class="topic-tags js-favourite-insert-after-form js-favourite-tags-topic-{$oTopic->getId()}">
@@ -84,39 +84,39 @@
                         <div class="vote-up btn btn-small" onclick="return ls.vote.vote({$oTopic->getId()},this,1,'topic');"><i class="icon-plus"></i></div>
                     {/if}
                 </div>
-				{if $bVoteInfoShow}
-					<div id="vote-info-topic-{$oTopic->getId()}" class="stat-topic" style="display: none;">
+                {if $bVoteInfoShow}
+                    <div id="vote-info-topic-{$oTopic->getId()}" class="stat-topic" style="display: none;">
                         <i class="icon-thumbs-up icon-white"></i>&nbsp; {$oTopic->getCountVoteUp()}<br/>
                         <i class="icon-eye-open icon-white"></i>&nbsp; {$oTopic->getCountVoteAbstain()}<br/>
                         <i class="icon-thumbs-down icon-white"></i>&nbsp; {$oTopic->getCountVoteDown()}<br/>
-						{hook run='topic_show_vote_stats' topic=$oTopic}
-					</div>
-				{/if}
-			</li>
+                        {hook run='topic_show_vote_stats' topic=$oTopic}
+                    </div>
+                {/if}
+            </li>
 
 			<li class="topic-info-author"><a rel="author" href="{$oUser->getUserWebPath()}"><i class="icon-user"></i>{$oUser->getLogin()}</a></li>
-            <li class="topic-info-share"><a href="#" class="icon-share" title="{$aLang.topic_share}" onclick="jQuery('#topic_share_{$oTopic->getId()}').slideToggle(); return false;"></a></li>
+            <li class="topic-info-share"><a href="#" class="icon-share" title="{$aLang.topic_share}" onclick="jQuery('#topic_share_' + '{$oTopic->getId()}').slideToggle(); return false;"></a></li>
             <li class="topic-info-favourite">
 				<div onclick="return ls.favourite.toggle({$oTopic->getId()},this,'topic');" class="favourite {if $oUserCurrent && $oTopic->getIsFavourite()}active{/if}"></div>
 				<span class="favourite-count" id="fav_count_topic_{$oTopic->getId()}">{$oTopic->getCountFavourite()}</span>
 			</li>
-			
-			{if $bTopicList}
-				<li class="topic-info-comments">
-					<a href="{$oTopic->getUrl()}#comments" title="{$aLang.topic_comment_read}">
+
+            {if $bTopicList}
+                <li class="topic-info-comments">
+                    <a href="{$oTopic->getUrl()}#comments" title="{$aLang.topic_comment_read}">
                         <span class="link">{$oTopic->getCountComment()}</span>
                         <i class="icon-comment"></i>
                         {if $oTopic->getCountCommentNew()}<span>+{$oTopic->getCountCommentNew()}</span>{/if}
                     </a>
-				</li>
-			{/if}
-			
-			{hook run='topic_show_info' topic=$oTopic}
+                </li>
+            {/if}
+
+            {hook run='topic_show_info' topic=$oTopic}
 		</ul>
 
-		
-		{if !$bTopicList}
-			{hook run='topic_show_end' topic=$oTopic}
-		{/if}
-	</footer>
+
+        {if !$bTopicList}
+            {hook run='topic_show_end' topic=$oTopic}
+        {/if}
+    </footer>
 </article> <!-- /.topic -->

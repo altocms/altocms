@@ -6,7 +6,6 @@
 
 {assign var="oUser" value=$oTalk->getUser()}
 
-
 <article class="topic topic-type-talk">
 	<header class="topic-header">
 		<h1 class="topic-title">{$oTalk->getTitle()|escape:'html'}</h1>
@@ -34,16 +33,13 @@
 			</p>
 		</div>
 	</header>
-	
-	
+
 	{include file='actions/ActionTalk/speakers.tpl'}
-	
-	
+
 	<div class="topic-content text">
 		{$oTalk->getText()}
 	</div>
-	
-	
+
 	<footer class="topic-footer">
 		<ul class="topic-info">
 			<li class="topic-info-favourite"><a href="#" onclick="return ls.favourite.toggle({$oTalk->getId()},this,'talk');" class="favourite {if $oTalk->getIsFavourite()}active{/if}"></a></li>
@@ -65,6 +61,5 @@
 	sNoticeCommentAdd=$aLang.topic_comment_add
 	bNoCommentFavourites=true}
 {/if}
-			
-			
+
 {include file='footer.tpl'}
