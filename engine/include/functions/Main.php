@@ -17,7 +17,7 @@ class AltoFunc_Main {
     static protected $sRandChars = '!#$%()*+-0123456789:<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_abcdefghijklmnopqrstuvwxyz|~';
     static protected $aMemSizeUnits = array('B', 'K', 'M', 'G', 'T', 'P');
 
-    static function StrUnderscore($sStr) {
+    static public function StrUnderscore($sStr) {
         return strtolower(preg_replace('/([^A-Z])([A-Z])/', "$1_$2", $sStr));
     }
 
