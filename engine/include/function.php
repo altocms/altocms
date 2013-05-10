@@ -99,7 +99,7 @@ function isPost($sName) {
 }
 
 function getRequestPost($sName, $default = null) {
-    return F::GetPost($sName, $default, 'post');
+    return F::GetPost($sName, $default);
 }
 
 function getRequestPostStr($sName, $default = null) {
