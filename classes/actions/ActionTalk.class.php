@@ -262,7 +262,7 @@ class ActionTalk extends Action {
 		/**
 		 * Ключевые слова в теме сообщения
 		 */
-		if($sKeyRequest=getRequest('keyword') and is_string($sKeyRequest)){
+		if(($sKeyRequest=getRequest('keyword')) && is_string($sKeyRequest)){
 			$sKeyRequest=urldecode($sKeyRequest);
 			preg_match_all('~(\S+)~u',$sKeyRequest,$aWords);
 
@@ -275,7 +275,7 @@ class ActionTalk extends Action {
 		/**
 		 * Ключевые слова в тексте сообщения
 		 */
-		if($sKeyRequest=getRequest('keyword_text') and is_string($sKeyRequest)){
+		if($sKeyRequest=getRequest('keyword_text') && is_string($sKeyRequest)){
 			$sKeyRequest=urldecode($sKeyRequest);
 			preg_match_all('~(\S+)~u',$sKeyRequest,$aWords);
 
@@ -288,7 +288,7 @@ class ActionTalk extends Action {
 		/**
 		 * Отправитель
 		 */
-		if($sender=getRequest('sender') and is_string($sender)){
+		if(($sender=getRequest('sender')) && is_string($sender)){
 			$aFilter['user_login']=urldecode($sender);
 		}
 		/**
@@ -485,10 +485,10 @@ class ActionTalk extends Action {
 		$this->aUsersId=array();
 		foreach ($aUsers as $sUser) {
 			$sUser=trim($sUser);
-			if ($sUser=='' or strtolower($sUser)==strtolower($this->oUserCurrent->getLogin())) {
+			if ($sUser=='' || strtolower($sUser)==strtolower($this->oUserCurrent->getLogin())) {
 				continue;
 			}
-			if ($oUser=$this->User_GetUserByLogin($sUser) and $oUser->getActivate()==1) {
+			if (($oUser=$this->User_GetUserByLogin($sUser)) && $oUser->getActivate()==1) {
 				// Проверяем, попал ли отправиль в блек лист
 				if(!in_array($oUser->getId(),$aUserInBlacklist)) {
 					$this->aUsersId[]=$oUser->getId();
@@ -515,7 +515,7 @@ class ActionTalk extends Action {
 			$_REQUEST['talk_users']='';
 			$bOk=false;
 		} else {
-			if (count($aUsersNew)>Config::Get('module.talk.max_users') and !$this->oUserCurrent->isAdministrator()) {
+			if (count($aUsersNew)>Config::Get('module.talk.max_users') && !$this->oUserCurrent->isAdministrator()) {
 				$this->Message_AddError($this->Lang_Get('talk_create_users_error_many'),$this->Lang_Get('error'));
 				$bOk=false;
 			}
@@ -573,7 +573,7 @@ class ActionTalk extends Action {
 
 		$aComments=array();
 		$aCmts=$aReturn['comments'];
-		if ($aCmts and is_array($aCmts)) {
+		if ($aCmts && is_array($aCmts)) {
 			foreach ($aCmts as $aCmt) {
 				$aComments[]=array(
 					'html' => $aCmt['html'],
@@ -762,7 +762,7 @@ class ActionTalk extends Action {
 			/**
 			 * Если пользователь не найден или неактивен, возвращаем ошибку
 			 */
-			if ($oUser=$this->User_GetUserByLogin($sUser) and $oUser->getActivate()==1) {
+			if (($oUser=$this->User_GetUserByLogin($sUser)) && $oUser->getActivate()==1) {
 				if(!isset($aUserBlacklist[$oUser->getId()])) {
 					if($this->Talk_AddUserToBlackList($oUser->getId(),$this->oUserCurrent->getId())) {
 						$aResult[]=array(
@@ -995,7 +995,7 @@ class ActionTalk extends Action {
 		/**
 		 * Ограничения на максимальное число участников разговора
 		 */
-		if (count($aTalkUsers)>=Config::Get('module.talk.max_users') and !$this->oUserCurrent->isAdministrator()) {
+		if (count($aTalkUsers)>=Config::Get('module.talk.max_users') && !$this->oUserCurrent->isAdministrator()) {
 			$this->Message_AddError($this->Lang_Get('talk_create_users_error_many'),$this->Lang_Get('error'));
 			return;
 		}
@@ -1194,4 +1194,5 @@ class ActionTalk extends Action {
 		$this->Viewer_Assign('TALK_USER_DELETE_BY_AUTHOR',ModuleTalk::TALK_USER_DELETE_BY_AUTHOR);
 	}
 }
-?>
+
+// EOF

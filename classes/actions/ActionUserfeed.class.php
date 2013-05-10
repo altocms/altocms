@@ -310,3 +310,5 @@ class ActionUserfeed extends Action {
 		//$this->Viewer_Assign('iCountTopicsNew',$iCountTopicsNew);
 	}
 }
+
+// EOF

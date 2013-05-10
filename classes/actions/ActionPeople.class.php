@@ -77,7 +77,7 @@ class ActionPeople extends Action {
 		 * Получаем из реквеста первые быквы для поиска пользователей по логину
 		 */
 		$sTitle=getRequest('user_login');
-		if (is_string($sTitle) and mb_strlen($sTitle,'utf-8')) {
+		if (is_string($sTitle) && mb_strlen($sTitle,'utf-8')) {
 			$sTitle=str_replace(array('_','%'),array('\_','\%'),$sTitle);
 		} else {
 			$this->Message_AddErrorSingle($this->Lang_Get('system_error'));

@@ -19,7 +19,7 @@
  * Экшен обработки УРЛа вида /comments/
  *
  * @package actions
- * @since 1.0
+ * @since   1.0
  */
 class ActionBlogs extends Action {
     /**
@@ -27,176 +27,195 @@ class ActionBlogs extends Action {
      *
      * @var string
      */
-    protected $sMenuHeadItemSelect='blogs';
-	/**
-	 * Инициализация
-	 */
-	public function Init() {
-		/**
-		 * Загружаем в шаблон JS текстовки
-		 */
-		$this->Lang_AddLangJs(array(
-								  'blog_join','blog_leave'
-							  ));
-	}
-	/**
-	 * Регистрируем евенты
-	 */
-	protected function RegisterEvent() {
-		$this->AddEventPreg('/^personal$/i','/^(page([1-9]\d{0,5}))?$/i','EventShowBlogsPersonal');
-		$this->AddEventPreg('/^(page([1-9]\d{0,5}))?$/i','EventShowBlogs');
-		$this->AddEventPreg('/^ajax-search$/i','EventAjaxSearch');
-	}
+    protected $sMenuHeadItemSelect = 'blogs';
+
+    /**
+     * Инициализация
+     */
+    public function Init() {
+        /**
+         * Загружаем в шаблон JS текстовки
+         */
+        $this->Lang_AddLangJs(
+            array(
+                 'blog_join', 'blog_leave'
+            )
+        );
+    }
+
+    /**
+     * Регистрируем евенты
+     */
+    protected function RegisterEvent() {
+        $this->AddEventPreg('/^personal$/i', '/^(page([1-9]\d{0,5}))?$/i', 'EventShowBlogsPersonal');
+        $this->AddEventPreg('/^(page([1-9]\d{0,5}))?$/i', 'EventShowBlogs');
+        $this->AddEventPreg('/^ajax-search$/i', 'EventAjaxSearch');
+    }
 
 
-	/**********************************************************************************
-	 ************************ РЕАЛИЗАЦИЯ ЭКШЕНА ***************************************
-	 **********************************************************************************
-	 */
+    /**********************************************************************************
+     ************************ РЕАЛИЗАЦИЯ ЭКШЕНА ***************************************
+     **********************************************************************************
+     */
 
-	/**
-	 * Поиск блогов по названию
-	 */
-	protected function EventAjaxSearch() {
-		/**
-		 * Устанавливаем формат Ajax ответа
-		 */
-		$this->Viewer_SetResponseAjax('json');
-		/**
-		 * Получаем из реквеста первые буквы блога
-		 */
-		if ($sTitle=getRequestStr('blog_title')) {
-			$sTitle=str_replace('%','',$sTitle);
-		}
-		if (!$sTitle) {
-			$this->Message_AddErrorSingle($this->Lang_Get('system_error'));
-			return;
-		}
-		/**
-		 * Ищем блоги
-		 */
-		$aResult=$this->Blog_GetBlogsByFilter(array('exclude_type' => 'personal','title'=>"%{$sTitle}%"),array('blog_title'=>'asc'),1,100);
-		/**
-		 * Формируем и возвращает ответ
-		 */
-		$oViewer=$this->Viewer_GetLocalViewer();
-		$oViewer->Assign('aBlogs',$aResult['collection']);
-		$oViewer->Assign('oUserCurrent',$this->User_GetUserCurrent());
-		$oViewer->Assign('sBlogsEmptyList',$this->Lang_Get('blogs_search_empty'));
-		$this->Viewer_AssignAjax('sText',$oViewer->Fetch("blog_list.tpl"));
-	}
-	/**
-	 * Отображение списка блогов
-	 */
-	protected function EventShowBlogs() {
-		/**
-		 * По какому полю сортировать
-		 */
-		$sOrder='blog_rating';
-		if (getRequest('order')) {
-			$sOrder=getRequestStr('order');
-		}
-		/**
-		 * В каком направлении сортировать
-		 */
-		$sOrderWay='desc';
-		if (getRequest('order_way')) {
-			$sOrderWay=getRequestStr('order_way');
-		}
-		/**
-		 * Фильтр поиска блогов
-		 */
-		$aFilter=array(
-			'exclude_type' => 'personal'
-		);
-		/**
-		 * Передан ли номер страницы
-		 */
-		$iPage=	preg_match("/^\d+$/i",$this->GetEventMatch(2)) ? $this->GetEventMatch(2) : 1;
-		/**
-		 * Получаем список блогов
-		 */
-		$aResult=$this->Blog_GetBlogsByFilter($aFilter,array($sOrder=>$sOrderWay),$iPage,Config::Get('module.blog.per_page'));
-		$aBlogs=$aResult['collection'];
-		/**
-		 * Формируем постраничность
-		 */
-		$aPaging=$this->Viewer_MakePaging($aResult['count'],$iPage,Config::Get('module.blog.per_page'),Config::Get('pagination.pages.count'),Router::GetPath('blogs'),array('order'=>$sOrder,'order_way'=>$sOrderWay));
-		/**
-		 * Загружаем переменные в шаблон
-		 */
-		$this->Viewer_Assign('aPaging',$aPaging);
-		$this->Viewer_Assign("aBlogs",$aBlogs);
-		$this->Viewer_Assign("sBlogOrder",htmlspecialchars($sOrder));
-		$this->Viewer_Assign("sBlogOrderWay",htmlspecialchars($sOrderWay));
-		$this->Viewer_Assign("sBlogOrderWayNext",htmlspecialchars($sOrderWay=='desc' ? 'asc' : 'desc'));
-		$this->Viewer_Assign("sShow",'collective');
-		$this->Viewer_Assign("sBlogsRootPage",Router::GetPath('blogs'));
-		/**
-		 * Устанавливаем title страницы
-		 */
-		$this->Viewer_AddHtmlTitle($this->Lang_Get('blog_menu_all_list'));
-		/**
-		 * Устанавливаем шаблон вывода
-		 */
-		$this->SetTemplateAction('index');
-	}
+    /**
+     * Поиск блогов по названию
+     */
+    protected function EventAjaxSearch() {
+        /**
+         * Устанавливаем формат Ajax ответа
+         */
+        $this->Viewer_SetResponseAjax('json');
+        /**
+         * Получаем из реквеста первые буквы блога
+         */
+        if ($sTitle = getRequestStr('blog_title')) {
+            $sTitle = str_replace('%', '', $sTitle);
+        }
+        if (!$sTitle) {
+            $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
+            return;
+        }
+        /**
+         * Ищем блоги
+         */
+        $aResult = $this->Blog_GetBlogsByFilter(
+            array('exclude_type' => 'personal', 'title' => "%{$sTitle}%"), array('blog_title' => 'asc'), 1, 100
+        );
+        /**
+         * Формируем и возвращает ответ
+         */
+        $oViewer = $this->Viewer_GetLocalViewer();
+        $oViewer->Assign('aBlogs', $aResult['collection']);
+        $oViewer->Assign('oUserCurrent', $this->User_GetUserCurrent());
+        $oViewer->Assign('sBlogsEmptyList', $this->Lang_Get('blogs_search_empty'));
+        $this->Viewer_AssignAjax('sText', $oViewer->Fetch("blog_list.tpl"));
+    }
 
-	/**
-	 * Отображение списка персональных блогов
-	 */
-	protected function EventShowBlogsPersonal() {
-		/**
-		 * По какому полю сортировать
-		 */
-		$sOrder='blog_count_topic';
-		/**
-		 * В каком направлении сортировать
-		 */
-		$sOrderWay='desc';
-		if (getRequest('order_way')) {
-			$sOrderWay=getRequestStr('order_way');
-		}
-		/**
-		 * Фильтр поиска блогов
-		 */
-		$aFilter=array(
-			'type' => 'personal'
-		);
-		/**
-		 * Передан ли номер страницы
-		 */
-		$iPage=	preg_match("/^\d+$/i",$this->GetEventMatch(2)) ? $this->GetEventMatch(2) : 1;
-		/**
-		 * Получаем список блогов
-		 */
-		$aResult=$this->Blog_GetBlogsByFilter($aFilter,array($sOrder=>$sOrderWay),$iPage,Config::Get('module.blog.per_page'));
-		$aBlogs=$aResult['collection'];
-		/**
-		 * Формируем постраничность
-		 */
-		$aPaging=$this->Viewer_MakePaging($aResult['count'],$iPage,Config::Get('module.blog.per_page'),Config::Get('pagination.pages.count'),Router::GetPath('blogs').'personal/',array('order'=>$sOrder,'order_way'=>$sOrderWay));
-		/**
-		 * Загружаем переменные в шаблон
-		 */
-		$this->Viewer_Assign('aPaging',$aPaging);
-		$this->Viewer_Assign("aBlogs",$aBlogs);
-		$this->Viewer_Assign("sBlogOrder",htmlspecialchars($sOrder));
-		$this->Viewer_Assign("sBlogOrderWay",htmlspecialchars($sOrderWay));
-		$this->Viewer_Assign("sBlogOrderWayNext",htmlspecialchars($sOrderWay=='desc' ? 'asc' : 'desc'));
-		$this->Viewer_Assign("sShow",'personal');
-		$this->Viewer_Assign("sBlogsRootPage",Router::GetPath('blogs').'personal/');
-		/**
-		 * Устанавливаем title страницы
-		 */
-		$this->Viewer_AddHtmlTitle($this->Lang_Get('blog_menu_all_list'));
-		/**
-		 * Устанавливаем шаблон вывода
-		 */
-		$this->SetTemplateAction('index');
-	}
+    /**
+     * Отображение списка блогов
+     */
+    protected function EventShowBlogs() {
+        /**
+         * По какому полю сортировать
+         */
+        $sOrder = 'blog_rating';
+        if (getRequest('order')) {
+            $sOrder = getRequestStr('order');
+        }
+        /**
+         * В каком направлении сортировать
+         */
+        $sOrderWay = 'desc';
+        if (getRequest('order_way')) {
+            $sOrderWay = getRequestStr('order_way');
+        }
+        /**
+         * Фильтр поиска блогов
+         */
+        $aFilter = array(
+            'exclude_type' => 'personal'
+        );
+        /**
+         * Передан ли номер страницы
+         */
+        $iPage = preg_match("/^\d+$/i", $this->GetEventMatch(2)) ? $this->GetEventMatch(2) : 1;
+        /**
+         * Получаем список блогов
+         */
+        $aResult = $this->Blog_GetBlogsByFilter(
+            $aFilter, array($sOrder => $sOrderWay), $iPage, Config::Get('module.blog.per_page')
+        );
+        $aBlogs = $aResult['collection'];
+        /**
+         * Формируем постраничность
+         */
+        $aPaging = $this->Viewer_MakePaging(
+            $aResult['count'], $iPage, Config::Get('module.blog.per_page'), Config::Get('pagination.pages.count'),
+            Router::GetPath('blogs'), array('order' => $sOrder, 'order_way' => $sOrderWay)
+        );
+        /**
+         * Загружаем переменные в шаблон
+         */
+        $this->Viewer_Assign('aPaging', $aPaging);
+        $this->Viewer_Assign("aBlogs", $aBlogs);
+        $this->Viewer_Assign("sBlogOrder", htmlspecialchars($sOrder));
+        $this->Viewer_Assign("sBlogOrderWay", htmlspecialchars($sOrderWay));
+        $this->Viewer_Assign("sBlogOrderWayNext", htmlspecialchars($sOrderWay == 'desc' ? 'asc' : 'desc'));
+        $this->Viewer_Assign("sShow", 'collective');
+        $this->Viewer_Assign("sBlogsRootPage", Router::GetPath('blogs'));
+        /**
+         * Устанавливаем title страницы
+         */
+        $this->Viewer_AddHtmlTitle($this->Lang_Get('blog_menu_all_list'));
+        /**
+         * Устанавливаем шаблон вывода
+         */
+        $this->SetTemplateAction('index');
+    }
+
+    /**
+     * Отображение списка персональных блогов
+     */
+    protected function EventShowBlogsPersonal() {
+        /**
+         * По какому полю сортировать
+         */
+        $sOrder = 'blog_count_topic';
+        /**
+         * В каком направлении сортировать
+         */
+        $sOrderWay = 'desc';
+        if (getRequest('order_way')) {
+            $sOrderWay = getRequestStr('order_way');
+        }
+        /**
+         * Фильтр поиска блогов
+         */
+        $aFilter = array(
+            'type' => 'personal'
+        );
+        /**
+         * Передан ли номер страницы
+         */
+        $iPage = preg_match("/^\d+$/i", $this->GetEventMatch(2)) ? $this->GetEventMatch(2) : 1;
+        /**
+         * Получаем список блогов
+         */
+        $aResult = $this->Blog_GetBlogsByFilter(
+            $aFilter, array($sOrder => $sOrderWay), $iPage, Config::Get('module.blog.per_page')
+        );
+        $aBlogs = $aResult['collection'];
+        /**
+         * Формируем постраничность
+         */
+        $aPaging = $this->Viewer_MakePaging(
+            $aResult['count'], $iPage, Config::Get('module.blog.per_page'), Config::Get('pagination.pages.count'),
+            Router::GetPath('blogs') . 'personal/', array('order' => $sOrder, 'order_way' => $sOrderWay)
+        );
+        /**
+         * Загружаем переменные в шаблон
+         */
+        $this->Viewer_Assign('aPaging', $aPaging);
+        $this->Viewer_Assign("aBlogs", $aBlogs);
+        $this->Viewer_Assign("sBlogOrder", htmlspecialchars($sOrder));
+        $this->Viewer_Assign("sBlogOrderWay", htmlspecialchars($sOrderWay));
+        $this->Viewer_Assign("sBlogOrderWayNext", htmlspecialchars($sOrderWay == 'desc' ? 'asc' : 'desc'));
+        $this->Viewer_Assign("sShow", 'personal');
+        $this->Viewer_Assign("sBlogsRootPage", Router::GetPath('blogs') . 'personal/');
+        /**
+         * Устанавливаем title страницы
+         */
+        $this->Viewer_AddHtmlTitle($this->Lang_Get('blog_menu_all_list'));
+        /**
+         * Устанавливаем шаблон вывода
+         */
+        $this->SetTemplateAction('index');
+    }
+
     public function EventShutdown() {
-        $this->Viewer_Assign('sMenuHeadItemSelect',$this->sMenuHeadItemSelect);
+        $this->Viewer_Assign('sMenuHeadItemSelect', $this->sMenuHeadItemSelect);
     }
 }
-?>
+
+// EOF

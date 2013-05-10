@@ -180,7 +180,7 @@ class ActionRss extends Action {
 		/**
 		 * Топик существует?
 		 */
-		if (!($oTopic=$this->Topic_GetTopicById($sTopicId)) or !$oTopic->getPublish() or $oTopic->getBlog()->getType()=='close') {
+		if (!($oTopic=$this->Topic_GetTopicById($sTopicId)) || !$oTopic->getPublish() || $oTopic->getBlog()->getType()=='close') {
 			return parent::EventNotFound();
 		}
 		/**
@@ -268,7 +268,7 @@ class ActionRss extends Action {
 		/**
 		 * Если блог существует, то получаем записи
 		 */
-		if (!$sBlogUrl or !($oBlog=$this->Blog_GetBlogByUrl($sBlogUrl)) or $oBlog->getType()=="close") {
+		if (!$sBlogUrl || !($oBlog=$this->Blog_GetBlogByUrl($sBlogUrl)) || $oBlog->getType()=="close") {
 			return parent::EventNotFound();
 		}else{
 			$aResult=$this->Topic_GetTopicsByBlog($oBlog,1,Config::Get('module.topic.per_page')*2,'good');
@@ -375,4 +375,5 @@ class ActionRss extends Action {
 		return $sText;
 	}
 }
-?>
+
+// EOF

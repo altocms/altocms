@@ -377,4 +377,5 @@ class ActionRegistration extends Action {
     }
 }
 
-?>
+
+// EOF

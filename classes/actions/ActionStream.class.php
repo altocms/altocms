@@ -377,3 +377,5 @@ class ActionStream extends Action {
 		$this->Viewer_Assign('sMenuItemSelect',$this->sMenuItemSelect);
 	}
 }
+
+// EOF

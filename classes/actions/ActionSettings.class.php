@@ -147,7 +147,7 @@ class ActionSettings extends Action {
 		 * Определяем размер большого фото для подсчета множителя пропорции
 		 */
 		$fRation=1;
-		if ($aSizeFile=getimagesize($sFile) and isset($aSizeFile[0])) {
+		if ($aSizeFile=getimagesize($sFile) && isset($aSizeFile[0])) {
 			$fRation=$aSizeFile[0]/200; // 200 - размер превью по которой пользователь определяет область для ресайза
 			if ($fRation<1) {
 				$fRation=1;
@@ -158,10 +158,10 @@ class ActionSettings extends Action {
 		 */
 		$aSize=array();
 		$aSizeTmp=getRequest('size');
-		if (isset($aSizeTmp['x']) and is_numeric($aSizeTmp['x'])
-			and isset($aSizeTmp['y']) and is_numeric($aSizeTmp['y'])
-				and isset($aSizeTmp['x2']) and is_numeric($aSizeTmp['x2'])
-					and isset($aSizeTmp['y2']) and is_numeric($aSizeTmp['y2'])) {
+		if (isset($aSizeTmp['x']) && is_numeric($aSizeTmp['x'])
+			and isset($aSizeTmp['y']) && is_numeric($aSizeTmp['y'])
+				and isset($aSizeTmp['x2']) && is_numeric($aSizeTmp['x2'])
+					and isset($aSizeTmp['y2']) && is_numeric($aSizeTmp['y2'])) {
 			$aSize=array('x1'=>round($fRation*$aSizeTmp['x']),'y1'=>round($fRation*$aSizeTmp['y']),'x2'=>round($fRation*$aSizeTmp['x2']),'y2'=>round($fRation*$aSizeTmp['y2']));
 		}
 		/**
@@ -283,10 +283,10 @@ class ActionSettings extends Action {
 		 */
 		$aSize=array();
 		$aSizeTmp=getRequest('size');
-		if (isset($aSizeTmp['x']) and is_numeric($aSizeTmp['x'])
-			and isset($aSizeTmp['y']) and is_numeric($aSizeTmp['y'])
-				and isset($aSizeTmp['x2']) and is_numeric($aSizeTmp['x2'])
-					and isset($aSizeTmp['y2']) and is_numeric($aSizeTmp['y2'])) {
+		if (isset($aSizeTmp['x']) && is_numeric($aSizeTmp['x'])
+			and isset($aSizeTmp['y']) && is_numeric($aSizeTmp['y'])
+				and isset($aSizeTmp['x2']) && is_numeric($aSizeTmp['x2'])
+					and isset($aSizeTmp['y2']) && is_numeric($aSizeTmp['y2'])) {
 			$aSize=array('x1'=>$aSizeTmp['x'],'y1'=>$aSizeTmp['y'],'x2'=>$aSizeTmp['x2'],'y2'=>$aSizeTmp['y2']);
 		}
 		/**
@@ -413,7 +413,7 @@ class ActionSettings extends Action {
 			/**
 			 * Есть права на отправку инфайтов?
 			 */
-			if (!$this->ACL_CanSendInvite($this->oUserCurrent) and !$this->oUserCurrent->isAdministrator()) {
+			if (!$this->ACL_CanSendInvite($this->oUserCurrent) && !$this->oUserCurrent->isAdministrator()) {
 				$this->Message_AddError($this->Lang_Get('settings_invite_available_no'),$this->Lang_Get('error'));
 				$bError=true;
 			}
@@ -462,7 +462,7 @@ class ActionSettings extends Action {
 			 * Проверка мыла
 			 */
 			if (func_check(getRequestStr('mail'),'mail')) {
-				if ($oUserMail=$this->User_GetUserByMail(getRequestStr('mail')) and $oUserMail->getId()!=$this->oUserCurrent->getId()) {
+				if (($oUserMail=$this->User_GetUserByMail(getRequestStr('mail'))) && $oUserMail->getId()!=$this->oUserCurrent->getId()) {
 					$this->Message_AddError($this->Lang_Get('settings_profile_mail_error_used'),$this->Lang_Get('error'));
 					$bError=true;
 				}
@@ -509,7 +509,7 @@ class ActionSettings extends Action {
 					/**
 					 * Подтверждение смены емайла
 					 */
-					if (getRequestStr('mail') and getRequestStr('mail')!=$this->oUserCurrent->getMail()) {
+					if (getRequestStr('mail') && getRequestStr('mail')!=$this->oUserCurrent->getMail()) {
 						if ($oChangemail=$this->User_MakeUserChangemail($this->oUserCurrent,getRequestStr('mail'))) {
 							if ($oChangemail->getMailFrom()) {
 								$this->Message_AddNotice($this->Lang_Get('settings_profile_mail_change_from_notice'));
@@ -584,7 +584,7 @@ class ActionSettings extends Action {
 			/**
 			 * Проверяем дату рождения
 			 */
-			if (func_check(getRequestStr('profile_birthday_day'),'id',1,2) and func_check(getRequestStr('profile_birthday_month'),'id',1,2) and func_check(getRequestStr('profile_birthday_year'),'id',4,4)) {
+			if (func_check(getRequestStr('profile_birthday_day'),'id',1,2) && func_check(getRequestStr('profile_birthday_month'),'id',1,2) && func_check(getRequestStr('profile_birthday_year'),'id',4,4)) {
 				$this->oUserCurrent->setProfileBirthday(date('Y-m-d H:i:s',mktime(0,0,0,getRequestStr('profile_birthday_month'),getRequestStr('profile_birthday_day'),getRequestStr('profile_birthday_year'))));
 			} else {
 				$this->oUserCurrent->setProfileBirthday(null);
@@ -673,7 +673,7 @@ class ActionSettings extends Action {
 					if (is_array($aFieldsContactType)) {
 						foreach($aFieldsContactType as $k=>$v) {
 							$v=(string)$v;
-							if (isset($aFields[$v]) and isset($aFieldsContactValue[$k]) and is_string($aFieldsContactValue[$k])) {
+							if (isset($aFields[$v]) && isset($aFieldsContactValue[$k]) && is_string($aFieldsContactValue[$k])) {
 								$this->User_setUserFieldsValues($this->oUserCurrent->getId(), array($v=>$aFieldsContactValue[$k]), Config::Get('module.user.userfield_max_identical'));
 							}
 						}
@@ -729,7 +729,7 @@ class ActionSettings extends Action {
 			 * Проверяем есть ли уже блог с таким названием
 			 */
 			if ($oBlogExists=$this->Blog_GetBlogByTitle(getRequestStr('blog_title'))) {
-				if (!$oBlog or $oBlog->getId()!=$oBlogExists->getId()) {
+				if (!$oBlog || $oBlog->getId()!=$oBlogExists->getId()) {
 					$this->Message_AddError($this->Lang_Get('blog_create_title_error_unique'),$this->Lang_Get('error'));
 					$bOk=false;
 				}
@@ -768,4 +768,5 @@ class ActionSettings extends Action {
 		$this->Hook_Run('action_shutdown_settings');
 	}
 }
-?>
+
+// EOF
