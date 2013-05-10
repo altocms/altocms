@@ -42,7 +42,7 @@
                     XML
                 </label>
             </div>
-    </div>
+        </div>
 
         <div class="navbar navbar-inner">
                     <input type="submit" id="butAdmReport" value="{$aLang.action.admin.button_report}"
