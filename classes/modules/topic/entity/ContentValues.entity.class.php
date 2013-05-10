@@ -19,4 +19,5 @@ class ModuleTopic_EntityContentValues extends Entity {
 	
 	
 }
-?>
+
+// EOF

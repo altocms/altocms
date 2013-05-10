@@ -23,4 +23,5 @@ class ModuleTopic_EntityTopicFile extends Entity {
 	}
 	
 }
-?>
+
+// EOF

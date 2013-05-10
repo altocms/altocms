@@ -93,4 +93,5 @@ class ModuleTopic_EntityContent extends Entity {
 	}
 	
 }
-?>
+
+// EOF

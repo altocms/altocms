@@ -70,4 +70,5 @@ class ModuleTopic_EntityField extends Entity {
 
 	
 }
-?>
+
+// EOF
