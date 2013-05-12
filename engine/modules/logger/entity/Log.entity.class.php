@@ -67,6 +67,8 @@ class ModuleLogger_EntityLog extends Entity {
      *
      * @param   string $sMsg
      * @param   string $sLevel
+     *
+     * @return bool
      */
     public function Dump($sMsg, $sLevel = 'DEBUG') {
         // * Если уровень записи в лог больше либо равен текущему уровню, то пишем

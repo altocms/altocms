@@ -190,6 +190,10 @@ abstract class Module extends LsObject {
     public function isDone() {
         return $this->GetStatus() >= self::STATUS_DONE;
     }
+
+    public function LogError($sMsg) {
+        return F::LogError(get_class($this) . ': ' . $sMsg);
+    }
 }
 
 // EOF

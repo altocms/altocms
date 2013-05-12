@@ -56,28 +56,16 @@ class Func {
             $sText = $sError;
         }
 
-        if (!self::_log($sText, self::_errorLogFile())) {
+        if (!self::_log($sText, self::_errorLogFile(), 'ERROR')) {
             // Если не получилось вывести в лог-файл, то выводим ошибку на экран
-            echo $sError;
-        }
-        if (class_exists('ModuleLogger', false) || Loader::Autoload('ModuleLogger')) {
-            // Если загружен модуль Logger, то логгируем ошибку с его помощью
-            Engine::getInstance()->Logger_Dump(self::_errorLogFile(), $sText);
-        } elseif (class_exists('Config', false)) {
-            // Если логгера нет, но есть конфиг, то самостоятельно пишем в файл
-            $sFile = Config::Get('sys.logs.dir') . self::_errorLogFile();
-            $sText = '[' . date('Y-m-d H:i:s') . ']' . "\n" . $sText;
-            F::File_PutContents($sFile, $sText, FILE_APPEND | LOCK_EX);
-        } else {
-            // В противном случае выводим ошибку на экран
             echo $sError;
         }
     }
 
-    static public function _log($sText, $sLogFile) {
+    static public function _log($sText, $sLogFile, $sLevel = null) {
         if (class_exists('ModuleLogger', false) || Loader::Autoload('ModuleLogger')) {
             // Если загружен модуль Logger, то логгируем ошибку с его помощью
-            return E::Logger_Dump($sLogFile, $sText);
+            return E::Logger_Dump($sLogFile, $sText, $sLevel);
         } elseif (class_exists('Config', false)) {
             // Если логгера нет, но есть конфиг, то самостоятельно пишем в файл
             $sFile = Config::Get('sys.logs.dir') . $sLogFile;
@@ -205,6 +193,10 @@ class Func {
             $xResult = $xDefault;
         }
         return $xResult;
+    }
+
+    static public function LogError($sMsg) {
+        return self::_log($sMsg, self::_errorLogFile(), 'ERROR');
     }
 
     /**

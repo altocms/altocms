@@ -164,9 +164,9 @@ class ModuleLogger extends Module {
         return self::$aLogs[$sLog];
     }
 
-    public function Dump($oLog, $sMsg) {
+    public function Dump($oLog, $sMsg, $sLevel = null) {
         if (!is_object($oLog)) $oLog = $this->Reset((string)$oLog);
-        return $oLog->Dump($sMsg);
+        return $oLog->Dump($sMsg, $sLevel);
     }
 }
 
