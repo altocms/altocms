@@ -18,7 +18,7 @@
  * Экшен обработки поиска по сайту через поисковый движок Sphinx
  *
  * @package actions
- * @since 1.0
+ * @since   1.0
  */
 class PluginSphinx_ActionSearch extends ActionPlugin {
 
@@ -27,10 +27,11 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
      *
      * @var array
      */
-    protected $sTypesEnabled = array(
-        'topics' => array('topic_publish' => 1),
-        'comments' => array('comment_delete' => 0)
-    );
+    protected $sTypesEnabled
+        = array(
+            'topics'   => array('topic_publish' => 1),
+            'comments' => array('comment_delete' => 0)
+        );
     /**
      * Массив результата от Сфинкса
      *
@@ -42,7 +43,7 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
      *
      * @var bool
      */
-    protected $bIsResults = FALSE;
+    protected $bIsResults = false;
 
     /**
      * Инициализация
@@ -86,7 +87,7 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
          */
         $aReq = $this->PrepareRequest();
         $aRes = $this->PrepareResults($aReq, Config::Get('module.topic.per_page'));
-        if (FALSE === $aRes) {
+        if (false === $aRes) {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
             return Router::Action('error');
         }
@@ -109,18 +110,22 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
                 /**
                  * Т.к. текст в сниппетах небольшой, то можно прогнать через парсер
                  */
-                $oTopic->setTextShort($this->Text_JevixParser($this->Sphinx_GetSnippet(
-                    $oTopic->getText(),
-                    'topics',
-                    $aReq['q'],
-                    '<span class="searched-item">',
-                    '</span>'
-                )));
+                $oTopic->setTextShort(
+                    $this->Text_JevixParser(
+                        $this->Sphinx_GetSnippet(
+                            $oTopic->getText(),
+                            'topics',
+                            $aReq['q'],
+                            '<span class="searched-item">',
+                            '</span>'
+                        )
+                    )
+                );
             }
             /**
              *  Отправляем данные в шаблон
              */
-            $this->Viewer_Assign('bIsResults', TRUE);
+            $this->Viewer_Assign('bIsResults', true);
             $this->Viewer_Assign('aRes', $aRes);
             $this->Viewer_Assign('aTopics', $aTopics);
         }
@@ -136,7 +141,7 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
          */
         $aReq = $this->PrepareRequest();
         $aRes = $this->PrepareResults($aReq, Config::Get('module.comment.per_page'));
-        if (FALSE === $aRes) {
+        if (false === $aRes) {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
             return Router::Action('error');
         }
@@ -156,13 +161,17 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
              * Делаем сниппеты
              */
             foreach ($aComments AS $oComment) {
-                $oComment->setText($this->Text_JevixParser($this->Sphinx_GetSnippet(
-                    htmlspecialchars($oComment->getText()),
-                    'comments',
-                    $aReq['q'],
-                    '<span class="searched-item">',
-                    '</span>'
-                )));
+                $oComment->setText(
+                    $this->Text_JevixParser(
+                        $this->Sphinx_GetSnippet(
+                            htmlspecialchars($oComment->getText()),
+                            'comments',
+                            $aReq['q'],
+                            '<span class="searched-item">',
+                            '</span>'
+                        )
+                    )
+                );
             }
             /**
              *  Отправляем данные в шаблон
@@ -205,7 +214,8 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
      * Поиск и формирование результата
      *
      * @param array $aReq
-     * @param int $iLimit
+     * @param int   $iLimit
+     *
      * @return array|bool
      */
     protected function PrepareResults($aReq, $iLimit) {
@@ -224,8 +234,9 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
              * Проверяем отсальные типы
              */
             foreach (array_keys($this->sTypesEnabled) as $sType) {
-                if ($aRes['aCounts'][$sType])
+                if ($aRes['aCounts'][$sType]) {
                     Router::Location(Router::GetPath('search') . $sType . '/?q=' . $aReq['q']);
+                }
             }
         } elseif (($aReq['iPage'] - 1) * $iLimit <= $aRes['aCounts'][$aReq['sType']]) {
             /**
@@ -241,11 +252,11 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
             /**
              * Возможно демон Сфинкса не доступен
              */
-            if (FALSE === $this->aSphinxRes) {
-                return FALSE;
+            if (false === $this->aSphinxRes) {
+                return false;
             }
 
-            $this->bIsResults = TRUE;
+            $this->bIsResults = true;
             /**
              * Формируем постраничный вывод
              */
@@ -256,7 +267,7 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
                 Config::Get('pagination.pages.count'),
                 Router::GetPath('search') . $aReq['sType'],
                 array(
-                    'q' => $aReq['q']
+                     'q' => $aReq['q']
                 )
             );
             $this->Viewer_Assign('aPaging', $aPaging);

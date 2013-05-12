@@ -21,6 +21,10 @@ class PluginSphinx extends Plugin {
     protected $aInherits = array(
         'action' => array(
             'ActionSearch',
+            'ActionSphinx',
+        ),
+        'module' => array(
+            'ModuleSphinx',
         ),
     );
 
