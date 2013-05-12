@@ -14,7 +14,7 @@
  */
 class AltoFunc_Main {
 
-    static protected $sRandChars = '!#$%()*+-0123456789:<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_abcdefghijklmnopqrstuvwxyz|~';
+    static protected $sRandChars = '0123456789_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
     static protected $aMemSizeUnits = array('B', 'K', 'M', 'G', 'T', 'P');
 
     static public function StrUnderscore($sStr) {
