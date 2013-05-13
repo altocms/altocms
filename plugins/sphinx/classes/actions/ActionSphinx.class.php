@@ -48,6 +48,7 @@ class PluginSphinx_ActionSphinx extends ActionPlugin {
             '{{db_pass}}'      => Config::Get('db.params.pass'),
             '{{db_name}}'      => Config::Get('db.params.dbname'),
             '{{db_port}}'      => Config::Get('db.params.port'),
+            '{{db_prefix}}'      => Config::Get('db.table.prefix'),
             '{{db_socket}}'    => Config::Get('plugin.sphinx.db_socket'),
             '{{spinx_prefix}}' => Config::Get('plugin.sphinx.prefix'),
             '{{spinx_path}}'   => $sPath,
