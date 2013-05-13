@@ -2652,31 +2652,16 @@ class ActionAdmin extends Action {
                 $bOk = false;
             }
 
-            if ($oType == 'litepoll' && (getRequest('field_type', null, 'post') == 'litepoll' || $oType->isLitepollEnable())) {
-                $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
-                $bOk = false;
-            }
-
-            if (!in_array(getRequest('field_type', null, 'post'), array('input', 'textarea', 'photoset', 'link', 'select', 'date', 'map', 'daoobj', 'object', 'user', 'file', 'litepoll', 'gallery'))) {
+            if (!in_array(getRequest('field_type', null, 'post'), $this->Topic_GetAvailableFieldTypes())) {
                 $this->Message_AddError($this->Lang_Get('field_type_error'), $this->Lang_Get('error'));
                 $bOk = false;
             }
         }
-
-        /*
-        * Проверяем валидность связи, если поле - связь с разделом DAO
-        */
-        if (getRequest('field_type', null, 'post') == 'daoobj') {
-            if (!in_array(getRequest('link_display_type', null, 'post'), array('multiple', 'once')) ||
-                !in_array(getRequest('link_access', null, 'post'), array('self', 'all')) ||
-                !in_array(getRequest('view_type', null, 'post'), array('link', 'obj')) ||
-                !$oCatalog = $this->PluginDao_Catalog_getCatalogTypeByCatalogId(getRequest('catalog_id'))
-
-            ) {
-                $this->Message_AddError($this->Lang_Get('field_daoobj_error'), $this->Lang_Get('error'));
-                $bOk = false;
-            }
-        }
+        
+        /**
+		 * Выполнение хуков
+		 */
+		$this->Hook_Run('check_admin_content_fields', array('bOk'=>&$bOk));
 
         return $bOk;
     }

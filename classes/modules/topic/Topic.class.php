@@ -39,6 +39,12 @@ class ModuleTopic extends Module {
      */
     protected $aTopicTypes = array(); //'topic','link','question','photoset'
     /**
+     * Список полей
+     *
+     * @var array
+     */
+    protected $aFieldTypes = array('input', 'textarea', 'photoset', 'link', 'select', 'date', 'file');
+    /**
      * Массив объектов типов топика
      *
      * @var array
@@ -317,7 +323,7 @@ class ModuleTopic extends Module {
     }
 
     /**
-     * Добавляет в новый тип топика
+     * Добавляет новый тип топика
      *
      * @param string $sType    Новый тип
      *
@@ -340,6 +346,30 @@ class ModuleTopic extends Module {
      */
     public function IsAllowTopicType($sType) {
         return in_array($sType, $this->aTopicTypes);
+    }
+
+    /**
+     * Возвращает список полей
+     *
+     * @return array
+     */
+    public function GetAvailableFieldTypes() {
+        return $this->aFieldTypes;
+    }
+
+    /**
+     * Добавляет новый тип поля
+     *
+     * @param string $sType    Новый тип
+     *
+     * @return bool
+     */
+    public function AddFieldType($sType) {
+        if (!in_array($sType, $this->aFieldTypes)) {
+            $this->aFieldTypes[] = $sType;
+            return true;
+        }
+        return false;
     }
 
     /**
