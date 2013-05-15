@@ -24,4 +24,5 @@
 class ModuleGeo_EntityTarget extends Entity {
     
 }
-?>
+
+// EOF

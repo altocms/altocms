@@ -1,50 +1,44 @@
 <?php
-/*-------------------------------------------------------
-*
-*   LiveStreet Engine Social Networking
-*   Copyright © 2008 Mzhelskiy Maxim
-*
-*--------------------------------------------------------
-*
-*   Official site: www.livestreet.ru
-*   Contact e-mail: rus.engine@gmail.com
-*
-*   GNU General Public License, version 2:
-*   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-*
----------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
 
 /**
  * Объект сущности гео-объекта
  *
  * @package modules.geo
- * @since 1.0
+ * @since   1.0
  */
-class ModuleGeo_EntityGeo extends Entity
-{
+class ModuleGeo_EntityGeo extends Entity {
 
     /**
      * Возвращает имя гео-объекта в зависимости от языка
      *
      * @return string
      */
-    public function getName()
-    {
-        $sName = $this->getProp('name_' , Config::Get('lang.current'));
-        if (!$sName) {
-            $sLangDef = Config::Get('lang.default');
-            if ($sLangDef == 'russian') {
-                $sName = $this->getNameRu();
-            } elseif ($sLangDef == 'english') {
-                $sName = $this->getNameEn();
-            }
+    public function getName() {
 
-            $sLang = Config::Get('lang.current');
-            if ($sLang == 'russian' && $this->getNameRu()) {
-                $sName = $this->getNameRu();
-            } elseif ($sLang == 'english' && $this->getNameEn()) {
-                $sName = $this->getNameEn();
+        $sName = $this->getProp('name_' . $this->Lang_GetLang());
+        if (!$sName) {
+            $sName = $this->getProp('name_' . $this->Lang_GetDefaultLang());
+            if (!$sName && $this->getProp('name_en')) {
+                $sName = $this->getProp('name_en');
+            }
+            if (!$sName && $this->getProp('name_ru')) {
+                $sName = $this->getProp('name_ru');
+            }
+            if (!$sName && $this->getProp('name')) {
+                $sName = $this->getProp('name');
             }
         }
         return $sName;
@@ -55,8 +49,8 @@ class ModuleGeo_EntityGeo extends Entity
      *
      * @return null|string
      */
-    public function getType()
-    {
+    public function getType() {
+
         if ($this instanceof ModuleGeo_EntityCity) {
             return 'city';
         } elseif ($this instanceof ModuleGeo_EntityRegion) {
@@ -72,8 +66,8 @@ class ModuleGeo_EntityGeo extends Entity
      *
      * @return ModuleGeo_EntityGeo|null
      */
-    public function getCountry()
-    {
+    public function getCountry() {
+
         if ($this->getType() == 'country') {
             return $this;
         }
@@ -82,7 +76,7 @@ class ModuleGeo_EntityGeo extends Entity
         }
         if ($this->getCountryId()) {
             $oCountry = $this->Geo_GetCountryById($this->getCountryId());
-            return $this->_aData['country'] = $oCountry;
+            return $this->setProp('country', $oCountry);
         }
         return null;
     }
@@ -92,8 +86,8 @@ class ModuleGeo_EntityGeo extends Entity
      *
      * @return ModuleGeo_EntityGeo|null
      */
-    public function getRegion()
-    {
+    public function getRegion() {
+
         if ($this->getType() == 'region') {
             return $this;
         }
@@ -102,7 +96,7 @@ class ModuleGeo_EntityGeo extends Entity
         }
         if ($this->getRegionId()) {
             $oRegion = $this->Geo_GetRegionById($this->getRegionId());
-            return $this->_aData['region'] = $oRegion;
+            return $this->setProp('region', $oRegion);
         }
         return null;
     }
@@ -112,8 +106,8 @@ class ModuleGeo_EntityGeo extends Entity
      *
      * @return ModuleGeo_EntityGeo|null
      */
-    public function getCity()
-    {
+    public function getCity() {
+
         if ($this->getType() == 'city') {
             return $this;
         }
@@ -122,10 +116,11 @@ class ModuleGeo_EntityGeo extends Entity
         }
         if ($this->getCityId()) {
             $oCity = $this->Geo_GetCityById($this->getCityId());
-            return $this->_aData['city'] = $oCity;
+            return $this->setProp('city', $oCity);
         }
         return null;
     }
+
 }
 
 // EOF

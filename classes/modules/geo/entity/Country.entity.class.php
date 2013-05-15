@@ -24,4 +24,5 @@
 class ModuleGeo_EntityCountry extends ModuleGeo_EntityGeo {
 
 }
-?>
+
+// EOF
