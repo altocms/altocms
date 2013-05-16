@@ -10,7 +10,7 @@
 
 /**
  * @package actions
- * @since 0.9
+ * @since   0.9
  */
 F::File_IncludeLib('Jevix/jevix.class.php');
 
@@ -48,27 +48,28 @@ class ActionSearch extends Action {
         $this->SetDefaultEvent('index');
         $this->Viewer_AddHtmlTitle($this->Lang_Get('search'));
 
-        $this->nModeOutList = Config::Get('module.search.out_mode'); //MYSEARCH_OUT_MODE;
+        $this->nModeOutList = Config::Get('module.search.out_mode');
 
-        $this->nShippetLength = Config::Get('module.search.snippet.length'); //MYSEARCH_SNIPPET_LENGTH;
-        $this->nShippetMaxLength = Config::Get('module.search.snippet.max_length'); //MYSEARCH_SNIPPET_MAXLENGTH;
+        $this->nShippetLength = Config::Get('module.search.snippet.length');
+        $this->nShippetMaxLength = Config::Get('module.search.snippet.max_length');
         if (($this->nShippetMaxLength > 0) && ($this->nShippetMaxLength < $this->nShippetLength)) {
             $this->nShippetMaxLength = $this->nShippetLength;
         }
 
-        $this->sSnippetBeforeMatch = Config::Get('module.search.snippet.before_match'); //MYSEARCH_SNIPPET_BEFORE_MATCH;
-        $this->sSnippetAfterMatch = Config::Get('module.search.snippet.after_match'); //MYSEARCH_SNIPPET_AFTER_MATCH;
-        $this->sSnippetBeforeFragment = Config::Get('module.search.snippet.before_fragment'); //MYSEARCH_SNIPPET_BEFORE_FRAGMENT;
-        $this->sSnippetAfterFragment = Config::Get('module.search.snippet.after_fragment'); //MYSEARCH_SNIPPET_AFTER_FRAGMENT;
-        $this->nSnippetMaxFragments = Config::Get('module.search.snippet.max_fragments'); //MYSEARCH_SNIPPET_MAX_FRAGMENTS;
+        $this->sSnippetBeforeMatch = Config::Get('module.search.snippet.before_match');
+        $this->sSnippetAfterMatch = Config::Get('module.search.snippet.after_match');
+        $this->sSnippetBeforeFragment = Config::Get('module.search.snippet.before_fragment');
+        $this->sSnippetAfterFragment = Config::Get('module.search.snippet.after_fragment');
+        $this->nSnippetMaxFragments = Config::Get('module.search.snippet.max_fragments');
 
-        $this->sPatternW = Config::Get('module.search.char_pattern'); //MYSEARCH_CHAR_PATTERN;
-        $this->sPatternB = '[^' . mb_substr($this->sPatternW, 1); // '[^\wа-яА-Я\.\*-]'; 	// граница слова
-        $this->sPatternX = '[^\s' . mb_substr($this->sPatternW, 1); // '[^\s\wа-яА-Я\*-]';	// запрещеные символы без *
-        $this->sPatternXA = '[^\s\*' . mb_substr($this->sPatternW, 1); // '[^\s\wа-яА-Я-]';	// запрещеные символы, в т.ч. *
+        $this->sPatternW = Config::Get('module.search.char_pattern');
+        $this->sPatternB = '[^' . mb_substr($this->sPatternW, 1); // '[^\wа-яА-Я\.\*-]';    // граница слова
+        $this->sPatternX = '[^\s' . mb_substr($this->sPatternW, 1); // '[^\s\wа-яА-Я\*-]';  // запрещеные символы без *
+        $this->sPatternXA
+            = '[^\s\*' . mb_substr($this->sPatternW, 1); // '[^\s\wа-яА-Я-]';               // запрещеные символы, в т.ч. *
 
-        $this->bSearchStrict = Config::Get('module.search.strict_search'); //MYSEARCH_STRICT;
-        $this->bSkipAllTags = Config::Get('module.search.skip_all_tags'); //MYSEARCH_SKIP_ALL_TAGS;
+        $this->bSearchStrict = Config::Get('module.search.strict_search');
+        $this->bSkipAllTags = Config::Get('module.search.skip_all_tags');
 
         $this->nItemsPerPage = Config::Get('module.search.items_per_page');
 
@@ -84,11 +85,19 @@ class ActionSearch extends Action {
         // Коротие теги типа
         $this->oJevix->cfgSetTagShort(array('img'));
         // Разрешённые параметры тегов
-        $this->oJevix->cfgAllowTagParams('img', array('src', 'alt' => '#text', 'title', 'align' => array('right', 'left', 'center'), 'width' => '#int', 'height' => '#int', 'hspace' => '#int', 'vspace' => '#int'));
+        $this->oJevix->cfgAllowTagParams(
+            'img',
+            array('src', 'alt' => '#text', 'title', 'align' => array('right', 'left', 'center'), 'width' => '#int',
+                  'height'     => '#int', 'hspace' => '#int', 'vspace' => '#int')
+        );
         $this->oJevix->cfgAllowTagParams('a', array('title', 'href', 'rel'));
         $this->oJevix->cfgAllowTagParams('object', array('width' => '#int', 'height' => '#int', 'data' => '#link'));
         $this->oJevix->cfgAllowTagParams('param', array('name' => '#text', 'value' => '#text'));
-        $this->oJevix->cfgAllowTagParams('embed', array('src' => '#image', 'type' => '#text', 'allowscriptaccess' => '#text', 'allowfullscreen' => '#text', 'width' => '#int', 'height' => '#int', 'flashvars' => '#text', 'wmode' => '#text'));
+        $this->oJevix->cfgAllowTagParams(
+            'embed',
+            array('src' => '#image', 'type' => '#text', 'allowscriptaccess' => '#text', 'allowfullscreen' => '#text',
+                  'width' => '#int', 'height' => '#int', 'flashvars' => '#text', 'wmode' => '#text')
+        );
         // Параметры тегов являющиеся обязательными
         $this->oJevix->cfgSetTagParamsRequired('img', 'src');
         $this->oJevix->cfgSetTagParamsRequired('a', 'href');
@@ -120,10 +129,12 @@ class ActionSearch extends Action {
     /**
      * Протоколирование запросов
      *
-     * @param   array|null  $aVars
+     * @param   array|null $aVars
      */
     public function OutLog($aVars = null) {
-        if (!$this->bLogEnable) return;
+        if (!$this->bLogEnable) {
+            return;
+        }
 
         if (!($sLogFile = Config::Get('module.search.logs.file'))) {
             $sLogFile = 'search.log';
@@ -143,8 +154,8 @@ class ActionSearch extends Action {
         $uri = $_SERVER['REQUEST_URI'];
 
         $sStrLog = 'user=>"' . $sUserLogin . '" ip=>"' . $_SERVER['REMOTE_ADDR'] . '"' . "\n" .
-                   str_repeat(' ', 22) . 'path=>' . $path . '"' . "\n" .
-                   str_repeat(' ', 22) . 'uri=>' . $uri . '"';
+            str_repeat(' ', 22) . 'path=>' . $path . '"' . "\n" .
+            str_repeat(' ', 22) . 'uri=>' . $uri . '"';
         if (is_array($aVars) && sizeof($aVars)) {
             foreach ($aVars as $key => $val) {
                 $sStrLog .= "\n" . str_repeat(' ', 22) . $key . '=>"' . $val . '"';
@@ -175,7 +186,8 @@ class ActionSearch extends Action {
     /**
      * "Подсветка" текста
      *
-     * @param   string     $sText
+     * @param   string $sText
+     *
      * @return  string
      */
     protected function TextHighlite($sText) {
@@ -183,7 +195,9 @@ class ActionSearch extends Action {
         if ($this->bSearchStrict) {
             $sText = preg_replace($sRegexp, $this->sSnippetBeforeMatch . '\\0' . $this->sSnippetAfterMatch, $sText);
         } else {
-            $sText = preg_replace($this->aReq['regexp'], $this->sSnippetBeforeMatch . '\\0' . $this->sSnippetAfterMatch, $sText);
+            $sText = preg_replace(
+                $this->aReq['regexp'], $this->sSnippetBeforeMatch . '\\0' . $this->sSnippetAfterMatch, $sText
+            );
         }
         return $sText;
     }
@@ -199,64 +213,77 @@ class ActionSearch extends Action {
      * @return  string
      */
     protected function MakeSnippetFragment($sText, $aSet, $nPos, $nLen) {
-        $fragment = '';
-        $lenWord = $nLen;
-        $lenText = mb_strlen($sText);
 
-        $this->nShippetOffset = floor(($this->nShippetLength - $lenWord) / 2);
+        $nLenWord = $nLen;
+        $nLenText = mb_strlen($sText);
+
+        $this->nShippetOffset = floor(($this->nShippetLength - $nLenWord) / 2);
 
         // начало фрагмена
         if ($nPos < $this->nShippetOffset) {
-            $fragBegin = 0;
+            $nFragBegin = 0;
         } else {
-            $fragBegin = $nPos - $this->nShippetOffset;
+            $nFragBegin = $nPos - $this->nShippetOffset;
         }
 
         // конец фрагмента
-        if ($nPos + $lenWord + $this->nShippetOffset > $lenText) {
-            $fragEnd = $lenText;
+        if ($nPos + $nLenWord + $this->nShippetOffset > $nLenText) {
+            $nFragEnd = $nLenText;
         } else {
-            $fragEnd = $nPos + $lenWord + $this->nShippetOffset;
+            $nFragEnd = $nPos + $nLenWord + $this->nShippetOffset;
         }
 
         // Выравнивание по границе слов
-        if (($fragBegin > 0) && preg_match('/' . $this->sPatternW . '+$/uisxSXU', mb_substr($sText, 0, $fragBegin), $m)) {
-            $fragBegin -= mb_strlen($m[0][0]);
+        if (($nFragBegin > 0)
+            && preg_match(
+                '/' . $this->sPatternW . '+$/uisxSXU', mb_substr($sText, 0, $nFragBegin), $m
+            )
+        ) {
+            $nFragBegin -= mb_strlen($m[0][0]);
         }
 
-        if (($fragEnd < $lenText) && preg_match('/' . $this->sPatternW . '+/uisxSXU', mb_substr($sText, $fragEnd), $m)) {
-            $fragEnd += mb_strlen($m[0][0]) + $m[0][1];
+        if (($nFragEnd < $nLenText)
+            && preg_match(
+                '/' . $this->sPatternW . '+/uisxSXU', mb_substr($sText, $nFragEnd), $m
+            )
+        ) {
+            $nFragEnd += mb_strlen($m[0][0]) + $m[0][1];
         }
 
         // Обрезание по максимальной длине
-        if (($this->nShippetMaxLength > 0) && (($nOver = $fragEnd - $fragBegin - $this->nShippetMaxLength) > 0)) {
-            $fragBegin -= floor($nOver / 2);
-            if ($fragBegin > $nPos) $fragBegin = $nPos;
-            $fragEnd = $fragBegin + $this->nShippetMaxLength;
-            if ($fragEnd < $nPos + $lenWord) $fragEnd = $nPos + $lenWord;
+        if (($this->nShippetMaxLength > 0) && (($nOver = $nFragEnd - $nFragBegin - $this->nShippetMaxLength) > 0)) {
+            $nFragBegin -= floor($nOver / 2);
+            if ($nFragBegin > $nPos) {
+                $nFragBegin = $nPos;
+            }
+            $nFragEnd = $nFragBegin + $this->nShippetMaxLength;
+            if ($nFragEnd < $nPos + $nLenWord) {
+                $nFragEnd = $nPos + $nLenWord;
+            }
         }
 
-        $fragment = '';
+        $sFragment = '';
 
         // * Укладываем слова из одного сета в один фрагмент
-        $begin = $fragBegin;
+        $begin = $nFragBegin;
         foreach ($aSet as $word) {
             $pos = $word['pos'];
-            $fragment .= str_replace('>', '&gt;', str_replace('<', '&lt;', mb_substr($sText, $begin, $pos - $begin)));
-            $fragment .= $this->sSnippetBeforeMatch . $word['txt'] . $this->sSnippetAfterMatch;
+            $sFragment .= str_replace('>', '&gt;', str_replace('<', '&lt;', mb_substr($sText, $begin, $pos - $begin)));
+            $sFragment .= $this->sSnippetBeforeMatch . $word['txt'] . $this->sSnippetAfterMatch;
             $begin = $pos + $word['len'];
         }
-        $fragment .= str_replace('>', '&gt;', str_replace('<', '&lt;', mb_substr($sText, $begin, $fragEnd - $begin)));
+        $sFragment .= str_replace('>', '&gt;', str_replace('<', '&lt;', mb_substr($sText, $begin, $nFragEnd - $begin)));
 
-        $fragment = (($fragBegin > 0) ? '&hellip;' : '') . $fragment . (($fragEnd < $lenText) ? '&hellip;' : '');
-        $fragment = str_replace('&lt;br/&gt;', '', $fragment);
-        return $fragment;
+        $sFragment = (($nFragBegin > 0) ? '&hellip;' : '') . $sFragment . (($nFragEnd < $nLenText) ? '&hellip;' : '');
+        $sFragment = str_replace('&lt;br/&gt;', '', $sFragment);
+        return $sFragment;
     }
 
     /**
      * Создание сниппета
      *
      * @param   $sText
+     *
      * @return  string
      */
     protected function MakeSnippet($sText) {
@@ -290,7 +317,8 @@ class ActionSearch extends Action {
                     $aFragmentSets[++$nFragmentSetsCount][] = $aLastSet;
                 } else {
                     if (($nFrPos + $nFrLen - $aLastSet['pos']) < $this->nShippetLength) {
-                        $aFragmentSets[$nFragmentSetsCount][] = array('txt' => $sFrTxt, 'pos' => $nFrPos, 'len' => $nFrLen);
+                        $aFragmentSets[$nFragmentSetsCount][] = array('txt' => $sFrTxt, 'pos' => $nFrPos,
+                                                                      'len' => $nFrLen);
                         $nLastLen = $nFrPos + $nFrLen - $aLastSet['pos'];
                     } else {
                         $aLastSet = array('txt' => $sFrTxt, 'pos' => $nFrPos, 'len' => $nFrLen);
@@ -300,24 +328,24 @@ class ActionSearch extends Action {
                 }
             }
 
-            foreach ($aFragmentSets as $set) {
-                $len = 0;
-                foreach ($set as $word) {
-                    if ($len == 0) {
-                        $len = $word['len'];
-                        $pos = $word['pos'];
-                    }
-                    else {
-                        $len = $word['pos'] + $word['len'] - $pos;
+            foreach ($aFragmentSets as $aSet) {
+                $nLen = 0;
+                foreach ($aSet as $aWord) {
+                    if ($nLen == 0) {
+                        $nLen = $aWord['len'];
+                        $nPos = $aWord['pos'];
+                    } else {
+                        $nLen = $aWord['pos'] + $aWord['len'] - $nPos;
                     }
                 }
 
-                $aFragments[] = $this->MakeSnippetFragment($sText, $set, $pos, $len);
-                if (($this->nSnippetMaxFragments > 0) && ((++$nCount) >= $this->nSnippetMaxFragments))
+                $aFragments[] = $this->MakeSnippetFragment($sText, $aSet, $nPos, $nLen);
+                if (($this->nSnippetMaxFragments > 0) && ((++$nCount) >= $this->nSnippetMaxFragments)) {
                     break;
+                }
             }
-            foreach ($aFragments as $fragment) {
-                $sSnippet .= $this->sSnippetBeforeFragment . $fragment . $this->sSnippetAfterFragment;
+            foreach ($aFragments as $sFragment) {
+                $sSnippet .= $this->sSnippetBeforeFragment . $sFragment . $this->sSnippetAfterFragment;
             }
         } else {
             if (mb_strlen($sText) > $this->nShippetMaxLength) {
@@ -355,8 +383,8 @@ class ActionSearch extends Action {
      */
     public function EventOpensearch() {
         header('Content-type: text/xml; charset=utf-8');
-        $sOutText =
-                '<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
+        $sOutText
+            = '<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
                     <ShortName>' . str_replace('http://', '', Config::Get('path.root.web')) . '</ShortName>
                     <Image height="16" width="16" type="image/vnd.microsoft.icon">' . Config::Get('path.static.skin') . '/images/favicon.ico</Image>
                     <InputEncoding>utf-8</InputEncoding>
@@ -366,7 +394,7 @@ class ActionSearch extends Action {
         echo $sOutText;
         exit;
     }
-    
+
     /**
      * Поиск топиков
      */
@@ -375,7 +403,7 @@ class ActionSearch extends Action {
         $this->OutLog();
         if ($this->aReq['regexp']) {
             $aResult = $this->Search_GetTopicsIdByRegexp(
-                $this->aReq['regexp'], $this->aReq['iPage'], 
+                $this->aReq['regexp'], $this->aReq['iPage'],
                 $this->nItemsPerPage, $this->aReq['params']
             );
 
@@ -406,12 +434,16 @@ class ActionSearch extends Action {
         }
 
         if ($this->bLogEnable) {
-            $this->oLogs->RecordAdd('search', array('q' => $this->aReq['q'], 'result' => 'topics:' . $aResult['count']));
+            $this->oLogs->RecordAdd(
+                'search', array('q' => $this->aReq['q'], 'result' => 'topics:' . $aResult['count'])
+            );
             $this->oLogs->RecordEnd('search', true);
         }
 
-        $aPaging = $this->Viewer_MakePaging($aResult['count'], $this->aReq['iPage'], $this->nItemsPerPage, 4,
-                                            Config::Get('path.root.web') . '/search/topics', array('q' => $this->aReq['q']));
+        $aPaging = $this->Viewer_MakePaging(
+            $aResult['count'], $this->aReq['iPage'], $this->nItemsPerPage, 4,
+            Config::Get('path.root.web') . '/search/topics', array('q' => $this->aReq['q'])
+        );
         // *  Отправляем данные в шаблон
         $this->Viewer_AddHtmlTitle($this->aReq['q']);
         $this->Viewer_Assign('bIsResults', $aResult['count']);
@@ -431,7 +463,7 @@ class ActionSearch extends Action {
         $this->OutLog();
         if ($this->aReq['regexp']) {
             $aResult = $this->Search_GetCommentsIdByRegexp(
-                $this->aReq['regexp'], $this->aReq['iPage'], 
+                $this->aReq['regexp'], $this->aReq['iPage'],
                 $this->nItemsPerPage, $this->aReq['params']
             );
 
@@ -459,12 +491,16 @@ class ActionSearch extends Action {
 
         // * Логгируем результаты, если требуется
         if ($this->bLogEnable) {
-            $this->oLogs->RecordAdd('search', array('q' => $this->aReq['q'], 'result' => 'comments:' . $aResult['count']));
+            $this->oLogs->RecordAdd(
+                'search', array('q' => $this->aReq['q'], 'result' => 'comments:' . $aResult['count'])
+            );
             $this->oLogs->RecordEnd('search', true);
         }
 
-        $aPaging = $this->Viewer_MakePaging($aResult['count'], $this->aReq['iPage'], $this->nItemsPerPage, 4,
-                                            Config::Get('path.root.web') . '/search/comments', array('q' => $this->aReq['q']));
+        $aPaging = $this->Viewer_MakePaging(
+            $aResult['count'], $this->aReq['iPage'], $this->nItemsPerPage, 4,
+            Config::Get('path.root.web') . '/search/comments', array('q' => $this->aReq['q'])
+        );
         // *  Отправляем данные в шаблон
         $this->Viewer_AddHtmlTitle($this->aReq['q']);
         $this->Viewer_Assign('bIsResults', $aResult['count']);
@@ -484,7 +520,7 @@ class ActionSearch extends Action {
         $this->OutLog();
         if ($this->aReq['regexp']) {
             $aResult = $this->Search_GetBlogsIdByRegexp(
-                $this->aReq['regexp'], $this->aReq['iPage'], 
+                $this->aReq['regexp'], $this->aReq['iPage'],
                 $this->nItemsPerPage, $this->aReq['params']
             );
             $aBlogs = array();
@@ -508,13 +544,17 @@ class ActionSearch extends Action {
 
         // * Логгируем результаты, если требуется
         if ($this->bLogEnable) {
-            $this->oLogs->RecordAdd('search',
-                                    array('q' => $this->aReq['q'], 'result' => 'blogs:' . $aResult['count']));
+            $this->oLogs->RecordAdd(
+                'search',
+                array('q' => $this->aReq['q'], 'result' => 'blogs:' . $aResult['count'])
+            );
             $this->oLogs->RecordEnd('search', true);
         }
 
-        $aPaging = $this->Viewer_MakePaging($aResult['count'], $this->aReq['iPage'], $this->nItemsPerPage, 4,
-                                            Config::Get('path.root.web') . '/search/blogs', array('q' => $this->aReq['q']));
+        $aPaging = $this->Viewer_MakePaging(
+            $aResult['count'], $this->aReq['iPage'], $this->nItemsPerPage, 4,
+            Config::Get('path.root.web') . '/search/blogs', array('q' => $this->aReq['q'])
+        );
         // *  Отправляем данные в шаблон
         $this->Viewer_AddHtmlTitle($this->aReq['q']);
         $this->Viewer_Assign('bIsResults', $aResult['count']);
@@ -528,7 +568,7 @@ class ActionSearch extends Action {
      * Разбор запроса
      */
     protected function PrepareRequest($sType = null) {
-        $sRequest = getRequest('q');
+        $sRequest = trim(getRequest('q'));
 
         // * Иногда ломается кодировка, напр., если ввели поиск в адресной строке браузера
         // * Пытаемся восстановить по основной кодировке браузера
@@ -538,17 +578,31 @@ class ActionSearch extends Action {
             $sRequest = mb_convert_encoding($sRequest, 'UTF-8', $sCharset);
         }
         if ($sRequest) {
-            $sRequest = preg_replace('/(\s{2,})/', ' ', $sRequest);
-            $sRequest = preg_replace('/[\*\s]{2,}/', '* ', $sRequest);
+            // Две звездочки подряд меняем на одну
             $sRequest = preg_replace('/(\*{2,})/', '*', $sRequest);
+            // Две пробела подряд меняем на один
+            $sRequest = preg_replace('/(\s{2,})/', ' ', $sRequest);
+            // Последовательность звездочек и пробелов, начинающаяся со звездочки
+            $sRequest = preg_replace('/\*[\*\s]{2,}/', '* ', $sRequest);
+            // Последовательность звездочек и пробелов, начинающаяся с пробела
+            $sRequest = preg_replace('/\s[\*\s]{2,}/', ' *', $sRequest);
         }
 
         $aReq['q'] = $sRequest;
         $aReq['regexp'] = preg_quote(trim(mb_strtolower($aReq['q'])));
-        $a = Config::Get('module.search.min_length_req');
+
         // * Проверка длины запроса
-        if (!F::CheckVal($aReq['regexp'], 'text', Config::Get('module.search.min_length_req'), Config::Get('module.search.max_length_req'))) {
-            $this->Message_AddError($this->Lang_Get('search_err_length', array('min'=>Config::Get('module.search.min_length_req'), 'max'=>Config::Get('module.search.max_length_req'))));
+        if (!F::CheckVal(
+            $aReq['regexp'], 'text', Config::Get('module.search.min_length_req'),
+            Config::Get('module.search.max_length_req')
+        )
+        ) {
+            $this->Message_AddError(
+                $this->Lang_Get(
+                    'search_err_length', array('min' => Config::Get('module.search.min_length_req'),
+                                               'max' => Config::Get('module.search.max_length_req'))
+                )
+            );
             $aReq['regexp'] = '';
         }
 
@@ -562,15 +616,26 @@ class ActionSearch extends Action {
             $nErr = 0;
             $sStr = '';
             foreach ($aWords as $sWord) {
-                if (!F::CheckVal($sWord, 'text', Config::Get('module.search.min_length_req'), Config::Get('module.search.max_length_req'))) {
+                if (!F::CheckVal(
+                    $sWord, 'text', Config::Get('module.search.min_length_req'),
+                    Config::Get('module.search.max_length_req')
+                )
+                ) {
                     $nErr += 1;
                 } else {
-                    if ($sStr) $sStr .= ' ';
+                    if ($sStr) {
+                        $sStr .= ' ';
+                    }
                     $sStr .= $sWord;
                 }
             }
             if ($nErr == sizeof($aWords)) {
-                $this->Message_AddError($this->Lang_Get('search_err_length_word', array('min'=>Config::Get('module.search.min_length_req'),'max'=> Config::Get('module.search.max_length_req'))));
+                $this->Message_AddError(
+                    $this->Lang_Get(
+                        'search_err_length_word', array('min' => Config::Get('module.search.min_length_req'),
+                                                        'max' => Config::Get('module.search.max_length_req'))
+                    )
+                );
                 $aReq['regexp'] = '';
             } else {
                 $aReq['regexp'] = $sStr;
@@ -580,6 +645,7 @@ class ActionSearch extends Action {
         // * Если все нормально, формируем выражение для поиска
         if ($aReq['regexp']) {
             if ($this->bSearchStrict) {
+                $aReq['regexp'] = str_replace('\\*', '*', $aReq['regexp']);
                 /**
                  * Проверка на "лишние" символы, оставляем только "слова"
                  * На месте "небукв" оставляем пробелы
@@ -593,11 +659,17 @@ class ActionSearch extends Action {
                     $aReq['regexp'] = str_replace(' *', '[[:>:]]|', $aReq['regexp']);
                     $aReq['regexp'] = str_replace(' ', '[[:>:]]|[[:<:]]', $aReq['regexp']);
 
-                    if (mb_substr($aReq['regexp'], 0, 1) == '*') $aReq['regexp'] = mb_substr($aReq['regexp'], 1);
-                    else $aReq['regexp'] = '[[:<:]]' . $aReq['regexp'];
+                    if (mb_substr($aReq['regexp'], 0, 1) == '*') {
+                        $aReq['regexp'] = mb_substr($aReq['regexp'], 1);
+                    } else {
+                        $aReq['regexp'] = '[[:<:]]' . $aReq['regexp'];
+                    }
 
-                    if (mb_substr($aReq['regexp'], -1) == '*') $aReq['regexp'] = mb_substr($aReq['regexp'], 0, mb_strlen($aReq['regexp']) - 1);
-                    else $aReq['regexp'] = $aReq['regexp'] . '[[:>:]]';
+                    if (mb_substr($aReq['regexp'], -1) == '*') {
+                        $aReq['regexp'] = mb_substr($aReq['regexp'], 0, mb_strlen($aReq['regexp']) - 1);
+                    } else {
+                        $aReq['regexp'] = $aReq['regexp'] . '[[:>:]]';
+                    }
                 }
             } else {
                 $aReq['regexp'] = preg_replace('/' . $this->sPatternXA . '/uU', '', $aReq['regexp']);
