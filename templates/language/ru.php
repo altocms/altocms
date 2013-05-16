@@ -249,7 +249,7 @@ return array(
 	'topic_create' => 'Написать',
 	'topic_create_blog' => 'В какой блог публикуем?',
 	'topic_create_blog_personal' => 'мой персональный блог',
-	'topic_create_blog_error_unknown' => 'Пытаетесь запостить статью в неизвестный блог?',
+	'topic_create_blog_error_unknown' => 'Пытаетесь разместить статью в неизвестный блог?',
 	'topic_create_blog_error_nojoin' => 'Вы не состоите в этом блоге!',
 	'topic_create_blog_error_noacl' => 'Вы еще недостаточно окрепли, чтобы постить в этот блог',
 	'topic_create_blog_error_noallow' => 'Вы не можете писать в этот блог',
@@ -1066,8 +1066,8 @@ return array(
 	 * Toolbar
 	 */
 	'toolbar_scrollup_go' => 'Вверх',
-	'toolbar_topic_next' => 'Следующая статью',
-	'toolbar_topic_prev' => 'Предыдущая статью',
+	'toolbar_topic_next' => 'Следующая статья',
+	'toolbar_topic_prev' => 'Предыдущая статья',
 	/**
 	 * География
 	 */
@@ -1088,7 +1088,7 @@ return array(
 	'infobox_blog_users' => 'Подписчиков',
 	'infobox_blog_rating' => 'Рейтинг',
 	'infobox_blog_limit_rating' => 'Ограничение на постинг',
-	'infobox_blog_topic_last' => 'Последняя статью',
+	'infobox_blog_topic_last' => 'Последняя статья',
 	'infobox_blog_url' => 'Читать блог',
 	'infobox_blog_rss' => 'Подписаться на RSS',
 	/**
