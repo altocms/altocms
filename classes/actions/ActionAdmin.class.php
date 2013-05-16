@@ -569,7 +569,7 @@ class ActionAdmin extends Action {
             }
 
             Config::WriteCustomConfig($aConfig);
-            Router::ReturnBack(true);
+            Router::Location('admin/config/');
             exit;
         }
         $this->SetTemplateAction('settings/config_edit');
@@ -623,7 +623,7 @@ class ActionAdmin extends Action {
         if ($aConfig) {
             Config::WriteCustomConfig($aConfig);
         }
-        Router::ReturnBack(true);
+        Router::Location('admin/config/');
     }
 
     /**********************************************************************************/
@@ -1224,7 +1224,7 @@ class ActionAdmin extends Action {
             } elseif ($sCmd == 'adm_user_activate') {
                 $this->_eventUsersCmdActivate();
             }
-            Router::ReturnBack(true);
+            Router::Location('admin/users/');
         }
 
         if ($this->GetPost('adm_userlist_filter')) {
