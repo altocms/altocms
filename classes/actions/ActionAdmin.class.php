@@ -1741,6 +1741,35 @@ class ActionAdmin extends Action {
                 );
                 array_unshift($aLogs, $aRec);
             }
+        } else {
+            $aTmp = array();
+            // Текст кривой, поэтому будем так
+            $aParts = explode('[LOG:', $sLogTxt);
+            if ($aParts) {
+                foreach ($aParts as $sPart) {
+                    if ($sPart) {
+                        $aRec = array('id' => '', 'date' => '', 'text' => $sPart);
+                        $nPos = strpos($sPart, ']');
+                        if ($nPos) {
+                            $aRec['id'] = substr($sPart, 0, $nPos);
+                            $aRec['text'] = substr($aRec['text'], $nPos+1);
+                        }
+                        if (preg_match('/^\[(\d{4}\-\d{2}\-\d{2}\s\d{2}\:\d{2}\:\d{2})\]/', $aRec['text'])) {
+                            $aRec['date'] = substr($aRec['text'], 1, 19);
+                            $aRec['text'] = substr($aRec['text'], 21);
+                        }
+                        $nPos = strpos($aRec['text'], '[END:' . $aRec['id'] . ']');
+                        if ($nPos) {
+                            $aRec['text'] = substr($aRec['text'], 0, $nPos);
+                        }
+                        if (preg_match('/\[\[(.*)\]\]/siuU', $aRec['text'], $aM)) {
+                            $aRec['text'] = trim($aM[1]);
+                        }
+                        $aTmp[] = $aRec;
+                    }
+                }
+            }
+            $aLogs = array_reverse($aTmp);
         }
         return $aLogs;
     }
