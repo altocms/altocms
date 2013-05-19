@@ -470,7 +470,7 @@ $config['router']['uri'] = array(
      *  - @die(msg) - обработка запроса прекращается с выдачей сообщения msg
      *  - @404      - обработка прекращается с выдачей кода 404
      */
-    '~[\w\/\-]+\.(js|css|png|jpg|gif|swf|ico|pdf|mov|fla|zip|rar)\/?$~i' => '@404',
+    '~.+\.(js|css|png|jpg|gif|swf|ico|pdf|mov|fla|zip|rar)\/?$~i' => '@404',
 );
 
 // Распределение action
