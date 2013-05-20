@@ -18,12 +18,13 @@
  * Модуль для работы с базой данных
  * Создаёт объект БД библиотеки DbSimple Дмитрия Котерова
  * Модуль используется в основном для создания коннекта к БД и передачи его в маппер
- * @see Mapper::__construct
+ *
+ * @see     Mapper::__construct
  * Так же предоставляет методы для быстрого выполнения запросов/дампов SQL, актуально для плагинов
- * @see Plugin::ExportSQL
+ * @see     Plugin::ExportSQL
  *
  * @package engine.modules
- * @since 1.0
+ * @since   1.0
  */
 
 /**
@@ -42,9 +43,10 @@ class ModuleDatabase extends Module {
      */
     protected $aInstance = array();
 
-    protected $aInitSql = array(
-        "set character_set_client='utf8', character_set_results='utf8', collation_connection='utf8_bin' ",
-    );
+    protected $aInitSql
+        = array(
+            "set character_set_client='utf8', character_set_results='utf8', collation_connection='utf8_bin' ",
+        );
 
     /**
      * Инициализация модуля
@@ -55,18 +57,21 @@ class ModuleDatabase extends Module {
     }
 
     protected function _getDbConnect($sDsn) {
+
         if (Config::Get('db.params.lazy')) {
             // lazy connection
             F::File_IncludeFile(Config::Get('path.root.engine') . '/lib/external/DbSimple3/lib/DbSimple/Connect.php');
             $oDbSimple = new DbSimple_Connect($sDsn);
-            foreach ($this->aInitSql as $sSql)
+            foreach ($this->aInitSql as $sSql) {
                 $oDbSimple->addInit($sSql);
+            }
         } else {
             // immediate connection
             F::File_IncludeFile(Config::Get('path.root.engine') . '/lib/external/DbSimple3/lib/DbSimple/Generic.php');
             $oDbSimple = DbSimple_Generic::connect($sDsn);
-            foreach ($this->aInitSql as $sSql)
+            foreach ($this->aInitSql as $sSql) {
                 $oDbSimple->query($sSql);
+            }
         }
         return $oDbSimple;
     }
@@ -76,43 +81,40 @@ class ModuleDatabase extends Module {
      *
      * @param   array|null $aConfig     - конфиг подключения к БД(хост, логин, пароль, тип бд, имя бд),
      *                                  если null, то используются параметры из конфига Config::Get('db.params')
+     *
      * @return  DbSimple_Connect|null
      */
     public function GetConnect($aConfig = null) {
-        /**
-         * Если конфиг не передан то используем главный конфиг БД из config.php
-         */
+
+        // * Если конфиг не передан то используем главный конфиг БД из config.php
         if (is_null($aConfig)) {
             $aConfig = Config::Get('db.params');
         }
-        $sDsn = $aConfig['type'] . '://' . $aConfig['user'] . ':' . $aConfig['pass'] . '@' . $aConfig['host'] . ':' . $aConfig['port'] . '/' . $aConfig['dbname'];
-        /**
-         * Проверяем создавали ли уже коннект с такими параметрами подключения(DSN)
-         */
+        $sDsn = $aConfig['type'] . '://' . $aConfig['user'] . ':' . $aConfig['pass'] . '@' . $aConfig['host'] . ':'
+            . $aConfig['port'] . '/' . $aConfig['dbname'];
+
+        // * Проверяем создавали ли уже коннект с такими параметрами подключения(DSN)
         if (isset($this->aInstance[$sDsn])) {
             return $this->aInstance[$sDsn];
         } else {
-            /**
-             * Если такого коннекта еще не было то создаём его
-             */
+            // * Если такого коннекта еще не было то создаём его
             $oDbSimple = $this->_getDbConnect($sDsn);
-            /**
-             * Устанавливаем хук на перехват ошибок при работе с БД
-             */
+
+            // * Устанавливаем хук на перехват ошибок при работе с БД
             $oDbSimple->setErrorHandler(array($this, 'ErrorHandler'));
-            /**
-             * Если нужно логировать все SQL запросы то подключаем логгер
-             */
+
+            // * Если нужно логировать все SQL запросы то подключаем логгер
             if (Config::Get('sys.logs.sql_query')) {
                 $oDbSimple->setLogger(array($this, 'Logger'));
             }
-            /**
-             * Сохраняем коннект
-             */
+
+            // Задаем префикс таблиц
+            $oDbSimple->setIdentPrefix(Config::Get('db.table.prefix'));
+
+            // * Сохраняем коннект
             $this->aInstance[$sDsn] = $oDbSimple;
-            /**
-             * Возвращаем коннект
-             */
+
+            // * Возвращаем коннект
             return $oDbSimple;
         }
     }
@@ -123,7 +125,12 @@ class ModuleDatabase extends Module {
      * @return array
      */
     public function GetStats() {
-        $aQueryStats = array('time' => 0, 'count' => -1); // не считаем тот самый костыльный запрос, который устанавливает настройки DB соединения
+
+        // не считаем тот самый костыльный запрос, который устанавливает настройки DB соединения
+        $aQueryStats = array(
+            'time'  => 0,
+            'count' => -1,
+        );
         foreach ($this->aInstance as $oDb) {
             $aStats = $oDb->getStatistics();
             $aQueryStats['time'] += $aStats['time'];
@@ -134,6 +141,7 @@ class ModuleDatabase extends Module {
     }
 
     public function SetLoggerOn() {
+
         foreach ($this->aInstance as $sDsn => $oDb) {
             $oDb->setLogger(array($this, 'Logger'));
             $this->aInstance[$sDsn] = $oDb;
@@ -141,6 +149,7 @@ class ModuleDatabase extends Module {
     }
 
     public function SetLoggerOff() {
+
         foreach ($this->aInstance as $sDsn => $oDb) {
             $oDb->setLogger(null);
             $this->aInstance[$sDsn] = $oDb;
@@ -151,7 +160,7 @@ class ModuleDatabase extends Module {
      * Логгирование SQL запросов
      *
      * @param   object $oDb
-     * @param   array $sSql
+     * @param   array  $sSql
      */
     function Logger($oDb, $sSql) {
         // Получаем информацию о запросе и сохраняем её в лог
@@ -171,24 +180,21 @@ class ModuleDatabase extends Module {
     /**
      * Функция для перехвата SQL ошибок
      *
-     * @param   string $sMessage    Сообщение об ошибке
-     * @param   array $aInfo        Информация об ошибке
+     * @param   string $sMessage     Сообщение об ошибке
+     * @param   array  $aInfo        Информация об ошибке
      */
     function ErrorHandler($sMessage, $aInfo) {
-        /**
-         * Формируем текст сообщения об ошибке
-         */
+
+        // * Формируем текст сообщения об ошибке
         $sMsg = "SQL Error: $sMessage\n---\n";
         $sMsg .= print_r($aInfo, true);
-        /**
-         * Если нужно логировать SQL ошибке то пишем их в лог
-         */
+
+        // * Если нужно логировать SQL ошибке то пишем их в лог
         if (Config::Get('sys.logs.sql_error')) {
             Engine::getInstance()->Logger_Dump(Config::Get('sys.logs.sql_error_file'), $sMsg);
         }
-        /**
-         * Если стоит вывод ошибок то выводим ошибку на экран(браузер)
-         */
+
+        // * Если стоит вывод ошибок то выводим ошибку на экран(браузер)
         if (error_reporting() && ini_get('display_errors')) {
             exit($sMsg);
         }
@@ -196,10 +202,12 @@ class ModuleDatabase extends Module {
 
     /**
      * Экспорт SQL дампа в БД
+     *
      * @see ExportSQLQuery
      *
-     * @param string $sFilePath    Полный путь до файла SQL
-     * @param array|null $aConfig    Конфиг подключения к БД
+     * @param string     $sFilePath    Полный путь до файла SQL
+     * @param array|null $aConfig      Конфиг подключения к БД
+     *
      * @return array
      */
     public function ExportSQL($sFilePath, $aConfig = null) {
@@ -215,39 +223,38 @@ class ModuleDatabase extends Module {
     /**
      * Экспорт SQL в БД
      *
-     * @param string $sFileQuery    Строка с SQL запросом
-     * @param array|null $aConfig    Конфиг подключения к БД
+     * @param string     $sFileQuery    Строка с SQL запросом
+     * @param array|null $aConfig       Конфиг подключения к БД
+     *
      * @return array    Возвращает массив вида array('result'=>bool,'errors'=>array())
      */
     public function ExportSQLQuery($sFileQuery, $aConfig = null) {
-        /**
-         * Замена префикса таблиц
-         */
+
+        // * Замена префикса таблиц
         $sFileQuery = str_replace('prefix_', Config::Get('db.table.prefix'), $sFileQuery);
 
-        /**
-         * Массивы запросов и пустой контейнер для сбора ошибок
-         */
+        // * Массивы запросов и пустой контейнер для сбора ошибок
         $aErrors = array();
         $aQuery = explode(';', $sFileQuery);
-        /**
-         * Выполняем запросы по очереди
-         */
+
+        // * Выполняем запросы по очереди
         foreach ($aQuery as $sQuery) {
             $sQuery = trim($sQuery);
-            /**
-             * Заменяем движек, если таковой указан в запросе
-             */
-            if (Config::Get('db.tables.engine') != 'InnoDB') $sQuery = str_ireplace('ENGINE=InnoDB', "ENGINE=" . Config::Get('db.tables.engine'), $sQuery);
+
+            // * Заменяем движок базы данных, если таковой указан в запросе
+            if (Config::Get('db.tables.engine') != 'InnoDB') {
+                $sQuery = str_ireplace('ENGINE=InnoDB', "ENGINE=" . Config::Get('db.tables.engine'), $sQuery);
+            }
 
             if ($sQuery != '') {
                 $bResult = $this->GetConnect($aConfig)->query($sQuery);
-                if ($bResult === false) $aErrors[] = mysql_error();
+                if ($bResult === false) {
+                    $aErrors[] = mysql_error();
+                }
             }
         }
-        /**
-         * Возвращаем результат выполнения, в зависимости от количества ошибок
-         */
+
+        // * Возвращаем результат выполнения, в зависимости от количества ошибок
         if (count($aErrors) == 0) {
             return array('result' => true, 'errors' => null);
         }
@@ -257,12 +264,14 @@ class ModuleDatabase extends Module {
     /**
      * Проверяет существование таблицы
      *
-     * @param   string  $sTableName    - Название таблицы, необходимо перед именем таблицы добавлять "prefix_",
-     *                                  это позволит учитывать произвольный префикс таблиц у пользователя
-     * @param   array|null $aConfig     - Конфиг подключения к БД
+     * @param   string     $sTableName    - Название таблицы, необходимо перед именем таблицы добавлять "prefix_",
+     *                                      это позволит учитывать произвольный префикс таблиц у пользователя
+     * @param   array|null $aConfig       - Конфиг подключения к БД
+     *
      * @return  bool
      */
     public function isTableExists($sTableName, $aConfig = null) {
+
         $sTableName = str_replace('prefix_', Config::Get('db.table.prefix'), $sTableName);
         $sQuery = "SHOW TABLES LIKE '{$sTableName}'";
         if ($aRows = $this->GetConnect($aConfig)->select($sQuery)) {
@@ -274,15 +283,17 @@ class ModuleDatabase extends Module {
     /**
      * Проверяет существование поля в таблице
      *
-     * @param   string $sTableName      - Название таблицы, необходимо перед именем таблицы добавлять "prefix_",
+     * @param   string     $sTableName      - Название таблицы, необходимо перед именем таблицы добавлять "prefix_",
      *                                  это позволит учитывать произвольный префикс таблиц у пользователя
-     * @param   string $sFieldName      - Название поля в таблице
-     * @param   array|null $aConfig     - Конфиг подключения к БД
+     * @param   string     $sFieldName      - Название поля в таблице
+     * @param   array|null $aConfig         - Конфиг подключения к БД
+     *
      * @return  bool
      */
     public function isFieldExists($sTableName, $sFieldName, $aConfig = null) {
+
         $sTableName = str_replace('prefix_', Config::Get('db.table.prefix'), $sTableName);
-        $sQuery = "SHOW FIELDS FROM `{$sTableName}`";
+        $sQuery = "SHOW FIELDS FROM {$sTableName}";
         if ($aRows = $this->GetConnect($aConfig)->select($sQuery)) {
             foreach ($aRows as $aRow) {
                 if ($aRow['Field'] == $sFieldName) {
@@ -296,25 +307,30 @@ class ModuleDatabase extends Module {
     /**
      * Доавляет новый тип в поле таблицы с типом enum
      *
-     * @param   string $sTableName      - Название таблицы, необходимо перед именем таблицы добавлять "prefix_",
+     * @param   string     $sTableName      - Название таблицы, необходимо перед именем таблицы добавлять "prefix_",
      *                                    это позволит учитывать произвольный префикс таблиц у пользователя
-     * @param   string $sFieldName      - Название поля в таблице
-     * @param   string $sType           - Название типа
-     * @param   array|null $aConfig     - Конфиг подключения к БД
+     * @param   string     $sFieldName      - Название поля в таблице
+     * @param   string     $sType           - Название типа
+     * @param   array|null $aConfig         - Конфиг подключения к БД
+     *
      * @return  null|bool
      */
     public function AddEnumType($sTableName, $sFieldName, $sType, $aConfig = null) {
         $sTableName = str_replace('prefix_', Config::Get('db.table.prefix'), $sTableName);
-        $sQuery = "SHOW COLUMNS FROM  `{$sTableName}`";
+        $sQuery = "SHOW COLUMNS FROM  {$sTableName}";
 
         if ($aRows = $this->GetConnect($aConfig)->select($sQuery)) {
             foreach ($aRows as $aRow) {
-                if ($aRow['Field'] == $sFieldName) break;
+                if ($aRow['Field'] == $sFieldName) {
+                    break;
+                }
             }
-            if (substr($aRow['Type'], 0, 4) !== 'enum') return true;
-            if (strpos($aRow['Type'], "'{$sType}'") === FALSE) {
+            if (substr($aRow['Type'], 0, 4) !== 'enum') {
+                return true;
+            }
+            if (strpos($aRow['Type'], "'{$sType}'") === false) {
                 $aRow['Type'] = str_ireplace('enum(', "enum('{$sType}',", $aRow['Type']);
-                $sQuery = "ALTER TABLE `{$sTableName}` MODIFY `{$sFieldName}` " . $aRow['Type'];
+                $sQuery = "ALTER TABLE {$sTableName} MODIFY {$sFieldName} " . $aRow['Type'];
                 $sQuery .= ($aRow['Null'] == 'NO') ? ' NOT NULL ' : ' NULL ';
                 $sQuery .= is_null($aRow['Default']) ? ' DEFAULT NULL ' : " DEFAULT '{$aRow['Default']}' ";
                 $this->GetConnect($aConfig)->select($sQuery);
@@ -323,6 +339,7 @@ class ModuleDatabase extends Module {
     }
 
     public function AddField($sTableName, $sFieldName, $sFieldType, $sDefault = null, $bNull = null, $sAdditional = '', $aConfig = null) {
+
         $sTableName = str_replace('prefix_', Config::Get('db.table.prefix'), $sTableName);
         if (is_null($sDefault) && is_null($bNull)) {
             $sNull = '';
@@ -335,13 +352,15 @@ class ModuleDatabase extends Module {
                 $sDefault = ' DEFAULT \'' . (string)$sDefault . '\'';
             }
         }
-        $sQuery = "ALTER TABLE `{$sTableName}` ADD `{$sFieldName}` {$sFieldType} {$sNull} {$sDefault} {$sAdditional}";
+        $sQuery = "ALTER TABLE {$sTableName} ADD {$sFieldName} {$sFieldType} {$sNull} {$sDefault} {$sAdditional}";
         $this->GetConnect($aConfig)->query($sQuery);
     }
 
     public function AddIndex($sTableName, $aIndexFields, $sIndexType = null, $sIndexName = null, $aConfig = null) {
         $sTableName = str_replace('prefix_', Config::Get('db.table.prefix'), $sTableName);
-        if (!is_array($aIndexFields)) $aIndexFields = array($aIndexFields);
+        if (!is_array($aIndexFields)) {
+            $aIndexFields = array($aIndexFields);
+        }
         $sFields = implode(',', $aIndexFields);
         if (!$sIndexType || !in_array(strtoupper($sIndexType), array('PRIMARY', 'INDEX', 'UNIQUE'))) {
             $sIndexType = 'INDEX';
@@ -351,7 +370,7 @@ class ModuleDatabase extends Module {
         if (!$sIndexName || $sIndexName == 'PRIMARY') {
             $sIndexName = '';
         }
-        $sQuery = "ALTER TABLE `{$sTableName}` ADD {$sIndexType} {$sIndexName} ({$sFields})";
+        $sQuery = "ALTER TABLE {$sTableName} ADD {$sIndexType} {$sIndexName} ({$sFields})";
         $this->GetConnect($aConfig)->query($sQuery);
     }
 
