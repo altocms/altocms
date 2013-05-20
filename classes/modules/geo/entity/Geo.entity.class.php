@@ -28,20 +28,7 @@ class ModuleGeo_EntityGeo extends Entity {
      */
     public function getName() {
 
-        $sName = $this->getProp('name_' . $this->Lang_GetLang());
-        if (!$sName) {
-            $sName = $this->getProp('name_' . $this->Lang_GetDefaultLang());
-            if (!$sName && $this->getProp('name_en')) {
-                $sName = $this->getProp('name_en');
-            }
-            if (!$sName && $this->getProp('name_ru')) {
-                $sName = $this->getProp('name_ru');
-            }
-            if (!$sName && $this->getProp('name')) {
-                $sName = $this->getProp('name');
-            }
-        }
-        return $sName;
+        return $this->getLangProp('name');
     }
 
     /**
