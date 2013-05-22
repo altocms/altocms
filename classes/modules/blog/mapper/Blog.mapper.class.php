@@ -643,6 +643,38 @@ class ModuleBlog_MapperBlog extends Mapper {
         return $aRows;
     }
 
+    /**
+     * Статистка блогов
+     *
+     * @return array
+     */
+    public function GetBlogsData($aExcludeTypes) {
+        if (isset($aExcludeTypes) and !is_array($aExcludeTypes)) {
+            $aExcludeTypes = array($aExcludeTypes);
+        }
+        $sql = "
+            SELECT
+                b.*,
+                SUM(t.topic_rating) as sum_rating
+            FROM
+                " . Config::Get('db.table.blog') . " as b,
+                " . Config::Get('db.table.topic') . " as t
+            WHERE
+                b.blog_id=t.blog_id
+                AND
+                t.topic_publish=1
+                AND
+                blog_type not IN (?a) 
+            GROUP BY b.blog_id";
+        $aBlogs=array();
+        if($aRows = $this->oDb->select($sql,$aExcludeTypes)){
+            foreach ($aRows as $aBlog) {
+                $aBlogs[] = Engine::GetEntity('Blog', $aBlog);
+            }
+        }
+        return $aBlogs;
+    }
+
 }
 
 // EOF

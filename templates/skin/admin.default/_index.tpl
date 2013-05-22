@@ -131,6 +131,9 @@
     <li class="nav-menu_recalctopics {if $sEvent=='recalctopics'}active{/if}">
         <a href="{router page="admin"}recalctopics/">{$aLang.action.admin.menu_tools_recalctopics}</a>
     </li>
+    <li class="nav-menu_recalcblograting {if $sEvent=='recalcblograting'}active{/if}">
+        <a href="{router page="admin"}recalcblograting/">{$aLang.action.admin.menu_tools_recalcblograting}</a>
+    </li>
     <li class="nav-menu_checkdb {if $sEvent=='checkdb'}active{/if}">
         <a href="{router page="admin"}checkdb/">{$aLang.action.admin.menu_tools_checkdb}</a>
     </li>

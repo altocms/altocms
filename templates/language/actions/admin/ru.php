@@ -53,6 +53,7 @@ return array(
     'menu_tools_recalcfavourites' => 'Счетчики избранного',
     'menu_tools_recalcvotes' => 'Счетчики голосования',
     'menu_tools_recalctopics' => 'Кол-во статей в блогах',
+    'menu_tools_recalcblograting' => 'Пересчет рейтинга блогов',
     'menu_tools_checkdb' => 'Контроль БД',
 
     /* DASHBOARD */
@@ -621,6 +622,11 @@ return array(
     'recalctopics_title' => 'Пересчет количества статей в блогах',
     'recalctopics_message' => 'Будет пересчитано количество статей во всех блогах.<br><br> Внимание! Операция может занять длительное время!',
     'topics_recalculated' => 'Количество статей пересчитанно',
+
+    'recalcblograting_title' => 'Пересчет рейтинга блогов',
+    'recalcblograting_message' => 'Будет пересчитан рейтинг блогов.<br><br> Внимание! Операция может занять длительное время!',
+    'blograting_recalculated' => 'Рейтинг блогов пересчитан',
+
 
     'checkdb_title' => 'Контроль базы данных',
     'checkdb_deleted_blogs' => 'Проверка удаленных блогов',

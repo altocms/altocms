@@ -79,7 +79,7 @@ $config['widgets'][] = array(
     ),
 );
 
-// Теги
+// Категории
 $config['widgets'][] = array(
     'name' => 'categories',
     'group' => 'right',

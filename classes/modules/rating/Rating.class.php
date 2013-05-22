@@ -200,5 +200,42 @@ class ModuleRating extends Module {
 		$oUserTarget->setRating($iRatingNew);
 		return $iValue*$iDelta;
 	}
+
+
+    /**
+	 * Расчет рейтинга блога
+     *
+	 * @return bool
+	 */
+	public function RecalculateBlogRating() {
+        
+        /*
+         * Получаем статистику
+         */
+        $aBlogStat=$this->Blog_GetBlogsData(array('personal'));
+        
+        foreach($aBlogStat as $oBlog){
+
+            $fRating=0;
+
+            //*** Учет суммы голосов за топики с весовым коэффициентом
+            $fRating=$fRating+Config::Get('module.rating.blog.topic_rating_sum')*$oBlog->getSumRating();
+
+            //*** Учет количества топиков с весовым коэффициентом
+            $fRating=$fRating+Config::Get('module.rating.blog.count_users')*$oBlog->getCountUser();
+
+            //*** Учет количества топиков с весовым коэффициентом
+            $fRating=$fRating+Config::Get('module.rating.blog.count_topic')*$oBlog->getCountTopic();
+
+            $oBlog->setRating($fRating);
+            $this->Blog_UpdateBlog($oBlog);
+
+        }
+
+        return true;
+
+
+    }
+
 }
 ?>

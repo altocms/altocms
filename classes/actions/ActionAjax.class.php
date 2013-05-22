@@ -46,7 +46,7 @@ class ActionAjax extends Action {
     protected function RegisterEvent() {
         $this->AddEventPreg('/^vote$/i', '/^comment$/', 'EventVoteComment');
         $this->AddEventPreg('/^vote$/i', '/^topic$/', 'EventVoteTopic');
-        $this->AddEventPreg('/^vote$/i', '/^blog$/', 'EventVoteBlog');
+        //$this->AddEventPreg('/^vote$/i', '/^blog$/', 'EventVoteBlog');
         $this->AddEventPreg('/^vote$/i', '/^user$/', 'EventVoteUser');
         $this->AddEventPreg('/^vote$/i', '/^question$/', 'EventVoteQuestion');
 

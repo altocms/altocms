@@ -1044,6 +1044,15 @@ class ModuleBlog extends Module {
         }
         return $data;
     }
+
+    /**
+     * Статистка блогов
+     *
+     * @return array
+     */
+    public function GetBlogsData($aExcludeTypes=array('personal')) {
+        return $this->oMapperBlog->GetBlogsData($aExcludeTypes);
+    }
 }
 
 // EOF

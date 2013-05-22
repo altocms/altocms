@@ -79,6 +79,7 @@ class ActionAdmin extends Action {
         $this->AddEvent('recalcfavourites', 'EventRecalculateFavourites');
         $this->AddEvent('recalcvotes', 'EventRecalculateVotes');
         $this->AddEvent('recalctopics', 'EventRecalculateTopics');
+        $this->AddEvent('recalcblograting', 'EventRecalculateBlogRating');
         $this->AddEvent('checkdb', 'EventCheckDb');
 
         //поля контента
@@ -1916,6 +1917,25 @@ class ActionAdmin extends Action {
             $this->Message_AddNotice($this->Lang_Get('action.admin.topics_recalculated'), $this->Lang_Get('attention'));
         } else {
             $this->Viewer_Assign('sMessage', $this->Lang_Get('action.admin.recalctopics_message'));
+            $this->Viewer_Assign('bActionEnable', true);
+        }
+    }
+
+    /**
+     * Пересчет рейтинга блогов
+     */
+    protected function EventRecalculateBlogRating() {
+        $this->_setTitle($this->Lang_Get('action.admin.recalcblograting_title'));
+        $this->SetTemplateAction('tools/recalcblograting');
+        if (isPost('recalcblograting_submit')) {
+            $this->Security_ValidateSendForm();
+            set_time_limit(0);
+            $this->Rating_RecalculateBlogRating();
+            $this->Cache_Clean();
+
+            $this->Message_AddNotice($this->Lang_Get('action.admin.blograting_recalculated'), $this->Lang_Get('attention'));
+        } else {
+            $this->Viewer_Assign('sMessage', $this->Lang_Get('action.admin.recalcblograting_message'));
             $this->Viewer_Assign('bActionEnable', true);
         }
     }

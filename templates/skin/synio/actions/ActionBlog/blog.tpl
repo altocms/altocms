@@ -49,24 +49,9 @@
 															{elseif $oBlog->getRating() == 0}
 																vote-count-zero
 															{/if}
-															
-															{if $oVote} 
-																voted 
-																
-																{if $oVote->getDirection() > 0}
-																	voted-up
-																{elseif $oVote->getDirection() < 0}
-																	voted-down
-																{/if}
-															{else}
-																not-voted
-															{/if}
-															
-															{if ($oUserCurrent && $oUserOwner->getId() == $oUserCurrent->getId())}
-																vote-nobuttons
-															{/if}">
+															vote-nobuttons">
 		<a href="#" class="vote-item vote-down" onclick="return ls.vote.vote({$oBlog->getId()},this,-1,'blog');"><span><i></i></span></a>
-		<div class="vote-item vote-count" title="{$aLang.blog_vote_count}: {$oBlog->getCountVote()}"><span id="vote_total_blog_{$oBlog->getId()}">{if $oBlog->getRating() > 0}+{/if}{$oBlog->getRating()}</span></div>
+		<div class="vote-item vote-count"><span id="vote_total_blog_{$oBlog->getId()}">{if $oBlog->getRating() > 0}+{/if}{$oBlog->getRating()}</span></div>
 		<a href="#" class="vote-item vote-up" onclick="return ls.vote.vote({$oBlog->getId()},this,1,'blog');"><span><i></i></span></a>
 	</div>
 </div>
