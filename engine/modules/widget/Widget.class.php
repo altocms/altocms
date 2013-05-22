@@ -10,7 +10,7 @@
  */
 
 /**
- * Модуль управления блоками
+ * Модуль управления виджетами
  */
 class ModuleWidget extends Module {
 
@@ -141,7 +141,6 @@ class ModuleWidget extends Module {
             $sClass = 'Widget' . $sName;
         } else {
             $sFile = F::GetPluginsDir() . $sPlugin . '/classes/widgets/Widget' . $sName . '.class.php';
-            $sClass = 'Widget' . $sName;
             $sClass = 'Plugin' . ucfirst($sPlugin) . '_Widget' . $sName;
         }
         if (F::File_Exists($sFile)) {

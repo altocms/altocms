@@ -91,16 +91,29 @@ class PluginLs_ModuleWidget extends PluginLs_Inherit_ModuleWidget {
                         switch (true) {
                             // * Если установлен в true, значит очищаем все
                             case  ($aRule['clear'] === true):
-                                $this->ClearBlocksAll();
+                                //$this->ClearBlocksAll();
+                                $aResult = array();
                                 break;
 
                             case is_string($aRule['clear']):
-                                $this->ClearBlocks($aRule['clear']);
+                                //$this->ClearBlocks($aRule['clear']);
+                                foreach ($aResult as $sId => $oWidget) {
+                                    if ($oWidget->GetGroup() == $aRule['clear']) {
+                                        unset($aResult[$sId]);
+                                    }
+                                }
                                 break;
 
                             case is_array($aRule['clear']):
+                                /*
                                 foreach ($aRule['clear'] as $sGroup) {
                                     $this->ClearBlocks($sGroup);
+                                }
+                                */
+                                foreach ($aResult as $sId => $oWidget) {
+                                    if (in_array($oWidget->GetGroup(), $aRule['clear'])) {
+                                        unset($aResult[$sId]);
+                                    }
                                 }
                                 break;
                         }

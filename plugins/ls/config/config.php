@@ -13,7 +13,7 @@ $config = array();
 
 $config['$root$']['router']['uri']['~^topic/edit/(.+)$~'] = 'content/edit/\\1';
 $config['$root$']['router']['uri']['~^topic/delete/(.+)$~'] = 'content/delete/\\1';
-$config['$root$']['router']['uri']['~^topic/add/$~'] = 'content/topic/add/';
+$config['$root$']['router']['uri']['~^topic/add\/?$~'] = 'content/topic/add/';
 
 return $config;
 

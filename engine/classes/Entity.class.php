@@ -124,6 +124,37 @@ abstract class Entity extends LsObject {
     }
 
     /**
+     * Gets language associated property of entity
+     *
+     * @param string $sKey
+     * @param mixed  $xDefault
+     * @param string $sLang
+     *
+     * @return mixed|null
+     */
+    public function getLangProp($sKey, $xDefault = null, $sLang = null) {
+
+        if (is_null($sLang)) {
+            $sLang = $this->Lang_GetLang();
+        }
+        $sResult = $this->getProp($sKey . '_' . $sLang);
+        if (is_null($sResult)) {
+            $sResult = $this->getProp($sKey . '_' . $this->Lang_GetDefaultLang());
+            if (is_null($sResult) && !is_null($sVal = $this->getProp($sKey . '_en'))) {
+                return $sVal;
+            }
+            if (is_null($sResult) && !is_null($sVal = $this->getProp($sKey . '_ru'))) {
+                return $sVal;
+            }
+            if (is_null($sResult) && !is_null($sVal = $this->getProp($sKey))) {
+                return $sVal;
+            }
+            return $xDefault;
+        }
+        return $sResult;
+    }
+
+    /**
      * Deletes property of entity
      *
      * @param   string  $sKey
