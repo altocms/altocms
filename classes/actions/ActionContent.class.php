@@ -1030,7 +1030,7 @@ class ActionContent extends Action {
 							@unlink($_FILES['fields_'.$oField->getFieldId()]['tmp_name']);
 						}
 
-                        $this->Hook_Run('content_field_proccess',array('sText'=>$sText,'oField'=>$oField));
+                        $this->Hook_Run('content_field_proccess',array('sText'=>&$sText,'oField'=>$oField));
 
 						//Добавляем поле к топику.
 						if($sText){
