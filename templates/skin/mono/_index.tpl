@@ -1,1 +1,0 @@
-{extends file="themes/$sSkinTheme/default.tpl"}
