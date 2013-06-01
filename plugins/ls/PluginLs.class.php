@@ -23,7 +23,8 @@ class PluginLs extends Plugin {
             'page_main_menu.tpl' => '_page_main_menu.tpl',
             'window_write.tpl' => '_window_write.tpl',
             'sharer.tpl' => '_sharer.tpl',
-            'actions/ActionPage/page.tpl'
+            'actions/ActionPage/page.tpl',
+            'topic_list.tpl','topic.tpl'
         ),
     );
 
