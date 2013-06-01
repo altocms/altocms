@@ -53,8 +53,10 @@
 	
 	<ul class="dropdown-menu-create" id="dropdown-create-menu" style="display: none">
 		{foreach from=$aContentTypes item=oType}
-			<li {if $sEvent==$oType->getContentUrl()}class="active"{/if}><a href="{router page='content'}{$oType->getContentUrl()}/add/">{$oType->getContentTitle()|escape:'html'}</a></li>
-		{/foreach}
+            {if $oType->isAccessible()}
+                <li {if $sEvent==$oType->getContentUrl()}class="active"{/if}><a href="{router page='content'}{$oType->getContentUrl()}/add/">{$oType->getContentTitle()|escape:'html'}</a></li>
+            {/if}
+        {/foreach}
 		<li {if $sMenuItemSelect=='blog'}class="active"{/if}><a href="{router page='blog'}add/">{$aLang.blog_menu_create}</a></li>
 		<li {if $sMenuItemSelect=='talk'}class="active"{/if}><a href="{router page='talk'}add/">{$aLang.block_create_talk}</a></li>
 		{hook run='menu_create_item' sMenuItemSelect=$sMenuItemSelect}

@@ -267,6 +267,13 @@ class ActionContent extends Action {
 		}
 		
 		$this->Viewer_Assign('oType',$this->oType);
+
+        /**
+         * Если тип контента не доступен текущему юзеру
+         */
+        if(!$this->oType->isAccessible()){
+            return parent::EventNotFound();
+        }
 		
 		/**
 		 * Загружаем переменные в шаблон

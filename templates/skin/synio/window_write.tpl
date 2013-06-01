@@ -13,10 +13,12 @@
 			</li>
 			{/if}
 			{foreach from=$aContentTypes item=oType}
+            {if $oType->isAccessible()}
 			<li class="write-item-type-topic">
 				<a href="{router page='content'}{$oType->getContentUrl()}/add/" class="write-item-image"></a>
 				<a href="{router page='content'}{$oType->getContentUrl()}/add/" class="write-item-link">{$oType->getContentTitle()|escape:'html'}</a>
 			</li>
+            {/if}
 			{/foreach}
 			<li class="write-item-type-blog">
 				<a href="{router page='blog'}add" class="write-item-image"></a>

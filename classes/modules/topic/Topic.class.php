@@ -20,6 +20,16 @@
  * @since   1.0
  */
 class ModuleTopic extends Module {
+
+    /**
+	 * Уровень доступа для всех зарегистрированных
+	 */
+	const CONTENT_ACCESS_ALL = 1;
+	/**
+	 * Уровень доступа только для админов
+	 */
+	const CONTENT_ACCESS_ONLY_ADMIN = 2;
+
     /**
      * Объект маппера
      *

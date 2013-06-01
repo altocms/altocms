@@ -91,6 +91,21 @@ class ModuleTopic_EntityContent extends Entity {
 	public function setExtra($data) {
 		$this->_aData['content_config']=serialize($data);
 	}
+
+    /**
+     * Проверяет доступность на создание текущего типа контента
+     */
+    public function isAccessible(){
+        if ($oUser = $this->User_GetUserCurrent()) {
+            if($this->getContentAccess() == ModuleTopic::CONTENT_ACCESS_ONLY_ADMIN && !$oUser->isAdministrator()){
+                return false;
+            } else {
+                return true;
+            }
+        }
+        return false;
+
+    }
 	
 }
 

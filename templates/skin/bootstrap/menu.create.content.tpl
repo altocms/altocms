@@ -36,41 +36,15 @@
 {if $sEvent!='saved'}
 <div class="dropdown-create">
 	{strip}
-		<h2 class="page-header">{$aLang.block_create}
-{* Пока убрал, но могу вернуть чтобы так было, тут явный косяк верстки
-			<li class="btn-group">
-				<a href="#" class="btn">
-					{if $sAction=='content'}
-						{foreach from=$aContentTypes item=oType}
-							{if $sEvent==$oType->getContentUrl()}{$oType->getContentTitle()|escape:'html'}{/if}
-						{/foreach}
-					{elseif $sMenuItemSelect=='blog'}
-						{$aLang.blog_menu_create}
-					{elseif $sMenuItemSelect=='talk'}
-						{$aLang.block_create_talk}
-					{else}
-						{hook run='menu_create_item_select' sMenuItemSelect=$sMenuItemSelect}
-					{/if}
-				</a>
-				<a href="#" class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
-				<ul class="dropdown-menu">
-					{foreach from=$aContentTypes item=oType}
-						<li {if $sEvent==$oType->getContentUrl()}class="active"{/if}><a href="{router page='content'}{$oType->getContentUrl()}/add/">{$oType->getContentTitle()|escape:'html'}</a></li>
-					{/foreach}
-					<li {if $sMenuItemSelect=='blog'}class="active"{/if}><a href="{router page='blog'}add/">{$aLang.blog_menu_create}</a></li>
-					<li {if $sMenuItemSelect=='talk'}class="active"{/if}><a href="{router page='talk'}add/">{$aLang.block_create_talk}</a></li>
-					{hook run='menu_create_item' sMenuItemSelect=$sMenuItemSelect}
-				</ul>
-			</li>
-*}
-
-		</h2>
+		<h2 class="page-header">{$aLang.block_create}</h2>
 	{/strip}
 </div>
 
 <ul class="nav nav-pills mb-30">
     {foreach from=$aContentTypes item=oType}
+        {if $oType->isAccessible()}
         <li {if $sEvent==$oType->getContentUrl()}class="active"{/if}><a href="{router page='content'}{$oType->getContentUrl()}/add/">{$oType->getContentTitle()|escape:'html'}</a></li>
+        {/if}
     {/foreach}
     <li {if $sMenuItemSelect=='blog'}class="active"{/if}><a href="{router page='blog'}add/">{$aLang.blog_menu_create}</a></li>
     <li {if $sMenuItemSelect=='talk'}class="active"{/if}><a href="{router page='talk'}add/">{$aLang.block_create_talk}</a></li>
