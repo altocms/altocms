@@ -94,7 +94,8 @@ class ModuleUserfeed extends Module {
 		foreach($aTopicTracks['collection'] as $oTrack){
 			$aTopicsIds[]=$oTrack->getTargetId();
 		}
-		return $this->Topic_getTopicsAdditionalData($aTopicsIds);
+        $aTopicTracks['collection']=$this->Topic_getTopicsAdditionalData($aTopicsIds);
+		return $aTopicTracks;
 	}
 
 	/**

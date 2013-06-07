@@ -99,20 +99,25 @@ class ActionUserfeed extends Action {
 		/**
 		 * Получаем топики
 		 */
-		$aTopics = $this->Userfeed_trackread($this->oUserCurrent->getId(),$iPage,Config::Get('module.topic.per_page'));
-		/**
+		$aResult = $this->Userfeed_trackread($this->oUserCurrent->getId(),$iPage,Config::Get('module.topic.per_page'));
+
+        $aTopics=$aResult['collection'];
+
+        /**
+         * Формируем постраничность
+         */
+        $aPaging = $this->Viewer_MakePaging(
+            $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
+            Router::GetPath('feed') . 'track'
+        );
+
+        /**
 		 * Вызов хуков
 		 */
 		$this->Hook_Run('topics_list_show',array('aTopics'=>$aTopics));
 		$this->Viewer_Assign('aTopics', $aTopics);
-		if (count($aTopics)) {
-			$this->Viewer_Assign('iUserfeedLastId', end($aTopics)->getId());
-		}
-		if (count($aTopics) < Config::Get('module.userfeed.count_default')) {
-			$this->Viewer_Assign('bDisableGetMoreButton', true);
-		} else {
-			$this->Viewer_Assign('bDisableGetMoreButton', false);
-		}
+        $this->Viewer_Assign('aPaging', $aPaging);
+		
 		$this->SetTemplateAction('track');
 	}
 	/**
