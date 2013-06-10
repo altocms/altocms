@@ -420,9 +420,9 @@ class ModuleTopic extends Module {
             //if ($oTopic->getType()=='question')	{
             $aTopicId[] = $oTopic->getId();
             //}
-            //if ($oTopic->getType()=='photoset' and $oTopic->getPhotosetMainPhotoId())	{
-            $aPhotoMainId[] = $oTopic->getPhotosetMainPhotoId();
-            //}
+            if ($oTopic->getPhotosetMainPhotoId())	{
+                $aPhotoMainId[] = $oTopic->getPhotosetMainPhotoId();
+            }
         }
         /**
          * Получаем дополнительные данные

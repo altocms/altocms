@@ -748,21 +748,21 @@ class ActionContent extends Action {
 				 * Проверяем права на топик
 				 */
 				if ($oTopic=$this->Topic_GetTopicById($oPhoto->getTopicId()) and $this->ACL_IsAllowEditTopic($oTopic,$this->oUserCurrent)) {
-					if ($oTopic->getPhotosetCount()>1) {
-						$this->Topic_deleteTopicPhoto($oPhoto);
-						/**
-						 * Если удаляем главную фотку топика, то её необходимо сменить
-						 */
-						if ($oPhoto->getId()==$oTopic->getPhotosetMainPhotoId()) {
-							$aPhotos = $oTopic->getPhotosetPhotos(0,1);
-							$oTopic->setPhotosetMainPhotoId($aPhotos[0]->getId());
-						}
-						$oTopic->setPhotosetCount($oTopic->getPhotosetCount()-1);
-						$this->Topic_UpdateTopic($oTopic);
-						$this->Message_AddNotice($this->Lang_Get('topic_photoset_photo_deleted'), $this->Lang_Get('attention'));
-					} else {
-						$this->Message_AddError($this->Lang_Get('topic_photoset_photo_deleted_error_last'), $this->Lang_Get('error'));
-					}
+
+                    $this->Topic_deleteTopicPhoto($oPhoto);
+                    /**
+                     * Если удаляем главную фотку топика, то её необходимо сменить
+                     */
+                    if ($oPhoto->getId()==$oTopic->getPhotosetMainPhotoId() && $oTopic->getPhotosetCount()>1) {
+                        $aPhotos = $oTopic->getPhotosetPhotos(0,1);
+                        $oTopic->setPhotosetMainPhotoId($aPhotos[0]->getId());
+                    } elseif($oTopic->getPhotosetCount()==1){
+                        $oTopic->setPhotosetMainPhotoId(null);
+                    }
+                    $oTopic->setPhotosetCount($oTopic->getPhotosetCount()-1);
+                    $this->Topic_UpdateTopic($oTopic);
+                    $this->Message_AddNotice($this->Lang_Get('topic_photoset_photo_deleted'), $this->Lang_Get('attention'));
+					
 					return;
 				}
 			} else {
