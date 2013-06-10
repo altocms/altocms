@@ -472,10 +472,6 @@ class ActionContent extends Action {
 			 */
 			$oTopic=$this->Topic_GetTopicById($oTopic->getId());
 
-			/*
-			 * Заполняем дополнительные поля
-			 */
-			$this->processFields($oTopic);
 			/**
 			 * Обновляем количество топиков в блоге
 			 */
@@ -659,10 +655,6 @@ class ActionContent extends Action {
 		if ($this->Topic_UpdateTopic($oTopic)) {
 			$this->Hook_Run('topic_edit_after', array('oTopic'=>$oTopic,'oBlog'=>$oBlog,'bSendNotify'=>&$bSendNotify));
 
-			/*
-			 * Заполняем дополнительные поля
-			 */
-			$this->processFields($oTopic);
 			/**
 			 * Обновляем данные в комментариях, если топик был перенесен в новый блог
 			 */
@@ -950,115 +942,7 @@ class ActionContent extends Action {
 
 	public function processFields($oTopic){
 
-		/*
-		 * Чистим существующие значения
-		 */
-		$this->Topic_DeleteTopicValuesByTopicId($oTopic->getId());
 
-		if($oType=$this->Topic_getContentTypeByUrl($oTopic->getType())){
-			//получаем поля для данного типа
-			if($aFields=$oType->getFields()){
-				
-				foreach($aFields as $oField){
-					$sText=null;
-
-					if(isset($_REQUEST['fields'][$oField->getFieldId()]) || isset($_FILES['fields_'.$oField->getFieldId()])){
-
-						//текстовые поля
-						if(in_array($oField->getFieldType(),array('input','textarea','select'))){
-							$sText=$this->Text_Parser($_REQUEST['fields'][$oField->getFieldId()]);
-						}
-						//поле ссылки
-						if($oField->getFieldType()=='link'){
-							$sText=$_REQUEST['fields'][$oField->getFieldId()];
-						}
-
-						//поле даты
-						if($oField->getFieldType()=='date') {
-							if(isset($_REQUEST['fields'][$oField->getFieldId()])){
-
-								if(func_check($_REQUEST['fields'][$oField->getFieldId()],'text',6,10) && substr_count($_REQUEST['fields'][$oField->getFieldId()],'.')==2) {
-									list($d,$m,$y)=explode('.',$_REQUEST['fields'][$oField->getFieldId()]);
-									if(@checkdate($m,$d,$y)) {
-										$sText=$_REQUEST['fields'][$oField->getFieldId()];
-									}
-								}
-
-							}
-
-						}
-
-						//поле с файлом
-						if($oField->getFieldType()=='file'){
-
-							if(getRequest('topic_delete_file_'.$oField->getFieldId())){
-								if($oTopic->getFile($oField->getFieldId())){
-									@unlink(Config::Get('path.root.server').$oTopic->getFile($oField->getFieldId())->getFileUrl());
-									$oTopic->setValueField($oField->getFieldId(),'');
-								}
-							}
-
-							if (isset($_FILES['fields_'.$oField->getFieldId()]) and is_uploaded_file($_FILES['fields_'.$oField->getFieldId()]['tmp_name'])) {
-
-								if (filesize($_FILES['fields_'.$oField->getFieldId()]['tmp_name'])<=Config::Get('module.topic.max_filesize_limit')) {
-									$aPathInfo=pathinfo($_FILES['fields_'.$oField->getFieldId()]['name']);
-
-									if (in_array(strtolower($aPathInfo['extension']),Config::Get('module.topic.upload_mime_types'))) {
-										$sFileTmp=$_FILES['fields_'.$oField->getFieldId()]['tmp_name'];
-										$sDirSave=Config::Get('path.uploads.root').'/files/'.$this->User_GetUserCurrent()->getId().'/'.func_generator(16);
-										mkdir(Config::Get('path.root.server').$sDirSave,0777,true);
-										if(is_dir(Config::Get('path.root.server').$sDirSave)){
-
-											$sFile=$sDirSave.'/'.func_generator(10).'.'.strtolower($aPathInfo['extension']);
-											$sFileFullPath=Config::Get('path.root.server').$sFile;
-											if (copy($sFileTmp,$sFileFullPath)) {
-												//удаляем старый файл
-												if($oTopic->getFile($oField->getFieldId())){
-													@unlink(Config::Get('path.root.server').$oTopic->getFile($oField->getFieldId())->getFileUrl());
-												}
-
-												$aFileObj=array();
-												$aFileObj['file_hash']=func_generator(32);
-												$aFileObj['file_name']=$this->Text_Parser($_FILES['fields_'.$oField->getFieldId()]['name']);
-												$aFileObj['file_url']=$sFile;
-												$aFileObj['file_size']=$_FILES['fields_'.$oField->getFieldId()]['size'];
-												$aFileObj['file_extension']=$aPathInfo['extension'];
-												$aFileObj['file_downloads']=0;
-												$sText=serialize($aFileObj);
-
-												@unlink($sFileTmp);
-											}
-										}
-									}
-								}
-
-
-							}
-							@unlink($_FILES['fields_'.$oField->getFieldId()]['tmp_name']);
-						}
-
-                        $this->Hook_Run('content_field_proccess',array('sText'=>&$sText,'oField'=>$oField));
-
-						//Добавляем поле к топику.
-						if($sText){
-							
-							$oValue=Engine::GetEntity('Topic_ContentValues');
-							$oValue->setTargetId($oTopic->getId());
-							$oValue->setTargetType('topic');
-							$oValue->setFieldId($oField->getFieldId());
-							$oValue->setFieldType($oField->getFieldType());
-							$oValue->setValue($sText);
-							$oValue->setValueSource(($oField->getFieldType()=='file')?$sText:$_REQUEST['fields'][$oField->getFieldId()]);
-
-							$this->Topic_AddTopicValue($oValue);
-
-						}
-
-					}
-
-				}
-			}
-		}
 	}
 
 	

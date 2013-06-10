@@ -524,6 +524,7 @@ class ModuleTopic extends Module {
                     $this->AddTopicTag($oTag);
                 }
             }
+            $this->processTopicFields($oTopic,'add');
             //чистим зависимые кеши
             $this->Cache_Clean(
                 Zend_Cache::CLEANING_MODE_MATCHING_TAG,
@@ -719,6 +720,7 @@ class ModuleTopic extends Module {
                  */
                 $this->Comment_SetCommentsPublish($oTopic->getId(), 'topic', $oTopic->getPublish());
             }
+            $this->processTopicFields($oTopic,'update');
             // чистим зависимые кеши
             $this->Cache_Clean(
                 Zend_Cache::CLEANING_MODE_MATCHING_TAG,
@@ -2547,8 +2549,8 @@ class ModuleTopic extends Module {
      *
      * @return array
      */
-    public function GetTopicItemsByArrayId($aTopocId) {
-        return $this->GetTopicsByArrayId($aTopocId);
+    public function GetTopicItemsByArrayId($aTopicId) {
+        return $this->GetTopicsByArrayId($aTopicId);
     }
 
     /**
@@ -2560,6 +2562,145 @@ class ModuleTopic extends Module {
      */
     public function readfileChunked($sFilename) {
         F::File_PrintChunked($sFilename);
+    }
+
+    /*
+     * Обработка дополнительных полей топика
+     *
+     * @param $oTopic
+     *
+     * @return bool
+     */
+    public function processTopicFields($oTopic,$sType='add'){
+
+        $aValues=array();
+
+        if($sType=='update'){
+            /*
+             * Получаем существующие значения
+             */
+            if($aData=$this->GetTopicValuesByArrayId(array($oTopic->getId()))){
+                $aValues=$aData[$oTopic->getId()];
+            }
+
+            /*
+             * Чистим существующие значения
+             */
+            $this->Topic_DeleteTopicValuesByTopicId($oTopic->getId());
+        }
+
+		if($oType=$this->Topic_getContentTypeByUrl($oTopic->getType())) {
+            
+			//получаем поля для данного типа
+			if($aFields=$oType->getFields()){
+
+				foreach($aFields as $oField){
+
+					$sData=null;
+
+					if(isset($_REQUEST['fields'][$oField->getFieldId()]) || isset($_FILES['fields_'.$oField->getFieldId()])){
+
+						//текстовые поля
+						if(in_array($oField->getFieldType(),array('input','textarea','select'))){
+							$sData=$this->Text_Parser($_REQUEST['fields'][$oField->getFieldId()]);
+						}
+						//поле ссылки
+						if($oField->getFieldType()=='link'){
+							$sData=$_REQUEST['fields'][$oField->getFieldId()];
+						}
+
+						//поле даты
+						if($oField->getFieldType()=='date') {
+							if(isset($_REQUEST['fields'][$oField->getFieldId()])){
+
+								if(func_check($_REQUEST['fields'][$oField->getFieldId()],'text',6,10) && substr_count($_REQUEST['fields'][$oField->getFieldId()],'.')==2) {
+									list($d,$m,$y)=explode('.',$_REQUEST['fields'][$oField->getFieldId()]);
+									if(@checkdate($m,$d,$y)) {
+										$sData=$_REQUEST['fields'][$oField->getFieldId()];
+									}
+								}
+
+							}
+
+						}
+
+						//поле с файлом
+						if($oField->getFieldType()=='file'){
+                            //если указано удаление файла
+							if(getRequest('topic_delete_file_'.$oField->getFieldId())){
+								if($oTopic->getFile($oField->getFieldId())){
+									@unlink(Config::Get('path.root.server').$oTopic->getFile($oField->getFieldId())->getFileUrl());
+									//$oTopic->setValueField($oField->getFieldId(),'');
+                                    $sData=null;
+								}
+							} else {
+                                //если удаление файла не указано, уже ранее залит файл^ и нового файла не загружалось
+                                if($sType=='update' && isset($aValues[$oField->getFieldId()])){
+                                    $sData=$aValues[$oField->getFieldId()]->getValueSource();
+                                }
+                            }
+
+							if (isset($_FILES['fields_'.$oField->getFieldId()]) and is_uploaded_file($_FILES['fields_'.$oField->getFieldId()]['tmp_name'])) {
+
+								if (filesize($_FILES['fields_'.$oField->getFieldId()]['tmp_name'])<=Config::Get('module.topic.max_filesize_limit')) {
+									$aPathInfo=pathinfo($_FILES['fields_'.$oField->getFieldId()]['name']);
+
+									if (in_array(strtolower($aPathInfo['extension']),Config::Get('module.topic.upload_mime_types'))) {
+										$sFileTmp=$_FILES['fields_'.$oField->getFieldId()]['tmp_name'];
+										$sDirSave=Config::Get('path.uploads.root').'/files/'.$this->User_GetUserCurrent()->getId().'/'.func_generator(16);
+										mkdir(Config::Get('path.root.server').$sDirSave,0777,true);
+										if(is_dir(Config::Get('path.root.server').$sDirSave)){
+
+											$sFile=$sDirSave.'/'.func_generator(10).'.'.strtolower($aPathInfo['extension']);
+											$sFileFullPath=Config::Get('path.root.server').$sFile;
+											if (copy($sFileTmp,$sFileFullPath)) {
+												//удаляем старый файл
+												if($oTopic->getFile($oField->getFieldId())){
+													@unlink(Config::Get('path.root.server').$oTopic->getFile($oField->getFieldId())->getFileUrl());
+												}
+
+												$aFileObj=array();
+												$aFileObj['file_hash']=func_generator(32);
+												$aFileObj['file_name']=$this->Text_Parser($_FILES['fields_'.$oField->getFieldId()]['name']);
+												$aFileObj['file_url']=$sFile;
+												$aFileObj['file_size']=$_FILES['fields_'.$oField->getFieldId()]['size'];
+												$aFileObj['file_extension']=$aPathInfo['extension'];
+												$aFileObj['file_downloads']=0;
+												$sData=serialize($aFileObj);
+
+												@unlink($sFileTmp);
+											}
+										}
+									}
+								}
+
+
+							}
+							@unlink($_FILES['fields_'.$oField->getFieldId()]['tmp_name']);
+						}
+
+                        $this->Hook_Run('content_field_proccess',array('sData'=>&$sData,'oField'=>$oField,'oTopic'=>$oTopic,'aValues'=>$aValues,'sType'=>&$sType));
+
+						//Добавляем поле к топику.
+						if($sData){
+
+							$oValue=Engine::GetEntity('Topic_ContentValues');
+							$oValue->setTargetId($oTopic->getId());
+							$oValue->setTargetType('topic');
+							$oValue->setFieldId($oField->getFieldId());
+							$oValue->setFieldType($oField->getFieldType());
+							$oValue->setValue($sData);
+							$oValue->setValueSource(($oField->getFieldType()=='file')?$sData:$_REQUEST['fields'][$oField->getFieldId()]);
+
+							$this->Topic_AddTopicValue($oValue);
+
+						}
+
+					}
+
+				}
+			}
+		}
     }
 
 }
