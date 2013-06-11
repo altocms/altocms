@@ -42,7 +42,7 @@
                     <tr>
                         <td class="number">{$oBlog->GetId()}</td>
                         <td>
-                            <a href="{router page='admin'}users/profile/{$aBlog.user_login}">{$oBlog->GetOwner()->GetLogin()}</a>
+                            <a href="{router page='admin'}users/profile/{$oBlog->GetOwner()->GetId()}/">{$oBlog->GetOwner()->GetLogin()}</a>
                         </td>
                         <td class="name">
                             <a href="{$oBlog->GetUrlFull()}">{$oBlog->GetTitle()}</a>

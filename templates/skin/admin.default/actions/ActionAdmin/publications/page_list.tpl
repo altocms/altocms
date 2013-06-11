@@ -34,7 +34,7 @@
                 </thead>
 
                 <tbody>
-                    {foreach from=$aPages item=oPage}
+                    {foreach $aPages as $oPage}
                     <tr>
                         <td>
                             {$oPage->GetId()}
@@ -62,18 +62,29 @@
                         </td>
                         <td class="center">
                             <a href="{router page='admin'}pages/edit/{$oPage->getId()}/"
-                               title="{$aLang.action.admin.pages_admin_action_edit}">
+                               title="{$aLang.action.admin.pages_admin_action_edit}" class="tip-top i-block">
                                 <i class="icon-edit"></i>
                             </a>
-                            <span title="{$aLang.action.admin.pages_admin_action_delete}" class="tip-top"
-                                  onclick="return admin.confirmDelete('{$oPage->getId()}', '{$oPage->getTitle()}');">
-                                <i class="icon-remove"></i></span>
-                            <a href="{router page='admin'}pages/sort/{$oPage->getId()}/?security_ls_key={$ALTO_SECURITY_KEY}"
-                               title="{$aLang.action.admin.pages_admin_sort_up} ({$oPage->getSort()})" class="tip-top">
-                                <i class="icon-arrow-up"></i></a>
-                            <a href="{router page='admin'}pages/sort/{$oPage->getId()}/down/?security_ls_key={$ALTO_SECURITY_KEY}"
-                               title="{$aLang.action.admin.pages_admin_sort_down} ({$oPage->getSort()})" class="tip-top">
-                                <i class="icon-arrow-down"></i></a>
+                            <a href="#" title="{$aLang.action.admin.pages_admin_action_delete}" class="tip-top i-block"
+                                  onclick="return admin.confirmDelete('{$oPage->getId()}', '{$oPage->getTitle()}'); return false;">
+                                <i class="icon-remove"></i>
+                            </a>
+                            {if $oPage@first}
+                                <i class="icon-arrow-up icon-gray"></i>
+                            {else}
+                                <a href="{router page='admin'}pages/sort/{$oPage->getId()}/up/?security_ls_key={$ALTO_SECURITY_KEY}"
+                                   title="{$aLang.action.admin.pages_admin_sort_up} ({$oPage->getSort()})" class="tip-top i-block">
+                                    <i class="icon-arrow-up"></i>
+                                </a>
+                            {/if}
+                            {if $oPage@last}
+                                <i class="icon-arrow-down icon-gray"></i>
+                            {else}
+                                <a href="{router page='admin'}pages/sort/{$oPage->getId()}/down/?security_ls_key={$ALTO_SECURITY_KEY}"
+                                   title="{$aLang.action.admin.pages_admin_sort_down} ({$oPage->getSort()})" class="tip-top i-block">
+                                    <i class="icon-arrow-down"></i>
+                                </a>
+                            {/if}
                         </td>
                     </tr>
                     {/foreach}

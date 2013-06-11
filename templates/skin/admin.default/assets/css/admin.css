@@ -42,6 +42,10 @@ ul, ol {
     list-style: none outside none;
 }
 
+a.i-block {
+    display: inline-block;
+}
+
 .navbar.navbar-fixed-top {
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
 }

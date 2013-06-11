@@ -76,7 +76,10 @@ class ModulePage extends Module {
     /**
      * Получает страницу по полному УРЛу
      *
-     * @param string $sUrlFull
+     * @param   string  $sUrlFull
+     * @param   int     $iActive
+     *
+     * @return  ModulePage_EntityPage
      */
     public function GetPageByUrlFull($sUrlFull, $iActive = 1) {
         if (false === ($data = $this->Cache_Get("page_{$sUrlFull}_{$iActive}"))) {
@@ -108,7 +111,8 @@ class ModulePage extends Module {
     /**
      * Получает список всех страниц ввиде дерева
      *
-     * @return array
+     * @param   array   $aFilter
+     * @return  array
      */
     public function GetPages($aFilter = array()) {
         $aPages = array();
@@ -173,26 +177,32 @@ class ModulePage extends Module {
     /**
      * Получает список дочерних страниц первого уровня
      *
-     * @param string $sPid
+     * @param   int $nPid
      *
-     * @return array
+     * @return  array
      */
-    public function GetPagesByPid($sPid) {
-        return $this->oMapper->GetPagesByPid($sPid);
+    public function GetPagesByPid($nPid) {
+        return $this->oMapper->GetPagesByPid(is_null($nPid) ? null : intval($nPid));
     }
 
     /**
      * Удаляет страницу по её айдишнику
-     * Если тип таблиц БД InnoDB, то удалятся и все дочернии страницы
+     * Дочернии страницы не удаляются, а лишаюся "родителя" (переносятся в корень)
      *
-     * @param int $sId
+     * @param int $nId
      *
      * @return bool
      */
-    public function deletePageById($sId) {
-        if ($this->oMapper->deletePageById($sId)) {
+    public function deletePageById($nId) {
+        $aPages = $this->GetPagesByPid($nId);
+        if ($this->oMapper->deletePageById($nId)) {
+            if ($aPages) {
+                // удаляем "родителя" у вложенных страниц
+                $aPageIds = array_keys($aPages);
+                $this->SetPagesPidToNull($aPages);
+            }
             //чистим зависимые кеши
-            $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array('page_change', "page_change_{$sId}"));
+            $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array('page_change', "page_change_{$nId}"));
             return true;
         }
         return false;
@@ -208,19 +218,22 @@ class ModulePage extends Module {
     }
 
     /**
-     * Устанавливает ВСЕМ страницам PID = NULL
+     * Устанавливает всем (или определенным) страницам PID = NULL
      * Это бывает нужно, когда особо "умный" админ зациклит страницы сами на себя..
      *
-     * @return bool
+     * @param   null|array $aPageIds
+     *
+     * @return  bool
      */
-    public function SetPagesPidToNull() {
-        return $this->oMapper->SetPagesPidToNull();
+    public function SetPagesPidToNull($aPageIds = array()) {
+        return $this->oMapper->SetPagesPidToNull($aPageIds);
     }
 
     /**
      * Получает слеудующую по сортировке страницу
      *
      * @param int    $iSort
+     * @param int    $sPid
      * @param string $sWay
      *
      * @return ModulePage_EntityPage
@@ -232,7 +245,9 @@ class ModulePage extends Module {
     /**
      * Получает значение максимальной сртировки
      *
-     * @return int
+     * @param   int
+     *
+     * @return  int
      */
     public function GetMaxSortByPid($sPid) {
         return $this->oMapper->GetMaxSortByPid($sPid);
@@ -262,6 +277,9 @@ class ModulePage extends Module {
         );
     }
 
+    public function ReSort() {
+        return $this->oMapper->ReSort();
+    }
 }
 
 // EOF

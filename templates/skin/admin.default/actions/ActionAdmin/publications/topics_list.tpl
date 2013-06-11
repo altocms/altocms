@@ -30,7 +30,7 @@
                     <tr>
                         <td class="number">{$oTopic->getId()}</td>
                         <td>
-                            <a href="{router page='admin'}users/profile/{$oTopic->getUser()->getLogin()}">{$oTopic->getUser()->getLogin()}</a>
+                            <a href="{router page='admin'}users/profile/{$oTopic->getUser()->getId()}/">{$oTopic->getUser()->getLogin()}</a>
                         </td>
                         <td class="name">
                             <a href="{$oTopic->getUrl()}">{$oTopic->getTitle()}</a>

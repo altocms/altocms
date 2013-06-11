@@ -24,7 +24,7 @@
 class ModulePage_MapperPage extends Mapper {
 
     public function AddPage(ModulePage_EntityPage $oPage) {
-        $sql = "INSERT INTO " . Config::Get('db.table.page') . "
+        $sql = "INSERT INTO ?_page
 			(page_pid,
 			page_url,
 			page_url_full,
@@ -49,7 +49,7 @@ class ModulePage_MapperPage extends Mapper {
     }
 
     public function UpdatePage(ModulePage_EntityPage $oPage) {
-        $sql = "UPDATE " . Config::Get('db.table.page') . "
+        $sql = "UPDATE ?_page
 			SET page_pid = ? ,
 			page_url = ? ,
 			page_url_full = ? ,
@@ -72,18 +72,19 @@ class ModulePage_MapperPage extends Mapper {
         return $bResult !== false;
     }
 
-    public function SetPagesPidToNull() {
-        $sql = "UPDATE " . Config::Get('db.table.page') . "
+    public function SetPagesPidToNull($aPageIds) {
+        $sql = "UPDATE ?_page
 			SET 
 				page_pid = null,
 				page_url_full = page_url
+			{WHERE page_id IN (?a)}
 		";
-        $bResult = $this->oDb->query($sql);
+        $bResult = $this->oDb->query($sql, $aPageIds ? $aPageIds : DBSIMPLE_SKIP);
         return $bResult !== false;
     }
 
     public function GetPageByUrlFull($sUrlFull, $iActive) {
-        $sql = "SELECT * FROM " . Config::Get('db.table.page') . " WHERE page_url_full = ? and page_active = ?d ";
+        $sql = "SELECT * FROM ?_page WHERE page_url_full = ? AND page_active = ?d ";
         if ($aRow = $this->oDb->selectRow($sql, $sUrlFull, $iActive)) {
             return Engine::GetEntity('Page', $aRow);
         }
@@ -91,70 +92,66 @@ class ModulePage_MapperPage extends Mapper {
     }
 
     public function GetPageById($sId) {
-        $sql = "SELECT * FROM " . Config::Get('db.table.page') . " WHERE page_id = ? ";
+        $sql = "SELECT * FROM ?_page WHERE page_id = ? ";
         if ($aRow = $this->oDb->selectRow($sql, $sId)) {
             return Engine::GetEntity('Page', $aRow);
         }
         return null;
     }
 
-    public function deletePageById($sId) {
-        $sql = "DELETE FROM " . Config::Get('db.table.page') . " WHERE page_id = ? ";
-        if ($aRow = $this->oDb->selectRow($sql, $sId)) {
-            return true;
+    public function deletePageById($aIds) {
+        if (!is_array($aIds)) {
+            $aIds = array($aIds);
         }
-        return false;
+        $sql = "DELETE FROM ?_page WHERE page_id IN (?a) ";
+        return $this->oDb->query($sql, $aIds) !== false;
     }
 
     public function GetPages($aFilter) {
         $sPidNULL = '';
-        if (array_key_exists('pid', $aFilter) and is_null($aFilter['pid'])) {
-            $sPidNULL = 'and page_pid IS NULL';
+        if (array_key_exists('pid', $aFilter) && is_null($aFilter['pid'])) {
+            $sPidNULL = 'AND page_pid IS NULL';
         }
         $sql = "SELECT
 					*,
 					page_id as ARRAY_KEY,
 					page_pid as PARENT_KEY
 				FROM 
-					" . Config::Get('db.table.page') . "
+					?_page
 				WHERE 
 					1=1
-					{ and page_active = ?d }
-					{ and page_main = ?d }	
-					{ and page_pid = ? } {$sPidNULL}
-				ORDER by page_sort desc;
+					{ AND page_active = ?d }
+					{ AND page_main = ?d }
+					{ AND page_pid = ? } {$sPidNULL}
+				ORDER BY page_sort DESC, page_id ASC;
 					";
-        if ($aRows = $this->oDb->select(
+        $aRows = $this->oDb->select(
             $sql,
             isset($aFilter['active']) ? $aFilter['active'] : DBSIMPLE_SKIP,
             isset($aFilter['main']) ? $aFilter['main'] : DBSIMPLE_SKIP,
-            (array_key_exists('pid', $aFilter) and !is_null($aFilter['pid'])) ? $aFilter['pid'] : DBSIMPLE_SKIP
-        )
-        ) {
-            return $aRows;
-        }
-        return null;
+            (array_key_exists('pid', $aFilter) && !is_null($aFilter['pid'])) ? $aFilter['pid'] : DBSIMPLE_SKIP
+        );
+
+        return $aRows ? $aRows : array();
     }
 
     public function GetCountPage() {
-        $sql = "SELECT count(*) as count FROM " . Config::Get('db.table.page') . " ";
-        if ($aRow = $this->oDb->selectRow($sql)) {
-            return $aRow['count'];
-        }
-        return null;
+        $sql = "SELECT count(*) as count FROM ?_page ";
+        return intval($this->oDb->selectCell($sql));
     }
 
-    public function GetPagesByPid($sPid) {
+    public function GetPagesByPid($nPid) {
         $sql = "SELECT
 					*
 				FROM 
-					" . Config::Get('db.table.page') . "
+					?_page
 				WHERE 
-					page_pid = ? ";
+					page_pid = ?
+                ORDER BY page_sort DESC, page_id ASC";
         $aResult = array();
-        if ($aRows = $this->oDb->select($sql, $sPid)) {
+        if ($aRows = $this->oDb->select($sql, $nPid)) {
             foreach ($aRows as $aRow) {
-                $aResult[] = Engine::GetEntity('Page', $aRow);
+                $aResult[$aRow['page_id']] = Engine::GetEntity('Page', $aRow);
             }
         }
         return $aResult;
@@ -170,10 +167,10 @@ class ModulePage_MapperPage extends Mapper {
         }
         $sPidNULL = '';
         if (is_null($sPid)) {
-            $sPidNULL = 'page_pid IS NULL and';
+            $sPidNULL = 'page_pid IS NULL AND';
         }
-        $sql = "SELECT * FROM " . Config::Get('db.table.page')
-            . " WHERE { page_pid = ? and } {$sPidNULL} page_sort {$sWay} ? order by page_sort {$sOrder} limit 0,1";
+        $sql = "SELECT * FROM ?_page
+                WHERE { page_pid = ? AND } {$sPidNULL} page_sort {$sWay} ? ORDER BY page_sort {$sOrder}, page_id ASC LIMIT 0,1";
         if ($aRow = $this->oDb->selectRow($sql, is_null($sPid) ? DBSIMPLE_SKIP : $sPid, $iSort)) {
             return Engine::GetEntity('Page', $aRow);
         }
@@ -185,8 +182,8 @@ class ModulePage_MapperPage extends Mapper {
         if (is_null($sPid)) {
             $sPidNULL = 'and page_pid IS NULL';
         }
-        $sql = "SELECT max(page_sort) as max_sort FROM " . Config::Get('db.table.page')
-            . " WHERE 1=1 { and page_pid = ? } {$sPidNULL} ";
+        $sql = "SELECT max(page_sort) as max_sort FROM ?_page
+                WHERE 1=1 { AND page_pid = ? } {$sPidNULL} ";
         if ($aRow = $this->oDb->selectRow($sql, is_null($sPid) ? DBSIMPLE_SKIP : $sPid)) {
             return $aRow['max_sort'];
         }
@@ -208,11 +205,11 @@ class ModulePage_MapperPage extends Mapper {
             = 'SELECT
                     `page`.*
                 FROM
-                    `' . Config::Get('db.table.page') . '` AS `page`
+                    ?_page AS `page`
                 WHERE
                     `page`.`page_active` = 1
                 ORDER BY
-                    `page`.`page_id` ASC
+                    page_sort DESC, `page`.`page_id` ASC
                 LIMIT
                     ?d, ?d
                 ';
@@ -235,12 +232,24 @@ class ModulePage_MapperPage extends Mapper {
             = 'SELECT
                     COUNT(`page`.`page_id`)
                 FROM
-                    `' . Config::Get('db.table.page') . '` AS `page`
+                    ?_page AS `page`
                 WHERE
                     `page`.`page_active` = 1
                 ';
 
         return $this->oDb->selectCell($sql);
+    }
+
+    public function ReSort() {
+        $sql = "SELECT page_id, page_sort FROM ?_page ORDER BY page_sort DESC, page_id ASC";
+        $aRows = $this->oDb->select($sql);
+        if ($aRows) {
+            $aRows = array_reverse($aRows);
+            foreach ($aRows as $nKey=>$aRow) {
+                $sql = "UPDATE ?_page SET page_sort={$nKey} WHERE page_id={$aRow['page_id']}";
+                $this->oDb->query($sql);
+            }
+        }
     }
 
 }

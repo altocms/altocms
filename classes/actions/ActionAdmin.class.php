@@ -541,6 +541,11 @@ class ActionAdmin extends Action {
             } else {
                 $aConfig['view.noindex'] = false;
             }
+
+            $aConfig['view.img_resize_width'] = intval($this->GetPost('view--img_resize_width'));
+            $aConfig['view.img_max_width'] = intval($this->GetPost('view--img_max_width'));
+            $aConfig['view.img_max_height'] = intval($this->GetPost('view--img_max_height'));
+
             if ($this->GetPost('tag_required')) {
                 $aConfig['module.topic.allow_empty_tags'] = false;
             } else {
@@ -841,8 +846,6 @@ class ActionAdmin extends Action {
     protected function _eventPagesList() {
         /**
          * Обработка удаления страницы
-         * Замечание: если используется тип таблиц MyISAM, а InnoDB то возможно некорректное удаление вложенных страниц
-         * TODO: Надо проверить, что там может быть некорректного и поправить
          */
         if ($this->GetParam(0) == 'delete') {
             $this->Security_ValidateSendForm();
@@ -857,8 +860,15 @@ class ActionAdmin extends Action {
         /**
          * Обработка изменения сортировки страницы
          */
-        if ($this->GetParam(0) == 'sort' && $oPage = $this->Page_GetPageById($this->GetParam(1))) {
-            $this->Security_ValidateSendForm();
+        if ($this->GetParam(0) == 'sort') {
+            $this->_eventPagesListSort();
+        }
+        $this->SetTemplateAction('publications/page_list');
+    }
+
+    protected function _eventPagesListSort() {
+        $this->Security_ValidateSendForm();
+        if ($oPage = $this->Page_GetPageById($this->GetParam(1))) {
             $sWay = $this->GetParam(2) == 'down' ? 'down' : 'up';
             $iSortOld = $oPage->getSort();
             if ($oPagePrev = $this->Page_GetNextPageBySort($iSortOld, $oPage->getPid(), $sWay)) {
@@ -877,8 +887,9 @@ class ActionAdmin extends Action {
              */
             $oPage->setSort($iSortNew);
             $this->Page_UpdatePage($oPage);
+            $this->Page_ReSort();
         }
-        $this->SetTemplateAction('publications/page_list');
+        Router::Location('admin/pages');
     }
 
     protected function _eventPagesEdit($sMode) {
