@@ -372,3 +372,5 @@
 .blog-list-info { width: 19px; height: 19px; display: inline-block; background: url(../images/icons-synio.png) 0 -107px no-repeat; cursor: pointer; }
 .blog-list-info:hover,
 .blog-list-info.active { background-position: -19px -107px; }
+
+.searched-item { background: #fff999; border-bottom: 1px dotted #999; }

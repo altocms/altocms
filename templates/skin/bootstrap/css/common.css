@@ -180,3 +180,5 @@
 .user, .ls-user 	{ font-weight: bold; color: #333; }
 .ls-user:before 	{ content: ''; display: inline-block; width: 14px; height: 14px; margin-right: 3px; background: url(../images/icons.png) -168px 0 no-repeat; vertical-align: middle; }
 .user.inactive 		{ color: #aaa; }
+
+.searched-item { background: #fff999; border-bottom: 1px dotted #999; }

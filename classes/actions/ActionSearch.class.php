@@ -234,19 +234,12 @@ class ActionSearch extends Action {
         }
 
         // Выравнивание по границе слов
-        if (($nFragBegin > 0)
-            && preg_match(
-                '/' . $this->sPatternW . '+$/uisxSXU', mb_substr($sText, 0, $nFragBegin), $m
-            )
-        ) {
+        $sPattern = '/' . $this->sPatternW . '+$/uisxSXU';
+        if (($nFragBegin > 0) && preg_match($sPattern, mb_substr($sText, 0, $nFragBegin), $m, PREG_OFFSET_CAPTURE)) {
             $nFragBegin -= mb_strlen($m[0][0]);
         }
 
-        if (($nFragEnd < $nLenText)
-            && preg_match(
-                '/' . $this->sPatternW . '+/uisxSXU', mb_substr($sText, $nFragEnd), $m
-            )
-        ) {
+        if (($nFragEnd < $nLenText) && preg_match($sPattern, mb_substr($sText, $nFragEnd), $m, PREG_OFFSET_CAPTURE)) {
             $nFragEnd += mb_strlen($m[0][0]) + $m[0][1];
         }
 
