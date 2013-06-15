@@ -85,6 +85,8 @@ abstract class Action extends LsObject {
      */
     protected $sCurrentAction = null;
 
+    protected static $bPost = null;
+
     /**
      * Конструктор
      *
@@ -393,6 +395,33 @@ abstract class Action extends LsObject {
     abstract protected function RegisterEvent();
 
     /**
+     * Были ли ли переданы POST-параметры (или конкретный POST-параметр)
+     *
+     * @param   string|null $sName
+     * @return  bool
+     */
+    protected function IsPost($sName = null) {
+
+        if (is_null(self::$bPost)) {
+            if ($this->Security_ValidateSendForm(false)
+                && isset($_SERVER['REQUEST_METHOD']) && ($_SERVER['REQUEST_METHOD'] == 'POST') && isset($_POST)
+            ) {
+                self::$bPost = true;
+            } else {
+                self::$bPost = false;
+            }
+        }
+        if (self::$bPost) {
+            if ($sName) {
+                return array_key_exists($sName, $_POST);
+            } else {
+                return is_array($_POST);
+            }
+        }
+        return false;
+    }
+
+    /**
      * Получает POST-параметры с валидацией формы
      *
      * @param   string|null $sName
@@ -400,13 +429,14 @@ abstract class Action extends LsObject {
      * @return  mixed
      */
     protected function GetPost($sName = null, $sDefault = null) {
-        if ($this->Security_ValidateSendForm(false) && isset($_POST)) {
+        if ($this->IsPost($sName)) {
             if ($sName) {
-                return isset($_POST[$sName]) ? $_POST[$sName] : $sDefault;
+                return isset($_POST[(string)$sName]) ? $_POST[(string)$sName] : $sDefault;
             } else {
                 return $_POST;
             }
         }
+        return null;
     }
 
     /**
