@@ -43,10 +43,11 @@ class AltoFunc_Array {
      * @return  array
      */
     static public function FlipIntKeys($aData, $xDefValue = 1) {
-        foreach ($aData as $key => $value) {
-            if (is_int($key) && is_string($value)) {
-                unset($aData[$key]);
-                $aData[$value] = $xDefValue;
+        $aData = (array)$aData;
+        foreach ($aData as $nKey => $sValue) {
+            if (is_int($nKey) && is_string($sValue)) {
+                unset($aData[$nKey]);
+                if ($sValue) $aData[$sValue] = $xDefValue;
             }
         }
         return $aData;
