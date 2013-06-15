@@ -216,6 +216,19 @@ class Config extends Storage {
     }
 
     /**
+     * As a method Get() but with default value
+     *
+     * @param string $sKey
+     * @param mixed   $xDefault
+     *
+     * @return mixed|null
+     */
+    static public function Val($sKey = '', $xDefault = null) {
+        $sValue = static::Get($sKey);
+        return is_null($sValue) ? $xDefault : $sValue;
+    }
+
+    /**
      * Получает значение из конфигурации по переданному ключу
      *
      * @param  string   $sKey       - Ключ
