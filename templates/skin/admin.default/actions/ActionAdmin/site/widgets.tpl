@@ -108,10 +108,6 @@
             $('tr[id^=widget-' + widgetId + '] .check-row [type=checkbox]').prop("checked", true);
             $('#form_widgets_list input[name=widget_action]').val(action);
             $('#form_widgets_list').submit();
-            /*
-             console.log($('tr[id^=widget-' + widgetId + '] .check-row [type=checkbox]')[0]);
-             console.log($('[type=checkbox]:checked'));
-             */
         };
 
     </script>

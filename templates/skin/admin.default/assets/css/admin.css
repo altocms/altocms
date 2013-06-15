@@ -486,11 +486,6 @@ i.adm-progress {
     background-position: center;
     background-repeat: no-repeat;
 }
-/*
-.popover.adm_vote .popover-title {
-    display: none;
-}
-*/
 .opacity50 {
     opacity: 0.5;
 }
@@ -540,7 +535,6 @@ h1 .badge, h2 .badge, h3 .badge, h4 .badge {
 .ip-split span.hover {
     text-decoration: underline;
     font-weight: bold;
-    xcolor: #009;
     background: #fff999;
 }
 
@@ -608,7 +602,7 @@ button[name=mblog_category_add_blog], button[name=mblog_category_del_blog] {
 .userfield_admin_name {
     font-weight: bold;
 }
-.b-dashboard-info iframe, .b-dashboard-updates iframe {
+.b-dashboard-news iframe, .b-dashboard-updates iframe {
     border: 0;
     width: 100%;
 }

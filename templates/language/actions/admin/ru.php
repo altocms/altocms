@@ -57,11 +57,12 @@ return array(
     'menu_tools_checkdb' => 'Контроль БД',
 
     /* DASHBOARD */
-    'dashboard_updates_title' => 'Обновления',
-    'dashboard_news_title' => 'Новости Alto CMS',
+    'dashboard_updates_title' => 'Обновления Alto CMS и плагинов',
+    'dashboard_news_title' => 'Информация и новости Alto CMS',
     'dashboard_turn_title' => 'Отключение консоли',
     'dashboard_turn_on_text' => 'Если Вы не хотите получать информацию о новостях Alto CMS и о новых версиях плагинов, Вы можете отключить эту функцию',
     'dashboard_turn_off_text' => 'Вы отключили получение информации с сервера Alto CMS.<br/><br/>Если Вы хотите получать информацию о новостях Alto CMS и о новых версиях плагинов, Вы можете включить эту функцию',
+    'dashboard_add_widget' => 'Вы можете добавить виджеты на эту страницу при помощи кнопки "Добавить"',
     'dashboard_main' => 'Главная',
 
     /* common texts */
@@ -78,6 +79,7 @@ return array(
 
     'no_data' => 'Нет данных',
     'execute' => 'Выполнить',
+    'update' => 'Обновить',
 
     'menu_list' => 'Список',
     'menu_options' => 'Опции',
@@ -520,6 +522,8 @@ return array(
     'widget_showto_admins' => 'Администраторам',
 
     'widget_active' => 'Включен',
+    'widget_turn_on' => 'Включить виджет',
+    'widget_turn_off' => 'Отключить виджет',
 
     /* PLUGINS */
     'plugins_title' => 'Управление плагинами',

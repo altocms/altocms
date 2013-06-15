@@ -10,7 +10,7 @@
 {block name="content-body"}
 
 <div class="span12">
-    <div class="modal" id="userfield_form">
+    <div class="modal uniform" id="userfield_form">
         <header class="modal-header">
             <button type="button" class="close jqmClose">&times;</button>
             <h3 class="modal-title">{$aLang.action.admin.user_field_admin_title_add}</h3>

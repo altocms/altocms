@@ -95,6 +95,8 @@ class ActionAdmin extends Action {
 
         $this->AddEvent('ajaxvote', 'EventAjaxVote');
         $this->AddEvent('ajaxsetprofile', 'EventAjaxSetProfile');
+
+        $this->AddEventPreg('/^ajax$/i', '/^config$/i', 'EventAjaxConfig');
     }
 
     /**
@@ -136,6 +138,34 @@ class ActionAdmin extends Action {
 
     public function EventDashboard() {
 
+        $aDashboardWidgets = array(
+            'admin_dashboard_updates' => array(
+                'name' => 'admin_dashboard_updates',
+                'key' => 'admin.dashboard.updates',
+                'status' => (bool)Config::Val('admin.dashboard.updates', 1),
+                'label' => $this->Lang_Get('action.admin.dashboard_updates_title')
+            ),
+            'admin_dashboard_news' => array(
+                'name' => 'admin_dashboard_news',
+                'key' => 'admin.dashboard.news',
+                'status' => (bool)Config::Val('admin.dashboard.news', 1),
+                'label' => $this->Lang_Get('action.admin.dashboard_news_title')
+            ),
+        );
+
+        if ($this->IsPost('widgets')) {
+            $aWidgets = F::Array_FlipIntKeys($this->GetPost('widgets'));
+            $aConfig = array();
+            foreach ($aDashboardWidgets as $aDashboardWidget) {
+                if (isset($aWidgets[$aDashboardWidget['name']])) {
+                    $aConfig[$aDashboardWidget['key']] = 1;
+                } else {
+                    $aConfig[$aDashboardWidget['key']] = 0;
+                }
+            }
+            Config::WriteCustomConfig($aConfig);
+            Router::Location('admin');
+        }
         $this->_setTitle($this->Lang_Get('action.admin.menu_info_dashboard'));
         $this->SetTemplateAction('info/index');
 
@@ -147,20 +177,9 @@ class ActionAdmin extends Action {
             $aData['p-' . $oPlugin->GetId()] = $oPlugin->GetVersion();
         }
 
-        $bDashboardEnable = Config::Get('admin.dashboard.enable');
-        if (is_null($bDashboardEnable)) {
-            $bDashboardEnable = true;
-        }
-
-        if ($sVal = $this->GetPost('dashboard_enable')) {
-            $aConfig['admin.dashboard.enable'] = ($sVal == 'off') ? false : true;
-            Config::WriteCustomConfig($aConfig);
-            Router::Location('admin/');
-        }
-
-        $this->Viewer_Assign('bDashboardEnable', $bDashboardEnable);
         $this->Viewer_Assign('sUpdatesRequest', base64_encode(http_build_query($aData)));
         $this->Viewer_Assign('sUpdatesRefresh', true);
+        $this->Viewer_Assign('aDashboardWidgets', $aDashboardWidgets);
     }
 
     public function EventReport() {
@@ -820,7 +839,6 @@ class ActionAdmin extends Action {
         $this->_setTitle($this->Lang_Get('action.admin.plugins_title'));
         $this->SetTemplateAction('site/plugins_add');
         $this->Viewer_Assign('sMode', 'add');
-        $this->Lang_AddLangJs(array('action.admin.form_choose_file', 'action.admin.form_no_file_selected'));
     }
 
     /**********************************************************************************/
@@ -2820,6 +2838,23 @@ class ActionAdmin extends Action {
         }
     }
 
+    public function EventAjaxConfig() {
+
+        if ($sKeys = $this->GetPost('keys')) {
+            if (!is_array($sKeys)) {
+                $aKeys = F::ArrayToStr($sKeys);
+            } else {
+                $aKeys = (array)$sKeys;
+            }
+            $aConfig = array();
+            foreach ($aKeys as $sKey) {
+                $sValue = $this->GetPost($sKey);
+                $aConfig[str_replace('--', '.', $sKey)] = $sValue;
+            }
+            Config::WriteCustomConfig($aConfig);
+        }
+    }
+
     /**
      * Выполняется при завершении работы экшена
      *
@@ -2827,6 +2862,7 @@ class ActionAdmin extends Action {
     public function EventShutdown() {
         // * Загружаем в шаблон необходимые переменные
         $this->Viewer_Assign('sMenuItem', $this->sMenuItem);
+        $this->Lang_AddLangJs(array('action.admin.form_choose_file', 'action.admin.form_no_file_selected'));
     }
 
     protected function _setTitle($sTitle) {
@@ -2834,8 +2870,6 @@ class ActionAdmin extends Action {
         $this->Viewer_AddHtmlTitle($sTitle);
 
     }
-
-
 
 }
 

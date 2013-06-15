@@ -237,9 +237,9 @@ var admin = admin || {};
         $(element).append(content);
     }
 
-    $this.dashboardInfo = function (params) {
-        if ($('.b-dashboard-info.refresh').length) {
-            admin.dashboard('.b-dashboard-info', '@info/news/?' + params, 'iframe');
+    $this.dashboardNews = function (params) {
+        if ($('.b-dashboard-news.refresh').length) {
+            admin.dashboard('.b-dashboard-news', '@info/news/?' + params, 'iframe');
         }
     };
 
