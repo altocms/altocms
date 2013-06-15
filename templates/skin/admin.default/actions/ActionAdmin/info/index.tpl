@@ -18,41 +18,44 @@
 
 {block name="content-body"}
 
-        {if $aDashboardWidgets.admin_dashboard_updates.status}
-            <div class="span6" id="admin-dashboard-updates">
-                <div class="b-wbox b-wbox-console">
-                    <div class="b-wbox-header">
-                        <button type="button" class="close tip-top" title="{$aLang.action.admin.content_turn_off}" onclick="return ls.dashboard.updatesOff();">×</button>
-                        <h3 class="b-wbox-header-title">{$aLang.action.admin.dashboard_updates_title}</h3>
-                    </div>
-                    <div class="b-wbox-content b-dashboard-updates {if $sUpdatesRefresh}refresh{/if}">
-                    </div>
+    {if $aDashboardWidgets.admin_dashboard_updates.status}
+        <div class="span6" id="admin-dashboard-updates">
+            <div class="b-wbox b-wbox-console">
+                <div class="b-wbox-header">
+                    <button type="button" class="close tip-top" title="{$aLang.action.admin.content_turn_off}"
+                            onclick="return ls.dashboard.updatesOff();">×
+                    </button>
+                    <h3 class="b-wbox-header-title">{$aLang.action.admin.dashboard_updates_title}</h3>
+                </div>
+                <div class="b-wbox-content b-dashboard-updates {if $sUpdatesRefresh}refresh{/if}">
                 </div>
             </div>
-        {/if}
-        {if $aDashboardWidgets.admin_dashboard_news.status}
+        </div>
+    {/if}
+    {if $aDashboardWidgets.admin_dashboard_news.status}
         <div class="span6" id="admin-dashboard-news">
             <div class="b-wbox b-wbox-console">
                 <div class="b-wbox-header">
-                    <button type="button" class="close tip-top" title="{$aLang.action.admin.content_turn_off}" onclick="return ls.dashboard.newsOff();">×</button>
+                    <button type="button" class="close tip-top" title="{$aLang.action.admin.content_turn_off}"
+                            onclick="return ls.dashboard.newsOff();">×
+                    </button>
                     <h3 class="b-wbox-header-title">{$aLang.action.admin.dashboard_news_title}</h3>
                 </div>
                 <div class="b-wbox-content b-dashboard-news {if $sUpdatesRefresh}refresh{/if}">
                 </div>
             </div>
         </div>
-        {/if}
-        {hook run='admin_info_index_box'}
+    {/if}
+    {hook run='admin_info_index_box'}
 
-        {if $sUpdatesRefresh}
+    {if $sUpdatesRefresh}
         <script>
-            jQuery(function(){
+            jQuery(function () {
                 admin.dashboardNews('');
                 admin.dashboardUpdates('{$sUpdatesRequest}');
             });
         </script>
-        {/if}
-
+    {/if}
     <div class="span12">
         <div class="b-wbox">
             <div class="b-wbox-content">
@@ -60,7 +63,6 @@
             </div>
         </div>
     </div>
-
     <div class="modal uniform" id="dashboard_add_form">
         <header class="modal-header">
             <button type="button" class="close jqmClose">&times;</button>
@@ -70,12 +72,13 @@
         <form method="post" action="">
             <div class="modal-content">
                 <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
-                <input type="hidden" name="widgets[]" value="" />
+                <input type="hidden" name="widgets[]" value=""/>
 
                 {foreach $aDashboardWidgets as $aWidget}
                     <p>
                         <label>
-                            <input type="checkbox" name="widgets[]" value="{$aWidget.name}" {if $aWidget.status}checked{/if} />
+                            <input type="checkbox" name="widgets[]" value="{$aWidget.name}"
+                                   {if $aWidget.status}checked{/if} />
                             {$aWidget.label}
                         </label>
                     </p>
@@ -83,20 +86,19 @@
             </div>
 
             <footer class="modal-footer">
-                <input type="submit" class="btn btn-primary" value="{$aLang.action.admin.save}" />
+                <input type="submit" class="btn btn-primary" value="{$aLang.action.admin.save}"/>
             </footer>
         </form>
     </div>
-
     <script>
         var ls = ls || { };
 
         ls.dashboard = {
-            widgetOff: function(widgetId, widgetKey, widgetName) {
+            widgetOff: function (widgetId, widgetKey, widgetName) {
                 var params = { };
                 params[widgetKey] = false;
-                ls.ajaxConfig(params, function(){
-                    $(widgetId).animate({ width: 0, opacity: 0 }, function(){
+                ls.ajaxConfig(params, function () {
+                    $(widgetId).animate({ width: 0, opacity: 0 }, function () {
                         $(this).remove();
                     });
                     $('[value=' + widgetName + ']')
@@ -106,22 +108,21 @@
                             .removeClass('checked');
                 });
             },
-            newsOff: function() {
+            newsOff: function () {
                 ls.dashboard.widgetOff('#admin-dashboard-news', 'admin.dashboard.news', 'admin_dashboard_news');
                 return false;
             },
-            updatesOff: function() {
+            updatesOff: function () {
                 ls.dashboard.widgetOff('#admin-dashboard-updates', 'admin.dashboard.updates', 'admin_dashboard_updates');
                 return false;
             },
-            showAddForm: function() {
+            showAddForm: function () {
                 $('#dashboard_add_form').jqmShow();
             }
         };
 
-        $(function(){
+        $(function () {
             $('#dashboard_add_form').jqm();
         });
     </script>
-
 {/block}
