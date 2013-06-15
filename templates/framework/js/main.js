@@ -2,29 +2,28 @@ Function.prototype.bind = function(context) {
 	var fn = this;
 	if(jQuery.type(fn) != 'function'){
 		throw new TypeError('Function.prototype.bind: call on non-function');
-	};
+	}
 	if(jQuery.type(context) == 'null'){
 		throw new TypeError('Function.prototype.bind: cant be bound to null');
-	};
+	}
 	return function() {
 		return fn.apply(context, arguments);
 	};
 };
 String.prototype.tr = function(a,p) {
-	var k;
-	var p = typeof(p)=='string' ? p : '';
-	var s = this;
+    var $that = this;
+	p = typeof(p)=='string' ? p : '';
 	jQuery.each(a,function(k){
 		var tk = p?p.split('/'):[];
 		tk[tk.length] = k;
 		var tp = tk.join('/');
 		if(typeof(a[k])=='object'){
-			s = s.tr(a[k],tp);
+			$that = $that.tr(a[k],tp);
 		}else{
-			s = s.replace((new RegExp('%%'+tp+'%%', 'g')), a[k]);
-		};
+			$that = $that.replace((new RegExp('%%'+tp+'%%', 'g')), a[k]);
+		}
 	});
-	return s;
+	return $that;
 };
 
 
@@ -160,7 +159,7 @@ ls.swfupload = (function ($) {
 		this.swfOptions = {
 			// Backend Settings
 			upload_url: aRouter['content']+"upload",
-			post_params: {'SSID':SESSION_ID, 'security_ls_key': LIVESTREET_SECURITY_KEY},
+			post_params: {'SSID':SESSION_ID, 'security_ls_key': ALTO_SECURITY_KEY},
 
 			// File Upload Settings
 			file_types : "*.jpg;*.jpe;*.jpeg;*.png;*.gif;*.JPG;*.JPE;*.JPEG;*.PNG;*.GIF",
@@ -406,7 +405,7 @@ ls.tools = (function ($) {
 
         // pad()
         var pad = function(str, len, chr, leftJustify) {
-            var padding = (str.length >= len) ? '' : Array(1 + len - str.length >>> 0).join(chr);
+            var padding = (str.length >= len) ? '' : new Array(1 + len - str.length >>> 0).join(chr);
             return leftJustify ? str + padding : padding + str;
         };
 
@@ -523,7 +522,7 @@ ls.tools = (function ($) {
         };
 
         return format.replace(regex, doFormat);
-    }
+    };
 	return this;
 }).call(ls.tools || {},jQuery);
 
@@ -544,7 +543,7 @@ ls = (function ($) {
 	this.ajax = function(url,params,callback,more){
 		more=more || {};
 		params=params || {};
-		params.security_ls_key=LIVESTREET_SECURITY_KEY;
+		params.security_ls_key=ALTO_SECURITY_KEY;
 
 		$.each(params,function(k,v){
 			if (typeof(v) == "boolean") {
@@ -584,6 +583,28 @@ ls = (function ($) {
 		return $.ajax(ajaxOptions);
 	};
 
+    /**
+     * Сохранение данных конфигурации
+     *
+     * @param params
+     * @param callback
+     * @param more
+     * @returns {*}
+     */
+    this.ajaxConfig = function(params, callback, more) {
+        var url = aRouter['admin'] + 'ajax/config/';
+        var args = params;
+        params = {
+            keys: []
+        };
+        $.each(args, function(key, val) {
+            key = key.replace(/\./g, '--');
+            params.keys.push(key);
+            params[key] = val;
+        });
+        return ls.ajax(url, params, callback, more);
+    };
+
 	/**
 	* Выполнение AJAX отправки формы, включая загрузку файлов
 	*/
@@ -600,7 +621,7 @@ ls = (function ($) {
 			type: 'POST',
 			url: url,
 			dataType: more.dataType || 'json',
-			data: {security_ls_key: LIVESTREET_SECURITY_KEY},
+			data: {security_ls_key: ALTO_SECURITY_KEY},
 			success: callback || function(){
 				ls.debug("ajax success: ");
 				ls.debug.apply(this,arguments);
@@ -679,7 +700,9 @@ ls.winModal = (function ($) {
     };
 
     this.hide = function (element) {
-        if (!element && this.stack.length) element = this.stack.pop();
+        if (!element && this.stack.length) {
+            element = this.stack.pop();
+        }
         if (element) {
             return $(element).jqmHide();
         }
@@ -773,7 +796,7 @@ ls.ie = (function ($) {
 		if ($('html').hasClass('ie7')) {
 			if (!tinyMCE) $('textarea.mce-editor').addClass('markItUpEditor');
 			
-			inputs.each(function(i){
+			inputs.each(function(){
 				var obj = $(this);
 				if (obj.css('box-sizing') == 'border-box') {
 					obj.css('width', '100%');
