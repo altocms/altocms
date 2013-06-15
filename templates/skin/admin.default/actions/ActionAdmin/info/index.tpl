@@ -92,21 +92,26 @@
         var ls = ls || { };
 
         ls.dashboard = {
-            widgetOff: function(widgetId, widgetKey) {
+            widgetOff: function(widgetId, widgetKey, widgetName) {
                 var params = { };
                 params[widgetKey] = false;
                 ls.ajaxConfig(params, function(){
                     $(widgetId).animate({ width: 0, opacity: 0 }, function(){
                         $(this).remove();
                     });
+                    $('[value=' + widgetName + ']')
+                            .prop('checked', false)
+                            .parents('[class=checked]')
+                            .first()
+                            .removeClass('checked');
                 });
             },
             newsOff: function() {
-                ls.dashboard.widgetOff('#admin-dashboard-news', 'admin.dashboard.news');
+                ls.dashboard.widgetOff('#admin-dashboard-news', 'admin.dashboard.news', 'admin_dashboard_news');
                 return false;
             },
             updatesOff: function() {
-                ls.dashboard.widgetOff('#admin-dashboard-updates', 'admin.dashboard.updates');
+                ls.dashboard.widgetOff('#admin-dashboard-updates', 'admin.dashboard.updates', 'admin_dashboard_updates');
                 return false;
             },
             showAddForm: function() {
