@@ -298,7 +298,7 @@
 				prepare(clicked.beforeInsert);
 				if ((ctrlKey === true && shiftKey === true) || button.multiline === true) {
 					prepare(clicked.beforeMultiInsert);
-				}			
+				}
 				$.extend(hash, { line:1 });
 
 				if ((ctrlKey === true && shiftKey === true)) {
@@ -333,7 +333,7 @@
 				}
 				if ((selection === '' && string.replaceWith === '')) {
 					caretOffset += fixOperaBug(string.block);
-					
+
 					start = caretPosition + string.openWith.length;
 					len = string.block.length - string.openWith.length - string.closeWith.length;
 
@@ -363,7 +363,7 @@
 				if (previewWindow && options.previewAutoRefresh) {
 					refreshPreview(); 
 				}
-																									
+
 				// reinit keyevent
 				shiftKey = altKey = ctrlKey = abort = false;
 			}
@@ -382,9 +382,9 @@
 				}
 				return 0;
 			}
-				
+
 			// add markup
-			function insert(block) {	
+			function insert(block) {
 				if (document.selection) {
 					var newSelection = document.selection.createRange();
 					newSelection.text = block;
@@ -465,7 +465,7 @@
 							iFrame.insertAfter(footer);
 						} else {
 							iFrame.insertBefore(header);
-						}	
+						}
 						previewWindow = iFrame[iFrame.length - 1].contentWindow || frame[iFrame.length - 1];
 					}
 				} else if (altKey === true) {
@@ -489,7 +489,7 @@
  				renderPreview();
 			}
 
-			function renderPreview() {		
+			function renderPreview() {
 				var phtml;
 				if (options.previewParser && typeof options.previewParser === 'function') {
 					var data = options.previewParser( $$.val() );
@@ -519,21 +519,21 @@
 				}
 				return false;
 			}
-			
+
 			function writeInPreview(data) {
-				if (previewWindow.document) {			
+				if (previewWindow.document) {
 					try {
 						sp = previewWindow.document.documentElement.scrollTop
 					} catch(e) {
 						sp = 0;
-					}	
+					}
 					previewWindow.document.open();
 					previewWindow.document.write(data);
 					previewWindow.document.close();
 					previewWindow.document.documentElement.scrollTop = sp;
 				}
 			}
-			
+
 			// set keys pressed
 			function keyPressed(e) { 
 				shiftKey = e.shiftKey;

@@ -88,3 +88,9 @@
         </div>
     </div>
 </div>
+
+<script>
+$(function(){
+    $('#window_upload_img').jqm();
+});
+</script>
