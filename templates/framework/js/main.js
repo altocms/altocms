@@ -811,3 +811,4 @@ ls.ie = (function ($) {
 
 (ls.options || {}).debug=1;
 
+var ALTO_SECURITY_KEY = ALTO_SECURITY_KEY || LIVESTREET_SECURITY_KEY;

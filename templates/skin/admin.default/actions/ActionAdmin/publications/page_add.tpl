@@ -13,7 +13,7 @@
 {include file='inc.modal_load_img.tpl' sToLoad='page_text'}
 
     {if $oConfig->GetValue('view.tinymce')}
-        <script type="text/javascript" src="{cfg name='path.root.engine_lib'}/external/tinymce-jq_3.5.8/tiny_mce.js"></script>
+        <script type="text/javascript" src="{cfg name='path.root.engine_lib'}external/tinymce-jq_3.5.8/tiny_mce.js"></script>
         {literal}
             <script type="text/javascript">
                 jQuery(function () {
