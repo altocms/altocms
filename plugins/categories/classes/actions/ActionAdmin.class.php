@@ -20,6 +20,7 @@ class PluginCategories_ActionAdmin extends PluginCategories_Inherits_ActionAdmin
 	    $this->AddEvent('categories', 'EventCategories');
         $this->AddEvent('categoriesadd', 'EventCategoriesAdd');
         $this->AddEvent('categoriesedit', 'EventCategoriesEdit');
+        $this->AddEvent('categoriesdelete', 'EventCategoriesDelete');
 	}
 	
     // Установка собственного обработчика главной страницы
@@ -53,6 +54,10 @@ class PluginCategories_ActionAdmin extends PluginCategories_Inherits_ActionAdmin
 
         if (getRequest('edit')) {
             $this->Message_AddNoticeSingle($this->Lang_Get('plugin.categories.edit_success'));
+        }
+
+        if (getRequest('delete')) {
+            $this->Message_AddNoticeSingle($this->Lang_Get('plugin.categories.delete_success'));
         }
     }
 
@@ -173,6 +178,30 @@ class PluginCategories_ActionAdmin extends PluginCategories_Inherits_ActionAdmin
 			$this->AddRelations($oCategory);
 
             Router::Location(Router::GetPath('admin') . 'categories/?edit=success');
+        }
+    }
+
+    protected function EventCategoriesDelete() {
+
+        $this->SetTemplate(false);
+
+        $this->Security_ValidateSendForm();
+
+        if (!$this->GetParam(0) || !$oCategory = $this->PluginCategories_Categories_GetByFilter(array('category_id'=>$this->GetParam(0)), 'PluginCategories_ModuleCategories_EntityCategory')) {
+            return parent::EventNotFound();
+        }
+
+        if ($oCategory->Delete()) {
+            /*
+             * Удаляем связи
+             */
+            if($aRelations=$this->PluginCategories_Categories_GetItemsByFilter(array('category_id'=>$this->GetParam(0)),'PluginCategories_ModuleCategories_EntityCategoryRel')){
+                foreach($aRelations as $oRel) {
+                    $oRel->Delete();
+                }
+            }
+
+            Router::Location(Router::GetPath('admin') . 'categories/?delete=success');
         }
     }
 

@@ -34,6 +34,9 @@
 						<a href="{router page='admin'}categoriesedit/{$oCategory->getCategoryId()}/" >
 						<i class="icon-edit tip-top" title="{$aLang.plugin.categories.edit}"></i></a>
 
+                        <a onclick="return confirm('{$aLang.plugin.categories.delete_confirm}')" href="{router page='admin'}categoriesdelete/{$oCategory->getCategoryId()}/?security_ls_key={$ALTO_SECURITY_KEY}">
+						<i class="icon-remove tip-top" title="{$aLang.plugin.categories.delete}"></i></a>
+
 					</td>
 				</tr>
 			{/foreach}
