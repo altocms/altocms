@@ -741,6 +741,11 @@ class ActionBlog extends Action {
             }
         }
 
+        if (!$oTopic->getBlog()) {
+            // Этого быть не должно, но если вдруг, то надо отработать
+            return parent::EventNotFound();
+        }
+
         // * Определяем права на отображение записи из закрытого блога
         if ($oTopic->getBlog()->getType() == 'close') {
             if (!$this->oUserCurrent || !in_array($oTopic->getBlog()->getId(), $this->Blog_GetAccessibleBlogsByUser($this->oUserCurrent))) {
@@ -1801,8 +1806,8 @@ class ActionBlog extends Action {
         $this->Security_ValidateSendForm();
 
         // * Проверяем передан ли в УРЛе номер блога
-        $sBlogId = $this->GetParam(0);
-        if (!$oBlog = $this->Blog_GetBlogById($sBlogId)) {
+        $nBlogId = intval($this->GetParam(0));
+        if (!$nBlogId || (!$oBlog = $this->Blog_GetBlogById($nBlogId))) {
             return parent::EventNotFound();
         }
 
@@ -1816,7 +1821,7 @@ class ActionBlog extends Action {
         if (!$bAccess = $this->ACL_IsAllowDeleteBlog($oBlog, $this->oUserCurrent)) {
             return parent::EventNotFound();
         }
-        $aTopics = $this->Topic_GetTopicsByBlogId($sBlogId);
+        $aTopics = $this->Topic_GetTopicsByBlogId($nBlogId);
         switch ($bAccess) {
             case ModuleACL::CAN_DELETE_BLOG_EMPTY_ONLY :
                 if (is_array($aTopics) && count($aTopics)) {
@@ -1849,7 +1854,7 @@ class ActionBlog extends Action {
                         Router::Location($oBlog->getUrlFull());
                     }
                     // * Перемещаем топики
-                    $this->Topic_MoveTopics($sBlogId, $nNewBlogId);
+                    $this->Topic_MoveTopics($nBlogId, $nNewBlogId);
                 }
                 break;
             default:
@@ -1857,9 +1862,9 @@ class ActionBlog extends Action {
         }
 
         // * Удаляяем блог и перенаправляем пользователя к списку блогов
-        $this->Hook_Run('blog_delete_before', array('sBlogId' => $sBlogId));
-        if ($this->Blog_DeleteBlog($sBlogId)) {
-            $this->Hook_Run('blog_delete_after', array('sBlogId' => $sBlogId));
+        $this->Hook_Run('blog_delete_before', array('sBlogId' => $nBlogId));
+        if ($this->Blog_DeleteBlog($nBlogId)) {
+            $this->Hook_Run('blog_delete_after', array('sBlogId' => $nBlogId));
             $this->Message_AddNoticeSingle(
                 $this->Lang_Get('blog_admin_delete_success'), $this->Lang_Get('attention'), true
             );

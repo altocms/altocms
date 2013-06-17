@@ -262,7 +262,9 @@ class ModuleTopic_MapperTopic extends Mapper {
             $aFilter['order'] = array($aFilter['order']);
         }
 
-        $sql = "
+        $aTopics = array();
+        if ($iCurrPage && $iPerPage) {
+            $sql = "
             SELECT
 			    t.topic_id
 			FROM
@@ -274,13 +276,26 @@ class ModuleTopic_MapperTopic extends Mapper {
 				AND t.blog_id=b.blog_id
 			ORDER BY " . implode(', ', $aFilter['order']) . "
 			LIMIT ?d, ?d";
-        $aTopics = array();
-        if ($aRows = $this->oDb->selectPage($iCount, $sql, ($iCurrPage - 1) * $iPerPage, $iPerPage)) {
-            foreach ($aRows as $aTopic) {
-                $aTopics[] = $aTopic['topic_id'];
+            if ($aRows = $this->oDb->selectPage($iCount, $sql, ($iCurrPage - 1) * $iPerPage, $iPerPage)) {
+                foreach ($aRows as $aTopic) {
+                    $aTopics[] = $aTopic['topic_id'];
+                }
             }
+        } else {
+            $sql = "
+            SELECT
+			    t.topic_id
+			FROM
+			    " . Config::Get('db.table.topic') . " as t,
+				" . Config::Get('db.table.blog') . " as b
+			WHERE
+			    1=1
+				" . $sWhere . "
+				AND t.blog_id=b.blog_id
+			ORDER BY " . implode(', ', $aFilter['order']);
+            $aTopics = $this->oDb->selectCol($sql);
         }
-        return $aTopics;
+        return $aTopics ? $aTopics : array();
     }
 
     /**
