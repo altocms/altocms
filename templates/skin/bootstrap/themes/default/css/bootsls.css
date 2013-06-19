@@ -2,6 +2,9 @@
 body {
     padding-bottom: 0;
 }
+a {
+    cursor: pointer;
+}
 a,a:active,a:hover,a:focus {
     outline: none!important;
 }
@@ -27,6 +30,62 @@ ul, ol {
 }
 
 /*bs*/
+.topic-url {
+    font-size: 11px;
+    margin-bottom: 10px;
+}
+.topic-url a {
+    display: inline-block;
+    background: #F5F5F5;
+    padding: 2px 7px;
+    border-radius: 5px;
+    margin-left: 4px;
+}
+.topic-url a:hover {
+    text-decoration: none;
+}
+.topic-url .link-note {
+    font-size: 9px;
+}
+
+
+.topic-photo-preview {
+    position: relative;
+    width: 500px;
+}
+.topic-photo-preview .topic-photo-count {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    background: rgba(0, 0, 0, 0.7);
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 5px;
+    color: #fff;
+}
+.topic-photo-preview .topic-photo-desc {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.7);
+    width: 100%;
+    box-sizing: border-box;
+    padding: 2px 7px;
+    color: #fff;
+    bottom: 0;
+}
+
+.topic-photo-images ul {
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+.topic-photo-images ul li {
+    float: left;
+    margin-right: 5px;
+}
+.topic-photo-images ul li img {
+    border-radius: 3px;
+}
+
+
 .logos {
     overflow: hidden;
 }
