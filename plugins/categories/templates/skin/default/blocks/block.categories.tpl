@@ -2,7 +2,7 @@
 	<header class="block-header sep">
 		<h3>{$aLang.plugin.categories.categories}</h3>
 	</header>
-	
+
 	<div class="block-content">
 		<div class="js-block-blogs-content">
 			<ul class="block-blog-list">

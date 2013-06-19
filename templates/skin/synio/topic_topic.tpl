@@ -82,7 +82,7 @@
 
 {if $oType->isAllow('question') && $oTopic->getQuestionAnswers()}
 	<div class="poll-zone">
-		<h2>{$aLang.topic_create_question_title}</h2>
+		<h2>{$oTopic->getQuestionTitle()|escape:'html'}</h2>
 		<div id="topic_question_area_{$oTopic->getId()}" class="poll">
 			{if !$oTopic->getUserQuestionIsVote()}
 				<ul class="poll-vote">
