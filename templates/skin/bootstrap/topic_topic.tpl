@@ -5,7 +5,6 @@
 {if $oType->isAllow('link') && $oTopic->getLinkUrl()}
     <div class="topic-url">
         <b>{$aLang.topic_link_create_url}:</b> <a rel="nofollow" href="{router page='content'}go/{$oTopic->getId()}/" title="{$aLang.topic_link_count_jump}: {$oTopic->getLinkCountJump()}">{$oTopic->getLinkUrl()}</a><br/>
-        <span class="link-note">{$aLang.topic_link_count_jump}: {$oTopic->getLinkCountJump()}</span>
     </div>
 {/if}
 
