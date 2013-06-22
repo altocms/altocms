@@ -1660,6 +1660,24 @@ class ActionAdmin extends Action {
         }
     }
 
+    protected function _eventUsersCmdActivate() {
+
+        if (($sUsers = $this->GetPost('users_list'))) {
+            $aUsers = explode(',', str_replace(' ', '', $sUsers));
+        } else {
+            $aUsers = array();
+        }
+        if ($aUsers) {
+            foreach ($aUsers as $sUserLogin) {
+                $oUser = $this->User_GetUserByLogin($sUserLogin);
+                $oUser->setActivate(1);
+                $oUser->setDateActivate(F::Now());
+                $this->User_Update($oUser);
+            }
+        }
+        Router::ReturnBack();
+    }
+
     /**********************************************************************************/
 
     protected function EventInvites() {

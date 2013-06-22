@@ -36,6 +36,9 @@ dd {
 a:hover {
     text-decoration: none;
 }
+.table thead th {
+    vertical-align: middle;
+}
 .btn, .btn-group>.btn, .btn-group>.dropdown-menu {
     font-size: 12px;
     line-height: 20px;

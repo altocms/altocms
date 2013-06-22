@@ -87,10 +87,14 @@
                     {/if}
                     <td>{$oUser->getUserMail()}</td>
                     {if $oConfig->GetValue('general.reg.activation')}
-                        <td>&nbsp;
-                            {if $oUser->getDateActivate()}{$oUser->getDateActivate()}
-                                {else}<a
-                                    href="{router page='admin'}users/activate/{$oUser->getLogin()}/?security_ls_key={$ALTO_SECURITY_KEY}">{$aLang.action.admin.users_activate}</a>{/if}
+                        <td class="center">&nbsp;
+                            {if $oUser->getDateActivate()}
+                                {$oUser->getDateActivate()}
+                            {else}
+                                <a href="#" onclick="admin.user.activate('{$oUser->GetLogin()}')">
+                                    {$aLang.action.admin.users_activate}
+                                </a>
+                            {/if}
                         </td>
                     {/if}
                     <td class="center">
@@ -108,9 +112,12 @@
                                    class="link tip-top" title="{$aLang.action.admin.exclude}"><i class="icon-remove-sign"></i></a>&nbsp;
                             {/if}
                         </td>
-                        {else}
-                        <td class="center">{if $oUser->isBanned()}{if $oUser->getBanLine()}{$oUser->getBanLine()}{else}
-                            unlim{/if}{/if}</td>
+                    {else}
+                        <td class="center">
+                            {if $oUser->isBanned()}
+                                {if $oUser->getBanLine()}{$oUser->getBanLine()}{else}unlim{/if}
+                            {/if}
+                        </td>
                     {/if}
                 </tr>
                 {/foreach}
@@ -191,6 +198,16 @@
             form.submit();
         }
     }
+
+    admin.user.activate = function(login) {
+        var form = $('#user-do-command');
+        if (form.length) {
+            form.find('[name=adm_user_cmd]').val('adm_user_activate');
+            form.find('[name=users_list]').val(login);
+            form.submit();
+        }
+    }
+
 </script>
 
 {/block}
