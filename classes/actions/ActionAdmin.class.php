@@ -234,8 +234,7 @@ class ActionAdmin extends Action {
                 'label' => $this->Lang_Get('action.admin.site_info'),
                 'data' => array(
                     'url' => array('label' => $this->Lang_Get('action.admin.info_site_url'), 'value' => Config::Get('path.root.url'),),
-                    'skin' => array('label' => $this->Lang_Get('action.admin.info_site_skin'), 'value' => Config::Get('view.skin', Config::DEFAULT_CONFIG_INSTANCE),),
-                    //'jslib' => array('label' => $this->Lang_Get('action.admin.info_site_jslib'), 'value' => Config::Get('js.lib'),),
+                    'skin' => array('label' => $this->Lang_Get('action.admin.info_site_skin'), 'value' => $this->Viewer_GetSkin(),),
                     'client' => array('label' => $this->Lang_Get('action.admin.info_site_client'), 'value' => $_SERVER['HTTP_USER_AGENT'],),
                 ),
             ),
@@ -1509,9 +1508,162 @@ class ActionAdmin extends Action {
         $this->Session_Set('adm_userlist_filter', serialize($aFilter));
     }
 
+    protected function _eventUsersCmdMessage() {
+        if ($this->GetPost('send_common_message') == 'yes') {
+            $this->_eventUsersCmdMessageCommon();
+        } else {
+            $this->_eventUsersCmdMessageSeparate();
+        }
+    }
+
+    protected function _eventUsersCmdMessageCommon() {
+        $bOk = true;
+
+        $sTitle = $this->GetPost('talk_title');
+        $sText = $this->Text_Parser(getRequest('talk_text'));
+        $sDate = date(F::Now());
+        $sIp = F::GetUserIp();
+
+        if (($sUsers = $this->GetPost('users_list'))) {
+            $aUsers = explode(',', str_replace(' ', '', $sUsers));
+        } else {
+            $aUsers = array();
+        }
+
+        if ($aUsers) {
+            if ($bOk && $aUsers) {
+                $oTalk = Engine::GetEntity('Talk_Talk');
+                $oTalk->setUserId($this->oUserCurrent->getId());
+                $oTalk->setUserIdLast($this->oUserCurrent->getId());
+                $oTalk->setTitle($sTitle);
+                $oTalk->setText($sText);
+                $oTalk->setDate($sDate);
+                $oTalk->setDateLast($sDate);
+                $oTalk->setUserIp($sIp);
+                $oTalk = $this->Talk_AddTalk($oTalk);
+
+                // добавляем себя в общий список
+                $aUsers[] = $this->oUserCurrent->getLogin();
+                // теперь рассылаем остальным
+                foreach ($aUsers as $sUserLogin) {
+                    if ($sUserLogin && ($oUserRecipient = $this->User_GetUserByLogin($sUserLogin))) {
+                        $oTalkUser = Engine::GetEntity('Talk_TalkUser');
+                        $oTalkUser->setTalkId($oTalk->getId());
+                        $oTalkUser->setUserId($oUserRecipient->GetId());
+                        if ($sUserLogin != $this->oUserCurrent->getLogin()) {
+                            $oTalkUser->setDateLast(null);
+                        } else {
+                            $oTalkUser->setDateLast($sDate);
+                        }
+                        $this->Talk_AddTalkUser($oTalkUser);
+
+                        // Отправляем уведомления
+                        if ($sUserLogin != $this->oUserCurrent->getLogin() || getRequest('send_copy_self')) {
+                            $oUserToMail = $this->User_GetUserById($oUserRecipient->GetId());
+                            $this->Notify_SendTalkNew($oUserToMail, $this->oUserCurrent, $oTalk);
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($bOk) {
+            $this->Message_AddNotice($this->Lang_Get('action.admin.msg_sent_ok'), null, true);
+        } else {
+            $this->Message_AddError($this->Lang_Get('system_error'), null, true);
+        }
+    }
+
+    protected function _eventUsersCmdMessageSeparate() {
+        $bOk = true;
+
+        $sTitle = getRequest('talk_title');
+
+        $sText = $this->Text_Parser(getRequest('talk_text'));
+        $sDate = date(F::Now());
+        $sIp = F::GetUserIp();
+
+        if (($sUsers = $this->GetPost('users_list'))) {
+            $aUsers = explode(',', str_replace(' ', '', $sUsers));
+        } else {
+            $aUsers = array();
+        }
+
+        if ($aUsers) {
+            // Если указано, то шлем самому себе со списком получателей
+            if (getRequest('send_copy_self')) {
+                $oSelfTalk = Engine::GetEntity('Talk_Talk');
+                $oSelfTalk->setUserId($this->oUserCurrent->getId());
+                $oSelfTalk->setUserIdLast($this->oUserCurrent->getId());
+                $oSelfTalk->setTitle($sTitle);
+                $oSelfTalk->setText($this->Text_Parser('To: <i>' . $sUsers . '</i>' . "\n\n" . 'Msg: ' . $this->GetPost('talk_text')));
+                $oSelfTalk->setDate($sDate);
+                $oSelfTalk->setDateLast($sDate);
+                $oSelfTalk->setUserIp($sIp);
+                if (($oSelfTalk = $this->Talk_AddTalk($oSelfTalk))) {
+                    $oTalkUser = Engine::GetEntity('Talk_TalkUser');
+                    $oTalkUser->setTalkId($oSelfTalk->getId());
+                    $oTalkUser->setUserId($this->oUserCurrent->getId());
+                    $oTalkUser->setDateLast($sDate);
+                    $this->Talk_AddTalkUser($oTalkUser);
+
+                    // уведомление по e-mail
+                    $oUserToMail = $this->oUserCurrent;
+                    $this->Notify_SendTalkNew($oUserToMail, $this->oUserCurrent, $oSelfTalk);
+                } else {
+                    $bOk = false;
+                }
+            }
+
+            if ($bOk) {
+                // теперь рассылаем остальным - каждому отдельное сообщение
+                foreach ($aUsers as $sUserLogin) {
+                    if ($sUserLogin && $sUserLogin != $this->oUserCurrent->getLogin() && ($oUserRecipient = $this->User_GetUserByLogin($sUserLogin))) {
+                        $oTalk = Engine::GetEntity('Talk_Talk');
+                        $oTalk->setUserId($this->oUserCurrent->getId());
+                        $oTalk->setUserIdLast($this->oUserCurrent->getId());
+                        $oTalk->setTitle($sTitle);
+                        $oTalk->setText($sText);
+                        $oTalk->setDate($sDate);
+                        $oTalk->setDateLast($sDate);
+                        $oTalk->setUserIp($sIp);
+                        if (($oTalk = $this->Talk_AddTalk($oTalk))) {
+                            $oTalkUser = Engine::GetEntity('Talk_TalkUser');
+                            $oTalkUser->setTalkId($oTalk->getId());
+                            $oTalkUser->setUserId($oUserRecipient->GetId());
+                            $oTalkUser->setDateLast(null);
+                            $this->Talk_AddTalkUser($oTalkUser);
+
+                            // Отправка самому себе, чтобы можно было читать ответ
+                            $oTalkUser = Engine::GetEntity('Talk_TalkUser');
+                            $oTalkUser->setTalkId($oTalk->getId());
+                            $oTalkUser->setUserId($this->oUserCurrent->getId());
+                            $oTalkUser->setDateLast($sDate);
+                            $this->Talk_AddTalkUser($oTalkUser);
+
+                            // Отправляем уведомления
+                            $oUserToMail = $this->User_GetUserById($oUserRecipient->GetId());
+                            $this->Notify_SendTalkNew($oUserToMail, $this->oUserCurrent, $oTalk);
+                        } else {
+                            $bOk = false;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($bOk) {
+            $this->Message_AddNotice($this->Lang_Get('action.admin.msg_sent_ok'), null, true);
+        } else {
+            $this->Message_AddError($this->Lang_Get('system_error'), null, true);
+        }
+    }
+
     /**********************************************************************************/
 
     protected function EventInvites() {
+
         $this->_setTitle($this->Lang_Get('action.admin.invites_title'));
         $this->SetTemplateAction('users/invites_list');
 
@@ -1535,6 +1687,7 @@ class ActionAdmin extends Action {
     }
 
     protected function _eventInvitesList() {
+
         if (getRequest('action', null, 'post') == 'delete') {
             $this->_eventInvitesDelete();
         }

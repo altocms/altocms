@@ -455,9 +455,10 @@ class ModuleNotify extends Module {
         /**
          * Передаём в шаблон переменные
          */
-        foreach ($aAssign as $k => $v) {
-            $this->oViewerLocal->Assign($k, $v);
+        foreach ($aAssign as $sVarName => $sValue) {
+            $this->oViewerLocal->Assign($sVarName, $sValue);
         }
+
         /**
          * Формируем шаблон
          */
@@ -570,9 +571,9 @@ class ModuleNotify extends Module {
                 ? strtolower($aMatches[1])
                 : strtolower($sPluginName);
 
-            $sDir = Plugin::GetTemplatePath($sPluginName) . 'notify/';
+            $sDir = Plugin::GetTemplateDir($sPluginName) . 'notify/';
         } else {
-            $sDir = rtrim(Config::Get('path.smarty.template'), '/') . '/notify/';
+            $sDir = F::File_NormPath($this->Viewer_GetTemplateDir() . '/notify/');
         }
 
         // Ищем шаблон по текущему языку

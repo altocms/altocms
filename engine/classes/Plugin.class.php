@@ -89,9 +89,9 @@ abstract class Plugin extends LsObject {
      */
     final function GetInherits() {
         $aReturn = array();
-        if (is_array($this->aInherits) and count($this->aInherits)) {
+        if (is_array($this->aInherits) && count($this->aInherits)) {
             foreach ($this->aInherits as $sObjectName => $aParams) {
-                if (is_array($aParams) and count($aParams)) {
+                if (is_array($aParams) && count($aParams)) {
                     foreach ($aParams as $sFrom => $sTo) {
                         if (is_int($sFrom)) {
                             $sFrom = $sTo;
@@ -302,12 +302,13 @@ abstract class Plugin extends LsObject {
      * @return string|null
      */
     static public function GetTemplateDir($sName) {
+
         $sName = preg_match('/^Plugin([\w]+)(_[\w]+)?$/Ui', $sName, $aMatches)
             ? strtolower($aMatches[1])
             : strtolower($sName);
         if (!isset(self::$aTemplatePath[$sName])) {
             $aPaths = glob(Config::Get('path.root.server') . '/plugins/' . $sName . '/templates/skin/*', GLOB_ONLYDIR);
-            $sTemplateName = ($aPaths and in_array(Config::Get('view.skin'), array_map('basename', $aPaths)))
+            $sTemplateName = ($aPaths && in_array(Config::Get('view.skin'), array_map('basename', $aPaths)))
                 ? Config::Get('view.skin')
                 : 'default';
 
@@ -340,7 +341,7 @@ abstract class Plugin extends LsObject {
             : strtolower($sName);
         if (!isset(self::$aTemplateWebPath[$sName])) {
             $aPaths = glob(Config::Get('path.root.server') . '/plugins/' . $sName . '/templates/skin/*', GLOB_ONLYDIR);
-            $sTemplateName = ($aPaths and in_array(Config::Get('view.skin'), array_map('basename', $aPaths)))
+            $sTemplateName = ($aPaths && in_array(Config::Get('view.skin'), array_map('basename', $aPaths)))
                 ? Config::Get('view.skin')
                 : 'default';
 

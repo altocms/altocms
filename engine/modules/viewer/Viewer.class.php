@@ -631,6 +631,15 @@ class ModuleViewer extends Module {
     }
 
     /**
+     * Создает и возвращает объект Smarty
+     *
+     * @return Smarty
+     */
+    public function CreateSmartyObject() {
+        return new Smarty();
+    }
+
+    /**
      * Возвращает объект Smarty
      *
      * @return Smarty
@@ -640,12 +649,31 @@ class ModuleViewer extends Module {
     }
 
     /**
-     * Создает и возвращает объект Smarty
+     * Возвращает скин
      *
-     * @return Smarty
+     * @param   bool    $bSiteSkin - если задано, то возвращает скин, установленный для сайта (игнорирует скин экшена)
+     *
+     * @return  string
      */
-    public function CreateSmartyObject() {
-        return new Smarty();
+    public function GetSkin($bSiteSkin = true) {
+        if ($bSiteSkin)
+            return Config::Get('view.skin', Config::DEFAULT_CONFIG_INSTANCE);
+        else
+            return Config::Get('view.skin');
+    }
+
+    /**
+     * Возвращает путь к папке скина
+     *
+     * @param   bool    $bSiteSkin - если задано, то возвращает скин, установленный для сайта (игнорирует скин экшена)
+     *
+     * @return  string
+     */
+    public function GetTemplateDir($bSiteSkin = true) {
+        if ($bSiteSkin)
+            return F::File_NormPath(Config::Get('path.skins.dir') . '/' . $this->GetSkin(true));
+        else
+            return Config::Get('path.smarty.template');
     }
 
     /**
