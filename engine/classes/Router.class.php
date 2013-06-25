@@ -888,6 +888,7 @@ class Router extends LsObject {
     static public function GetTopicUrlPattern() {
         $sUrlPattern = self::GetTopicUrlMask();
         if ($sUrlPattern) {
+            $sUrlPattern = preg_quote($sUrlPattern);
             $aReplace = array(
                 '%year%' => '\d{4}',
                 '%month%' => '\d{2}',
@@ -900,7 +901,11 @@ class Router extends LsObject {
                 '%topic_id%' => '(\d+)',
                 '%topic_url%' => '([\w\-]+)',
             );
-            $sUrlPattern = '~^' . strtr(preg_quote($sUrlPattern), $aReplace) . '~i';
+            // Если последним символом в шаблоне идет слеш, то надо его сделать опциональным
+            if (substr($sUrlPattern, -1) == '/') {
+                $sUrlPattern .= '?';
+            }
+            $sUrlPattern = '~^' . strtr($sUrlPattern, $aReplace) . '$~i';
         }
         return $sUrlPattern;
     }
