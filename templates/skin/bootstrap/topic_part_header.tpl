@@ -20,7 +20,7 @@
                 <a href="{$oTopic->getUrlEdit()}" title="{$aLang.topic_edit}" class="actions-edit"><i class="icon-edit"></i></a>
             {/if}
             {if $oUserCurrent and ($oUserCurrent->isAdministrator() or $oBlog->getUserIsAdministrator() or $oBlog->getOwnerId()==$oUserCurrent->getId())}
-                <a href="{router page='content'}delete/{$oTopic->getId()}/?security_ls_key={$LIVESTREET_SECURITY_KEY}" title="{$aLang.topic_delete}" onclick="return confirm('{$aLang.topic_delete_confirm}');" class="actions-delete"><i class="icon-remove"></i></a>
+                <a href="{router page='content'}delete/{$oTopic->getId()}/?security_ls_key={$ALTO_SECURITY_KEY}" title="{$aLang.topic_delete}" onclick="return confirm('{$aLang.topic_delete_confirm}');" class="actions-delete"><i class="icon-remove"></i></a>
             {/if}
             </div>
         {/if}

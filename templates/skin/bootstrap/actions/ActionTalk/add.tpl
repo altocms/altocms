@@ -18,7 +18,7 @@
 <form action="" method="POST" enctype="multipart/form-data">
 	{hook run='form_add_talk_begin'}
 
-	<input type="hidden" name="security_ls_key" value="{$LIVESTREET_SECURITY_KEY}" />
+	<input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}" />
 
 	<p><label for="talk_users">{$aLang.talk_create_users}:</label>
 	<input type="text" class="input-text input-width-full autocomplete-users-sep" id="talk_users" name="talk_users" value="{$_aRequest.talk_users}" /></p>

@@ -14,7 +14,7 @@
 	{hook run='form_add_topic_topic_begin'}
 
 	
-	<input type="hidden" name="security_ls_key" value="{$LIVESTREET_SECURITY_KEY}" />
+	<input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}" />
 
 	
 	<p><label for="blog_id">{$aLang.topic_create_blog}</label>

@@ -43,7 +43,7 @@
 	<footer class="topic-footer">
 		<ul class="topic-info">
 			<li class="topic-info-favourite"><a href="#" onclick="return ls.favourite.toggle({$oTalk->getId()},this,'talk');" class="favourite {if $oTalk->getIsFavourite()}active{/if}"></a></li>
-			<li class="delete"><a href="{router page='talk'}delete/{$oTalk->getId()}/?security_ls_key={$LIVESTREET_SECURITY_KEY}" onclick="return confirm('{$aLang.talk_inbox_delete_confirm}');" class="delete">{$aLang.delete}</a></li>
+			<li class="delete"><a href="{router page='talk'}delete/{$oTalk->getId()}/?security_ls_key={$ALTO_SECURITY_KEY}" onclick="return confirm('{$aLang.talk_inbox_delete_confirm}');" class="delete">{$aLang.delete}</a></li>
 			{hook run='talk_read_info_item' talk=$oTalk}
 		</ul>
 	</footer>

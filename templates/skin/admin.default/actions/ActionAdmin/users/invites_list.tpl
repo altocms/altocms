@@ -24,7 +24,7 @@ aceAdmin.sort = function(sort, order) {
 {/literal}
 
 <form method="post" action="" id="admin_form_invite_list">
-    <input type="hidden" name="security_ls_key" value="{$LIVESTREET_SECURITY_KEY}" />
+    <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}" />
 
 {if $aInvites}
 {include file='inc.paging.tpl'}

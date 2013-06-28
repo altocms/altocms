@@ -43,7 +43,7 @@
                                 <li><a href="{router page='settings'}profile/"><i class="icon-wrench"></i>{$aLang.user_settings}</a></li>
                                 {hook run='userbar_item'}
                                 <li class="divider"></li>
-                                <li><a href="{router page='login'}exit/?security_ls_key={$LIVESTREET_SECURITY_KEY}"><i class="icon-ban-circle"></i>{$aLang.exit}</a></li>
+                                <li><a href="{router page='login'}exit/?security_ls_key={$ALTO_SECURITY_KEY}"><i class="icon-ban-circle"></i>{$aLang.exit}</a></li>
                             </ul>
                         </li>
                     {else}
@@ -120,7 +120,7 @@
                                 <li><a href="{router page='settings'}profile/"><i class="icon-wrench"></i>{$aLang.user_settings}</a></li>
                                 {hook run='userbar_item'}
                                 <li class="divider"></li>
-                                <li><a href="{router page='login'}exit/?security_ls_key={$LIVESTREET_SECURITY_KEY}"><i class="icon-ban-circle"></i>{$aLang.exit}</a></li>
+                                <li><a href="{router page='login'}exit/?security_ls_key={$ALTO_SECURITY_KEY}"><i class="icon-ban-circle"></i>{$aLang.exit}</a></li>
                             </ul>
                         </li>
                     {else}

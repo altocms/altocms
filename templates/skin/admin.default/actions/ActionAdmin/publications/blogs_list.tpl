@@ -31,6 +31,7 @@
                     <th>Date</th>
                     <th>Type</th>
                     <th>Users</th>
+                    <th>Topics</th>
                     <th>Votes</th>
                     <th>Rating</th>
                     <th class="span2">&nbsp;</th>
@@ -50,6 +51,7 @@
                         <td class="center">{$oBlog->GetBlogDateAdd()}</td>
                         <td class="center">{if $oBlog->GetType()!='personal'}<b>{/if}{$oBlog->GetType()}{if $oBlog->GetType()!='personal'}</b>{/if}</td>
                         <td class="number">{$oBlog->GetBlogCountUser()}</td>
+                        <td class="number">{$oBlog->GetBlogCountTopic()}</td>
                         <td class="number">{$oBlog->GetBlogCountVote()}</td>
                         <td class="number">{$oBlog->GetBlogRating()}</td>
                         <td class="center">
@@ -72,5 +74,44 @@
     {include file="inc.paging.tpl"}
 
 </div>
+
+    <div id="blog_delete_form" class="modal">
+        <header class="modal-header">
+            <h3>{$aLang.blog_admin_delete_title}</h3>
+            <a href="#" class="close jqmClose"></a>
+        </header>
+
+
+        <form action="{router page='blog'}delete/{$oBlog->getId()}/" method="POST" class="modal-content">
+            <p><label for="topic_move_to">{$aLang.blog_admin_delete_move}:</label>
+                <select name="topic_move_to" id="topic_move_to" class="input-width-full">
+                    <option value="-1">{$aLang.blog_delete_clear}</option>
+                    {if $aBlogs}
+                        <optgroup label="{$aLang.blogs}">
+                            {foreach from=$aBlogs item=oBlogDelete}
+                                <option value="{$oBlogDelete->getId()}">{$oBlogDelete->getTitle()|escape:'html'}</option>
+                            {/foreach}
+                        </optgroup>
+                    {/if}
+                </select></p>
+
+            <input type="hidden" value="{$ALTO_SECURITY_KEY}" name="security_ls_key" />
+            <button type="submit" class="btn btn-primary">{$aLang.blog_delete}</button>
+        </form>
+    </div>
+
+<script>
+    var admin = admin || { };
+    admin.blog = admin.blog || { };
+    var path = '{router page='blog'}delete/';
+    admin.blog.del = function(winTitle, blogTitle, blogId) {
+        var form = $('#blog_delete_form');
+        if (form.length) {
+            form.find('.modal-header h3').text(winTitle);
+            form.find('form').text(winTitle);
+        }
+    }
+    $('#blog_delete_form').jqm({trigger: '#blog_delete_show', toTop: true});
+</script>
 
 {/block}

@@ -31,7 +31,7 @@
 				{/if}
 			</select></p>
 			
-			<input type="hidden" value="{$LIVESTREET_SECURITY_KEY}" name="security_ls_key" />
+			<input type="hidden" value="{$ALTO_SECURITY_KEY}" name="security_ls_key" />
 			<button type="submit" class="btn btn-primary">{$aLang.blog_delete}</button>
 		</form>
 	</div>
@@ -76,7 +76,7 @@
                             {if $oUserCurrent->isAdministrator()}
                                 <a href="#" title="{$aLang.blog_delete}" id="blog_delete_show" class="delete"><i class="icon-remove"></i>{$aLang.blog_delete}</a>
                             {else}
-                                <a href="{router page='blog'}delete/{$oBlog->getId()}/?security_ls_key={$LIVESTREET_SECURITY_KEY}" title="{$aLang.blog_delete}" onclick="return confirm('{$aLang.blog_admin_delete_confirm}');" ><i class="icon-remove"></i>{$aLang.blog_delete}</a>
+                                <a href="{router page='blog'}delete/{$oBlog->getId()}/?security_ls_key={$ALTO_SECURITY_KEY}" title="{$aLang.blog_delete}" onclick="return confirm('{$aLang.blog_admin_delete_confirm}');" ><i class="icon-remove"></i>{$aLang.blog_delete}</a>
                             {/if}
                         </li>
                     </ul>

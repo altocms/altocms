@@ -12,7 +12,7 @@
 
 <form action="" method="POST" enctype="multipart/form-data">
 	{hook run='form_settings_invite_begin'}
-	<input type="hidden" name="security_ls_key" value="{$LIVESTREET_SECURITY_KEY}" />
+	<input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}" />
 
 	<p>
 		{$aLang.settings_invite_available}: <strong>{if $oUserCurrent->isAdministrator()}{$aLang.settings_invite_many}{else}{$iCountInviteAvailable}{/if}</strong><br />
