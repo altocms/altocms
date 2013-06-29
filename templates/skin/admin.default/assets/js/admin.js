@@ -161,18 +161,18 @@ var admin = admin || {};
         }
         if (options.header) {
             if (typeof(options.header) == 'string') {
-                header = $('<div class="modal-header">' + options.header + '</div>');
+                header = $('<div class="modal-header"><h3>' + options.header + '</h3></div>');
             } else {
                 header = $('<div class="modal-header" />').wrapInner(options.header);
             }
         }
         if (options.footer) {
-            if (typeof(options.footer) == 'string') { console.log(1);
+            if (typeof(options.footer) == 'string') {
                 footer = $('<div class="modal-footer">' + options.footer + '</div>');
             } else {
                 footer = $('<div class="modal-footer" />').wrapInner(options.footer);
             }
-        } console.log(footer);
+        }
         var modal = $('<div class="modal" style="display: none;" />');
         if (header) modal.append(header);
         modal.append(content);

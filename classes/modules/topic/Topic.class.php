@@ -2203,10 +2203,6 @@ class ModuleTopic extends Module {
      * @return bool
      */
     public function MoveTopics($sBlogId, $sBlogIdNew) {
-        $this->Cache_Clean(
-            Zend_Cache::CLEANING_MODE_MATCHING_TAG,
-            array("topic_update", "topic_new_blog_{$sBlogId}", "topic_new_blog_{$sBlogIdNew}")
-        );
         if ($res = $this->oMapperTopic->MoveTopics($sBlogId, $sBlogIdNew)) {
             // перемещаем теги
             $this->oMapperTopic->MoveTopicsTags($sBlogId, $sBlogIdNew);
@@ -2216,6 +2212,10 @@ class ModuleTopic extends Module {
             $this->Comment_MoveTargetParentOnline($sBlogId, 'topic', $sBlogIdNew);
             return $res;
         }
+        $this->Cache_Clean(
+            Zend_Cache::CLEANING_MODE_MATCHING_TAG,
+            array("topic_update", "topic_new_blog_{$sBlogId}", "topic_new_blog_{$sBlogIdNew}")
+        );
         return false;
     }
 

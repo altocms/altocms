@@ -320,7 +320,11 @@ return array(
 
     'blog_edit' => 'Редактировать блог',
     'blog_delete' => 'Удалить блог',
-    'blog_del_confirm' => 'Блог &quot;%%blog%%&quot; будет удален навсегда со всем его содержимым. \nПродолжить?',
+    'blog_del_confirm' => 'Этот блог будет удален: ',
+    'blog_del_topics' => 'Статей в блоге: ',
+    'blog_del_topics_choose' => 'Что делать со статьями блога?',
+    'blog_del_error' => 'Ошибка удаления блога',
+    'blog_del_move_error' => 'Ошибка перемещения статей в новый блог',
 
     'topic_edit' => 'Редактировать статью',
     'topic_delete' => 'Удалить статью',
@@ -680,9 +684,10 @@ return array(
     'pages_admin_active_no' => 'нет',
     'pages_admin_action' => 'Действие',
     'pages_admin_action_edit' => 'Редактировать',
-    'pages_admin_action_delete' => 'Удалить',
+    'pages_admin_action_delete' => 'Удалить страницу',
     'pages_admin_action_delete_ok' => 'Страница удалена',
     'pages_admin_action_delete_error' => 'Возникла ошибка при удалении страницы',
+    'pages_admin_action_delete_message' => 'Эта страница будет удалена:',
     'pages_admin_action_delete_confirm' => 'Вы действительно хотите удалить эту страницу со всеми вложенными страницами?',
 
     'pages' => 'Статические страницы',

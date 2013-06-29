@@ -398,7 +398,7 @@ class ModuleACL extends Module {
 	 *
 	 * @param ModuleBlog_EntityBlog $oBlog	Блог
 	 * @param ModuleUser_EntityUser $oUser	Пользователь
-	 * @return bool
+	 * @return bool|int
 	 */
 	public function IsAllowDeleteBlog($oBlog,$oUser) {
 		/**

@@ -1124,8 +1124,8 @@ class ActionAdmin extends Action {
         $sMode = 'all';
 
         $sCmd = $this->GetPost('cmd');
-        if ($sCmd == 'delete') {
-            $this->_blogDelete();
+        if ($sCmd == 'delete_blog') {
+            $this->_eventBlogsDelete();
         }
 
         // * Передан ли номер страницы
@@ -1143,27 +1143,66 @@ class ActionAdmin extends Action {
             Router::GetPath('admin') . 'blogs/list/' . $sMode);
 
         $aBlogTypes = $this->Blog_GetBlogTypes();
+        $aAllBlogs = $this->Blog_GetBlogs();
+        foreach($aAllBlogs as $nBlogId=>$oBlog) {
+            $aAllBlogs[$nBlogId] = $oBlog->GetTitle();
+        }
 
         $this->Viewer_Assign('nBlogsTotal', $aResult['count']);
         $this->Viewer_Assign('aBlogTypes', $aBlogTypes);
         $this->Viewer_Assign('aBlogs', $aResult['collection']);
+        $this->Viewer_Assign('aAllBlogs', $aAllBlogs);
 
         $this->Viewer_Assign('sMode', $sMode);
         $this->Viewer_Assign('aPaging', $aPaging);
     }
 
     protected function _eventBlogsDelete() {
-        $bOk = false;
-        $nBlogId = $this->_GetRequestCheck('blog_id');
-        if ($nBlogId && ($oBlog = $this->Blog_GetBlogById($nBlogId))) {
-            $bOk = $this->PluginAceadminpanel_Admin_DelBlog($nBlogId);
+
+        $nBlogId = $this->GetPost('delete_blog_id');
+        if (!$nBlogId || !($oBlog = $this->Blog_GetBlogById($nBlogId))) {
+            $this->Message_AddError($this->Lang_Get('action.admin.blog_del_error'));
+            return false;
         }
-        if ($bOk) {
-            $this->Message_AddNotice($this->Lang_Get('action.admin.action_ok'), 'blog_del');
+
+        if ($this->GetPost('delete_topics') !== 'delete') {
+            // Топики перемещаются в новый блог
+            $aTopics = $this->Topic_GetTopicsByBlogId($nBlogId);
+            $nNewBlogId = intval($this->GetPost('topic_move_to'));
+            if (($nNewBlogId > 0) && is_array($aTopics) && count($aTopics)) {
+                if (!$oBlogNew = $this->Blog_GetBlogById($nNewBlogId)) {
+                    $this->Message_AddError($this->Lang_Get('blog_admin_delete_move_error'), $this->Lang_Get('error'));
+                    return false;
+                }
+                // * Если выбранный блог является персональным, возвращаем ошибку
+                if ($oBlogNew->getType() == 'personal') {
+                    $this->Message_AddError($this->Lang_Get('blog_admin_delete_move_personal'), $this->Lang_Get('error'));
+                    return false;
+                }
+                // * Перемещаем топики
+                if (!$this->Topic_MoveTopics($nBlogId, $nNewBlogId)) {
+                    $this->Message_AddError($this->Lang_Get('action.admin.blog_del_move_error'), $this->Lang_Get('error'));
+                    return false;
+                }
+            } else {
+                $this->Message_AddError($this->Lang_Get('action.admin.blog_del_move_error'), $this->Lang_Get('error'));
+                return false;
+            }
+        }
+
+        // * Удаляяем блог
+        $this->Hook_Run('blog_delete_before', array('sBlogId' => $nBlogId));
+        if ($this->Blog_DeleteBlog($nBlogId)) {
+            $this->Hook_Run('blog_delete_after', array('sBlogId' => $nBlogId));
+            $this->Message_AddNoticeSingle(
+                $this->Lang_Get('blog_admin_delete_success'), $this->Lang_Get('attention'), true
+            );
         } else {
-            $this->Message_AddError($this->Lang_Get('action.admin.action_err'), 'blog_del');
+            $this->Message_AddNoticeSingle(
+                $this->Lang_Get('action.admin.blog_del_error'), $this->Lang_Get('error'), true
+            );
         }
-        $this->_gotoBackPage();
+        Router::ReturnBack();
     }
 
     /**********************************************************************************/

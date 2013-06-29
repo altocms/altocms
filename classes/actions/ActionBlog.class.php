@@ -1818,11 +1818,12 @@ class ActionBlog extends Action {
         }
 
         // * проверяем есть ли право на удаление топика
-        if (!$bAccess = $this->ACL_IsAllowDeleteBlog($oBlog, $this->oUserCurrent)) {
+        if (!$nAccess = $this->ACL_IsAllowDeleteBlog($oBlog, $this->oUserCurrent)) {
             return parent::EventNotFound();
         }
         $aTopics = $this->Topic_GetTopicsByBlogId($nBlogId);
-        switch ($bAccess) {
+
+        switch ($nAccess) {
             case ModuleACL::CAN_DELETE_BLOG_EMPTY_ONLY :
                 if (is_array($aTopics) && count($aTopics)) {
                     $this->Message_AddErrorSingle(

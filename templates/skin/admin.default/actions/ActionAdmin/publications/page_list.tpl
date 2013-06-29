@@ -103,7 +103,7 @@
     admin.confirmDelete = function(id, title) {
         admin.confirm({
             header: '{$aLang.action.admin.pages_admin_action_delete}',
-            content: '«' + title + '»: {$aLang.action.admin.pages_admin_action_delete_confirm}',
+            content: '{$aLang.action.admin.pages_admin_action_delete_message} "' + title + '"<br/>{$aLang.action.admin.pages_admin_action_delete_confirm}',
             onConfirm: function() {
                 document.location = "{router page='admin'}pages/delete/" + id + "/?security_ls_key={$ALTO_SECURITY_KEY}";
             }
