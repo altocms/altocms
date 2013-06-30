@@ -6,7 +6,7 @@
 /*
  * $config['widgets'][] = array(
     'name' => 'stream',     // виджет
-    'group' => 'right',     // имя группы
+    'wgroup' => 'right',    // имя группы
     'priority' => 100,      // приоритет - чем выше приоритет, тем раньше в группе выводится виджет
                             // виджеты с приоритетом 'top' выводятся раньше других в группе
     'on' => array('index', 'blog'), // где показывать виджет
@@ -22,7 +22,7 @@
 // Прямой эфир
 $config['widgets'][] = array(
     'name' => 'stream',     // исполняемый виджет Stream
-    'group' => 'right',     // группа, куда нужно добавить виджет
+    'wgroup' => 'right',    // группа, куда нужно добавить виджет
     'priority' => 100,      // приоритет
     'action' => array(
         'index',
@@ -37,7 +37,7 @@ $config['widgets'][] = array(
 
 $config['widgets'][] = array(
     'name' => 'widgets/widget.blogInfo.tpl',  // шаблонный виджет
-    'group' => 'right',
+    'wgroup' => 'right',
     'action' => array(
         'content' => array('{add}', '{edit}'),
     ),
@@ -46,7 +46,7 @@ $config['widgets'][] = array(
 // Теги
 $config['widgets'][] = array(
     'name' => 'tags',
-    'group' => 'right',
+    'wgroup' => 'right',
     'priority' => 50,
     'action' => array(
         'index',
@@ -60,7 +60,7 @@ $config['widgets'][] = array(
 // Блоги
 $config['widgets'][] = array(
     'name' => 'blogs',
-    'group' => 'right',
+    'wgroup' => 'right',
     'priority' => 1,
     'action' => array(
         'index',
@@ -72,19 +72,19 @@ $config['widgets'][] = array(
 
 $config['widgets'][] = array(
     'name' => 'actions/ActionPeople/sidebar.tpl',
-    'group' => 'right',
+    'wgroup' => 'right',
     'on' => 'people',
 );
 
 $config['widgets'][] = array(
     'name' => 'actions/ActionProfile/sidebar.tpl',
-    'group' => 'right',
+    'wgroup' => 'right',
     'on' => 'profile, talk, settings',
 );
 
 $config['widgets'][] = array(
     'name' => 'userfeedBlogs',
-    'group' => 'right',
+    'wgroup' => 'right',
     'action' => array(
         'feed' => array('{index}'),
     ),
@@ -92,7 +92,7 @@ $config['widgets'][] = array(
 
 $config['widgets'][] = array(
     'name' => 'userfeedUsers',
-    'group' => 'right',
+    'wgroup' => 'right',
     'action' => array(
         'feed' => array('{index}'),
     ),
@@ -100,7 +100,7 @@ $config['widgets'][] = array(
 
 $config['widgets'][] = array(
     'name' => 'widgets/widget.blog.tpl',
-    'group' => 'right',
+    'wgroup' => 'right',
     'priority' => 300,
     'action' => array(
         'blog' => array('{topic}')

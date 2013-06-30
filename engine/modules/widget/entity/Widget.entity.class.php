@@ -33,7 +33,7 @@ class ModuleWidget_EntityWidget extends Entity {
      * Проверка идентификатора виджета, если не задан, то берется из хеша
      */
     protected function _checkId() {
-        if (!$this->getProp('id')) {
+        if (!$this->isProp('id')) {
             $sId = $this->GetHash();
             $this->setProp('id', $sId);
             return $sId;
@@ -107,12 +107,30 @@ class ModuleWidget_EntityWidget extends Entity {
         }
     }
 
+    /**
+     * Returns widget's ID. If ID does not exist it will be created
+     *
+     * @return string
+     */
     public function GetId() {
         $sId = $this->getProp('id');
         if (!$sId) {
             $sId = $this->_checkId();
         }
         return $sId;
+    }
+
+    /**
+     * Returns group of widget
+     *
+     * @return mixed|null
+     */
+    public function GetGroup() {
+        $sGroup = $this->getProp('wgroup');
+        if (!$sGroup) {
+            $sGroup = $this->getProp('group');
+        }
+        return $sGroup;
     }
 
     public function GetHash() {

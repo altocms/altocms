@@ -17,11 +17,18 @@ class Loader extends LsObject {
         // Load main config
         Config::LoadFromFile($sConfigDir . '/config.php');
 
-        /**
-         * Operations with Config object
-         */
-        require_once(dirname(dirname(__DIR__)) . '/engine/lib/internal/ConfigSimple/Config.class.php');
-        Config::LoadFromFile($sConfigDir . '/config.php');
+        $aConfigLoad = F::Str2Array(Config::Get('config_load'));
+        if ($aConfigLoad) {
+            foreach ($aConfigLoad as $sName) {
+                $sFile = $sConfigDir . '/' . $sName . '.php';
+                self::_loadConfigSection($sFile, $sName);
+
+                $sFile = $sConfigDir . '/' . $sName . '.local.php';
+                if (F::File_Exists($sFile)) {
+                    self::_loadConfigSection($sFile, $sName);
+                }
+            }
+        }
 
         /**
          * Загружает конфиги модулей вида /config/modules/[module_name]/config.php
@@ -184,6 +191,22 @@ class Loader extends LsObject {
         }
     }
 
+    static protected function _loadConfigSection($sFile, $sName) {
+
+        $aConfig = array();
+        if (F::File_Exists($sFile)) {
+            $aCfg = F::File_IncludeFile($sFile, true, true);
+            if ($aCfg) {
+                if (isset($aCfg[$sName])) {
+                    $aConfig = $aCfg[$sName];
+                } else {
+                    $aConfig = $aCfg;
+                }
+            }
+        }
+        Config::Load(array($sName => $aConfig), false);
+    }
+
     /**
      * Автоопределение класса или фала экшена
      *
@@ -220,9 +243,9 @@ class Loader extends LsObject {
 
     static protected function _includeFile($sFile) {
         if (class_exists('F', false)) {
-            F::IncludeFile($sFile);
+            return F::IncludeFile($sFile);
         } else {
-            include_once $sFile;
+            return include_once $sFile;
         }
     }
 
