@@ -3,7 +3,7 @@
 {block name="content-body"}
 <div class="span12">
 
-    <form method="post" action="">
+    <form method="post" action="" class="uniform">
         <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
 
         <div class="b-wbox">

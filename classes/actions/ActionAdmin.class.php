@@ -2091,8 +2091,11 @@ class ActionAdmin extends Action {
         }
     }
 
+    /**
+     * Сброс кастомного конфига
+     */
     protected function _eventResetCustomConfig() {
-        //
+        Config::ResetCustomConfig();
     }
 
     /**********************************************************************************/

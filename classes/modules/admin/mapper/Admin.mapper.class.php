@@ -31,6 +31,7 @@ class ModuleAdmin_MapperAdmin extends Mapper {
     }
 
     public function BanUsers($aUserIds, $dDate, $nUnlim, $sComment = null) {
+
         $this->UnbanUsers($aUserIds);
         foreach($aUserIds as $nUserId) {
             $sql = "
@@ -43,6 +44,7 @@ class ModuleAdmin_MapperAdmin extends Mapper {
     }
 
     public function UnbanUsers($aUserIds) {
+
         $sql = "UPDATE " . Config::Get('db.table.adminban') . " SET banactive=0, banunlim=0 WHERE user_id IN (?a)";
         return $this->oDb->query($sql, $aUserIds) !== false;
     }
@@ -104,6 +106,7 @@ class ModuleAdmin_MapperAdmin extends Mapper {
     }
 
     public function UnsetBanIp($aIds) {
+
         if (!is_array($aIds)) $aIds = intval($aIds);
         $sql = "
             UPDATE " . Config::Get('db.table.adminips') . "
@@ -112,6 +115,7 @@ class ModuleAdmin_MapperAdmin extends Mapper {
     }
 
     public function GetInvites(&$iCount, $iCurrPage, $iPerPage) {
+
         $sql =
             "SELECT invite_id, invite_code, user_from_id, user_to_id,
                 invite_date_add, invite_date_used, invite_used,
@@ -129,11 +133,12 @@ class ModuleAdmin_MapperAdmin extends Mapper {
     }
 
     public function DeleteInvites($aIds) {
+
         // Удаляются только неиспользованные инвайты
         $sql =
             "DELETE FROM " . Config::Get('db.table.invite') . "
             WHERE invite_id IN (?a) AND invite_used=0 AND invite_date_used IS NULL";
-        return $this->oDb->query($sql, $aIds);
+        return $this->oDb->query($sql, $aIds) !== false;
     }
 
     /**
@@ -143,12 +148,14 @@ class ModuleAdmin_MapperAdmin extends Mapper {
      * @return  bool
      */
     public function UpdateCustomConfig($aData) {
+
         $sql = "REPLACE INTO " . Config::Get('db.table.storage') . "(?#) VALUES(?a)";
         // multi insert
         return ($this->oDb->query($sql, array_keys($aData[0]), array_values($aData)) !== false);
     }
 
     public function GetCustomConfig($sPrefix = '') {
+
         if ($sPrefix) {
             $sql = "
                 SELECT storage_key, storage_val
@@ -161,6 +168,22 @@ class ModuleAdmin_MapperAdmin extends Mapper {
             ";
         }
         return $this->oDb->select($sql);
+    }
+
+    public function DeleteCustomConfig($sPrefix = '') {
+
+        if ($sPrefix) {
+            $sql = "
+                DELETE
+                FROM ?_storage
+                WHERE storage_key LIKE '" . $sPrefix . "%'";
+        } else {
+            $sql = "
+                DELETE
+                FROM ?_storage
+            ";
+        }
+        return $this->oDb->query($sql) !== false;
     }
 
     public function GetUnlinkedBlogsForUsers() {

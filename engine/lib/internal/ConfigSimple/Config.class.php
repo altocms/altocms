@@ -424,6 +424,17 @@ class Config extends Storage {
         self::ReadCustomConfig(null, false);
     }
 
+    static public function ResetCustomConfig($sKeyPrefix = null) {
+
+        $sPrefix = self::CUSTOM_CONFIG_PREFIX . $sKeyPrefix;
+        // удаляем настройки конфига из базы
+        E::Admin_DelCustomConfig($sPrefix);
+        // удаляем кеш-файл
+        self::_deleteCustomCfg();
+        // перестраиваем конфиг в кеш-файле
+        self::ReReadCustomConfig();
+    }
+
     /**
      * Возвращает полный путь к кеш-файлу кастомной конфигуации
      * или просто проверяет его наличие
@@ -437,6 +448,18 @@ class Config extends Storage {
             return F::File_Exists($sFile);
         }
         return $sFile;
+    }
+
+    /**
+     * Удаляет кеш-файл кастомной конфигуации
+     *
+     */
+    static protected function _deleteCustomCfg() {
+
+        $sFile = self::_checkCustomCfg(true);
+        if ($sFile) {
+            F::File_Delete($sFile);
+        }
     }
 
     /**

@@ -85,6 +85,16 @@ class ModuleAdmin extends Module {
         return $data;
     }
 
+    /**
+     * Бан диапазона IP-адресов
+     *
+     * @param      $sIp1
+     * @param      $sIp2
+     * @param null $nDays
+     * @param null $sComment
+     *
+     * @return bool
+     */
     public function SetBanIp($sIp1, $sIp2, $nDays = null, $sComment = null) {
         if (!$nDays) {
             $nUnlim = 1;
@@ -96,15 +106,24 @@ class ModuleAdmin extends Module {
 
         //чистим зависимые кеши
         $bResult = $this->oMapper->SetBanIp($sIp1, $sIp2, $dDate, $nUnlim, $sComment);
-        $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array('adm_banlist_ip'));
+        $this->Cache_CleanByTags(array('adm_banlist_ip'));
         return $bResult;
     }
 
+    /**
+     * Снятие бана с диапазона IP-адресов
+     *
+     * @param $aIds
+     *
+     * @return bool
+     */
     public function UnsetBanIp($aIds) {
+
         if (!is_array($aIds)) $aIds = intval($aIds);
+        $bResult = $this->oMapper->UnsetBanIp($aIds);
         //чистим зависимые кеши
-        $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array('adm_banlist_ip'));
-        return $this->oMapper->UnsetBanIp($aIds);
+        $this->Cache_CleanByTags(array('adm_banlist_ip'));
+        return $bResult;
     }
 
 
@@ -116,12 +135,21 @@ class ModuleAdmin extends Module {
      * @return  array
      */
     public function GetInvites($nCurrPage, $nPerPage) {
+
         // Инвайты не кешируются, поэтому работаем напрямую с БД
         $data = array('collection' => $this->oMapper->GetInvites($iCount, $nCurrPage, $nPerPage), 'count' => $iCount);
         return $data;
     }
 
+    /**
+     * Удаляет инвайты по списку ID
+     *
+     * @param $aIds
+     *
+     * @return mixed
+     */
     public function DeleteInvites($aIds) {
+
         return $this->oMapper->DeleteInvites($aIds);
     }
 
@@ -144,6 +172,7 @@ class ModuleAdmin extends Module {
      * @return  array
      */
     public function GetCustomConfig($sKeyPrefix = null) {
+
         $sCacheKey = 'config_' . $sKeyPrefix;
         if (false === ($data = $this->Cache_Get($sCacheKey))) {
             $data = $this->oMapper->GetCustomConfig($sKeyPrefix);
@@ -153,12 +182,20 @@ class ModuleAdmin extends Module {
     }
 
     /**
-     * Удаляет кеш кастмной конфигурации
+     * Удаляет пользовательскую конфигурацию из базы
+     *
+     * @param   string  $sKeyPrefix
+     *
+     * @return  bool
      */
-    public function DelCustomCfg() {
-        if ($sFile = $this->_customCfgFile()) {
-            F::File_Delete($sFile);
-        }
+    public function DelCustomConfig($sKeyPrefix = null) {
+
+        $sCacheKey = 'config_' . $sKeyPrefix;
+        // Удаляем в базе
+        $bResult = $this->oMapper->DeleteCustomConfig($sKeyPrefix);
+        // Чистим кеш
+        $this->Cache_CleanByTags(array($sCacheKey));
+        return $bResult;
     }
 
     public function GetUnlinkedBlogsForUsers() {
