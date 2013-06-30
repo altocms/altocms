@@ -41,9 +41,12 @@ ls.topic = (function ($) {
 ls.topic = (function ($) {
 
     this.editUrl = function(button) {
-        var input = $(button).parents('p').first();
-        $(button).siblings('.b-topic_url_demo-edit').hide();
-        $(button).siblings('[name=topic_url]').show();
+        var parent = $(button).parents('p').first();
+        if (!parent.length) {
+            parent = $(button).parent();
+        }
+        parent.find('.b-topic_url_demo-edit').hide();
+        parent.find('[name=topic_url]').show().focus();
    };
 
     this.shortUrl = function(url) {

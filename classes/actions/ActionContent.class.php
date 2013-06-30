@@ -197,9 +197,9 @@ class ActionContent extends Action {
             } else {
                 // В маске есть URL, вместо него нужно вставить <input>
                 $aUrlMaskParts = explode('%topic_url%', $sUrlMask);
-                    $_REQUEST['topic_url_before'] = $aUrlMaskParts[0];
+                    $_REQUEST['topic_url_before'] = $oTopic->getUrl($aUrlMaskParts[0]);
                     if (isset($aUrlMaskParts[1])) {
-                        $_REQUEST['topic_url_after'] = $aUrlMaskParts[1];
+                        $_REQUEST['topic_url_after'] = $oTopic->getUrl($aUrlMaskParts[1], false);
                     } else {
                         $_REQUEST['topic_url_after'] = '';
                     }
