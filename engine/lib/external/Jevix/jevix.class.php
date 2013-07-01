@@ -7,9 +7,11 @@
  * http://code.google.com/p/jevix/
  *
  * @author ur001 <ur001ur001@gmail.com>, http://ur001.habrahabr.ru
- * @version 1.01
+ * @version 1.12
  *
  * История версий:
+ * 1.12:
+ *  + Добавлено задание разрешеных протоколов для разных параметров
  * 1.11:
  *  + Исправлены ошибки из-за которых удалялись теги и аттрибуты со значением "0". Спасибо Dmitry Shurupov (dmitry.shurupov@trueoffice.ru)
  * 1.1:
@@ -55,40 +57,40 @@
  *  + Добавлена настройка автодобавления параметров тегов. Непример rel = "nofolow" для ссылок.
  *    Спасибо Myroslav Holyak (vbhjckfd@gmail.com)
  * 0.93
- *      + Исправлен баг с удалением пробелов (например в "123 &mdash; 123")
+ *  + Исправлен баг с удалением пробелов (например в "123 &mdash; 123")
  *  + Исправлена ошибка из-за которой иногда не срабатывало автоматическое преобразования URL в ссылу
  *  + Добавлена настройка cfgSetAutoLinkMode для отключения автоматического преобразования URL в ссылки
  *  + Автодобавление пробела после точки, если после неё идёт русский символ
  * 0.92
- *      + Добавлена настройка cfgSetAutoBrMode. При установке в false, переносы строк не будут автоматически заменяться на BR
- *      + Изменена обработка HTML-сущностей. Теперь все сущности имеющие эквивалент в Unicode (за исключением <>)
+ *  + Добавлена настройка cfgSetAutoBrMode. При установке в false, переносы строк не будут автоматически заменяться на BR
+ *  + Изменена обработка HTML-сущностей. Теперь все сущности имеющие эквивалент в Unicode (за исключением <>)
  *    автоматически преобразуются в символ
  * 0.91
- *      + Добавлена обработка преформатированных тегов <pre>, <code>. Для задания используйте cfgSetTagPreformatted()
+ *  + Добавлена обработка преформатированных тегов <pre>, <code>. Для задания используйте cfgSetTagPreformatted()
  *  + Добавлена настройка cfgSetXHTMLMode. При отключении пустые теги будут оформляться как <br>, при включенном - <br/>
- *      + Несколько незначительных багфиксов
+ *  + Несколько незначительных багфиксов
  * 0.9
- *      + Первый бета-релиз
+ *  + Первый бета-релиз
  */
 
 class Jevix{
-	const PRINATABLE  = 0x1;
-	const ALPHA       = 0x2;
-	const LAT	 = 0x4;
-	const RUS	 = 0x8;
-	const NUMERIC     = 0x10;
-	const SPACE       = 0x20;
-	const NAME	= 0x40;
-	const URL	 = 0x100;
-	const NOPRINT     = 0x200;
-	const PUNCTUATUON = 0x400;
+	const PRINATABLE    = 0x1;
+	const ALPHA         = 0x2;
+	const LAT           = 0x4;
+	const RUS           = 0x8;
+	const NUMERIC       = 0x10;
+	const SPACE         = 0x20;
+	const NAME          = 0x40;
+	const URL           = 0x100;
+	const NOPRINT       = 0x200;
+	const PUNCTUATUON   = 0x400;
 	//const	   = 0x800;
 	//const	   = 0x1000;
-	const HTML_QUOTE  = 0x2000;
-	const TAG_QUOTE   = 0x4000;
-	const QUOTE_CLOSE = 0x8000;
-	const NL	  = 0x10000;
-	const QUOTE_OPEN  = 0;
+	const HTML_QUOTE    = 0x2000;
+	const TAG_QUOTE     = 0x4000;
+	const QUOTE_CLOSE   = 0x8000;
+	const NL            = 0x10000;
+	const QUOTE_OPEN    = 0;
 
 	const STATE_TEXT = 0;
 	const STATE_TAG_PARAMS = 1;
@@ -123,8 +125,9 @@ class Jevix{
 	protected $tagsStack;
 	protected $openedTag;
 	protected $autoReplace; // Автозамена
-	protected $linkProtocolAllow=array();
-	protected $linkProtocolAllowDefault=array('http','https','ftp');
+	protected $allowedProtocols = array('#img' => 'http:|https:');
+	protected $allowedProtocolsDefault = array('http','https','ftp', '');
+    protected $skipProtocol = array();
 	protected $isXHTMLMode  = true; // <br/>, <img/>
 	protected $isAutoBrMode = true; // \n = <br/>
 	protected $isAutoLinkMode = true;
@@ -140,55 +143,59 @@ class Jevix{
 	 * Константы для класификации тегов
 	 *
 	 */
-	const TR_TAG_ALLOWED = 1;	// Тег позволен
-	const TR_PARAM_ALLOWED = 2;      // Параметр тега позволен (a->title, a->src, i->alt)
-	const TR_PARAM_REQUIRED = 3;     // Параметр тега влятся необходимым (a->href, img->src)
-	const TR_TAG_SHORT = 4;	  // Тег может быть коротким (img, br)
-	const TR_TAG_CUT = 5;	    // Тег необходимо вырезать вместе с контентом (script, iframe)
-	const TR_TAG_CHILD = 6;	  // Тег может содержать другие теги
-	const TR_TAG_CONTAINER = 7;      // Тег может содержать лишь указанные теги. В нём не может быть текста
-	const TR_TAG_CHILD_TAGS = 8;     // Теги которые может содержать внутри себя другой тег
-	const TR_TAG_PARENT = 9;	 // Тег в котором должен содержаться данный тег
-	const TR_TAG_PREFORMATTED = 10;  // Преформатированные тег, в котором всё заменяется на HTML сущности типа <pre> сохраняя все отступы и пробелы
-	const TR_PARAM_AUTO_ADD = 11;    // Auto add parameters + default values (a->rel[=nofollow])
-	const TR_TAG_NO_TYPOGRAPHY = 12; // Отключение типографирования для тега
-	const TR_TAG_IS_EMPTY = 13;      // Не короткий тег с пустым содержанием имеет право существовать
-	const TR_TAG_NO_AUTO_BR = 14;    // Тег в котором не нужна авто-расстановка <br>
-	const TR_TAG_CALLBACK = 15;      // Тег обрабатывается callback-функцией - в обработку уходит только контент тега(короткие теги не обрабатываются)
-	const TR_TAG_BLOCK_TYPE = 16;    // Тег после которого не нужна автоподстановка доп. <br>
-	const TR_TAG_CALLBACK_FULL = 17;    // Тег обрабатывается callback-функцией - в обработку уходит весь тег
-	const TR_PARAM_COMBINATION = 18;    // Проверка на возможные комбинации значений параметров тега
+    const TR_TAG_ALLOWED = 1;           // Тег позволен
+    const TR_PARAM_ALLOWED = 2;         // Параметр тега позволен (a->title, a->src, i->alt)
+    const TR_PARAM_REQUIRED = 3;        // Параметр тега влятся необходимым (a->href, img->src)
+    const TR_TAG_SHORT = 4;             // Тег может быть коротким (img, br)
+    const TR_TAG_CUT = 5;               // Тег необходимо вырезать вместе с контентом (script, iframe)
+    const TR_TAG_CHILD = 6;             // Тег может содержать другие теги
+    const TR_TAG_CONTAINER = 7;         // Тег может содержать лишь указанные теги. В нём не может быть текста
+    const TR_TAG_CHILD_TAGS = 8;        // Теги которые может содержать внутри себя другой тег
+    const TR_TAG_PARENT = 9;            // Тег в котором должен содержаться данный тег
+    const TR_TAG_PREFORMATTED = 10;     // Преформатированные тег, в котором всё заменяется на HTML сущности типа <pre> сохраняя все отступы и пробелы
+    const TR_PARAM_AUTO_ADD = 11;       // Auto add parameters + default values (a->rel[=nofollow])
+    const TR_TAG_NO_TYPOGRAPHY = 12;    // Отключение типографирования для тега
+    const TR_TAG_IS_EMPTY = 13;         // Не короткий тег с пустым содержанием имеет право существовать
+    const TR_TAG_NO_AUTO_BR = 14;       // Тег в котором не нужна авто-расстановка <br>
+    const TR_TAG_CALLBACK = 15;         // Тег обрабатывается callback-функцией - в обработку уходит только контент тега(короткие теги не обрабатываются)
+    const TR_TAG_BLOCK_TYPE = 16;       // Тег после которого не нужна автоподстановка доп. <br>
+    const TR_TAG_CALLBACK_FULL = 17;    // Тег обрабатывается callback-функцией - в обработку уходит весь тег
+    const TR_PARAM_COMBINATION = 18;    // Проверка на возможные комбинации значений параметров тега
 
-	/**
+    /**
 	 * Классы символов генерируются symclass.php
 	 *
 	 * @var array
 	 */
 	protected $chClasses = array(0=>512,1=>512,2=>512,3=>512,4=>512,5=>512,6=>512,7=>512,8=>512,9=>32,10=>66048,11=>512,12=>512,13=>66048,14=>512,15=>512,16=>512,17=>512,18=>512,19=>512,20=>512,21=>512,22=>512,23=>512,24=>512,25=>512,26=>512,27=>512,28=>512,29=>512,30=>512,31=>512,32=>32,97=>71,98=>71,99=>71,100=>71,101=>71,102=>71,103=>71,104=>71,105=>71,106=>71,107=>71,108=>71,109=>71,110=>71,111=>71,112=>71,113=>71,114=>71,115=>71,116=>71,117=>71,118=>71,119=>71,120=>71,121=>71,122=>71,65=>71,66=>71,67=>71,68=>71,69=>71,70=>71,71=>71,72=>71,73=>71,74=>71,75=>71,76=>71,77=>71,78=>71,79=>71,80=>71,81=>71,82=>71,83=>71,84=>71,85=>71,86=>71,87=>71,88=>71,89=>71,90=>71,1072=>11,1073=>11,1074=>11,1075=>11,1076=>11,1077=>11,1078=>11,1079=>11,1080=>11,1081=>11,1082=>11,1083=>11,1084=>11,1085=>11,1086=>11,1087=>11,1088=>11,1089=>11,1090=>11,1091=>11,1092=>11,1093=>11,1094=>11,1095=>11,1096=>11,1097=>11,1098=>11,1099=>11,1100=>11,1101=>11,1102=>11,1103=>11,1040=>11,1041=>11,1042=>11,1043=>11,1044=>11,1045=>11,1046=>11,1047=>11,1048=>11,1049=>11,1050=>11,1051=>11,1052=>11,1053=>11,1054=>11,1055=>11,1056=>11,1057=>11,1058=>11,1059=>11,1060=>11,1061=>11,1062=>11,1063=>11,1064=>11,1065=>11,1066=>11,1067=>11,1068=>11,1069=>11,1070=>11,1071=>11,48=>337,49=>337,50=>337,51=>337,52=>337,53=>337,54=>337,55=>337,56=>337,57=>337,34=>57345,39=>16385,46=>1281,44=>1025,33=>1025,63=>1281,58=>1025,59=>1281,1105=>11,1025=>11,47=>257,38=>257,37=>257,45=>257,95=>257,61=>257,43=>257,35=>257,124=>257,);
 
-	/**
-	 * Установка конфигурационного флага для одного или нескольких тегов
-	 *
-	 * @param array|string $tags тег(и)
-	 * @param int $flag флаг
-	 * @param mixed $value значеник=е флага
-	 * @param boolean $createIfNoExists если тег ещё не определён - создть его
-	 */
-	protected function _cfgSetTagsFlag($tags, $flag, $value, $createIfNoExists = true){
-		if(!is_array($tags)) $tags = array($tags);
-		foreach($tags as $tag){
-			if(!isset($this->tagsRules[$tag])) {
-				if($createIfNoExists){
-					$this->tagsRules[$tag] = array();
-				} else {
-					throw new Exception("Тег $tag отсутствует в списке разрешённых тегов");
-				}
-			}
-			$this->tagsRules[$tag][$flag] = $value;
-		}
-	}
+    /**
+     * Установка конфигурационного флага для одного или нескольких тегов
+     *
+     * @param array|string $tags              тег(и)
+     * @param int          $flag              флаг
+     * @param mixed        $value             значение флага
+     * @param boolean      $createIfNotExists если тег ещё не определён - создть его
+     *
+     * @throws Exception
+     */
+    protected function _cfgSetTagsFlag($tags, $flag, $value, $createIfNotExists = true) {
+        if (!is_array($tags)) {
+            $tags = array($tags);
+        }
+        foreach ($tags as $tag) {
+            if (!isset($this->tagsRules[$tag])) {
+                if ($createIfNotExists) {
+                    $this->tagsRules[$tag] = array();
+                } else {
+                    throw new Exception("Тег $tag отсутствует в списке разрешённых тегов");
+                }
+            }
+            $this->tagsRules[$tag][$flag] = $value;
+        }
+    }
 
-	/**
+    /**
 	 * КОНФИГУРАЦИЯ: Разрешение или запрет тегов
 	 * Все не разрешённые теги считаются запрещёнными
 	 * @param array|string $tags тег(и)
@@ -413,24 +420,59 @@ class Jevix{
 		$this->autoReplace = array('from' => $from, 'to' => $to);
 	}
 
-	/**
-	 * Устанавливает список разрешенных протоколов для ссылок (http, ftp и т.п.)
-	 *
-	 * @param array $aProtocol Список протоколов
-	 * @param bool $bClearDefault Удалить дефолтные протоколы?
-	 */
-	function cfgSetLinkProtocolAllow($aProtocol, $bClearDefault=false){
-		if (!is_array($aProtocol)) {
-			$aProtocol=array($aProtocol);
-		}
-		if ($bClearDefault) {
-			$this->linkProtocolAllow=$aProtocol;
-		} else {
-			$this->linkProtocolAllow=array_merge($this->linkProtocolAllowDefault,$aProtocol);
-		}
-	}
+    /**
+     * Устанавливает список разрешенных протоколов для ссылок (http, ftp и т.п.)
+     *
+     * @param array        $aProtocols          Список протоколов
+     * @param bool         $bClearDefault       Удалить дефолтные протоколы
+     */
+    function cfgSetLinkProtocolAllow($aProtocols, $bClearDefault = false) {
+        $this->cfgSetAllowedProtocols($aProtocols, $bClearDefault, '#link');
+    }
 
-	/**
+    /**
+     * Устанавливает список разрешенных протоколов (http, ftp и т.п.)
+     *
+     * @param array        $aProtocols          Список протоколов
+     * @param bool         $bClearDefault       Удалить дефолтные протоколы
+     * @param string|array $aParams             Для каких параметров задавать
+     */
+    function cfgSetAllowedProtocols($aProtocols, $bClearDefault = false, $aParams = array()) {
+        if (!is_array($aProtocols)) {
+            $aProtocols = array((string)$aProtocols);
+        }
+        if (!is_array($aParams)) {
+            $aParams = array((string)$aParams);
+        }
+        $bSkipProtocol = false;
+        foreach ($aProtocols as $nKey => $sProtocol) {
+            if (!$sProtocol) {
+                // "Пустой" протокол - разрешено пропускать протокол для параметра
+                $bSkipProtocol = true;
+                unset($aProtocols[$nKey]);
+            } elseif (substr($sProtocol, -1) == ':') {
+                // Убираем двоеточие в конце протокола
+                $aProtocols[$nKey] = trim($sProtocol, ':');
+            }
+        }
+        foreach ($aParams as $sParam) {
+            if ($aProtocols) {
+                if ($bClearDefault || !isset($this->allowedProtocols[$sParam])) {
+                    $this->allowedProtocols[$sParam] = implode(':|', $aProtocols) . ':';
+                } else {
+                    $this->allowedProtocols[$sParam] = implode(':|', array_merge($this->allowedProtocolsDefault, $aProtocols)) . ':';
+                }
+            }
+            // Разрешено ли пропускать протокол для параметра
+            if ($bSkipProtocol) {
+                $this->skipProtocol[$sParam] = true;
+            } else {
+                $this->skipProtocol[$sParam] = false;
+            }
+        }
+    }
+
+    /**
 	 * Включение или выключение режима XTML
 	 *
 	 * @param boolean $isXHTMLMode
@@ -776,7 +818,7 @@ class Jevix{
 
 		$isTagClose = $this->tagClose($closeTag);
 		if($isTagClose && ($tag != $closeTag)) {
-			$this->eror("Неверный закрывающийся тег $closeTag. Ожидалось закрытие $tag");
+			$this->error("Неверный закрывающийся тег $closeTag. Ожидалось закрытие $tag");
 			//$this->restoreState();
 		}
 
@@ -994,23 +1036,24 @@ class Jevix{
 				// проверка на список доменов
 				if (isset($paramAllowedValues['#domain']) and is_array($paramAllowedValues['#domain'])) {
 					if(preg_match('/javascript:/ui', $value)) {
-						$this->eror('Попытка вставить JavaScript в URI');
+						$this->error('Попытка вставить JavaScript в URI');
 						continue;
 					}
 					$bOK=false;
-					foreach ($paramAllowedValues['#domain'] as $sDomain) {
-						$sDomain=preg_quote($sDomain);
-						if (preg_match("@^(http|https|ftp)://([\w\d]+\.)?{$sDomain}/@ui",$value)) {
-							$bOK=true;
-							break;
-						}
-					}
-					if (!$bOK) {
-						$this->eror("Недопустимое значение для атрибута тега $tag $param=$value");
+                    $sProtocol = '(' . $this->_getAllowedProtocols('#domain') . ')' . ($this->_getSkipProtocol('#domain') ? '?' : '');
+                    foreach ($paramAllowedValues['#domain'] as $sDomain) {
+                        $sDomain = preg_quote($sDomain);
+                        if (preg_match('@^' . $sProtocol . '//([\w\d]+\.)?' . $sDomain . '/@ui', $value)) {
+                            $bOK = true;
+                            break;
+                        }
+                    }
+                    if (!$bOK) {
+						$this->error("Недопустимое значение для атрибута тега $tag $param=$value");
 						continue;
 					}
 				} elseif (!in_array($value, $paramAllowedValues)) {
-					$this->eror("Недопустимое значение для атрибута тега $tag $param=$value");
+					$this->error("Недопустимое значение для атрибута тега $tag $param=$value");
 					continue;
 				}
 			// Если атрибут тега помечен как разрешённый, но правила не указаны - смотрим в массив стандартных правил для атрибутов
@@ -1022,7 +1065,7 @@ class Jevix{
 				switch($paramAllowedValues){
 					case '#int':
 						if(!is_numeric($value)) {
-							$this->eror("Недопустимое значение для атрибута тега $tag $param=$value. Ожидалось число");
+							$this->error("Недопустимое значение для атрибута тега $tag $param=$value. Ожидалось число");
 							continue(2);
 						}
 						break;
@@ -1034,31 +1077,39 @@ class Jevix{
 					case '#link':
 						// Ява-скрипт в ссылке
 						if(preg_match('/javascript:/ui', $value)) {
-							$this->eror('Попытка вставить JavaScript в URI');
+							$this->error('Попытка вставить JavaScript в URI');
 							continue(2);
 						}
 						// Первый символ должен быть a-z0-9 или #!
 						if(!preg_match('/^[a-z0-9\/\#]/ui', $value)) {
-							$this->eror('URI: Первый символ адреса должен быть буквой или цифрой');
+							$this->error('URI: Первый символ адреса должен быть буквой или цифрой');
 							continue(2);
 						}
-						// HTTP в начале если нет
-						$sProtocols=join('|',$this->linkProtocolAllow ? $this->linkProtocolAllow : $this->linkProtocolAllowDefault);
-						if(!preg_match('/^('.$sProtocols.'):\/\//ui', $value) && !preg_match('/^(\/|\#)/ui', $value) && !preg_match('/^(mailto):/ui', $value) ) $value = 'http://'.$value;
-						break;
+                        // HTTP в начале если нет
+                        $sProtocol = '(' . $this->_getAllowedProtocols('#link') . ')' . ($this->_getSkipProtocol('#link') ? '?' : '');
+                        if (!preg_match('@^' . $sProtocol . '//@ui', $value)
+                            && !preg_match('/^(\/|\#)/ui', $value)
+                            && !preg_match('/^(mailto):/ui', $value)
+                        ) {
+                            $value = 'http://' . $value;
+                        }
+                        break;
 
-					case '#image':
+                    case '#image':
 						// Ява-скрипт в пути к картинке
 						if(preg_match('/javascript:/ui', $value)) {
-							$this->eror('Попытка вставить JavaScript в пути к изображению');
+							$this->error('Попытка вставить JavaScript в пути к изображению');
 							continue(2);
 						}
 						// HTTP в начале если нет
-						if(!preg_match('/^(http|https):\/\//ui', $value) && !preg_match('/^\//ui', $value)) $value = 'http://'.$value;
+                        $sProtocol = '(' . $this->_getAllowedProtocols('#image') . ')' . ($this->_getSkipProtocol('#image') ? '?' : '');
+						if(!preg_match('@^' . $sProtocol . '\/\/@ui', $value) && !preg_match('/^\//ui', $value)) {
+                            $value = 'http://'.$value;
+                        }
 						break;
 
 					default:
-						$this->eror("Неверное описание атрибута тега в настройке Jevix: $param => $paramAllowedValues");
+						$this->error("Неверное описание атрибута тега в настройке Jevix: $param => $paramAllowedValues");
 						continue(2);
 						break;
 				}
@@ -1091,52 +1142,53 @@ class Jevix{
 			if(!$short && $content == '') return '';
 		}
 
-		// Проверка на допустимые комбинации
-		if (isset($tagRules[self::TR_PARAM_COMBINATION])) {
-			$aRuleCombin=$tagRules[self::TR_PARAM_COMBINATION];
-			$resParamsList=$resParams;
-			foreach($resParamsList as $param => $value) {
-				$value=mb_strtolower($value);
-				if (isset($aRuleCombin[$param]['combination'][$value])) {
-					foreach($aRuleCombin[$param]['combination'][$value] as $sAttr=>$mValue) {
-						if (isset($resParams[$sAttr])) {
-							$bOK=false;
-							$sValueParam=mb_strtolower($resParams[$sAttr]);
+        // Проверка на допустимые комбинации
+        if (isset($tagRules[self::TR_PARAM_COMBINATION])) {
+            $aRuleCombin = $tagRules[self::TR_PARAM_COMBINATION];
+            $resParamsList = $resParams;
+            foreach ($resParamsList as $param => $value) {
+                $value = mb_strtolower($value);
+                if (isset($aRuleCombin[$param]['combination'][$value])) {
+                    foreach ($aRuleCombin[$param]['combination'][$value] as $sAttr => $mValue) {
+                        if (isset($resParams[$sAttr])) {
+                            $bOK = false;
+                            $sValueParam = mb_strtolower($resParams[$sAttr]);
 
-							if (is_string($mValue)) {
-								if ($mValue==$sValueParam) {
-									$bOK=true;
-								}
-							} elseif(is_array($mValue)) {
-								if (isset($mValue['#domain']) and is_array($mValue['#domain'])) {
-									if(!preg_match('/javascript:/ui', $sValueParam)) {
-										foreach ($mValue['#domain'] as $sDomain) {
-											$sDomain=preg_quote($sDomain);
-											if (preg_match("@^(http|https|ftp)://([\w\d]+\.)?{$sDomain}/@ui",$sValueParam)) {
-												$bOK=true;
-												break;
-											}
-										}
-									}
-								} elseif (in_array($sValueParam, $mValue)) {
-									$bOK=true;
-								}
-							} elseif($mValue===true) {
-								$bOK=true;
-							}
+                            if (is_string($mValue)) {
+                                if ($mValue == $sValueParam) {
+                                    $bOK = true;
+                                }
+                            } elseif (is_array($mValue)) {
+                                if (isset($mValue['#domain']) && is_array($mValue['#domain'])) {
+                                    if (!preg_match('/javascript:/ui', $sValueParam)) {
+                                        $sProtocol = '(' . $this->_getAllowedProtocols('#domain') . ')' . ($this->_getSkipProtocol('#domain') ? '?' : '');
+                                        foreach ($mValue['#domain'] as $sDomain) {
+                                            $sDomain = preg_quote($sDomain);
+                                            if (preg_match('@^' . $sProtocol . '//([\w\d]+\.)?' . $sDomain . '/@ui', $sValueParam)) {
+                                                $bOK = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                } elseif (in_array($sValueParam, $mValue)) {
+                                    $bOK = true;
+                                }
+                            } elseif ($mValue === true) {
+                                $bOK = true;
+                            }
 
-							if (!$bOK) {
-								unset($resParams[$sAttr]);
-							}
-						}
-					}
-				} elseif(isset($aRuleCombin[$param]['remove']) and $aRuleCombin[$param]['remove']) {
-					return '';
-				}
-			}
-		}
+                            if (!$bOK) {
+                                unset($resParams[$sAttr]);
+                            }
+                        }
+                    }
+                } elseif (isset($aRuleCombin[$param]['remove']) and $aRuleCombin[$param]['remove']) {
+                    return '';
+                }
+            }
+        }
 
-		// Если тег обрабатывает "полным" колбеком
+        // Если тег обрабатывает "полным" колбеком
 		if (isset($tagRules[self::TR_TAG_CALLBACK_FULL])) {
 			$text = call_user_func($tagRules[self::TR_TAG_CALLBACK_FULL], $tag, $resParams, $content);
 		} else {
@@ -1212,7 +1264,7 @@ class Jevix{
 						$this->restoreState();
 						return false;
 					} else {
-						$this->eror('Не ожидалось закрывающегося тега '.$name);
+						$this->error('Не ожидалось закрывающегося тега '.$name);
 					}
 				} else {
 					if($this->state != self::STATE_INSIDE_NOTEXT_TAG) $content.=$this->entities2['<'];
@@ -1510,7 +1562,7 @@ class Jevix{
 		return false;
 	}
 
-	protected function eror($message){
+	protected function error($message){
 		$str = '';
 		$strEnd = min($this->curPos + 8, $this->textLen);
 		for($i = $this->curPos; $i < $strEnd; $i++){
@@ -1525,6 +1577,18 @@ class Jevix{
 			'str'     => $str,
 		);
 	}
+
+    protected function _getAllowedProtocols($sParam) {
+        if (!isset($this->allowedProtocols[$sParam])) {
+            $this->cfgSetAllowedProtocols($this->allowedProtocolsDefault, true, $sParam);
+        }
+        return $this->allowedProtocols[$sParam];
+    }
+
+    protected function _getSkipProtocol($sParam) {
+        return isset($this->skipProtocol[$sParam]) && $this->skipProtocol[$sParam];
+    }
+
 }
 
 /**
