@@ -1,22 +1,21 @@
 <?php
-/*-------------------------------------------------------
-*
-*   LiveStreet Engine Social Networking
-*   Copyright © 2008 Mzhelskiy Maxim
-*
-*--------------------------------------------------------
-*
-*   Official site: www.livestreet.ru
-*   Contact e-mail: rus.engine@gmail.com
-*
-*   GNU General Public License, version 2:
-*   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-*
----------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
 
 /**
- * Абстрактный класс сущности.
+ * Абстрактный класс сущности
+ *
  * При запросе к базе данных удобно возвращать не просто массив данных, а данные в виде специального объекта - Entity.
  * Основные методы такого объекта делятся на два вида: get-методы и set-методы.
  * Первые получают свойство объекта по его имени, а вторые устанавливают.
@@ -81,11 +80,13 @@ abstract class Entity extends LsObject {
      * @param array|null $aParam    Ассоциативный массив данных сущности
      */
     public function __construct($aParam = null) {
+
         $this->_setData($aParam);
         $this->Init();
     }
 
     public function __wakeup() {
+
         $this->Init();
     }
 
@@ -93,6 +94,7 @@ abstract class Entity extends LsObject {
      * Метод инициализации сущности, вызывается при её создании или при восстановлении из кеша
      */
     public function Init() {
+
         $this->aValidateRules = array();
     }
 
@@ -104,6 +106,7 @@ abstract class Entity extends LsObject {
      * @return  mixed|null
      */
     public function setProp($sKey, $xVal) {
+
         $xOldVal = $this->getProp($sKey);
         $this->_aData[$sKey] = $xVal;
         return $xOldVal;
@@ -117,6 +120,7 @@ abstract class Entity extends LsObject {
      * @return  mixed|null
      */
     public function getProp($sKey, $xDefault = null) {
+
         if ($this->isProp($sKey)) {
             return $this->_aData[$sKey];
         }
@@ -166,6 +170,7 @@ abstract class Entity extends LsObject {
     }
 
     protected function _getExpandedData($sSubKey = null) {
+
         $aData = $this->getProp(self::EXP_KEY);
         if (!is_array($aData)) {
             $aData = array(
@@ -187,10 +192,12 @@ abstract class Entity extends LsObject {
     }
 
     protected function _setExpandedData($aData) {
+
         $this->setProp(self::EXP_KEY, $aData);
     }
 
     protected function _propExpandedInclude($sExpIdx, $sKey, $xVal) {
+
         $aExpanded = $this->_getExpandedData();
         if (in_array($sExpIdx, array(self::EXP_KEY_SET, self::EXP_KEY_DEL, self::EXP_KEY_MOD))) {
             if (isset($aExpanded[$sExpIdx][$sKey])) {
@@ -206,6 +213,7 @@ abstract class Entity extends LsObject {
     }
 
     protected function _propExpandedExclude($sExpIdx, $sKey) {
+
         $aExpanded = $this->_getExpandedData();
         if (in_array($sExpIdx, array(self::EXP_KEY_SET, self::EXP_KEY_DEL, self::EXP_KEY_MOD))) {
             if (isset($aExpanded[$sExpIdx][$sKey])) {
@@ -219,6 +227,7 @@ abstract class Entity extends LsObject {
     }
 
     protected function _propExpandedValue($sExpIdx, $sKey) {
+
         $aExpanded = $this->_getExpandedData();
         if (in_array($sExpIdx, array(self::EXP_KEY_SET, self::EXP_KEY_DEL, self::EXP_KEY_MOD))) {
             if (isset($aExpanded[$sExpIdx][$sKey])) {
@@ -261,6 +270,7 @@ abstract class Entity extends LsObject {
     }
 
     public function _getExpandedForUpdate($bModifiedOnly = true) {
+
         $aResult = array();
         if (!$bModifiedOnly) {
             $aResult = $this->_getExpandedData(self::EXP_KEY_SET);
@@ -279,6 +289,7 @@ abstract class Entity extends LsObject {
     }
 
     public function _getExpandedForDelete() {
+
         return $this->_getExpandedData(self::EXP_KEY_DEL);
     }
 
@@ -289,6 +300,7 @@ abstract class Entity extends LsObject {
      * @return  mixed|null
      */
     public function isProp($sKey) {
+
         return array_key_exists($sKey, $this->_aData);
     }
 
@@ -298,6 +310,7 @@ abstract class Entity extends LsObject {
      * @param array $aData    Ассоциативный массив данных сущности
      */
     public function _setData($aData) {
+
         if (is_array($aData) && sizeof($aData)) {
             foreach ($aData as $sKey => $val) {
                 $this->setProp($sKey, $val);
@@ -312,7 +325,8 @@ abstract class Entity extends LsObject {
      * @return array
      */
     public function _getData($aKeys = array()) {
-        if (!is_array($aKeys) or !count($aKeys)) return $this->_aData;
+
+        if (!is_array($aKeys) || !count($aKeys)) return $this->_aData;
 
         $aReturn = array();
         foreach ($aKeys as $key) {
@@ -330,6 +344,7 @@ abstract class Entity extends LsObject {
      * @return null|mixed
      */
     public function _getDataOne($sKey) {
+
         return $this->getProp($sKey);
     }
 
@@ -339,6 +354,7 @@ abstract class Entity extends LsObject {
      * @return array
      */
     public function _getDataArray() {
+
         $aResult = array();
         foreach ($this->_aData as $sKey => $sValue) {
             if (is_object($sValue) && $sValue instanceOf Entity) {
@@ -351,6 +367,7 @@ abstract class Entity extends LsObject {
     }
 
     public function getEntityName() {
+
         $aInfo = Engine::getInstance()->GetClassInfo($this, Engine::CI_ENTITY);
         if (isset($aInfo[Engine::CI_ENTITY])) {
             return $aInfo[Engine::CI_ENTITY];
@@ -368,6 +385,7 @@ abstract class Entity extends LsObject {
      * @return mixed
      */
     public function __call($sName, $aArgs) {
+
         $sType = strtolower(substr($sName, 0, 3));
         if (!strpos($sName, '_') && in_array($sType, array('get', 'set'))) {
             $sKey = func_underscore(substr($sName, 3));
@@ -383,7 +401,7 @@ abstract class Entity extends LsObject {
                     }
                 }
                 return null;
-            } elseif ($sType == 'set' and array_key_exists(0, $aArgs)) {
+            } elseif ($sType == 'set' && array_key_exists(0, $aArgs)) {
                 $this->_aData[$sKey] = $aArgs[0];
             }
         } else {
@@ -398,6 +416,7 @@ abstract class Entity extends LsObject {
      * @return null|string
      */
     public function _getPrimaryKey() {
+
         if (!$this->sPrimaryKey) {
             if (isset($this->_aData['id'])) {
                 $this->sPrimaryKey = 'id';
@@ -416,6 +435,7 @@ abstract class Entity extends LsObject {
      * @return mixed|null
      */
     public function _getPrimaryKeyValue() {
+
         return $this->_getDataOne($this->_getPrimaryKey());
     }
 
@@ -429,6 +449,7 @@ abstract class Entity extends LsObject {
      * @return bool
      */
     public function _Validate($aFields = null, $bClearErrors = true) {
+
         if ($bClearErrors) {
             $this->_clearValidateErrors();
         }
@@ -446,6 +467,7 @@ abstract class Entity extends LsObject {
      * @return array
      */
     public function _getValidators($sField = null) {
+
         $aValidators = $this->_createValidators();
 
         $aValidatorsReturn = array();
@@ -471,6 +493,7 @@ abstract class Entity extends LsObject {
      * @throws Exception
      */
     public function _createValidators() {
+
         $aValidators = array();
         foreach ($this->aValidateRules as $aRule) {
             if (isset($aRule[0], $aRule[1])) {
@@ -490,6 +513,7 @@ abstract class Entity extends LsObject {
      * @return bool
      */
     public function _hasValidateErrors($sField = null) {
+
         if ($sField === null) {
             return $this->aValidateErrors !== array();
         } else {
@@ -505,6 +529,7 @@ abstract class Entity extends LsObject {
      * @return array
      */
     public function _getValidateErrors($sField = null) {
+
         if ($sField === null) {
             return $this->aValidateErrors;
         } else {
@@ -520,6 +545,7 @@ abstract class Entity extends LsObject {
      * @return string|null
      */
     public function _getValidateError($sField = null) {
+
         if ($sField === null) {
             foreach ($this->_getValidateErrors() as $sFieldKey => $aErros) {
                 return reset($aErros);
@@ -536,6 +562,7 @@ abstract class Entity extends LsObject {
      * @param string $sError    Сообщение об ошибке
      */
     public function _addValidateError($sField, $sError) {
+
         $this->aValidateErrors[$sField][] = $sError;
     }
 
@@ -545,6 +572,7 @@ abstract class Entity extends LsObject {
      * @param null|string $sField    Поле сущности
      */
     public function _clearValidateErrors($sField = null) {
+
         if ($sField === null) {
             $this->aValidateErrors = array();
         } else {
@@ -558,6 +586,7 @@ abstract class Entity extends LsObject {
      * @return string
      */
     public function _getValidateScenario() {
+
         return $this->sValidateScenario;
     }
 
@@ -569,6 +598,7 @@ abstract class Entity extends LsObject {
      * @param string $sValue
      */
     public function _setValidateScenario($sValue) {
+
         $this->sValidateScenario = $sValue;
     }
 
@@ -580,6 +610,7 @@ abstract class Entity extends LsObject {
      * @return  array
      */
     public function ToArray($aMethods = null, $sPrefix = '') {
+
         if (!is_array($aMethods)) {
             $aMethods = get_class_methods($this);
         }
@@ -596,6 +627,7 @@ abstract class Entity extends LsObject {
     }
 
     public function setExpanded($sName, $sValue, $sType = 'string') {
+
         if ($sType == 'number' && is_scalar($sValue)) {
             if (filter_var($sValue, FILTER_VALIDATE_FLOAT)) {
                 $sValue = floatval($sValue);
@@ -614,6 +646,7 @@ abstract class Entity extends LsObject {
     }
 
     public function deleteExpanded($sName) {
+
         $this->delPropExpanded($sName);
     }
 

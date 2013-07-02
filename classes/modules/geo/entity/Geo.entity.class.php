@@ -63,7 +63,8 @@ class ModuleGeo_EntityGeo extends Entity {
         }
         if ($this->getCountryId()) {
             $oCountry = $this->Geo_GetCountryById($this->getCountryId());
-            return $this->setProp('country', $oCountry);
+            $this->setProp('country', $oCountry);
+            return $oCountry;
         }
         return null;
     }
