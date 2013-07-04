@@ -139,3 +139,7 @@ ALTER TABLE `prefix_track` CHANGE `ip` `ip` VARCHAR(40) CHARACTER SET utf8 COLLA
 -- Edit comment
 ALTER TABLE `prefix_comment` ADD `comment_user_edit` INT(11) UNSIGNED NULL DEFAULT '0' AFTER `comment_date`;
 ALTER TABLE `prefix_comment` ADD `comment_date_edit` DATETIME NULL DEFAULT NULL AFTER `comment_date`;
+
+-- v.0.9.7
+ALTER TABLE `prefix_topic` ADD `topic_url` VARCHAR( 250 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+ADD INDEX ( `topic_url` );
