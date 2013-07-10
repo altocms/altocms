@@ -3,7 +3,6 @@
  * @Project: Alto CMS
  * @Project URI: http://altocms.com
  * @Description: Advanced Community Engine
- * @Version: 0.9a
  * @Copyright: Alto CMS Team
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
@@ -34,7 +33,9 @@ return array(
     'menu_config' => 'Настройки',
     'menu_config_site' => 'Настройки сайта',
     'menu_config_lang' => 'Языки',
+    'menu_config_blogtypes' => 'Типы блогов',
     'menu_config_content' => 'Типы контента',
+    'menu_config_userrights' => 'Права пользователей',
     'menu_config_userfields' => 'Пользовательские поля',
 
     'menu_site' => 'Сайт',
@@ -57,12 +58,11 @@ return array(
     'menu_tools_checkdb' => 'Контроль БД',
 
     /* DASHBOARD */
-    'dashboard_updates_title' => 'Обновления Alto CMS и плагинов',
-    'dashboard_news_title' => 'Информация и новости Alto CMS',
+    'dashboard_updates_title' => 'Обновления',
+    'dashboard_news_title' => 'Новости Alto CMS',
     'dashboard_turn_title' => 'Отключение консоли',
     'dashboard_turn_on_text' => 'Если Вы не хотите получать информацию о новостях Alto CMS и о новых версиях плагинов, Вы можете отключить эту функцию',
     'dashboard_turn_off_text' => 'Вы отключили получение информации с сервера Alto CMS.<br/><br/>Если Вы хотите получать информацию о новостях Alto CMS и о новых версиях плагинов, Вы можете включить эту функцию',
-    'dashboard_add_widget' => 'Вы можете добавить виджеты на эту страницу при помощи кнопки "Добавить"',
     'dashboard_main' => 'Главная',
 
     /* common texts */
@@ -79,7 +79,6 @@ return array(
 
     'no_data' => 'Нет данных',
     'execute' => 'Выполнить',
-    'update' => 'Обновить',
 
     'menu_list' => 'Список',
     'menu_options' => 'Опции',
@@ -320,11 +319,7 @@ return array(
 
     'blog_edit' => 'Редактировать блог',
     'blog_delete' => 'Удалить блог',
-    'blog_del_confirm' => 'Этот блог будет удален: ',
-    'blog_del_topics' => 'Статей в блоге: ',
-    'blog_del_topics_choose' => 'Что делать со статьями блога?',
-    'blog_del_error' => 'Ошибка удаления блога',
-    'blog_del_move_error' => 'Ошибка перемещения статей в новый блог',
+    'blog_del_confirm' => 'Блог &quot;%%blog%%&quot; будет удален навсегда со всем его содержимым. \nПродолжить?',
 
     'topic_edit' => 'Редактировать статью',
     'topic_delete' => 'Удалить статью',
@@ -526,8 +521,6 @@ return array(
     'widget_showto_admins' => 'Администраторам',
 
     'widget_active' => 'Включен',
-    'widget_turn_on' => 'Включить виджет',
-    'widget_turn_off' => 'Отключить виджет',
 
     /* PLUGINS */
     'plugins_title' => 'Управление плагинами',
@@ -668,7 +661,7 @@ return array(
     'pages_create_sort_error' => 'Сортировка должна быть числом',
     'pages_create_active' => 'Показывать страницу',
     'pages_create_auto_br' => 'Автоматические переносы строк',
-    'pages_create_main' => 'Добавить в главное меню',
+    'pages_create_main' => 'Отображать на главной странице',
     'pages_create_submit_save' => 'сохранить',
     'pages_create_submit_save_ok' => 'Новая страница добавлена',
     'pages_create_submit_cancel' => 'отмена',
@@ -677,17 +670,16 @@ return array(
     'pages_admin_title' => 'Название',
     'pages_admin_url' => 'URL',
     'pages_admin_active' => 'Активна',
-    'pages_admin_main' => 'В главном меню',
-    'pages_admin_sort_up' => 'Выше',
-    'pages_admin_sort_down' => 'Ниже',
+    'pages_admin_main' => 'На главной',
+    'pages_admin_sort_up' => 'Переместить выше',
+    'pages_admin_sort_down' => 'Переместить ниже',
     'pages_admin_active_yes' => 'да',
     'pages_admin_active_no' => 'нет',
     'pages_admin_action' => 'Действие',
     'pages_admin_action_edit' => 'Редактировать',
-    'pages_admin_action_delete' => 'Удалить страницу',
+    'pages_admin_action_delete' => 'Удалить',
     'pages_admin_action_delete_ok' => 'Страница удалена',
     'pages_admin_action_delete_error' => 'Возникла ошибка при удалении страницы',
-    'pages_admin_action_delete_message' => 'Эта страница будет удалена:',
     'pages_admin_action_delete_confirm' => 'Вы действительно хотите удалить эту страницу со всеми вложенными страницами?',
 
     'pages' => 'Статические страницы',
@@ -702,6 +694,59 @@ return array(
 
     'menu_pages_new' => 'Новая',
     'menu_pages_options' => 'Опции',
+
+    /*
+     * Blog types
+     */
+    'blogtypes_menu'=>'Типы блогов',
+    'blogtypes_add'=>'Добавить новый',
+    'blogtypes_add_title'=>'Добавление нового типа блога',
+    'blogtypes_edit_title'=>'Редактирование типа блога',
+
+    'blogtypes_typecode'=>'Тип',
+    'blogtypes_name'=>'Название типа',
+    'blogtypes_title'=>'Название блога по умолчанию',
+    'blogtypes_min_rating'=>'Минимальный рейтинг для создания',
+    'blogtypes_allow_add'=>'Могут создавать пользователи',
+    'blogtypes_allow_add_notice'=>'Могут ли пользователи (не администраторы) создавать блоги этого типа',
+    'blogtypes_show_title'=>'Показывать заголовки блогов',
+    'blogtypes_show_title_notice'=>'Заголовки блогов будут показываться в списках блогов',
+    'blogtypes_index_content'=>'Индексировать контент',
+    'blogtypes_index_content_notice'=>'Контент блогов будет индексироваться и выдаваться при поиске',
+    'blogtypes_membership'=>'Членство в блогах',
+    'blogtypes_membership_notice'=>'Члены блогов могут иметь преимущества перед другими пользователями',
+
+    'blogtypes_acl_write'=>'Кто может писать',
+    'blogtypes_acl_read'=>'Кто может читать',
+    'blogtypes_acl_comment'=>'Кто может комментировать',
+
+    'blogtypes_need_min_rating'=>'Требуемый мин. рейтинг',
+    'blogtypes_min_rate_write'=>'Минимальный рейтинг для написания',
+    'blogtypes_min_rate_comment'=>'Минимальный рейтинг для комментирования',
+
+    'blog_user_role_administrator' => 'Администратор',
+    'blog_user_role_moderator' => 'Модератор',
+    'blog_user_role_member' => 'Участник',
+    'blog_user_role_notmember' => 'Любой',
+
+    // Членство в блоге
+    'blog_membership_none' => 'Нет',
+    'blog_membership_free' => 'Свободное',
+    'blog_membership_invite' => 'По приглашению',
+
+    'blogtypes_err_id_notfound'=>'Тип блога с заданным ID не найден',
+
+    /*
+     * User rights
+     */
+    'userrights_menu' => 'Права пользователей',
+    'userrights_blogs_title' => 'Права пользователей (блоги)',
+    'userrights_blogs_control_users' => 'Управлять пользователями блога',
+    'userrights_blogs_edit_blog' => 'Редактировать блог',
+    'userrights_blogs_edit_content' => 'Редактировать статьи',
+    'userrights_blogs_delete_content' => 'Удалять статьи',
+    'userrights_blogs_edit_comment' => 'Редактировать комментарии',
+    'userrights_blogs_delete_comment' => 'Удалять комментарии',
 
     /*
      * Content types
