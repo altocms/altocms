@@ -387,22 +387,22 @@ abstract class Entity extends LsObject {
     public function __call($sName, $aArgs) {
 
         $sType = strtolower(substr($sName, 0, 3));
-        if (!strpos($sName, '_') && in_array($sType, array('get', 'set'))) {
-            $sKey = func_underscore(substr($sName, 3));
+        if (!strpos($sName, '_') && ($sType == 'get' || $sType == 'set')) {
+            $sKey = F::StrUnderscore(substr($sName, 3));
             if ($sType == 'get') {
-                if (isset($this->_aData[$sKey])) {
-                    return $this->_aData[$sKey];
+                if ($this->isProp($sKey)) {
+                    return $this->getProp($sKey);
                 } else {
                     if (preg_match('/Entity([^_]+)/', get_class($this), $sModulePrefix)) {
-                        $sModulePrefix = func_underscore($sModulePrefix[1]) . '_';
-                        if (isset($this->_aData[$sModulePrefix . $sKey])) {
-                            return $this->_aData[$sModulePrefix . $sKey];
+                        $sModulePrefix = F::StrUnderscore($sModulePrefix[1]) . '_';
+                        if ($this->isProp($sModulePrefix . $sKey)) {
+                            return $this->getProp($sModulePrefix . $sKey);
                         }
                     }
                 }
                 return null;
             } elseif ($sType == 'set' && array_key_exists(0, $aArgs)) {
-                $this->_aData[$sKey] = $aArgs[0];
+                $this->setProp($sKey, $aArgs[0]);
             }
         } else {
             return Engine::getInstance()->_CallModule($sName, $aArgs);

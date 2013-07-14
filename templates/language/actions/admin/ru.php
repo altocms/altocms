@@ -702,6 +702,8 @@ return array(
     'blogtypes_add'=>'Добавить новый',
     'blogtypes_add_title'=>'Добавление нового типа блога',
     'blogtypes_edit_title'=>'Редактирование типа блога',
+    'blogtypes_opt_title'=>'Свойства блога',
+    'blogtypes_acl_title'=>'Права доступа к блогу',
 
     'blogtypes_typecode'=>'Тип',
     'blogtypes_name'=>'Название типа',
@@ -717,11 +719,21 @@ return array(
     'blogtypes_membership_notice'=>'Члены блогов могут иметь преимущества перед другими пользователями',
 
     'blogtypes_acl_write'=>'Кто может писать',
+    'blogtypes_acl_write_notice'=>'Кто, кроме владельца блога, может в него писать',
     'blogtypes_acl_read'=>'Кто может читать',
+    'blogtypes_acl_read_notice'=>'Кто, кроме владельца блога, может его читать',
     'blogtypes_acl_comment'=>'Кто может комментировать',
+    'blogtypes_acl_comment_notice'=>'Кто, кроме владельца блога, может его комментировать',
 
+    'blogtypes_acl_nobody'=>'Никто (только владелец)',
+    'blogtypes_acl_members'=>'Только участники',
+    'blogtypes_acl_users'=>'Все пользователи',
+    'blogtypes_acl_guests'=>'Любые посетители сайта',
+
+    'blogtypes_with_rating_from'=>' с рейтингом от ',
     'blogtypes_need_min_rating'=>'Требуемый мин. рейтинг',
     'blogtypes_min_rate_write'=>'Минимальный рейтинг для написания',
+    'blogtypes_min_rate_read'=>'Минимальный рейтинг для чтения',
     'blogtypes_min_rate_comment'=>'Минимальный рейтинг для комментирования',
 
     'blog_user_role_administrator' => 'Администратор',
@@ -732,6 +744,7 @@ return array(
     // Членство в блоге
     'blog_membership_none' => 'Нет',
     'blog_membership_free' => 'Свободное',
+    'blog_membership_request' => 'По запросу',
     'blog_membership_invite' => 'По приглашению',
 
     'blogtypes_err_id_notfound'=>'Тип блога с заданным ID не найден',

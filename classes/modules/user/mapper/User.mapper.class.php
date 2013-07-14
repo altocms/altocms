@@ -292,6 +292,7 @@ class ModuleUser_MapperUser extends Mapper {
      * @return array
      */
     public function GetUsersByArrayId($aArrayId) {
+
         if (!is_array($aArrayId) || count($aArrayId) == 0) {
             return array();
         }
