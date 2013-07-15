@@ -21,7 +21,7 @@ F::IncludeFile('./ICacheBackend.php');
  * Крайне НЕ рекомендуется использовать, как кеш всего приложения!!!
  */
 
-class CacheBackendTmp implements ICacheBackend {
+class CacheBackendTmp extends Dklab_Cache_Backend_Profiler implements ICacheBackend {
 
     static protected $aStore = array();
 
@@ -33,7 +33,7 @@ class CacheBackendTmp implements ICacheBackend {
 
         self::$aStore = array();
         $oCache = new self();
-        return new Dklab_Cache_Backend_Profiler($oCache, $sFuncStats);
+        return new self($oCache, $sFuncStats);
     }
 
     public function IsMultiLoad() {
@@ -51,7 +51,10 @@ class CacheBackendTmp implements ICacheBackend {
     public function Load($sName, $bNotTestCacheValidity = false) {
 
         if (isset(self::$aStore[$sName])) {
-            return F::Unserialize(self::$aStore[$sName], false);
+            $aData = self::$aStore[$sName];
+            if (is_array($aData) && array_key_exists('data', $aData)) {
+                return F::Unserialize($aData['data'], false);
+            }
         }
         return false;
     }
@@ -61,7 +64,7 @@ class CacheBackendTmp implements ICacheBackend {
         $xValue = F::Serialize($xData);
         self::$aStore[$sName] = array(
             'tags' => (array)$aTags,
-            'value' => $xValue,
+            'data' => $xValue,
             'time' => $nTimeLife ? time() + intval($nTimeLife) : false,
         );
     }
@@ -73,7 +76,7 @@ class CacheBackendTmp implements ICacheBackend {
         }
     }
 
-    public function Clean($sMode, $aTags = array()) {
+    public function Clean($sMode = Zend_Cache::CLEANING_MODE_ALL, $aTags = array()) {
 
         if ($sMode == Zend_Cache::CLEANING_MODE_ALL) {
             // Удаление всех значений
@@ -96,6 +99,14 @@ class CacheBackendTmp implements ICacheBackend {
                 }
             }
         }
+    }
+
+    public function setDirectives($directives) {
+
+    }
+
+    public function test($id) {
+
     }
 
 }

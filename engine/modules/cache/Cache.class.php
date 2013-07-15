@@ -192,7 +192,7 @@ class ModuleCache extends Module {
         if ($this->_backendIsAvailable($this->sCacheType)) {
             if ($this->bUseCache) {
                 // Включено автокеширование
-                $this->nCacheMode = $this->nCacheMode | self::CACHE_MODE_AUTO;
+                $this->nCacheMode = $this->nCacheMode | self::CACHE_MODE_AUTO | self::CACHE_MODE_REQUEST;
             } else {
                 // Включено кеширование по запросу
                 $this->nCacheMode = $this->nCacheMode | self::CACHE_MODE_REQUEST;
@@ -244,62 +244,65 @@ class ModuleCache extends Module {
      */
     protected function _backendInit($sCacheType) {
 
-        $sCacheType = strtolower($sCacheType);
-        if (!isset($this->aBackends[$sCacheType])) {
-            if (!in_array($sCacheType, $this->aCacheTypesAvailable)) {
-                /*
-                 * Неизвестный тип кеша
-                 */
-                throw new Exception('Wrong type of caching: ' . $this->sCacheType);
-            } else {
-                $aCacheTypes = (array)Config::Get('sys.cache.backends');
-                $sClass = 'CacheBackend' . $aCacheTypes[$sCacheType];
-                $sFile = './backend/' . $sClass . '.class.php';
-                if (!F::IncludeFile($sFile)) {
-                    throw new Exception('Cannot include cache backend file: ' . basename($sFile));
-                } elseif (!class_exists($sClass, false)) {
-                    throw new Exception('Cannot load cache backend class: ' . $sClass);
+        if (is_string($sCacheType)) {
+            $sCacheType = strtolower($sCacheType);
+        } elseif ($sCacheType === true || is_null($sCacheType)) {
+            $sCacheType = $this->sCacheType;
+        }
+        if ($sCacheType) {
+            if (!isset($this->aBackends[$sCacheType])) {
+                if (!in_array($sCacheType, $this->aCacheTypesAvailable)) {
+                    /*
+                     * Неизвестный тип кеша
+                     */
+                    throw new Exception('Wrong type of caching: ' . $this->sCacheType);
                 } else {
-                    $oBackendCache = $sClass::init(array($this, 'CalcStats'));
-                    if (!$oBackendCache->IsAvailable()) {
-                        throw new Exception('Cannot use cache type: ' . $sCacheType);
+                    $aCacheTypes = (array)Config::Get('sys.cache.backends');
+                    $sClass = 'CacheBackend' . $aCacheTypes[$sCacheType];
+                    $sFile = './backend/' . $sClass . '.class.php';
+                    if (!F::IncludeFile($sFile)) {
+                        throw new Exception('Cannot include cache backend file: ' . basename($sFile));
+                    } elseif (!class_exists($sClass, false)) {
+                        throw new Exception('Cannot load cache backend class: ' . $sClass);
                     } else {
-                        $this->aBackends[$sCacheType] = $oBackendCache;
-                        //* LS-compatible *//
-                        if ($sCacheType == $this->sCacheType) {
-                            $this->oBackendCache = $oBackendCache;
+                        $oBackendCache = $sClass::init(array($this, 'CalcStats'));
+                        if (!$oBackendCache->IsAvailable()) {
+                            throw new Exception('Cannot use cache type: ' . $sCacheType);
+                        } else {
+                            $this->aBackends[$sCacheType] = $oBackendCache;
+                            //* LS-compatible *//
+                            if ($sCacheType == $this->sCacheType) {
+                                $this->oBackendCache = $oBackendCache;
+                            }
+                            $oBackendCache = null;
+                            return $sCacheType;
                         }
-                        $oBackendCache = null;
-                        return true;
                     }
                 }
+            } else {
+                return $sCacheType;
             }
-        } else {
-            return true;
         }
     }
 
     protected function _backendIsAvailable($sCacheType) {
 
-        if (!$sCacheType) {
+        if (is_null($sCacheType) || $sCacheType === true) {
             $sCacheType = $this->sCacheType;
         }
-        return in_array($sCacheType, $this->aCacheTypesAvailable);
+        return $sCacheType && in_array($sCacheType, $this->aCacheTypesAvailable);
     }
 
     protected function _backendIsMultiLoad($sCacheType) {
 
-        if (!$sCacheType) {
-            $sCacheType = $this->sCacheType;
-        }
-        if ($this->_backendInit($sCacheType)) {
+        if ($sCacheType = $this->_backendInit($sCacheType)) {
             return $this->aBackends[$sCacheType]->IsMultiLoad();
         }
     }
 
     protected function _backendIsConcurent($sCacheType) {
 
-        if (!$sCacheType) {
+        if (is_null($sCacheType) || $sCacheType === true) {
             $sCacheType = $this->sCacheType;
         }
         if ($this->_backendInit($sCacheType) && Config::Get('sys.cache.concurrent_delay')) {
@@ -318,10 +321,7 @@ class ModuleCache extends Module {
      */
     protected function _backendLoad($sCacheType, $sHash) {
 
-        if (!$sCacheType) {
-            $sCacheType = $this->sCacheType;
-        }
-        if ($this->_backendInit($sCacheType)) {
+        if ($sCacheType = $this->_backendInit($sCacheType)) {
             return $this->aBackends[$sCacheType]->Load($sHash);
         }
         return false;
@@ -340,10 +340,7 @@ class ModuleCache extends Module {
      */
     protected function _backendSave($sCacheType, $data, $sHash, $aTags, $nTimeLife) {
 
-        if (!$sCacheType) {
-            $sCacheType = $this->sCacheType;
-        }
-        if ($this->_backendInit($sCacheType)) {
+        if ($sCacheType = $this->_backendInit($sCacheType)) {
             return $this->aBackends[$sCacheType]->Save($data, $sHash, $aTags, $nTimeLife ? $nTimeLife : false);
         }
         return false;
@@ -364,7 +361,7 @@ class ModuleCache extends Module {
             return $this->aBackends[$sCacheType]->Remove($sHash);
         } else {
             // Иначе сбрасываем у всех типов кеша
-            foreach ($this->aBackends[$sCacheType] as $oBackend) {
+            foreach ($this->aBackends as $oBackend) {
                 $oBackend->Remove($sHash);
             }
             return true;
@@ -388,7 +385,7 @@ class ModuleCache extends Module {
             return $this->aBackends[$sCacheType]->Clean($sMode, $aTags);
         } else {
             // Иначе сбрасываем у всех типов кеша
-            foreach ($this->aBackends[$sCacheType] as $oBackend) {
+            foreach ($this->aBackends as $oBackend) {
                 $oBackend->Clean($sMode, $aTags);
             }
             return true;

@@ -1,5 +1,8 @@
 <?php
 
+F::IncludeFile(LS_DKCACHE_PATH . 'Zend/Cache.php');
+F::IncludeFile(LS_DKCACHE_PATH . 'Zend/Cache/Backend/Interface.php');
+
 interface ICacheBackend {
 
     /**
@@ -32,7 +35,7 @@ interface ICacheBackend {
      *
      * @return mixed
      */
-    public function Clean($sMode, $aTags);
+    public function Clean($sMode = Zend_Cache::CLEANING_MODE_ALL, $aTags = array());
 
     /**
      * @return bool
