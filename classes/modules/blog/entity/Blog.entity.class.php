@@ -71,7 +71,11 @@ class ModuleBlog_EntityBlog extends Entity {
      * @return ModuleBlog_EntityBlogType|null
      */
     public function getBlogType() {
-        return $this->getProp('blog_type_obj');
+        $oBlogType = $this->getProp('blog_type_obj');
+        if (!$oBlogType && ($sType = $this->getType())) {
+            $oBlogType = $this->Blog_GetBlogTypeByCode($sType);
+        }
+        return $oBlogType;
     }
 
     /**

@@ -137,6 +137,7 @@ return array(
     /* BLOGS */
     'blogs_title' => 'Блоги',
     'blogs_list' => 'Список',
+    'blogs_all_types' => 'Все типы',
 
     /* TOPICS */
     'topics_title' => 'Топики',

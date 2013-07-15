@@ -6,12 +6,12 @@
     </div>
     <div class="btn-group">
         <a class="btn {if $sMode=='all' || $sMode==''}active{/if}" href="{router page='admin'}blogs/list/">
-            all <span class="badge badge-up">{$nBlogsTotal}</span>
+            {$aLang.action.admin.blogs_all_types} <span class="badge badge-up">{$nBlogsTotal}</span>
         </a>
-        {foreach $aBlogTypes as $aBlogType}
-            <a class="btn {if $sMode==$aBlogType.blog_type}active{/if}"
-               href="{router page='admin'}blogs/list/{$aBlogType.blog_type}/">
-                {$aBlogType.blog_type} <span class="badge badge-up">{$aBlogType.blog_cnt}</span>
+        {foreach $aBlogTypes as $oBlogType}
+            <a class="btn {if $sMode==$oBlogType->GetTypeCode()}active{/if}"
+               href="{router page='admin'}blogs/list/{$oBlogType->GetTypeCode()}/">
+                {$oBlogType->GetName()} <span class="badge badge-up">{$oBlogType->GetBlogsCount()}</span>
             </a>
         {/foreach}
     </div>
@@ -49,8 +49,11 @@
                                 <a href="{$oBlog->GetUrlFull()}">{$oBlog->GetTitle()}</a>
                             </td>
                             <td class="center">{$oBlog->GetBlogDateAdd()}</td>
-                            <td class="center">{if $oBlog->GetType()!='personal'}
-                                <b>{/if}{$oBlog->GetType()}{if $oBlog->GetType()!='personal'}</b>{/if}</td>
+                            <td class="center">
+                                {$oBlog->GetBlogType()->GetName()}<br/>
+                                {if $oBlog->GetType()!='personal'}
+                                <b>{/if}{$oBlog->GetType()}{if $oBlog->GetType()!='personal'}</b>{/if}
+                            </td>
                             <td class="number">{$oBlog->GetBlogCountUser()}</td>
                             <td class="number">{$oBlog->GetBlogCountTopic()}</td>
                             <td class="number">{$oBlog->GetBlogCountVote()}</td>
