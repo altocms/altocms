@@ -171,6 +171,7 @@ class AltoFunc_File {
      * @return bool
      */
     static public function CheckDir($sDir, $bAutoMake = true, $nMask = 0755) {
+
         $bResult = is_dir($sDir);
         if (!$bResult && $bAutoMake) {
             $bResult = @mkdir($sDir, $nMask, true);

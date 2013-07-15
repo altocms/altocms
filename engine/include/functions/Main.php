@@ -399,6 +399,7 @@ class AltoFunc_Main {
      * @return string
      */
     static public function Serialize($xData) {
+
         $sData = serialize($xData);
         $sCrc32 = dechex(crc32($sData));
         return $sCrc32 . '|' . $sData;
@@ -409,10 +410,12 @@ class AltoFunc_Main {
      * Аналог unserialize() с контролем CRC32
      *
      * @param $sData
+     * @param $xDefaultOnError
      *
      * @return mixed|null
      */
-    static public function Unserialize($sData) {
+    static public function Unserialize($sData, $xDefaultOnError = null) {
+
         if (is_string($sData) && strpos($sData, '|')) {
             list($sCrc32, $sData) = explode('|', $sData);
             if ($sCrc32 && $sData && $sCrc32 == dechex(crc32($sData))) {
@@ -420,7 +423,7 @@ class AltoFunc_Main {
                 return $xData;
             }
         }
-        return null;
+        return $xDefaultOnError;
     }
 
     static public function IpRange($sIp) {
