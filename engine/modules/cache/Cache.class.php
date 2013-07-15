@@ -580,7 +580,7 @@ class ModuleCache extends Module {
     /**
      * LS-compatible
      *
-     * @param   string      $sName  - Имя ключа
+     * @param   string      $sName      - Имя ключа
      * @param   string|null $sCacheType - Механизм используемого кеширования
      *
      * @return  bool|mixed
@@ -593,7 +593,7 @@ class ModuleCache extends Module {
     /**
      * Удаляет значение из кеша по ключу(имени)
      *
-     * @param string $sName    Имя ключа
+     * @param string $sName    - Имя ключа
      *
      * @return bool
      */
@@ -602,7 +602,14 @@ class ModuleCache extends Module {
         if (!$this->bUseCache) {
             return false;
         }
-        return $this->_backendRemove(null, $this->_hash($sName));
+        if (is_array($sName)) {
+            foreach ($sName as $sItemName) {
+                $this->_backendRemove(null, $this->_hash($sItemName));
+            }
+            return true;
+        } else {
+            return $this->_backendRemove(null, $this->_hash($sName));
+        }
     }
 
     /**
@@ -624,7 +631,7 @@ class ModuleCache extends Module {
     /**
      * Чистит кеши по тегам
      *
-     * @param array $aTags    Список тегов
+     * @param array $aTags    - Список тегов
      *
      * @return bool
      */
@@ -639,8 +646,8 @@ class ModuleCache extends Module {
     /**
      * Подсчет статистики использования кеша
      *
-     * @param int    $iTime      Время выполнения метода
-     * @param string $sMethod    имя метода
+     * @param int    $iTime      - Время выполнения метода
+     * @param string $sMethod    - Имя метода
      */
     public function CalcStats($iTime, $sMethod) {
 
