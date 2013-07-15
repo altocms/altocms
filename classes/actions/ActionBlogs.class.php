@@ -16,8 +16,6 @@
 */
 
 /**
- * Экшен обработки УРЛа вида /comments/
- *
  * @package actions
  * @since   1.0
  */
@@ -114,7 +112,7 @@ class ActionBlogs extends Action {
          * Фильтр поиска блогов
          */
         $aFilter = array(
-            'exclude_type' => 'personal'
+            'include_type' => $this->Blog_GetAllowBlogTypes($this->User_GetUserCurrent(), 'list', true),
         );
         /**
          * Передан ли номер страницы
@@ -138,12 +136,12 @@ class ActionBlogs extends Action {
          * Загружаем переменные в шаблон
          */
         $this->Viewer_Assign('aPaging', $aPaging);
-        $this->Viewer_Assign("aBlogs", $aBlogs);
-        $this->Viewer_Assign("sBlogOrder", htmlspecialchars($sOrder));
-        $this->Viewer_Assign("sBlogOrderWay", htmlspecialchars($sOrderWay));
-        $this->Viewer_Assign("sBlogOrderWayNext", htmlspecialchars($sOrderWay == 'desc' ? 'asc' : 'desc'));
-        $this->Viewer_Assign("sShow", 'collective');
-        $this->Viewer_Assign("sBlogsRootPage", Router::GetPath('blogs'));
+        $this->Viewer_Assign('aBlogs', $aBlogs);
+        $this->Viewer_Assign('sBlogOrder', htmlspecialchars($sOrder));
+        $this->Viewer_Assign('sBlogOrderWay', htmlspecialchars($sOrderWay));
+        $this->Viewer_Assign('sBlogOrderWayNext', htmlspecialchars($sOrderWay == 'desc' ? 'asc' : 'desc'));
+        $this->Viewer_Assign('sShow', 'collective');
+        $this->Viewer_Assign('sBlogsRootPage', Router::GetPath('blogs'));
         /**
          * Устанавливаем title страницы
          */
@@ -173,12 +171,12 @@ class ActionBlogs extends Action {
          * Фильтр поиска блогов
          */
         $aFilter = array(
-            'type' => 'personal'
+            'include_type' => 'personal'
         );
         /**
          * Передан ли номер страницы
          */
-        $iPage = preg_match("/^\d+$/i", $this->GetEventMatch(2)) ? $this->GetEventMatch(2) : 1;
+        $iPage = preg_match('/^\d+$/i', $this->GetEventMatch(2)) ? $this->GetEventMatch(2) : 1;
         /**
          * Получаем список блогов
          */
@@ -197,12 +195,12 @@ class ActionBlogs extends Action {
          * Загружаем переменные в шаблон
          */
         $this->Viewer_Assign('aPaging', $aPaging);
-        $this->Viewer_Assign("aBlogs", $aBlogs);
-        $this->Viewer_Assign("sBlogOrder", htmlspecialchars($sOrder));
-        $this->Viewer_Assign("sBlogOrderWay", htmlspecialchars($sOrderWay));
-        $this->Viewer_Assign("sBlogOrderWayNext", htmlspecialchars($sOrderWay == 'desc' ? 'asc' : 'desc'));
-        $this->Viewer_Assign("sShow", 'personal');
-        $this->Viewer_Assign("sBlogsRootPage", Router::GetPath('blogs') . 'personal/');
+        $this->Viewer_Assign('aBlogs', $aBlogs);
+        $this->Viewer_Assign('sBlogOrder', htmlspecialchars($sOrder));
+        $this->Viewer_Assign('sBlogOrderWay', htmlspecialchars($sOrderWay));
+        $this->Viewer_Assign('sBlogOrderWayNext', htmlspecialchars($sOrderWay == 'desc' ? 'asc' : 'desc'));
+        $this->Viewer_Assign('sShow', 'personal');
+        $this->Viewer_Assign('sBlogsRootPage', Router::GetPath('blogs') . 'personal/');
         /**
          * Устанавливаем title страницы
          */
@@ -214,6 +212,7 @@ class ActionBlogs extends Action {
     }
 
     public function EventShutdown() {
+
         $this->Viewer_Assign('sMenuHeadItemSelect', $this->sMenuHeadItemSelect);
     }
 }

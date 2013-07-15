@@ -645,6 +645,7 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CheckBlogControlUsers($oBlog, $oUser = null) {
+
         return $this->_checkBlogUserRights($oBlog, $oUser, 'control_users');
     }
 
@@ -657,6 +658,7 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CheckBlogEditBlog($oBlog, $oUser = null) {
+
         return $this->_checkBlogUserRights($oBlog, $oUser, 'edit_blog');
     }
 
@@ -669,6 +671,7 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CheckBlogEditContent($oBlog, $oUser = null) {
+
         return $this->_checkBlogUserRights($oBlog, $oUser, 'edit_content');
     }
 
@@ -681,6 +684,7 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CheckBlogDeleteContent($oBlog, $oUser = null) {
+
         return $this->_checkBlogUserRights($oBlog, $oUser, 'delete_content');
     }
 
@@ -693,6 +697,7 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CheckBlogEditComment($oBlog, $oUser = null) {
+
         return $this->_checkBlogUserRights($oBlog, $oUser, 'edit_comment');
     }
 
@@ -705,6 +710,7 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CheckBlogDeleteComment($oBlog, $oUser = null) {
+
         return $this->_checkBlogUserRights($oBlog, $oUser, 'delete_comment');
     }
 

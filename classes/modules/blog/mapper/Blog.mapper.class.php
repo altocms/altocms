@@ -283,6 +283,26 @@ class ModuleBlog_MapperBlog extends Mapper {
     }
 
     /**
+     * Возвращает список ID пользователей, являющихся авторами в блоге
+     *
+     * @param $nBlogId
+     *
+     * @return array
+     */
+    public function GetAuthorsIdByBlogId($nBlogId) {
+
+        $sql = "
+            SELECT DISTINCT t.user_id
+            FROM
+                ?_topic t
+            WHERE
+                t.blog_id = ?d
+        ";
+        $aResult = $this->oDb->selectCol($sql, $nBlogId);
+        return $aResult ? $aResult : array();
+    }
+
+    /**
      * Получает ID персонального блога пользователя
      *
      * @param   int     $sUserId ID пользователя
@@ -605,11 +625,14 @@ class ModuleBlog_MapperBlog extends Mapper {
             $sOrder = ' blog_id desc ';
         }
 
+        if (isset($aFilter['type']) && !isset($aFilter['include_type'])) {
+            $aFilter['include_type'] = $aFilter['type'];
+        }
         if (isset($aFilter['exclude_type']) && !is_array($aFilter['exclude_type'])) {
             $aFilter['exclude_type'] = array($aFilter['exclude_type']);
         }
-        if (isset($aFilter['type']) && !is_array($aFilter['type'])) {
-            $aFilter['type'] = array($aFilter['type']);
+        if (isset($aFilter['include_type']) && !is_array($aFilter['include_type'])) {
+            $aFilter['include_type'] = array($aFilter['include_type']);
         }
 
         $sql = "SELECT
@@ -632,9 +655,8 @@ class ModuleBlog_MapperBlog extends Mapper {
             $iCount, $sql,
             isset($aFilter['id']) ? $aFilter['id'] : DBSIMPLE_SKIP,
             isset($aFilter['user_owner_id']) ? $aFilter['user_owner_id'] : DBSIMPLE_SKIP,
-            (isset($aFilter['type']) && count($aFilter['type'])) ? $aFilter['type'] : DBSIMPLE_SKIP,
-            (isset($aFilter['exclude_type']) && count($aFilter['exclude_type'])) ? $aFilter['exclude_type']
-                : DBSIMPLE_SKIP,
+            isset($aFilter['include_type']) ? $aFilter['include_type'] : DBSIMPLE_SKIP,
+            isset($aFilter['exclude_type']) ? $aFilter['exclude_type'] : DBSIMPLE_SKIP,
             isset($aFilter['url']) ? $aFilter['url'] : DBSIMPLE_SKIP,
             isset($aFilter['title']) ? $aFilter['title'] : DBSIMPLE_SKIP,
             ($iCurrPage - 1) * $iPerPage, $iPerPage

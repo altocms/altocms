@@ -121,13 +121,6 @@ class ActionBlog extends Action {
      *
      */
     protected function RegisterEvent() {
-//		$this->AddEventPreg('/^good$/i','/^(page([1-9]\d{0,5}))?$/i',array('EventTopics','topics'));
-//		$this->AddEvent('good',array('EventTopics','topics'));
-//		$this->AddEventPreg('/^bad$/i','/^(page([1-9]\d{0,5}))?$/i',array('EventTopics','topics'));
-//		$this->AddEventPreg('/^new$/i','/^(page([1-9]\d{0,5}))?$/i',array('EventTopics','topics'));
-//		$this->AddEventPreg('/^newall$/i','/^(page([1-9]\d{0,5}))?$/i',array('EventTopics','topics'));
-//		$this->AddEventPreg('/^discussed$/i','/^(page([1-9]\d{0,5}))?$/i',array('EventTopics','topics'));
-//		$this->AddEventPreg('/^top$/i','/^(page([1-9]\d{0,5}))?$/i',array('EventTopics','topics'));
 
         $this->AddEvent('add', 'EventAddBlog');
         $this->AddEvent('edit', 'EventEditBlog');
@@ -303,8 +296,11 @@ class ActionBlog extends Action {
         $this->Viewer_AddHtmlTitle($this->Lang_Get('blog_edit'));
 
         $this->Viewer_Assign('oBlogEdit', $oBlog);
+
+        $aBlogTypes = $this->Blog_GetAllowBlogTypes($this->oUserCurrent, 'add');
+        $this->Viewer_Assign('aBlogTypes', $aBlogTypes);
         /**
-         * Устанавливаем шалон для вывода
+         * Устанавливаем шаблон для вывода
          */
         $this->SetTemplateAction('add');
         /**
@@ -323,14 +319,10 @@ class ActionBlog extends Action {
              */
             $sText = $this->Text_Parser(getRequestStr('blog_description'));
             $oBlog->setDescription($sText);
-            /**
-             * Сбрасываем кеш, если поменяли тип блога
-             * Нужна доработка, т.к. в этом блоге могут быть топики других юзеров
-             */
+
+            // Если меняется тип блога, фиксируем это
             if ($oBlog->getType() != getRequestStr('blog_type')) {
-                $this->Cache_Clean(
-                    Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("topic_update_user_{$oBlog->getOwnerId()}")
-                );
+                $oBlog->setOldType($oBlog->getType());
             }
             $oBlog->setType(getRequestStr('blog_type'));
             $oBlog->setLimitRatingTopic(getRequestStr('blog_limit_rating_topic'));
@@ -576,18 +568,19 @@ class ActionBlog extends Action {
                 $bOk = false;
             }
         }
+
+        // * Проверяем доступные типы блога для создания
+        $aBlogTypes = $this->Blog_GetAllowBlogTypes($this->oUserCurrent, 'add');
+        if (!in_array(getRequestStr('blog_type'), array_keys($aBlogTypes))) {
+            $this->Message_AddError($this->Lang_Get('blog_create_type_error'), $this->Lang_Get('error'));
+            $bOk = false;
+        }
+
         /**
          * Проверяем есть ли описание блога
          */
         if (!func_check(getRequestStr('blog_description'), 'text', 10, 3000)) {
             $this->Message_AddError($this->Lang_Get('blog_create_description_error'), $this->Lang_Get('error'));
-            $bOk = false;
-        }
-        /**
-         * Проверяем доступные типы блога для создания
-         */
-        if (!in_array(getRequestStr('blog_type'), array('open', 'close'))) {
-            $this->Message_AddError($this->Lang_Get('blog_create_type_error'), $this->Lang_Get('error'));
             $bOk = false;
         }
         /**
@@ -893,6 +886,7 @@ class ActionBlog extends Action {
      *
      */
     protected function EventShowBlog() {
+
         $sPeriod = 1; // по дефолту 1 день
         if (in_array(getRequestStr('period'), array(1, 7, 30, 'all'))) {
             $sPeriod = getRequestStr('period');

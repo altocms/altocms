@@ -577,30 +577,38 @@ class ModuleTopic extends Module {
      * @return bool
      */
     public function DeleteTopic($oTopicId) {
+
         if ($oTopicId instanceof ModuleTopic_EntityTopic) {
-            $nTopicId = $oTopicId->getId();
+            $oTopic = $oTopicId;
+            $nTopicId = $oTopic->getId();
+            $nUserId = $oTopic->getUserId();
         } else {
             $nTopicId = intval($oTopicId);
+            $oTopic = $this->GetTopicById($nTopicId);
+            $nUserId = $oTopic->getUserId();
         }
-        /**
-         * Если топик успешно удален, удаляем связанные данные
-         */
+        $oTopicId = null;
+
+        // * Если топик успешно удален, удаляем связанные данные
         if ($bResult = $this->oMapperTopic->DeleteTopic($nTopicId)) {
             $bResult = $this->DeleteTopicAdditionalData($nTopicId);
         }
 
         // * Чистим зависимые кеши
-        if (($oTopicId instanceof ModuleTopic_EntityTopic) && $oTopicId->getUserId()) {
-            $this->Cache_Clean(
-                Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("topic_update_user_{$oTopicId->getUserId()}")
-            );
-        }
-        $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array('topic_update'));
+        $this->Cache_CleanByTags(array('topic_update', 'topic_update_user_' . $nUserId));
         $this->Cache_Delete("topic_{$nTopicId}");
         return $bResult;
     }
 
+    /**
+     * Удаление топиков по массиву ID пользователей
+     *
+     * @param $aUsersId
+     *
+     * @return bool
+     */
     public function DeleteTopicsByUsersId($aUsersId) {
+
         $aFilter = array(
             'user_id' => $aUsersId,
         );
@@ -611,11 +619,16 @@ class ModuleTopic extends Module {
         }
 
         // * Чистим зависимые кеши
+        $aTags = array('topic_update');
         foreach ($aUsersId as $nUserId) {
-            $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("topic_update_user_{$nUserId}"));
+            $aTags[] = 'topic_update_user_' . $nUserId;
         }
-        $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array('topic_update'));
-        foreach ($aTopicsId as $nTopicId) {
+        $this->Cache_CleanByTags($aTags);
+        if ($aTopicsId) {
+            $aTags = array();
+            foreach ($aTopicsId as $nTopicId) {
+                $aTags[] = 'topic_' . $nTopicId;
+            }
             $this->Cache_Delete("topic_{$nTopicId}");
         }
         return $bResult;
