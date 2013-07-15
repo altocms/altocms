@@ -20,6 +20,9 @@
  * @since   1.0
  */
 class ModuleTopic_EntityTopic extends Entity {
+
+    const INDEX_IGNORE_LOCK = 2;
+
     /**
      * Массив объектов(не всегда) для дополнительных типов топиков(линки, опросы, подкасты и т.п.)
      *
@@ -929,6 +932,10 @@ class ModuleTopic_EntityTopic extends Entity {
     }
 
 
+    public function getIndexIgnoreLock() {
+        return intval($this->getTopicIndexIgnore()) == self::INDEX_IGNORE_LOCK;
+    }
+
     //***************************************************************************************************************
 
     /**
@@ -1227,6 +1234,12 @@ class ModuleTopic_EntityTopic extends Entity {
     public function setCountFavourite($data) {
         $this->_aData['topic_count_favourite'] = $data;
     }
+
+    public function setIndexIgnoreLock() {
+
+        $this->setTopicIndexIgnore(self::INDEX_IGNORE_LOCK);
+    }
+
 }
 
 // EOF

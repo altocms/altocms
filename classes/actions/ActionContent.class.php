@@ -51,36 +51,39 @@ class ActionContent extends Action {
 	 */
 	protected $oType=null;
 
-	/**
-	 * Инициализация
-	 *
-	 */
-	public function Init() {
-		/**
-		 * Проверяем авторизован ли юзер
-		 */
-		if (!$this->User_IsAuthorization()) {
-			return parent::EventNotFound();
-		}
-		$this->oUserCurrent=$this->User_GetUserCurrent();
-		/**
-		 * Устанавливаем дефолтный эвент
-		 */
-		$this->SetDefaultEvent('add');
-		/**
-		 * Устанавливаем title страницы
-		 */
-		//$this->Viewer_AddHtmlTitle($this->Lang_Get('topic_title'));
+    /**
+     * Инициализация
+     *
+     */
+    public function Init() {
+        /**
+         * Проверяем авторизован ли юзер
+         */
+        if (!$this->User_IsAuthorization()) {
+            return parent::EventNotFound();
+        }
+        $this->oUserCurrent = $this->User_GetUserCurrent();
+        /**
+         * Устанавливаем дефолтный эвент
+         */
+        $this->SetDefaultEvent('add');
+        /**
+         * Устанавливаем title страницы
+         */
+        //$this->Viewer_AddHtmlTitle($this->Lang_Get('topic_title'));
 
-		/**
-		 * Загружаем в шаблон JS текстовки
-		 */
-		$this->Lang_AddLangJs(array(
-								  'topic_photoset_photo_delete','topic_photoset_mark_as_preview','topic_photoset_photo_delete_confirm',
-								  'topic_photoset_is_preview','topic_photoset_upload_choose'
-							  ));
-	}
-	/**
+        /**
+         * Загружаем в шаблон JS текстовки
+         */
+        $this->Lang_AddLangJs(
+            array('topic_photoset_photo_delete', 'topic_photoset_mark_as_preview',
+                  'topic_photoset_photo_delete_confirm',
+                  'topic_photoset_is_preview', 'topic_photoset_upload_choose'
+            )
+        );
+    }
+
+    /**
 	 * Регистрируем евенты
 	 *
 	 */
@@ -243,62 +246,66 @@ class ActionContent extends Action {
 		 */
 		Router::Location($oTopic->getBlog()->getUrlFull());
 	}
-	/**
-	 * Добавление топика
-	 *
-	 */
-	protected function EventAdd() {
 
-		/**
-		 * Устанавливаем шаблон вывода
-		 */
-		$this->SetTemplateAction('add');
-		
-		/**
-		 * Вызов хуков
-		 */
-		$this->Hook_Run('topic_add_show');
+    /**
+     * Добавление топика
+     *
+     */
+    protected function EventAdd() {
 
-		/*
-		 * Получаем тип контента
-		 */
-		if(!$this->oType=$this->Topic_GetContentTypeByUrl($this->sCurrentEvent)){
-			return parent::EventNotFound();
-		}
-		
-		$this->Viewer_Assign('oType',$this->oType);
+        /**
+         * Устанавливаем шаблон вывода
+         */
+        $this->SetTemplateAction('add');
+
+        /**
+         * Вызов хуков
+         */
+        $this->Hook_Run('topic_add_show');
+
+        /*
+         * Получаем тип контента
+         */
+        if (!$this->oType = $this->Topic_GetContentTypeByUrl($this->sCurrentEvent)) {
+            return parent::EventNotFound();
+        }
+
+        $this->Viewer_Assign('oType', $this->oType);
 
         /**
          * Если тип контента не доступен текущему юзеру
          */
-        if(!$this->oType->isAccessible()){
+        if (!$this->oType->isAccessible()) {
             return parent::EventNotFound();
         }
-		
-		/**
-		 * Загружаем переменные в шаблон
-		 */
-		$this->Viewer_Assign('aBlogsAllow',$this->Blog_GetBlogsAllowByUser($this->oUserCurrent));
-		$this->Viewer_Assign('bEditDisabled',false);
-		$this->Viewer_AddHtmlTitle($this->Lang_Get('topic_topic_create').' '.mb_strtolower($this->oType->getContentTitle()));
-		if (!is_numeric(getRequest('topic_id'))) {
-			$_REQUEST['topic_id']='';
-		}
-		/**
-		 * Если нет временного ключа для нового топика, то генерируем. если есть, то загружаем фото по этому ключу
-		 */
-		if (empty($_COOKIE['ls_photoset_target_tmp'])) {
-			setcookie('ls_photoset_target_tmp',  func_generator(), time()+24*3600,Config::Get('sys.cookie.path'),Config::Get('sys.cookie.host'));
-		} else {
-			setcookie('ls_photoset_target_tmp', $_COOKIE['ls_photoset_target_tmp'], time()+24*3600,Config::Get('sys.cookie.path'),Config::Get('sys.cookie.host'));
-			$this->Viewer_Assign('aPhotos', $this->Topic_getPhotosByTargetTmp($_COOKIE['ls_photoset_target_tmp']));
-		}
-		/**
-		 * Обрабатываем отправку формы
-		 */
-		return $this->SubmitAdd();
-	}
-	/**
+
+        /**
+         * Загружаем переменные в шаблон
+         */
+        $this->Viewer_Assign('aBlogsAllow', $this->Blog_GetBlogsAllowByUser($this->oUserCurrent));
+        $this->Viewer_Assign('bEditDisabled', false);
+        $this->Viewer_AddHtmlTitle(
+            $this->Lang_Get('topic_topic_create') . ' ' . mb_strtolower($this->oType->getContentTitle())
+        );
+        if (!is_numeric(getRequest('topic_id'))) {
+            $_REQUEST['topic_id'] = '';
+        }
+        /**
+         * Если нет временного ключа для нового топика, то генерируем; если есть, то загружаем фото по этому ключу
+         */
+        if (empty($_COOKIE['ls_photoset_target_tmp'])) {
+            $this->Session_SetCookie('ls_photoset_target_tmp', F::RandomStr(), 'P1D');
+        } else {
+            $this->Session_SetCookie('ls_photoset_target_tmp', $_COOKIE['ls_photoset_target_tmp'], 'P1D');
+            $this->Viewer_Assign('aPhotos', $this->Topic_getPhotosByTargetTmp($_COOKIE['ls_photoset_target_tmp']));
+        }
+        /**
+         * Обрабатываем отправку формы
+         */
+        return $this->SubmitAdd();
+    }
+
+    /**
 	 * Выводит список топиков
 	 *
 	 */
@@ -327,201 +334,217 @@ class ActionContent extends Action {
 		$this->Viewer_Assign('aTopics',$aTopics);
 		$this->Viewer_AddHtmlTitle($this->Lang_Get('topic_menu_'.$this->sCurrentEvent));
 	}
-	/**
-	 * Обработка добавления топика
-	 *
-	 */
-	protected function SubmitAdd() {
-		/**
-		 * Проверяем отправлена ли форма с данными(хотяб одна кнопка)
-		 */
-		if (!isPost('submit_topic_publish') and !isPost('submit_topic_save')) {
-			return false;
-		}
-		$oTopic=Engine::GetEntity('Topic');
-		$oTopic->_setValidateScenario('topic');
-		/**
-		 * Заполняем поля для валидации
-		 */
-		$oTopic->setBlogId(getRequestStr('blog_id'));
-		$oTopic->setTitle(strip_tags(getRequestStr('topic_title')));
-		$oTopic->setTextSource(getRequestStr('topic_text'));
-		$oTopic->setTags(getRequestStr('topic_tags'));
-		$oTopic->setUserId($this->oUserCurrent->getId());
-		$oTopic->setType($this->oType->getContentUrl());
-		if ($this->oType->isAllow('link')){
-			$oTopic->setLinkUrl(getRequestStr('topic_link_url'));
-		}
-		$oTopic->setDateAdd(F::Now());
-		$oTopic->setUserIp(func_getIp());
+
+    /**
+     * Обработка добавления топика
+     *
+     */
+    protected function SubmitAdd() {
+        /**
+         * Проверяем отправлена ли форма с данными (хотяб одна кнопка)
+         */
+        if (!isPost('submit_topic_publish') && !isPost('submit_topic_save')) {
+            return false;
+        }
+        $oTopic = Engine::GetEntity('Topic');
+        $oTopic->_setValidateScenario('topic');
+        /**
+         * Заполняем поля для валидации
+         */
+        $oTopic->setBlogId(getRequestStr('blog_id'));
+        $oTopic->setTitle(strip_tags(getRequestStr('topic_title')));
+        $oTopic->setTextSource(getRequestStr('topic_text'));
+        $oTopic->setTags(getRequestStr('topic_tags'));
+        $oTopic->setUserId($this->oUserCurrent->getId());
+        $oTopic->setType($this->oType->getContentUrl());
+        if ($this->oType->isAllow('link')) {
+            $oTopic->setLinkUrl(getRequestStr('topic_link_url'));
+        }
+        $oTopic->setDateAdd(F::Now());
+        $oTopic->setUserIp(F::GetUserIp());
 
         $sTopicUrl = $this->Topic_CorrectTopicUrl($oTopic->getTitleTranslit());
         $oTopic->setTopicUrl($sTopicUrl);
-		/**
-		 * Проверка корректности полей формы
-		 */
-		if (!$this->checkTopicFields($oTopic)) {
-			return false;
-		}
-		/**
-		 * Определяем в какой блог делаем запись
-		 */
-		$iBlogId=$oTopic->getBlogId();
-		if ($iBlogId==0) {
-			$oBlog=$this->Blog_GetPersonalBlogByUserId($this->oUserCurrent->getId());
-		} else {
-			$oBlog=$this->Blog_GetBlogById($iBlogId);
-		}
-		/**
-		 * Если блог не определен выдаем предупреждение
-		 */
-		if (!$oBlog) {
-			$this->Message_AddErrorSingle($this->Lang_Get('topic_create_blog_error_unknown'),$this->Lang_Get('error'));
-			return false;
-		}
-		/**
-		 * Проверяем права на постинг в блог
-		 */
-		if (!$this->ACL_IsAllowBlog($oBlog,$this->oUserCurrent)) {
-			$this->Message_AddErrorSingle($this->Lang_Get('topic_create_blog_error_noallow'),$this->Lang_Get('error'));
-			return false;
-		}
-		/**
-		 * Проверяем разрешено ли постить топик по времени
-		 */
-		if (isPost('submit_topic_publish') and !$this->ACL_CanPostTopicTime($this->oUserCurrent)) {
-			$this->Message_AddErrorSingle($this->Lang_Get('topic_time_limit'),$this->Lang_Get('error'));
-			return;
-		}
-		/**
-		 * Теперь можно смело добавлять топик к блогу
-		 */
-		$oTopic->setBlogId($oBlog->getId());
-		/**
-		 * Получаемый и устанавливаем разрезанный текст по тегу <cut>
-		 */
-		list($sTextShort,$sTextNew,$sTextCut) = $this->Text_Cut($oTopic->getTextSource());
+        /**
+         * Проверка корректности полей формы
+         */
+        if (!$this->checkTopicFields($oTopic)) {
+            return false;
+        }
+        /**
+         * Определяем в какой блог делаем запись
+         */
+        $iBlogId = $oTopic->getBlogId();
+        if ($iBlogId == 0) {
+            $oBlog = $this->Blog_GetPersonalBlogByUserId($this->oUserCurrent->getId());
+        } else {
+            $oBlog = $this->Blog_GetBlogById($iBlogId);
+        }
+        /**
+         * Если блог не определен, то выдаем предупреждение
+         */
+        if (!$oBlog) {
+            $this->Message_AddErrorSingle($this->Lang_Get('topic_create_blog_error_unknown'), $this->Lang_Get('error'));
+            return false;
+        }
+        /**
+         * Проверяем права на постинг в блог
+         */
+        if (!$this->ACL_IsAllowBlog($oBlog, $this->oUserCurrent)) {
+            $this->Message_AddErrorSingle($this->Lang_Get('topic_create_blog_error_noallow'), $this->Lang_Get('error'));
+            return false;
+        }
+        /**
+         * Проверяем разрешено ли постить топик по времени
+         */
+        if (isPost('submit_topic_publish') && !$this->ACL_CanPostTopicTime($this->oUserCurrent)) {
+            $this->Message_AddErrorSingle($this->Lang_Get('topic_time_limit'), $this->Lang_Get('error'));
+            return;
+        }
+        /**
+         * Теперь можно смело добавлять топик к блогу
+         */
+        $oTopic->setBlogId($oBlog->getId());
+        /**
+         * Получаемый и устанавливаем разрезанный текст по тегу <cut>
+         */
+        list($sTextShort, $sTextNew, $sTextCut) = $this->Text_Cut($oTopic->getTextSource());
 
-		$oTopic->setCutText($sTextCut);
-		$oTopic->setText($this->Text_Parser($sTextNew));
-		$oTopic->setTextShort($this->Text_Parser($sTextShort));
+        $oTopic->setCutText($sTextCut);
+        $oTopic->setText($this->Text_Parser($sTextNew));
+        $oTopic->setTextShort($this->Text_Parser($sTextShort));
 
-		/**
-		 * Варианты ответов
-		 */
-		if($this->oType->isAllow('question') && getRequestStr('question_title') && getRequest('answer',array())){
-			$oTopic->setQuestionTitle(strip_tags(getRequestStr('question_title')));
-			$oTopic->clearQuestionAnswer();
-			foreach (getRequest('answer',array()) as $sAnswer) {
-				$oTopic->addQuestionAnswer((string)$sAnswer);
-			}
-		}
+        /**
+         * Варианты ответов
+         */
+        if ($this->oType->isAllow('question') && getRequestStr('question_title') && getRequest('answer', array())) {
+            $oTopic->setQuestionTitle(strip_tags(getRequestStr('question_title')));
+            $oTopic->clearQuestionAnswer();
+            foreach (getRequest('answer', array()) as $sAnswer) {
+                $oTopic->addQuestionAnswer((string)$sAnswer);
+            }
+        }
 
-		/*
-		 * Если есть прикрепленные фото
-		 */
-		if($this->oType->isAllow('photoset') && $sTargetTmp=$_COOKIE['ls_photoset_target_tmp']){
-			if($aPhotos = $this->Topic_getPhotosByTargetTmp($sTargetTmp)){
-				if (!($oPhotoMain=$this->Topic_getTopicPhotoById(getRequestStr('topic_main_photo')) and $oPhotoMain->getTargetTmp()==$sTargetTmp)) {
-					$oPhotoMain=$aPhotos[0];
-				}
-				if($oPhotoMain){
-					$oTopic->setPhotosetMainPhotoId($oPhotoMain->getId());
-					$oTopic->setPhotosetCount(count($aPhotos));
-				}
-			}
-		}
+        /*
+         * Если есть прикрепленные фото
+         */
+        if ($this->oType->isAllow('photoset') && $sTargetTmp = $_COOKIE['ls_photoset_target_tmp']) {
+            if ($aPhotos = $this->Topic_getPhotosByTargetTmp($sTargetTmp)) {
+                if (!($oPhotoMain = $this->Topic_getTopicPhotoById(getRequestStr('topic_main_photo')) and
+                    $oPhotoMain->getTargetTmp() == $sTargetTmp)
+                ) {
+                    $oPhotoMain = $aPhotos[0];
+                }
+                if ($oPhotoMain) {
+                    $oTopic->setPhotosetMainPhotoId($oPhotoMain->getId());
+                    $oTopic->setPhotosetCount(count($aPhotos));
+                }
+            }
+        }
 
-		/**
-		 * Публикуем или сохраняем
-		 */
-		if (isset($_REQUEST['submit_topic_publish'])) {
-			$oTopic->setPublish(1);
-			$oTopic->setPublishDraft(1);
-		} else {
-			$oTopic->setPublish(0);
-			$oTopic->setPublishDraft(0);
-		}
-		/**
-		 * Принудительный вывод на главную
-		 */
-		$oTopic->setPublishIndex(0);
-		if ($this->ACL_IsAllowPublishIndex($this->oUserCurrent))	{
-			if (getRequest('topic_publish_index')) {
-				$oTopic->setPublishIndex(1);
-			}
-		}
-		/**
-		 * Запрет на комментарии к топику
-		 */
-		$oTopic->setForbidComment(0);
-		if (getRequest('topic_forbid_comment')) {
-			$oTopic->setForbidComment(1);
-		}
-		/**
-		 * Запускаем выполнение хуков
-		 */
-		$this->Hook_Run('topic_add_before', array('oTopic'=>$oTopic,'oBlog'=>$oBlog));
-		/**
-		 * Добавляем топик
-		 */
-		if ($this->Topic_AddTopic($oTopic)) {
-			$this->Hook_Run('topic_add_after', array('oTopic'=>$oTopic,'oBlog'=>$oBlog));
-			/**
-			 * Получаем топик, чтоб подцепить связанные данные
-			 */
-			$oTopic=$this->Topic_GetTopicById($oTopic->getId());
+        /**
+         * Публикуем или сохраняем
+         */
+        if (isset($_REQUEST['submit_topic_publish'])) {
+            $oTopic->setPublish(1);
+            $oTopic->setPublishDraft(1);
+        } else {
+            $oTopic->setPublish(0);
+            $oTopic->setPublishDraft(0);
+        }
+        /**
+         * Принудительный вывод на главную
+         */
+        $oTopic->setPublishIndex(0);
+        if ($this->ACL_IsAllowPublishIndex($this->oUserCurrent)) {
+            if (getRequest('topic_publish_index')) {
+                $oTopic->setPublishIndex(1);
+            }
+        }
+        /**
+         * Запрет на комментарии к топику
+         */
+        $oTopic->setForbidComment(0);
+        if (getRequest('topic_forbid_comment')) {
+            $oTopic->setForbidComment(1);
+        }
 
-			/**
-			 * Обновляем количество топиков в блоге
-			 */
-			$this->Blog_RecalculateCountTopicByBlogId($oTopic->getBlogId());
-			/**
-			 * Добавляем автора топика в подписчики на новые комментарии к этому топику
-			 */
-			$this->Subscribe_AddSubscribeSimple('topic_new_comment',$oTopic->getId(),$this->oUserCurrent->getMail(),$this->oUserCurrent->getId());
-			/**
-			 * Подписываем автора топика на обновления в трекере
-			 */
-			if ($oTrack=$this->Subscribe_AddTrackSimple('topic_new_comment',$oTopic->getId(),$this->oUserCurrent->getId())) {
-				//если пользователь не отписался от обновлений топика
-				if(!$oTrack->getStatus()){
-					$oTrack->setStatus(1);
-					$this->Subscribe_UpdateTrack($oTrack);
-				}
-			}
-			/**
-			 * Делаем рассылку спама всем, кто состоит в этом блоге
-			 */
-			if ($oTopic->getPublish()==1 and $oBlog->getType()!='personal') {
-				$this->Topic_SendNotifyTopicNew($oBlog,$oTopic,$this->oUserCurrent);
-			}
-			/**
-			 * Привязываем фото к id топика
-			 * здесь нужно это делать одним запросом, а не перебором сущностей
-			 */
-			if (isset($aPhotos) && count($aPhotos)) {
-				foreach($aPhotos as $oPhoto) {
-					$oPhoto->setTargetTmp(null);
-					$oPhoto->setTopicId($oTopic->getId());
-					$this->Topic_updateTopicPhoto($oPhoto);
-				}
-			}
-			/**
-			 * Удаляем временную куку
-			 */
-			setcookie('ls_photoset_target_tmp', null);
-			/**
-			 * Добавляем событие в ленту
-			 */
-			$this->Stream_write($oTopic->getUserId(), 'add_topic', $oTopic->getId(),$oTopic->getPublish() && $oBlog->getType()!='close');
-			Router::Location($oTopic->getUrl());
-		} else {
-			$this->Message_AddErrorSingle($this->Lang_Get('system_error'));
-			return Router::Action('error');
-		}
-	}
-	/**
+        // Разрешение/запрет индексации контента топика изначально - как у блога
+        $oTopic->setTopicIndexIngnore($oBlog->GetBlogType()->GetIndexIgnore());
+
+        /**
+         * Запускаем выполнение хуков
+         */
+        $this->Hook_Run('topic_add_before', array('oTopic' => $oTopic, 'oBlog' => $oBlog));
+        /**
+         * Добавляем топик
+         */
+        if ($this->Topic_AddTopic($oTopic)) {
+            $this->Hook_Run('topic_add_after', array('oTopic' => $oTopic, 'oBlog' => $oBlog));
+            /**
+             * Получаем топик, чтоб подцепить связанные данные
+             */
+            $oTopic = $this->Topic_GetTopicById($oTopic->getId());
+
+            /**
+             * Обновляем количество топиков в блоге
+             */
+            $this->Blog_RecalculateCountTopicByBlogId($oTopic->getBlogId());
+            /**
+             * Добавляем автора топика в подписчики на новые комментарии к этому топику
+             */
+            $this->Subscribe_AddSubscribeSimple(
+                'topic_new_comment', $oTopic->getId(), $this->oUserCurrent->getMail(), $this->oUserCurrent->getId()
+            );
+            /**
+             * Подписываем автора топика на обновления в трекере
+             */
+            if ($oTrack = $this->Subscribe_AddTrackSimple(
+                'topic_new_comment', $oTopic->getId(), $this->oUserCurrent->getId()
+            )
+            ) {
+                //если пользователь не отписался от обновлений топика
+                if (!$oTrack->getStatus()) {
+                    $oTrack->setStatus(1);
+                    $this->Subscribe_UpdateTrack($oTrack);
+                }
+            }
+            /**
+             * Делаем рассылку спама всем, кто состоит в этом блоге
+             */
+            if ($oTopic->getPublish() == 1 && $oBlog->getType() != 'personal') {
+                $this->Topic_SendNotifyTopicNew($oBlog, $oTopic, $this->oUserCurrent);
+            }
+            /**
+             * Привязываем фото к id топика
+             * здесь нужно это делать одним запросом, а не перебором сущностей
+             */
+            if (isset($aPhotos) && count($aPhotos)) {
+                foreach ($aPhotos as $oPhoto) {
+                    $oPhoto->setTargetTmp(null);
+                    $oPhoto->setTopicId($oTopic->getId());
+                    $this->Topic_updateTopicPhoto($oPhoto);
+                }
+            }
+            /**
+             * Удаляем временную куку
+             */
+            setcookie('ls_photoset_target_tmp', null);
+            /**
+             * Добавляем событие в ленту
+             */
+            $this->Stream_Write(
+                $oTopic->getUserId(), 'add_topic', $oTopic->getId(),
+                $oTopic->getPublish() && $oBlog->getType() != 'close'
+            );
+            Router::Location($oTopic->getUrl());
+        } else {
+            $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
+            return Router::Action('error');
+        }
+    }
+
+    /**
 	 * Обработка редактирования топика
 	 *
 	 * @param ModuleTopic_EntityTopic $oTopic
@@ -583,7 +606,7 @@ class ActionContent extends Action {
 		/**
 		 * Проверяем разрешено ли постить топик по времени
 		 */
-		if (isPost('submit_topic_publish') and !$oTopic->getPublishDraft() and !$this->ACL_CanPostTopicTime($this->oUserCurrent)) {
+		if (isPost('submit_topic_publish') && !$oTopic->getPublishDraft() && !$this->ACL_CanPostTopicTime($this->oUserCurrent)) {
 			$this->Message_AddErrorSingle($this->Lang_Get('topic_time_limit'),$this->Lang_Get('error'));
 			return;
 		}
@@ -625,7 +648,7 @@ class ActionContent extends Action {
 			$oTopic->setPublish(1);
 			if ($oTopic->getPublishDraft()==0) {
 				$oTopic->setPublishDraft(1);
-				$oTopic->setDateAdd(date("Y-m-d H:i:s"));
+				$oTopic->setDateAdd(F::Now());
 				$bSendNotify=true;
 			}
 		} else {
@@ -634,7 +657,7 @@ class ActionContent extends Action {
 		/**
 		 * Принудительный вывод на главную
 		 */
-		if ($this->ACL_IsAllowPublishIndex($this->oUserCurrent))	{
+		if ($this->ACL_IsAllowPublishIndex($this->oUserCurrent)) {
 			if (getRequest('topic_publish_index')) {
 				$oTopic->setPublishIndex(1);
 			} else {
@@ -648,6 +671,12 @@ class ActionContent extends Action {
 		if (getRequest('topic_forbid_comment')) {
 			$oTopic->setForbidComment(1);
 		}
+
+        // Если запрет на индексацию не устанавливался вручную, то задаем, как у блога
+        if (!$oTopic->getIndexIgnoreLock()) {
+            $oTopic->setTopicIndexIngnore($oBlog->GetBlogType()->GetIndexIgnore());
+        }
+
 		$this->Hook_Run('topic_edit_before', array('oTopic'=>$oTopic,'oBlog'=>$oBlog));
 		/**
 		 * Сохраняем топик
@@ -679,7 +708,7 @@ class ActionContent extends Action {
 			if ($bSendNotify)	 {
 				$this->Topic_SendNotifyTopicNew($oBlog,$oTopic,$oTopic->getUser());
 			}
-			if (!$oTopic->getPublish() and !$this->oUserCurrent->isAdministrator() and $this->oUserCurrent->getId()!=$oTopic->getUserId()) {
+			if (!$oTopic->getPublish() && !$this->oUserCurrent->isAdministrator() && $this->oUserCurrent->getId()!=$oTopic->getUserId()) {
 				Router::Location($oBlog->getUrlFull());
 			}
 			Router::Location($oTopic->getUrl());

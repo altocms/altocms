@@ -250,13 +250,13 @@ class ModuleSession extends Module {
     /**
      * Sets cookie
      *
-     * @param $sName
-     * @param $sValue
-     * @param mixed|null $xPeriod
+     * @param   string          $sName
+     * @param   string          $sValue
+     * @param   int|string|null $xPeriod  - period in seconds or in string like 'P<..>'
      */
     public function SetCookie($sName, $sValue, $xPeriod = null) {
         if ($xPeriod) {
-            $nTime = time() + intval($xPeriod);
+            $nTime = time() + F::ToSeconds($xPeriod);
         } else {
             $nTime = 0;
         }

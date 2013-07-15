@@ -2197,24 +2197,24 @@ class ModuleTopic extends Module {
     /**
      * Перемещает топики в другой блог
      *
-     * @param  int $sBlogId       ID старого блога
-     * @param  int $sBlogIdNew    ID нового блога
+     * @param  int $nBlogId       ID старого блога
+     * @param  int $nBlogIdNew    ID нового блога
      *
      * @return bool
      */
-    public function MoveTopics($sBlogId, $sBlogIdNew) {
-        if ($res = $this->oMapperTopic->MoveTopics($sBlogId, $sBlogIdNew)) {
+    public function MoveTopics($nBlogId, $nBlogIdNew) {
+
+        if ($res = $this->oMapperTopic->MoveTopics($nBlogId, $nBlogIdNew)) {
             // перемещаем теги
-            $this->oMapperTopic->MoveTopicsTags($sBlogId, $sBlogIdNew);
+            $this->oMapperTopic->MoveTopicsTags($nBlogId, $nBlogIdNew);
             // меняем target parent у комментов
-            $this->Comment_MoveTargetParent($sBlogId, 'topic', $sBlogIdNew);
+            $this->Comment_MoveTargetParent($nBlogId, 'topic', $nBlogIdNew);
             // меняем target parent у комментов в прямом эфире
-            $this->Comment_MoveTargetParentOnline($sBlogId, 'topic', $sBlogIdNew);
+            $this->Comment_MoveTargetParentOnline($nBlogId, 'topic', $nBlogIdNew);
             return $res;
         }
-        $this->Cache_Clean(
-            Zend_Cache::CLEANING_MODE_MATCHING_TAG,
-            array("topic_update", "topic_new_blog_{$sBlogId}", "topic_new_blog_{$sBlogIdNew}")
+        $this->Cache_CleanByTags(
+            array("topic_update", "topic_new_blog_{$nBlogId}", "topic_new_blog_{$nBlogIdNew}")
         );
         return false;
     }

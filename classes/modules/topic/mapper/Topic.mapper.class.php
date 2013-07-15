@@ -863,41 +863,78 @@ class ModuleTopic_MapperTopic extends Mapper {
      * Перемещает топики в другой блог
      *
      * @param  array  $aTopics    Список ID топиков
-     * @param  int    $sBlogId    ID блога
+     * @param  int    $nBlogIdNew    ID блога
      *
      * @return bool
      */
-    public function MoveTopicsByArrayId($aTopics, $sBlogId) {
+    public function MoveTopicsByArrayId($aTopics, $nBlogIdNew) {
+
         if (!is_array($aTopics)) {
             $aTopics = array($aTopics);
         }
 
-        $sql = "UPDATE " . Config::Get('db.table.topic') . "
-			SET 
-				blog_id= ?d
-			WHERE
-				topic_id IN(?a)
-		";
-        $bResult = $this->oDb->query($sql, $sBlogId, $aTopics);
-        return $bResult !== false;
+        return $this->MoveTopicsByFilter($nBlogIdNew, array('topic_id' => $aTopics));
     }
 
     /**
      * Перемещает топики в другой блог
      *
-     * @param  int $sBlogId       ID старого блога
-     * @param  int $sBlogIdNew    ID нового блога
+     * @param  int $nBlogIdOld       ID старого блога
+     * @param  int $nBlogIdNew       ID нового блога
      *
      * @return bool
      */
-    public function MoveTopics($sBlogId, $sBlogIdNew) {
-        $sql = "UPDATE " . Config::Get('db.table.topic') . "
-			SET 
-				blog_id= ?d
-			WHERE
-				blog_id = ?d
-		";
-        $bResult = $this->oDb->query($sql, $sBlogIdNew, $sBlogId);
+    public function MoveTopics($nBlogIdOld, $nBlogIdNew) {
+
+        return $this->MoveTopicsByFilter($nBlogIdNew, array('blog_id' => $nBlogIdOld));
+    }
+
+    /**
+     * Перемещает топики в другой блог
+     *
+     * @param $nBlogIdNew
+     * @param $aFilter
+     *
+     * @return bool
+     */
+    public function MoveTopicsByFilter($nBlogIdNew, $aFilter) {
+
+        if (!isset($aFilter['blog_id']) || !isset($aFilter['topic_id'])) {
+            return false;
+        }
+
+        if (isset($aFilter['blog_id']) && !is_array($aFilter['blog_id'])) {
+            $aFilter['blog_id'] = array($aFilter['blog_id']);
+        }
+
+        if (isset($aFilter['topic_id']) && !is_array($aFilter['topic_id'])) {
+            $aFilter['topic_id'] = array($aFilter['topic_id']);
+        }
+
+        $oBlogType = $this->Blog_GetBlogTypeById($nBlogIdNew);
+        if ($oBlogType) {
+            $nIndexIgnore = $oBlogType->getIndexIgnore();
+        } else {
+            $nIndexIgnore = 0;
+        }
+        $sql
+            = "UPDATE ?_topic
+                SET
+                    blog_id = ?d,
+                    topic_index_ignore = CASE WHEN topic_index_ignore = ?d THEN topic_index_ignore ELSE ?d END
+                WHERE
+                    1 = 1
+                    { AND (blog_id IN (?a)) }
+                    { AND (topic_id IN(?a)) }
+                ";
+        $bResult = $this->oDb->query(
+            $sql,
+            $nBlogIdNew,
+            ModuleTopic_EntityTopic::INDEX_IGNORE_LOCK,
+            $nIndexIgnore,
+            isset($aFilter['blog_id']) ? $aFilter['blog_id'] : DBSIMPLE_SKIP,
+            isset($aFilter['topic_id']) ? $aFilter['topic_id'] : DBSIMPLE_SKIP
+        );
         return $bResult !== false;
     }
 
@@ -910,6 +947,7 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return bool
      */
     public function MoveTopicsTags($sBlogId, $sBlogIdNew) {
+
         $sql = "UPDATE " . Config::Get('db.table.topic_tag') . "
 			SET 
 				blog_id= ?d
@@ -929,6 +967,7 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return bool
      */
     public function MoveTopicsTagsByArrayId($aTopics, $sBlogId) {
+
         if (!is_array($aTopics)) {
             $aTopics = array($aTopics);
         }
@@ -950,8 +989,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      *
      * @return array
      */
-    public function GetTopicPhotosByArrayId($aArrayId) {
-        if (!is_array($aArrayId) || count($aArrayId) == 0) {
+    public function GetTopicPhotosByArrayId($aPhotoId) {
+        if (!is_array($aPhotoId) || count($aPhotoId) == 0) {
             return array();
         }
 
@@ -963,7 +1002,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 					id IN(?a)
 				ORDER BY FIELD(id,?a) ";
         $aReturn = array();
-        if ($aRows = $this->oDb->select($sql, $aArrayId, $aArrayId)) {
+        if ($aRows = $this->oDb->select($sql, $aPhotoId, $aPhotoId)) {
             foreach ($aRows as $aPhoto) {
                 $aReturn[] = Engine::GetEntity('Topic_TopicPhoto', $aPhoto);
             }

@@ -13,6 +13,7 @@
 class ModuleSearch_MapperSearch extends Mapper {
 
     protected function PrepareRegExp($sRegExp) {
+
         $sRegExpPrim = str_replace('[[:>:]]|[[:<:]]', '[[:space:]]+', $sRegExp);
         $sRegExpPrim = str_replace('|[[:<:]]', '[[:alnum:]]+[[:space:]]+', $sRegExpPrim);
         $sRegExpPrim = str_replace('[[:>:]]|', '[[:space:]]+[[:alnum:]]+', $sRegExpPrim);
@@ -32,6 +33,7 @@ class ModuleSearch_MapperSearch extends Mapper {
      * @return array
      */
     public function GetTopicsIdByRegexp($sRegExp, &$iCount, $iCurrPage, $iPerPage, $aParams) {
+
         $aRegExp = $this->PrepareRegExp($sRegExp);
         $aResult = array();
         if (!$aParams['bSkipTags']) {
@@ -40,15 +42,16 @@ class ModuleSearch_MapperSearch extends Mapper {
                 SELECT DISTINCT t.topic_id, 
                     CASE WHEN (LOWER(t.topic_title) REGEXP ?) THEN 1 ELSE 0 END +
                     CASE WHEN (LOWER(tc.topic_text_source) REGEXP ?) THEN 1 ELSE 0 END AS weight
-                FROM " . Config::Get('db.table.topic') . " AS t
-                    INNER JOIN " . Config::Get('db.table.topic_content') . " AS tc ON tc.topic_id=t.topic_id
+                FROM ?_topic AS t
+                    INNER JOIN ?_topic_content AS tc ON tc.topic_id=t.topic_id
                 WHERE 
-                    (topic_publish=1) 
-                    AND ((LOWER(t.topic_title) REGEXP ?)
+                    (topic_publish=1)
+                     AND topic_index_ignore=0
+                     AND ((LOWER(t.topic_title) REGEXP ?)
                         {OR (LOWER(t.topic_title) REGEXP ?)}
                         OR (LOWER(tc.topic_text_source) REGEXP ?)
                         {OR (LOWER(tc.topic_text_source) REGEXP ?)}
-                    )
+                     )
                 ORDER BY
                     weight DESC,
                     t.topic_id ASC
@@ -84,15 +87,17 @@ class ModuleSearch_MapperSearch extends Mapper {
      * @return array
      */
     public function GetCommentsIdByRegexp($sRegExp, &$iCount, $iCurrPage, $iPerPage, $aParams) {
+
         $aRegExp = $this->PrepareRegExp($sRegExp);
         $aResult = array();
         if (!$aParams['bSkipTags']) {
             $sql = "
                 SELECT DISTINCT c.comment_id,
                     CASE WHEN (LOWER(c.comment_text) REGEXP ?) THEN 1 ELSE 0 END weight
-                FROM " . Config::Get('db.table.comment') . " AS c
+                FROM ?_comment AS c
+                    INNER JOIN ?_topic AS t ON t.topic_id=c.target_id
                 WHERE
-                    (comment_delete=0 AND target_type='topic')
+                    (comment_delete=0 AND target_type='topic' AND t.topic_index_ignore=0)
                     AND
                         (
                             (LOWER(c.comment_text) REGEXP ?)
@@ -131,14 +136,18 @@ class ModuleSearch_MapperSearch extends Mapper {
      * @return array
      */
     public function GetBlogsIdByRegexp($sRegExp, &$iCount, $iCurrPage, $iPerPage, $aParams) {
+
         $aRegExp = $this->PrepareRegExp($sRegExp);
         $aResult = array();
         if (!$aParams['bSkipTags']) {
             $sql = "
                 SELECT DISTINCT b.blog_id,
                     CASE WHEN (LOWER(b.blog_title) REGEXP ?) THEN 1 ELSE 0 END weight
-                FROM " . Config::Get('db.table.blog') . " AS b
+                FROM ?_blog AS b
+                    INNER JOIN ?_blog_type AS bt ON bt.type_code=b.blog_type
                 WHERE
+                    bt.index_ignore=0
+                    AND
                     (
                         (LOWER(b.blog_title) REGEXP ?)
                         {OR (LOWER(b.blog_description) REGEXP ?)}
