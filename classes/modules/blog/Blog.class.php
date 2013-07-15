@@ -334,16 +334,21 @@ class ModuleBlog extends Module {
      */
     public function CreatePersonalBlog(ModuleUser_EntityUser $oUser) {
 
-        $oBlog = Engine::GetEntity('Blog');
-        $oBlog->setOwnerId($oUser->getId());
-        $oBlog->setTitle($this->Lang_Get('blogs_personal_title') . ' ' . $oUser->getLogin());
-        $oBlog->setType('personal');
-        $oBlog->setDescription($this->Lang_Get('blogs_personal_description'));
-        $oBlog->setDateAdd(F::Now());
-        $oBlog->setLimitRatingTopic(-1000);
-        $oBlog->setUrl(null);
-        $oBlog->setAvatar(null);
-        return $this->AddBlog($oBlog);
+        $oBlogType = $this->GetBlogTypeByCode('personal');
+
+        // Создаем персональный блог, только если это разрешено
+        if ($oBlogType && $oBlogType->IsActive()) {
+            $oBlog = Engine::GetEntity('Blog');
+            $oBlog->setOwnerId($oUser->getId());
+            $oBlog->setTitle($this->Lang_Get('blogs_personal_title') . ' ' . $oUser->getLogin());
+            $oBlog->setType('personal');
+            $oBlog->setDescription($this->Lang_Get('blogs_personal_description'));
+            $oBlog->setDateAdd(F::Now());
+            $oBlog->setLimitRatingTopic(-1000);
+            $oBlog->setUrl(null);
+            $oBlog->setAvatar(null);
+            return $this->AddBlog($oBlog);
+        }
     }
 
     /**

@@ -15,6 +15,7 @@
 class ModuleBlog_EntityBlogType extends Entity {
 
     public function Init() {
+
         parent::Init();
         $this->aValidateRules[] = array(
             'type_code',                        // поле

@@ -423,11 +423,11 @@ class ModuleCache extends Module {
      * Full ISO 8601 interval format: PnYnMnDTnHnMnS
      * </pre>
      *
-     * @param   mixed           $xData      - Данные для хранения в кеше
-     * @param   string          $sName      - Имя ключа
-     * @param   array           $aTags      - Список тегов, для возможности удалять сразу несколько кешей по тегу
-     * @param   string|int|bool $nTimeLife  - Время жизни кеша (в секундах или в строковом интервале)
-     * @param   string|null     $sCacheType - Тип используемого кеша
+     * @param   mixed               $xData      - Данные для хранения в кеше
+     * @param   string              $sName      - Имя ключа
+     * @param   array               $aTags      - Список тегов, для возможности удалять сразу несколько кешей по тегу
+     * @param   string|int|bool     $nTimeLife  - Время жизни кеша (в секундах или в строковом интервале)
+     * @param   string|bool|null    $sCacheType - Тип используемого кеша
      *
      * @return  bool
      */
