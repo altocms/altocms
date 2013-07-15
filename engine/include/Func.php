@@ -208,20 +208,21 @@ class Func {
      * @return  mixed
      */
     static public function IncludeFile($sFile, $bOnce = true, $bConfig = false) {
+
         $sDir = dirname($sFile);
-        if ($sDir == '.' || $sDir == '..') {
+        if ($sDir == '.' || $sDir == '..' || substr($sDir, 0, 2) == './' || substr($sDir, 0, 3) == '../') {
             $aCaller = self::_Caller();
             if (isset($aCaller['file'])) {
-                $sFile = dirname($aCaller['file']) . '/' . $sFile;
+                $sFile = realpath(dirname($aCaller['file']) . '/' . $sFile);
             }
         }
-        if (isset(self::$aExtsions['File'])) {
-            return call_user_func_array(self::$aExtsions['File'] . '::IncludeFile', array($sFile, $bOnce, $bConfig));
+        if (isset(self::$aExtsions['File']) && is_callable($sFunc = self::$aExtsions['File'] . '::IncludeFile')) {
+            return call_user_func_array($sFunc, array($sFile, $bOnce, $bConfig));
         } else {
             if ($bOnce) {
-                return include($sFile);
-            } else {
                 return include_once($sFile);
+            } else {
+                return include($sFile);
             }
         }
     }
@@ -234,6 +235,7 @@ class Func {
      * @return  mixed
      */
     static public function IncludeLib($sFile, $bOnce = true) {
+
         if (class_exists('Config', false)) {
             return self::IncludeFile(Config::Get('path.dir.lib') . 'external/' . $sFile, $bOnce);
         } else {
