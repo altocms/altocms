@@ -612,7 +612,7 @@ class ModuleUser extends Module {
     }
 
     /**
-     * Автоматическое заллогинивание по ключу из куков
+     * Автоматическое залогинивание по ключу из куков
      *
      */
     protected function AutoLogin() {
@@ -623,7 +623,8 @@ class ModuleUser extends Module {
         $sSessionKey = $this->RestoreSessionKey();
         if ($sSessionKey) {
             if ($oUser = $this->GetUserBySessionKey($sSessionKey)) {
-                $this->Authorization($oUser);
+                // Не забываем продлить куку
+                $this->Authorization($oUser, true);
             } else {
                 $this->Logout();
             }
