@@ -61,6 +61,42 @@ class ModuleBlog_EntityBlogType extends Entity {
     }
 
     /**
+     * Права на чтение
+     *
+     * @param null $nMask
+     *
+     * @return int
+     */
+    public function GetAclRead($nMask = null) {
+
+        return $this->getPropMask('acl_read', $nMask);
+    }
+
+    /**
+     * Права на запись
+     *
+     * @param null $nMask
+     *
+     * @return int
+     */
+    public function GetAclWrite($nMask = null) {
+
+        return $this->getPropMask('acl_write', $nMask);
+    }
+
+    /**
+     * Права на комментирование
+     *
+     * @param null $nMask
+     *
+     * @return int
+     */
+    public function GetAclComment($nMask = null) {
+
+        return $this->getPropMask('acl_comment', $nMask);
+    }
+
+    /**
      * Возвращает индекс (порядок) сортировки
      *
      * @return int
@@ -70,7 +106,7 @@ class ModuleBlog_EntityBlogType extends Entity {
     }
 
     public function IsShowTitle() {
-        return (bool)$this->getProp('show_title');
+        return (bool)$this->getProp('allow_list');
     }
 
     public function IsIndexIgnore() {
@@ -94,6 +130,42 @@ class ModuleBlog_EntityBlogType extends Entity {
             $oUser->getRating() > $this->GetMinRating();
         }
         return false;
+    }
+
+    /**
+     * Приватный блог
+     *
+     * По умолчанию это блог, который могут читать только участники
+     *
+     * @return bool
+     */
+    public function IsPrivate() {
+
+        return !((bool)$this->GetAclRead(ModuleBlog::BLOG_USER_ACL_GUEST | ModuleBlog::BLOG_USER_ACL_USER));
+    }
+
+    /**
+     * Блог только для чтения
+     *
+     * По умолчанию это блог, в который могут писать только участники
+     *
+     * @return bool
+     */
+    public function IsReadOnly() {
+
+        return !((bool)$this->GetAclWrite(ModuleBlog::BLOG_USER_ACL_GUEST | ModuleBlog::BLOG_USER_ACL_USER));
+    }
+
+    /**
+     * Скрытый блог
+     *
+     * По умолчанию это приватный блог, который не показывается в списках
+     *
+     * @return bool
+     */
+    public function IsHidden() {
+
+        return $this->IsPrivate() && !$this->IsShowTitle();
     }
 }
 
