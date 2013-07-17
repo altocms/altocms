@@ -2421,7 +2421,7 @@ class ActionAdmin extends Action {
             } else {
                 $_REQUEST['blogtypes_typecode'] = $oBlogType->GetTypeCode();
                 $_REQUEST['blogtypes_allow_add'] = $oBlogType->IsAllowAdd();
-                $_REQUEST['blogtypes_min_rating'] = $oBlogType->GetMinRating();
+                $_REQUEST['blogtypes_min_rating'] = $oBlogType->GetMinRateAdd();
                 $_REQUEST['blogtypes_max_num'] = $oBlogType->GetMaxNum();
                 $_REQUEST['blogtypes_show_title'] = $oBlogType->IsShowTitle();
                 $_REQUEST['blogtypes_index_content'] = !$oBlogType->IsIndexIgnore();
@@ -2492,9 +2492,9 @@ class ActionAdmin extends Action {
                     $oBlogType->setProp('title_' . $sLang, empty($aTitles[$sLang]) ? null : $aTitles[$sLang]);
                 }
                 $oBlogType->SetAllowAdd($this->GetPost('blogtypes_allow_add') ? 1 : 0);
-                $oBlogType->SetMinRating($this->GetPost('blogtypes_min_rating'));
+                $oBlogType->SetMinRateAdd($this->GetPost('blogtypes_min_rating'));
                 $oBlogType->SetMaxNum($this->GetPost('blogtypes_max_num'));
-                $oBlogType->SetShowTitle($this->GetPost('blogtypes_show_title'));
+                $oBlogType->SetAllowList($this->GetPost('blogtypes_show_title'));
                 $oBlogType->SetIndexIgnore($this->GetPost('blogtypes_index_content') ? 0 : 1);
                 $oBlogType->SetMembership(intval($this->GetPost('blogtypes_membership')));
                 $oBlogType->SetMinRateWrite($this->GetPost('blogtypes_min_rate_write'));
@@ -2560,9 +2560,10 @@ class ActionAdmin extends Action {
             $oBlogType->setProp('title_' . $sLang, empty($aTitles[$sLang]) ? null : $aTitles[$sLang]);
         }
 
-        $oBlogType->SetMinRating($this->GetPost('blogtypes_min_rating'));
+        $oBlogType->SetAllowAdd($this->GetPost('blogtypes_allow_add') ? 1 : 0);
+        $oBlogType->SetMinRateAdd($this->GetPost('blogtypes_min_rating'));
         $oBlogType->SetMaxNum($this->GetPost('blogtypes_max_num'));
-        $oBlogType->SetShowTitle($this->GetPost('blogtypes_show_title'));
+        $oBlogType->SetAllowList($this->GetPost('blogtypes_show_title'));
         $oBlogType->SetIndexIgnore(!(bool)$this->GetPost('blogtypes_index_content'));
         $oBlogType->SetMembership(intval($this->GetPost('blogtypes_membership')));
         $oBlogType->SetMinRateWrite($this->GetPost('blogtypes_min_rate_write'));
