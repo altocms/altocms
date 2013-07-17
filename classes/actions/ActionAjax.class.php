@@ -104,7 +104,7 @@ class ActionAjax extends Action {
         $oViewer = $this->Viewer_GetLocalViewer();
 
         $oViewer->Assign('oBlog', $oBlog);
-        if ($oBlog->getType() != 'close' || $oBlog->getUserIsJoin()) {
+        if (!$oBlog->getBlogType()->IsPrivate() || $oBlog->getUserIsJoin()) {
             // * Получаем последний топик
             $aResult = $this->Topic_GetTopicsByFilter(array('blog_id' => $oBlog->getId(), 'topic_publish' => 1), 1, 1);
             $oViewer->Assign('oTopicLast', reset($aResult['collection']));

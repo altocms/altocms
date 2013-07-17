@@ -535,7 +535,7 @@ class ActionContent extends Action {
              */
             $this->Stream_Write(
                 $oTopic->getUserId(), 'add_topic', $oTopic->getId(),
-                $oTopic->getPublish() && $oBlog->getType() != 'close'
+                $oTopic->getPublish() && !$oBlog->getBlogType()->IsPrivate()
             );
             Router::Location($oTopic->getUrl());
         } else {
@@ -701,7 +701,7 @@ class ActionContent extends Action {
 			/**
 			 * Добавляем событие в ленту
 			 */
-			$this->Stream_write($oTopic->getUserId(), 'add_topic', $oTopic->getId(),$oTopic->getPublish() && $oBlog->getType()!='close');
+			$this->Stream_Write($oTopic->getUserId(), 'add_topic', $oTopic->getId(),$oTopic->getPublish() && !$oBlog->getBlogType()->IsPrivate());
 			/**
 			 * Рассылаем о новом топике подписчикам блога
 			 */

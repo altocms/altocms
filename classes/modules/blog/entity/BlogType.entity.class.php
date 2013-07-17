@@ -63,9 +63,9 @@ class ModuleBlog_EntityBlogType extends Entity {
     /**
      * Права на чтение
      *
-     * @param null $nMask
+     * @param   int $nMask
      *
-     * @return int
+     * @return  int
      */
     public function GetAclRead($nMask = null) {
 
@@ -75,9 +75,9 @@ class ModuleBlog_EntityBlogType extends Entity {
     /**
      * Права на запись
      *
-     * @param null $nMask
+     * @param   int $nMask
      *
-     * @return int
+     * @return  int
      */
     public function GetAclWrite($nMask = null) {
 
@@ -87,13 +87,25 @@ class ModuleBlog_EntityBlogType extends Entity {
     /**
      * Права на комментирование
      *
-     * @param null $nMask
+     * @param   int $nMask
      *
-     * @return int
+     * @return  int
      */
     public function GetAclComment($nMask = null) {
 
         return $this->getPropMask('acl_comment', $nMask);
+    }
+
+    /**
+     * Членство в блоге
+     *
+     * @param   int $nMask
+     *
+     * @return  int
+     */
+    public function GetMembership($nMask = null) {
+
+        return $this->getPropMask('membership', $nMask);
     }
 
     /**
