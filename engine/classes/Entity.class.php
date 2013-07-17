@@ -169,6 +169,44 @@ abstract class Entity extends LsObject {
         }
     }
 
+    /**
+     * Gets integer property by mask
+     *
+     * @param string          $sKey
+     * @param int|string|null $xMask - integer or string mask like '01001110'
+     *
+     * @return int
+     */
+    public function getPropMask($sKey, $xMask = null) {
+
+        $nVal = intval($this->getProp($sKey));
+        if (is_null($xMask)) {
+            return $nVal;
+        }
+        if (is_string($xMask) && strcspn($xMask, '01')) {
+            $xMask = bindec($xMask);
+        }
+        return $nVal & $xMask;
+    }
+
+    /**
+     * @param string     $sKey
+     * @param int|string $xMask - integer or string mask like '01001110'
+     * @param bool       $bAnd  - OR/AND operation
+     */
+    public function setPropMask($sKey, $xMask, $bAnd = false) {
+
+        $nVal = intval($this->getProp($sKey));
+        if (is_string($xMask) && strcspn($xMask, '01')) {
+            $xMask = bindec($xMask);
+        }
+        if ($bAnd) {
+            $this->setProp($sKey, $nVal & $xMask);
+        } else {
+            $this->setProp($sKey, $nVal | $xMask);
+        }
+    }
+
     protected function _getExpandedData($sSubKey = null) {
 
         $aData = $this->getProp(self::EXP_KEY);
