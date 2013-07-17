@@ -20,30 +20,46 @@
  * @since   1.0
  */
 class ModuleBlog_MapperBlog extends Mapper {
+
+    const CRITERIA_CALC_TOTAL_SKIP = 0;
+    const CRITERIA_CALC_TOTAL_AUTO = 1;
+    const CRITERIA_CALC_TOTAL_FORCE = 2;
+    const CRITERIA_CALC_TOTAL_ONLY = 3;
+
+    protected $aBlogOrderAllow = array('blog_id', 'blog_title', 'blog_rating', 'blog_count_user', 'blog_count_topic');
+
     /**
      * Добавляет блог в БД
      *
-     * @param ModuleBlog_EntityBlog $oBlog    Объект блога
+     * @param   ModuleBlog_EntityBlog $oBlog    - Объект блога
      *
-     * @return int|bool
+     * @return  int|bool
      */
-    public function AddBlog(ModuleBlog_EntityBlog $oBlog) {
+    public function AddBlog($oBlog) {
 
-        $sql = "INSERT INTO ?_blog
-			(user_owner_id,
-			blog_title,
-			blog_description,
-			blog_type,
-			blog_date_add,
-			blog_limit_rating_topic,
-			blog_url,
-			blog_avatar
-			)
-			VALUES(?d, ?, ?, ?, ?, ?, ?, ?)
-		";
+        $sql
+            = "
+            INSERT INTO ?_blog
+            SET
+                user_owner_id = ?d,
+                blog_title = ?,
+                blog_description = ?,
+                blog_type = ?,
+                blog_date_add = ?,
+                blog_limit_rating_topic = ?,
+                blog_url = ?,
+                blog_avatar = ?
+        ";
         $nId = $this->oDb->query(
-            $sql, $oBlog->getOwnerId(), $oBlog->getTitle(), $oBlog->getDescription(), $oBlog->getType(),
-            $oBlog->getDateAdd(), $oBlog->getLimitRatingTopic(), $oBlog->getUrl(), $oBlog->getAvatar()
+            $sql,
+            $oBlog->getOwnerId(),
+            $oBlog->getTitle(),
+            $oBlog->getDescription(),
+            $oBlog->getType(),
+            $oBlog->getDateAdd(),
+            $oBlog->getLimitRatingTopic(),
+            $oBlog->getUrl(),
+            $oBlog->getAvatar()
         );
         return $nId ? $nId : false;
     }
@@ -55,29 +71,40 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @return bool
      */
-    public function UpdateBlog(ModuleBlog_EntityBlog $oBlog) {
+    public function UpdateBlog($oBlog) {
 
-        $sql = "
+        $sql
+            = "
             UPDATE ?_blog
-			SET 
-				blog_title= ?,
-				blog_description= ?,
-				blog_type= ?,
-				blog_date_edit= ?,
-				blog_rating= ?f,
-				blog_count_vote = ?d,
-				blog_count_user= ?d,
-				blog_count_topic= ?d,
-				blog_limit_rating_topic= ?f ,
-				blog_url= ?,
-				blog_avatar= ?
-			WHERE
-				blog_id = ?d
-		";
+            SET
+                blog_title = ?,
+                blog_description = ?,
+                blog_type = ?,
+                blog_date_edit = ?,
+                blog_rating = ?f,
+                blog_count_vote = ?d,
+                blog_count_user = ?d,
+                blog_count_topic = ?d,
+                blog_limit_rating_topic = ?f ,
+                blog_url = ?,
+                blog_avatar = ?
+            WHERE
+                blog_id = ?d
+        ";
         $bResult = $this->oDb->query(
-            $sql, $oBlog->getTitle(), $oBlog->getDescription(), $oBlog->getType(), $oBlog->getDateEdit(),
-            $oBlog->getRating(), $oBlog->getCountVote(), $oBlog->getCountUser(), $oBlog->getCountTopic(),
-            $oBlog->getLimitRatingTopic(), $oBlog->getUrl(), $oBlog->getAvatar(), $oBlog->getId()
+            $sql,
+            $oBlog->getTitle(),
+            $oBlog->getDescription(),
+            $oBlog->getType(),
+            $oBlog->getDateEdit(),
+            $oBlog->getRating(),
+            $oBlog->getCountVote(),
+            $oBlog->getCountUser(),
+            $oBlog->getCountTopic(),
+            $oBlog->getLimitRatingTopic(),
+            $oBlog->getUrl(),
+            $oBlog->getAvatar(),
+            $oBlog->getId()
         );
         return $bResult !== false;
     }
@@ -103,14 +130,12 @@ class ModuleBlog_MapperBlog extends Mapper {
             $aOrder = array($aOrder);
         }
         $sOrder = '';
-        foreach ($aOrder as $key => $value) {
-            $value = (string)$value;
-            if (!in_array(
-                $key, array('blog_id', 'blog_title', 'blog_type', 'blog_rating', 'blog_count_user', 'blog_date_add')
-            )) {
-                unset($aOrder[$key]);
-            } elseif (in_array($value, array('asc', 'desc'))) {
-                $sOrder .= " {$key} {$value},";
+        foreach ($aOrder as $sKey => $sValue) {
+            $sValue = strtoupper($sValue);
+            if (!in_array(strtolower($sKey), $this->aBlogOrderAllow)) {
+                unset($aOrder[$sKey]);
+            } elseif (in_array($sValue, array('ASC', 'DESC'))) {
+                $sOrder .= " {$sKey} {$sValue},";
             }
         }
         $sOrder = trim($sOrder, ',');
@@ -305,17 +330,21 @@ class ModuleBlog_MapperBlog extends Mapper {
     /**
      * Получает ID персонального блога пользователя
      *
-     * @param   int     $sUserId ID пользователя
+     * @param   int     $nUserId ID пользователя
      *
      * @return  int|null
      */
-    public function GetPersonalBlogByUserId($sUserId) {
+    public function GetPersonalBlogByUserId($nUserId) {
 
-        $sql = "SELECT blog_id FROM ?_blog WHERE user_owner_id = ?d AND blog_type='personal'";
-        if ($aRow = $this->oDb->selectRow($sql, $sUserId)) {
-            return $aRow['blog_id'];
-        }
-        return null;
+        $aCriteria = array(
+            'filter' => array(
+                'user_id' => intval($nUserId),
+                'blog_type' => 'personal',
+            ),
+            'limit' => 1,
+        );
+        $aResult = $this->GetBlogsIdByCriteria($aCriteria);
+        return $aResult['data'] ? $aResult['data'][0] : null;
     }
 
     /**
@@ -327,81 +356,92 @@ class ModuleBlog_MapperBlog extends Mapper {
      */
     public function GetBlogsIdByOwnersId($aUsersId) {
 
-        $aUsersId = $this->_arrayId($aUsersId);
-        $sql = "
-            SELECT blog_id
-            FROM ?_blog
-            WHERE user_owner_id IN (?a) ";
-        return $this->oDb->selectCol($sql, $aUsersId);
+        $aCriteria = array(
+            'filter' => array(
+                'user_id' => $aUsersId,
+            ),
+        );
+        $aResult = $this->GetBlogsIdByCriteria($aCriteria);
+        return $aResult['data'];
     }
 
     /**
      * Получает блог по названию
      *
-     * @param string $sTitle Нащвание блога
+     * @param   string $sTitle     - Название блога
      *
-     * @return ModuleBlog_EntityBlog|null
+     * @return  ModuleBlog_EntityBlog|null
      */
     public function GetBlogByTitle($sTitle) {
 
-        $sql = "SELECT blog_id FROM ?_blog WHERE blog_title = ? ";
-        $nId = $this->oDb->selectCell($sql, $sTitle);
-        return $nId ? $nId : null;
+        $aCriteria = array(
+            'filter' => array(
+                'blog_title' => $sTitle,
+            ),
+            'limit'  => 1,
+        );
+        $aResult = $this->GetBlogsIdByCriteria($aCriteria);
+        return $aResult['data'] ? $aResult['data'][0] : null;
     }
 
     /**
      * Получает блог по URL
      *
-     * @param string $sUrl URL блога
+     * @param   string $sUrl   - URL блога
      *
      * @return ModuleBlog_EntityBlog|null
      */
     public function GetBlogByUrl($sUrl) {
 
-        $sql = "SELECT
-				b.blog_id 
-			FROM 
-				?_blog as b
-			WHERE 
-				b.blog_url = ?
-				";
-        $nId = $this->oDb->selectCell($sql, $sUrl);
-        return $nId ? $nId : null;
+        $aCriteria = array(
+            'filter' => array(
+                'blog_url' => $sUrl,
+            ),
+            'limit'  => 1,
+        );
+        $aResult = $this->GetBlogsIdByCriteria($aCriteria);
+        return $aResult['data'] ? $aResult['data'][0] : null;
     }
 
     /**
      * Получить список блогов по хозяину
      *
-     * @param int $nUserId ID пользователя
+     * @param   int $nUserId    - ID пользователя
      *
-     * @return array
+     * @return  array
      */
     public function GetBlogsByOwnerId($nUserId) {
 
-        $aFilter = array(
-            'user_id' => intval($nUserId),
-            'exclude_type' => 'personal',
+        $aCriteria = array(
+            'filter' => array(
+                'user_id'       => intval($nUserId),
+                'not_blog_type' => 'personal',
+            ),
         );
-        return $this->GetBlogsIdByFilter($aFilter);
+        $aResult = $this->GetBlogsIdByCriteria($aCriteria);
+        return $aResult['data'];
     }
 
     /**
      * Возвращает список всех не персональных блогов
      *
-     * @return array
+     * @return  array
      */
     public function GetBlogs() {
 
-        $aFilter = array(
-            'exclude_type' => 'personal',
+        $aCriteria = array(
+            'filter' => array(
+                'not_blog_type' => 'personal',
+            ),
         );
-        return $this->GetBlogsIdByFilter($aFilter);
+        $aResult = $this->GetBlogsIdByCriteria($aCriteria);
+        return $aResult['data'];
     }
 
     /**
      * Возвращает ID блогов по заданному фильтру
      *
-     * @param $aFilter
+     * @param   array $aFilter    - фильтр
      *
      * @return array
      */
@@ -413,24 +453,21 @@ class ModuleBlog_MapperBlog extends Mapper {
                 return array();
             }
         }
-        $sql = "
-            SELECT
-                b.blog_id
-            FROM
-                ?_blog as b
-            WHERE
-                1=1
-                { AND b.user_owner_id = ?d }
-                { AND b.blog_type IN (?a) }
-                { AND b.blog_type NOT IN (?a) }
-            ";
-        $aBlogsId = $this->oDb->selectCol(
-            $sql,
-            isset($aFilter['user_id']) ? $aFilter['user_id'] : DBSIMPLE_SKIP,
-            isset($aFilter['include_type']) ? (array)$aFilter['include_type'] : DBSIMPLE_SKIP,
-            isset($aFilter['exclude_type']) ? (array)$aFilter['exclude_type'] : DBSIMPLE_SKIP
+
+        $aCriteria = array(
+            'filter' => array(),
         );
-        return $aBlogsId ? $aBlogsId : array();
+        if (isset($aFilter['user_id'])) {
+            $aCriteria['filter']['user_id'] = $aFilter['user_id'];
+        }
+        if (isset($aFilter['user_id'])) {
+            $aCriteria['filter']['blog_type'] = $aFilter['include_type'];
+        }
+        if (isset($aFilter['user_id'])) {
+            $aCriteria['filter']['not_blog_type'] = $aFilter['exclude_type'];
+        }
+        $aResult = $this->GetBlogsIdByCriteria($aCriteria);
+        return $aResult['data'];
     }
 
     /**
@@ -444,33 +481,30 @@ class ModuleBlog_MapperBlog extends Mapper {
      */
     public function GetBlogsRating(&$iCount, $iCurrPage, $iPerPage) {
 
-        $sql = "SELECT
-					b.blog_id
-				FROM 
-					?_blog as b
-				WHERE
-					b.blog_type<>'personal'
-				ORDER BY b.blog_rating DESC
-				LIMIT ?d, ?d
-				";
-        $aReturn = array();
-        if ($aRows = $this->oDb->selectPage($iCount, $sql, ($iCurrPage - 1) * $iPerPage, $iPerPage)) {
-            foreach ($aRows as $aRow) {
-                $aReturn[] = $aRow['blog_id'];
-            }
-        }
-        return $aReturn;
+        $aCriteria = array(
+            'filter' => array(
+                'not_blog_type' => 'personal',
+            ),
+            'order'  => array(
+                'blog_rating' => 'DESC',
+            ),
+            'limit'  => array(($iCurrPage - 1) * $iPerPage, $iPerPage),
+        );
+
+        $aResult = $this->GetBlogsIdByCriteria($aCriteria);
+        $iCount = $aResult['total'];
+        return $aResult['data'];
     }
 
     /**
      * Получает список блогов в которых состоит пользователь
      *
-     * @param int $sUserId   ID пользователя
-     * @param int $iLimit    Ограничение на выборку элементов
+     * @param int $nUserId   ID пользователя
+     * @param int $nLimit    Ограничение на выборку элементов
      *
      * @return array
      */
-    public function GetBlogsRatingJoin($sUserId, $iLimit) {
+    public function GetBlogsRatingJoin($nUserId, $nLimit) {
 
         $sql = "SELECT
 					b.*
@@ -486,7 +520,7 @@ class ModuleBlog_MapperBlog extends Mapper {
 				ORDER by b.blog_rating desc
 				LIMIT 0, ?d";
         $aReturn = array();
-        if ($aRows = $this->oDb->select($sql, $sUserId, $iLimit)) {
+        if ($aRows = $this->oDb->select($sql, $nUserId, $nLimit)) {
             foreach ($aRows as $aRow) {
                 $aReturn[] = Engine::GetEntity('Blog', $aRow);
             }
@@ -498,11 +532,11 @@ class ModuleBlog_MapperBlog extends Mapper {
      * Получает список блогов, которые создал пользователь
      *
      * @param int $sUserId   ID пользователя
-     * @param int $iLimit    Ограничение на выборку элементов
+     * @param int $nLimit    Ограничение на выборку элементов
      *
      * @return array
      */
-    public function GetBlogsRatingSelf($sUserId, $iLimit) {
+    public function GetBlogsRatingSelf($sUserId, $nLimit) {
 
         $sql = "SELECT
 					b.*
@@ -515,7 +549,7 @@ class ModuleBlog_MapperBlog extends Mapper {
 				ORDER BY b.blog_rating DESC
 				LIMIT 0, ?d";
         $aReturn = array();
-        if ($aRows = $this->oDb->select($sql, $sUserId, $iLimit)) {
+        if ($aRows = $this->oDb->select($sql, $sUserId, $nLimit)) {
             foreach ($aRows as $aRow) {
                 $aReturn[] = Engine::GetEntity('Blog', $aRow);
             }
@@ -530,10 +564,13 @@ class ModuleBlog_MapperBlog extends Mapper {
      */
     public function GetCloseBlogs() {
 
-        $aFilter = array(
-            'include_type' => 'close',
+        $aCriteria = array(
+            'filter' => array(
+                'blog_type' => 'close',
+            ),
         );
-        return $this->GetBlogsIdByFilter($aFilter);
+        $aResult = $this->GetBlogsIdByCriteria($aCriteria);
+        return $aResult['data'];
     }
 
     /**
@@ -573,11 +610,11 @@ class ModuleBlog_MapperBlog extends Mapper {
     /**
      * Пересчитывает число топиков в блогах
      *
-     * @param int|null $iBlogId ID блога
+     * @param int|null $nBlogId ID блога
      *
      * @return bool
      */
-    public function RecalculateCountTopic($iBlogId = null) {
+    public function RecalculateCountTopic($nBlogId = null) {
 
         $sql = "
                 UPDATE ?_blog b
@@ -592,102 +629,63 @@ class ModuleBlog_MapperBlog extends Mapper {
                 WHERE 1=1
                     { AND b.blog_id = ?d }
             ";
-        $bResult = $this->oDb->query($sql, is_null($iBlogId) ? DBSIMPLE_SKIP : $iBlogId);
+        $bResult = $this->oDb->query($sql, is_null($nBlogId) ? DBSIMPLE_SKIP : $nBlogId);
         return $bResult !== false;
     }
 
     /**
      * Получает список блогов по фильтру
      *
-     * @param array $aFilter         Фильтр выборки
-     * @param array $aOrder          Сортировка
-     * @param int   $iCount          Возвращает общее количество элментов
-     * @param int   $iCurrPage       Номер текущей страницы
-     * @param int   $iPerPage        Количество элементов на одну страницу
+     * @param array $aFilter         - Фильтр выборки
+     * @param array $aOrder          - Сортировка
+     * @param int   $iCount          - Возвращает общее количество элментов
+     * @param int   $iCurrPage       - Номер текущей страницы
+     * @param int   $iPerPage        - Количество элементов на одну страницу
      *
      * @return array
      */
     public function GetBlogsByFilter($aFilter, $aOrder, &$iCount, $iCurrPage, $iPerPage) {
 
-        $aOrderAllow = array('blog_id', 'blog_title', 'blog_rating', 'blog_count_user', 'blog_count_topic');
-        $sOrder = '';
-        if (is_array($aOrder) && $aOrder) {
-            foreach ($aOrder as $key => $value) {
-                if (!in_array($key, $aOrderAllow)) {
-                    unset($aOrder[$key]);
-                } elseif (in_array($value, array('asc', 'desc'))) {
-                    $sOrder .= " {$key} {$value},";
-                }
-            }
-            $sOrder = trim($sOrder, ',');
-        }
-        if ($sOrder == '') {
-            $sOrder = ' blog_id desc ';
-        }
+        $aCriteria = array(
+            'filter' => array(),
+            'order'  => array(),
+            'limit'  => array(($iCurrPage - 1) * $iPerPage, $iPerPage),
+        );
 
         if (isset($aFilter['type']) && !isset($aFilter['include_type'])) {
-            $aFilter['include_type'] = $aFilter['type'];
+            $aCriteria['filter']['blog_type'] = $aFilter['type'];
+        } elseif (isset($aFilter['include_type'])) {
+            $aCriteria['filter']['blog_type'] = $aFilter['include_type'];
         }
-        if (isset($aFilter['exclude_type']) && !is_array($aFilter['exclude_type'])) {
-            $aFilter['exclude_type'] = array($aFilter['exclude_type']);
-        }
-        if (isset($aFilter['include_type']) && !is_array($aFilter['include_type'])) {
-            $aFilter['include_type'] = array($aFilter['include_type']);
+        if (isset($aFilter['exclude_type'])) {
+            $aCriteria['filter']['not_blog_type'] = $aFilter['exclude_type'];
         }
 
-        $sql = "SELECT
-					blog_id
-				FROM
-					?_blog
-				WHERE
-					1 = 1
-					{ AND blog_id = ?d }
-					{ AND user_owner_id = ?d }
-					{ AND blog_type IN (?a) }
-					{ AND blog_type NOT IN (?a) }
-					{ AND blog_url = ? }
-					{ AND blog_title LIKE ? }
-				ORDER by {$sOrder}
-				LIMIT ?d, ?d ;
-					";
-        $aResult = array();
-        $aRows = $this->oDb->selectPage(
-            $iCount, $sql,
-            isset($aFilter['id']) ? $aFilter['id'] : DBSIMPLE_SKIP,
-            isset($aFilter['user_owner_id']) ? $aFilter['user_owner_id'] : DBSIMPLE_SKIP,
-            isset($aFilter['include_type']) ? $aFilter['include_type'] : DBSIMPLE_SKIP,
-            isset($aFilter['exclude_type']) ? $aFilter['exclude_type'] : DBSIMPLE_SKIP,
-            isset($aFilter['url']) ? $aFilter['url'] : DBSIMPLE_SKIP,
-            isset($aFilter['title']) ? $aFilter['title'] : DBSIMPLE_SKIP,
-            ($iCurrPage - 1) * $iPerPage, $iPerPage
-        );
-        if ($aRows) {
-            foreach ($aRows as $aRow) {
-                $aResult[] = $aRow['blog_id'];
-            }
+        if (is_array($aOrder) && $aOrder) {
+            $aCriteria['order'] = $aOrder;
+        } else {
+            $aCriteria['order'] = array('blog_id' => 'DESC');
         }
-        return $aResult;
+        $aResult = $this->GetBlogsIdByCriteria($aCriteria);
+        $iCount = $aResult['total'];
+        return $aResult['data'];
     }
 
     /**
-     * Получить типы блогов
+     * Возвращает объекты типов блогов
      *
-     * @param array $aFilter
-     *
-     * @return  array
+     * @return  array(ModuleBlog_BlogType)
      */
-    public function GetBlogTypes($aFilter) {
+    public function GetBlogTypes() {
 
         $sql
             = "
             SELECT *
             FROM ?_blog_type
-            WHERE
-                1=1
-                {AND allow_add=?}
             ORDER BY norder, id";
 
-        $aRows = $this->oDb->select($sql,
+        $aRows = $this->oDb->select(
+            $sql,
             isset($aFilter['allow_add']) ? ($aFilter['allow_add'] ? 1 : 0) : DBSIMPLE_SKIP
         );
         if ($aRows) {
@@ -706,6 +704,13 @@ class ModuleBlog_MapperBlog extends Mapper {
         return array();
     }
 
+    /**
+     * Возвращает количество блогов с разбивкой по типам
+     *
+     * @param null|string|array $aTypes
+     *
+     * @return array
+     */
     public function GetBlogCountsByTypes($aTypes = null) {
 
         if ($aTypes && !is_array($aTypes)) {
@@ -724,11 +729,11 @@ class ModuleBlog_MapperBlog extends Mapper {
     }
 
     /**
-     * Получить тип блога по ID
+     * Возвращает объект типа блога по ID
      *
      * @param $nId
      *
-     * @return bool|Entity
+     * @return ModuleBlog_BlogType|null
      */
     public function GetBlogTypeById($nId) {
 
@@ -742,9 +747,16 @@ class ModuleBlog_MapperBlog extends Mapper {
         if ($aRow) {
             return Engine::GetEntity('Blog_BlogType', $aRow);
         }
-        return false;
+        return null;
     }
 
+    /**
+     * Добавляет тип блога
+     *
+     * @param $oBlogType
+     *
+     * @return bool
+     */
     public function AddBlogType($oBlogType) {
 
         $sql = "
@@ -787,9 +799,17 @@ class ModuleBlog_MapperBlog extends Mapper {
         return $nId ? $nId : false;
     }
 
+    /**
+     * Обновляет тип блога
+     *
+     * @param $oBlogType
+     *
+     * @return bool
+     */
     public function UpdateBlogType($oBlogType) {
 
-        $sql = "
+        $sql
+            = "
             UPDATE ?_blog_type
             SET
                 min_rating = ?f,
@@ -809,7 +829,8 @@ class ModuleBlog_MapperBlog extends Mapper {
             WHERE
                 id = ?d
         ";
-        $xResult = $this->oDb->query($sql,
+        $xResult = $this->oDb->query(
+            $sql,
             $oBlogType->getMinRating(),
             $oBlogType->IsAllowAdd() ? 1 : 0,
             $oBlogType->IsShowTitle() ? 1 : 0,
@@ -841,7 +862,8 @@ class ModuleBlog_MapperBlog extends Mapper {
         if (isset($aExcludeTypes) && !is_array($aExcludeTypes)) {
             $aExcludeTypes = array($aExcludeTypes);
         }
-        $sql = "
+        $sql
+            = "
             SELECT
                 b.*,
                 SUM(t.topic_rating) as sum_rating
@@ -856,13 +878,194 @@ class ModuleBlog_MapperBlog extends Mapper {
                 blog_type not IN (?a) 
             GROUP BY b.blog_id
             ";
-        $aBlogs=array();
-        if($aRows = $this->oDb->select($sql,$aExcludeTypes)){
+        $aBlogs = array();
+        if ($aRows = $this->oDb->select($sql, $aExcludeTypes)) {
             foreach ($aRows as $aBlog) {
                 $aBlogs[] = Engine::GetEntity('Blog', $aBlog);
             }
         }
         return $aBlogs;
+    }
+
+    /*********************************************************/
+
+    /**
+     * Возвращает список ID блогов по заданным критериям
+     *
+     * Общая структура массива критериев
+     *  $aCriteria = array(
+     *      'filter' => array(..),
+     *      'order' => array(..),
+     *      'limit' => array(..),
+     * );
+     *
+     * Возвращаемое значение:
+     *  array('data' => array(), 'total' => int)
+     *
+     * @param array $aCriteria
+     *
+     * @return array
+     */
+    public function GetBlogsIdByCriteria($aCriteria = array()) {
+
+        if (isset($aCriteria['filter'])) {
+            $aFilter = $aCriteria['filter'];
+        } else {
+            $aFilter = array();
+        }
+        if (isset($aFilter['not_blog_id'])) {
+            if (!is_array($aFilter['not_blog_id'])) {
+                $aFilter['not_blog_id'] = array(intval($aFilter['not_blog_id']));
+            }
+        }
+        if (isset($aFilter['blog_title_like'])) {
+            if (substr($aFilter['blog_title'], -1) !== '%') {
+                $aFilter['blog_title'] .= '%';
+            }
+        }
+
+        // Сортировка
+        $sSqlOrder = '';
+        if (isset($aCriteria['order'])) {
+            $aOrderAllow = array('blog_id', 'blog_title', 'blog_rating', 'blog_count_user', 'blog_count_topic');
+            if (!is_array($aCriteria['order'])) {
+                $aCriteria['order'] = array($aCriteria['order']);
+            }
+            $aOrders = F::Array_FlipIntKeys($aCriteria['order'], 'ASC');
+            $aOrderList = array();
+            foreach ($aOrders as $sField => $sWay) {
+                $sField = strtolower(trim($sField));
+                if (strpos($sField, ' ')) {
+                    list($sField, $sWay) = explode(' ', $sField, 2);
+                }
+                if (in_array($sField, $aOrderAllow)) {
+                    $aOrderList[] = $sField . ' ' . ((strtoupper($sWay) == 'DESC') ? 'DESC' : 'ASC');
+                }
+            }
+            if ($aOrderList) {
+                $sSqlOrder = 'ORDER BY ' . implode(',' , $aOrderList);
+            }
+        }
+
+        // Установка лимита
+        $sSqlLimit = '';
+        if (isset($aCriteria['limit'])) {
+            // Если массив, то первое значение - смещение, а второе - лимит
+            if (is_array($aCriteria['limit'])) {
+                $nOffset = intval(array_shift($aCriteria['limit']));
+                $nLimit = intval(array_shift($aCriteria['limit']));
+            } else {
+                $nOffset = false;
+                $nLimit = intval($aCriteria['limit']);
+            }
+        } else {
+            $nOffset = false;
+            $nLimit = false;
+        }
+        // Если задан ID блога, то всегда устанавливаем лимит
+        if (isset($aFilter['blog_id']) && !is_array($aFilter['blog_id'])) {
+            $nOffset = false;
+            $nLimit = 1;
+        }
+
+        // Формируем строку лимита и автосчетчик общего числа записей
+        if ($nOffset != false && $nLimit != false) {
+            $sSqlLimit = 'LIMIT ' . $nOffset . ', ' . $nLimit;
+            $nCalcTotal = self::CRITERIA_CALC_TOTAL_AUTO;
+        } elseif ($nLimit != false && $nLimit != 1) {
+            $sSqlLimit = 'LIMIT ' . $nLimit;
+            $nCalcTotal = self::CRITERIA_CALC_TOTAL_AUTO;
+        } else {
+            $nCalcTotal = self::CRITERIA_CALC_TOTAL_SKIP;
+        }
+
+        if (isset($aCriteria['options']) && is_array($aCriteria['options'])) {
+            if (array_key_exists('calc_total', $aCriteria['options'])) {
+                if ($aCriteria['options']['calc_total'] != self::CRITERIA_CALC_TOTAL_AUTO) {
+                    $nCalcTotal = $aCriteria['options']['calc_total'];
+                }
+                // Если требуется только подсчет записей, то строку лимита принудительно устанавливаем в 0
+                // Запрос с LIMIT 0 отрабатывает моментально
+                if ($aCriteria['options']['calc_total'] != self::CRITERIA_CALC_TOTAL_ONLY) {
+                    $sSqlLimit = 'LIMIT 0';
+                }
+            }
+        }
+
+        $sql = "
+            SELECT b.blog_id
+            FROM ?_blog AS b
+                INNER JOIN ?_blog_type AS bt ON bt.type_code=b.blog_type
+            WHERE
+                1 = 1
+                { AND (b.blog_id = ?d) }
+                { AND (b.blog_id IN (?a)) }
+                { AND (b.blog_id NOT IN (?a)) }
+                { AND (b.owner_id = ?d) }
+                { AND (b.owner_id IN (?a)) }
+                { AND (b.blog_type = ?) }
+                { AND (b.blog_type IN (?a)) }
+                { AND (b.blog_type != ?) }
+                { AND (b.blog_type NOT IN (?a)) }
+                { AND blog_url = ? }
+                { AND blog_title = ? }
+                { AND blog_title LIKE ? }
+                { AND (bt.allow_add = ?d) }
+                { AND (bt.min_rate_add >= ?d) }
+                { AND (bt.allow_list = ?d) }
+                { AND (bt.min_rate_list >= ?d) }
+                { AND (bt.acl_read & ?d > 0) }
+                { AND (bt.min_rate_read >= ?d) }
+                { AND (bt.acl_write & ?d > 0) }
+                { AND (bt.min_rate_write >= ?d) }
+                { AND (bt.acl_comment & ?d > 0) }
+                { AND (bt.min_rate_comment >= ?d) }
+                { AND (bt.index_ignore = ?d) }
+                { AND (bt.membership = ?d) }
+        " . $sSqlOrder . ' ' . $sSqlLimit;
+        $aData = $this->oDb->selectCol(
+            $sql,
+            (isset($aFilter['blog_id']) && !is_array($aFilter['blog_id'])) ? $aFilter['blog_id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['blog_id']) && is_array($aFilter['blog_id'])) ? $aFilter['blog_id'] : DBSIMPLE_SKIP,
+            isset($aFilter['not_blog_id']) ? $aFilter['not_blog_id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['user_id']) && !is_array($aFilter['user_id'])) ? $aFilter['user_id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['user_id']) && is_array($aFilter['user_id'])) ? $aFilter['user_id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['blog_type']) && !is_array($aFilter['blog_type'])) ? $aFilter['blog_type'] : DBSIMPLE_SKIP,
+            (isset($aFilter['blog_type']) && is_array($aFilter['blog_type'])) ? $aFilter['blog_type'] : DBSIMPLE_SKIP,
+            (isset($aFilter['not_blog_type']) && !is_array($aFilter['not_blog_type'])) ? $aFilter['not_blog_type'] : DBSIMPLE_SKIP,
+            (isset($aFilter['not_blog_type']) && is_array($aFilter['not_blog_type'])) ? $aFilter['not_blog_type'] : DBSIMPLE_SKIP,
+            isset($aFilter['blog_url']) ? $aFilter['blog_url'] : DBSIMPLE_SKIP,
+            isset($aFilter['blog_title']) ? $aFilter['blog_title'] : DBSIMPLE_SKIP,
+            isset($aFilter['blog_title_like']) ? $aFilter['blog_title_like'] : DBSIMPLE_SKIP,
+            isset($aFilter['allow_add']) ? ($aFilter['allow_add'] ? 1 : 0) : DBSIMPLE_SKIP,
+            isset($aFilter['min_rate_add']) ? $aFilter['min_rate_add'] : DBSIMPLE_SKIP,
+            isset($aFilter['allow_list']) ? ($aFilter['allow_list'] ? 1 : 0) : DBSIMPLE_SKIP,
+            isset($aFilter['min_rate_list']) ? $aFilter['min_rate_list'] : DBSIMPLE_SKIP,
+            isset($aFilter['acl_read']) ? $aFilter['acl_read'] : DBSIMPLE_SKIP,
+            isset($aFilter['min_rate_read']) ? $aFilter['min_rate_read'] : DBSIMPLE_SKIP,
+            isset($aFilter['acl_write']) ? $aFilter['acl_write'] : DBSIMPLE_SKIP,
+            isset($aFilter['min_rate_write']) ? $aFilter['min_rate_write'] : DBSIMPLE_SKIP,
+            isset($aFilter['acl_comment']) ? $aFilter['acl_comment'] : DBSIMPLE_SKIP,
+            isset($aFilter['min_rate_comment']) ? $aFilter['min_rate_comment'] : DBSIMPLE_SKIP,
+            isset($aFilter['index_ignore']) ? ($aFilter['index_ignore'] ? 1 : 0) : DBSIMPLE_SKIP,
+            isset($aFilter['membership']) ? ($aFilter['membership'] ? 1 : 0) : DBSIMPLE_SKIP
+        );
+        $aResult = array(
+            'data' => $aData ? $aData : array(),
+            'total' => -1,
+        );
+        if ($nCalcTotal) {
+            $sLastQuery = trim($this->Database_GetLastQuery());
+            $n = strpos($sLastQuery, ' LIMIT ');
+            if ($n) {
+                $sql = str_replace('SELECT b.blog_id', 'SELECT COUNT(*) AS cnt', substr($sLastQuery, 0, $n));
+                $aData = $this->oDb->select($sql);
+                if ($aData) {
+                    $aResult['total'] = $aData[0]['cnt'];
+                }
+            }
+        }
+        return $aResult;
     }
 
 }
