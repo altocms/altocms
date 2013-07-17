@@ -86,6 +86,13 @@ class ActionBlog extends Action {
         'ajaxaddbloginvite', 'ajaxresponsecomment', 'ajaxrebloginvite', 'ajaxbloginfo', 'ajaxblogjoin');
 
     /**
+     * Типы блогов, доступные для создания
+     *
+     * @var
+     */
+    protected $aBlogTypes;
+
+    /**
      * Инизиализация экшена
      *
      */
@@ -114,6 +121,8 @@ class ActionBlog extends Action {
                  'blog_join', 'blog_leave'
             )
         );
+
+        $this->aBlogTypes = $this->Blog_GetAllowBlogTypes($this->oUserCurrent, 'add');
     }
 
     /**
@@ -189,6 +198,8 @@ class ActionBlog extends Action {
             return Router::Action('error');
         }
         $this->Hook_Run('blog_add_show');
+
+        $this->Viewer_Assign('aBlogTypes', $this->aBlogTypes);
         /**
          * Запускаем проверку корректности ввода полей при добалении блога.
          * Дополнительно проверяем, что был отправлен POST запрос.
@@ -297,8 +308,7 @@ class ActionBlog extends Action {
 
         $this->Viewer_Assign('oBlogEdit', $oBlog);
 
-        $aBlogTypes = $this->Blog_GetAllowBlogTypes($this->oUserCurrent, 'add');
-        $this->Viewer_Assign('aBlogTypes', $aBlogTypes);
+        $this->Viewer_Assign('aBlogTypes', $this->aBlogTypes);
         /**
          * Устанавливаем шаблон для вывода
          */
@@ -906,11 +916,17 @@ class ActionBlog extends Action {
         /**
          * Определяем права на отображение закрытого блога
          */
-        if (($oBlog->getType() == 'close') && (!$this->oUserCurrent || !in_array($oBlog->getId(), $this->Blog_GetAccessibleBlogsByUser($this->oUserCurrent)))) {
+        if ($oBlog->GetBlogType()->IsPrivate() && (!$this->oUserCurrent || !in_array($oBlog->getId(), $this->Blog_GetAccessibleBlogsByUser($this->oUserCurrent)))) {
             $bCloseBlog = true;
         } else {
             $bCloseBlog = false;
         }
+
+        // В скрытый блог посторонних совсем не пускам
+        if ($bCloseBlog && $oBlog->GetBlogType()->IsHidden()) {
+            return parent::EventNotFound();
+        }
+
         /**
          * Меню
          */

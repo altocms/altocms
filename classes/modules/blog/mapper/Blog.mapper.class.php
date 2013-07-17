@@ -763,9 +763,10 @@ class ModuleBlog_MapperBlog extends Mapper {
             INSERT INTO ?_blog_type
             SET
                 type_code = ?,
-                min_rating = ?f,
                 allow_add = ?d,
-                show_title = ?d,
+                min_rate_add = ?f,
+                allow_list = ?d,
+                min_rate_list = ?f,
                 index_ignore = ?d,
                 membership = ?d,
                 acl_write = ?d,
@@ -780,9 +781,10 @@ class ModuleBlog_MapperBlog extends Mapper {
         ";
         $nId = $this->oDb->query($sql,
             $oBlogType->getTypeCode(),
-            $oBlogType->getMinRating(),
-            $oBlogType->IsAllowAdd() ? 1 : 0,
-            $oBlogType->IsShowTitle() ? 1 : 0,
+            $oBlogType->getAllowAdd() ? 1 : 0,
+            $oBlogType->getMinRateAdd(),
+            $oBlogType->getAllowList() ? 1 : 0,
+            $oBlogType->getMinRateList(),
             $oBlogType->IsIndexIgnore() ? 1 : 0,
             $oBlogType->getMembership(),
             $oBlogType->getAclWrite(),
@@ -812,9 +814,10 @@ class ModuleBlog_MapperBlog extends Mapper {
             = "
             UPDATE ?_blog_type
             SET
-                min_rating = ?f,
                 allow_add = ?d,
-                show_title = ?d,
+                min_rate_add = ?f,
+                allow_list = ?d,
+                min_rate_list = ?f,
                 index_ignore = ?d,
                 membership = ?d,
                 acl_write = ?d,
@@ -829,11 +832,11 @@ class ModuleBlog_MapperBlog extends Mapper {
             WHERE
                 id = ?d
         ";
-        $xResult = $this->oDb->query(
-            $sql,
-            $oBlogType->getMinRating(),
-            $oBlogType->IsAllowAdd() ? 1 : 0,
-            $oBlogType->IsShowTitle() ? 1 : 0,
+        $xResult = $this->oDb->query($sql,
+            $oBlogType->getAllowAdd() ? 1 : 0,
+            $oBlogType->getMinRateAdd(),
+            $oBlogType->getAllowList() ? 1 : 0,
+            $oBlogType->getMinRateList(),
             $oBlogType->IsIndexIgnore() ? 1 : 0,
             $oBlogType->getMembership(),
             $oBlogType->getAclWrite(),
@@ -979,6 +982,7 @@ class ModuleBlog_MapperBlog extends Mapper {
             $nCalcTotal = self::CRITERIA_CALC_TOTAL_SKIP;
         }
 
+        // Обрабатываем опции
         if (isset($aCriteria['options']) && is_array($aCriteria['options'])) {
             if (array_key_exists('calc_total', $aCriteria['options'])) {
                 if ($aCriteria['options']['calc_total'] != self::CRITERIA_CALC_TOTAL_AUTO) {
@@ -992,17 +996,28 @@ class ModuleBlog_MapperBlog extends Mapper {
             }
         }
 
+        // Необходимость JOIN'а
+        $aBlogTypeFields = array(
+            'allow_add', 'min_rate_add', 'allow_list', 'min_rate_list', 'acl_read', 'min_rate_read', 'acl_write',
+            'min_rate_write', 'acl_comment', 'min_rate_comment', 'index_ignore', 'membership',
+        );
+        if ($aFilter && array_intersect($aFilter, $aBlogTypeFields)) {
+            $bBlogTypeJoin = true;
+        } else {
+            $bBlogTypeJoin = false;
+        }
+
         $sql = "
             SELECT b.blog_id
             FROM ?_blog AS b
-                INNER JOIN ?_blog_type AS bt ON bt.type_code=b.blog_type
+                { INNER JOIN ?_blog_type AS bt ON bt.type_code=b.blog_type AND 1=?d }
             WHERE
                 1 = 1
                 { AND (b.blog_id = ?d) }
                 { AND (b.blog_id IN (?a)) }
                 { AND (b.blog_id NOT IN (?a)) }
-                { AND (b.owner_id = ?d) }
-                { AND (b.owner_id IN (?a)) }
+                { AND (b.user_owner_id = ?d) }
+                { AND (b.user_owner_id IN (?a)) }
                 { AND (b.blog_type = ?) }
                 { AND (b.blog_type IN (?a)) }
                 { AND (b.blog_type != ?) }
@@ -1023,8 +1038,8 @@ class ModuleBlog_MapperBlog extends Mapper {
                 { AND (bt.index_ignore = ?d) }
                 { AND (bt.membership = ?d) }
         " . $sSqlOrder . ' ' . $sSqlLimit;
-        $aData = $this->oDb->selectCol(
-            $sql,
+        $aData = $this->oDb->selectCol($sql,
+            $bBlogTypeJoin ? 1 : DBSIMPLE_SKIP,
             (isset($aFilter['blog_id']) && !is_array($aFilter['blog_id'])) ? $aFilter['blog_id'] : DBSIMPLE_SKIP,
             (isset($aFilter['blog_id']) && is_array($aFilter['blog_id'])) ? $aFilter['blog_id'] : DBSIMPLE_SKIP,
             isset($aFilter['not_blog_id']) ? $aFilter['not_blog_id'] : DBSIMPLE_SKIP,

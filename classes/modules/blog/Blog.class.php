@@ -816,15 +816,16 @@ class ModuleBlog extends Module {
     /**
      * Список своих блогов по рейтингу
      *
-     * @param int $sUserId    ID пользователя
+     * @param int $nUserId    ID пользователя
      * @param int $nLimit     Ограничение на количество в ответе
      *
      * @return array
      */
-    public function GetBlogsRatingSelf($sUserId, $nLimit) {
+    public function GetBlogsRatingSelf($nUserId, $nLimit) {
 
         $aResult = $this->GetBlogsByFilter(
-            array('exclude_type' => 'personal', 'user_owner_id' => $sUserId), array('blog_rating' => 'desc'), 1, $nLimit
+            array('exclude_type' => 'personal', 'user_owner_id' => $nUserId),
+            array('blog_rating' => 'desc'), 1, $nLimit
         );
         return $aResult['collection'];
     }
@@ -912,7 +913,11 @@ class ModuleBlog extends Module {
                  * Получаем закрытые блоги, где пользователь является автором
                  */
                 $aOwnerBlogs = $this->GetBlogsByFilter(
-                    array('type' => 'close', 'user_owner_id' => $nUserId), array(), 1, 100, array()
+                    array(
+                         'type' => 'close',
+                         'user_owner_id' => $nUserId,
+                    ),
+                    array(), 1, 100, array()
                 );
                 $aOwnerBlogs = array_keys($aOwnerBlogs['collection']);
                 $aCloseBlogs = array_diff($aCloseBlogs, $aOpenBlogs, $aOwnerBlogs);
@@ -1141,7 +1146,7 @@ class ModuleBlog extends Module {
                 $aFilter['show_title'] = true;
             }
         }
-        $aBlogTypes = $this->Blog_GetBlogTypes($aFilter, $bTypeCodesOnly);
+        $aBlogTypes = $this->GetBlogTypes($aFilter, $bTypeCodesOnly);
 
         return $aBlogTypes;
     }
@@ -1158,35 +1163,36 @@ class ModuleBlog extends Module {
 
         $aResult = array();
         $sCacheKey = 'blog_types';
-        if (false === ($aBlogTypes = $this->Cache_Get($sCacheKey, 'tmp'))) {
-            $data = $this->oMapper->GetBlogTypes($aFilter);
-            if ($data) {
-                foreach ($data as $nKey => $oBlogType) {
-                    $bOk = true;
-                    if (isset($aFilter['include_type'])) {
-                        $bOk = $bOk && ($aFilter['include_type'] == $oBlogType->GetTypeCode());
-                    }
-                    if (isset($aFilter['exclude_type'])) {
-                        $bOk = $bOk && ($aFilter['exclude_type'] != $oBlogType->GetTypeCode());
-                    }
-                    if (isset($aFilter['is_active'])) {
-                        $bOk = $bOk && $oBlogType->IsActive();
-                    }
-                    if (isset($aFilter['not_active'])) {
-                        $bOk = $bOk && !$oBlogType->IsActive();
-                    }
-                    if (isset($aFilter['allow_add'])) {
-                        $bOk = $bOk && $oBlogType->IsAllowAdd();
-                    }
-                    if (isset($aFilter['show_title'])) {
-                        $bOk = $bOk && $oBlogType->IsShowTitle();
-                    }
-                    if ($bOk) {
-                        $aBlogTypes[$oBlogType->GetTypeCode()] = $oBlogType;
-                    }
-                    $data[$nKey] = null;
+        if (false === ($data = $this->Cache_Get($sCacheKey, 'tmp'))) {
+            $data = $this->oMapper->GetBlogTypes();
+            $this->Cache_Set($data, $sCacheKey, array('blog_update', 'blog_new'), 'P30D', 'tmp');
+        }
+        $aBlogTypes = array();
+        if ($data) {
+            foreach ($data as $nKey => $oBlogType) {
+                $bOk = true;
+                if (isset($aFilter['include_type'])) {
+                    $bOk = $bOk && ($aFilter['include_type'] == $oBlogType->GetTypeCode());
                 }
-                $this->Cache_Set($aBlogTypes, $sCacheKey, array('blog_update', 'blog_new'), 'P30D', 'tmp');
+                if (isset($aFilter['exclude_type'])) {
+                    $bOk = $bOk && ($aFilter['exclude_type'] != $oBlogType->GetTypeCode());
+                }
+                if (isset($aFilter['is_active'])) {
+                    $bOk = $bOk && $oBlogType->IsActive();
+                }
+                if (isset($aFilter['not_active'])) {
+                    $bOk = $bOk && !$oBlogType->IsActive();
+                }
+                if (isset($aFilter['allow_add'])) {
+                    $bOk = $bOk && $oBlogType->IsAllowAdd();
+                }
+                if (isset($aFilter['show_title'])) {
+                    $bOk = $bOk && $oBlogType->IsShowTitle();
+                }
+                if ($bOk) {
+                    $aBlogTypes[$oBlogType->GetTypeCode()] = $oBlogType;
+                }
+                $data[$nKey] = null;
             }
         }
         if ($aBlogTypes) {
@@ -1319,6 +1325,12 @@ class ModuleBlog extends Module {
         return $this->oMapper->GetBlogsData($aExcludeTypes);
     }
 
+    /*********************************************************/
+
+    public function GetBlogsId($aFilter) {
+
+
+    }
 }
 
 // EOF

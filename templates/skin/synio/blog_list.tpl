@@ -50,8 +50,8 @@
 					<td class="cell-name">
 						<p>
 							<a href="{$oBlog->getUrlFull()}" class="blog-name">{$oBlog->getTitle()|escape:'html'}</a>
-							
-							{if $oBlog->getType() == 'close'}
+
+							{if $oBlog->getBlogType()->IsPrivate()}
 								<i title="{$aLang.blog_closed}" class="icon-synio-topic-private"></i>
 							{/if}
 						</p>
