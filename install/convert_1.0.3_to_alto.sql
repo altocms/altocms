@@ -143,3 +143,27 @@ ALTER TABLE `prefix_comment` ADD `comment_date_edit` DATETIME NULL DEFAULT NULL 
 -- v.0.9.7
 ALTER TABLE `prefix_topic` ADD `topic_url` VARCHAR( 250 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 ADD INDEX ( `topic_url` );
+
+-- Page table
+CREATE TABLE IF NOT EXISTS `prefix_page` (
+  `page_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `page_pid` int(11) unsigned DEFAULT NULL,
+  `page_url` varchar(50) NOT NULL,
+  `page_url_full` varchar(254) NOT NULL,
+  `page_title` varchar(200) NOT NULL,
+  `page_text` text NOT NULL,
+  `page_date_add` datetime NOT NULL,
+  `page_date_edit` datetime DEFAULT NULL,
+  `page_seo_keywords` varchar(250) DEFAULT NULL,
+  `page_seo_description` varchar(250) DEFAULT NULL,
+  `page_active` tinyint(1) unsigned NOT NULL DEFAULT '1',
+  `page_main` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `page_sort` int(11) NOT NULL,
+  `page_auto_br` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`page_id`),
+  KEY `page_pid` (`page_pid`),
+  KEY `page_url_full` (`page_url_full`,`page_active`),
+  KEY `page_title` (`page_title`),
+  KEY `page_sort` (`page_sort`),
+  KEY `page_main` (`page_main`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
