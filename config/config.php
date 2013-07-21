@@ -107,6 +107,7 @@ $config['path']['smarty']['plug']     = '___path.root.engine___/modules/viewer/p
 
 $config['smarty']['compile_check']    = true;   // Проверять или нет файлы шаблона на изменения перед компиляцией, false может значительно увеличить быстродействие, но потребует ручного удаления кеша при изменения шаблона
 $config['smarty']['force_compile']    = false;  // Принудительно компилировать шаблоны (отменяет действие 'compile_check')
+$config['smarty']['cache_lifetime']   = false;  // Кеширование отрендеренных шаблонов
 
 /**
  * Настройки плагинов
