@@ -1075,7 +1075,7 @@ return array(
 	 */
 	'subscribe_change_ok' => 'Изменение подписки прошло успешно',
 	'subscribe_tracking_menu'=>'Отслеживаемые комментарии',
-    'subscribe_tracking_menu_new'=>'Новые',
+	'subscribe_tracking_menu_new'=>'Новые',
 	'subscribe_menu'=>'Подписки',
 	/**
 	 * Toolbar

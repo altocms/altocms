@@ -1083,7 +1083,7 @@ return array(
 	 */
 	'subscribe_change_ok' => 'Change the subscription was successful',
 	'subscribe_tracking_menu'=>'Watched comments',
-    'subscribe_tracking_menu_new'=>'New',
+	'subscribe_tracking_menu_new'=>'New',
 	'subscribe_menu'=>'Feed',
 	/**
 	 * Toolbar

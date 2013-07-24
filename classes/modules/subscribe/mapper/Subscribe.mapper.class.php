@@ -260,7 +260,7 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
                 : DBSIMPLE_SKIP,
             isset($aFilter['key']) ? $aFilter['key'] : DBSIMPLE_SKIP,
             isset($aFilter['status']) ? $aFilter['status'] : DBSIMPLE_SKIP,
-            (isset($aFilter['only_new']) and $aFilter['only_new']) ? 1 : DBSIMPLE_SKIP,
+			(isset($aFilter['only_new']) and $aFilter['only_new']) ? 1 : DBSIMPLE_SKIP,
             ($iCurrPage - 1) * $iPerPage, $iPerPage
         );
         if ($aRows) {

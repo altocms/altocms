@@ -56,7 +56,7 @@ class ActionUserfeed extends Action {
 	protected function RegisterEvent() {
 		$this->AddEvent('index', array('EventIndex','index'));
 		$this->AddEventPreg('/^track$/i','/^(page([1-9]\d{0,5}))?$/i','EventTrack');
-        $this->AddEventPreg('/^track$/i','/^new$/i','/^(page([1-9]\d{0,5}))?$/i','EventTrackNew');
+		$this->AddEventPreg('/^track$/i','/^new$/i','/^(page([1-9]\d{0,5}))?$/i','EventTrackNew');
 		$this->AddEvent('subscribe', 'EventSubscribe');
 		$this->AddEvent('subscribeByLogin', 'EventSubscribeByLogin');
 		$this->AddEvent('unsubscribe', 'EventUnSubscribe');
