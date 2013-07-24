@@ -230,15 +230,23 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
         $sql = "SELECT
 					*
 				FROM
-					" . Config::Get('db.table.track') . "
+					" . Config::Get('db.table.track') . " trc
 				WHERE
 					1 = 1
-					{ AND target_type = ? }
-					{ AND target_id = ?d }
-					{ AND user_id = ?d }
-					{ AND user_id not IN (?a) }
-					{ AND `key` = ? }
-					{ AND status = ?d }
+					{ AND trc.target_type = ? }
+					{ AND trc.target_id = ?d }
+					{ AND trc.user_id = ?d }
+					{ AND trc.user_id not IN (?a) }
+					{ AND trc.`key` = ? }
+					{ AND trc.status = ?d }
+					{ AND exists 	(	SELECT ?d
+										FROM 	".Config::Get('db.table.topic_read')." as tr,
+												".Config::Get('db.table.topic')." as t
+										WHERE 	t.topic_id = trc.target_id
+												AND t.topic_id = tr.topic_id
+												AND (t.topic_count_comment - tr.comment_count_last) > 0
+												AND	tr.user_id = trc.user_id
+									) }
 				ORDER by {$sOrder}
 				LIMIT ?d, ?d ;
 					";
@@ -252,6 +260,7 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
                 : DBSIMPLE_SKIP,
             isset($aFilter['key']) ? $aFilter['key'] : DBSIMPLE_SKIP,
             isset($aFilter['status']) ? $aFilter['status'] : DBSIMPLE_SKIP,
+            (isset($aFilter['only_new']) and $aFilter['only_new']) ? 1 : DBSIMPLE_SKIP,
             ($iCurrPage - 1) * $iPerPage, $iPerPage
         );
         if ($aRows) {
