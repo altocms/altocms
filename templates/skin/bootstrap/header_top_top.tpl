@@ -19,7 +19,7 @@
                                 <a href="{router page='talk'}" class="new-messages btn"><i class="icon-comment"></i> +{$iUserCurrentCountTalkNew}</a>
                             {/if}
                             {if $iUserCurrentCountTrack}
-                                <a href="{router page='feed'}track/" class="new-track btn"><i class="icon-eye-open"></i> +{$iUserCurrentCountTrack}</a>
+                                <a href="{router page='feed'}track/new/" class="new-track btn"><i class="icon-eye-open"></i> +{$iUserCurrentCountTrack}</a>
                             {/if}
                         </div>
                     </div>
@@ -74,7 +74,7 @@
                                 <a href="{router page='talk'}" class="new-messages btn btn-warning"><i class="icon-comment icon-white"></i> +{$iUserCurrentCountTalkNew}</a>
                             {/if}
                             {if $iUserCurrentCountTrack}
-                                <a href="{router page='feed'}track/" class="new-track btn btn-success"><i class="icon-eye-open icon-white"></i> +{$iUserCurrentCountTrack}</a>
+                                <a href="{router page='feed'}track/new/" class="new-track btn btn-success"><i class="icon-eye-open icon-white"></i> +{$iUserCurrentCountTrack}</a>
                             {/if}
                         </div>
                     </div>

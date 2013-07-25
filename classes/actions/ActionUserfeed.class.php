@@ -56,6 +56,7 @@ class ActionUserfeed extends Action {
 	protected function RegisterEvent() {
 		$this->AddEvent('index', array('EventIndex','index'));
 		$this->AddEventPreg('/^track$/i','/^(page([1-9]\d{0,5}))?$/i','EventTrack');
+		$this->AddEventPreg('/^track$/i','/^new$/i','/^(page([1-9]\d{0,5}))?$/i','EventTrackNew');
 		$this->AddEvent('subscribe', 'EventSubscribe');
 		$this->AddEvent('subscribeByLogin', 'EventSubscribeByLogin');
 		$this->AddEvent('unsubscribe', 'EventUnSubscribe');
@@ -120,6 +121,40 @@ class ActionUserfeed extends Action {
 		
 		$this->SetTemplateAction('track');
 	}
+    /**
+     * Выводит ленту контента(только топики содержащие новые комментарии) для пользователя
+     *
+     */
+    protected function EventTrackNew() {
+        $this->sMenuSubItemSelect='track_new';
+        /**
+         * Передан ли номер страницы
+         */
+        $iPage=$this->GetParamEventMatch(1,2) ? $this->GetParamEventMatch(1,2) : 1;
+        /**
+         * Получаем топики
+         */
+        $aResult = $this->Userfeed_trackread($this->oUserCurrent->getId(),$iPage,Config::Get('module.topic.per_page'),true);
+
+        $aTopics=$aResult['collection'];
+
+        /**
+         * Формируем постраничность
+         */
+        $aPaging = $this->Viewer_MakePaging(
+            $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
+            Router::GetPath('feed') . 'track/new'
+        );
+
+        /**
+         * Вызов хуков
+         */
+        $this->Hook_Run('topics_list_show',array('aTopics'=>$aTopics));
+        $this->Viewer_Assign('aTopics', $aTopics);
+        $this->Viewer_Assign('aPaging', $aPaging);
+
+        $this->SetTemplateAction('track');
+    }
 	/**
 	 * Подгрузка ленты топиков (замена постраничности)
 	 *
