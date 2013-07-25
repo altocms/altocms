@@ -18,7 +18,7 @@
                 <thead>
                 <tr>
                     <th></th>
-                    <th class="span1"></th>
+                    <th class="span1">ID</th>
                     <th class="span2">{$aLang.action.admin.blogtypes_typecode}</th>
                     <th>{$aLang.action.admin.blogtypes_name}</th>
                     <th class="span2">{$aLang.action.admin.content_status}</th>

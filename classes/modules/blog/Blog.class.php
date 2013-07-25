@@ -1133,17 +1133,41 @@ class ModuleBlog extends Module {
         return $this->GetBlogsByArrayId($aBlogId);
     }
 
+    /**
+     * Возвращает список доступных типов для определенного действия
+     *
+     * @param      $oUser
+     * @param      $sAction
+     * @param bool $bTypeCodesOnly
+     *
+     * @return array
+     */
     public function GetAllowBlogTypes($oUser, $sAction, $bTypeCodesOnly = false) {
 
         $aFilter = array(
             'exclude_type' => 'personal',
             'is_active' => true,
         );
-        if (!$oUser || !$oUser->IsAdministrator()) {
+
+        if ($sAction && !in_array($sAction, array('add', 'list'))) {
+            return array();
+        }
+
+        if (!$oUser) {
+            // Если пользователь не задан
             if ($sAction == 'add') {
                 $aFilter['allow_add'] = true;
             } elseif ($sAction == 'list') {
-                $aFilter['show_title'] = true;
+                $aFilter['allow_list'] = true;
+            }
+        } elseif ($oUser && !$oUser->IsAdministrator()) {
+            // Если пользователь задан и он не админ, то надо учитывать рейтинг
+            if ($sAction == 'add') {
+                $aFilter['allow_add'] = true;
+                $aFilter['min_rate_add'] = $oUser->GetUserRating();
+            } elseif ($sAction == 'list') {
+                $aFilter['allow_list'] = true;
+                $aFilter['min_rate_list'] = $oUser->GetUserRating();
             }
         }
         $aBlogTypes = $this->GetBlogTypes($aFilter, $bTypeCodesOnly);
@@ -1173,21 +1197,35 @@ class ModuleBlog extends Module {
                 $bOk = true;
                 if (isset($aFilter['include_type'])) {
                     $bOk = $bOk && ($aFilter['include_type'] == $oBlogType->GetTypeCode());
+                    if (!$bOk) continue;
                 }
                 if (isset($aFilter['exclude_type'])) {
                     $bOk = $bOk && ($aFilter['exclude_type'] != $oBlogType->GetTypeCode());
+                    if (!$bOk) continue;
                 }
                 if (isset($aFilter['is_active'])) {
                     $bOk = $bOk && $oBlogType->IsActive();
+                    if (!$bOk) continue;
                 }
                 if (isset($aFilter['not_active'])) {
                     $bOk = $bOk && !$oBlogType->IsActive();
+                    if (!$bOk) continue;
                 }
                 if (isset($aFilter['allow_add'])) {
                     $bOk = $bOk && $oBlogType->IsAllowAdd();
+                    if (!$bOk) continue;
                 }
-                if (isset($aFilter['show_title'])) {
+                if (isset($aFilter['allow_list'])) {
                     $bOk = $bOk && $oBlogType->IsShowTitle();
+                    if (!$bOk) continue;
+                }
+                if (isset($aFilter['min_rate_add'])) {
+                    $bOk = $bOk && ($oBlogType->GetMinRateAdd() <= $aFilter['min_rate_add']);
+                    if (!$bOk) continue;
+                }
+                if (isset($aFilter['min_rate_list'])) {
+                    $bOk = $bOk && ($oBlogType->GetMinRateList() <= $aFilter['min_rate_list']);
+                    if (!$bOk) continue;
                 }
                 if ($bOk) {
                     $aBlogTypes[$oBlogType->GetTypeCode()] = $oBlogType;
