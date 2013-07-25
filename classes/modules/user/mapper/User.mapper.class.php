@@ -199,7 +199,7 @@ class ModuleUser_MapperUser extends Mapper {
         ";
         $aRows = $this->oDb->selectCol($sql, $nUserId, $nSessionLimit + 1);
         if ($aRows && sizeof($aRows) > $nSessionLimit) {
-	        $sDate = end($aRows);
+            $sDate = end($aRows);
             $sql
                 = "
                 DELETE FROM " . Config::Get('db.table.session') . "
