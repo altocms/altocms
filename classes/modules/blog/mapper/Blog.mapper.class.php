@@ -142,14 +142,14 @@ class ModuleBlog_MapperBlog extends Mapper {
 
         $sql
             = "SELECT
-					*
-				FROM 
-					?_blog
-				WHERE 
-					blog_id IN(?a)
-				ORDER BY
-					{ FIELD(blog_id,?a) }
-				";
+                    *
+                FROM 
+                    ?_blog
+                WHERE 
+                    blog_id IN(?a)
+                ORDER BY
+                    { FIELD(blog_id,?a) }
+            ";
         if ($sOrder != '') {
             $sql .= $sOrder;
         }
@@ -194,11 +194,11 @@ class ModuleBlog_MapperBlog extends Mapper {
 
         $sql = "
             DELETE FROM ?_blog_user
-			WHERE
-				blog_id = ?d
-				AND
-				user_id = ?d
-		";
+            WHERE
+                blog_id = ?d
+                AND
+                user_id = ?d
+            ";
         $xResult = $this->oDb->query($sql, $oBlogUser->getBlogId(), $oBlogUser->getUserId());
         return $xResult !== false;
     }
@@ -214,13 +214,13 @@ class ModuleBlog_MapperBlog extends Mapper {
 
         $sql = "
             UPDATE ?_blog_user
-			SET 
-				user_role = ?d
-			WHERE
-				blog_id = ?d 
-				AND
-				user_id = ?d
-		";
+            SET 
+                user_role = ?d
+            WHERE
+                blog_id = ?d 
+                AND
+                user_id = ?d
+            ";
         $xResult = $this->oDb->query($sql, $oBlogUser->getUserRole(), $oBlogUser->getBlogId(), $oBlogUser->getUserId());
         return $xResult !== false;
     }
@@ -254,11 +254,11 @@ class ModuleBlog_MapperBlog extends Mapper {
         }
 
         $sql = "SELECT
-					bu.*
-				FROM 
-					?_blog_user as bu
-				WHERE 
-					" . $sWhere . " ";
+                    bu.*
+                FROM 
+                    ?_blog_user as bu
+                WHERE 
+                " . $sWhere . " ";
 
         if (is_null($iCurrPage)) {
             $aRows = $this->oDb->select($sql);
@@ -291,13 +291,13 @@ class ModuleBlog_MapperBlog extends Mapper {
         }
 
         $sql = "SELECT
-					bu.*
-				FROM 
-					?_blog_user as bu
-				WHERE 
-					bu.blog_id IN(?a)
-					AND
-					bu.user_id = ?d ";
+                    bu.*
+                FROM 
+                    ?_blog_user as bu
+                WHERE 
+                    bu.blog_id IN(?a)
+                    AND
+                bu.user_id = ?d ";
         $aBlogUsers = array();
         if ($aRows = $this->oDb->select($sql, $aArrayId, $sUserId)) {
             foreach ($aRows as $aUser) {
@@ -460,10 +460,10 @@ class ModuleBlog_MapperBlog extends Mapper {
         if (isset($aFilter['user_id'])) {
             $aCriteria['filter']['user_id'] = $aFilter['user_id'];
         }
-        if (isset($aFilter['user_id'])) {
+        if (isset($aFilter['include_type'])) {
             $aCriteria['filter']['blog_type'] = $aFilter['include_type'];
         }
-        if (isset($aFilter['user_id'])) {
+        if (isset($aFilter['exclude_type'])) {
             $aCriteria['filter']['not_blog_type'] = $aFilter['exclude_type'];
         }
         $aResult = $this->GetBlogsIdByCriteria($aCriteria);
@@ -507,18 +507,18 @@ class ModuleBlog_MapperBlog extends Mapper {
     public function GetBlogsRatingJoin($nUserId, $nLimit) {
 
         $sql = "SELECT
-					b.*
-				FROM 
-					?_blog_user as bu,
-					?_blog as b
-				WHERE
-					bu.user_id = ?d
-					AND
-					bu.blog_id = b.blog_id
-					AND
-					b.blog_type<>'personal'
-				ORDER by b.blog_rating desc
-				LIMIT 0, ?d";
+                    b.*
+                FROM 
+                    ?_blog_user as bu,
+                    ?_blog as b 
+                WHERE
+                    bu.user_id = ?d
+                    AND
+                    bu.blog_id = b.blog_id
+                    AND
+                    b.blog_type<>'personal'
+                ORDER by b.blog_rating desc
+                LIMIT 0, ?d";
         $aReturn = array();
         if ($aRows = $this->oDb->select($sql, $nUserId, $nLimit)) {
             foreach ($aRows as $aRow) {
@@ -539,15 +539,15 @@ class ModuleBlog_MapperBlog extends Mapper {
     public function GetBlogsRatingSelf($sUserId, $nLimit) {
 
         $sql = "SELECT
-					b.*
-				FROM
-					?_blog as b
-				WHERE
-					b.user_owner_id = ?d
-					AND
-					b.blog_type<>'personal'
-				ORDER BY b.blog_rating DESC
-				LIMIT 0, ?d";
+                    b.*
+                FROM
+                    ?_blog as b
+                WHERE
+                    b.user_owner_id = ?d
+                    AND
+                    b.blog_type<>'personal'
+                ORDER BY b.blog_rating DESC
+                LIMIT 0, ?d";
         $aReturn = array();
         if ($aRows = $this->oDb->select($sql, $sUserId, $nLimit)) {
             foreach ($aRows as $aRow) {
@@ -634,6 +634,16 @@ class ModuleBlog_MapperBlog extends Mapper {
     }
 
     /**
+     * DEPRECATED
+     * 
+     * Use GetBlogsIdByFilterPerPage() instead
+     */
+    public function GetBlogsByFilter($aFilter, $aOrder, &$iCount, $iCurrPage, $iPerPage) {
+
+        return $this->GetBlogsIdByFilterPerPage($aFilter, $aOrder, $iCount, $iCurrPage, $iPerPage);
+    }
+    
+    /**
      * Получает список блогов по фильтру
      *
      * @param array $aFilter         - Фильтр выборки
@@ -644,7 +654,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @return array
      */
-    public function GetBlogsByFilter($aFilter, $aOrder, &$iCount, $iCurrPage, $iPerPage) {
+    public function GetBlogsIdByFilterPerPage($aFilter, $aOrder, &$iCount, $iCurrPage, $iPerPage) {
 
         $aCriteria = array(
             'filter' => array(),

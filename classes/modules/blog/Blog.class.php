@@ -56,6 +56,9 @@ class ModuleBlog extends Module {
      */
     const BLOG_USER_ROLE_BAN = -4;
 
+    const BLOG_SORT_TITLE = 1;
+    const BLOG_SORT_TITLE_PERSONAL = 2;
+
     /**
      * Объект маппера
      *
@@ -85,6 +88,61 @@ class ModuleBlog extends Module {
          * LS-compatible
          */
         $this->oMapperBlog = $this->oMapper;
+    }
+
+    /**
+     * Спавнение по наименованию, но персональные вперед
+     *
+     * @param $oBlog1
+     * @param $oBlog2
+     *
+     * @return int
+     */
+    public function _compareByTitlePersonal($oBlog1, $oBlog2) {
+
+        if (($oBlog1->GetType() == 'personal' && $oBlog2->GetType() == 'personal')
+            || ($oBlog1->GetType() != 'personal' && $oBlog2->GetType() != 'personal')
+        ) {
+            return $this->_compareByTitle($oBlog1, $oBlog2);
+        }
+        if ($oBlog1->GetType() == 'personal') {
+            return -1;
+        } else {
+            return 1;
+        }
+    }
+
+    /**
+     * Спавнение по наименованию
+     *
+     * @param $oBlog1
+     * @param $oBlog2
+     *
+     * @return int
+     */
+    public function _compareByTitle($oBlog1, $oBlog2) {
+
+        $sTitle1 = mb_strtolower($oBlog1->GetTitle());
+        $sTitle2 = mb_strtolower($oBlog2->GetTitle());
+        if ($sTitle1 == $sTitle2) {
+            return 0;
+        }
+        return ($sTitle1 < $sTitle2) ? -1 : 1;
+    }
+
+    /**
+     * Сортировка блогов
+     *
+     * @param array $aBlogList
+     * @param int   $nMode
+     */
+    protected function _sortByTitle(&$aBlogList, $nMode = self::BLOG_SORT_TITLE_PERSONAL) {
+
+        if ($nMode == self::BLOG_SORT_TITLE_PERSONAL) {
+            uasort($aBlogList, array($this, '_compareByTitlePersonal'));
+        } elseif ($nMode == self::BLOG_SORT_TITLE) {
+            uasort($aBlogList, array($this, '_compareByTitle'));
+        }
     }
 
     /**
@@ -768,7 +826,7 @@ class ModuleBlog extends Module {
         $sCacheKey = 'blog_filter_' . serialize($aFilter) . serialize($aOrder) . "_{$nCurrPage}_{$nPerPage}";
         if (false === ($data = $this->Cache_Get($sCacheKey))) {
             $data = array(
-                'collection' => $this->oMapper->GetBlogsByFilter($aFilter, $aOrder, $iCount, $nCurrPage, $nPerPage),
+                'collection' => $this->oMapper->GetBlogsIdByFilterPerPage($aFilter, $aOrder, $iCount, $nCurrPage, $nPerPage),
                 'count'      => $iCount
             );
             $this->Cache_Set($data, $sCacheKey, array('blog_update', 'blog_new'), 'P2D');
@@ -842,17 +900,43 @@ class ModuleBlog extends Module {
         if ($oUser->isAdministrator()) {
             return $this->GetBlogs();
         } else {
-            $aAllowBlogsUser = $this->GetBlogsByOwnerId($oUser->getId());
+            // Блоги, созданные пользователем
+            $aAllowBlogs = $this->GetBlogsByOwnerId($oUser->getId());
+            // Блоги, в которых состоит пользователь
             $aBlogUsers = $this->GetBlogUsersByUserId($oUser->getId());
             foreach ($aBlogUsers as $oBlogUser) {
                 $oBlog = $oBlogUser->getBlog();
                 if ($oBlogUser->getIsAdministrator() || $oBlogUser->getIsModerator()
                     || $this->ACL_CanAddTopic($oUser, $oBlog)
                 ) {
-                    $aAllowBlogsUser[$oBlog->getId()] = $oBlog;
+                    if (!isset($aAllowBlogs[$oBlog->getId()])) {
+                        $aAllowBlogs[$oBlog->getId()] = $oBlog;
+                    }
                 }
             }
-            return $aAllowBlogsUser;
+            // Блоги, в которые можно писать без вступления
+            $aFilter = array(
+                'acl_write'      => self::BLOG_USER_ACL_USER,
+                'min_rate_write' => $oUser->GetUserRating(),
+            );
+            // Получаем типы блогов
+            if ($aBlogTypes = $this->GetBlogTypes($aFilter, true)) {
+                // Получаем ID блогов
+                $aCriteria = array(
+                    'filter' => array('blog_type' => $aBlogTypes)
+                );
+                $aResult = $this->oMapper->GetBlogsIdByCriteria($aCriteria);
+                // Получаем сами блоги
+                if ($aResult['data'] && ($aBlogs = $this->GetBlogsAdditionalData($aResult['data'], array()))) {
+                    foreach ($aBlogs as $oBlog) {
+                        if (!isset($aAllowBlogs[$oBlog->getId()])) {
+                            $aAllowBlogs[$oBlog->getId()] = $oBlog;
+                        }
+                    }
+                }
+            }
+            $this->_sortByTitle($aAllowBlogs);
+            return $aAllowBlogs;
         }
     }
 
@@ -1225,6 +1309,26 @@ class ModuleBlog extends Module {
                 }
                 if (isset($aFilter['min_rate_list'])) {
                     $bOk = $bOk && ($oBlogType->GetMinRateList() <= $aFilter['min_rate_list']);
+                    if (!$bOk) continue;
+                }
+                if (isset($aFilter['min_rate_write'])) {
+                    $bOk = $bOk && ($oBlogType->GetMinRateWrite() <= $aFilter['min_rate_write']);
+                    if (!$bOk) continue;
+                }
+                if (isset($aFilter['min_rate_read'])) {
+                    $bOk = $bOk && ($oBlogType->GetMinRateRead() <= $aFilter['min_rate_read']);
+                    if (!$bOk) continue;
+                }
+                if (isset($aFilter['acl_write'])) {
+                    $bOk = $bOk && ($oBlogType->GetAclWrite() & $aFilter['acl_write']);
+                    if (!$bOk) continue;
+                }
+                if (isset($aFilter['acl_read'])) {
+                    $bOk = $bOk && ($oBlogType->GetAclRead() & $aFilter['acl_read']);
+                    if (!$bOk) continue;
+                }
+                if (isset($aFilter['acl_comment'])) {
+                    $bOk = $bOk && ($oBlogType->GetAclComment() & $aFilter['acl_comment']);
                     if (!$bOk) continue;
                 }
                 if ($bOk) {
