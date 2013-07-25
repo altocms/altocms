@@ -88,8 +88,8 @@ class ModuleUserfeed extends Module {
 	 * @param int $iFromId Получить записи, начиная с указанной
 	 * @return array
 	 */
-	public function trackread($iUserId, $iPage = 1,$iPerPage=10) {
-		$aTopicTracks = $this->Subscribe_GetTracks(array('user_id'=>$iUserId,'target_type'=>'topic_new_comment','status'=>1),array('date_add'=>'desc'),$iPage,$iPerPage);
+	public function trackread($iUserId, $iPage = 1,$iPerPage=10,$iOnlyNew=false) {
+		$aTopicTracks = $this->Subscribe_GetTracks(array('user_id'=>$iUserId,'target_type'=>'topic_new_comment','status'=>1,'only_new'=>$iOnlyNew),array('date_add'=>'desc'),$iPage,$iPerPage);
 		$aTopicsIds=array();
 		foreach($aTopicTracks['collection'] as $oTrack){
 			$aTopicsIds[]=$oTrack->getTargetId();

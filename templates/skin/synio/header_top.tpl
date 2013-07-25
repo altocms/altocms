@@ -65,7 +65,7 @@
 	{/if}
 	
 	{if $iUserCurrentCountTalkNew}<a href="{router page='talk'}" class="new-messages">+{$iUserCurrentCountTalkNew} <i class="icon-synio-new-message"></i></a>{/if}
-	{if $iUserCurrentCountTrack}<a href="{router page='feed'}track/" class="new-track">+{$iUserCurrentCountTrack} <i class="icon-synio-comments-green"></i></a>{/if}
+	{if $iUserCurrentCountTrack}<a href="{router page='feed'}track/new/" class="new-track">+{$iUserCurrentCountTrack} <i class="icon-synio-comments-green"></i></a>{/if}
 
 	
 	{hook run='header_banner_end'}
