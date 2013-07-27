@@ -727,7 +727,7 @@ class ModuleBlog extends Module {
          * Сохраняем в кеш запросы не вернувшие результата
          */
         foreach ($aBlogIdNeedStore as $sId) {
-            $this->Cache_Set(null, "blog_relation_user_{$sId}_{$nUserId}", array(), 60 * 60 * 24 * 4);
+            $this->Cache_Set(null, "blog_relation_user_{$sId}_{$nUserId}", array(), 'P4D');
         }
         /**
          * Сортируем результат согласно входящему массиву
@@ -759,7 +759,7 @@ class ModuleBlog extends Module {
             }
             $this->Cache_Set(
                 $aBlogUsers, "blog_relation_user_{$sUserId}_id_{$s}",
-                array('blog_update', "blog_relation_change_{$sUserId}"), 60 * 60 * 24 * 1
+                array('blog_update', "blog_relation_change_{$sUserId}"), 'P1D'
             );
             return $aBlogUsers;
         }
