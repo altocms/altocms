@@ -161,7 +161,7 @@ $config['sys']['cache']['use']    = false;
 $config['sys']['cache']['backends'] = array(
     'file'   => 'File',         // файловое кеширование
     'memory' => 'Memcached',    // используется Memcached
-    'xcache' => 'XCache',       // используется XCache
+    'xcache' => 'Xcache',       // используется XCache
     'tmp'    => 'Tmp',          // используется временное хранилище в памяти
 );
 
