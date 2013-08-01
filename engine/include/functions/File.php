@@ -64,7 +64,7 @@ class AltoFunc_File {
      *
      * @param   mixed $xAddLang
      *
-     * @return  mixed|null|string
+     * @return  string|null
      */
     static public function RootUrl($xAddLang = false) {
         if (class_exists('Config', false)) {

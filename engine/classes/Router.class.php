@@ -260,7 +260,7 @@ class Router extends LsObject {
         $sReq = preg_replace('/^(.*)\?.*$/U', '$1', $sReq);
 
         // * Формируем $sPathWebCurrent ДО применения реврайтов
-        self::$sPathWebCurrent = Config::Get('path.root.url') . join('/', $this->GetRequestArray($sReq));
+        self::$sPathWebCurrent = F::File_RootUrl() . join('/', $this->GetRequestArray($sReq));
         return $sReq . $sLastChar;
     }
 
