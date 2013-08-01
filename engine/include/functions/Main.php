@@ -515,17 +515,20 @@ class AltoFunc_Main {
             }
         }
 
-        if ($xLang === false) {
-            $sText = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $sText);
-        } else {
+        $sText = strtolower($sText);
+        if ($xLang !== false) {
             $aChars = UserLocale::getLocale($xLang, 'translit');
             if ($aChars) {
                 $sText = str_replace(array_keys($aChars), array_values($aChars), $sText);
             }
             $sText = preg_replace('/[-]{2,}/', '-', $sText);
-            $sText = strtolower(iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $sText));
         }
-        return $sText;
+        $sResult = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $sText);
+        // В некоторых случаях может возвращаться пустая строка
+        if (!$sResult) {
+            $sResult = $sText;
+        }
+        return $sResult;
     }
 
     static public function TranslitUrl($sText, $xLang = true) {
