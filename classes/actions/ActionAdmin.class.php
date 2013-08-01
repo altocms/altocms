@@ -1783,6 +1783,7 @@ class ActionAdmin extends Action {
     /**********************************************************************************/
 
     protected function EventBanlist() {
+
         $this->_setTitle($this->Lang_Get('action.admin.banlist_title'));
         $sMode = $this->_getMode(0, 'ids');
         $nPage = $this->_getPageNum();
@@ -1800,6 +1801,7 @@ class ActionAdmin extends Action {
     }
 
     protected function _eventBanListCmd($sCmd) {
+
         if ($sCmd == 'adm_user_ban') {
             $sUsersList = $this->GetPost('user_login');
             $nBanDays = $this->GetPost('ban_days');
@@ -1807,7 +1809,7 @@ class ActionAdmin extends Action {
 
             $sIp = $this->GetPost('user_ban_ip1');
             if ($sIp) {
-                $sIp .= $this->GetPost('user_ban_ip2', '0')
+                $sIp .= '.' . $this->GetPost('user_ban_ip2', '0')
                     . '.' . $this->GetPost('user_ban_ip3', '0')
                     . '.' . $this->GetPost('user_ban_ip4', '0');
             }
@@ -1835,6 +1837,7 @@ class ActionAdmin extends Action {
     }
 
     protected function _eventBanlistIds($nPage) {
+
         $this->SetTemplateAction('users/banlist_ids');
 
         // Получаем список забаненных юзеров
@@ -1849,6 +1852,7 @@ class ActionAdmin extends Action {
     }
 
     protected function _eventBanlistIps($nPage) {
+
         $this->SetTemplateAction('users/banlist_ips');
 
         // Получаем список забаненных ip-адресов
