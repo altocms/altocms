@@ -101,7 +101,7 @@ class ModuleLogger_EntityLog extends Entity {
             $this->aRecord = array(
                 'id'    => sprintf('%014.2F-%4d', microtime(true), $this->GetRandom()),
                 'time'  => date('Y-m-d H:i:s'),
-                'pid'   => getmypid(),
+                'pid'   => @getmypid(),
                 'level' => $sLogLevel,
                 'trace' => null,
                 'info'  => array($sMsg),
