@@ -519,20 +519,20 @@ class ModuleCache extends Module {
      *
      * Если движок кеша не поддерживает такие запросы, то делаем эмуляцию
      *
-     * @param   array   $aName          - Имя ключа
+     * @param   array   $aNames         - Имя ключа
      * @param   string  $sCacheType     - Тип кеша
      *
      * @return bool|array
      */
-    public function MultiGet($aName, $sCacheType = null) {
+    public function MultiGet($aNames, $sCacheType = null) {
 
-        if (count($aName) == 0) {
+        if (count($aNames) == 0) {
             return false;
         }
         if ($this->_backendIsMultiLoad($sCacheType)) {
             $aKeys = array();
             $aKv = array();
-            foreach ($aName as $sName) {
+            foreach ($aNames as $sName) {
                 $sHash = $this->_hash($sName);
                 $aKeys[] = $sHash;
                 $aKv[$sHash] = $sName;
@@ -550,7 +550,7 @@ class ModuleCache extends Module {
             return false;
         } else {
             $aData = array();
-            foreach ($aName as $sName) {
+            foreach ($aNames as $sName) {
                 if ((false !== ($data = $this->Get($sName)))) {
                     $aData[$sName] = $data;
                 }
