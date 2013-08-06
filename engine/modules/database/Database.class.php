@@ -113,6 +113,7 @@ class ModuleDatabase extends Module {
             } else {
                 $oDbSimple->setLogger(array($this, '_internalLogger'));
             }
+            $oDbSimple->setTableNameFunc(array($this, 'TableNameTransformer'));
 
             // Задаем префикс таблиц
             $oDbSimple->setIdentPrefix(Config::Get('db.table.prefix'));
@@ -184,6 +185,18 @@ class ModuleDatabase extends Module {
             // это сам запрос
             $oLog->DumpBegin($sMsg);
         }
+    }
+
+    public function TableNameTransformer($sTable) {
+
+        if (substr($sTable, 0, 2) == '?_') {
+            $sTable = substr($sTable, 2);
+            if ($sTableName = Config::Get('db.table.' . $sTable)) {
+                return $sTableName;
+            }
+            return Config::Get('db.table.prefix') . $sTable;
+        }
+        return $sTable;
     }
 
     /**

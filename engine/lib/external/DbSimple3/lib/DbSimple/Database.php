@@ -84,13 +84,41 @@ if (!defined('DBSIMPLE_PARENT_KEY'))
  */
 abstract class DbSimple_Database extends DbSimple_LastError
 {
+    protected $_cachePrefix = '';
+    protected $_className = '';
+
+    protected $_logger = null;
+    protected $_preformatter = null;
+    protected $_tablefunc = null;
+    protected $_cacher = null;
+    protected $_placeholderArgs, $_placeholderNativeArgs, $_placeholderCache=array();
+    protected $_placeholderNoValueFound;
+
+    // Identifiers prefix (used for ?_ placeholder).
+    protected $_identPrefix = '';
+
+    // Queries statistics.
+    protected $_statistics = array(
+        'time'  => 0,
+        'count' => 0,
+    );
+
+    /**
+     * When string representation of row (in characters) is greater than this,
+     * row data will not be logged.
+     */
+    protected $MAX_LOG_ROW_LEN = 128;
+
     /**
      * Public methods.
      */
 
     /**
-     * object blob($blob_id)
      * Create new blob
+
+     * @param null $blob_id
+     *
+     * @return mixed
      */
     public function blob($blob_id = null)
     {
@@ -99,8 +127,11 @@ abstract class DbSimple_Database extends DbSimple_LastError
     }
 
     /**
-     * void transaction($mode)
-     * Create new transaction.
+     * Create new transaction
+     *
+     * @param null $mode
+     *
+     * @return mixed
      */
     public function transaction($mode=null)
     {
@@ -110,8 +141,9 @@ abstract class DbSimple_Database extends DbSimple_LastError
     }
 
     /**
-     * mixed commit()
-     * Commit the transaction.
+     * Commit the transaction
+     *
+     * @return mixed
      */
     public function commit()
     {
@@ -121,8 +153,9 @@ abstract class DbSimple_Database extends DbSimple_LastError
     }
 
     /**
-     * mixed rollback()
-     * Rollback the transaction.
+     * Rollback the transaction
+     *
+     * @return mixed
      */
     public function rollback()
     {
@@ -134,6 +167,10 @@ abstract class DbSimple_Database extends DbSimple_LastError
     /**
      * mixed select(string $query [, $arg1] [,$arg2] ...)
      * Execute query and return the result.
+     *
+     * @param $query
+     *
+     * @return array|null
      */
     public function select($query)
     {
@@ -246,14 +283,33 @@ abstract class DbSimple_Database extends DbSimple_LastError
 
 
     /**
-     * callback setLogger(callback $logger)
+     * callback setLogger(callback $func)
      * Set query logger called before each query is executed.
      * Returns previous logger.
      */
-    public function setLogger($logger)
+    public function setLogger($func)
     {
         $prev = $this->_logger;
-        $this->_logger = $logger;
+        $this->_logger = $func;
+        return $prev;
+    }
+
+    /**
+     * callback setPreFormatter(callback $func)
+     * Set query preformatter called before each query is executed.
+     * Returns previous preformatter.
+     */
+    public function setPreFormatter($func)
+    {
+        $prev = $this->_preformatter;
+        $this->_preformatter = $func;
+        return $prev;
+    }
+
+    public function setTableNameFunc($func)
+    {
+        $prev = $this->_tablefunc;
+        $this->_tablefunc = $func;
         return $prev;
     }
 
@@ -428,12 +484,15 @@ abstract class DbSimple_Database extends DbSimple_LastError
 
     /**
      * array _query($query, &$total)
-     * See _performQuery().
+     * @see _performQuery().
      */
     private function _query($query, &$total)
     {
         $this->_resetLastError();
 
+        if ($this->_preformatter) {
+            $query = call_user_func_array($this->_preformatter, $query);
+        }
         // Fetch query attributes.
         $this->attributes = $this->_transformQuery($query, 'GET_ATTRIBUTES');
 
@@ -870,8 +929,12 @@ abstract class DbSimple_Database extends DbSimple_LastError
      */
     private function _addPrefix2Table($table)
     {
-        if (substr($table, 0, 2) == '?_')
-            $table = $this->_identPrefix . substr($table, 2);
+        if ($this->_tablefunc) {
+            $table = call_user_func_array($this->_tablefunc, array($table));
+        } else {
+            if (substr($table, 0, 2) == '?_')
+                $table = $this->_identPrefix . substr($table, 2);
+        }
         return $table;
     }
 
@@ -1148,28 +1211,6 @@ abstract class DbSimple_Database extends DbSimple_LastError
     }
 
 
-    // Identifiers prefix (used for ?_ placeholder).
-    private $_identPrefix = '';
-
-    // Queries statistics.
-    private $_statistics = array(
-        'time'  => 0,
-        'count' => 0,
-    );
-
-    private $_cachePrefix = '';
-    private $_className = '';
-
-    private $_logger = null;
-    private $_cacher = null;
-    private $_placeholderArgs, $_placeholderNativeArgs, $_placeholderCache=array();
-    private $_placeholderNoValueFound;
-
-    /**
-     * When string representation of row (in characters) is greater than this,
-     * row data will not be logged.
-    */
-    private $MAX_LOG_ROW_LEN = 128;
 }
 
 
