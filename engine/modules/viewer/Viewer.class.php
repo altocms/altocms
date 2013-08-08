@@ -1935,16 +1935,23 @@ class ModuleViewer extends Module {
     }
 
     public function ClearAll() {
+
         $this->ClearSmartyFiles();
         $this->ClearAssetsFiles();
     }
 
+    /**
+     * Clear all cached and compiled files of Smarty
+     */
     public function ClearSmartyFiles() {
+
         $this->oSmarty->clearCompiledTemplate();
         $this->oSmarty->clearAllCache();
+        F::File_ClearDir(Config::Get('path.tmp.dir') . '/templates/');
     }
 
     public function ClearAssetsFiles() {
+
         $sDir = $this->GetAssetDir();
         F::File_RemoveDir($sDir);
     }
