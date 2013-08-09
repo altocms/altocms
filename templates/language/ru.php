@@ -170,7 +170,7 @@ return array(
 	'blog_admin_delete_move' => 'Переместить статьи в блог',
 	'blog_delete_clear' => 'Удалить статьи',
 	'blog_admin_delete_success' => 'Блог успешно удален',
-	'blog_admin_delete_not_empty' => 'Вы не можете удалить блок с записями. Предварительно удалите из блога все записи.',
+	'blog_admin_delete_not_empty' => 'Вы не можете удалить блог с записями. Предварительно удалите из блога все записи.',
 	'blog_admin_delete_move_error' => 'Не удалось переместить статьи из удаляемого блога',
 	'blog_admin_delete_move_personal' => 'Нельзя перемещать статьи в персональный блог',
 	'blog_admin_user_add_label' => 'Добавить пользователей',
