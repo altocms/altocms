@@ -937,6 +937,33 @@ class Router extends LsObject {
         return $sUrlPattern;
     }
 
+    /**
+     * Compare each item of array with controller path
+     *
+     * @see GetControllerPath
+     *
+     * @param $aPaths - array of compared paths
+     *
+     * @return string
+     */
+    static public function CompareWithLocalPath($aPaths) {
+
+        $sControllerPath = self::GetControllerPath();
+        $aPaths = F::Val2Array($aPaths);
+        if ($aPaths) {
+            foreach($aPaths as $nKey => $sPath) {
+                if ($sPath == '*') {
+                    $aPaths[$nKey] = Config::Get('router.config.action_default') . '/*';
+                } elseif($sPath == '/') {
+                    $aPaths[$nKey] = Config::Get('router.config.action_default') . '/';
+                } elseif (!in_array(substr($sPath, -1), array('/', '*'))) {
+                    $aPaths[$nKey] = $sPath . '/*';
+                }
+            }
+            return F::File_InPath($sControllerPath, $aPaths);
+        }
+    }
+
 }
 
 // EOF
