@@ -62,11 +62,18 @@ class Router extends LsObject {
     static protected $sActionClass = null;
 
     /**
-     * Текущий полный ЧПУ url
+     * Текущий полный URL
      *
      * @var string|null
      */
     static protected $sPathWebCurrent = null;
+
+    /**
+     * Текущий обрабатываемый путь контроллера
+     *
+     * @var string|null
+     */
+    static protected $sControllerPath = null;
 
     /**
      * Текущий язык
@@ -510,12 +517,29 @@ class Router extends LsObject {
     }
 
     /**
+     * LS-compatible
      * Возвращает текущий ЧПУ url
      *
      * @return string
      */
     static public function GetPathWebCurrent() {
         return self::$sPathWebCurrent;
+    }
+
+    /**
+     * Возвращает реальный URL (или локальный путь на сайте) без реврайтов
+     *
+     * @param bool $bPathOnly
+     *
+     * @return null|string
+     */
+    static public function RealUrl($bPathOnly = false) {
+
+        $sResult = self::$sPathWebCurrent;
+        if ($bPathOnly) {
+            $sResult = F::File_LocalUrl($sResult);
+        }
+        return $sResult;
     }
 
     /**
@@ -608,11 +632,14 @@ class Router extends LsObject {
      *
      * @return  string
      */
-    static public function GetCurrentPath() {
-        $sCurrentPath = self::GetAction() . '/';
-        if (self::GetActionEvent()) $sCurrentPath .= self::GetActionEvent() . '/';
-        if (self::GetParams()) $sCurrentPath .= implode('/', self::GetParams()) . '/';
-        return $sCurrentPath;
+    static public function GetControllerPath() {
+
+        if (is_null(self::$sControllerPath)) {
+            self::$sControllerPath = self::GetAction() . '/';
+            if (self::GetActionEvent()) self::$sControllerPath .= self::GetActionEvent() . '/';
+            if (self::GetParams()) self::$sControllerPath .= implode('/', self::GetParams()) . '/';
+        }
+        return self::$sControllerPath;
     }
 
     /**
