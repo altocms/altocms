@@ -97,7 +97,7 @@ class ModuleCache extends Module {
     protected $aCacheTypesForce = array();
 
     /**
-     * Объект бэкенда кеширования
+     * Объект бэкенда кеширования / LS-compatible /
      *
      * @var Zend_Cache_Backend
      */
@@ -205,9 +205,7 @@ class ModuleCache extends Module {
             $this->nCacheMode = $this->nCacheMode | self::CACHE_MODE_FORCE;
         }
         if ($this->nCacheMode != self::CACHE_MODE_NONE) {
-            /**
-             * Дабы не засорять место протухшим кешем, удаляем его в случайном порядке, например 1 из 50 раз
-             */
+            // Дабы не засорять место протухшим кешем, удаляем его в случайном порядке, например 1 из 50 раз
             if (rand(1, $this->nRandClearOld) == 33) {
                 $this->Clean(Zend_Cache::CLEANING_MODE_OLD);
             }
@@ -370,7 +368,7 @@ class ModuleCache extends Module {
     }
 
     /**
-     * Внутренний метод сброса кеша по тегам
+     * Internal method for clearing of cache
      *
      * @param $sCacheType
      * @param $sMode
@@ -396,13 +394,18 @@ class ModuleCache extends Module {
     /**
      * Хеширование имени кеш-ключа
      *
-     * @param $sName
+     * @param $sKey
      *
      * @return string
      */
-    protected function _hash($sName) {
+    protected function _hash($sKey) {
 
-        return md5(Config::Get('sys.cache.prefix') . $sName);
+        return md5(Config::Get('sys.cache.prefix') . $sKey);
+    }
+
+    public function CacheTypeAvailable($sCacheType) {
+
+        return $this->_backendIsAvailable($sCacheType);
     }
 
     /**
@@ -424,22 +427,23 @@ class ModuleCache extends Module {
      * </pre>
      *
      * @param   mixed               $xData      - Данные для хранения в кеше
-     * @param   string              $sName      - Имя ключа
+     * @param   string              $sCacheKey  - Имя ключа кеширования
      * @param   array               $aTags      - Список тегов, для возможности удалять сразу несколько кешей по тегу
      * @param   string|int|bool     $nTimeLife  - Время жизни кеша (в секундах или в строковом интервале)
      * @param   string|bool|null    $sCacheType - Тип используемого кеша
      *
      * @return  bool
      */
-    public function Set($xData, $sName, $aTags = array(), $nTimeLife = false, $sCacheType = null) {
+    public function Set($xData, $sCacheKey, $aTags = array(), $nTimeLife = false, $sCacheType = null) {
 
-        // Если модуль завершил свою работу, то ничего не кешируется
-        if ($this->isDone()) {
+        // Проверяем возможность кеширования
+        $nMode = $this->_cacheOn($sCacheType);
+        if (!$nMode) {
             return false;
         }
 
-        // Проверяем возможность кеширования
-        if (!$this->_cacheOn($sCacheType)) {
+        // Если модуль завершил свою работу и не включено принудительное кеширование, то ничего не кешируется
+        if ($this->isDone() && ($nMode != self::CACHE_MODE_FORCE)) {
             return false;
         }
 
@@ -475,26 +479,26 @@ class ModuleCache extends Module {
                 'data' => $xData,
             );
         }
-        return $this->_backendSave($sCacheType, $aData, $this->_hash($sName), $aTags, $nTimeLife);
+        return $this->_backendSave($sCacheType, $aData, $this->_hash($sCacheKey), $aTags, $nTimeLife);
     }
 
     /**
      * Получить значение из кеша
      *
-     * @param   string      $sName      - Имя ключа
+     * @param   string      $sCacheKey  - Имя ключа кеширования
      * @param   string|null $sCacheType - Механизм используемого кеширования
      *
      * @return mixed|bool
      */
-    public function Get($sName, $sCacheType = null) {
+    public function Get($sCacheKey, $sCacheType = null) {
 
         // Проверяем возможность кеширования
         if (!$this->_cacheOn($sCacheType)) {
             return false;
         }
 
-        if (!is_array($sName)) {
-            $aData = $this->_backendLoad($sCacheType, $this->_hash($sName));
+        if (!is_array($sCacheKey)) {
+            $aData = $this->_backendLoad($sCacheType, $this->_hash($sCacheKey));
             if (is_array($aData) && array_key_exists('data', $aData)) {
                 // Если необходимо разрешение конкурирующих запросов...
                 if (isset($aData['time']) && ($nConcurentDaley = $this->_backendIsConcurent($sCacheType))) {
@@ -502,14 +506,14 @@ class ModuleCache extends Module {
                         // Если данные кеша по факту "протухли", то пересохраняем их с доп.задержкой и без метки времени
                         // За время задержки кеш должен пополниться свежими данными
                         $aData['time'] = false;
-                        $this->_backendSave($sCacheType, $aData, $this->_hash($sName), $aData['tags'], $nConcurentDaley);
+                        $this->_backendSave($sCacheType, $aData, $this->_hash($sCacheKey), $aData['tags'], $nConcurentDaley);
                         return false;
                     }
                 }
                 return $aData['data'];
             }
         } else {
-            return $this->multiGet($sName, $sCacheType);
+            return $this->multiGet($sCacheKey, $sCacheType);
         }
         return false;
     }
@@ -519,29 +523,29 @@ class ModuleCache extends Module {
      *
      * Если движок кеша не поддерживает такие запросы, то делаем эмуляцию
      *
-     * @param   array   $aNames         - Имя ключа
+     * @param   array   $aCacheKeys     - Массив ключей кеширования
      * @param   string  $sCacheType     - Тип кеша
      *
      * @return bool|array
      */
-    public function MultiGet($aNames, $sCacheType = null) {
+    public function MultiGet($aCacheKeys, $sCacheType = null) {
 
-        if (count($aNames) == 0) {
+        if (count($aCacheKeys) == 0 || !$this->_cacheOn($sCacheType)) {
             return false;
         }
         if ($this->_backendIsMultiLoad($sCacheType)) {
-            $aKeys = array();
-            $aKv = array();
-            foreach ($aNames as $sName) {
-                $sHash = $this->_hash($sName);
-                $aKeys[] = $sHash;
-                $aKv[$sHash] = $sName;
+            $aHashKeys = array();
+            $aTmpKeys = array();
+            foreach ($aCacheKeys as $sCacheKey) {
+                $sHash = $this->_hash($sCacheKey);
+                $aHashKeys[] = $sHash;
+                $aTmpKeys[$sHash] = $sCacheKey;
             }
-            $data = $this->_backendLoad($sCacheType, $aKeys);
+            $data = $this->_backendLoad($sCacheType, $aHashKeys);
             if ($data && is_array($data)) {
                 $aData = array();
                 foreach ($data as $key => $value) {
-                    $aData[$aKv[$key]] = $value;
+                    $aData[$aTmpKeys[$key]] = $value;
                 }
                 if (count($aData) > 0) {
                     return $aData;
@@ -550,9 +554,9 @@ class ModuleCache extends Module {
             return false;
         } else {
             $aData = array();
-            foreach ($aNames as $sName) {
-                if ((false !== ($data = $this->Get($sName)))) {
-                    $aData[$sName] = $data;
+            foreach ($aCacheKeys as $sCacheKey) {
+                if ((false !== ($data = $this->Get($sCacheKey, $sCacheType)))) {
+                    $aData[$sCacheKey] = $data;
                 }
             }
             if (count($aData) > 0) {
@@ -566,81 +570,84 @@ class ModuleCache extends Module {
      * LS-compatible
      *
      * @param   mixed           $data       - Данные для хранения в кеше
-     * @param   string          $sName      - Имя ключа
+     * @param   string          $sCacheKey  - Имя ключа кеширования
      * @param   array           $aTags      - Список тегов, для возможности удалять сразу несколько кешей по тегу
      * @param   string|int|bool $nTimeLife  - Время жизни кеша (в секундах или в строковом интервале)
      *
      * @return  bool
      */
-    public function SmartSet($data, $sName, $aTags = array(), $nTimeLife = false) {
+    public function SmartSet($data, $sCacheKey, $aTags = array(), $nTimeLife = false) {
 
-        return $this->Set($data, $sName, $aTags, $nTimeLife);
+        return $this->Set($data, $sCacheKey, $aTags, $nTimeLife);
     }
 
     /**
      * LS-compatible
      *
-     * @param   string      $sName      - Имя ключа
-     * @param   string|null $sCacheType - Механизм используемого кеширования
+     * @param   string      $sCacheKey      - Имя ключа
+     * @param   string|null $sCacheType     - Механизм используемого кеширования
      *
      * @return  bool|mixed
      */
-    public function SmartGet($sName, $sCacheType = null) {
+    public function SmartGet($sCacheKey, $sCacheType = null) {
 
-        return $this->Get($sName, $sCacheType);
+        return $this->Get($sCacheKey, $sCacheType);
     }
 
     /**
-     * Удаляет значение из кеша по ключу(имени)
+     * Delete cache value by its key
      *
-     * @param string $sName    - Имя ключа
+     * @param string      $sCacheKey    - Name of cache key
+     * @param string|null $sCacheType   - Type of cache (if null then clear in all cache types)
      *
      * @return bool
      */
-    public function Delete($sName) {
+    public function Delete($sCacheKey, $sCacheType = null) {
 
         if (!$this->bUseCache) {
             return false;
         }
-        if (is_array($sName)) {
-            foreach ($sName as $sItemName) {
-                $this->_backendRemove(null, $this->_hash($sItemName));
+        if (is_array($sCacheKey)) {
+            foreach ($sCacheKey as $sItemName) {
+                $this->_backendRemove($sCacheType, $this->_hash($sItemName));
             }
             return true;
         } else {
-            return $this->_backendRemove(null, $this->_hash($sName));
+            return $this->_backendRemove($sCacheType, $this->_hash($sCacheKey));
         }
     }
 
     /**
-     * Чистит кеши
+     * Clear cache
      *
-     * @param   string $sMode
-     * @param   array  $aTags
+     * @param   string    $sMode
+     * @param   array     $aTags
+     * @param string|null $sCacheType - Type of cache (if null then clear in all cache types)
      *
      * @return  bool
      */
-    public function Clean($sMode = Zend_Cache::CLEANING_MODE_ALL, $aTags = array()) {
+    public function Clean($sMode = Zend_Cache::CLEANING_MODE_ALL, $aTags = array(), $sCacheType = null) {
 
         if (!$this->bUseCache) {
             return false;
         }
-        return $this->_backendClean(null, $sMode, $aTags);
+        return $this->_backendClean($sCacheType, $sMode, $aTags);
     }
 
     /**
-     * Чистит кеши по тегам
+     * Clear cache by tags
      *
-     * @param array $aTags    - Список тегов
+     * @param array       $aTags      - Array of tags
+     * @param string|null $sCacheType - Type of cache (if null then clear in all cache types)
      *
      * @return bool
      */
-    public function CleanByTags($aTags) {
+    public function CleanByTags($aTags, $sCacheType = null) {
 
         if (!is_array($aTags)) {
             $aTags = array((string)$aTags);
         }
-        return $this->Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, $aTags);
+        return $this->Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, $aTags, $sCacheType);
     }
 
     /**
@@ -671,26 +678,28 @@ class ModuleCache extends Module {
     }
 
     /**
+     * LS-compatible
      * Сохраняет значение в кеше на время исполнения скрипта(сессии), некий аналог Registry
      *
-     * @param mixed  $data     Данные для сохранения в кеше
-     * @param string $sName    Имя ключа
+     * @param mixed  $data         - Данные для сохранения в кеше
+     * @param string $sCacheKey    - Имя ключа кеширования
      */
-    public function SetLife($data, $sName) {
+    public function SetLife($data, $sCacheKey) {
 
-        $this->Set($data, $sName, array(), false, 'tmp');
+        $this->Set($data, $sCacheKey, array(), false, 'tmp');
     }
 
     /**
+     * LS-compatible
      * Получает значение из текущего кеша сессии
      *
-     * @param string $sName    Имя ключа
+     * @param string $sCacheKey    - Имя ключа кеширования
      *
      * @return mixed
      */
-    public function GetLife($sName) {
+    public function GetLife($sCacheKey) {
 
-        return $this->Get($sName, 'tmp');
+        return $this->Get($sCacheKey, 'tmp');
     }
 }
 
