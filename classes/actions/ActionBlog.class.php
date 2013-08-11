@@ -696,8 +696,11 @@ class ActionBlog extends Action {
      *
      */
     protected function EventShowTopic() {
+        $sBlogUrl='';
+    	$sTopicUrlMask = Router::GetTopicUrlMask();
         if ($this->GetParamEventMatch(0, 1)) {
             // из коллективного блога
+            $sBlogUrl=$this->sCurrentEvent;
             $iTopicId = $this->GetParamEventMatch(0, 1);
             $this->sMenuItemSelect = 'blog';
         } else {
@@ -753,6 +756,21 @@ class ActionBlog extends Action {
                 return Router::Action('error');
             }
         }
+
+        // * Если номер топика правильный но УРЛ блога косяный то корректируем его и перенаправляем на нужный адрес. Маска ссылки как в LiveStreet.		 
+		if ($sBlogUrl!='' and $oTopic->getBlog()->getUrl()!=$sBlogUrl) {
+			Router::Location($oTopic->getUrl());
+		}
+		
+		// * Если запросили не персональный топик с определенной маской то перенаправляем на страницу для вывода коллективного топика
+		if ($sTopicUrlMask and $sBlogUrl!='' and $oTopic->getBlog()->getType()!='personal') {
+			Router::Location($oTopic->getUrl());
+		}
+		
+		// * Если запросили не персональный топик без маски(ссылки как в LiveStreet) то перенаправляем на страницу для вывода коллективного топика		
+		if (!$sTopicUrlMask and $sBlogUrl=='' and $oTopic->getBlog()->getType()!='personal') {
+			Router::Location($oTopic->getUrl());
+		}
 
         // * Обрабатываем добавление коммента
         if (isset($_REQUEST['submit_comment'])) {
