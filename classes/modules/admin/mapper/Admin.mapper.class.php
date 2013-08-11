@@ -240,7 +240,7 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         $sql = "
             SELECT *
             FROM " . Config::Get('db.table.comment_online') . " AS c
-            WHERE target_type='topic' AND `target_id` NOT IN (SELECT `topic_id` FROM `prefix_topic`)
+            WHERE target_type='topic' AND `target_id` NOT IN (SELECT `topic_id` FROM `" . Config::Get('db.table.topic') . "`)
             ";
         $aRows = $this->oDb->query($sql);
         $aResult = array();
