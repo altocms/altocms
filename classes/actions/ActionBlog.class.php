@@ -696,8 +696,11 @@ class ActionBlog extends Action {
      *
      */
     protected function EventShowTopic() {
+        $sBlogUrl='';
+		$sTopicUrlMask = Router::GetTopicUrlMask();
         if ($this->GetParamEventMatch(0, 1)) {
             // из коллективного блога
+            $sBlogUrl=$this->sCurrentEvent;
             $iTopicId = $this->GetParamEventMatch(0, 1);
             $this->sMenuItemSelect = 'blog';
         } else {
@@ -753,6 +756,26 @@ class ActionBlog extends Action {
                 return Router::Action('error');
             }
         }
+
+		// * Если номер топика правильный но УРЛ блога косяный то корректируем его и перенаправляем на нужный адрес
+		if ($sBlogUrl!='' and $oTopic->getBlog()->getUrl()!=$sBlogUrl) {
+			Router::Location($oTopic->getUrl());
+		}
+		
+		// * Если запросили не персональный топик с маской, в которой указано название блога то перенаправляем на страницу для вывода коллективного топика
+		if ($sTopicUrlMask and $sBlogUrl!='' and $oTopic->getBlog()->getType()!='personal') {
+			Router::Location($oTopic->getUrl());
+		}
+		
+		// * Если запросили не персональный топик без маски и не указаным названием блога то перенаправляем на страницу для вывода коллективного топика
+		if (!$sTopicUrlMask and $sBlogUrl=='' and $oTopic->getBlog()->getType()!='personal') {
+			Router::Location($oTopic->getUrl());
+		}
+		
+		// * Если запросили не персональный топик с определенной маской, не указаным названием блога но ссылка на топик и ЧПУ url разные, то перенаправляем на страницу для вывода коллективного топика
+		if ($sTopicUrlMask and $sBlogUrl=='' and $oTopic->getBlog()->getType()!='personal' and $oTopic->getUrl() != Router::GetPathWebCurrent().(substr($sTopicUrlMask,-1)=='/' ? '/':'')) {
+			Router::Location($oTopic->getUrl());
+		}
 
         // * Обрабатываем добавление коммента
         if (isset($_REQUEST['submit_comment'])) {
