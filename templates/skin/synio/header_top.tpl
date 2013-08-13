@@ -51,7 +51,7 @@
 				<li class="item-favourite"><i class="item-icon"></i><a href="{$oUserCurrent->getUserWebPath()}favourites/topics/">{$aLang.user_menu_profile_favourites}</a></li> 
 				<li class="item-profile"><i class="item-icon"></i><a href="{$oUserCurrent->getUserWebPath()}">{$aLang.footer_menu_user_profile}</a></li>
 				<li class="item-settings"><i class="item-icon"></i><a href="{router page='settings'}profile/">{$aLang.user_settings}</a></li>
-				<li class="item-create"><i class="item-icon"></i><a href="{router page='content'}add/">{$aLang.block_create}</a></li>
+				<li class="item-create"><i class="item-icon"></i><a href="{router page='content'}topic/add/">{$aLang.block_create}</a></li>
 				{hook run='userbar_item_last'}
 				<li class="item-signout"><i class="item-icon"></i><a href="{router page='login'}exit/?security_ls_key={$ALTO_SECURITY_KEY}">{$aLang.exit}</a></li>
 			</ul>
