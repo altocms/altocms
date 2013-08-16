@@ -625,6 +625,9 @@ class ModuleViewer extends Module {
      * @param string $sType Варианты: json, jsonIframe, jsonp
      */
     public function DisplayAjax($sType = 'json') {
+
+        $aHeaders = array();
+        $sOutput = '';
         /**
          * Загружаем статус ответа и сообщение
          */
@@ -646,24 +649,30 @@ class ModuleViewer extends Module {
         $this->AssignAjax('bStateError', $bStateError);
         if ($sType == 'json') {
             if ($this->bResponseSpecificHeader && !headers_sent()) {
-                header('Content-type: application/json');
+                $aHeaders[] = 'Content-type: application/json';
             }
-            echo F::jsonEncode($this->aVarsAjax);
+            $sOutput = F::jsonEncode($this->aVarsAjax);
         } elseif ($sType == 'jsonIframe') {
             // Оборачивает json в тег <textarea>, это не дает браузеру выполнить HTML, который вернул iframe
             if ($this->bResponseSpecificHeader && !headers_sent()) {
-                header('Content-type: application/json');
+                $aHeaders[] = 'Content-type: application/json';
             }
             /**
              * Избавляемся от бага, когда в возвращаемом тексте есть &quot;
              */
-            echo '<textarea>' . htmlspecialchars(F::jsonEncode($this->aVarsAjax)) . '</textarea>';
+            $sOutput = '<textarea>' . htmlspecialchars(F::jsonEncode($this->aVarsAjax)) . '</textarea>';
         } elseif ($sType == 'jsonp') {
             if ($this->bResponseSpecificHeader && !headers_sent()) {
-                header('Content-type: application/json');
+                $aHeaders[] = 'Content-type: application/json';
             }
-            echo getRequest('jsonpCallback', 'callback') . '(' . F::jsonEncode($this->aVarsAjax) . ');';
+            $sOutput = getRequest('jsonpCallback', 'callback') . '(' . F::jsonEncode($this->aVarsAjax) . ');';
         }
+        if ($aHeaders) {
+            foreach ($aHeaders as $sHeader) {
+                header($sHeader);
+            }
+        }
+        echo $sOutput;
         exit();
     }
 
@@ -735,6 +744,7 @@ class ModuleViewer extends Module {
             $this->Security_ValidateSendForm();
         }
         $this->sResponseAjax = $sResponseAjax;
+        $_REQUEST['ALTO_AJAX'] = $sResponseAjax;
         $this->bResponseSpecificHeader = $bResponseSpecificHeader;
     }
 
