@@ -107,5 +107,58 @@ $config['widgets'][] = array(
     ),
 );
 
+$config['widgets'][] = array(
+    'name' => 'blocks/block.blogAdd.tpl',
+    'wgroup' => 'right',
+    'priority' => 125,
+    'action' => array(
+        'blogs'
+    ),
+);
+
+$config['widgets'][] = array(
+    'name' => 'blocks/block.contentAdd.tpl',
+    'wgroup' => 'right',
+    'priority' => 125,
+    'action' => array(
+        'index','filter'
+    ),
+);
+
+$config['widgets'][] = array(
+    'name' => 'blocks/block.userPhoto.tpl',
+    'wgroup' => 'right',
+    'priority' => 100,
+    'action' => array(
+        'profile'
+    ),
+);
+
+$config['widgets'][] = array(
+    'name' => 'blocks/block.userActions.tpl',
+    'wgroup' => 'right',
+    'priority' => 50,
+    'action' => array(
+        'profile'
+    ),
+);
+
+$config['widgets'][] = array(
+    'name' => 'blocks/block.userNote.tpl',
+    'wgroup' => 'right',
+    'priority' => 25,
+    'action' => array(
+        'profile'
+    ),
+);
+
+$config['widgets'][] = array(
+    'name' => 'blocks/block.userNav.tpl',
+    'wgroup' => 'right',
+    'priority' => 1,
+    'action' => array(
+        'profile'
+    ),
+);
 
 // EOF

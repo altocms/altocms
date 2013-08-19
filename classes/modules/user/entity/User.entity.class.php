@@ -419,12 +419,7 @@ class ModuleUser_EntityUser extends Entity {
                 $sPath . "?" . date('His', strtotime($this->getProfileDate()))
             );
         } else {
-            if (Config::Get('path.skin.img.url')) {
-                return Config::Get('path.skin.img.url') . 'avatar_' . (
-                $this->getProfileSex() == 'woman' ? 'female' : 'male') . '_' . $iSize . 'x' . $iSize . '.png';
-            }
-            return Config::Get('path.skin.url') . 'images/avatar_' . (
-            $this->getProfileSex() == 'woman' ? 'female' : 'male') . '_' . $iSize . 'x' . $iSize . '.png';
+            return Config::Get('path.static.assets') . '/images/avatars/avatar_' . ($this->getProfileSex() == 'woman' ? 'female' : 'male') . '_' . $iSize . 'x' . $iSize . '.png';
         }
     }
 

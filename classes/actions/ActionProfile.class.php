@@ -214,7 +214,7 @@ class ActionProfile extends Action {
         /**
          * Устанавливаем шаблон вывода
          */
-        $this->SetTemplateAction('created_topics');
+        $this->SetTemplateAction('created.topics');
     }
 
     /**
@@ -253,7 +253,7 @@ class ActionProfile extends Action {
         /**
          * Устанавливаем шаблон вывода
          */
-        $this->SetTemplateAction('created_comments');
+        $this->SetTemplateAction('created.comments');
     }
 
     /**
@@ -301,7 +301,7 @@ class ActionProfile extends Action {
         /**
          * Устанавливаем шаблон вывода
          */
-        $this->SetTemplateAction('favourite_topics');
+        $this->SetTemplateAction('favourite.topics');
     }
 
     /**
@@ -353,7 +353,7 @@ class ActionProfile extends Action {
         /**
          * Устанавливаем шаблон вывода
          */
-        $this->SetTemplateAction('favourite_topics');
+        $this->SetTemplateAction('favourite.topics');
     }
 
     /**
@@ -393,7 +393,7 @@ class ActionProfile extends Action {
         /**
          * Устанавливаем шаблон вывода
          */
-        $this->SetTemplateAction('favourite_comments');
+        $this->SetTemplateAction('favourite.comments');
     }
 
     /**
@@ -462,7 +462,7 @@ class ActionProfile extends Action {
         /**
          * Устанавливаем шаблон вывода
          */
-        $this->SetTemplateAction('whois');
+        $this->SetTemplateAction('info');
     }
 
     /**
@@ -760,7 +760,7 @@ class ActionProfile extends Action {
         /**
          * Устанавливаем шаблон вывода
          */
-        $this->SetTemplateAction('created_notes');
+        $this->SetTemplateAction('created.notes');
     }
 
     /**
@@ -1331,7 +1331,7 @@ class ActionProfile extends Action {
         );
 
         $this->Viewer_Assign('sText', $this->Lang_Get('settings_profile_mail_change_to_notice'));
-        $this->SetTemplateAction('changemail_confirm');
+        $this->SetTemplateAction('changemail.confirm');
     }
 
     /**
@@ -1368,7 +1368,7 @@ class ActionProfile extends Action {
                 'settings_profile_mail_change_ok', array('mail' => htmlspecialchars($oChangemail->getMailTo()))
             )
         );
-        $this->SetTemplateAction('changemail_confirm');
+        $this->SetTemplateAction('changemail.confirm');
     }
 
     /**

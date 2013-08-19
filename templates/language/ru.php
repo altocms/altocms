@@ -48,6 +48,9 @@ return array(
 	'blog_about' => 'О блоге',
 	'blog_expand_info' => 'Подробнее &darr;',
 	'blog_fold_info' => 'Свернуть &uarr;',
+	'blog_add' => 'Создать блог',
+	'blog_can_add' => 'Вы можете создать свой блог!',
+	'blog_cant_add' => 'Для возможности создавать блоги, ваш рейтинг должен быть больше %%rating%%.',
 
     /*
      * Эти определения используются для именования и описания блогов разных типов
@@ -184,7 +187,7 @@ return array(
 	'blog_admin_delete_move' => 'Переместить статьи в блог',
 	'blog_delete_clear' => 'Удалить статьи',
 	'blog_admin_delete_success' => 'Блог успешно удален',
-	'blog_admin_delete_not_empty' => 'Вы не можете удалить блог с записями. Предварительно удалите из блога все записи.',
+	'blog_admin_delete_not_empty' => 'Вы не можете удалить блок с записями. Предварительно удалите из блога все записи.',
 	'blog_admin_delete_move_error' => 'Не удалось переместить статьи из удаляемого блога',
 	'blog_admin_delete_move_personal' => 'Нельзя перемещать статьи в персональный блог',
 	'blog_admin_user_add_label' => 'Добавить пользователей',
@@ -245,6 +248,8 @@ return array(
 	'topic_created_collective'=>'В коллективных блогах',
 	'topic_created_personal'=>'В личном блоге',
     'topic_draft_link'=>'Прямая ссылка на черновик',
+	'topic_add'=>'Создать',
+	'topic_add_title'=>'Добавьте свою статью!',
 	/**
 	 * Меню топиков
 	 */
@@ -253,7 +258,7 @@ return array(
 	'topic_menu_add_question' => 'Опрос',
 	'topic_menu_add_link' => 'Ссылка',
 	'topic_menu_add_photoset' => 'Фотосет',
-	'topic_menu_saved' => 'Черновики',
+	'topic_menu_drafts' => 'Черновики',
 	'topic_menu_published' => 'Опубликованные',
 	/**
 	 * Создание топика
@@ -291,6 +296,7 @@ return array(
 	'topic_create_publish_index' => 'Принудительно вывести на главную',
 	'topic_create_publish_index_notice' => 'Если отметить эту галку, то статья сразу попадёт на главную страницу (опция доступна только администраторам)',
 	'topic_create_submit_publish' => 'Опубликовать',
+	'topic_create_submit_update' => 'Обновить',
 	'topic_create_submit_save' => 'Сохранить в черновиках',
 	'topic_create_submit_preview' => 'Предпросмотр',
 	'topic_create_submit_preview_close' => 'свернуть',
@@ -390,6 +396,7 @@ return array(
 	/**
 	 * Комментарии
 	 */
+	'comments'=>'Комментарии',
 	'comment_title' => 'Комментарии',
 	'comment_target_author' => 'автор',
 	'comment_count_new' => 'Число новых комментариев',
@@ -1204,6 +1211,16 @@ return array(
 	'date_hours_back_less' => 'Менее часа назад',
 	'today' => 'Сегодня',
 	'more' => 'еще',
+
+    'userbar_hello' => 'Привет',
+	'userbar_messages_you_have' => 'У вас',
+	'userbar_messages_new_new_count_declension' => 'новое;новых;новых',
+	'userbar_messages_new_count_declension' => 'сообщение;сообщения;сообщений',
+
+	'profile_topics_count_declension' => 'пост;поста;постов',
+	'sort_by'=>'Сортировать по',
+	'grid'=>'Отображать плиткой',
+	'list'=>'Отображать списком',
 
 	'timezone_list'=> array(
 		'-12' => '[UTC − 12] Меридиан смены дат (запад)',

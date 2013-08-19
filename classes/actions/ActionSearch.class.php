@@ -109,7 +109,7 @@ class ActionSearch extends Action {
         // Отключение авто-добавления <br>
         $this->oJevix->cfgSetAutoBrMode(true);
 
-        $this->SetTemplateAction('results');
+        $this->SetTemplateAction('index');
     }
 
     /**

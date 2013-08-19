@@ -44,6 +44,12 @@ class ActionPeople extends Action {
 		 * Устанавливаем title страницы
 		 */
 		$this->Viewer_AddHtmlTitle($this->Lang_Get('people'));
+
+        if(!$this->Session_GetCookie('view') && getRequestStr('view')){
+            $this->Session_DelCookie('view');
+        }
+        $this->Session_SetCookie('view',getRequestStr('view','2'),60*60*24*365);
+ 
 	}
 	/**
 	 * Регистрируем евенты

@@ -86,7 +86,9 @@ class ActionStream extends Action {
 		if (!$this->oUserCurrent) {
 			return parent::EventNotFound();
 		}
-		$this->Viewer_AddWidget('right','streamConfig');
+		$this->Viewer_AddWidget('right','activitySettings');
+		$this->Viewer_AddWidget('right','activityFriends');
+		$this->Viewer_AddWidget('right','activityUsers');
 		/**
 		 * Читаем события
 		 */
@@ -157,7 +159,7 @@ class ActionStream extends Action {
 		/**
 		 * Необходимо передать последний просмотренный ID событий
 		 */
-		$iFromId = getRequestStr('last_id');
+		$iFromId = getRequestStr('iLastId');
 		if (!$iFromId)  {
 			$this->Message_AddError($this->Lang_Get('system_error'),$this->Lang_Get('error'));
 			return;
@@ -169,7 +171,7 @@ class ActionStream extends Action {
 
 		$oViewer=$this->Viewer_GetLocalViewer();
 		$oViewer->Assign('aStreamEvents', $aEvents);
-		$oViewer->Assign('sDateLast', getRequestStr('date_last'));
+		$oViewer->Assign('sDateLast', getRequestStr('sDateLast'));
 		if (count($aEvents)) {
 			$oEvenLast=end($aEvents);
 			$this->Viewer_AssignAjax('iStreamLastId', $oEvenLast->getId());
@@ -198,7 +200,7 @@ class ActionStream extends Action {
 		/**
 		 * Необходимо передать последний просмотренный ID событий
 		 */
-		$iFromId = getRequestStr('last_id');
+		$iFromId = getRequestStr('iLastId');
 		if (!$iFromId)  {
 			$this->Message_AddError($this->Lang_Get('system_error'),$this->Lang_Get('error'));
 			return;
@@ -210,7 +212,7 @@ class ActionStream extends Action {
 
 		$oViewer=$this->Viewer_GetLocalViewer();
 		$oViewer->Assign('aStreamEvents', $aEvents);
-		$oViewer->Assign('sDateLast', getRequestStr('date_last'));
+		$oViewer->Assign('sDateLast', getRequestStr('sDateLast'));
 		if (count($aEvents)) {
 			$oEvenLast=end($aEvents);
 			$this->Viewer_AssignAjax('iStreamLastId', $oEvenLast->getId());
@@ -239,12 +241,12 @@ class ActionStream extends Action {
 		/**
 		 * Необходимо передать последний просмотренный ID событий
 		 */
-		$iFromId = getRequestStr('last_id');
+		$iFromId = getRequestStr('iLastId');
 		if (!$iFromId)  {
 			$this->Message_AddError($this->Lang_Get('system_error'),$this->Lang_Get('error'));
 			return;
 		}
-		if (!($oUser=$this->User_GetUserById(getRequestStr('user_id')))) {
+		if (!($oUser=$this->User_GetUserById(getRequestStr('iUserId')))) {
 			$this->Message_AddError($this->Lang_Get('system_error'),$this->Lang_Get('error'));
 			return;
 		}
@@ -255,7 +257,7 @@ class ActionStream extends Action {
 
 		$oViewer=$this->Viewer_GetLocalViewer();
 		$oViewer->Assign('aStreamEvents', $aEvents);
-		$oViewer->Assign('sDateLast', getRequestStr('date_last'));
+		$oViewer->Assign('sDateLast', getRequestStr('sDateLast'));
 		if (count($aEvents)) {
 			$oEvenLast=end($aEvents);
 			$this->Viewer_AssignAjax('iStreamLastId', $oEvenLast->getId());

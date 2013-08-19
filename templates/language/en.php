@@ -41,6 +41,9 @@ return array(
 	'blog_about' => 'About this blog',
 	'blog_expand_info' => 'More &darr;',
 	'blog_fold_info' => 'Fold &uarr;',
+	'blog_add' => 'Create blog',
+	'blog_can_add' => 'You can create you own blog!',
+	'blog_cant_add' => 'Your rating must be more than %%rating%% to add blogs.',
 
     'blogtypes_type_personal_name'        => 'Personal',
     'blogtypes_type_personal_title'       => 'Blog by %%login%%',
@@ -236,6 +239,8 @@ return array(
 	'topic_created_all'=>'All',
 	'topic_created_collective'=>'Collective blogs',
 	'topic_created_personal'=>'Personal blog',
+	'topic_add'=>'Create',
+	'topic_add_title'=>'You can add your article!',
 	/**
 	 * Topic menus
 	 */
@@ -244,7 +249,7 @@ return array(
 	'topic_menu_add_question' => 'Question',
 	'topic_menu_add_link' => 'Link',
 	'topic_menu_add_photoset' => 'Photoset',
-	'topic_menu_saved' => 'Drafts',
+	'topic_menu_drafts' => 'Drafts',
 	'topic_menu_published' => 'Published',
 	/**
 	 * Topic Creation
@@ -279,6 +284,7 @@ return array(
 	'topic_create_publish_index' => 'force exit to the main page',
 	'topic_create_publish_index_notice' => "If you check this option you'll post this topic directly to the main page (option availiable to administrators only)",
 	'topic_create_submit_publish' => 'Publish',
+	'topic_create_submit_update' => 'Update',
 	'topic_create_submit_save' => 'Save to drafts',
 	'topic_create_submit_preview' => 'Preview',
 	'topic_create_submit_preview_close' => 'Close',
@@ -378,6 +384,7 @@ return array(
 	/**
 	 * Comments
 	 */
+	'comments'=>'Comments',
 	'comment_title' => 'Comments',
 	'comment_target_author' => 'author',
 	'comment_count_new' => 'Count new comments',
@@ -1168,6 +1175,17 @@ return array(
 	'search_err_minword' => 'Search query too short (minimum 3 characters)',
 	'search_err_length' => 'Search query length must be less %%min%% and more %%max%% characters',
 	'search_err_length_word' => 'Word length in query must be from %%min%% to %%max%% characters',
+
+    'userbar_hello' => 'Hello',
+	'userbar_messages_you_have' => 'You have',
+	'userbar_messages_new_new_count_declension' => 'new;new;new',
+	'userbar_messages_new_count_declension' => 'message;messages;messages',
+
+	'profile_topics_count_declension' => 'post;posts;posts',
+	'sort_by'=>'Sort by',
+	'grid'=>'Grid view',
+	'list'=>'List view',
+
 
 	/**
 	 * System

@@ -12,7 +12,7 @@
 /**
  * Настройки HTML вида
  */
-$config['view']['skin']        = 'synio';                       // скин
+$config['view']['skin']        = 'native';                       // скин
 $config['view']['theme']       = 'default';                     // тема
 $config['view']['name']        = 'Your Site Name';              // название сайта
 $config['view']['description'] = 'Description your site'; // seo description
@@ -75,6 +75,9 @@ $config['path']['dir']['lib']           = '___path.dir.engine___/lib/';     // �
 
 $config['path']['root']['engine_lib']   = '___path.root.web___/engine/lib/';  // Путь до библиотек в файловой системе
 $config['path']['static']['skin']       = '___path.static.url___/templates/skin/___view.skin___/';
+$config['path']['static']['assets']         = '___path.static.skin___/assets';                 // Папка с ассетами (js, css, images)
+$config['path']['static']['framework']      = "___path.static.root___/templates/framework";
+
 $config['path']['uploads']['root']      = '/uploads';                          // папка для загрузки файлов
 $config['path']['uploads']['images']    = '___path.uploads.root___/images/';
 
@@ -561,71 +564,88 @@ $config['router']['config']['autodefine'] = true;
  * Параметр 'asset' указывает на один набор при слиянии файлов
  */
 $config['head']['default']['js']  = array(
-	'___path.root.engine_lib___/external/html5shiv.js' => array('browser'=>'lt IE 9'), // хак для IE версии ниже 9
-	//'___path.root.engine_lib___/external/jquery/jquery.js' => array('name'=>'jquery.js'), // файлы с таким же параметром 'name' добавляться повторно не будут
-    '___path.root.engine_lib___/external/jquery/jquery.js',
-	'___path.root.engine_lib___/external/jquery/jquery-ui.js',
-	'___path.root.engine_lib___/external/jquery/jquery.notifier.js',
-	'___path.root.engine_lib___/external/jquery/jquery.jqmodal.js',
-	'___path.root.engine_lib___/external/jquery/jquery.scrollto.js',
-	'___path.root.engine_lib___/external/jquery/jquery.rich-array.min.js',
-	'___path.root.engine_lib___/external/jquery/markitup/jquery.markitup.js',
-	'___path.root.engine_lib___/external/jquery/jquery.form.js',
-	'___path.root.engine_lib___/external/jquery/jquery.jqplugin.js',
-	'___path.root.engine_lib___/external/jquery/jquery.cookie.js',
-	'___path.root.engine_lib___/external/jquery/jquery.serializejson.js',
-	'___path.root.engine_lib___/external/jquery/jquery.file.js',
-	'___path.root.engine_lib___/external/jquery/jcrop/jquery.Jcrop.js',
-	'___path.root.engine_lib___/external/jquery/poshytip/jquery.poshytip.js',
-	'___path.root.engine_lib___/external/jquery/jquery.placeholder.min.js',
-	'___path.root.engine_lib___/external/jquery/jquery.charcount.js',
-	'___path.root.engine_lib___/external/prettify/prettify.js',
-	'___path.root.web___/templates/framework/js/main.js',
-	'___path.root.web___/templates/framework/js/favourite.js',
-	'___path.root.web___/templates/framework/js/blocks.js',
-	'___path.root.web___/templates/framework/js/talk.js',
-	'___path.root.web___/templates/framework/js/vote.js',
-	'___path.root.web___/templates/framework/js/poll.js',
-	'___path.root.web___/templates/framework/js/subscribe.js',
-	'___path.root.web___/templates/framework/js/infobox.js',
-	'___path.root.web___/templates/framework/js/geo.js',
-	'___path.root.web___/templates/framework/js/wall.js',
-	'___path.root.web___/templates/framework/js/usernote.js',
-	'___path.root.web___/templates/framework/js/comments.js',
-	'___path.root.web___/templates/framework/js/blog.js',
-	'___path.root.web___/templates/framework/js/user.js',
-	'___path.root.web___/templates/framework/js/userfeed.js',
-	'___path.root.web___/templates/framework/js/userfield.js',
-	'___path.root.web___/templates/framework/js/stream.js',
-	'___path.root.web___/templates/framework/js/photoset.js',
-	'___path.root.web___/templates/framework/js/toolbar.js',
-	'___path.root.web___/templates/framework/js/settings.js',
-	'___path.root.web___/templates/framework/js/topic.js',
-	'___path.root.web___/templates/framework/js/hook.js'
+	/* Vendor libs */
+	"___path.static.framework___/js/vendor/html5shiv.js" => array('browser'=>'lt IE 9'),
+	"___path.static.framework___/js/vendor/jquery-1.9.1.min.js",
+	"___path.static.framework___/js/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js",
+	"___path.static.framework___/js/vendor/jquery-ui/js/localization/jquery-ui-datepicker-ru.js",
+	"___path.static.framework___/js/vendor/jquery.browser.js",
+	"___path.static.framework___/js/vendor/jquery.scrollto.js",
+	"___path.static.framework___/js/vendor/jquery.rich-array.min.js",
+	"___path.static.framework___/js/vendor/jquery.form.js",
+	"___path.static.framework___/js/vendor/jquery.jqplugin.js",
+	"___path.static.framework___/js/vendor/jquery.cookie.js",
+	"___path.static.framework___/js/vendor/jquery.serializejson.js",
+	"___path.static.framework___/js/vendor/jquery.file.js",
+	"___path.static.framework___/js/vendor/jcrop/jquery.Jcrop.js",
+	"___path.static.framework___/js/vendor/jquery.placeholder.min.js",
+	"___path.static.framework___/js/vendor/jquery.charcount.js",
+	"___path.static.framework___/js/vendor/jquery.imagesloaded.js",
+	"___path.static.framework___/js/vendor/notifier/jquery.notifier.js",
+	"___path.static.framework___/js/vendor/prettify/prettify.js",
+	"___path.static.framework___/js/vendor/prettyphoto/js/jquery.prettyphoto.js",
+	"___path.static.framework___/js/vendor/parsley/parsley.js",
+	"___path.static.framework___/js/vendor/parsley/i18n/messages.ru.js",
+
+	/* Core */
+	"___path.static.framework___/js/core/main.js",
+	"___path.static.framework___/js/core/hook.js",
+
+	/* User Interface */
+	"___path.static.framework___/js/ui/popup.js",
+	"___path.static.framework___/js/ui/dropdown.js",
+	"___path.static.framework___/js/ui/tooltip.js",
+	"___path.static.framework___/js/ui/popover.js",
+	"___path.static.framework___/js/ui/tab.js",
+	"___path.static.framework___/js/ui/modal.js",
+	"___path.static.framework___/js/ui/toolbar.js",
+
+	/* LiveStreet */
+	"___path.static.framework___/js/livestreet/favourite.js",
+	"___path.static.framework___/js/livestreet/blocks.js",
+	"___path.static.framework___/js/livestreet/pagination.js",
+	"___path.static.framework___/js/livestreet/editor.js",
+	"___path.static.framework___/js/livestreet/talk.js",
+	"___path.static.framework___/js/livestreet/vote.js",
+	"___path.static.framework___/js/livestreet/poll.js",
+	"___path.static.framework___/js/livestreet/subscribe.js",
+	"___path.static.framework___/js/livestreet/geo.js",
+	"___path.static.framework___/js/livestreet/wall.js",
+	"___path.static.framework___/js/livestreet/usernote.js",
+	"___path.static.framework___/js/livestreet/comments.js",
+	"___path.static.framework___/js/livestreet/blog.js",
+	"___path.static.framework___/js/livestreet/user.js",
+	"___path.static.framework___/js/livestreet/userfeed.js",
+	"___path.static.framework___/js/livestreet/stream.js",
+	"___path.static.framework___/js/livestreet/photoset.js",
+	"___path.static.framework___/js/livestreet/toolbar.js",
+	"___path.static.framework___/js/livestreet/settings.js",
+	"___path.static.framework___/js/livestreet/topic.js",
+	"___path.static.framework___/js/livestreet/admin.js",
+	"___path.static.framework___/js/livestreet/admin.userfield.js",
+	"___path.static.framework___/js/livestreet/captcha.js",
+	"___path.static.framework___/js/livestreet/init.js",
 );
 //потенциально проблемные файлы выводим в футере
 $config['footer']['default']['js']  = array(
 	'http://yandex.st/share/share.js',
 );
 $config['head']['default']['css'] = array(
-	'___path.static.skin___/css/reset.css',
-	'___path.root.engine_lib___/external/jquery/markitup/skins/simple/style.css',
-	'___path.root.engine_lib___/external/jquery/markitup/sets/default/style.css',
-	'___path.root.engine_lib___/external/jquery/jcrop/jquery.Jcrop.css',
-	'___path.root.engine_lib___/external/prettify/prettify.css',
-	'___path.static.skin___/css/main.css',
-	'___path.static.skin___/css/grid.css',
-	'___path.static.skin___/css/common.css',
-	'___path.static.skin___/css/forms.css',
-	'___path.static.skin___/css/popups.css',
-	'___path.static.skin___/css/topic.css',
-	'___path.static.skin___/css/comments.css',
-	'___path.static.skin___/css/blocks.css',
-	'___path.static.skin___/css/infobox.css',
-	'___path.static.skin___/css/jquery.jqmodal.css',
-	'___path.static.skin___/css/jquery.notifier.css',
-	'___path.static.skin___/css/smoothness/jquery-ui.css',
+	// Framework styles
+	"___path.static.framework___/css/reset.css",
+	"___path.static.framework___/css/helpers.css",
+	"___path.static.framework___/css/text.css",
+	"___path.static.framework___/css/dropdowns.css",
+	"___path.static.framework___/css/buttons.css",
+	"___path.static.framework___/css/forms.css",
+	"___path.static.framework___/css/navs.css",
+	"___path.static.framework___/css/modals.css",
+	"___path.static.framework___/css/tooltip.css",
+	"___path.static.framework___/css/popover.css",
+	"___path.static.framework___/css/alerts.css",
+	"___path.static.framework___/css/toolbar.css"
 );
+
 
 /**
  * Параметры компрессии css-файлов

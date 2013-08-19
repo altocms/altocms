@@ -4,3 +4,4 @@ templates/cache/*
 templates/compiled/*
 uploads/*
 plugins/plugins.dat
+_tmp/

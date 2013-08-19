@@ -79,7 +79,7 @@ class HookMain extends Hook {
     }
 
     public function insertfields() {
-        return $this->Viewer_Fetch('inject.topic.fields.tpl');
+        return $this->Viewer_Fetch('topics/inject.topic.fields.tpl');
     }
 
     public function showfields($aVars) {
@@ -96,8 +96,9 @@ class HookMain extends Hook {
                         if ($oTopic->getField($oField->getFieldId()) || $oField->getFieldType() == 'photoset') {
                             $this->Viewer_Assign('oField', $oField);
                             $this->Viewer_Assign('oTopic', $oTopic);
-                            $sReturn .= $this->Viewer_Fetch('forms/view_field_' . $oField->getFieldType() . '.tpl');
-
+							if($this->Viewer_TemplateExists('forms/view_field_' . $oField->getFieldType() . '.tpl')){
+								$sReturn .= $this->Viewer_Fetch('forms/view_field_' . $oField->getFieldType() . '.tpl');
+							}
                         }
                     }
                 }
