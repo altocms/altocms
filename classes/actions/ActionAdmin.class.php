@@ -178,6 +178,10 @@ class ActionAdmin extends Action {
         foreach ($aPlugins as $oPlugin) {
             $aData['p-' . $oPlugin->GetId()] = $oPlugin->GetVersion();
         }
+        $aSkins = $this->Skin_GetSkinsList();
+        foreach ($aSkins as $oSkin) {
+            $aData['s-' . $oSkin->GetId()] = $oSkin->GetVersion();
+        }
 
         $this->Viewer_Assign('sUpdatesRequest', base64_encode(http_build_query($aData)));
         $this->Viewer_Assign('sUpdatesRefresh', true);
@@ -2434,7 +2438,7 @@ class ActionAdmin extends Action {
                 $_REQUEST['blogtypes_min_rate_read'] = $oBlogType->GetMinRateRead();
                 $_REQUEST['blogtypes_min_rate_comment'] = $oBlogType->GetMinRateComment();
                 $_REQUEST['blogtypes_active'] = $oBlogType->IsActive();
-                $_REQUEST['blogtypes_candelete'] = $oBlogType->IsCanDelete();
+                $_REQUEST['blogtypes_candelete'] = $oBlogType->CanDelete();
                 $_REQUEST['blogtypes_norder'] = $oBlogType->GetNorder();
                 $_REQUEST['blogtypes_active'] = $oBlogType->IsActive();
 
