@@ -3,7 +3,6 @@
  * @Project: Alto CMS
  * @Project URI: http://altocms.com
  * @Description: Advanced Community Engine
- * @Version: 0.9a
  * @Copyright: Alto CMS Team
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
@@ -22,6 +21,7 @@ class AltoFunc_Xxtea {
      * @return mixed|null
      */
     static protected function _defaultKey() {
+
         return F::_getConfig('security.salt_auth', __DIR__);
     }
 
@@ -34,6 +34,7 @@ class AltoFunc_Xxtea {
      * @return string
      */
     static public function Encrypt($sData, $sKey = null) {
+
         if (!$sKey) {
             $sKey = self::_defaultKey();
         }
@@ -49,6 +50,7 @@ class AltoFunc_Xxtea {
      * @return string
      */
     static public function Decrypt($sData, $sKey = null) {
+
         if (!$sKey) {
             $sKey = self::_defaultKey();
         }
@@ -64,6 +66,7 @@ class AltoFunc_Xxtea {
      * @return string
      */
     static public function Encode($sData, $sKey = null) {
+
         return rawurlencode(base64_encode(self::Encrypt($sData, $sKey)));
     }
 
@@ -76,6 +79,7 @@ class AltoFunc_Xxtea {
      * @return string
      */
     static public function Decode($sData, $sKey = null) {
+
         return self::Decrypt(base64_decode(rawurldecode($sData)), $sKey);
     }
 

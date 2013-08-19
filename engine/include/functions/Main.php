@@ -3,7 +3,6 @@
  * @Project: Alto CMS
  * @Project URI: http://altocms.com
  * @Description: Advanced Community Engine
- * @Version: 0.9a
  * @Copyright: Alto CMS Team
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
@@ -18,10 +17,12 @@ class AltoFunc_Main {
     static protected $aMemSizeUnits = array('B', 'K', 'M', 'G', 'T', 'P');
 
     static public function StrUnderscore($sStr) {
+
         return strtolower(preg_replace('/([^A-Z])([A-Z])/', "$1_$2", $sStr));
     }
 
     static public function StrCamelize($sStr) {
+
         $aParts = explode('_', $sStr);
         $sCamelized = '';
         foreach ($aParts as $sPart) {
@@ -31,14 +32,17 @@ class AltoFunc_Main {
     }
 
     static public function Str2Array($sStr, $sSeparator = ',', $bSkipEmpty = false) {
+
         return F::Array_Str2Array($sStr, $sSeparator, $bSkipEmpty);
     }
 
     static public function Str2ArrayInt($sStr, $sSeparator = ',', $bUnique = true) {
+
         return F::Array_Str2ArrayInt($sStr, $sSeparator, $bUnique);
     }
 
     static public function Val2Array($xVal, $sSeparator = ',', $bSkipEmpty = false) {
+
         return F::Array_Val2Array($xVal, $sSeparator, $bSkipEmpty);
     }
 
@@ -51,6 +55,7 @@ class AltoFunc_Main {
      * @return  string
      */
     static public function RandomStr($nLen = 32, $bHex = true) {
+
         $sResult = '';
         if ($bHex) {
             while (strlen($sResult) < $nLen) {
@@ -75,6 +80,7 @@ class AltoFunc_Main {
      * @return  string
      */
     static public function MemSizeFormat($nValue, $nDecimal = 0) {
+
         $aUnits = self::$aMemSizeUnits;
         $nIndex = 0;
         $nResult = intval($nValue);
@@ -101,6 +107,7 @@ class AltoFunc_Main {
      * @return int|number
      */
     static public function MemSize2Int($sNum) {
+
         $nValue = floatval($sNum);
         if (!is_numeric($sChar = strtoupper(substr($sNum, -1)))) {
             if ($sChar == 'B') {
@@ -119,6 +126,7 @@ class AltoFunc_Main {
      * @return  string
      */
     static public function JsonEncode($xData) {
+
         if (function_exists('json_encode')) {
             return json_encode($xData);
         }
@@ -146,24 +154,24 @@ class AltoFunc_Main {
                 return $xData;
             }
         }
-        $isList = true;
+        $bList = true;
         for ($i = 0, reset($xData); $i < count($xData); $i++, next($xData)) {
             if (key($xData) !== $i) {
-                $isList = false;
+                $bList = false;
                 break;
             }
         }
-        $result = array();
-        if ($isList) {
-            foreach ($xData as $v) {
-                $result[] = self::jsonEncode($v);
+        $aResult = array();
+        if ($bList) {
+            foreach ($xData as $sVal) {
+                $aResult[] = self::jsonEncode($sVal);
             }
-            return '[' . join(',', $result) . ']';
+            return '[' . join(',', $aResult) . ']';
         } else {
-            foreach ($xData as $k => $v) {
-                $result[] = self::jsonEncode($k) . ':' . self::jsonEncode($v);
+            foreach ($xData as $sKey => $sVal) {
+                $aResult[] = self::jsonEncode($sKey) . ':' . self::jsonEncode($sVal);
             }
-            return '{' . join(',', $result) . '}';
+            return '{' . join(',', $aResult) . '}';
         }
 
     }
@@ -177,6 +185,7 @@ class AltoFunc_Main {
      * @return  array
      */
     static public function GetAllUserIp($aTrusted = null, $aNonTrusted = null) {
+
         if (!$aTrusted) {
             if (class_exists('Config', false)) {
                 $aTrusted = (array)Config::Get('sys.ip.trusted');
@@ -246,6 +255,7 @@ class AltoFunc_Main {
      * @return  string
      */
     static public function GetUserIp($aTrusted = null, $aNonTrusted = null) {
+
         $aIpParams = self::GetAllUserIp($aTrusted, $aNonTrusted);
         $aExcludeIp = (array)F::_getConfig('sys.ip.exclude', array('127.0.0.1', 'fe80::1', '::1'));
         if (F::_getConfig('sys.ip.exclude_server', true) && isset($_SERVER['SERVER_ADDR'])) {
@@ -275,13 +285,14 @@ class AltoFunc_Main {
         return $sIp;
     }
 
-    static public function CheckVal($sValue, $sParam, $iMin = 1, $iMax = 100) {
+    static public function CheckVal($sValue, $sParam, $nMin = 1, $nMax = 100) {
+
         if (!is_scalar($sValue)) {
             return false;
         }
         switch ($sParam) {
             case 'id':
-                if (preg_match('/^\d{' . $iMin . ',' . $iMax . '}$/', $sValue)) {
+                if (preg_match('/^\d{' . $nMin . ',' . $nMax . '}$/', $sValue)) {
                     return true;
                 }
                 break;
@@ -299,7 +310,7 @@ class AltoFunc_Main {
                 return filter_var($sValue, FILTER_VALIDATE_EMAIL) !== false;
                 break;
             case 'login':
-                if (preg_match('/^[\da-z\_\-]{' . $iMin . ',' . $iMax . '}$/i', $sValue)) {
+                if (preg_match('/^[\da-z\_\-]{' . $nMin . ',' . $nMax . '}$/i', $sValue)) {
                     return true;
                 }
                 break;
@@ -309,12 +320,12 @@ class AltoFunc_Main {
                 }
                 break;
             case 'password':
-                if (mb_strlen($sValue, 'UTF-8') >= $iMin) {
+                if (mb_strlen($sValue, 'UTF-8') >= $nMin) {
                     return true;
                 }
                 break;
             case 'text':
-                if (mb_strlen($sValue, 'UTF-8') >= $iMin && mb_strlen($sValue, 'UTF-8') <= $iMax) {
+                if (mb_strlen($sValue, 'UTF-8') >= $nMin && mb_strlen($sValue, 'UTF-8') <= $nMax) {
                     return true;
                 }
                 break;
@@ -333,6 +344,7 @@ class AltoFunc_Main {
      * @return  string
      */
     static public function DoSalt($xData, $sSalt) {
+
         if (!is_string($xData)) {
             $sData = serialize($xData);
         }
@@ -350,6 +362,7 @@ class AltoFunc_Main {
      * @return  string
      */
     static public function DoHashe($xData) {
+
         if (!is_string($xData)) {
             $sData = serialize($xData);
         }
@@ -369,6 +382,7 @@ class AltoFunc_Main {
      * @return  string
      */
     static public function TruncateText($sText, $nLen, $sPostfix = '') {
+
         if (mb_strlen($sText, 'UTF-8') > $nLen) {
             $sText = mb_substr($sText, 0, $nLen - mb_strlen($sPostfix)) . $sPostfix;
         }
@@ -379,14 +393,15 @@ class AltoFunc_Main {
      * Возвращает текст, обрезанный по заданное число слов
      *
      * @param   string $sText
-     * @param   int    $iCountWords
+     * @param   int    $nCountWords
      *
      * @return  string
      */
-    static public function CatText($sText, $iCountWords) {
+    static public function CatText($sText, $nCountWords) {
+
         $aWords = preg_split('#[\s\r\n]+#um', $sText);
-        if ($iCountWords < count($aWords)) {
-            $aWords = array_slice($aWords, 0, $iCountWords);
+        if ($nCountWords < count($aWords)) {
+            $aWords = array_slice($aWords, 0, $nCountWords);
         }
         return join(' ', $aWords);
     }
@@ -427,6 +442,7 @@ class AltoFunc_Main {
     }
 
     static public function IpRange($sIp) {
+
         $aIp = explode('.', $sIp) + array(0, 0, 0, 0);
         $aIp = array_map('intval', $aIp);
 
@@ -462,6 +478,7 @@ class AltoFunc_Main {
      * @return  int|null
      */
     static public function ToSeconds($sInterval) {
+
         if (is_numeric($sInterval)) {
             return intval($sInterval);
         }
@@ -478,6 +495,7 @@ class AltoFunc_Main {
     }
 
     static public function DateTimeAdd($sDate, $sInterval) {
+
         $date = new DateTime($sDate);
         $date->add(new DateInterval('PT' . self::ToSeconds($sInterval) . 'S'));
         return $date->format('Y-m-d H:i:s');
@@ -491,6 +509,7 @@ class AltoFunc_Main {
     }
 
     static public function Now() {
+
         return date('Y-m-d H:i:s');
     }
 
@@ -505,6 +524,7 @@ class AltoFunc_Main {
      * @return  string
      */
     static public function Translit($sText, $xLang = true) {
+
         if ($xLang === true) {
             if (class_exists('ModuleLang', false)) {
                 $xLang = E::Lang_GetLang();
@@ -532,6 +552,7 @@ class AltoFunc_Main {
     }
 
     static public function TranslitUrl($sText, $xLang = true) {
+
         $aSymbols = array(
             "_" => "-", "'" => "", "`" => "", "^" => "", " " => "-", '.' => '', ',' => '', ':' => '', '"' => '',
             "'" => '', '<' => '', '>' => '', '«' => '', '»' => '', ' ' => '-', '(' => '-', ')' => '-'

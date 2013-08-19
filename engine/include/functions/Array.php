@@ -3,7 +3,6 @@
  * @Project: Alto CMS
  * @Project URI: http://altocms.com
  * @Description: Advanced Community Engine
- * @Version: 0.9a
  * @Copyright: Alto CMS Team
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
@@ -23,6 +22,7 @@ class AltoFunc_Array {
      * @return  array
      */
     static public function ChangeValues($aData, $sBefore = '', $sAfter = '') {
+
         foreach ($aData as $xKey => $xValue) {
             if (is_array($xValue)) {
                 $array[$xKey] = self::ChangeValue($xValue, $sBefore, $sAfter);
@@ -43,6 +43,7 @@ class AltoFunc_Array {
      * @return  array
      */
     static public function FlipIntKeys($aData, $xDefValue = 1) {
+
         $aData = (array)$aData;
         foreach ($aData as $nKey => $sValue) {
             if (is_int($nKey) && is_string($sValue)) {
@@ -62,6 +63,7 @@ class AltoFunc_Array {
      * @return  array
      */
     static public function SortByKeysArray($aData, $aKeys) {
+
         $aResult = array();
         foreach ($aKeys as $xKey) {
             if (isset($aData[$xKey])) {
@@ -80,6 +82,7 @@ class AltoFunc_Array {
      * @return  array
      */
     static public function Merge($aData1, $aData2) {
+
         $aData1 = (array)$aData1;
         if ($aData2) {
             foreach ($aData2 as $sKey => $xVal) {
@@ -110,6 +113,7 @@ class AltoFunc_Array {
      * @return array
      */
     static public function KeysRecursive($aData) {
+
         if (!is_array($aData)) {
             return false;
         } else {
@@ -136,6 +140,7 @@ class AltoFunc_Array {
      * @return  array
      */
     static public function Str2Array($sStr, $sSeparator = ',', $bSkipEmpty = false) {
+
         if (!is_string($sStr) && !is_array($sStr)) {
             return (array)$sStr;
         }
@@ -164,6 +169,7 @@ class AltoFunc_Array {
      * @return  array
      */
     static public function Str2ArrayInt($sStr, $sSeparator = ',', $bUnique = true) {
+
         $aData = static::Str2Array($sStr, $sSeparator, $bUnique);
         $aResult = array();
         foreach ($aData as $sItem) {
@@ -191,6 +197,7 @@ class AltoFunc_Array {
      * </pre>
      */
     static public function Val2Array($xVal, $sSeparator = ',', $bSkipEmpty = false) {
+
         if (is_array($xVal) && (sizeof($xVal) == 1) && isset($xVal[0]) && strpos($xVal[0], ',')) {
             $aResult = F::Str2Array($xVal[0], $sSeparator, $bSkipEmpty);
         } elseif (is_array($xVal)) {
@@ -213,6 +220,7 @@ class AltoFunc_Array {
      * @return mixed
      */
     static public function FirstKey($aData) {
+
         if (is_array($aData)) {
             $aKeys = array_keys($aData);
             return array_shift($aKeys);
@@ -227,6 +235,7 @@ class AltoFunc_Array {
      * @return mixed
      */
     static public function LastKey($aData) {
+
         if (is_array($aData)) {
             $aKeys = array_keys($aData);
             return array_pop($aKeys);
@@ -242,6 +251,7 @@ class AltoFunc_Array {
      * @return bool
      */
     static public function StrInArray($sStr, $aArray) {
+
         $sStr = mb_strtolower($sStr);
         foreach ($aArray as $sCompare) {
             $sCompare = mb_strtolower($sCompare);
@@ -293,6 +303,7 @@ class AltoFunc_Array {
         }
         return $aArray;
     }
+
 }
 
 // EOF

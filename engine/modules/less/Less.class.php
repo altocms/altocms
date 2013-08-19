@@ -3,7 +3,6 @@
  * @Project: Alto CMS
  * @Project URI: http://altocms.com
  * @Description: Advanced Community Engine
- * @Version: 0.9a
  * @Copyright: Alto CMS Team
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
@@ -21,6 +20,7 @@ class ModuleLess extends Module {
      *
      */
     public function Init() {
+
         $this->oLessCompiler = new lessc();
     }
 
@@ -32,6 +32,7 @@ class ModuleLess extends Module {
      * @return  string
      */
     public function Compile($sString) {
+
         $sResult = null;
         try {
             $sResult = $this->oLessCompiler->compile($sString);
@@ -51,6 +52,7 @@ class ModuleLess extends Module {
      * @return  string
      */
     public function CompileFile($sFileName, $sOutFile = null) {
+
         $sResult = null;
         try {
             $sResult = $this->oLessCompiler->compileFile($sFileName, $sOutFile);
@@ -66,6 +68,7 @@ class ModuleLess extends Module {
      * @param $bPreserve
      */
     public function SetPreserveComments($bPreserve) {
+
         $this->oLessCompiler->setPreserveComments($bPreserve);
     }
 
@@ -77,6 +80,7 @@ class ModuleLess extends Module {
      * @param $aVariables
      */
     public function setVariables($aVariables) {
+
         $this->oLessCompiler->setVariables($aVariables);
     }
 
@@ -86,6 +90,7 @@ class ModuleLess extends Module {
      * @param $sName
      */
     public function unsetVariable($sName) {
+
         $this->oLessCompiler->unsetVariable($sName);
     }
 
@@ -95,6 +100,7 @@ class ModuleLess extends Module {
      * @param $aDirs
      */
     public function setImportDir($aDirs) {
+
         $this->oLessCompiler->setImportDir($aDirs);
     }
 
@@ -104,6 +110,7 @@ class ModuleLess extends Module {
      * @param $sDir
      */
     public function addImportDir($sDir) {
+
         $this->oLessCompiler->addImportDir($sDir);
     }
 
@@ -113,10 +120,12 @@ class ModuleLess extends Module {
      * @return array
      */
     public function allParsedFiles() {
+
         return $this->oLessCompiler->allParsedFiles();
     }
 
     public function setFormatter($sFormatter) {
+
         return $this->oLessCompiler->setFormatter($sFormatter);
     }
 }
