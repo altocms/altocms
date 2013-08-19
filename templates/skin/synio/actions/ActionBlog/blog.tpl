@@ -39,7 +39,7 @@
 
 
 <div class="blog-top">
-	<h2 class="page-header">{$oBlog->getTitle()|escape:'html'} {if $oBlog->getType()=='close'} <i title="{$aLang.blog_closed}" class="icon-synio-topic-private"></i>{/if}</h2>
+	<h2 class="page-header">{$oBlog->getTitle()|escape:'html'} {if $oBlog->getBlogType()->IsPrivate()} <i title="{$aLang.blog_closed}" class="icon-synio-topic-private"></i>{/if}</h2>
 
 	<div id="vote_area_blog_{$oBlog->getId()}" class="vote-topic 
 															{if $oBlog->getRating() > 0}

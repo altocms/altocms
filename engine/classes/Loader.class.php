@@ -3,7 +3,6 @@
  * @Project: Alto CMS
  * @Project URI: http://altocms.com
  * @Description: Advanced Community Engine
- * @Version: 0.9a
  * @Copyright: Alto CMS Team
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
@@ -179,16 +178,18 @@ class Loader extends LsObject {
 
         // Задаем локаль по умолчанию
         F::IncludeLib('UserLocale/UserLocale.class.php');
-        UserLocale::setLocale(
-            Config::Get('lang.current'),
-            array('local' => Config::Get('i18n.locale'), 'timezone' => Config::Get('i18n.timezone'))
-        );
         // Устанавливаем признак того, является ли сайт многоязычным
-        if (sizeof((array)Config::Get('lang.allow')) > 1) {
+        $aLangsAllow = (array)Config::Get('lang.allow');
+        if (sizeof($aLangsAllow) > 1) {
+            UserLocale::initLocales($aLangsAllow);
             Config::Set('lang.multilang', true);
         } else {
             Config::Set('lang.multilang', false);
         }
+        UserLocale::setLocale(
+            Config::Get('lang.current'),
+            array('local' => Config::Get('i18n.locale'), 'timezone' => Config::Get('i18n.timezone'))
+        );
     }
 
     static protected function _loadConfigSection($sFile, $sName) {

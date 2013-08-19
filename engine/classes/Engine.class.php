@@ -1291,6 +1291,16 @@ class E extends LsObject {
     }
 
     /**
+     * If user is authorized && not admin
+     *
+     * @return bool
+     */
+    public static function IsNotAdmin() {
+        $oUser = E::User();
+        return ($oUser && !$oUser->isAdministrator());
+    }
+
+    /**
      * Returns UserId if user is authorized
      *
      * @return int|null

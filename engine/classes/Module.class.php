@@ -69,6 +69,7 @@ abstract class Module extends LsObject {
      * @return array
      */
     protected function _entitiesId($aEntities) {
+
         $aIds = array();
         if (!is_array($aEntities)) {
             $aEntities = array($aEntities);
@@ -88,12 +89,14 @@ abstract class Module extends LsObject {
      * @return int|mixed
      */
     protected function _entityId($oEntityId) {
+
         if (is_scalar($oEntityId)) {
             return intval($oEntityId);
         } else {
             $aIds = $this->_entitiesId($oEntityId);
-            if ($aIds)
-                return array_shift($aIds);
+            if ($aIds) {
+                return intval(array_shift($aIds));
+            }
         }
     }
 

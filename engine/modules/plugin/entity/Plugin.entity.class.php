@@ -45,7 +45,7 @@ class ModulePlugin_EntityPlugin extends Entity {
 
             $this->_xlang($oXml, 'name', $sLang);
             $this->_xlang($oXml, 'author', $sLang);
-            $this->_xlang($oXml, 'description', $sLang);
+            $this->_xlang($oXml, 'description', $sLang, true);
             $oXml->homepage = $this->Text_Parser((string)$oXml->homepage);
             $oXml->settings = preg_replace('/{([^}]+)}/', Router::GetPath('$1'), $oXml->settings);
 
@@ -62,17 +62,23 @@ class ModulePlugin_EntityPlugin extends Entity {
     /**
      * Получает значение параметра из XML на основе языковой разметки
      *
-     * @param SimpleXMLElement $oXml    XML узел
-     * @param string           $sProperty    Свойство, которое нужно вернуть
-     * @param string           $sLang    Название языка
+     * @param SimpleXMLElement $oXml         - XML узел
+     * @param string           $sProperty    - Свойство, которое нужно вернуть
+     * @param string           $sLang        - Название языка
+     * @param bool             $bHtml        - HTML или текст
      */
-    protected function _xlang($oXml, $sProperty, $sLang) {
+    protected function _xlang($oXml, $sProperty, $sLang, $bHtml = false) {
         $sProperty = trim($sProperty);
 
         if (!count($data = $oXml->xpath("{$sProperty}/lang[@name='{$sLang}']"))) {
             $data = $oXml->xpath("{$sProperty}/lang[@name='default']");
         }
-        $oXml->$sProperty->data = $this->Text_Parser(trim((string)array_shift($data)));
+        $sText = trim((string)array_shift($data));
+        if ($sText) {
+            $oXml->$sProperty->data = ($bHtml ? $this->Text_Parser($sText) : strip_tags($sText));
+        } else {
+            $oXml->$sProperty->data = '';
+        }
     }
 
     protected function _getDataItem($sKey) {

@@ -41,6 +41,17 @@ return array(
 	'blog_about' => 'About this blog',
 	'blog_expand_info' => 'More &darr;',
 	'blog_fold_info' => 'Fold &uarr;',
+
+    'blogtypes_type_personal_name'        => 'Personal',
+    'blogtypes_type_personal_title'       => 'Blog by %%login%%',
+    'blogtypes_type_personal_description' => 'It\'s your personal blog',
+    'blogtypes_type_open_name'            => 'Open',
+    'blogtypes_type_open_description'     => 'Open — anybody can join in this blog, articles are visible for all',
+    'blogtypes_type_close_name'           => 'Closed',
+    'blogtypes_type_close_description'    => 'Closed — somebody can join in via invite only, articles are visible for members',
+    'blogtypes_type_hidden_name'          => 'Secret',
+    'blogtypes_type_hidden_description'   => 'Secret — somebody can join in via invite only, articles and any infoemation about blog are available for members only',
+
 	/**
 	 * Declensions
 	 */
@@ -1071,7 +1082,8 @@ return array(
 	 * Подписка
 	 */
 	'subscribe_change_ok' => 'Change the subscription was successful',
-	'subscribe_tracking_menu'=>'Whatched comments',
+	'subscribe_tracking_menu'=>'Watched comments',
+    'subscribe_tracking_menu_new'=>'New',
 	'subscribe_menu'=>'Feed',
 	/**
 	 * Toolbar

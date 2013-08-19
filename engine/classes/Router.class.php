@@ -62,11 +62,18 @@ class Router extends LsObject {
     static protected $sActionClass = null;
 
     /**
-     * Текущий полный ЧПУ url
+     * Текущий полный URL
      *
      * @var string|null
      */
     static protected $sPathWebCurrent = null;
+
+    /**
+     * Текущий обрабатываемый путь контроллера
+     *
+     * @var string|null
+     */
+    static protected $sControllerPath = null;
 
     /**
      * Текущий язык
@@ -260,7 +267,7 @@ class Router extends LsObject {
         $sReq = preg_replace('/^(.*)\?.*$/U', '$1', $sReq);
 
         // * Формируем $sPathWebCurrent ДО применения реврайтов
-        self::$sPathWebCurrent = Config::Get('path.root.url') . join('/', $this->GetRequestArray($sReq));
+        self::$sPathWebCurrent = F::File_RootUrl() . join('/', $this->GetRequestArray($sReq));
         return $sReq . $sLastChar;
     }
 
@@ -510,12 +517,29 @@ class Router extends LsObject {
     }
 
     /**
+     * LS-compatible
      * Возвращает текущий ЧПУ url
      *
      * @return string
      */
     static public function GetPathWebCurrent() {
         return self::$sPathWebCurrent;
+    }
+
+    /**
+     * Возвращает реальный URL (или локальный путь на сайте) без реврайтов
+     *
+     * @param bool $bPathOnly
+     *
+     * @return null|string
+     */
+    static public function RealUrl($bPathOnly = false) {
+
+        $sResult = self::$sPathWebCurrent;
+        if ($bPathOnly) {
+            $sResult = F::File_LocalUrl($sResult);
+        }
+        return $sResult;
     }
 
     /**
@@ -608,11 +632,14 @@ class Router extends LsObject {
      *
      * @return  string
      */
-    static public function GetCurrentPath() {
-        $sCurrentPath = self::GetAction() . '/';
-        if (self::GetActionEvent()) $sCurrentPath .= self::GetActionEvent() . '/';
-        if (self::GetParams()) $sCurrentPath .= implode('/', self::GetParams()) . '/';
-        return $sCurrentPath;
+    static public function GetControllerPath() {
+
+        if (is_null(self::$sControllerPath)) {
+            self::$sControllerPath = self::GetAction() . '/';
+            if (self::GetActionEvent()) self::$sControllerPath .= self::GetActionEvent() . '/';
+            if (self::GetParams()) self::$sControllerPath .= implode('/', self::GetParams()) . '/';
+        }
+        return self::$sControllerPath;
     }
 
     /**
@@ -908,6 +935,33 @@ class Router extends LsObject {
             $sUrlPattern = '~^' . strtr($sUrlPattern, $aReplace) . '$~i';
         }
         return $sUrlPattern;
+    }
+
+    /**
+     * Compare each item of array with controller path
+     *
+     * @see GetControllerPath
+     *
+     * @param $aPaths - array of compared paths
+     *
+     * @return string
+     */
+    static public function CompareWithLocalPath($aPaths) {
+
+        $sControllerPath = self::GetControllerPath();
+        $aPaths = F::Val2Array($aPaths);
+        if ($aPaths) {
+            foreach($aPaths as $nKey => $sPath) {
+                if ($sPath == '*') {
+                    $aPaths[$nKey] = Config::Get('router.config.action_default') . '/*';
+                } elseif($sPath == '/') {
+                    $aPaths[$nKey] = Config::Get('router.config.action_default') . '/';
+                } elseif (!in_array(substr($sPath, -1), array('/', '*'))) {
+                    $aPaths[$nKey] = $sPath . '/*';
+                }
+            }
+            return F::File_InPath($sControllerPath, $aPaths);
+        }
     }
 
 }

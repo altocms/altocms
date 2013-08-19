@@ -169,6 +169,44 @@ abstract class Entity extends LsObject {
         }
     }
 
+    /**
+     * Gets integer property by mask
+     *
+     * @param string          $sKey
+     * @param int|string|null $xMask - integer or string mask like '01001110'
+     *
+     * @return int
+     */
+    public function getPropMask($sKey, $xMask = null) {
+
+        $nVal = intval($this->getProp($sKey));
+        if (is_null($xMask)) {
+            return $nVal;
+        }
+        if (is_string($xMask) && strcspn($xMask, '01')) {
+            $xMask = bindec($xMask);
+        }
+        return $nVal & $xMask;
+    }
+
+    /**
+     * @param string     $sKey
+     * @param int|string $xMask - integer or string mask like '01001110'
+     * @param bool       $bAnd  - OR/AND operation
+     */
+    public function setPropMask($sKey, $xMask, $bAnd = false) {
+
+        $nVal = intval($this->getProp($sKey));
+        if (is_string($xMask) && strcspn($xMask, '01')) {
+            $xMask = bindec($xMask);
+        }
+        if ($bAnd) {
+            $this->setProp($sKey, $nVal & $xMask);
+        } else {
+            $this->setProp($sKey, $nVal | $xMask);
+        }
+    }
+
     protected function _getExpandedData($sSubKey = null) {
 
         $aData = $this->getProp(self::EXP_KEY);
@@ -387,22 +425,22 @@ abstract class Entity extends LsObject {
     public function __call($sName, $aArgs) {
 
         $sType = strtolower(substr($sName, 0, 3));
-        if (!strpos($sName, '_') && in_array($sType, array('get', 'set'))) {
-            $sKey = func_underscore(substr($sName, 3));
+        if (!strpos($sName, '_') && ($sType == 'get' || $sType == 'set')) {
+            $sKey = F::StrUnderscore(substr($sName, 3));
             if ($sType == 'get') {
-                if (isset($this->_aData[$sKey])) {
-                    return $this->_aData[$sKey];
+                if ($this->isProp($sKey)) {
+                    return $this->getProp($sKey);
                 } else {
                     if (preg_match('/Entity([^_]+)/', get_class($this), $sModulePrefix)) {
-                        $sModulePrefix = func_underscore($sModulePrefix[1]) . '_';
-                        if (isset($this->_aData[$sModulePrefix . $sKey])) {
-                            return $this->_aData[$sModulePrefix . $sKey];
+                        $sModulePrefix = F::StrUnderscore($sModulePrefix[1]) . '_';
+                        if ($this->isProp($sModulePrefix . $sKey)) {
+                            return $this->getProp($sModulePrefix . $sKey);
                         }
                     }
                 }
                 return null;
             } elseif ($sType == 'set' && array_key_exists(0, $aArgs)) {
-                $this->_aData[$sKey] = $aArgs[0];
+                $this->setProp($sKey, $aArgs[0]);
             }
         } else {
             return Engine::getInstance()->_CallModule($sName, $aArgs);

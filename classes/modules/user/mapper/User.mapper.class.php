@@ -30,7 +30,8 @@ class ModuleUser_MapperUser extends Mapper {
      * @return int|bool
      */
     public function Add(ModuleUser_EntityUser $oUser) {
-        $sql = "INSERT INTO " . Config::Get('db.table.user') . "
+
+        $sql = "INSERT INTO ?_user
 			(user_login,
 			user_password,
 			user_mail,
@@ -59,8 +60,9 @@ class ModuleUser_MapperUser extends Mapper {
      * @return bool
      */
     public function Update(ModuleUser_EntityUser $oUser) {
+
         $sql = "
-            UPDATE " . Config::Get('db.table.user') . "
+            UPDATE ?_user
             SET
                 user_password = ?,
                 user_mail = ?,
@@ -131,16 +133,17 @@ class ModuleUser_MapperUser extends Mapper {
      * @return int|null
      */
     public function GetUserBySessionKey($sKey) {
+
         $sql = "
             SELECT
 				s.user_id
 			FROM
-				" . Config::Get('db.table.session') . " as s
+				?_session AS s
 			WHERE
 				s.session_key = ?
 			";
-        if ($aRow = $this->oDb->selectRow($sql, $sKey)) {
-            return $aRow['user_id'];
+        if ($nUserId = $this->oDb->selectCell($sql, $sKey)) {
+            return intval($nUserId);
         }
         return null;
     }
@@ -153,7 +156,8 @@ class ModuleUser_MapperUser extends Mapper {
      * @return bool
      */
     public function CreateSession(ModuleUser_EntitySession $oSession) {
-        $sql = "REPLACE INTO " . Config::Get('db.table.session') . "
+
+        $sql = "REPLACE INTO ?_session
 			SET
 				session_key = ? ,
 				user_id = ?d ,
@@ -177,6 +181,7 @@ class ModuleUser_MapperUser extends Mapper {
     }
 
     public function LimitSession($oUser, $nSessionLimit) {
+
         // Число сессий не может быть меньше 1
         if ($nSessionLimit < 1) {
             return;
@@ -192,17 +197,17 @@ class ModuleUser_MapperUser extends Mapper {
         $sql = "
             SELECT
                 session_date_last
-            FROM " . Config::Get('db.table.session') . "
+            FROM ?_session
             WHERE user_id=?d
             ORDER BY session_date_last DESC
             LIMIT ?d
         ";
         $aRows = $this->oDb->selectCol($sql, $nUserId, $nSessionLimit + 1);
         if ($aRows && sizeof($aRows) > $nSessionLimit) {
-            $sDate = array_shift(array_reverse($aRows));
+            $sDate = end($aRows);
             $sql
                 = "
-                DELETE FROM " . Config::Get('db.table.session') . "
+                DELETE FROM ?_session
                 WHERE user_id=?d AND session_date_last<=?
             ";
             $this->oDb->query($sql, $nUserId, $sDate);
@@ -217,7 +222,8 @@ class ModuleUser_MapperUser extends Mapper {
      * @return int|bool
      */
     public function UpdateSession(ModuleUser_EntitySession $oSession) {
-        $sql = "UPDATE " . Config::Get('db.table.session') . "
+
+        $sql = "UPDATE ?_session
 			SET
 				session_ip_last = ? ,
 				session_date_last = ? ,
@@ -238,6 +244,7 @@ class ModuleUser_MapperUser extends Mapper {
      * @return  bool
      */
     public function CloseUserSessions($oUser) {
+
         if (is_object($oUser)) {
             $nUserId = $oUser->GetId();
         }
@@ -246,7 +253,7 @@ class ModuleUser_MapperUser extends Mapper {
         }
 
         $sql = "
-            UPDATE " . Config::Get('db.table.session') . "
+            UPDATE ?_session
             SET
                 session_exit = ?
             WHERE user_id = ?
@@ -262,6 +269,7 @@ class ModuleUser_MapperUser extends Mapper {
      * @return  array
      */
     public function GetSessionsByArrayId($aArrayId) {
+
         if (!is_array($aArrayId) || count($aArrayId) == 0) {
             return array();
         }
@@ -270,10 +278,11 @@ class ModuleUser_MapperUser extends Mapper {
             SELECT
 				s.*
 			FROM
-			    " . Config::Get('db.table.user') . " as u
-				INNER JOIN " . Config::Get('db.table.session') . " as s ON s.session_key=u.user_last_session
+			    ?_user as u
+				INNER JOIN ?_session as s ON s.session_key=u.user_last_session
 			WHERE
 				u.user_id IN(?a)
+			LIMIT " . count($aArrayId) . "
 			";
         $aRes = array();
         if ($aRows = $this->oDb->select($sql, $aArrayId)) {
@@ -292,6 +301,7 @@ class ModuleUser_MapperUser extends Mapper {
      * @return array
      */
     public function GetUsersByArrayId($aArrayId) {
+
         if (!is_array($aArrayId) || count($aArrayId) == 0) {
             return array();
         }
@@ -302,12 +312,13 @@ class ModuleUser_MapperUser extends Mapper {
 				IF(ua.user_id IS NULL,0,1) as user_is_administrator,
 				ab.banline, ab.banunlim, ab.banactive
 			FROM
-				" . Config::Get('db.table.user') . " as u
-				LEFT JOIN " . Config::Get('db.table.user_administrator') . " AS ua ON u.user_id=ua.user_id
-				LEFT JOIN " . Config::Get('db.table.adminban') . " AS ab ON u.user_id=ab.user_id AND ab.banactive=1
+				?_user as u
+				LEFT JOIN ?_user_administrator AS ua ON u.user_id=ua.user_id
+				LEFT JOIN ?_adminban AS ab ON u.user_id=ab.user_id AND ab.banactive=1
 			WHERE
 				u.user_id IN(?a)
 			ORDER BY FIELD(u.user_id,?a)
+			LIMIT " . count($aArrayId) . "
 			";
         $aUsers = array();
         if ($aRows = $this->oDb->select($sql, $aArrayId, $aArrayId)) {
@@ -326,11 +337,12 @@ class ModuleUser_MapperUser extends Mapper {
      * @return int|null
      */
     public function GetUserByActivateKey($sKey) {
+
         $sql = "
             SELECT
 				u.user_id
 			FROM
-				" . Config::Get('db.table.user') . " as u
+				?_user as u
 			WHERE u.user_activate_key = ? ";
         if ($aRow = $this->oDb->selectRow($sql, $sKey)) {
             return $aRow['user_id'];
@@ -346,6 +358,7 @@ class ModuleUser_MapperUser extends Mapper {
      * @return int|null
      */
     public function GetUserIdByMail($sMail) {
+
         return $this->GetUserByMail($sMail);
     }
 
@@ -357,11 +370,12 @@ class ModuleUser_MapperUser extends Mapper {
      * @return int|null
      */
     public function GetUserByMail($sMail) {
+
         $sql = "
             SELECT
 				u.user_id
 			FROM
-				" . Config::Get('db.table.user') . " as u
+				?_user as u
 			WHERE u.user_mail = ? ";
         return intval($this->oDb->selectCell($sql, $sMail));
     }
@@ -374,6 +388,7 @@ class ModuleUser_MapperUser extends Mapper {
      * @return int|null
      */
     public function GetUserByLogin($sLogin) {
+
         return $this->GetUserIdByLogin($sLogin);
     }
 
@@ -385,11 +400,12 @@ class ModuleUser_MapperUser extends Mapper {
      * @return int
      */
     public function GetUserIdByLogin($sLogin) {
+
         $sql = "
             SELECT
 				u.user_id
 			FROM
-				" . Config::Get('db.table.user') . " as u
+				?_user as u
 			WHERE
 				u.user_login = ? ";
         return intval($this->oDb->selectCell($sql, $sLogin));
@@ -403,10 +419,11 @@ class ModuleUser_MapperUser extends Mapper {
      * @return array
      */
     public function GetUsersByDateLast($iLimit) {
+
         $sql = "SELECT
 			user_id
 			FROM
-				" . Config::Get('db.table.session') . "
+				?_session
 			ORDER BY
 				session_date_last DESC
 			LIMIT 0, ?d
@@ -428,10 +445,11 @@ class ModuleUser_MapperUser extends Mapper {
      * @return array
      */
     public function GetUsersByDateRegister($iLimit) {
+
         $sql = "SELECT
 			user_id
 			FROM
-				" . Config::Get('db.table.user') . "
+				?_user
 			WHERE
 				 user_activate = 1
 			ORDER BY
@@ -453,12 +471,14 @@ class ModuleUser_MapperUser extends Mapper {
      * @return int
      */
     public function GetCountUsers() {
-        $sql = "SELECT count(*) as count FROM " . Config::Get('db.table.user') . "";
+
+        $sql = "SELECT count(*) as count FROM ?_user";
         return $this->oDb->selectCell($sql);
     }
 
     public function GetCountAdmins() {
-        $sql = "SELECT count(*) as count FROM " . Config::Get('db.table.user_administrator') . " ";
+
+        $sql = "SELECT count(*) as count FROM ?_user_administrator ";
         return $this->oDb->selectCell($sql);
     }
 
@@ -470,7 +490,8 @@ class ModuleUser_MapperUser extends Mapper {
      * @return mixed
      */
     public function GetCountUsersActive($sDateActive) {
-        $sql = "SELECT user_id FROM " . Config::Get('db.table.session') . " WHERE session_date_last >= ? GROUP BY user_id";
+
+        $sql = "SELECT user_id FROM ?_session WHERE session_date_last >= ? GROUP BY user_id";
         $aRows = $this->oDb->select($sql, $sDateActive);
         return $aRows ? count($aRows) : 0;
     }
@@ -481,8 +502,8 @@ class ModuleUser_MapperUser extends Mapper {
      * @return array
      */
     public function GetCountUsersSex() {
-        $sql = "SELECT user_profile_sex  AS ARRAY_KEY, count(*) as count FROM " . Config::Get('db.table.user')
-            . " WHERE user_activate = 1 GROUP BY user_profile_sex ";
+
+        $sql = "SELECT user_profile_sex  AS ARRAY_KEY, count(*) as count FROM ?_user WHERE user_activate = 1 GROUP BY user_profile_sex ";
         $result = $this->oDb->select($sql);
         return $result;
     }
@@ -496,10 +517,11 @@ class ModuleUser_MapperUser extends Mapper {
      * @return array
      */
     public function GetUsersByLoginLike($sUserLogin, $iLimit) {
+
         $sql = "SELECT
 				user_id
 			FROM
-				" . Config::Get('db.table.user') . "
+				?_user
 			WHERE
 				user_activate = 1
 				and
@@ -523,7 +545,8 @@ class ModuleUser_MapperUser extends Mapper {
      * @return bool
      */
     public function AddFriend(ModuleUser_EntityFriend $oFriend) {
-        $sql = "INSERT INTO " . Config::Get('db.table.friend') . "
+
+        $sql = "INSERT INTO ?_friend
 			(user_from,
 			user_to,
 			status_from,
@@ -553,7 +576,8 @@ class ModuleUser_MapperUser extends Mapper {
      * @return bool
      */
     public function EraseFriend(ModuleUser_EntityFriend $oFriend) {
-        $sql = "DELETE FROM " . Config::Get('db.table.friend') . "
+
+        $sql = "DELETE FROM ?_friend
 			WHERE
 				user_from = ?d
 				AND
@@ -573,8 +597,9 @@ class ModuleUser_MapperUser extends Mapper {
      * @return bool
      */
     public function UpdateFriend(ModuleUser_EntityFriend $oFriend) {
+
         $sql = "
-			UPDATE " . Config::Get('db.table.friend') . "
+			UPDATE ?_friend
 			SET
 				status_from = ?d,
 				status_to   = ?d
@@ -597,11 +622,12 @@ class ModuleUser_MapperUser extends Mapper {
      * Получить список отношений друзей
      *
      * @param  array $aArrayId    Список ID пользователей проверяемых на дружбу
-     * @param  int   $sUserId     ID пользователя у которого проверяем друзей
+     * @param  int   $nUserId     ID пользователя у которого проверяем друзей
      *
      * @return array
      */
-    public function GetFriendsByArrayId($aArrayId, $sUserId) {
+    public function GetFriendsByArrayId($aArrayId, $nUserId) {
+
         if (!is_array($aArrayId) || count($aArrayId) == 0) {
             return array();
         }
@@ -609,7 +635,7 @@ class ModuleUser_MapperUser extends Mapper {
         $sql = "SELECT
 					*
 				FROM
-					" . Config::Get('db.table.friend') . "
+					?_friend
 				WHERE
 					( `user_from`=?d AND `user_to` IN(?a) )
 					OR
@@ -617,13 +643,13 @@ class ModuleUser_MapperUser extends Mapper {
 				";
         $aRows = $this->oDb->select(
             $sql,
-            $sUserId, $aArrayId,
-            $aArrayId, $sUserId
+            $nUserId, $aArrayId,
+            $aArrayId, $nUserId
         );
         $aRes = array();
         if ($aRows) {
             foreach ($aRows as $aRow) {
-                $aRow['user'] = $sUserId;
+                $aRow['user'] = $nUserId;
                 $aRes[] = Engine::GetEntity('User_Friend', $aRow);
             }
         }
@@ -633,19 +659,20 @@ class ModuleUser_MapperUser extends Mapper {
     /**
      * Получает список друзей
      *
-     * @param  int $sUserId      ID пользователя
+     * @param  int $nUserId      ID пользователя
      * @param  int $iCount       Возвращает общее количество элементов
      * @param  int $iCurrPage    Номер страницы
      * @param  int $iPerPage     Количество элементов на страницу
      *
      * @return array
      */
-    public function GetUsersFriend($sUserId, &$iCount, $iCurrPage, $iPerPage) {
+    public function GetUsersFriend($nUserId, &$iCount, $iCurrPage, $iPerPage) {
+
         $sql = "SELECT
 					uf.user_from,
 					uf.user_to
 				FROM
-					" . Config::Get('db.table.friend') . " as uf
+					?_friend as uf
 				WHERE
 					( uf.user_from = ?d
 					OR
@@ -657,19 +684,19 @@ class ModuleUser_MapperUser extends Mapper {
 					)
 				LIMIT ?d, ?d ;";
         $aUsers = array();
-        if ($aRows = $this->oDb->selectPage(
+        $aRows = $this->oDb->selectPage(
             $iCount,
             $sql,
-            $sUserId,
-            $sUserId,
+            $nUserId,
+            $nUserId,
             ModuleUser::USER_FRIEND_ACCEPT + ModuleUser::USER_FRIEND_OFFER,
             ModuleUser::USER_FRIEND_ACCEPT,
             ModuleUser::USER_FRIEND_ACCEPT,
             ($iCurrPage - 1) * $iPerPage, $iPerPage
-        )
-        ) {
+        );
+        if ($aRows) {
             foreach ($aRows as $aUser) {
-                $aUsers[] = ($aUser['user_from'] == $sUserId)
+                $aUsers[] = ($aUser['user_from'] == $nUserId)
                     ? $aUser['user_to']
                     : $aUser['user_from'];
             }
@@ -681,15 +708,16 @@ class ModuleUser_MapperUser extends Mapper {
     /**
      * Получает количество друзей
      *
-     * @param  int $sUserId    ID пользователя
+     * @param  int $nUserId    ID пользователя
      *
      * @return int
      */
-    public function GetCountUsersFriend($sUserId) {
+    public function GetCountUsersFriend($nUserId) {
+
         $sql = "SELECT
 					count(*) as c
 				FROM
-					" . Config::Get('db.table.friend') . " as uf
+					?_friend as uf
 				WHERE
 					( uf.user_from = ?d
 					OR
@@ -699,15 +727,15 @@ class ModuleUser_MapperUser extends Mapper {
 					OR
 						(uf.status_from = ?d AND uf.status_to = ?d )
 					)";
-        if ($aRow = $this->oDb->selectRow(
+        $aRow = $this->oDb->selectRow(
             $sql,
-            $sUserId,
-            $sUserId,
+            $nUserId,
+            $nUserId,
             ModuleUser::USER_FRIEND_ACCEPT + ModuleUser::USER_FRIEND_OFFER,
             ModuleUser::USER_FRIEND_ACCEPT,
             ModuleUser::USER_FRIEND_ACCEPT
-        )
-        ) {
+        );
+        if ($aRow) {
             return $aRow['c'];
         }
         return 0;
@@ -716,16 +744,17 @@ class ModuleUser_MapperUser extends Mapper {
     /**
      * Получить список заявок на добавление в друзья от указанного пользователя
      *
-     * @param  string $sUserId
-     * @param  int    $iStatus Статус запроса со стороны добавляемого
+     * @param  string $nUserId
+     * @param  int    $nStatus Статус запроса со стороны добавляемого
      *
      * @return array
      */
-    public function GetUsersFriendOffer($sUserId, $iStatus = ModuleUser::USER_FRIEND_NULL) {
+    public function GetUsersFriendOffer($nUserId, $nStatus = ModuleUser::USER_FRIEND_NULL) {
+
         $sql = "SELECT
 					uf.user_to
 				FROM
-					" . Config::Get('db.table.friend') . " as uf
+					?_friend as uf
 				WHERE
 					uf.user_from = ?d
 					AND
@@ -734,13 +763,13 @@ class ModuleUser_MapperUser extends Mapper {
 					uf.status_to = ?d
 				;";
         $aUsers = array();
-        if ($aRows = $this->oDb->select(
+        $aRows = $this->oDb->select(
             $sql,
-            $sUserId,
+            $nUserId,
             ModuleUser::USER_FRIEND_OFFER,
-            $iStatus
-        )
-        ) {
+            $nStatus
+        );
+        if ($aRows) {
             foreach ($aRows as $aUser) {
                 $aUsers[] = $aUser['user_to'];
             }
@@ -751,16 +780,17 @@ class ModuleUser_MapperUser extends Mapper {
     /**
      * Получить список заявок на добавление в друзья от указанного пользователя
      *
-     * @param  string $sUserId
-     * @param  int    $iStatus Статус запроса со стороны самого пользователя
+     * @param  string $nUserId
+     * @param  int    $nStatus Статус запроса со стороны самого пользователя
      *
      * @return array
      */
-    public function GetUserSelfFriendOffer($sUserId, $iStatus = ModuleUser::USER_FRIEND_NULL) {
+    public function GetUserSelfFriendOffer($nUserId, $nStatus = ModuleUser::USER_FRIEND_NULL) {
+
         $sql = "SELECT
 					uf.user_from
 				FROM
-					" . Config::Get('db.table.friend') . " as uf
+					?_friend as uf
 				WHERE
 					uf.user_to = ?d
 					AND
@@ -769,13 +799,13 @@ class ModuleUser_MapperUser extends Mapper {
 					uf.status_to = ?d
 				;";
         $aUsers = array();
-        if ($aRows = $this->oDb->select(
+        $aRows = $this->oDb->select(
             $sql,
-            $sUserId,
+            $nUserId,
             ModuleUser::USER_FRIEND_OFFER,
-            $iStatus
-        )
-        ) {
+            $nStatus
+        );
+        if ($aRows) {
             foreach ($aRows as $aUser) {
                 $aUsers[] = $aUser['user_from'];
             }
@@ -792,7 +822,8 @@ class ModuleUser_MapperUser extends Mapper {
      * @return ModuleUser_EntityInvite|null
      */
     public function GetInviteByCode($sCode, $iUsed = 0) {
-        $sql = "SELECT * FROM " . Config::Get('db.table.invite') . " WHERE invite_code = ? AND invite_used = ?d ";
+
+        $sql = "SELECT * FROM ?_invite WHERE invite_code = ? AND invite_used = ?d ";
         if ($aRow = $this->oDb->selectRow($sql, $sCode, $iUsed)) {
             return Engine::GetEntity('User_Invite', $aRow);
         }
@@ -807,17 +838,16 @@ class ModuleUser_MapperUser extends Mapper {
      * @return int|bool
      */
     public function AddInvite(ModuleUser_EntityInvite $oInvite) {
-        $sql = "INSERT INTO " . Config::Get('db.table.invite') . "
+
+        $sql = "INSERT INTO ?_invite
 			(invite_code,
 			user_from_id,
 			invite_date_add
 			)
 			VALUES(?,  ?,	?)
 		";
-        if ($iId = $this->oDb->query($sql, $oInvite->getCode(), $oInvite->getUserFromId(), $oInvite->getDateAdd())) {
-            return $iId;
-        }
-        return false;
+        $nId = $this->oDb->query($sql, $oInvite->getCode(), $oInvite->getUserFromId(), $oInvite->getDateAdd());
+        return $nId ? $nId : false;
     }
 
     /**
@@ -828,7 +858,8 @@ class ModuleUser_MapperUser extends Mapper {
      * @return bool
      */
     public function UpdateInvite(ModuleUser_EntityInvite $oInvite) {
-        $sql = "UPDATE " . Config::Get('db.table.invite') . "
+
+        $sql = "UPDATE ?_invite
 			SET
 				user_to_id = ? ,
 				invite_date_used = ? ,
@@ -844,15 +875,15 @@ class ModuleUser_MapperUser extends Mapper {
     /**
      * Получает число использованых приглашений юзером за определенную дату
      *
-     * @param int    $sUserIdFrom    ID пользователя
+     * @param int    $nUserIdFrom    ID пользователя
      * @param string $sDate          Дата
      *
      * @return int
      */
-    public function GetCountInviteUsedByDate($sUserIdFrom, $sDate) {
-        $sql = "SELECT count(invite_id) as count FROM " . Config::Get('db.table.invite')
-            . " WHERE user_from_id = ?d AND invite_date_add >= ? ";
-        if ($aRow = $this->oDb->selectRow($sql, $sUserIdFrom, $sDate)) {
+    public function GetCountInviteUsedByDate($nUserIdFrom, $sDate) {
+
+        $sql = "SELECT COUNT(invite_id) AS count FROM ?_invite WHERE user_from_id = ?d AND invite_date_add >= ? ";
+        if ($aRow = $this->oDb->selectRow($sql, $nUserIdFrom, $sDate)) {
             return $aRow['count'];
         }
         return 0;
@@ -861,13 +892,14 @@ class ModuleUser_MapperUser extends Mapper {
     /**
      * Получает полное число использованных приглашений юзера
      *
-     * @param int $sUserIdFrom    ID пользователя
+     * @param int $nUserIdFrom    ID пользователя
      *
      * @return int
      */
-    public function GetCountInviteUsed($sUserIdFrom) {
-        $sql = "SELECT count(invite_id) as count FROM " . Config::Get('db.table.invite') . " WHERE user_from_id = ?d";
-        if ($aRow = $this->oDb->selectRow($sql, $sUserIdFrom)) {
+    public function GetCountInviteUsed($nUserIdFrom) {
+
+        $sql = "SELECT COUNT(invite_id) AS count FROM ?_invite WHERE user_from_id = ?d";
+        if ($aRow = $this->oDb->selectRow($sql, $nUserIdFrom)) {
             return $aRow['count'];
         }
         return 0;
@@ -876,45 +908,42 @@ class ModuleUser_MapperUser extends Mapper {
     /**
      * Получает список приглашенных юзеров
      *
-     * @param int $sUserId    ID пользователя
+     * @param int $nUserId    ID пользователя
      *
      * @return array
      */
-    public function GetUsersInvite($sUserId) {
+    public function GetUsersInvite($nUserId) {
+
         $sql = "
             SELECT
 				i.user_to_id
 			FROM
-				" . Config::Get('db.table.invite') . " as i
+				?_invite as i
 			WHERE
 				i.user_from_id = ?d
 			";
-        $aUsers = array();
-        if ($aRows = $this->oDb->select($sql, $sUserId)) {
-            foreach ($aRows as $aUser) {
-                $aUsers[] = $aUser['user_to_id'];
-            }
-        }
-        return $aUsers;
+        $aUsers = $this->oDb->selectCol($sql, $nUserId);
+        return (array)$aUsers;
     }
 
     /**
      * Получает юзера который пригласил
      *
-     * @param int $sUserIdTo    ID пользователя
+     * @param int $nUserIdTo    ID пользователя
      *
      * @return int|null
      */
-    public function GetUserInviteFrom($sUserIdTo) {
+    public function GetUserInviteFrom($nUserIdTo) {
+
         $sql = "SELECT
 					i.user_from_id
 				FROM
-					" . Config::Get('db.table.invite') . " as i
+					?_invite as i
 				WHERE
 					i.user_to_id = ?d
 				LIMIT 0,1;
 					";
-        if ($aRow = $this->oDb->selectRow($sql, $sUserIdTo)) {
+        if ($aRow = $this->oDb->selectRow($sql, $nUserIdTo)) {
             return $aRow['user_from_id'];
         }
         return null;
@@ -928,7 +957,8 @@ class ModuleUser_MapperUser extends Mapper {
      * @return bool
      */
     public function AddReminder(ModuleUser_EntityReminder $oReminder) {
-        $sql = "REPLACE " . Config::Get('db.table.reminder') . "
+
+        $sql = "REPLACE ?_reminder
 			SET
 				reminder_code = ? ,
 				user_id = ? ,
@@ -951,6 +981,7 @@ class ModuleUser_MapperUser extends Mapper {
      * @return bool
      */
     public function UpdateReminder(ModuleUser_EntityReminder $oReminder) {
+
         return $this->AddReminder($oReminder);
     }
 
@@ -962,10 +993,11 @@ class ModuleUser_MapperUser extends Mapper {
      * @return ModuleUser_EntityReminder|null
      */
     public function GetReminderByCode($sCode) {
+
         $sql = "SELECT
 					*
 				FROM
-					" . Config::Get('db.table.reminder') . "
+					?_reminder
 				WHERE
 					reminder_code = ?";
         if ($aRow = $this->oDb->selectRow($sql, $sCode)) {
@@ -982,10 +1014,11 @@ class ModuleUser_MapperUser extends Mapper {
      * @return array
      */
     public function getUserFields($aType) {
+
         if (!is_null($aType) && !is_array($aType)) {
             $aType = array($aType);
         }
-        $sql = 'SELECT * FROM ' . Config::Get('db.table.user_field') . ' WHERE 1=1 { AND type IN (?a) }';
+        $sql = 'SELECT * FROM ?_user_field WHERE 1=1 { AND type IN (?a) }';
         $aFields = $this->oDb->select($sql, (is_null($aType) || !count($aType)) ? DBSIMPLE_SKIP : $aType);
         if (!count($aFields)) {
             return array();
@@ -998,53 +1031,63 @@ class ModuleUser_MapperUser extends Mapper {
     }
 
     /**
-     * Получить по имени поля его значение дял определённого пользователя
+     * Получить по имени поля его значение для определённого пользователя
      *
-     * @param int    $iUserId    ID пользователя
+     * @param int    $nUserId    ID пользователя
      * @param string $sName      Имя поля
      *
      * @return string
      */
-    public function getUserFieldValueByName($iUserId, $sName) {
-        $sql = 'SELECT value FROM ' . Config::Get('db.table.user_field_value') . '  WHERE
-                        user_id = ?d
-                        AND
-                        field_id = (SELECT id FROM ' . Config::Get('db.table.user_field') . ' WHERE name =?)';
-        $ret = $this->oDb->selectCol($sql, $iUserId, $sName);
+    public function getUserFieldValueByName($nUserId, $sName) {
+
+        $sql = "
+            SELECT value
+            FROM ?_user_field_value
+            WHERE
+                user_id = ?d
+                AND
+                field_id = (SELECT id FROM ?_user_field WHERE name =?)";
+        $ret = $this->oDb->selectCol($sql, $nUserId, $sName);
         return $ret[0];
     }
 
     /**
      * Получить значения дополнительных полей профиля пользователя
      *
-     * @param int   $iUserId      ID пользователя
+     * @param int   $nUserId      ID пользователя
      * @param bool  $bOnlyNoEmpty Загружать только непустые поля
      * @param array $aType        Типы полей, null - все типы
      *
      * @return array
      */
-    public function getUserFieldsValues($iUserId, $bOnlyNoEmpty, $aType) {
+    public function getUserFieldsValues($nUserId, $bOnlyNoEmpty, $aType) {
+
         if (!is_null($aType) && !is_array($aType)) {
             $aType = array($aType);
         }
-
-        /**
-         * Если запрашиваем без типа, то необходимо вернуть ВСЕ возможные поля с этим типом в не звависимости указал ли их пользователь у себя в профили или нет
+        /*
+         * Если запрашиваем без типа, то необходимо вернуть ВСЕ возможные поля с этим типом,
+         * в не звависимости, указал ли их пользователь у себя в профили или нет
          * Выглядит костыльно
          */
         if (is_array($aType) && count($aType) == 1 && $aType[0] == '') {
-            $sql = 'SELECT f.*, v.value FROM ' . Config::Get('db.table.user_field') . ' as f LEFT JOIN ' . Config::Get(
-                'db.table.user_field_value'
-            ) . ' as v ON f.id = v.field_id WHERE v.user_id = ?d AND f.type IN (?a)';
+            $sql = "
+                SELECT f.*, v.value FROM ?_user_field AS f
+                    LEFT JOIN ?_user_field_value AS v ON f.id = v.field_id
+                WHERE v.user_id = ?d AND f.type IN (?a)";
 
         } else {
-            $sql = 'SELECT v.value, f.* FROM ' . Config::Get('db.table.user_field_value') . ' as v, ' . Config::Get(
-                'db.table.user_field'
-            ) . ' as f
-			WHERE v.user_id = ?d AND v.field_id = f.id { AND f.type IN (?a) }';
+            $sql = "
+                SELECT v.value, f.*
+                FROM ?_user_field_value AS v, ?_user_field AS f
+                WHERE
+                    v.user_id = ?d
+                    AND v.field_id = f.id
+                    { AND f.type IN (?a) }";
         }
         $aResult = array();
-        if ($aRows = $this->oDb->select($sql, $iUserId, (is_null($aType) || !count($aType)) ? DBSIMPLE_SKIP : $aType)) {
+        $aRows = $this->oDb->select($sql, $nUserId, (is_null($aType) || !count($aType)) ? DBSIMPLE_SKIP : $aType);
+        if ($aRows) {
             foreach ($aRows as $aRow) {
                 if ($bOnlyNoEmpty && !$aRow['value']) {
                     continue;
@@ -1058,31 +1101,29 @@ class ModuleUser_MapperUser extends Mapper {
     /**
      * Установить значения дополнительных полей профиля пользователя
      *
-     * @param int   $iUserId    ID пользователя
+     * @param int   $nUserId    ID пользователя
      * @param array $aFields    Ассоциативный массив полей id => value
      * @param int   $iCountMax  Максимальное количество одинаковых полей
      *
      * @return bool
      */
-    public function setUserFieldsValues($iUserId, $aFields, $iCountMax) {
+    public function setUserFieldsValues($nUserId, $aFields, $iCountMax) {
+
         if (!count($aFields)) {
             return;
         }
         foreach ($aFields as $iId => $sValue) {
-            $sql = 'SELECT count(*) as c FROM ' . Config::Get('db.table.user_field_value')
-                . ' WHERE user_id = ?d AND field_id = ?';
-            $aRow = $this->oDb->selectRow($sql, $iUserId, $iId);
+            $sql = "SELECT count(*) as c FROM ?_user_field_value WHERE user_id = ?d AND field_id = ?";
+            $aRow = $this->oDb->selectRow($sql, $nUserId, $iId);
             $iCount = isset($aRow['c']) ? $aRow['c'] : 0;
             if ($iCount < $iCountMax) {
-                $sql = 'INSERT INTO ' . Config::Get('db.table.user_field_value')
-                    . ' SET value = ?, user_id = ?d, field_id = ?';
+                $sql = "INSERT INTO ?_user_field_value SET value = ?, user_id = ?d, field_id = ?";
             } elseif ($iCount == $iCountMax && $iCount == 1) {
-                $sql = 'UPDATE ' . Config::Get('db.table.user_field_value')
-                    . ' SET value = ? WHERE user_id = ?d AND field_id = ?';
+                $sql = "UPDATE ?_user_field_value SET value = ? WHERE user_id = ?d AND field_id = ?";
             } else {
                 continue;
             }
-            $this->oDb->query($sql, $sValue, $iUserId, $iId);
+            $this->oDb->query($sql, $sValue, $nUserId, $iId);
         }
     }
 
@@ -1094,11 +1135,18 @@ class ModuleUser_MapperUser extends Mapper {
      * @return bool
      */
     public function addUserField($oField) {
-        $sql = 'INSERT INTO ' . Config::Get('db.table.user_field') . ' SET
-                    name = ?, title = ?, pattern = ?, type = ?';
-        return $this->oDb->query(
+
+        $sql = "
+            INSERT INTO ?_user_field
+            SET
+                name = ?,
+                title = ?,
+                pattern = ?,
+                type = ?";
+        $xResult = $this->oDb->query(
             $sql, $oField->getName(), $oField->getTitle(), $oField->getPattern(), $oField->getType()
         );
+        return $xResult !== false;
     }
 
     /**
@@ -1109,9 +1157,10 @@ class ModuleUser_MapperUser extends Mapper {
      * @return bool
      */
     public function deleteUserField($iId) {
-        $sql = 'DELETE FROM ' . Config::Get('db.table.user_field_value') . ' WHERE field_id = ?d';
+
+        $sql = 'DELETE FROM ?_user_field_value WHERE field_id = ?d';
         $this->oDb->query($sql, $iId);
-        $sql = 'DELETE FROM ' . Config::Get('db.table.user_field') . ' WHERE
+        $sql = 'DELETE FROM ?_user_field WHERE
                     id = ?d';
         $this->oDb->query($sql, $iId);
         return true;
@@ -1125,47 +1174,51 @@ class ModuleUser_MapperUser extends Mapper {
      * @return bool
      */
     public function updateUserField($oField) {
+
         $sql = '
-            UPDATE ' . Config::Get('db.table.user_field') . '
+            UPDATE ?_user_field
             SET
                 name = ?,
                 title = ?,
                 pattern = ?,
                 type = ?
             WHERE id = ?d';
-        return $this->oDb->query(
+        $xResult = $this->oDb->query(
             $sql,
             $oField->getName(),
             $oField->getTitle(),
             $oField->getPattern(),
             $oField->getType(),
             $oField->getId()
-        ) !== false;
+        );
+        return $xResult;
     }
 
     /**
      * Проверяет существует ли поле с таким именем
      *
      * @param string   $sName  Имя поля
-     * @param int|null $iId    ID поля
+     * @param int|null $nId    ID поля
      *
      * @return bool
      */
-    public function userFieldExistsByName($sName, $iId) {
-        $sql = 'SELECT id FROM  ' . Config::Get('db.table.user_field') . ' WHERE name = ? {AND id != ?d}';
-        return $this->oDb->select($sql, $sName, $iId ? $iId : DBSIMPLE_SKIP);
+    public function userFieldExistsByName($sName, $nId) {
+
+        $sql = 'SELECT id FROM  ?_user_field WHERE name = ? {AND id != ?d}';
+        return $this->oDb->select($sql, $sName, $nId ? $nId : DBSIMPLE_SKIP);
     }
 
     /**
      * Проверяет существует ли поле с таким ID
      *
-     * @param int $iId    ID поля
+     * @param int $nId    ID поля
      *
      * @return bool
      */
-    public function userFieldExistsById($iId) {
-        $sql = 'SELECT id FROM  ' . Config::Get('db.table.user_field') . ' WHERE id = ?d';
-        return $this->oDb->select($sql, $iId);
+    public function userFieldExistsById($nId) {
+
+        $sql = "SELECT id FROM  ?_user_field WHERE id = ?d";
+        return $this->oDb->select($sql, $nId);
     }
 
     /**
@@ -1177,10 +1230,11 @@ class ModuleUser_MapperUser extends Mapper {
      * @return  bool
      */
     public function DeleteUserFieldValues($aUsersId, $aTypes = null) {
+
         $aUsersId = $this->_arrayId($aUsersId);
         if (!$aTypes) {
             $sql = "
-                DELETE FROM " . Config::Get('db.table.user_field_value') . "
+                DELETE FROM ?_user_field_value
                 WHERE user_id IN (?a)
             ";
             return $this->oDb->query($sql, $aUsersId) !== false;
@@ -1189,9 +1243,9 @@ class ModuleUser_MapperUser extends Mapper {
                 $aTypes = array($aTypes);
             }
             $sql = "
-                DELETE FROM " . Config::Get('db.table.user_field_value') . "
+                DELETE FROM ?_user_field_value
                 WHERE user_id IN (?a) AND field_id IN
-                    (SELECT id FROM " . Config::Get('db.table.user_field') . " WHERE type IN (?a))
+                    (SELECT id FROM ?_user_field WHERE type IN (?a))
             ";
             return $this->oDb->query($sql, $aUsersId, $aTypes);
         }
@@ -1208,10 +1262,11 @@ class ModuleUser_MapperUser extends Mapper {
      * @return array
      */
     public function GetUserNotesByUserId($iUserId, &$iCount, $iCurrPage, $iPerPage) {
+
         $sql = "
 			SELECT *
 			FROM
-				" . Config::Get('db.table.user_note') . "
+				?_user_note
 			WHERE
 				user_id = ?d
 			ORDER BY id DESC
@@ -1233,10 +1288,11 @@ class ModuleUser_MapperUser extends Mapper {
      * @return int
      */
     public function GetCountUserNotesByUserId($iUserId) {
+
         $sql = "
 			SELECT count(*) as c
 			FROM
-				" . Config::Get('db.table.user_note') . "
+				?_user_note
 			WHERE
 				user_id = ?d
 			";
@@ -1255,7 +1311,8 @@ class ModuleUser_MapperUser extends Mapper {
      * @return ModuleUser_EntityNote|null
      */
     public function GetUserNote($iTargetUserId, $iUserId) {
-        $sql = "SELECT * FROM " . Config::Get('db.table.user_note') . " WHERE target_user_id = ?d AND user_id = ?d ";
+
+        $sql = "SELECT * FROM ?_user_note WHERE target_user_id = ?d AND user_id = ?d ";
         if ($aRow = $this->oDb->selectRow($sql, $iTargetUserId, $iUserId)) {
             return Engine::GetEntity('ModuleUser_EntityNote', $aRow);
         }
@@ -1270,7 +1327,8 @@ class ModuleUser_MapperUser extends Mapper {
      * @return ModuleUser_EntityNote|null
      */
     public function GetUserNoteById($iId) {
-        $sql = "SELECT * FROM " . Config::Get('db.table.user_note') . " WHERE id = ?d ";
+
+        $sql = "SELECT * FROM ?_user_note WHERE id = ?d ";
         if ($aRow = $this->oDb->selectRow($sql, $iId)) {
             return Engine::GetEntity('ModuleUser_EntityNote', $aRow);
         }
@@ -1281,22 +1339,22 @@ class ModuleUser_MapperUser extends Mapper {
      * Возвращает список заметок пользователя по ID целевых юзеров
      *
      * @param array $aArrayId    Список ID целевых пользователей
-     * @param int   $sUserId     ID пользователя, кто оставлял заметки
+     * @param int   $nUserId     ID пользователя, кто оставлял заметки
      *
      * @return array
      */
-    public function GetUserNotesByArrayUserId($aArrayId, $sUserId) {
+    public function GetUserNotesByArrayUserId($aArrayId, $nUserId) {
+
         if (!is_array($aArrayId) || count($aArrayId) == 0) {
             return array();
         }
-
         $sql = "SELECT
 					*
 				FROM
-					" . Config::Get('db.table.user_note') . "
+					?_user_note
 				WHERE target_user_id IN (?a) AND user_id = ?d
 				";
-        $aRows = $this->oDb->select($sql, $aArrayId, $sUserId);
+        $aRows = $this->oDb->select($sql, $aArrayId, $nUserId);
         $aRes = array();
         if ($aRows) {
             foreach ($aRows as $aRow) {
@@ -1314,7 +1372,8 @@ class ModuleUser_MapperUser extends Mapper {
      * @return bool
      */
     public function DeleteUserNoteById($iId) {
-        $sql = "DELETE FROM " . Config::Get('db.table.user_note') . " WHERE id = ?d ";
+
+        $sql = "DELETE FROM ?_user_note WHERE id = ?d ";
         return $this->oDb->query($sql, $iId);
     }
 
@@ -1326,7 +1385,8 @@ class ModuleUser_MapperUser extends Mapper {
      * @return int|null
      */
     public function AddUserNote($oNote) {
-        $sql = "INSERT INTO " . Config::Get('db.table.user_note') . " SET ?a ";
+
+        $sql = "INSERT INTO ?_user_note SET ?a ";
         if ($iId = $this->oDb->query($sql, $oNote->_getData())) {
             return $iId;
         }
@@ -1341,7 +1401,8 @@ class ModuleUser_MapperUser extends Mapper {
      * @return int
      */
     public function UpdateUserNote($oNote) {
-        $sql = "UPDATE " . Config::Get('db.table.user_note') . "
+
+        $sql = "UPDATE ?_user_note
 			SET
 			 	text = ?
 			WHERE id = ?d
@@ -1358,7 +1419,8 @@ class ModuleUser_MapperUser extends Mapper {
      * @return int|null
      */
     public function AddUserChangemail($oChangemail) {
-        $sql = "INSERT INTO " . Config::Get('db.table.user_changemail') . " SET ?a ";
+
+        $sql = "INSERT INTO ?_user_changemail SET ?a ";
         if ($iId = $this->oDb->query($sql, $oChangemail->_getData())) {
             return $iId;
         }
@@ -1373,7 +1435,8 @@ class ModuleUser_MapperUser extends Mapper {
      * @return int
      */
     public function UpdateUserChangemail($oChangemail) {
-        $sql = "UPDATE " . Config::Get('db.table.user_changemail') . "
+
+        $sql = "UPDATE ?_user_changemail
 			SET
 			 	date_used = ?,
 			 	confirm_from = ?d,
@@ -1395,7 +1458,8 @@ class ModuleUser_MapperUser extends Mapper {
      * @return ModuleUser_EntityChangemail|null
      */
     public function GetUserChangemailByCodeFrom($sCode) {
-        $sql = "SELECT * FROM " . Config::Get('db.table.user_changemail') . " WHERE code_from = ? ";
+
+        $sql = "SELECT * FROM ?_user_changemail WHERE code_from = ? ";
         if ($aRow = $this->oDb->selectRow($sql, $sCode)) {
             return Engine::GetEntity('ModuleUser_EntityChangemail', $aRow);
         }
@@ -1410,7 +1474,8 @@ class ModuleUser_MapperUser extends Mapper {
      * @return ModuleUser_EntityChangemail|null
      */
     public function GetUserChangemailByCodeTo($sCode) {
-        $sql = "SELECT * FROM " . Config::Get('db.table.user_changemail') . " WHERE code_to = ? ";
+
+        $sql = "SELECT * FROM ?_user_changemail WHERE code_to = ? ";
         if ($aRow = $this->oDb->selectRow($sql, $sCode)) {
             return Engine::GetEntity('ModuleUser_EntityChangemail', $aRow);
         }
@@ -1429,6 +1494,7 @@ class ModuleUser_MapperUser extends Mapper {
      * @return array
      */
     public function GetUsersByFilter($aFilter, $aOrder, &$iCount, $iCurrPage, $iPerPage) {
+
         if (isset($aFilter['login']) && $aFilter['login'] && is_string($aFilter['login'])) {
             if (strpos($aFilter['login'], '%') === false) {
                 $aFilter['login'] .= '%';
@@ -1463,8 +1529,8 @@ class ModuleUser_MapperUser extends Mapper {
         $sql = "SELECT
 					u.user_id
 				FROM
-					" . Config::Get('db.table.user') . " AS u
-				    LEFT JOIN " . Config::Get('db.table.user_administrator') . " AS a ON a.user_id=u.user_id
+					?_user AS u
+				    LEFT JOIN ?_user_administrator AS a ON a.user_id=u.user_id
 				WHERE
 					1 = 1
 					{ AND u.user_id = ?d }
@@ -1518,10 +1584,11 @@ class ModuleUser_MapperUser extends Mapper {
      * @return array
      */
     public function GetGroupPrefixUser($iPrefixLength = 1) {
+
         $sql = "
 			SELECT SUBSTRING(`user_login` FROM 1 FOR ?d ) as prefix
 			FROM
-				" . Config::Get('db.table.user') . "
+				?_user
 			WHERE
 				user_activate = 1
 			GROUP BY prefix

@@ -86,6 +86,13 @@ class ActionBlog extends Action {
         'ajaxaddbloginvite', 'ajaxresponsecomment', 'ajaxrebloginvite', 'ajaxbloginfo', 'ajaxblogjoin');
 
     /**
+     * Типы блогов, доступные для создания
+     *
+     * @var
+     */
+    protected $aBlogTypes;
+
+    /**
      * Инизиализация экшена
      *
      */
@@ -114,6 +121,8 @@ class ActionBlog extends Action {
                  'blog_join', 'blog_leave'
             )
         );
+
+        $this->aBlogTypes = $this->Blog_GetAllowBlogTypes($this->oUserCurrent, 'add');
     }
 
     /**
@@ -121,13 +130,6 @@ class ActionBlog extends Action {
      *
      */
     protected function RegisterEvent() {
-//		$this->AddEventPreg('/^good$/i','/^(page([1-9]\d{0,5}))?$/i',array('EventTopics','topics'));
-//		$this->AddEvent('good',array('EventTopics','topics'));
-//		$this->AddEventPreg('/^bad$/i','/^(page([1-9]\d{0,5}))?$/i',array('EventTopics','topics'));
-//		$this->AddEventPreg('/^new$/i','/^(page([1-9]\d{0,5}))?$/i',array('EventTopics','topics'));
-//		$this->AddEventPreg('/^newall$/i','/^(page([1-9]\d{0,5}))?$/i',array('EventTopics','topics'));
-//		$this->AddEventPreg('/^discussed$/i','/^(page([1-9]\d{0,5}))?$/i',array('EventTopics','topics'));
-//		$this->AddEventPreg('/^top$/i','/^(page([1-9]\d{0,5}))?$/i',array('EventTopics','topics'));
 
         $this->AddEvent('add', 'EventAddBlog');
         $this->AddEvent('edit', 'EventEditBlog');
@@ -196,6 +198,8 @@ class ActionBlog extends Action {
             return Router::Action('error');
         }
         $this->Hook_Run('blog_add_show');
+
+        $this->Viewer_Assign('aBlogTypes', $this->aBlogTypes);
         /**
          * Запускаем проверку корректности ввода полей при добалении блога.
          * Дополнительно проверяем, что был отправлен POST запрос.
@@ -303,8 +307,10 @@ class ActionBlog extends Action {
         $this->Viewer_AddHtmlTitle($this->Lang_Get('blog_edit'));
 
         $this->Viewer_Assign('oBlogEdit', $oBlog);
+
+        $this->Viewer_Assign('aBlogTypes', $this->aBlogTypes);
         /**
-         * Устанавливаем шалон для вывода
+         * Устанавливаем шаблон для вывода
          */
         $this->SetTemplateAction('add');
         /**
@@ -323,14 +329,10 @@ class ActionBlog extends Action {
              */
             $sText = $this->Text_Parser(getRequestStr('blog_description'));
             $oBlog->setDescription($sText);
-            /**
-             * Сбрасываем кеш, если поменяли тип блога
-             * Нужна доработка, т.к. в этом блоге могут быть топики других юзеров
-             */
+
+            // Если меняется тип блога, фиксируем это
             if ($oBlog->getType() != getRequestStr('blog_type')) {
-                $this->Cache_Clean(
-                    Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("topic_update_user_{$oBlog->getOwnerId()}")
-                );
+                $oBlog->setOldType($oBlog->getType());
             }
             $oBlog->setType(getRequestStr('blog_type'));
             $oBlog->setLimitRatingTopic(getRequestStr('blog_limit_rating_topic'));
@@ -496,10 +498,10 @@ class ActionBlog extends Action {
          */
         $this->SetTemplateAction('admin');
         /**
-         * Если блог закрытый, получаем приглашенных
+         * Если блог приватный, получаем приглашенных
          * и добавляем блок-форму для приглашения
          */
-        if ($oBlog->getType() == 'close') {
+        if ($oBlog->getBlogType()->IsPrivate()) {
             $aBlogUsersInvited = $this->Blog_GetBlogUsersByBlogId(
                 $oBlog->getId(), ModuleBlog::BLOG_USER_ROLE_INVITE, null
             );
@@ -576,18 +578,19 @@ class ActionBlog extends Action {
                 $bOk = false;
             }
         }
+
+        // * Проверяем доступные типы блога для создания
+        $aBlogTypes = $this->Blog_GetAllowBlogTypes($this->oUserCurrent, 'add');
+        if (!in_array(getRequestStr('blog_type'), array_keys($aBlogTypes))) {
+            $this->Message_AddError($this->Lang_Get('blog_create_type_error'), $this->Lang_Get('error'));
+            $bOk = false;
+        }
+
         /**
          * Проверяем есть ли описание блога
          */
         if (!func_check(getRequestStr('blog_description'), 'text', 10, 3000)) {
             $this->Message_AddError($this->Lang_Get('blog_create_description_error'), $this->Lang_Get('error'));
-            $bOk = false;
-        }
-        /**
-         * Проверяем доступные типы блога для создания
-         */
-        if (!in_array(getRequestStr('blog_type'), array('open', 'close'))) {
-            $this->Message_AddError($this->Lang_Get('blog_create_type_error'), $this->Lang_Get('error'));
             $bOk = false;
         }
         /**
@@ -916,6 +919,7 @@ class ActionBlog extends Action {
      *
      */
     protected function EventShowBlog() {
+
         $sPeriod = 1; // по дефолту 1 день
         if (in_array(getRequestStr('period'), array(1, 7, 30, 'all'))) {
             $sPeriod = getRequestStr('period');
@@ -935,11 +939,17 @@ class ActionBlog extends Action {
         /**
          * Определяем права на отображение закрытого блога
          */
-        if (($oBlog->getType() == 'close') && (!$this->oUserCurrent || !in_array($oBlog->getId(), $this->Blog_GetAccessibleBlogsByUser($this->oUserCurrent)))) {
+        if ($oBlog->GetBlogType()->IsPrivate() && (!$this->oUserCurrent || !in_array($oBlog->getId(), $this->Blog_GetAccessibleBlogsByUser($this->oUserCurrent)))) {
             $bCloseBlog = true;
         } else {
             $bCloseBlog = false;
         }
+
+        // В скрытый блог посторонних совсем не пускам
+        if ($bCloseBlog && $oBlog->GetBlogType()->IsHidden()) {
+            return parent::EventNotFound();
+        }
+
         /**
          * Меню
          */
@@ -1424,7 +1434,7 @@ class ActionBlog extends Action {
 
     /**
      * Обработка ajax запроса на отправку
-     * пользователям приглашения вступить в закрытый блог
+     * пользователям приглашения вступить в приватный блог
      */
     protected function AjaxAddBlogInvite() {
         /**
@@ -1577,7 +1587,7 @@ class ActionBlog extends Action {
 
     /**
      * Обработка ajax запроса на отправку
-     * повторного приглашения вступить в закрытый блог
+     * повторного приглашения вступить в приватный блог
      */
     protected function AjaxReBlogInvite() {
         /**
@@ -1634,7 +1644,7 @@ class ActionBlog extends Action {
     }
 
     /**
-     * Обработка ajax запроса на удаление вступить в закрытый блог
+     * Обработка ajax запроса на удаление приглашения вступить в приватный блог
      */
     protected function AjaxRemoveBlogInvite() {
         /**
@@ -1770,7 +1780,7 @@ class ActionBlog extends Action {
          * Получаем указанный блог
          */
         $oBlog = $this->Blog_GetBlogById($sBlogId);
-        if (!$oBlog || $oBlog->getType() != 'close') {
+        if (!$oBlog || !$oBlog->getBlogType()->IsPrivate()) {
             return $this->EventNotFound();
         }
         /**
@@ -1951,11 +1961,9 @@ class ActionBlog extends Action {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
             return;
         }
-        /**
-         * Проверяем тип блога
-         * TODO: убрать жестко заданный список типов
-         */
-        if (!in_array($oBlog->getType(), array('open', 'close'))) {
+
+        // * Проверяем тип блога на возможность свободного вступления
+        if (!$oBlog->getType()->GetMembership(ModuleBlog::BLOG_USER_JOIN_FREE)) {
             $this->Message_AddErrorSingle($this->Lang_Get('blog_join_error_invite'), $this->Lang_Get('error'));
             return;
         }
@@ -1963,7 +1971,7 @@ class ActionBlog extends Action {
          * Получаем текущий статус пользователя в блоге
          */
         $oBlogUser = $this->Blog_GetBlogUserByBlogIdAndUserId($oBlog->getId(), $this->oUserCurrent->getId());
-        if (!$oBlogUser || ($oBlogUser->getUserRole() < ModuleBlog::BLOG_USER_ROLE_GUEST && $oBlog->getType() == 'close')) {
+        if (!$oBlogUser || ($oBlogUser->getUserRole() < ModuleBlog::BLOG_USER_ROLE_GUEST && $oBlog->getBlogType()->IsPrivate())) {
             if ($oBlog->getOwnerId() != $this->oUserCurrent->getId()) {
                 /**
                  * Присоединяем юзера к блогу
@@ -1997,7 +2005,7 @@ class ActionBlog extends Action {
                      */
                     $this->Userfeed_subscribeUser($this->oUserCurrent->getId(), ModuleUserfeed::SUBSCRIBE_TYPE_BLOG, $oBlog->getId());
                 } else {
-                    $sMsg = ($oBlog->getType() == 'close')
+                    $sMsg = ($oBlog->getBlogType()->IsPrivate())
                         ? $this->Lang_Get('blog_join_error_invite')
                         : $this->Lang_Get('system_error');
                     $this->Message_AddErrorSingle($sMsg, $this->Lang_Get('error'));

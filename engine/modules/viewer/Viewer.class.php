@@ -321,6 +321,12 @@ class ModuleViewer extends Module {
         $this->oSmarty->addPluginsDir(array(Config::Get('path.smarty.plug'), 'plugins'));
         $this->oSmarty->default_template_handler_func = array($this, 'SmartyDefaultTemplateHandler');
 
+        // * Параметры кеширования, если заданы
+        if (Config::Get('smarty.cache_lifetime')) {
+            $this->oSmarty->caching = Smarty::CACHING_LIFETIME_SAVED;
+            $this->oSmarty->cache_lifetime = F::ToSeconds(Config::Get('smarty.cache_lifetime'));
+        }
+
         // * Загружаем локализованные тексты
         $this->Assign('aLang', $this->Lang_GetLangMsg());
         $this->Assign('oLang', $this->Lang_Dictionary());
@@ -537,20 +543,51 @@ class ModuleViewer extends Module {
     /**
      * Возвращает отрендеренный шаблон
      *
-     * @param string $sTemplate    Шаблон для рендеринга
-     * @return string
+     * @param   string $sTemplate    - Шаблон для рендеринга
+     * @param   array  $aOptions     - Опции рендеринга
+     *
+     * @return  string
      */
-    public function Fetch($sTemplate) {
-        /**
-         * Проверяем наличие делегата
-         */
+    public function Fetch($sTemplate, $aOptions = array()) {
+
+        // * Проверяем наличие делегата
         $sTemplate = $this->Plugin_GetDelegate('template', $sTemplate);
         if ($this->TemplateExists($sTemplate, true)) {
+            // Если задаются локальные параметры кеширования, то сохраняем общие
+            if (isset($aOptions['cache'])) {
+                $nOldCaching = $this->oSmarty->caching;
+                $nOldCacheLifetime = $this->oSmarty->cache_lifetime;
+
+                $this->oSmarty->caching = Smarty::CACHING_LIFETIME_SAVED;
+                if ($aOptions['cache'] === false) {
+                    // Отключаем кеширование
+                    $this->oSmarty->cache_lifetime = 0;
+                } elseif (isset($aOptions['cache']['time'])) {
+                    if ($aOptions['cache']['time'] == -1) {
+                        // Задаем бессрочное кеширование
+                        $this->oSmarty->cache_lifetime = -1;
+                    } elseif ($aOptions['cache']['time']) {
+                        // Задаем время кеширования
+                        $this->oSmarty->cache_lifetime = F::ToSeconds($aOptions['cache']['time']);
+                    } else {
+                        // Отключаем кеширование
+                        $this->oSmarty->cache_lifetime = 0;
+                    }
+                }
+            }
+
             self::$_renderCount++;
             self::$_renderStart = microtime(true);
+
             $sContent = $this->oSmarty->fetch($sTemplate);
+
             self::$_renderTime += (microtime(true) - self::$_renderStart);
             self::$_renderStart = 0;
+
+            if (isset($aOptions['cache'])) {
+                $this->oSmarty->caching = $nOldCaching;
+                $this->oSmarty->cache_lifetime = $nOldCacheLifetime;
+            }
 
             return $sContent;
         }
@@ -588,6 +625,9 @@ class ModuleViewer extends Module {
      * @param string $sType Варианты: json, jsonIframe, jsonp
      */
     public function DisplayAjax($sType = 'json') {
+
+        $aHeaders = array();
+        $sOutput = '';
         /**
          * Загружаем статус ответа и сообщение
          */
@@ -609,24 +649,30 @@ class ModuleViewer extends Module {
         $this->AssignAjax('bStateError', $bStateError);
         if ($sType == 'json') {
             if ($this->bResponseSpecificHeader && !headers_sent()) {
-                header('Content-type: application/json');
+                $aHeaders[] = 'Content-type: application/json';
             }
-            echo F::jsonEncode($this->aVarsAjax);
+            $sOutput = F::jsonEncode($this->aVarsAjax);
         } elseif ($sType == 'jsonIframe') {
             // Оборачивает json в тег <textarea>, это не дает браузеру выполнить HTML, который вернул iframe
             if ($this->bResponseSpecificHeader && !headers_sent()) {
-                header('Content-type: application/json');
+                $aHeaders[] = 'Content-type: application/json';
             }
             /**
              * Избавляемся от бага, когда в возвращаемом тексте есть &quot;
              */
-            echo '<textarea>' . htmlspecialchars(F::jsonEncode($this->aVarsAjax)) . '</textarea>';
+            $sOutput = '<textarea>' . htmlspecialchars(F::jsonEncode($this->aVarsAjax)) . '</textarea>';
         } elseif ($sType == 'jsonp') {
             if ($this->bResponseSpecificHeader && !headers_sent()) {
-                header('Content-type: application/json');
+                $aHeaders[] = 'Content-type: application/json';
             }
-            echo getRequest('jsonpCallback', 'callback') . '(' . F::jsonEncode($this->aVarsAjax) . ');';
+            $sOutput = getRequest('jsonpCallback', 'callback') . '(' . F::jsonEncode($this->aVarsAjax) . ');';
         }
+        if ($aHeaders) {
+            foreach ($aHeaders as $sHeader) {
+                header($sHeader);
+            }
+        }
+        echo $sOutput;
         exit();
     }
 
@@ -698,6 +744,7 @@ class ModuleViewer extends Module {
             $this->Security_ValidateSendForm();
         }
         $this->sResponseAjax = $sResponseAjax;
+        $_REQUEST['ALTO_AJAX'] = $sResponseAjax;
         $this->bResponseSpecificHeader = $bResponseSpecificHeader;
     }
 
@@ -1898,16 +1945,23 @@ class ModuleViewer extends Module {
     }
 
     public function ClearAll() {
+
         $this->ClearSmartyFiles();
         $this->ClearAssetsFiles();
     }
 
+    /**
+     * Clear all cached and compiled files of Smarty
+     */
     public function ClearSmartyFiles() {
+
         $this->oSmarty->clearCompiledTemplate();
         $this->oSmarty->clearAllCache();
+        F::File_ClearDir(Config::Get('path.tmp.dir') . '/templates/');
     }
 
     public function ClearAssetsFiles() {
+
         $sDir = $this->GetAssetDir();
         F::File_RemoveDir($sDir);
     }

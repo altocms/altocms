@@ -27,18 +27,9 @@ class ModuleWidget extends Module {
      * @return  bool
      */
     protected function _checkPath($aPaths, $bDefault = true) {
-        $aPaths = F::Val2Array($aPaths);
+
         if ($aPaths) {
-            foreach($aPaths as $nKey => $sPath) {
-                if ($sPath == '*') {
-                    $aPaths[$nKey] = Config::Get('router.config.action_default') . '/*';
-                } elseif($sPath == '/') {
-                    $aPaths[$nKey] = Config::Get('router.config.action_default') . '/';
-                } elseif (!in_array(substr($sPath, -1), array('/', '*'))) {
-                    $aPaths[$nKey] = $sPath . '/*';
-                }
-            }
-            return F::File_InPath($this->sCurentPath, $aPaths);
+            return Router::CompareWithLocalPath($aPaths);
         }
         return $bDefault;
     }
@@ -47,7 +38,7 @@ class ModuleWidget extends Module {
      * Инициализация модуля
      */
     public function Init() {
-        $this->sCurentPath = Router::GetCurrentPath();
+        $this->sCurentPath = Router::GetControllerPath();
     }
 
     /**

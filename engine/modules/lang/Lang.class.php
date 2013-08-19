@@ -3,7 +3,6 @@
  * @Project: Alto CMS
  * @Project URI: http://altocms.com
  * @Description: Advanced Community Engine
- * @Version: 0.9a
  * @Copyright: Alto CMS Team
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
@@ -439,6 +438,26 @@ class ModuleLang extends Module {
             $this->InitLang($sLang);
         }
         return $this;
+    }
+
+    /**
+     * Возвращает список языков сайта
+     *
+     * @return array
+     */
+    public function GetLangList() {
+
+        $aLangList = (array)Config::Get('lang.allow');
+        if (!$aLangList) {
+            $aLangList = array(Config::Get('lang.current'));
+        }
+        if (!$aLangList) {
+            $aLangList = array(Config::Get('lang.default'));
+        }
+        if (!$aLangList) {
+            $aLangList = array('ru');
+        }
+        return $aLangList;
     }
 
     /**

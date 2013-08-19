@@ -252,6 +252,47 @@ class AltoFunc_Array {
         return false;
     }
 
+    /**
+     * Returns the values from a single column of the input array, identified by the columnKey
+     *
+     * @param      $aArray
+     * @param      $sColumnKey
+     * @param null $sIndexKey
+     *
+     * @return array|bool
+     */
+    static public function Column($aArray, $sColumnKey, $sIndexKey = null) {
+
+        if (!is_array($aArray)) {
+            return false;
+        }
+        if (function_exists('array_column')) {
+            return array_column($aArray, $sColumnKey, $sIndexKey);
+        }
+        if ($sIndexKey === null) {
+            foreach ($aArray as $nI => &$aIn) {
+                if (is_array($aIn) && isset($aIn[$sColumnKey])) {
+                    $aIn = $aIn[$sColumnKey];
+                } else {
+                    unset($aArray[$nI]);
+                }
+            }
+        } else {
+            $aResult = array();
+            foreach ($aArray as $nI => $aIn) {
+                if (is_array($aIn) && isset($aIn[$sColumnKey])) {
+                    if (isset($aIn[$sIndexKey])) {
+                        $aResult[$aIn[$sIndexKey]] = $aIn[$sColumnKey];
+                    } else {
+                        $aResult[] = $aIn[$sColumnKey];
+                    }
+                    unset($aArray[$nI]);
+                }
+            }
+            $aArray = & $aResult;
+        }
+        return $aArray;
+    }
 }
 
 // EOF

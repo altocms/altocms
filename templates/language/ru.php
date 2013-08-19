@@ -48,7 +48,21 @@ return array(
 	'blog_about' => 'О блоге',
 	'blog_expand_info' => 'Подробнее &darr;',
 	'blog_fold_info' => 'Свернуть &uarr;',
-	/**
+
+    /*
+     * Эти определения используются для именования и описания блогов разных типов
+     */
+    'blogtypes_type_personal_name'        => 'Персональный',
+    'blogtypes_type_personal_title'       => 'Блог им. %%login%%',
+    'blogtypes_type_personal_description' => 'Это ваш персональный блог.',
+    'blogtypes_type_open_name'            => 'Открытый',
+    'blogtypes_type_open_description'     => 'Открытый — к этому блогу может присоединиться любой желающий, статьи видны всем',
+    'blogtypes_type_close_name'           => 'Закрытый',
+    'blogtypes_type_close_description'    => 'Закрытый — присоединиться можно только по приглашению администрации блога, статьи видят только подписчики',
+    'blogtypes_type_hidden_name'          => 'Тайный',
+    'blogtypes_type_hidden_description'   => 'Тайный — присоединиться можно только по приглашению администрации блога, статьи и любую информацию о блоге видят только подписчики',
+
+    /**
 	 * Declensions
 	 */
 	'reader_declension' => 'читатель;читателя;читателей',
@@ -1061,6 +1075,7 @@ return array(
 	 */
 	'subscribe_change_ok' => 'Изменение подписки прошло успешно',
 	'subscribe_tracking_menu'=>'Отслеживаемые комментарии',
+    'subscribe_tracking_menu_new'=>'Новые',
 	'subscribe_menu'=>'Подписки',
 	/**
 	 * Toolbar

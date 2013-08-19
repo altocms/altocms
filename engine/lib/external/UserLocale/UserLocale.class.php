@@ -53,8 +53,14 @@ class UserLocale {
     static function getLocale($sLang = '', $sItem = '') {
         $xResult = self::$aLocales;
         if (!$sLang) $sLang = self::$sCurrentLanguage;
-        if ($sLang AND isset($xResult[$sLang])) $xResult = $xResult[$sLang];
-        if ($sItem AND isset($xResult[$sItem])) $xResult = $xResult[$sItem];
+        if ($sLang) {
+            if (isset($xResult[$sLang])) $xResult = $xResult[$sLang];
+            else $xResult = array();
+        }
+        if ($sItem) {
+            if (isset($xResult[$sItem])) $xResult = $xResult[$sItem];
+            else $xResult = null;
+        }
         return $xResult;
     }
 

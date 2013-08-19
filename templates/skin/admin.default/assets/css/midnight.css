@@ -36,6 +36,9 @@ dd {
 a:hover {
     text-decoration: none;
 }
+.i-inline {
+    display: inline-block;
+}
 .table thead th {
     vertical-align: middle;
 }
@@ -1219,6 +1222,11 @@ form {
 .form-horizontal input[type=password],
 .form-horizontal textarea {
 	width: 80%;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+.form-horizontal input.i-inline {
+    width: auto;
 }
 /* Special for markItUp */
 .form-horizontal .markItUp {

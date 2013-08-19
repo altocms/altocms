@@ -58,7 +58,7 @@
 		
 		
 		<h2>
-            {if $oBlog->getType()=='close'}<i title="{$aLang.blog_closed}" class="icon icon-lock"></i> {/if}
+            {if $oBlog->getBlogType()->IsPrivate()}<i title="{$aLang.blog_closed}" class="icon icon-lock"></i> {/if}
 
             {if $oUserCurrent and ($oUserCurrent->getId()==$oBlog->getOwnerId() or $oUserCurrent->isAdministrator() or $oBlog->getUserIsAdministrator() )}
                 <div class="btn-group">

@@ -20,6 +20,11 @@
  * @since   1.0
  */
 class ModuleTopic_EntityTopic extends Entity {
+
+    const INDEX_IGNORE_OFF = 0;
+    const INDEX_IGNORE_ON = 1;
+    const INDEX_IGNORE_LOCK = 2;
+
     /**
      * Массив объектов(не всегда) для дополнительных типов топиков(линки, опросы, подкасты и т.п.)
      *
@@ -36,6 +41,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * Определяем правила валидации
      */
     public function Init() {
+
         parent::Init();
         $this->aValidateRules[] = array(
             'topic_title', 'string', 'max' => 200, 'min' => 2,
@@ -221,12 +227,13 @@ class ModuleTopic_EntityTopic extends Entity {
     }
 
     /**
-     * Возвращает сериализованные строку дополнительный данных топика
+     * Возвращает сериализованную строку дополнительных данных топика
      *
      * @return string
      */
     public function getExtra() {
-        return $this->getProp('topic_extra') ? $this->getProp('topic_extra') : serialize('');
+        $sResult = $this->getProp('topic_extra');
+        return !is_null($sResult) ? $sResult : serialize('');
     }
 
     /**
@@ -442,6 +449,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @return  string
      */
     public function getUrl($sUrlMask = null, $bFullUrl = true) {
+
         if (!$sUrlMask) {
             $sUrlMask = Router::GetTopicUrlMask();
         }
@@ -477,10 +485,20 @@ class ModuleTopic_EntityTopic extends Entity {
         return ($bFullUrl ? F::File_RootUrl() : '') . strtr($sUrlMask, $aReplace);
     }
 
+    /**
+     * Транслитерация заголовка топика
+     *
+     * @return string
+     */
     public function GetTitleTranslit() {
         return F::TranslitUrl($this->getTitle());
     }
 
+    /**
+     * Возвращает короткий постоянный URL
+     *
+     * @return string
+     */
     public function getUrlShort() {
         return Router::GetPath('t') . $this->getId() . '/';
     }
@@ -613,6 +631,33 @@ class ModuleTopic_EntityTopic extends Entity {
 
     public function getDraftUrl() {
         return $this->GetUrl() . '?draft=' . $this->GetUserId() . ':' . $this->getTextHash();
+    }
+
+    /**
+     * Строит список ресурсов, связанных с топиком
+     */
+    public function BuildMresourcesList() {
+
+        $aResources = array();
+        $aPhotos = $this->getPhotosetPhotos();
+        if ($aPhotos) {
+            foreach($aPhotos as $oPhoto) {
+                $oMresource = $oPhoto->BuildMresource();
+                $oMresource->setUserId($this->getUserId());
+                $aResources[] = $oMresource;
+            }
+        }
+        $aTextLinks = $this->GetTextLinks();
+        if ($aTextLinks) {
+            foreach($aTextLinks as $aLink) {
+                $oMresource = Engine::GetEntity('Mresource_MresourceRel');
+                $oMresource->setUrl($this->Mresource_NormalizeUrl($aLink['link']));
+                $oMresource->setType($aLink['type']);
+                $oMresource->setUserId($this->getUserId());
+                $aResources[] = $oMresource;
+            }
+        }
+        return $this->Mresource_BuildMresourceHashList($aResources);
     }
 
     /***************************************************************************************************************************************************
@@ -893,7 +938,7 @@ class ModuleTopic_EntityTopic extends Entity {
     }
 
     /**
-     * Возвращает количество фотографий в топике-фотосете
+     * Возвращает количество фотографий в фотосете топика
      *
      * @return int|null
      */
@@ -908,6 +953,16 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function getPhotosetMainPhotoId() {
         return $this->getExtraValue('main_photo_id');
+    }
+
+    /**
+     * Возвращает массив ID фотографий в фотосете топика
+     *
+     * @return array|null
+     */
+    public function getPhotosId() {
+
+        return $this->getExtraValue('photos_id');
     }
 
     /**
@@ -928,6 +983,19 @@ class ModuleTopic_EntityTopic extends Entity {
         $this->setExtraValue('count_photo', $data);
     }
 
+    public function setPhotosId($data) {
+
+        $this->setExtraValue('photos_id', $data);
+    }
+
+    /**
+     * Флаг игнорирования индексации установлен вручную
+     *
+     * @return bool
+     */
+    public function getIndexIgnoreLock() {
+        return intval($this->getTopicIndexIgnore()) == self::INDEX_IGNORE_LOCK;
+    }
 
     //***************************************************************************************************************
 
@@ -937,7 +1005,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param int $data
      */
     public function setId($data) {
-        $this->_aData['topic_id'] = $data;
+        $this->setProp('topic_id', $data);
     }
 
     /**
@@ -946,7 +1014,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param int $data
      */
     public function setBlogId($data) {
-        $this->_aData['blog_id'] = $data;
+        $this->setProp('blog_id', $data);
     }
 
     /**
@@ -955,7 +1023,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param int $data
      */
     public function setUserId($data) {
-        $this->_aData['user_id'] = $data;
+        $this->setProp('user_id', $data);
     }
 
     /**
@@ -964,7 +1032,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param string $data
      */
     public function setType($data) {
-        $this->_aData['topic_type'] = $data;
+        $this->setProp('topic_type', $data);
     }
 
     /**
@@ -973,7 +1041,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param string $data
      */
     public function setTitle($data) {
-        $this->_aData['topic_title'] = $data;
+        $this->setProp('topic_title', $data);
     }
 
     /**
@@ -982,7 +1050,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param string $data
      */
     public function setText($data) {
-        $this->_aData['topic_text'] = $data;
+        $this->setProp('topic_text', $data);
     }
 
     /**
@@ -1000,7 +1068,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param string $data
      */
     public function setTextShort($data) {
-        $this->_aData['topic_text_short'] = $data;
+        $this->setProp('topic_text_short', $data);
     }
 
     /**
@@ -1009,7 +1077,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param string $data
      */
     public function setTextSource($data) {
-        $this->_aData['topic_text_source'] = $data;
+        $this->setProp('topic_text_source', $data);
     }
 
     /**
@@ -1018,7 +1086,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param string $data
      */
     public function setTags($data) {
-        $this->_aData['topic_tags'] = $data;
+        $this->setProp('topic_tags', $data);
     }
 
     /**
@@ -1027,7 +1095,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param string $data
      */
     public function setDateAdd($data) {
-        $this->_aData['topic_date_add'] = $data;
+        $this->setProp('topic_date_add', $data);
     }
 
     /**
@@ -1036,7 +1104,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param string $data
      */
     public function setDateEdit($data) {
-        $this->_aData['topic_date_edit'] = $data;
+        $this->setProp('topic_date_edit', $data);
     }
 
     /**
@@ -1045,7 +1113,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param string $data
      */
     public function setUserIp($data) {
-        $this->_aData['topic_user_ip'] = $data;
+        $this->setProp('topic_user_ip', $data);
     }
 
     /**
@@ -1054,7 +1122,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param string $data
      */
     public function setPublish($data) {
-        $this->_aData['topic_publish'] = $data;
+        $this->setProp('topic_publish', $data);
     }
 
     /**
@@ -1063,7 +1131,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param string $data
      */
     public function setPublishDraft($data) {
-        $this->_aData['topic_publish_draft'] = $data;
+        $this->setProp('topic_publish_draft', $data);
     }
 
     /**
@@ -1072,7 +1140,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param string $data
      */
     public function setPublishIndex($data) {
-        $this->_aData['topic_publish_index'] = $data;
+        $this->setProp('topic_publish_index', $data);
     }
 
     /**
@@ -1081,7 +1149,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param string $data
      */
     public function setRating($data) {
-        $this->_aData['topic_rating'] = $data;
+        $this->setProp('topic_rating', $data);
     }
 
     /**
@@ -1090,7 +1158,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param int $data
      */
     public function setCountVote($data) {
-        $this->_aData['topic_count_vote'] = $data;
+        $this->setProp('topic_count_vote', $data);
     }
 
     /**
@@ -1099,7 +1167,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param int $data
      */
     public function setCountVoteUp($data) {
-        $this->_aData['topic_count_vote_up'] = $data;
+        $this->setProp('topic_count_vote_up', $data);
     }
 
     /**
@@ -1108,7 +1176,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param int $data
      */
     public function setCountVoteDown($data) {
-        $this->_aData['topic_count_vote_down'] = $data;
+        $this->setProp('topic_count_vote_down', $data);
     }
 
     /**
@@ -1117,7 +1185,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param int $data
      */
     public function setCountVoteAbstain($data) {
-        $this->_aData['topic_count_vote_abstain'] = $data;
+        $this->setProp('topic_count_vote_abstain', $data);
     }
 
     /**
@@ -1126,7 +1194,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param int $data
      */
     public function setCountRead($data) {
-        $this->_aData['topic_count_read'] = $data;
+        $this->setProp('topic_count_read', $data);
     }
 
     /**
@@ -1135,7 +1203,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param int $data
      */
     public function setCountComment($data) {
-        $this->_aData['topic_count_comment'] = $data;
+        $this->setProp('topic_count_comment', $data);
     }
 
     /**
@@ -1144,7 +1212,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param string $data
      */
     public function setCutText($data) {
-        $this->_aData['topic_cut_text'] = $data;
+        $this->setProp('topic_cut_text', $data);
     }
 
     /**
@@ -1153,7 +1221,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param int $data
      */
     public function setForbidComment($data) {
-        $this->_aData['topic_forbid_comment'] = $data;
+        $this->setProp('topic_forbid_comment', $data);
     }
 
     /**
@@ -1162,7 +1230,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param string $data
      */
     public function setTextHash($data) {
-        $this->_aData['topic_text_hash'] = $data;
+        $this->setProp('topic_text_hash', $data);
     }
 
     /**
@@ -1171,7 +1239,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param ModuleUser_EntityUser $data
      */
     public function setUser($data) {
-        $this->_aData['user'] = $data;
+        $this->setProp('user', $data);
     }
 
     /**
@@ -1180,7 +1248,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param ModuleBlog_EntityBlog $data
      */
     public function setBlog($data) {
-        $this->_aData['blog'] = $data;
+        $this->setProp('blog', $data);
     }
 
     /**
@@ -1189,7 +1257,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param int $data
      */
     public function setUserQuestionIsVote($data) {
-        $this->_aData['user_question_is_vote'] = $data;
+        $this->setProp('user_question_is_vote', $data);
     }
 
     /**
@@ -1198,7 +1266,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param ModuleVote_EntityVote $data
      */
     public function setVote($data) {
-        $this->_aData['vote'] = $data;
+        $this->setProp('vote', $data);
     }
 
     /**
@@ -1207,7 +1275,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param int $data
      */
     public function setCountCommentNew($data) {
-        $this->_aData['count_comment_new'] = $data;
+        $this->setProp('count_comment_new', $data);
     }
 
     /**
@@ -1216,7 +1284,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param string $data
      */
     public function setDateRead($data) {
-        $this->_aData['date_read'] = $data;
+        $this->setProp('date_read', $data);
     }
 
     /**
@@ -1225,8 +1293,14 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param int $data
      */
     public function setCountFavourite($data) {
-        $this->_aData['topic_count_favourite'] = $data;
+        $this->setProp('topic_count_favourite', $data);
     }
+
+    public function setIndexIgnoreLock() {
+
+        $this->setTopicIndexIgnore(self::INDEX_IGNORE_LOCK);
+    }
+
 }
 
 // EOF

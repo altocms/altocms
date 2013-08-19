@@ -399,6 +399,7 @@ class AltoFunc_Main {
      * @return string
      */
     static public function Serialize($xData) {
+
         $sData = serialize($xData);
         $sCrc32 = dechex(crc32($sData));
         return $sCrc32 . '|' . $sData;
@@ -409,10 +410,12 @@ class AltoFunc_Main {
      * Аналог unserialize() с контролем CRC32
      *
      * @param $sData
+     * @param $xDefaultOnError
      *
      * @return mixed|null
      */
-    static public function Unserialize($sData) {
+    static public function Unserialize($sData, $xDefaultOnError = null) {
+
         if (is_string($sData) && strpos($sData, '|')) {
             list($sCrc32, $sData) = explode('|', $sData);
             if ($sCrc32 && $sData && $sCrc32 == dechex(crc32($sData))) {
@@ -420,7 +423,7 @@ class AltoFunc_Main {
                 return $xData;
             }
         }
-        return null;
+        return $xDefaultOnError;
     }
 
     static public function IpRange($sIp) {
@@ -512,17 +515,20 @@ class AltoFunc_Main {
             }
         }
 
-        if ($xLang === false) {
-            $sText = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $sText);
-        } else {
+        $sText = strtolower($sText);
+        if ($xLang !== false) {
             $aChars = UserLocale::getLocale($xLang, 'translit');
             if ($aChars) {
                 $sText = str_replace(array_keys($aChars), array_values($aChars), $sText);
             }
             $sText = preg_replace('/[-]{2,}/', '-', $sText);
-            $sText = strtolower(iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $sText));
         }
-        return $sText;
+        $sResult = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $sText);
+        // В некоторых случаях может возвращаться пустая строка
+        if (!$sResult) {
+            $sResult = $sText;
+        }
+        return $sResult;
     }
 
     static public function TranslitUrl($sText, $xLang = true) {
@@ -538,7 +544,6 @@ class AltoFunc_Main {
         $sText = trim($sText, '-');
         return $sText;
     }
-
 
 }
 

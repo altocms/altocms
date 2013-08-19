@@ -104,7 +104,7 @@ class ActionAjax extends Action {
         $oViewer = $this->Viewer_GetLocalViewer();
 
         $oViewer->Assign('oBlog', $oBlog);
-        if ($oBlog->getType() != 'close' || $oBlog->getUserIsJoin()) {
+        if (!$oBlog->getBlogType()->IsPrivate() || $oBlog->getUserIsJoin()) {
             // * Получаем последний топик
             $aResult = $this->Topic_GetTopicsByFilter(array('blog_id' => $oBlog->getId(), 'topic_publish' => 1), 1, 1);
             $oViewer->Assign('oTopicLast', reset($aResult['collection']));
@@ -1067,7 +1067,7 @@ class ActionAjax extends Action {
             return;
         }
         $sFile = null;
-        // * Был выбран файл с компьютера и он успешно зугрузился?
+        // * Был выбран файл с компьютера и он успешно загрузился?
         if (is_uploaded_file($_FILES['img_file']['tmp_name'])) {
             if (!$sFile = $this->Topic_UploadTopicImageFile($_FILES['img_file'], $this->oUserCurrent)) {
                 $this->Message_AddErrorSingle($this->Lang_Get('uploadimg_file_error'), $this->Lang_Get('error'));
@@ -1106,7 +1106,16 @@ class ActionAjax extends Action {
         }
         // * Если файл успешно загружен, формируем HTML вставки и возвращаем в ajax ответе
         if ($sFile) {
-            $sText = $this->Image_BuildHTML($sFile, $_REQUEST);
+            $oFile = Engine::GetEntity('Mresource');
+            $oFile->SetTargetType('topic');
+            $oFile->SetLink(0);
+            $oFile->setType(ModuleMresource::TYPE_IMAGE);
+            $oFile->setUrl($sFile);
+            $oFile->setTopicId(0);
+            $oFile->setUserId($this->oUserCurrent->getId());
+            $this->Mresource_Add($oFile);
+
+            $sText = $this->Image_BuildHTML($oFile->GetPathUrl(), $_REQUEST);
             $this->Viewer_AssignAjax('sText', $sText);
         }
     }

@@ -43,6 +43,10 @@ class ModuleDatabase extends Module {
      */
     protected $aInstance = array();
 
+    static protected $sLastQuery;
+
+    static protected $sLastResult;
+
     protected $aInitSql
         = array(
             "set character_set_client='utf8', character_set_results='utf8', collation_connection='utf8_bin' ",
@@ -106,7 +110,10 @@ class ModuleDatabase extends Module {
             // * Если нужно логировать все SQL запросы то подключаем логгер
             if (Config::Get('sys.logs.sql_query')) {
                 $oDbSimple->setLogger(array($this, 'Logger'));
+            } else {
+                $oDbSimple->setLogger(array($this, '_internalLogger'));
             }
+            $oDbSimple->setTableNameFunc(array($this, 'TableNameTransformer'));
 
             // Задаем префикс таблиц
             $oDbSimple->setIdentPrefix(Config::Get('db.table.prefix'));
@@ -163,6 +170,9 @@ class ModuleDatabase extends Module {
      * @param   array  $sSql
      */
     function Logger($oDb, $sSql) {
+
+        $this->_internalLogger($oDb, $sSql);
+
         // Получаем информацию о запросе и сохраняем её в лог
         $sMsg = print_r($sSql, true);
         //Engine::getInstance()->Logger_Dump(Config::Get('sys.logs.sql_query_file'), $sMsg);
@@ -175,6 +185,18 @@ class ModuleDatabase extends Module {
             // это сам запрос
             $oLog->DumpBegin($sMsg);
         }
+    }
+
+    public function TableNameTransformer($sTable) {
+
+        if (substr($sTable, 0, 2) == '?_') {
+            $sTable = substr($sTable, 2);
+            if ($sTableName = Config::Get('db.table.' . $sTable)) {
+                return $sTableName;
+            }
+            return Config::Get('db.table.prefix') . $sTable;
+        }
+        return $sTable;
     }
 
     /**
@@ -198,6 +220,25 @@ class ModuleDatabase extends Module {
         if (error_reporting() && ini_get('display_errors')) {
             exit($sMsg);
         }
+    }
+
+    public function _internalLogger($oDb, $sSql) {
+
+        if (substr($sSql, 0, 5) == '  -- ') {
+            self::$sLastResult = $sSql;
+        } else {
+            self::$sLastQuery = $sSql;
+        }
+    }
+
+    public function GetLastQuery() {
+
+        return self::$sLastQuery;
+    }
+
+    public function GetLastResult() {
+
+        return self::$sLastResult;
     }
 
     /**

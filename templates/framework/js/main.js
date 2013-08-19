@@ -159,7 +159,7 @@ ls.swfupload = (function ($) {
 		this.swfOptions = {
 			// Backend Settings
 			upload_url: aRouter['content']+"upload",
-			post_params: {'SSID':SESSION_ID, 'security_ls_key': ALTO_SECURITY_KEY},
+			post_params: {'SSID':SESSION_ID, 'security_ls_key': ALTO_SECURITY_KEY, 'ALTO_AJAX': 1},
 
 			// File Upload Settings
 			file_types : "*.jpg;*.jpe;*.jpeg;*.png;*.gif;*.JPG;*.JPE;*.JPEG;*.PNG;*.GIF",
@@ -544,6 +544,7 @@ ls = (function ($) {
 		more=more || {};
 		params=params || {};
 		params.security_ls_key=ALTO_SECURITY_KEY;
+        params.ALTO_AJAX=1;
 
 		$.each(params,function(k,v){
 			if (typeof(v) == "boolean") {
@@ -621,7 +622,7 @@ ls = (function ($) {
 			type: 'POST',
 			url: url,
 			dataType: more.dataType || 'json',
-			data: {security_ls_key: ALTO_SECURITY_KEY},
+			data: { security_ls_key: ALTO_SECURITY_KEY, ALTO_AJAX: 1 },
 			success: callback || function(){
 				ls.debug("ajax success: ");
 				ls.debug.apply(this,arguments);

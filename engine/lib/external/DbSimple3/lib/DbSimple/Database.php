@@ -84,13 +84,41 @@ if (!defined('DBSIMPLE_PARENT_KEY'))
  */
 abstract class DbSimple_Database extends DbSimple_LastError
 {
+    protected $_cachePrefix = '';
+    protected $_className = '';
+
+    protected $_logger = null;
+    protected $_preformatter = null;
+    protected $_tablefunc = null;
+    protected $_cacher = null;
+    protected $_placeholderArgs, $_placeholderNativeArgs, $_placeholderCache=array();
+    protected $_placeholderNoValueFound;
+
+    // Identifiers prefix (used for ?_ placeholder).
+    protected $_identPrefix = '';
+
+    // Queries statistics.
+    protected $_statistics = array(
+        'time'  => 0,
+        'count' => 0,
+    );
+
+    /**
+     * When string representation of row (in characters) is greater than this,
+     * row data will not be logged.
+     */
+    protected $MAX_LOG_ROW_LEN = 128;
+
     /**
      * Public methods.
      */
 
     /**
-     * object blob($blob_id)
      * Create new blob
+
+     * @param null $blob_id
+     *
+     * @return mixed
      */
     public function blob($blob_id = null)
     {
@@ -99,8 +127,11 @@ abstract class DbSimple_Database extends DbSimple_LastError
     }
 
     /**
-     * void transaction($mode)
-     * Create new transaction.
+     * Create new transaction
+     *
+     * @param null $mode
+     *
+     * @return mixed
      */
     public function transaction($mode=null)
     {
@@ -110,8 +141,9 @@ abstract class DbSimple_Database extends DbSimple_LastError
     }
 
     /**
-     * mixed commit()
-     * Commit the transaction.
+     * Commit the transaction
+     *
+     * @return mixed
      */
     public function commit()
     {
@@ -121,8 +153,9 @@ abstract class DbSimple_Database extends DbSimple_LastError
     }
 
     /**
-     * mixed rollback()
-     * Rollback the transaction.
+     * Rollback the transaction
+     *
+     * @return mixed
      */
     public function rollback()
     {
@@ -134,6 +167,10 @@ abstract class DbSimple_Database extends DbSimple_LastError
     /**
      * mixed select(string $query [, $arg1] [,$arg2] ...)
      * Execute query and return the result.
+     *
+     * @param $query
+     *
+     * @return array|null
      */
     public function select($query)
     {
@@ -246,14 +283,33 @@ abstract class DbSimple_Database extends DbSimple_LastError
 
 
     /**
-     * callback setLogger(callback $logger)
+     * callback setLogger(callback $func)
      * Set query logger called before each query is executed.
      * Returns previous logger.
      */
-    public function setLogger($logger)
+    public function setLogger($func)
     {
         $prev = $this->_logger;
-        $this->_logger = $logger;
+        $this->_logger = $func;
+        return $prev;
+    }
+
+    /**
+     * callback setPreFormatter(callback $func)
+     * Set query preformatter called before each query is executed.
+     * Returns previous preformatter.
+     */
+    public function setPreFormatter($func)
+    {
+        $prev = $this->_preformatter;
+        $this->_preformatter = $func;
+        return $prev;
+    }
+
+    public function setTableNameFunc($func)
+    {
+        $prev = $this->_tablefunc;
+        $this->_tablefunc = $func;
         return $prev;
     }
 
@@ -428,12 +484,15 @@ abstract class DbSimple_Database extends DbSimple_LastError
 
     /**
      * array _query($query, &$total)
-     * See _performQuery().
+     * @see _performQuery().
      */
-    private function _query($query, &$total)
+    public function _query($query, &$total)
     {
         $this->_resetLastError();
 
+        if ($this->_preformatter) {
+            $query = call_user_func_array($this->_preformatter, $query);
+        }
         // Fetch query attributes.
         $this->attributes = $this->_transformQuery($query, 'GET_ATTRIBUTES');
 
@@ -488,7 +547,7 @@ abstract class DbSimple_Database extends DbSimple_LastError
                 $dummy = null;
                 // There is no need in query, cos' needle in $this->attributes['CACHE']
                 $this->_transformQuery($dummy, 'UNIQ_KEY');
-                $uniq_key = call_user_func(array(&$this, 'select'), $dummy);
+                $uniq_key = call_user_func(array($this, 'select'), $dummy);
                 $uniq_key = md5(serialize($uniq_key));
             }
             // Check TTL?
@@ -564,7 +623,7 @@ abstract class DbSimple_Database extends DbSimple_LastError
         // Count total number of rows if needed.
         if (is_array($result) && $total) {
             $this->_transformQuery($query, 'GET_TOTAL');
-            $total = call_user_func_array(array(&$this, 'selectCell'), $query);
+            $total = call_user_func_array(array($this, 'selectCell'), $query);
         }
 
         if ($this->_className)
@@ -696,7 +755,7 @@ abstract class DbSimple_Database extends DbSimple_LastError
         }sx';
         $query = preg_replace_callback(
             $re,
-            array(&$this, '_expandPlaceholdersCallback'),
+            array($this, '_expandPlaceholdersCallback'),
             $query
         );
         return $query;
@@ -870,8 +929,12 @@ abstract class DbSimple_Database extends DbSimple_LastError
      */
     private function _addPrefix2Table($table)
     {
-        if (substr($table, 0, 2) == '?_')
-            $table = $this->_identPrefix . substr($table, 2);
+        if ($this->_tablefunc) {
+            $table = call_user_func_array($this->_tablefunc, array($table));
+        } else {
+            if (substr($table, 0, 2) == '?_')
+                $table = $this->_identPrefix . substr($table, 2);
+        }
         return $table;
     }
 
@@ -939,7 +1002,7 @@ abstract class DbSimple_Database extends DbSimple_LastError
      * Convert SQL field-list to COUNT(...) clause
      * (e.g. 'DISTINCT a AS aa, b AS bb' -> 'COUNT(DISTINCT a, b)').
      */
-    private function _fieldList2Count($fields)
+    protected function _fieldList2Count($fields)
     {
         $m = null;
         if (preg_match('/^\s* DISTINCT \s* (.*)/sx', $fields, $m)) {
@@ -986,8 +1049,9 @@ abstract class DbSimple_Database extends DbSimple_LastError
     /**
      * Converts rowset to key-based array.
      *
-     * @param array $rows   Two-dimensional array of resulting rows.
-     * @param array $ak     List of ARRAY_KEY* field names.
+     * @param array $rows          Two-dimensional array of resulting rows.
+     * @param array $arrayKeys     List of ARRAY_KEY* field names.
+     *
      * @return array        Transformed array.
      */
     private function _transformResultToHash(array $rows, array $arrayKeys)
@@ -1068,13 +1132,7 @@ abstract class DbSimple_Database extends DbSimple_LastError
      */
     private function _shrinkLastArrayDimensionCallback(&$v)
     {
-        if (!$v) return;
-        reset($v);
-        if (!is_array($firstCell = current($v))) {
-            $v = $firstCell;
-        } else {
-            array_walk($v, array(&$this, '_shrinkLastArrayDimensionCallback'));
-        }
+        static::firstColumnArray($v);
     }
 
 
@@ -1148,30 +1206,150 @@ abstract class DbSimple_Database extends DbSimple_LastError
     }
 
 
-    // Identifiers prefix (used for ?_ placeholder).
-    private $_identPrefix = '';
-
-    // Queries statistics.
-    private $_statistics = array(
-        'time'  => 0,
-        'count' => 0,
-    );
-
-    private $_cachePrefix = '';
-    private $_className = '';
-
-    private $_logger = null;
-    private $_cacher = null;
-    private $_placeholderArgs, $_placeholderNativeArgs, $_placeholderCache=array();
-    private $_placeholderNoValueFound;
-
     /**
-     * When string representation of row (in characters) is greater than this,
-     * row data will not be logged.
-    */
-    private $MAX_LOG_ROW_LEN = 128;
+     * Replaces the last array in a multi-dimensional array $V by its first value.
+     * Used for selectCol(), when we need to transform (N+1)d resulting array
+     * to Nd array (column).
+     */
+    static public function firstColumnArray(&$a)
+    {
+        if (!$a || !is_array($a)) return null;
+        reset($a);
+        if (!is_array($firstCell = current($a))) {
+            $a = $firstCell;
+        } else {
+            array_walk($a, 'DbSimple_Database::firstColumnArray');
+        }
+    }
+
+    public function sql($sSql, $aValues = array()) {
+
+        return new DbSimple_Command($this, $sSql, $aValues);
+    }
+
+    public function sqlQuery($sSql, $aValues = array()) {
+
+        return $this->sql($sSql)->bind($aValues)->query();
+    }
+
+    public function sqlSelect($sSql, $aValues = array()) {
+
+        return $this->sql($sSql)->bind($aValues)->select();
+    }
+
+    public function sqlSelectRow($sSql, $aValues = array()) {
+
+        return $this->sql($sSql)->bind($aValues)->selectRow();
+    }
+
+    public function sqlSelectCol($sSql, $aValues = array()) {
+
+        return $this->sql($sSql)->bind($aValues)->selectCol();
+    }
+
+    public function sqlSelectCell($sSql, $aValues = array()) {
+
+        return $this->sql($sSql)->bind($aValues)->selectCell();
+    }
+
 }
 
+/**
+ * Class DbSimple_Command
+ * SQL-command class with parameters
+ */
+class DbSimple_Command {
+
+    protected $_sql;
+    protected $_values;
+    protected $_db;
+    protected $_args;
+
+    public function __construct($oDbSimple, $sSql, $aValues = array()) {
+
+        $this->_db = $oDbSimple;
+        $this->_sql = $sSql;
+        $this->bind($aValues);
+    }
+
+    public function bind() {
+
+        $aArgs = func_get_args();
+        if (count($aArgs) == 2 && is_string($aArgs[0])) {
+            $aArgs = array($aArgs[0] => $aArgs[1]);
+        }
+        if (is_array($aArgs[0]) && count($aArgs[0])) {
+            foreach($aArgs[0] as $sKey => $xVal) {
+                $this->_values[$sKey] = $xVal;
+            }
+        }
+        return $this;
+    }
+
+    public function _prepareValues($matches) {
+
+        if (isset($this->_values[$matches[2]])) {
+            $this->_args[] = $this->_values[$matches[2]];
+        } else {
+            $this->_args[] = null;
+        }
+        return $matches[1];
+    }
+
+    public function query() {
+
+        $this->_args = array();
+        $sSql = preg_replace_callback('/(\?[a-z\#]?)(:\w+)/si', array($this, '_prepareValues'), $this->_sql);
+        array_unshift($this->_args, $sSql);
+        $total = false;
+        return $this->_db->_query($this->_args, $total);
+    }
+
+    public function select() {
+
+        return $this->query();
+    }
+
+    public function selectRow() {
+
+        $rows = $this->query();
+        if (is_array($rows)) {
+            if (!count($rows)) {
+                return array();
+            } elseif(count($rows) > 1) {
+                return array_shift($rows);
+            }
+        }
+        return $rows;
+    }
+
+    public function selectCol() {
+
+        $rows = $this->query();
+        if (!is_array($rows)) {
+            return $rows;
+        }
+        DbSimple_Database::firstColumnArray($rows);
+        return $rows;
+    }
+
+    public function selectCell() {
+
+        $rows = $this->query();
+        if (!is_array($rows)) {
+            return $rows;
+        }
+        if (!count($rows)) {
+            return null;
+        }
+        $row = array_shift($rows);
+        if (!is_array($row)) {
+            return $row;
+        }
+        return array_shift($row);
+    }
+
+}
 
 /**
  * Database BLOB.
@@ -1326,7 +1504,7 @@ abstract class DbSimple_LastError
     protected function findLibraryCaller()
     {
         $caller = call_user_func(
-            array(&$this, 'debug_backtrace_smart'),
+            array($this, 'debug_backtrace_smart'),
             $this->ignoresInTraceRe,
             true
         );
@@ -1387,4 +1565,4 @@ abstract class DbSimple_LastError
     }
 
 }
-?>
+

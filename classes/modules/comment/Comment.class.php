@@ -946,9 +946,11 @@ class ModuleComment extends Module {
                     Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("comment_target_{$nTargetId}_{$sTargetType}")
                 );
             }
-            // * Удаляем кеш для каждого комментария
-            foreach ($aCommentsId as $iCommentId) {
-                $this->Cache_Delete("comment_{$iCommentId}");
+            if ($aCommentsId) {
+                // * Удаляем кеш для каждого комментария
+                foreach ($aCommentsId as $iCommentId) {
+                    $this->Cache_Delete("comment_{$iCommentId}");
+                }
             }
         }
         return $bResult;

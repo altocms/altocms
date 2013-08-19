@@ -66,6 +66,8 @@ class ActionAdmin extends Action {
 
         $this->AddEvent('config', 'EventConfig');
         $this->AddEvent('lang', 'EventLang');
+        $this->AddEvent('blogtypes', 'EventBlogTypes');
+        $this->AddEvent('userrights', 'EventUserRights');
         $this->AddEvent('userfields', 'EventUserfields');
 
         $this->AddEvent('skins', 'EventSkins');
@@ -175,6 +177,10 @@ class ActionAdmin extends Action {
         $aPlugins = $this->Plugin_GetPluginsList(true);
         foreach ($aPlugins as $oPlugin) {
             $aData['p-' . $oPlugin->GetId()] = $oPlugin->GetVersion();
+        }
+        $aSkins = $this->Skin_GetSkinsList();
+        foreach ($aSkins as $oSkin) {
+            $aData['s-' . $oSkin->GetId()] = $oSkin->GetVersion();
         }
 
         $this->Viewer_Assign('sUpdatesRequest', base64_encode(http_build_query($aData)));
@@ -1781,6 +1787,7 @@ class ActionAdmin extends Action {
     /**********************************************************************************/
 
     protected function EventBanlist() {
+
         $this->_setTitle($this->Lang_Get('action.admin.banlist_title'));
         $sMode = $this->_getMode(0, 'ids');
         $nPage = $this->_getPageNum();
@@ -1798,6 +1805,7 @@ class ActionAdmin extends Action {
     }
 
     protected function _eventBanListCmd($sCmd) {
+
         if ($sCmd == 'adm_user_ban') {
             $sUsersList = $this->GetPost('user_login');
             $nBanDays = $this->GetPost('ban_days');
@@ -1805,7 +1813,7 @@ class ActionAdmin extends Action {
 
             $sIp = $this->GetPost('user_ban_ip1');
             if ($sIp) {
-                $sIp .= $this->GetPost('user_ban_ip2', '0')
+                $sIp .= '.' . $this->GetPost('user_ban_ip2', '0')
                     . '.' . $this->GetPost('user_ban_ip3', '0')
                     . '.' . $this->GetPost('user_ban_ip4', '0');
             }
@@ -1833,6 +1841,7 @@ class ActionAdmin extends Action {
     }
 
     protected function _eventBanlistIds($nPage) {
+
         $this->SetTemplateAction('users/banlist_ids');
 
         // Получаем список забаненных юзеров
@@ -1847,6 +1856,7 @@ class ActionAdmin extends Action {
     }
 
     protected function _eventBanlistIps($nPage) {
+
         $this->SetTemplateAction('users/banlist_ips');
 
         // Получаем список забаненных ip-адресов
@@ -2335,6 +2345,362 @@ class ActionAdmin extends Action {
         $this->Viewer_Assign('aLanguages', $aLanguages);
         $this->Viewer_Assign('aLangAllow', $aLangAllow);
     }
+
+    /**********************************************************************************/
+
+    /**
+     * Типы блогов
+     */
+    protected function EventBlogTypes() {
+
+        $sMode = $this->getParam(0);
+        $this->Viewer_Assign('sMode', $sMode);
+
+        if ($sMode == 'add') {
+            return $this->_eventBlogTypesAdd();
+        } elseif ($sMode == 'edit') {
+            return $this->_eventBlogTypesEdit();
+        } elseif ($this->GetPost('blogtype_action') == 'activate') {
+            return $this->_eventBlogTypeSetActive(1);
+        } elseif ($this->GetPost('blogtype_action') == 'deactivate') {
+            return $this->_eventBlogTypeSetActive(0);
+        }
+        return $this->_eventBlogTypesList();
+    }
+
+    /**
+     *
+     */
+    protected function _eventBlogTypesList() {
+        $this->_setTitle($this->Lang_Get('action.admin.blogtypes_menu'));
+        $this->SetTemplateAction('blog_types/index');
+
+        $aBlogTypes = $this->Blog_GetBlogTypes();
+        $aLangList = $this->Lang_GetLangList();
+
+        $this->Viewer_Assign('aBlogTypes', $aBlogTypes);
+        $this->Viewer_Assign('aLangList', $aLangList);
+    }
+
+    /**
+     *
+     */
+    protected function _eventBlogTypesAdd() {
+        $this->_setTitle($this->Lang_Get('action.admin.blogtypes_menu'));
+        $this->SetTemplateAction('blog_types/add');
+
+        $aLangList = $this->Lang_GetLangList();
+        $this->Viewer_Assign('aLangList', $aLangList);
+
+        if ($this->IsPost('submit_type_add')) {
+            return $this->_eventBlogTypesAddSubmit();
+        }
+        $_REQUEST['blogtypes_show_title'] = true;
+        $_REQUEST['blogtypes_index_content'] = true;
+        $_REQUEST['blogtypes_allow_add'] = true;
+        $_REQUEST['blogtypes_min_rating'] = Config::Get('acl.create.blog.rating');
+        $_REQUEST['blogtypes_min_rate_comment'] = Config::Get('acl.create.comment.rating');
+
+        $_REQUEST['blogtypes_acl_write'] = array(
+            'notmember' => ModuleBlog::BLOG_USER_ROLE_NOTMEMBER,
+        );
+        $_REQUEST['blogtypes_acl_read'] = array(
+            'notmember' => ModuleBlog::BLOG_USER_ROLE_NOTMEMBER,
+        );
+        $_REQUEST['blogtypes_acl_comment'] = array(
+            'notmember' => ModuleBlog::BLOG_USER_ROLE_NOTMEMBER,
+        );
+    }
+
+    /**
+     *
+     */
+    protected function _eventBlogTypesEdit() {
+        $this->_setTitle($this->Lang_Get('action.admin.blogtypes_menu'));
+        $this->SetTemplateAction('blog_types/add');
+
+        $nBlogTypeId = intval($this->getParam(1));
+        if ($nBlogTypeId) {
+            $oBlogType = $this->Blog_GetBlogTypeById($nBlogTypeId);
+
+            $aLangList = $this->Lang_GetLangList();
+            if ($this->IsPost('submit_type_add')) {
+                return $this->_eventBlogTypesEditSubmit();
+            } else {
+                $_REQUEST['blogtypes_typecode'] = $oBlogType->GetTypeCode();
+                $_REQUEST['blogtypes_allow_add'] = $oBlogType->IsAllowAdd();
+                $_REQUEST['blogtypes_min_rating'] = $oBlogType->GetMinRateAdd();
+                $_REQUEST['blogtypes_max_num'] = $oBlogType->GetMaxNum();
+                $_REQUEST['blogtypes_show_title'] = $oBlogType->IsShowTitle();
+                $_REQUEST['blogtypes_index_content'] = !$oBlogType->IsIndexIgnore();
+                $_REQUEST['blogtypes_membership'] = $oBlogType->GetMembership();
+                $_REQUEST['blogtypes_min_rate_write'] = $oBlogType->GetMinRateWrite();
+                $_REQUEST['blogtypes_min_rate_read'] = $oBlogType->GetMinRateRead();
+                $_REQUEST['blogtypes_min_rate_comment'] = $oBlogType->GetMinRateComment();
+                $_REQUEST['blogtypes_active'] = $oBlogType->IsActive();
+                $_REQUEST['blogtypes_candelete'] = $oBlogType->CanDelete();
+                $_REQUEST['blogtypes_norder'] = $oBlogType->GetNorder();
+                $_REQUEST['blogtypes_active'] = $oBlogType->IsActive();
+
+                if ($oBlogType->GetAclWrite() & ModuleBlog::BLOG_USER_ACL_GUEST) {
+                    $_REQUEST['blogtypes_acl_write'] = ModuleBlog::BLOG_USER_ACL_GUEST;
+                } elseif ($oBlogType->GetAclWrite() & ModuleBlog::BLOG_USER_ACL_USER) {
+                    $_REQUEST['blogtypes_acl_write'] = ModuleBlog::BLOG_USER_ACL_USER;
+                } elseif ($oBlogType->GetAclWrite() & ModuleBlog::BLOG_USER_ACL_MEMBER) {
+                    $_REQUEST['blogtypes_acl_write'] = ModuleBlog::BLOG_USER_ACL_MEMBER;
+                } else {
+                    $_REQUEST['blogtypes_acl_write'] = 0;
+                }
+
+                if ($oBlogType->GetAclRead() & ModuleBlog::BLOG_USER_ACL_GUEST) {
+                    $_REQUEST['blogtypes_acl_read'] = ModuleBlog::BLOG_USER_ACL_GUEST;
+                } elseif ($oBlogType->GetAclRead() & ModuleBlog::BLOG_USER_ACL_USER) {
+                    $_REQUEST['blogtypes_acl_read'] = ModuleBlog::BLOG_USER_ACL_USER;
+                } elseif ($oBlogType->GetAclRead() & ModuleBlog::BLOG_USER_ACL_MEMBER) {
+                    $_REQUEST['blogtypes_acl_read'] = ModuleBlog::BLOG_USER_ACL_MEMBER;
+                } else {
+                    $_REQUEST['blogtypes_acl_read'] = 0;
+                }
+
+                if ($oBlogType->GetAclComment() & ModuleBlog::BLOG_USER_ACL_GUEST) {
+                    $_REQUEST['blogtypes_acl_comment'] = ModuleBlog::BLOG_USER_ACL_GUEST;
+                } elseif ($oBlogType->GetAclComment() & ModuleBlog::BLOG_USER_ACL_USER) {
+                    $_REQUEST['blogtypes_acl_comment'] = ModuleBlog::BLOG_USER_ACL_USER;
+                } elseif ($oBlogType->GetAclComment() & ModuleBlog::BLOG_USER_ACL_MEMBER) {
+                    $_REQUEST['blogtypes_acl_comment'] = ModuleBlog::BLOG_USER_ACL_MEMBER;
+                } else {
+                    $_REQUEST['blogtypes_acl_comment'] = 0;
+                }
+
+                foreach ($aLangList as $sLang) {
+                    $_REQUEST['blogtypes_name'][$sLang] = $oBlogType->GetName($sLang);
+                    $_REQUEST['blogtypes_title'][$sLang] = $oBlogType->GetTitle($sLang);
+                }
+            }
+            $this->Viewer_Assign('oBlogType', $oBlogType);
+            $this->Viewer_Assign('aLangList', $aLangList);
+        }
+    }
+
+    /**
+     *
+     */
+    protected function _eventBlogTypesEditSubmit() {
+        $nBlogTypeId = intval($this->getParam(1));
+        if ($nBlogTypeId) {
+            $oBlogType = $this->Blog_GetBlogTypeById($nBlogTypeId);
+            if ($oBlogType) {
+                $oBlogType->_setValidateScenario('update');
+
+                $aLangList = $this->Lang_GetLangList();
+                $aNames = $this->GetPost('blogtypes_name');
+                $aTitles = $this->GetPost('blogtypes_title');
+                foreach ($aLangList as $sLang) {
+                    $oBlogType->setProp('name_' . $sLang, empty($aNames[$sLang]) ? null : $aNames[$sLang]);
+                    $oBlogType->setProp('title_' . $sLang, empty($aTitles[$sLang]) ? null : $aTitles[$sLang]);
+                }
+                $oBlogType->SetAllowAdd($this->GetPost('blogtypes_allow_add') ? 1 : 0);
+                $oBlogType->SetMinRateAdd($this->GetPost('blogtypes_min_rating'));
+                $oBlogType->SetMaxNum($this->GetPost('blogtypes_max_num'));
+                $oBlogType->SetAllowList($this->GetPost('blogtypes_show_title'));
+                $oBlogType->SetIndexIgnore($this->GetPost('blogtypes_index_content') ? 0 : 1);
+                $oBlogType->SetMembership(intval($this->GetPost('blogtypes_membership')));
+                $oBlogType->SetMinRateWrite($this->GetPost('blogtypes_min_rate_write'));
+                $oBlogType->SetMinRateRead($this->GetPost('blogtypes_min_rate_read'));
+                $oBlogType->SetMinRateComment($this->GetPost('blogtypes_min_rate_comment'));
+                $oBlogType->SetActive($this->GetPost('blogtypes_active'));
+
+                $nAclAll = ~(ModuleBlog::BLOG_USER_ACL_GUEST | ModuleBlog::BLOG_USER_ACL_USER | ModuleBlog::BLOG_USER_ACL_MEMBER);
+
+                $nAclValue = $this->GetPost('blogtypes_acl_write');
+                if (!$nAclValue) {
+                    // Сброс битовой маски
+                    $oBlogType->SetAclWrite($oBlogType->GetAclWrite() & ~$nAclAll);
+                } else {
+                    // Установка битового значения
+                    $oBlogType->SetAclWrite($oBlogType->GetAclWrite() | $nAclValue);
+                }
+
+                $nAclValue = $this->GetPost('blogtypes_acl_read');
+                if (!$nAclValue) {
+                    $oBlogType->SetAclRead($oBlogType->GetAclRead() & ~$nAclAll);
+                } else {
+                    $oBlogType->SetAclRead($oBlogType->GetAclRead() | $nAclValue);
+                }
+
+                $nAclValue = $this->GetPost('blogtypes_acl_comment');
+                if (!$nAclValue) {
+                    $oBlogType->SetAclComment($oBlogType->GetAclComment() & ~$nAclAll);
+                } else {
+                    $oBlogType->SetAclComment($oBlogType->GetAclComment() | $nAclValue);
+                }
+
+                $this->Hook_Run('blogtype_edit_validate_before', array('oBlogType' => $oBlogType));
+                if ($oBlogType->_Validate()) {
+                    if ($this->_updateBlogType($oBlogType)) {
+                        Router::Location('admin/blogtypes');
+                    }
+                } else {
+                    $this->Message_AddError($oBlogType->_getValidateError(), $this->Lang_Get('error'));
+                }
+            } else {
+                $this->Message_AddError($this->Lang_Get('action.admin.blogtypes_err_id_notfound'), $this->Lang_Get('error'));
+            }
+        }
+        $this->Viewer_Assign('oBlogType', $oBlogType);
+    }
+
+    /**
+     *
+     */
+    protected function _eventBlogTypesAddSubmit() {
+
+        $oBlogType = Engine::GetEntity('Blog_BlogType');
+        $oBlogType->_setValidateScenario('add');
+
+        $sTypeCode = $this->GetPost('blogtypes_typecode');
+        $oBlogType->SetTypeCode($sTypeCode);
+        $aLangList = $this->Lang_GetLangList();
+        $aNames = $this->GetPost('blogtypes_name');
+        $aTitles = $this->GetPost('blogtypes_title');
+        foreach ($aLangList as $sLang) {
+            $oBlogType->setProp('name_' . $sLang, empty($aNames[$sLang]) ? $sTypeCode : $aNames[$sLang]);
+            $oBlogType->setProp('title_' . $sLang, empty($aTitles[$sLang]) ? null : $aTitles[$sLang]);
+        }
+
+        $oBlogType->SetAllowAdd($this->GetPost('blogtypes_allow_add') ? 1 : 0);
+        $oBlogType->SetMinRateAdd($this->GetPost('blogtypes_min_rating'));
+        $oBlogType->SetMaxNum($this->GetPost('blogtypes_max_num'));
+        $oBlogType->SetAllowList($this->GetPost('blogtypes_show_title'));
+        $oBlogType->SetIndexIgnore(!(bool)$this->GetPost('blogtypes_index_content'));
+        $oBlogType->SetMembership(intval($this->GetPost('blogtypes_membership')));
+        $oBlogType->SetMinRateWrite($this->GetPost('blogtypes_min_rate_write'));
+        $oBlogType->SetMinRateRead($this->GetPost('blogtypes_min_rate_read'));
+        $oBlogType->SetMinRateComment($this->GetPost('blogtypes_min_rate_comment'));
+        $oBlogType->SetActive($this->GetPost('blogtypes_active'));
+
+        $aAclValue = $this->GetPost('blogtypes_acl_write');
+        $nAclMask = 0;
+        if ($aAclValue) {
+            foreach ($aAclValue as $nVal) {
+                $nAclMask = $nAclMask | $nVal;
+            }
+        }
+        $oBlogType->SetAclWrite($nAclMask);
+
+        $aAclValue = $this->GetPost('blogtypes_acl_read');
+        $nAclMask = 0;
+        if ($aAclValue) {
+            foreach ($aAclValue as $nVal) {
+                $nAclMask = $nAclMask | $nVal;
+            }
+        }
+        $oBlogType->SetAclWrite($nAclMask);
+
+        $aAclValue = $this->GetPost('blogtypes_acl_comment');
+        $nAclMask = 0;
+        if ($aAclValue) {
+            foreach ($aAclValue as $nVal) {
+                $nAclMask = $nAclMask | $nVal;
+            }
+        }
+        $oBlogType->SetAclWrite($nAclMask);
+
+        $this->Hook_Run('blogtype_add_validate_before', array('oBlogType' => $oBlogType));
+        if ($oBlogType->_Validate()) {
+            if ($this->_addBlogType($oBlogType)) {
+                Router::Location('admin/blogtypes');
+            }
+        } else {
+            $this->Message_AddError($oBlogType->_getValidateError(), $this->Lang_Get('error'));
+            $this->Viewer_Assign('aFormErrors', $oBlogType->_getValidateErrors());
+        }
+    }
+
+    /**
+     * @param $oBlogType
+     *
+     * @return bool
+     */
+    protected function _addBlogType($oBlogType) {
+        return $this->Blog_AddBlogType($oBlogType);
+    }
+
+    /**
+     * @param $oBlogType
+     *
+     * @return bool
+     */
+    protected function _updateBlogType($oBlogType) {
+        return $this->Blog_UpdateBlogType($oBlogType);
+    }
+
+    /**
+     * @param $nVal
+     */
+    protected function _eventBlogTypeSetActive($nVal) {
+        $aBlogTypes = $this->GetPost('blogtype_sel');
+        if (is_array($aBlogTypes) && count($aBlogTypes)) {
+            $aBlogTypes = array_keys($aBlogTypes);
+            foreach ($aBlogTypes as $nBlogTypeId) {
+                $oBlogType = $this->Blog_GetBlogTypeById($nBlogTypeId);
+                if ($oBlogType) {
+                    $oBlogType->SetActive($nVal);
+                    $this->Blog_UpdateBlogType($oBlogType);
+                }
+            }
+        }
+        Router::Location('admin/blogtypes');
+    }
+
+    /**********************************************************************************/
+
+    /**
+     * Права пользователей
+     */
+    protected function EventUserRights() {
+
+        $this->_setTitle($this->Lang_Get('action.admin.userrights_menu'));
+        $this->SetTemplateAction('user_rights/index');
+
+        if ($this->IsPost('submit_type_add')) {
+            return $this->_eventUserRightsEditSubmit();
+        } else {
+            $_REQUEST['userrights_administrator'] = $this->ACL_GetUserRights('blogs', 'administrator');
+            $_REQUEST['userrights_moderator'] = $this->ACL_GetUserRights('blogs', 'moderator');
+        }
+    }
+
+    protected function _eventUserRightsEditSubmit() {
+
+        $aAdmin = $this->GetPost('userrights_administrator');
+        $aModer = $this->GetPost('userrights_moderator');
+        $aConfig = array(
+            'rights' => array(
+                'blogs' => array(
+                    'administrator' => array(
+                        'control_users' => (isset($aAdmin['control_users']) && $aAdmin['control_users']) ? true : false,
+                        'edit_blog' => (isset($aAdmin['edit_blog']) && $aAdmin['edit_blog']) ? true : false,
+                        'edit_content'   => (isset($aAdmin['edit_content']) && $aAdmin['edit_content']) ? true : false,
+                        'delete_content'    => (isset($aAdmin['delete_content']) && $aAdmin['delete_content']) ? true : false,
+                        'edit_comment'   => (isset($aAdmin['edit_comment']) && $aAdmin['edit_comment']) ? true : false,
+                        'delete_comment'    => (isset($aAdmin['delete_comment']) && $aAdmin['delete_comment']) ? true : false,
+                    ),
+                    'moderator'     => array(
+                        'control_users' => (isset($aModer['control_users']) && $aModer['control_users']) ? true : false,
+                        'edit_blog' => (isset($aAdmin['edit_blog']) && $aAdmin['edit_blog']) ? true : false,
+                        'edit_content'   => (isset($aModer['edit_content']) && $aModer['edit_content']) ? true : false,
+                        'delete_content'    => (isset($aModer['delete_content']) && $aModer['delete_content']) ? true : false,
+                        'edit_comment'   => (isset($aModer['edit_comment']) && $aModer['edit_comment']) ? true : false,
+                        'delete_comment'    => (isset($aModer['delete_comment']) && $aModer['delete_comment']) ? true : false,
+                    ),
+                ),
+            ),
+        );
+        Config::WriteCustomConfig($aConfig);
+    }
+
+    /**********************************************************************************/
 
     /**
      * Управление полями пользователя

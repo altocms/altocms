@@ -1188,28 +1188,28 @@ class Jevix{
             }
         }
 
-        // Если тег обрабатывает "полным" колбеком
-		if (isset($tagRules[self::TR_TAG_CALLBACK_FULL])) {
-			$text = call_user_func($tagRules[self::TR_TAG_CALLBACK_FULL], $tag, $resParams, $content);
-		} else {
-			// Собираем тег
-			$text='<'.$tag;
+		// Собираем тег
+		$text='<'.$tag;
 
-			// Параметры
-			foreach($resParams as $param => $value) {
-				if ($value != '') {
-					$text.=' '.$param.'="'.$value.'"';
-				}
+		// Параметры
+		foreach($resParams as $param => $value) {
+			if ($value != '') {
+				$text.=' '.$param.'="'.$value.'"';
 			}
-
-			// Закрытие тега (если короткий то без контента)
-			$text.= $short && $this->isXHTMLMode ? '/>' : '>';
-			if(isset($tagRules[self::TR_TAG_CONTAINER])) $text .= "\r\n";
-			if(!$short) $text.= $content.'</'.$tag.'>';
-			if($parentTagIsContainer) $text .= "\r\n";
-			if($tag == 'br') $text.="\r\n";
 		}
-		return $text;
+
+		// Закрытие тега (если короткий то без контента)
+		$text.= $short && $this->isXHTMLMode ? '/>' : '>';
+		if(isset($tagRules[self::TR_TAG_CONTAINER])) $text .= "\r\n";
+		if(!$short) $text.= $content.'</'.$tag.'>';
+		if($parentTagIsContainer) $text .= "\r\n";
+		if($tag == 'br') $text.="\r\n";
+
+        // Если тег обрабатывает "полным" колбеком
+        if (isset($tagRules[self::TR_TAG_CALLBACK_FULL])) {
+            $text = call_user_func($tagRules[self::TR_TAG_CALLBACK_FULL], $tag, $resParams, $content, $text);
+        }
+        return $text;
 	}
 
 	protected function comment(){
