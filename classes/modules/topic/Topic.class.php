@@ -2306,26 +2306,20 @@ class ModuleTopic extends Module {
      */
     public function UploadTopicImageFile($aFile, $oUser) {
 
-        if (!is_array($aFile) || !isset($aFile['tmp_name'])) {
-            return false;
-        }
+        if ($sFileTmp = $this->Upload_UploadLocal($aFile)) {
+            $sDirUpload = $this->Image_GetIdDir($oUser->getId());
+            $aParams = $this->Image_BuildParams('topic');
 
-        $sFileTmp = Config::Get('sys.cache.dir') . func_generator();
-        if (!move_uploaded_file($aFile['tmp_name'], $sFileTmp)) {
-            return false;
-        }
-        $sDirUpload = $this->Image_GetIdDir($oUser->getId());
-        $aParams = $this->Image_BuildParams('topic');
-
-        if ($sFileImage = $this->Image_Resize(
-            $sFileTmp, $sDirUpload, func_generator(6), Config::Get('view.img_max_width'),
-            Config::Get('view.img_max_height'), Config::Get('view.img_resize_width'), null, true, $aParams
-        )
-        ) {
+            if ($sFileImage = $this->Image_Resize(
+                $sFileTmp, $sDirUpload, func_generator(6), Config::Get('view.img_max_width'),
+                Config::Get('view.img_max_height'), Config::Get('view.img_resize_width'), null, true, $aParams
+            )
+            ) {
+                @unlink($sFileTmp);
+                return $this->Image_GetWebPath($sFileImage);
+            }
             @unlink($sFileTmp);
-            return $this->Image_GetWebPath($sFileImage);
         }
-        @unlink($sFileTmp);
         return false;
     }
 
@@ -2549,30 +2543,17 @@ class ModuleTopic extends Module {
      */
     public function UploadTopicPhoto($aFile) {
 
-        if (!is_array($aFile) || !isset($aFile['tmp_name'])) {
-            return false;
-        }
-
-        $sFileName = func_generator(10);
         $sPath = Config::Get('path.uploads.images') . '/topic/' . date('Y/m/d') . '/';
 
-        if (!is_dir(Config::Get('path.root.server') . $sPath)) {
-            mkdir(Config::Get('path.root.server') . $sPath, 0755, true);
-        }
-
-        $sFileTmp = Config::Get('path.root.server') . $sPath . $sFileName;
-        if (!move_uploaded_file($aFile['tmp_name'], $sFileTmp)) {
+        $sFileTmp = $this->Upload_UploadLocal($aFile, $sPath);
+        if (!$sFileTmp) {
             return false;
         }
-
-
+        $sFileName = basename($sFileTmp);
         $aParams = $this->Image_BuildParams('photoset');
-
         $oImage = $this->Image_CreateImageObject($sFileTmp);
-        /**
-         * Если объект изображения не создан,
-         * возвращаем ошибку
-         */
+
+        // * Если объект изображения не создан, возвращаем ошибку
         if ($sError = $oImage->get_last_error()) {
             // Вывод сообщения об ошибки, произошедшей при создании объекта изображения
             $this->Message_AddError($sError, $this->Lang_Get('error'));

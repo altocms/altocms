@@ -3,7 +3,6 @@
  * @Project: Alto CMS
  * @Project URI: http://altocms.com
  * @Description: Advanced Community Engine
- * @Version: 0.9a
  * @Copyright: Alto CMS Team
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
@@ -31,10 +30,12 @@ class AltoFunc_File {
     static protected $_time = null;
 
     static public function GetIncludedCount() {
+
         return self::$nIncludedCount;
     }
 
     static public function GetIncludedTime() {
+
         return self::$nIncludedTime;
     }
 
@@ -45,6 +46,7 @@ class AltoFunc_File {
      * @return mixed|null
      */
     static public function RootDir() {
+
         if (class_exists('Config', false)) {
             $sDir = Config::Get('path.root.dir');
         } elseif (isset($_SERVER['DOCUMENT_ROOT'])) {
@@ -67,6 +69,7 @@ class AltoFunc_File {
      * @return  string|null
      */
     static public function RootUrl($xAddLang = false) {
+
         if (class_exists('Config', false)) {
             $sUrl = Config::Get('path.root.url');
 
@@ -104,6 +107,7 @@ class AltoFunc_File {
      * @return  string
      */
     static public function NormPath($sPath, $sSeparator = '/') {
+
         if (!$sSeparator) {
             $sSeparator = DIRECTORY_SEPARATOR;
         }
@@ -157,6 +161,7 @@ class AltoFunc_File {
      * @return  bool
      */
     static public function CheckLocalDir($sLocalDir, $bAutoMake = true, $nMask = 0755) {
+
         return F::File_CheckDir(F::File_RootDir() . '/' . $sLocalDir, $bAutoMake, $nMask);
     }
 
@@ -187,6 +192,7 @@ class AltoFunc_File {
      * @return  bool
      */
     static public function RemoveDir($sDir) {
+
         if (is_dir($sDir)) {
             $sPath = rtrim(self::NormPath($sDir), '/') . '/';
 
@@ -215,6 +221,7 @@ class AltoFunc_File {
      * @return  bool
      */
     static public function ClearDir($sDir, $bSafe = true) {
+
         $bResult = true;
         $sDir = self::NormPath($sDir);
         if (substr($sDir, -1) != '/') {
@@ -249,6 +256,7 @@ class AltoFunc_File {
      * @return  array
      */
     static function ReadDir($sDir, $nFlag = 0, $bRecursively = false) {
+
         if (substr($sDir, -1) == '*') {
             $sDir = substr($sDir, 0, strlen($sDir) - 1);
         }
@@ -282,6 +290,7 @@ class AltoFunc_File {
     }
 
     static function CopyDir($sDirSrc, $sDirTrg) {
+
         $aSource = self::ReadDir($sDirSrc, 0, true);
         foreach ($aSource as $sSource) {
             $sTarget = self::LocalPath($sSource, $sDirSrc);
@@ -311,6 +320,7 @@ class AltoFunc_File {
      * @return  string
      */
     static public function Url2Dir($sUrl, $sSeparator = null) {
+
         // * Delete www from path
         $sUrl = str_replace('//www.', '//', $sUrl);
         if ($nPos = strpos($sUrl, '?')) {
@@ -330,6 +340,7 @@ class AltoFunc_File {
      * @return  string
      */
     static public function Dir2Url($sDir) {
+
         return F::File_NormPath(
             str_replace(
                 str_replace(DIRECTORY_SEPARATOR, '/', F::File_RootDir()),
@@ -348,6 +359,7 @@ class AltoFunc_File {
      * @return  string
      */
     static public function LocalPath($sPath, $sRoot) {
+
         if ($sPath && $sRoot) {
             $sPath = F::File_NormPath($sPath);
             $sRoot = F::File_NormPath($sRoot);
@@ -366,6 +378,7 @@ class AltoFunc_File {
      * @return string
      */
     static public function LocalDir($sPath) {
+
         return self::LocalPath($sPath, self::RootDir());
     }
 
@@ -377,6 +390,7 @@ class AltoFunc_File {
      * @return string
      */
     static public function LocalUrl($sPath) {
+
         return self::LocalPath($sPath, self::RootUrl());
     }
 
@@ -388,6 +402,7 @@ class AltoFunc_File {
      * @return bool
      */
     static public function IsLocalDir($sPath) {
+
         return (bool)self::LocalDir($sPath);
     }
 
@@ -399,6 +414,7 @@ class AltoFunc_File {
      * @return bool
      */
     static public function IsLocalUrl($sPath) {
+
         return (bool)self::LocalUrl($sPath);
     }
 
@@ -418,6 +434,7 @@ class AltoFunc_File {
      * @return  bool|string
      */
     static public function Exists($sFile, $aDirs = array()) {
+
         $xResult = false;
         if (!$aDirs) {
             if (is_file($sFile)) {
@@ -448,6 +465,7 @@ class AltoFunc_File {
      * @return  bool
      */
     static public function Copy($sSource, $sTarget, $bRewrite = false) {
+
         if (F::File_Exists($sTarget) && !$bRewrite) {
             $bResult = true;
         } elseif (F::File_Exists($sSource) && F::File_CheckDir(dirname($sTarget))) {
@@ -463,6 +481,7 @@ class AltoFunc_File {
      *
      */
     static public function Delete($sFile, $bRecursively = false, $bNoCheck = false) {
+
         if (F::File_Exists($sFile) || $bNoCheck) {
             @unlink($sFile);
         }
@@ -470,6 +489,13 @@ class AltoFunc_File {
             foreach ($aDirs as $sDir) {
                 static::Delete($sDir . '/' . basename($sFile), $bRecursively, $bNoCheck);
             }
+        }
+    }
+
+    static public function Move($sSource, $sTarget, $bRewrite = false) {
+
+        if (static::Copy($sSource, $sTarget, $bRewrite)) {
+            return static::Delete($sSource);
         }
     }
 
@@ -481,6 +507,7 @@ class AltoFunc_File {
      * @return  bool|string
      */
     static public function GetContents($sFile) {
+
         if (F::File_Exists($sFile)) {
             return file_get_contents($sFile);
         }
@@ -497,6 +524,7 @@ class AltoFunc_File {
      * @return  bool|int
      */
     static public function PutContents($sFile, $sData, $nFlags = 0) {
+
         if (F::File_CheckDir(dirname($sFile))) {
             return file_put_contents($sFile, $sData, $nFlags);
         }
@@ -511,6 +539,7 @@ class AltoFunc_File {
      * @return bool
      */
     static public function PrintChunked($sFilename) {
+
         $nChunkSize = 1 * (1024 * 1024);
         $xHandle = fopen($sFilename, 'rb');
         if ($xHandle === false) {
@@ -538,6 +567,7 @@ class AltoFunc_File {
      * @return  array
      */
     static public function PathInfo($sPath) {
+
         $aResult = array_merge(
             array(
                  'dirname'   => '',
@@ -566,6 +596,7 @@ class AltoFunc_File {
      * @return mixed
      */
     static public function GetExtension($sPath) {
+
         $aInfo = F::File_PathInfo($sPath);
         return $aInfo['extension'];
     }
@@ -580,6 +611,7 @@ class AltoFunc_File {
      * @return  string|bool
      */
     static public function InPath($sNeedle, $aPaths) {
+
         if (!is_array($aPaths)) {
             $aPaths = array((string)$aPaths);
         }
@@ -613,6 +645,7 @@ class AltoFunc_File {
      * @return  string
      */
     static public function FullDir($sFile) {
+
         if (self::IsLocalDir($sFile)) {
             return self::NormPath($sFile);
         }
@@ -629,6 +662,7 @@ class AltoFunc_File {
      * @return  mixed
      */
     static public function IncludeFile($sFile, $bOnce = true, $xConfig = false) {
+
         if (is_array($xConfig)) {
             $config = $xConfig;
         } else {
@@ -671,6 +705,7 @@ class AltoFunc_File {
      * @return mixed
      */
     static public function IncludeLib($sFile, $bOnce = true) {
+
         return self::IncludeFile(Config::Get('path.dir.lib') . 'external/' . $sFile, $bOnce);
     }
 
@@ -684,6 +719,7 @@ class AltoFunc_File {
      * @return  array|mixed|null
      */
     static public function IncludeIfExists($sFile, $bOnce = true, $bConfig = false) {
+
         $xResult = null;
         if (F::File_Exists($sFile)) {
             $xResult = self::IncludeFile($sFile, $bOnce, $bConfig);
@@ -702,6 +738,7 @@ class AltoFunc_File {
      * @return  string
      */
     static public function MoveUploadedFile($sUploadedFile, $sFileName = null) {
+
         if (!$sFileName) {
             $sFileName = basename($sUploadedFile);
         } elseif (substr($sFileName, -1) == '/') {
