@@ -21,11 +21,6 @@
  */
 class ModuleBlog_MapperBlog extends Mapper {
 
-    const CRITERIA_CALC_TOTAL_SKIP = 0;
-    const CRITERIA_CALC_TOTAL_AUTO = 1;
-    const CRITERIA_CALC_TOTAL_FORCE = 2;
-    const CRITERIA_CALC_TOTAL_ONLY = 3;
-
     protected $aBlogOrderAllow = array('blog_id', 'blog_title', 'blog_rating', 'blog_count_user', 'blog_count_topic');
 
     /**
@@ -805,7 +800,7 @@ class ModuleBlog_MapperBlog extends Mapper {
             $oBlogType->getMinRateComment(),
             $oBlogType->IsActive() ? 1 : 0,
             $oBlogType->getNorder(),
-            $oBlogType->IsCanDelete() ? 1 : 0,
+            $oBlogType->CanDelete() ? 1 : 0,
             $oBlogType->getId()
         );
         return $nId ? $nId : false;
@@ -857,7 +852,7 @@ class ModuleBlog_MapperBlog extends Mapper {
             $oBlogType->getMinRateComment(),
             $oBlogType->IsActive() ? 1 : 0,
             $oBlogType->getNorder(),
-            $oBlogType->IsCanDelete() ? 1 : 0,
+            $oBlogType->CanDelete() ? 1 : 0,
             $oBlogType->getId()
         );
         return $xResult !== false;
@@ -982,25 +977,25 @@ class ModuleBlog_MapperBlog extends Mapper {
         }
 
         // Формируем строку лимита и автосчетчик общего числа записей
-        if ($nOffset != false && $nLimit != false) {
+        if ($nOffset !== false && $nLimit !== false) {
             $sSqlLimit = 'LIMIT ' . $nOffset . ', ' . $nLimit;
-            $nCalcTotal = self::CRITERIA_CALC_TOTAL_AUTO;
+            $nCalcTotal = static::CRITERIA_CALC_TOTAL_AUTO;
         } elseif ($nLimit != false && $nLimit != 1) {
             $sSqlLimit = 'LIMIT ' . $nLimit;
-            $nCalcTotal = self::CRITERIA_CALC_TOTAL_AUTO;
+            $nCalcTotal = static::CRITERIA_CALC_TOTAL_AUTO;
         } else {
-            $nCalcTotal = self::CRITERIA_CALC_TOTAL_SKIP;
+            $nCalcTotal = static::CRITERIA_CALC_TOTAL_SKIP;
         }
 
         // Обрабатываем опции
         if (isset($aCriteria['options']) && is_array($aCriteria['options'])) {
             if (array_key_exists('calc_total', $aCriteria['options'])) {
-                if ($aCriteria['options']['calc_total'] != self::CRITERIA_CALC_TOTAL_AUTO) {
+                if ($aCriteria['options']['calc_total'] != static::CRITERIA_CALC_TOTAL_AUTO) {
                     $nCalcTotal = $aCriteria['options']['calc_total'];
                 }
                 // Если требуется только подсчет записей, то строку лимита принудительно устанавливаем в 0
                 // Запрос с LIMIT 0 отрабатывает моментально
-                if ($aCriteria['options']['calc_total'] != self::CRITERIA_CALC_TOTAL_ONLY) {
+                if ($aCriteria['options']['calc_total'] != static::CRITERIA_CALC_TOTAL_ONLY) {
                     $sSqlLimit = 'LIMIT 0';
                 }
             }
