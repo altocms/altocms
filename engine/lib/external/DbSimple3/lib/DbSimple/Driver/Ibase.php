@@ -30,7 +30,7 @@ define('IBASE_BEST_FETCH', IBASE_UNIXTIME);
  * Database class for Interbase/Firebird.
  */
 
-class DbSimple_Ibase extends DbSimple_Database
+class DbSimple_Driver_Ibase extends DbSimple_Database
 {
     var $DbSimple_Ibase_BEST_TRANSACTION = IBASE_BEST_TRANSACTION;
     var $DbSimple_Ibase_USE_NATIVE_PHOLDERS = true;
@@ -43,7 +43,7 @@ class DbSimple_Ibase extends DbSimple_Database
      * constructor(string $dsn)
      * Connect to Interbase/Firebird.
      */
-    function DbSimple_Ibase($dsn)
+    function __construct($dsn)
     {
         $p = DbSimple_Database::parseDSN($dsn);
         if (!is_callable('ibase_connect')) {

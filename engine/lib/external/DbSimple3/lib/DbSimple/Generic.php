@@ -73,6 +73,7 @@ if (!defined('DBSIMPLE_ARRAY_KEY'))
 if (!defined('DBSIMPLE_PARENT_KEY'))
 	define('DBSIMPLE_PARENT_KEY', 'PARENT_KEY'); // forrest-based resultset support
 
+require_once __DIR__.'/Database.php';
 
 /**
  * DbSimple factory.
@@ -94,9 +95,9 @@ class DbSimple_Generic
             $dummy = null;
             return $dummy;
         }
-        $class = 'DbSimple_'.ucfirst($parsed['scheme']);
+        $class = 'DbSimple_Driver_'.ucfirst($parsed['scheme']);
         if (!class_exists($class)) {
-            $file = dirname(__FILE__).'/'.ucfirst($parsed['scheme']). ".php";
+            $file = dirname(__FILE__).'/Driver/'.ucfirst($parsed['scheme']). ".php";
             if (is_file($file)) {
                 require_once($file);
             } else {
@@ -133,4 +134,4 @@ class DbSimple_Generic
     }
 }
 
-?>
+

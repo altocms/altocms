@@ -1,6 +1,6 @@
 <?php
 /**
- * DbSimple_Mypdo: PDO MySQL database.
+ * DbSimple_Litepdo: PDO SQLite database.
  * (C) Dk Lab, http://en.dklab.ru
  *
  * This library is free software; you can redistribute it and/or
@@ -15,33 +15,32 @@
  *
  * @version 2.x $Id$
  */
-require_once dirname(__FILE__).'/Database.php';
+
 
 /**
- * Database class for MySQL.
+ * Database class for SQLite.
  */
-class DbSimple_Mypdo extends DbSimple_Database
+class DbSimple_Driver_Litepdo extends DbSimple_Database
 {
 	private $link;
 
-	public function DbSimple_Mypdo($dsn)
+	public function __construct($dsn)
 	{
-		$base = preg_replace('{^/}s', '', $dsn['path']);
 		if (!class_exists('PDO'))
 			return $this->_setLastError("-1", "PDO extension is not loaded", "PDO");
 
 		try {
-			$this->link = new PDO('mysql:host='.$dsn['host'].(empty($dsn['port'])?'':';port='.$dsn['port']).';dbname='.$base,
-				$dsn['user'], isset($dsn['pass'])?$dsn['pass']:'', array(
-					PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
-					PDO::ATTR_PERSISTENT => isset($dsn['persist']) && $dsn['persist'],
-					PDO::ATTR_TIMEOUT => isset($dsn['timeout']) && $dsn['timeout'] ? $dsn['timeout'] : 0,
-					PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES '.(isset($dsn['enc']) ? $dsn['enc'] : 'UTF8'),
-				));
+			$this->link = new PDO('sqlite:'.$dsn['path']);
 		} catch (PDOException $e) {
 			$this->_setLastError($e->getCode() , $e->getMessage(), 'new PDO');
 		}
+		$this->link->exec('SET NAMES '.(isset($dsn['enc'])?$dsn['enc']:'UTF8'));
 	}
+
+	public function CreateFunction($function_name, $callback, $num_args)
+	{	return $this->link->sqliteCreateFunction($function_name, $callback, $num_args); }
+	public function CreateAggregate($function_name, $step_func, $finalize_func, $num_args)
+	{	return $this->link->CreateAggregate($function_name, $step_func, $finalize_func, $num_args); }
 
 	protected function _performGetPlaceholderIgnoreRe()
 	{
@@ -104,15 +103,26 @@ class DbSimple_Mypdo extends DbSimple_Database
 		{
 			// Prepare total calculation (if possible)
 			case 'CALC_TOTAL':
-				$m = null;
-				if (preg_match('/^(\s* SELECT)(.*)/six', $queryMain[0], $m))
-					$queryMain[0] = $m[1] . ' SQL_CALC_FOUND_ROWS' . $m[2];
+				// Not possible
 				return true;
 
 			// Perform total calculation.
 			case 'GET_TOTAL':
-				// Built-in calculation available?
-				$queryMain = array('SELECT FOUND_ROWS()');
+				// TODO: GROUP BY ... -> COUNT(DISTINCT ...)
+				$re = '/^
+					(?> -- [^\r\n]* | \s+)*
+					(\s* SELECT \s+)                                             #1
+					(.*?)                                                        #2
+					(\s+ FROM \s+ .*?)                                           #3
+						((?:\s+ ORDER \s+ BY \s+ .*?)?)                          #4
+						((?:\s+ LIMIT \s+ \S+ \s* (?: , \s* \S+ \s*)? )?)  #5
+				$/six';
+				$m = null;
+				if (preg_match($re, $queryMain[0], $m)) {
+					$queryMain[0] = $m[1] . $this->_fieldList2Count($m[2]) . " AS C" . $m[3];
+					$skipTail = substr_count($m[4] . $m[5], '?');
+					if ($skipTail) array_splice($queryMain, -$skipTail);
+				}
 				return true;
 		}
 

@@ -16,13 +16,12 @@
  *
  * @version 2.x $Id: Mssql.php 163 2007-01-10 09:47:49Z dk $
  */
-require_once dirname(__FILE__) . '/Generic.php';
 
 
 /**
  * Database class for Mssql.
  */
-class DbSimple_Mssql extends DbSimple_Database
+class DbSimple_Driver_Mssql extends DbSimple_Database
 {
     var $link;
 
@@ -30,7 +29,7 @@ class DbSimple_Mssql extends DbSimple_Database
      * constructor(string $dsn)
      * Connect to Mssql.
      */
-    function DbSimple_Mssql($dsn)
+    function __construct($dsn)
     {
         if (!is_callable('mssql_connect')) {
             return $this->_setLastError("-1", "Mssql extension is not loaded", "mssql_connect");

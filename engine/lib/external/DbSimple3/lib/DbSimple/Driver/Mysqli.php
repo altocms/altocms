@@ -15,17 +15,17 @@
  *
  * @version 2.x $Id$
  */
-require_once dirname(__FILE__).'/Database.php';
+
 
 /**
  * Database class for MySQL.
  */
-class DbSimple_Mysqli extends DbSimple_Database
+class DbSimple_Driver_Mysqli extends DbSimple_Database
 {
 	private $link;
 	private $isMySQLnd;
 
-	public function DbSimple_Mysqli($dsn)
+	public function __construct($dsn)
 	{
 		$base = preg_replace('{^/}s', '', $dsn['path']);
 		if (!class_exists('mysqli'))

@@ -1,7 +1,6 @@
 <?php
 /**
- * DbSimple_Litepdo: PDO SQLite database.
- * (C) Dk Lab, http://en.dklab.ru
+ * DbSimple_Sqlite: Sqlite2 database.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,32 +14,34 @@
  *
  * @version 2.x $Id$
  */
-require_once dirname(__FILE__).'/Database.php';
+
 
 /**
- * Database class for SQLite.
+ * Database class for Sqlite.
  */
-class DbSimple_Litepdo extends DbSimple_Database
+class DbSimple_Driver_Sqlite extends DbSimple_Database
 {
 	private $link;
-
-	public function DbSimple_Litepdo($dsn)
+	public function __construct($dsn)
 	{
-		if (!class_exists('PDO'))
-			return $this->_setLastError("-1", "PDO extension is not loaded", "PDO");
-
-		try {
-			$this->link = new PDO('sqlite:'.$dsn['path']);
-		} catch (PDOException $e) {
-			$this->_setLastError($e->getCode() , $e->getMessage(), 'new PDO');
+		$connect = 'sqlite_'.((isset($dsn['persist']) && $dsn['persist'])?'p':'').'open';
+		if (!is_callable($connect))
+			return $this->_setLastError("-1", "SQLite extension is not loaded", $connect);
+		$err = '';
+		try
+		{
+			$this->link = sqlite_factory($dsn['path'], 0666, $err);
 		}
-		$this->link->exec('SET NAMES '.(isset($dsn['enc'])?$dsn['enc']:'UTF8'));
+		catch (Exception $e)
+		{
+			$this->_setLastError($e->getCode() , $e->getMessage(), 'sqlite_factory');
+		}
 	}
 
 	public function CreateFunction($function_name, $callback, $num_args)
-	{	return $this->link->sqliteCreateFunction($function_name, $callback, $num_args); }
+	{	return $this->link->createFunction($function_name, $callback, $num_args); }
 	public function CreateAggregate($function_name, $step_func, $finalize_func, $num_args)
-	{	return $this->link->CreateAggregate($function_name, $step_func, $finalize_func, $num_args); }
+	{	return $this->link->createAggregate($function_name, $step_func, $finalize_func, $num_args); }
 
 	protected function _performGetPlaceholderIgnoreRe()
 	{
@@ -49,13 +50,13 @@ class DbSimple_Litepdo extends DbSimple_Database
 			\'  (?> [^\'\\\\]+|\\\\\'|\\\\)* \'   |
 			`   (?> [^`]+ | ``)*              `   |   # backticks
 			/\* .*?                          \*/      # comments
-		';
+		/*';
 	}
 
 	protected function _performEscape($s, $isIdent=false)
 	{
 		if (!$isIdent) {
-			return $this->link->quote($s);
+			return '\''.sqlite_escape_string($s).'\'';
 		} else {
 			return "`" . str_replace('`', '``', $s) . "`";
 		}
@@ -63,37 +64,33 @@ class DbSimple_Litepdo extends DbSimple_Database
 
 	protected function _performTransaction($parameters=null)
 	{
-		return $this->link->beginTransaction();
+		return $this->link->query('BEGIN TRANSACTION');
 	}
 
 	protected function _performCommit()
 	{
-		return $this->link->commit();
+		return $this->link->query('COMMIT TRANSACTION');
 	}
 
 	protected function _performRollback()
 	{
-		return $this->link->rollBack();
+		return $this->link->query('ROLLBACK TRANSACTION');
 	}
 
 	protected function _performQuery($queryMain)
 	{
 		$this->_lastQuery = $queryMain;
 		$this->_expandPlaceholders($queryMain, false);
-		$p = $this->link->query($queryMain[0]);
-		if (!$p)
-			return $this->_setDbError($p,$queryMain[0]);
-		if ($p->errorCode()!=0)
-			return $this->_setDbError($p,$queryMain[0]);
+		$error_msg = '';
+		$p = $this->link->query($queryMain[0], SQLITE_ASSOC, $error_msg);
+		if (!$p || $error_msg)
+			return $this->_setDbError($queryMain[0]);
 		if (preg_match('/^\s* INSERT \s+/six', $queryMain[0]))
-			return $this->link->lastInsertId();
-		if ($p->columnCount()==0)
-			return $p->rowCount();
+			return $this->link->lastInsertRowid();
+		if ($p->numFields()==0)
+			return $this->link->changes();
 		//Если у нас в запросе есть хотя-бы одна колонка - это по любому будет select
-		$p->setFetchMode(PDO::FETCH_ASSOC);
-		$res = $p->fetchAll();
-		$p->closeCursor();
-		return $res;
+		return $p->fetchAll(SQLITE_ASSOC);
 	}
 
 	protected function _performTransformQuery(&$queryMain, $how)
@@ -129,10 +126,9 @@ class DbSimple_Litepdo extends DbSimple_Database
 		return false;
 	}
 
-	protected function _setDbError($obj,$q)
+	protected function _setDbError($query)
 	{
-		$info=$obj?$obj->errorInfo():$this->link->errorInfo();
-		return $this->_setLastError($info[1], $info[2], $q);
+		return $this->_setLastError($this->link->lastError(), sqlite_error_string($this->link->lastError()), $query); 
 	}
 
 	protected function _performNewBlob($id=null)

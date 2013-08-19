@@ -16,13 +16,12 @@
  *
  * @version 2.x $Id$
  */
-require_once dirname(__FILE__) . '/Database.php';
 
 
 /**
  * Database class for PostgreSQL.
  */
-class DbSimple_Postgresql extends DbSimple_Database
+class DbSimple_Driver_Postgresql extends DbSimple_Database
 {
 
     var $DbSimple_Postgresql_USE_NATIVE_PHOLDERS = null;
@@ -33,7 +32,7 @@ class DbSimple_Postgresql extends DbSimple_Database
      * constructor(string $dsn)
      * Connect to PostgresSQL.
      */
-    function DbSimple_Postgresql($dsn)
+    function __construct($dsn)
     {
         $p = DbSimple_Database::parseDSN($dsn);
         if (!is_callable('pg_connect')) {

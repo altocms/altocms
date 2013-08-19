@@ -16,13 +16,12 @@
  *
  * @version 2.x $Id: Mysql.php 247 2008-08-18 21:17:08Z dk $
  */
-require_once dirname(__FILE__).'/Database.php';
 
 
 /**
  * Database class for MySQL.
  */
-class DbSimple_Mysql extends DbSimple_Database
+class DbSimple_Driver_Mysql extends DbSimple_Database
 {
     var $link;
 
@@ -30,7 +29,7 @@ class DbSimple_Mysql extends DbSimple_Database
      * constructor(string $dsn)
      * Connect to MySQL.
      */
-    function DbSimple_Mysql($dsn)
+    function __construct($dsn)
     {
         $connect = 'mysql_'.((isset($dsn['persist']) && $dsn['persist'])?'p':'').'connect';
         if (!is_callable($connect))
