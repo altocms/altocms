@@ -775,9 +775,10 @@ class ModuleViewer extends Module {
      * @return  bool
      */
     public function TemplateExists($sTemplate, $bException = false) {
+
         $bResult = $this->oSmarty->templateExists($sTemplate);
         if (!$bResult && $bException) {
-            $sMessage = 'Can not find the template "' . $sTemplate . '"';
+            $sMessage = 'Can not find the template "' . $sTemplate . '" in skin "' . Config::Get('view.skin') . '"';
             // записываем доп. информацию - пути к шаблонам Smarty
             $sErrorInfo = 'Template Dirs: ' . implode('; ', $this->oSmarty->getTemplateDir());
             return $this->_error($sMessage, $sErrorInfo);
@@ -789,14 +790,18 @@ class ModuleViewer extends Module {
      * Проверяет существование скина/темы
      *
      * @param   string $sSkin          - Скин (или скин/тема)
-     * @param   bool $bException     - Нужно ли генерить ошибку, если скин не найден
+     * @param   bool   $bException     - Нужно ли генерить ошибку, если скин не найден
+     *
      * @return  bool
      */
     public function SkinExists($sSkin, $bException = false) {
+
         if (strpos($sSkin, '/') !== false) {
             // Разделяем сам скин и тему
             list($sSkin, $sTheme) = explode('/', $sSkin, 2);
-            if (!$sSkin) $sSkin = Config::Get('view.skin');
+            if (!$sSkin) {
+                $sSkin = Config::Get('view.skin');
+            }
         } else {
             $sTheme = null;
         }

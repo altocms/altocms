@@ -26,6 +26,7 @@ class HookStatisticsPerformance extends Hook {
      * Регистрируем хуки
      */
     public function RegisterHook() {
+
         $this->AddHook('template_body_end', 'Statistics', __CLASS__, -1000);
     }
 
@@ -35,6 +36,7 @@ class HookStatisticsPerformance extends Hook {
      * @return string
      */
     public function Statistics() {
+
         $oEngine = Engine::getInstance();
         /**
          * Получаем статистику по БД, кешу и проч.
@@ -55,7 +57,7 @@ class HookStatisticsPerformance extends Hook {
         /**
          * В ответ рендерим шаблон статистики
          */
-        return $this->Viewer_Fetch('actions/ActionAdmin/statistics_performance.tpl');
+        return $this->Viewer_Fetch('statistics_performance.tpl');
     }
 }
 
