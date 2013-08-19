@@ -545,7 +545,6 @@ class AltoFunc_Main {
         return $sText;
     }
 
-
 }
 
 // EOF

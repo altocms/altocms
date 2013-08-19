@@ -23,7 +23,7 @@ class PluginLs_ActionEngine extends ActionPlugin {
      * Отображение каптчи старым способом (LS-compatible)
      */
     protected function EventLib() {
-        if (Router::GetCurrentPath() == 'external/kcaptcha/index.php') {
+        if (Router::GetControllerPath() == 'external/kcaptcha/index.php') {
             return $this->EventLibCaptcha();
         }
     }

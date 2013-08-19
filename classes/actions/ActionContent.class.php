@@ -306,11 +306,11 @@ class ActionContent extends Action {
         /**
          * Если нет временного ключа для нового топика, то генерируем; если есть, то загружаем фото по этому ключу
          */
-        if (empty($_COOKIE['ls_photoset_target_tmp'])) {
-            $this->Session_SetCookie('ls_photoset_target_tmp', F::RandomStr(), 'P1D');
+        if ($sTargetTmp = $this->Session_GetCookie('ls_photoset_target_tmp')) {
+            $this->Session_SetCookie('ls_photoset_target_tmp', $sTargetTmp, 'P1D');
+            $this->Viewer_Assign('aPhotos', $this->Topic_getPhotosByTargetTmp($sTargetTmp));
         } else {
-            $this->Session_SetCookie('ls_photoset_target_tmp', $_COOKIE['ls_photoset_target_tmp'], 'P1D');
-            $this->Viewer_Assign('aPhotos', $this->Topic_getPhotosByTargetTmp($_COOKIE['ls_photoset_target_tmp']));
+            $this->Session_SetCookie('ls_photoset_target_tmp', F::RandomStr(), 'P1D');
         }
         /**
          * Обрабатываем отправку формы
@@ -393,11 +393,11 @@ class ActionContent extends Action {
         /**
          * Определяем в какой блог делаем запись
          */
-        $iBlogId = $oTopic->getBlogId();
-        if ($iBlogId == 0) {
+        $nBlogId = $oTopic->getBlogId();
+        if ($nBlogId == 0) {
             $oBlog = $this->Blog_GetPersonalBlogByUserId($this->oUserCurrent->getId());
         } else {
-            $oBlog = $this->Blog_GetBlogById($iBlogId);
+            $oBlog = $this->Blog_GetBlogById($nBlogId);
         }
         /**
          * Если блог не определен, то выдаем предупреждение
@@ -431,6 +431,8 @@ class ActionContent extends Action {
 
         $oTopic->setCutText($sTextCut);
         $oTopic->setText($this->Text_Parser($sTextNew));
+        // Получаем ссылки, полученные при парсинге текста
+        $oTopic->setTextLinks($this->Text_GetLinks());
         $oTopic->setTextShort($this->Text_Parser($sTextShort));
 
         /**
@@ -447,17 +449,24 @@ class ActionContent extends Action {
         /*
          * Если есть прикрепленные фото
          */
-        if ($this->oType->isAllow('photoset') && $sTargetTmp = $_COOKIE['ls_photoset_target_tmp']) {
+        if ($this->oType->isAllow('photoset') && $sTargetTmp = $this->Session_GetCookie('ls_photoset_target_tmp')) {
+            $oTopic->setTargetTmp($sTargetTmp);
             if ($aPhotos = $this->Topic_getPhotosByTargetTmp($sTargetTmp)) {
-                if (!($oPhotoMain = $this->Topic_getTopicPhotoById(getRequestStr('topic_main_photo')) and
-                    $oPhotoMain->getTargetTmp() == $sTargetTmp)
-                ) {
+                $oPhotoMain = $this->Topic_getTopicPhotoById(getRequestStr('topic_main_photo'));
+                if (!$oPhotoMain || $oPhotoMain->getTargetTmp() != $sTargetTmp) {
                     $oPhotoMain = $aPhotos[0];
                 }
                 if ($oPhotoMain) {
                     $oTopic->setPhotosetMainPhotoId($oPhotoMain->getId());
-                    $oTopic->setPhotosetCount(count($aPhotos));
                 }
+                $oTopic->setPhotosetCount(count($aPhotos));
+                $aPhotosId = array();
+                foreach($aPhotos as $oPhoto) {
+                    $aPhotosId[] = $oPhoto->GetId();
+                }
+                $oTopic->setPhotosId($aPhotosId);
+            } else {
+                $oTopic->setPhotosetCount(0);
             }
         }
 
@@ -535,7 +544,7 @@ class ActionContent extends Action {
                 $this->Topic_SendNotifyTopicNew($oBlog, $oTopic, $this->oUserCurrent);
             }
             /**
-             * Привязываем фото к id топика
+             * Привязываем фото к ID топика
              * здесь нужно это делать одним запросом, а не перебором сущностей
              */
             if (isset($aPhotos) && count($aPhotos)) {
@@ -548,7 +557,7 @@ class ActionContent extends Action {
             /**
              * Удаляем временную куку
              */
-            setcookie('ls_photoset_target_tmp', null);
+            $this->Session_DelCookie('ls_photoset_target_tmp');
             /**
              * Добавляем событие в ленту
              */
@@ -603,11 +612,11 @@ class ActionContent extends Action {
         /**
          * Определяем в какой блог делаем запись
          */
-        $iBlogId = $oTopic->getBlogId();
-        if ($iBlogId == 0) {
+        $nBlogId = $oTopic->getBlogId();
+        if ($nBlogId == 0) {
             $oBlog = $this->Blog_GetPersonalBlogByUserId($oTopic->getUserId());
         } else {
-            $oBlog = $this->Blog_GetBlogById($iBlogId);
+            $oBlog = $this->Blog_GetBlogById($nBlogId);
         }
         /**
          * Если блог не определен выдаем предупреждение
@@ -642,6 +651,8 @@ class ActionContent extends Action {
 
         $oTopic->setCutText($sTextCut);
         $oTopic->setText($this->Text_Parser($sTextNew));
+        // Получаем ссылки, полученные при парсинге текста
+        $oTopic->setTextLinks($this->Text_GetLinks());
         $oTopic->setTextShort($this->Text_Parser($sTextShort));
 
         /**
@@ -660,13 +671,20 @@ class ActionContent extends Action {
          * Если есть прикрепленные фото
          */
         if ($this->oType->isAllow('photoset') && $aPhotos = $oTopic->getPhotosetPhotos()) {
-            if (!($oPhotoMain = $this->Topic_getTopicPhotoById(getRequestStr('topic_main_photo')) and
-                $oPhotoMain->getTopicId() == $oTopic->getId())
-            ) {
+            $oPhotoMain = $this->Topic_getTopicPhotoById(getRequestStr('topic_main_photo'));
+            if (!$oPhotoMain || $oPhotoMain->getTopicId() != $oTopic->getId()) {
                 $oPhotoMain = $aPhotos[0];
             }
             $oTopic->setPhotosetMainPhotoId($oPhotoMain->getId());
             $oTopic->setPhotosetCount(count($aPhotos));
+            // Сохраняем ID фотографий из фотосета
+            $aPhotosId = array();
+            foreach($aPhotos as $oPhoto) {
+                $aPhotosId[] = $oPhoto->GetId();
+            }
+            $oTopic->setPhotosId($aPhotosId);
+        } else {
+            $oTopic->setPhotosetCount(0);
         }
         /**
          * Публикуем или сохраняем в черновиках
@@ -713,7 +731,6 @@ class ActionContent extends Action {
             $this->Hook_Run(
                 'topic_edit_after', array('oTopic' => $oTopic, 'oBlog' => $oBlog, 'bSendNotify' => &$bSendNotify)
             );
-
             /**
              * Обновляем данные в комментариях, если топик был перенесен в новый блог
              */
@@ -913,11 +930,14 @@ class ActionContent extends Action {
 
         $iTopicId = getRequestStr('topic_id');
         $sTargetId = null;
-        $iCountPhotos = 0;
-        // Если от сервера не пришёл id топика, то пытаемся определить временный код для нового топика. Если и его нет. то это ошибка
+
+        // Если от сервера не пришёл ID топика, то пытаемся определить временный код для нового топика.
+        // Если и его нет, то это ошибка
         if (!$iTopicId) {
-            $sTargetId = empty($_COOKIE['ls_photoset_target_tmp']) ? getRequestStr('ls_photoset_target_tmp')
-                : $_COOKIE['ls_photoset_target_tmp'];
+            $sTargetId = $this->Session_GetCookie('ls_photoset_target_tmp');
+            if (!$sTargetId) {
+                $sTargetId = getRequestStr('ls_photoset_target_tmp');
+            }
             if (!$sTargetId) {
                 $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
                 return false;
@@ -973,7 +993,7 @@ class ActionContent extends Action {
             } else {
                 $oPhoto->setTargetTmp($sTargetId);
             }
-            if ($oPhoto = $this->Topic_addTopicPhoto($oPhoto)) {
+            if ($oPhoto = $this->Topic_AddTopicPhoto($oPhoto)) {
                 /**
                  * Если топик уже существует (редактирование), то обновляем число фоток в нём
                  */

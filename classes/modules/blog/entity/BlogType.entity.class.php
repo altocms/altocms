@@ -129,7 +129,7 @@ class ModuleBlog_EntityBlogType extends Entity {
         return (bool)$this->getProp('active');
     }
 
-    public function IsCanDelete() {
+    public function CanDelete() {
         return (bool)$this->getProp('candelete');
     }
 
@@ -138,6 +138,7 @@ class ModuleBlog_EntityBlogType extends Entity {
     }
 
     public function AllowAddByUser($oUser) {
+
         if ($this->IsAllowAdd()) {
             $oUser->getRating() > $this->GetMinRating();
         }
