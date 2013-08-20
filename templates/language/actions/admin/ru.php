@@ -373,11 +373,29 @@ return array(
 
     'set_links_topics' => 'Статьи',
     'set_links_topics_mode' => 'Ссылки на статьи',
+    'set_links_topics_mode_alto' => 'Стандартные',
     'set_links_topics_mode_ls' => 'Как в LiveStreet',
     'set_links_topics_mode_id' => 'ID статьи (числовой)',
     'set_links_topics_mode_day_name' => 'День и название',
     'set_links_topics_mode_month_name' => 'Месяц и название',
-    'set_links_topics_mode_custom' => 'Произвольная',
+    'set_links_topics_mode_custom' => 'Произвольные',
+    'set_links_topics_mode_help_title' => 'Допустимые параметры',
+    'set_links_topics_mode_help_text' => '%year% — год публикации
+        %month% — месяц
+        %day% — день
+        %hour% — час
+        %minute% — минуты
+        %second% — секунды
+        %login% — логин автора топика
+        %blog_url% — url блога (для персональных блогов будет заменен на логин автора)
+        %topic_id% — id публикации
+        %topic_url% — относительный URL публикации (обычно — транслитерация его заголовка)
+
+        Для совместимости с Wordpress поддерживаются параметры:
+        %post_id% — аналог %topic_id%
+        %postname% — аналог %topic_url%
+
+        ВАЖНО: наличие окончания .html не является обязательным, но настоятельно рекомендуется, т.к. это позволит избежать возможных проблем и конфликтов с адресами других страниц сайта',
 
     'set_links_generate' => 'Генерация ссылок',
     'set_links_generate_text' => 'Вы можете выполнить генерацию ссылок для всех статей. Это может быть необходимо, если Вы перешли на Alto CMS с какой-нибудь другой системы управления сайтом. Вы также можете выполнить эту операцию для каждой статьи в отдельности, входя в режим редактиования статьи.',

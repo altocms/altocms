@@ -474,7 +474,9 @@ class ActionAdmin extends Action {
             }
             if ($sTopicLink = $this->GetPost('topic_link')) {
                 $aConfig['module.topic.url_mode'] = $sTopicLink;
-                if ($sTopicLink == 'ls') {
+                if ($sTopicLink == 'alto') {
+                    $aConfig['module.topic.url'] = '%topic_id%.html';
+                } elseif ($sTopicLink == 'ls') {
                     $aConfig['module.topic.url'] = '';
                 } elseif ($sTopicLink == 'id') {
                     $aConfig['module.topic.url'] = '%topic_id%';

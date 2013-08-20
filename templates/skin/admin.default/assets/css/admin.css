@@ -646,3 +646,7 @@ button[name=mblog_category_add_blog], button[name=mblog_category_del_blog] {
 .b-topic-url-demo {
     font-weight: bold;
 }
+.link-dotted {
+    cursor: pointer;
+    border-bottom: 1px dotted #777;
+}
