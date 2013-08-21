@@ -3,7 +3,6 @@
  * @Project: Alto CMS
  * @Project URI: http://altocms.com
  * @Description: Advanced Community Engine
- * @Version: 0.9a
  * @Copyright: Alto CMS Team
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
@@ -30,6 +29,7 @@ class ModuleLogger extends Module {
      * @return bool
      */
     public function SetWriteLevel($level) {
+
         if (preg_match("/^\d$/", $level) and isset($this->aLogLevels[$level])) {
             $this->nLogLevel = $level;
             return true;
@@ -48,6 +48,7 @@ class ModuleLogger extends Module {
      * @return int
      */
     public function GetWriteLevel() {
+
         return $this->Reset('default')->GetLogLevel();
     }
 
@@ -57,6 +58,7 @@ class ModuleLogger extends Module {
      * @param bool $bool    Использовать или нет троссировку в логах
      */
     public function SetUseTrace($bool) {
+
         return $this->Reset('default')->SetUseTrace((bool)$bool);
     }
 
@@ -66,6 +68,7 @@ class ModuleLogger extends Module {
      * @return bool
      */
     public function GetUseTrace() {
+
         return (bool)$this->Reset('default')->GetUseTrace();
     }
 
@@ -75,6 +78,7 @@ class ModuleLogger extends Module {
      * @param bool $bool
      */
     public function SetUseRotate($bool) {
+
         return $this->Reset('default')->SetUseRotate((bool)$bool);
     }
 
@@ -84,6 +88,7 @@ class ModuleLogger extends Module {
      * @return bool
      */
     public function GetUseRotate() {
+
         return (bool)$this->Reset('default')->GetUseRotate();
     }
 
@@ -93,6 +98,7 @@ class ModuleLogger extends Module {
      * @param string $sFile
      */
     public function SetFileName($sFile) {
+
         return $this->Reset('default')->SetFileName($sFile);
     }
 
@@ -102,6 +108,7 @@ class ModuleLogger extends Module {
      * @return string
      */
     public function GetFileName() {
+
         return $this->Reset('default')->GetFileName();
     }
 
@@ -111,6 +118,7 @@ class ModuleLogger extends Module {
      * @param string $msg    Сообщение для записи в лог
      */
     public function Debug($msg) {
+
         $this->log($msg, 'DEBUG');
     }
 
@@ -120,6 +128,7 @@ class ModuleLogger extends Module {
      * @param string $msg    Сообщение для записи в лог
      */
     public function Error($msg) {
+
         $this->log($msg, 'ERROR');
     }
 
@@ -129,6 +138,7 @@ class ModuleLogger extends Module {
      * @param string $msg    Сообщение для записи в лог
      */
     public function Notice($msg) {
+
         $this->log($msg, 'NOTICE');
     }
 
@@ -138,7 +148,8 @@ class ModuleLogger extends Module {
      * @param string $sMsg    Сообщение для записи в лог
      * @param string $sLevel    Уровень логирования
      */
-    protected function log($sMsg, $sLevel) {
+    protected function Log($sMsg, $sLevel) {
+
         return $this->Dump('default', $sMsg, $sLevel);
     }
 
@@ -148,7 +159,8 @@ class ModuleLogger extends Module {
      * @param string $sMsg    Сообщение
      * @return bool
      */
-    protected function write($sMsg) {
+    protected function Write($sMsg) {
+
         return $this->Dump('default', $sMsg);
     }
 

@@ -3,7 +3,6 @@
  * @Project: Alto CMS
  * @Project URI: http://altocms.com
  * @Description: Advanced Community Engine
- * @Version: 0.9a
  * @Copyright: Alto CMS Team
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
@@ -63,6 +62,7 @@ class Config extends Storage {
     }
 
     static protected function _clearQuickMap() {
+
         static::$aQuickMap = array();
     }
     /**
@@ -75,6 +75,7 @@ class Config extends Storage {
      * @return  bool|Config
      */
     static public function LoadFromFile($sFile, $bReset = true, $sInstance = self::DEFAULT_CONFIG_INSTANCE) {
+
         // Check if file exists
         if (!F::File_Exists($sFile)) {
             return false;
@@ -95,6 +96,7 @@ class Config extends Storage {
      * @return  bool|Config
      */
     static public function Load($aConfig, $bReset = true, $sInstance = self::DEFAULT_CONFIG_INSTANCE) {
+
         // Check if it`s array
         if (!is_array($aConfig)) {
             return false;
@@ -114,6 +116,7 @@ class Config extends Storage {
      * @return  bool|Config
      */
     static public function ExtendFromFile($sFile, $bReset = true, $sInstance) {
+
         static::$sExtensionKey = $sInstance;
 
         // Check if file exists
@@ -136,6 +139,7 @@ class Config extends Storage {
      * @return  bool|Config
      */
     static public function Extend($aConfig, $bReset = true, $sInstance) {
+
         static::$sExtensionKey = $sInstance;
 
         // Check if it`s array
@@ -148,6 +152,7 @@ class Config extends Storage {
     }
 
     static public function SetExtensionKey($sExtensionKey) {
+
         if ($sExtensionKey == self::DEFAULT_CONFIG_INSTANCE) {
             $sExtensionKey = null;
         }
@@ -158,6 +163,7 @@ class Config extends Storage {
     }
 
     static public function ClearExtensionKey() {
+
         static::SetExtensionKey(null);
     }
 
@@ -168,6 +174,7 @@ class Config extends Storage {
      * @return  array
      */
     public function GetConfig($sInstance = self::DEFAULT_CONFIG_INSTANCE) {
+
         $aConfig = parent::GetStorage(self::DEFAULT_CONFIG_INSTANCE);
         if ($sInstance != self::DEFAULT_CONFIG_INSTANCE) {
             // нужен расширенный конфиг
@@ -189,6 +196,7 @@ class Config extends Storage {
      * @return  bool
      */
     public function SetConfig($aConfig = array(), $bReset = true, $sInstance = self::DEFAULT_CONFIG_INSTANCE) {
+
         static::_clearQuickMap();
         return parent::SetStorage($sInstance, $aConfig, $bReset);
     }
@@ -201,6 +209,7 @@ class Config extends Storage {
      * @return mixed
      */
     static public function Get($sKey = '', $sInstance = null) {
+
         // Return all config array
         if (!$sKey) {
             return static::getInstance()->GetConfig($sInstance);
@@ -224,6 +233,7 @@ class Config extends Storage {
      * @return mixed|null
      */
     static public function Val($sKey = '', $xDefault = null) {
+
         $sValue = static::Get($sKey);
         return is_null($sValue) ? $xDefault : $sValue;
     }
@@ -236,6 +246,7 @@ class Config extends Storage {
      * @return mixed
      */
     public function GetValue($sKey, $sInstance = self::DEFAULT_CONFIG_INSTANCE) {
+
         // Return config by path (separator=".")
         $aKeys = explode('.', $sKey);
 
@@ -261,6 +272,7 @@ class Config extends Storage {
      * @return array|mixed
      */
     static public function KeyReplace($xCfg, $sInstance = self::DEFAULT_CONFIG_INSTANCE) {
+
         if (is_array($xCfg)) {
             foreach ($xCfg as $k => $v) {
                 $k_replaced = static::KeyReplace($k, $sInstance);
@@ -272,9 +284,15 @@ class Config extends Storage {
                 }
             }
         } else {
-            if (strpos($xCfg, self::KEY_LINK_STR) !== false && preg_match_all(self::KEY_LINK_PREG, $xCfg, $aMatch, PREG_SET_ORDER)) {
+            if (strpos($xCfg, self::KEY_LINK_STR) !== false
+                && preg_match_all(
+                    self::KEY_LINK_PREG, $xCfg, $aMatch, PREG_SET_ORDER
+                )
+            ) {
                 foreach ($aMatch as $aItem) {
-                    $xCfg = str_replace(self::KEY_LINK_STR . $aItem[1] . self::KEY_LINK_STR, Config::Get($aItem[1], $sInstance), $xCfg);
+                    $xCfg = str_replace(
+                        self::KEY_LINK_STR . $aItem[1] . self::KEY_LINK_STR, Config::Get($aItem[1], $sInstance), $xCfg
+                    );
                 }
             }
         }
@@ -292,6 +310,7 @@ class Config extends Storage {
      * @return bool
      */
     static public function isExist($sKey, $sInstance = self::DEFAULT_CONFIG_INSTANCE) {
+
         return static::getInstance()->IsExists($sInstance, $sKey);
     }
 
@@ -304,6 +323,7 @@ class Config extends Storage {
      * @return bool
      */
     static public function Set($sKey, $xValue, $sInstance = self::DEFAULT_CONFIG_INSTANCE) {
+
         $aKeys = explode('.', $sKey);
 
         if (isset($xValue['$root$']) && is_array($xValue['$root$'])) {
@@ -331,6 +351,7 @@ class Config extends Storage {
      * @return array
      */
     public function GetKeys() {
+
         $aConfig = $this->GetConfig();
         // If it`s not array, return key
         if (!is_array($aConfig) || !count($aConfig)) {
@@ -348,6 +369,7 @@ class Config extends Storage {
      * @return bool
      */
     static public function DefineConstant($sKey = '', $sInstance = self::DEFAULT_CONFIG_INSTANCE) {
+
         if ($aKeys = static::getInstance()->GetKeys()) {
             foreach ($aKeys as $key) {
                 // If there is key-mapping rule, replace it
@@ -376,6 +398,7 @@ class Config extends Storage {
      * @return  bool
      */
     static public function WriteCustomConfig($aConfig, $bCacheOnly = false) {
+
         $aData = array();
         foreach ($aConfig as $sKey => $sVal) {
             $aData[] = array(
@@ -391,6 +414,7 @@ class Config extends Storage {
     }
 
     static public function ReadCustomConfig($sKeyPrefix = null, $bCacheOnly = false) {
+
         $aConfig = array();
         if (self::_checkCustomCfg(!$bCacheOnly)) {
             $aConfig = self::_getCustomCfg();
@@ -421,6 +445,7 @@ class Config extends Storage {
     }
 
     static public function ReReadCustomConfig() {
+
         self::ReadCustomConfig(null, false);
     }
 
@@ -443,6 +468,7 @@ class Config extends Storage {
      * @return  string
      */
     static protected function _checkCustomCfg($bCheckOnly = false) {
+
         $sFile = self::Get('sys.cache.dir') . 'data/custom.cfg';
         if ($bCheckOnly) {
             return F::File_Exists($sFile);
@@ -469,6 +495,7 @@ class Config extends Storage {
      * @param   $bReset
      */
     static protected function _putCustomCfg($aConfig, $bReset = false) {
+
         if (is_array($aConfig) && ($sFile = self::_checkCustomCfg())) {
             $aConfig['_timestamp_'] = time();
             if (!$bReset) {
@@ -489,6 +516,7 @@ class Config extends Storage {
      * @return  array
      */
     static protected function _getCustomCfg($sKeyPrefix = null) {
+
         if (($sFile = self::_checkCustomCfg()) && ($sData = F::File_GetContents($sFile))) {
             $aConfig = F::Unserialize($sData);
             if (is_array($aConfig)) {

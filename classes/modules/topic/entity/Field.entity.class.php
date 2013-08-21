@@ -3,72 +3,79 @@
  * @Project: Alto CMS
  * @Project URI: http://altocms.com
  * @Description: Advanced Community Engine
- * @Version: 0.9a
  * @Copyright: Alto CMS Team
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
  */
+
 /**
  * Объект поля контента
  *
  * @package modules.topic
- * @since 1.0
+ * @since   1.0
  */
 class ModuleTopic_EntityField extends Entity {
 
-	protected $aExtra=null;
+    protected $aExtra = null;
 
-	public function getCoord($value,$index){
-		if(isset($value[$index])){
-			return $value[$index];
-		}
-		return null;
-	}
+    public function getCoord($value, $index) {
 
-	public function getFieldValues(){
-		if ($this->getOptionValue('select')) {
-			return $this->getOptionValue('select');
-		}
-		return '';
-	}
+        if (isset($value[$index])) {
+            return $value[$index];
+        }
+        return null;
+    }
 
-	public function getSelectVal(){
-		if($this->getOptionValue('select')) {
-			$nl=nl2br($this->getOptionValue('select'));
-			return explode('<br />',$nl);
-		}
-		return array();
-	}
+    public function getFieldValues() {
 
-	protected function extractOptions() {
-		if (is_null($this->aExtra)) {
-			$this->aExtra=@unserialize($this->getOptions());
-		}
-	}
+        if ($this->getOptionValue('select')) {
+            return $this->getOptionValue('select');
+        }
+        return '';
+    }
 
-	public function getOptions() {
-		return $this->_getDataOne('field_options') ? $this->_getDataOne('field_options') : serialize('');
-	}
+    public function getSelectVal() {
 
-	public function setOptions($data) {
-		$this->_aData['field_options']=serialize($data);
-	}
+        if ($this->getOptionValue('select')) {
+            $nl = nl2br($this->getOptionValue('select'));
+            return explode('<br />', $nl);
+        }
+        return array();
+    }
 
-	public function setOptionValue($sName,$data) {
-		$this->extractOptions();
-		$this->aExtra[$sName]=$data;
-		$this->setOptions($this->aExtra);
-	}
+    protected function extractOptions() {
 
-	public function getOptionValue($sName) {
-		$this->extractOptions();
-		if (isset($this->aExtra[$sName])) {
-			return $this->aExtra[$sName];
-		}
-		return null;
-	}
+        if (is_null($this->aExtra)) {
+            $this->aExtra = @unserialize($this->getOptions());
+        }
+    }
 
-	
+    public function getOptions() {
+
+        return $this->_getDataOne('field_options') ? $this->_getDataOne('field_options') : serialize('');
+    }
+
+    public function setOptions($data) {
+
+        $this->_aData['field_options'] = serialize($data);
+    }
+
+    public function setOptionValue($sName, $data) {
+
+        $this->extractOptions();
+        $this->aExtra[$sName] = $data;
+        $this->setOptions($this->aExtra);
+    }
+
+    public function getOptionValue($sName) {
+
+        $this->extractOptions();
+        if (isset($this->aExtra[$sName])) {
+            return $this->aExtra[$sName];
+        }
+        return null;
+    }
+
 }
 
 // EOF
