@@ -348,6 +348,8 @@ $config['module']['lang']['delete_undefined'] = true;   // Если устано
 $config['module']['notify']['delayed']        = false;  // Указывает на необходимость использовать режим отложенной рассылки сообщений на email
 $config['module']['notify']['insert_single']  = false;  // Если опция установлена в true, систему будет собирать записи заданий удаленной публикации, для вставки их в базу единым INSERT
 $config['module']['notify']['per_process']    = 10;     // Количество отложенных заданий, обрабатываемых одним крон-процессом
+$config['module']['notify']['dir']           = 'emails'; // Путь до папки с емэйлами относительно шаблона
+$config['module']['notify']['prefix']        = 'email';  // Префикс шаблонов емэйлов
 
 // Модуль Image
 $config['module']['image']['default']['watermark_use']        = false;

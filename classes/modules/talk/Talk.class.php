@@ -430,6 +430,28 @@ class ModuleTalk extends Module {
 			}
 		}
 	}
+
+	/**
+	 * Помечает разговоры как непрочитанные
+	 *
+	 * @param array $aTalkId	Список ID сообщений
+	 * @param int $iUserId	ID пользователя
+	 */
+	public function MarkUnreadTalkUserByArray($aTalkId,$iUserId) {
+		if(!is_array($aTalkId)){
+			$aTalkId=array($aTalkId);
+		}
+		foreach ($aTalkId as $sTalkId) {
+			if ($oTalk=$this->Talk_GetTalkById((string)$sTalkId)) {
+				if ($oTalkUser=$this->Talk_GetTalkUser($oTalk->getId(),$iUserId)) {
+					$oTalkUser->setDateLast($oTalk->getTalkDate());
+					$oTalkUser->setCommentIdLast('0');
+					$oTalkUser->setCommentCountNew($oTalk->getCountComment());
+					$this->Talk_UpdateTalkUser($oTalkUser);
+				}
+			}
+		}
+	}
 	/**
 	 * Удаляет юзера из разговора
 	 *

@@ -205,6 +205,7 @@ ls.talk = (function ($) {
 		if ($('.form_talks_checkbox:checked').length == 0) {
 			return false;
 		}
+		$('#form_talks_list_submit_unread').val(0);
 		$('#form_talks_list_submit_del').val(1);
 		$('#form_talks_list_submit_read').val(0);
 		$('#form_talks_list').submit();
@@ -218,7 +219,22 @@ ls.talk = (function ($) {
 		if ($('.form_talks_checkbox:checked').length == 0) {
 			return false;
 		}
+		$('#form_talks_list_submit_unread').val(0);
 		$('#form_talks_list_submit_read').val(1);
+		$('#form_talks_list_submit_del').val(0);
+		$('#form_talks_list').submit();
+		return false;
+	};
+
+	/**
+	 * Пометка непрочтенных писем
+	 */
+	this.makeUnreadTalks = function() {
+		if ($('.form_talks_checkbox:checked').length == 0) {
+			return false;
+		}
+		$('#form_talks_list_submit_unread').val(1);
+		$('#form_talks_list_submit_read').val(0);
 		$('#form_talks_list_submit_del').val(0);
 		$('#form_talks_list').submit();
 		return false;

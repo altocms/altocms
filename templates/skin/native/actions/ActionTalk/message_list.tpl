@@ -30,7 +30,7 @@
 
 					<div class="talk-speakers">
 						
-						<div class="speakers-count">+<i class="icon-native-talk-speakers"></i>{count($aTalkUserOther)}</div>
+						<div class="speakers-count"><i class="icon-native-talk-speakers"></i>+{count($aTalkUserOther)}</div>
 						
 						<div class="speakers-trigger"><i></i></div>
 						<div class="speakers">

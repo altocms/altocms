@@ -168,7 +168,6 @@
 .icon-native-profile-add-friend			{ background-position: -119px -27px; width: 15px; height: 12px; }
 .icon-native-profile-subscribe			{ background-position: -146px -27px; width: 17px; height: 15px; }
 
-
 /* Список пользователей */
 .icon-native-user-list-user				{ background-position: -172px -47px; width: 9px; height: 8px; }
 .icon-native-userlist-grid				{ background-position: -170px 0; width: 11px; height: 11px; }
@@ -184,6 +183,7 @@
 .icon-native-talk-mark					{ background-position: -63px -58px; height: 15px; }
 .icon-native-talk-unmark				{ background-position: -85px -58px; height: 15px; }
 .icon-native-talk-remove				{ background-position: -108px -58px; height: 13px; }
+.icon-native-talk-speakers				{ background-position: -117px -26px; width: 17px; height: 17px; }
 
 .icon-native-admin-link					{ background-position: -135px 0; }
 
