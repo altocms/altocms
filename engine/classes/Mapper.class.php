@@ -55,6 +55,24 @@ abstract class Mapper extends LsObject {
         return $aIds;
     }
 
+    protected function _prepareLimit($aCriteria) {
+
+        if (isset($aCriteria['limit'])) {
+            // Если массив, то первое значение - смещение, а второе - лимит
+            if (is_array($aCriteria['limit'])) {
+                $nOffset = intval(array_shift($aCriteria['limit']));
+                $nLimit = intval(array_shift($aCriteria['limit']));
+            } else {
+                $nOffset = false;
+                $nLimit = intval($aCriteria['limit']);
+            }
+        } else {
+            $nOffset = false;
+            $nLimit = false;
+        }
+        return array($nOffset, $nLimit);
+    }
+
 }
 
 // EOF

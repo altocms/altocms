@@ -957,19 +957,8 @@ class ModuleBlog_MapperBlog extends Mapper {
 
         // Установка лимита
         $sSqlLimit = '';
-        if (isset($aCriteria['limit'])) {
-            // Если массив, то первое значение - смещение, а второе - лимит
-            if (is_array($aCriteria['limit'])) {
-                $nOffset = intval(array_shift($aCriteria['limit']));
-                $nLimit = intval(array_shift($aCriteria['limit']));
-            } else {
-                $nOffset = false;
-                $nLimit = intval($aCriteria['limit']);
-            }
-        } else {
-            $nOffset = false;
-            $nLimit = false;
-        }
+        list($nOffset, $nLimit) = $this->_prepareLimit($aCriteria);
+
         // Если задан ID блога, то всегда устанавливаем лимит
         if (isset($aFilter['blog_id']) && !is_array($aFilter['blog_id'])) {
             $nOffset = false;
