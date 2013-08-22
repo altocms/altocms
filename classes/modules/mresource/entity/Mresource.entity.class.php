@@ -11,7 +11,7 @@
 class ModuleMresource_EntityMresource extends Entity {
 
     /**
-     * If resource external link
+     * Checks if resource is external link
      *
      * @return bool
      */
@@ -20,19 +20,34 @@ class ModuleMresource_EntityMresource extends Entity {
         return (bool)$this->GetLink();
     }
 
+    /**
+     * Checks if resource is local file
+     *
+     * @return bool
+     */
     public function IsFile() {
 
         return !$this->IsLink() && $this->GetHashFile();
     }
 
-    public function CanDelete() {
-
-        return (bool)$this->getProp('candelete');
-    }
-
     public function IsType($nMask) {
 
         return $this->getPropMask('type', $nMask);
+    }
+
+    /**
+     * Checks if resource is image
+     *
+     * @return bool
+     */
+    public function IsImage() {
+
+        return $this->IsType(ModuleMresource::TYPE_IMAGE);
+    }
+
+    public function CanDelete() {
+
+        return (bool)$this->getProp('candelete');
     }
 
     /**

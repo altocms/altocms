@@ -57,6 +57,12 @@ class ModuleImg extends Module {
             return true;
         }
     }
+
+    public function Delete($sFile) {
+
+        return F::File_Delete($sFile) && F::File_DeleteAs($sFile) . '-*.*';
+    }
+
 }
 
 class ModuleImgPx extends LsObject {

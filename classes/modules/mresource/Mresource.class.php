@@ -238,7 +238,11 @@ class ModuleMresource extends Module {
             // Удаляем файлы
             foreach ($aId as $nId) {
                 if (isset($aMresources[$nId]) && $aMresources[$nId]->IsFile() && $aMresources[$nId]->CanDelete()) {
-                    F::File_Delete($aMresources[$nId]->GetFile());
+                    if ($aMresources[$nId]->IsImage()) {
+                        $this->Img_Delete($aMresources[$nId]->GetFile());
+                    } else {
+                        F::File_Delete($aMresources[$nId]->GetFile());
+                    }
                 }
             }
         }
