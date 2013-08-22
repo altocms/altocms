@@ -8,7 +8,7 @@
  *----------------------------------------------------------------------------
  */
 
-F::File_Lib('lessphp/lessc.inc.php');
+F::IncludeLib('lessphp/lessc.inc.php');
 
 class ModuleLess extends Module {
 
