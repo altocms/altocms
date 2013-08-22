@@ -3,8 +3,8 @@
 {block name="content-bar"}
     {if count($aTypes)>0}
         <div class="btn-group">
-            <a href="{router page='admin'}contentadd/" class="btn btn-primary tip-top"
-               title="{$aLang.action.admin.content_add}"><i class="icon-plus-sign"></i></a>
+            <a href="{router page='admin'}contenttypesadd/" class="btn btn-primary tip-top"
+               title="{$aLang.action.admin.contenttypes_add}"><i class="icon-plus-sign"></i></a>
         </div>
     {/if}
 {/block}
@@ -53,10 +53,10 @@
                 <table class="table table-striped table-condensed pages-list" id="sortable">
                     <thead>
                     <tr>
-                        <th class="span4">{$aLang.action.admin.content_title}</th>
-                        <th>{$aLang.action.admin.content_url}</th>
-                        <th>{$aLang.action.admin.content_status}</th>
-                        <th class="span2">{$aLang.action.admin.content_actions}</th>
+                        <th class="span4">{$aLang.action.admin.contenttypes_title}</th>
+                        <th>{$aLang.action.admin.contenttypes_url}</th>
+                        <th>{$aLang.action.admin.contenttypes_status}</th>
+                        <th class="span2">{$aLang.action.admin.contenttypes_actions}</th>
                     </tr>
                     </thead>
 
@@ -65,24 +65,30 @@
                         <tr id="{$oType->getContentId()}" class="cursor-x">
                             <td class="center">
                                 {$oType->getContentTitle()|escape:'html'}{if !$oType->getContentCandelete()} <em>
-                                    [{$aLang.action.admin.content_standart}]</em>{/if}
+                                    [{$aLang.action.admin.contenttypes_standart}]</em>{/if}
                             </td>
                             <td class="center">
                                 {$oType->getContentUrl()|escape:'html'}
                             </td>
                             <td class="center">
-                                <span>{if $oType->getContentActive()}{$aLang.action.admin.content_on}{else}{$aLang.action.admin.content_off}{/if}</span>
+                                <span>
+                                    {if $oType->getContentActive()}
+                                        {$aLang.action.admin.contenttypes_on}
+                                    {else}
+                                        {$aLang.action.admin.contenttypes_off}
+                                    {/if}
+                                </span>
                             </td>
                             <td class="center">
-                                <a href="{router page='admin'}contentedit/{$oType->getContentId()}/">
-                                    <i class="icon-edit tip-top" title="{$aLang.action.admin.content_edit}"></i></a>
-                                <a href="{router page='admin'}content/?toggle={if $oType->getContentActive()}off{else}on{/if}&content_id={$oType->getContentId()}&security_ls_key={$ALTO_SECURITY_KEY}">
+                                <a href="{router page='admin'}contenttypesedit/{$oType->getContentId()}/">
+                                    <i class="icon-edit tip-top" title="{$aLang.action.admin.contenttypes_edit}"></i></a>
+                                <a href="{router page='admin'}contenttypes/?toggle={if $oType->getContentActive()}off{else}on{/if}&content_id={$oType->getContentId()}&security_ls_key={$ALTO_SECURITY_KEY}">
                                     {if $oType->getContentActive()}
                                         <i class="icon-ban-circle tip-top"
-                                           title="{$aLang.action.admin.content_turn_off}"></i>
+                                           title="{$aLang.action.admin.contenttypes_turn_off}"></i>
                                     {else}
                                         <i class="icon-ok-circle tip-top"
-                                           title="{$aLang.action.admin.content_turn_on}"></i>
+                                           title="{$aLang.action.admin.contenttypes_turn_on}"></i>
                                     {/if}
                                 </a>
                             </td>

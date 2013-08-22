@@ -88,46 +88,6 @@
 
         <div class="control-group">
             <label class="control-label">
-                {$aLang.action.admin.blogtypes_show_title}
-            </label>
-
-            <div class="controls">
-                <label>
-                    <input type="radio" name="blogtypes_show_title" value="0"
-                           {if !$_aRequest.blogtypes_show_title}checked{/if}/>
-                    {$aLang.action.admin.word_no}
-                </label>
-                <label>
-                    <input type="radio" name="blogtypes_show_title" value="1"
-                           {if $_aRequest.blogtypes_show_title}checked{/if}/>
-                    {$aLang.action.admin.word_yes}
-                </label>
-                <span class="help-block">{$aLang.action.admin.blogtypes_show_title_notice}</span>
-            </div>
-        </div>
-
-        <div class="control-group">
-            <label class="control-label">
-                {$aLang.action.admin.blogtypes_index_content}
-            </label>
-
-            <div class="controls">
-                <label>
-                    <input type="radio" name="blogtypes_index_content" value="0"
-                           {if !$_aRequest.blogtypes_index_content}checked{/if}/>
-                    {$aLang.action.admin.word_no}
-                </label>
-                <label>
-                    <input type="radio" name="blogtypes_index_content" value="1"
-                           {if $_aRequest.blogtypes_index_content}checked{/if}/>
-                    {$aLang.action.admin.word_yes}
-                </label>
-                <span class="help-block">{$aLang.action.admin.blogtypes_index_content_notice}</span>
-            </div>
-        </div>
-
-        <div class="control-group">
-            <label class="control-label">
                 {$aLang.action.admin.blogtypes_membership}
             </label>
 
@@ -150,6 +110,7 @@
             </div>
         </div>
     </div>
+
     <div class="b-wbox-header">
         <div class="b-wbox-header-title">{$aLang.action.admin.blogtypes_acl_title}</div>
     </div>
@@ -264,12 +225,79 @@
 
     </div>
 
+    <div class="b-wbox-header">
+        <div class="b-wbox-header-title">{$aLang.action.admin.blogtypes_content_title}</div>
+    </div>
+    <div class="b-wbox-content nopadding">
+        <div class="control-group">
+            <label class="control-label">
+                {$aLang.action.admin.blogtypes_show_title}
+            </label>
+
+            <div class="controls">
+                <label>
+                    <input type="radio" name="blogtypes_show_title" value="0"
+                           {if !$_aRequest.blogtypes_show_title}checked{/if}/>
+                    {$aLang.action.admin.word_no}
+                </label>
+                <label>
+                    <input type="radio" name="blogtypes_show_title" value="1"
+                           {if $_aRequest.blogtypes_show_title}checked{/if}/>
+                    {$aLang.action.admin.word_yes}
+                </label>
+                <span class="help-block">{$aLang.action.admin.blogtypes_show_title_notice}</span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">
+                {$aLang.action.admin.blogtypes_index_content}
+            </label>
+
+            <div class="controls">
+                <label>
+                    <input type="radio" name="blogtypes_index_content" value="0"
+                           {if !$_aRequest.blogtypes_index_content}checked{/if}/>
+                    {$aLang.action.admin.word_no}
+                </label>
+                <label>
+                    <input type="radio" name="blogtypes_index_content" value="1"
+                           {if $_aRequest.blogtypes_index_content}checked{/if}/>
+                    {$aLang.action.admin.word_yes}
+                </label>
+                <span class="help-block">{$aLang.action.admin.blogtypes_index_content_notice}</span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">
+                {$aLang.action.admin.blogtypes_contenttypes}:
+            </label>
+
+            <div class="controls">
+                <select name="blogtypes_contenttype">
+                    <option value="">
+                        {$aLang.action.admin.blogtypes_contenttypes_any}
+                    </option>
+                    {foreach $aContentTypes as $sContentName=>$oContentType}
+                        <option value="{$sContentName}"
+                                {if $_aRequest.blogtypes_contenttype==$sContentName}selected{/if}>
+                            {$sContentName}
+                        </option>
+                    {/foreach}
+                </select>
+                <span class="help-block">{$aLang.action.admin.blogtypes_contenttypes_notice}</span>
+
+            </div>
+        </div>
+    </div>
+
     <div class="b-wbox-content nopadding">
         <div class="form-actions">
             <button type="submit" class="btn btn-primary"
-                    name="submit_type_add">{$aLang.action.admin.content_submit}</button>
+                    name="submit_type_add">{$aLang.action.admin.contenttypes_submit}</button>
             {if $sEvent=='add'}
-                <p><span class="help-block">{$aLang.action.admin.content_afteradd}</span></p>
+                <p><span class="help-block">{$aLang.action.admin.contenttypes_afteradd}</span></p>
             {/if}
         </div>
     </div>

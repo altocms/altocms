@@ -780,6 +780,7 @@ class ModuleBlog_MapperBlog extends Mapper {
                 min_rate_write = ?f,
                 min_rate_read = ?f,
                 min_rate_comment = ?f,
+                content_type = ?,
                 active = ?d,
                 norder = ?d,
                 candelete = ?d
@@ -798,6 +799,7 @@ class ModuleBlog_MapperBlog extends Mapper {
             $oBlogType->getMinRateWrite(),
             $oBlogType->getMinRateRead(),
             $oBlogType->getMinRateComment(),
+            $oBlogType->getContentType(),
             $oBlogType->IsActive() ? 1 : 0,
             $oBlogType->getNorder(),
             $oBlogType->CanDelete() ? 1 : 0,
@@ -831,6 +833,7 @@ class ModuleBlog_MapperBlog extends Mapper {
                 min_rate_write = ?f,
                 min_rate_read = ?f,
                 min_rate_comment = ?f,
+                content_type = ?,
                 active = ?d,
                 norder = ?d,
                 candelete = ?d
@@ -850,6 +853,7 @@ class ModuleBlog_MapperBlog extends Mapper {
             $oBlogType->getMinRateWrite(),
             $oBlogType->getMinRateRead(),
             $oBlogType->getMinRateComment(),
+            $oBlogType->getContentType(),
             $oBlogType->IsActive() ? 1 : 0,
             $oBlogType->getNorder(),
             $oBlogType->CanDelete() ? 1 : 0,

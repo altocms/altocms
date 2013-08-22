@@ -87,8 +87,8 @@
     <li class="nav-menu_blogtypes {if $sEvent=='blogtypes'}active{/if}">
         <a href="{router page="admin"}blogtypes/">{$aLang.action.admin.menu_settings_blogtypes}</a>
     </li>
-    <li class="nav-menu_content {if $sEvent=='content'}active{/if}">
-        <a href="{router page="admin"}content/">{$aLang.action.admin.menu_settings_content}</a>
+    <li class="nav-menu_content {if $sEvent=='contenttypes'}active{/if}">
+        <a href="{router page="admin"}contenttypes/">{$aLang.action.admin.menu_settings_contenttypes}</a>
     </li>
     <li class="nav-menu_userrights {if $sEvent=='userrights'}active{/if}">
         <a href="{router page="admin"}userrights/">{$aLang.action.admin.menu_settings_userrights}</a>
