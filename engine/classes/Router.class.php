@@ -136,6 +136,7 @@ class Router extends LsObject {
      * @return Router
      */
     static public function getInstance() {
+
         if (isset(self::$oInstance) && (self::$oInstance instanceof self)) {
             return self::$oInstance;
         } else {
@@ -148,6 +149,7 @@ class Router extends LsObject {
      * Загрузка конфига роутинга при создании объекта
      */
     public function __construct() {
+
         $this->LoadConfig();
     }
 
@@ -156,6 +158,7 @@ class Router extends LsObject {
      *
      */
     public function Exec() {
+
         $this->ParseUrl();
         $this->DefineActionClass(); // Для возможности ДО инициализации модулей определить какой action/event запрошен
         $this->oEngine = Engine::getInstance();
@@ -184,6 +187,7 @@ class Router extends LsObject {
      * @param bool $bExit    Принудительно завершить выполнение скрипта
      */
     public function Shutdown($bExit = true) {
+
         $this->AssignVars();
         $this->oEngine->Shutdown();
         $this->Viewer_Display($this->oAction->GetTemplate());
@@ -201,6 +205,7 @@ class Router extends LsObject {
      *
      */
     protected function ParseUrl() {
+
         $sReq = $this->GetRequestUri();
         $aRequestUrl = $this->GetRequestArray($sReq);
 
@@ -257,6 +262,7 @@ class Router extends LsObject {
      * @return string
      */
     protected function GetRequestUri() {
+
         $sReq = preg_replace('/\/+/', '/', $_SERVER['REQUEST_URI']);
         if (substr($sReq, -1) == '/') {
             $sLastChar = '/';
@@ -278,6 +284,7 @@ class Router extends LsObject {
      * @return array
      */
     protected function GetRequestArray($sReq) {
+
         $aRequestUrl = ($sReq == '') ? array() : explode('/', trim($sReq, '/'));
         for ($i = 0; $i < Config::Get('path.offset_request_url'); $i++) {
             array_shift($aRequestUrl);
@@ -287,6 +294,7 @@ class Router extends LsObject {
     }
 
     protected function GetRouterUriRules() {
+
         $aRewrite = (array)Config::Get('router.uri');
         $sTopicUrlPattern = self::GetTopicUrlPattern();
         if ($sTopicUrlPattern) {
@@ -306,7 +314,12 @@ class Router extends LsObject {
         // * Правила Rewrite для REQUEST_URI
         $sReq = implode('/', $aRequestUrl);
         if ($aRewrite = $this->GetRouterUriRules()) {
-            $sReq = preg_replace(array_keys($aRewrite), array_values($aRewrite), $sReq);
+            foreach($aRewrite as $sPattern => $sReplace) {
+                if (preg_match($sPattern, $sReq)) {
+                    $sReq = preg_replace($sPattern, $sReplace, $sReq);
+                    break;
+                }
+            }
         }
         if (substr($sReq, 0, 1) == '@') {
             $this->SpecialAction($sReq);
@@ -371,6 +384,7 @@ class Router extends LsObject {
      *
      */
     public function ExecAction() {
+
         $this->DefineActionClass();
         /**
          * Сначала запускаем инициализирующий евент
@@ -433,6 +447,7 @@ class Router extends LsObject {
      * @return string
      */
     protected function DefineActionClass() {
+
         if (!self::$sAction) {
             $sActionClass = $this->DetermineClass($this->aConfigRoute['config']['action_default'], self::$sActionEvent);
             if ($sActionClass) {
@@ -470,6 +485,7 @@ class Router extends LsObject {
     }
 
     protected function DetermineClass($sAction, $sEvent = null) {
+
         $sActionClass = null;
         // Сначала ищем экшен по таблице роутинга
         if ($sAction && isset($this->aConfigRoute['page'][$sAction])) {
@@ -498,6 +514,7 @@ class Router extends LsObject {
      * @return string
      */
     static public function Action($sAction, $sEvent = null, $aParams = null) {
+
         // если в $sAction передан путь вида action/event/param..., то обрабатываем его
         if (!$sEvent && !$aParams && ($n = substr_count($sAction, '/'))) {
             if ($n > 2) {
@@ -523,6 +540,7 @@ class Router extends LsObject {
      * @return string
      */
     static public function GetPathWebCurrent() {
+
         return self::$sPathWebCurrent;
     }
 
@@ -548,6 +566,7 @@ class Router extends LsObject {
      * @return string
      */
     static public function GetLang() {
+
         return self::$sLang;
     }
 
@@ -557,6 +576,7 @@ class Router extends LsObject {
      * @param   string  $sLang
      */
     static public function SetLang($sLang) {
+
         self::$sLang = $sLang;
     }
 
@@ -566,6 +586,7 @@ class Router extends LsObject {
      * @return string
      */
     static public function GetAction() {
+
         return self::getInstance()->Standart(self::$sAction);
     }
 
@@ -575,6 +596,7 @@ class Router extends LsObject {
      * @return string
      */
     static public function GetActionEvent() {
+
         return self::$sActionEvent;
     }
 
@@ -584,6 +606,7 @@ class Router extends LsObject {
      * @return string
      */
     static public function GetActionEventName() {
+
         return self::$sActionEventName;
     }
 
@@ -593,6 +616,7 @@ class Router extends LsObject {
      * @return string
      */
     static public function GetActionClass() {
+
         return self::$sActionClass;
     }
 
@@ -602,6 +626,7 @@ class Router extends LsObject {
      * @param string $sEvent    Евент
      */
     static public function SetActionEvent($sEvent) {
+
         self::$sActionEvent = $sEvent;
     }
 
@@ -611,6 +636,7 @@ class Router extends LsObject {
      * @return array
      */
     static public function GetParams() {
+
         return self::$aParams;
     }
 
@@ -623,6 +649,7 @@ class Router extends LsObject {
      * @return string
      */
     static public function GetParam($iOffset, $def = null) {
+
         $iOffset = (int)$iOffset;
         return isset(self::$aParams[$iOffset]) ? self::$aParams[$iOffset] : $def;
     }
@@ -649,6 +676,7 @@ class Router extends LsObject {
      * @param mixed $value
      */
     static public function SetParam($iOffset, $value) {
+
         self::$aParams[$iOffset] = $value;
     }
 
@@ -659,6 +687,7 @@ class Router extends LsObject {
      * @param bool $bState
      */
     static public function SetIsShowStats($bState) {
+
         self::$bShowStats = $bState;
     }
 
@@ -668,6 +697,7 @@ class Router extends LsObject {
      * @return bool
      */
     static public function GetIsShowStats() {
+
         return self::$bShowStats;
     }
 
@@ -677,6 +707,7 @@ class Router extends LsObject {
      * @return bool
      */
     static public function GetIsAjaxRequest() {
+
         return F::AjaxRequest();
     }
 
@@ -689,6 +720,7 @@ class Router extends LsObject {
      * @return mixed
      */
     public function __call($sName, $aArgs) {
+
         return $this->oEngine->_CallModule($sName, $aArgs);
     }
 
@@ -707,6 +739,7 @@ class Router extends LsObject {
      * @return string
      */
     static public function GetPath($action) {
+
         // Если пользователь запросил action по умолчанию
         $sPage = ($action == 'default')
             ? self::getInstance()->aConfigRoute['config']['action_default']
@@ -725,6 +758,7 @@ class Router extends LsObject {
      * @return string
      */
     public function Rewrite($sPage) {
+
         return (isset($this->aConfigRoute['rewrite'][$sPage]))
             ? $this->aConfigRoute['rewrite'][$sPage]
             : $sPage;
@@ -741,6 +775,7 @@ class Router extends LsObject {
      * @return string
      */
     public function Standart($sPage) {
+
         $aRewrite = array_flip($this->aConfigRoute['rewrite']);
         return (isset($aRewrite[$sPage]))
             ? $aRewrite[$sPage]
@@ -758,6 +793,7 @@ class Router extends LsObject {
      * @param string $sLocation    URL для редиректа
      */
     static public function Location($sLocation) {
+
         self::getInstance()->oEngine->Shutdown();
         if (substr($sLocation, 0, 1) !== '/') {
             // Проверка на "виртуальный" путь
@@ -780,6 +816,7 @@ class Router extends LsObject {
      * @return  string
      */
     protected function _getUrlPart($aData, $sPart) {
+
         $sResult = '';
         if ($sPart == 'url') {
             $sResult = $this->_getUrlPart($aData, 'link');
@@ -813,6 +850,7 @@ class Router extends LsObject {
     }
 
     public function GetCurrentUrlInfo($sPart = null) {
+
         if (!$sPart) {
             return $this->aCurrentUrl;
         }
@@ -820,6 +858,7 @@ class Router extends LsObject {
     }
 
     public function GetBackwardUrlInfo($sPart = null) {
+
         if (!$sPart) {
             return $this->aBackwardUrl;
         }
@@ -833,6 +872,7 @@ class Router extends LsObject {
      * @return  array|string
      */
     static public function Url($sPart = null) {
+
         return self::getInstance()->GetCurrentUrlInfo($sPart);
     }
 
@@ -843,6 +883,7 @@ class Router extends LsObject {
      * @return  array|string
      */
     static public function Backward($sPart = null) {
+
         return self::getInstance()->GetBackwardUrlInfo($sPart);
     }
 
@@ -850,6 +891,7 @@ class Router extends LsObject {
      * Переход к предыдущему URL
      */
     static public function GotoBack() {
+
         $sUrl = self::Backward('link');
         if ($sUrl) self::Url(('link'));
         self::Location($sUrl);
@@ -862,6 +904,7 @@ class Router extends LsObject {
      * @param   bool $bSecurity  - защита от CSRF
      */
     static public function ReturnBack($bSecurity = null) {
+
         if (!$bSecurity || E::Security_ValidateSendForm(false)) {
             if (($sUrl = F::GetPost('return_url')) || ($sUrl = F::GetPost('return-path'))) {
                 self::Location($sUrl);
@@ -877,6 +920,7 @@ class Router extends LsObject {
      * @return string
      */
     static public function GetTopicUrlMask($bEmptyIfWrong = true) {
+
         if (is_null(self::$sTopicUrlMask)) {
             $sUrlMask = Config::Get('module.topic.url');
             if ($sUrlMask) {
@@ -913,6 +957,7 @@ class Router extends LsObject {
     }
 
     static public function GetTopicUrlPattern() {
+
         $sUrlPattern = self::GetTopicUrlMask();
         if ($sUrlPattern) {
             $sUrlPattern = preg_quote($sUrlPattern);
