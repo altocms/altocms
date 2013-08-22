@@ -60,6 +60,9 @@
     <li class="nav-menu_comments {if $sEvent=='comments'}active{/if}">
         <a href="{router page="admin"}comments/">{$aLang.action.admin.menu_content_comments}</a>
     </li>
+    <li class="nav-menu_mresources {if $sEvent=='mresources'}active{/if}">
+        <a href="{router page="admin"}mresources/">{$aLang.action.admin.menu_content_mresources}</a>
+    </li>
     {hook run='admin_menu_content'}
 
     <li class="nav-header"><i class="icon-user"></i>{$aLang.action.admin.menu_users}</li>

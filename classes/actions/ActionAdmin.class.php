@@ -59,6 +59,7 @@ class ActionAdmin extends Action {
         $this->AddEvent('blogs', 'EventBlogs');
         $this->AddEvent('topics', 'EventTopics');
         $this->AddEvent('comments', 'EventComments');
+        $this->AddEvent('mresources', 'EventMresources');
 
         $this->AddEvent('users', 'EventUsers');
         $this->AddEvent('banlist', 'EventBanlist');
@@ -1265,6 +1266,33 @@ class ActionAdmin extends Action {
             Router::GetPath('admin') . 'comments/');
 
         $this->Viewer_Assign('aComments', $aResult['collection']);
+        $this->Viewer_Assign('aPaging', $aPaging);
+    }
+
+    /**
+     * View and managment of Mresources
+     */
+    protected function EventMresources() {
+
+        $this->_setTitle($this->Lang_Get('action.admin.mresources_title'));
+        $this->SetTemplateAction('content/mresources_list');
+
+        $sCmd = $this->GetPost('cmd');
+        if ($sCmd == 'delete') {
+            $this->_commentDelete();
+        }
+
+        // * Передан ли номер страницы
+        $nPage = $this->_getPageNum();
+
+        $aFilter = array(
+            //'type' => ModuleMresource::TYPE_IMAGE,
+        );
+        $aResult = $this->Mresource_GetMresourcesByFilter($aFilter, $nPage, Config::Get('admin.items_per_page'));
+        $aPaging = $this->Viewer_MakePaging($aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4,
+            Router::GetPath('admin') . 'mresources/');
+
+        $this->Viewer_Assign('aMresources', $aResult['collection']);
         $this->Viewer_Assign('aPaging', $aPaging);
     }
 

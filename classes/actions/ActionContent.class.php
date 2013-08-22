@@ -96,8 +96,8 @@ class ActionContent extends Action {
 
         //Фото
         $this->AddEvent('deleteimage', 'EventDeletePhoto'); // Удаление изображения
-        $this->AddEvent('upload', 'EventUpload'); // Загрузка изображения
-        $this->AddEvent('getMore', 'EventGetMore'); // Загрузка изображения на сервер
+        $this->AddEvent('upload', 'EventUpload'); // Загрузка изображения на сервер
+        $this->AddEvent('getMore', 'EventGetMore'); // Подгрузка изображений
         $this->AddEvent('setimagedescription', 'EventSetPhotoDescription'); // Установка описания к фото
 
         //Переход для топика с оригиналом

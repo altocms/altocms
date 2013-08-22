@@ -511,6 +511,7 @@ $config['router']['rewrite'] = array();
 
 // Правила реврайта для REQUEST_URI
 $config['router']['uri'] = array(
+    '~^(uploads/images/[\w\/\_\-\.]+\.(png|jpg|jpeg|gif)\/?$)~i' => 'img/$1',
     // запрет обработки статичных файлов с заданными расширениями
     /* допустимые значения:
      *  - @ignore   - запрос игнорируется и его обработка прекращается
@@ -547,6 +548,7 @@ $config['router']['page']['feed']          = 'ActionUserfeed';
 $config['router']['page']['stream']        = 'ActionStream';
 $config['router']['page']['photoset']      = 'ActionPhotoset';
 $config['router']['page']['subscribe']     = 'ActionSubscribe';
+$config['router']['page']['img']           = 'ActionImg';
 
 // Глобальные настройки роутинга
 $config['router']['config']['action_default']   = 'homepage';

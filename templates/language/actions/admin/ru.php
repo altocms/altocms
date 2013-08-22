@@ -24,6 +24,7 @@ return array(
     'menu_content_blogs' => 'Блоги',
     'menu_content_topics' => 'Статьи',
     'menu_content_comments' => 'Комментарии',
+    'menu_content_mresources' => 'Медиаресурсы',
 
     'menu_users' => 'Пользователи',
     'menu_users_users' => 'Все пользователи',
@@ -144,6 +145,9 @@ return array(
 
     /* COMMENTS */
     'comments_title' => 'Комментарии',
+
+    /* MRESOURCES */
+    'mresources_title' => 'Медиаресурсы',
 
     /* USERS */
     'users_title' => 'Пользователи',
