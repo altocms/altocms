@@ -399,6 +399,7 @@ class ActionAdmin extends Action {
      * Site settings
      */
     public function EventConfig() {
+
         $this->_setTitle($this->Lang_Get('action.admin.config_title'));
 
         $sMode = $this->_getMode(0, 'base');
@@ -408,7 +409,7 @@ class ActionAdmin extends Action {
         } elseif ($sMode == 'edit') {
             $this->_eventConfigEdit($sMode);
         } else {
-            $this->_eventConfigFields($sMode);
+            $this->_eventConfigParams($sMode);
         }
         $this->Viewer_Assign('sMode', $sMode);
     }
@@ -418,8 +419,9 @@ class ActionAdmin extends Action {
      *
      * @param   string  $sSelectedSection
      */
-    protected function _eventConfigFields($sSelectedSection) {
-        $this->SetTemplateAction('settings/config_fields');
+    protected function _eventConfigParams($sSelectedSection) {
+
+        $this->SetTemplateAction('settings/params');
 
         $aFields = F::IncludeFile(Config::Get('path.config.dir') . 'actions/admin.settings.php', false, true);
         foreach ($aFields as $nSec => $aSection) {
@@ -453,6 +455,7 @@ class ActionAdmin extends Action {
      * Site settings > Links
      */
     protected function _eventConfigLinks() {
+
         if ($sHomePage = $this->GetPost('submit_data_save')) {
             $aConfig = array();
             if ($sHomePage = $this->GetPost('homepage')) {
@@ -509,7 +512,7 @@ class ActionAdmin extends Action {
             }
             Router::Location('admin/config/links/');
         }
-        $this->SetTemplateAction('settings/config_links');
+        $this->SetTemplateAction('settings/links');
         $sHomePage = Config::Get('router.config.homepage');
 
         $sHomePageUrl = '';
@@ -548,6 +551,7 @@ class ActionAdmin extends Action {
      * Site settings > Edit
      */
     protected function _eventConfigEdit() {
+
         $aUnits = array(
             'S' => array('name' => 'seconds'),
             'M' => array('name' => 'minutes'),
@@ -604,7 +608,7 @@ class ActionAdmin extends Action {
             Router::Location('admin/config/');
             exit;
         }
-        $this->SetTemplateAction('settings/config_edit');
+        $this->SetTemplateAction('settings/edit');
         $nCommentEditTime = F::ToSeconds(Config::Get('module.comment.edit.enable'));
         if ($nCommentEditTime) {
             $sCommentEditUnit = $aUnits['S']['name'];
@@ -851,6 +855,7 @@ class ActionAdmin extends Action {
     /**********************************************************************************/
 
     protected function EventPages() {
+
         $this->_setTitle($this->Lang_Get('action.admin.pages_title'));
         // * Получаем и загружаем список всех страниц
         $aPages = $this->Page_GetPages();
@@ -888,10 +893,11 @@ class ActionAdmin extends Action {
         if ($this->GetParam(0) == 'sort') {
             $this->_eventPagesListSort();
         }
-        $this->SetTemplateAction('publications/page_list');
+        $this->SetTemplateAction('content/pages_list');
     }
 
     protected function _eventPagesListSort() {
+
         $this->Security_ValidateSendForm();
         if ($oPage = $this->Page_GetPageById($this->GetParam(1))) {
             $sWay = $this->GetParam(2) == 'down' ? 'down' : 'up';
@@ -918,8 +924,9 @@ class ActionAdmin extends Action {
     }
 
     protected function _eventPagesEdit($sMode) {
+
         $this->_setTitle($this->Lang_Get('action.admin.pages_title'));
-        $this->SetTemplateAction('publications/page_add');
+        $this->SetTemplateAction('content/pages_add');
         $this->Viewer_Assign('sMode', $sMode);
         /**
          * Обработка создания новой страницы
@@ -1067,6 +1074,7 @@ class ActionAdmin extends Action {
      * @return unknown
      */
     protected function CheckPageFields() {
+
         $this->Security_ValidateSendForm();
 
         $bOk = true;
@@ -1126,8 +1134,9 @@ class ActionAdmin extends Action {
     /**********************************************************************************/
 
     protected function EventBlogs() {
+
         $this->_setTitle($this->Lang_Get('action.admin.blogs_title'));
-        $this->SetTemplateAction('publications/blogs_list');
+        $this->SetTemplateAction('content/blogs_list');
 
         $sMode = 'all';
 
@@ -1216,8 +1225,9 @@ class ActionAdmin extends Action {
     /**********************************************************************************/
 
     protected function EventTopics() {
+
         $this->_setTitle($this->Lang_Get('action.admin.topics_title'));
-        $this->SetTemplateAction('publications/topics_list');
+        $this->SetTemplateAction('content/topics_list');
 
         $sCmd = $this->GetPost('cmd');
         if ($sCmd == 'delete') {
@@ -1238,8 +1248,9 @@ class ActionAdmin extends Action {
     /**********************************************************************************/
 
     protected function EventComments() {
+
         $this->_setTitle($this->Lang_Get('action.admin.comments_title'));
-        $this->SetTemplateAction('publications/comments_list');
+        $this->SetTemplateAction('content/comments_list');
 
         $sCmd = $this->GetPost('cmd');
         if ($sCmd == 'delete') {
@@ -1260,6 +1271,7 @@ class ActionAdmin extends Action {
     /**********************************************************************************/
 
     protected function EventUsers() {
+
         $this->_setTitle($this->Lang_Get('action.admin.users_title'));
         $this->SetTemplateAction('users/users');
 
@@ -1321,6 +1333,7 @@ class ActionAdmin extends Action {
     }
 
     protected function _eventUsersCmdBan($aUsersId, $nDays, $sComment) {
+
         if ($aUsersId) {
             if ($this->Admin_BanUsers($aUsersId, $nDays, $sComment)) {
                 $this->Message_AddNotice($this->Lang_Get('action.admin.action_ok'), null, true);
@@ -1333,6 +1346,7 @@ class ActionAdmin extends Action {
     }
 
     protected function _eventUsersCmdUnban($aUsersId) {
+
         if ($aUsersId) {
             $aId = F::Array_Str2ArrayInt($aUsersId, ',', true);
             if ($this->Admin_UnbanUsers($aId)) {
@@ -1346,6 +1360,7 @@ class ActionAdmin extends Action {
     }
 
     protected function _eventIpsCmdBan($sIp, $nDays, $sComment) {
+
         $aIp = explode('.', $sIp) + array(0, 0, 0, 0);
         if ($aIp[0] < 1 || $aIp[0] > 254) {
             // error - first part cannot be empty
@@ -1374,7 +1389,8 @@ class ActionAdmin extends Action {
     }
 
     protected function _eventUsersList($sMode) {
-        $this->SetTemplateAction('users/users_list');
+
+        $this->SetTemplateAction('users/list');
         // * Передан ли номер страницы
         $nPage = $this->_getPageNum();
 
@@ -1420,6 +1436,7 @@ class ActionAdmin extends Action {
     }
 
     protected function _eventUsersCmdSetAdministrator() {
+
         $aUserLogins = F::Str2Array($this->GetPost('user_login_admin'), ',', true);
         if ($aUserLogins)
             foreach ($aUserLogins as $sUserLogin) {
@@ -1441,6 +1458,7 @@ class ActionAdmin extends Action {
     }
 
     protected function _eventUsersCmdUnsetAdministrator() {
+
         $aUserLogins = F::Str2Array($this->GetPost('users_list'), ',', true);
         if ($aUserLogins)
             foreach ($aUserLogins as $sUserLogin) {
@@ -1460,6 +1478,7 @@ class ActionAdmin extends Action {
     }
 
     protected function _eventUsersProfile() {
+
         $nUserId = $this->GetParam(1);
         $oUserProfile = $this->User_GetUserById($nUserId);
         if (!$oUserProfile) {
@@ -1495,10 +1514,12 @@ class ActionAdmin extends Action {
     }
 
     protected function _eventUsersProfileInfo($oUserProfile) {
+
         $this->SetTemplateAction('users/users_profile_info');
     }
 
     protected function _eventUsersFilter() {
+
         $aFilter = array();
 
         if (($sUserLogin = $this->GetPost('user_filter_login'))) {
@@ -1556,6 +1577,7 @@ class ActionAdmin extends Action {
     }
 
     protected function _eventUsersCmdMessage() {
+
         if ($this->GetPost('send_common_message') == 'yes') {
             $this->_eventUsersCmdMessageCommon();
         } else {
@@ -1564,6 +1586,7 @@ class ActionAdmin extends Action {
     }
 
     protected function _eventUsersCmdMessageCommon() {
+
         $bOk = true;
 
         $sTitle = $this->GetPost('talk_title');
@@ -1622,6 +1645,7 @@ class ActionAdmin extends Action {
     }
 
     protected function _eventUsersCmdMessageSeparate() {
+
         $bOk = true;
 
         $sTitle = getRequest('talk_title');
@@ -2342,7 +2366,7 @@ class ActionAdmin extends Action {
         }
 
         $this->_setTitle($this->Lang_Get('action.admin.set_title_lang'));
-        $this->SetTemplateAction('settings/config_lang');
+        $this->SetTemplateAction('settings/lang');
 
         $this->Viewer_Assign('aLanguages', $aLanguages);
         $this->Viewer_Assign('aLangAllow', $aLangAllow);
@@ -2374,8 +2398,9 @@ class ActionAdmin extends Action {
      *
      */
     protected function _eventBlogTypesList() {
+
         $this->_setTitle($this->Lang_Get('action.admin.blogtypes_menu'));
-        $this->SetTemplateAction('blog_types/index');
+        $this->SetTemplateAction('settings/blogtypes');
 
         $aBlogTypes = $this->Blog_GetBlogTypes();
         $aLangList = $this->Lang_GetLangList();
@@ -2388,8 +2413,9 @@ class ActionAdmin extends Action {
      *
      */
     protected function _eventBlogTypesAdd() {
+
         $this->_setTitle($this->Lang_Get('action.admin.blogtypes_menu'));
-        $this->SetTemplateAction('blog_types/add');
+        $this->SetTemplateAction('settings/blogtypes_add');
 
         $aLangList = $this->Lang_GetLangList();
         $this->Viewer_Assign('aLangList', $aLangList);
@@ -2418,8 +2444,9 @@ class ActionAdmin extends Action {
      *
      */
     protected function _eventBlogTypesEdit() {
+
         $this->_setTitle($this->Lang_Get('action.admin.blogtypes_menu'));
-        $this->SetTemplateAction('blog_types/add');
+        $this->SetTemplateAction('settings/blogtypes_add');
 
         $nBlogTypeId = intval($this->getParam(1));
         if ($nBlogTypeId) {
@@ -2488,6 +2515,7 @@ class ActionAdmin extends Action {
      *
      */
     protected function _eventBlogTypesEditSubmit() {
+
         $nBlogTypeId = intval($this->getParam(1));
         if ($nBlogTypeId) {
             $oBlogType = $this->Blog_GetBlogTypeById($nBlogTypeId);
@@ -2663,7 +2691,7 @@ class ActionAdmin extends Action {
     protected function EventUserRights() {
 
         $this->_setTitle($this->Lang_Get('action.admin.userrights_menu'));
-        $this->SetTemplateAction('user_rights/index');
+        $this->SetTemplateAction('settings/user_rights');
 
         if ($this->IsPost('submit_type_add')) {
             return $this->_eventUserRightsEditSubmit();
@@ -2709,6 +2737,7 @@ class ActionAdmin extends Action {
      *
      */
     protected function EventUserFields() {
+
         switch (getRequestStr('action')) {
             /**
              * Создание нового поля
@@ -2814,7 +2843,7 @@ class ActionAdmin extends Action {
                 $this->Viewer_Assign('aUserFields', $this->User_getUserFields());
                 $this->Viewer_Assign('aUserFieldTypes', $this->User_GetUserFieldTypes());
                 $this->_setTitle($this->Lang_Get('action.admin.user_fields_title'));
-                $this->SetTemplateAction('settings/userfields');
+                $this->SetTemplateAction('settings/user_fields');
         }
     }
 
@@ -2824,6 +2853,7 @@ class ActionAdmin extends Action {
      * @return bool
      */
     public function checkUserField() {
+
         if (!getRequestStr('title')) {
             $this->Message_AddError($this->Lang_Get('user_field_error_add_no_title'), $this->Lang_Get('error'));
             return false;
@@ -2845,8 +2875,9 @@ class ActionAdmin extends Action {
     /**********************************************************************************/
 
     protected function EventContent() {
+
         $this->_setTitle($this->Lang_Get('action.admin.content_menu'));
-        $this->SetTemplateAction('content/content');
+        $this->SetTemplateAction('settings/contenttypes');
         /*
          * Получаем список
          */
@@ -2867,7 +2898,7 @@ class ActionAdmin extends Action {
                 $oTypeTog->setContentActive($iToggle);
                 $this->Topic_UpdateContentType($oTypeTog);
 
-                Router::Location('admin/content/');
+                Router::Location('config/contenttypes/');
             }
         }
 
@@ -2883,8 +2914,9 @@ class ActionAdmin extends Action {
     }
 
     protected function EventContentAdd() {
+
         $this->_setTitle($this->Lang_Get('action.admin.content_add_title'));
-        $this->SetTemplateAction('content/add');
+        $this->SetTemplateAction('settings/contenttypes_add');
 
         /**
          * Вызов хуков
@@ -2933,7 +2965,7 @@ class ActionAdmin extends Action {
         }
 
         if ($this->Topic_AddContentType($oType)) {
-            Router::Location('admin/content/?add=success');
+            Router::Location('config/contenttypes/?add=success');
         }
 
 
@@ -2953,7 +2985,7 @@ class ActionAdmin extends Action {
          * Устанавливаем шаблон вывода
          */
         $this->_setTitle($this->Lang_Get('action.admin.content_edit_title'));
-        $this->SetTemplateAction('content/add');
+        $this->SetTemplateAction('settings/contenttypes_add');
 
         if (getRequest('fieldadd')) {
             $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.content_success_fieldadd'));
@@ -3027,7 +3059,7 @@ class ActionAdmin extends Action {
                 $this->Topic_changeType($sTypeOld, $oType->getContentUrl());
             }
 
-            Router::Location('admin/content/?edit=success');
+            Router::Location('config/contenttypes/?edit=success');
         }
     }
 
@@ -3125,7 +3157,7 @@ class ActionAdmin extends Action {
         /**
          * Устанавливаем шаблон вывода
          */
-        $this->SetTemplateAction('content/fieldadd');
+        $this->SetTemplateAction('settings/contenttypes_fieldadd');
 
         /**
          * Обрабатываем отправку формы
@@ -3192,7 +3224,7 @@ class ActionAdmin extends Action {
         /**
          * Устанавливаем шаблон вывода
          */
-        $this->SetTemplateAction('content/fieldadd');
+        $this->SetTemplateAction('settings/contenttypes_fieldadd');
         /**
          * Проверяем отправлена ли форма с данными
          */

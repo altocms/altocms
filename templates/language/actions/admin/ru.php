@@ -15,9 +15,9 @@ return array(
     'title' => 'Админпанель',
 
     'menu_info' => 'Информация',
-    'menu_info_dashboard' => 'Консоль',
+    'menu_info_dashboard' => 'Панель',
     'menu_info_report' => 'Отчет',
-    'menu_info_php' => 'Информация о PHP',
+    'menu_info_phpinfo' => 'Информация о PHP',
 
     'menu_content' => 'Контент',
     'menu_content_pages' => 'Страницы',
@@ -30,13 +30,13 @@ return array(
     'menu_users_banlist' => 'Бан-лист',
     'menu_users_invites' => 'Приглашения',
 
-    'menu_config' => 'Настройки',
-    'menu_config_site' => 'Настройки сайта',
-    'menu_config_lang' => 'Языки',
-    'menu_config_blogtypes' => 'Типы блогов',
-    'menu_config_content' => 'Типы контента',
-    'menu_config_userrights' => 'Права пользователей',
-    'menu_config_userfields' => 'Пользовательские поля',
+    'menu_settings' => 'Настройки',
+    'menu_settings_site' => 'Настройки сайта',
+    'menu_settings_lang' => 'Языки',
+    'menu_settings_blogtypes' => 'Типы блогов',
+    'menu_settings_content' => 'Типы контента',
+    'menu_settings_userrights' => 'Права пользователей',
+    'menu_settings_userfields' => 'Пользовательские поля',
 
     'menu_site' => 'Сайт',
     'menu_site_skins' => 'Оформление',

@@ -1,4 +1,4 @@
-{extends file='_index.tpl'}
+{extends file='./pages.tpl'}
 
 {block name="content-bar"}
     <div class="btn-group">

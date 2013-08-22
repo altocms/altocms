@@ -43,7 +43,7 @@
         <a href="{router page='admin'}report/">{$aLang.action.admin.menu_info_report}</a>
     </li>
     <li class="nav-menu_phpinfo {if $sEvent=='phpinfo'}active{/if}">
-        <a href="{router page='admin'}phpinfo/">{$aLang.action.admin.menu_info_php}</a>
+        <a href="{router page='admin'}phpinfo/">{$aLang.action.admin.menu_info_phpinfo}</a>
     </li>
     {hook run='admin_menu_info'}
 
@@ -64,7 +64,7 @@
 
     <li class="nav-header"><i class="icon-user"></i>{$aLang.action.admin.menu_users}</li>
     <li class="nav-menu_users {if $sEvent=='users'}active{/if}">
-        <a href="{router page="admin"}users/">{$aLang.action.admin.menu_users_users}</a>
+        <a href="{router page="admin"}users/">{$aLang.action.admin.menu_users_list}</a>
     </li>
     <li class="nav-menu_banlist {if $sEvent=='banlist'}active{/if}">
         <a href="{router page="admin"}banlist/">{$aLang.action.admin.menu_users_banlist}</a>
@@ -74,26 +74,26 @@
     </li -->
     {hook run='admin_menu_users'}
 
-    <li class="nav-header"><i class="icon-cog"></i>{$aLang.action.admin.menu_config}</li>
-    <li class="nav-menu_config {if $sEvent=='config'}active{/if}">
-        <a href="{router page="admin"}config/">{$aLang.action.admin.menu_config_site}</a>
+    <li class="nav-header"><i class="icon-cog"></i>{$aLang.action.admin.menu_settings}</li>
+    <li class="nav-menu_settings {if $sEvent=='config'}active{/if}">
+        <a href="{router page="admin"}config/">{$aLang.action.admin.menu_settings_site}</a>
     </li>
     <li class="nav-menu_lang {if $sEvent=='lang'}active{/if}">
-        <a href="{router page="admin"}lang/">{$aLang.action.admin.menu_config_lang}</a>
+        <a href="{router page="admin"}lang/">{$aLang.action.admin.menu_settings_lang}</a>
     </li>
     <li class="nav-menu_blogtypes {if $sEvent=='blogtypes'}active{/if}">
-        <a href="{router page="admin"}blogtypes/">{$aLang.action.admin.menu_config_blogtypes}</a>
+        <a href="{router page="admin"}blogtypes/">{$aLang.action.admin.menu_settings_blogtypes}</a>
     </li>
     <li class="nav-menu_content {if $sEvent=='content'}active{/if}">
-        <a href="{router page="admin"}content/">{$aLang.action.admin.menu_config_content}</a>
+        <a href="{router page="admin"}content/">{$aLang.action.admin.menu_settings_content}</a>
     </li>
     <li class="nav-menu_userrights {if $sEvent=='userrights'}active{/if}">
-        <a href="{router page="admin"}userrights/">{$aLang.action.admin.menu_config_userrights}</a>
+        <a href="{router page="admin"}userrights/">{$aLang.action.admin.menu_settings_userrights}</a>
     </li>
     <li class="nav-menu_userfields {if $sEvent=='userfields'}active{/if}">
-        <a href="{router page="admin"}userfields/">{$aLang.action.admin.menu_config_userfields}</a>
+        <a href="{router page="admin"}userfields/">{$aLang.action.admin.menu_settings_userfields}</a>
     </li>
-    {hook run='admin_menu_config'}
+    {hook run='admin_menu_settings'}
 
     <li class="nav-header"><i class="icon-th"></i>{$aLang.action.admin.menu_site}</li>
     <li class="nav-menu_skins {if $sEvent=='skins'}active{/if}">
