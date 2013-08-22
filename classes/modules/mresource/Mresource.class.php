@@ -29,6 +29,7 @@ class ModuleMresource extends Module {
      *
      */
     public function Init() {
+
         $this->oMapper = Engine::GetMapper(__CLASS__);
     }
 
@@ -89,6 +90,30 @@ class ModuleMresource extends Module {
             }
         }
         return false;
+    }
+
+    /**
+     * Нормализация URL
+     *
+     * @param $sUrl
+     * @param $sReplace
+     * @param $aAdditional
+     *
+     * @return array|string
+     */
+    public function NormalizeUrl($sUrl, $sReplace = '@', $aAdditional = '') {
+
+        if (is_array($sUrl)) {
+            $aUrls = $sUrl;
+            foreach ($aUrls as $nI => $sUrl) {
+                $aUrls[$nI] = $this->NormalizeUrl((string)$sUrl, $sReplace, $aAdditional);
+            }
+            return $aUrls;
+        }
+        $sUrl = str_replace(
+            array('http://@' . $aAdditional, 'https://@' . $aAdditional, 'ftp://@' . $aAdditional), $sReplace, $sUrl
+        );
+        return F::File_NormPath($sUrl);
     }
 
     /**
@@ -171,28 +196,10 @@ class ModuleMresource extends Module {
         return true;
     }
 
-    /**
-     * Нормализация URL
-     *
-     * @param $sUrl
-     * @param $sReplace
-     * @param $aAdditional
-     *
-     * @return array|string
-     */
-    public function NormalizeUrl($sUrl, $sReplace = '@', $aAdditional = '') {
+    public function GetMresourcesByFilter($aFilter, $nPage, $nPerPage) {
 
-        if (is_array($sUrl)) {
-            $aUrls = $sUrl;
-            foreach ($aUrls as $nI => $sUrl) {
-                $aUrls[$nI] = $this->NormalizeUrl((string)$sUrl, $sReplace, $aAdditional);
-            }
-            return $aUrls;
-        }
-        $sUrl = str_replace(
-            array('http://@' . $aAdditional, 'https://@' . $aAdditional, 'ftp://@' . $aAdditional), $sReplace, $sUrl
-        );
-        return F::File_NormPath($sUrl);
+        $aData = $this->oMapper->GetMresourcesByFilter($aFilter, $nPage, $nPerPage);
+        return array('collection' => $aData['data'], 'count' => 0);
     }
 
     public function GetMresourcesByTarget($sTargetType, $nTargetId) {

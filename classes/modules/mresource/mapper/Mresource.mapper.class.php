@@ -122,12 +122,23 @@ class ModuleMresource_MapperMresource extends Mapper {
         return array('data' => $aRows ? $aRows : array());
     }
 
-    public function _getMresourcesByCriteria($aCriteria) {
+    public function GetMresourcesByCriteria($aCriteria) {
 
         $aFilter = (isset($aCriteria['filter']) ? $aCriteria['filter'] : array());
         if (isset($aFilter['id']) && !isset($aFilter['mresource_id'])) {
             $aFilter['mresource_id'] = $aFilter['id'];
         }
+        list($nOffset, $nLimit) = $this->_prepareLimit($aCriteria);
+
+        // Формируем строку лимита и автосчетчик общего числа записей
+        if ($nOffset !== false && $nLimit !== false) {
+            $sSqlLimit = 'LIMIT ' . $nOffset . ', ' . $nLimit;
+        } elseif ($nLimit != false) {
+            $sSqlLimit = 'LIMIT ' . $nLimit;
+        } else {
+            $sSqlLimit = 'LIMIT 0';
+        }
+
         $bTargetsCount = false;
         if (isset($aCriteria['fields'])) {
             if (is_array($aCriteria['fields'])) {
@@ -159,6 +170,7 @@ class ModuleMresource_MapperMresource extends Mapper {
                 {AND mr.hash_url IN (?a:hash_url_a)}
                 {AND mr.hash_file=?:hash_file}
                 {AND mr.hash_file IN (?:hash_file_a)}
+            $sSqlLimit
         ");
         $aRows = $oSql->bind(
             array(
@@ -191,7 +203,23 @@ class ModuleMresource_MapperMresource extends Mapper {
                 }
             }
         }
-        return array('data' => $aRows ? $aRows : array());
+        return array(
+            'data' => $aRows ? $aRows : array(),
+            'total' => -1,
+        );
+    }
+
+    public function GetMresourcesByFilter($aFilter, $nPage, $nPerPage) {
+
+        $aCriteria = array(
+            'filter' => $aFilter,
+            'limit'  => array(($nPage - 1) * $nPerPage, $nPerPage),
+        );
+        $aData = $this->GetMresourcesByCriteria($aCriteria);
+        if ($aData['data']) {
+            $aData['data'] = Engine::GetEntityRows('Mresource', $aData['data']);
+        }
+        return $aData;
     }
 
     public function GetMresourcesIdByUrl($aUrls, $nUserId = null) {
@@ -222,7 +250,7 @@ class ModuleMresource_MapperMresource extends Mapper {
         if ($nUserId) {
             $aCritera['filter']['user_id'] = $nUserId;
         }
-        $aData = $this->_getMresourcesByCriteria($aCritera);
+        $aData = $this->GetMresourcesByCriteria($aCritera);
         if ($aData['data']) {
             return F::Array_Column($aData['data'], 'mresource_id');
         }
@@ -258,7 +286,7 @@ class ModuleMresource_MapperMresource extends Mapper {
         if ($nUserId) {
             $aCritera['filter']['user_id'] = $nUserId;
         }
-        $aData = $this->_getMresourcesByCriteria($aCritera);
+        $aData = $this->GetMresourcesByCriteria($aCritera);
         $aResult = array();
         if ($aData['data']) {
             foreach($aData['data'] as $nI => $aRow) {
@@ -280,7 +308,7 @@ class ModuleMresource_MapperMresource extends Mapper {
             ),
         );
 
-        $aData = $this->_getMresourcesByCriteria($aCriteria);
+        $aData = $this->GetMresourcesByCriteria($aCriteria);
         $aResult = array();
         if ($aData['data']) {
             foreach($aData['data'] as $nI => $aRow) {
