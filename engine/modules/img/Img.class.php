@@ -26,6 +26,52 @@ class ModuleImg extends Module {
 
     }
 
+    public function GetDriversInfo() {
+
+        $aInfo = array();
+        foreach ($this->aDrivers as $sDriver) {
+            $sVersion = $this->GetDriverVersion($sDriver);
+            if ($sVersion) {
+                $aInfo[$sDriver] = $sVersion;
+            }
+        }
+        return $aInfo;
+    }
+
+    public function GetDriverVersion($sDriver) {
+
+        $sVersion = false;
+        $sDriver = strtolower($sDriver);
+        if (isset($this->aDrivers[$sDriver])) {
+            if ($this->aDrivers[$sDriver] == 'Imagick') {
+                if (class_exists('Imagick')) {
+                    $aInfo = Imagick::getVersion();
+                    $sVersion = $aInfo['versionString'];
+                    if (preg_match('/\w+\s\d+\.[\d\.\-]+/', $sVersion, $aMatches)) {
+                        $sVersion = $aMatches[0];
+                    }
+                }
+            } elseif ($this->aDrivers[$sDriver] == 'Gmagick') {
+                if (class_exists('Gmagick')) {
+                    $aInfo = Gmagick::getVersion();
+                    $sVersion = $aInfo['versionString'];
+                    if (preg_match('/\w+\s\d+\.[\d\.\-]+/', $sVersion, $aMatches)) {
+                        $sVersion = $aMatches[0];
+                    }
+                }
+            } else {
+                if (function_exists('gd_info')) {
+                    $aInfo = gd_info();
+                    $sVersion = $aInfo['GD Version'];
+                    if (preg_match('/\d+\.[\d\.]+/', $sVersion, $aMatches)) {
+                        $sVersion = $aMatches[0];
+                    }
+                }
+            }
+        }
+        return $sVersion;
+    }
+
     /**
      * Creates image
      *

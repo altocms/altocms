@@ -208,19 +208,19 @@ class ActionAdmin extends Action {
 
     protected function _getInfoData() {
 
-        $aPlugins = $this->Plugin_GetList();
+        $aPlugins = $this->Plugin_GetList(null, false);
         $aActivePlugins = $this->Plugin_GetActivePlugins();
         $aPluginList = array();
         foreach ($aActivePlugins as $sPlugin) {
             if (isset($aPlugins[$sPlugin])) {
-                $aPliginProps = $aPlugins[$sPlugin];
-                $sPluginName = htmlspecialchars((string)$aPliginProps['property']->name->data);
+                $oPluginEntity = $aPlugins[$sPlugin];
+                $sPluginName = $oPluginEntity->GetName();
                 $aPluginInfo = array(
                     'item' => $sPlugin,
                     'label' => $sPluginName,
                 );
-                if ($aPliginProps['property']->version) {
-                    $aPluginInfo['value'] = 'v.' . htmlspecialchars((string)$aPliginProps['property']->version);
+                if ($sVersion = $oPluginEntity->GetVersion()) {
+                    $aPluginInfo['value'] = 'v.' . $sVersion;
                 }
                 $sPluginClass = 'Plugin' . ucfirst($sPlugin);
                 if (class_exists($sPluginClass) && method_exists($sPluginClass, 'GetUpdateInfo')) {
@@ -234,11 +234,25 @@ class ActionAdmin extends Action {
         $aSiteStat = $this->Admin_GetSiteStat();
         $sSmartyVersion = $this->Viewer_GetSmartyVersion();
 
+        $aImgSupport = $this->Img_GetDriversInfo();
+        $sImgSupport = '';
+        if ($aImgSupport) {
+            foreach ($aImgSupport as $sDriver => $sVersion) {
+                if ($sImgSupport) {
+                    $sImgSupport .= '; ';
+                }
+                $sImgSupport .= $sDriver . ': ' . $sVersion;
+            }
+        } else {
+            $sImgSupport = 'none';
+        }
+
         $aInfo = array(
             'versions' => array(
                 'label' => $this->Lang_Get('action.admin.info_versions'),
                 'data' => array(
                     'php' => array('label' => $this->Lang_Get('action.admin.info_version_php'), 'value' => PHP_VERSION,),
+                    'img' => array('label' => $this->Lang_Get('action.admin.info_version_img'), 'value' => $sImgSupport,),
                     'smarty' => array('label' => $this->Lang_Get('action.admin.info_version_smarty'), 'value' => $sSmartyVersion ? $sSmartyVersion : 'n/a',),
                     'alto' => array('label' => $this->Lang_Get('action.admin.info_version_alto'), 'value' => ALTO_VERSION,),
                 )
@@ -250,6 +264,7 @@ class ActionAdmin extends Action {
                     'url' => array('label' => $this->Lang_Get('action.admin.info_site_url'), 'value' => Config::Get('path.root.url'),),
                     'skin' => array('label' => $this->Lang_Get('action.admin.info_site_skin'), 'value' => $this->Viewer_GetSkin(),),
                     'client' => array('label' => $this->Lang_Get('action.admin.info_site_client'), 'value' => $_SERVER['HTTP_USER_AGENT'],),
+                    'empty' => array('label' => '', 'value' => '',),
                 ),
             ),
             'plugins' => array(

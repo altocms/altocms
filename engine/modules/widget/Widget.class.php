@@ -3,7 +3,6 @@
  * @Project: Alto CMS
  * @Project URI: http://altocms.com
  * @Description: Advanced Community Engine
- * @Version: 0.9a
  * @Copyright: Alto CMS Team
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
@@ -38,6 +37,7 @@ class ModuleWidget extends Module {
      * Инициализация модуля
      */
     public function Init() {
+
         $this->sCurentPath = Router::GetControllerPath();
     }
 
@@ -47,6 +47,7 @@ class ModuleWidget extends Module {
      * @return array
      */
     protected function _loadWidgetsList() {
+
         // Список виджетов из основного конфига
         $aWidgets = (array)Config::Get('widgets');
 
@@ -82,6 +83,7 @@ class ModuleWidget extends Module {
      * @return  ModuleWidget_EntityWidget
      */
     public function MakeWidget($aWidgetData) {
+
         $oWidget = Engine::GetEntity('Widget', $aWidgetData);
         /*
          * Перенесено в конструктор
@@ -101,6 +103,7 @@ class ModuleWidget extends Module {
      * @return  array
      */
     public function GetWidgets($bAll = false) {
+
         $aWidgets = $this->_loadWidgetsList();
 
         // Если массив пустой или фильтровать не нужно, то возвращаем, как есть
@@ -126,6 +129,7 @@ class ModuleWidget extends Module {
      * @return  string|bool
      */
     public function FileClassExists($sName, $sPlugin = null, $bReturnClassName = false) {
+
         $sName = ucfirst($sName);
         if (!$sPlugin) {
             $sFile = Config::Get('path.root.dir') . '/classes/widgets/Widget' . $sName . '.class.php';

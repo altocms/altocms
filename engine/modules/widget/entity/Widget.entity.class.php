@@ -3,7 +3,6 @@
  * @Project: Alto CMS
  * @Project URI: http://altocms.com
  * @Description: Advanced Community Engine
- * @Version: 0.9a
  * @Copyright: Alto CMS Team
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
@@ -12,6 +11,7 @@
 class ModuleWidget_EntityWidget extends Entity {
 
     public function __construct($aParam = null) {
+
         parent::__construct($aParam);
         if ($this->GetName()) {
             // задается идентификатор виджета
@@ -33,6 +33,7 @@ class ModuleWidget_EntityWidget extends Entity {
      * Проверка идентификатора виджета, если не задан, то берется из хеша
      */
     protected function _checkId() {
+
         if (!$this->isProp('id')) {
             $sId = $this->GetHash();
             $this->setProp('id', $sId);
@@ -43,12 +44,14 @@ class ModuleWidget_EntityWidget extends Entity {
     /**
      * Преобразует значение свойства в массив
      */
-    protected function _getDataOneAsArray($sKey, $sSeparateChar = ',') {
+    protected function getPropArray($sKey, $sSeparateChar = ',') {
+
         $xVal = $this->getProp($sKey);
         return F::Val2Array($xVal, $sSeparateChar);
     }
 
     protected function _setDisplay($sLabel, $sDate) {
+
         $sDate = date('Y-m-d', strtotime($sDate));
         $aData = $this->GetDisplay();
         if (!is_array($aData)) {
@@ -65,6 +68,7 @@ class ModuleWidget_EntityWidget extends Entity {
      * @param $sDate
      */
     public function SetDisplayFrom($sDate) {
+
         $this->_setDisplay('date_from', $sDate);
     }
 
@@ -74,6 +78,7 @@ class ModuleWidget_EntityWidget extends Entity {
      * @param $sDate
      */
     public function SetDisplayUpto($sDate) {
+
         $this->_setDisplay('date_upto', $sDate);
     }
 
@@ -84,21 +89,25 @@ class ModuleWidget_EntityWidget extends Entity {
      * @param   mixed   $xVal
      */
     public function SetParam($sKey, $xVal) {
+
         $aParams = $this->GetParams();
         $aParams[$sKey] = $xVal;
         $this->SetParams($aParams);
     }
 
     public function SetParams($xVal) {
+
         $this->setProp('params', (array)$xVal);
     }
 
 
     public function GetParams() {
+
         return (array)$this->getProp('params');
     }
 
     public function GetParam($sKey) {
+
         $aParams = $this->GetParams();
         if (isset($aParams[$sKey])) {
             return $aParams[$sKey];
@@ -113,6 +122,7 @@ class ModuleWidget_EntityWidget extends Entity {
      * @return string
      */
     public function GetId() {
+
         $sId = $this->getProp('id');
         if (!$sId) {
             $sId = $this->_checkId();
@@ -126,6 +136,7 @@ class ModuleWidget_EntityWidget extends Entity {
      * @return mixed|null
      */
     public function GetGroup() {
+
         $sGroup = $this->getProp('wgroup');
         if (!$sGroup) {
             $sGroup = $this->getProp('group');
@@ -134,10 +145,12 @@ class ModuleWidget_EntityWidget extends Entity {
     }
 
     public function GetHash() {
+
         return md5($this->GetPluginId() . '.' . $this->GetName());
     }
 
     public function GetPluginId() {
+
         $sResult = $this->getProp('plugin');
         if (is_null($sResult)) {
             /* LS-compatible */
@@ -147,6 +160,7 @@ class ModuleWidget_EntityWidget extends Entity {
     }
 
     public function GetDir() {
+
         $sDir = $this->GetParam('dir');
         if ($sPlugin = $this->GetPluginId()) {
             $sDir = F::File_NormPath(Plugin::GetTemplatePath($sPlugin) . '/' . $sDir);
@@ -155,24 +169,29 @@ class ModuleWidget_EntityWidget extends Entity {
     }
 
     public function GetIncludePaths() {
-        $xResult = $this->_getDataOneAsArray('on');
+
+        $xResult = $this->getPropArray('on');
         return $xResult;
     }
 
     public function GetExcludePaths() {
-        $xResult = $this->_getDataOneAsArray('off');
+
+        $xResult = $this->getPropArray('off');
         return $xResult;
     }
 
     public function GetName() {
+
         return $this->getProp('name');
     }
 
     public function GetActions() {
+
         return (array)$this->getProp('action');
     }
 
     public function GetDisplay() {
+
         return $this->getProp('display', true);
     }
 
@@ -180,6 +199,7 @@ class ModuleWidget_EntityWidget extends Entity {
      * Период действия виджета
      */
     public function GetPeriod() {
+
         $xData = $this->GetDisplay();
         if (is_array($xData)) {
             return $xData;
@@ -188,6 +208,7 @@ class ModuleWidget_EntityWidget extends Entity {
     }
 
     public function GetDateFrom() {
+
         $aData = $this->GetPeriod();
         if (isset($aData['date_from'])) {
             return $aData['date_from'];
@@ -196,6 +217,7 @@ class ModuleWidget_EntityWidget extends Entity {
     }
 
     public function GetDateUpto() {
+
         $aData = $this->GetPeriod();
         if (isset($aData['date_upto'])) {
             return $aData['date_upto'];
@@ -209,6 +231,7 @@ class ModuleWidget_EntityWidget extends Entity {
      * @return bool
      */
     public function isActive() {
+
         return (bool)$this->getProp('active', true);
     }
 
@@ -218,6 +241,7 @@ class ModuleWidget_EntityWidget extends Entity {
      * @return bool
      */
     public function isTop() {
+
         return ($sVal = $this->GetPriority()) && strtolower($sVal) == 'top';
     }
 
@@ -229,6 +253,7 @@ class ModuleWidget_EntityWidget extends Entity {
      * @return  bool
      */
     public function isDisplay($bCheckDateOnly = false) {
+
         $xDisplay = $this->GetDisplay();
         $bResult = (bool)$xDisplay && $this->isActive();
         if ($bResult && is_array($xDisplay)) {
@@ -254,6 +279,7 @@ class ModuleWidget_EntityWidget extends Entity {
      * @return bool
      */
     public function isAction() {
+
         $aActions = $this->getActions();
         // если экшены не заданны, то соответствует любому экшену
         if (!$aActions) {
@@ -296,6 +322,7 @@ class ModuleWidget_EntityWidget extends Entity {
      * @return bool
      */
     public function isCondition() {
+
         $bResult = true;
         $sCondition = $this->GetCondition();
         if (is_string($sCondition) && $sCondition > '') {
@@ -322,6 +349,7 @@ class ModuleWidget_EntityWidget extends Entity {
      * @return mixed|null
      */
     public function GetVisitors() {
+
         $sVisitors = $this->getProp('visitors');
         return $sVisitors;
     }

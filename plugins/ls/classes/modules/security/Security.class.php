@@ -3,7 +3,6 @@
  * @Project: Alto CMS
  * @Project URI: http://altocms.com
  * @Description: Advanced Community Engine
- * @Version: 0.9a
  * @Copyright: Alto CMS Team
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
@@ -16,6 +15,7 @@ class PluginLs_ModuleSecurity extends PluginLs_Inherit_ModuleSecurity {
      * @return string
      */
     public function SetSessionKey() {
+
         $sCode = parent::SetSessionKey();
 
         // LS-compatible

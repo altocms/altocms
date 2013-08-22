@@ -431,6 +431,11 @@ $config['module']['topic']['photoset']['size'] = array(             // спис�
 
 $config['images']['settings']['default'] = array(
     'driver' => 'GD', // 'GD', 'Imagick' or 'Gmagick'
+    'jpg_quality' => 95,
+    'watermark' => array(
+        'use' => false,
+        'type' => 'text',
+    ),
 );
 
 // Какие модули должны быть загружены на старте

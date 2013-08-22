@@ -117,6 +117,7 @@ return array(
     'info_versions' => 'Версии',
 
     'info_version_php' => 'Версия PHP',
+    'info_version_img' => 'Графика',
     'info_version_smarty' => 'Версия Smarty',
     'info_version_alto' => 'Версия Alto CMS',
 

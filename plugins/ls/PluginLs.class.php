@@ -3,7 +3,6 @@
  * @Project: Alto CMS
  * @Project URI: http://altocms.com
  * @Description: Advanced Community Engine
- * @Version: 0.9a
  * @Copyright: Alto CMS Team
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
@@ -36,6 +35,7 @@ class PluginLs extends Plugin {
     );
 
     public function __construct() {
+
         if (F::File_Exists(Config::Get('path.smarty.template') . 'page_main_menu.tpl')) {
             // считаем, что скин адаптирован и делегаты шаблонов не нужны
             $this->aDelegates = null;
@@ -46,6 +46,7 @@ class PluginLs extends Plugin {
      * Активация плагина
      */
     public function Activate() {
+
         return true;
     }
 

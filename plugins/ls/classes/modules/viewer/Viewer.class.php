@@ -3,7 +3,6 @@
  * @Project: Alto CMS
  * @Project URI: http://altocms.com
  * @Description: Advanced Community Engine
- * @Version: 0.9a
  * @Copyright: Alto CMS Team
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
@@ -17,6 +16,7 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
      * DEPRECATED
      */
     public function GetBlocks($bSort = false) {
+
         $aWidgets = $this->GetWidgets($bSort);
         $aBlocks = array();
         foreach ($aWidgets as $sGroup=>$aWidgetList) {
@@ -40,6 +40,7 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
      * DEPRECATED
      */
     protected function DefineTypeBlock($sName, $sDir = null) {
+
         return $this->DefineWidgetType($sName, $sDir);
     }
 
@@ -47,10 +48,12 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
      * DEPRECATED
      */
     protected function SortBlocks() {
+
         return $this->SortWidgets();
     }
 
     protected function DefineWidgetType(&$sName, $sDir = null, $sPlugin = null) {
+
         if (strpos($sName, 'widgets/widget.') === 0) {
             $sLsBlockName = str_replace('widgets/widget.', 'blocks/block.', $sName);
             if ($sLsBlockName = $this->TemplateExists(is_null($sDir) ? $sLsBlockName : rtrim($sDir, '/') . '/' . ltrim($sLsBlockName, '/'))) {
@@ -63,6 +66,7 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
     }
 
     public function VarAssign() {
+
         parent::VarAssign();
 
         // В Alto CMS по умолчанию используется Smarty-переменная $aWidgets
@@ -73,26 +77,32 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
     }
 
     protected function InitBlockParams() {
+
         return $this->InitWidgetParams();
     }
 
     public function AddBlock($sGroup, $sName, $aParams = array(), $iPriority = 5) {
+
         return $this->AddWidget($sGroup, $sName, $aParams, $iPriority);
     }
 
     public function AddBlocks($sGroup, $aBlocks, $ClearWidgets = true) {
+
         return AddWidgets($sGroup, $aBlocks, $ClearWidgets);
     }
 
     public function ClearBlocks($sGroup) {
+
         return $this->ClearWidgets($sGroup);
     }
 
     public function ClearBlocksAll() {
+
         return $this->ClearAllWidgets();
     }
 
     protected function BuildBlocks() {
+
         $sAction = strtolower(Router::GetAction());
         $sEvent = strtolower(Router::GetActionEvent());
         $sEventName = strtolower(Router::GetActionEventName());
@@ -219,6 +229,7 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
     }
 
     public function SmartyDefaultTemplateHandler($sType, $sName, &$sContent, &$iTimestamp, $oSmarty) {
+
         $sResult = parent::SmartyDefaultTemplateHandler($sType, $sName, $sContent, $iTimestamp, $oSmarty);
         if (!$sResult) {
             if ($sType == 'file') {
@@ -239,6 +250,7 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
     }
 
     public function TemplateFormAddTopic() {
+
         return $this->Fetch(Plugin::GetTemplateDir('PluginLs') . 'inc.form_topic_add_end.tpl');
     }
 }

@@ -104,6 +104,7 @@ class ModulePlugin extends Module {
      * @return  array
      */
     public function GetList($aFilter = array(), $bAsArray = true) {
+
         if (is_null($this->aPluginsList)) {
             // Если списка плагинов нет, то создаем его
             if ($aPaths = glob($this->sPluginsDir . '*', GLOB_ONLYDIR)) {
@@ -507,6 +508,7 @@ class ModulePlugin extends Module {
      * @return array
      */
     public function GetActivePlugins() {
+
         return F::GetPluginsList();
     }
 

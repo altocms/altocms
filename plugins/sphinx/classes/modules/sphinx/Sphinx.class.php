@@ -3,7 +3,6 @@
  * @Project: Alto CMS
  * @Project URI: http://altocms.com
  * @Description: Advanced Community Engine
- * @Version: 0.9a
  * @Copyright: Alto CMS Team
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
@@ -35,6 +34,7 @@ class PluginSphinx_ModuleSphinx extends Module {
      *
      */
     public function Init() {
+
         $this->InitSphinx();
     }
 
@@ -73,6 +73,7 @@ class PluginSphinx_ModuleSphinx extends Module {
      * @return int
      */
     public function GetNumResultsByType($sTerms, $sObjType = 'topics', $aExtraFilters) {
+
         $aResults = $this->FindContent($sTerms, $sObjType, 1, 1, $aExtraFilters);
         return $aResults['total_found'];
     }
@@ -146,6 +147,7 @@ class PluginSphinx_ModuleSphinx extends Module {
      * @return string
      */
     public function GetLastError() {
+
         return mb_convert_encoding($this->oSphinx->GetLastError(), 'UTF-8');
     }
 
@@ -161,6 +163,7 @@ class PluginSphinx_ModuleSphinx extends Module {
      * @return array
      */
     public function GetSnippet($sText, $sIndex, $sTerms, $before_match, $after_match) {
+
         $aReturn = $this->oSphinx->BuildExcerpts(
             array($sText),
             Config::Get('plugin.sphinx.prefix') . $sIndex . 'Index', $sTerms,

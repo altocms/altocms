@@ -3,7 +3,6 @@
  * @Project: Alto CMS
  * @Project URI: http://altocms.com
  * @Description: Advanced Community Engine
- * @Version: 0.9a
  * @Copyright: Alto CMS Team
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
@@ -49,6 +48,7 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
      * Инициализация
      */
     public function Init() {
+
         $this->SetDefaultEvent('index');
         $this->Viewer_AddHtmlTitle($this->Lang_Get('search'));
     }
@@ -57,6 +57,7 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
      * Регистрация евентов
      */
     protected function RegisterEvent() {
+
         $this->AddEvent('index', 'EventIndex');
         $this->AddEvent('topics', 'EventTopics');
         $this->AddEvent('comments', 'EventComments');
@@ -73,6 +74,7 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
      * Обработка стандарта для браузеров Open Search
      */
     function EventOpenSearch() {
+
         Router::SetIsShowStats(false);
         $this->Viewer_Assign('sAdminMail', Config::Get('sys.mail.from_email'));
     }
@@ -187,6 +189,7 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
      * @return array
      */
     protected function PrepareRequest() {
+
         $aReq['q'] = getRequestStr('q');
         if (!func_check($aReq['q'], 'text', 2, 255)) {
             /**
