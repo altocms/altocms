@@ -146,6 +146,17 @@ class ActionTalk extends Action {
                 $this->Talk_MarkReadTalkUserByArray(array_keys($aTalksIdDel), $this->oUserCurrent->getId());
             }
         }
+		/**
+         * Обработка отметки непрочтенных сообщений
+         */
+        if (getRequest('submit_talk_unread')) {
+            $this->Security_ValidateSendForm();
+
+            $aTalksIdDel = getRequest('talk_select');
+            if (is_array($aTalksIdDel)) {
+                $this->Talk_MarkUnreadTalkUserByArray(array_keys($aTalksIdDel), $this->oUserCurrent->getId());
+            }
+        }
         $this->sMenuSubItemSelect = 'inbox';
         /**
          * Количество сообщений на страницу

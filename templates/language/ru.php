@@ -855,6 +855,7 @@ return array(
 	'talk_inbox_title' => 'Тема',
 	'talk_inbox_date' => 'Дата',
 	'talk_inbox_make_read' => 'Отметить как прочитанное',
+	'talk_inbox_make_unread' => 'Отметить как непрочитанное',
 	'talk_inbox_delete' => 'Удалить выделенное',
 	'talk_inbox_delete_confirm' => 'Действительно удалить переписку?',
 	'talk_comments' => 'Переписка',

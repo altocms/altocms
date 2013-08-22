@@ -825,6 +825,7 @@ return array(
 	'talk_inbox_title' => 'Subject',
 	'talk_inbox_date' => 'Date',
 	'talk_inbox_make_read' => 'Mark as read',
+	'talk_inbox_make_unread' => 'Mark as unread',
 	'talk_inbox_delete' => 'Delete correspondence',
 	'talk_inbox_delete_confirm' => 'Do you really want to delete correspondence?',
 	'talk_comments' => 'Correspondence',

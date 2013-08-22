@@ -16,29 +16,26 @@
 		 *}
 		<form action="{router page='talk'}" method="post" id="form_talks_list">
 			<input type="hidden" name="security_ls_key" value="{$LIVESTREET_SECURITY_KEY}" />
+			<input type="hidden" name="submit_talk_unread" id="form_talks_list_submit_unread" value="" />
 			<input type="hidden" name="submit_talk_read" id="form_talks_list_submit_read" value="" />
 			<input type="hidden" name="submit_talk_del" id="form_talks_list_submit_del" value="" />
-
-			<!--<button type="submit" onclick="ls.talk.makeReadTalks()" class="button">{$aLang.talk_inbox_make_read}</button>
-			<button type="submit" onclick="if (confirm('{$aLang.talk_inbox_delete_confirm}')){ ls.talk.removeTalks() };" class="button">{$aLang.talk_inbox_delete}</button> 
-			<br /><br />-->
 			
 			<div class="table-users-wrapper">
 				<div class="table-toolbar">
 					<section>
 						<ul>
 							<li class="delete">
-								<a href="#"><i class="icon-native-talk-delete"></i></a>
+								<a href="#" onclick="if (confirm('{$aLang.talk_inbox_delete_confirm}')){ ls.talk.removeTalks() };" title="{$aLang.talk_inbox_delete}"><i class="icon-native-talk-delete"></i></a>
 							</li>
 							<li class="mark">
-								<a href="#"><i class="icon-native-talk-mark"></i></a>
+								<a href="#" onclick="ls.talk.makeReadTalks();" title="{$aLang.talk_inbox_make_read}"><i class="icon-native-talk-mark"></i></a>
 							</li>
 							<li class="unmark">
-								<a href="#"><i class="icon-native-talk-unmark"></i></a>
+								<a href="#" onclick="ls.talk.makeUnreadTalks();"  title="{$aLang.talk_inbox_make_unread}"><i class="icon-native-talk-unmark"></i></a>
 							</li>
-							<li class="remove">
+							{*<li class="remove">
 								<a href="#"><i class="icon-native-talk-remove"></i></a>
-							</li>
+							</li>*}
 						</ul>
 					</section>
 				</div>
