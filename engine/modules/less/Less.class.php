@@ -8,7 +8,7 @@
  *----------------------------------------------------------------------------
  */
 
-require_once (Config::Get('path.root.engine') . '/lib/external/lessphp/lessc.inc.php');
+F::File_Lib('lessphp/lessc.inc.php');
 
 class ModuleLess extends Module {
 
