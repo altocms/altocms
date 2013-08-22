@@ -1,26 +1,24 @@
 <?php
-/*-------------------------------------------------------
-*
-*   LiveStreet Engine Social Networking
-*   Copyright © 2008 Mzhelskiy Maxim
-*
-*--------------------------------------------------------
-*
-*   Official site: www.livestreet.ru
-*   Contact e-mail: rus.engine@gmail.com
-*
-*   GNU General Public License, version 2:
-*   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-*
----------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
 
 /**
  * Абстракция плагина, от которой наследуются все плагины
  * Файл плагина должен находиться в каталоге /plugins/plgname/ и иметь название PluginPlgname.class.php
  *
  * @package engine
- * @since 1.0
+ * @since   1.0
  */
 abstract class Plugin extends LsObject {
     /**
@@ -28,13 +26,13 @@ abstract class Plugin extends LsObject {
      *
      * @var array
      */
-    static protected $aTemplatePath = array();
+    static protected $aTemplateDir = array();
     /**
-     * Web-адрес директорий шаблонов с учетом наличия соответствующего skin`a
+     * Web-адреса шаблонов с учетом наличия соответствующего skin`a
      *
      * @var array
      */
-    static protected $aTemplateWebPath = array();
+    static protected $aTemplateUrl = array();
     /**
      * Массив делегатов плагина
      *
@@ -51,6 +49,7 @@ abstract class Plugin extends LsObject {
     protected $oPluginEntity;
 
     public function __construct() {
+
         $this->oPluginEntity = $this->GetPluginEntity();
     }
 
@@ -64,9 +63,11 @@ abstract class Plugin extends LsObject {
     /**
      * Передает информацию о делегатах в модуль ModulePlugin
      * Вызывается Engine перед инициализацией плагина
+     *
      * @see Engine::LoadPlugins
      */
     final function Delegate() {
+
         $aDelegates = $this->GetDelegates();
         foreach ($aDelegates as $sObjectName => $aParams) {
             foreach ($aParams as $sFrom => $sTo) {
@@ -75,7 +76,7 @@ abstract class Plugin extends LsObject {
         }
 
         $aInherits = $this->GetInherits();
-        foreach ($aInherits as $sObjectName => $aParams) {
+        foreach ($aInherits as $aParams) {
             foreach ($aParams as $sFrom => $sTo) {
                 $this->Plugin_Inherit($sFrom, $sTo, get_class($this));
             }
@@ -88,6 +89,7 @@ abstract class Plugin extends LsObject {
      * @return array
      */
     final function GetInherits() {
+
         $aReturn = array();
         if (is_array($this->aInherits) && count($this->aInherits)) {
             foreach ($this->aInherits as $sObjectName => $aParams) {
@@ -112,6 +114,7 @@ abstract class Plugin extends LsObject {
      * @return array
      */
     final function GetDelegates() {
+
         $aReturn = array();
         if (is_array($this->aDelegates) && count($this->aDelegates)) {
             foreach ($this->aDelegates as $sObjectName => $aParams) {
@@ -134,21 +137,24 @@ abstract class Plugin extends LsObject {
      * Преобразовывает краткую форму имен делегатов в полную
      *
      * @param $sObjectName    Название типа объекта делегата
+     *
      * @see ModulePlugin::aDelegates
-     * @param $sFrom    Что делегируем
-     * @param $sTo        Что делегирует
+     *
+     * @param $sFrom          Что делегируем
+     * @param $sTo            Что делегирует
+     *
      * @return array
      */
     public function MakeDelegateParams($sObjectName, $sFrom, $sTo) {
         /**
-         * Если не указан делегат TO, считаем, что делегатом является
+         * Если не указан делегат то, считаем, что делегатом является
          * одноименный объект текущего плагина
          */
         if ($sObjectName == 'template') {
             if (!$sTo) {
-                $sTo = self::GetTemplatePath(get_class($this)) . $sFrom;
+                $sTo = self::GetTemplateDir(get_class($this)) . $sFrom;
             } else {
-                $sTo = preg_replace("/^_/", $this->GetTemplatePath(get_class($this)), $sTo);
+                $sTo = preg_replace("/^_/", self::GetTemplateDir(get_class($this)), $sTo);
             }
         } else {
             if (!$sTo) {
@@ -166,6 +172,7 @@ abstract class Plugin extends LsObject {
      * @return bool
      */
     public function Activate() {
+
         return true;
     }
 
@@ -175,6 +182,17 @@ abstract class Plugin extends LsObject {
      * @return bool
      */
     public function Deactivate() {
+
+        return true;
+    }
+
+    /**
+     * Метод удаления плагина
+     *
+     * @return bool
+     */
+    public function Remove() {
+
         return true;
     }
 
@@ -183,20 +201,25 @@ abstract class Plugin extends LsObject {
      * @see ModuleDatabase::ExportSQL
      *
      * @param  string $sFilePath    Полный путь до файла с SQL
+     *
      * @return array
      */
     protected function ExportSQL($sFilePath) {
+
         return $this->Database_ExportSQL($sFilePath);
     }
 
     /**
      * Выполняет SQL
+     *
      * @see ModuleDatabase::ExportSQLQuery
      *
      * @param string $sSql    Строка SQL запроса
+     *
      * @return array
      */
     protected function ExportSQLQuery($sSql) {
+
         return $this->Database_ExportSQLQuery($sSql);
     }
 
@@ -204,13 +227,16 @@ abstract class Plugin extends LsObject {
      * Проверяет наличие таблицы в БД
      * @see ModuleDatabase::isTableExists
      *
-     * @param string $sTableName    Название таблицы, необходимо перед именем таблицы добавлять "prefix_", это позволит учитывать произвольный префикс таблиц у пользователя
+     * @param string $sTableName    - Название таблицы, необходимо перед именем таблицы добавлять "prefix_",
+     *                                это позволит учитывать произвольный префикс таблиц у пользователя
      * <pre>
-     * prefix_topic
+     *                              prefix_topic
      * </pre>
+     *
      * @return bool
      */
     protected function isTableExists($sTableName) {
+
         return $this->Database_isTableExists($sTableName);
     }
 
@@ -218,49 +244,60 @@ abstract class Plugin extends LsObject {
      * Проверяет наличие поля в таблице
      * @see ModuleDatabase::isFieldExists
      *
-     * @param string $sTableName    Название таблицы, необходимо перед именем таблицы добавлять "prefix_", это позволит учитывать произвольный префикс таблиц у пользователя
-     * @param string $sFieldName    Название поля в таблице
+     * @param string $sTableName    - Название таблицы, необходимо перед именем таблицы добавлять "prefix_",
+     *                                это позволит учитывать произвольный префикс таблиц у пользователя
+     * @param string $sFieldName    - Название поля в таблице
+     *
      * @return bool
      */
     protected function isFieldExists($sTableName, $sFieldName) {
+
         return $this->Database_isFieldExists($sTableName, $sFieldName);
     }
 
     /**
      * Добавляет новый тип в поле enum(перечисление)
+     *
      * @see ModuleDatabase::addEnumType
      *
-     * @param string $sTableName    Название таблицы, необходимо перед именем таблицы добавлять "prefix_", это позволит учитывать произвольный префикс таблиц у пользователя
-     * @param string $sFieldName    Название поля в таблице
-     * @param string $sType            Название типа
+     * @param string $sTableName       - Название таблицы, необходимо перед именем таблицы добавлять "prefix_",
+     *                                   это позволит учитывать произвольный префикс таблиц у пользователя
+     * @param string $sFieldName       - Название поля в таблице
+     * @param string $sType            - Название типа
      */
     protected function addEnumType($sTableName, $sFieldName, $sType) {
+
         $this->Database_addEnumType($sTableName, $sFieldName, $sType);
     }
 
     public function GetName() {
+
         return substr(get_class($this), 6);
     }
 
     public function GetPluginEntity() {
+
         if (!$this->oPluginEntity) {
             $sPluginId = F::StrUnderscore($this->GetName());
             $this->oPluginEntity = Engine::GetEntity('Plugin', $sPluginId);
         }
         return $this->oPluginEntity;
     }
+
     /**
      * Возвращает версию плагина
      *
      * @return string|null
      */
     public function GetVersion() {
+
         if ($oPluginEntity = $this->GetPluginEntity()) {
             return $oPluginEntity->GetVersion();
         }
     }
 
     public function EngineCompatible() {
+
         if ($oPluginEntity = $this->GetPluginEntity()) {
             return $oPluginEntity->EngineCompatible();
         }
@@ -270,28 +307,32 @@ abstract class Plugin extends LsObject {
      * Возвращает полный серверный путь до плагина
      *
      * @param string $sName
+     *
      * @return string
      */
-    static public function GetPath($sName) {
+    static public function GetDir($sName) {
+
         $sName = preg_match('/^Plugin([\w]+)(_[\w]+)?$/Ui', $sName, $aMatches)
             ? strtolower($aMatches[1])
             : strtolower($sName);
 
-        return Config::Get('path.root.server') . '/plugins/' . $sName . '/';
+        return F::File_NormPath(F::File_RootDir() . '/plugins/' . $sName . '/');
     }
 
     /**
      * Возвращает полный web-адрес до плагина
      *
      * @param string $sName
+     *
      * @return string
      */
-    static public function GetWebPath($sName) {
+    static public function GetUrl($sName) {
+
         $sName = preg_match('/^Plugin([\w]+)(_[\w]+)?$/Ui', $sName, $aMatches)
             ? strtolower($aMatches[1])
             : strtolower($sName);
 
-        return Config::Get('path.root.web') . '/plugins/' . $sName . '/';
+        return F::File_NormPath(F::File_RootUrl() . '/plugins/' . $sName . '/');
     }
 
     /**
@@ -299,6 +340,7 @@ abstract class Plugin extends LsObject {
      * Если пользователь использует шаблон которого нет в плагине, то возвращает путь до шабона плагина 'default'
      *
      * @param string $sName    Название плагина или его класс
+     *
      * @return string|null
      */
     static public function GetTemplateDir($sName) {
@@ -306,25 +348,23 @@ abstract class Plugin extends LsObject {
         $sName = preg_match('/^Plugin([\w]+)(_[\w]+)?$/Ui', $sName, $aMatches)
             ? strtolower($aMatches[1])
             : strtolower($sName);
-        if (!isset(self::$aTemplatePath[$sName])) {
+        if (!isset(self::$aTemplateDir[$sName])) {
             $aPaths = glob(Config::Get('path.root.server') . '/plugins/' . $sName . '/templates/skin/*', GLOB_ONLYDIR);
             $sTemplateName = ($aPaths && in_array(Config::Get('view.skin'), array_map('basename', $aPaths)))
                 ? Config::Get('view.skin')
                 : 'default';
 
             $sDir = Config::Get('path.root.server') . "/plugins/{$sName}/templates/skin/{$sTemplateName}/";
-            self::$aTemplatePath[$sName] = is_dir($sDir) ? $sDir : null;
+            self::$aTemplateDir[$sName] = is_dir($sDir) ? $sDir : null;
         }
-        return self::$aTemplatePath[$sName];
+        return self::$aTemplateDir[$sName];
     }
 
     /**
-     * Alias of GetTemplateDir($sName) - LS-compatible
-     *
-     * @param   $sName
-     * @return  string
+     * LS-compatible
      */
     static public function GetTemplatePath($sName) {
+
         return self::GetTemplateDir($sName);
     }
 
@@ -333,55 +373,82 @@ abstract class Plugin extends LsObject {
      * Если пользователь использует шаблон которого нет в плагине, то возвращает путь до шабона плагина 'default'
      *
      * @param   string $sName    Название плагина или его класс
+     *
      * @return  string
      */
     static public function GetTemplateUrl($sName) {
+
         $sName = preg_match('/^Plugin([\w]+)(_[\w]+)?$/Ui', $sName, $aMatches)
             ? strtolower($aMatches[1])
             : strtolower($sName);
-        if (!isset(self::$aTemplateWebPath[$sName])) {
+        if (!isset(self::$aTemplateUrl[$sName])) {
             $aPaths = glob(Config::Get('path.root.server') . '/plugins/' . $sName . '/templates/skin/*', GLOB_ONLYDIR);
             $sTemplateName = ($aPaths && in_array(Config::Get('view.skin'), array_map('basename', $aPaths)))
                 ? Config::Get('view.skin')
                 : 'default';
 
-            self::$aTemplateWebPath[$sName] = Config::Get('path.root.web') . "/plugins/{$sName}/templates/skin/{$sTemplateName}/";
+            self::$aTemplateUrl[$sName]
+                = Config::Get('path.root.web') . "/plugins/{$sName}/templates/skin/{$sTemplateName}/";
         }
-        return self::$aTemplateWebPath[$sName];
-    }
-
-    /**
-     * Alias of GetTemplateUrl($sName) - LS-compatible
-     *
-     * @param   string  $sName
-     * @return  string
-     */
-    static public function GetTemplateWebPath($sName) {
-        return self::GetTemplateUrl($sName);
+        return self::$aTemplateUrl[$sName];
     }
 
     /**
      * Устанавливает значение серверного пути до шаблонов плагина
      *
-     * @param  string $sName    Имя плагина
-     * @param  string $sTemplatePath    Серверный путь до шаблона
+     * @param  string $sName           Имя плагина
+     * @param  string $sTemplateDir    Серверный путь до шаблона
+     *
      * @return bool
      */
-    static public function SetTemplatePath($sName, $sTemplatePath) {
-        if (!is_dir($sTemplatePath)) return false;
-        self::$aTemplatePath[$sName] = $sTemplatePath;
+    static public function SetTemplateDir($sName, $sTemplateDir) {
+
+        if (!is_dir($sTemplateDir)) {
+            return false;
+        }
+        self::$aTemplateDir[$sName] = $sTemplateDir;
         return true;
     }
 
     /**
      * Устанавливает значение web-пути до шаблонов плагина
      *
-     * @param  string $sName    Имя плагина
-     * @param  string $sTemplatePath    Серверный путь до шаблона
+     * @param  string $sName           Имя плагина
+     * @param  string $sTemplateUrl    Серверный путь до шаблона
      */
-    static public function SetTemplateWebPath($sName, $sTemplatePath) {
-        self::$aTemplateWebPath[$sName] = $sTemplatePath;
+    static public function SetTemplateUrl($sName, $sTemplateUrl) {
+
+        self::$aTemplateUrl[$sName] = $sTemplateUrl;
     }
+
+    /*************************************************************
+     * LS-compatible
+     */
+    static public function GetTemplateWebPath($sName) {
+
+        return self::GetTemplateUrl($sName);
+    }
+
+    static public function GetWebPath($sName) {
+
+        return self::GetUrl($sName);
+    }
+
+    static public function GetPath($sName) {
+
+        return self::GetDir($sName);
+    }
+
+    static public function SetTemplatePath($sName, $sTemplatePath) {
+
+        return self::SetTemplateDir($sName, $sTemplatePath);
+    }
+
+    static public function SetTemplateWebPath($sName, $sTemplatePath) {
+
+        return self::SetTemplateUrl($sName, $sTemplatePath);
+    }
+
 }
 
 // EOF

@@ -10,7 +10,10 @@
 
 class ModulePlugin_EntityPlugin extends Entity {
 
+    protected $oXml = null;
+
     public function __construct($aParams = false) {
+
         if (is_array($aParams)) {
             $this->_setData($aParams);
         } elseif($aParams) {
@@ -21,6 +24,7 @@ class ModulePlugin_EntityPlugin extends Entity {
     }
 
     public function LoadFromXmlFile($sPluginId, $aData = null) {
+
         $sPluginXML = $this->Plugin_GetPluginManifest($sPluginId);
         if (is_null($aData)) {
             $aData = array(
@@ -32,27 +36,19 @@ class ModulePlugin_EntityPlugin extends Entity {
     }
 
     public function LoadFromXml($sPluginXML, $aData = null) {
-        if ($oXml = @simplexml_load_string($sPluginXML)) {
+
+        if ($this->oXml = @simplexml_load_string($sPluginXML)) {
             if (is_null($aData)) {
                 $aData = array(
                     'priority' => 0,
                 );
             }
 
-            // Обрабатываем данные манифеста
-            $sLang = $this->Lang_GetLang();
-
-            $this->_xlang($oXml, 'name', $sLang);
-            $this->_xlang($oXml, 'author', $sLang);
-            $this->_xlang($oXml, 'description', $sLang, true);
-            $oXml->homepage = $this->Text_Parser((string)$oXml->homepage);
-            $oXml->settings = preg_replace('/{([^}]+)}/', Router::GetPath('$1'), $oXml->settings);
-
-            if ($sId = (string)$oXml->id) {
+            if ($sId = (string)$this->oXml->id) {
                 $aData['id'] = $sId;
             }
-            $aData['priority'] = intval($oXml->priority);
-            $aData['property'] = $oXml;
+            $aData['priority'] = intval($this->oXml->priority);
+            $aData['property'] = $this->oXml;
 
             $this->_setData($aData);
         }
@@ -67,6 +63,7 @@ class ModulePlugin_EntityPlugin extends Entity {
      * @param bool             $bHtml        - HTML или текст
      */
     protected function _xlang($oXml, $sProperty, $sLang, $bHtml = false) {
+
         $sProperty = trim($sProperty);
 
         if (!count($data = $oXml->xpath("{$sProperty}/lang[@name='{$sLang}']"))) {
@@ -80,50 +77,55 @@ class ModulePlugin_EntityPlugin extends Entity {
         }
     }
 
-    protected function _getDataItem($sKey) {
-        if (isset($this->_aData[$sKey]))
-            return $this->_aData[$sKey];
-        else
-            return null;
+    protected function _getXmlProperty($sProp = null) {
+
+        if (is_null($sProp)) {
+            return $this->_aData['property'];
+        } else {
+            return $this->_aData['property']->$sProp;
+        }
     }
 
-    public function _getDataProperty($sProp = null) {
-        if (is_null($sProp))
-            return $this->_aData['property'];
-        else
-            return $this->_aData['property']->$sProp;
+    protected function _getXmlLangProperty($sName) {
+
+        $sResult = $this->getProp($sName);
+        if (is_null($sResult)) {
+            $sLang = $this->Lang_GetLang();
+            $this->_xlang($this->oXml, $sName, $sLang);
+            $xProp = $this->_getXmlProperty($sName);
+            if ($xProp->data) {
+                $sResult = (string)$xProp->data;
+            } else {
+                $sResult = (string)$xProp->lang;
+            }
+            $this->setProp($sName, $sResult);
+        }
+        return $sResult;
     }
 
     public function GetName() {
-        $xProp = $this->_getDataProperty('name');
-        if ($xProp->data)
-            return $xProp->data;
-        else
-            return $xProp->lang;
+
+        return $this->_getXmlLangProperty('name');
     }
 
     public function GetDescription() {
-        $xProp = $this->_getDataProperty('description');
-        if ($xProp->data)
-            return $xProp->data;
-        else
-            return $xProp->lang;
+
+        return $this->_getXmlLangProperty('description');
     }
 
     public function GetAuthor() {
-        $xProp = $this->_getDataProperty('author');
-        if ($xProp->data)
-            return $xProp->data;
-        else
-            return $xProp->lang;
+
+        return $this->_getXmlLangProperty('author');
     }
 
     public function GetPluginClass() {
+
         return 'Plugin' . ucfirst($this->GetCode());
     }
 
     public function GetAdminClass() {
-        $aAdminPanel = $this->_getDataItem('adminpanel');
+
+        $aAdminPanel = $this->getProp('adminpanel');
         if (isset($aAdminPanel['class']))
             return $aAdminPanel['class'];
         else {
@@ -132,6 +134,7 @@ class ModulePlugin_EntityPlugin extends Entity {
     }
 
     public function HasAdminpanel() {
+
         $sClass = $this->GetAdminClass();
         try {
             if (class_exists($sClass, true)) {
@@ -144,11 +147,12 @@ class ModulePlugin_EntityPlugin extends Entity {
     }
 
     public function GetAdminMenuEvents() {
+
         if ($this->IsActive()) {
             $aEvents = array();
             $sPluginClass = $this->GetPluginClass();
             $aProps = (array)(new $sPluginClass);
-            if (isset($aProps['aAdmin']) AND is_array($aProps['aAdmin']) AND isset($aProps['aAdmin']['menu'])) {
+            if (isset($aProps['aAdmin']) && is_array($aProps['aAdmin']) && isset($aProps['aAdmin']['menu'])) {
                 foreach ((array)$aProps['aAdmin']['menu'] as $sEvent => $sClass) {
                     if (substr($sClass, 0, 1) == '_') {
                         $sClass = $sPluginClass . $sClass;
@@ -165,30 +169,52 @@ class ModulePlugin_EntityPlugin extends Entity {
     }
 
     public function GetVersion() {
-        return (string)$this->_getDataProperty('version');
+
+        return (string)$this->_getXmlProperty('version');
     }
 
     public function GetHomepage() {
-        return (string)$this->_getDataProperty('homepage');
+
+        $sResult = $this->getProp('homepage');
+        if (is_null($sResult)) {
+            $sResult = $this->Text_Parser((string)$this->_getXmlProperty('homepage'));
+            $this->setProp('homepage', $sResult);
+        }
+        return $sResult;
+    }
+
+    public function GetSettings() {
+
+        $sResult = $this->getProp('settings');
+        if (is_null($sResult)) {
+            $sResult = preg_replace('/{([^}]+)}/', Router::GetPath('$1'), $this->oXml->settings);
+            $this->setProp('settings', $sResult);
+        }
+        return $sResult;
     }
 
     public function GetEmail() {
-        return (string)$this->_getDataProperty('author')->email;
+
+        return (string)$this->_getXmlProperty('author')->email;
     }
 
     public function IsActive() {
-        return (bool)$this->_getDataItem('is_active');
+
+        return (bool)$this->getProp('is_active');
     }
 
     public function isTop() {
+
         return ($sVal = $this->GetPriority()) && strtolower($sVal) == 'top';
     }
 
     public function Requires() {
-        return $this->_getDataProperty('requires');
+
+        return $this->_getXmlProperty('requires');
     }
 
     public function RequiredAltoVersion() {
+
         $oRequires = $this->Requires();
         $sAltoVersion = (string)$oRequires->alto->version;
         if (!$sAltoVersion)
@@ -197,6 +223,7 @@ class ModulePlugin_EntityPlugin extends Entity {
     }
 
     public function RequiredPhpVersion() {
+
         $oRequires = $this->Requires();
         if ($oRequires->system && $oRequires->system->php) {
             return (string)$oRequires->system->php;
@@ -204,6 +231,7 @@ class ModulePlugin_EntityPlugin extends Entity {
     }
 
     public function RequiredPlugins() {
+
         $oRequires = $this->Requires();
         if ($oRequires->plugins) {
             return $oRequires->plugins->children();
@@ -211,6 +239,7 @@ class ModulePlugin_EntityPlugin extends Entity {
     }
 
     public function EngineCompatible() {
+
         $oRequires = $this->Requires();
 
         $sLsVersion = (string)$oRequires->livestreet;

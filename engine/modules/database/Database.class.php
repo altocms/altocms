@@ -251,6 +251,7 @@ class ModuleDatabase extends Module {
      * @return array
      */
     public function ExportSQL($sFilePath, $aConfig = null) {
+
         if (!is_file($sFilePath)) {
             return array('result' => false, 'errors' => array("cant find file '$sFilePath'"));
         } elseif (!is_readable($sFilePath)) {
@@ -324,7 +325,7 @@ class ModuleDatabase extends Module {
      * Проверяет существование поля в таблице
      *
      * @param   string     $sTableName      - Название таблицы, необходимо перед именем таблицы добавлять "prefix_",
-     *                                  это позволит учитывать произвольный префикс таблиц у пользователя
+     *                                        это позволит учитывать произвольный префикс таблиц у пользователя
      * @param   string     $sFieldName      - Название поля в таблице
      * @param   array|null $aConfig         - Конфиг подключения к БД
      *
@@ -348,7 +349,7 @@ class ModuleDatabase extends Module {
      * Доавляет новый тип в поле таблицы с типом enum
      *
      * @param   string     $sTableName      - Название таблицы, необходимо перед именем таблицы добавлять "prefix_",
-     *                                    это позволит учитывать произвольный префикс таблиц у пользователя
+     *                                        это позволит учитывать произвольный префикс таблиц у пользователя
      * @param   string     $sFieldName      - Название поля в таблице
      * @param   string     $sType           - Название типа
      * @param   array|null $aConfig         - Конфиг подключения к БД
@@ -356,6 +357,7 @@ class ModuleDatabase extends Module {
      * @return  null|bool
      */
     public function AddEnumType($sTableName, $sFieldName, $sType, $aConfig = null) {
+
         $sTableName = str_replace('prefix_', Config::Get('db.table.prefix'), $sTableName);
         $sQuery = "SHOW COLUMNS FROM  {$sTableName}";
 
@@ -397,6 +399,7 @@ class ModuleDatabase extends Module {
     }
 
     public function AddIndex($sTableName, $aIndexFields, $sIndexType = null, $sIndexName = null, $aConfig = null) {
+
         $sTableName = str_replace('prefix_', Config::Get('db.table.prefix'), $sTableName);
         if (!is_array($aIndexFields)) {
             $aIndexFields = array($aIndexFields);
