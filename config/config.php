@@ -429,6 +429,10 @@ $config['module']['topic']['photoset']['size'] = array(             // спис�
 	)
 );
 
+$config['images']['settings']['default'] = array(
+    'driver' => 'GD', // 'GD', 'Imagick' or 'Gmagick'
+);
+
 // Какие модули должны быть загружены на старте
 $config['module']['autoLoad'] = array('Hook','Cache','Security','Session','User');
 

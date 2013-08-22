@@ -97,21 +97,15 @@ class ActionSettings extends Action {
          */
         $this->Viewer_SetResponseAjax('jsonIframe', false);
 
-        if (!isset($_FILES['foto']['tmp_name'])) {
-            return false;
-        }
-        /**
-         * Копируем загруженный файл
-         */
-        $sFileTmp = Config::Get('sys.cache.dir') . func_generator();
-        if (!move_uploaded_file($_FILES['foto']['tmp_name'], $sFileTmp)) {
+        $sDir = Config::Get('path.uploads.images') . "/tmp/fotos/{$this->oUserCurrent->getId()}";
+        $sFileTmp = $this->Upload_UploadLocal($_FILES['foto']);
+        if ($sFileTmp) {
             return false;
         }
         /**
          * Ресайзим и сохраняем именьшенную копию
          * Храним две копии - мелкую для показа пользователю и крупную в качестве исходной для ресайза
          */
-        $sDir = Config::Get('path.uploads.images') . "/tmp/fotos/{$this->oUserCurrent->getId()}";
         if ($sFile = $this->Image_Resize(
             $sFileTmp, $sDir, 'original', Config::Get('view.img_max_width'), Config::Get('view.img_max_height'), 1000,
             null, true
