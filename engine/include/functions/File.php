@@ -43,7 +43,7 @@ class AltoFunc_File {
      * Если загружена конфигурация, то возвращает корневую папку проекта,
      * в противном случае - корневую папку выполняемого веб-приложения
      *
-     * @return mixed|null
+     * @return string|null
      */
     static public function RootDir() {
 
@@ -64,9 +64,9 @@ class AltoFunc_File {
      * Если загружена конфигурация, то возвращает корневой URL проекта,
      * в противном случае - адрес веб-сайта выполняемого приложения
      *
-     * @param   mixed $xAddLang
+     * @param mixed $xAddLang
      *
-     * @return  string|null
+     * @return string|null
      */
     static public function RootUrl($xAddLang = false) {
 
@@ -101,10 +101,10 @@ class AltoFunc_File {
      * Нормализует путь к файлу, приводя все слеши (прямой и обратный) к одному виду,
      * по умолчанию - у прямому слешу
      *
-     * @param   string|array $sPath
-     * @param   string|null  $sSeparator
+     * @param string|array $sPath
+     * @param string|null  $sSeparator
      *
-     * @return  string
+     * @return string
      */
     static public function NormPath($sPath, $sSeparator = '/') {
 
@@ -154,11 +154,11 @@ class AltoFunc_File {
      * Проверяет наличие локальной папки (относительно корневой папки проекта),
      * и, если задано, создает ее с соответствующими правами
      *
-     * @param   string $sLocalDir
-     * @param   bool   $bAutoMake
-     * @param   int    $nMask
+     * @param string $sLocalDir
+     * @param bool   $bAutoMake
+     * @param int    $nMask
      *
-     * @return  bool
+     * @return bool
      */
     static public function CheckLocalDir($sLocalDir, $bAutoMake = true, $nMask = 0755) {
 
@@ -169,9 +169,9 @@ class AltoFunc_File {
      * Проверяет наличие папки и автоматически создает ее, если задано
      * TODO: Логгирование ошибки
      *
-     * @param      $sDir
-     * @param bool $bAutoMake
-     * @param int  $nMask
+     * @param string $sDir
+     * @param bool   $bAutoMake
+     * @param int    $nMask
      *
      * @return bool
      */
@@ -187,9 +187,9 @@ class AltoFunc_File {
     /**
      * Рекурсивное удаление папки
      *
-     * @param   string $sDir
+     * @param string $sDir
      *
-     * @return  bool
+     * @return bool
      */
     static public function RemoveDir($sDir) {
 
@@ -215,10 +215,10 @@ class AltoFunc_File {
     /**
      * Удаление содержимого папки
      *
-     * @param   string $sDir
-     * @param   bool   $bSafe
+     * @param string $sDir
+     * @param bool   $bSafe
      *
-     * @return  bool
+     * @return bool
      */
     static public function ClearDir($sDir, $bSafe = true) {
 
@@ -249,11 +249,11 @@ class AltoFunc_File {
     /**
      * Возвращает содержимое папки, в т.ч. и скрытые файлы и подпапки
      *
-     * @param   $sDir
-     * @param   $nFlag
-     * @param   $bRecursively
+     * @param string $sDir
+     * @param int    $nFlag
+     * @param bool   $bRecursively
      *
-     * @return  array
+     * @return array
      */
     static function ReadDir($sDir, $nFlag = 0, $bRecursively = false) {
 
@@ -314,10 +314,10 @@ class AltoFunc_File {
     /**
      * Преобразование URL проекта в путь к папке на сервере
      *
-     * @param   string      $sUrl
-     * @param   string|null $sSeparator
+     * @param string $sUrl
+     * @param string $sSeparator
      *
-     * @return  string
+     * @return string
      */
     static public function Url2Dir($sUrl, $sSeparator = null) {
 
@@ -335,9 +335,9 @@ class AltoFunc_File {
     /**
      * Преобразование пути к папке на сервере в URL
      *
-     * @param   string $sDir
+     * @param string $sDir
      *
-     * @return  string
+     * @return string
      */
     static public function Dir2Url($sDir) {
 
@@ -353,10 +353,10 @@ class AltoFunc_File {
     /**
      * Из абсолютного пути выделяет относительный (локальный) относительно рута
      *
-     * @param   string $sPath
-     * @param   string $sRoot
+     * @param string $sPath
+     * @param string $sRoot
      *
-     * @return  string
+     * @return string
      */
     static public function LocalPath($sPath, $sRoot) {
 
@@ -373,7 +373,7 @@ class AltoFunc_File {
     /**
      * Из абсолютного пути выделяет локальный относительно корневой папки проекта
      *
-     * @param $sPath
+     * @param string $sPath
      *
      * @return string
      */
@@ -385,7 +385,7 @@ class AltoFunc_File {
     /**
      * Из абсолютного URL выделяет локальный относительно корневого URL проекта
      *
-     * @param $sPath
+     * @param string $sPath
      *
      * @return string
      */
@@ -397,7 +397,7 @@ class AltoFunc_File {
     /**
      * Является ли путь локальным
      *
-     * @param $sPath
+     * @param string $sPath
      *
      * @return bool
      */
@@ -428,10 +428,10 @@ class AltoFunc_File {
      *     F::File_Exists('file.txt', array('c:\dir\', 'd:\test')) - проверка существования файла 'file.txt' в одной
      *                                                              из папок 'c:\dir\' или 'd:\test'
      *
-     * @param   string $sFile
-     * @param   array  $aDirs
+     * @param string $sFile
+     * @param array  $aDirs
      *
-     * @return  bool|string
+     * @return bool|string
      */
     static public function Exists($sFile, $aDirs = array()) {
 
@@ -458,11 +458,11 @@ class AltoFunc_File {
      * Копирование файла
      * TODO: Логгирование ошибки
      *
-     * @param   string $sSource
-     * @param   string $sTarget
-     * @param   bool   $bRewrite
+     * @param string $sSource
+     * @param string $sTarget
+     * @param bool   $bRewrite
      *
-     * @return  bool
+     * @return bool
      */
     static public function Copy($sSource, $sTarget, $bRewrite = false) {
 
@@ -477,34 +477,73 @@ class AltoFunc_File {
     }
 
     /**
-     * Удаление файла
+     * Deletes file
      *
+     * @param string $sFile
+     * @param bool   $bRecursively
+     * @param bool   $bNoCheck
+     *
+     * @return bool
      */
     static public function Delete($sFile, $bRecursively = false, $bNoCheck = false) {
 
         if (F::File_Exists($sFile) || $bNoCheck) {
-            @unlink($sFile);
+            $bResult = @unlink($sFile);
+        } else {
+            $bResult = true;
         }
         if ($bRecursively && ($aDirs = glob(dirname($sFile) . '/*', GLOB_ONLYDIR))) {
             foreach ($aDirs as $sDir) {
                 static::Delete($sDir . '/' . basename($sFile), $bRecursively, $bNoCheck);
             }
         }
+        return $bResult;
     }
 
+    /**
+     * Deletes files by pattern
+     *
+     * @param string $sPattern
+     * @param bool   $bRecursively
+     * @param bool   $bNoCheck
+     *
+     * @return bool
+     */
+    static function DeleteAs($sPattern, $bRecursively = false, $bNoCheck = false) {
+
+        $bResult = true;
+        $aFiles = glob($sPattern);
+        if ($aFiles) {
+            foreach ($aFiles as $sFile) {
+                $bResult = ($bResult && static::Delete($sFile, $bRecursively, $bNoCheck));
+            }
+        }
+        return $bResult;
+    }
+
+    /**
+     * Moves file to other destination
+     *
+     * @param string $sSource
+     * @param string $sTarget
+     * @param bool   $bRewrite
+     *
+     * @return bool
+     */
     static public function Move($sSource, $sTarget, $bRewrite = false) {
 
         if (static::Copy($sSource, $sTarget, $bRewrite)) {
             return static::Delete($sSource);
         }
+        return false;
     }
 
     /**
      * Чтение содержимого файла с проверкой на существование
      *
-     * @param   string $sFile
+     * @param string $sFile
      *
-     * @return  bool|string
+     * @return bool|string
      */
     static public function GetContents($sFile) {
 
@@ -517,9 +556,9 @@ class AltoFunc_File {
     /**
      * Запись данных в файл. Если папки файла нет, то она создается
      *
-     * @param   string $sFile
-     * @param   string $sData
-     * @param   int    $nFlags
+     * @param string $sFile
+     * @param string $sData
+     * @param int    $nFlags
      *
      * @return  bool|int
      */
@@ -534,7 +573,7 @@ class AltoFunc_File {
     /**
      * Порционная отдача файла
      *
-     * @param $sFilename
+     * @param string $sFilename
      *
      * @return bool
      */
@@ -545,7 +584,6 @@ class AltoFunc_File {
         if ($xHandle === false) {
             return false;
         }
-        $sBuffer = '';
         while (!feof($xHandle)) {
             $sBuffer = fread($xHandle, $nChunkSize);
             if ($sBuffer !== false) {
@@ -562,9 +600,9 @@ class AltoFunc_File {
      * Разбирает полный путь файла
      * В отличии от стандартной функции pathinfo() выделяет GET-параметры и очищает от них имя и расширение файла
      *
-     * @param   string $sPath
+     * @param string $sPath
      *
-     * @return  array
+     * @return array
      */
     static public function PathInfo($sPath) {
 
@@ -572,8 +610,8 @@ class AltoFunc_File {
             array(
                  'dirname'   => '',
                  'basename'  => '',
-                 'extension' => '',
                  'filename'  => '',
+                 'extension' => '',
                  'params'    => '',
             ),
             pathinfo(F::File_NormPath($sPath))
@@ -591,9 +629,9 @@ class AltoFunc_File {
     /**
      * Возвращает расширение файла из переданного полного пути
      *
-     * @param $sPath
+     * @param string $sPath
      *
-     * @return mixed
+     * @return string
      */
     static public function GetExtension($sPath) {
 
@@ -605,10 +643,10 @@ class AltoFunc_File {
      * Соответствует ли проверяемый путь одной из заданных масок путей
      * Возвращает ту маску, которой соответствует или false, если не соответствует ни одной
      *
-     * @param   string       $sNeedle - проверяемый путь
-     * @param   string|array $aPaths  - путь (или массив путей), на соответствие которым идет проверка
+     * @param string       $sNeedle - проверяемый путь
+     * @param string|array $aPaths  - путь (или массив путей), на соответствие которым идет проверка
      *
-     * @return  string|bool
+     * @return string|bool
      */
     static public function InPath($sNeedle, $aPaths) {
 
@@ -640,9 +678,9 @@ class AltoFunc_File {
     /**
      * Returns full path to file
      *
-     * @param   string $sFile
+     * @param string $sFile
      *
-     * @return  string
+     * @return string
      */
     static public function FullDir($sFile) {
 
@@ -655,11 +693,11 @@ class AltoFunc_File {
     /**
      * Подключение файла
      *
-     * @param   string $sFile
-     * @param   bool   $bOnce
-     * @param   mixed  $xConfig
+     * @param string $sFile
+     * @param bool   $bOnce
+     * @param mixed  $xConfig
      *
-     * @return  mixed
+     * @return mixed
      */
     static public function IncludeFile($sFile, $bOnce = true, $xConfig = false) {
 
@@ -699,8 +737,8 @@ class AltoFunc_File {
     /**
      * Подключение файла билиотеки
      *
-     * @param      $sFile
-     * @param bool $bOnce
+     * @param string $sFile
+     * @param bool   $bOnce
      *
      * @return mixed
      */
@@ -712,11 +750,11 @@ class AltoFunc_File {
     /**
      * Подключение файла, если он существует
      *
-     * @param   string $sFile
-     * @param   bool   $bOnce
-     * @param   bool   $bConfig
+     * @param string $sFile
+     * @param bool   $bOnce
+     * @param bool   $bConfig
      *
-     * @return  array|mixed|null
+     * @return array|mixed|null
      */
     static public function IncludeIfExists($sFile, $bOnce = true, $bConfig = false) {
 
@@ -732,10 +770,10 @@ class AltoFunc_File {
      * Если второй параметр оканчивается на слеш, то он определяется, как подпапка, куда нужно переместить файл,
      * а имя задается такое же, как у исходного файла
      *
-     * @param   string $sUploadedFile   - загруженный файл
-     * @param   string $sFileName       - имя, которое будет присвоено файлу (может быть вида 'dirname/filenane.ext')
+     * @param string $sUploadedFile   - загруженный файл
+     * @param string $sFileName       - имя, которое будет присвоено файлу (может быть вида 'dirname/filenane.ext')
      *
-     * @return  string
+     * @return string
      */
     static public function MoveUploadedFile($sUploadedFile, $sFileName = null) {
 
@@ -749,6 +787,7 @@ class AltoFunc_File {
             return $sTmpFile;
         }
     }
+
 }
 
 // EOF
