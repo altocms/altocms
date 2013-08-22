@@ -161,6 +161,14 @@ class Engine extends LsObject {
      * @var Engine
      */
     static protected $oInstance = null;
+
+    /**
+     * Internal cache of resolved class names
+     *
+     * @var array
+     */
+    static protected $aClasses = array();
+
     /**
      * Список загруженных модулей
      *
@@ -313,8 +321,10 @@ class Engine extends LsObject {
     /**
      * Инициализирует модуль
      *
-     * @param Module $oModule    Объект модуля
-     * @param bool $bHookParent    Вызывает хук на родительском модуле, от которого наследуется текущий
+     * @param Module $oModule        Объект модуля
+     * @param bool   $bHookParent    Вызывает хук на родительском модуле, от которого наследуется текущий
+     *
+     * @throws Exception
      */
     protected function InitModule($oModule, $bHookParent = true) {
         $sClassName = get_class($oModule);
@@ -774,104 +784,99 @@ class Engine extends LsObject {
      * @throws Exception
      */
     public static function GetEntity($sName, $aParams = array()) {
-        /**
-         * Сущности, имеющие такое же название как модуль,
-         * можно вызывать сокращенно. Например, вместо User_User -> User
-         */
-        switch (substr_count($sName, '_')) {
-            case 0:
-                $sEntity = $sModule = $sName;
-                break;
 
-            case 1:
-                /**
-                 * Поддержка полного синтаксиса при вызове сущности
-                 */
-                $aInfo = self::GetClassInfo(
-                    $sName,
-                    self::CI_ENTITY
-                        | self::CI_MODULE
-                        | self::CI_PLUGIN
-                );
-                if ($aInfo[self::CI_MODULE]
-                    && $aInfo[self::CI_ENTITY]
-                ) {
-                    $sName = $aInfo[self::CI_MODULE] . '_' . $aInfo[self::CI_ENTITY];
-                }
-
-                list($sModule, $sEntity) = explode('_', $sName, 2);
-                /**
-                 * Обслуживание короткой записи сущностей плагинов
-                 * PluginTest_Test -> PluginTest_ModuleTest_EntityTest
-                 */
-                if ($aInfo[self::CI_PLUGIN]) {
-                    $sPlugin = $aInfo[self::CI_PLUGIN];
-                    $sModule = $sEntity;
-                }
-                break;
-
-            case 2:
-                /**
-                 * Поддержка полного синтаксиса при вызове сущности плагина
-                 */
-                $aInfo = self::GetClassInfo(
-                    $sName,
-                    self::CI_ENTITY
-                        | self::CI_MODULE
-                        | self::CI_PLUGIN
-                );
-                if ($aInfo[self::CI_PLUGIN]
-                    && $aInfo[self::CI_MODULE]
-                    && $aInfo[self::CI_ENTITY]
-                ) {
-                    $sName = 'Plugin' . $aInfo[self::CI_PLUGIN]
-                        . '_' . $aInfo[self::CI_MODULE]
-                        . '_' . $aInfo[self::CI_ENTITY];
-                }
-                /**
-                 * Entity плагина
-                 */
-                if ($aInfo[self::CI_PLUGIN]) {
-                    list(, $sModule, $sEntity) = explode('_', $sName);
-                    $sPlugin = $aInfo[self::CI_PLUGIN];
-                } else {
-                    throw new Exception("Unknown entity '{$sName}' given.");
-                }
-                break;
-
-            default:
-                throw new Exception("Unknown entity '{$sName}' given.");
-        }
-
-        $sClass = isset($sPlugin)
-            ? 'Plugin' . $sPlugin . '_Module' . $sModule . '_Entity' . $sEntity
-            : 'Module' . $sModule . '_Entity' . $sEntity;
-
-        /**
-         * If Plugin Entity doesn't exist, search among it's Module delegates
-         */
-        if (isset($sPlugin) && !self::GetClassPath($sClass)) {
-            $aModulesChain = Engine::GetInstance()->Plugin_GetDelegationChain('module', 'Plugin' . $sPlugin . '_Module' . $sModule);
-            foreach ($aModulesChain as $sModuleName) {
-                $sClassTest = $sModuleName . '_Entity' . $sEntity;
-                if (self::GetClassPath($sClassTest)) {
-                    $sClass = $sClassTest;
+        if (!isset(self::$aClasses[$sName])) {
+            /*
+             * Сущности, имеющие такое же название как модуль,
+             * можно вызывать сокращенно. Например, вместо User_User -> User
+             */
+            switch (substr_count($sName, '_')) {
+                case 0:
+                    $sEntity = $sModule = $sName;
                     break;
+
+                case 1:
+                    // * Поддержка полного синтаксиса при вызове сущности
+                    $aInfo = self::GetClassInfo($sName, self::CI_ENTITY | self::CI_MODULE | self::CI_PLUGIN);
+                    if ($aInfo[self::CI_MODULE] && $aInfo[self::CI_ENTITY]) {
+                        $sName = $aInfo[self::CI_MODULE] . '_' . $aInfo[self::CI_ENTITY];
+                    }
+
+                    list($sModule, $sEntity) = explode('_', $sName, 2);
+                    /*
+                     * Обслуживание короткой записи сущностей плагинов
+                     * PluginTest_Test -> PluginTest_ModuleTest_EntityTest
+                     */
+                    if ($aInfo[self::CI_PLUGIN]) {
+                        $sPlugin = $aInfo[self::CI_PLUGIN];
+                        $sModule = $sEntity;
+                    }
+                    break;
+
+                case 2:
+                    // * Поддержка полного синтаксиса при вызове сущности плагина
+                    $aInfo = self::GetClassInfo($sName, self::CI_ENTITY | self::CI_MODULE | self::CI_PLUGIN);
+                    if ($aInfo[self::CI_PLUGIN] && $aInfo[self::CI_MODULE] && $aInfo[self::CI_ENTITY]) {
+                        $sName = 'Plugin' . $aInfo[self::CI_PLUGIN]
+                            . '_' . $aInfo[self::CI_MODULE]
+                            . '_' . $aInfo[self::CI_ENTITY];
+                    }
+                    // * Entity плагина
+                    if ($aInfo[self::CI_PLUGIN]) {
+                        list(, $sModule, $sEntity) = explode('_', $sName);
+                        $sPlugin = $aInfo[self::CI_PLUGIN];
+                    } else {
+                        throw new Exception("Unknown entity '{$sName}' given.");
+                    }
+                    break;
+
+                default:
+                    throw new Exception("Unknown entity '{$sName}' given.");
+            }
+
+            $sClass = isset($sPlugin)
+                ? 'Plugin' . $sPlugin . '_Module' . $sModule . '_Entity' . $sEntity
+                : 'Module' . $sModule . '_Entity' . $sEntity;
+
+            // * If Plugin Entity doesn't exist, search among it's Module delegates
+            if (isset($sPlugin) && !self::GetClassPath($sClass)) {
+                $aModulesChain = Engine::GetInstance()->Plugin_GetDelegationChain(
+                    'module', 'Plugin' . $sPlugin . '_Module' . $sModule
+                );
+                foreach ($aModulesChain as $sModuleName) {
+                    $sClassTest = $sModuleName . '_Entity' . $sEntity;
+                    if (self::GetClassPath($sClassTest)) {
+                        $sClass = $sClassTest;
+                        break;
+                    }
+                }
+                if (!self::GetClassPath($sClass)) {
+                    $sClass = 'Module' . $sModule . '_Entity' . $sEntity;
                 }
             }
-            if (!self::GetClassPath($sClass)) {
-                $sClass = 'Module' . $sModule . '_Entity' . $sEntity;
-            }
+
+            /**
+             * Определяем наличие делегата сущности
+             * Делегирование указывается только в полной форме!
+             */
+            $sClass = self::getInstance()->Plugin_GetDelegate('entity', $sClass);
+
+            self::$aClasses[$sName] = $sClass;
+        } else {
+            $sClass = self::$aClasses[$sName];
         }
-
-        /**
-         * Определяем наличие делегата сущности
-         * Делегирование указывается только в полной форме!
-         */
-        $sClass = self::getInstance()->Plugin_GetDelegate('entity', $sClass);
-
         $oEntity = new $sClass($aParams);
         return $oEntity;
+    }
+
+    public static function GetEntityRows($sName, $aRows = array()) {
+
+        $aResult = array();
+        foreach ($aRows as $nI => $aRow) {
+            $aResult[$nI] = Engine::GetEntity($sName, $aRow);
+        }
+        return $aResult;
+
     }
 
     /**
@@ -945,6 +950,7 @@ class Engine extends LsObject {
      * @return array|string|null
      */
     public static function GetClassInfo($oObject, $iFlag = self::CI_DEFAULT, $bSingle = false) {
+
         $sClassName = is_string($oObject) ? $oObject : get_class($oObject);
         $aResult = array();
         if ($iFlag & self::CI_PLUGIN) {
@@ -1034,10 +1040,13 @@ class Engine extends LsObject {
      * Используется в {@link autoload автозагрузке}
      *
      * @static
-     * @param LsObject $oObject Объект - модуль, экшен, плагин, хук, сущность
+     *
+     * @param LsObject|string $oObject Объект - модуль, экшен, плагин, хук, сущность
+     *
      * @return null|string
      */
     public static function GetClassPath($oObject) {
+
         $aInfo = self::GetClassInfo(
             $oObject,
             self::CI_OBJECT
