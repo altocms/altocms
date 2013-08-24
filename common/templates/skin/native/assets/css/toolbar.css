@@ -1,0 +1,44 @@
+/**
+ * Тулбар
+ *
+ * @template toolbar/*.tpl
+ */
+
+
+.toolbar section 			{ background: #f9f9f9; width: 37px; margin-bottom: 10px; -webkit-box-shadow: none; box-shadow: none; }
+.toolbar section a			{ width: 35px; height: 35px; padding: 0; margin-bottom: 15px; text-align: center; background: #f9f9f9; border: 1px solid #c3cbdb; border-radius: 5px; }
+.toolbar section a:hover	{ background: none; }
+.toolbar section i			{ display: block; width: 23px; height: 23px; margin: 0px auto; opacity: 0.7; }
+
+
+/**
+ * Кнопка обновления комментариев 
+ *
+ * @template toolbar/toolbar.comment.tpl
+ */
+.toolbar .toolbar-update .update-comments i 				{ background: url(../images/icons-native.png) -66px 0 no-repeat; margin-top: 6px; }
+.toolbar .toolbar-update .update-comments.active i 		{ background: url(../images/icons-native.png) -66px 0 no-repeat; }
+.toolbar .toolbar-update .update-comments.active:hover i 	{ 
+	animation: rotate 0.5s infinite linear; 
+	-moz-animation: rotate 0.5s infinite linear; 
+	-webkit-animation: rotate 0.5s infinite linear; 
+	}
+.toolbar .toolbar-update .new-comments 					{ color: #333; text-align: center; font-size: 13px; font-weight: bold; line-height: 35px; text-decoration: none;}
+
+
+/**
+ * Кнопка навигации по топикам
+ *
+ * @template toolbar/toolbar.topic.tpl
+ */
+.toolbar .toolbar-topic a { width: 37px; }
+.toolbar .toolbar-topic a i { margin-top: 12px; }
+
+
+/**
+ * Кнопка прокрутки вверх
+ *
+ * @template toolbar/toolbar.scrollup.tpl
+ */
+.toolbar .toolbar-scrollup { display: none; }
+.toolbar .toolbar-scrollup i { width: 28px; height: 28px; margin-top: 4px; }

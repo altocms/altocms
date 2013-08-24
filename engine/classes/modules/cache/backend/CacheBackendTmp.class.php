@@ -9,6 +9,7 @@
  */
 
 F::IncludeFile('./ICacheBackend.php');
+
 /**
  * Class CacheBackendFile
  *
@@ -37,14 +38,17 @@ class CacheBackendTmp extends Dklab_Cache_Backend_Profiler implements ICacheBack
     }
 
     public function IsMultiLoad() {
+
         return false;
     }
 
     public function IsAvailable() {
+
         return true;
     }
 
     public function IsСoncurrent() {
+
         return false;
     }
 

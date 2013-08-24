@@ -435,12 +435,12 @@ class MapperORM extends Mapper {
         $sClass = Engine::getInstance()->Plugin_GetDelegater(
             'entity', is_object($oEntity) ? get_class($oEntity) : $oEntity
         );
-        $sModuleName = func_underscore(Engine::GetModuleName($sClass));
-        $sEntityName = func_underscore(Engine::GetEntityName($sClass));
+        $sModuleName = F::StrUnderscore(Engine::GetModuleName($sClass));
+        $sEntityName = F::StrUnderscore(Engine::GetEntityName($sClass));
         if (strpos($sEntityName, $sModuleName) === 0) {
-            $sTable = func_underscore($sEntityName);
+            $sTable = F::StrUnderscore($sEntityName);
         } else {
-            $sTable = func_underscore($sModuleName) . '_' . func_underscore($sEntityName);
+            $sTable = F::StrUnderscore($sModuleName) . '_' . F::StrUnderscore($sEntityName);
         }
         /**
          * Если название таблиц переопределено в конфиге, то возвращаем его
@@ -463,6 +463,7 @@ class MapperORM extends Mapper {
      * @return array Список id из столбца $sRelationKey, у которых столбец $sEntityKey = $iEntityId
      */
     public function getManyToManySet($sDbTableAlias, $sEntityKey, $iEntityId, $sRelationKey) {
+
         if (!Config::Get($sDbTableAlias)) {
             return array();
         }
@@ -529,3 +530,5 @@ class MapperORM extends Mapper {
         return true;
     }
 }
+
+// EOF

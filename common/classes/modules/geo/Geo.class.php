@@ -130,7 +130,7 @@ class ModuleGeo extends Module {
         if (!$this->IsAllowTargetType($sTargetType)) {
             return false;
         }
-        $sMethod = 'CheckTarget' . func_camelize($sTargetType);
+        $sMethod = 'CheckTarget' . F::StrCamelize($sTargetType);
         if (method_exists($this, $sMethod)) {
             return $this->$sMethod($iTargetId);
         }
@@ -163,6 +163,7 @@ class ModuleGeo extends Module {
      * @return ModuleGeo_EntityTarget|bool
      */
     public function AddTarget($oTarget) {
+
         if ($this->oMapper->AddTarget($oTarget)) {
             return $oTarget;
         }
@@ -240,6 +241,7 @@ class ModuleGeo extends Module {
      * @return array('collection'=>array,'count'=>int)
      */
     public function GetTargets($aFilter, $iCurrPage, $iPerPage) {
+
         return array('collection' => $this->oMapper->GetTargets($aFilter, $iCount, $iCurrPage, $iPerPage),
                      'count'      => $iCount);
     }
@@ -253,6 +255,7 @@ class ModuleGeo extends Module {
      * @return null|ModuleGeo_EntityTarget
      */
     public function GetTargetByTarget($sTargetType, $iTargetId) {
+
         $aTargets = $this->GetTargets(array('target_type' => $sTargetType, 'target_id' => $iTargetId), 1, 1);
         if (isset($aTargets['collection'][0])) {
             return $aTargets['collection'][0];
@@ -269,6 +272,7 @@ class ModuleGeo extends Module {
      * @return array В качестве ключей используется ID объекта, в качестве значений массив связей этого объекта
      */
     public function GetTargetsByTargetArray($sTargetType, $aTargetId) {
+
         if (!is_array($aTargetId)) {
             $aTargetId = array($aTargetId);
         }
@@ -295,6 +299,7 @@ class ModuleGeo extends Module {
      * @return bool|int
      */
     public function DeleteTargets($aFilter) {
+
         return $this->oMapper->DeleteTargets($aFilter);
     }
 
@@ -307,6 +312,7 @@ class ModuleGeo extends Module {
      * @return bool|int
      */
     public function DeleteTargetsByTarget($sTargetType, $iTargetId) {
+
         return $this->DeleteTargets(array('target_type' => $sTargetType, 'target_id' => $iTargetId));
     }
 
@@ -339,6 +345,7 @@ class ModuleGeo extends Module {
      * @return array('collection'=>array,'count'=>int)
      */
     public function GetRegions($aFilter, $aOrder, $iCurrPage, $iPerPage) {
+
         return array(
             'collection' => $this->oMapper->GetRegions($aFilter, $aOrder, $iCount, $iCurrPage, $iPerPage),
             'count'      => $iCount,
@@ -371,6 +378,7 @@ class ModuleGeo extends Module {
      * @return ModuleGeo_EntityCountry|null
      */
     public function GetCountryById($iId) {
+
         $aRes = $this->GetCountries(array('id' => $iId), array(), 1, 1);
         if (isset($aRes['collection'][0])) {
             return $aRes['collection'][0];
@@ -386,6 +394,7 @@ class ModuleGeo extends Module {
      * @return ModuleGeo_EntityRegion|null
      */
     public function GetRegionById($iId) {
+
         $aRes = $this->GetRegions(array('id' => $iId), array(), 1, 1);
         if (isset($aRes['collection'][0])) {
             return $aRes['collection'][0];
@@ -401,6 +410,7 @@ class ModuleGeo extends Module {
      * @return ModuleGeo_EntityCity|null
      */
     public function GetCityById($iId) {
+
         $aRes = $this->GetCities(array('id' => $iId), array(), 1, 1);
         if (isset($aRes['collection'][0])) {
             return $aRes['collection'][0];
@@ -477,6 +487,7 @@ class ModuleGeo extends Module {
      * @return array
      */
     public function GetGroupCitiesByTargetType($sTargetType, $iLimit) {
+
         return $this->oMapper->GetGroupCitiesByTargetType($sTargetType, $iLimit);
     }
 
@@ -489,11 +500,13 @@ class ModuleGeo extends Module {
      * @return bool
      */
     public function CheckTargetUser($iTargetId) {
+
         if ($oUser = $this->User_GetUserById($iTargetId)) {
             return true;
         }
         return false;
     }
+
 }
 
 // EOF

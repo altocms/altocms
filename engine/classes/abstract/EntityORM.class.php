@@ -1,19 +1,17 @@
 <?php
-/*-------------------------------------------------------
-*
-*   LiveStreet Engine Social Networking
-*   Copyright © 2008 Mzhelskiy Maxim
-*
-*--------------------------------------------------------
-*
-*   Official site: www.livestreet.ru
-*   Contact e-mail: rus.engine@gmail.com
-*
-*   GNU General Public License, version 2:
-*   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-*
----------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
 
 /**
  * Абстрактный класс сущности ORM - аналог active record
@@ -90,6 +88,7 @@ abstract class EntityORM extends Entity {
      * @param bool $aParam Ассоциативный массив данных сущности
      */
     public function __construct($aParam = false) {
+
         parent::__construct($aParam);
         $this->aRelations = $this->_getRelations();
     }
@@ -100,6 +99,7 @@ abstract class EntityORM extends Entity {
      * @return string|array    Если индекс составной, то возвращает массив полей
      */
     public function _getPrimaryKey() {
+
         if (!$this->sPrimaryKey) {
             if ($aIndex = $this->ShowPrimaryIndex()) {
                 if (count($aIndex) > 1) {
@@ -119,6 +119,7 @@ abstract class EntityORM extends Entity {
      * @return string
      */
     public function _getPrimaryKeyValue() {
+
         return $this->_getDataOne($this->_getPrimaryKey());
     }
 
@@ -129,6 +130,7 @@ abstract class EntityORM extends Entity {
      * @return bool
      */
     public function _isNew() {
+
         return $this->bIsNew;
     }
 
@@ -138,6 +140,7 @@ abstract class EntityORM extends Entity {
      * @param bool $bIsNew    Флаг - новая сущность или нет
      */
     public function _SetIsNew($bIsNew) {
+
         $this->bIsNew = $bIsNew;
     }
 
@@ -147,6 +150,7 @@ abstract class EntityORM extends Entity {
      * @return Entity|false
      */
     public function Add() {
+
         if ($this->beforeSave()) {
             if ($res = $this->_Method(__FUNCTION__)) {
                 $this->afterSave();
@@ -162,6 +166,7 @@ abstract class EntityORM extends Entity {
      * @return Entity|false
      */
     public function Update() {
+
         if ($this->beforeSave()) {
             if ($res = $this->_Method(__FUNCTION__)) {
                 $this->afterSave();
@@ -177,6 +182,7 @@ abstract class EntityORM extends Entity {
      * @return Entity|false
      */
     public function Save() {
+
         if ($this->beforeSave()) {
             if ($res = $this->_Method(__FUNCTION__)) {
                 $this->afterSave();
@@ -192,6 +198,7 @@ abstract class EntityORM extends Entity {
      * @return Entity|false
      */
     public function Delete() {
+
         if ($this->beforeDelete()) {
             if ($res = $this->_Method(__FUNCTION__)) {
                 $this->afterDelete();
@@ -207,6 +214,7 @@ abstract class EntityORM extends Entity {
      * @return Entity|false
      */
     public function Reload() {
+
         return $this->_Method(__FUNCTION__);
     }
 
@@ -216,6 +224,7 @@ abstract class EntityORM extends Entity {
      * @return array
      */
     public function ShowColumns() {
+
         return $this->_Method(__FUNCTION__ . 'From');
     }
 
@@ -225,6 +234,7 @@ abstract class EntityORM extends Entity {
      * @return array
      */
     public function ShowPrimaryIndex() {
+
         return $this->_Method(__FUNCTION__ . 'From');
     }
 
@@ -234,6 +244,7 @@ abstract class EntityORM extends Entity {
      * @return bool
      */
     protected function beforeSave() {
+
         return true;
     }
 
@@ -251,6 +262,7 @@ abstract class EntityORM extends Entity {
      * @return bool
      */
     protected function beforeDelete() {
+
         return true;
     }
 
@@ -268,6 +280,7 @@ abstract class EntityORM extends Entity {
      * @return array
      */
     public function getChildren() {
+
         if (in_array(self::RELATION_TYPE_TREE, $this->aRelations)) {
             return $this->_Method(__FUNCTION__ . 'Of');
         }
@@ -280,6 +293,7 @@ abstract class EntityORM extends Entity {
      * @return array
      */
     public function getDescendants() {
+
         if (in_array(self::RELATION_TYPE_TREE, $this->aRelations)) {
             return $this->_Method(__FUNCTION__ . 'Of');
         }
@@ -304,6 +318,7 @@ abstract class EntityORM extends Entity {
      * @return array
      */
     public function getAncestors() {
+
         if (in_array(self::RELATION_TYPE_TREE, $this->aRelations)) {
             return $this->_Method(__FUNCTION__ . 'Of');
         }
@@ -318,6 +333,7 @@ abstract class EntityORM extends Entity {
      * @return mixed
      */
     public function setChildren($aChildren = array()) {
+
         if (in_array(self::RELATION_TYPE_TREE, $this->aRelations)) {
             $this->aRelationsData['children'] = $aChildren;
         } else {
@@ -334,6 +350,7 @@ abstract class EntityORM extends Entity {
      * @return mixed
      */
     public function setDescendants($aDescendants = array()) {
+
         if (in_array(self::RELATION_TYPE_TREE, $this->aRelations)) {
             $this->aRelationsData['descendants'] = $aDescendants;
         } else {
@@ -350,6 +367,7 @@ abstract class EntityORM extends Entity {
      * @return mixed
      */
     public function setParent($oParent = null) {
+
         if (in_array(self::RELATION_TYPE_TREE, $this->aRelations)) {
             $this->aRelationsData['parent'] = $oParent;
         } else {
@@ -366,6 +384,7 @@ abstract class EntityORM extends Entity {
      * @return mixed
      */
     public function setAncestors($oParent = null) {
+
         if (in_array(self::RELATION_TYPE_TREE, $this->aRelations)) {
             $this->aRelationsData['ancestors'] = $oParent;
         } else {
@@ -382,6 +401,7 @@ abstract class EntityORM extends Entity {
      * @return mixed
      */
     protected function _Method($sName) {
+
         $sModuleName = Engine::GetModuleName($this);
         $sEntityName = Engine::GetEntityName($this);
         $sPluginPrefix = Engine::GetPluginPrefix($this);
@@ -406,6 +426,7 @@ abstract class EntityORM extends Entity {
      * @param array $aData    Ассоциативный массив данных сущности
      */
     public function _setData($aData) {
+
         if (is_array($aData)) {
             foreach ($aData as $sKey => $val) {
                 if (array_key_exists($sKey, $this->aRelations)) {
@@ -424,6 +445,7 @@ abstract class EntityORM extends Entity {
      * @return array
      */
     public function _getOriginalData() {
+
         return $this->_aOriginalData;
     }
 
@@ -433,6 +455,7 @@ abstract class EntityORM extends Entity {
      * @return array
      */
     public function _getFields() {
+
         if (empty($this->aFields)) {
             $this->aFields = $this->ShowColumns();
         }
@@ -448,6 +471,7 @@ abstract class EntityORM extends Entity {
      * @return null|string
      */
     public function _getField($sField, $iPersistence = 3) {
+
         if ($aFields = $this->_getFields()) {
             if (in_array($sField, $aFields)) {
                 return $sField;
@@ -455,15 +479,15 @@ abstract class EntityORM extends Entity {
             if ($iPersistence == 0) {
                 return null;
             }
-            $sFieldU = func_camelize($sField);
-            $sEntityField = func_underscore(Engine::GetEntityName($this) . $sFieldU);
+            $sFieldU = F::StrCamelize($sField);
+            $sEntityField = F::StrUnderscore(Engine::GetEntityName($this) . $sFieldU);
             if (in_array($sEntityField, $aFields)) {
                 return $sEntityField;
             }
             if ($iPersistence == 1) {
                 return null;
             }
-            $sModuleEntityField = func_underscore(
+            $sModuleEntityField = F::StrUnderscore(
                 Engine::GetModuleName($this) . Engine::GetEntityName($this) . $sFieldU
             );
             if (in_array($sModuleEntityField, $aFields)) {
@@ -472,7 +496,7 @@ abstract class EntityORM extends Entity {
             if ($iPersistence == 2) {
                 return null;
             }
-            $sModuleField = func_underscore(Engine::GetModuleName($this) . $sFieldU);
+            $sModuleField = F::StrUnderscore(Engine::GetModuleName($this) . $sFieldU);
             if (in_array($sModuleField, $aFields)) {
                 return $sModuleField;
             }
@@ -486,6 +510,7 @@ abstract class EntityORM extends Entity {
      * @return array
      */
     public function _getRelations() {
+
         $sParent = get_parent_class($this);
         if (substr_count($sParent, '_Inherits_') || substr_count($sParent, '_Inherit_')) {
             $sParent = get_parent_class($sParent);
@@ -504,6 +529,7 @@ abstract class EntityORM extends Entity {
      * @return array
      */
     public function _getRelationsData() {
+
         return $this->aRelationsData;
     }
 
@@ -529,9 +555,10 @@ abstract class EntityORM extends Entity {
      * @return mixed
      */
     public function __call($sName, $aArgs) {
-        $sType = substr($sName, 0, strpos(func_underscore($sName), '_'));
+
+        $sType = substr($sName, 0, strpos(F::StrUnderscore($sName), '_'));
         if (!strpos($sName, '_') && in_array($sType, array('get', 'set', 'reload'))) {
-            $sKey = func_underscore(preg_replace('/' . $sType . '/', '', $sName, 1));
+            $sKey = F::StrUnderscore(preg_replace('/' . $sType . '/', '', $sName, 1));
             if ($sType == 'get') {
                 if (isset($this->_aData[$sKey])) {
                     return $this->_aData[$sKey];
@@ -581,13 +608,13 @@ abstract class EntityORM extends Entity {
                     $mCmdArgs = array();
                     switch ($sRelationType) {
                         case self::RELATION_TYPE_BELONGS_TO :
-                            $sCmd = "{$sRelPluginPrefix}{$sRelModuleName}_get{$sRelEntityName}By" . func_camelize(
+                            $sCmd = "{$sRelPluginPrefix}{$sRelModuleName}_get{$sRelEntityName}By" . F::StrCamelize(
                                 $sRelPrimaryKey
                             );
                             $mCmdArgs = $this->_getDataOne($sRelationKey);
                             break;
                         case self::RELATION_TYPE_HAS_ONE :
-                            $sCmd = "{$sRelPluginPrefix}{$sRelModuleName}_get{$sRelEntityName}By" . func_camelize(
+                            $sCmd = "{$sRelPluginPrefix}{$sRelModuleName}_get{$sRelEntityName}By" . F::StrCamelize(
                                 $sRelationKey
                             );
                             $mCmdArgs = $iPrimaryKeyValue;
@@ -638,7 +665,7 @@ abstract class EntityORM extends Entity {
             } elseif ($sType == 'reload') {
                 if (array_key_exists($sKey, $this->aRelationsData)) {
                     unset($this->aRelationsData[$sKey]);
-                    return $this->__call('get' . func_camelize($sKey), $aArgs);
+                    return $this->__call('get' . F::StrCamelize($sKey), $aArgs);
                 }
             }
         } else {
@@ -654,18 +681,19 @@ abstract class EntityORM extends Entity {
      * @return mixed
      */
     public function __get($sName) {
+
         // Обработка обращений к обёрткам связей MANY_TO_MANY
         // Если связь загружена, возвращаем объект связи
-        if (isset($this->_aManyToManyRelations[func_underscore($sName)])) {
-            return $this->_aManyToManyRelations[func_underscore($sName)];
+        if (isset($this->_aManyToManyRelations[F::StrUnderscore($sName)])) {
+            return $this->_aManyToManyRelations[F::StrUnderscore($sName)];
             // Есл не загружена, но связь с таким именем существет, пробуем загрузить и вернуть объект связи
-        } elseif (isset($this->aRelations[func_underscore($sName)])
-            && $this->aRelations[func_underscore($sName)][0] == self::RELATION_TYPE_MANY_TO_MANY
+        } elseif (isset($this->aRelations[F::StrUnderscore($sName)])
+            && $this->aRelations[F::StrUnderscore($sName)][0] == self::RELATION_TYPE_MANY_TO_MANY
         ) {
-            $sMethod = 'get' . func_camelize($sName);
+            $sMethod = 'get' . F::StrCamelize($sName);
             $this->__call($sMethod, array());
-            if (isset($this->_aManyToManyRelations[func_underscore($sName)])) {
-                return $this->_aManyToManyRelations[func_underscore($sName)];
+            if (isset($this->_aManyToManyRelations[F::StrUnderscore($sName)])) {
+                return $this->_aManyToManyRelations[F::StrUnderscore($sName)];
             }
             // В противном случае возвращаем то, что просили у объекта
         } else {
@@ -679,6 +707,7 @@ abstract class EntityORM extends Entity {
      * @param string $sKey    Ключ(поле) связи
      */
     public function resetRelationsData($sKey) {
+
         if (isset($this->aRelationsData[$sKey])) {
             unset($this->aRelationsData[$sKey]);
         }

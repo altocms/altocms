@@ -208,7 +208,7 @@ class ModuleImage extends Module {
 				$oImage->set_jpg_quality($aParams['jpg_quality']);
 			}
 
-			$sFileTmp=Config::Get('sys.cache.dir').func_generator(20);
+			$sFileTmp=Config::Get('sys.cache.dir').F::RandomStr(20);
 			$oImage->output(null,$sFileTmp);
 			return $this->SaveFile($sFileTmp,$sDirDest,$sFileDest,0666,true);
 		} else{

@@ -293,6 +293,11 @@ class Router extends LsObject {
         return $aRequestUrl;
     }
 
+    /**
+     * Returns router URI rules
+     *
+     * @return array
+     */
     protected function GetRouterUriRules() {
 
         $aRewrite = (array)Config::Get('router.uri');
@@ -368,10 +373,11 @@ class Router extends LsObject {
     }
 
     /**
-     * Загружает в шаблонизатор Smarty необходимые переменные
+     * Загружает в шаблонизатор необходимые переменные
      *
      */
     protected function AssignVars() {
+
         $this->Viewer_Assign('sAction', $this->Standart(self::$sAction));
         $this->Viewer_Assign('sEvent', self::$sActionEvent);
         $this->Viewer_Assign('aParams', self::$aParams);
@@ -484,6 +490,14 @@ class Router extends LsObject {
         return self::$sActionClass;
     }
 
+    /**
+     * Determines action class by action (and event)
+     *
+     * @param string $sAction
+     * @param string $sEvent
+     *
+     * @return null|string
+     */
     protected function DetermineClass($sAction, $sEvent = null) {
 
         $sActionClass = null;
@@ -956,6 +970,11 @@ class Router extends LsObject {
         return $sUrlMask;
     }
 
+    /**
+     * Returns pattern for topics' URL
+     *
+     * @return string
+     */
     static public function GetTopicUrlPattern() {
 
         $sUrlPattern = self::GetTopicUrlMask();

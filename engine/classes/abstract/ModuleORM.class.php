@@ -1,19 +1,17 @@
 <?php
-/*-------------------------------------------------------
-*
-*   LiveStreet Engine Social Networking
-*   Copyright © 2008 Mzhelskiy Maxim
-*
-*--------------------------------------------------------
-*
-*   Official site: www.livestreet.ru
-*   Contact e-mail: rus.engine@gmail.com
-*
-*   GNU General Public License, version 2:
-*   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-*
----------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
 
 /**
  * Абстракция модуля ORM
@@ -39,6 +37,7 @@ abstract class ModuleORM extends Module {
      *
      */
     public function Init() {
+
         $this->_LoadMapperORM();
     }
 
@@ -47,6 +46,7 @@ abstract class ModuleORM extends Module {
      *
      */
     protected function _LoadMapperORM() {
+
         $this->oMapperORM = new MapperORM($this->oEngine->Database_GetConnect());
     }
 
@@ -63,7 +63,9 @@ abstract class ModuleORM extends Module {
      * @return EntityORM|bool
      */
     protected function _AddEntity($oEntity) {
+
         $res = $this->oMapperORM->AddEntity($oEntity);
+
         // сбрасываем кеш
         if ($res === 0 || $res) {
             $sEntity = $this->Plugin_GetRootDelegater('entity', get_class($oEntity));
@@ -75,6 +77,7 @@ abstract class ModuleORM extends Module {
         } elseif ($res) {
             // есть автоинкремент, устанавливаем его
             $oEntity->_setData(array($oEntity->_getPrimaryKey() => $res));
+
             // Обновление связей many_to_many
             $aRelationsData = $oEntity->_getRelationsData();
             foreach ($oEntity->_getRelations() as $sRelName => $aRelation) {
@@ -104,6 +107,7 @@ abstract class ModuleORM extends Module {
      * @return EntityORM|bool
      */
     protected function _UpdateEntity($oEntity) {
+
         $res = $this->oMapperORM->UpdateEntity($oEntity);
         if ($res === 0 || $res) { // запись не изменилась, либо изменилась
             // Обновление связей many_to_many
@@ -139,6 +143,7 @@ abstract class ModuleORM extends Module {
      * @return EntityORM|bool
      */
     protected function _SaveEntity($oEntity) {
+
         if ($oEntity->_isNew()) {
             return $this->_AddEntity($oEntity);
         } else {
@@ -154,6 +159,7 @@ abstract class ModuleORM extends Module {
      * @return EntityORM|bool
      */
     protected function _DeleteEntity($oEntity) {
+
         $res = $this->oMapperORM->DeleteEntity($oEntity);
         if ($res) {
             // сбрасываем кеш
@@ -180,6 +186,7 @@ abstract class ModuleORM extends Module {
      * @return EntityORM|bool
      */
     protected function _ReloadEntity($oEntity) {
+
         if ($sPrimaryKey = $oEntity->_getPrimaryKey()) {
             if ($sPrimaryKeyValue = $oEntity->_getDataOne($sPrimaryKey)) {
                 if ($oEntityNew = $this->GetByFilter(
@@ -203,6 +210,7 @@ abstract class ModuleORM extends Module {
      * @return array
      */
     protected function _ShowColumnsFrom($oEntity) {
+
         return $this->oMapperORM->ShowColumnsFrom($oEntity);
     }
 
@@ -214,6 +222,7 @@ abstract class ModuleORM extends Module {
      * @return array
      */
     protected function _ShowPrimaryIndexFrom($oEntity) {
+
         return $this->oMapperORM->ShowPrimaryIndexFrom($oEntity);
     }
 
@@ -225,6 +234,7 @@ abstract class ModuleORM extends Module {
      * @return array
      */
     protected function _GetChildrenOfEntity($oEntity) {
+
         if (in_array(EntityORM::RELATION_TYPE_TREE, $oEntity->_getRelations())) {
             $aRelationsData = $oEntity->_getRelationsData();
             if (array_key_exists('children', $aRelationsData)) {
@@ -255,6 +265,7 @@ abstract class ModuleORM extends Module {
      * @return EntityORM|bool
      */
     protected function _GetParentOfEntity($oEntity) {
+
         if (in_array(EntityORM::RELATION_TYPE_TREE, $oEntity->_getRelations())) {
             $aRelationsData = $oEntity->_getRelationsData();
             if (array_key_exists('parent', $aRelationsData)) {
@@ -285,6 +296,7 @@ abstract class ModuleORM extends Module {
      * @return array
      */
     protected function _GetAncestorsOfEntity($oEntity) {
+
         if (in_array(EntityORM::RELATION_TYPE_TREE, $oEntity->_getRelations())) {
             $aRelationsData = $oEntity->_getRelationsData();
             if (array_key_exists('ancestors', $aRelationsData)) {
@@ -313,6 +325,7 @@ abstract class ModuleORM extends Module {
      * @return array
      */
     protected function _GetDescendantsOfEntity($oEntity) {
+
         if (in_array(EntityORM::RELATION_TYPE_TREE, $oEntity->_getRelations())) {
             $aRelationsData = $oEntity->_getRelationsData();
             if (array_key_exists('descendants', $aRelationsData)) {
@@ -343,6 +356,7 @@ abstract class ModuleORM extends Module {
      * @return array|bool
      */
     public function LoadTree($aFilter = array(), $sEntityFull = null) {
+
         if (is_null($sEntityFull)) {
             $sEntityFull = Engine::GetPluginPrefix($this)
                 . 'Module' . Engine::GetModuleName($this) . '_Entity' . Engine::GetModuleName(get_class($this));
@@ -389,6 +403,7 @@ abstract class ModuleORM extends Module {
      * @return EntityORM|null
      */
     public function GetByFilter($aFilter = array(), $sEntityFull = null) {
+
         if (is_null($sEntityFull)) {
             $sEntityFull = Engine::GetPluginPrefix($this)
                 . 'Module' . Engine::GetModuleName($this) . '_Entity' . Engine::GetModuleName(get_class($this));
@@ -409,6 +424,7 @@ abstract class ModuleORM extends Module {
      * @throws Exception
      */
     public function GetItemsByFilter($aFilter = array(), $sEntityFull = null) {
+
         if (is_null($aFilter)) {
             $aFilter = array();
         }
@@ -484,7 +500,7 @@ abstract class ModuleORM extends Module {
                 $sRelEntityName = Engine::GetEntityName($sRelEntity);
                 $sRelPluginPrefix = Engine::GetPluginPrefix($sRelEntity);
                 $sRelPrimaryKey = method_exists($oRelEntityEmpty, '_getPrimaryKey')
-                    ? func_camelize($oRelEntityEmpty->_getPrimaryKey())
+                    ? F::StrCamelize($oRelEntityEmpty->_getPrimaryKey())
                     : 'Id';
                 $aRelData = Engine::GetInstance()->_CallModule(
                     "{$sRelPluginPrefix}{$sRelModuleName}_get{$sRelEntityName}ItemsByArray{$sRelPrimaryKey}",
@@ -526,6 +542,7 @@ abstract class ModuleORM extends Module {
      * @return array
      */
     protected function _setIndexesFromField($aEntities, $aFilter) {
+
         $aIndexedEntities = array();
         foreach ($aEntities as $oEntity) {
             $sKey = in_array('#index-from-primary', $aFilter) || (!empty($aFilter['#index-from']) && $aFilter['#index-from'] == '#primary')
@@ -545,6 +562,7 @@ abstract class ModuleORM extends Module {
      * @return int
      */
     public function GetCountItemsByFilter($aFilter = array(), $sEntityFull = null) {
+
         if (is_null($sEntityFull)) {
             $sEntityFull = Engine::GetPluginPrefix($this)
                 . 'Module' . Engine::GetModuleName($this) . '_Entity' . Engine::GetModuleName(get_class($this));
@@ -589,6 +607,7 @@ abstract class ModuleORM extends Module {
      * @return array
      */
     public function GetItemsByArray($aFilter, $sEntityFull = null) {
+
         foreach ($aFilter as $k => $v) {
             $aFilter["{$k} IN"] = $v;
             unset($aFilter[$k]);
@@ -606,6 +625,7 @@ abstract class ModuleORM extends Module {
      * @return array
      */
     public function GetItemsByJoinTable($aJoinData = array(), $sEntityFull = null) {
+
         if (is_null($sEntityFull)) {
             $sEntityFull = Engine::GetPluginPrefix($this)
                 . 'Module' . Engine::GetModuleName($this) . '_Entity' . Engine::GetModuleName(get_class($this));
@@ -663,6 +683,7 @@ abstract class ModuleORM extends Module {
      * @return int
      */
     public function GetCountItemsByJoinTable($aJoinData = array(), $sEntityFull = null) {
+
         if (is_null($sEntityFull)) {
             $sEntityFull = Engine::GetPluginPrefix($this)
                 . 'Module' . Engine::GetModuleName($this) . '_Entity' . Engine::GetModuleName(get_class($this));
@@ -719,6 +740,7 @@ abstract class ModuleORM extends Module {
      * @return mixed
      */
     public function __call($sName, $aArgs) {
+
         if (preg_match("@^add([\w]+)$@i", $sName, $aMatch)) {
             return $this->_AddEntity($aArgs[0]);
         }
@@ -768,7 +790,7 @@ abstract class ModuleORM extends Module {
             return $this->LoadTree($aArgs[0], $sEntityFull);
         }
 
-        $sNameUnderscore = func_underscore($sName);
+        $sNameUnderscore = F::StrUnderscore($sName);
         $iEntityPosEnd = 0;
         if (strpos($sNameUnderscore, '_items') >= 3) {
             $iEntityPosEnd = strpos($sNameUnderscore, '_items');
@@ -784,14 +806,14 @@ abstract class ModuleORM extends Module {
         if ($iEntityPosEnd && $iEntityPosEnd > 4) {
             $sEntityName = substr($sNameUnderscore, 4, $iEntityPosEnd - 4);
         } else {
-            $sEntityName = func_underscore(Engine::GetModuleName($this)) . '_';
+            $sEntityName = F::StrUnderscore(Engine::GetModuleName($this)) . '_';
             $sNameUnderscore = substr_replace($sNameUnderscore, $sEntityName, 4, 0);
             $iEntityPosEnd = strlen($sEntityName) - 1 + 4;
         }
 
         $sNameUnderscore = substr_replace($sNameUnderscore, str_replace('_', '', $sEntityName), 4, $iEntityPosEnd - 4);
 
-        $sEntityName = func_camelize($sEntityName);
+        $sEntityName = F::StrCamelize($sEntityName);
 
         /**
          * getUserItemsByFilter() get_user_items_by_filter
@@ -815,7 +837,7 @@ abstract class ModuleORM extends Module {
          * getUserItemsByJoinTable() get_user_items_by_join_table
          */
         if (preg_match("@^get_([a-z]+)_items_by_join_table$@i", $sNameUnderscore, $aMatch)) {
-            return $this->GetItemsByJoinTable($aArgs[0], func_camelize($sEntityName));
+            return $this->GetItemsByJoinTable($aArgs[0], F::StrCamelize($sEntityName));
         }
 
         /**
@@ -828,8 +850,8 @@ abstract class ModuleORM extends Module {
          * getUserItemsByCityIdIn()            get_user_items_by_city_id_in
          */
         if (preg_match("@^get_([a-z]+)((_items)|())_by_([_a-z]+)$@i", $sNameUnderscore, $aMatch)) {
-            $aAliases = array('_gte' => ' >=', '_lte' => ' <=', '_gt' => ' >', '_lt' => ' <', '_like' => ' LIKE',
-                              '_in'  => ' IN');
+            $aAliases = array(
+                '_gte' => ' >=', '_lte' => ' <=', '_gt' => ' >', '_lt' => ' <', '_like' => ' LIKE', '_in' => ' IN');
             $sSearchParams = str_replace(array_keys($aAliases), array_values($aAliases), $aMatch[5]);
             $aSearchParams = explode('_and_', $sSearchParams);
             $aSplit = array_chunk($aArgs, count($aSearchParams));
@@ -849,9 +871,7 @@ abstract class ModuleORM extends Module {
          * getUserItemsAll()    get_user_items_all
          */
         if (preg_match("@^get_([a-z]+)_all$@i", $sNameUnderscore, $aMatch)
-            || preg_match(
-                "@^get_([a-z]+)_items_all$@i", $sNameUnderscore, $aMatch
-            )
+            || preg_match("@^get_([a-z]+)_items_all$@i", $sNameUnderscore, $aMatch)
         ) {
             $aFilter = array();
             if (isset($aArgs[0]) && is_array($aArgs[0])) {
@@ -873,6 +893,7 @@ abstract class ModuleORM extends Module {
      * @return array
      */
     static function buildTree($aItems, $aList = array(), $iLevel = 0) {
+
         foreach ($aItems as $oEntity) {
             $aChildren = $oEntity->getChildren();
             $bHasChildren = !empty($aChildren);
@@ -941,8 +962,10 @@ abstract class ModuleORM extends Module {
      * @param int    $iEntityId     Id сущнсоти, для который удаляются связи
      */
     protected function _deleteManyToManySet($sDbTableAlias, $sEntityKey, $iEntityId) {
+
         $this->oMapperORM->deleteManyToManySet($sDbTableAlias, $sEntityKey, $iEntityId);
     }
+
 }
 
 // EOF

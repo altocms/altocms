@@ -251,18 +251,22 @@ class ModuleViewer extends Module {
     static protected $_preprocessTime = 0;
 
     static public function GetRenderCount() {
+
         return self::$_renderCount;
     }
 
     static public function GetRenderTime() {
+
         return self::$_renderTime + (self::$_renderStart ? microtime(true) - self::$_renderStart : 0);
     }
 
     static public function GetPreprocessingTime() {
+
         return self::$_preprocessTime + self::GetRenderTime();
     }
 
     static public function GetTotalTime() {
+
         return self::GetPreprocessingTime() + self::GetRenderTime();
     }
 
@@ -271,6 +275,7 @@ class ModuleViewer extends Module {
      *
      */
     public function Init($bLocal = false) {
+
         $this->Hook_Run('viewer_init_start', compact('bLocal'));
 
         $this->bLocal = (bool)$bLocal;
@@ -351,6 +356,7 @@ class ModuleViewer extends Module {
      * @return ModuleViewer
      */
     public function GetLocalViewer() {
+
         $sClass = $this->Plugin_GetDelegate('module', __CLASS__);
 
         $oViewerLocal = new $sClass(Engine::getInstance());
@@ -366,6 +372,7 @@ class ModuleViewer extends Module {
      * @return string|null
      */
     public function GetSmartyVersion() {
+
         $sSmartyVersion = null;
         if (property_exists($this->oSmarty, '_version')) {
             $sSmartyVersion = $this->oSmarty->_version;
@@ -381,10 +388,12 @@ class ModuleViewer extends Module {
      * @return string
      */
     public function GetAssetDir() {
+
         return F::File_NormPath(Config::Get('path.runtime.dir') . 'assets/');
     }
 
     public function GetAssetUrl() {
+
         return Config::Get('path.runtime.url') . 'assets/';
     }
 
@@ -395,6 +404,7 @@ class ModuleViewer extends Module {
      * @return  string
      */
     public function AssetFileDir($sFile) {
+
         return F::File_NormPath($this->GetAssetDir() . $this->Hash(dirname($sFile)) . '/' . basename($sFile));
     }
 
@@ -405,6 +415,7 @@ class ModuleViewer extends Module {
      * @return  string
      */
     public function AssetFileUrl($sFile) {
+
         return F::File_NormPath($this->GetAssetUrl() . $this->Hash(dirname($sFile)) . '/' . basename($sFile));
     }
 
@@ -414,6 +425,7 @@ class ModuleViewer extends Module {
      * @param   string $sFile
      */
     public function AddAssetFile($sFile) {
+
         if (!isset($this->aAssets[$sFile])) {
             $this->aAssets[$sFile] = $this->AssetFileDir($sFile);
         }
@@ -423,6 +435,7 @@ class ModuleViewer extends Module {
      * Копировать файлы из списка asset-ресурсов в общую папку asset-ресурсов
      */
     protected function CopyAssetFiles() {
+
         foreach ($this->aAssets as $sSource => $sTarget) {
             F::File_Copy($sSource, $sTarget);
         }
@@ -430,12 +443,10 @@ class ModuleViewer extends Module {
 
     /**
      * Выполняет загрузку необходимых (возможно даже системных :)) переменных в шаблонизатор
-     *
      */
     public function VarAssign() {
-        /**
-         * Загружаем весь $_REQUEST, предварительно обработав его функцией func_htmlspecialchars()
-         */
+
+        // * Загружаем весь $_REQUEST, предварительно обработав его функцией func_htmlspecialchars()
         $aRequest = $_REQUEST;
         func_htmlspecialchars($aRequest);
         $this->Assign('_aRequest', $aRequest);
@@ -457,7 +468,9 @@ class ModuleViewer extends Module {
         $aRouter = array();
         $aPages = Config::Get('router.page');
 
-        if (!$aPages || !is_array($aPages)) throw new Exception('Router rules is underfined.');
+        if (!$aPages || !is_array($aPages)) {
+            throw new Exception('Router rules is underfined.');
+        }
         foreach ($aPages as $sPage => $aAction) {
             $aRouter[$sPage] = Router::GetPath($sPage);
         }
@@ -504,6 +517,7 @@ class ModuleViewer extends Module {
      * Загружаем содержимое menu-контейнеров
      */
     protected function MenuVarAssign() {
+
         $this->Assign('aMenuFetch', $this->aMenuFetch);
         $this->Assign('aMenuContainers', array_keys($this->aMenu));
     }
@@ -511,16 +525,17 @@ class ModuleViewer extends Module {
     /**
      * Выводит на экран (в браузер) обработанный шаблон
      *
-     * @param string $sTemplate     - Шаблон для вывода
+     * @param string $sTemplate - Шаблон для вывода
      */
     public function Display($sTemplate) {
+
         // Проверка существования папки с текущим скином
         $this->CheckSkin();
 
         if ($this->sResponseAjax) {
             $this->DisplayAjax($this->sResponseAjax);
         }
-        /**
+        /*
          * Если шаблон найден то выводим, иначе - ошибка
          * Но предварительно проверяем наличие делегата
          */
@@ -595,10 +610,12 @@ class ModuleViewer extends Module {
     /**
      * Возвращает отрендеренный шаблон виджета
      *
-     * @param string $sTemplate    Шаблон для рендеринга
+     * @param string $sTemplate - Шаблон для рендеринга
+     *
      * @return string
      */
     public function FetchWidget($sTemplate) {
+
         // * Проверяем наличие делегата
         $sDelegateTemplate = $this->Plugin_GetDelegate('template', $sTemplate);
         if ($sDelegateTemplate == $sTemplate && !$this->TemplateExists($sTemplate)) {
@@ -621,15 +638,14 @@ class ModuleViewer extends Module {
     /**
      * Ответ на ajax запрос
      *
-     * @param string $sType Варианты: json, jsonIframe, jsonp
+     * @param string $sType - Варианты: json, jsonIframe, jsonp
      */
     public function DisplayAjax($sType = 'json') {
 
         $aHeaders = array();
         $sOutput = '';
-        /**
-         * Загружаем статус ответа и сообщение
-         */
+
+        // * Загружаем статус ответа и сообщение
         $bStateError = false;
         $sMsgTitle = '';
         $sMsg = '';
@@ -656,9 +672,8 @@ class ModuleViewer extends Module {
             if ($this->bResponseSpecificHeader && !headers_sent()) {
                 $aHeaders[] = 'Content-type: application/json';
             }
-            /**
-             * Избавляемся от бага, когда в возвращаемом тексте есть &quot;
-             */
+
+            // * Избавляемся от бага, когда в возвращаемом тексте есть &quot;
             $sOutput = '<textarea>' . htmlspecialchars(F::jsonEncode($this->aVarsAjax)) . '</textarea>';
         } elseif ($sType == 'jsonp') {
             if ($this->bResponseSpecificHeader && !headers_sent()) {
@@ -681,6 +696,7 @@ class ModuleViewer extends Module {
      * @return Smarty
      */
     public function CreateSmartyObject() {
+
         return new Smarty();
     }
 
@@ -690,6 +706,7 @@ class ModuleViewer extends Module {
      * @return Smarty
      */
     public function GetSmartyObject() {
+
         return $this->oSmarty;
     }
 
@@ -701,6 +718,7 @@ class ModuleViewer extends Module {
      * @return  string
      */
     public function GetSkin($bSiteSkin = true) {
+
         if ($bSiteSkin)
             return Config::Get('view.skin', Config::DEFAULT_CONFIG_INSTANCE);
         else
@@ -710,15 +728,17 @@ class ModuleViewer extends Module {
     /**
      * Возвращает путь к папке скина
      *
-     * @param   bool    $bSiteSkin - если задано, то возвращает скин, установленный для сайта (игнорирует скин экшена)
+     * @param bool $bSiteSkin - Если задано, то возвращает скин, установленный для сайта (игнорирует скин экшена)
      *
      * @return  string
      */
     public function GetTemplateDir($bSiteSkin = true) {
-        if ($bSiteSkin)
+
+        if ($bSiteSkin) {
             return F::File_NormPath(Config::Get('path.skins.dir') . '/' . $this->GetSkin(true));
-        else
+        } else {
             return Config::Get('path.smarty.template');
+        }
     }
 
     /**
@@ -727,6 +747,7 @@ class ModuleViewer extends Module {
      * @return string
      */
     public function GetResponseAjax() {
+
         return $this->sResponseAjax;
     }
 
@@ -738,6 +759,7 @@ class ModuleViewer extends Module {
      * @param bool $bValidate    Производить или нет валидацию формы через {@link Security::ValidateSendForm}
      */
     public function SetResponseAjax($sResponseAjax = 'json', $bResponseSpecificHeader = true, $bValidate = true) {
+
         // Для возможности кросс-доменных запросов
         if ($sResponseAjax != 'jsonp' && $bValidate) {
             $this->Security_ValidateSendForm();
@@ -754,6 +776,7 @@ class ModuleViewer extends Module {
      * @param mixed $value    Значение переменной
      */
     public function Assign($sName, $value) {
+
         $this->oSmarty->assign($sName, $value);
     }
 
@@ -764,14 +787,16 @@ class ModuleViewer extends Module {
      * @param mixed $value    Значение переменной
      */
     public function AssignAjax($sName, $value) {
+
         $this->aVarsAjax[$sName] = $value;
     }
 
     /**
      * Проверяет существование шаблона
      *
-     * @param   string $sTemplate      - Шаблон
-     * @param   bool $bException     - Нужно ли генерить ошибку, если шаблон не найден
+     * @param   string $sTemplate   - Шаблон
+     * @param   bool   $bException  - Нужно ли генерить ошибку, если шаблон не найден
+     *
      * @return  bool
      */
     public function TemplateExists($sTemplate, $bException = false) {
@@ -779,6 +804,7 @@ class ModuleViewer extends Module {
         $bResult = $this->oSmarty->templateExists($sTemplate);
         if (!$bResult && $bException) {
             $sMessage = 'Can not find the template "' . $sTemplate . '" in skin "' . Config::Get('view.skin') . '"';
+
             // записываем доп. информацию - пути к шаблонам Smarty
             $sErrorInfo = 'Template Dirs: ' . implode('; ', $this->oSmarty->getTemplateDir());
             return $this->_error($sMessage, $sErrorInfo);
@@ -789,8 +815,8 @@ class ModuleViewer extends Module {
     /**
      * Проверяет существование скина/темы
      *
-     * @param   string $sSkin          - Скин (или скин/тема)
-     * @param   bool   $bException     - Нужно ли генерить ошибку, если скин не найден
+     * @param   string $sSkin      - Скин (или скин/тема)
+     * @param   bool   $bException - Нужно ли генерить ошибку, если скин не найден
      *
      * @return  bool
      */
@@ -836,6 +862,7 @@ class ModuleViewer extends Module {
      * @return  bool
      */
     public function CheckSkin() {
+
         if (!$this->SkinExists(Config::Get('view.skin'), true)) {
             die('Please check skin folder');
         }
@@ -845,21 +872,24 @@ class ModuleViewer extends Module {
      * Проверяет существование папки конкретной темы текущего скина
      *
      * @param   string $sTheme
+     *
      * @return  bool
      */
     public function CheckTheme($sTheme) {
+
         return $this->SkinExists(Config::Get('view.skin') . '/' . $sTheme, false);
     }
 
     /**
      * Генерация ошибки "Шаблон не найден"
      *
-     * @param   string $sMessage       - сообщение об ошибке
-     * @param   string|null $sErrorInfo     - доп. информация для записи в лог
+     * @param   string $sMessage   - сообщение об ошибке
+     * @param   string $sErrorInfo - доп. информация для записи в лог
      *
      * @throws  Exception
      */
     protected function _error($sMessage, $sErrorInfo = null) {
+
         $oException = new Exception($sMessage);
         $oException->sAdditionalInfo = $sErrorInfo;
         throw $oException;
@@ -922,17 +952,16 @@ class ModuleViewer extends Module {
     /**
      * Добавляет список виджетов
      *
-     * @param   string $sGroup     Группа виджетов
-     * @param   array $aWidgets   Список добавляемых виджетов
+     * @param   string $sGroup          - Группа виджетов
+     * @param   array  $aWidgets        - Список добавляемых виджетов
+     * @param   bool   $ClearWidgets    - Очищать или нет список виджетов, добавленных до этого, в данной группе
      * <pre>
      * $this->Viewer_AddWidgets('right', array('tags', array('widget'=>'stream', 'priority'=>100)));
      * </pre>
-     * @param   bool $ClearWidgets    Очищать или нет список виджетов, добавленных до этого, в данной группе
      */
     public function AddWidgets($sGroup, $aWidgets, $ClearWidgets = true) {
-        /**
-         * Удаляем ранее добавленые виджеты
-         */
+
+        // * Удаляем ранее добавленые виджеты
         if ($ClearWidgets) {
             $this->ClearWidgets($sGroup);
         }
@@ -956,6 +985,7 @@ class ModuleViewer extends Module {
      * @param   string $sGroup
      */
     public function ClearWidgets($sGroup) {
+
         $this->aWidgets[$sGroup] = array();
     }
 
@@ -964,6 +994,7 @@ class ModuleViewer extends Module {
      *
      */
     public function ClearAllWidgets() {
+
         foreach ($this->aWidgets as $sGroup => $aWidget) {
             $this->aWidgets[$sGroup] = array();
         }
@@ -972,10 +1003,12 @@ class ModuleViewer extends Module {
     /**
      * Возвращает список виджетов
      *
-     * @param bool $bSort    Выполнять или нет сортировку виджетов
+     * @param bool $bSort - Выполнять или нет сортировку виджетов
+     *
      * @return array
      */
     public function GetWidgets($bSort = true) {
+
         if ($bSort && !$this->bWidgetsSorted) {
             $this->SortWidgets();
         }
@@ -985,13 +1018,15 @@ class ModuleViewer extends Module {
     /**
      * Определяет тип виджета
      *
-     * @param   string $sName          Название виджета
-     * @param   string|null $sDir       Путь до шаблона виджета, обычно определяется автоматически для плагинов,
-     *                                  если передать параметр 'plugin'=>'myplugin'
-     * @param   string|null $sPlugin    Имя плагина виджета, берется из параметра 'plugin'=>'myplugin'
+     * @param   string $sName   - Название виджета
+     * @param   string $sDir    - Путь до шаблона виджета, обычно определяется автоматически для плагинов,
+     *                            если передать параметр 'plugin'=>'myplugin'
+     * @param   string $sPlugin - Имя плагина виджета, берется из параметра 'plugin'=>'myplugin'
+     *
      * @return  string ('exec', 'block', 'template', 'undefined')
      */
     protected function DefineWidgetType(&$sName, $sDir = null, $sPlugin = null) {
+
         // Добавляем проверку на рсширение, чтобы не делать лишних телодвижений
         $bTpl = (substr($sName, -4) == '.tpl');
         if (!$bTpl) {
@@ -1040,6 +1075,7 @@ class ModuleViewer extends Module {
      * @return int
      */
     protected function _SortWidgetsCompare($a, $b) {
+
         if ($a->getPriority() == $b->getPriority()) {
             return $a->getOrder() - $b->getOrder();
         } elseif ($a->isTop()) {
@@ -1058,6 +1094,7 @@ class ModuleViewer extends Module {
      *
      */
     protected function SortWidgets() {
+
         if ($this->aWidgets)
             foreach ($this->aWidgets as $sGroup => $aWidgets) {
                 if (sizeof($aWidgets)) {
@@ -1069,6 +1106,7 @@ class ModuleViewer extends Module {
     }
 
     protected function MakeWidgetsLists() {
+
         $aWidgets = $this->Widget_GetWidgets();
         if ($aWidgets) {
             foreach ($aWidgets as $oWidget) {
@@ -1111,6 +1149,7 @@ class ModuleViewer extends Module {
      * Инициализирует параметры вывода js- и css- файлов
      */
     protected function InitFileParams() {
+
         foreach (array('js', 'css') as $sType) {
             /**
              * Проверяем наличие списка файлов данного типа
@@ -1169,6 +1208,7 @@ class ModuleViewer extends Module {
      * @return  array
      */
     protected function CheckFileParams($sType, $sFile, $aParams) {
+
         // Если слияние отключено, то каждый набор - это отдельный файл
         if (Config::Get('compress.' . $sType . '.merge')) {
             if (isset($aFileParams['asset'])) $sAsset = $aFileParams['asset'];
@@ -1190,6 +1230,7 @@ class ModuleViewer extends Module {
      * @return bool
      */
     public function AppendScript($sFile, $aParams = array(), $bReplace = false) {
+
         $aParams = $this->CheckFileParams('js', $sFile, $aParams);
         if ($this->ExistsHeadFileByName('js', $aParams)) {
             return true;
@@ -1202,13 +1243,15 @@ class ModuleViewer extends Module {
     /**
      * Добавляет js-файл в начало списка
      *
-     * @param   string $sFile    js-файл
-     * @param   array $aParams  - Параметры, например, можно указать параметр 'name'=>'jquery.plugin.foo'
-     *                              для исключения повторного добавления файла с таким именем
-     * @param   bool $bReplace   - заменять ли файл с таким же именем, если он уже есть
+     * @param   string $sFile      - js-файл
+     * @param   array  $aParams    - Параметры, например, можно указать параметр 'name'=>'jquery.plugin.foo'
+     *                               для исключения повторного добавления файла с таким именем
+     * @param   bool   $bReplace   - заменять ли файл с таким же именем, если он уже есть
+     *
      * @return  bool
      */
     public function PrependScript($sFile, $aParams = array(), $bReplace = false) {
+
         $aParams = $this->CheckFileParams('js', $sFile, $aParams);
         if ($this->ExistsHeadFileByName('js', $aParams)) {
             return true;
@@ -1222,13 +1265,15 @@ class ModuleViewer extends Module {
     /**
      * Добавляет css-файл в конец списка
      *
-     * @param   string $sFile      css-файл стилей
-     * @param   array $aParams    - Параметры, например, можно указать параметр 'name'=>'blueprint'
-     *                              для исключения повторного добавления файла с таким именем
-     * @param   bool $bReplace   - заменять ли файл с таким же именем, если он уже есть
+     * @param   string $sFile    - css-файл стилей
+     * @param   array  $aParams  - Параметры, например, можно указать параметр 'name'=>'blueprint'
+     *                             для исключения повторного добавления файла с таким именем
+     * @param   bool   $bReplace - заменять ли файл с таким же именем, если он уже есть
+     *
      * @return bool
      */
     public function AppendStyle($sFile, $aParams = array(), $bReplace = false) {
+
         $aParams = $this->CheckFileParams('css', $sFile, $aParams);
         if ($this->ExistsHeadFileByName('css', $aParams)) {
             return true;
@@ -1241,13 +1286,15 @@ class ModuleViewer extends Module {
     /**
      * Добавляет css-файл в начало списка
      *
-     * @param   string $sFile      css-файл стилей
-     * @param   array $aParams    - Параметры, например, можно указать параметр 'name'=>'blueprint'
+     * @param   string $sFile      - css-файл стилей
+     * @param   array  $aParams    - Параметры, например, можно указать параметр 'name'=>'blueprint'
      *                              для исключения повторного добавления файла с таким именем
-     * @param   bool $bReplace   - заменять ли файл с таким же именем, если он уже есть
+     * @param   bool   $bReplace   - заменять ли файл с таким же именем, если он уже есть
+     *
      * @return bool
      */
     public function PrependStyle($sFile, $aParams = array(), $bReplace = false) {
+
         $aParams = $this->CheckFileParams('css', $sFile, $aParams);
         if ($this->ExistsHeadFileByName('css', $aParams)) {
             return true;
@@ -1262,12 +1309,13 @@ class ModuleViewer extends Module {
      * Проверка на дубль по имени (параметр name) js или css файла
      * Позволяет избежать повторного подключения уже используемой библиотеки
      *
-     * @param string $sType Тип файла - css, js
-     * @param array $aParams    Параметры
+     * @param string $sType   - Тип файла - css, js
+     * @param array  $aParams - Параметры
      *
      * @return bool
      */
     protected function ExistsHeadFileByName($sType, $aParams) {
+
         if (isset($aParams['name'])) {
             // * Проверяем на дубликат по имени
             foreach ($this->aFilesParams[$sType] as $aParamsFile) {
@@ -1286,6 +1334,7 @@ class ModuleViewer extends Module {
      * @return array
      */
     protected function PrepareHeadFilesLists($aFiles) {
+
         $aResult = array(
             'js' => array(
                 'assets' => array(), // наборы объединяемых файлов
@@ -1323,10 +1372,10 @@ class ModuleViewer extends Module {
      *
      */
     protected function BuildHeadFiles() {
+
         $sPath = Router::GetPathWebCurrent();
-        /**
-         * По умолчанию имеем дефолтные настройки
-         */
+
+        // * По умолчанию имеем дефолтные настройки
         $aFiles = $this->aFilesDefault;
 
         $this->aFileRules = Config::Get('head.rules');
@@ -1336,23 +1385,30 @@ class ModuleViewer extends Module {
             foreach ((array)$aRule['path'] as $sRulePath) {
                 $sPattern = "~" . str_replace(array('/', '*'), array('\/', '\w+'), $sRulePath) . "~";
                 if (preg_match($sPattern, $sPath)) {
-                    /**
-                     * Преобразование JS
-                     */
-                    if (isset($aRule['js']['empty']) && $aRule['js']['empty']) $aFiles['js'] = array();
-                    if (isset($aRule['js']['exclude']) && is_array($aRule['js']['exclude'])) $aFiles['js'] = array_diff($aFiles['js'], $aRule['js']['exclude']);
-                    if (isset($aRule['js']['include']) && is_array($aRule['js']['include'])) $aFiles['js'] = array_merge($aFiles['js'], $aRule['js']['include']);
 
-                    /**
-                     * Преобразование CSS
-                     */
-                    if (isset($aRule['css']['empty']) && $aRule['css']['empty']) $aFiles['css'] = array();
-                    if (isset($aRule['css']['exclude']) && is_array($aRule['css']['exclude'])) $aFiles['css'] = array_diff($aFiles['css'], $aRule['css']['exclude']);
-                    if (isset($aRule['css']['include']) && is_array($aRule['css']['include'])) $aFiles['css'] = array_merge($aFiles['css'], $aRule['css']['include']);
+                    // * Преобразование JS
+                    if (isset($aRule['js']['empty']) && $aRule['js']['empty']) {
+                        $aFiles['js'] = array();
+                    }
+                    if (isset($aRule['js']['exclude']) && is_array($aRule['js']['exclude'])) {
+                        $aFiles['js'] = array_diff($aFiles['js'], $aRule['js']['exclude']);
+                    }
+                    if (isset($aRule['js']['include']) && is_array($aRule['js']['include'])) {
+                        $aFiles['js'] = array_merge($aFiles['js'], $aRule['js']['include']);
+                    }
 
-                    /**
-                     * Продолжаем поиск
-                     */
+                    // * Преобразование CSS
+                    if (isset($aRule['css']['empty']) && $aRule['css']['empty']) {
+                        $aFiles['css'] = array();
+                    }
+                    if (isset($aRule['css']['exclude']) && is_array($aRule['css']['exclude'])) {
+                        $aFiles['css'] = array_diff($aFiles['css'], $aRule['css']['exclude']);
+                    }
+                    if (isset($aRule['css']['include']) && is_array($aRule['css']['include'])) {
+                        $aFiles['css'] = array_merge($aFiles['css'], $aRule['css']['include']);
+                    }
+
+                    // * Продолжаем поиск
                     if (isset($aRule['stop'])) {
                         break(2);
                     }
@@ -1380,9 +1436,7 @@ class ModuleViewer extends Module {
 
         $aFiles = $this->PrepareHeadFilesLists($aFiles);
 
-        /**
-         * Объединяем файлы в наборы
-         */
+        // * Объединяем файлы в наборы
         $aHeadFiles = array('js' => array(), 'css' => array());
 
         foreach (array('js', 'css') as $sType) {
@@ -1408,14 +1462,13 @@ class ModuleViewer extends Module {
             }
         }
 
-        /**
-         * Получаем HTML код
-         */
+        // * Получаем HTML код
         $aHtmlHeadFiles = $this->BuildHtmlHeadFiles($aHeadFiles);
         $this->SetHtmlHeadFiles($aHtmlHeadFiles);
     }
 
     protected function MergeHeadFileList($aFiles, $sType) {
+
         $aFileList = array();
         foreach ($aFiles as $sFile) {
             if ($sType == 'less' || ($sType == 'css' && F::File_GetExtension($sFile) == 'less')) {
@@ -1431,6 +1484,7 @@ class ModuleViewer extends Module {
     }
 
     protected function CompileLess($sFile, $sCompiledFile) {
+
         $sContent = $this->GetCompiledLess($sFile);
         if ($sContent) {
             return F::File_PutContents($sCompiledFile, $sContent);
@@ -1447,16 +1501,14 @@ class ModuleViewer extends Module {
      * @return array
      */
     protected function Compress($aFiles, $sType) {
+
         //$sCacheDir = $this->GetAssetDir();
         $sCacheName = $this->GetAssetDir() . md5(serialize($aFiles) . '_head') . '.' . $sType;
 
-        /**
-         * Если кеш существует, то берем из кеша
-         */
+        // * Если кеш существует, то берем из кеша
         if (!F::File_Exists($sCacheName) || Config::Get('compress.' . $sType . '.force')) {
-            /**
-             * Считываем содержимое
-             */
+
+            // * Считываем содержимое
             ob_start();
             foreach ($aFiles as $sKey => $sFile) {
                 // если файл локальный
@@ -1475,16 +1527,13 @@ class ModuleViewer extends Module {
 
             if (!$sContent) return;
 
-            /**
-             * Создаем новый файл (если надо, то и папку) и записываем туда содержимое
-             */
+            // * Создаем новый файл (если надо, то и папку) и записываем туда содержимое
             if (F::File_PutContents($sCacheName, $sContent)) {
                 @chmod($sCacheName, 0766);
             }
         }
-        /**
-         * Возвращаем имя файла, заменяя адрес сервера на веб-адрес
-         */
+
+        // * Возвращаем имя файла, заменяя адрес сервера на веб-адрес
         return F::File_Dir2Url($sCacheName);
     }
 
@@ -1496,6 +1545,7 @@ class ModuleViewer extends Module {
      * @return  string|null
      */
     protected function GetContent($sFile, $sType = null) {
+
         if (!$sType) $sType = F::File_GetExtension($sFile);
 
         if ($sType == 'less' || ($sType == 'css' && F::File_GetExtension($sFile) == 'less')) {
@@ -1511,6 +1561,7 @@ class ModuleViewer extends Module {
     }
 
     protected function GetCompiledLess($sFile) {
+
         // Если файлов несколько, то сначала собираем контент из них всех, а потом компилируем
         $aFiles = explode(',', $sFile);
         $sContent = '';
@@ -1547,6 +1598,7 @@ class ModuleViewer extends Module {
     }
 
     protected function GetCompiledCss($sFile) {
+
         if ($sFileContent = F::File_GetContents($sFile)) {
             $sFileContent = $this->ConvertPathInCss($sFileContent, $sFile);
             $sFileContent = $this->CompressCss($sFileContent);
@@ -1555,6 +1607,7 @@ class ModuleViewer extends Module {
     }
 
     protected function GetCompiledJs($sFile) {
+
         if ($sFileContent = F::File_GetContents($sFile)) {
             $sFileContent = $this->CompressJs($sFileContent);
             return $sFileContent;
@@ -1568,6 +1621,7 @@ class ModuleViewer extends Module {
      * @return string
      */
     protected function CompressCss($sContent) {
+
         $this->InitCssCompressor();
         if (!$this->oCssCompressor) return $sContent;
         /**
@@ -1580,11 +1634,13 @@ class ModuleViewer extends Module {
     /**
      * Конвертирует относительные пути в css файлах в абсолютные
      *
-     * @param  string $sContent    Контент CSS
+     * @param  string $sContent - Контент CSS
      * @param  string $sSourcePath
+     *
      * @return string
      */
     protected function ConvertPathInCss($sContent, $sSourcePath) {
+
         // Есть ли в файле URLs
         if (!preg_match_all('|url\((.*?)\)|is', $sContent, $aMatchedUrl, PREG_OFFSET_CAPTURE)) {
             return $sContent;
@@ -1650,6 +1706,7 @@ class ModuleViewer extends Module {
      * @return string
      */
     protected function CompressJs($sContent) {
+
         $sContent = (Config::Get('compress.js.use'))
             ? JSMin::minify($sContent)
             : $sContent;
@@ -1667,6 +1724,7 @@ class ModuleViewer extends Module {
      * @return string
      */
     protected function GetRealpath($sPath) {
+
         if (preg_match("@^(http|https):@", $sPath)) {
             $aUrl = parse_url($sPath);
             $sPath = $aUrl['path'];
@@ -1693,6 +1751,7 @@ class ModuleViewer extends Module {
      * @return string
      */
     protected function GetWebPath($sFile) {
+
         return F::File_Dir2Url($sFile);
     }
 
@@ -1703,10 +1762,12 @@ class ModuleViewer extends Module {
      * @return string
      */
     protected function GetServerPath($sFile) {
+
         return F::File_Url2Dir($sFile);
     }
 
     protected function Hash($sPath) {
+
         return sprintf('%x', crc32($sPath));
     }
 
@@ -1717,6 +1778,7 @@ class ModuleViewer extends Module {
      * @return array
      */
     protected function BuildHtmlHeadFiles($aFileList) {
+
         $aHeader = array('js' => '', 'css' => '');
 
         foreach ((array)$aFileList['css'] as $sCss) {
@@ -1738,7 +1800,10 @@ class ModuleViewer extends Module {
      * @return string
      */
     protected function WrapHtmlHack($sHtml, $sFile, $sType) {
-        if (!isset($this->aFilesParams[$sType][$sFile]['browser'])) return $sHtml;
+
+        if (!isset($this->aFilesParams[$sType][$sFile]['browser'])) {
+            return $sHtml;
+        }
         return "<!--[if {$this->aFilesParams[$sType][$sFile]['browser']}]>$sHtml<![endif]-->";
     }
 
@@ -1748,6 +1813,7 @@ class ModuleViewer extends Module {
      * @param array $aText    Список файлов
      */
     public function SetHtmlHeadFiles($aText) {
+
         $this->aHtmlHeadFiles = $aText;
     }
 
@@ -1757,6 +1823,7 @@ class ModuleViewer extends Module {
      * @param   string  $sTag
      */
     public function AddHtmlHeadTag($sTag) {
+
         $this->aHtmlHeadTags[] = $sTag;
     }
 
@@ -1766,6 +1833,7 @@ class ModuleViewer extends Module {
      * @param string $sText    Заголовок
      */
     public function SetHtmlTitle($sText) {
+
         $this->sHtmlTitle = $sText;
     }
 
@@ -1775,6 +1843,7 @@ class ModuleViewer extends Module {
      * @param string $sText    Заголовок
      */
     public function AddHtmlTitle($sText) {
+
         $this->sHtmlTitle = $sText . $this->sHtmlTitleSeparation . $this->sHtmlTitle;
     }
 
@@ -1784,6 +1853,7 @@ class ModuleViewer extends Module {
      * @return string
      */
     public function GetHtmlTitle() {
+
         return $this->sHtmlTitle;
     }
 
@@ -1793,6 +1863,7 @@ class ModuleViewer extends Module {
      * @param string $sText    Кейворды
      */
     public function SetHtmlKeywords($sText) {
+
         $this->sHtmlKeywords = $sText;
     }
 
@@ -1802,6 +1873,7 @@ class ModuleViewer extends Module {
      * @param string $sText    Описание
      */
     public function SetHtmlDescription($sText) {
+
         $this->sHtmlDescription = $sText;
     }
 
@@ -1812,6 +1884,7 @@ class ModuleViewer extends Module {
      * @param bool $bRewrite    Перезаписывать URL, если он уже установлен
      */
     public function SetHtmlCanonical($sUrl, $bRewrite = false) {
+
         if (!$this->sHtmlCanonical || $bRewrite) {
             $this->sHtmlCanonical = $sUrl;
         }
@@ -1824,6 +1897,7 @@ class ModuleViewer extends Module {
      * @param string $sTitle    Заголовок
      */
     public function SetHtmlRssAlternate($sUrl, $sTitle) {
+
         $this->aHtmlRssAlternate['title'] = htmlspecialchars($sTitle);
         $this->aHtmlRssAlternate['url'] = htmlspecialchars($sUrl);
     }
@@ -1840,6 +1914,7 @@ class ModuleViewer extends Module {
      * @return array
      */
     public function MakePaging($iCount, $iCurrentPage, $iCountPerPage, $iCountPageLine, $sBaseUrl, $aGetParamsList = array()) {
+
         if ($iCount == 0) {
             return false;
         }
@@ -1898,6 +1973,7 @@ class ModuleViewer extends Module {
      * @param string $sTemplate
      */
     public function AddMenu($sContainer, $sTemplate) {
+
         $this->aMenu[strtolower($sContainer)] = $sTemplate;
     }
 
@@ -1906,6 +1982,7 @@ class ModuleViewer extends Module {
      *
      */
     protected function BuildMenu() {
+
         foreach ($this->aMenu as $sContainer => $sTemplate) {
             $this->aMenuFetch[$sContainer] = $this->Fetch($sTemplate);
         }
@@ -1914,11 +1991,12 @@ class ModuleViewer extends Module {
     /**
      * Обработка поиска файла шаблона, если его не смог найти шаблонизатор Smarty
      *
-     * @param string $sType    Тип шаблона/ресурса
-     * @param string $sName    Имя шаблона - имя файла
-     * @param string $sContent    Возврат содержания шаблона при return true;
-     * @param int $iTimestamp    Возврат даты модификации шаблона при return true;
-     * @param Smarty $oSmarty    Объект Smarty
+     * @param string $sType       - Тип шаблона/ресурса
+     * @param string $sName       - Имя шаблона - имя файла
+     * @param string $sContent    -  Возврат содержания шаблона при return true;
+     * @param int    $iTimestamp  -  Возврат даты модификации шаблона при return true;
+     * @param Smarty $oSmarty     -  Объект Smarty
+     *
      * @return string|bool
      */
     public function SmartyDefaultTemplateHandler($sType, $sName, &$sContent, &$iTimestamp, $oSmarty) {
@@ -1975,6 +2053,7 @@ class ModuleViewer extends Module {
      *
      */
     public function Shutdown() {
+
         $timer = microtime(true);
 
         // * Создаются списки виджетов для вывода

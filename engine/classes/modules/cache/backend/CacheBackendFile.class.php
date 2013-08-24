@@ -10,6 +10,7 @@
 
 F::IncludeFile('./ICacheBackend.php');
 F::IncludeFile(LS_DKCACHE_PATH . 'Zend/Cache/Backend/File.php');
+
 /**
  * Class CacheBackendFile
  *
@@ -34,11 +35,12 @@ class CacheBackendFile extends Dklab_Cache_Backend_Profiler implements ICacheBac
     }
 
     public function IsMultiLoad() {
+
         return false;
     }
 
     public function IsAvailable() {
-
+$s=Config::Get('sys.cache.dir');
         return F::File_CheckDir(Config::Get('sys.cache.dir'), true);
     }
 
@@ -56,6 +58,7 @@ class CacheBackendFile extends Dklab_Cache_Backend_Profiler implements ICacheBac
     }
 
     public function Save($xData, $sName, $aTags = array(), $nTimeLife = false) {
+
         return parent::save(serialize($xData), $sName, $aTags, $nTimeLife);
     }
 

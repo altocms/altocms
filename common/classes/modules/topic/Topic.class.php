@@ -405,7 +405,7 @@ class ModuleTopic extends Module {
             $aAllowData = array('user' => array(), 'blog' => array('owner' => array(), 'relation_user'), 'vote',
                                 'favourite', 'fields', 'comment_new');
         }
-        func_array_simpleflip($aAllowData);
+        $aAllowData = F::Array_FlipIntKeys($aAllowData);
         if (!is_array($aTopicId)) {
             $aTopicId = array($aTopicId);
         }
@@ -873,7 +873,7 @@ class ModuleTopic extends Module {
         /**
          * Делаем мульти-запрос к кешу
          */
-        $aCacheKeys = func_build_cache_keys($aTopicsId, 'topic_');
+        $aCacheKeys = F::Array_ChangeValues($aTopicsId, 'topic_');
         if (false !== ($data = $this->Cache_Get($aCacheKeys))) {
             /**
              * проверяем что досталось из кеша
@@ -913,7 +913,7 @@ class ModuleTopic extends Module {
         /**
          * Сортируем результат согласно входящему массиву
          */
-        $aTopics = func_array_sort_by_keys($aTopics, $aTopicsId);
+        $aTopics = F::Array_SortByKeysArray($aTopics, $aTopicsId);
         return $aTopics;
     }
 
@@ -1919,7 +1919,7 @@ class ModuleTopic extends Module {
         /**
          * Делаем мульти-запрос к кешу
          */
-        $aCacheKeys = func_build_cache_keys($aTopicsId, 'topic_read_', '_' . $nUserId);
+        $aCacheKeys = F::Array_ChangeValues($aTopicsId, 'topic_read_', '_' . $nUserId);
         if (false !== ($data = $this->Cache_Get($aCacheKeys))) {
             /**
              * проверяем что досталось из кеша
@@ -1962,7 +1962,7 @@ class ModuleTopic extends Module {
         /**
          * Сортируем результат согласно входящему массиву
          */
-        $aTopicsRead = func_array_sort_by_keys($aTopicsRead, $aTopicsId);
+        $aTopicsRead = F::Array_SortByKeysArray($aTopicsRead, $aTopicsId);
         return $aTopicsRead;
     }
 
@@ -2096,7 +2096,7 @@ class ModuleTopic extends Module {
         /**
          * Делаем мульти-запрос к кешу
          */
-        $aCacheKeys = func_build_cache_keys($aTopicsId, 'topic_question_vote_', '_' . $nUserId);
+        $aCacheKeys = F::Array_ChangeValues($aTopicsId, 'topic_question_vote_', '_' . $nUserId);
         if (false !== ($data = $this->Cache_Get($aCacheKeys))) {
             /**
              * проверяем что досталось из кеша
@@ -2139,7 +2139,7 @@ class ModuleTopic extends Module {
         /**
          * Сортируем результат согласно входящему массиву
          */
-        $aTopicsQuestionVote = func_array_sort_by_keys($aTopicsQuestionVote, $aTopicsId);
+        $aTopicsQuestionVote = F::Array_SortByKeysArray($aTopicsQuestionVote, $aTopicsId);
         return $aTopicsQuestionVote;
     }
 
@@ -2311,7 +2311,7 @@ class ModuleTopic extends Module {
             $aParams = $this->Image_BuildParams('topic');
 
             if ($sFileImage = $this->Image_Resize(
-                $sFileTmp, $sDirUpload, func_generator(6), Config::Get('view.img_max_width'),
+                $sFileTmp, $sDirUpload, F::RandomStr(6), Config::Get('view.img_max_width'),
                 Config::Get('view.img_max_height'), Config::Get('view.img_resize_width'), null, true, $aParams
             )
             ) {
@@ -2365,7 +2365,7 @@ class ModuleTopic extends Module {
         /**
          * Создаем tmp-файл, для временного хранения изображения
          */
-        $sFileTmp = Config::Get('sys.cache.dir') . func_generator();
+        $sFileTmp = Config::Get('sys.cache.dir') . F::RandomStr();
 
         $fp = fopen($sFileTmp, 'w');
         fwrite($fp, $sContent);
@@ -2377,7 +2377,7 @@ class ModuleTopic extends Module {
          * Передаем изображение на обработку
          */
         if ($sFileImg = $this->Image_Resize(
-            $sFileTmp, $sDirSave, func_generator(), Config::Get('view.img_max_width'),
+            $sFileTmp, $sDirSave, F::RandomStr(), Config::Get('view.img_max_width'),
             Config::Get('view.img_max_height'), Config::Get('view.img_resize_width'), null, true, $aParams
         )
         ) {
@@ -2683,7 +2683,7 @@ class ModuleTopic extends Module {
                         if ($oField->getFieldType() == 'date') {
                             if (isset($_REQUEST['fields'][$oField->getFieldId()])) {
 
-                                if (func_check($_REQUEST['fields'][$oField->getFieldId()], 'text', 6, 10)
+                                if (F::CheckVal($_REQUEST['fields'][$oField->getFieldId()], 'text', 6, 10)
                                     && substr_count($_REQUEST['fields'][$oField->getFieldId()], '.') == 2
                                 ) {
                                     list($d, $m, $y) = explode('.', $_REQUEST['fields'][$oField->getFieldId()]);
@@ -2720,11 +2720,11 @@ class ModuleTopic extends Module {
                                     )
                                     ) {
                                         $sFileTmp = $_FILES['fields_' . $oField->getFieldId()]['tmp_name'];
-                                        $sDirSave = Config::Get('path.uploads.root') . '/files/' . $this->User_GetUserCurrent()->getId() . '/' . func_generator(16);
+                                        $sDirSave = Config::Get('path.uploads.root') . '/files/' . $this->User_GetUserCurrent()->getId() . '/' . F::RandomStr(16);
                                         mkdir(Config::Get('path.root.server') . $sDirSave, 0777, true);
                                         if (is_dir(Config::Get('path.root.server') . $sDirSave)) {
 
-                                            $sFile = $sDirSave . '/' . func_generator(10) . '.' . strtolower($aPathInfo['extension']);
+                                            $sFile = $sDirSave . '/' . F::RandomStr(10) . '.' . strtolower($aPathInfo['extension']);
                                             $sFileFullPath = Config::Get('path.root.server') . $sFile;
                                             if (copy($sFileTmp, $sFileFullPath)) {
                                                 //удаляем старый файл
@@ -2734,7 +2734,7 @@ class ModuleTopic extends Module {
                                                 }
 
                                                 $aFileObj = array();
-                                                $aFileObj['file_hash'] = func_generator(32);
+                                                $aFileObj['file_hash'] = F::RandomStr(32);
                                                 $aFileObj['file_name'] = $this->Text_Parser($_FILES['fields_' . $oField->getFieldId()]['name']);
                                                 $aFileObj['file_url'] = $sFile;
                                                 $aFileObj['file_size'] = $_FILES['fields_' . $oField->getFieldId()]['size'];

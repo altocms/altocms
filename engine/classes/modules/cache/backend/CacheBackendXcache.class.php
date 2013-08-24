@@ -10,6 +10,7 @@
 
 F::IncludeFile('./ICacheBackend.php');
 F::IncludeFile(LS_DKCACHE_PATH . 'Zend/Cache/Backend/Xcache.php');
+
 /**
  * Class CacheBackendXcache
  *
@@ -26,6 +27,7 @@ class CacheBackendXcache extends Dklab_Cache_Backend_TagEmuWrapper implements IC
     }
 
     public function IsMultiLoad() {
+
         return false;
     }
 
@@ -35,6 +37,7 @@ class CacheBackendXcache extends Dklab_Cache_Backend_TagEmuWrapper implements IC
     }
 
     public function IsСoncurrent() {
+
         return true;
     }
 
