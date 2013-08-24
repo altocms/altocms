@@ -69,6 +69,7 @@ class ModulePlugin extends Module {
      * Инициализация модуля
      */
     public function Init() {
+
         $this->sPluginsDir = F::GetPluginsDir();
     }
 
@@ -78,6 +79,7 @@ class ModulePlugin extends Module {
      * @return string
      */
     public function GetPluginsDir() {
+
         return $this->sPluginsDir;
     }
 
@@ -89,6 +91,7 @@ class ModulePlugin extends Module {
      * @return mixed
      */
     public function GetPluginManifest($sPluginId) {
+
         $sXmlFile = $this->sPluginsDir . $sPluginId . '/' . self::PLUGIN_XML_FILE;
         if ($sXml = F::File_GetContents($sXmlFile)) {
             return $sXml;
@@ -169,6 +172,7 @@ class ModulePlugin extends Module {
      * @return  array
      */
     public function GetPluginsList($bActive = null) {
+
         $aFilter = array('order' => 'priority');
         if (!is_null($bActive)) {
             $aFilter['active'] = (bool)$bActive;
@@ -178,6 +182,7 @@ class ModulePlugin extends Module {
     }
 
     public function _PluginCompareByName($aPlugin1, $aPlugin2) {
+
         if ((string)$aPlugin1['property']->name->data == (string)$aPlugin2['property']->name->data) {
             return 0;
         }
@@ -185,6 +190,7 @@ class ModulePlugin extends Module {
     }
 
     public function _PluginCompareByPriority($aPlugin1, $aPlugin2) {
+
         if (is_object($aPlugin1)) {
             $aPlugin1 = $aPlugin1->_getData();
         }
@@ -229,6 +235,7 @@ class ModulePlugin extends Module {
      * @return  bool
      */
     public function Activate($sPluginId) {
+
         $aConditions = array(
             '<'  => 'lt', 'lt' => 'lt',
             '<=' => 'le', 'le' => 'le',
@@ -427,6 +434,7 @@ class ModulePlugin extends Module {
     } // function Activate(...)
 
     protected function _addActivePlugins($oPluginEntity) {
+
         $aPluginsList = $this->GetPluginsList(true);
         $aPluginsList[$oPluginEntity->GetId()] = $oPluginEntity;
         if (sizeof($aPluginsList)) {
@@ -444,6 +452,7 @@ class ModulePlugin extends Module {
      * @return  null|bool
      */
     public function Deactivate($sPluginId) {
+
         // получаем список активированных плагинов
         $aPlugins = $this->GetPluginsList(true);
         if (!isset($aPlugins[$sPluginId])) {
@@ -513,6 +522,7 @@ class ModulePlugin extends Module {
     }
 
     public function IsActivePlugin($sPlugin) {
+
         $aPlugins = $this->GetActivePlugins();
         return in_array($sPlugin, $aPlugins);
     }
@@ -525,6 +535,7 @@ class ModulePlugin extends Module {
      * @return bool
      */
     public function SetActivePlugins($aPlugins) {
+
         if (!is_array($aPlugins)) {
             $aPlugins = array($aPlugins);
         }
@@ -546,6 +557,7 @@ class ModulePlugin extends Module {
      * @param array $aPlugins    Список плагинов для удаления
      */
     public function Delete($aPlugins) {
+
         if (!is_array($aPlugins)) {
             $aPlugins = array($aPlugins);
         }
@@ -575,6 +587,7 @@ class ModulePlugin extends Module {
      * @param  string $sSign
      */
     public function Delegate($sType, $sFrom, $sTo, $sSign = __CLASS__) {
+
         // * Запрещаем неподписанные делегаты
         if (!is_string($sSign) || !strlen($sSign)) {
             return;
@@ -597,6 +610,7 @@ class ModulePlugin extends Module {
      * @param string $sSign
      */
     public function Inherit($sFrom, $sTo, $sSign = __CLASS__) {
+
         if (!is_string($sSign) || !strlen($sSign)) {
             return;
         }
@@ -620,6 +634,7 @@ class ModulePlugin extends Module {
      * @return string
      */
     public function GetParentInherit($sFrom) {
+
         if (!isset($this->aInherits[$sFrom]['items']) || count($this->aInherits[$sFrom]['items']) <= 1
             || $this->aInherits[$sFrom]['position'] < 1
         ) {
@@ -637,6 +652,7 @@ class ModulePlugin extends Module {
      * @return null|array
      */
     public function GetInherits($sFrom) {
+
         if (isset($this->aInherits[trim($sFrom)])) {
             return $this->aInherits[trim($sFrom)]['items'];
         }
@@ -651,6 +667,7 @@ class ModulePlugin extends Module {
      * @return null|string
      */
     public function GetLastInherit($sFrom) {
+
         if (isset($this->aInherits[trim($sFrom)])) {
             return $this->aInherits[trim($sFrom)]['items'][count($this->aInherits[trim($sFrom)]['items']) - 1];
         }
@@ -667,6 +684,7 @@ class ModulePlugin extends Module {
      * @return string
      */
     public function GetDelegate($sType, $sFrom) {
+
         if (isset($this->aDelegates[$sType][$sFrom]['delegate'])) {
             return $this->aDelegates[$sType][$sFrom]['delegate'];
         } elseif ($aInherit = $this->GetLastInherit($sFrom)) {
@@ -682,6 +700,7 @@ class ModulePlugin extends Module {
      * @return array|null
      */
     public function GetDelegates($sType, $sFrom) {
+
         if (isset($this->aDelegates[$sType][$sFrom]['delegate'])) {
             return array($this->aDelegates[$sType][$sFrom]['delegate']);
         } else {
@@ -705,6 +724,7 @@ class ModulePlugin extends Module {
      * @return array
      */
     public function GetDelegationChain($sType, $sTo) {
+
         $sRootDelegater = $this->GetRootDelegater($sType, $sTo);
         return $this->collectAllDelegatesRecursive($sType, array($sRootDelegater));
     }
@@ -718,6 +738,7 @@ class ModulePlugin extends Module {
      * @return string
      */
     public function GetRootDelegater($sType, $sTo) {
+
         $sItem = $sTo;
         $sItemDelegater = $this->GetDelegater($sType, $sTo);
         while (empty($sRootDelegater)) {
@@ -739,6 +760,7 @@ class ModulePlugin extends Module {
      * @return array
      */
     public function collectAllDelegatesRecursive($sType, $aDelegates) {
+
         foreach ($aDelegates as $sClass) {
             if ($aNewDelegates = $this->GetDelegates($sType, $sClass)) {
                 $aDelegates = array_merge($this->collectAllDelegatesRecursive($sType, $aNewDelegates), $aDelegates);
@@ -756,6 +778,7 @@ class ModulePlugin extends Module {
      * @return string
      */
     public function GetDelegater($sType, $sTo) {
+
         $aDelegateMapper = array();
         foreach ($this->aDelegates[$sType] as $kk => $vv) {
             if ($vv['delegate'] == $sTo) {
@@ -789,6 +812,7 @@ class ModulePlugin extends Module {
      * @return string|null
      */
     public function GetDelegateSign($sType, $sFrom) {
+
         if (isset($this->aDelegates[$sType][$sFrom]['sign'])) {
             return $this->aDelegates[$sType][$sFrom]['sign'];
         }
@@ -808,6 +832,7 @@ class ModulePlugin extends Module {
      * @return bool
      */
     public function isDelegater($sType, $sFrom) {
+
         if (isset($this->aDelegates[$sType][$sFrom]['delegate'])) {
             return true;
         } elseif ($aInherit = $this->GetLastInherit($sFrom)) {
@@ -858,6 +883,7 @@ class ModulePlugin extends Module {
      * @return array
      */
     public function GetDelegateObjectList() {
+
         return array_keys($this->aDelegates);
     }
 
@@ -869,6 +895,7 @@ class ModulePlugin extends Module {
      * @return  string|null
      */
     protected function _seekManifest($sDir) {
+
         if ($aFiles = glob($sDir . self::PLUGIN_XML_FILE)) {
             return array_shift($aFiles);
         } else {
@@ -890,6 +917,7 @@ class ModulePlugin extends Module {
      * @return  bool
      */
     public function UnpackPlugin($sPackFile) {
+
         $zip = new ZipArchive;
         if ($zip->open($sPackFile) === true) {
             $sUnpackDir = F::File_NormPath(dirname($sPackFile) . '/_unpack/');

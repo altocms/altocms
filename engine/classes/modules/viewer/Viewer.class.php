@@ -314,11 +314,11 @@ class ModuleViewer extends Module {
         // * Папки расположения шаблонов по умолчанию
         $this->oSmarty->setTemplateDir(F::File_NormPath(array_merge(
                 (array)Config::Get('path.smarty.template'),
-                array(Config::Get('path.root.dir') . '/plugins/'))
-        ));
+                array($this->Plugin_GetPluginsDir())
+        )));
 
         // * Для каждого скина устанавливаем свою директорию компиляции шаблонов
-        $sCompilePath = Config::Get('path.smarty.compiled');
+        $sCompilePath = F::File_NormPath(Config::Get('path.smarty.compiled'));
         F::File_CheckDir($sCompilePath);
         $this->oSmarty->setCompileDir($sCompilePath);
         $this->oSmarty->setCacheDir(Config::Get('path.smarty.cache'));
@@ -342,7 +342,7 @@ class ModuleViewer extends Module {
             }
         }
 
-        // * Пустой вызов только для того, чтоб модуль Message инициализиовался, если еще не
+        // * Пустой вызов только для того, чтоб модуль Message инициализировался, если еще не
         $this->Message_IsInit();
 
         // * Получаем настройки JS-, CSS-файлов
@@ -710,16 +710,17 @@ class ModuleViewer extends Module {
     /**
      * Возвращает скин
      *
-     * @param   bool    $bSiteSkin - если задано, то возвращает скин, установленный для сайта (игнорирует скин экшена)
+     * @param bool $bSiteSkin - если задано, то возвращает скин, установленный для сайта (игнорирует скин экшена)
      *
      * @return  string
      */
     public function GetSkin($bSiteSkin = true) {
 
-        if ($bSiteSkin)
+        if ($bSiteSkin) {
             return Config::Get('view.skin', Config::DEFAULT_CONFIG_INSTANCE);
-        else
+        } else {
             return Config::Get('view.skin');
+        }
     }
 
     /**
@@ -1148,9 +1149,8 @@ class ModuleViewer extends Module {
     protected function InitFileParams() {
 
         foreach (array('js', 'css') as $sType) {
-            /**
-             * Проверяем наличие списка файлов данного типа
-             */
+
+            // * Проверяем наличие списка файлов данного типа
             $aFiles = Config::Get('head.default.' . $sType);
             if (is_array($aFiles) && count($aFiles)) {
                 foreach ($aFiles as $sFile => $aParams) {

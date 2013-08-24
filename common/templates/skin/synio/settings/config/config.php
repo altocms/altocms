@@ -6,7 +6,7 @@ $config = array();
 $config['module']['comment']['max_tree'] = 5;
 
 // Ограничение на вывод числа друзей пользователя на странице его профиля
-$config['module']['user']['friend_on_profile']    = 18;
+$config['module']['user']['friend_on_profile'] = 18;
 
 $config['view']['theme'] = 'default';
 
@@ -30,34 +30,35 @@ $config['head']['default']['js'] = Config::Get('head.default.js');
 $config['head']['default']['js'][] = '___path.static.skin___/js/template.js';
 
 $config['head']['default']['css'] = array(
-	"___path.static.skin___/css/reset.css",
-	"___path.static.skin___/css/base.css",
-	"___path.root.engine_lib___/external/jquery/markitup/skins/synio/style.css",
-	"___path.root.engine_lib___/external/jquery/markitup/sets/synio/style.css",
-	"___path.root.engine_lib___/external/jquery/jcrop/jquery.Jcrop.css",
-	"___path.root.engine_lib___/external/prettify/prettify.css",
-	"___path.static.skin___/css/grid.css",
-	"___path.static.skin___/css/common.css",
-	"___path.static.skin___/css/text.css",
-	"___path.static.skin___/css/forms.css",
-	"___path.static.skin___/css/buttons.css",
-	"___path.static.skin___/css/navs.css",
-	"___path.static.skin___/css/icons.css",
-	"___path.static.skin___/css/tables.css",
-	"___path.static.skin___/css/topic.css",
-	"___path.static.skin___/css/comments.css",
-	"___path.static.skin___/css/blocks.css",
-	"___path.static.skin___/css/modals.css",
-	"___path.static.skin___/css/blog.css",
-	"___path.static.skin___/css/profile.css",
-	"___path.static.skin___/css/wall.css",
-	"___path.static.skin___/css/infobox.css",
-	"___path.static.skin___/css/jquery.notifier.css",
-	"___path.static.skin___/css/smoothness/jquery-ui.css",
-	"___path.static.skin___/themes/___view.theme___/style.css",
-	"___path.static.skin___/css/print.css",
+    "___path.framework.dir___/css/reset.css",
+    "___path.framework.dir___/css/base.css",
+    "___path.framework.dir___/js/vendor/markitup/skins/synio/style.css",
+    "___path.framework.dir___/js/vendor/markitup/sets/synio/style.css",
+    "___path.framework.dir___/js/vendor/jcrop/jquery.Jcrop.css",
+    "___path.framework.dir___/js/vendor/prettify/prettify.css",
+    "___path.framework.dir___/css/grid.css",
+    "___path.framework.dir___/css/common.css",
+    "___path.framework.dir___/css/text.css",
+    "___path.framework.dir___/css/forms.css",
+    "___path.framework.dir___/css/buttons.css",
+    "___path.framework.dir___/css/navs.css",
+    "___path.framework.dir___/css/icons.css",
+    "___path.framework.dir___/css/tables.css",
+    "___path.framework.dir___/css/topic.css",
+    "___path.framework.dir___/css/comments.css",
+    "___path.framework.dir___/css/blocks.css",
+    "___path.framework.dir___/css/modals.css",
+    "___path.framework.dir___/css/blog.css",
+    "___path.framework.dir___/css/profile.css",
+    "___path.framework.dir___/css/wall.css",
+    "___path.framework.dir___/css/infobox.css",
+    "___path.framework.dir___/css/jquery.notifier.css",
+    "___path.framework.dir___/css/smoothness/jquery-ui.css",
+    "___path.framework.dir___/themes/___view.theme___/style.css",
+    "___path.framework.dir___/css/print.css",
 );
 
 
 return $config;
-?>
+
+// EOF

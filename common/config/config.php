@@ -82,9 +82,12 @@ $config['path']['tmp']['dir']           = '___path.root.dir___/_tmp/';          
 $config['path']['runtime']['dir']       = '___path.root.dir___/_run/';           // путь к папке для runtime-файлов
 $config['path']['runtime']['url']       = '___path.root.url___/_run/';              // путь к папке для runtime-файлов
 
-$config['path']['skins']['dir']         = '___path.root.dir___/templates/skin/';    // путь к папке для скинов
-$config['path']['skin']['dir']          = '___path.root.dir___/templates/skin/___view.skin___/';    // путь к папке текущего скина
-$config['path']['skin']['url']          = '___path.root.url___/templates/skin/___view.skin___/';    // URL-путь к папке текущего скина
+$config['path']['templates']['dir']     = '___path.dir.common___/templates/';
+$config['path']['framework']['dir']     = '___path.dir.common___/templates/framework/';
+
+$config['path']['skins']['dir']         = '___path.templates.dir___/skin/';             // путь к папке для скинов
+$config['path']['skin']['dir']          = '___path.skins.dir___/___view.skin___/';      // путь к папке текущего скина
+//$config['path']['skin']['url']          = '___path.root.url___/templates/skin/___view.skin___/';    // URL-путь к папке текущего скина
 
 /**
  * Следующие параметры определяем для совместимости с LS
@@ -101,7 +104,7 @@ $config['path']['root']['engine']       = '___path.root.dir___/engine/';// Оп�
 $config['path']['smarty']['template'] = '___path.skins.dir___/___view.skin___/';
 $config['path']['smarty']['compiled'] = '___path.tmp.dir___/templates/___view.skin___-___view.theme___/compiled/';
 $config['path']['smarty']['cache']    = '___path.tmp.dir___/templates/___view.skin___-___view.theme___/cache/';
-$config['path']['smarty']['plug']     = '___path.root.engine___/modules/viewer/plugs/';
+$config['path']['smarty']['plug']     = '___path.root.engine___/classes/modules/viewer/plugs/';
 
 $config['smarty']['compile_check']    = true;   // Проверять или нет файлы шаблона на изменения перед компиляцией, false может значительно увеличить быстродействие, но потребует ручного удаления кеша при изменения шаблона
 $config['smarty']['force_compile']    = false;  // Принудительно компилировать шаблоны (отменяет действие 'compile_check')
@@ -573,66 +576,66 @@ $config['router']['config']['autodefine'] = true;
  */
 $config['head']['default']['js']  = array(
 	/* Vendor libs */
-	"___path.static.framework___/js/vendor/html5shiv.js" => array('browser'=>'lt IE 9'),
-	"___path.static.framework___/js/vendor/jquery-1.9.1.min.js",
-	"___path.static.framework___/js/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js",
-	"___path.static.framework___/js/vendor/jquery-ui/js/localization/jquery-ui-datepicker-ru.js",
-	"___path.static.framework___/js/vendor/jquery.browser.js",
-	"___path.static.framework___/js/vendor/jquery.scrollto.js",
-	"___path.static.framework___/js/vendor/jquery.rich-array.min.js",
-	"___path.static.framework___/js/vendor/jquery.form.js",
-	"___path.static.framework___/js/vendor/jquery.jqplugin.js",
-	"___path.static.framework___/js/vendor/jquery.cookie.js",
-	"___path.static.framework___/js/vendor/jquery.serializejson.js",
-	"___path.static.framework___/js/vendor/jquery.file.js",
-	"___path.static.framework___/js/vendor/jcrop/jquery.Jcrop.js",
-	"___path.static.framework___/js/vendor/jquery.placeholder.min.js",
-	"___path.static.framework___/js/vendor/jquery.charcount.js",
-	"___path.static.framework___/js/vendor/jquery.imagesloaded.js",
-	"___path.static.framework___/js/vendor/notifier/jquery.notifier.js",
-	"___path.static.framework___/js/vendor/prettify/prettify.js",
-	"___path.static.framework___/js/vendor/prettyphoto/js/jquery.prettyphoto.js",
-	"___path.static.framework___/js/vendor/parsley/parsley.js",
-	"___path.static.framework___/js/vendor/parsley/i18n/messages.ru.js",
+	"___path.framework.dir___/js/vendor/html5shiv.js" => array('browser'=>'lt IE 9'),
+	"___path.framework.dir___/js/vendor/jquery-1.9.1.min.js",
+	"___path.framework.dir___/js/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js",
+	"___path.framework.dir___/js/vendor/jquery-ui/js/localization/jquery-ui-datepicker-ru.js",
+	"___path.framework.dir___/js/vendor/jquery.browser.js",
+	"___path.framework.dir___/js/vendor/jquery.scrollto.js",
+	"___path.framework.dir___/js/vendor/jquery.rich-array.min.js",
+	"___path.framework.dir___/js/vendor/jquery.form.js",
+	"___path.framework.dir___/js/vendor/jquery.jqplugin.js",
+	"___path.framework.dir___/js/vendor/jquery.cookie.js",
+	"___path.framework.dir___/js/vendor/jquery.serializejson.js",
+	"___path.framework.dir___/js/vendor/jquery.file.js",
+	"___path.framework.dir___/js/vendor/jcrop/jquery.Jcrop.js",
+	"___path.framework.dir___/js/vendor/jquery.placeholder.min.js",
+	"___path.framework.dir___/js/vendor/jquery.charcount.js",
+	"___path.framework.dir___/js/vendor/jquery.imagesloaded.js",
+	"___path.framework.dir___/js/vendor/notifier/jquery.notifier.js",
+	"___path.framework.dir___/js/vendor/prettify/prettify.js",
+	"___path.framework.dir___/js/vendor/prettyphoto/js/jquery.prettyphoto.js",
+	"___path.framework.dir___/js/vendor/parsley/parsley.js",
+	"___path.framework.dir___/js/vendor/parsley/i18n/messages.ru.js",
 
 	/* Core */
-	"___path.static.framework___/js/core/main.js",
-	"___path.static.framework___/js/core/hook.js",
+	"___path.framework.dir___/js/core/main.js",
+	"___path.framework.dir___/js/core/hook.js",
 
 	/* User Interface */
-	"___path.static.framework___/js/ui/popup.js",
-	"___path.static.framework___/js/ui/dropdown.js",
-	"___path.static.framework___/js/ui/tooltip.js",
-	"___path.static.framework___/js/ui/popover.js",
-	"___path.static.framework___/js/ui/tab.js",
-	"___path.static.framework___/js/ui/modal.js",
-	"___path.static.framework___/js/ui/toolbar.js",
+	"___path.framework.dir___/js/ui/popup.js",
+	"___path.framework.dir___/js/ui/dropdown.js",
+	"___path.framework.dir___/js/ui/tooltip.js",
+	"___path.framework.dir___/js/ui/popover.js",
+	"___path.framework.dir___/js/ui/tab.js",
+	"___path.framework.dir___/js/ui/modal.js",
+	"___path.framework.dir___/js/ui/toolbar.js",
 
 	/* LiveStreet */
-	"___path.static.framework___/js/livestreet/favourite.js",
-	"___path.static.framework___/js/livestreet/blocks.js",
-	"___path.static.framework___/js/livestreet/pagination.js",
-	"___path.static.framework___/js/livestreet/editor.js",
-	"___path.static.framework___/js/livestreet/talk.js",
-	"___path.static.framework___/js/livestreet/vote.js",
-	"___path.static.framework___/js/livestreet/poll.js",
-	"___path.static.framework___/js/livestreet/subscribe.js",
-	"___path.static.framework___/js/livestreet/geo.js",
-	"___path.static.framework___/js/livestreet/wall.js",
-	"___path.static.framework___/js/livestreet/usernote.js",
-	"___path.static.framework___/js/livestreet/comments.js",
-	"___path.static.framework___/js/livestreet/blog.js",
-	"___path.static.framework___/js/livestreet/user.js",
-	"___path.static.framework___/js/livestreet/userfeed.js",
-	"___path.static.framework___/js/livestreet/stream.js",
-	"___path.static.framework___/js/livestreet/photoset.js",
-	"___path.static.framework___/js/livestreet/toolbar.js",
-	"___path.static.framework___/js/livestreet/settings.js",
-	"___path.static.framework___/js/livestreet/topic.js",
-	"___path.static.framework___/js/livestreet/admin.js",
-	"___path.static.framework___/js/livestreet/admin.userfield.js",
-	"___path.static.framework___/js/livestreet/captcha.js",
-	"___path.static.framework___/js/livestreet/init.js",
+	"___path.framework.dir___/js/livestreet/favourite.js",
+	"___path.framework.dir___/js/livestreet/blocks.js",
+	"___path.framework.dir___/js/livestreet/pagination.js",
+	"___path.framework.dir___/js/livestreet/editor.js",
+	"___path.framework.dir___/js/livestreet/talk.js",
+	"___path.framework.dir___/js/livestreet/vote.js",
+	"___path.framework.dir___/js/livestreet/poll.js",
+	"___path.framework.dir___/js/livestreet/subscribe.js",
+	"___path.framework.dir___/js/livestreet/geo.js",
+	"___path.framework.dir___/js/livestreet/wall.js",
+	"___path.framework.dir___/js/livestreet/usernote.js",
+	"___path.framework.dir___/js/livestreet/comments.js",
+	"___path.framework.dir___/js/livestreet/blog.js",
+	"___path.framework.dir___/js/livestreet/user.js",
+	"___path.framework.dir___/js/livestreet/userfeed.js",
+	"___path.framework.dir___/js/livestreet/stream.js",
+	"___path.framework.dir___/js/livestreet/photoset.js",
+	"___path.framework.dir___/js/livestreet/toolbar.js",
+	"___path.framework.dir___/js/livestreet/settings.js",
+	"___path.framework.dir___/js/livestreet/topic.js",
+	"___path.framework.dir___/js/livestreet/admin.js",
+	"___path.framework.dir___/js/livestreet/admin.userfield.js",
+	"___path.framework.dir___/js/livestreet/captcha.js",
+	"___path.framework.dir___/js/livestreet/init.js",
 );
 //потенциально проблемные файлы выводим в футере
 $config['footer']['default']['js']  = array(
@@ -640,18 +643,18 @@ $config['footer']['default']['js']  = array(
 );
 $config['head']['default']['css'] = array(
 	// Framework styles
-	"___path.static.framework___/css/reset.css",
-	"___path.static.framework___/css/helpers.css",
-	"___path.static.framework___/css/text.css",
-	"___path.static.framework___/css/dropdowns.css",
-	"___path.static.framework___/css/buttons.css",
-	"___path.static.framework___/css/forms.css",
-	"___path.static.framework___/css/navs.css",
-	"___path.static.framework___/css/modals.css",
-	"___path.static.framework___/css/tooltip.css",
-	"___path.static.framework___/css/popover.css",
-	"___path.static.framework___/css/alerts.css",
-	"___path.static.framework___/css/toolbar.css"
+	"___path.framework.dir___/css/reset.css",
+	"___path.framework.dir___/css/helpers.css",
+	"___path.framework.dir___/css/text.css",
+	"___path.framework.dir___/css/dropdowns.css",
+	"___path.framework.dir___/css/buttons.css",
+	"___path.framework.dir___/css/forms.css",
+	"___path.framework.dir___/css/navs.css",
+	"___path.framework.dir___/css/modals.css",
+	"___path.framework.dir___/css/tooltip.css",
+	"___path.framework.dir___/css/popover.css",
+	"___path.framework.dir___/css/alerts.css",
+	"___path.framework.dir___/css/toolbar.css"
 );
 
 
