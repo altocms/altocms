@@ -66,7 +66,7 @@ class ActionDownload extends Action {
                 $sFullPath = $oFile->getFileUrl();
                 Router::Location($sFullPath);
             } else {
-                $sFullPath = Config::Get('path.root.server') . $oFile->getFileUrl();
+                $sFullPath = Config::Get('path.root.dir') . $oFile->getFileUrl();
             }
 
             $sFilename = $oFile->getFileName();

@@ -78,9 +78,9 @@ $config['path']['uploads']['images']    = '___path.uploads.root___/images/';
 
 $config['path']['offset_request_url']   = 0;                                   // иногда помогает если сервер использует внутренние реврайты
 
-$config['path']['tmp']['dir']           = '___path.root.server___/_tmp/';           // путь к папке для временных файлов
-$config['path']['runtime']['dir']       = '___path.root.server___/_run/';           // путь к папке для runtime-файлов
-$config['path']['runtime']['url']       = '___path.root.web___/_run/';              // путь к папке для runtime-файлов
+$config['path']['tmp']['dir']           = '___path.root.dir___/_tmp/';           // путь к папке для временных файлов
+$config['path']['runtime']['dir']       = '___path.root.dir___/_run/';           // путь к папке для runtime-файлов
+$config['path']['runtime']['url']       = '___path.root.url___/_run/';              // путь к папке для runtime-файлов
 
 $config['path']['skins']['dir']         = '___path.root.dir___/templates/skin/';    // путь к папке для скинов
 $config['path']['skin']['dir']          = '___path.root.dir___/templates/skin/___view.skin___/';    // путь к папке текущего скина

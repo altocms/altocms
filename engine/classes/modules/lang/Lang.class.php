@@ -263,7 +263,7 @@ class ModuleLang extends Module {
 
         // * Ищем языковые файлы активированных плагинов
         if ($aPluginList = F::GetPluginsList()) {
-            $sDir = Config::Get('path.root.server') . '/plugins/';
+            $sDir = Config::Get('path.root.dir') . '/plugins/';
 
             foreach ($aPluginList as $sPluginName) {
                 $aParams = array('name' => $sPluginName, 'category' => 'plugin');

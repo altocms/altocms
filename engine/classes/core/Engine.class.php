@@ -504,7 +504,7 @@ class Engine extends LsObject {
      */
     protected function InitHooks() {
 
-        $sDirHooks = Config::Get('path.root.server') . '/classes/hooks/';
+        $sDirHooks = Config::Get('path.root.dir') . '/classes/hooks/';
         $aFiles = glob($sDirHooks . 'Hook*.class.php');
 
         if ($aFiles && count($aFiles)) {

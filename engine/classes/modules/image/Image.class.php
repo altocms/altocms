@@ -303,7 +303,7 @@ class ModuleImage extends Module {
 	 * @return bool | string
 	 */
 	public function SaveFile($sFileSource,$sDirDest,$sFileDest,$iMode=null,$bRemoveSource=false) {
-		$sFileDestFullPath=rtrim(Config::Get('path.root.server'),"/").'/'.trim($sDirDest,"/").'/'.$sFileDest;
+		$sFileDestFullPath=rtrim(Config::Get('path.root.dir'),"/").'/'.trim($sDirDest,"/").'/'.$sFileDest;
 		$this->CreateDirectory($sDirDest);
 
 		$bResult=copy($sFileSource,$sFileDestFullPath);
@@ -352,7 +352,7 @@ class ModuleImage extends Module {
 	 * @param string $sDirDest	Каталог относительно корня сайта
 	 */
 	public function CreateDirectory($sDirDest) {
-		@func_mkdir(Config::Get('path.root.server'),$sDirDest);
+		@func_mkdir(Config::Get('path.root.dir'),$sDirDest);
 	}
 	/**
 	 * Возвращает серверный адрес по переданному web-адресу
@@ -374,7 +374,7 @@ class ModuleImage extends Module {
 		if($iOffset = Config::Get('path.offset_request_url')){
 			$sPath = preg_replace('#^([^/]+/*){'.$iOffset.'}#msi', '', $sPath);
 		}
-		return rtrim(Config::Get('path.root.server'),'/').'/'.$sPath;
+		return rtrim(Config::Get('path.root.dir'),'/').'/'.$sPath;
 	}
 	/**
 	 * Возвращает WEB адрес по переданному серверному адресу
@@ -383,7 +383,7 @@ class ModuleImage extends Module {
 	 * @return string
 	 */
 	public function GetWebPath($sPath) {
-		$sServerPath = rtrim(str_replace(DIRECTORY_SEPARATOR,'/',Config::Get('path.root.server')),'/');
+		$sServerPath = rtrim(str_replace(DIRECTORY_SEPARATOR,'/',Config::Get('path.root.dir')),'/');
 		$sWebPath    = rtrim(Config::Get('path.root.web'), '/');
 		return str_replace($sServerPath, $sWebPath, str_replace(DIRECTORY_SEPARATOR,'/',$sPath));
 	}

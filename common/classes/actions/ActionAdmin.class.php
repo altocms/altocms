@@ -290,7 +290,7 @@ class ActionAdmin extends Action {
         $this->Security_ValidateSendForm();
         $sMode = strtolower($sMode);
         $aParams = array(
-            'filename' => $sFileName = str_replace(array('.', '/'), '_', str_replace(array('http://', 'https://'), '', Config::Get('path.root.web'))) . '.' . $sMode,
+            'filename' => $sFileName = str_replace(array('.', '/'), '_', str_replace(array('http://', 'https://'), '', Config::Get('path.root.url'))) . '.' . $sMode,
             'date' => date('Y-m-d H:i:s'),
         );
 

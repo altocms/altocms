@@ -349,12 +349,12 @@ abstract class Plugin extends LsObject {
             ? strtolower($aMatches[1])
             : strtolower($sName);
         if (!isset(self::$aTemplateDir[$sName])) {
-            $aPaths = glob(Config::Get('path.root.server') . '/plugins/' . $sName . '/templates/skin/*', GLOB_ONLYDIR);
+            $aPaths = glob(Config::Get('path.root.dir') . '/plugins/' . $sName . '/templates/skin/*', GLOB_ONLYDIR);
             $sTemplateName = ($aPaths && in_array(Config::Get('view.skin'), array_map('basename', $aPaths)))
                 ? Config::Get('view.skin')
                 : 'default';
 
-            $sDir = Config::Get('path.root.server') . "/plugins/{$sName}/templates/skin/{$sTemplateName}/";
+            $sDir = Config::Get('path.root.dir') . "/plugins/{$sName}/templates/skin/{$sTemplateName}/";
             self::$aTemplateDir[$sName] = is_dir($sDir) ? $sDir : null;
         }
         return self::$aTemplateDir[$sName];
@@ -382,7 +382,7 @@ abstract class Plugin extends LsObject {
             ? strtolower($aMatches[1])
             : strtolower($sName);
         if (!isset(self::$aTemplateUrl[$sName])) {
-            $aPaths = glob(Config::Get('path.root.server') . '/plugins/' . $sName . '/templates/skin/*', GLOB_ONLYDIR);
+            $aPaths = glob(Config::Get('path.root.dir') . '/plugins/' . $sName . '/templates/skin/*', GLOB_ONLYDIR);
             $sTemplateName = ($aPaths && in_array(Config::Get('view.skin'), array_map('basename', $aPaths)))
                 ? Config::Get('view.skin')
                 : 'default';

@@ -2699,7 +2699,7 @@ class ModuleTopic extends Module {
                             //если указано удаление файла
                             if (getRequest('topic_delete_file_' . $oField->getFieldId())) {
                                 if ($oTopic->getFile($oField->getFieldId())) {
-                                    @unlink(Config::Get('path.root.server') . $oTopic->getFile($oField->getFieldId())->getFileUrl());
+                                    @unlink(Config::Get('path.root.dir') . $oTopic->getFile($oField->getFieldId())->getFileUrl());
                                     //$oTopic->setValueField($oField->getFieldId(),'');
                                     $sData = null;
                                 }
@@ -2721,16 +2721,16 @@ class ModuleTopic extends Module {
                                     ) {
                                         $sFileTmp = $_FILES['fields_' . $oField->getFieldId()]['tmp_name'];
                                         $sDirSave = Config::Get('path.uploads.root') . '/files/' . $this->User_GetUserCurrent()->getId() . '/' . F::RandomStr(16);
-                                        mkdir(Config::Get('path.root.server') . $sDirSave, 0777, true);
-                                        if (is_dir(Config::Get('path.root.server') . $sDirSave)) {
+                                        mkdir(Config::Get('path.root.dir') . $sDirSave, 0777, true);
+                                        if (is_dir(Config::Get('path.root.dir') . $sDirSave)) {
 
                                             $sFile = $sDirSave . '/' . F::RandomStr(10) . '.' . strtolower($aPathInfo['extension']);
-                                            $sFileFullPath = Config::Get('path.root.server') . $sFile;
+                                            $sFileFullPath = Config::Get('path.root.dir') . $sFile;
                                             if (copy($sFileTmp, $sFileFullPath)) {
                                                 //удаляем старый файл
                                                 if ($oTopic->getFile($oField->getFieldId())) {
                                                     @unlink(
-                                                        Config::Get('path.root.server') . $oTopic->getFile($oField->getFieldId())->getFileUrl());
+                                                        Config::Get('path.root.dir') . $oTopic->getFile($oField->getFieldId())->getFileUrl());
                                                 }
 
                                                 $aFileObj = array();

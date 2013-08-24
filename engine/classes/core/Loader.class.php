@@ -34,7 +34,7 @@ class Loader {
             }
         }
 
-        /**
+        /*
          * Загружает конфиги модулей вида /config/modules/[module_name]/config.php
          */
         $sDirConfig = $sConfigDir . '/modules/';
@@ -57,7 +57,7 @@ class Loader {
             }
         }
 
-        /**
+        /*
          * Инклудим все *.php файлы из каталога {path.root.engine}/include/ - это файлы ядра
          */
         $sDirInclude = Config::Get('path.dir.engine') . '/include/';
@@ -96,12 +96,12 @@ class Loader {
         }
 
         if (isset($_SERVER['HTTP_APP_ENV']) && $_SERVER['HTTP_APP_ENV'] == 'test') {
-            /**
+            /*
              * Подгружаем файл тестового конфига
              */
             /*
-            if (file_exists(Config::Get('path.root.server') . '/config/config.test.php')) {
-                Config::LoadFromFile(Config::Get('path.root.server') . '/config/config.test.php', false);
+            if (file_exists(Config::Get('path.root.dir') . '/config/config.test.php')) {
+                Config::LoadFromFile(Config::Get('path.root.dir') . '/config/config.test.php', false);
             } else {
                 throw new Exception('Config for test envirenment is not found.
                     Rename /config/config.test.php.dist to /config/config.test.php and rewrite DB settings.
@@ -109,7 +109,7 @@ class Loader {
             }
             */
         } else {
-            /**
+            /*
              * LS-compatible
              * Подгружаем файлы локального и продакшн-конфига
              */
@@ -127,7 +127,7 @@ class Loader {
             }
         }
 
-        /**
+        /*
          * Загружает конфиг-файлы плагинов вида /plugins/[plugin_name]/config/*.php
          * и include-файлы вида /plugins/[plugin_name]/include/*.php
          */
