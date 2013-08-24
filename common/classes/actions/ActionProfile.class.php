@@ -49,6 +49,7 @@ class ActionProfile extends Action {
      * Инициализация
      */
     public function Init() {
+
         $this->oUserCurrent = $this->User_GetUserCurrent();
     }
 
@@ -56,6 +57,7 @@ class ActionProfile extends Action {
      * Регистрация евентов
      */
     protected function RegisterEvent() {
+
         $this->AddEvent('friendoffer', 'EventFriendOffer');
         $this->AddEvent('ajaxfriendadd', 'EventAjaxFriendAdd');
         $this->AddEvent('ajaxfrienddelete', 'EventAjaxFriendDelete');
@@ -110,6 +112,7 @@ class ActionProfile extends Action {
      * Чтение активности пользователя (stream)
      */
     protected function EventStream() {
+
         if (!$this->CheckUserProfile()) {
             return parent::EventNotFound();
         }
@@ -133,6 +136,7 @@ class ActionProfile extends Action {
      * Список друзей пользователей
      */
     protected function EventFriends() {
+
         if (!$this->CheckUserProfile()) {
             return parent::EventNotFound();
         }
@@ -170,6 +174,7 @@ class ActionProfile extends Action {
      * Список топиков пользователя
      */
     protected function EventCreatedTopics() {
+
         if (!$this->CheckUserProfile()) {
             return parent::EventNotFound();
         }
@@ -221,6 +226,7 @@ class ActionProfile extends Action {
      * Вывод комментариев пользователя
      */
     protected function EventCreatedComments() {
+
         if (!$this->CheckUserProfile()) {
             return parent::EventNotFound();
         }
@@ -261,6 +267,7 @@ class ActionProfile extends Action {
      *
      */
     protected function EventFavourite() {
+
         if (!$this->CheckUserProfile()) {
             return parent::EventNotFound();
         }
@@ -308,6 +315,7 @@ class ActionProfile extends Action {
      * Список топиков из избранного по тегу
      */
     protected function EventFavouriteTopicsTag() {
+
         if (!$this->CheckUserProfile()) {
             return parent::EventNotFound();
         }
@@ -361,6 +369,7 @@ class ActionProfile extends Action {
      *
      */
     protected function EventFavouriteComments() {
+
         if (!$this->CheckUserProfile()) {
             return parent::EventNotFound();
         }
@@ -401,6 +410,7 @@ class ActionProfile extends Action {
      *
      */
     protected function EventWhois() {
+
         if (!$this->CheckUserProfile()) {
             return parent::EventNotFound();
         }
@@ -469,6 +479,7 @@ class ActionProfile extends Action {
      * Отображение стены пользователя
      */
     public function EventWall() {
+
         if (!$this->CheckUserProfile()) {
             return parent::EventNotFound();
         }
@@ -545,6 +556,7 @@ class ActionProfile extends Action {
     }
 
     protected function AddWallMessage($oWall) {
+
         return $this->Wall_AddWall($oWall);
     }
 
@@ -722,6 +734,7 @@ class ActionProfile extends Action {
      * Список созданных заметок
      */
     public function EventCreatedNotes() {
+
         if (!$this->CheckUserProfile()) {
             return parent::EventNotFound();
         }
@@ -767,7 +780,8 @@ class ActionProfile extends Action {
      * Добавление пользователя в друзья, по отправленной заявке
      */
     public function EventFriendOffer() {
-        require_once Config::Get('path.root.engine') . '/lib/external/XXTEA/encrypt.php';
+
+        F::IncludeLib('XXTEA/encrypt.php');
         /**
          * Из реквеста дешефруем ID польователя
          */
@@ -807,9 +821,7 @@ class ActionProfile extends Action {
         if (!$oFriend
             || !in_array(
                 $oFriend->getFriendStatus(),
-                array(
-                     ModuleUser::USER_FRIEND_OFFER + ModuleUser::USER_FRIEND_NULL,
-                )
+                array(ModuleUser::USER_FRIEND_OFFER + ModuleUser::USER_FRIEND_NULL,)
             )
         ) {
             $sMessage = ($oFriend)
@@ -1167,7 +1179,7 @@ class ActionProfile extends Action {
                 )
             );
 
-            require_once Config::Get('path.root.engine') . '/lib/external/XXTEA/encrypt.php';
+            F::IncludeLib('XXTEA/encrypt.php';
             $sCode = $this->oUserCurrent->getId() . '_' . $oUser->getId();
             $sCode = rawurlencode(base64_encode(xxtea_encrypt($sCode, Config::Get('module.talk.encrypt'))));
 
@@ -1305,6 +1317,7 @@ class ActionProfile extends Action {
      * Обработка подтверждения старого емайла при его смене
      */
     public function EventChangemailConfirmFrom() {
+
         if (!($oChangemail = $this->User_GetUserChangemailByCodeFrom($this->GetParamEventMatch(1, 0)))) {
             return parent::EventNotFound();
         }
@@ -1338,6 +1351,7 @@ class ActionProfile extends Action {
      * Обработка подтверждения нового емайла при смене старого
      */
     public function EventChangemailConfirmTo() {
+
         if (!($oChangemail = $this->User_GetUserChangemailByCodeTo($this->GetParamEventMatch(1, 0)))) {
             return parent::EventNotFound();
         }
@@ -1375,6 +1389,7 @@ class ActionProfile extends Action {
      * Выполняется при завершении работы экшена
      */
     public function EventShutdown() {
+
         if (!$this->oUserProfile) {
             return;
         }
@@ -1422,6 +1437,7 @@ class ActionProfile extends Action {
         $this->Viewer_Assign('USER_FRIEND_REJECT', ModuleUser::USER_FRIEND_REJECT);
         $this->Viewer_Assign('USER_FRIEND_DELETE', ModuleUser::USER_FRIEND_DELETE);
     }
+
 }
 
 // EOF

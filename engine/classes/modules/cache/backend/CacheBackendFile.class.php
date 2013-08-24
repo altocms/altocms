@@ -19,7 +19,16 @@ F::IncludeFile(LS_DKCACHE_PATH . 'Zend/Cache/Backend/File.php');
 
 class CacheBackendFile extends Dklab_Cache_Backend_Profiler implements ICacheBackend {
 
-    static public function init($sFuncStats) {
+    static public function IsAvailable() {
+
+        return F::File_CheckDir(Config::Get('sys.cache.dir'), true);
+    }
+
+    static public function Init($sFuncStats) {
+
+        if (!self::IsAvailable()) {
+           return false;
+        }
 
         $oCache = new Zend_Cache_Backend_File(
             array(
@@ -37,11 +46,6 @@ class CacheBackendFile extends Dklab_Cache_Backend_Profiler implements ICacheBac
     public function IsMultiLoad() {
 
         return false;
-    }
-
-    public function IsAvailable() {
-$s=Config::Get('sys.cache.dir');
-        return F::File_CheckDir(Config::Get('sys.cache.dir'), true);
     }
 
     public function IsСoncurrent() {

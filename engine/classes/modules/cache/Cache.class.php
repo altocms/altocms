@@ -263,8 +263,7 @@ class ModuleCache extends Module {
                     } elseif (!class_exists($sClass, false)) {
                         throw new Exception('Cannot load cache backend class: ' . $sClass);
                     } else {
-                        $oBackendCache = $sClass::init(array($this, 'CalcStats'));
-                        if (!$oBackendCache->IsAvailable()) {
+                        if (!$sClass::IsAvailable() || !($oBackendCache = $sClass::Init(array($this, 'CalcStats')))) {
                             throw new Exception('Cannot use cache type: ' . $sCacheType);
                         } else {
                             $this->aBackends[$sCacheType] = $oBackendCache;

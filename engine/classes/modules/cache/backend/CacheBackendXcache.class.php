@@ -18,7 +18,16 @@ F::IncludeFile(LS_DKCACHE_PATH . 'Zend/Cache/Backend/Xcache.php');
  */
 class CacheBackendXcache extends Dklab_Cache_Backend_TagEmuWrapper implements ICacheBackend {
 
+    static public function IsAvailable() {
+
+        return extension_loaded('xcache');
+    }
+
     static public function init($sFuncStats) {
+
+        if (!self::IsAvailable()) {
+            return false;
+        }
 
         $aConfigMem = Config::Get('xcache');
 
@@ -29,11 +38,6 @@ class CacheBackendXcache extends Dklab_Cache_Backend_TagEmuWrapper implements IC
     public function IsMultiLoad() {
 
         return false;
-    }
-
-    public function IsAvailable() {
-
-        return extension_loaded('xcache');
     }
 
     public function IsСoncurrent() {

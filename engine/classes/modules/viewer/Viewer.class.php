@@ -16,9 +16,9 @@
 // For Smarty
 define('DS', '/');
 
-F::IncludeFile(Config::Get('path.root.engine') . '/lib/external/Smarty/libs/Smarty.class.php');
-F::IncludeFile(Config::Get('path.root.engine') . '/lib/external/CSSTidy-1.3/class.csstidy.php');
-F::IncludeFile(Config::Get('path.root.engine') . '/lib/external/JSMin-1.1.1/jsmin.php');
+F::IncludeLib('Smarty/libs/Smarty.class.php');
+F::IncludeLib('CSSTidy-1.3/class.csstidy.php');
+F::IncludeLib('JSMin-1.1.1/jsmin.php');
 
 /**
  * Модуль обработки шаблонов используя шаблонизатор Smarty
@@ -448,16 +448,13 @@ class ModuleViewer extends Module {
 
         // * Загружаем весь $_REQUEST, предварительно обработав его функцией func_htmlspecialchars()
         $aRequest = $_REQUEST;
-        func_htmlspecialchars($aRequest);
+        F::HtmlSpecialChars($aRequest);
         $this->Assign('_aRequest', $aRequest);
 
         // * Параметры стандартной сессии
         // TODO: Убрать! Не должно этого быть на страницах сайта
         $this->Assign('_sPhpSessionName', session_name());
         $this->Assign('_sPhpSessionId', session_id());
-
-        // * Short Engine aliases
-        $this->Assign('LS', LS::getInstance());
 
         // * Загружаем объект доступа к конфигурации
         // * Перенесено в PluginLs_Viewer

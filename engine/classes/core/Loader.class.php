@@ -163,6 +163,8 @@ class Loader {
                 }
             }
         }
+        self::_checkRequiredDirs();
+
         $aSeekDirClasses = array(
             Config::Get('path.dir.app'),
             Config::Get('path.dir.common'),
@@ -195,6 +197,12 @@ class Loader {
         );
     }
 
+    /**
+     * Load subconfig file
+     *
+     * @param $sFile
+     * @param $sName
+     */
     static protected function _loadConfigSection($sFile, $sName) {
 
         $aConfig = array();
@@ -209,6 +217,19 @@ class Loader {
             }
         }
         Config::Load(array($sName => $aConfig), false);
+    }
+
+    static protected function _checkRequiredDirs() {
+
+        if (!F::File_CheckDir(Config::Get('path.dir.app'), false)) {
+            die('Application folder "'. F::LocalDir(Config::Get('path.dir.app')) . '" does not exist');
+        }
+        if (!F::File_CheckDir(Config::Get('path.tmp.dir'), false)) {
+            die('Required folder "'. F::LocalDir(Config::Get('path.tmp.dir')) . '" does not exist');
+        }
+        if (!F::File_CheckDir(Config::Get('path.runtime.dir'), false)) {
+            die('Required folder "'. F::LocalDir(Config::Get('path.runtime.dir')) . '" does not exist');
+        }
     }
 
     /**

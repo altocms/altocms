@@ -18,7 +18,16 @@ F::IncludeFile(LS_DKCACHE_PATH . 'Zend/Cache/Backend/Memcached.php');
  */
 class CacheBackendMemcached extends Dklab_Cache_Backend_TagEmuWrapper implements ICacheBackend {
 
+    static public function IsAvailable() {
+
+        return extension_loaded('memcache');
+    }
+
     static public function init($sFuncStats) {
+
+        if (!self::IsAvailable()) {
+            return false;
+        }
 
         $aConfigMem = Config::Get('memcache');
 
@@ -29,11 +38,6 @@ class CacheBackendMemcached extends Dklab_Cache_Backend_TagEmuWrapper implements
     public function IsMultiLoad() {
 
         return true;
-    }
-
-    public function IsAvailable() {
-
-        return extension_loaded('memcache');
     }
 
     public function IsСoncurrent() {

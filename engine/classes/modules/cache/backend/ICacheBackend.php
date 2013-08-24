@@ -6,6 +6,11 @@ F::IncludeFile(LS_DKCACHE_PATH . 'Zend/Cache/Backend/Interface.php');
 interface ICacheBackend {
 
     /**
+     * @return bool
+     */
+    static public function IsAvailable();
+
+    /**
      * @param $sName
      *
      * @return mixed
@@ -41,11 +46,6 @@ interface ICacheBackend {
      * @return bool
      */
     public function IsMultiLoad();
-
-    /**
-     * @return bool
-     */
-    public function IsAvailable();
 
     /**
      * @return bool

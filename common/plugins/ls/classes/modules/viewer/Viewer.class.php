@@ -74,6 +74,9 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
 
         // В Smarty 3.x рекомендуется использовать статический класс Config
         $this->Assign('oConfig', Config::getInstance());
+
+        // * Short Engine aliases
+        $this->Assign('LS', LS::getInstance());
     }
 
     protected function InitBlockParams() {

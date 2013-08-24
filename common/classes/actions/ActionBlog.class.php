@@ -612,6 +612,7 @@ class ActionBlog extends Action {
      *
      */
     protected function EventTopics() {
+
         $sPeriod = 1; // по дефолту 1 день
         if (in_array(getRequestStr('period'), array(1, 7, 30, 'all'))) {
             $sPeriod = getRequestStr('period');
@@ -684,6 +685,7 @@ class ActionBlog extends Action {
     }
 
     protected function EventShowTopicByUrl() {
+
         $sTopicUrl = $this->GetEventMatch(1);
 
         // * Проверяем есть ли такой топик
@@ -699,6 +701,7 @@ class ActionBlog extends Action {
      *
      */
     protected function EventShowTopic() {
+
         $sBlogUrl='';
 		$sTopicUrlMask = Router::GetTopicUrlMask();
         if ($this->GetParamEventMatch(0, 1)) {
@@ -866,6 +869,7 @@ class ActionBlog extends Action {
      *
      */
     protected function EventShowUsers() {
+
         $sBlogUrl = $this->sCurrentEvent;
         /**
          * Проверяем есть ли блог с таким УРЛ
@@ -1357,6 +1361,7 @@ class ActionBlog extends Action {
     }
 
     protected function AjaxGetComment() {
+
         // * Устанавливаем формат Ajax ответа
         $this->Viewer_SetResponseAjax('json');
 
@@ -1385,6 +1390,7 @@ class ActionBlog extends Action {
     }
 
     protected function AjaxUpdateComment() {
+
         // * Устанавливаем формат Ajax ответа
         $this->Viewer_SetResponseAjax('json');
 
@@ -1711,9 +1717,10 @@ class ActionBlog extends Action {
      * @param ModuleUser_EntityUser $oUser
      */
     protected function SendBlogInvite($oBlog, $oUser) {
+
         $sTitle = $this->Lang_Get('blog_user_invite_title', array('blog_title' => $oBlog->getTitle()));
 
-        require_once Config::Get('path.root.engine') . '/lib/external/XXTEA/encrypt.php';
+        F::IncludeLib('XXTEA/encrypt.php');
         /**
          * Формируем код подтверждения в URL
          */
@@ -1752,7 +1759,8 @@ class ActionBlog extends Action {
      * Обработка отправленого пользователю приглашения вступить в блог
      */
     protected function EventInviteBlog() {
-        require_once Config::Get('path.root.engine') . '/lib/external/XXTEA/encrypt.php';
+
+        F::IncludeLib('XXTEA/encrypt.php');
         /**
          * Получаем код подтверждения из ревеста и дешефруем его
          */
@@ -1836,6 +1844,7 @@ class ActionBlog extends Action {
      *
      */
     protected function EventDeleteBlog() {
+
         $this->Security_ValidateSendForm();
 
         // * Проверяем передан ли в УРЛе номер блога
@@ -2067,6 +2076,7 @@ class ActionBlog extends Action {
         $this->Viewer_Assign('BLOG_USER_ROLE_REJECT', ModuleBlog::BLOG_USER_ROLE_REJECT);
         $this->Viewer_Assign('BLOG_USER_ROLE_BAN', ModuleBlog::BLOG_USER_ROLE_BAN);
     }
+
 }
 
 // EOF

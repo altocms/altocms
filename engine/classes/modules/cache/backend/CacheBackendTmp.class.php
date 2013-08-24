@@ -26,8 +26,9 @@ class CacheBackendTmp extends Dklab_Cache_Backend_Profiler implements ICacheBack
 
     static protected $aStore = array();
 
-    public function __construct() {
+    static public function IsAvailable() {
 
+        return true;
     }
 
     static public function init($sFuncStats) {
@@ -40,11 +41,6 @@ class CacheBackendTmp extends Dklab_Cache_Backend_Profiler implements ICacheBack
     public function IsMultiLoad() {
 
         return false;
-    }
-
-    public function IsAvailable() {
-
-        return true;
     }
 
     public function IsСoncurrent() {

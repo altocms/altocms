@@ -13,7 +13,7 @@
  *----------------------------------------------------------------------------
  */
 
-F::File_IncludeFile(Config::Get('path.root.engine') . '/lib/external/Sphinx/sphinxapi_2.x.php');
+F::IncludeLib('Sphinx/sphinxapi_2.x.php');
 
 /**
  * Модуль для работы с машиной полнотекстового поиска Sphinx
