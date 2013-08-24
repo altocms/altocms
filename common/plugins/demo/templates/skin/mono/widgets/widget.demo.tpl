@@ -1,0 +1,3 @@
+<div>
+Demo widget
+</div>

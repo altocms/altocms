@@ -93,11 +93,16 @@ class Func {
 
     /**
      * @param string $sError
+     * @param string $sLogFile
      */
-    static public function _errorDisplay($sError) {
+    static public function _errorDisplay($sError, $sLogFile = null) {
 
-        if (!static::AjaxRequest())
-            echo '<span style="display:none;">"></span><br/></div>' . $sError . '<br/>See details in ' . static::_errorLogFile();
+        if (!static::AjaxRequest()) {
+            echo '<span style="display:none;">"></span><br/></div>' . $sError . '<br/>';
+            if ($sLogFile) {
+                echo 'See details in ' . $sLogFile;
+            }
+        }
     }
 
     /**
@@ -129,8 +134,12 @@ class Func {
         );
 
         if ($nErrNo & error_reporting()) {
-            static::_errorDisplay("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg");
-            static::_errorLog("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg ($sErrFile on line $nErrLine)");
+            if (F::IsDebug()) {
+                static::_errorDisplay("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg ($sErrFile on line $nErrLine)");
+            } else {
+                static::_errorDisplay("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg", static::_errorLogFile());
+                static::_errorLog("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg ($sErrFile on line $nErrLine)");
+            }
         }
 
         /* Don't execute PHP internal error handler */
@@ -261,6 +270,11 @@ class Func {
         return $xResult;
     }
 
+    static public function IsDebug() {
+
+        return defined('DEBUG') && DEBUG;
+    }
+
     /**
      * @param $sMsg
      *
@@ -285,8 +299,13 @@ class Func {
         if ($sDir == '.' || $sDir == '..' || substr($sDir, 0, 2) == './' || substr($sDir, 0, 3) == '../') {
             $aCaller = static::_Caller();
             if (isset($aCaller['file'])) {
-                $sFile = realpath(dirname($aCaller['file']) . '/' . $sFile);
+                $sRealPath = realpath(dirname($aCaller['file']) . '/' . $sFile);
             }
+        } else {
+            $sRealPath = realpath($sFile);
+        }
+        if ($sRealPath) {
+            $sFile = $sRealPath;
         }
         if (isset(static::$aExtsions['File']) && is_callable($sFunc = static::$aExtsions['File'] . '::IncludeFile')) {
             return call_user_func_array($sFunc, array($sFile, $bOnce, $bConfig));
@@ -309,9 +328,9 @@ class Func {
     static public function IncludeLib($sFile, $bOnce = true) {
 
         if (class_exists('Config', false)) {
-            return static::IncludeFile(Config::Get('path.dir.lib') . 'external/' . $sFile, $bOnce);
+            return static::IncludeFile(Config::Get('path.dir.libs') . '/' . $sFile, $bOnce);
         } else {
-            return static::IncludeFile(dirname(__DIR__) . '/lib/external/' . $sFile, $bOnce);
+            return static::IncludeFile(dirname(__DIR__) . '/libs/' . $sFile, $bOnce);
         }
     }
 

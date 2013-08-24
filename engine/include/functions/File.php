@@ -12,31 +12,53 @@
  * Files/Dirs functions for Alto CMS
  */
 class AltoFunc_File {
+
     /**
-     * Count of files inclusions
-     *
-     * @var int
+     * @var int - Count of files inclusions
      */
     static protected $nIncludedCount = 0;
 
     /**
-     * Time of files inclusions
-     *
-     * @var int
+     * @var int - Time of files inclusions
      */
     static protected $nIncludedTime = 0.0;
+
+    /**
+     * @var array - Included files
+     */
+    static protected $aIncludedFiles = array();
 
     static protected $_temp = null;
     static protected $_time = null;
 
+    /**
+     * Returns total count of files inclusions
+     *
+     * @return int
+     */
     static public function GetIncludedCount() {
 
         return self::$nIncludedCount;
     }
 
+    /**
+     * Returns total time of files inclusions
+     *
+     * @return float
+     */
     static public function GetIncludedTime() {
 
         return self::$nIncludedTime;
+    }
+
+    /**
+     * Returns total list of included files
+     *
+     * @return float
+     */
+    static public function GetIncludedFiles() {
+
+        return self::$aIncludedFiles;
     }
 
     /**
@@ -715,6 +737,10 @@ class AltoFunc_File {
             }
             self::$nIncludedTime += (microtime(true) - self::$_time);
             self::$nIncludedCount++;
+            if (F::IsDebug()) {
+                self::$aIncludedFiles[]
+                    = $sFile . '; result: ' . (is_scalar(self::$_temp) ? self::$_temp : gettype(self::$_temp));
+            }
         } catch (ErrorException $oException) {
             /**
              * TODO: надо логгировать ошибку подключения
@@ -744,7 +770,7 @@ class AltoFunc_File {
      */
     static public function IncludeLib($sFile, $bOnce = true) {
 
-        return self::IncludeFile(Config::Get('path.dir.lib') . 'external/' . $sFile, $bOnce);
+        return self::IncludeFile(Config::Get('path.dir.libs') . '/' . $sFile, $bOnce);
     }
 
     /**

@@ -15,7 +15,7 @@
 
 error_reporting(E_ALL);
 
-define('NO_LOADER', 1);
+define('ALTO_NO_LOADER', 1);
 
 require_once(dirname(dirname(__FILE__)) . '/config/loader.php');
 
