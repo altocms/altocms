@@ -1,19 +1,17 @@
 <?php
-/*-------------------------------------------------------
-*
-*   LiveStreet Engine Social Networking
-*   Copyright © 2008 Mzhelskiy Maxim
-*
-*--------------------------------------------------------
-*
-*   Official site: www.livestreet.ru
-*   Contact e-mail: rus.engine@gmail.com
-*
-*   GNU General Public License, version 2:
-*   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-*
----------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
 
 /**
  * Модуль рассылок уведомлений пользователям
@@ -46,18 +44,18 @@ class ModuleNotify extends Module {
     protected $oMapper = null;
 
     /**
-	 * Префикс шаблонов
-	 *
-	 * @var string
-	 */
-	protected $sPrefix = '';
+     * Префикс шаблонов
+     *
+     * @var string
+     */
+    protected $sPrefix = '';
 
-	/**
-	 * Название директории с шаблономи
-	 *
-	 * @var string
-	 */
-	protected $sDir = '';
+    /**
+     * Название директории с шаблономи
+     *
+     * @var string
+     */
+    protected $sDir = '';
 
     /**
      * Инициализация модуля
@@ -94,7 +92,7 @@ class ModuleNotify extends Module {
         }
         $this->Send(
             $oUserTo,
-            $this->sPrefix.'.comment_new.tpl',
+            $this->sPrefix . '.comment_new.tpl',
             $this->Lang_Get('notify_subject_comment_new'),
             array(
                  'oUserTo'      => $oUserTo,
@@ -128,7 +126,7 @@ class ModuleNotify extends Module {
         }
         $this->Send(
             $oUserTo,
-            $this->sPrefix.'.comment_reply.tpl',
+            $this->sPrefix . '.comment_reply.tpl',
             $this->Lang_Get('notify_subject_comment_reply'),
             array(
                  'oUserTo'      => $oUserTo,
@@ -162,7 +160,7 @@ class ModuleNotify extends Module {
         }
         $this->Send(
             $oUserTo,
-            $this->sPrefix.'.topic_new.tpl',
+            $this->sPrefix . '.topic_new.tpl',
             $this->Lang_Get('notify_subject_topic_new') . ' «' . htmlspecialchars($oBlog->getTitle()) . '»',
             array(
                  'oUserTo'    => $oUserTo,
@@ -182,7 +180,7 @@ class ModuleNotify extends Module {
     public function SendReactivationCode(ModuleUser_EntityUser $oUser) {
         $this->Send(
             $oUser,
-            $this->sPrefix.'.reactivation.tpl',
+            $this->sPrefix . '.reactivation.tpl',
             $this->Lang_Get('notify_subject_reactvation'),
             array(
                  'oUser' => $oUser,
@@ -199,7 +197,7 @@ class ModuleNotify extends Module {
     public function SendRegistrationActivate(ModuleUser_EntityUser $oUser, $sPassword) {
         $this->Send(
             $oUser,
-            $this->sPrefix.'.registration_activate.tpl',
+            $this->sPrefix . '.registration_activate.tpl',
             $this->Lang_Get('notify_subject_registration_activate'),
             array(
                  'oUser'     => $oUser,
@@ -217,7 +215,7 @@ class ModuleNotify extends Module {
     public function SendRegistration(ModuleUser_EntityUser $oUser, $sPassword) {
         $this->Send(
             $oUser,
-            $this->sPrefix.'.registration.tpl',
+            $this->sPrefix . '.registration.tpl',
             $this->Lang_Get('notify_subject_registration'),
             array(
                  'oUser'     => $oUser,
@@ -236,7 +234,7 @@ class ModuleNotify extends Module {
     public function SendInvite(ModuleUser_EntityUser $oUserFrom, $sMailTo, ModuleUser_EntityInvite $oInvite) {
         $this->Send(
             $sMailTo,
-            $this->sPrefix.'.invite.tpl',
+            $this->sPrefix . '.invite.tpl',
             $this->Lang_Get('notify_subject_invite'),
             array(
                  'sMailTo'   => $sMailTo,
@@ -266,7 +264,7 @@ class ModuleNotify extends Module {
         }
         $this->Send(
             $oUserTo,
-            $this->sPrefix.'.talk_new.tpl',
+            $this->sPrefix . '.talk_new.tpl',
             $this->Lang_Get('notify_subject_talk_new'),
             array(
                  'oUserTo'   => $oUserTo,
@@ -299,7 +297,7 @@ class ModuleNotify extends Module {
         }
         $this->Send(
             $oUserTo,
-            $this->sPrefix.'.talk_comment_new.tpl',
+            $this->sPrefix . '.talk_comment_new.tpl',
             $this->Lang_Get('notify_subject_talk_comment_new'),
             array(
                  'oUserTo'      => $oUserTo,
@@ -332,7 +330,7 @@ class ModuleNotify extends Module {
         }
         $this->Send(
             $oUserTo,
-            $this->sPrefix.'.user_friend_new.tpl',
+            $this->sPrefix . '.user_friend_new.tpl',
             $this->Lang_Get('notify_subject_user_friend_new'),
             array(
                  'oUserTo'   => $oUserTo,
@@ -357,7 +355,7 @@ class ModuleNotify extends Module {
     ) {
         $this->Send(
             $oUserTo,
-            $this->sPrefix.'.blog_invite_new.tpl',
+            $this->sPrefix . '.blog_invite_new.tpl',
             $this->Lang_Get('notify_subject_blog_invite_new'),
             array(
                  'oUserTo'   => $oUserTo,
@@ -377,7 +375,7 @@ class ModuleNotify extends Module {
     public function SendReminderCode(ModuleUser_EntityUser $oUser, ModuleUser_EntityReminder $oReminder) {
         $this->Send(
             $oUser,
-            $this->sPrefix.'.reminder_code.tpl',
+            $this->sPrefix . '.reminder_code.tpl',
             $this->Lang_Get('notify_subject_reminder_code'),
             array(
                  'oUser'     => $oUser,
@@ -395,7 +393,7 @@ class ModuleNotify extends Module {
     public function SendReminderPassword(ModuleUser_EntityUser $oUser, $sNewPassword) {
         $this->Send(
             $oUser,
-            $this->sPrefix.'.reminder_password.tpl',
+            $this->sPrefix . '.reminder_password.tpl',
             $this->Lang_Get('notify_subject_reminder_password'),
             array(
                  'oUser'        => $oUser,
@@ -416,7 +414,7 @@ class ModuleNotify extends Module {
     ) {
         $this->Send(
             $oWallParent->getUser(),
-            $this->sPrefix.'.wall.reply.tpl',
+            $this->sPrefix . '.wall.reply.tpl',
             $this->Lang_Get('notify_subject_wall_reply'),
             array(
                  'oWallParent' => $oWallParent,
@@ -437,7 +435,7 @@ class ModuleNotify extends Module {
     public function SendWallNew(ModuleWall_EntityWall $oWall, ModuleUser_EntityUser $oUser) {
         $this->Send(
             $oWall->getWallUser(),
-            $this->sPrefix.'.wall.new.tpl',
+            $this->sPrefix . '.wall.new.tpl',
             $this->Lang_Get('notify_subject_wall_new'),
             array(
                  'oUserTo'   => $oWall->getWallUser(),
@@ -528,7 +526,7 @@ class ModuleNotify extends Module {
     /**
      * Получает массив заданий на публикацию из базы с указанным количественным ограничением (выборка FIFO)
      *
-     * @param  int    $iLimit    Количество
+     * @param  int $iLimit    Количество
      *
      * @return array
      */
@@ -587,9 +585,9 @@ class ModuleNotify extends Module {
                 ? strtolower($aMatches[1])
                 : strtolower($sPluginName);
 
-            $sDir = Plugin::GetTemplateDir($sPluginName) . $this->sDir.'/';
+            $sDir = Plugin::GetTemplateDir($sPluginName) . $this->sDir . '/';
         } else {
-            $sDir = F::File_NormPath($this->Viewer_GetTemplateDir() . '/'.$this->sDir.'/');
+            $sDir = F::File_NormPath($this->Viewer_GetTemplateDir() . '/' . $this->sDir . '/');
         }
 
         // Ищем шаблон по текущему языку
