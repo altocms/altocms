@@ -26,6 +26,7 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
      * @return int|null
      */
     public function getId() {
+
         return $this->getProp('id');
     }
 
@@ -35,6 +36,7 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
      * @return int|null
      */
     public function getTopicId() {
+
         return $this->getProp('topic_id');
     }
 
@@ -44,6 +46,7 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
      * @return string|null
      */
     public function getTargetTmp() {
+
         return $this->getProp('target_tmp');
     }
 
@@ -53,6 +56,7 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
      * @return string|null
      */
     public function getDescription() {
+
         return $this->getProp('description');
     }
 
@@ -62,6 +66,7 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
      * @return mixed|null
      */
     public function getPath() {
+
         return $this->getProp('path');
     }
 
@@ -73,17 +78,33 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
      * @return null|string
      */
     public function getWebPath($sWidth = null) {
-        if ($this->getPath()) {
+
+        if ($sUrl = $this->getPath()) {
             if ($sWidth) {
-                $aPathInfo = pathinfo($this->getPath());
-                return $aPathInfo['dirname'] . '/' . $aPathInfo['filename'] . '_' . $sWidth . '.'
-                . $aPathInfo['extension'];
-            } else {
-                return $this->getPath();
+                $sResizedUrl = '';
+                if (E::ActivePlugin('ls')) {
+                    // Включена совместимость с LS
+                    $aPathInfo = pathinfo($sUrl);
+                    $sResizedUrl = $aPathInfo['dirname'] . '/' . $aPathInfo['filename'] . '_' . $sWidth . '.'
+                        . $aPathInfo['extension'];
+                    if (F::File_LocalUrl($sResizedUrl) && !F::File_Exists(F::File_Url2Dir($sResizedUrl))) {
+                        $sResizedUrl = '';
+                    }
+                }
+                if (!$sResizedUrl) {
+                    $nSize = intval($sWidth);
+                    $bCrop = strpos($sWidth, 'crop');
+                    if ($nSize) {
+                        if ($bCrop) {
+                            $sResizedUrl .= '-' . $nSize . 'x' . $nSize . '-crop.' . $aPathInfo['extension'];
+                        } else {
+                            $sResizedUrl .= '-' . $nSize . 'x' . $nSize . '.' . $aPathInfo['extension'];
+                        }
+                    }
+                }
             }
-        } else {
-            return null;
         }
+        return F::File_normPath($sResizedUrl ? $sResizedUrl : $sUrl);
     }
 
     /**
@@ -92,6 +113,7 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
      * @param int $iTopicId
      */
     public function setTopicId($iTopicId) {
+
         $this->setProp('topic_id', $iTopicId);
     }
 
@@ -101,6 +123,7 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
      * @param string $sTargetTmp
      */
     public function setTargetTmp($sTargetTmp) {
+
         $this->setProp('target_tmp', $sTargetTmp);
     }
 
@@ -110,6 +133,7 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
      * @param string $sDescription
      */
     public function setDescription($sDescription) {
+
         $this->setProp('description', $sDescription);
     }
 
