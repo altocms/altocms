@@ -19,7 +19,7 @@ F::IncludeFile('./ICacheBackend.php');
  * в течение обработки одного запроса. Может привести к увеличению требуемой памяти, но самый быстрый
  * из всех видов кеша
  *
- * Крайне НЕ рекомендуется использовать, как кеш всего приложения!!!
+ * Категорически НЕЛЬЗЯ использовать, как кеш всего приложения!!!
  */
 
 class CacheBackendTmp extends Dklab_Cache_Backend_Profiler implements ICacheBackend {
@@ -36,6 +36,13 @@ class CacheBackendTmp extends Dklab_Cache_Backend_Profiler implements ICacheBack
         self::$aStore = array();
         $oCache = new self();
         return new self($oCache, $sFuncStats);
+    }
+
+    /**
+     * Нужно, чтобы переопределить конструктор родителя
+     */
+    public function __construct() {
+
     }
 
     public function IsMultiLoad() {

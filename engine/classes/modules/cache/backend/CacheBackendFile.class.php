@@ -49,6 +49,7 @@ class CacheBackendFile extends Dklab_Cache_Backend_Profiler implements ICacheBac
     }
 
     public function IsСoncurrent() {
+
         return true;
     }
 
