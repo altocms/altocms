@@ -28,6 +28,7 @@ class MapperORM extends Mapper {
      * @return int|bool    Если есть primary индекс с автоинкрементом, то возвращает его для новой записи
      */
     public function AddEntity($oEntity) {
+
         $sTableName = self::GetTableName($oEntity);
 
         $sql = "INSERT INTO " . $sTableName . " SET ?a ";
@@ -42,6 +43,7 @@ class MapperORM extends Mapper {
      * @return int|bool    Возвращает число измененых записей в БД
      */
     public function UpdateEntity($oEntity) {
+
         $sTableName = self::GetTableName($oEntity);
 
         if ($aPrimaryKey = $oEntity->_getPrimaryKey()) {
@@ -80,6 +82,7 @@ class MapperORM extends Mapper {
      * @return int|bool    Возвращает число удаленных записей в БД
      */
     public function DeleteEntity($oEntity) {
+
         $sTableName = self::GetTableName($oEntity);
 
         if ($aPrimaryKey = $oEntity->_getPrimaryKey()) {
@@ -120,6 +123,7 @@ class MapperORM extends Mapper {
      * @return EntityORM|null
      */
     public function GetByFilter($aFilter, $sEntityFull) {
+
         $oEntitySample = Engine::GetEntity($sEntityFull);
         $sTableName = self::GetTableName($sEntityFull);
 
@@ -145,6 +149,7 @@ class MapperORM extends Mapper {
      * @return array
      */
     public function GetItemsByFilter($aFilter, $sEntityFull) {
+
         $oEntitySample = Engine::GetEntity($sEntityFull);
         $sTableName = self::GetTableName($sEntityFull);
 
@@ -173,6 +178,7 @@ class MapperORM extends Mapper {
      * @return int
      */
     public function GetCountItemsByFilter($aFilter, $sEntityFull) {
+
         $oEntitySample = Engine::GetEntity($sEntityFull);
         $sTableName = self::GetTableName($sEntityFull);
 
@@ -195,6 +201,7 @@ class MapperORM extends Mapper {
      * @return array
      */
     public function GetItemsByJoinTable($aFilter, $sEntityFull) {
+
         $oEntitySample = Engine::GetEntity($sEntityFull);
         $sTableName = self::GetTableName($sEntityFull);
         $sPrimaryKey = $oEntitySample->_getPrimaryKey();
@@ -229,6 +236,7 @@ class MapperORM extends Mapper {
      * @return int
      */
     public function GetCountItemsByJoinTable($aFilter, $sEntityFull) {
+
         $oEntitySample = Engine::GetEntity($sEntityFull);
         list($aFilterFields, $sFilterFields) = $this->BuildFilter($aFilter, $oEntitySample);
 
@@ -253,6 +261,7 @@ class MapperORM extends Mapper {
      * @return array
      */
     public function BuildFilter($aFilter, $oEntitySample) {
+
         $aFilterFields = array();
         foreach ($aFilter as $k => $v) {
             if (substr($k, 0, 1) == '#' || (is_string($v) && substr($v, 0, 1) == '#')) {
@@ -296,6 +305,7 @@ class MapperORM extends Mapper {
      * @return array
      */
     public function BuildFilterMore($aFilter, $oEntitySample) {
+
         // Сортировка
         $sOrder = '';
         if (isset($aFilter['#order'])) {
@@ -354,6 +364,7 @@ class MapperORM extends Mapper {
      * @return array
      */
     public function ShowColumnsFrom($oEntity) {
+
         $sTableName = self::GetTableName($oEntity);
         return $this->ShowColumnsFromTable($sTableName);
     }
@@ -366,6 +377,7 @@ class MapperORM extends Mapper {
      * @return array
      */
     public function ShowColumnsFromTable($sTableName) {
+
         if (false === ($aItems = Engine::getInstance()->Cache_GetLife("columns_table_{$sTableName}"))) {
             $sql = "SHOW COLUMNS FROM " . $sTableName;
             $aItems = array();
@@ -390,6 +402,7 @@ class MapperORM extends Mapper {
      * @return array
      */
     public function ShowPrimaryIndexFrom($oEntity) {
+
         $sTableName = self::GetTableName($oEntity);
         return $this->ShowPrimaryIndexFromTable($sTableName);
     }
@@ -402,6 +415,7 @@ class MapperORM extends Mapper {
      * @return array
      */
     public function ShowPrimaryIndexFromTable($sTableName) {
+
         if (false === ($aItems = Engine::getInstance()->Cache_GetLife("index_table_{$sTableName}"))) {
             $sql = "SHOW INDEX FROM " . $sTableName;
             $aItems = array();

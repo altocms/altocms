@@ -26,6 +26,7 @@ class ModuleVote_EntityVote extends Entity {
      * @return int|null
      */
     public function getTargetId() {
+
         return $this->getProp('target_id');
     }
 
@@ -35,6 +36,7 @@ class ModuleVote_EntityVote extends Entity {
      * @return string|null
      */
     public function getTargetType() {
+
         return $this->getProp('target_type');
     }
 
@@ -44,6 +46,7 @@ class ModuleVote_EntityVote extends Entity {
      * @return int|null
      */
     public function getVoterId() {
+
         return $this->getProp('user_voter_id');
     }
 
@@ -53,6 +56,7 @@ class ModuleVote_EntityVote extends Entity {
      * @return int|null
      */
     public function getDirection() {
+
         return $this->getProp('vote_direction');
     }
 
@@ -62,6 +66,7 @@ class ModuleVote_EntityVote extends Entity {
      * @return float|null
      */
     public function getValue() {
+
         return $this->getProp('vote_value');
     }
 
@@ -71,6 +76,7 @@ class ModuleVote_EntityVote extends Entity {
      * @return string|null
      */
     public function getDate() {
+
         return $this->getProp('vote_date');
     }
 
@@ -80,6 +86,7 @@ class ModuleVote_EntityVote extends Entity {
      * @return string|null
      */
     public function getIp() {
+
         return $this->getProp('vote_ip');
     }
 
@@ -90,6 +97,7 @@ class ModuleVote_EntityVote extends Entity {
      * @param int $data
      */
     public function setTargetId($data) {
+
         $this->_aData['target_id'] = $data;
     }
 
@@ -99,6 +107,7 @@ class ModuleVote_EntityVote extends Entity {
      * @param string $data
      */
     public function setTargetType($data) {
+
         $this->_aData['target_type'] = $data;
     }
 
@@ -108,6 +117,7 @@ class ModuleVote_EntityVote extends Entity {
      * @param int $data
      */
     public function setVoterId($data) {
+
         $this->_aData['user_voter_id'] = $data;
     }
 
@@ -117,6 +127,7 @@ class ModuleVote_EntityVote extends Entity {
      * @param int $data
      */
     public function setDirection($data) {
+
         $this->_aData['vote_direction'] = $data;
     }
 
@@ -126,6 +137,7 @@ class ModuleVote_EntityVote extends Entity {
      * @param float $data
      */
     public function setValue($data) {
+
         $this->_aData['vote_value'] = $data;
     }
 
@@ -135,6 +147,7 @@ class ModuleVote_EntityVote extends Entity {
      * @param string $data
      */
     public function setDate($data) {
+
         $this->_aData['vote_date'] = $data;
     }
 
@@ -144,8 +157,10 @@ class ModuleVote_EntityVote extends Entity {
      * @param string $data
      */
     public function setIp($data) {
+
         $this->_aData['vote_ip'] = $data;
     }
+
 }
 
 // EOF

@@ -28,6 +28,7 @@ class ModuleUser_EntityUser extends Entity {
      * @var array
      */
     public function Init() {
+
         parent::Init();
         $this->aValidateRules[] = array('login', 'login',
                                         'on' => array('registration', '')); // '' - означает дефолтный сценарий
@@ -50,6 +51,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param   array|null $aParam
      */
     public function __construct($aParam = null) {
+
         parent::__construct($aParam);
     }
 
@@ -62,6 +64,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return bool
      */
     public function ValidateLogin($sValue, $aParams) {
+
         if ($sValue && $this->User_CheckLogin($sValue)) {
             return true;
         }
@@ -77,6 +80,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return bool
      */
     public function ValidateLoginExists($sValue, $aParams) {
+
         if (!$this->User_GetUserByLogin($sValue)) {
             return true;
         }
@@ -92,6 +96,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return bool
      */
     public function ValidateMailExists($sValue, $aParams) {
+
         if (!$this->User_GetUserByMail($sValue)) {
             return true;
         }
@@ -104,6 +109,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return int|null
      */
     public function getId() {
+
         return $this->getProp('user_id');
     }
 
@@ -113,6 +119,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getLogin() {
+
         return $this->getProp('user_login');
     }
 
@@ -122,6 +129,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getPassword() {
+
         return $this->getProp('user_password');
     }
 
@@ -131,6 +139,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getMail() {
+
         return $this->getProp('user_mail');
     }
 
@@ -140,6 +149,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string
      */
     public function getSkill() {
+
         return number_format(round($this->getProp('user_skill'), 2), 2, '.', '');
     }
 
@@ -149,6 +159,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getDateRegister() {
+
         return $this->getProp('user_date_register');
     }
 
@@ -158,6 +169,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getDateActivate() {
+
         return $this->getProp('user_date_activate');
     }
 
@@ -167,6 +179,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return mixed|null
      */
     public function getDateCommentLast() {
+
         return $this->getProp('user_date_comment_last');
     }
 
@@ -176,6 +189,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getIpRegister() {
+
         return $this->getProp('user_ip_register');
     }
 
@@ -185,6 +199,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string
      */
     public function getRating() {
+
         return number_format(round($this->getProp('user_rating'), 2), 2, '.', '');
     }
 
@@ -194,6 +209,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return int|null
      */
     public function getCountVote() {
+
         return $this->getProp('user_count_vote');
     }
 
@@ -203,6 +219,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return int|null
      */
     public function getActivate() {
+
         return $this->getProp('user_activate');
     }
 
@@ -212,6 +229,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getActivateKey() {
+
         return $this->getProp('user_activate_key');
     }
 
@@ -221,6 +239,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getProfileName() {
+
         return $this->getProp('user_profile_name');
     }
 
@@ -230,6 +249,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getProfileSex() {
+
         return $this->getProp('user_profile_sex');
     }
 
@@ -239,6 +259,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getProfileCountry() {
+
         return $this->getProp('user_profile_country');
     }
 
@@ -248,6 +269,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getProfileRegion() {
+
         return $this->getProp('user_profile_region');
     }
 
@@ -257,6 +279,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getProfileCity() {
+
         return $this->getProp('user_profile_city');
     }
 
@@ -266,6 +289,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getProfileBirthday() {
+
         return $this->getProp('user_profile_birthday');
     }
 
@@ -275,6 +299,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getProfileAbout() {
+
         return $this->getProp('user_profile_about');
     }
 
@@ -284,6 +309,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getProfileDate() {
+
         return $this->getProp('user_profile_date');
     }
 
@@ -293,6 +319,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getProfileAvatar() {
+
         return $this->getProp('user_profile_avatar');
     }
 
@@ -302,6 +329,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getProfileAvatarType() {
+
         return ($sPath = $this->getProfileAvatarPath()) ? pathinfo($sPath, PATHINFO_EXTENSION) : null;
     }
 
@@ -311,6 +339,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getProfileFoto() {
+
         return $this->getProp('user_profile_foto');
     }
 
@@ -320,6 +349,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return int|null
      */
     public function getSettingsNoticeNewTopic() {
+
         return $this->getProp('user_settings_notice_new_topic');
     }
 
@@ -329,6 +359,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return int|null
      */
     public function getSettingsNoticeNewComment() {
+
         return $this->getProp('user_settings_notice_new_comment');
     }
 
@@ -338,6 +369,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return int|null
      */
     public function getSettingsNoticeNewTalk() {
+
         return $this->getProp('user_settings_notice_new_talk');
     }
 
@@ -347,6 +379,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return int|null
      */
     public function getSettingsNoticeReplyComment() {
+
         return $this->getProp('user_settings_notice_reply_comment');
     }
 
@@ -356,10 +389,12 @@ class ModuleUser_EntityUser extends Entity {
      * @return int|null
      */
     public function getSettingsNoticeNewFriend() {
+
         return $this->getProp('user_settings_notice_new_friend');
     }
 
     public function getLastSession() {
+
         return $this->getProp('user_last_session');
     }
 
@@ -372,6 +407,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return array
      */
     public function getUserFieldValues($bOnlyNoEmpty = true, $sType = '') {
+
         return $this->User_getUserFieldsValues($this->getId(), $bOnlyNoEmpty, $sType);
     }
 
@@ -381,6 +417,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return ModuleUser_EntitySession|null
      */
     public function getSession() {
+
         if (!$this->getProp('session')) {
             $this->_aData['session'] = $this->User_GetSessionByUserId($this->getId());
         }
@@ -393,6 +430,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return bool
      */
     public function isOnline() {
+
         if ($oSession = $this->getSession()) {
             if ($oSession->GetSessionExit()) {
                 // был выход пользователя
@@ -414,6 +452,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return  string
      */
     public function getAvatarUrl($iSize = 100) {
+
         if ($sPath = $this->getProfileAvatar()) {
             return str_replace(
                 '_100x100', (($iSize == 0) ? "" : "_{$iSize}x{$iSize}"),
@@ -429,6 +468,7 @@ class ModuleUser_EntityUser extends Entity {
      * DEPRECATED
      */
     public function getProfileAvatarPath($iSize = 100) {
+
         return $this->getAvatarUrl($iSize);
     }
 
@@ -438,6 +478,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return null|string
      */
     public function getProfileFotoPath() {
+
         if ($this->getProfileFoto()) {
             return $this->getProfileFoto();
         }
@@ -450,6 +491,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string
      */
     public function getProfileFotoDefault() {
+
         return Config::Get('path.static.skin') . '/images/user_photo_' . (
         $this->getProfileSex() == 'woman' ? 'female' : 'male') . '.png';
     }
@@ -460,6 +502,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return ModuleVote_EntityVote|null
      */
     public function getVote() {
+
         return $this->getProp('vote');
     }
 
@@ -469,6 +512,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return bool|null
      */
     public function getUserIsFriend() {
+
         return $this->getProp('user_is_friend');
     }
 
@@ -478,6 +522,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return bool|null
      */
     public function isAdministrator() {
+
         return $this->getProp('user_is_administrator');
     }
 
@@ -487,6 +532,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string
      */
     public function getUserWebPath() {
+
         return $this->getUserUrl();
     }
 
@@ -496,6 +542,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string
      */
     public function getUserUrl() {
+
         return Router::GetPath('profile') . $this->getLogin() . '/';
     }
 
@@ -505,6 +552,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return ModuleUser_EntityFriend|null
      */
     public function getUserFriend() {
+
         return $this->getProp('user_friend');
     }
 
@@ -514,6 +562,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return bool
      */
     public function isFollow() {
+
         if ($oUserCurrent = $this->User_GetUserCurrent()) {
             return $this->Stream_IsSubscribe($oUserCurrent->getId(), $this->getId());
         }
@@ -525,6 +574,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return ModuleUser_EntityNote|null
      */
     public function getUserNote() {
+
         $oUserCurrent = $this->User_GetUserCurrent();
         if ($this->getProp('user_note') === null && $oUserCurrent) {
             $this->_aData['user_note'] = $this->User_GetUserNote($this->getId(), $oUserCurrent->getId());
@@ -538,6 +588,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return ModuleBlog_EntityBlog|null
      */
     public function getBlog() {
+
         if (!$this->getProp('blog')) {
             $this->_aData['blog'] = $this->Blog_GetPersonalBlogByUserId($this->getId());
         }
@@ -545,14 +596,17 @@ class ModuleUser_EntityUser extends Entity {
     }
 
     public function GetBanLine() {
+
         return $this->GetProp('banline');
     }
 
     public function IsBannedUnlim() {
+
         return ((bool)$this->GetProp('banunlim'));
     }
 
     public function GetBanComment() {
+
         return $this->GetProp('bancomment');
     }
 
@@ -563,10 +617,12 @@ class ModuleUser_EntityUser extends Entity {
     }
 
     public function IsBannedByIp() {
+
         return ($this->GetProp('ban_ip'));
     }
 
     public function IsBanned() {
+
         return ($this->IsBannedByLogin() || $this->IsBannedByIp());
     }
 
@@ -577,6 +633,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param int $data
      */
     public function setId($data) {
+
         $this->_aData['user_id'] = $data;
     }
 
@@ -586,6 +643,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param string $data
      */
     public function setLogin($data) {
+
         $this->_aData['user_login'] = $data;
     }
 
@@ -596,6 +654,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param   bool   $bEncrypt   - false, если пароль уже захеширован
      */
     public function setPassword($sPassword, $bEncrypt = false) {
+
         if ($bEncrypt) {
             $this->_aData['user_password'] = $this->Security_Salted($sPassword, 'pass');
         } else {
@@ -609,6 +668,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param string $data
      */
     public function setMail($data) {
+
         $this->_aData['user_mail'] = $data;
     }
 
@@ -618,6 +678,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param float $data
      */
     public function setSkill($data) {
+
         $this->_aData['user_skill'] = $data;
     }
 
@@ -627,6 +688,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param string $data
      */
     public function setDateRegister($data) {
+
         $this->_aData['user_date_register'] = $data;
     }
 
@@ -636,6 +698,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param string $data
      */
     public function setDateActivate($data) {
+
         $this->_aData['user_date_activate'] = $data;
     }
 
@@ -645,6 +708,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param string $data
      */
     public function setDateCommentLast($data) {
+
         $this->_aData['user_date_comment_last'] = $data;
     }
 
@@ -654,6 +718,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param string $data
      */
     public function setIpRegister($data) {
+
         $this->_aData['user_ip_register'] = $data;
     }
 
@@ -663,6 +728,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param float $data
      */
     public function setRating($data) {
+
         $this->_aData['user_rating'] = $data;
     }
 
@@ -672,6 +738,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param int $data
      */
     public function setCountVote($data) {
+
         $this->_aData['user_count_vote'] = $data;
     }
 
@@ -681,6 +748,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param int $data
      */
     public function setActivate($data) {
+
         $this->_aData['user_activate'] = $data;
     }
 
@@ -690,6 +758,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param string $data
      */
     public function setActivateKey($data) {
+
         $this->_aData['user_activate_key'] = $data;
     }
 
@@ -699,6 +768,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param string $data
      */
     public function setProfileName($data) {
+
         $this->_aData['user_profile_name'] = $data;
     }
 
@@ -708,6 +778,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param string $data
      */
     public function setProfileSex($data) {
+
         $this->_aData['user_profile_sex'] = $data;
     }
 
@@ -717,6 +788,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param string $data
      */
     public function setProfileCountry($data) {
+
         $this->_aData['user_profile_country'] = $data;
     }
 
@@ -726,6 +798,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param string $data
      */
     public function setProfileRegion($data) {
+
         $this->_aData['user_profile_region'] = $data;
     }
 
@@ -735,6 +808,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param string $data
      */
     public function setProfileCity($data) {
+
         $this->_aData['user_profile_city'] = $data;
     }
 
@@ -744,6 +818,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param string $data
      */
     public function setProfileBirthday($data) {
+
         $this->_aData['user_profile_birthday'] = $data;
     }
 
@@ -753,6 +828,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param string $data
      */
     public function setProfileAbout($data) {
+
         $this->_aData['user_profile_about'] = $data;
     }
 
@@ -762,6 +838,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param string $data
      */
     public function setProfileDate($data) {
+
         $this->_aData['user_profile_date'] = $data;
     }
 
@@ -771,6 +848,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param string $data
      */
     public function setProfileAvatar($data) {
+
         $this->_aData['user_profile_avatar'] = $data;
     }
 
@@ -780,6 +858,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param string $data
      */
     public function setProfileFoto($data) {
+
         $this->_aData['user_profile_foto'] = $data;
     }
 
@@ -789,6 +868,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param int $data
      */
     public function setSettingsNoticeNewTopic($data) {
+
         $this->_aData['user_settings_notice_new_topic'] = $data;
     }
 
@@ -798,6 +878,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param int $data
      */
     public function setSettingsNoticeNewComment($data) {
+
         $this->_aData['user_settings_notice_new_comment'] = $data;
     }
 
@@ -807,6 +888,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param int $data
      */
     public function setSettingsNoticeNewTalk($data) {
+
         $this->_aData['user_settings_notice_new_talk'] = $data;
     }
 
@@ -816,6 +898,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param int $data
      */
     public function setSettingsNoticeReplyComment($data) {
+
         $this->_aData['user_settings_notice_reply_comment'] = $data;
     }
 
@@ -825,6 +908,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param int $data
      */
     public function setSettingsNoticeNewFriend($data) {
+
         $this->_aData['user_settings_notice_new_friend'] = $data;
     }
 
@@ -834,6 +918,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param ModuleUser_EntitySession $data
      */
     public function setSession($data) {
+
         $this->_aData['session'] = $data;
     }
 
@@ -843,6 +928,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param int $data
      */
     public function setUserIsFriend($data) {
+
         $this->_aData['user_is_friend'] = $data;
     }
 
@@ -852,6 +938,7 @@ class ModuleUser_EntityUser extends Entity {
      * @param ModuleVote_EntityVote $data
      */
     public function setVote($data) {
+
         $this->_aData['vote'] = $data;
     }
 
@@ -861,12 +948,15 @@ class ModuleUser_EntityUser extends Entity {
      * @param int $data
      */
     public function setUserFriend($data) {
+
         $this->_aData['user_friend'] = $data;
     }
 
     public function setLastSession($data) {
+
         $this->_aData['user_last_session'] = $data;
     }
+
 }
 
 // EOF

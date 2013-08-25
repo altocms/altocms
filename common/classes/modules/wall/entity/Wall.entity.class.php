@@ -35,10 +35,16 @@ class ModuleWall_EntityWall extends Entity {
      * Инициализация
      */
     public function Init() {
+
         parent::Init();
-        $this->aValidateRules[] = array('text', 'string', 'max' => Config::Get('module.wall.text_max'),
-                                        'min'                   => Config::Get('module.wall.text_min'),
-                                        'allowEmpty'            => false, 'on' => array('', 'add'));
+        $this->aValidateRules[] = array(
+            'text',
+            'string',
+            'max'        => Config::Get('module.wall.text_max'),
+            'min'        => Config::Get('module.wall.text_min'),
+            'allowEmpty' => false,
+            'on'         => array('', 'add')
+        );
     }
 
     /**
@@ -50,6 +56,7 @@ class ModuleWall_EntityWall extends Entity {
      * @return bool|string
      */
     public function ValidateTimeLimit($sValue, $aParams) {
+
         if ($oUser = $this->User_GetUserById($this->getUserId())) {
             if ($this->ACL_CanAddWallTime($oUser, $this)) {
                 return true;
@@ -67,6 +74,7 @@ class ModuleWall_EntityWall extends Entity {
      * @return bool|string
      */
     public function ValidatePid($sValue, $aParams) {
+
         if (!$sValue) {
             $this->setPid(null);
             return true;
@@ -87,6 +95,7 @@ class ModuleWall_EntityWall extends Entity {
      * @return ModuleWall_EntityWall|null
      */
     public function GetPidWall() {
+
         if ($this->getPid()) {
             return $this->Wall_GetWallById($this->getPid());
         }
@@ -99,6 +108,7 @@ class ModuleWall_EntityWall extends Entity {
      * @return bool
      */
     public function isAllowDelete() {
+
         if ($oUserCurrent = $this->User_GetUserCurrent()) {
             if ($oUserCurrent->getId() == $this->getWallUserId() or $oUserCurrent->isAdministrator()) {
                 return true;
@@ -113,6 +123,7 @@ class ModuleWall_EntityWall extends Entity {
      * @return ModuleUser_EntityUser|null
      */
     public function getWallUser() {
+
         if (!$this->getProp('wall_user')) {
             $this->_aData['wall_user'] = $this->User_GetUserById($this->getWallUserId());
         }
@@ -125,8 +136,10 @@ class ModuleWall_EntityWall extends Entity {
      * @return string
      */
     public function getUrlWall() {
+
         return $this->getWallUser()->getUserWebPath() . 'wall/';
     }
+
 }
 
 // EOF

@@ -28,6 +28,7 @@
  * @since 1.0
  */
 abstract class Entity extends LsObject {
+
     const EXP_KEY = '_expanded';
     const EXP_KEY_SET = '_set';
     const EXP_KEY_DEL = '_del';
@@ -164,6 +165,7 @@ abstract class Entity extends LsObject {
      * @param   string  $sKey
      */
     public function delProp($sKey) {
+
         if ($this->isProp($sKey)) {
             unset($this->_aData[$sKey]);
         }
@@ -277,6 +279,7 @@ abstract class Entity extends LsObject {
     }
 
     public function setPropExpanded($sKey, $xVal, $sType) {
+
         // Задаем свойству новое значение
         $this->setProp($sKey, $xVal);
         $aData = array(
@@ -294,6 +297,7 @@ abstract class Entity extends LsObject {
     }
 
     public function delPropExpanded($sKey) {
+
         // Удаляем свойство из общего набора
         $this->delProp($sKey);
         // Исключаем из expanded-набора
@@ -303,6 +307,7 @@ abstract class Entity extends LsObject {
     }
 
     public function getPropExpanded($sKey) {
+
         // Получаем свойство из общего набора
         return $this->getProp($sKey);
     }
