@@ -197,7 +197,7 @@ class Engine extends LsObject {
      * Используется для получания списка модулей для авто-загрузки. Остальные модули загружаются при первом обращении.
      * В конфиге определен так:
      * <pre>
-     * $config['module']['autoLoad'] = array('Hook','Cache','Security','Session','Lang','Message','User');
+     * $config['module']['_autoLoad_'] = array('Hook','Cache','Security','Session','Lang','Message','User');
      * </pre>
      *
      * @var array
@@ -476,7 +476,7 @@ class Engine extends LsObject {
     protected function LoadModules() {
 
         $this->LoadConfig();
-        foreach ($this->aConfigModule['autoLoad'] as $sModuleName) {
+        foreach ($this->aConfigModule['_autoLoad_'] as $sModuleName) {
             $sModuleClass = 'Module' . $sModuleName;
             if (!in_array($sModuleName, array('Plugin', 'Hook'))) $sModuleClass = $this->Plugin_GetDelegate('module', $sModuleClass);
 

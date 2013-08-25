@@ -438,7 +438,7 @@ $config['images']['settings']['default'] = array(
 );
 
 // Какие модули должны быть загружены на старте
-$config['module']['autoLoad'] = array('Hook','Cache','Security','Session','User');
+$config['module']['_autoLoad_'] = array('Hook','Cache','Security','Session','User');
 
 /**
  * Настройка базы данных

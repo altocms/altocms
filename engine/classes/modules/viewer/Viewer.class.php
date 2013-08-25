@@ -286,6 +286,7 @@ class ModuleViewer extends Module {
             if (F::File_Exists($sFile = Config::Get('path.smarty.template') . '/settings/config/config.php')) {
                 $aConfig = F::Array_Merge(F::IncludeFile($sFile, false, true), $aConfig);
             }
+            Config::SetLevel(Config::LEVEL_SKIN);
             if ($aConfig) {
                 Config::Load($aConfig, false);
             }
@@ -313,9 +314,9 @@ class ModuleViewer extends Module {
 
         // * Папки расположения шаблонов по умолчанию
         $this->oSmarty->setTemplateDir(F::File_NormPath(array_merge(
-                (array)Config::Get('path.smarty.template'),
-                array($this->Plugin_GetPluginsDir())
-        )));
+                    F::Str2Array(Config::Get('path.smarty.template')),
+                    array($this->Plugin_GetPluginsDir())
+                )));
 
         // * Для каждого скина устанавливаем свою директорию компиляции шаблонов
         $sCompilePath = F::File_NormPath(Config::Get('path.smarty.compiled'));

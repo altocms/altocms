@@ -479,12 +479,6 @@ class Router extends LsObject {
             die('Action class does not define');
         }
 
-        // load action's config if exists
-        Config::SetLevel(Config::LEVEL_CUSTOM);
-        if (F::File_Exists($sFile = Config::Get('path.root.dir') . '/config/actions/' . self::$sAction . '.php')) {
-            // Расширяем текущий конфиг конфигом экшена
-            Config::LoadFromFile($sFile);
-        }
         return self::$sActionClass;
     }
 

@@ -92,6 +92,7 @@ abstract class Action extends LsObject {
      * @param string $sAction Название экшена
      */
     public function __construct($oEngine, $sAction = null) {
+
         if (func_num_args() == 1 && is_string($oEngine)) {
             // Передан только экшен
             $this->oEngine = Engine::getInstance();
@@ -104,6 +105,13 @@ abstract class Action extends LsObject {
         $this->RegisterEvent();
         $this->sCurrentAction = $sAction;
         $this->aParams = Router::GetParams();
+
+        // load action's config if exists
+        Config::SetLevel(Config::LEVEL_CUSTOM);
+        if ($sFile = F::File_Exists('/config/actions/' . $sAction . '.php', Config::Get('path.root.seek'))) {
+            // Дополняем текущий конфиг конфигом экшена
+            Config::AddFromFile($sFile);
+        }
     }
 
     /**
@@ -116,6 +124,7 @@ abstract class Action extends LsObject {
      * @param string $sEventFunction Какой метод ему соответствует
      */
     protected function AddEvent($sEventName, $sEventFunction) {
+
         $this->AddEventPreg("/^{$sEventName}$/i", $sEventFunction);
     }
 
@@ -124,6 +133,7 @@ abstract class Action extends LsObject {
      *
      */
     protected function AddEventPreg() {
+
         $iCountArgs = func_num_args();
         if ($iCountArgs < 2) {
             throw new Exception('Incorrect number of arguments when adding events');
@@ -152,6 +162,7 @@ abstract class Action extends LsObject {
     }
 
     protected function _eventExists($sEvent) {
+
         return method_exists($this, $sEvent);
     }
 
@@ -162,6 +173,7 @@ abstract class Action extends LsObject {
      * @return mixed
      */
     public function ExecEvent() {
+
         $this->sCurrentEvent = Router::GetActionEvent();
         if ($this->sCurrentEvent == null) {
             $this->sCurrentEvent = $this->GetDefaultEvent();
@@ -200,6 +212,7 @@ abstract class Action extends LsObject {
      * @param string $sEvent Имя евента
      */
     public function SetDefaultEvent($sEvent) {
+
         $this->sDefaultEvent = $sEvent;
     }
 
@@ -209,6 +222,7 @@ abstract class Action extends LsObject {
      * @return string
      */
     public function GetDefaultEvent() {
+
         return $this->sDefaultEvent;
     }
 
@@ -220,6 +234,7 @@ abstract class Action extends LsObject {
      * @return string|null
      */
     protected function GetEventMatch($iItem = null) {
+
         if ($iItem) {
             if (isset($this->aParamsEventMatch['event'][$iItem])) {
                 return $this->aParamsEventMatch['event'][$iItem];
@@ -240,6 +255,7 @@ abstract class Action extends LsObject {
      * @return string|null
      */
     protected function GetParamEventMatch($iParamNum, $iItem = null) {
+
         if (!is_null($iItem)) {
             if (isset($this->aParamsEventMatch['params'][$iParamNum][$iItem])) {
                 return $this->aParamsEventMatch['params'][$iParamNum][$iItem];
@@ -264,6 +280,7 @@ abstract class Action extends LsObject {
      * @return  mixed
      */
     public function GetParam($iOffset, $sDefault = null) {
+
         $iOffset = (int)$iOffset;
         return isset($this->aParams[$iOffset]) ? $this->aParams[$iOffset] : $sDefault;
     }
@@ -276,6 +293,7 @@ abstract class Action extends LsObject {
      * @return  string|null
      */
     protected function GetLastParam($sDefault = null) {
+
         $nNumParams = sizeof($this->GetParams());
         if ($nNumParams > 0) {
             $iOffset = $nNumParams - 1;
@@ -290,6 +308,7 @@ abstract class Action extends LsObject {
      * @return array
      */
     public function GetParams() {
+
         return $this->aParams;
     }
 
@@ -301,6 +320,7 @@ abstract class Action extends LsObject {
      * @param string $value
      */
     public function SetParam($iOffset, $value) {
+
         Router::SetParam($iOffset, $value);
         $this->aParams = Router::GetParams();
     }
@@ -311,6 +331,7 @@ abstract class Action extends LsObject {
      * @param string $sTemplate Путь до шаблона относительно общего каталога шаблонов
      */
     protected function SetTemplate($sTemplate) {
+
         $this->sActionTemplate = $sTemplate;
     }
 
@@ -320,6 +341,7 @@ abstract class Action extends LsObject {
      * @param string $sTemplate Путь до шаблона относительно каталога шаблонов экшена
      */
     protected function SetTemplateAction($sTemplate) {
+
         $aDelegates = $this->Plugin_GetDelegationChain('action', $this->GetActionClass());
         $sActionTemplatePath = $sTemplate . '.tpl';
         foreach ($aDelegates as $sAction) {
@@ -348,6 +370,7 @@ abstract class Action extends LsObject {
      * @return string
      */
     public function GetTemplate() {
+
         if (is_null($this->sActionTemplate)) {
             $this->SetTemplateAction($this->sCurrentEvent);
         }
@@ -361,6 +384,7 @@ abstract class Action extends LsObject {
      * @return string
      */
     public function GetActionClass() {
+
         return Router::GetActionClass();
     }
 
@@ -370,6 +394,7 @@ abstract class Action extends LsObject {
      * @return null|string
      */
     public function GetCurrentEventName() {
+
         return $this->sCurrentEventName;
     }
 
@@ -382,6 +407,7 @@ abstract class Action extends LsObject {
      * @return string
      */
     protected function EventNotFound() {
+
         return Router::Action('error', '404');
     }
 
@@ -445,6 +471,7 @@ abstract class Action extends LsObject {
      * @return  mixed
      */
     protected function GetPost($sName = null, $sDefault = null) {
+
         if ($this->IsPost($sName)) {
             if ($sName) {
                 return isset($_POST[(string)$sName]) ? $_POST[(string)$sName] : $sDefault;
@@ -463,6 +490,7 @@ abstract class Action extends LsObject {
      * @return  bool
      */
     protected function GetUploadedFile($sName) {
+
         if ($this->Security_ValidateSendForm(false) && isset($_FILES[$sName])) {
             if (isset($_FILES[$sName]['tmp_name']) && is_uploaded_file($_FILES[$sName]['tmp_name'])) {
                 return $_FILES[$sName];
