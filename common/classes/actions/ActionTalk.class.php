@@ -447,7 +447,7 @@ class ActionTalk extends Action {
         /**
          * Помечаем дату последнего просмотра
          */
-        $oTalkUser->setDateLast(date('Y-m-d H:i:s'));
+        $oTalkUser->setDateLast(F::Now());
         $oTalkUser->setCommentIdLast($iMaxIdComment);
         $oTalkUser->setCommentCountNew(0);
         $this->Talk_UpdateTalkUser($oTalkUser);
@@ -598,7 +598,7 @@ class ActionTalk extends Action {
         /**
          * Отмечаем дату прочтения письма
          */
-        $oTalkUser->setDateLast(date('Y-m-d H:i:s'));
+        $oTalkUser->setDateLast(F::Now());
         if ($iMaxIdComment != 0) {
             $oTalkUser->setCommentIdLast($iMaxIdComment);
         }
@@ -718,7 +718,7 @@ class ActionTalk extends Action {
         $oCommentNew->setTargetType('talk');
         $oCommentNew->setUserId($this->oUserCurrent->getId());
         $oCommentNew->setText($sText);
-        $oCommentNew->setDate(date('Y-m-d H:i:s'));
+        $oCommentNew->setDate(F::Now());
         $oCommentNew->setUserIp(F::GetUserIp());
         $oCommentNew->setPid($sParentId);
         $oCommentNew->setTextHash(md5($sText));
@@ -737,7 +737,7 @@ class ActionTalk extends Action {
             );
 
             $this->Viewer_AssignAjax('sCommentId', $oCommentNew->getId());
-            $oTalk->setDateLast(date('Y-m-d H:i:s'));
+            $oTalk->setDateLast(F::Now());
             $oTalk->setUserIdLast($oCommentNew->getUserId());
             $oTalk->setCommentIdLast($oCommentNew->getId());
             $oTalk->setCountComment($oTalk->getCountComment() + 1);

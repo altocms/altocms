@@ -89,7 +89,7 @@ abstract class ModuleORM extends Module {
                     );
                     $this->_updateManyToManySet(
                         $aRelation, $oEntity->$sRelName->getCollection(),
-                        $oEntity->_getDataOne($oEntity->_getPrimaryKey())
+                        $oEntity->getProp($oEntity->_getPrimaryKey())
                     );
                     $oEntity->resetRelationsData($sRelName);
                 }
@@ -122,7 +122,7 @@ abstract class ModuleORM extends Module {
                     );
                     $this->_updateManyToManySet(
                         $aRelation, $oEntity->$sRelName->getCollection(),
-                        $oEntity->_getDataOne($oEntity->_getPrimaryKey())
+                        $oEntity->getProp($oEntity->_getPrimaryKey())
                     );
                     $oEntity->resetRelationsData($sRelName);
                 }
@@ -188,7 +188,7 @@ abstract class ModuleORM extends Module {
     protected function _ReloadEntity($oEntity) {
 
         if ($sPrimaryKey = $oEntity->_getPrimaryKey()) {
-            if ($sPrimaryKeyValue = $oEntity->_getDataOne($sPrimaryKey)) {
+            if ($sPrimaryKeyValue = $oEntity->getProp($sPrimaryKey)) {
                 if ($oEntityNew = $this->GetByFilter(
                     array($sPrimaryKey => $sPrimaryKeyValue), Engine::GetEntityName($oEntity)
                 )
@@ -242,7 +242,7 @@ abstract class ModuleORM extends Module {
             } else {
                 $aChildren = array();
                 if ($sPrimaryKey = $oEntity->_getPrimaryKey()) {
-                    if ($sPrimaryKeyValue = $oEntity->_getDataOne($sPrimaryKey)) {
+                    if ($sPrimaryKeyValue = $oEntity->getProp($sPrimaryKey)) {
                         $aChildren = $this->GetItemsByFilter(
                             array('parent_id' => $sPrimaryKeyValue), Engine::GetEntityName($oEntity)
                         );
@@ -372,7 +372,7 @@ abstract class ModuleORM extends Module {
                         $aItemsByParentId = array();
                         foreach ($aItems as $oEntity) {
                             $oEntity->setChildren(array());
-                            $aItemsById[$oEntity->_getDataOne($sPrimaryKey)] = $oEntity;
+                            $aItemsById[$oEntity->getProp($sPrimaryKey)] = $oEntity;
                             if (empty($aItemsByParentId[$oEntity->getParentId()])) {
                                 $aItemsByParentId[$oEntity->getParentId()] = array();
                             }
@@ -488,7 +488,7 @@ abstract class ModuleORM extends Module {
                  * Формируем список ключей
                  */
                 foreach ($aEntities as $oEntity) {
-                    $aEntityKeys[$sRelKey][] = $oEntity->_getDataOne($sRelKey);
+                    $aEntityKeys[$sRelKey][] = $oEntity->getProp($sRelKey);
                 }
                 $aEntityKeys[$sRelKey] = array_unique($aEntityKeys[$sRelKey]);
 
@@ -511,8 +511,8 @@ abstract class ModuleORM extends Module {
                  * Собираем набор
                  */
                 foreach ($aEntities as $oEntity) {
-                    if (isset($aRelData[$oEntity->_getDataOne($sRelKey)])) {
-                        $oEntity->_setData(array($sRelationName => $aRelData[$oEntity->_getDataOne($sRelKey)]));
+                    if (isset($aRelData[$oEntity->getProp($sRelKey)])) {
+                        $oEntity->_setData(array($sRelationName => $aRelData[$oEntity->getProp($sRelKey)]));
                     }
                 }
             }
@@ -548,7 +548,7 @@ abstract class ModuleORM extends Module {
             $sKey = in_array('#index-from-primary', $aFilter) || (!empty($aFilter['#index-from']) && $aFilter['#index-from'] == '#primary')
                 ? $oEntity->_getPrimaryKey()
                 : $oEntity->_getField($aFilter['#index-from']);
-            $aIndexedEntities[$oEntity->_getDataOne($sKey)] = $oEntity;
+            $aIndexedEntities[$oEntity->getProp($sKey)] = $oEntity;
         }
         return $aIndexedEntities;
     }
@@ -897,7 +897,7 @@ abstract class ModuleORM extends Module {
         foreach ($aItems as $oEntity) {
             $aChildren = $oEntity->getChildren();
             $bHasChildren = !empty($aChildren);
-            $sEntityId = $oEntity->_getDataOne($oEntity->_getPrimaryKey());
+            $sEntityId = $oEntity->getProp($oEntity->_getPrimaryKey());
             $aList[$sEntityId] = array(
                 'entity'         => $oEntity,
                 'parent_id'      => $oEntity->getParentId(),
@@ -942,7 +942,7 @@ abstract class ModuleORM extends Module {
         $aSavedSet = $this->oMapperORM->getManyToManySet($aRelation[3], $aRelation[4], $iEntityId, $aRelation[2]);
         $aCurrentSet = array();
         foreach ($aRelationData as $oEntity) {
-            $aCurrentSet[] = $oEntity->_getDataOne($oEntity->_getPrimaryKey());
+            $aCurrentSet[] = $oEntity->getProp($oEntity->_getPrimaryKey());
         }
         if ($aSavedSet == $aCurrentSet) {
             return;

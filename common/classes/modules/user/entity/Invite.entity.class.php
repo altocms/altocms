@@ -1,19 +1,17 @@
 <?php
-/*-------------------------------------------------------
-*
-*   LiveStreet Engine Social Networking
-*   Copyright © 2008 Mzhelskiy Maxim
-*
-*--------------------------------------------------------
-*
-*   Official site: www.livestreet.ru
-*   Contact e-mail: rus.engine@gmail.com
-*
-*   GNU General Public License, version 2:
-*   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-*
----------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
 
 /**
  * Сущность инвайта(приглашения)
@@ -28,7 +26,7 @@ class ModuleUser_EntityInvite extends Entity {
      * @return int|null
      */
     public function getId() {
-        return $this->_getDataOne('invite_id');
+        return $this->getProp('invite_id');
     }
 
     /**
@@ -37,7 +35,7 @@ class ModuleUser_EntityInvite extends Entity {
      * @return string|null
      */
     public function getCode() {
-        return $this->_getDataOne('invite_code');
+        return $this->getProp('invite_code');
     }
 
     /**
@@ -46,7 +44,7 @@ class ModuleUser_EntityInvite extends Entity {
      * @return int|null
      */
     public function getUserFromId() {
-        return $this->_getDataOne('user_from_id');
+        return $this->getProp('user_from_id');
     }
 
     /**
@@ -55,7 +53,7 @@ class ModuleUser_EntityInvite extends Entity {
      * @return int|null
      */
     public function getUserToId() {
-        return $this->_getDataOne('user_to_id');
+        return $this->getProp('user_to_id');
     }
 
     /**
@@ -64,7 +62,7 @@ class ModuleUser_EntityInvite extends Entity {
      * @return string|null
      */
     public function getDateAdd() {
-        return $this->_getDataOne('invite_date_add');
+        return $this->getProp('invite_date_add');
     }
 
     /**
@@ -73,7 +71,7 @@ class ModuleUser_EntityInvite extends Entity {
      * @return string|null
      */
     public function getDateUsed() {
-        return $this->_getDataOne('invite_date_used');
+        return $this->getProp('invite_date_used');
     }
 
     /**
@@ -82,7 +80,7 @@ class ModuleUser_EntityInvite extends Entity {
      * @return int|null
      */
     public function getUsed() {
-        return $this->_getDataOne('invite_used');
+        return $this->getProp('invite_used');
     }
 
 

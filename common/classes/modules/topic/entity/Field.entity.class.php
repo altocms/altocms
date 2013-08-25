@@ -52,7 +52,7 @@ class ModuleTopic_EntityField extends Entity {
 
     public function getOptions() {
 
-        return $this->_getDataOne('field_options') ? $this->_getDataOne('field_options') : serialize('');
+        return $this->getProp('field_options') ? $this->getProp('field_options') : serialize('');
     }
 
     public function setOptions($data) {

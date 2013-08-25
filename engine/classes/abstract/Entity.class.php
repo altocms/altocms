@@ -474,7 +474,7 @@ abstract class Entity extends LsObject {
      */
     public function _getPrimaryKeyValue() {
 
-        return $this->_getDataOne($this->_getPrimaryKey());
+        return $this->getProp($this->_getPrimaryKey());
     }
 
     /**

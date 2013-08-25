@@ -1,19 +1,17 @@
 <?php
-/*-------------------------------------------------------
-*
-*   LiveStreet Engine Social Networking
-*   Copyright © 2008 Mzhelskiy Maxim
-*
-*--------------------------------------------------------
-*
-*   Official site: www.livestreet.ru
-*   Contact e-mail: rus.engine@gmail.com
-*
-*   GNU General Public License, version 2:
-*   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-*
----------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
 
 /**
  * Сущность сессии
@@ -28,7 +26,7 @@ class ModuleUser_EntitySession extends Entity {
      * @return string|null
      */
     public function getKey() {
-        return $this->_getDataOne('session_key');
+        return $this->getProp('session_key');
     }
 
     /**
@@ -37,7 +35,7 @@ class ModuleUser_EntitySession extends Entity {
      * @return int|null
      */
     public function getUserId() {
-        return $this->_getDataOne('user_id');
+        return $this->getProp('user_id');
     }
 
     /**
@@ -46,7 +44,7 @@ class ModuleUser_EntitySession extends Entity {
      * @return string|null
      */
     public function getIpCreate() {
-        return $this->_getDataOne('session_ip_create');
+        return $this->getProp('session_ip_create');
     }
 
     /**
@@ -55,7 +53,7 @@ class ModuleUser_EntitySession extends Entity {
      * @return string|null
      */
     public function getIpLast() {
-        return $this->_getDataOne('session_ip_last');
+        return $this->getProp('session_ip_last');
     }
 
     /**
@@ -64,7 +62,7 @@ class ModuleUser_EntitySession extends Entity {
      * @return string|null
      */
     public function getDateCreate() {
-        return $this->_getDataOne('session_date_create');
+        return $this->getProp('session_date_create');
     }
 
     /**
@@ -73,7 +71,7 @@ class ModuleUser_EntitySession extends Entity {
      * @return string|null
      */
     public function getDateLast() {
-        return $this->_getDataOne('session_date_last');
+        return $this->getProp('session_date_last');
     }
 
     /**
@@ -82,7 +80,7 @@ class ModuleUser_EntitySession extends Entity {
      * @return string|null
      */
     public function getDateExit() {
-        return $this->_getDataOne('session_exit');
+        return $this->getProp('session_exit');
     }
 
     /**

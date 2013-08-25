@@ -1,19 +1,17 @@
 <?php
-/*-------------------------------------------------------
-*
-*   LiveStreet Engine Social Networking
-*   Copyright © 2008 Mzhelskiy Maxim
-*
-*--------------------------------------------------------
-*
-*   Official site: www.livestreet.ru
-*   Contact e-mail: rus.engine@gmail.com
-*
-*   GNU General Public License, version 2:
-*   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-*
----------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
 
 /**
  * Маппер для работы с БД
@@ -45,7 +43,8 @@ class ModuleWall_MapperWall extends Mapper {
      * @return bool
      */
     public function UpdateWall($oWall) {
-        $sql = "
+        $sql
+            = "
             UPDATE " . Config::Get('db.table.wall') . "
 			SET 
 			 	count_reply = ?d,
@@ -104,7 +103,8 @@ class ModuleWall_MapperWall extends Mapper {
             $sOrder = ' id desc ';
         }
 
-        $sql = "
+        $sql
+            = "
             SELECT
                 id
             FROM
@@ -194,7 +194,8 @@ class ModuleWall_MapperWall extends Mapper {
             return array();
         }
 
-        $sql = "
+        $sql
+            = "
             SELECT *
             FROM " . Config::Get('db.table.wall') . "
             WHERE

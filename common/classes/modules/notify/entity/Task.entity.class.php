@@ -26,7 +26,8 @@ class ModuleNotify_EntityTask extends Entity {
      * @return int|null
      */
     public function getTaskId() {
-        return $this->_getDataOne('notify_task_id');
+
+        return $this->getProp('notify_task_id');
     }
 
     /**
@@ -35,7 +36,8 @@ class ModuleNotify_EntityTask extends Entity {
      * @return string|null
      */
     public function getUserMail() {
-        return $this->_getDataOne('user_mail');
+
+        return $this->getProp('user_mail');
     }
 
     /**
@@ -44,7 +46,8 @@ class ModuleNotify_EntityTask extends Entity {
      * @return string|null
      */
     public function getUserLogin() {
-        return $this->_getDataOne('user_login');
+
+        return $this->getProp('user_login');
     }
 
     /**
@@ -53,7 +56,8 @@ class ModuleNotify_EntityTask extends Entity {
      * @return string|null
      */
     public function getNotifyText() {
-        return $this->_getDataOne('notify_text');
+
+        return $this->getProp('notify_text');
     }
 
     /**
@@ -62,7 +66,8 @@ class ModuleNotify_EntityTask extends Entity {
      * @return string|null
      */
     public function getDateCreated() {
-        return $this->_getDataOne('date_created');
+
+        return $this->getProp('date_created');
     }
 
     /**
@@ -71,7 +76,8 @@ class ModuleNotify_EntityTask extends Entity {
      * @return int|null
      */
     public function getTaskStatus() {
-        return $this->_getDataOne('notify_task_status');
+
+        return $this->getProp('notify_task_status');
     }
 
     /**
@@ -80,7 +86,8 @@ class ModuleNotify_EntityTask extends Entity {
      * @return string|null
      */
     public function getNotifySubject() {
-        return $this->_getDataOne('notify_subject');
+
+        return $this->getProp('notify_subject');
     }
 
 
@@ -90,6 +97,7 @@ class ModuleNotify_EntityTask extends Entity {
      * @param int $data
      */
     public function setTaskId($data) {
+
         $this->_aData['notify_task_id'] = $data;
     }
 
@@ -99,6 +107,7 @@ class ModuleNotify_EntityTask extends Entity {
      * @param string $data
      */
     public function setUserMail($data) {
+
         $this->_aData['user_mail'] = $data;
     }
 
@@ -108,6 +117,7 @@ class ModuleNotify_EntityTask extends Entity {
      * @param string $data
      */
     public function setUserLogin($data) {
+
         $this->_aData['user_login'] = $data;
     }
 
@@ -117,6 +127,7 @@ class ModuleNotify_EntityTask extends Entity {
      * @param string $data
      */
     public function setNotifyText($data) {
+
         $this->_aData['notify_text'] = $data;
     }
 
@@ -126,6 +137,7 @@ class ModuleNotify_EntityTask extends Entity {
      * @param string $data
      */
     public function setDateCreated($data) {
+
         $this->_aData['date_created'] = $data;
     }
 
@@ -135,6 +147,7 @@ class ModuleNotify_EntityTask extends Entity {
      * @param int $data
      */
     public function setTaskStatus($data) {
+
         $this->_aData['notify_task_status'] = $data;
     }
 
@@ -144,8 +157,10 @@ class ModuleNotify_EntityTask extends Entity {
      * @param string $data
      */
     public function setNotifySubject($data) {
+
         $this->_aData['notify_subject'] = $data;
     }
+
 }
 
 // EOF

@@ -291,7 +291,7 @@ class ActionAdmin extends Action {
         $sMode = strtolower($sMode);
         $aParams = array(
             'filename' => $sFileName = str_replace(array('.', '/'), '_', str_replace(array('http://', 'https://'), '', Config::Get('path.root.url'))) . '.' . $sMode,
-            'date' => date('Y-m-d H:i:s'),
+            'date' => F::Now(),
         );
 
         if ($sMode == 'xml') {
@@ -1019,7 +1019,7 @@ class ActionAdmin extends Action {
         $oPageEdit->setActive(getRequest('page_active') ? 1 : 0);
         $oPageEdit->setAutoBr(getRequest('page_auto_br') ? 1 : 0);
         $oPageEdit->setMain(getRequest('page_main') ? 1 : 0);
-        $oPageEdit->setDateEdit(date('Y-m-d H:i:s'));
+        $oPageEdit->setDateEdit(F::Now());
         if (getRequest('page_pid') == 0) {
             $oPageEdit->setUrlFull(getRequest('page_url'));
             $oPageEdit->setPid(null);
@@ -1058,11 +1058,11 @@ class ActionAdmin extends Action {
             return;
         }
         // * Заполняем свойства
-        $oPage = Engine::GetEntity('PluginPage_Page');
+        $oPage = Engine::GetEntity('Page');
         $oPage->setActive(getRequest('page_active') ? 1 : 0);
         $oPage->setAutoBr(getRequest('page_auto_br') ? 1 : 0);
         $oPage->setMain(getRequest('page_main') ? 1 : 0);
-        $oPage->setDateAdd(date('Y-m-d H:i:s'));
+        $oPage->setDateAdd(F::Now());
         if (getRequest('page_pid') == 0) {
             $oPage->setUrlFull(getRequest('page_url'));
             $oPage->setPid(null);

@@ -1,19 +1,17 @@
 <?php
-/*-------------------------------------------------------
-*
-*   LiveStreet Engine Social Networking
-*   Copyright © 2008 Mzhelskiy Maxim
-*
-*--------------------------------------------------------
-*
-*   Official site: www.livestreet.ru
-*   Contact e-mail: rus.engine@gmail.com
-*
-*   GNU General Public License, version 2:
-*   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-*
----------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
 
 /**
  * Абстрактный класс экшена.
@@ -22,7 +20,7 @@
  * Предоставляет базовые метода для работы с параметрами и шаблоном при запросе страницы в браузере.
  *
  * @package engine
- * @since 1.0
+ * @since   1.0
  */
 abstract class Action extends LsObject {
     /**
@@ -111,9 +109,10 @@ abstract class Action extends LsObject {
     /**
      * Добавляет евент в экшен
      * По сути является оберткой для AddEventPreg(), оставлен для простоты и совместимости с прошлыми версиями ядра
+     *
      * @see AddEventPreg
      *
-     * @param string $sEventName Название евента
+     * @param string $sEventName     Название евента
      * @param string $sEventFunction Какой метод ему соответствует
      */
     protected function AddEvent($sEventName, $sEventFunction) {
@@ -180,9 +179,15 @@ abstract class Action extends LsObject {
                     }
                 }
                 $this->sCurrentEventName = $aEvent['name'];
-                $this->Hook_Run('action_event_' . strtolower($this->sCurrentAction) . '_before', array('event' => $this->sCurrentEvent, 'params' => $this->GetParams()));
+                $this->Hook_Run(
+                    'action_event_' . strtolower($this->sCurrentAction) . '_before',
+                    array('event' => $this->sCurrentEvent, 'params' => $this->GetParams())
+                );
                 $result = call_user_func_array(array($this, $aEvent['method']), array());
-                $this->Hook_Run('action_event_' . strtolower($this->sCurrentAction) . '_after', array('event' => $this->sCurrentEvent, 'params' => $this->GetParams()));
+                $this->Hook_Run(
+                    'action_event_' . strtolower($this->sCurrentAction) . '_after',
+                    array('event' => $this->sCurrentEvent, 'params' => $this->GetParams())
+                );
                 return $result;
             }
         }
@@ -211,6 +216,7 @@ abstract class Action extends LsObject {
      * Возвращает элементы совпадения по регулярному выражению для евента
      *
      * @param int|null $iItem    Номер совпадения
+     *
      * @return string|null
      */
     protected function GetEventMatch($iItem = null) {
@@ -228,8 +234,9 @@ abstract class Action extends LsObject {
     /**
      * Возвращает элементы совпадения по регулярному выражению для параметров евента
      *
-     * @param int $iParamNum    Номер параметра, начинается с нуля
-     * @param int|null $iItem    Номер совпадения, начинается с нуля
+     * @param int      $iParamNum    Номер параметра, начинается с нуля
+     * @param int|null $iItem        Номер совпадения, начинается с нуля
+     *
      * @return string|null
      */
     protected function GetParamEventMatch($iParamNum, $iItem = null) {
@@ -251,8 +258,9 @@ abstract class Action extends LsObject {
     /**
      * Получает параметр из URL по его номеру, если его нет то null
      *
-     * @param   int     $iOffset    Номер параметра, начинается с нуля
-     * @param   string  $sDefault   - значение по умолчанию
+     * @param   int    $iOffset    Номер параметра, начинается с нуля
+     * @param   string $sDefault   - значение по умолчанию
+     *
      * @return  mixed
      */
     public function GetParam($iOffset, $sDefault = null) {
@@ -264,6 +272,7 @@ abstract class Action extends LsObject {
      * Получает последний парамет из URL
      *
      * @param   string|null $sDefault
+     *
      * @return  string|null
      */
     protected function GetLastParam($sDefault = null) {
@@ -288,7 +297,7 @@ abstract class Action extends LsObject {
      * Установить значение параметра(эмуляция параметра в URL).
      * После установки занова считывает параметры из роутера - для корректной работы
      *
-     * @param int $iOffset Номер параметра, но по идеи может быть не только числом
+     * @param int    $iOffset Номер параметра, но по идеи может быть не только числом
      * @param string $value
      */
     public function SetParam($iOffset, $value) {
@@ -315,7 +324,9 @@ abstract class Action extends LsObject {
         $sActionTemplatePath = $sTemplate . '.tpl';
         foreach ($aDelegates as $sAction) {
             if (preg_match('/^(Plugin([\w]+)_)?Action([\w]+)$/i', $sAction, $aMatches)) {
-                $sTemplatePath = $this->Plugin_GetDelegate('template', 'actions/Action' . ucfirst($aMatches[3]) . '/' . $sTemplate . '.tpl');
+                $sTemplatePath = $this->Plugin_GetDelegate(
+                    'template', 'actions/Action' . ucfirst($aMatches[3]) . '/' . $sTemplate . '.tpl'
+                );
                 if (empty($aMatches[1])) {
                     $sActionTemplatePath = $sTemplatePath;
                 } else {
@@ -365,6 +376,7 @@ abstract class Action extends LsObject {
     /**
      * Вызывается в том случаи если не найден евент который запросили через URL
      * По дефолту происходит перекидывание на страницу ошибки, это можно переопределить в наследнике
+     *
      * @see Router::Action
      *
      * @return string
@@ -398,13 +410,16 @@ abstract class Action extends LsObject {
      * Были ли ли переданы POST-параметры (или конкретный POST-параметр)
      *
      * @param   string|null $sName
+     *
      * @return  bool
      */
     protected function IsPost($sName = null) {
 
         if (is_null(self::$bPost)) {
             if ($this->Security_ValidateSendForm(false)
-                && isset($_SERVER['REQUEST_METHOD']) && ($_SERVER['REQUEST_METHOD'] == 'POST') && isset($_POST)
+                && isset($_SERVER['REQUEST_METHOD'])
+                && ($_SERVER['REQUEST_METHOD'] == 'POST')
+                && isset($_POST)
             ) {
                 self::$bPost = true;
             } else {
@@ -426,6 +441,7 @@ abstract class Action extends LsObject {
      *
      * @param   string|null $sName
      * @param   string|null $sDefault
+     *
      * @return  mixed
      */
     protected function GetPost($sName = null, $sDefault = null) {
@@ -442,7 +458,8 @@ abstract class Action extends LsObject {
     /**
      * Возвращает информацию о загруженном файле с валидацией формы
      *
-     * @param   string  $sName
+     * @param   string $sName
+     *
      * @return  bool
      */
     protected function GetUploadedFile($sName) {

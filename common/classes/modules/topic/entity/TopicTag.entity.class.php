@@ -1,19 +1,17 @@
 <?php
-/*-------------------------------------------------------
-*
-*   LiveStreet Engine Social Networking
-*   Copyright © 2008 Mzhelskiy Maxim
-*
-*--------------------------------------------------------
-*
-*   Official site: www.livestreet.ru
-*   Contact e-mail: rus.engine@gmail.com
-*
-*   GNU General Public License, version 2:
-*   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-*
----------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
 
 /**
  * Объект сущности тега топика
@@ -28,7 +26,7 @@ class ModuleTopic_EntityTopicTag extends Entity {
      * @return int|null
      */
     public function getId() {
-        return $this->_getDataOne('topic_tag_id');
+        return $this->getProp('topic_tag_id');
     }
 
     /**
@@ -37,7 +35,7 @@ class ModuleTopic_EntityTopicTag extends Entity {
      * @return int|null
      */
     public function getTopicId() {
-        return $this->_getDataOne('topic_id');
+        return $this->getProp('topic_id');
     }
 
     /**
@@ -46,7 +44,7 @@ class ModuleTopic_EntityTopicTag extends Entity {
      * @return int|null
      */
     public function getUserId() {
-        return $this->_getDataOne('user_id');
+        return $this->getProp('user_id');
     }
 
     /**
@@ -55,7 +53,7 @@ class ModuleTopic_EntityTopicTag extends Entity {
      * @return int|null
      */
     public function getBlogId() {
-        return $this->_getDataOne('blog_id');
+        return $this->getProp('blog_id');
     }
 
     /**
@@ -64,7 +62,7 @@ class ModuleTopic_EntityTopicTag extends Entity {
      * @return string|null
      */
     public function getText() {
-        return $this->_getDataOne('topic_tag_text');
+        return $this->getProp('topic_tag_text');
     }
 
     /**
@@ -73,7 +71,7 @@ class ModuleTopic_EntityTopicTag extends Entity {
      * @return int|null
      */
     public function getCount() {
-        return $this->_getDataOne('count');
+        return $this->getProp('count');
     }
 
     /**
@@ -82,7 +80,7 @@ class ModuleTopic_EntityTopicTag extends Entity {
      * @return int|null
      */
     public function getSize() {
-        return $this->_getDataOne('size');
+        return $this->getProp('size');
     }
 
 

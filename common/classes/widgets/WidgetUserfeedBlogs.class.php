@@ -1,25 +1,23 @@
 <?php
-/*-------------------------------------------------------
-*
-*   LiveStreet Engine Social Networking
-*   Copyright © 2008 Mzhelskiy Maxim
-*
-*--------------------------------------------------------
-*
-*   Official site: www.livestreet.ru
-*   Contact e-mail: rus.engine@gmail.com
-*
-*   GNU General Public License, version 2:
-*   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-*
----------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
 
 /**
  * Блок настройки списка блогов в ленте
  *
  * @package widgets
- * @since 1.0
+ * @since   1.0
  */
 class WidgetUserfeedBlogs extends Widget {
     /**
@@ -34,14 +32,19 @@ class WidgetUserfeedBlogs extends Widget {
             /**
              * Получаем список ID блогов, в которых состоит пользователь
              */
-            $aBlogsId = $this->Blog_GetBlogUsersByUserId($oUserCurrent->getId(), array(ModuleBlog::BLOG_USER_ROLE_USER, ModuleBlog::BLOG_USER_ROLE_MODERATOR, ModuleBlog::BLOG_USER_ROLE_ADMINISTRATOR), true);
+            $aBlogsId = $this->Blog_GetBlogUsersByUserId(
+                $oUserCurrent->getId(), array(ModuleBlog::BLOG_USER_ROLE_USER, ModuleBlog::BLOG_USER_ROLE_MODERATOR,
+                                              ModuleBlog::BLOG_USER_ROLE_ADMINISTRATOR), true
+            );
             /**
              * Получаем список ID блогов, которые создал пользователь
              */
             $aBlogsOwnerId = $this->Blog_GetBlogsByOwnerId($oUserCurrent->getId(), true);
             $aBlogsId = array_merge($aBlogsId, $aBlogsOwnerId);
 
-            $aBlogs = $this->Blog_GetBlogsAdditionalData($aBlogsId, array('owner' => array()), array('blog_title' => 'asc'));
+            $aBlogs = $this->Blog_GetBlogsAdditionalData(
+                $aBlogsId, array('owner' => array()), array('blog_title' => 'asc')
+            );
             /**
              * Выводим в шаблон
              */

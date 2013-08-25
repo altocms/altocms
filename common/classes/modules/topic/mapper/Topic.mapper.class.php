@@ -1,19 +1,17 @@
 <?php
-/*-------------------------------------------------------
-*
-*   LiveStreet Engine Social Networking
-*   Copyright © 2008 Mzhelskiy Maxim
-*
-*--------------------------------------------------------
-*
-*   Official site: www.livestreet.ru
-*   Contact e-mail: rus.engine@gmail.com
-*
-*   GNU General Public License, version 2:
-*   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-*
----------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
 
 /**
  * Объект маппера для работы с БД
@@ -111,12 +109,13 @@ class ModuleTopic_MapperTopic extends Mapper {
     /**
      * Удаление контента топика по его номеру
      *
-     * @param   int|array   $aIds   - ID топика или массив ID
+     * @param   int|array $aIds   - ID топика или массив ID
      *
      * @return  bool
      */
     public function DeleteTopicContentByTopicId($aIds) {
-        $sql = "
+        $sql
+            = "
             DELETE FROM " . Config::Get('db.table.topic_content') . "
             WHERE topic_id IN (?a) ";
         return ($this->oDb->query($sql, $aIds) !== false);
@@ -125,13 +124,14 @@ class ModuleTopic_MapperTopic extends Mapper {
     /**
      * Удаляет теги у топика
      *
-     * @param   int|array   $aIds   - ID топика или массив ID
+     * @param   int|array $aIds   - ID топика или массив ID
      *
      * @return  bool
      */
     public function DeleteTopicTagsByTopicId($aIds) {
         $aIds = $this->_arrayId($aIds);
-        $sql = "
+        $sql
+            = "
             DELETE FROM " . Config::Get('db.table.topic_tag') . "
             WHERE topic_id IN (?a)
         ";
@@ -142,13 +142,14 @@ class ModuleTopic_MapperTopic extends Mapper {
      * Удаляет топик(и)
      * Если тип таблиц в БД InnoDB, то удалятся всё связи по топику (комменты, голосования, избранное)
      *
-     * @param   int|array   $aIds   - ID топика или массив ID
+     * @param   int|array $aIds   - ID топика или массив ID
      *
      * @return  bool
      */
     public function DeleteTopic($aIds) {
         $aIds = $this->_arrayId($aIds);
-        $sql = "
+        $sql
+            = "
             DELETE FROM " . Config::Get('db.table.topic') . "
             WHERE topic_id IN (?a)
         ";
@@ -179,12 +180,13 @@ class ModuleTopic_MapperTopic extends Mapper {
     /**
      * Получает ID топика по URL
      *
-     * @param string    $sUrl
+     * @param string $sUrl
      *
      * @return int
      */
     public function GetTopicIdByUrl($sUrl) {
-        $sql = "
+        $sql
+            = "
             SELECT topic_id FROM " . Config::Get('db.table.topic') . "
             WHERE
                 topic_url =?
@@ -202,7 +204,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return int
      */
     public function GetTopicsIdLikeUrl($sUrl) {
-        $sql = "
+        $sql
+            = "
             SELECT topic_id FROM " . Config::Get('db.table.topic') . "
             WHERE
                 topic_url = '" . $sUrl . "'
@@ -224,7 +227,8 @@ class ModuleTopic_MapperTopic extends Mapper {
             return array();
         }
 
-        $sql = "SELECT
+        $sql
+            = "SELECT
 					t.*,
 					tc.*
 				FROM 
@@ -264,7 +268,8 @@ class ModuleTopic_MapperTopic extends Mapper {
 
         $aTopics = array();
         if ($iCurrPage && $iPerPage) {
-            $sql = "
+            $sql
+                = "
             SELECT
 			    t.topic_id
 			FROM
@@ -282,7 +287,8 @@ class ModuleTopic_MapperTopic extends Mapper {
                 }
             }
         } else {
-            $sql = "
+            $sql
+                = "
             SELECT
 			    t.topic_id
 			FROM
@@ -307,7 +313,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      */
     public function GetCountTopics($aFilter) {
         $sWhere = $this->buildFilter($aFilter);
-        $sql = "SELECT
+        $sql
+            = "SELECT
 					count(t.topic_id) as count
 				FROM 
 					" . Config::Get('db.table.topic') . " as t,
@@ -342,7 +349,8 @@ class ModuleTopic_MapperTopic extends Mapper {
             $aFilter['order'] = array($aFilter['order']);
         }
 
-        $sql = "SELECT
+        $sql
+            = "SELECT
 						t.topic_id
 					FROM 
 						" . Config::Get('db.table.topic') . " as t,
@@ -366,16 +374,17 @@ class ModuleTopic_MapperTopic extends Mapper {
     /**
      * Получает список топиков по тегу
      *
-     * @param  string   $sTag            Тег
-     * @param  array    $aExcludeBlog    Список ID блогов для исключения
-     * @param  int      $iCount          Возвращает общее количество элементов
-     * @param  int      $iCurrPage       Номер страницы
-     * @param  int      $iPerPage        Количество элементов на страницу
+     * @param  string $sTag            Тег
+     * @param  array  $aExcludeBlog    Список ID блогов для исключения
+     * @param  int    $iCount          Возвращает общее количество элементов
+     * @param  int    $iCurrPage       Номер страницы
+     * @param  int    $iPerPage        Количество элементов на страницу
      *
      * @return array
      */
     public function GetTopicsByTag($sTag, $aExcludeBlog, &$iCount, $iCurrPage, $iPerPage) {
-        $sql = "
+        $sql
+            = "
             SELECT
 			    topic_id
 			FROM
@@ -410,7 +419,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return array
      */
     public function GetTopicsRatingByDate($sDate, $iLimit, $aExcludeBlog = array()) {
-        $sql = "SELECT
+        $sql
+            = "SELECT
 						t.topic_id
 					FROM 
 						" . Config::Get('db.table.topic') . " as t
@@ -446,7 +456,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return array
      */
     public function GetTopicTags($iLimit, $aExcludeTopic = array()) {
-        $sql = "SELECT
+        $sql
+            = "SELECT
 			tt.topic_tag_text,
 			count(tt.topic_tag_text) as count
 			FROM 
@@ -488,7 +499,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return array
      */
     public function GetOpenTopicTags($iLimit, $iUserId = null) {
-        $sql = "
+        $sql
+            = "
 			SELECT 
 				tt.topic_tag_text,
 				count(tt.topic_tag_text) as count
@@ -682,7 +694,9 @@ class ModuleTopic_MapperTopic extends Mapper {
             if (!is_array($aFilter['topic_type'])) {
                 $aFilter['topic_type'] = array($aFilter['topic_type']);
             }
-            $sWhere .= " AND t.topic_type IN (" . join(",", array_map(array($this->oDb, 'escape'), $aFilter['topic_type'])) . ")";
+            $sWhere .= " AND t.topic_type IN (" . join(
+                    ",", array_map(array($this->oDb, 'escape'), $aFilter['topic_type'])
+                ) . ")";
         }
         return $sWhere;
     }
@@ -697,7 +711,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      */
     public function GetTopicTagsByLike($sTag, $iLimit) {
         $sTag = mb_strtolower($sTag, 'UTF-8');
-        $sql = "SELECT
+        $sql
+            = "SELECT
 				topic_tag_text
 			FROM 
 				" . Config::Get('db.table.topic_tag') . "
@@ -766,12 +781,13 @@ class ModuleTopic_MapperTopic extends Mapper {
     /**
      * Удаляет записи о чтении записей по списку идентификаторов
      *
-     * @param   array   $aIds   - Список ID топиков
+     * @param   array $aIds   - Список ID топиков
      *
      * @return  bool
      */
     public function DeleteTopicReadByArrayId($aIds) {
-        $sql = "
+        $sql
+            = "
 			DELETE FROM " . Config::Get('db.table.topic_read') . "
 			WHERE topic_id IN(?a)
 		";
@@ -791,7 +807,8 @@ class ModuleTopic_MapperTopic extends Mapper {
             return array();
         }
 
-        $sql = "SELECT
+        $sql
+            = "SELECT
 					t.*
 				FROM 
 					" . Config::Get('db.table.topic_read') . " as t
@@ -817,7 +834,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return bool
      */
     public function AddTopicQuestionVote(ModuleTopic_EntityTopicQuestionVote $oTopicQuestionVote) {
-        $sql = "
+        $sql
+            = "
             INSERT INTO " . Config::Get('db.table.topic_question_vote') . "
                 (topic_id, user_voter_id, answer)
 			VALUES(?d, ?d, ?f)
@@ -841,7 +859,8 @@ class ModuleTopic_MapperTopic extends Mapper {
             return array();
         }
 
-        $sql = "SELECT
+        $sql
+            = "SELECT
 					v.*
 				FROM 
 					" . Config::Get('db.table.topic_question_vote') . " as v
@@ -862,8 +881,8 @@ class ModuleTopic_MapperTopic extends Mapper {
     /**
      * Перемещает топики в другой блог
      *
-     * @param  array  $aTopics    Список ID топиков
-     * @param  int    $nBlogIdNew    ID блога
+     * @param  array $aTopics       Список ID топиков
+     * @param  int   $nBlogIdNew    ID блога
      *
      * @return bool
      */
@@ -994,7 +1013,8 @@ class ModuleTopic_MapperTopic extends Mapper {
             return array();
         }
 
-        $sql = "SELECT
+        $sql
+            = "SELECT
 					*
 				FROM 
 					" . Config::Get('db.table.topic_photo') . "
@@ -1151,7 +1171,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return bool
      */
     public function RecalculateFavourite() {
-        $sql = "
+        $sql
+            = "
                 UPDATE " . Config::Get('db.table.topic') . " t
                 SET t.topic_count_favourite = (
                     SELECT count(f.user_id)
@@ -1174,7 +1195,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return bool
      */
     public function RecalculateVote() {
-        $sql = "
+        $sql
+            = "
                 UPDATE " . Config::Get('db.table.topic') . " t
                 SET t.topic_count_vote_up = (
                     SELECT count(*)
@@ -1218,7 +1240,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return array
      */
     public function getContentTypes($aFilter) {
-        $sql = "SELECT
+        $sql
+            = "SELECT
 						*
 					FROM
 						" . Config::Get('db.table.content') . "
@@ -1319,7 +1342,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return ModuleTopic_EntityContent|null
      */
     public function getContentTypeById($nId) {
-        $sql = "SELECT
+        $sql
+            = "SELECT
 						*
 					FROM
 						" . Config::Get('db.table.content') . "
@@ -1340,7 +1364,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return ModuleTopic_EntityContent|null
      */
     public function getContentTypeByUrl($sUrl) {
-        $sql = "SELECT
+        $sql
+            = "SELECT
 						*
 					FROM
 						" . Config::Get('db.table.content') . "
@@ -1455,7 +1480,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return array
      */
     public function getContentFields($aFilter) {
-        $sql = "SELECT
+        $sql
+            = "SELECT
 						*
 					FROM
 						" . Config::Get('db.table.content_field') . "
@@ -1487,7 +1513,8 @@ class ModuleTopic_MapperTopic extends Mapper {
             return array();
         }
 
-        $sql = "SELECT
+        $sql
+            = "SELECT
 					*
 				FROM
 					" . Config::Get('db.table.content_field') . "
@@ -1511,7 +1538,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return ModuleTopic_EntityField|null
      */
     public function getContentFieldById($nId) {
-        $sql = "SELECT
+        $sql
+            = "SELECT
 						*
 					FROM
 						" . Config::Get('db.table.content_field') . "
@@ -1628,7 +1656,8 @@ class ModuleTopic_MapperTopic extends Mapper {
             return array();
         }
 
-        $sql = "SELECT
+        $sql
+            = "SELECT
 					*
 				FROM
 					" . Config::Get('db.table.content_values') . "

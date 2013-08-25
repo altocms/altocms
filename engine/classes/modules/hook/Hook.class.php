@@ -1,19 +1,18 @@
 <?php
-/*-------------------------------------------------------
-*
-*   LiveStreet Engine Social Networking
-*   Copyright © 2008 Mzhelskiy Maxim
-*
-*--------------------------------------------------------
-*
-*   Official site: www.livestreet.ru
-*   Contact e-mail: rus.engine@gmail.com
-*
-*   GNU General Public License, version 2:
-*   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-*
----------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
+
 /**
  * Модуль обработки хуков(hooks)
  * В различных местах кода могут быть определеные вызовы хуков, например:
@@ -120,9 +119,9 @@ class ModuleHook extends Module {
             return false;
         }
         $this->aHooks[$sName][] = array(
-            'type'     => $sType,
+            'type' => $sType,
             'callback' => $sCallBack,
-            'params'   => $aParams,
+            'params' => $aParams,
             'priority' => (int)$iPriority
         );
     }
@@ -244,14 +243,16 @@ class ModuleHook extends Module {
     public function Run($sName, &$aVars = array()) {
         $result = array();
         $sName = strtolower($sName);
-        $bTemplateHook=strpos($sName,'template_')===0 ? true : false;
+        $bTemplateHook = strpos($sName, 'template_') === 0 ? true : false;
         if (isset($this->aHooks[$sName])) {
             $aHookNum = array();
             $aHookNumDelegate = array();
 
             // * Все хуки делим на обычные (exec) и делигирующие (delegate)
             for ($i = 0; $i < count($this->aHooks[$sName]); $i++) {
-                if (isset($this->aHooks[$sName][$i]['params']['delegate']) && $this->aHooks[$sName][$i]['params']['delegate']) {
+                if (isset($this->aHooks[$sName][$i]['params']['delegate'])
+                    && $this->aHooks[$sName][$i]['params']['delegate']
+                ) {
                     $aHookNumDelegate[$i] = $this->aHooks[$sName][$i]['priority'];
                 } else {
                     $aHookNum[$i] = $this->aHooks[$sName][$i]['priority'];

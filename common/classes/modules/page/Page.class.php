@@ -1,19 +1,17 @@
 <?php
-/*-------------------------------------------------------
-*
-*   LiveStreet Engine Social Networking
-*   Copyright © 2008 Mzhelskiy Maxim
-*
-*--------------------------------------------------------
-*
-*   Official site: www.livestreet.ru
-*   Contact e-mail: rus.engine@gmail.com
-*
-*   GNU General Public License, version 2:
-*   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-*
----------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
 
 /**
  * Модуль для статических страниц
@@ -22,6 +20,7 @@
  * @since   1.0
  */
 class ModulePage extends Module {
+
     /** @var ModulePage_MapperPage */
     protected $oMapper;
     protected $aRebuildIds = array();
@@ -31,6 +30,7 @@ class ModulePage extends Module {
      *
      */
     public function Init() {
+
         $this->oMapper = Engine::GetMapper(__CLASS__);
     }
 
@@ -42,6 +42,7 @@ class ModulePage extends Module {
      * @return bool
      */
     public function AddPage(ModulePage_EntityPage $oPage) {
+
         if ($sId = $this->oMapper->AddPage($oPage)) {
             $oPage->setId($sId);
             //чистим зависимые кеши
@@ -62,6 +63,7 @@ class ModulePage extends Module {
      * @return bool
      */
     public function UpdatePage(ModulePage_EntityPage $oPage) {
+
         if ($this->oMapper->UpdatePage($oPage)) {
             //чистим зависимые кеши
             $this->Cache_Clean(
@@ -82,6 +84,7 @@ class ModulePage extends Module {
      * @return  ModulePage_EntityPage
      */
     public function GetPageByUrlFull($sUrlFull, $iActive = 1) {
+
         if (false === ($data = $this->Cache_Get("page_{$sUrlFull}_{$iActive}"))) {
             $data = $this->oMapper->GetPageByUrlFull($sUrlFull, $iActive);
             if ($data) {
@@ -105,6 +108,7 @@ class ModulePage extends Module {
      * @return object
      */
     public function GetPageById($sId) {
+
         return $this->oMapper->GetPageById($sId);
     }
 
@@ -115,6 +119,7 @@ class ModulePage extends Module {
      * @return  array
      */
     public function GetPages($aFilter = array()) {
+
         $aPages = array();
         $aPagesRow = $this->oMapper->GetPages($aFilter);
         if (count($aPagesRow)) {
@@ -132,6 +137,7 @@ class ModulePage extends Module {
      * @return array
      */
     protected function BuildPagesRecursive($aPages, $bBegin = true) {
+
         static $aResultPages;
         static $iLevel;
         if ($bBegin) {
@@ -159,6 +165,7 @@ class ModulePage extends Module {
      * @param ModulePage_EntityPage $oPageStart
      */
     public function RebuildUrlFull($oPageStart) {
+
         $aPages = $this->GetPagesByPid($oPageStart->getId());
         foreach ($aPages as $oPage) {
             if ($oPage->getId() == $oPageStart->getId()) {
@@ -182,6 +189,7 @@ class ModulePage extends Module {
      * @return  array
      */
     public function GetPagesByPid($nPid) {
+
         return $this->oMapper->GetPagesByPid(is_null($nPid) ? null : intval($nPid));
     }
 
@@ -194,6 +202,7 @@ class ModulePage extends Module {
      * @return bool
      */
     public function deletePageById($nId) {
+
         $aPages = $this->GetPagesByPid($nId);
         if ($this->oMapper->deletePageById($nId)) {
             if ($aPages) {
@@ -214,6 +223,7 @@ class ModulePage extends Module {
      * @return int
      */
     public function GetCountPage() {
+
         return $this->oMapper->GetCountPage();
     }
 
@@ -226,6 +236,7 @@ class ModulePage extends Module {
      * @return  bool
      */
     public function SetPagesPidToNull($aPageIds = array()) {
+
         return $this->oMapper->SetPagesPidToNull($aPageIds);
     }
 
@@ -239,6 +250,7 @@ class ModulePage extends Module {
      * @return ModulePage_EntityPage
      */
     public function GetNextPageBySort($iSort, $sPid, $sWay = 'up') {
+
         return $this->oMapper->GetNextPageBySort($iSort, $sPid, $sWay);
     }
 
@@ -250,6 +262,7 @@ class ModulePage extends Module {
      * @return  int
      */
     public function GetMaxSortByPid($sPid) {
+
         return $this->oMapper->GetMaxSortByPid($sPid);
     }
 
@@ -259,6 +272,7 @@ class ModulePage extends Module {
      * @return integer
      */
     public function getCountOfActivePages() {
+
         return (int)$this->oMapper->getCountOfActivePages();
     }
 
@@ -272,12 +286,14 @@ class ModulePage extends Module {
      * @return array
      */
     public function getListOfActivePages(&$iCount, $iCurrPage, $iPerPage) {
+
         return $this->oMapper->getListOfActivePages(
             $iCount, $iCurrPage, Config::Get('plugin.sitemap.objects_per_page')
         );
     }
 
     public function ReSort() {
+
         return $this->oMapper->ReSort();
     }
 }

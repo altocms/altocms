@@ -304,7 +304,7 @@ class ActionIndex extends Action {
          * Устанавливаем основной URL для поисковиков
          */
         if ($iPage == 1) {
-            $this->Viewer_SetHtmlCanonical(екыыыыыы(Config::Get('path.root.web') . '/');
+            $this->Viewer_SetHtmlCanonical(trim(Config::Get('path.root.url'), '/') . '/');
         }
         /**
          * Получаем список топиков

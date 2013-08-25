@@ -42,6 +42,8 @@ $config['path']['offset_request_url'] = '0';
 
 $_SERVER['HTTP_APP_ENV'] = 'test';
 
+$config['view']['skin']        = 'synio';                       // скин
+
 $config['sys']['cache']['use']    = false;               // использовать кеширование или нет
 $config['sys']['cache']['type']   = 'file';             // тип кеширования: file, xcache и memory. memory использует мемкеш, xcache - использует XCache
 //$config['sys']['cache']['type']   = 'memory'; // 'file';             // тип кеширования: file, xcache и memory. memory использует мемкеш, xcache - использует XCache

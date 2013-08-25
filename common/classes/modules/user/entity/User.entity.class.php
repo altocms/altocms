@@ -1,19 +1,17 @@
 <?php
-/*-------------------------------------------------------
-*
-*   LiveStreet Engine Social Networking
-*   Copyright © 2008 Mzhelskiy Maxim
-*
-*--------------------------------------------------------
-*
-*   Official site: www.livestreet.ru
-*   Contact e-mail: rus.engine@gmail.com
-*
-*   GNU General Public License, version 2:
-*   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-*
----------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
 
 /**
  * Сущность пользователя
@@ -31,12 +29,15 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function Init() {
         parent::Init();
-        $this->aValidateRules[] = array('login', 'login', 'on' => array('registration', '')); // '' - означает дефолтный сценарий
+        $this->aValidateRules[] = array('login', 'login',
+                                        'on' => array('registration', '')); // '' - означает дефолтный сценарий
         $this->aValidateRules[] = array('login', 'login_exists', 'on' => array('registration'));
         $this->aValidateRules[] = array('mail', 'email', 'allowEmpty' => false, 'on' => array('registration', ''));
         $this->aValidateRules[] = array('mail', 'mail_exists', 'on' => array('registration'));
-        $this->aValidateRules[] = array('password', 'string', 'allowEmpty' => false, 'min' => 5, 'on' => array('registration'));
-        $this->aValidateRules[] = array('password_confirm', 'compare', 'compareField' => 'password', 'on' => array('registration'));
+        $this->aValidateRules[] = array('password', 'string', 'allowEmpty' => false, 'min' => 5,
+                                        'on'                               => array('registration'));
+        $this->aValidateRules[] = array('password_confirm', 'compare', 'compareField' => 'password',
+                                        'on'                                          => array('registration'));
         // Определяем дополнительные правила валидации
         if (Config::Get('module.user.captcha_use_registration')) {
             $this->aValidateRules[] = array('captcha', 'captcha', 'on' => array('registration'));
@@ -46,7 +47,7 @@ class ModuleUser_EntityUser extends Entity {
     /**
      * Определяем дополнительные правила валидации
      *
-     * @param   array|null      $aParam
+     * @param   array|null $aParam
      */
     public function __construct($aParam = null) {
         parent::__construct($aParam);
@@ -103,7 +104,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return int|null
      */
     public function getId() {
-        return $this->_getDataOne('user_id');
+        return $this->getProp('user_id');
     }
 
     /**
@@ -112,7 +113,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getLogin() {
-        return $this->_getDataOne('user_login');
+        return $this->getProp('user_login');
     }
 
     /**
@@ -121,7 +122,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getPassword() {
-        return $this->_getDataOne('user_password');
+        return $this->getProp('user_password');
     }
 
     /**
@@ -130,7 +131,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getMail() {
-        return $this->_getDataOne('user_mail');
+        return $this->getProp('user_mail');
     }
 
     /**
@@ -139,7 +140,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string
      */
     public function getSkill() {
-        return number_format(round($this->_getDataOne('user_skill'), 2), 2, '.', '');
+        return number_format(round($this->getProp('user_skill'), 2), 2, '.', '');
     }
 
     /**
@@ -148,7 +149,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getDateRegister() {
-        return $this->_getDataOne('user_date_register');
+        return $this->getProp('user_date_register');
     }
 
     /**
@@ -157,7 +158,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getDateActivate() {
-        return $this->_getDataOne('user_date_activate');
+        return $this->getProp('user_date_activate');
     }
 
     /**
@@ -166,7 +167,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return mixed|null
      */
     public function getDateCommentLast() {
-        return $this->_getDataOne('user_date_comment_last');
+        return $this->getProp('user_date_comment_last');
     }
 
     /**
@@ -175,7 +176,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getIpRegister() {
-        return $this->_getDataOne('user_ip_register');
+        return $this->getProp('user_ip_register');
     }
 
     /**
@@ -184,7 +185,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string
      */
     public function getRating() {
-        return number_format(round($this->_getDataOne('user_rating'), 2), 2, '.', '');
+        return number_format(round($this->getProp('user_rating'), 2), 2, '.', '');
     }
 
     /**
@@ -193,7 +194,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return int|null
      */
     public function getCountVote() {
-        return $this->_getDataOne('user_count_vote');
+        return $this->getProp('user_count_vote');
     }
 
     /**
@@ -202,7 +203,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return int|null
      */
     public function getActivate() {
-        return $this->_getDataOne('user_activate');
+        return $this->getProp('user_activate');
     }
 
     /**
@@ -211,7 +212,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getActivateKey() {
-        return $this->_getDataOne('user_activate_key');
+        return $this->getProp('user_activate_key');
     }
 
     /**
@@ -220,7 +221,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getProfileName() {
-        return $this->_getDataOne('user_profile_name');
+        return $this->getProp('user_profile_name');
     }
 
     /**
@@ -229,7 +230,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getProfileSex() {
-        return $this->_getDataOne('user_profile_sex');
+        return $this->getProp('user_profile_sex');
     }
 
     /**
@@ -238,7 +239,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getProfileCountry() {
-        return $this->_getDataOne('user_profile_country');
+        return $this->getProp('user_profile_country');
     }
 
     /**
@@ -247,7 +248,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getProfileRegion() {
-        return $this->_getDataOne('user_profile_region');
+        return $this->getProp('user_profile_region');
     }
 
     /**
@@ -256,7 +257,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getProfileCity() {
-        return $this->_getDataOne('user_profile_city');
+        return $this->getProp('user_profile_city');
     }
 
     /**
@@ -265,7 +266,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getProfileBirthday() {
-        return $this->_getDataOne('user_profile_birthday');
+        return $this->getProp('user_profile_birthday');
     }
 
     /**
@@ -274,7 +275,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getProfileAbout() {
-        return $this->_getDataOne('user_profile_about');
+        return $this->getProp('user_profile_about');
     }
 
     /**
@@ -283,7 +284,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getProfileDate() {
-        return $this->_getDataOne('user_profile_date');
+        return $this->getProp('user_profile_date');
     }
 
     /**
@@ -292,7 +293,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getProfileAvatar() {
-        return $this->_getDataOne('user_profile_avatar');
+        return $this->getProp('user_profile_avatar');
     }
 
     /**
@@ -310,7 +311,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return string|null
      */
     public function getProfileFoto() {
-        return $this->_getDataOne('user_profile_foto');
+        return $this->getProp('user_profile_foto');
     }
 
     /**
@@ -319,7 +320,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return int|null
      */
     public function getSettingsNoticeNewTopic() {
-        return $this->_getDataOne('user_settings_notice_new_topic');
+        return $this->getProp('user_settings_notice_new_topic');
     }
 
     /**
@@ -328,7 +329,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return int|null
      */
     public function getSettingsNoticeNewComment() {
-        return $this->_getDataOne('user_settings_notice_new_comment');
+        return $this->getProp('user_settings_notice_new_comment');
     }
 
     /**
@@ -337,7 +338,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return int|null
      */
     public function getSettingsNoticeNewTalk() {
-        return $this->_getDataOne('user_settings_notice_new_talk');
+        return $this->getProp('user_settings_notice_new_talk');
     }
 
     /**
@@ -346,7 +347,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return int|null
      */
     public function getSettingsNoticeReplyComment() {
-        return $this->_getDataOne('user_settings_notice_reply_comment');
+        return $this->getProp('user_settings_notice_reply_comment');
     }
 
     /**
@@ -355,11 +356,11 @@ class ModuleUser_EntityUser extends Entity {
      * @return int|null
      */
     public function getSettingsNoticeNewFriend() {
-        return $this->_getDataOne('user_settings_notice_new_friend');
+        return $this->getProp('user_settings_notice_new_friend');
     }
 
     public function getLastSession() {
-        return $this->_getDataOne('user_last_session');
+        return $this->getProp('user_last_session');
     }
 
     /**
@@ -380,10 +381,10 @@ class ModuleUser_EntityUser extends Entity {
      * @return ModuleUser_EntitySession|null
      */
     public function getSession() {
-        if (!$this->_getDataOne('session')) {
+        if (!$this->getProp('session')) {
             $this->_aData['session'] = $this->User_GetSessionByUserId($this->getId());
         }
-        return $this->_getDataOne('session');
+        return $this->getProp('session');
     }
 
     /**
@@ -419,7 +420,8 @@ class ModuleUser_EntityUser extends Entity {
                 $sPath . "?" . date('His', strtotime($this->getProfileDate()))
             );
         } else {
-            return Config::Get('path.static.assets') . '/images/avatars/avatar_' . ($this->getProfileSex() == 'woman' ? 'female' : 'male') . '_' . $iSize . 'x' . $iSize . '.png';
+            return Config::Get('path.static.assets') . '/images/avatars/avatar_' . ($this->getProfileSex() == 'woman'
+                ? 'female' : 'male') . '_' . $iSize . 'x' . $iSize . '.png';
         }
     }
 
@@ -458,7 +460,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return ModuleVote_EntityVote|null
      */
     public function getVote() {
-        return $this->_getDataOne('vote');
+        return $this->getProp('vote');
     }
 
     /**
@@ -467,7 +469,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return bool|null
      */
     public function getUserIsFriend() {
-        return $this->_getDataOne('user_is_friend');
+        return $this->getProp('user_is_friend');
     }
 
     /**
@@ -476,7 +478,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return bool|null
      */
     public function isAdministrator() {
-        return $this->_getDataOne('user_is_administrator');
+        return $this->getProp('user_is_administrator');
     }
 
     /**
@@ -503,7 +505,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return ModuleUser_EntityFriend|null
      */
     public function getUserFriend() {
-        return $this->_getDataOne('user_friend');
+        return $this->getProp('user_friend');
     }
 
     /**
@@ -524,10 +526,10 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function getUserNote() {
         $oUserCurrent = $this->User_GetUserCurrent();
-        if ($this->_getDataOne('user_note') === null && $oUserCurrent) {
+        if ($this->getProp('user_note') === null && $oUserCurrent) {
             $this->_aData['user_note'] = $this->User_GetUserNote($this->getId(), $oUserCurrent->getId());
         }
-        return $this->_getDataOne('user_note');
+        return $this->getProp('user_note');
     }
 
     /**
@@ -536,10 +538,10 @@ class ModuleUser_EntityUser extends Entity {
      * @return ModuleBlog_EntityBlog|null
      */
     public function getBlog() {
-        if (!$this->_getDataOne('blog')) {
+        if (!$this->getProp('blog')) {
             $this->_aData['blog'] = $this->Blog_GetPersonalBlogByUserId($this->getId());
         }
-        return $this->_getDataOne('blog');
+        return $this->getProp('blog');
     }
 
     public function GetBanLine() {
@@ -590,8 +592,8 @@ class ModuleUser_EntityUser extends Entity {
     /**
      * Устанавливает пароль
      *
-     * @param   string  $sPassword
-     * @param   bool    $bEncrypt   - false, если пароль уже захеширован
+     * @param   string $sPassword
+     * @param   bool   $bEncrypt   - false, если пароль уже захеширован
      */
     public function setPassword($sPassword, $bEncrypt = false) {
         if ($bEncrypt) {

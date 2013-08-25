@@ -1,19 +1,17 @@
 <?php
-/*-------------------------------------------------------
-*
-*   LiveStreet Engine Social Networking
-*   Copyright © 2008 Mzhelskiy Maxim
-*
-*--------------------------------------------------------
-*
-*   Official site: www.livestreet.ru
-*   Contact e-mail: rus.engine@gmail.com
-*
-*   GNU General Public License, version 2:
-*   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-*
----------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
 
 /**
  * Маппер для работы с БД
@@ -30,6 +28,7 @@ class ModuleNotify_MapperNotify extends Mapper {
      * @return bool
      */
     public function AddTask(ModuleNotify_EntityTask $oNotifyTask) {
+
         $sql
             = "
 			INSERT INTO " . Config::Get('db.table.notify_task') . "
@@ -61,6 +60,7 @@ class ModuleNotify_MapperNotify extends Mapper {
      * @return bool
      */
     public function AddTaskArray($aTasks) {
+
         if (!is_array($aTasks) && count($aTasks) == 0) {
             return false;
         }
@@ -97,11 +97,12 @@ class ModuleNotify_MapperNotify extends Mapper {
      * @return bool
      */
     public function DeleteTask(ModuleNotify_EntityTask $oNotifyTask) {
+
         $sql
             = "
 			DELETE FROM " . Config::Get('db.table.notify_task') . "
 			WHERE
-				notify_task_id = ?d			
+				notify_task_id = ?d
 		";
         if ($this->oDb->query($sql, $oNotifyTask->getTaskId())) {
             return true;
@@ -117,11 +118,12 @@ class ModuleNotify_MapperNotify extends Mapper {
      * @return bool
      */
     public function DeleteTaskByArrayId($aTaskId) {
+
         $sql
             = "
 			DELETE FROM " . Config::Get('db.table.notify_task') . "
 			WHERE
-				notify_task_id IN(?a)			
+				notify_task_id IN(?a)
 		";
         if ($this->oDb->query($sql, $aTaskId)) {
             return true;
@@ -137,6 +139,7 @@ class ModuleNotify_MapperNotify extends Mapper {
      * @return array
      */
     public function GetTasks($iLimit) {
+
         $sql
             = "SELECT *
 				FROM " . Config::Get('db.table.notify_task') . "
@@ -150,6 +153,7 @@ class ModuleNotify_MapperNotify extends Mapper {
         }
         return $aTasks;
     }
+
 }
 
 // EOF

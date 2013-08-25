@@ -1,19 +1,17 @@
 <?php
-/*-------------------------------------------------------
-*
-*   LiveStreet Engine Social Networking
-*   Copyright © 2008 Mzhelskiy Maxim
-*
-*--------------------------------------------------------
-*
-*   Official site: www.livestreet.ru
-*   Contact e-mail: rus.engine@gmail.com
-*
-*   GNU General Public License, version 2:
-*   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-*
----------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
 
 /**
  * Объект маппера для работы с БД
@@ -124,7 +122,8 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
             $aFilter['exclude_mail'] = array($aFilter['exclude_mail']);
         }
 
-        $sql = "SELECT
+        $sql
+            = "SELECT
 					*
 				FROM
 					" . Config::Get('db.table.subscribe') . "
@@ -227,7 +226,8 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
             $aFilter['exclude_mail'] = array($aFilter['exclude_mail']);
         }
 
-        $sql = "SELECT
+        $sql
+            = "SELECT
 					*
 				FROM
 					" . Config::Get('db.table.track') . " trc
@@ -240,8 +240,8 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
 					{ AND trc.`key` = ? }
 					{ AND trc.status = ?d }
 					{ AND exists   (  SELECT ?d
-					                  FROM   ".Config::Get('db.table.topic_read')." as tr,
-					                         ".Config::Get('db.table.topic')." as t
+					                  FROM   " . Config::Get('db.table.topic_read') . " as tr,
+					                         " . Config::Get('db.table.topic') . " as t
 					                  WHERE   t.topic_id = trc.target_id
 					                  AND t.topic_id = tr.topic_id
 					                  AND (t.topic_count_comment - tr.comment_count_last) > 0

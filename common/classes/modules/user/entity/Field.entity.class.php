@@ -1,19 +1,17 @@
 <?php
-/*-------------------------------------------------------
-*
-*   LiveStreet Engine Social Networking
-*   Copyright © 2008 Mzhelskiy Maxim
-*
-*--------------------------------------------------------
-*
-*   Official site: www.livestreet.ru
-*   Contact e-mail: rus.engine@gmail.com
-*
-*   GNU General Public License, version 2:
-*   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-*
----------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
 
 /**
  * Сущность пользовательского поля у пользователя
@@ -28,7 +26,7 @@ class ModuleUser_EntityField extends Entity {
      * @return int|null
      */
     public function getId() {
-        return $this->_getDataOne('id');
+        return $this->getProp('id');
     }
 
     /**
@@ -37,7 +35,7 @@ class ModuleUser_EntityField extends Entity {
      * @return string|null
      */
     public function getName() {
-        return $this->_getDataOne('name');
+        return $this->getProp('name');
     }
 
     /**
@@ -46,7 +44,7 @@ class ModuleUser_EntityField extends Entity {
      * @return string|null
      */
     public function getType() {
-        return $this->_getDataOne('type');
+        return $this->getProp('type');
     }
 
     /**
@@ -55,7 +53,7 @@ class ModuleUser_EntityField extends Entity {
      * @return string|null
      */
     public function getTitle() {
-        return $this->_getDataOne('title');
+        return $this->getProp('title');
     }
 
     /**
@@ -64,7 +62,7 @@ class ModuleUser_EntityField extends Entity {
      * @return string|null
      */
     public function getPattern() {
-        return $this->_getDataOne('pattern');
+        return $this->getProp('pattern');
     }
 
     /**

@@ -52,7 +52,7 @@ class ModuleAdmin_MapperAdmin extends Mapper {
             $sql = "
                 REPLACE INTO ?_adminban
                 SET user_id=?d, bandate=?, banline=?, banunlim=?, bancomment=?, banactive=1";
-            if ($this->oDb->query($sql, $nUserId, date('Y-m-d H:i:s'), $sDate, $nUnlim ? 1 : 0, $sComment) === false)
+            if ($this->oDb->query($sql, $nUserId, F::Now(), $sDate, $nUnlim ? 1 : 0, $sComment) === false)
                 return false;
         }
         return true;
@@ -155,7 +155,7 @@ class ModuleAdmin_MapperAdmin extends Mapper {
                     bancomment=?,
                     banactive=1
                     ";
-        return $this->oDb->query($sql, $sIp1, $sIp2, date('Y-m-d H:i:s'), $dDate, $nUnlim, $sComment) !== false;
+        return $this->oDb->query($sql, $sIp1, $sIp2, F::Now(), $dDate, $nUnlim, $sComment) !== false;
     }
 
     /**

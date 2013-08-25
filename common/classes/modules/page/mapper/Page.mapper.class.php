@@ -1,19 +1,17 @@
 <?php
-/*-------------------------------------------------------
-*
-*   LiveStreet Engine Social Networking
-*   Copyright © 2008 Mzhelskiy Maxim
-*
-*--------------------------------------------------------
-*
-*   Official site: www.livestreet.ru
-*   Contact e-mail: rus.engine@gmail.com
-*
-*   GNU General Public License, version 2:
-*   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-*
----------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
 
 /**
  * Маппер для работы со статическими страницами
@@ -24,7 +22,8 @@
 class ModulePage_MapperPage extends Mapper {
 
     public function AddPage(ModulePage_EntityPage $oPage) {
-        $sql = "INSERT INTO ?_page
+        $sql
+            = "INSERT INTO ?_page
 			(page_pid,
 			page_url,
 			page_url_full,
@@ -49,7 +48,9 @@ class ModulePage_MapperPage extends Mapper {
     }
 
     public function UpdatePage(ModulePage_EntityPage $oPage) {
-        $sql = "UPDATE ?_page
+
+        $sql
+            = "UPDATE ?_page
 			SET page_pid = ? ,
 			page_url = ? ,
 			page_url_full = ? ,
@@ -73,7 +74,9 @@ class ModulePage_MapperPage extends Mapper {
     }
 
     public function SetPagesPidToNull($aPageIds) {
-        $sql = "UPDATE ?_page
+
+        $sql
+            = "UPDATE ?_page
 			SET 
 				page_pid = null,
 				page_url_full = page_url
@@ -84,6 +87,7 @@ class ModulePage_MapperPage extends Mapper {
     }
 
     public function GetPageByUrlFull($sUrlFull, $iActive) {
+
         $sql = "SELECT * FROM ?_page WHERE page_url_full = ? AND page_active = ?d ";
         if ($aRow = $this->oDb->selectRow($sql, $sUrlFull, $iActive)) {
             return Engine::GetEntity('Page', $aRow);
@@ -92,6 +96,7 @@ class ModulePage_MapperPage extends Mapper {
     }
 
     public function GetPageById($sId) {
+
         $sql = "SELECT * FROM ?_page WHERE page_id = ? ";
         if ($aRow = $this->oDb->selectRow($sql, $sId)) {
             return Engine::GetEntity('Page', $aRow);
@@ -100,6 +105,7 @@ class ModulePage_MapperPage extends Mapper {
     }
 
     public function deletePageById($aIds) {
+
         if (!is_array($aIds)) {
             $aIds = array($aIds);
         }
@@ -108,6 +114,7 @@ class ModulePage_MapperPage extends Mapper {
     }
 
     public function GetPages($aFilter) {
+
         $sPidNULL = '';
         if (array_key_exists('pid', $aFilter) && is_null($aFilter['pid'])) {
             $sPidNULL = 'AND page_pid IS NULL';
@@ -136,12 +143,15 @@ class ModulePage_MapperPage extends Mapper {
     }
 
     public function GetCountPage() {
+
         $sql = "SELECT count(*) as count FROM ?_page ";
         return intval($this->oDb->selectCell($sql));
     }
 
     public function GetPagesByPid($nPid) {
-        $sql = "SELECT
+
+        $sql
+            = "SELECT
 					*
 				FROM 
 					?_page
@@ -158,6 +168,7 @@ class ModulePage_MapperPage extends Mapper {
     }
 
     public function GetNextPageBySort($iSort, $sPid, $sWay) {
+
         if ($sWay == 'up') {
             $sWay = '>';
             $sOrder = 'asc';
@@ -178,6 +189,7 @@ class ModulePage_MapperPage extends Mapper {
     }
 
     public function GetMaxSortByPid($sPid) {
+
         $sPidNULL = '';
         if (is_null($sPid)) {
             $sPidNULL = 'and page_pid IS NULL';
@@ -201,6 +213,7 @@ class ModulePage_MapperPage extends Mapper {
      * @return array
      */
     public function getListOfActivePages(&$iCount, $iCurrPage, $iPerPage) {
+
         $sql
             = 'SELECT
                     `page`.*
@@ -228,6 +241,7 @@ class ModulePage_MapperPage extends Mapper {
      * @return integer
      */
     public function getCountOfActivePages() {
+
         $sql
             = 'SELECT
                     COUNT(`page`.`page_id`)
@@ -241,11 +255,12 @@ class ModulePage_MapperPage extends Mapper {
     }
 
     public function ReSort() {
+
         $sql = "SELECT page_id, page_sort FROM ?_page ORDER BY page_sort DESC, page_id ASC";
         $aRows = $this->oDb->select($sql);
         if ($aRows) {
             $aRows = array_reverse($aRows);
-            foreach ($aRows as $nKey=>$aRow) {
+            foreach ($aRows as $nKey => $aRow) {
                 $sql = "UPDATE ?_page SET page_sort={$nKey} WHERE page_id={$aRow['page_id']}";
                 $this->oDb->query($sql);
             }

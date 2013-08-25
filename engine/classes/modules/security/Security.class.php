@@ -1,19 +1,17 @@
 <?php
-/*-------------------------------------------------------
-*
-*   LiveStreet Engine Social Networking
-*   Copyright © 2008 Mzhelskiy Maxim
-*
-*--------------------------------------------------------
-*
-*   Official site: www.livestreet.ru
-*   Contact e-mail: rus.engine@gmail.com
-*
-*   GNU General Public License, version 2:
-*   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-*
----------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
 
 /**
  * Модуль безопасности
@@ -27,7 +25,7 @@
  * </pre>
  *
  * @package engine.modules
- * @since 1.0
+ * @since   1.0
  */
 class ModuleSecurity extends Module {
     protected $sKeyName;
@@ -46,6 +44,7 @@ class ModuleSecurity extends Module {
      * Производит валидацию отправки формы/запроса от пользователя, позволяет избежать атаки CSRF
      *
      * @param   bool $bBreak - немедленно прекратить работу
+     *
      * @return  bool
      */
     public function ValidateSendForm($bBreak = true) {
@@ -80,10 +79,13 @@ class ModuleSecurity extends Module {
      * Проверяет наличие security-ключа в сессии
      *
      * @param   string|null $sCode  - Код для проверки, если нет то берется из реквеста
+     *
      * @return  bool
      */
     public function ValidateSessionKey($sCode = null) {
-        if (!$sCode) $sCode = getRequestStr('security_ls_key');
+        if (!$sCode) {
+            $sCode = getRequestStr('security_ls_key');
+        }
         return ($sCode == $this->GetSessionKey());
     }
 
@@ -131,8 +133,9 @@ class ModuleSecurity extends Module {
     /**
      * Returns hash of salted string
      *
-     * @param   string $sData
+     * @param   string      $sData
      * @param   string|null $sType
+     *
      * @return  string
      */
     public function Salted($sData, $sType = null) {
@@ -149,6 +152,7 @@ class ModuleSecurity extends Module {
      * @param   string $sSalted    - "соленый" хеш
      * @param   string $sData      - проверяемые данные
      * @param   string $sType      - тип "соли"
+     *
      * @return  bool
      */
     public function CheckSalted($sSalted, $sData, $sType = null) {
@@ -166,7 +170,9 @@ class ModuleSecurity extends Module {
 
     public function GetClientHash() {
         $sClientHash = $this->GetUserAgentHash();
-        if (isset($_SERVER['REMOTE_ADDR'])) $sClientHash .= $_SERVER['REMOTE_ADDR'];
+        if (isset($_SERVER['REMOTE_ADDR'])) {
+            $sClientHash .= $_SERVER['REMOTE_ADDR'];
+        }
         //if ($sVizId = $this->Session_GetCookie('visitor_id')) $sClientHash .= $sVizId;
 
         return $this->Salted($sClientHash, 'auth');
@@ -174,7 +180,9 @@ class ModuleSecurity extends Module {
 
     public function GenerateUniqKey() {
         $sData = serialize(Config::Get('path.root'));
-        if (isset($_SERVER['SERVER_ADDR'])) $sData .= $_SERVER['SERVER_ADDR'];
+        if (isset($_SERVER['SERVER_ADDR'])) {
+            $sData .= $_SERVER['SERVER_ADDR'];
+        }
         return $this->Salted(md5($sData), 'auth');
     }
 

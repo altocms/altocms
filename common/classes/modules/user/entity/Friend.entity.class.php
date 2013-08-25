@@ -1,19 +1,17 @@
 <?php
-/*-------------------------------------------------------
-*
-*   LiveStreet Engine Social Networking
-*   Copyright © 2008 Mzhelskiy Maxim
-*
-*--------------------------------------------------------
-*
-*   Official site: www.livestreet.ru
-*   Contact e-mail: rus.engine@gmail.com
-*
-*   GNU General Public License, version 2:
-*   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-*
----------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
 
 /**
  * Сущность дружбу - связи пользователей друг с другом
@@ -26,7 +24,7 @@ class ModuleUser_EntityFriend extends Entity {
      * При переданном параметре $sUserId возвращает тот идентификатор,
      * который не равен переданному
      *
-     * @param string|null    $sUserId    ID пользователя
+     * @param string|null $sUserId    ID пользователя
      *
      * @return string
      */
@@ -34,10 +32,10 @@ class ModuleUser_EntityFriend extends Entity {
         if (!$sUserId) {
             $sUserId = $this->getUserId();
         }
-        if ($this->_getDataOne('user_from') == $sUserId) {
+        if ($this->getProp('user_from') == $sUserId) {
             return $this->_aData['user_to'];
         }
-        if ($this->_getDataOne('user_to') == $sUserId) {
+        if ($this->getProp('user_to') == $sUserId) {
             return $this->_aData['user_from'];
         }
         return false;
@@ -50,7 +48,7 @@ class ModuleUser_EntityFriend extends Entity {
      * @return int
      */
     public function getUserId() {
-        return $this->_getDataOne('user');
+        return $this->getProp('user');
     }
 
     /**
@@ -59,7 +57,7 @@ class ModuleUser_EntityFriend extends Entity {
      * @return int|null
      */
     public function getUserFrom() {
-        return $this->_getDataOne('user_from');
+        return $this->getProp('user_from');
     }
 
     /**
@@ -68,7 +66,7 @@ class ModuleUser_EntityFriend extends Entity {
      * @return int|null
      */
     public function getUserTo() {
-        return $this->_getDataOne('user_to');
+        return $this->getProp('user_to');
     }
 
     /**
@@ -77,7 +75,7 @@ class ModuleUser_EntityFriend extends Entity {
      * @return int|null
      */
     public function getStatusFrom() {
-        return $this->_getDataOne('status_from');
+        return $this->getProp('status_from');
     }
 
     /**
@@ -86,7 +84,7 @@ class ModuleUser_EntityFriend extends Entity {
      * @return int|null
      */
     public function getStatusTo() {
-        return $this->_getDataOne('status_to') ? $this->_getDataOne('status_to') : ModuleUser::USER_FRIEND_NULL;
+        return $this->getProp('status_to') ? $this->getProp('status_to') : ModuleUser::USER_FRIEND_NULL;
     }
 
     /**

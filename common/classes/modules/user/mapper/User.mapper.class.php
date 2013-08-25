@@ -1,19 +1,17 @@
 <?php
-/*-------------------------------------------------------
-*
-*   LiveStreet Engine Social Networking
-*   Copyright © 2008 Mzhelskiy Maxim
-*
-*--------------------------------------------------------
-*
-*   Official site: www.livestreet.ru
-*   Contact e-mail: rus.engine@gmail.com
-*
-*   GNU General Public License, version 2:
-*   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-*
----------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
 
 /**
  * Маппер для работы с БД
@@ -31,7 +29,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function Add(ModuleUser_EntityUser $oUser) {
 
-        $sql = "INSERT INTO ?_user
+        $sql
+            = "INSERT INTO ?_user
 			(user_login,
 			user_password,
 			user_mail,
@@ -61,7 +60,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function Update(ModuleUser_EntityUser $oUser) {
 
-        $sql = "
+        $sql
+            = "
             UPDATE ?_user
             SET
                 user_password = ?,
@@ -134,7 +134,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function GetUserBySessionKey($sKey) {
 
-        $sql = "
+        $sql
+            = "
             SELECT
 				s.user_id
 			FROM
@@ -157,7 +158,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function CreateSession(ModuleUser_EntitySession $oSession) {
 
-        $sql = "REPLACE INTO ?_session
+        $sql
+            = "REPLACE INTO ?_session
 			SET
 				session_key = ? ,
 				user_id = ?d ,
@@ -189,12 +191,12 @@ class ModuleUser_MapperUser extends Mapper {
 
         if (is_object($oUser)) {
             $nUserId = $oUser->GetId();
-        }
-        else {
+        } else {
             $nUserId = intval($oUser);
         }
 
-        $sql = "
+        $sql
+            = "
             SELECT
                 session_date_last
             FROM ?_session
@@ -223,7 +225,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function UpdateSession(ModuleUser_EntitySession $oSession) {
 
-        $sql = "UPDATE ?_session
+        $sql
+            = "UPDATE ?_session
 			SET
 				session_ip_last = ? ,
 				session_date_last = ? ,
@@ -239,7 +242,7 @@ class ModuleUser_MapperUser extends Mapper {
     /**
      * Closes all sessions of specifier user
      *
-     * @param   object|int  $oUser
+     * @param   object|int $oUser
      *
      * @return  bool
      */
@@ -247,12 +250,12 @@ class ModuleUser_MapperUser extends Mapper {
 
         if (is_object($oUser)) {
             $nUserId = $oUser->GetId();
-        }
-        else {
+        } else {
             $nUserId = intval($oUser);
         }
 
-        $sql = "
+        $sql
+            = "
             UPDATE ?_session
             SET
                 session_exit = ?
@@ -274,7 +277,8 @@ class ModuleUser_MapperUser extends Mapper {
             return array();
         }
 
-        $sql = "
+        $sql
+            = "
             SELECT
 				s.*
 			FROM
@@ -306,7 +310,8 @@ class ModuleUser_MapperUser extends Mapper {
             return array();
         }
 
-        $sql = "
+        $sql
+            = "
             SELECT
 				u.*,
 				IF(ua.user_id IS NULL,0,1) as user_is_administrator,
@@ -338,7 +343,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function GetUserByActivateKey($sKey) {
 
-        $sql = "
+        $sql
+            = "
             SELECT
 				u.user_id
 			FROM
@@ -371,7 +377,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function GetUserByMail($sMail) {
 
-        $sql = "
+        $sql
+            = "
             SELECT
 				u.user_id
 			FROM
@@ -401,7 +408,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function GetUserIdByLogin($sLogin) {
 
-        $sql = "
+        $sql
+            = "
             SELECT
 				u.user_id
 			FROM
@@ -420,7 +428,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function GetUsersByDateLast($iLimit) {
 
-        $sql = "SELECT
+        $sql
+            = "SELECT
 			user_id
 			FROM
 				?_session
@@ -446,7 +455,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function GetUsersByDateRegister($iLimit) {
 
-        $sql = "SELECT
+        $sql
+            = "SELECT
 			user_id
 			FROM
 				?_user
@@ -503,7 +513,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function GetCountUsersSex() {
 
-        $sql = "SELECT user_profile_sex  AS ARRAY_KEY, count(*) as count FROM ?_user WHERE user_activate = 1 GROUP BY user_profile_sex ";
+        $sql
+            = "SELECT user_profile_sex  AS ARRAY_KEY, count(*) as count FROM ?_user WHERE user_activate = 1 GROUP BY user_profile_sex ";
         $result = $this->oDb->select($sql);
         return $result;
     }
@@ -518,7 +529,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function GetUsersByLoginLike($sUserLogin, $iLimit) {
 
-        $sql = "SELECT
+        $sql
+            = "SELECT
 				user_id
 			FROM
 				?_user
@@ -546,7 +558,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function AddFriend(ModuleUser_EntityFriend $oFriend) {
 
-        $sql = "INSERT INTO ?_friend
+        $sql
+            = "INSERT INTO ?_friend
 			(user_from,
 			user_to,
 			status_from,
@@ -577,7 +590,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function EraseFriend(ModuleUser_EntityFriend $oFriend) {
 
-        $sql = "DELETE FROM ?_friend
+        $sql
+            = "DELETE FROM ?_friend
 			WHERE
 				user_from = ?d
 				AND
@@ -598,7 +612,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function UpdateFriend(ModuleUser_EntityFriend $oFriend) {
 
-        $sql = "
+        $sql
+            = "
 			UPDATE ?_friend
 			SET
 				status_from = ?d,
@@ -632,7 +647,8 @@ class ModuleUser_MapperUser extends Mapper {
             return array();
         }
 
-        $sql = "SELECT
+        $sql
+            = "SELECT
 					*
 				FROM
 					?_friend
@@ -668,7 +684,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function GetUsersFriend($nUserId, &$iCount, $iCurrPage, $iPerPage) {
 
-        $sql = "SELECT
+        $sql
+            = "SELECT
 					uf.user_from,
 					uf.user_to
 				FROM
@@ -714,7 +731,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function GetCountUsersFriend($nUserId) {
 
-        $sql = "SELECT
+        $sql
+            = "SELECT
 					count(*) as c
 				FROM
 					?_friend as uf
@@ -751,7 +769,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function GetUsersFriendOffer($nUserId, $nStatus = ModuleUser::USER_FRIEND_NULL) {
 
-        $sql = "SELECT
+        $sql
+            = "SELECT
 					uf.user_to
 				FROM
 					?_friend as uf
@@ -787,7 +806,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function GetUserSelfFriendOffer($nUserId, $nStatus = ModuleUser::USER_FRIEND_NULL) {
 
-        $sql = "SELECT
+        $sql
+            = "SELECT
 					uf.user_from
 				FROM
 					?_friend as uf
@@ -839,7 +859,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function AddInvite(ModuleUser_EntityInvite $oInvite) {
 
-        $sql = "INSERT INTO ?_invite
+        $sql
+            = "INSERT INTO ?_invite
 			(invite_code,
 			user_from_id,
 			invite_date_add
@@ -859,7 +880,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function UpdateInvite(ModuleUser_EntityInvite $oInvite) {
 
-        $sql = "UPDATE ?_invite
+        $sql
+            = "UPDATE ?_invite
 			SET
 				user_to_id = ? ,
 				invite_date_used = ? ,
@@ -914,7 +936,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function GetUsersInvite($nUserId) {
 
-        $sql = "
+        $sql
+            = "
             SELECT
 				i.user_to_id
 			FROM
@@ -935,7 +958,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function GetUserInviteFrom($nUserIdTo) {
 
-        $sql = "SELECT
+        $sql
+            = "SELECT
 					i.user_from_id
 				FROM
 					?_invite as i
@@ -958,7 +982,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function AddReminder(ModuleUser_EntityReminder $oReminder) {
 
-        $sql = "REPLACE ?_reminder
+        $sql
+            = "REPLACE ?_reminder
 			SET
 				reminder_code = ? ,
 				user_id = ? ,
@@ -994,7 +1019,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function GetReminderByCode($sCode) {
 
-        $sql = "SELECT
+        $sql
+            = "SELECT
 					*
 				FROM
 					?_reminder
@@ -1040,7 +1066,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function getUserFieldValueByName($nUserId, $sName) {
 
-        $sql = "
+        $sql
+            = "
             SELECT value
             FROM ?_user_field_value
             WHERE
@@ -1071,13 +1098,15 @@ class ModuleUser_MapperUser extends Mapper {
          * Выглядит костыльно
          */
         if (is_array($aType) && count($aType) == 1 && $aType[0] == '') {
-            $sql = "
+            $sql
+                = "
                 SELECT f.*, v.value FROM ?_user_field AS f
                     LEFT JOIN ?_user_field_value AS v ON f.id = v.field_id
                 WHERE v.user_id = ?d AND f.type IN (?a)";
 
         } else {
-            $sql = "
+            $sql
+                = "
                 SELECT v.value, f.*
                 FROM ?_user_field_value AS v, ?_user_field AS f
                 WHERE
@@ -1136,7 +1165,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function addUserField($oField) {
 
-        $sql = "
+        $sql
+            = "
             INSERT INTO ?_user_field
             SET
                 name = ?,
@@ -1160,7 +1190,8 @@ class ModuleUser_MapperUser extends Mapper {
 
         $sql = 'DELETE FROM ?_user_field_value WHERE field_id = ?d';
         $this->oDb->query($sql, $iId);
-        $sql = 'DELETE FROM ?_user_field WHERE
+        $sql
+            = 'DELETE FROM ?_user_field WHERE
                     id = ?d';
         $this->oDb->query($sql, $iId);
         return true;
@@ -1175,7 +1206,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function updateUserField($oField) {
 
-        $sql = '
+        $sql
+            = '
             UPDATE ?_user_field
             SET
                 name = ?,
@@ -1233,7 +1265,8 @@ class ModuleUser_MapperUser extends Mapper {
 
         $aUsersId = $this->_arrayId($aUsersId);
         if (!$aTypes) {
-            $sql = "
+            $sql
+                = "
                 DELETE FROM ?_user_field_value
                 WHERE user_id IN (?a)
             ";
@@ -1242,7 +1275,8 @@ class ModuleUser_MapperUser extends Mapper {
             if (!is_array($aTypes)) {
                 $aTypes = array($aTypes);
             }
-            $sql = "
+            $sql
+                = "
                 DELETE FROM ?_user_field_value
                 WHERE user_id IN (?a) AND field_id IN
                     (SELECT id FROM ?_user_field WHERE type IN (?a))
@@ -1263,7 +1297,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function GetUserNotesByUserId($iUserId, &$iCount, $iCurrPage, $iPerPage) {
 
-        $sql = "
+        $sql
+            = "
 			SELECT *
 			FROM
 				?_user_note
@@ -1289,7 +1324,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function GetCountUserNotesByUserId($iUserId) {
 
-        $sql = "
+        $sql
+            = "
 			SELECT count(*) as c
 			FROM
 				?_user_note
@@ -1348,7 +1384,8 @@ class ModuleUser_MapperUser extends Mapper {
         if (!is_array($aArrayId) || count($aArrayId) == 0) {
             return array();
         }
-        $sql = "SELECT
+        $sql
+            = "SELECT
 					*
 				FROM
 					?_user_note
@@ -1402,7 +1439,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function UpdateUserNote($oNote) {
 
-        $sql = "UPDATE ?_user_note
+        $sql
+            = "UPDATE ?_user_note
 			SET
 			 	text = ?
 			WHERE id = ?d
@@ -1436,7 +1474,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function UpdateUserChangemail($oChangemail) {
 
-        $sql = "UPDATE ?_user_changemail
+        $sql
+            = "UPDATE ?_user_changemail
 			SET
 			 	date_used = ?,
 			 	confirm_from = ?d,
@@ -1585,7 +1624,8 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function GetGroupPrefixUser($iPrefixLength = 1) {
 
-        $sql = "
+        $sql
+            = "
 			SELECT SUBSTRING(`user_login` FROM 1 FOR ?d ) as prefix
 			FROM
 				?_user

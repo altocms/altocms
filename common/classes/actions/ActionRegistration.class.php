@@ -164,7 +164,7 @@ class ActionRegistration extends Action {
         $oUser->setPassword(getRequestPostStr('password'));
         $oUser->setPasswordConfirm(getRequestPostStr('password_confirm'));
         $oUser->setCaptcha(getRequestPostStr('captcha'));
-        $oUser->setDateRegister(date('Y-m-d H:i:s'));
+        $oUser->setDateRegister(F::Now());
         $oUser->setIpRegister(F::GetUserIp());
         /**
          * Если используется активация, то генерим код активации
@@ -200,7 +200,7 @@ class ActionRegistration extends Action {
                     && $oInvite = $this->User_GetInviteByCode($this->GetInviteRegister())
                 ) {
                     $oInvite->setUserToId($oUser->getId());
-                    $oInvite->setDateUsed(date('Y-m-d H:i:s'));
+                    $oInvite->setDateUsed(F::Now());
                     $oInvite->setUsed(1);
                     $this->User_UpdateInvite($oInvite);
                 }
@@ -228,7 +228,7 @@ class ActionRegistration extends Action {
                     if (getRequestStr('return-path')) {
                         $sUrl = getRequestStr('return-path');
                     }
-                    $this->Viewer_AssignAjax('sUrlRedirect', $sUrl ? $sUrl : Config::Get('path.root.web'));
+                    $this->Viewer_AssignAjax('sUrlRedirect', $sUrl ? $sUrl : Config::Get('path.root.url'));
                     $this->Message_AddNoticeSingle($this->Lang_Get('registration_ok'));
                 }
             } else {
@@ -292,7 +292,7 @@ class ActionRegistration extends Action {
          * Активируем
          */
         $oUser->setActivate(1);
-        $oUser->setDateActivate(date('Y-m-d H:i:s'));
+        $oUser->setDateActivate(F::Now());
         /**
          * Сохраняем юзера
          */
@@ -379,7 +379,7 @@ class ActionRegistration extends Action {
      */
     protected function EventConfirm() {
     }
-}
 
+}
 
 // EOF

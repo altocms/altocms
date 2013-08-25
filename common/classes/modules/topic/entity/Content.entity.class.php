@@ -49,7 +49,7 @@ class ModuleTopic_EntityContent extends Entity {
      */
     public function getExtra() {
 
-        return $this->_getDataOne('content_config') ? $this->_getDataOne('content_config') : serialize('');
+        return $this->getProp('content_config') ? $this->getProp('content_config') : serialize('');
     }
 
     /**

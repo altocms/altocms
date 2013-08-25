@@ -40,6 +40,7 @@ class ActionLogin extends Action {
      *
      */
     protected function RegisterEvent() {
+
         $this->AddEvent('index', 'EventLogin');
         $this->AddEvent('exit', 'EventExit');
         $this->AddEvent('reminder', 'EventReminder');
@@ -106,7 +107,7 @@ class ActionLogin extends Action {
                 if (getRequestStr('return-path')) {
                     $sUrl = getRequestStr('return-path');
                 }
-                $this->Viewer_AssignAjax('sUrlRedirect', $sUrl ? $sUrl : Config::Get('path.root.web'));
+                $this->Viewer_AssignAjax('sUrlRedirect', $sUrl ? $sUrl : Config::Get('path.root.url'));
                 return;
             }
         }
@@ -117,8 +118,9 @@ class ActionLogin extends Action {
      * Повторный запрос активации
      */
     protected function EventReactivation() {
+
         if ($this->User_GetUserCurrent()) {
-            Router::Location(Config::Get('path.root.web') . '/');
+            Router::Location(Config::Get('path.root.url') . '/');
         }
 
         $this->Viewer_AddHtmlTitle($this->Lang_Get('reactivation'));
@@ -128,6 +130,7 @@ class ActionLogin extends Action {
      *  Ajax повторной активации
      */
     protected function EventAjaxReactivation() {
+
         $this->Viewer_SetResponseAjax('json');
 
         if ((F::CheckVal(getRequestStr('mail'), 'mail') && $oUser = $this->User_GetUserByMail(getRequestStr('mail')))) {
@@ -156,7 +159,7 @@ class ActionLogin extends Action {
 
         // * Если уже авторизирован
         if ($this->User_GetUserCurrent()) {
-            Router::Location(Config::Get('path.root.web') . '/');
+            Router::Location(Config::Get('path.root.url') . '/');
         }
         $this->Viewer_AddHtmlTitle($this->Lang_Get('login'));
     }
@@ -166,6 +169,7 @@ class ActionLogin extends Action {
      *
      */
     protected function EventExit() {
+
         $this->Security_ValidateSendForm();
         $this->User_Logout();
         if (isset($_SERVER['HTTP_REFERER']) && F::File_IsLocalUrl($_SERVER['HTTP_REFERER'])) {
@@ -190,7 +194,7 @@ class ActionLogin extends Action {
             // * Формируем и отправляем ссылку на смену пароля
             $oReminder = Engine::GetEntity('User_Reminder');
             $oReminder->setCode(F::RandomStr(32));
-            $oReminder->setDateAdd(date('Y-m-d H:i:s'));
+            $oReminder->setDateAdd(F::Now());
             $oReminder->setDateExpire(date('Y-m-d H:i:s', time() + 60 * 60 * 24 * 7));
             $oReminder->setDateUsed(null);
             $oReminder->setIsUsed(0);
@@ -224,7 +228,7 @@ class ActionLogin extends Action {
                     $sNewPassword = F::RandomStr(7);
                     $oUser->setPassword($sNewPassword, true);
                     if ($this->User_Update($oUser)) {
-                        $oReminder->setDateUsed(date('Y-m-d H:i:s'));
+                        $oReminder->setDateUsed(F::Now());
                         $oReminder->setIsUsed(1);
                         $this->User_UpdateReminder($oReminder);
                         $this->Notify_SendReminderPassword($oUser, $sNewPassword);
@@ -237,6 +241,7 @@ class ActionLogin extends Action {
             return Router::Action('error');
         }
     }
+
 }
 
 // EOF

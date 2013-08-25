@@ -1,19 +1,17 @@
 <?php
-/*-------------------------------------------------------
-*
-*   LiveStreet Engine Social Networking
-*   Copyright © 2008 Mzhelskiy Maxim
-*
-*--------------------------------------------------------
-*
-*   Official site: www.livestreet.ru
-*   Contact e-mail: rus.engine@gmail.com
-*
-*   GNU General Public License, version 2:
-*   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-*
----------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
 
 /**
  * Объект сущности факта прочтения топика
@@ -28,7 +26,7 @@ class ModuleTopic_EntityTopicRead extends Entity {
      * @return int|null
      */
     public function getTopicId() {
-        return $this->_getDataOne('topic_id');
+        return $this->getProp('topic_id');
     }
 
     /**
@@ -37,7 +35,7 @@ class ModuleTopic_EntityTopicRead extends Entity {
      * @return int|null
      */
     public function getUserId() {
-        return $this->_getDataOne('user_id');
+        return $this->getProp('user_id');
     }
 
     /**
@@ -46,7 +44,7 @@ class ModuleTopic_EntityTopicRead extends Entity {
      * @return string|null
      */
     public function getDateRead() {
-        return $this->_getDataOne('date_read');
+        return $this->getProp('date_read');
     }
 
     /**
@@ -55,7 +53,7 @@ class ModuleTopic_EntityTopicRead extends Entity {
      * @return int|null
      */
     public function getCommentCountLast() {
-        return $this->_getDataOne('comment_count_last');
+        return $this->getProp('comment_count_last');
     }
 
     /**
@@ -64,7 +62,7 @@ class ModuleTopic_EntityTopicRead extends Entity {
      * @return int|null
      */
     public function getCommentIdLast() {
-        return $this->_getDataOne('comment_id_last');
+        return $this->getProp('comment_id_last');
     }
 
 

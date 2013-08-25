@@ -378,7 +378,7 @@ class ActionSearch extends Action {
         header('Content-type: text/xml; charset=utf-8');
         $sOutText
             = '<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
-                    <ShortName>' . str_replace('http://', '', Config::Get('path.root.web')) . '</ShortName>
+                    <ShortName>' . str_replace('http://', '', Config::Get('path.root.url')) . '</ShortName>
                     <Image height="16" width="16" type="image/vnd.microsoft.icon">' . Config::Get('path.static.skin') . '/images/favicon.ico</Image>
                     <InputEncoding>utf-8</InputEncoding>
                     <Url type="text/html" method="get" template="http://site.ru/search/?q={searchTerms}"/>
@@ -435,7 +435,7 @@ class ActionSearch extends Action {
 
         $aPaging = $this->Viewer_MakePaging(
             $aResult['count'], $this->aReq['iPage'], $this->nItemsPerPage, 4,
-            Config::Get('path.root.web') . '/search/topics', array('q' => $this->aReq['q'])
+            Config::Get('path.root.url') . '/search/topics', array('q' => $this->aReq['q'])
         );
         // *  Отправляем данные в шаблон
         $this->Viewer_AddHtmlTitle($this->aReq['q']);
@@ -492,7 +492,7 @@ class ActionSearch extends Action {
 
         $aPaging = $this->Viewer_MakePaging(
             $aResult['count'], $this->aReq['iPage'], $this->nItemsPerPage, 4,
-            Config::Get('path.root.web') . '/search/comments', array('q' => $this->aReq['q'])
+            Config::Get('path.root.url') . '/search/comments', array('q' => $this->aReq['q'])
         );
         // *  Отправляем данные в шаблон
         $this->Viewer_AddHtmlTitle($this->aReq['q']);
@@ -546,7 +546,7 @@ class ActionSearch extends Action {
 
         $aPaging = $this->Viewer_MakePaging(
             $aResult['count'], $this->aReq['iPage'], $this->nItemsPerPage, 4,
-            Config::Get('path.root.web') . '/search/blogs', array('q' => $this->aReq['q'])
+            Config::Get('path.root.url') . '/search/blogs', array('q' => $this->aReq['q'])
         );
         // *  Отправляем данные в шаблон
         $this->Viewer_AddHtmlTitle($this->aReq['q']);

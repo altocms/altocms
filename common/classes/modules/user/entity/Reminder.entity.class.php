@@ -1,19 +1,17 @@
 <?php
-/*-------------------------------------------------------
-*
-*   LiveStreet Engine Social Networking
-*   Copyright © 2008 Mzhelskiy Maxim
-*
-*--------------------------------------------------------
-*
-*   Official site: www.livestreet.ru
-*   Contact e-mail: rus.engine@gmail.com
-*
-*   GNU General Public License, version 2:
-*   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-*
----------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
 
 /**
  * Сущность восстановления пароля
@@ -28,7 +26,7 @@ class ModuleUser_EntityReminder extends Entity {
      * @return string|null
      */
     public function getCode() {
-        return $this->_getDataOne('reminder_code');
+        return $this->getProp('reminder_code');
     }
 
     /**
@@ -37,7 +35,7 @@ class ModuleUser_EntityReminder extends Entity {
      * @return int|null
      */
     public function getUserId() {
-        return $this->_getDataOne('user_id');
+        return $this->getProp('user_id');
     }
 
     /**
@@ -46,7 +44,7 @@ class ModuleUser_EntityReminder extends Entity {
      * @return string|null
      */
     public function getDateAdd() {
-        return $this->_getDataOne('reminder_date_add');
+        return $this->getProp('reminder_date_add');
     }
 
     /**
@@ -55,7 +53,7 @@ class ModuleUser_EntityReminder extends Entity {
      * @return string|null
      */
     public function getDateUsed() {
-        return $this->_getDataOne('reminder_date_used');
+        return $this->getProp('reminder_date_used');
     }
 
     /**
@@ -64,7 +62,7 @@ class ModuleUser_EntityReminder extends Entity {
      * @return string|null
      */
     public function getDateExpire() {
-        return $this->_getDataOne('reminder_date_expire');
+        return $this->getProp('reminder_date_expire');
     }
 
     /**
@@ -73,7 +71,7 @@ class ModuleUser_EntityReminder extends Entity {
      * @return int|null
      */
     public function getIsUsed() {
-        return $this->_getDataOne('reminde_is_used');
+        return $this->getProp('reminde_is_used');
     }
 
     /**

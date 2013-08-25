@@ -65,7 +65,7 @@ class ActionSubscribe extends Action {
              * Отписываем пользователя
              */
             $oSubscribe->setStatus(0);
-            $oSubscribe->setDateRemove(date('Y-m-d H:i:s'));
+            $oSubscribe->setDateRemove(F::Now());
             $this->Subscribe_UpdateSubscribe($oSubscribe);
 
             $this->Message_AddNotice($this->Lang_Get('subscribe_change_ok'), null, true);

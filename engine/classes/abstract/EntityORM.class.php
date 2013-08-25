@@ -120,7 +120,7 @@ abstract class EntityORM extends Entity {
      */
     public function _getPrimaryKeyValue() {
 
-        return $this->_getDataOne($this->_getPrimaryKey());
+        return $this->getProp($this->_getPrimaryKey());
     }
 
     /**
@@ -603,7 +603,7 @@ abstract class EntityORM extends Entity {
                         $sRelPrimaryKey = $oRelEntity->_getPrimaryKey();
                     }
 
-                    $iPrimaryKeyValue = $this->_getDataOne($this->_getPrimaryKey());
+                    $iPrimaryKeyValue = $this->getProp($this->_getPrimaryKey());
                     $sCmd = '';
                     $mCmdArgs = array();
                     switch ($sRelationType) {
@@ -611,7 +611,7 @@ abstract class EntityORM extends Entity {
                             $sCmd = "{$sRelPluginPrefix}{$sRelModuleName}_get{$sRelEntityName}By" . F::StrCamelize(
                                 $sRelPrimaryKey
                             );
-                            $mCmdArgs = $this->_getDataOne($sRelationKey);
+                            $mCmdArgs = $this->getProp($sRelationKey);
                             break;
                         case self::RELATION_TYPE_HAS_ONE :
                             $sCmd = "{$sRelPluginPrefix}{$sRelModuleName}_get{$sRelEntityName}By" . F::StrCamelize(

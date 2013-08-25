@@ -1,19 +1,17 @@
 <?php
-/*-------------------------------------------------------
-*
-*   LiveStreet Engine Social Networking
-*   Copyright © 2008 Mzhelskiy Maxim
-*
-*--------------------------------------------------------
-*
-*   Official site: www.livestreet.ru
-*   Contact e-mail: rus.engine@gmail.com
-*
-*   GNU General Public License, version 2:
-*   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-*
----------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
 
 /**
  * Системный класс мапера ORM для работы с БД
@@ -54,7 +52,7 @@ class MapperORM extends Mapper {
             $sWhere = ' 1 = 1 ';
             foreach ($aPrimaryKey as $sField) {
                 $sWhere .= ' and ' . $this->oDb->escape($sField, true) . " = "
-                    . $this->oDb->escape($oEntity->_getDataOne($sField));
+                    . $this->oDb->escape($oEntity->getProp($sField));
             }
             $sql = "UPDATE " . $sTableName . " SET ?a WHERE {$sWhere}";
             return $this->oDb->query($sql, $oEntity->_getData());
@@ -92,7 +90,7 @@ class MapperORM extends Mapper {
             $sWhere = ' 1 = 1 ';
             foreach ($aPrimaryKey as $sField) {
                 $sWhere .= ' and ' . $this->oDb->escape($sField, true) . " = " . $this->oDb->escape(
-                    $oEntity->_getDataOne($sField)
+                    $oEntity->getProp($sField)
                 );
             }
             $sql = "DELETE FROM " . $sTableName . " WHERE {$sWhere}";
