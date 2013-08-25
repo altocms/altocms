@@ -574,89 +574,91 @@ $config['router']['config']['autodefine'] = true;
  *
  * Параметр 'asset' указывает на один набор при слиянии файлов
  */
-$config['head']['default']['js']  = array(
-	/* Vendor libs */
-	"___path.framework.dir___/js/vendor/html5shiv.js" => array('browser'=>'lt IE 9'),
-	"___path.framework.dir___/js/vendor/jquery-1.9.1.min.js",
-	"___path.framework.dir___/js/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js",
-	"___path.framework.dir___/js/vendor/jquery-ui/js/localization/jquery-ui-datepicker-ru.js",
-	"___path.framework.dir___/js/vendor/jquery.browser.js",
-	"___path.framework.dir___/js/vendor/jquery.scrollto.js",
-	"___path.framework.dir___/js/vendor/jquery.rich-array.min.js",
-	"___path.framework.dir___/js/vendor/jquery.form.js",
-	"___path.framework.dir___/js/vendor/jquery.jqplugin.js",
-	"___path.framework.dir___/js/vendor/jquery.cookie.js",
-	"___path.framework.dir___/js/vendor/jquery.serializejson.js",
-	"___path.framework.dir___/js/vendor/jquery.file.js",
-	"___path.framework.dir___/js/vendor/jcrop/jquery.Jcrop.js",
-	"___path.framework.dir___/js/vendor/jquery.placeholder.min.js",
-	"___path.framework.dir___/js/vendor/jquery.charcount.js",
-	"___path.framework.dir___/js/vendor/jquery.imagesloaded.js",
-	"___path.framework.dir___/js/vendor/notifier/jquery.notifier.js",
-	"___path.framework.dir___/js/vendor/prettify/prettify.js",
-	"___path.framework.dir___/js/vendor/prettyphoto/js/jquery.prettyphoto.js",
-	"___path.framework.dir___/js/vendor/parsley/parsley.js",
-	"___path.framework.dir___/js/vendor/parsley/i18n/messages.ru.js",
+$config['head']['default']['js'] = array(
+    /* Vendor libs */
+    "___path.framework.dir___/js/vendor/html5shiv.js" => array('browser' => 'lt IE 9'),
+    "___path.framework.dir___/js/vendor/jquery-1.9.1.min.js",
+    "___path.framework.dir___/js/vendor/jquery-migrate-1.2.1.min.js",
+    "___path.framework.dir___/js/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js",
+    "___path.framework.dir___/js/vendor/jquery-ui/js/localization/jquery-ui-datepicker-ru.js",
+    "___path.framework.dir___/js/vendor/jquery.browser.js",
+    "___path.framework.dir___/js/vendor/jquery.scrollto.js",
+    "___path.framework.dir___/js/vendor/jquery.rich-array.min.js",
+    "___path.framework.dir___/js/vendor/jquery.form.js",
+    "___path.framework.dir___/js/vendor/jquery.jqplugin.js",
+    "___path.framework.dir___/js/vendor/jquery.cookie.js",
+    "___path.framework.dir___/js/vendor/jquery.serializejson.js",
+    "___path.framework.dir___/js/vendor/jquery.file.js",
+    "___path.framework.dir___/js/vendor/jcrop/jquery.Jcrop.js",
+    "___path.framework.dir___/js/vendor/jquery.placeholder.min.js",
+    "___path.framework.dir___/js/vendor/jquery.charcount.js",
+    "___path.framework.dir___/js/vendor/jquery.imagesloaded.js",
+    "___path.framework.dir___/js/vendor/notifier/jquery.notifier.js",
+    "___path.framework.dir___/js/vendor/prettify/prettify.js",
+    "___path.framework.dir___/js/vendor/prettyphoto/js/jquery.prettyphoto.js",
+    "___path.framework.dir___/js/vendor/parsley/parsley.js",
+    "___path.framework.dir___/js/vendor/parsley/i18n/messages.ru.js",
 
-	/* Core */
-	"___path.framework.dir___/js/core/main.js",
-	"___path.framework.dir___/js/core/hook.js",
+    /* Core */
+    "___path.framework.dir___/js/core/main.js",
+    "___path.framework.dir___/js/core/hook.js",
 
-	/* User Interface */
-	"___path.framework.dir___/js/ui/popup.js",
-	"___path.framework.dir___/js/ui/dropdown.js",
-	"___path.framework.dir___/js/ui/tooltip.js",
-	"___path.framework.dir___/js/ui/popover.js",
-	"___path.framework.dir___/js/ui/tab.js",
-	"___path.framework.dir___/js/ui/modal.js",
-	"___path.framework.dir___/js/ui/toolbar.js",
+    /* User Interface */
+    "___path.framework.dir___/js/ui/popup.js",
+    "___path.framework.dir___/js/ui/dropdown.js",
+    "___path.framework.dir___/js/ui/tooltip.js",
+    "___path.framework.dir___/js/ui/popover.js",
+    "___path.framework.dir___/js/ui/tab.js",
+    "___path.framework.dir___/js/ui/modal.js",
+    "___path.framework.dir___/js/ui/toolbar.js",
 
-	/* LiveStreet */
-	"___path.framework.dir___/js/livestreet/favourite.js",
-	"___path.framework.dir___/js/livestreet/blocks.js",
-	"___path.framework.dir___/js/livestreet/pagination.js",
-	"___path.framework.dir___/js/livestreet/editor.js",
-	"___path.framework.dir___/js/livestreet/talk.js",
-	"___path.framework.dir___/js/livestreet/vote.js",
-	"___path.framework.dir___/js/livestreet/poll.js",
-	"___path.framework.dir___/js/livestreet/subscribe.js",
-	"___path.framework.dir___/js/livestreet/geo.js",
-	"___path.framework.dir___/js/livestreet/wall.js",
-	"___path.framework.dir___/js/livestreet/usernote.js",
-	"___path.framework.dir___/js/livestreet/comments.js",
-	"___path.framework.dir___/js/livestreet/blog.js",
-	"___path.framework.dir___/js/livestreet/user.js",
-	"___path.framework.dir___/js/livestreet/userfeed.js",
-	"___path.framework.dir___/js/livestreet/stream.js",
-	"___path.framework.dir___/js/livestreet/photoset.js",
-	"___path.framework.dir___/js/livestreet/toolbar.js",
-	"___path.framework.dir___/js/livestreet/settings.js",
-	"___path.framework.dir___/js/livestreet/topic.js",
-	"___path.framework.dir___/js/livestreet/admin.js",
-	"___path.framework.dir___/js/livestreet/admin.userfield.js",
-	"___path.framework.dir___/js/livestreet/captcha.js",
-	"___path.framework.dir___/js/livestreet/init.js",
+    /* LiveStreet */
+    "___path.framework.dir___/js/livestreet/favourite.js",
+    "___path.framework.dir___/js/livestreet/blocks.js",
+    "___path.framework.dir___/js/livestreet/pagination.js",
+    "___path.framework.dir___/js/livestreet/editor.js",
+    "___path.framework.dir___/js/livestreet/talk.js",
+    "___path.framework.dir___/js/livestreet/vote.js",
+    "___path.framework.dir___/js/livestreet/poll.js",
+    "___path.framework.dir___/js/livestreet/subscribe.js",
+    "___path.framework.dir___/js/livestreet/geo.js",
+    "___path.framework.dir___/js/livestreet/wall.js",
+    "___path.framework.dir___/js/livestreet/usernote.js",
+    "___path.framework.dir___/js/livestreet/comments.js",
+    "___path.framework.dir___/js/livestreet/blog.js",
+    "___path.framework.dir___/js/livestreet/user.js",
+    "___path.framework.dir___/js/livestreet/userfeed.js",
+    "___path.framework.dir___/js/livestreet/stream.js",
+    "___path.framework.dir___/js/livestreet/photoset.js",
+    "___path.framework.dir___/js/livestreet/toolbar.js",
+    "___path.framework.dir___/js/livestreet/settings.js",
+    "___path.framework.dir___/js/livestreet/topic.js",
+    "___path.framework.dir___/js/livestreet/admin.js",
+    "___path.framework.dir___/js/livestreet/admin.userfield.js",
+    "___path.framework.dir___/js/livestreet/captcha.js",
+    "___path.framework.dir___/js/livestreet/init.js",
 );
+
 //потенциально проблемные файлы выводим в футере
-$config['footer']['default']['js']  = array(
-	'http://yandex.st/share/share.js',
-);
-$config['head']['default']['css'] = array(
-	// Framework styles
-	"___path.framework.dir___/css/reset.css",
-	"___path.framework.dir___/css/helpers.css",
-	"___path.framework.dir___/css/text.css",
-	"___path.framework.dir___/css/dropdowns.css",
-	"___path.framework.dir___/css/buttons.css",
-	"___path.framework.dir___/css/forms.css",
-	"___path.framework.dir___/css/navs.css",
-	"___path.framework.dir___/css/modals.css",
-	"___path.framework.dir___/css/tooltip.css",
-	"___path.framework.dir___/css/popover.css",
-	"___path.framework.dir___/css/alerts.css",
-	"___path.framework.dir___/css/toolbar.css"
+$config['footer']['default']['js'] = array(
+    'http://yandex.st/share/share.js',
 );
 
+$config['head']['default']['css'] = array(
+    // Framework styles
+    "___path.framework.dir___/css/reset.css",
+    "___path.framework.dir___/css/helpers.css",
+    "___path.framework.dir___/css/text.css",
+    "___path.framework.dir___/css/dropdowns.css",
+    "___path.framework.dir___/css/buttons.css",
+    "___path.framework.dir___/css/forms.css",
+    "___path.framework.dir___/css/navs.css",
+    "___path.framework.dir___/css/modals.css",
+    "___path.framework.dir___/css/tooltip.css",
+    "___path.framework.dir___/css/popover.css",
+    "___path.framework.dir___/css/alerts.css",
+    "___path.framework.dir___/css/toolbar.css"
+);
 
 /**
  * Параметры компрессии css-файлов
@@ -703,8 +705,13 @@ $config['lang']['save'] = '1 year';                                         // �
 
 $config['lang']['default'] = 'ru';                                          // язык, который будет использоваться на сайте по умолчанию, если не наййдены тексты для текущего языка
 $config['lang']['current'] = 'ru';                                          // основной язык сайта
-$config['lang']['path']    = '___path.root.server___/templates/language';   // полный путь до языковых файлов
 $config['lang']['load_to_js'] = array();                                    // Массив текстовок, которые необходимо прогружать на страницу в виде JS хеша, позволяет использовать текстовки внутри js
+
+// пути до языковых файлов
+$config['lang']['paths']    = array(
+    '___path.dir.common___/templates/language',
+    '___path.dir.app___/templates/language',
+);
 
 /**
  * Установка локали и временной зоны
