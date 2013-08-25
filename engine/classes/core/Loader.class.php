@@ -247,15 +247,15 @@ class Loader {
         $sFileName = 'Action' . ucfirst($sAction) . '.class.php';
 
         // Сначала проверяем файл экшена среди стандартных
-        if ($sActionFile = F::File_Exists(Config::Get('path.root.dir') . '/classes/actions/' . $sFileName)) {
+        $aSeekDirs = array(Config::Get('path.dir.app'), Config::Get('path.dir.common'));
+        if ($sActionFile = F::File_Exists('/classes/actions/' . $sFileName, $aSeekDirs)) {
             $sActionClass = 'Action' . ucfirst($sAction);
             $bOk = true;
         } else {
             // Если нет, то проверяем файл экшена среди плагинов
             $aPlugins = F::GetPluginsList();
-            $sPluginsDir = F::File_RootDir() . 'plugins/';
             foreach ($aPlugins as $sPlugin) {
-                if ($sActionFile = F::File_Exists($sPluginsDir . $sPlugin . '/classes/actions/' . $sFileName)) {
+                if ($sActionFile = F::File_Exists('plugins/' . $sPlugin . '/classes/actions/' . $sFileName, $aSeekDirs)) {
                     $sActionClass = 'Plugin' . ucfirst($sPlugin) . '_Action' . ucfirst($sAction);
                     $bOk = true;
                     break;

@@ -364,7 +364,7 @@ class ModuleImage extends Module {
 		/**
 		 * Определяем, принадлежит ли этот адрес основному домену
 		 */
-		if(parse_url($sPath,PHP_URL_HOST)!=parse_url(Config::Get('path.root.web'),PHP_URL_HOST)) {
+		if(parse_url($sPath,PHP_URL_HOST)!=parse_url(Config::Get('path.root.url'),PHP_URL_HOST)) {
 			return $sPath;
 		}
 		/**
@@ -384,7 +384,7 @@ class ModuleImage extends Module {
 	 */
 	public function GetWebPath($sPath) {
 		$sServerPath = rtrim(str_replace(DIRECTORY_SEPARATOR,'/',Config::Get('path.root.dir')),'/');
-		$sWebPath    = rtrim(Config::Get('path.root.web'), '/');
+		$sWebPath    = rtrim(Config::Get('path.root.url'), '/');
 		return str_replace($sServerPath, $sWebPath, str_replace(DIRECTORY_SEPARATOR,'/',$sPath));
 	}
 	/**

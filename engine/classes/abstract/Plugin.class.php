@@ -388,7 +388,7 @@ abstract class Plugin extends LsObject {
                 : 'default';
 
             self::$aTemplateUrl[$sName]
-                = Config::Get('path.root.web') . "/plugins/{$sName}/templates/skin/{$sTemplateName}/";
+                = Config::Get('path.root.url') . "/plugins/{$sName}/templates/skin/{$sTemplateName}/";
         }
         return self::$aTemplateUrl[$sName];
     }
