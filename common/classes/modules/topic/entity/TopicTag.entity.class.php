@@ -26,6 +26,7 @@ class ModuleTopic_EntityTopicTag extends Entity {
      * @return int|null
      */
     public function getId() {
+
         return $this->getProp('topic_tag_id');
     }
 
@@ -35,6 +36,7 @@ class ModuleTopic_EntityTopicTag extends Entity {
      * @return int|null
      */
     public function getTopicId() {
+
         return $this->getProp('topic_id');
     }
 
@@ -44,6 +46,7 @@ class ModuleTopic_EntityTopicTag extends Entity {
      * @return int|null
      */
     public function getUserId() {
+
         return $this->getProp('user_id');
     }
 
@@ -53,6 +56,7 @@ class ModuleTopic_EntityTopicTag extends Entity {
      * @return int|null
      */
     public function getBlogId() {
+
         return $this->getProp('blog_id');
     }
 
@@ -62,6 +66,7 @@ class ModuleTopic_EntityTopicTag extends Entity {
      * @return string|null
      */
     public function getText() {
+
         return $this->getProp('topic_tag_text');
     }
 
@@ -71,6 +76,7 @@ class ModuleTopic_EntityTopicTag extends Entity {
      * @return int|null
      */
     public function getCount() {
+
         return $this->getProp('count');
     }
 
@@ -80,6 +86,7 @@ class ModuleTopic_EntityTopicTag extends Entity {
      * @return int|null
      */
     public function getSize() {
+
         return $this->getProp('size');
     }
 
@@ -90,7 +97,8 @@ class ModuleTopic_EntityTopicTag extends Entity {
      * @param int $data
      */
     public function setId($data) {
-        $this->_aData['topic_tag_id'] = $data;
+
+        $this->setProp('topic_tag_id', $data);
     }
 
     /**
@@ -99,7 +107,8 @@ class ModuleTopic_EntityTopicTag extends Entity {
      * @param int $data
      */
     public function setTopicId($data) {
-        $this->_aData['topic_id'] = $data;
+
+        $this->setProp('topic_id', $data);
     }
 
     /**
@@ -108,7 +117,8 @@ class ModuleTopic_EntityTopicTag extends Entity {
      * @param int $data
      */
     public function setUserId($data) {
-        $this->_aData['user_id'] = $data;
+
+        $this->setProp('user_id', $data);
     }
 
     /**
@@ -117,7 +127,8 @@ class ModuleTopic_EntityTopicTag extends Entity {
      * @param int $data
      */
     public function setBlogId($data) {
-        $this->_aData['blog_id'] = $data;
+
+        $this->setProp('blog_id', $data);
     }
 
     /**
@@ -126,7 +137,8 @@ class ModuleTopic_EntityTopicTag extends Entity {
      * @param string $data
      */
     public function setText($data) {
-        $this->_aData['topic_tag_text'] = $data;
+
+        $this->setProp('topic_tag_text', $data);
     }
 
     /**
@@ -135,8 +147,10 @@ class ModuleTopic_EntityTopicTag extends Entity {
      * @param int $data
      */
     public function setSize($data) {
-        $this->_aData['size'] = $data;
+
+        $this->setProp('size', $data);
     }
+
 }
 
 // EOF
