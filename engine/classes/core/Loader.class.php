@@ -301,17 +301,13 @@ class Loader {
             $sInheritClass = $aInfo[Engine::CI_INHERIT];
             $sParentClass = Engine::getInstance()->Plugin_GetParentInherit($sInheritClass);
             if (!class_alias($sParentClass, $sClassName)) {
-                dump("(autoload $sParentClass) Can not load CLASS-file");
+                return false;
             } else {
                 return true;
             }
         } elseif ($aInfo[Engine::CI_CLASSPATH]) {
             self::_includeFile($aInfo[Engine::CI_CLASSPATH]);
             return true;
-        } elseif (!class_exists($sClassName)) {
-            dump("(autoload $sClassName) Can not load CLASS-file");
-            dump($aInfo);
-            //throw new Exception("(autoload '$sClassName') Can not load CLASS-file");
         }
         return false;
     }

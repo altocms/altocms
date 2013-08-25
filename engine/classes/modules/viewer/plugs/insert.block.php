@@ -46,8 +46,9 @@ function smarty_insert_block($aParams, &$oSmarty) {
             /**
              * TODO: Сделать проверку существования файла класса по-человечески
              */
-            $sFile = F::File_RootDir() . '/plugins/' . $aParams['params']['plugin'] . '/classes/widgets/Widget' . $sWidget . '.class.php';
-            if (!F::File_Exists($sFile)) {
+            $sFile = '/plugins/' . $aParams['params']['plugin'] . '/classes/widgets/Widget' . $sWidget . '.class.php';
+            $sFile = F::File_Exists($sFile, Config::Get('path.root.seek'));
+            if (!$sFile) {
                 // Если такого класса нет, то пытаемся по старинке задать класс "LS-блока" плагина
                 $sWidgetClass = 'Plugin' . ucfirst($aParams['params']['plugin']) . '_Block' . $sWidget;
             }
@@ -61,8 +62,8 @@ function smarty_insert_block($aParams, &$oSmarty) {
             /**
              * TODO: Сделать проверку существования файла класса по-человечески
              */
-            $sFile = F::File_RootDir() . '/classes/widgets/Widget' . $sWidget . '.class.php';
-            if (!F::File_Exists($sFile)) {
+            $sFile = F::File_Exists('/classes/widgets/Widget' . $sWidget . '.class.php', Config::Get('path.root.seek'));
+            if (!$sFile) {
                 // Если такого класса нет, то пытаемся по старинке задать класс "LS-блока"
                 $sWidgetClass = 'Block' . $sWidget;
             }

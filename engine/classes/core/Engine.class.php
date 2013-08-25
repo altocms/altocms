@@ -1194,7 +1194,7 @@ class Engine extends LsObject {
                 . '.class.php';
         } else {
             $sClassName = is_string($oObject) ? $oObject : get_class($oObject);
-            $sFile = 'engine/classes/' . $sClassName . '.class.php';
+            $sFile = $sClassName . '.class.php';
             $aPathSeek = array(
                 Config::Get('path.dir.engine') . '/classes/core/',
                 Config::Get('path.dir.engine') . '/classes/abstract/',
