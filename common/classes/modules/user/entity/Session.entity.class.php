@@ -26,6 +26,7 @@ class ModuleUser_EntitySession extends Entity {
      * @return string|null
      */
     public function getKey() {
+
         return $this->getProp('session_key');
     }
 
@@ -35,6 +36,7 @@ class ModuleUser_EntitySession extends Entity {
      * @return int|null
      */
     public function getUserId() {
+
         return $this->getProp('user_id');
     }
 
@@ -44,6 +46,7 @@ class ModuleUser_EntitySession extends Entity {
      * @return string|null
      */
     public function getIpCreate() {
+
         return $this->getProp('session_ip_create');
     }
 
@@ -53,6 +56,7 @@ class ModuleUser_EntitySession extends Entity {
      * @return string|null
      */
     public function getIpLast() {
+
         return $this->getProp('session_ip_last');
     }
 
@@ -62,6 +66,7 @@ class ModuleUser_EntitySession extends Entity {
      * @return string|null
      */
     public function getDateCreate() {
+
         return $this->getProp('session_date_create');
     }
 
@@ -71,6 +76,7 @@ class ModuleUser_EntitySession extends Entity {
      * @return string|null
      */
     public function getDateLast() {
+
         return $this->getProp('session_date_last');
     }
 
@@ -80,6 +86,7 @@ class ModuleUser_EntitySession extends Entity {
      * @return string|null
      */
     public function getDateExit() {
+
         return $this->getProp('session_exit');
     }
 
@@ -89,6 +96,7 @@ class ModuleUser_EntitySession extends Entity {
      * @return mixed|null
      */
     public function getUserAgentHash() {
+
         return $this->getProp('session_agent_hash');
     }
 
@@ -99,7 +107,8 @@ class ModuleUser_EntitySession extends Entity {
      * @param string $data
      */
     public function setKey($data) {
-        $this->_aData['session_key'] = $data;
+
+        $this->setProp('session_key', $data);
     }
 
     /**
@@ -108,7 +117,8 @@ class ModuleUser_EntitySession extends Entity {
      * @param int $data
      */
     public function setUserId($data) {
-        $this->_aData['user_id'] = $data;
+
+        $this->setProp('user_id', $data);
     }
 
     /**
@@ -117,7 +127,8 @@ class ModuleUser_EntitySession extends Entity {
      * @param string $data
      */
     public function setIpCreate($data) {
-        $this->_aData['session_ip_create'] = $data;
+
+        $this->setProp('session_ip_create', $data);
     }
 
     /**
@@ -126,7 +137,8 @@ class ModuleUser_EntitySession extends Entity {
      * @param string $data
      */
     public function setIpLast($data) {
-        $this->_aData['session_ip_last'] = $data;
+
+        $this->setProp('session_ip_last', $data);
     }
 
     /**
@@ -135,7 +147,8 @@ class ModuleUser_EntitySession extends Entity {
      * @param string $data
      */
     public function setDateCreate($data) {
-        $this->_aData['session_date_create'] = $data;
+
+        $this->setProp('session_date_create', $data);
     }
 
     /**
@@ -144,7 +157,8 @@ class ModuleUser_EntitySession extends Entity {
      * @param string $data
      */
     public function setDateLast($data) {
-        $this->_aData['session_date_last'] = $data;
+
+        $this->setProp('session_date_last', $data);
     }
 
     /**
@@ -153,7 +167,8 @@ class ModuleUser_EntitySession extends Entity {
      * @param string $data
      */
     public function setDateExit($data) {
-        $this->_aData['session_exit'] = $data;
+
+        $this->setProp('session_exit', $data);
     }
 
     /**
@@ -162,6 +177,7 @@ class ModuleUser_EntitySession extends Entity {
      * @param string|null $data
      */
     public function setUserAgentHash($data = null) {
+
         if (is_null($data)) {
             $data = $this->Security_GetUserAgentHash();
         }

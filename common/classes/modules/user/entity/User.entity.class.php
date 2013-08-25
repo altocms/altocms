@@ -30,15 +30,41 @@ class ModuleUser_EntityUser extends Entity {
     public function Init() {
 
         parent::Init();
-        $this->aValidateRules[] = array('login', 'login',
-                                        'on' => array('registration', '')); // '' - означает дефолтный сценарий
-        $this->aValidateRules[] = array('login', 'login_exists', 'on' => array('registration'));
-        $this->aValidateRules[] = array('mail', 'email', 'allowEmpty' => false, 'on' => array('registration', ''));
-        $this->aValidateRules[] = array('mail', 'mail_exists', 'on' => array('registration'));
-        $this->aValidateRules[] = array('password', 'string', 'allowEmpty' => false, 'min' => 5,
-                                        'on'                               => array('registration'));
-        $this->aValidateRules[] = array('password_confirm', 'compare', 'compareField' => 'password',
-                                        'on'                                          => array('registration'));
+        $this->aValidateRules[] = array(
+            'login',
+            'login',
+            'on' => array('registration', ''), // '' - означает дефолтный сценарий
+        );
+        $this->aValidateRules[] = array(
+            'login',
+            'login_exists',
+            'on' => array('registration'),
+        );
+        $this->aValidateRules[] = array(
+            'mail',
+            'email',
+            'allowEmpty' => false,
+            'on'         => array('registration', ''),
+        );
+        $this->aValidateRules[] = array(
+            'mail',
+            'mail_exists',
+            'on' => array('registration'),
+        );
+        $this->aValidateRules[] = array(
+            'password',
+            'string',
+            'allowEmpty' => false,
+            'min'        => 5,
+            'on'         => array('registration'),
+        );
+        $this->aValidateRules[] = array(
+            'password_confirm',
+            'compare',
+            'compareField' => 'password',
+            'on'           => array('registration'),
+        );
+
         // Определяем дополнительные правила валидации
         if (Config::Get('module.user.captcha_use_registration')) {
             $this->aValidateRules[] = array('captcha', 'captcha', 'on' => array('registration'));
@@ -634,7 +660,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setId($data) {
 
-        $this->_aData['user_id'] = $data;
+        $this->setProp('user_id', $data);
     }
 
     /**
@@ -644,7 +670,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setLogin($data) {
 
-        $this->_aData['user_login'] = $data;
+        $this->setProp('user_login', $data);
     }
 
     /**
@@ -658,7 +684,7 @@ class ModuleUser_EntityUser extends Entity {
         if ($bEncrypt) {
             $this->_aData['user_password'] = $this->Security_Salted($sPassword, 'pass');
         } else {
-            $this->_aData['user_password'] = $sPassword;
+            $this->setProp('user_password', $sPassword);
         }
     }
 
@@ -669,7 +695,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setMail($data) {
 
-        $this->_aData['user_mail'] = $data;
+        $this->setProp('user_mail', $data);
     }
 
     /**
@@ -679,7 +705,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setSkill($data) {
 
-        $this->_aData['user_skill'] = $data;
+        $this->setProp('user_skill', $data);
     }
 
     /**
@@ -689,7 +715,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setDateRegister($data) {
 
-        $this->_aData['user_date_register'] = $data;
+        $this->setProp('user_date_register', $data);
     }
 
     /**
@@ -699,7 +725,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setDateActivate($data) {
 
-        $this->_aData['user_date_activate'] = $data;
+        $this->setProp('user_date_activate', $data);
     }
 
     /**
@@ -709,7 +735,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setDateCommentLast($data) {
 
-        $this->_aData['user_date_comment_last'] = $data;
+        $this->setProp('user_date_comment_last', $data);
     }
 
     /**
@@ -719,7 +745,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setIpRegister($data) {
 
-        $this->_aData['user_ip_register'] = $data;
+        $this->setProp('user_ip_register', $data);
     }
 
     /**
@@ -729,7 +755,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setRating($data) {
 
-        $this->_aData['user_rating'] = $data;
+        $this->setProp('user_rating', $data);
     }
 
     /**
@@ -739,7 +765,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setCountVote($data) {
 
-        $this->_aData['user_count_vote'] = $data;
+        $this->setProp('user_count_vote', $data);
     }
 
     /**
@@ -749,7 +775,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setActivate($data) {
 
-        $this->_aData['user_activate'] = $data;
+        $this->setProp('user_activate', $data);
     }
 
     /**
@@ -759,7 +785,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setActivateKey($data) {
 
-        $this->_aData['user_activate_key'] = $data;
+        $this->setProp('user_activate_key', $data);
     }
 
     /**
@@ -769,7 +795,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setProfileName($data) {
 
-        $this->_aData['user_profile_name'] = $data;
+        $this->setProp('user_profile_name', $data);
     }
 
     /**
@@ -779,7 +805,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setProfileSex($data) {
 
-        $this->_aData['user_profile_sex'] = $data;
+        $this->setProp('user_profile_sex', $data);
     }
 
     /**
@@ -789,7 +815,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setProfileCountry($data) {
 
-        $this->_aData['user_profile_country'] = $data;
+        $this->setProp('user_profile_country', $data);
     }
 
     /**
@@ -799,7 +825,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setProfileRegion($data) {
 
-        $this->_aData['user_profile_region'] = $data;
+        $this->setProp('user_profile_region', $data);
     }
 
     /**
@@ -809,7 +835,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setProfileCity($data) {
 
-        $this->_aData['user_profile_city'] = $data;
+        $this->setProp('user_profile_city', $data);
     }
 
     /**
@@ -819,7 +845,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setProfileBirthday($data) {
 
-        $this->_aData['user_profile_birthday'] = $data;
+        $this->setProp('user_profile_birthday', $data);
     }
 
     /**
@@ -829,7 +855,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setProfileAbout($data) {
 
-        $this->_aData['user_profile_about'] = $data;
+        $this->setProp('user_profile_about', $data);
     }
 
     /**
@@ -839,7 +865,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setProfileDate($data) {
 
-        $this->_aData['user_profile_date'] = $data;
+        $this->setProp('user_profile_date', $data);
     }
 
     /**
@@ -849,7 +875,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setProfileAvatar($data) {
 
-        $this->_aData['user_profile_avatar'] = $data;
+        $this->setProp('user_profile_avatar', $data);
     }
 
     /**
@@ -859,7 +885,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setProfileFoto($data) {
 
-        $this->_aData['user_profile_foto'] = $data;
+        $this->setProp('user_profile_foto', $data);
     }
 
     /**
@@ -869,7 +895,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setSettingsNoticeNewTopic($data) {
 
-        $this->_aData['user_settings_notice_new_topic'] = $data;
+        $this->setProp('user_settings_notice_new_topic', $data);
     }
 
     /**
@@ -879,7 +905,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setSettingsNoticeNewComment($data) {
 
-        $this->_aData['user_settings_notice_new_comment'] = $data;
+        $this->setProp('user_settings_notice_new_comment', $data);
     }
 
     /**
@@ -889,7 +915,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setSettingsNoticeNewTalk($data) {
 
-        $this->_aData['user_settings_notice_new_talk'] = $data;
+        $this->setProp('user_settings_notice_new_talk', $data);
     }
 
     /**
@@ -899,7 +925,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setSettingsNoticeReplyComment($data) {
 
-        $this->_aData['user_settings_notice_reply_comment'] = $data;
+        $this->setProp('user_settings_notice_reply_comment', $data);
     }
 
     /**
@@ -909,7 +935,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setSettingsNoticeNewFriend($data) {
 
-        $this->_aData['user_settings_notice_new_friend'] = $data;
+        $this->setProp('user_settings_notice_new_friend', $data);
     }
 
     /**
@@ -919,7 +945,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setSession($data) {
 
-        $this->_aData['session'] = $data;
+        $this->setProp('session', $data);
     }
 
     /**
@@ -929,7 +955,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setUserIsFriend($data) {
 
-        $this->_aData['user_is_friend'] = $data;
+        $this->setProp('user_is_friend', $data);
     }
 
     /**
@@ -939,7 +965,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setVote($data) {
 
-        $this->_aData['vote'] = $data;
+        $this->setProp('vote', $data);
     }
 
     /**
@@ -949,12 +975,12 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setUserFriend($data) {
 
-        $this->_aData['user_friend'] = $data;
+        $this->setProp('user_friend', $data);
     }
 
     public function setLastSession($data) {
 
-        $this->_aData['user_last_session'] = $data;
+        $this->setProp('user_last_session', $data);
     }
 
 }

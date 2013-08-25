@@ -34,9 +34,15 @@ class ModuleUser_EntityNote extends Entity {
      * Инициализация
      */
     public function Init() {
+
         parent::Init();
-        $this->aValidateRules[] = array('text', 'string', 'max' => Config::Get('module.user.usernote_text_max'),
-                                        'min'                   => 1, 'allowEmpty' => false);
+        $this->aValidateRules[] = array(
+            'text',
+            'string',
+            'max' => Config::Get('module.user.usernote_text_max'),
+            'min' => 1,
+            'allowEmpty' => false,
+        );
     }
 
     /**
@@ -48,7 +54,8 @@ class ModuleUser_EntityNote extends Entity {
      * @return bool
      */
     public function ValidateTarget($sValue, $aParams) {
-        if ($oUserTarget = $this->User_GetUserById($sValue) and $this->getUserId() != $oUserTarget->getId()) {
+
+        if (($oUserTarget = $this->User_GetUserById($sValue)) && $this->getUserId() != $oUserTarget->getId()) {
             return true;
         }
         return $this->Lang_Get('user_note_target_error');

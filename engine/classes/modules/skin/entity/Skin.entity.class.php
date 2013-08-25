@@ -11,6 +11,7 @@
 class ModuleSkin_EntitySkin extends Entity {
 
     public function __construct($aParams = false) {
+
         if (is_array($aParams)) {
             $this->_setData($aParams);
         } elseif($aParams) {
@@ -20,6 +21,7 @@ class ModuleSkin_EntitySkin extends Entity {
     }
 
     public function LoadFromXmlFile($sSkinId, $aData = null) {
+
         $sSkinXML = $this->Skin_GetSkinManifest($sSkinId);
         if (is_null($aData)) {
             $aData = array(
@@ -30,6 +32,7 @@ class ModuleSkin_EntitySkin extends Entity {
     }
 
     public function LoadFromXml($sSkinXML, $aData = null) {
+
         $oXml = @simplexml_load_string($sSkinXML);
         if (!$oXml) {
             $sXml = '<?xml version="1.0" encoding="UTF-8"?>
@@ -62,6 +65,7 @@ class ModuleSkin_EntitySkin extends Entity {
      * @param string           $sLang    Название языка
      */
     protected function _xlang($oXml, $sProperty, $sLang) {
+
         $sProperty = trim($sProperty);
 
         if (!count($data = $oXml->xpath("{$sProperty}/lang[@name='{$sLang}']"))) {
@@ -71,6 +75,7 @@ class ModuleSkin_EntitySkin extends Entity {
     }
 
     protected function _getDataItem($sKey) {
+
         if (isset($this->_aData[$sKey]))
             return $this->_aData[$sKey];
         else
@@ -78,6 +83,7 @@ class ModuleSkin_EntitySkin extends Entity {
     }
 
     public function _getDataProperty($sProp = null) {
+
         if (is_null($sProp))
             return $this->_aData['property'];
         else
@@ -85,6 +91,7 @@ class ModuleSkin_EntitySkin extends Entity {
     }
 
     public function GetName() {
+
         $xProp = $this->_getDataProperty('name');
         if ($xProp->data)
             return $xProp->data;
@@ -93,6 +100,7 @@ class ModuleSkin_EntitySkin extends Entity {
     }
 
     public function GetDescription() {
+
         $xProp = $this->_getDataProperty('description');
         if ($xProp->data)
             return $xProp->data;
@@ -101,6 +109,7 @@ class ModuleSkin_EntitySkin extends Entity {
     }
 
     public function GetAuthor() {
+
         $xProp = $this->_getDataProperty('author');
         if ($xProp->data)
             return $xProp->data;
@@ -109,26 +118,32 @@ class ModuleSkin_EntitySkin extends Entity {
     }
 
     public function GetVersion() {
+
         return (string)$this->_getDataProperty('version');
     }
 
     public function GetHomepage() {
+
         return (string)$this->_getDataProperty('homepage');
     }
 
     public function GetEmail() {
+
         return (string)$this->_getDataProperty('author')->email;
     }
 
     public function IsActive() {
+
         return (bool)$this->_getDataItem('is_active');
     }
 
     public function Requires() {
+
         return $this->_getDataProperty('requires');
     }
 
     public function GetScreenshots() {
+
         $aData = $this->_getDataProperty('info')->screenshots->screenshot;
         $aResult = array();
         if (sizeof($aData)) {
@@ -143,6 +158,7 @@ class ModuleSkin_EntitySkin extends Entity {
     }
 
     public function GetPreview() {
+
         $aScreens=$this->GetScreenshots();
         foreach ($aScreens as $aScreen) {
             if ($aScreen['preview']) return $aScreen;
@@ -154,6 +170,7 @@ class ModuleSkin_EntitySkin extends Entity {
     }
 
     public function GetPreviewUrl() {
+
         $aScreen = $this->GetPreview();
         if ($aScreen && isset($aScreen['file'])) {
             $sFile = Config::Get('path.skins.dir') . $this->GetId() . '/settings/' . $aScreen['file'];
@@ -166,6 +183,7 @@ class ModuleSkin_EntitySkin extends Entity {
      * Тип скина - 'adminpanel', 'site'
      */
     public function GetType() {
+
         $info = $this->_getDataProperty('info');
         $sType = strtolower($info['type']);
         if (strpos($sType, 'admin') !== false) {
@@ -176,6 +194,7 @@ class ModuleSkin_EntitySkin extends Entity {
     }
 
     public function GetThemes() {
+
         $aData = $this->_getDataProperty('info')->themes->theme;
         $aResult = array();
         if (sizeof($aData)) {
@@ -191,6 +210,7 @@ class ModuleSkin_EntitySkin extends Entity {
     }
 
     public function RequiredAltoVersion() {
+
         $oRequires = $this->Requires();
         $sAltoVersion = (string)$oRequires->alto->version;
         if (!$sAltoVersion)
@@ -199,6 +219,7 @@ class ModuleSkin_EntitySkin extends Entity {
     }
 
     public function RequiredPhpVersion() {
+
         $oRequires = $this->Requires();
         if ($oRequires->system && $oRequires->system->php) {
             return (string)$oRequires->system->php;
@@ -206,6 +227,7 @@ class ModuleSkin_EntitySkin extends Entity {
     }
 
     public function RequiredPlugins() {
+
         $oRequires = $this->Requires();
         if ($oRequires->Plugins) {
             return $oRequires->Plugins->children();
@@ -213,6 +235,7 @@ class ModuleSkin_EntitySkin extends Entity {
     }
 
     public function EngineCompatible() {
+
         $oRequires = $this->Requires();
 
         $sLsVersion = (string)$oRequires->livestreet;

@@ -29,6 +29,7 @@ class ModuleUser_EntityFriend extends Entity {
      * @return string
      */
     public function getFriendId($sUserId = null) {
+
         if (!$sUserId) {
             $sUserId = $this->getUserId();
         }
@@ -48,6 +49,7 @@ class ModuleUser_EntityFriend extends Entity {
      * @return int
      */
     public function getUserId() {
+
         return $this->getProp('user');
     }
 
@@ -57,6 +59,7 @@ class ModuleUser_EntityFriend extends Entity {
      * @return int|null
      */
     public function getUserFrom() {
+
         return $this->getProp('user_from');
     }
 
@@ -66,6 +69,7 @@ class ModuleUser_EntityFriend extends Entity {
      * @return int|null
      */
     public function getUserTo() {
+
         return $this->getProp('user_to');
     }
 
@@ -75,6 +79,7 @@ class ModuleUser_EntityFriend extends Entity {
      * @return int|null
      */
     public function getStatusFrom() {
+
         return $this->getProp('status_from');
     }
 
@@ -84,6 +89,7 @@ class ModuleUser_EntityFriend extends Entity {
      * @return int|null
      */
     public function getStatusTo() {
+
         return $this->getProp('status_to') ? $this->getProp('status_to') : ModuleUser::USER_FRIEND_NULL;
     }
 
@@ -93,6 +99,7 @@ class ModuleUser_EntityFriend extends Entity {
      * @return int|null
      */
     public function getFriendStatus() {
+
         return $this->getStatusFrom() + $this->getStatusTo();
     }
 
@@ -104,6 +111,7 @@ class ModuleUser_EntityFriend extends Entity {
      * @return bool|int
      */
     public function getStatusByUserId($sUserId) {
+
         if ($sUserId == $this->getUserFrom()) {
             return $this->getStatusFrom();
         }
@@ -119,7 +127,8 @@ class ModuleUser_EntityFriend extends Entity {
      * @param int $data
      */
     public function setUserFrom($data) {
-        $this->_aData['user_from'] = $data;
+
+        $this->setProp('user_from', $data);
     }
 
     /**
@@ -128,7 +137,8 @@ class ModuleUser_EntityFriend extends Entity {
      * @param int $data
      */
     public function setUserTo($data) {
-        $this->_aData['user_to'] = $data;
+
+        $this->setProp('user_to', $data);
     }
 
     /**
@@ -137,7 +147,8 @@ class ModuleUser_EntityFriend extends Entity {
      * @param int $data
      */
     public function setStatusFrom($data) {
-        $this->_aData['status_from'] = $data;
+
+        $this->setProp('status_from', $data);
     }
 
     /**
@@ -146,7 +157,8 @@ class ModuleUser_EntityFriend extends Entity {
      * @param int $data
      */
     public function setStatusTo($data) {
-        $this->_aData['status_to'] = $data;
+
+        $this->setProp('status_to', $data);
     }
 
     /**
@@ -155,7 +167,8 @@ class ModuleUser_EntityFriend extends Entity {
      * @param int $data
      */
     public function setUserId($data) {
-        $this->_aData['user'] = $data;
+
+        $this->setProp('user', $data);
     }
 
     /**
@@ -167,6 +180,7 @@ class ModuleUser_EntityFriend extends Entity {
      * @return bool
      */
     public function setStatusByUserId($data, $sUserId) {
+
         if ($sUserId == $this->getUserFrom()) {
             $this->setStatusFrom($data);
             return true;

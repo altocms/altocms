@@ -26,6 +26,7 @@ class ModuleUser_EntityReminder extends Entity {
      * @return string|null
      */
     public function getCode() {
+
         return $this->getProp('reminder_code');
     }
 
@@ -35,6 +36,7 @@ class ModuleUser_EntityReminder extends Entity {
      * @return int|null
      */
     public function getUserId() {
+
         return $this->getProp('user_id');
     }
 
@@ -44,6 +46,7 @@ class ModuleUser_EntityReminder extends Entity {
      * @return string|null
      */
     public function getDateAdd() {
+
         return $this->getProp('reminder_date_add');
     }
 
@@ -53,6 +56,7 @@ class ModuleUser_EntityReminder extends Entity {
      * @return string|null
      */
     public function getDateUsed() {
+
         return $this->getProp('reminder_date_used');
     }
 
@@ -62,6 +66,7 @@ class ModuleUser_EntityReminder extends Entity {
      * @return string|null
      */
     public function getDateExpire() {
+
         return $this->getProp('reminder_date_expire');
     }
 
@@ -71,6 +76,7 @@ class ModuleUser_EntityReminder extends Entity {
      * @return int|null
      */
     public function getIsUsed() {
+
         return $this->getProp('reminde_is_used');
     }
 
@@ -80,7 +86,8 @@ class ModuleUser_EntityReminder extends Entity {
      * @param string $data
      */
     public function setCode($data) {
-        $this->_aData['reminder_code'] = $data;
+
+        $this->setProp('reminder_code', $data);
     }
 
     /**
@@ -89,7 +96,8 @@ class ModuleUser_EntityReminder extends Entity {
      * @param int $data
      */
     public function setUserId($data) {
-        $this->_aData['user_id'] = $data;
+
+        $this->setProp('user_id', $data);
     }
 
     /**
@@ -98,7 +106,8 @@ class ModuleUser_EntityReminder extends Entity {
      * @param string $data
      */
     public function setDateAdd($data) {
-        $this->_aData['reminder_date_add'] = $data;
+
+        $this->setProp('reminder_date_add', $data);
     }
 
     /**
@@ -107,7 +116,8 @@ class ModuleUser_EntityReminder extends Entity {
      * @param string $data
      */
     public function setDateUsed($data) {
-        $this->_aData['reminder_date_used'] = $data;
+
+        $this->setProp('reminder_date_used', $data);
     }
 
     /**
@@ -116,7 +126,7 @@ class ModuleUser_EntityReminder extends Entity {
      * @param string $data
      */
     public function setDateExpire($data) {
-        $this->_aData['reminder_date_expire'] = $data;
+        $this->setProp('reminder_date_expire', $data);
     }
 
     /**
@@ -125,8 +135,10 @@ class ModuleUser_EntityReminder extends Entity {
      * @param int $data
      */
     public function setIsUsed($data) {
-        $this->_aData['reminde_is_used'] = $data;
+
+        $this->setProp('reminde_is_used', $data);
     }
+
 }
 
 // EOF

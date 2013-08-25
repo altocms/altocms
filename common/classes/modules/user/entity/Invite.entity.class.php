@@ -26,6 +26,7 @@ class ModuleUser_EntityInvite extends Entity {
      * @return int|null
      */
     public function getId() {
+
         return $this->getProp('invite_id');
     }
 
@@ -35,6 +36,7 @@ class ModuleUser_EntityInvite extends Entity {
      * @return string|null
      */
     public function getCode() {
+
         return $this->getProp('invite_code');
     }
 
@@ -44,6 +46,7 @@ class ModuleUser_EntityInvite extends Entity {
      * @return int|null
      */
     public function getUserFromId() {
+
         return $this->getProp('user_from_id');
     }
 
@@ -53,6 +56,7 @@ class ModuleUser_EntityInvite extends Entity {
      * @return int|null
      */
     public function getUserToId() {
+
         return $this->getProp('user_to_id');
     }
 
@@ -62,6 +66,7 @@ class ModuleUser_EntityInvite extends Entity {
      * @return string|null
      */
     public function getDateAdd() {
+
         return $this->getProp('invite_date_add');
     }
 
@@ -71,6 +76,7 @@ class ModuleUser_EntityInvite extends Entity {
      * @return string|null
      */
     public function getDateUsed() {
+
         return $this->getProp('invite_date_used');
     }
 
@@ -80,6 +86,7 @@ class ModuleUser_EntityInvite extends Entity {
      * @return int|null
      */
     public function getUsed() {
+
         return $this->getProp('invite_used');
     }
 
@@ -90,7 +97,8 @@ class ModuleUser_EntityInvite extends Entity {
      * @param int $data
      */
     public function setId($data) {
-        $this->_aData['invite_id'] = $data;
+
+        $this->setProp('invite_id', $data);
     }
 
     /**
@@ -99,7 +107,8 @@ class ModuleUser_EntityInvite extends Entity {
      * @param string $data
      */
     public function setCode($data) {
-        $this->_aData['invite_code'] = $data;
+
+        $this->setProp('invite_code', $data);
     }
 
     /**
@@ -108,7 +117,8 @@ class ModuleUser_EntityInvite extends Entity {
      * @param int $data
      */
     public function setUserFromId($data) {
-        $this->_aData['user_from_id'] = $data;
+
+        $this->setProp('user_from_id', $data);
     }
 
     /**
@@ -117,7 +127,8 @@ class ModuleUser_EntityInvite extends Entity {
      * @param int $data
      */
     public function setUserToId($data) {
-        $this->_aData['user_to_id'] = $data;
+
+        $this->setProp('user_to_id', $data);
     }
 
     /**
@@ -126,7 +137,8 @@ class ModuleUser_EntityInvite extends Entity {
      * @param string $data
      */
     public function setDateAdd($data) {
-        $this->_aData['invite_date_add'] = $data;
+
+        $this->setProp('invite_date_add', $data);
     }
 
     /**
@@ -135,7 +147,8 @@ class ModuleUser_EntityInvite extends Entity {
      * @param string $data
      */
     public function setDateUsed($data) {
-        $this->_aData['invite_date_used'] = $data;
+
+        $this->setProp('invite_date_used', $data);
     }
 
     /**
@@ -144,7 +157,8 @@ class ModuleUser_EntityInvite extends Entity {
      * @param int $data
      */
     public function setUsed($data) {
-        $this->_aData['invite_used'] = $data;
+
+        $this->setProp('invite_used', $data);
     }
 }
 
