@@ -227,6 +227,7 @@ class Engine extends LsObject {
      *
      */
     public function __construct() {
+
         $this->iTimeInit = microtime(true);
         /* DEPRECATED in PHP 5.3 or more */
         if (get_magic_quotes_gpc()) {

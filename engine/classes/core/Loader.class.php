@@ -14,6 +14,9 @@ class Loader {
 
     static public function Init($aConfig) {
 
+        // Регистрация автозагрузчика классов
+        spl_autoload_register('Loader::Autoload');
+
         Config::Load($aConfig);
         $sConfigDir = Config::Get('path.dir.config');
 
@@ -178,9 +181,6 @@ class Loader {
             Config::Load($aConfig, false);
         }
 
-        // Регистрация автозагрузчика классов
-        spl_autoload_register('Loader::Autoload');
-
         // Задаем локаль по умолчанию
         F::IncludeLib('UserLocale/UserLocale.class.php');
         // Устанавливаем признак того, является ли сайт многоязычным
@@ -285,6 +285,12 @@ class Loader {
      */
     static public function Autoload($sClassName) {
 
+        if (($aClasses = Config::Get('classes')) && isset($aClasses[$sClassName])) {
+            if ($sClassFile = F::File_Exists($aClasses[$sClassName])) {
+                self::_includeFile($sClassFile);
+                return true;
+            }
+        }
         if (!class_exists('Engine', false) || (Engine::GetStage() < Engine::STAGE_INIT)) {
             //self::_includeFile(Config::Get('path.dir.engine') . '/classes/Engine.class.php');
             return false;

@@ -335,12 +335,48 @@ class Func {
     }
 
     /**
+     * Returns full dir path to plugins folder
+     *
      * @return string
      */
     static public function GetPluginsDir() {
 
-        return F::File_RootDir() . 'plugins/';
+        if (class_exists('Config', false)) {
+            $sPluginsDir = Config::Get('path.dir.common') . 'plugins/';
+        } else {
+            $sPluginsDir = F::File_RootDir() . 'common/plugins/';
+        }
+        return $sPluginsDir;
     }
+
+    /**
+     * Returns full dir path to plugins dat file
+     *
+     * @return string
+     */
+    static public function GetPluginsDatDir() {
+
+        if (class_exists('Config', false)) {
+            return Config::Get('path.dir.app') . 'plugins/';
+        } else {
+            return F::File_RootDir() . 'app/plugins/';
+        }
+    }
+
+    /**
+     * Returns full dir path of plugins dat file
+     *
+     * @return string
+     */
+    static public function GetPluginsDatFile() {
+
+        if (class_exists('Config', false)) {
+            return static::GetPluginsDatDir() . Config::Get('sys.plugins.activation_file');
+        } else {
+            return static::GetPluginsDatDir() . 'plugins.dat';
+        }
+    }
+
     /**
      * Получить список плагинов
      *
@@ -350,11 +386,7 @@ class Func {
     static public function GetPluginsList($bAll = false) {
 
         $sPluginsDir = static::GetPluginsDir();
-        if (class_exists('Config', false)) {
-            $sPluginsListFile = $sPluginsDir . Config::Get('sys.plugins.activation_file');
-        } else {
-            $sPluginsListFile = $sPluginsDir . 'plugins.dat';
-        }
+        $sPluginsListFile = static::GetPluginsDatFile();
         $aPlugins = array();
         if ($bAll) {
             $aPluginRaw = array();
