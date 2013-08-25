@@ -1957,7 +1957,7 @@ class ActionAdmin extends Action {
         $this->SetTemplateAction('site/skins');
 
         // Определяем скин и тему основного сайта (не админки)
-        $sSiteSkin = Config::Get('view.skin', Config::DEFAULT_CONFIG_INSTANCE);
+        $sSiteSkin = Config::Get('view.skin', Config::DEFAULT_CONFIG_ROOT);
         $sSiteTheme = Config::Get('skin.' . $sSiteSkin . '.config.view.theme');
 
         if (!$sSiteTheme && F::File_Exists($sFile = Config::Get('path.skins.dir') . $sSiteSkin . '/settings/config/config.php')) {

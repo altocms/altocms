@@ -10,20 +10,21 @@
 
 /**
  * @package engine
- * @since 1.0
+ * @since   1.0
  */
 class Storage {
 
     const SAVE_MODE_ORG = 0; // хранение в оригинальном виде
     const SAVE_MODE_ARR = 1; // хранение в виде массива
 
-    static protected $oInstance;
+    static protected $oInstance = null;
+
     /**
      * Storage container
      *
      * @var array
      */
-    protected $aStorage = array();
+    protected $aStorageVals = array();
 
     protected $nSaveMode = self::SAVE_MODE_ARR;
 
@@ -31,14 +32,11 @@ class Storage {
     protected $sFilterKey = '';
 
     /**
-     * Ограничиваем объект только одним экземпляром
-     *
-     * @static
-     * @return  Storage
+     * @return Storage
      */
     static public function getInstance() {
 
-        if (static::$oInstance instanceof self) {
+        if (!is_null(static::$oInstance)) {
             return static::$oInstance;
         } else {
             static::$oInstance = new static();
@@ -50,7 +48,8 @@ class Storage {
      * Нормализует передаваемый массив данных,
      * т.е. ключи вида 'a.b.c' преобразует в массив
      *
-     * @param   array   $aData
+     * @param array $aData
+     *
      * @return  array
      */
     protected function _keysArray($aData) {
@@ -61,8 +60,11 @@ class Storage {
                 $aKeys = array_reverse(explode('.', $sKey));
                 $aNewData = null;
                 foreach ($aKeys as $sKeyPart) {
-                    if (!$aNewData) $aNewData = array($sKeyPart => $xVal);
-                    else $aNewData = array($sKeyPart => $aNewData);
+                    if (!$aNewData) {
+                        $aNewData = array($sKeyPart => $xVal);
+                    } else {
+                        $aNewData = array($sKeyPart => $aNewData);
+                    }
                 }
                 unset($aData[$sKey]);
                 $aData = array_merge_recursive($aData, $aNewData);
@@ -75,8 +77,9 @@ class Storage {
      * Создает денормализованный массив данных,
      * т.е. массив вида array('a'=>array('b'=>array('c'=>1))) преобразует к виду array('a.b.c'=>1)
      *
-     * @param   array   $aData
-     * @param   bool    $bStringKeysOnly - денормализует только строковые ключи, не меняя массивы с числовыми ключами
+     * @param array $aData
+     * @param bool  $bStringKeysOnly - денормализует только строковые ключи, не меняя массивы с числовыми ключами
+     *
      * @return  array
      */
     protected function _keysPlain($aData, $bStringKeysOnly = false) {
@@ -110,6 +113,7 @@ class Storage {
      * Внутренняя функция - для фильтрации ключей
      *
      * @param $sKey
+     *
      * @return bool
      */
     protected function _filterKeys($sKey) {
@@ -123,6 +127,7 @@ class Storage {
      * @param $aItems
      * @param $aKeys
      * @param $bFound
+     *
      * @return bool
      */
     protected function _seekItem(&$aItems, &$aKeys, &$bFound) {
@@ -147,7 +152,7 @@ class Storage {
             if ($aFilteredKeys) {
                 $aFilteredItems = array_intersect_key($aItems, array_fill_keys($aFilteredKeys, 1));
                 $aSubItems = $this->_keysArray($aFilteredItems);
-                foreach($aFilteredKeys as $sExcludeKey) {
+                foreach ($aFilteredKeys as $sExcludeKey) {
                     unset($aItems[$sExcludeKey]);
                 }
                 $aItems = F::Array_Merge($aItems, $aSubItems);
@@ -169,10 +174,11 @@ class Storage {
     /**
      * Проверка наличия значения в хранилище по ключу (в т.ч по составному - как массив, как строка вида 'a.b.c')
      *
-     * @param   string  $sStorageKey
-     * @param   string|array    $aKeys
-     * @param   bool    $bAutocreate
-     * @param   bool    $bCheckOnly
+     * @param string       $sStorageKey
+     * @param string|array $aKeys
+     * @param bool         $bAutocreate
+     * @param bool         $bCheckOnly
+     *
      * @return  array|bool|null
      */
     protected function _checkItem($sStorageKey, $aKeys, $bAutocreate = false, $bCheckOnly = false) {
@@ -215,9 +221,10 @@ class Storage {
     /**
      * Сохраняет данные в хранилище
      *
-     * @param   string  $sStorageKey
-     * @param   array   $aData
-     * @param   bool    $bReset
+     * @param string $sStorageKey
+     * @param array  $aData
+     * @param bool   $bReset
+     *
      * @return  bool
      */
     public function SetStorage($sStorageKey, $aData = array(), $bReset = true) {
@@ -238,9 +245,9 @@ class Storage {
     }
 
     /**
-     * @param   string  $sStorageKey
-     * @param   string|array    $sKey
-     * @param   null    $xVal
+     * @param string       $sStorageKey
+     * @param string|array $sKey
+     * @param null         $xVal
      */
     public function SetItem($sStorageKey, $sKey, $xVal = null) {
 
@@ -264,7 +271,8 @@ class Storage {
     /**
      * Возвращает данные из хранилища
      *
-     * @param   string  $sStorageKey
+     * @param string $sStorageKey
+     *
      * @return  array
      */
     public function GetStorage($sStorageKey) {
@@ -294,8 +302,9 @@ class Storage {
     /**
      * Возвращает ссылку на элемент данных
      *
-     * @param   string          $sStorageKey
-     * @param   string|array    $aKeys
+     * @param string       $sStorageKey
+     * @param string|array $aKeys
+     *
      * @return  array|null
      */
     public function GetItem($sStorageKey, $aKeys) {
@@ -306,9 +315,10 @@ class Storage {
     /**
      * Возвращает ссылку на элемент данных
      *
-     * @param   string          $sStorageKey
-     * @param   string|array    $aKeys
-     * @param   bool            $bAutocreate
+     * @param string       $sStorageKey
+     * @param string|array $aKeys
+     * @param bool         $bAutocreate
+     *
      * @return  array|null
      */
     public function GetItemPtr($sStorageKey, $aKeys, $bAutocreate = false) {
@@ -319,8 +329,9 @@ class Storage {
     /**
      * Проверка наличия ключа
      *
-     * @param   string          $sStorageKey
-     * @param   string|array    $aKeys
+     * @param string       $sStorageKey
+     * @param string|array $aKeys
+     *
      * @return  array|bool|null
      */
     public function IsExists($sStorageKey, $aKeys) {

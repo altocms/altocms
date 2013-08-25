@@ -43,7 +43,7 @@ class ModuleSkin extends Module {
         $aList = glob(Config::Get('path.skins.dir') . '*', GLOB_ONLYDIR);
         if ($aList) {
             if (!isset($aFilter['type'])) $aFilter['type'] = '';
-            $sActiveSkin = Config::Get('view.skin', Config::DEFAULT_CONFIG_INSTANCE);
+            $sActiveSkin = Config::Get('view.skin', Config::DEFAULT_CONFIG_ROOT);
             foreach ($aList as $sSkinDir) {
                 $sSkin = basename($sSkinDir);
                 $oSkinEntity = Engine::GetEntity('Skin', $sSkin);

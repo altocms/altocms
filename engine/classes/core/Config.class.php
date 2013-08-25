@@ -17,15 +17,22 @@
  * Управление простым конфигом в виде массива
  *
  * @package engine.lib
- * @since 1.0
+ * @since   1.0
  */
 class Config extends Storage {
+
+    const LEVEL_MAIN = 0;
+    const LEVEL_CUSTOM = 1;
+    const LEVEL_ACTION = 2;
+    const LEVEL_SKIN = 3;
+    const LEVEL_SKIN_CUSTOM = 4;
+
     /**
-     * Default instance to operate with
+     * Default config root key
      *
      * @var string
      */
-    const DEFAULT_CONFIG_INSTANCE = '__main__';
+    const DEFAULT_CONFIG_ROOT = '__config__';
 
     const KEY_LINK_STR = '___';
     const KEY_LINK_PREG = '~___([\S|\.]+)___~Ui';
@@ -39,21 +46,26 @@ class Config extends Storage {
      */
     static protected $aMapper = array();
 
-    /** @var Config */
-    //static protected $oInstance;
-
-    static protected $sExtensionKey;
-
-    /**
-     * Store for configuration entries for current instance
-     *
-     * @var array
-     */
-    protected $aConfig = array();
-
     static protected $aQuickMap = array();
 
     static protected $bRereadCustomConfig = false;
+
+    protected $nSaveMode = self::SAVE_MODE_ARR;
+
+    /**
+     * Stack levels
+     *
+     * @var array
+     */
+    protected $aLevel = array();
+
+    /**
+     * Current level
+     *
+     * @var int
+     */
+    protected $nLevel = 0;
+
     /**
      * Disabled constract process
      */
@@ -61,20 +73,25 @@ class Config extends Storage {
 
     }
 
+    /**
+     * Clear quick map storage
+     */
     static protected function _clearQuickMap() {
 
         static::$aQuickMap = array();
     }
+
     /**
      * Load configuration array from file
      *
-     * @static
-     * @param   string  $sFile      - Путь до файла конфига
-     * @param   bool    $bReset     - Сбосить старые значения
-     * @param   string  $sInstance  - Название инстанции конфига
+     * @param string $sFile  - Путь до файла конфига
+     * @param bool   $bReset - Сбосить старые значения
+     * @param string $sKey   - Корневой ключ конфига
+     * @param int    $nLevel - Уровень конфига
+     *
      * @return  bool|Config
      */
-    static public function LoadFromFile($sFile, $bReset = true, $sInstance = self::DEFAULT_CONFIG_INSTANCE) {
+    static public function LoadFromFile($sFile, $bReset = true, $sKey = self::DEFAULT_CONFIG_ROOT, $nLevel = 0) {
 
         // Check if file exists
         if (!F::File_Exists($sFile)) {
@@ -82,143 +99,137 @@ class Config extends Storage {
         }
         // Get config from file
         if ($aConfig = F::File_IncludeFile($sFile, true, true)) {
-            return static::Load($aConfig, $bReset, $sInstance);
+            return static::Load($aConfig, $bReset, $sKey, $nLevel);
         }
     }
 
     /**
      * Loads configuration array from given array
      *
-     * @static
-     * @param   array   $aConfig    - Массив конфига
-     * @param   bool    $bReset     - Сбросить старые значения
-     * @param   string  $sInstance  - Название инстанции конфига
+     * @param array  $aConfig - Массив конфига
+     * @param bool   $bReset  - Сбросить старые значения
+     * @param string $sRoot   - Корневой ключ конфига
+     * @param int    $nLevel  - Уровень конфига
+     *
      * @return  bool|Config
      */
-    static public function Load($aConfig, $bReset = true, $sInstance = self::DEFAULT_CONFIG_INSTANCE) {
+    static public function Load($aConfig, $bReset = true, $sRoot = self::DEFAULT_CONFIG_ROOT, $nLevel = 0) {
 
         // Check if it`s array
         if (!is_array($aConfig)) {
             return false;
         }
         // Set config to current or handle instance
-        static::getInstance()->SetConfig($aConfig, $bReset, $sInstance);
+        static::getInstance()->SetConfig($aConfig, $bReset, $sRoot, $nLevel);
         return static::getInstance();
     }
 
-    /**
-     * Extends configuration from file
-     *
-     * @static
-     * @param   string  $sFile      - Путь до файла конфига
-     * @param   bool    $bReset     - Сбосить старые значения
-     * @param   string  $sInstance  - Название инстанции конфига
-     * @return  bool|Config
-     */
-    static public function ExtendFromFile($sFile, $bReset = true, $sInstance) {
+    protected function _storageKey($sRootKey = self::DEFAULT_CONFIG_ROOT, $nLevel = null) {
 
-        static::$sExtensionKey = $sInstance;
-
-        // Check if file exists
-        if (!F::File_Exists($sFile)) {
-            return false;
+        if (is_null($nLevel)) {
+            $nLevel = ($this->nLevel ? $this->nLevel : 0);
         }
-        // Get config from file
-        if ($aConfig = F::File_IncludeFile($sFile, true, true)) {
-            return static::Extend($aConfig, $bReset, $sInstance);
-        }
-    }
-
-    /**
-     * Extends configuration from array
-     *
-     * @static
-     * @param   array   $aConfig    - Массив конфига
-     * @param   bool    $bReset     - Сбросить старые значения
-     * @param   string  $sInstance  - Название инстанции конфига
-     * @return  bool|Config
-     */
-    static public function Extend($aConfig, $bReset = true, $sInstance) {
-
-        static::$sExtensionKey = $sInstance;
-
-        // Check if it`s array
-        if (!is_array($aConfig)) {
-            return false;
-        }
-        // Set config to current or handle instance
-        static::getInstance()->SetConfig($aConfig, $bReset, $sInstance);
-        return static::getInstance();
-    }
-
-    static public function SetExtensionKey($sExtensionKey) {
-
-        if ($sExtensionKey == self::DEFAULT_CONFIG_INSTANCE) {
-            $sExtensionKey = null;
-        }
-        if (static::$sExtensionKey != $sExtensionKey) {
-            static::$sExtensionKey = $sExtensionKey;
-            static::_clearQuickMap();
-        }
-    }
-
-    static public function ClearExtensionKey() {
-
-        static::SetExtensionKey(null);
+        return $sRootKey . '.__[' . $nLevel . ']__';
     }
 
     /**
      * Возвращает текущий полный конфиг
      *
-     * @param   string  $sInstance  - Название инстанции конфига
+     * @param string $sKey   - Корневой ключ конфига
+     * @param int    $nLevel - Уровень конфига
+     *
      * @return  array
      */
-    public function GetConfig($sInstance = self::DEFAULT_CONFIG_INSTANCE) {
+    public function GetConfig($sKey = self::DEFAULT_CONFIG_ROOT, $nLevel = null) {
 
-        $aConfig = parent::GetStorage(self::DEFAULT_CONFIG_INSTANCE);
-        if ($sInstance != self::DEFAULT_CONFIG_INSTANCE) {
-            // нужен расширенный конфиг
-            if (!is_null($sInstance)) {
-                $aConfig = F::Array_Merge($aConfig, parent::GetStorage($sInstance));
-            } elseif (static::$sExtensionKey) {
-                $aConfig = F::Array_Merge($aConfig, parent::GetStorage(static::$sExtensionKey));
+        if (is_null($nLevel)) {
+            $nLevel = $this->nLevel;
+        }
+        $aResult = array();
+        for ($n = 0; $n <= $nLevel; $n++) {
+            $sStorageKey = $this->_storageKey($sKey, $n);
+            if ($aConfig = parent::GetStorage($sStorageKey)) {
+                $aResult = F::Array_Merge($aResult, $aConfig);
             }
         }
-        return $aConfig;
+        return $aResult;
     }
 
     /**
      * Устанавливает значения конфига
      *
-     * @param   array   $aConfig    - Массив конфига
-     * @param   bool    $bReset     - Сбросить старые значения
-     * @param   string  $sInstance  - Название инстанции конфига
+     * @param array  $aConfig - Массив конфига
+     * @param bool   $bReset  - Сбросить старые значения
+     * @param string $sRoot   - Корневой ключ конфига
+     * @param int    $nLevel  - Уровень конфига
+     *
      * @return  bool
      */
-    public function SetConfig($aConfig = array(), $bReset = true, $sInstance = self::DEFAULT_CONFIG_INSTANCE) {
+    public function SetConfig($aConfig = array(), $bReset = true, $sRoot = self::DEFAULT_CONFIG_ROOT, $nLevel = null) {
 
         static::_clearQuickMap();
-        return parent::SetStorage($sInstance, $aConfig, $bReset);
+        if (is_null($nLevel)) {
+            $nLevel = $this->nLevel;
+        }
+        $StorageKey = $this->_storageKey($sRoot, $nLevel);
+        return parent::SetStorage($StorageKey, $aConfig, $bReset);
+    }
+
+    /**
+     * Очистка заданного (или текущего) уровня конфигурации
+     *
+     * @param null $nLevel
+     */
+    public function _clearLevel($nLevel = null) {
+
+        $this->SetConfig(null, true, null, $nLevel);
+    }
+
+    /**
+     * Установка нового уровня конфигурации (все уровни между текущим и новым уровнем будут очищены)
+     *
+     * @param null $nLevel
+     */
+    public function _setLevel($nLevel = null) {
+
+        if ($nLevel > $this->nLevel) {
+            while ($nLevel > $this->nLevel) {
+                $this->_clearLevel($this->nLevel++);
+            }
+        } elseif ($nLevel < $this->nLevel) {
+            while ($nLevel < $this->nLevel) {
+                $this->_clearLevel($this->nLevel--);
+            }
+        }
+        $this->_clearLevel($nLevel);
+        $this->nLevel = $nLevel;
+    }
+
+    static public function SetLevel($nLevel) {
+
+        return static::getInstance()->_setLevel($nLevel);
     }
 
     /**
      * Retrive information from configuration array
      *
-     * @param  string   $sKey       - Ключ
-     * @param  string   $sInstance  - Название инстанции конфига
+     * @param string $sKey  - Ключ
+     * @param string $sRoot - Корневой ключ конфига
+     * @param int    $nLevel
+     *
      * @return mixed
      */
-    static public function Get($sKey = '', $sInstance = self::DEFAULT_CONFIG_INSTANCE) {
+    static public function Get($sKey = '', $sRoot = self::DEFAULT_CONFIG_ROOT, $nLevel = null) {
 
         // Return all config array
         if (!$sKey) {
-            return static::getInstance()->GetConfig($sInstance);
+            return static::getInstance()->GetConfig($sRoot);
         }
 
         // Проверяем в локальном кеше, и если там нет, то находим и сохраняем
-        $sKeyMap = $sInstance . '.' . $sKey;
+        $sKeyMap = $sRoot . '.' . (is_null($nLevel) ? '' : ($nLevel . '.')) . $sKey;
         if (!isset(static::$aQuickMap[$sKeyMap])) {
-            $sValue = static::getInstance()->GetValue($sKey, $sInstance);
+            $sValue = static::getInstance()->GetValue($sKey, $sRoot, $nLevel);
             static::$aQuickMap[$sKeyMap] = $sValue;
         }
         return static::$aQuickMap[$sKeyMap];
@@ -228,7 +239,7 @@ class Config extends Storage {
      * As a method Get() but with default value
      *
      * @param string $sKey
-     * @param mixed   $xDefault
+     * @param mixed  $xDefault
      *
      * @return mixed|null
      */
@@ -241,16 +252,18 @@ class Config extends Storage {
     /**
      * Получает значение из конфигурации по переданному ключу
      *
-     * @param  string   $sKey       - Ключ
-     * @param  string   $sInstance  - Название инстанции конфига
+     * @param string $sKey  - Ключ
+     * @param string $sRoot - Корневой ключ конфига
+     * @param int $nLevel
+     *
      * @return mixed
      */
-    public function GetValue($sKey, $sInstance = self::DEFAULT_CONFIG_INSTANCE) {
+    public function GetValue($sKey, $sRoot = self::DEFAULT_CONFIG_ROOT, $nLevel = null) {
 
         // Return config by path (separator=".")
         $aKeys = explode('.', $sKey);
 
-        $cfg = $this->GetConfig($sInstance);
+        $cfg = $this->GetConfig($sRoot, $nLevel);
         foreach ((array)$aKeys as $sK) {
             if (isset($cfg[$sK])) {
                 $cfg = $cfg[$sK];
@@ -259,7 +272,7 @@ class Config extends Storage {
             }
         }
 
-        $cfg = static::KeyReplace($cfg, $sInstance);
+        $cfg = static::KeyReplace($cfg, $sRoot);
         return $cfg;
     }
 
@@ -267,19 +280,21 @@ class Config extends Storage {
      * Заменяет плейсхолдеры ключей в значениях конфига
      *
      * @static
-     * @param string|array $xCfg   Значения конфига
-     * @param string $sInstance    Название инстанции конфига
+     *
+     * @param string|array $xCfg  - Значения конфига
+     * @param string       $sRoot - Корневой ключ конфига
+     *
      * @return array|mixed
      */
-    static public function KeyReplace($xCfg, $sInstance = self::DEFAULT_CONFIG_INSTANCE) {
+    static public function KeyReplace($xCfg, $sRoot = self::DEFAULT_CONFIG_ROOT) {
 
         if (is_array($xCfg)) {
             foreach ($xCfg as $k => $v) {
-                $k_replaced = static::KeyReplace($k, $sInstance);
+                $k_replaced = static::KeyReplace($k, $sRoot);
                 if ($k == $k_replaced) {
-                    $xCfg[$k] = static::KeyReplace($v, $sInstance);
+                    $xCfg[$k] = static::KeyReplace($v, $sRoot);
                 } else {
-                    $xCfg[$k_replaced] = static::KeyReplace($v, $sInstance);
+                    $xCfg[$k_replaced] = static::KeyReplace($v, $sRoot);
                     unset($xCfg[$k]);
                 }
             }
@@ -291,7 +306,7 @@ class Config extends Storage {
             ) {
                 foreach ($aMatch as $aItem) {
                     $xCfg = str_replace(
-                        self::KEY_LINK_STR . $aItem[1] . self::KEY_LINK_STR, Config::Get($aItem[1], $sInstance), $xCfg
+                        self::KEY_LINK_STR . $aItem[1] . self::KEY_LINK_STR, Config::Get($aItem[1], $sRoot), $xCfg
                     );
                 }
             }
@@ -305,43 +320,42 @@ class Config extends Storage {
      *
      * Workaround for http://bugs.php.net/bug.php?id=40442
      *
-     * @param  string $sKey      Path to needed value
-     * @param  string $sInstance Name of needed instance
+     * @param string $sKey  - Path to needed value
+     * @param string $sRoot - Name of needed instance
+     *
      * @return bool
      */
-    static public function isExist($sKey, $sInstance = self::DEFAULT_CONFIG_INSTANCE) {
+    static public function isExist($sKey, $sRoot = self::DEFAULT_CONFIG_ROOT) {
 
-        return static::getInstance()->IsExists($sInstance, $sKey);
+        return static::getInstance()->IsExists($sRoot, $sKey);
     }
 
     /**
      * Add information in config array by handle path
      *
-     * @param  string   $sKey       - Ключ
-     * @param  mixed    $xValue     - Значение
-     * @param  string   $sInstance  - Название инстанции конфига
+     * @param string $sKey   - Ключ
+     * @param mixed  $xValue - Значение
+     * @param string $sRoot  - Корневой ключ конфига
+     * @param int $nLevel
+     *
      * @return bool
      */
-    static public function Set($sKey, $xValue, $sInstance = self::DEFAULT_CONFIG_INSTANCE) {
-
-        $aKeys = explode('.', $sKey);
+    static public function Set($sKey, $xValue, $sRoot = self::DEFAULT_CONFIG_ROOT, $nLevel = null) {
 
         if (isset($xValue['$root$']) && is_array($xValue['$root$'])) {
             $aRoot = $xValue['$root$'];
             unset($xValue['$root$']);
             foreach ($aRoot as $sRootKey => $xVal) {
                 if (static::isExist($sRootKey)) {
-                    static::Set($sRootKey, F::Array_Merge(Config::Get($sRootKey, $sInstance), $xVal), $sInstance);
+                    static::Set($sRootKey, F::Array_Merge(Config::Get($sRootKey, $sRoot), $xVal), $sRoot, $nLevel);
                 } else {
-                    static::Set($sRootKey, $xVal, $sInstance);
+                    static::Set($sRootKey, $xVal, $sRoot, $nLevel);
                 }
             }
         }
 
-        static::getInstance()->SetItem($sInstance, $sKey, $xValue);
+        static::getInstance()->SetConfig(array($sKey => $xValue), false, $sRoot, $nLevel);
 
-        // Сбрасываем локальный кеш
-        static::_clearQuickMap();
         return true;
     }
 
@@ -364,11 +378,12 @@ class Config extends Storage {
     /**
      * Define constants using config-constant mapping
      *
-     * @param  string $sKey    Ключ
-     * @param  string $sInstance    Название инстанции конфига
+     * @param string $sKey  - Ключ
+     * @param string $sRoot - Корневой ключ конфига
+     *
      * @return bool
      */
-    static public function DefineConstant($sKey = '', $sInstance = self::DEFAULT_CONFIG_INSTANCE) {
+    static public function DefineConstant($sKey = '', $sRoot = self::DEFAULT_CONFIG_ROOT) {
 
         if ($aKeys = static::getInstance()->GetKeys()) {
             foreach ($aKeys as $key) {
@@ -378,11 +393,13 @@ class Config extends Storage {
                     : strtoupper(str_replace('.', '_', $key));
                 if ((substr($key, 0, strlen($sKey)) == strtoupper($sKey))
                     && !defined($sName)
-                    && (static::isExist($key, $sInstance))
+                    && (static::isExist($key, $sRoot))
                 ) {
-                    $cfg = static::Get($key, $sInstance);
+                    $cfg = static::Get($key, $sRoot);
                     // Define constant, if found value is scalar or NULL
-                    if (is_scalar($cfg) || $cfg === NULL) define(strtoupper($sName), $cfg);
+                    if (is_scalar($cfg) || $cfg === NULL) {
+                        define(strtoupper($sName), $cfg);
+                    }
                 }
             }
             return true;
@@ -393,8 +410,9 @@ class Config extends Storage {
     /**
      * Записывает кастомную конфигурацию
      *
-     * @param   array   $aConfig
-     * @param   bool    $bCacheOnly
+     * @param array $aConfig
+     * @param bool  $bCacheOnly
+     *
      * @return  bool
      */
     static public function WriteCustomConfig($aConfig, $bCacheOnly = false) {
@@ -464,7 +482,8 @@ class Config extends Storage {
      * Возвращает полный путь к кеш-файлу кастомной конфигуации
      * или просто проверяет его наличие
      *
-     * @param   bool $bCheckOnly
+     * @param bool $bCheckOnly
+     *
      * @return  string
      */
     static protected function _checkCustomCfg($bCheckOnly = false) {
@@ -491,8 +510,8 @@ class Config extends Storage {
     /**
      * Сохраняет в файловом кеше кастомную конфигурацию
      *
-     * @param   $aConfig
-     * @param   $bReset
+     * @param $aConfig
+     * @param $bReset
      */
     static protected function _putCustomCfg($aConfig, $bReset = false) {
 
@@ -512,7 +531,8 @@ class Config extends Storage {
     /**
      * Читает из файлового кеша кастомную конфигурацию
      *
-     * @param   string  $sKeyPrefix
+     * @param string $sKeyPrefix
+     *
      * @return  array
      */
     static protected function _getCustomCfg($sKeyPrefix = null) {

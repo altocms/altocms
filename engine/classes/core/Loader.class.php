@@ -176,6 +176,7 @@ class Loader {
         Config::Set('path.root.seek', $aSeekDirClasses);
 
         // Подгружаем конфиг из файлового кеша, если он есть
+        Config::SetLevel(Config::LEVEL_CUSTOM);
         $aConfig = Config::ReadCustomConfig(null, true);
         if ($aConfig) {
             Config::Load($aConfig, false);

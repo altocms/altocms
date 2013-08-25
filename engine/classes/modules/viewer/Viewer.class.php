@@ -717,7 +717,7 @@ class ModuleViewer extends Module {
     public function GetSkin($bSiteSkin = true) {
 
         if ($bSiteSkin) {
-            return Config::Get('view.skin', Config::DEFAULT_CONFIG_INSTANCE);
+            return Config::Get('view.skin', Config::DEFAULT_CONFIG_ROOT);
         } else {
             return Config::Get('view.skin');
         }
