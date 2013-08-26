@@ -63,14 +63,14 @@ class ModuleDatabase extends Module {
 
         if (Config::Get('db.params.lazy')) {
             // lazy connection
-            F::IncludeLib('DbSimple3/lib/DbSimple/Connect.php');
+            //F::IncludeLib('DbSimple3/lib/DbSimple/Connect.php');
             $oDbSimple = new DbSimple_Connect($sDsn);
             foreach ($this->aInitSql as $sSql) {
                 $oDbSimple->addInit($sSql);
             }
         } else {
             // immediate connection
-            F::IncludeLib('DbSimple3/lib/DbSimple/Generic.php');
+            //F::IncludeLib('DbSimple3/lib/DbSimple/Generic.php');
             $oDbSimple = DbSimple_Generic::connect($sDsn);
             foreach ($this->aInitSql as $sSql) {
                 $oDbSimple->query($sSql);

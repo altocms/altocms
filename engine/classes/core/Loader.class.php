@@ -286,32 +286,106 @@ class Loader {
      */
     static public function Autoload($sClassName) {
 
-        if (($aClasses = Config::Get('classes')) && isset($aClasses[$sClassName])) {
-            if ($sClassFile = F::File_Exists($aClasses[$sClassName])) {
-                self::_includeFile($sClassFile);
-                return true;
+        if (Config::Get('classes') && self::_autoloadDefinedClass($sClassName)) {
+            return true;
+        }
+        if (class_exists('Engine', false) && (Engine::GetStage() >= Engine::STAGE_INIT)) {
+            $aInfo = Engine::GetClassInfo($sClassName, Engine::CI_CLASSPATH | Engine::CI_INHERIT);
+            if ($aInfo[Engine::CI_INHERIT]) {
+                $sInheritClass = $aInfo[Engine::CI_INHERIT];
+                $sParentClass = Engine::getInstance()->Plugin_GetParentInherit($sInheritClass);
+                if (!class_alias($sParentClass, $sClassName)) {
+                    return false;
+                } else {
+                    return true;
+                }
+            } elseif ($aInfo[Engine::CI_CLASSPATH]) {
+                return self::_includeFile($aInfo[Engine::CI_CLASSPATH]);
             }
         }
-        if (!class_exists('Engine', false) || (Engine::GetStage() < Engine::STAGE_INIT)) {
-            //self::_includeFile(Config::Get('path.dir.engine') . '/classes/Engine.class.php');
-            return false;
-        }
-        $aInfo = Engine::GetClassInfo($sClassName, Engine::CI_CLASSPATH | Engine::CI_INHERIT);
-        if ($aInfo[Engine::CI_INHERIT]) {
-            $sInheritClass = $aInfo[Engine::CI_INHERIT];
-            $sParentClass = Engine::getInstance()->Plugin_GetParentInherit($sInheritClass);
-            if (!class_alias($sParentClass, $sClassName)) {
-                return false;
-            } else {
-                return true;
-            }
-        } elseif ($aInfo[Engine::CI_CLASSPATH]) {
-            self::_includeFile($aInfo[Engine::CI_CLASSPATH]);
+        if (self::_autoloadPSR0($sClassName)) {
             return true;
         }
         return false;
     }
 
+    /**
+     * Try to load class using config info
+     *
+     * @param string $sClassName
+     *
+     * @return bool
+     */
+    static protected function _autoloadDefinedClass($sClassName) {
+
+        if ($sFile = Config::Get('classes.class.' . $sClassName)) {
+            // defined file name for the class
+            if (is_array($sFile)) {
+                $sFile = isset($sFile['file']) ? $sFile['file'] : null;
+            }
+            if ($sFile) {
+                return self::_includeFile($sFile);
+            }
+        }
+        // May be Namespace_Package or Namespace\Package
+        if (strpos($sClassName, '\\') || strpos($sClassName, '_')) {
+            $aPrefixes = Config::Get('classes.prefix');
+            foreach ($aPrefixes as $sPrefix => $aOptions) {
+                if (strpos($sClassName, $sPrefix) === 0) {
+                    // defined prefix for vendor/library
+                    if (is_array($aOptions)) {
+                        if (isset($aOptions['path'])) {
+                            $sPath = $aOptions['path'];
+                        } else {
+                            $sPath = '';
+                        }
+                    } else {
+                        $sPath = $aOptions;
+                    }
+                    if ($sPath) {
+                        return self::_autoloadPSR0($sClassName, $sPath);
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    static protected $_aFailedClasses = array();
+    /**
+     * Try to load class using PRS-0 naming standard
+     *
+     * @param string       $sClassName
+     * @param string|array $sPath
+     *
+     * @return bool
+     */
+    static protected function _autoloadPSR0($sClassName, $sPath = null) {
+
+        if (!$sPath) {
+            $sPath = Config::Get('path.dir.libs');
+        }
+
+        $sCheckKey = serialize(array($sClassName, $sPath));
+        if (!isset(self::$_aFailedClasses[$sCheckKey])) {
+            if (strpos($sClassName, '\\')) {
+                // Namespaces
+                $sClassPath = str_replace('\\', DIRECTORY_SEPARATOR, $sClassName);
+            } elseif (strpos($sClassName, '_')) {
+                // Old style with '_'
+                $sClassName = str_replace('_', DIRECTORY_SEPARATOR, $sClassName);
+            } else {
+                return false;
+            }
+            if ($sFile = F::File_Exists($sClassName . '.php', $sPath)) {
+                return self::_includeFile($sFile);
+            } elseif ($sFile = F::File_Exists($sClassName . '.class.php', $sPath)) {
+                return self::_includeFile($sFile);
+            }
+        }
+        self::$_aFailedClasses[$sCheckKey] = false;
+        return false;
+    }
 
 }
 
