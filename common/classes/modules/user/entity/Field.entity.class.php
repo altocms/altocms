@@ -26,6 +26,7 @@ class ModuleUser_EntityField extends Entity {
      * @return int|null
      */
     public function getId() {
+
         return $this->getProp('id');
     }
 
@@ -35,6 +36,7 @@ class ModuleUser_EntityField extends Entity {
      * @return string|null
      */
     public function getName() {
+
         return $this->getProp('name');
     }
 
@@ -44,6 +46,7 @@ class ModuleUser_EntityField extends Entity {
      * @return string|null
      */
     public function getType() {
+
         return $this->getProp('type');
     }
 
@@ -53,6 +56,7 @@ class ModuleUser_EntityField extends Entity {
      * @return string|null
      */
     public function getTitle() {
+
         return $this->getProp('title');
     }
 
@@ -62,6 +66,7 @@ class ModuleUser_EntityField extends Entity {
      * @return string|null
      */
     public function getPattern() {
+
         return $this->getProp('pattern');
     }
 
@@ -74,6 +79,7 @@ class ModuleUser_EntityField extends Entity {
      * @return string
      */
     public function getValue($bEscapeValue = false, $bTransformed = false) {
+
         if (!isset($this->_aData['value']) || !$this->_aData['value']) {
             return '';
         }
@@ -108,7 +114,8 @@ class ModuleUser_EntityField extends Entity {
      * @param int $iId
      */
     public function setId($iId) {
-        $this->_aData['id'] = $iId;
+
+        $this->setProp('id', $iId);;
     }
 
     /**
@@ -117,7 +124,8 @@ class ModuleUser_EntityField extends Entity {
      * @param string $sName
      */
     public function setName($sName) {
-        $this->_aData['name'] = $sName;
+
+        $this->setProp('name', $sName);;
     }
 
     /**
@@ -126,7 +134,8 @@ class ModuleUser_EntityField extends Entity {
      * @param string $sName
      */
     public function setType($sName) {
-        $this->_aData['type'] = $sName;
+
+        $this->setProp('type', $sName);;
     }
 
     /**
@@ -135,7 +144,8 @@ class ModuleUser_EntityField extends Entity {
      * @param string $sTitle
      */
     public function setTitle($sTitle) {
-        $this->_aData['title'] = $sTitle;
+
+        $this->setProp('title', $sTitle);;
     }
 
     /**
@@ -144,7 +154,8 @@ class ModuleUser_EntityField extends Entity {
      * @param string $sPattern
      */
     public function setPattern($sPattern) {
-        $this->_aData['pattern'] = $sPattern;
+
+        $this->setProp('pattern', $sPattern);;
     }
 
     /**
@@ -153,8 +164,10 @@ class ModuleUser_EntityField extends Entity {
      * @param string $sValue
      */
     public function setValue($sValue) {
-        $this->_aData['value'] = $sValue;
+
+        $this->setProp('value', $sValue);;
     }
+
 }
 
 // EOF

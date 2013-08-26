@@ -41,14 +41,11 @@ class ModuleUser_MapperUser extends Mapper {
 			)
 			VALUES(?, ?, ?, ?, ?, ?, ?)
 		";
-        if ($iId = $this->oDb->query(
+        $nUserId = $this->oDb->query(
             $sql, $oUser->getLogin(), $oUser->getPassword(), $oUser->getMail(), $oUser->getDateRegister(),
             $oUser->getIpRegister(), $oUser->getActivate(), $oUser->getActivateKey()
-        )
-        ) {
-            return $iId;
-        }
-        return false;
+        );
+        return $nUserId ? $nUserId : false;
     }
 
     /**
@@ -142,6 +139,7 @@ class ModuleUser_MapperUser extends Mapper {
 				?_session AS s
 			WHERE
 				s.session_key = ?
+			LIMIT 1
 			";
         if ($nUserId = $this->oDb->selectCell($sql, $sKey)) {
             return intval($nUserId);
@@ -349,7 +347,9 @@ class ModuleUser_MapperUser extends Mapper {
 				u.user_id
 			FROM
 				?_user as u
-			WHERE u.user_activate_key = ? ";
+			WHERE u.user_activate_key = ?
+			LIMIT 1
+			";
         if ($aRow = $this->oDb->selectRow($sql, $sKey)) {
             return $aRow['user_id'];
         }
@@ -383,7 +383,9 @@ class ModuleUser_MapperUser extends Mapper {
 				u.user_id
 			FROM
 				?_user as u
-			WHERE u.user_mail = ? ";
+			WHERE u.user_mail = ?
+			LIMIT 1
+			";
         return intval($this->oDb->selectCell($sql, $sMail));
     }
 
@@ -415,7 +417,9 @@ class ModuleUser_MapperUser extends Mapper {
 			FROM
 				?_user as u
 			WHERE
-				u.user_login = ? ";
+				u.user_login = ?
+			LIMIT 1
+			";
         return intval($this->oDb->selectCell($sql, $sLogin));
     }
 
@@ -1025,7 +1029,9 @@ class ModuleUser_MapperUser extends Mapper {
 				FROM
 					?_reminder
 				WHERE
-					reminder_code = ?";
+					reminder_code = ?
+				LIMIT 1
+				";
         if ($aRow = $this->oDb->selectRow($sql, $sCode)) {
             return Engine::GetEntity('User_Reminder', $aRow);
         }
@@ -1326,16 +1332,14 @@ class ModuleUser_MapperUser extends Mapper {
 
         $sql
             = "
-			SELECT count(*) as c
+			SELECT COUNT(*) as c
 			FROM
 				?_user_note
 			WHERE
 				user_id = ?d
 			";
-        if ($aRow = $this->oDb->selectRow($sql, $iUserId)) {
-            return $aRow['c'];
-        }
-        return 0;
+        $nCnt = $this->oDb->selectCell($sql, $iUserId);
+        return $nCnt ? $nCnt : 0;
     }
 
     /**
@@ -1364,7 +1368,12 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function GetUserNoteById($iId) {
 
-        $sql = "SELECT * FROM ?_user_note WHERE id = ?d ";
+        $sql = "
+            SELECT *
+            FROM ?_user_note
+            WHERE id = ?d
+            LIMIT 1
+            ";
         if ($aRow = $this->oDb->selectRow($sql, $iId)) {
             return Engine::GetEntity('ModuleUser_EntityNote', $aRow);
         }
@@ -1498,7 +1507,12 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function GetUserChangemailByCodeFrom($sCode) {
 
-        $sql = "SELECT * FROM ?_user_changemail WHERE code_from = ? ";
+        $sql = "
+            SELECT *
+            FROM ?_user_changemail
+            WHERE code_from = ?
+            LIMIT 1
+            ";
         if ($aRow = $this->oDb->selectRow($sql, $sCode)) {
             return Engine::GetEntity('ModuleUser_EntityChangemail', $aRow);
         }
@@ -1514,7 +1528,12 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function GetUserChangemailByCodeTo($sCode) {
 
-        $sql = "SELECT * FROM ?_user_changemail WHERE code_to = ? ";
+        $sql = "
+            SELECT *
+            FROM ?_user_changemail
+            WHERE code_to = ?
+            LIMIT 1
+            ";
         if ($aRow = $this->oDb->selectRow($sql, $sCode)) {
             return Engine::GetEntity('ModuleUser_EntityChangemail', $aRow);
         }
@@ -1641,6 +1660,7 @@ class ModuleUser_MapperUser extends Mapper {
         }
         return $aReturn;
     }
+
 }
 
 // EOF

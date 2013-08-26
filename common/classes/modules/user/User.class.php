@@ -123,24 +123,29 @@ class ModuleUser extends Module {
     /**
      * Получает дополнительные данные(объекты) для юзеров по их ID
      *
-     * @param array      $aUserId       Список ID пользователей
-     * @param array|null $aAllowData    Список типод дополнительных данных для подгрузки у пользователей
+     * @param array $aUsersId   - Список ID пользователей
+     * @param array $aAllowData - Список типоd дополнительных данных для подгрузки у пользователей
      *
      * @return array
      */
-    public function GetUsersAdditionalData($aUserId, $aAllowData = null) {
+    public function GetUsersAdditionalData($aUsersId, $aAllowData = null) {
+
+        if (!$aUsersId) {
+            return array();
+        } elseif (!is_array($aUsersId)) {
+            $aUsersId = array($aUsersId);
+        } else {
+            $aUsersId = array_unique($aUsersId);
+        }
 
         if (is_null($aAllowData)) {
             $aAllowData = array('vote', 'session', 'friend', 'geo_target', 'note');
         }
         $aAllowData = F::Array_FlipIntKeys($aAllowData);
-        if (!is_array($aUserId)) {
-            $aUserId = array($aUserId);
-        }
         /**
          * Получаем юзеров
          */
-        $aUsers = $this->GetUsersByArrayId($aUserId);
+        $aUsers = $this->GetUsersByArrayId($aUsersId);
         /**
          * Получаем дополнительные данные
          */
@@ -150,20 +155,20 @@ class ModuleUser extends Module {
         $aGeoTargets = array();
         $aNotes = array();
         if (isset($aAllowData['session'])) {
-            $aSessions = $this->GetSessionsByArrayId($aUserId);
+            $aSessions = $this->GetSessionsByArrayId($aUsersId);
         }
         if (isset($aAllowData['friend']) && $this->oUserCurrent) {
-            $aFriends = $this->GetFriendsByArray($aUserId, $this->oUserCurrent->getId());
+            $aFriends = $this->GetFriendsByArray($aUsersId, $this->oUserCurrent->getId());
         }
 
         if (isset($aAllowData['vote']) && $this->oUserCurrent) {
-            $aVote = $this->Vote_GetVoteByArray($aUserId, 'user', $this->oUserCurrent->getId());
+            $aVote = $this->Vote_GetVoteByArray($aUsersId, 'user', $this->oUserCurrent->getId());
         }
         if (isset($aAllowData['geo_target'])) {
-            $aGeoTargets = $this->Geo_GetTargetsByTargetArray('user', $aUserId);
+            $aGeoTargets = $this->Geo_GetTargetsByTargetArray('user', $aUsersId);
         }
         if (isset($aAllowData['note']) && $this->oUserCurrent) {
-            $aNotes = $this->GetUserNotesByArray($aUserId, $this->oUserCurrent->getId());
+            $aNotes = $this->GetUserNotesByArray($aUsersId, $this->oUserCurrent->getId());
         }
         /**
          * Добавляем данные к результату
@@ -206,28 +211,30 @@ class ModuleUser extends Module {
     /**
      * Список юзеров по ID
      *
-     * @param array $aUserId Список ID пользователей
+     * @param array $aUsersId - Список ID пользователей
      *
      * @return array
      */
-    public function GetUsersByArrayId($aUserId) {
+    public function GetUsersByArrayId($aUsersId) {
 
-        if (!$aUserId) {
-            return array();
-        }
         if (Config::Get('sys.cache.solid')) {
-            return $this->GetUsersByArrayIdSolid($aUserId);
+            return $this->GetUsersByArrayIdSolid($aUsersId);
         }
-        if (!is_array($aUserId)) {
-            $aUserId = array($aUserId);
+
+        if (!$aUsersId) {
+            return array();
+        } elseif (!is_array($aUsersId)) {
+            $aUsersId = array($aUsersId);
+        } else {
+            $aUsersId = array_unique($aUsersId);
         }
-        $aUserId = array_unique($aUserId);
+
         $aUsers = array();
         $aUserIdNotNeedQuery = array();
         /**
          * Делаем мульти-запрос к кешу
          */
-        $aCacheKeys = F::Array_ChangeValues($aUserId, 'user_');
+        $aCacheKeys = F::Array_ChangeValues($aUsersId, 'user_');
         if (false !== ($data = $this->Cache_Get($aCacheKeys))) {
             /**
              * проверяем что досталось из кеша
@@ -245,7 +252,7 @@ class ModuleUser extends Module {
         /**
          * Смотрим каких юзеров не было в кеше и делаем запрос в БД
          */
-        $aUserIdNeedQuery = array_diff($aUserId, array_keys($aUsers));
+        $aUserIdNeedQuery = array_diff($aUsersId, array_keys($aUsers));
         $aUserIdNeedQuery = array_diff($aUserIdNeedQuery, $aUserIdNotNeedQuery);
         $aUserIdNeedStore = $aUserIdNeedQuery;
         if ($data = $this->oMapper->GetUsersByArrayId($aUserIdNeedQuery)) {
@@ -267,39 +274,43 @@ class ModuleUser extends Module {
         /**
          * Сортируем результат согласно входящему массиву
          */
-        $aUsers = F::Array_SortByKeysArray($aUsers, $aUserId);
+        $aUsers = F::Array_SortByKeysArray($aUsers, $aUsersId);
         return $aUsers;
     }
 
     /**
      * Алиас для корректной работы ORM
      *
-     * @param array $aUserId    Список ID пользователей
+     * @param array $aUsersId - Список ID пользователей
      *
      * @return array
      */
-    public function GetUserItemsByArrayId($aUserId) {
+    public function GetUserItemsByArrayId($aUsersId) {
 
-        return $this->GetUsersByArrayId($aUserId);
+        return $this->GetUsersByArrayId($aUsersId);
     }
 
     /**
      * Получение пользователей по списку ID используя общий кеш
      *
-     * @param array $aUserId    Список ID пользователей
+     * @param array $aUsersId    Список ID пользователей
      *
      * @return array
      */
-    public function GetUsersByArrayIdSolid($aUserId) {
+    public function GetUsersByArrayIdSolid($aUsersId) {
 
-        if (!is_array($aUserId)) {
-            $aUserId = array($aUserId);
+        if (!$aUsersId) {
+            return array();
+        } elseif (!is_array($aUsersId)) {
+            $aUsersId = array($aUsersId);
+        } else {
+            $aUsersId = array_unique($aUsersId);
         }
-        $aUserId = array_unique($aUserId);
+
         $aUsers = array();
-        $s = join(',', $aUserId);
+        $s = join(',', $aUsersId);
         if (false === ($data = $this->Cache_Get("user_id_{$s}"))) {
-            $data = $this->oMapper->GetUsersByArrayId($aUserId);
+            $data = $this->oMapper->GetUsersByArrayId($aUsersId);
             foreach ($data as $oUser) {
                 $aUsers[$oUser->getId()] = $oUser;
             }
@@ -312,28 +323,30 @@ class ModuleUser extends Module {
     /**
      * Список сессий юзеров по ID
      *
-     * @param array $aUserId    Список ID пользователей
+     * @param array $aUsersId    Список ID пользователей
      *
      * @return array
      */
-    public function GetSessionsByArrayId($aUserId) {
+    public function GetSessionsByArrayId($aUsersId) {
 
-        if (!$aUserId) {
-            return array();
-        }
         if (Config::Get('sys.cache.solid')) {
-            return $this->GetSessionsByArrayIdSolid($aUserId);
+            return $this->GetSessionsByArrayIdSolid($aUsersId);
         }
-        if (!is_array($aUserId)) {
-            $aUserId = array($aUserId);
+
+        if (!$aUsersId) {
+            return array();
+        } elseif (!is_array($aUsersId)) {
+            $aUsersId = array($aUsersId);
+        } else {
+            $aUsersId = array_unique($aUsersId);
         }
-        $aUserId = array_unique($aUserId);
+
         $aSessions = array();
         $aUserIdNotNeedQuery = array();
         /**
          * Делаем мульти-запрос к кешу
          */
-        $aCacheKeys = F::Array_ChangeValues($aUserId, 'user_session_');
+        $aCacheKeys = F::Array_ChangeValues($aUsersId, 'user_session_');
         if (false !== ($data = $this->Cache_Get($aCacheKeys))) {
             /**
              * проверяем что досталось из кеша
@@ -351,7 +364,7 @@ class ModuleUser extends Module {
         /**
          * Смотрим каких юзеров не было в кеше и делаем запрос в БД
          */
-        $aUserIdNeedQuery = array_diff($aUserId, array_keys($aSessions));
+        $aUserIdNeedQuery = array_diff($aUsersId, array_keys($aSessions));
         $aUserIdNeedQuery = array_diff($aUserIdNeedQuery, $aUserIdNotNeedQuery);
         $aUserIdNeedStore = $aUserIdNeedQuery;
         if ($data = $this->oMapper->GetSessionsByArrayId($aUserIdNeedQuery)) {
@@ -377,28 +390,32 @@ class ModuleUser extends Module {
         /**
          * Сортируем результат согласно входящему массиву
          */
-        $aSessions = F::Array_SortByKeysArray($aSessions, $aUserId);
+        $aSessions = F::Array_SortByKeysArray($aSessions, $aUsersId);
         return $aSessions;
     }
 
     /**
      * Получить список сессий по списку айдишников, но используя единый кеш
      *
-     * @param array $aUserId    Список ID пользователей
+     * @param array $aUsersId    Список ID пользователей
      *
      * @return array
      */
-    public function GetSessionsByArrayIdSolid($aUserId) {
+    public function GetSessionsByArrayIdSolid($aUsersId) {
 
-        if (!is_array($aUserId)) {
-            $aUserId = array($aUserId);
+        if (!$aUsersId) {
+            return array();
+        } elseif (!is_array($aUsersId)) {
+            $aUsersId = array($aUsersId);
+        } else {
+            $aUsersId = array_unique($aUsersId);
         }
-        $aUserId = array_unique($aUserId);
+
         $aSessions = array();
 
-        $sCacheKey = 'user_session_id_' . join(',', $aUserId);
+        $sCacheKey = 'user_session_id_' . join(',', $aUsersId);
         if (false === ($data = $this->Cache_Get($sCacheKey))) {
-            $data = $this->oMapper->GetSessionsByArrayId($aUserId);
+            $data = $this->oMapper->GetSessionsByArrayId($aUsersId);
             foreach ($data as $oSession) {
                 $aSessions[$oSession->getUserId()] = $oSession;
             }
@@ -887,29 +904,31 @@ class ModuleUser extends Module {
     /**
      * Получить список отношений друзей
      *
-     * @param   int|array $aUserId      - Список ID пользователей проверяемых на дружбу
+     * @param   int|array $aUsersId      - Список ID пользователей проверяемых на дружбу
      * @param   int       $nUserId      - ID пользователя у которого проверяем друзей
      *
      * @return array
      */
-    public function GetFriendsByArray($aUserId, $nUserId) {
+    public function GetFriendsByArray($aUsersId, $nUserId) {
 
-        if (!$aUserId) {
-            return array();
-        }
         if (Config::Get('sys.cache.solid')) {
-            return $this->GetFriendsByArraySolid($aUserId, $nUserId);
+            return $this->GetFriendsByArraySolid($aUsersId, $nUserId);
         }
-        if (!is_array($aUserId)) {
-            $aUserId = array($aUserId);
+
+        if (!$aUsersId) {
+            return array();
+        } elseif (!is_array($aUsersId)) {
+            $aUsersId = array($aUsersId);
+        } else {
+            $aUsersId = array_unique($aUsersId);
         }
-        $aUserId = array_unique($aUserId);
+
         $aFriends = array();
         $aUserIdNotNeedQuery = array();
         /**
          * Делаем мульти-запрос к кешу
          */
-        $aCacheKeys = F::Array_ChangeValues($aUserId, 'user_friend_', '_' . $nUserId);
+        $aCacheKeys = F::Array_ChangeValues($aUsersId, 'user_friend_', '_' . $nUserId);
         if (false !== ($data = $this->Cache_Get($aCacheKeys))) {
             /**
              * проверяем что досталось из кеша
@@ -927,7 +946,7 @@ class ModuleUser extends Module {
         /**
          * Смотрим каких френдов не было в кеше и делаем запрос в БД
          */
-        $aUserIdNeedQuery = array_diff($aUserId, array_keys($aFriends));
+        $aUserIdNeedQuery = array_diff($aUsersId, array_keys($aFriends));
         $aUserIdNeedQuery = array_diff($aUserIdNeedQuery, $aUserIdNotNeedQuery);
         $aUserIdNeedStore = $aUserIdNeedQuery;
         if ($data = $this->oMapper->GetFriendsByArrayId($aUserIdNeedQuery, $nUserId)) {
@@ -956,28 +975,32 @@ class ModuleUser extends Module {
         /**
          * Сортируем результат согласно входящему массиву
          */
-        $aFriends = F::Array_SortByKeysArray($aFriends, $aUserId);
+        $aFriends = F::Array_SortByKeysArray($aFriends, $aUsersId);
         return $aFriends;
     }
 
     /**
      * Получить список отношений друзей используя единый кеш
      *
-     * @param  array $aUserId    Список ID пользователей проверяемых на дружбу
+     * @param  array $aUsersId    Список ID пользователей проверяемых на дружбу
      * @param  int   $nUserId    ID пользователя у которого проверяем друзей
      *
      * @return array
      */
-    public function GetFriendsByArraySolid($aUserId, $nUserId) {
+    public function GetFriendsByArraySolid($aUsersId, $nUserId) {
 
-        if (!is_array($aUserId)) {
-            $aUserId = array($aUserId);
+        if (!$aUsersId) {
+            return array();
+        } elseif (!is_array($aUsersId)) {
+            $aUsersId = array($aUsersId);
+        } else {
+            $aUsersId = array_unique($aUsersId);
         }
-        $aUserId = array_unique($aUserId);
+
         $aFriends = array();
-        $s = join(',', $aUserId);
+        $s = join(',', $aUsersId);
         if (false === ($data = $this->Cache_Get("user_friend_{$nUserId}_id_{$s}"))) {
-            $data = $this->oMapper->GetFriendsByArrayId($aUserId, $nUserId);
+            $data = $this->oMapper->GetFriendsByArrayId($aUsersId, $nUserId);
             foreach ($data as $oFriend) {
                 $aFriends[$oFriend->getFriendId($nUserId)] = $oFriend;
             }
@@ -1014,7 +1037,7 @@ class ModuleUser extends Module {
      *
      * @return bool
      */
-    public function AddFriend(ModuleUser_EntityFriend $oFriend) {
+    public function AddFriend($oFriend) {
 
         $bResult = $this->oMapper->AddFriend($oFriend);
         //чистим зависимые кеши
@@ -1034,7 +1057,7 @@ class ModuleUser extends Module {
      *
      * @return bool
      */
-    public function DeleteFriend(ModuleUser_EntityFriend $oFriend) {
+    public function DeleteFriend($oFriend) {
 
         $bResult = $this->oMapper->UpdateFriend($oFriend);
         // чистим зависимые кеши
@@ -1056,7 +1079,7 @@ class ModuleUser extends Module {
      *
      * @return bool
      */
-    public function EraseFriend(ModuleUser_EntityFriend $oFriend) {
+    public function EraseFriend($oFriend) {
 
         $bResult = $this->oMapper->EraseFriend($oFriend);
         // чистим зависимые кеши
@@ -1075,7 +1098,7 @@ class ModuleUser extends Module {
      *
      * @return bool
      */
-    public function UpdateFriend(ModuleUser_EntityFriend $oFriend) {
+    public function UpdateFriend($oFriend) {
 
         $bResult = $this->oMapper->UpdateFriend($oFriend);
         // чистим зависимые кеши
@@ -1147,7 +1170,7 @@ class ModuleUser extends Module {
      *
      * @return ModuleUser_EntityInvite|bool
      */
-    public function AddInvite(ModuleUser_EntityInvite $oInvite) {
+    public function AddInvite($oInvite) {
 
         if ($nId = $this->oMapper->AddInvite($oInvite)) {
             $oInvite->setId($nId);
@@ -1163,7 +1186,7 @@ class ModuleUser extends Module {
      *
      * @return bool
      */
-    public function UpdateInvite(ModuleUser_EntityInvite $oInvite) {
+    public function UpdateInvite($oInvite) {
 
         $bResult = $this->oMapper->UpdateInvite($oInvite);
         // чистим зависимые кеши
@@ -1221,11 +1244,11 @@ class ModuleUser extends Module {
      *
      * @return int
      */
-    public function GetCountInviteAvailable(ModuleUser_EntityUser $oUserFrom) {
+    public function GetCountInviteAvailable($oUserFrom) {
 
         $sDay = 7;
         $iCountUsed = $this->GetCountInviteUsedByDate(
-            $oUserFrom->getId(), date("Y-m-d 00:00:00", mktime(0, 0, 0, date("m"), date("d") - $sDay, date("Y")))
+            $oUserFrom->getId(), date('Y-m-d 00:00:00', mktime(0, 0, 0, date('m'), date('d') - $sDay, date('Y')))
         );
         $iCountAllAvailable = round($oUserFrom->getRating() + $oUserFrom->getSkill());
         $iCountAllAvailable = $iCountAllAvailable < 0 ? 0 : $iCountAllAvailable;
@@ -1275,7 +1298,7 @@ class ModuleUser extends Module {
      *
      * @return bool
      */
-    public function AddReminder(ModuleUser_EntityReminder $oReminder) {
+    public function AddReminder($oReminder) {
 
         return $this->oMapper->AddReminder($oReminder);
     }
@@ -1287,7 +1310,7 @@ class ModuleUser extends Module {
      *
      * @return bool
      */
-    public function UpdateReminder(ModuleUser_EntityReminder $oReminder) {
+    public function UpdateReminder($oReminder) {
 
         return $this->oMapper->UpdateReminder($oReminder);
     }
@@ -1703,11 +1726,11 @@ class ModuleUser extends Module {
         /**
          * Цепляем пользователей
          */
-        $aUserId = array();
+        $aUsersId = array();
         foreach ($aResult as $oNote) {
-            $aUserId[] = $oNote->getTargetUserId();
+            $aUsersId[] = $oNote->getTargetUserId();
         }
-        $aUsers = $this->GetUsersAdditionalData($aUserId, array());
+        $aUsers = $this->GetUsersAdditionalData($aUsersId, array());
         foreach ($aResult as $oNote) {
             if (isset($aUsers[$oNote->getTargetUserId()])) {
                 $oNote->setTargetUser($aUsers[$oNote->getTargetUserId()]);
@@ -1759,25 +1782,26 @@ class ModuleUser extends Module {
     /**
      * Возвращает список заметок пользователя по ID целевых юзеров
      *
-     * @param array $aUserId    Список ID целевых пользователей
+     * @param array $aUsersId    Список ID целевых пользователей
      * @param int   $nUserId    ID пользователя, кто оставлял заметки
      *
      * @return array
      */
-    public function GetUserNotesByArray($aUserId, $nUserId) {
+    public function GetUserNotesByArray($aUsersId, $nUserId) {
 
-        if (!$aUserId) {
+        if (!$aUsersId) {
             return array();
+        } elseif (!is_array($aUsersId)) {
+            $aUsersId = array($aUsersId);
+        } else {
+            $aUsersId = array_unique($aUsersId);
         }
-        if (!is_array($aUserId)) {
-            $aUserId = array($aUserId);
-        }
-        $aUserId = array_unique($aUserId);
+
         $aNotes = array();
 
-        $sCacheKey = "user_notes_{$nUserId}_id_" . join(',', $aUserId);
+        $sCacheKey = "user_notes_{$nUserId}_id_" . join(',', $aUsersId);
         if (false === ($data = $this->Cache_Get($sCacheKey))) {
-            $data = $this->oMapper->GetUserNotesByArrayUserId($aUserId, $nUserId);
+            $data = $this->oMapper->GetUserNotesByArrayUserId($aUsersId, $nUserId);
             foreach ($data as $oNote) {
                 $aNotes[$oNote->getTargetUserId()] = $oNote;
             }
@@ -1995,6 +2019,7 @@ class ModuleUser extends Module {
         }
         return $bResult;
     }
+
 }
 
 // EOF

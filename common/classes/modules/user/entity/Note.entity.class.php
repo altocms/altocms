@@ -60,6 +60,7 @@ class ModuleUser_EntityNote extends Entity {
         }
         return $this->Lang_Get('user_note_target_error');
     }
+
 }
 
 // EOF

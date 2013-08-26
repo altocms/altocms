@@ -126,6 +126,7 @@ class ModuleUser_EntityReminder extends Entity {
      * @param string $data
      */
     public function setDateExpire($data) {
+
         $this->setProp('reminder_date_expire', $data);
     }
 
