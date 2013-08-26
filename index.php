@@ -19,7 +19,6 @@ chdir(dirname(__FILE__));
 
 // Run engine loader
 require_once('./engine/loader.php');
-require_once(Config::Get('path.dir.engine') . '/classes/core/Engine.class.php');
 
 if (is_file('./install/index.php') && (!isset($_SERVER['HTTP_APP_ENV']) || $_SERVER['HTTP_APP_ENV']!='test')) {
     F::HttpLocation('install/', true);
