@@ -151,9 +151,9 @@ class AltoFunc_Array {
         }
 
         $aResult = array();
-        foreach ($aData as $sStr) {
+        foreach ($aData as $xKey=>$sStr) {
             if ($sStr || !$bSkipEmpty) {
-                $aResult[] = trim($sStr);
+                $aResult[$xKey] = trim($sStr);
             }
         }
         return $aResult;

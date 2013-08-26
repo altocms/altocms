@@ -142,8 +142,8 @@ class AltoFunc_File {
 
         if (is_array($sPath)) {
             $aResult = array();
-            foreach ($sPath as $s) {
-                $aResult[] = self::NormPath($s, $sSeparator);
+            foreach ($sPath as $sKey => $s) {
+                $aResult[$sKey] = self::NormPath($s, $sSeparator);
             }
             return $aResult;
         }
