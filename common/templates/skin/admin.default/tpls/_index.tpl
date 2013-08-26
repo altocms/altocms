@@ -1,4 +1,4 @@
-{extends file='../themes/default/default.tpl'}
+{extends file='[themes]default/default.tpl'}
 
 {block name="sysmessage"}
     {if !$noShowSystemMessage AND ($aMsgError OR $aMsgNotice)}

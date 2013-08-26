@@ -41,11 +41,10 @@ abstract class ActionPlugin extends Action {
             /**
              * Проверяем в списке шаблонов
              */
-            $aMatches[1] = strtolower($aMatches[1]);
-            $aPaths = glob(
-                Config::Get('path.root.dir') . '/plugins/' . $aMatches[1] . '/templates/skin/*/actions/Action'
-                    . ucfirst($aMatches[2]), GLOB_ONLYDIR
-            );
+            $sPlugin = strtolower($aMatches[1]);
+            $sAction = ucfirst($aMatches[2]);
+            $sPluginDir = Plugin::GetDir($sPlugin);
+            $aPaths = glob($sPluginDir . '/templates/skin/*/actions/Action' . $sAction, GLOB_ONLYDIR);
             $sTemplateName = ($aPaths && in_array(
                 Config::Get('view.skin'),
                 array_map(
@@ -59,7 +58,7 @@ abstract class ActionPlugin extends Action {
                 ? Config::Get('view.skin')
                 : 'default';
 
-            $sDir = Config::Get('path.root.dir') . "/plugins/{$aMatches[1]}/templates/skin/{$sTemplateName}/";
+            $sDir = F::File_NormPath($sPluginDir . '/templates/skin/' . $sTemplateName . '/');
             $this->sTemplatePathPlugin = is_dir($sDir) ? $sDir : null;
         }
 

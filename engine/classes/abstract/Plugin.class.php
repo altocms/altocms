@@ -270,9 +270,15 @@ abstract class Plugin extends LsObject {
         $this->Database_addEnumType($sTableName, $sFieldName, $sType);
     }
 
-    public function GetName() {
+    /**
+     * Returns name of plugin
+     *
+     * @return string
+     */
+    public function GetName($bSkipPrefix) {
 
-        return substr(get_class($this), 6);
+        $sName = get_class($this);
+        return $bSkipPrefix ? substr($sName, 6) : $sName;
     }
 
     public function GetPluginEntity() {
@@ -316,7 +322,13 @@ abstract class Plugin extends LsObject {
             ? strtolower($aMatches[1])
             : strtolower($sName);
 
-        return F::File_NormPath(F::File_RootDir() . '/plugins/' . $sName . '/');
+        $aDirs = Config::Get('path.root.seek');
+        foreach($aDirs as $sDir) {
+            $sPluginDir = $sDir . '/plugins/' . $sName . '/';
+            if (is_dir($sPluginDir)) {
+                return F::File_NormPath($sPluginDir);
+            }
+        }
     }
 
     /**
@@ -332,7 +344,7 @@ abstract class Plugin extends LsObject {
             ? strtolower($aMatches[1])
             : strtolower($sName);
 
-        return F::File_NormPath(F::File_RootUrl() . '/plugins/' . $sName . '/');
+        return F::File_Dir2Url(self::GetDir($sName));
     }
 
     /**
@@ -349,13 +361,14 @@ abstract class Plugin extends LsObject {
             ? strtolower($aMatches[1])
             : strtolower($sName);
         if (!isset(self::$aTemplateDir[$sName])) {
-            $aPaths = glob(Config::Get('path.root.dir') . '/plugins/' . $sName . '/templates/skin/*', GLOB_ONLYDIR);
+            $sPluginDir = self::GetDir($sName);
+            $aPaths = glob($sPluginDir . '/templates/skin/*', GLOB_ONLYDIR);
             $sTemplateName = ($aPaths && in_array(Config::Get('view.skin'), array_map('basename', $aPaths)))
                 ? Config::Get('view.skin')
                 : 'default';
 
-            $sDir = Config::Get('path.root.dir') . "/plugins/{$sName}/templates/skin/{$sTemplateName}/";
-            self::$aTemplateDir[$sName] = is_dir($sDir) ? $sDir : null;
+            $sDir = $sPluginDir . '/templates/skin/' . $sTemplateName . '/';
+            self::$aTemplateDir[$sName] = is_dir($sDir) ? F::File_NormPath($sDir) : null;
         }
         return self::$aTemplateDir[$sName];
     }
@@ -382,13 +395,11 @@ abstract class Plugin extends LsObject {
             ? strtolower($aMatches[1])
             : strtolower($sName);
         if (!isset(self::$aTemplateUrl[$sName])) {
-            $aPaths = glob(Config::Get('path.root.dir') . '/plugins/' . $sName . '/templates/skin/*', GLOB_ONLYDIR);
-            $sTemplateName = ($aPaths && in_array(Config::Get('view.skin'), array_map('basename', $aPaths)))
-                ? Config::Get('view.skin')
-                : 'default';
-
-            self::$aTemplateUrl[$sName]
-                = Config::Get('path.root.url') . "/plugins/{$sName}/templates/skin/{$sTemplateName}/";
+            if ($sTemplateDir = self::GetTemplateDir($sName)) {
+                self::$aTemplateUrl[$sName] = F::File_Dir2Url($sTemplateDir);
+            } else {
+                self::$aTemplateUrl[$sName] = null;
+            }
         }
         return self::$aTemplateUrl[$sName];
     }

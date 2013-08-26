@@ -313,10 +313,7 @@ class ModuleViewer extends Module {
         $this->oSmarty->error_reporting = error_reporting() & ~E_NOTICE;
 
         // * Папки расположения шаблонов по умолчанию
-        $this->oSmarty->setTemplateDir(F::File_NormPath(array_merge(
-                    F::Str2Array(Config::Get('path.smarty.template')),
-                    array($this->Plugin_GetPluginsDir())
-                )));
+        $this->oSmarty->setTemplateDir(F::File_NormPath(F::Str2Array(Config::Get('path.smarty.template'))));
 
         // * Для каждого скина устанавливаем свою директорию компиляции шаблонов
         $sCompilePath = F::File_NormPath(Config::Get('path.smarty.compiled'));
@@ -493,12 +490,17 @@ class ModuleViewer extends Module {
         // * Загружаем пути до шаблонов плагинов
         $aTemplateWebPathPlugin = array();
         $aTemplatePathPlugin = array();
-        foreach ($aPlugins as $k => $oPlugin) {
-            $aTemplateWebPathPlugin[$k] = Plugin::GetTemplateWebPath(get_class($oPlugin));
-            $aTemplatePathPlugin[$k] = Plugin::GetTemplatePath(get_class($oPlugin));
+        foreach ($aPlugins as $sPlugin => $oPlugin) {
+            $sDir = Plugin::GetTemplateDir(get_class($oPlugin));
+            $this->oSmarty->addTemplateDir($sDir, $oPlugin->GetName(false));
+            $aTemplatePathPlugin[$sPlugin] = $sDir;
+            $aTemplateWebPathPlugin[$sPlugin] = Plugin::GetTemplateUrl(get_class($oPlugin));
         }
-        $this->Assign('aTemplateWebPathPlugin', $aTemplateWebPathPlugin);
-        $this->Assign('aTemplatePathPlugin', $aTemplatePathPlugin);
+        if (E::ActivePlugin('ls')) {
+            // LS-compatible //
+            $this->Assign('aTemplateWebPathPlugin', $aTemplateWebPathPlugin);
+            $this->Assign('aTemplatePathPlugin', $aTemplatePathPlugin);
+        }
 
         $sSkinTheme = Config::Get('view.theme');
         if (!$sSkinTheme) {
@@ -830,7 +832,7 @@ class ModuleViewer extends Module {
         } else {
             $sTheme = null;
         }
-        $sCheckDir = Config::Get('path.smarty.template');
+        $sCheckDir = Config::Get('path.skin.dir');
         // Если проверяется не текущий скин, то корректируем путь
         if ($sSkin != Config::Get('view.skin')) {
             $sCheckDir = str_replace('/' . Config::Get('view.skin') . '/', '/' . $sSkin . '/', $sCheckDir);
@@ -1999,23 +2001,31 @@ class ModuleViewer extends Module {
      */
     public function SmartyDefaultTemplateHandler($sType, $sName, &$sContent, &$iTimestamp, $oSmarty) {
         /**
-         * Название шаблона может содержать, как полный путь до файла шаблона, так и относительный любого из каталога в $oSmarty->getTemplateDir()
+         * Название шаблона может содержать, как полный путь до файла шаблона,
+         * так и относительный любого из каталога в $oSmarty->getTemplateDir()
          * По дефолту каталоги такие: /templates/skin/[name]/ и /plugins/
          */
         /**
          * Задача: если это файл плагина для текущего шаблона, то смотрим этот же файл шаблона плагина в /default/
          */
         if (Config::Get('view.skin') != 'default') {
-            // /root/plugins/[plugin name]/templates/skin/[skin name]/dir/test.tpl
-            if (preg_match('@^' . preg_quote(Config::Get('path.root.dir')) . '/plugins/([\w\-_]+)/templates/skin/' . preg_quote(Config::Get('view.skin')) . '/@i', $sName, $aMatch)) {
-                $sFile = str_replace($aMatch[0], Config::Get('path.root.dir') . '/plugins/' . $aMatch[1] . '/templates/skin/default/', $sName);
-                if ($this->TemplateExists($sFile)) {
-                    return $sFile;
-                }
+            $sSkin = preg_quote(Config::Get('view.skin'));
+            if (preg_match('@^/plugins/([\w\-_]+)/templates/skin/' . $sSkin . '/(.+)$/@i', $sName, $aMatch)) {
+                // => /root/plugins/[plugin name]/templates/skin/[skin name]/dir/test.tpl
+                $sPluginDir = Plugin::GetDir($aMatch[1]);
+                $sTemplateFile = $aMatch[2];
+
+            } elseif (preg_match('@^([\w\-_]+)/templates/skin/' . $sSkin . '/(.+)$/@i', $sName, $aMatch)) {
+                // => [plugin name]/templates/skin/[skin name]/dir/test.tpl
+                $sPluginDir = Plugin::GetDir($aMatch[1]);
+                $sTemplateFile = $aMatch[2];
+
+            } else {
+                $sPluginDir = '';
+                $sTemplateFile = '';
             }
-            // [plugin name]/templates/skin/[skin name]/dir/test.tpl
-            if (preg_match('@^([\w\-_]+)/templates/skin/' . preg_quote(Config::Get('view.skin')) . '/@i', $sName, $aMatch)) {
-                $sFile = Config::Get('path.root.dir') . '/plugins/' . str_replace($aMatch[0], $aMatch[1] . '/templates/skin/default/', $sName);
+            if ($sPluginDir && $sTemplateFile) {
+                $sFile = $sPluginDir . '/templates/skin/default/' . $sTemplateFile;
                 if ($this->TemplateExists($sFile)) {
                     return $sFile;
                 }
@@ -2024,6 +2034,9 @@ class ModuleViewer extends Module {
         return false;
     }
 
+    /**
+     * Clear all viewer's temporary & cache files
+     */
     public function ClearAll() {
 
         $this->ClearSmartyFiles();

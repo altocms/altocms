@@ -1,6 +1,9 @@
 <?php
 
-$config['path']['smarty']['template'] = '___path.skins.dir___/___view.skin___/tpls/';
+$config['path']['smarty']['template'] = array(
+    'themes' => '___path.skins.dir___/___view.skin___/themes/',
+    '___path.skins.dir___/___view.skin___/tpls/',
+);
 
 $config['head']['default']['css'] = array(
     '___path.framework.dir___/js/vendor/markitup/skins/simple/style.css',
