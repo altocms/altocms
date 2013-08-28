@@ -14,10 +14,14 @@
  */
 class ModuleViewerAsset_EntityPackageJs extends ModuleViewerAsset_EntityPackage {
 
-    protected $sOutType = 'js';
-
     public function Init() {
 
+        if (!$this->sOutType) {
+            $this->sOutType = 'js';
+        }
+        if (!$this->sAssetType) {
+            $this->sAssetType = 'js';
+        }
         $this->aHtmlLinkParams = array(
             'tag'  => 'script',
             'attr' => array(

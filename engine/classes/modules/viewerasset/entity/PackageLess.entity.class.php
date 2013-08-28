@@ -12,7 +12,15 @@
  * @package engine.modules
  * @since   1.0
  */
-class ModuleViewerAsset_EntityPackageLess extends ModuleViewerAsset_EntityPackage {
+class ModuleViewerAsset_EntityPackageLess extends ModuleViewerAsset_EntityPackageCss {
+
+    public function Init() {
+
+        parent::Init();
+        if (!$this->sAssetType) {
+            $this->sAssetType = 'less';
+        }
+    }
 
 }
 

@@ -16,6 +16,7 @@
 abstract class ModuleViewerAsset_EntityPackage extends Entity {
 
     protected $sOutType = '';
+    protected $sAssetType = '';
 
     protected $bMerge = false;
     protected $bCompress = false;
@@ -25,9 +26,15 @@ abstract class ModuleViewerAsset_EntityPackage extends Entity {
     protected $aLinks = array();
     protected $aHtmlLinkParams = array();
 
-    public function __construct($sType = null) {
+    public function __construct($aParams = array()) {
 
-        $this->sOutType = ($sType ? $sType : $this->sOutType);
+        if (isset($aParams['out_type'])) {
+            $this->sOutType = $aParams['out_type'];
+        }
+        if (isset($aParams['asset_type'])) {
+            $this->sAssetType = $aParams['asset_type'];
+        }
+        $this->sOutType = ($aParams['out_type'] ? $aParams['out_type'] : $this->sOutType);
         if ($this->sOutType) {
             $this->bMerge = (bool)Config::Get('compress.' . $this->sOutType . '.merge');
             $this->bCompress = (bool)Config::Get('compress.' . $this->sOutType . '.use');
@@ -39,33 +46,14 @@ abstract class ModuleViewerAsset_EntityPackage extends Entity {
         $this->aHtmlLinkParams = array();
     }
 
-    protected function _hash($sPath) {
+    protected function _crc($sPath) {
 
         return sprintf('%x', crc32($sPath));
     }
 
-    /**
-     * Преобразует путь к файлу в путь к asset-ресурсу
-     *
-     * @param   string $sFile
-     *
-     * @return  string
-     */
-    public function AssetFileDir($sFile) {
+    public function GetHash() {
 
-        return F::File_NormPath($this->GetAssetDir() . $this->Hash(dirname($sFile)) . '/' . basename($sFile));
-    }
-
-    /**
-     * Преобразует URL к файлу в URL к asset-ресурсу
-     *
-     * @param   string $sFile
-     *
-     * @return  string
-     */
-    public function AssetFileUrl($sFile) {
-
-        return F::File_NormPath($this->GetAssetUrl() . $this->Hash(dirname($sFile)) . '/' . basename($sFile));
+        return $this->sAssetType . '-' . md5(serialize($this->aFiles));
     }
 
     /**
@@ -80,7 +68,7 @@ abstract class ModuleViewerAsset_EntityPackage extends Entity {
         if ($sOutType != $this->sOutType) {
             $this->ViewerAsset->AddLink($sOutType, $sLink, $aParams);
         } else {
-            $this->aLinks[] = array_merge($aParams, array('link'=> $sLink));
+            $this->aLinks[] = array_merge($aParams, array('link' => $sLink));
         }
     }
 
@@ -101,15 +89,13 @@ abstract class ModuleViewerAsset_EntityPackage extends Entity {
      * Обработка контента
      *
      * @param $sContents
-     * @param $sDestination
+     * @param $sSource
      *
-     * @return mixed
+     * @return string
      */
-    public function PrepareContents($sContents, $sDestination) {
+    public function PrepareContents($sContents, $sSource) {
 
-        if (F::File_PutContents($sDestination, $sContents)) {
-            return $sDestination;
-        }
+        return $sContents;
     }
 
     /**
@@ -124,9 +110,9 @@ abstract class ModuleViewerAsset_EntityPackage extends Entity {
 
         $sFile = $aFileParams['file'];
         if ($aFileParams['merge']) {
-            $sSubdir = $this->_hash($sAsset . dirname($sFile));
+            $sSubdir = $this->_crc($sAsset . dirname($sFile));
         } else {
-            $sSubdir = $this->_hash(dirname($sFile));
+            $sSubdir = $this->_crc(dirname($sFile));
         }
         $sDestination = $this->Viewer_GetAssetDir() . $sSubdir . '/' . basename($sFile);
         if ($sDestination = $this->PrepareFile($sFile, $sDestination)) {
@@ -147,12 +133,13 @@ abstract class ModuleViewerAsset_EntityPackage extends Entity {
      */
     public function MakeMerge($sAsset, $aFiles) {
 
-        $sFileName = $this->Viewer_GetAssetDir() . md5($sAsset . serialize($aFiles)) . '.' . $this->sOutType;
+        $sDestination = $this->Viewer_GetAssetDir() . md5($sAsset . serialize($aFiles)) . '.' . $this->sOutType;
         $sContents = '';
-        foreach($aFiles as $aFileParams) {
-            $sContents .= F::File_GetContents($aFileParams['file']) . PHP_EOL;
+        foreach ($aFiles as $aFileParams) {
+            $sFileContents = F::File_GetContents($aFileParams['file']);
+            $sContents .= $this->PrepareContents($sFileContents, $aFileParams['file']) . PHP_EOL;
         }
-        if ($sDestination = $this->PrepareContents($sContents, $sFileName)) {
+        if (F::File_PutContents($sDestination, $sContents)) {
             $this->AddLink($aFileParams['info']['extension'], F::File_Dir2Url($sDestination), $aFileParams);
         } else {
             // TODO: Писать в лог ошибок
@@ -324,11 +311,71 @@ abstract class ModuleViewerAsset_EntityPackage extends Entity {
         }
     }
 
+    protected function _stageBegin($nStage) {
+
+        $sFile = $this->Viewer_GetAssetDir() . '_check/' . $this->GetHash();
+        if ($aCheckFiles = glob($sFile . '.{123}.*.tmp')) {
+            return false;
+        }
+        return F::File_PutContents($sFile . '.' . $nStage . '.begin.tmp', '1');
+    }
+
+    protected function _stageEnd($nStage) {
+
+        $sFile = $this->Viewer_GetAssetDir() . '_check/' . $this->GetHash();
+        F::File_PutContents($sFile . '.' . $nStage . '.end.tmp', '1');
+        for ($n = 1; $n <= $nStage; $n++) {
+            F::File_Delete($sFile . '.' . $n . '.begin.tmp');
+            if ($n < $nStage) {
+                F::File_Delete($sFile . '.' . $n . '.end.tmp');
+            }
+        }
+    }
+
+    public function PreProcessBegin() {
+
+        return $this->_stageBegin('1');
+    }
+
+    public function PreProcessEnd() {
+
+        return $this->_stageEnd('1');
+    }
+
+    public function ProcessBegin() {
+
+        return $this->_stageBegin('2');
+    }
+
+    public function ProcessEnd() {
+
+        return $this->_stageEnd('2');
+    }
+
+    public function PostProcessBegin() {
+
+        return $this->_stageBegin('3');
+    }
+
+    public function PostProcessEnd() {
+
+        return $this->_stageEnd('3');
+    }
+
     public function Prepare() {
 
-        $this->PreProcess();
-        $this->Process();
-        $this->PostProcess();
+        if ($this->PreProcessBegin()) {
+            $this->PreProcess();
+            $this->PreProcessEnd();
+        }
+        if ($this->ProcessBegin()) {
+            $this->Process();
+            $this->ProcessEnd();
+        }
+        if ($this->PostProcessBegin()) {
+            $this->PostProcess();
+            $this->PostProcessEnd();
+        }
     }
 
     public function GetLinks() {

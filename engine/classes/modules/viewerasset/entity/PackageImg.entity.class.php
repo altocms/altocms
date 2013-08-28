@@ -14,6 +14,13 @@
  */
 class ModuleViewerAsset_EntityPackageImg extends ModuleViewerAsset_EntityPackage {
 
+    public function Init() {
+
+        if (!$this->sAssetType) {
+            $this->sAssetType = 'img';
+        }
+    }
+
 }
 
 // EOF

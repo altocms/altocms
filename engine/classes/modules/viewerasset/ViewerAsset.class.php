@@ -19,7 +19,6 @@ class ModuleViewerAsset extends Module {
             'less',
             'js',
             'css',
-            'img',
         );
 
     protected $aAssets = array();
@@ -52,7 +51,8 @@ class ModuleViewerAsset extends Module {
     public function  Init() {
 
         foreach ($this->aAssetTypes as $sType) {
-            $this->aAssets[$sType] = Engine::GetEntity('ViewerAsset_Package' . ucfirst($sType));
+            $aParams = array('out_type' => $sType);
+            $this->aAssets[$sType] = Engine::GetEntity('ViewerAsset_Package' . ucfirst($sType), $aParams);
         }
     }
 
@@ -254,7 +254,22 @@ class ModuleViewerAsset extends Module {
     public function Prepare() {
 
         foreach($this->aAssets as $oAssetPackage) {
-            $oAssetPackage->Prepare();
+            if ($oAssetPackage->PreProcessBegin()) {
+                $oAssetPackage->PreProcess();
+                $oAssetPackage->PreProcessEnd();
+            }
+        }
+        foreach($this->aAssets as $oAssetPackage) {
+            if ($oAssetPackage->ProcessBegin()) {
+                $oAssetPackage->Process();
+                $oAssetPackage->ProcessEnd();
+            }
+        }
+        foreach($this->aAssets as $oAssetPackage) {
+            if ($oAssetPackage->PostProcessBegin()) {
+                $oAssetPackage->PostProcess();
+                $oAssetPackage->PostProcessEnd();
+            }
         }
     }
 

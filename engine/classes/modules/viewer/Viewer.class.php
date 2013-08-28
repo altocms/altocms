@@ -82,16 +82,6 @@ class ModuleViewer extends Module {
     );
 
     /**
-     * Наборы сливаемых js- и css-файлов
-     *
-     * @var array
-     */
-    protected $aFilesAssets = array(
-        'js' => array(),
-        'css' => array()
-    );
-
-    /**
      * Правила переопределение массивов js и css
      *
      * @var array
@@ -99,38 +89,11 @@ class ModuleViewer extends Module {
     protected $aFileRules = array();
 
     /**
-     * Список JS, которые нужно добавить в начало и в конец
-     *
-     * @var array
-     */
-    protected $aJsInclude = array(
-        'append' => array(),
-        'prepend' => array()
-    );
-
-    /**
-     * Список CSS, которые нужно добавить в начало и в конец
-     *
-     * @var array
-     */
-    protected $aCssInclude = array(
-        'append' => array(),
-        'prepend' => array()
-    );
-
-    /**
      * Каталог для кешировния js,css файлов
      *
      * @var string
      */
     protected $sCacheDir = '';
-
-    /**
-     * Объект CSSTidy для компрессии css-файлов
-     *
-     * @var csstidy
-     */
-    protected $oCssCompressor = null;
 
     /**
      * Заголовок HTML страницы
@@ -225,13 +188,6 @@ class ModuleViewer extends Module {
      * @var array
      */
     protected $aMenuFetch = array();
-
-    /**
-     * Список ресурсов, который формируется в процессе обработки подключаемых файлов
-     *
-     * @var array
-     */
-    protected $aAssets = array();
 
     /**
      * Локальный вьюер
@@ -393,28 +349,6 @@ class ModuleViewer extends Module {
     public function GetAssetUrl() {
 
         return Config::Get('path.runtime.url') . 'assets/';
-    }
-
-    /**
-     * Добавить файл к списку asset-ресурсов, чтобы потом скопировать его в общую asset-папку
-     *
-     * @param   string $sFile
-     */
-    public function AddAssetFile($sFile) {
-
-        if (!isset($this->aAssets[$sFile])) {
-            $this->aAssets[$sFile] = $this->AssetFileDir($sFile);
-        }
-    }
-
-    /**
-     * Копировать файлы из списка asset-ресурсов в общую папку asset-ресурсов
-     */
-    protected function CopyAssetFiles() {
-
-        foreach ($this->aAssets as $sSource => $sTarget) {
-            F::File_Copy($sSource, $sTarget);
-        }
     }
 
     /**
@@ -1262,170 +1196,6 @@ class ModuleViewer extends Module {
         $this->SetHtmlHeadFiles($aHtmlHeadFiles);
     }
 
-    protected function MergeHeadFileList($aFiles, $sType) {
-
-        $aFileList = array();
-        foreach ($aFiles as $sFile) {
-            if ($sType == 'less' || ($sType == 'css' && F::File_GetExtension($sFile) == 'less')) {
-                $sCompiledFile = $this->GetAssetDir() . md5($sFile) . '.css';
-                if (F::File_Exists($sCompiledFile) || $this->CompileLess($sFile, $sCompiledFile)) {
-                    $aFileList[] = F::File_Dir2Url($sCompiledFile);
-                }
-            } else {
-                $aFileList[] = F::File_Dir2Url($sFile);
-            }
-        }
-        return $aFileList;
-    }
-
-    protected function CompileLess($sFile, $sCompiledFile) {
-
-        $sContent = $this->GetCompiledLess($sFile);
-        if ($sContent) {
-            return F::File_PutContents($sCompiledFile, $sContent);
-        }
-        return false;
-    }
-
-    /**
-     * Сжимает все переданные файлы в один,
-     * использует файловое кеширование
-     *
-     * @param  array $aFiles    Список файлов
-     * @param  string $sType    Тип файла - js, css
-     * @return array
-     */
-    protected function Compress($aFiles, $sType) {
-
-        //$sCacheDir = $this->GetAssetDir();
-        $sCacheName = $this->GetAssetDir() . md5(serialize($aFiles) . '_head') . '.' . $sType;
-
-        // * Если кеш существует, то берем из кеша
-        if (!F::File_Exists($sCacheName) || Config::Get('compress.' . $sType . '.force')) {
-
-            // * Считываем содержимое
-            ob_start();
-            foreach ($aFiles as $sKey => $sFile) {
-                // если файл локальный
-                if (F::File_IsLocalUrl($sFile)) {
-                    $sFile = F::File_Url2Dir($sFile);
-                }
-                if ($n = strpos($sFile, '?')) $sFile = substr($sFile, 0, $n);
-                // Получаем содержимое файла
-                if ($sFileContent = $this->GetContent($sFile, $sType)) {
-                    //$sFileContent = "\n/* file:" . $sFile . " */\n" . $sFileContent;
-                    echo $sFileContent;
-                }
-            }
-            $sContent = ob_get_contents();
-            ob_end_clean();
-
-            if (!$sContent) return;
-
-            // * Создаем новый файл (если надо, то и папку) и записываем туда содержимое
-            if (F::File_PutContents($sCacheName, $sContent)) {
-                @chmod($sCacheName, 0766);
-            }
-        }
-
-        // * Возвращаем имя файла, заменяя адрес сервера на веб-адрес
-        return F::File_Dir2Url($sCacheName);
-    }
-
-    /**
-     * Get file content with preprocessing
-     *
-     * @param   string $sFile
-     * @param   string|null $sType
-     * @return  string|null
-     */
-    protected function GetContent($sFile, $sType = null) {
-
-        if (!$sType) $sType = F::File_GetExtension($sFile);
-
-        if ($sType == 'less' || ($sType == 'css' && F::File_GetExtension($sFile) == 'less')) {
-            $sFileContent = $this->GetCompiledLess($sFile);
-        } elseif ($sType == 'css') {
-            $sFileContent = $this->GetCompiledCss($sFile);
-        } elseif ($sType == 'js') {
-            $sFileContent = $this->GetCompiledJs($sFile);
-        } else {
-            $sFileContent = false;
-        }
-        return $sFileContent;
-    }
-
-    protected function GetCompiledLess($sFile) {
-
-        // Если файлов несколько, то сначала собираем контент из них всех, а потом компилируем
-        $aFiles = explode(',', $sFile);
-        $sContent = '';
-        foreach ($aFiles as $sFileName) {
-            $sFileName = trim($sFileName);
-
-            // если задан url текущего сайта, то преобразуем в путь на диске
-            if (F::File_IsLocalUrl($sFileName)) {
-                $sFileName = F::File_Url2Dir($sFileName);
-            }
-
-            $this->Less_AddImportDir(dirname($sFileName));
-            if ($sFileName && ($sFileContent = F::File_GetContents($sFileName))) {
-                // Запоминаем источник, чтоб скорректировать потом URLs
-                $sContent .= "\n/*[" . self::ALTO_SRC . '=' . $sFileName . "]*/\n" . $sFileContent;
-            }
-        }
-        if ($sContent) {
-            //if (Config::Get('compress.css.use'))
-            //    $this->Less_setFormatter('compressed');
-            $this->Less_SetPreserveComments(true);
-            $sContent = $this->Less_Compile($sContent);
-
-            // Преобразуем URLs к абсолютному виду
-            $sContent = $this->ConvertPathInCss($sContent, $sFile);
-
-            // Удаляем информацию об источниках
-            $sContent = preg_replace('|\/\*\[' . self::ALTO_SRC . '=(.*?)\]\*\/|is', '', $sContent);
-
-            if (Config::Get('compress.css.use'))
-                $sContent = $this->CompressCss($sContent);
-            return $sContent;
-        }
-    }
-
-    protected function GetCompiledCss($sFile) {
-
-        if ($sFileContent = F::File_GetContents($sFile)) {
-            $sFileContent = $this->ConvertPathInCss($sFileContent, $sFile);
-            $sFileContent = $this->CompressCss($sFileContent);
-            return $sFileContent;
-        }
-    }
-
-    protected function GetCompiledJs($sFile) {
-
-        if ($sFileContent = F::File_GetContents($sFile)) {
-            $sFileContent = $this->CompressJs($sFileContent);
-            return $sFileContent;
-        }
-    }
-
-    /**
-     * Выполняет преобразование CSS файлов
-     *
-     * @param  string $sContent
-     * @return string
-     */
-    protected function CompressCss($sContent) {
-
-        $this->InitCssCompressor();
-        if (!$this->oCssCompressor) return $sContent;
-        /**
-         * Парсим css и отдаем обработанный результат
-         */
-        $this->oCssCompressor->parse($sContent);
-        return $this->oCssCompressor->print->plain();
-    }
-
     /**
      * Конвертирует относительные пути в css файлах в абсолютные
      *
@@ -1846,7 +1616,6 @@ class ModuleViewer extends Module {
         // * Добавляем JS и CSS по предписанным правилам
         $this->BuildHeadFiles();
         $this->VarAssign();
-        $this->CopyAssetFiles();
 
         // * Рендерим меню для шаблонов и передаем контейнеры в шаблон
         $this->BuildMenu();
