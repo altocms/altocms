@@ -572,7 +572,10 @@ $config['router']['config']['autodefine'] = true;
  * <local_path|URL>
  * <local_path|URL> => <parameters_array>
  *
- * Параметр 'asset' указывает на один набор при слиянии файлов
+ * Параметры:
+ *      'asset' - указывает на один набор при слиянии файлов
+ *      'name'  - "каноническое" имя файла
+ *      'place' - место размещения (только для js)
  */
 $config['head']['default']['js'] = array(
     /* Vendor libs */

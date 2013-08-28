@@ -396,28 +396,6 @@ class ModuleViewer extends Module {
     }
 
     /**
-     * Преобразует путь к файлу в путь к asset-ресурсу
-     *
-     * @param   string $sFile
-     * @return  string
-     */
-    public function AssetFileDir($sFile) {
-
-        return F::File_NormPath($this->GetAssetDir() . $this->Hash(dirname($sFile)) . '/' . basename($sFile));
-    }
-
-    /**
-     * Преобразует URL к файлу в URL к asset-ресурсу
-     *
-     * @param   string $sFile
-     * @return  string
-     */
-    public function AssetFileUrl($sFile) {
-
-        return F::File_NormPath($this->GetAssetUrl() . $this->Hash(dirname($sFile)) . '/' . basename($sFile));
-    }
-
-    /**
      * Добавить файл к списку asset-ресурсов, чтобы потом скопировать его в общую asset-папку
      *
      * @param   string $sFile
@@ -1151,74 +1129,17 @@ class ModuleViewer extends Module {
      */
     protected function InitFileParams() {
 
-        foreach (array('js', 'css') as $sType) {
-
-            // * Проверяем наличие списка файлов данного типа
-            $aFiles = Config::Get('head.default.' . $sType);
-            if (is_array($aFiles) && count($aFiles)) {
-                foreach ($aFiles as $sFile => $aParams) {
-                    if (!is_array($aParams)) {
-                        $sFile = $aParams;
-                        $aParams = array();
-                    }
-                    if ($sType == 'js') {
-                        $this->AppendScript($sFile, $aParams);
-                    } elseif ($sType == 'css') {
-                        $this->AppendStyle($sFile, $aParams);
-                    }
-                }
-            }
+        if ($aFiles = Config::Get('head.default.js')) {
+            $this->ViewerAsset_AddJsFiles($aFiles);
+        }
+        if ($aFiles = Config::Get('head.default.css')) {
+            $this->ViewerAsset_AddCssFiles($aFiles);
+        }
+        if ($aFiles = Config::Get('head.default.less')) {
+            $this->ViewerAsset_AddLessFiles($aFiles);
         }
     }
 
-    /**
-     * Создает css-компрессор и инициализирует его конфигурацию
-     *
-     * @return bool
-     */
-    protected function InitCssCompressor() {
-        /**
-         * Получаем параметры из конфигурации
-         */
-        $aParams = Config::Get('compress.css');
-        $this->oCssCompressor = ($aParams['use']) ? new csstidy() : null;
-        /**
-         * Если компрессор не создан, завершаем работу инициализатора
-         */
-        if (!$this->oCssCompressor) return false;
-        /**
-         * Устанавливаем параметры
-         */
-        $this->oCssCompressor->set_cfg('case_properties', $aParams['case_properties']);
-        $this->oCssCompressor->set_cfg('merge_selectors', $aParams['merge_selectors']);
-        $this->oCssCompressor->set_cfg('optimise_shorthands', $aParams['optimise_shorthands']);
-        $this->oCssCompressor->set_cfg('remove_last_;', $aParams['remove_last_;']);
-        $this->oCssCompressor->set_cfg('css_level', $aParams['css_level']);
-        $this->oCssCompressor->load_template($aParams['template']);
-
-        return true;
-    }
-
-    /**
-     * Проверка набора параметров подключаемого js/css-файла
-     *
-     * @param   string $sType
-     * @param   string $sFile
-     * @param   array $aParams
-     * @return  array
-     */
-    protected function CheckFileParams($sType, $sFile, $aParams) {
-
-        // Если слияние отключено, то каждый набор - это отдельный файл
-        if (Config::Get('compress.' . $sType . '.merge')) {
-            if (isset($aFileParams['asset'])) $sAsset = $aFileParams['asset'];
-            elseif (isset($aFileParams['block'])) $sAsset = $aFileParams['block']; // LS compatible
-            else $sAsset = 'default';
-        } else {
-            $sAsset = $sFile;
-        }
-        return array_merge(array('type' => $sType, 'name' => $sFile, 'merge' => true, 'asset' => $sAsset), $aParams);
-    }
 
     /**
      * Добавляет js-файл в конец списка
@@ -1231,13 +1152,7 @@ class ModuleViewer extends Module {
      */
     public function AppendScript($sFile, $aParams = array(), $bReplace = false) {
 
-        $aParams = $this->CheckFileParams('js', $sFile, $aParams);
-        if ($this->ExistsHeadFileByName('js', $aParams)) {
-            return true;
-        }
-        $this->aJsInclude['append'][] = $sFile;
-        $this->aFilesParams['js'][$sFile] = $aParams;
-        return true;
+        return $this->ViewerAsset_AppendJs($sFile, $aParams, $bReplace);
     }
 
     /**
@@ -1252,14 +1167,7 @@ class ModuleViewer extends Module {
      */
     public function PrependScript($sFile, $aParams = array(), $bReplace = false) {
 
-        $aParams = $this->CheckFileParams('js', $sFile, $aParams);
-        if ($this->ExistsHeadFileByName('js', $aParams)) {
-            return true;
-        }
-        // Prepend js-file to the beginning of an array
-        array_unshift($this->aJsInclude['prepend'], $sFile);
-        $this->aFilesParams['js'][$sFile] = $aParams;
-        return true;
+        return $this->ViewerAsset_PrependJs($sFile, $aParams, $bReplace);
     }
 
     /**
@@ -1274,13 +1182,7 @@ class ModuleViewer extends Module {
      */
     public function AppendStyle($sFile, $aParams = array(), $bReplace = false) {
 
-        $aParams = $this->CheckFileParams('css', $sFile, $aParams);
-        if ($this->ExistsHeadFileByName('css', $aParams)) {
-            return true;
-        }
-        $this->aCssInclude['append'][] = $sFile;
-        $this->aFilesParams['css'][$sFile] = $aParams;
-        return true;
+        return $this->ViewerAsset_AppendCss($sFile, $aParams, $bReplace);
     }
 
     /**
@@ -1295,76 +1197,9 @@ class ModuleViewer extends Module {
      */
     public function PrependStyle($sFile, $aParams = array(), $bReplace = false) {
 
-        $aParams = $this->CheckFileParams('css', $sFile, $aParams);
-        if ($this->ExistsHeadFileByName('css', $aParams)) {
-            return true;
-        }
-        // Prepend js-file to the beginning of an array
-        array_unshift($this->aJsInclude['prepend'], $sFile);
-        $this->aFilesParams['css'][$sFile] = $aParams;
-        return true;
+        return $this->ViewerAsset_PrependCss($sFile, $aParams, $bReplace);
     }
 
-    /**
-     * Проверка на дубль по имени (параметр name) js или css файла
-     * Позволяет избежать повторного подключения уже используемой библиотеки
-     *
-     * @param string $sType   - Тип файла - css, js
-     * @param array  $aParams - Параметры
-     *
-     * @return bool
-     */
-    protected function ExistsHeadFileByName($sType, $aParams) {
-
-        if (isset($aParams['name'])) {
-            // * Проверяем на дубликат по имени
-            foreach ($this->aFilesParams[$sType] as $aParamsFile) {
-                if (isset($aParamsFile['name']) && strtolower($aParams['name']) == strtolower($aParamsFile['name'])) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Предварительная обработка списка файлов - разбивка на наборы, "хаки" и необъединяемые файлы
-     *
-     * @param $aFiles
-     * @return array
-     */
-    protected function PrepareHeadFilesLists($aFiles) {
-
-        $aResult = array(
-            'js' => array(
-                'assets' => array(), // наборы объединяемых файлов
-                'singles' => array(), // одиночные (необъединяемые) файлы
-                'hacks' => array(), // браузеные хаки
-            ),
-            'css' => array(
-                'assets' => array(),
-                'singles' => array(),
-                'hacks' => array(),
-            ),
-        );
-        foreach ($aFiles as $sType => $aTypeFiles) {
-            foreach ($aTypeFiles as $sFile) {
-                if (isset($this->aFilesParams[$sType][$sFile])) {
-                    $aFileParams = $this->aFilesParams[$sType][$sFile];
-                    if (!isset($aFileParams['file'])) $aFileParams['file'] = $sFile;
-                    if (isset($aFileParams['browser'])) {
-                        // browser hacks
-                        $aResult[$sType]['hacks'][$sFile] = $aFileParams;
-                    } elseif (isset($aFileParams['merge']) && !$aFileParams['merge']) {
-                        $aResult[$sType]['singles'][$sFile] = $aFileParams;
-                    } else {
-                        $aResult[$sType]['assets'][$aFileParams['asset']][$sFile] = $aFileParams;
-                    }
-                }
-            }
-        }
-        return $aResult;
-    }
 
     /**
      * Строит массив для подключения css и js,
@@ -1388,24 +1223,24 @@ class ModuleViewer extends Module {
 
                     // * Преобразование JS
                     if (isset($aRule['js']['empty']) && $aRule['js']['empty']) {
-                        $aFiles['js'] = array();
+                        $this->ViewerAsset_ClearJs();
                     }
                     if (isset($aRule['js']['exclude']) && is_array($aRule['js']['exclude'])) {
-                        $aFiles['js'] = array_diff($aFiles['js'], $aRule['js']['exclude']);
+                        $this->ViewerAsset_ExcludeJs($aRule['js']['exclude']);
                     }
                     if (isset($aRule['js']['include']) && is_array($aRule['js']['include'])) {
-                        $aFiles['js'] = array_merge($aFiles['js'], $aRule['js']['include']);
+                        $this->ViewerAsset_AddJsFiles($aRule['js']['exclude']);
                     }
 
                     // * Преобразование CSS
                     if (isset($aRule['css']['empty']) && $aRule['css']['empty']) {
-                        $aFiles['css'] = array();
+                        $this->ViewerAsset_ClearCss();
                     }
                     if (isset($aRule['css']['exclude']) && is_array($aRule['css']['exclude'])) {
-                        $aFiles['css'] = array_diff($aFiles['css'], $aRule['css']['exclude']);
+                        $this->ViewerAsset_ExcludeCss($aRule['js']['exclude']);
                     }
                     if (isset($aRule['css']['include']) && is_array($aRule['css']['include'])) {
-                        $aFiles['css'] = array_merge($aFiles['css'], $aRule['css']['include']);
+                        $this->ViewerAsset_AddCssFiles($aRule['js']['exclude']);
                     }
 
                     // * Продолжаем поиск
@@ -1416,51 +1251,11 @@ class ModuleViewer extends Module {
             }
         }
 
-        /**
-         * Добавляем скрипты и css из массивов
-         */
-        $aFiles['js'] = array_values(
-            array_merge(
-                (array)$this->aJsInclude['prepend'],
-                (array)$aFiles['js'],
-                (array)$this->aJsInclude['append']
-            )
-        );
-        $aFiles['css'] = array_values(
-            array_merge(
-                (array)$this->aCssInclude['prepend'],
-                (array)$aFiles['css'],
-                (array)$this->aCssInclude['append']
-            )
-        );
+        $this->ViewerAsset_Prepare();
 
-        $aFiles = $this->PrepareHeadFilesLists($aFiles);
 
         // * Объединяем файлы в наборы
         $aHeadFiles = array('js' => array(), 'css' => array());
-
-        foreach (array('js', 'css') as $sType) {
-            // Обработка по "наборам" (assets)
-            if (Config::Get("compress.{$sType}.merge")) {
-                // Если задано слияние файлов
-                foreach ($aFiles[$sType]['assets'] AS $aFilesAsset) {
-                    $sCompressedFile = $this->Compress(array_keys($aFilesAsset), $sType);
-                    if ($sCompressedFile) $aHeadFiles[$sType][] = $sCompressedFile;
-                }
-            } else {
-                foreach ($aFiles[$sType]['assets'] AS $aFilesAsset) {
-                    $aFileList = $this->MergeHeadFileList(array_keys($aFilesAsset), $sType);
-                    if ($aFileList) $aHeadFiles[$sType] = array_merge($aHeadFiles[$sType], $aFileList);
-                }
-            }
-            // * Добавляем файлы хаков
-            if (isset($aFiles[$sType]['hacks']) && count($aFiles[$sType]['hacks'])) {
-                $aHeadFiles[$sType] = array_merge($aHeadFiles[$sType], array_keys($aFiles[$sType]['hacks']));
-            }
-            if (isset($aFiles[$sType]['singles']) && count($aFiles[$sType]['singles'])) {
-                $aHeadFiles[$sType] = array_merge($aHeadFiles[$sType], array_keys($aFiles[$sType]['singles']));
-            }
-        }
 
         // * Получаем HTML код
         $aHtmlHeadFiles = $this->BuildHtmlHeadFiles($aHeadFiles);
@@ -1766,45 +1561,23 @@ class ModuleViewer extends Module {
         return F::File_Url2Dir($sFile);
     }
 
-    protected function Hash($sPath) {
-
-        return sprintf('%x', crc32($sPath));
-    }
-
     /**
-     * Строит HTML код по переданному массиву файлов
+     * Строит массив HTML-ссылок на ресурсы
      *
-     * @param  array $aFileList    Список файлов
+     * @param $aHeadFiles
      * @return array
      */
-    protected function BuildHtmlHeadFiles($aFileList) {
+    protected function BuildHtmlHeadFiles($aHeadFiles) {
 
-        $aHeader = array('js' => '', 'css' => '');
-
-        foreach ((array)$aFileList['css'] as $sCss) {
-            $aHeader['css'] .= $this->WrapHtmlHack("<link rel='stylesheet' type='text/css' href='{$sCss}' />", $sCss, 'css') . PHP_EOL;
+        foreach($aHeadFiles as $sType => $aFiles) {
+            $aHeaderLinks = $this->ViewerAsset_BuildHtmlLinks($sType);
+            if (isset($aHeaderLinks[$sType]) && $aHeaderLinks[$sType]) {
+                $aHeadFiles[$sType] = join(PHP_EOL, $aHeaderLinks[$sType]);
+            } else {
+                $aHeadFiles[$sType] = '';
+            }
         }
-        foreach ((array)$aFileList['js'] as $sJs) {
-            $aHeader['js'] .= $this->WrapHtmlHack("<script type='text/javascript' src='{$sJs}'></script>", $sJs, 'js') . PHP_EOL;
-        }
-        return $aHeader;
-    }
-
-    /**
-     * Обрамляет HTML код в браузер-хак (ex., [if IE 6])
-     *
-     * @param  string $sHtml
-     * @param  string $sFile
-     * @param  string $sType (js|css)
-     *
-     * @return string
-     */
-    protected function WrapHtmlHack($sHtml, $sFile, $sType) {
-
-        if (!isset($this->aFilesParams[$sType][$sFile]['browser'])) {
-            return $sHtml;
-        }
-        return "<!--[if {$this->aFilesParams[$sType][$sFile]['browser']}]>$sHtml<![endif]-->";
+        return $aHeadFiles;
     }
 
     /**

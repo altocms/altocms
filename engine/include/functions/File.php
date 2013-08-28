@@ -495,7 +495,7 @@ class AltoFunc_File {
         } else {
             $bResult = false;
         }
-        return $bResult;
+        return $bResult ? $sTarget : false;
     }
 
     /**
