@@ -645,6 +645,23 @@ class AltoFunc_File {
             $n = strpos($aResult['basename'], '?');
             $aResult['basename'] = substr($aResult['basename'], 0, $n);
         }
+        if (($aUrlInfo = parse_url($sPath)) && isset($aUrlInfo['host'])) {
+            $aResult = array_merge($aResult, $aUrlInfo);
+        }
+        $aResult = array_merge(
+            array(
+                 'scheme'   => '',
+                 'host'     => '',
+                 'port'     => '',
+                 'user'     => '',
+                 'pass'     => '',
+                 'path'     => '',
+                 'query'    => '',
+                 'fragment' => '',
+            ),
+            $aResult
+        );
+
         return $aResult;
     }
 
