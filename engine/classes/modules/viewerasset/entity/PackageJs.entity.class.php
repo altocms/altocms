@@ -28,11 +28,61 @@ class ModuleViewerAsset_EntityPackageJs extends ModuleViewerAsset_EntityPackage 
         );
     }
 
+    protected function InitCompressor() {
+
+        if (Config::Get('compress.js.use')) {
+            F::IncludeLib('JSMin-1.1.1/jsmin.php');
+            // * Получаем параметры из конфигурации
+            return true;
+        }
+        return false;
+    }
+
+    public function Compress($sContents) {
+
+        $sContents = JSMin::minify($sContents);
+        return $sContents;
+    }
+
     public function PrepareFile($sFile, $sDestination) {
 
         $sContents = F::File_GetContents($sFile);
-        return $this->PrepareContents($sContents, $sDestination);
+        $sContents = $this->PrepareContents($sContents, $sFile, $sDestination);
+        if (F::File_PutContents($sDestination, $sContents)) {
+            return $sDestination;
+        }
     }
+
+    public function PreProcess() {
+
+        if ($this->aFiles) {
+            $this->InitCompressor();
+        }
+        parent::PreProcess();
+    }
+
+    public function Process() {
+
+        foreach ($this->aLinks as $nIdx => $aLinkData) {
+            if (isset($aLinkData['compress']) && $aLinkData['compress']) {
+                $sFile = $aLinkData['file'];
+                $sExtension = 'min.' . F::File_GetExtension($sFile);
+                $sCompressedFile = F::File_SetExtension($sFile, $sExtension);
+                if (!$this->CheckDestination($sCompressedFile)) {
+                    if (($sContents = F::File_GetContents($sFile))) {
+                        $sContents = $this->Compress($sContents);
+                        if (F::File_PutContents($sCompressedFile, $sContents)) {
+                            F::File_Delete($sFile);
+                            $this->aLinks[$nIdx]['link'] = F::File_SetExtension($this->aLinks[$nIdx]['link'], $sExtension);
+                        }
+                    }
+                } else {
+                    $this->aLinks[$nIdx]['link'] = F::File_SetExtension($this->aLinks[$nIdx]['link'], $sExtension);
+                }
+            }
+        }
+    }
+
 
 }
 

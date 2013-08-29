@@ -15,7 +15,6 @@
 class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage {
 
     protected $sOutType = 'css';
-    protected $oCssCompressor;
 
     public function Init() {
 
@@ -35,20 +34,21 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
      *
      * @return bool
      */
-    protected function InitCssCompressor() {
+    protected function InitCompressor() {
 
         if (Config::Get('compress.css.use')) {
+            F::IncludeLib('CSSTidy-1.3/class.csstidy.php');
             // * Получаем параметры из конфигурации
-            $this->oCssCompressor = new csstidy();
+            $this->oCompressor = new csstidy();
 
-            if ($this->oCssCompressor) {
+            if ($this->oCompressor) {
                 $aParams = Config::Get('compress.css.csstidy');
                 // * Устанавливаем параметры
                 foreach ($aParams as $sKey => $sVal) {
                     if ($sKey == 'template') {
-                        $this->oCssCompressor->load_template($sVal);
+                        $this->oCompressor->load_template($sVal);
                     } else {
-                        $this->oCssCompressor->set_cfg('case_properties', $sVal);
+                        $this->oCompressor->set_cfg('case_properties', $sVal);
                     }
                 }
                 return true;
@@ -57,10 +57,17 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
         return false;
     }
 
+    public function Compress($sContents) {
+
+        $this->oCompressor->parse($sContents);
+        $sContents = $this->oCompressor->print->plain();
+        return $sContents;
+    }
+
     public function PreProcess() {
 
         if ($this->aFiles) {
-            $this->InitCssCompressor();
+            $this->InitCompressor();
         }
         parent::PreProcess();
     }
@@ -74,8 +81,7 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
                 $sCompressedFile = F::File_SetExtension($sFile, $sExtension);
                 if (!$this->CheckDestination($sCompressedFile)) {
                     if (($sContents = F::File_GetContents($sFile))) {
-                        $this->oCssCompressor->parse($sContents);
-                        $sContents = $this->oCssCompressor->print->plain();
+                        $sContents = $this->Compress($sContents);
                         if (F::File_PutContents($sCompressedFile, $sContents)) {
                             F::File_Delete($sFile);
                             $this->aLinks[$nIdx]['link'] = F::File_SetExtension($this->aLinks[$nIdx]['link'], $sExtension);
@@ -92,7 +98,7 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
 
         $sContents = F::File_GetContents($sFile);
         $sContents = $this->PrepareContents($sContents, $sFile, $sDestination);
-        if (F::File_Put_Contents($sDestination, $sContents)) {
+        if (F::File_PutContents($sDestination, $sContents)) {
             return $sDestination;
         }
     }

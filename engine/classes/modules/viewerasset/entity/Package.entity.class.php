@@ -26,6 +26,8 @@ abstract class ModuleViewerAsset_EntityPackage extends Entity {
     protected $aLinks = array();
     protected $aHtmlLinkParams = array();
 
+    protected $oCompressor;
+
     public function __construct($aParams = array()) {
 
         if (isset($aParams['out_type'])) {
@@ -69,6 +71,18 @@ abstract class ModuleViewerAsset_EntityPackage extends Entity {
         } else {
             $this->aLinks[] = array_merge($aParams, array('link' => $sLink));
         }
+    }
+
+    /**
+     * Сжатие контента
+     * 
+     * @param $sContents
+     *
+     * @return mixed
+     */
+    public function Compress($sContents) {
+
+        return $sContents;
     }
 
     /**

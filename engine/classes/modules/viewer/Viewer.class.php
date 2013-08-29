@@ -17,8 +17,6 @@
 define('DS', '/');
 
 F::IncludeLib('Smarty/libs/Smarty.class.php');
-F::IncludeLib('CSSTidy-1.3/class.csstidy.php');
-F::IncludeLib('JSMin-1.1.1/jsmin.php');
 
 /**
  * Модуль обработки шаблонов используя шаблонизатор Smarty
