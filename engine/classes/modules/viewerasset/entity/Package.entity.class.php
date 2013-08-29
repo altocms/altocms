@@ -34,7 +34,6 @@ abstract class ModuleViewerAsset_EntityPackage extends Entity {
         if (isset($aParams['asset_type'])) {
             $this->sAssetType = $aParams['asset_type'];
         }
-        $this->sOutType = ($aParams['out_type'] ? $aParams['out_type'] : $this->sOutType);
         if ($this->sOutType) {
             $this->bMerge = (bool)Config::Get('compress.' . $this->sOutType . '.merge');
             $this->bCompress = (bool)Config::Get('compress.' . $this->sOutType . '.use');
@@ -115,12 +114,17 @@ abstract class ModuleViewerAsset_EntityPackage extends Entity {
             $sSubdir = $this->_crc(dirname($sFile));
         }
         $sDestination = $this->Viewer_GetAssetDir() . $sSubdir . '/' . basename($sFile);
-        if ($sDestination = $this->PrepareFile($sFile, $sDestination)) {
-            $this->AddLink($aFileParams['info']['extension'], F::File_Dir2Url($sDestination), $aFileParams);
+        if (!$this->CheckDestination($sDestination)) {
+            if ($sDestination = $this->PrepareFile($sFile, $sDestination)) {
+                $this->AddLink($aFileParams['info']['extension'], F::File_Dir2Url($sDestination), $aFileParams);
+            } else {
+                // TODO: Писать в лог ошибок
+                return false;
+            }
         } else {
-            // TODO: Писать в лог ошибок
-            return false;
+            $this->AddLink($aFileParams['info']['extension'], F::File_Dir2Url($sDestination), $aFileParams);
         }
+        return true;
     }
 
     /**
@@ -134,19 +138,61 @@ abstract class ModuleViewerAsset_EntityPackage extends Entity {
     public function MakeMerge($sAsset, $aFiles) {
 
         $sDestination = $this->Viewer_GetAssetDir() . md5($sAsset . serialize($aFiles)) . '.' . $this->sOutType;
-        $sContents = '';
-        foreach ($aFiles as $aFileParams) {
-            $sFileContents = F::File_GetContents($aFileParams['file']);
-            $sContents .= $this->PrepareContents($sFileContents, $aFileParams['file']) . PHP_EOL;
-        }
-        if (F::File_PutContents($sDestination, $sContents)) {
-            $this->AddLink($aFileParams['info']['extension'], F::File_Dir2Url($sDestination), $aFileParams);
+        if (!$this->CheckDestination($sDestination)) {
+            $sContents = '';
+            $bCompress = true;
+            foreach ($aFiles as $aFileParams) {
+                $sFileContents = F::File_GetContents($aFileParams['file']);
+                $sContents .= $this->PrepareContents($sFileContents, $aFileParams['file']) . PHP_EOL;
+                if (isset($aFileParams['compress'])) {
+                    $bCompress = $bCompress && (bool)$aFileParams['compress'];
+                }
+            }
+            if (F::File_PutContents($sDestination, $sContents)) {
+                $aParams = array(
+                    'file' => $sDestination,
+                    'asset' => $sAsset,
+                    'compress' => $bCompress,
+                );
+                $this->AddLink($this->sOutType, F::File_Dir2Url($sDestination), $aParams);
+            } else {
+                // TODO: Писать в лог ошибок
+                return false;
+            }
         } else {
-            // TODO: Писать в лог ошибок
-            return false;
+            $aParams = array(
+                'file' => $sDestination,
+                'asset' => $sAsset,
+                'compress' => $this->bCompress,
+            );
+            $this->AddLink($this->sOutType, F::File_Dir2Url($sDestination), $aParams);
         }
+        return true;
     }
 
+    /**
+     * Проверка итогового файла назначения
+     *
+     * @param $sDestination
+     *
+     * @return bool
+     */
+    public function CheckDestination($sDestination) {
+
+        // Проверка минифицированного файла
+        if (substr($sDestination, -strlen($this->sOutType) - 5) == '.min.' . $this->sOutType) {
+            return F::File_Exists($sDestination);
+        }
+        $sDestinationMin = F::File_SetExtension($sDestination, 'min.' . $this->sOutType);
+        if ($this->bCompress) {
+            return F::File_Exists($sDestinationMin) || F::File_Exists($sDestination);
+        }
+        return F::File_Exists($sDestination);
+    }
+
+    /**
+     * Препроцессинг
+     */
     public function PreProcess() {
 
         // Создаем окончательные наборы, сливая prepend и append
@@ -219,6 +265,9 @@ abstract class ModuleViewerAsset_EntityPackage extends Entity {
         }
         if (!isset($aFileParams['merge'])) {
             $aFileParams['merge'] = true;
+        }
+        if (!isset($aFileParams['compress'])) {
+            $aFileParams['compress'] = $this->bCompress;
         }
         if ($this->bMerge && $aFileParams['merge']) {
             // Определяем имя набора
@@ -314,19 +363,23 @@ abstract class ModuleViewerAsset_EntityPackage extends Entity {
     protected function _stageBegin($nStage) {
 
         $sFile = $this->Viewer_GetAssetDir() . '_check/' . $this->GetHash();
-        if ($aCheckFiles = glob($sFile . '.{123}.*.tmp')) {
+        if ($aCheckFiles = glob($sFile . '.{1,2,3}.begin.tmp', GLOB_BRACE)) {
+            return false;
+        } elseif (($nStage == 2) && ($aCheckFiles = glob($sFile . '.{2,3}.end.tmp', GLOB_BRACE))) {
+            return false;
+        } elseif (($nStage == 3) && F::File_Exists($sFile . '.3.end.tmp')) {
             return false;
         }
-        return F::File_PutContents($sFile . '.' . $nStage . '.begin.tmp', '1');
+        return F::File_PutContents($sFile . '.' . $nStage . '.begin.tmp', time());
     }
 
-    protected function _stageEnd($nStage) {
+    protected function _stageEnd($nStage, $bFinal = false) {
 
         $sFile = $this->Viewer_GetAssetDir() . '_check/' . $this->GetHash();
-        F::File_PutContents($sFile . '.' . $nStage . '.end.tmp', '1');
+        F::File_PutContents($sFile . '.' . $nStage . '.end.tmp', time());
         for ($n = 1; $n <= $nStage; $n++) {
             F::File_Delete($sFile . '.' . $n . '.begin.tmp');
-            if ($n < $nStage) {
+            if ($n < $nStage || $bFinal) {
                 F::File_Delete($sFile . '.' . $n . '.end.tmp');
             }
         }
@@ -359,7 +412,7 @@ abstract class ModuleViewerAsset_EntityPackage extends Entity {
 
     public function PostProcessEnd() {
 
-        return $this->_stageEnd('3');
+        return $this->_stageEnd('3', true);
     }
 
     public function Prepare() {
@@ -403,7 +456,7 @@ abstract class ModuleViewerAsset_EntityPackage extends Entity {
         } else {
             $sResult .= '/>';
         }
-        if ($aLink['browser']) {
+        if (isset($aLink['browser'])) {
             return "<!--[if {$aLink['browser']}]>$sResult<![endif]-->";
         }
         return $sResult;

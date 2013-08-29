@@ -51,7 +51,7 @@ class ModuleViewerAsset extends Module {
     public function  Init() {
 
         foreach ($this->aAssetTypes as $sType) {
-            $aParams = array('out_type' => $sType);
+            $aParams = array('asset_type' => $sType);
             $this->aAssets[$sType] = Engine::GetEntity('ViewerAsset_Package' . ucfirst($sType), $aParams);
         }
     }

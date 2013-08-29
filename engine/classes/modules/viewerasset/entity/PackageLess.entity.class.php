@@ -14,13 +14,7 @@
  */
 class ModuleViewerAsset_EntityPackageLess extends ModuleViewerAsset_EntityPackageCss {
 
-    public function Init() {
-
-        parent::Init();
-        if (!$this->sAssetType) {
-            $this->sAssetType = 'less';
-        }
-    }
+    protected $sOutType = 'css';
 
 }
 

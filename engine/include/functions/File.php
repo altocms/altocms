@@ -674,9 +674,16 @@ class AltoFunc_File {
      */
     static public function GetExtension($sPath) {
 
-        $aInfo = F::File_PathInfo($sPath);
+        $aInfo = self::PathInfo($sPath);
         return $aInfo['extension'];
     }
+
+    static public function SetExtension($sPath, $sExtension) {
+
+        $aInfo = self::PathInfo($sPath);
+        return $aInfo['dirname'] . '/' . $aInfo['filename'] . '.' . $sExtension;
+    }
+
 
     /**
      * Соответствует ли проверяемый путь одной из заданных масок путей

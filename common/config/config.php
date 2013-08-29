@@ -668,13 +668,13 @@ $config['head']['default']['css'] = array(
  */
 $config['compress']['css']['merge'] = true;         // указывает на необходимость слияния файлов по указанным блокам.
 $config['compress']['css']['use']   = false;        // указывает на необходимость компрессии файлов. Компрессия используется только в активированном режиме слияния файлов.
-$config['compress']['css']['case_properties']     = 1;
-$config['compress']['css']['merge_selectors']     = 0;
-$config['compress']['css']['optimise_shorthands'] = 1;
-$config['compress']['css']['remove_last_;']       = true;
-$config['compress']['css']['css_level']           = 'CSS2.1';
-$config['compress']['css']['template']            = 'highest_compression';
 $config['compress']['css']['force']  = false;       // если заданно 'compress.css.merge', то слияние выполняется, даже если результирующий файл есть
+$config['compress']['css']['csstidy']['case_properties']     = 1;
+$config['compress']['css']['csstidy']['merge_selectors']     = 0;
+$config['compress']['css']['csstidy']['optimise_shorthands'] = 1;
+$config['compress']['css']['csstidy']['remove_last_;']       = true;
+$config['compress']['css']['csstidy']['css_level']           = 'CSS2.1';
+$config['compress']['css']['csstidy']['template']            = 'highest_compression';
 /**
  * Параметры компрессии js-файлов
  */

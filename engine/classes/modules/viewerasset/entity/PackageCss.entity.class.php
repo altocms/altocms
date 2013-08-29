@@ -14,14 +14,11 @@
  */
 class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage {
 
+    protected $sOutType = 'css';
+    protected $oCssCompressor;
+
     public function Init() {
 
-        if (!$this->sOutType) {
-            $this->sOutType = 'css';
-        }
-        if (!$this->sAssetType) {
-            $this->sAssetType = 'css';
-        }
         $this->aHtmlLinkParams = array(
             'tag'  => 'link',
             'attr' => array(
@@ -40,24 +37,24 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
      */
     protected function InitCssCompressor() {
 
-        // * Получаем параметры из конфигурации
-        $aParams = Config::Get('compress.css');
-        $this->oCssCompressor = ($aParams['use']) ? new csstidy() : null;
+        if (Config::Get('compress.css.use')) {
+            // * Получаем параметры из конфигурации
+            $this->oCssCompressor = new csstidy();
 
-        // * Если компрессор не создан, завершаем работу инициализатора
-        if (!$this->oCssCompressor) {
-            return false;
+            if ($this->oCssCompressor) {
+                $aParams = Config::Get('compress.css.csstidy');
+                // * Устанавливаем параметры
+                foreach ($aParams as $sKey => $sVal) {
+                    if ($sKey == 'template') {
+                        $this->oCssCompressor->load_template($sVal);
+                    } else {
+                        $this->oCssCompressor->set_cfg('case_properties', $sVal);
+                    }
+                }
+                return true;
+            }
         }
-
-        // * Устанавливаем параметры
-        $this->oCssCompressor->set_cfg('case_properties', $aParams['case_properties']);
-        $this->oCssCompressor->set_cfg('merge_selectors', $aParams['merge_selectors']);
-        $this->oCssCompressor->set_cfg('optimise_shorthands', $aParams['optimise_shorthands']);
-        $this->oCssCompressor->set_cfg('remove_last_;', $aParams['remove_last_;']);
-        $this->oCssCompressor->set_cfg('css_level', $aParams['css_level']);
-        $this->oCssCompressor->load_template($aParams['template']);
-
-        return true;
+        return false;
     }
 
     public function PreProcess() {
@@ -66,6 +63,29 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
             $this->InitCssCompressor();
         }
         parent::PreProcess();
+    }
+
+    public function Process() {
+
+        foreach ($this->aLinks as $nIdx => $aLinkData) {
+            if (isset($aLinkData['compress']) && $aLinkData['compress']) {
+                $sFile = $aLinkData['file'];
+                $sExtension = 'min.' . F::File_GetExtension($sFile);
+                $sCompressedFile = F::File_SetExtension($sFile, $sExtension);
+                if (!$this->CheckDestination($sCompressedFile)) {
+                    if (($sContents = F::File_GetContents($sFile))) {
+                        $this->oCssCompressor->parse($sContents);
+                        $sContents = $this->oCssCompressor->print->plain();
+                        if (F::File_PutContents($sCompressedFile, $sContents)) {
+                            F::File_Delete($sFile);
+                            $this->aLinks[$nIdx]['link'] = F::File_SetExtension($this->aLinks[$nIdx]['link'], $sExtension);
+                        }
+                    }
+                } else {
+                    $this->aLinks[$nIdx]['link'] = F::File_SetExtension($this->aLinks[$nIdx]['link'], $sExtension);
+                }
+            }
+        }
     }
 
     public function PrepareFile($sFile, $sDestination) {
@@ -112,9 +132,9 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
             $sRealPath = realpath($sSourceDir . $sPath);
             $sDestination = $this->Viewer_GetAssetDir() . $this->_crc(dirname($sRealPath)) . '/' . basename($sRealPath);
             $aUrls[$sPath] = array(
-                'source' => $sRealPath,
+                'source'      => $sRealPath,
                 'destination' => $sDestination,
-                'url' => F::File_Dir2Url($sDestination),
+                'url'         => F::File_Dir2Url($sDestination),
             );
             F::File_Copy($sRealPath, $sDestination);
         }
