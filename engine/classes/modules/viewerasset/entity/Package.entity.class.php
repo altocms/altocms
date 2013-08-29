@@ -75,7 +75,7 @@ abstract class ModuleViewerAsset_EntityPackage extends Entity {
 
     /**
      * Сжатие контента
-     * 
+     *
      * @param $sContents
      *
      * @return mixed
@@ -234,7 +234,7 @@ abstract class ModuleViewerAsset_EntityPackage extends Entity {
                 // Одиночный файл
                 $aFileParams = array_shift($aFiles);
                 if ($aFileParams['throw']) {
-                    $this->AddLink($aFileParams['info']['extension'], $aFileParams['file'], $aFileParams['browser']);
+                    $this->AddLink($aFileParams['info']['extension'], $aFileParams['file'], $aFileParams);
                 } else {
                     $this->MakeSingle($sAsset, $aFileParams);
                 }
