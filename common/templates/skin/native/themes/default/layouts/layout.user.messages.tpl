@@ -2,8 +2,8 @@
  * Базовый шаблон личных сообщений
  *}
 
-{extends file='layouts/layout.base.tpl'}
+{extends file='[layouts]layout.base.tpl'}
 
 {block name='layout_content_begin' append}
-	{include file='navs/nav.messages.tpl'}
+    {include file='nav.messages.tpl'}
 {/block}

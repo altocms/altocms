@@ -101,17 +101,17 @@
  * ls-user-role-not-admin    Залогиненый пользователь - не админ
  * ls-template-*             Класс с названием активного шаблона
  *}
-{if $oUserCurrent}
+{if E::IsUser()}
 	{$sBodyClasses = $sBodyClasses|cat:' ls-user-role-user'}
 
-	{if $oUserCurrent->isAdministrator()}
+	{if E::IsAdmin()}
 		{$sBodyClasses = $sBodyClasses|cat:' ls-user-role-admin'}
 	{/if}
 {else}
 	{$sBodyClasses = $sBodyClasses|cat:' ls-user-role-guest'}
 {/if}
 
-{if !$oUserCurrent or ($oUserCurrent and ! $oUserCurrent->isAdministrator())}
+{if !E::IsAdmin()}
 	{$sBodyClasses = $sBodyClasses|cat:' ls-user-role-not-admin'}
 {/if}
 
@@ -128,11 +128,11 @@
 			 *}
 			<header id="header" role="banner">
 				{hook run='header_banner_begin'}
-				
+
 				<a href="{cfg name='path.root.web'}" title="{cfg name='view.name'}" class="logo"></a>
-				
+
 				<h2 class="site-description">{cfg name='view.description'}</h2>
-				
+
 				{* Основная навигация *}
 				<nav id="nav">
 					<ul class="nav nav-main">
@@ -150,7 +150,7 @@
 
 					{hook run='main_menu'}
 				</nav>
-				
+
 				{**
 				 * Юзербар
 				 *}
@@ -161,17 +161,17 @@
 						</div>
 					{/if}
 					{hook run='userbar_nav'}
-					
+
 						<div class="menu">
 							{if $oUserCurrent}
 								{$aLang.userbar_hello}, <a href="{$oUserCurrent->getUserWebPath()}" class="username">{$oUserCurrent->getLogin()}</a>
-								
+
 								<div class="usermenu-trigger"><i></i></div>
-								
+
 								<div class="dropdown-usermenu">
 									<a href="{$oUserCurrent->getUserWebPath()}"><img src="{$oUserCurrent->getProfileAvatarPath(24)}" alt="avatar" class="avatar" /></a>
 									<a href="{$oUserCurrent->getUserWebPath()}" class="user-title">{$aLang.user_menu_profile}</a>
-									
+
 									<ul class="links">
 										<li></li>
 										<li><i class="icon-native-usermenu-favourites"></i><a href="{$oUserCurrent->getUserWebPath()}favourites/topics/">{$aLang.user_menu_profile_favourites}</a></li>
@@ -179,7 +179,7 @@
 										<li><i class="icon-native-usermenu-settings"></i><a href="{router page='settings'}">{$aLang.settings_menu}</a></li>
 										{hook run='userbar_item'}
 									</ul>
-									
+
 									<ul class="links noborder nopad">
 										<li><i class="icon-native-usermenu-logout"></i><a href="{router page='login'}exit/?security_ls_key={$LIVESTREET_SECURITY_KEY}">{$aLang.exit}</a></li>
 									</ul>
@@ -195,13 +195,13 @@
 							<input type="text" placeholder="{$aLang.search}" maxlength="255" name="q" class="search-form-input width-full">
 						</form>
 				</nav> 
-				
+
 				{hook run='header_banner_end'}
 			</header>
-			
+
 			{* Системные сообщения *}
 			{include file='system_message.tpl'}
-						
+
 			{* Навигация *}
 			{if $sNav or $sNavContent}
 				<div class="nav-group">
@@ -209,10 +209,10 @@
 						{if in_array($sNav, $aMenuContainers)}
 							{$aMenuFetch.$sNav}
 						{else}
-							{include file="navs/nav.$sNav.tpl"}
+							{include file="nav.$sNav.tpl"}
 						{/if}
 					{else}
-						{include file="navs/nav.$sNavContent.content.tpl"}
+						{include file="nav.$sNavContent.content.tpl"}
 					{/if}
 				</div>
 			{/if}
@@ -238,7 +238,6 @@
 					</div>
 				</div>
 
-
 				{* Сайдбар *}
 				{if ! $bNoSidebar}
 					<aside id="sidebar" role="complementary">
@@ -247,18 +246,16 @@
 				{/if}
 			</div> {* /wrapper *}
 
-
 			{* Подвал *}
 			<footer id="footer">
 				{hook run='footer_begin'}
 
 				{block name='layout_footer_begin'}{/block}
-					
+
 				<div class="copyright">
 					<p>{hook run='copyright'}</p>
 					<p>{$smarty.now|date_format:"%Y"}</p>
 				</div>
-				
 
 				{block name='layout_footer_end'}{/block}
 
@@ -267,33 +264,26 @@
 		</div> {* /container *}
 	{/block}
 
-
 	{* Подключение модальных окон *}
-	{if $oUserCurrent}
+	{if E::IsUser()}
 		{include file='modals/modal.create.tpl'}
 		{include file='modals/modal.favourite_tags.tpl'}
 	{else}
 		{include file='modals/modal.auth.tpl'}
 	{/if}
 
-
-	{**
-	 * Тулбар
-	 * Добавление кнопок в тулбар
-	 *}
-	{add_block group='toolbar' name='toolbar/toolbar.scrollup.tpl' priority=-100}
-
 	{* Подключение тулбара *}
-	{include file='toolbar/toolbar.tpl'}
-	
-	{if $oUserCurrent and $oUserCurrent->isAdministrator()}
+    <aside class="toolbar" id="toolbar" data-type="toolbar">
+	{wgroup name='toolbar'}
+    </aside>
+
+	{if E::IsAdmin()}
 		<section class="admin-link">
 			<a href="{router page='admin'}" title="{$aLang.admin_title}">
 				<i class="icon-native-admin-link"></i>
 			</a>
 		</section>
 	{/if}
-
 
 	{hook run='body_end'}
 </body>

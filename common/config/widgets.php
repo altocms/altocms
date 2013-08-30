@@ -108,7 +108,7 @@ $config['widgets'][] = array(
 );
 
 $config['widgets'][] = array(
-    'name' => 'blocks/block.blogAdd.tpl',
+    'name' => 'widgets/widget.blogAdd.tpl',
     'wgroup' => 'right',
     'priority' => 125,
     'action' => array(
@@ -117,7 +117,7 @@ $config['widgets'][] = array(
 );
 
 $config['widgets'][] = array(
-    'name' => 'blocks/block.contentAdd.tpl',
+    'name' => 'widgets/widget.contentAdd.tpl',
     'wgroup' => 'right',
     'priority' => 125,
     'action' => array(
@@ -126,7 +126,7 @@ $config['widgets'][] = array(
 );
 
 $config['widgets'][] = array(
-    'name' => 'blocks/block.userPhoto.tpl',
+    'name' => 'widgets/widget.userPhoto.tpl',
     'wgroup' => 'right',
     'priority' => 100,
     'action' => array(
@@ -135,7 +135,7 @@ $config['widgets'][] = array(
 );
 
 $config['widgets'][] = array(
-    'name' => 'blocks/block.userActions.tpl',
+    'name' => 'widgets/widget.userActions.tpl',
     'wgroup' => 'right',
     'priority' => 50,
     'action' => array(
@@ -144,7 +144,7 @@ $config['widgets'][] = array(
 );
 
 $config['widgets'][] = array(
-    'name' => 'blocks/block.userNote.tpl',
+    'name' => 'widgets/widget.userNote.tpl',
     'wgroup' => 'right',
     'priority' => 25,
     'action' => array(
@@ -153,7 +153,7 @@ $config['widgets'][] = array(
 );
 
 $config['widgets'][] = array(
-    'name' => 'blocks/block.userNav.tpl',
+    'name' => 'widgets/widget.userNav.tpl',
     'wgroup' => 'right',
     'priority' => 1,
     'action' => array(

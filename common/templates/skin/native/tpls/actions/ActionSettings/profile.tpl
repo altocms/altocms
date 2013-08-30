@@ -2,7 +2,7 @@
  * Основные настройки профиля
  *}
 
-{extends file='layouts/layout.user.settings.tpl'}
+{extends file='[layouts]layout.user.settings.tpl'}
 
 {block name='layout_content'}
 	<script type="text/javascript">

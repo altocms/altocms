@@ -2,7 +2,7 @@
  * Создание личного сообщения
  *}
 
-{extends file='layouts/layout.user.messages.tpl'}
+{extends file='[layouts]layout.user.messages.tpl'}
 
 {block name='layout_content'}
 	{**

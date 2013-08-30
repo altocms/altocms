@@ -2,7 +2,7 @@
  * Личное сообщение
  *}
 
-{extends file='layouts/layout.user.messages.tpl'}
+{extends file='[layouts]layout.user.messages.tpl'}
 
 {block name='layout_content'}
 	{$oUser = $oTalk->getUser()}

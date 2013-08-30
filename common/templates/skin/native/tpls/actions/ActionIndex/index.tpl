@@ -2,12 +2,12 @@
  * Главная
  *}
 
-{extends file='layouts/layout.base.tpl'}
+{extends file='[layouts]layout.base.tpl'}
 
 {block name='layout_options'}
-	{$sNav = 'topics'}
+    {$sNav = 'topics'}
 {/block}
 
 {block name='layout_content'}
-	{include file='topics/topic_list.tpl'}
+    {include file='topics/topic_list.tpl'}
 {/block}
