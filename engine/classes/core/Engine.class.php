@@ -505,13 +505,20 @@ class Engine extends LsObject {
      */
     protected function InitHooks() {
 
-        $sDirHooks = Config::Get('path.root.dir') . '/classes/hooks/';
-        $aFiles = glob($sDirHooks . 'Hook*.class.php');
+        $aPathSeek = array_reverse(Config::Get('path.root.seek'));
+        $aHookFiles = array();
+        foreach ($aPathSeek as $sDirHooks) {
+            $aFiles = glob($sDirHooks . '/classes/hooks/Hook*.class.php');
+            if ($aFiles) {
+                foreach ($aFiles as $sFile) {
+                    $aHookFiles[basename($sFile)] = $sFile;
+                }
+            }
+        }
 
-        if ($aFiles && count($aFiles)) {
-            foreach ($aFiles as $sFile) {
+        if ($aHookFiles) {
+            foreach ($aHookFiles as $sFile) {
                 if (preg_match("/Hook([^_]+)\.class\.php$/i", basename($sFile), $aMatch)) {
-                    //require_once($sFile);
                     $sClassName = 'Hook' . $aMatch[1];
                     $oHook = new $sClassName;
                     $oHook->RegisterHook();
@@ -519,9 +526,7 @@ class Engine extends LsObject {
             }
         }
 
-        /**
-         * Подгружаем хуки активных плагинов
-         */
+        // * Подгружаем хуки активных плагинов
         $this->InitPluginHooks();
     }
 
@@ -532,10 +537,10 @@ class Engine extends LsObject {
     protected function InitPluginHooks() {
 
         if ($aPluginList = F::GetPluginsList()) {
-            $sDirHooks = F::GetPluginsDir();
+            $sPluginsDir = F::GetPluginsDir();
 
             foreach ($aPluginList as $sPluginName) {
-                $aFiles = glob($sDirHooks . $sPluginName . '/classes/hooks/Hook*.class.php');
+                $aFiles = glob($sPluginsDir . $sPluginName . '/classes/hooks/Hook*.class.php');
                 if ($aFiles && count($aFiles)) {
                     foreach ($aFiles as $sFile) {
                         if (preg_match("/Hook([^_]+)\.class\.php$/i", basename($sFile), $aMatch)) {
