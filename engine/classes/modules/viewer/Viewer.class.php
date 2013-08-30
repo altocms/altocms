@@ -715,6 +715,15 @@ class ModuleViewer extends Module {
         $bResult = $this->oSmarty->templateExists($sTemplate);
         if (!$bResult && $bException) {
             $sMessage = 'Can not find the template "' . $sTemplate . '" in skin "' . Config::Get('view.skin') . '"';
+            if ($aTpls = $this->GetSmartyObject()->template_objects) {
+                if (is_array($aTpls)) {
+                    $sMessage .= ' (from: ';
+                    foreach($aTpls as $oTpl) {
+                        $sMessage .= $oTpl->template_resource . '; ';
+                    }
+                    $sMessage .= ')';
+                }
+            }
 
             // записываем доп. информацию - пути к шаблонам Smarty
             $sErrorInfo = 'Template Dirs: ' . implode('; ', $this->oSmarty->getTemplateDir());
@@ -944,12 +953,6 @@ class ModuleViewer extends Module {
             if ($this->Widget_FileClassExists($sName, $sPlugin)) {
                 // Если найден файл класса виджета, то это исполняемый виджет
                 return 'exec';
-            }
-            if ($sLsBlockName = $this->TemplateExists(is_null($sDir) ? 'blocks/block.' . $sName . '.tpl' : rtrim($sDir, '/') . '/blocks/block.' . $sName . '.tpl')) {
-                // Если найден шаблон вида block.name.tpl то считаем что тип 'block'
-                // * LS-compatible * //
-                //$sName = $sLsBlockName;
-                return 'block';
             }
         }
         if (strpos($sName, 'block.') && ($sTplName = $this->TemplateExists(is_null($sDir) ? $sName : rtrim($sDir, '/') . '/' . ltrim($sName, '/')))) {
