@@ -132,13 +132,15 @@ class ModuleWidget extends Module {
 
         $sName = ucfirst($sName);
         if (!$sPlugin) {
-            $sFile = Config::Get('path.root.dir') . '/classes/widgets/Widget' . $sName . '.class.php';
+            $aPathSeek = Config::Get('path.root.seek');
+            $sFile = '/classes/widgets/Widget' . $sName . '.class.php';
             $sClass = 'Widget' . $sName;
         } else {
-            $sFile = F::GetPluginsDir() . $sPlugin . '/classes/widgets/Widget' . $sName . '.class.php';
+            $aPathSeek = F::GetPluginsDir();
+            $sFile = $sPlugin . '/classes/widgets/Widget' . $sName . '.class.php';
             $sClass = 'Plugin' . ucfirst($sPlugin) . '_Widget' . $sName;
         }
-        if (F::File_Exists($sFile)) {
+        if (F::File_Exists($sFile, $aPathSeek)) {
             return $bReturnClassName ? $sClass : $sFile;
         }
         return false;
