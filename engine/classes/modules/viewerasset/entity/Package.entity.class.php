@@ -132,7 +132,7 @@ abstract class ModuleViewerAsset_EntityPackage extends Entity {
             if ($sDestination = $this->PrepareFile($sFile, $sDestination)) {
                 $this->AddLink($aFileParams['info']['extension'], F::File_Dir2Url($sDestination), $aFileParams);
             } else {
-                // TODO: Писать в лог ошибок
+                F::SysWarning('Can not prepare asset file "' . $sFile . '"');
                 return false;
             }
         } else {
@@ -170,7 +170,7 @@ abstract class ModuleViewerAsset_EntityPackage extends Entity {
                 );
                 $this->AddLink($this->sOutType, F::File_Dir2Url($sDestination), $aParams);
             } else {
-                // TODO: Писать в лог ошибок
+                F::SysWarning('Can not write asset file "' . $sDestination . '"');
                 return false;
             }
         } else {

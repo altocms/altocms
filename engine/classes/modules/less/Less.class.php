@@ -26,7 +26,6 @@ class ModuleLess extends Module {
 
     /**
      * Compiles a string of LESS code to CSS
-     * TODO: обработка ошибок
      *
      * @param   string  $sString
      * @return  string
@@ -37,7 +36,7 @@ class ModuleLess extends Module {
         try {
             $sResult = $this->oLessCompiler->compile($sString);
         } catch (Exception $ex) {
-            echo 'LESS string compile error: ' . $ex->getMessage();
+            F::SysWarning('LESS string compile error: ' . $ex->getMessage());
         }
         return $sResult;
     }
@@ -45,7 +44,6 @@ class ModuleLess extends Module {
     /**
      * Reads and compiles a file.
      * It will either return the result or write it to the path specified by an optional second argument.
-     * TODO: обработка ошибок
      *
      * @param   string      $sFileName
      * @param   string|null $sOutFile
@@ -57,7 +55,7 @@ class ModuleLess extends Module {
         try {
             $sResult = $this->oLessCompiler->compileFile($sFileName, $sOutFile);
         } catch (Exception $ex) {
-            echo 'LESS file compile error: ' . $ex->getMessage();
+            F::SysWarning('LESS file compile error: ' . $ex->getMessage());
         }
         return $sResult;
     }

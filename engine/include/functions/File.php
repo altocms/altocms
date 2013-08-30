@@ -189,7 +189,6 @@ class AltoFunc_File {
 
     /**
      * Проверяет наличие папки и автоматически создает ее, если задано
-     * TODO: Логгирование ошибки
      *
      * @param string $sDir
      * @param bool   $bAutoMake
@@ -202,6 +201,9 @@ class AltoFunc_File {
         $bResult = is_dir($sDir);
         if (!$bResult && $bAutoMake) {
             $bResult = @mkdir($sDir, $nMask, true);
+            if (!$bResult) {
+                F::SysWarning('Can not make dir "' . $sDir . '"');
+            }
         }
         return $bResult;
     }
@@ -478,7 +480,6 @@ class AltoFunc_File {
 
     /**
      * Копирование файла
-     * TODO: Логгирование ошибки
      *
      * @param string $sSource
      * @param string $sTarget
@@ -492,6 +493,9 @@ class AltoFunc_File {
             $bResult = true;
         } elseif (F::File_Exists($sSource) && F::File_CheckDir(dirname($sTarget))) {
             $bResult = @copy($sSource, $sTarget);
+            if (!$bResult) {
+                F::SysWarning('Can not copy file from "' . $sSource . '" to "' . $sTarget . '"');
+            }
         } else {
             $bResult = false;
         }
@@ -766,15 +770,14 @@ class AltoFunc_File {
                     = $sFile . '; result: ' . (is_scalar(self::$_temp) ? self::$_temp : gettype(self::$_temp));
             }
         } catch (ErrorException $oException) {
-            /**
-             * TODO: надо логгировать ошибку подключения
-             */
             if ($oException->getFile() !== __FILE__) {
                 // Ошибка в подключённом файле
                 //throw $oException;
+                F::SysWarning('Error in include file "' . $sFile . '"');
                 return false;
             } else {
                 // Файл не был подключён.
+                F::SysWarning('Can not include file "' . $sFile . '"');
                 return false;
             }
         }

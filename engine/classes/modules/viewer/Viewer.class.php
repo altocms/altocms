@@ -967,10 +967,7 @@ class ModuleViewer extends Module {
         }
 
         // Считаем что тип не определен
-        /**
-         * TODO: Надо выводить что-то ошибочное на странице в месте этого виджета и писать ошибку в лог
-         */
-        //throw new Exception('Can not define widget type: '.$sName);
+        F::SysWarning('Can not define type of widget "' . $sName . '"');
         return 'undefined';
     }
 

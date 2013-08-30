@@ -270,6 +270,11 @@ class Func {
         return $xResult;
     }
 
+    static public function SysWarning($Message) {
+
+        trigger_error($Message, E_USER_WARNING);
+    }
+
     static public function IsDebug() {
 
         return defined('DEBUG') && DEBUG;

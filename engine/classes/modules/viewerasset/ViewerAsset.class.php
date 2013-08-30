@@ -112,7 +112,7 @@ class ModuleViewerAsset extends Module {
                     }
                     $aAddFiles[$aFileParams['name']] = $aFileParams;
                 } else {
-                    // TODO: Писать в лог ошибок
+                    F::SysWarning('Can not define asset file path "' . $sFilePath . '"');
                 }
             }
             if ($aAddFiles) {
