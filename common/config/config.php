@@ -579,7 +579,7 @@ $config['router']['config']['autodefine'] = true;
  */
 $config['head']['default']['js'] = array(
     /* Vendor libs */
-    '___path.framework.dir___/js/vendor/html5shiv.js' => array('browser' => 'lt IE 9'),
+    '___path.framework.dir___/js/vendor/html5shiv.min.js' => array('browser' => 'lt IE 9'),
     '___path.framework.dir___/js/vendor/jquery-1.9.1.min.js' => array('name' => 'jquery', 'asset' => 'mini'),
     '___path.framework.dir___/js/vendor/jquery-migrate-1.2.1.min.js' => array('asset' => 'mini'),
     '___path.framework.dir___/js/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js' => array('asset' => 'mini'),

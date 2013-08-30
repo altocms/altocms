@@ -3,5 +3,5 @@
 {block name='layout_page_title'}{$aLang.comments_all}{/block}
 
 {block name='layout_content'}
-	{include file='comments/comment_list.tpl'}
+    {include file='comment_list.tpl'}
 {/block}

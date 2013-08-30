@@ -159,7 +159,7 @@
                             <a href="#" title="{$aLang.blog_delete}" data-type="modal-toggle"
                                data-option-target="modal-blog-delete" class="delete">{$aLang.blog_delete}</a>
                         {else}
-                            <a href="{router page='blog'}delete/{$oBlog->getId()}/?security_ls_key={$LIVESTREET_SECURITY_KEY}"
+                            <a href="{router page='blog'}delete/{$oBlog->getId()}/?security_ls_key={$ALTO_SECURITY_KEY}"
                                title="{$aLang.blog_delete}"
                                onclick="return confirm('{$aLang.blog_admin_delete_confirm}');">{$aLang.blog_delete}</a>
                         {/if}

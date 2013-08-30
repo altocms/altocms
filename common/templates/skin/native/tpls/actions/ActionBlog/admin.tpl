@@ -15,7 +15,7 @@
 {block name='layout_content'}
 	{if $aBlogUsers}
 		<form method="post" enctype="multipart/form-data" class="mb-20">
-			<input type="hidden" name="security_ls_key" value="{$LIVESTREET_SECURITY_KEY}" />
+			<input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}" />
 			
 			<table class="table table-users">
 				<thead>

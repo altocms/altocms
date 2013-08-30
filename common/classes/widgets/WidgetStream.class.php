@@ -24,13 +24,13 @@ class WidgetStream extends Widget {
      * Запуск обработки
      */
     public function Exec() {
+
         // * Получаем комментарии
         if ($aComments = $this->Comment_GetCommentsOnline('topic', Config::Get('block.stream.row'))) {
-            $oViewer = $this->Viewer_GetLocalViewer();
-            $oViewer->Assign('aComments', $aComments);
+            $aVars = array('aComments' => $aComments);
 
             // * Формируем результат в виде шаблона и возвращаем
-            $sTextResult = $oViewer->Fetch('widgets/widget.stream_comment.tpl');
+            $sTextResult = $this->Viewer_FetchWidget('stream_comment.tpl', $aVars);
             $this->Viewer_Assign('sStreamComments', $sTextResult);
         }
     }

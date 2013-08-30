@@ -5,5 +5,5 @@
  *}
 
 {foreach $aComments as $oComment}
-	{include file='comments/comment.tpl' bList=true}
+    {include file='comment.tpl' bList=true}
 {/foreach}

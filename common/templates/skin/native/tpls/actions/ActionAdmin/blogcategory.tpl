@@ -32,10 +32,10 @@
 					</td>
 					<td align="center">
 						<a href="#" data-type="modal-toggle" data-option-url="{router page='admin'}blogcategory/modal-edit/" data-param-id="{$oCategory->getId()}" class="icon-edit"></a>
-						<a href="{router page='admin'}blogcategory/delete/{$oCategory->getId()}/?security_ls_key={$LIVESTREET_SECURITY_KEY}" onclick="return confirm('«{$oCategory->getTitle()|escape:'html'}»: {$aLang.admin_blogcategory_items_delete_confirm}');" class="icon-remove"></a>
+						<a href="{router page='admin'}blogcategory/delete/{$oCategory->getId()}/?security_ls_key={$ALTO_SECURITY_KEY}" onclick="return confirm('«{$oCategory->getTitle()|escape:'html'}»: {$aLang.admin_blogcategory_items_delete_confirm}');" class="icon-remove"></a>
 
-						<a href="{router page='admin'}blogcategory/sort/{$oCategory->getId()}/?security_ls_key={$LIVESTREET_SECURITY_KEY}" class="icon-arrow-up"></a>
-						<a href="{router page='admin'}blogcategory/sort/{$oCategory->getId()}/down/?security_ls_key={$LIVESTREET_SECURITY_KEY}" class="icon-arrow-down"></a>
+						<a href="{router page='admin'}blogcategory/sort/{$oCategory->getId()}/?security_ls_key={$ALTO_SECURITY_KEY}" class="icon-arrow-up"></a>
+						<a href="{router page='admin'}blogcategory/sort/{$oCategory->getId()}/down/?security_ls_key={$ALTO_SECURITY_KEY}" class="icon-arrow-down"></a>
 					</td>
 				</tr>
 			{/foreach}

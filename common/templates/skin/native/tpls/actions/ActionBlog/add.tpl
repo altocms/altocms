@@ -111,7 +111,7 @@
 		
 
 		{* Скрытые поля *}
-		<input type="hidden" name="security_ls_key" value="{$LIVESTREET_SECURITY_KEY}" />
+		<input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}" />
 
 
 		{* Кнопки *}

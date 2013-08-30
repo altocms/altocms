@@ -24,7 +24,7 @@
 			{/if}
 		</select>
 
-		<input type="hidden" value="{$LIVESTREET_SECURITY_KEY}" name="security_ls_key" />
+		<input type="hidden" value="{$ALTO_SECURITY_KEY}" name="security_ls_key" />
 	</form>
 {/block}
 

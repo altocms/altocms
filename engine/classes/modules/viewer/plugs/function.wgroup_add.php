@@ -23,12 +23,16 @@
  */
 function smarty_function_wgroup_add($aParams, $oSmartyTemplate) {
 
-    if (!isset($aParams['group'])) {
-        trigger_error('Parameter "group" does not define in {wgroup ...} function', E_USER_WARNING);
+    if (!isset($aParams['group']) && !isset($aParams['name'])) {
+        trigger_error('Parameter "group" or "name" does not define in {wgroup ...} function', E_USER_WARNING);
         return;
+    } else {
+        if (!isset($aParams['group']) && isset($aParams['name'])) {
+            $aParams['group'] = $aParams['name'];
+        }
     }
-    if (!isset($aParams['name'])) {
-        trigger_error('Parameter "name" does not define in {wgroup ...} function', E_USER_WARNING);
+    if (!isset($aParams['widget'])) {
+        trigger_error('Parameter "widget" does not define in {wgroup ...} function', E_USER_WARNING);
         return;
     }
 
@@ -42,12 +46,12 @@ function smarty_function_wgroup_add($aParams, $oSmartyTemplate) {
     }
 
     foreach ($aParams as $sKey => $sVal) {
-        if (!in_array($sKey, array('group', 'name', 'params', 'priority'))) {
+        if (!in_array($sKey, array('group', 'name', 'widget', 'params', 'priority'))) {
             $aWidgetParams[$sKey] = $sVal;
         }
     }
 
-    E::Viewer_AddWidget($aParams['group'], $aParams['name'], $aWidgetParams, $nPriority);
+    E::Viewer_AddWidget($aParams['group'], $aParams['widget'], $aWidgetParams, $nPriority);
     $aWidgets = E::Viewer_GetWidgets();
 
     $oSmartyTemplate->assign('aWidgets', $aWidgets);

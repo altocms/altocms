@@ -744,7 +744,8 @@ class ModuleComment extends Module {
      * @return string
      */
     public function GetTemplateCommentByTarget($iTargetId, $sTargetType) {
-        return "comments/comment.tpl";
+
+        return 'comment.tpl';
     }
 
     /**

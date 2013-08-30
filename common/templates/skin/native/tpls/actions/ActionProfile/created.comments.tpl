@@ -8,5 +8,6 @@
 
 {block name='layout_content'}
     {include file='nav.user.created.tpl'}
-    {include file='comments/comment_list.tpl'}
+    {include file='comment_list.tpl'}
 {/block}
+

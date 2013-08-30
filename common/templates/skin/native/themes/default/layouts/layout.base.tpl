@@ -45,7 +45,7 @@
 			DIR_STATIC_SKIN 		= '{cfg name="path.static.skin"}',
 			DIR_STATIC_FRAMEWORK 	= '{cfg name="path.static.framework"}',
 			DIR_ENGINE_LIBS	 		= '{cfg name="path.root.engine_lib"}',
-			LIVESTREET_SECURITY_KEY = '{$LIVESTREET_SECURITY_KEY}',
+			LIVESTREET_SECURITY_KEY = '{$ALTO_SECURITY_KEY}',
 			SESSION_ID				= '{$_sPhpSessionId}',
 			SESSION_NAME			= '{$_sPhpSessionName}',
 			LANGUAGE				= '{$oConfig->GetValue('lang.current')}',
@@ -181,7 +181,7 @@
 									</ul>
 
 									<ul class="links noborder nopad">
-										<li><i class="icon-native-usermenu-logout"></i><a href="{router page='login'}exit/?security_ls_key={$LIVESTREET_SECURITY_KEY}">{$aLang.exit}</a></li>
+										<li><i class="icon-native-usermenu-logout"></i><a href="{router page='login'}exit/?security_ls_key={$ALTO_SECURITY_KEY}">{$aLang.exit}</a></li>
 									</ul>
 								</div>
 							{else}
@@ -239,9 +239,9 @@
 				</div>
 
 				{* Сайдбар *}
-				{if ! $bNoSidebar}
+				{if !$bNoSidebar}
 					<aside id="sidebar" role="complementary">
-						{include file='blocks.tpl' group='right'}
+						{wgroup name='right'}
 					</aside>
 				{/if}
 			</div> {* /wrapper *}

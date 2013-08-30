@@ -23,9 +23,13 @@
  */
 function smarty_function_wgroup($aParams, $oSmartyTemplate) {
 
-    if (!isset($aParams['group'])) {
-        trigger_error('Parameter "group" does not define in {wgroup ...} function', E_USER_WARNING);
+    if (!isset($aParams['group']) && !isset($aParams['name'])) {
+        trigger_error('Parameter "group" or "name" does not define in {wgroup ...} function', E_USER_WARNING);
         return;
+    } else {
+        if (!isset($aParams['group']) && isset($aParams['name'])) {
+            $aParams['group'] = $aParams['name'];
+        }
     }
     $sWidgetGroup = $aParams['group'];
     $aWidgetParams = (isset($aParams['params']) ? $aParams['params'] : $aParams);
@@ -43,18 +47,18 @@ function smarty_function_wgroup($aParams, $oSmartyTemplate) {
         if (isset($aWidgetParams['command'])) unset($aWidgetParams['command']);
         return smarty_function_wgroup_show(array('group' => $sWidgetGroup, 'params' => $aWidgetParams), $oSmartyTemplate);
     } elseif ($sWidgetCommand == 'add') {
-        if (!isset($aWidgetParams['name'])) {
-            trigger_error('Parameter "name" does not define in {wgroup ...} function', E_USER_WARNING);
+        if (!isset($aWidgetParams['widget'])) {
+            trigger_error('Parameter "widget" does not define in {wgroup ...} function', E_USER_WARNING);
             return;
         }
         if (!function_exists('smarty_function_wgroup_add')) {
             F::IncludeFile('function.wgroup_add.php');
         }
-        $sWidgetName = $aWidgetParams['name'];
+        $sWidgetName = $aWidgetParams['widget'];
         unset($aWidgetParams['group']);
-        unset($aWidgetParams['name']);
+        unset($aWidgetParams['widget']);
         if (isset($aWidgetParams['command'])) unset($aWidgetParams['command']);
-        return smarty_function_wgroup_add(array('group' => $sWidgetGroup, 'name' => $sWidgetName, 'params' => $aWidgetParams), $oSmartyTemplate);
+        return smarty_function_wgroup_add(array('group' => $sWidgetGroup, 'widget' => $sWidgetName, 'params' => $aWidgetParams), $oSmartyTemplate);
     }
     return '';
 }

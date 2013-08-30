@@ -3,4 +3,4 @@
  * Ключ безопасности LiveStreet
  *}
 
-{include file='forms/form.field.hidden.tpl' sFieldName='security_ls_key' sFieldValue=$LIVESTREET_SECURITY_KEY}
+{include file='forms/form.field.hidden.tpl' sFieldName='security_ls_key' sFieldValue=$ALTO_SECURITY_KEY}

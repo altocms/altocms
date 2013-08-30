@@ -24,16 +24,15 @@ class WidgetBlogs extends Widget {
      * Запуск обработки
      */
     public function Exec() {
-        /**
-         * Получаем список блогов
-         */
+
+        // * Получаем список блогов
         if ($aResult = $this->Blog_GetBlogsRating(1, Config::Get('block.blogs.row'))) {
             $aBlogs = $aResult['collection'];
-            $oViewer = $this->Viewer_GetLocalViewer();
-            $oViewer->Assign('aBlogs', $aBlogs);
+
+            $aVars = array('aBlogs' => $aBlogs);
 
             // * Формируем результат в виде шаблона и возвращаем
-            $sTextResult = $oViewer->FetchWidget('blogs_top.tpl');
+            $sTextResult = $this->Viewer_FetchWidget('blogs_top.tpl', $aVars);
             $this->Viewer_Assign('sBlogsTop', $sTextResult);
         }
     }

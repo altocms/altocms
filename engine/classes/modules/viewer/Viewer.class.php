@@ -70,16 +70,6 @@ class ModuleViewer extends Module {
     );
 
     /**
-     * Параметры отображения js- и css-файлов
-     *
-     * @var array
-     */
-    protected $aFilesParams = array(
-        'js' => array(),
-        'css' => array()
-    );
-
-    /**
      * Правила переопределение массивов js и css
      *
      * @var array
@@ -521,10 +511,12 @@ class ModuleViewer extends Module {
      * Возвращает отрендеренный шаблон виджета
      *
      * @param string $sTemplate - Шаблон для рендеринга
+     * @param array  $aVars     - Переменные для локального рендеринга
+     * @param array  $aOptions  - Опции рендеринга
      *
      * @return string
      */
-    public function FetchWidget($sTemplate) {
+    public function FetchWidget($sTemplate, $aVars = array(), $aOptions = array()) {
 
         // * Проверяем наличие делегата
         $sDelegateTemplate = $this->Plugin_GetDelegate('template', $sTemplate);
@@ -532,17 +524,26 @@ class ModuleViewer extends Module {
             $sWidgetTemplate = 'widgets/widget.' . $sTemplate;
             $sWidgetTemplate = $this->Plugin_GetDelegate('template', $sWidgetTemplate);
             if ($this->TemplateExists($sWidgetTemplate)) {
-                return $this->Fetch($sWidgetTemplate);
+                $sRenderTemplate = $sWidgetTemplate;
             }
 
-            // * LS-compatible *//
-            $sWidgetTemplate = 'blocks/block.' . $sTemplate;
-            $sWidgetTemplate = $this->Plugin_GetDelegate('template', $sWidgetTemplate);
-            if ($this->TemplateExists($sWidgetTemplate)) {
-                return $this->Fetch($sWidgetTemplate);
+            if (!$sRenderTemplate) {
+                // * LS-compatible *//
+                $sWidgetTemplate = 'blocks/block.' . $sTemplate;
+                $sWidgetTemplate = $this->Plugin_GetDelegate('template', $sWidgetTemplate);
+                if ($this->TemplateExists($sWidgetTemplate)) {
+                    $sRenderTemplate = $sWidgetTemplate;
+                }
+            }
+
+            if (!$sRenderTemplate) {
+                $sRenderTemplate = $sWidgetTemplate;
             }
         }
-        return $this->Fetch($sWidgetTemplate);
+        $oSmarty = $this->GetSmartyObject();
+        $oTpl = $oSmarty->createTemplate($sRenderTemplate, $oSmarty);
+        $oTpl->assign($aVars);
+        return $oTpl->Fetch();
     }
 
     /**

@@ -50,7 +50,7 @@ $config['head']['default']['css'] = array_merge(
          '___path.skin.dir___/assets/css/topic.css',
          '___path.skin.dir___/assets/css/photoset.css',
          '___path.skin.dir___/assets/css/comments.css',
-         '___path.skin.dir___/assets/css/blocks.css',
+         '___path.skin.dir___/assets/css/widgets.css',
          '___path.skin.dir___/assets/css/blog.css',
          '___path.skin.dir___/assets/css/modals.css',
          '___path.skin.dir___/assets/css/profile.css',

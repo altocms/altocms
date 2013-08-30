@@ -15,7 +15,7 @@
 		 * Список сообщений
 		 *}
 		<form action="{router page='talk'}" method="post" id="form_talks_list">
-			<input type="hidden" name="security_ls_key" value="{$LIVESTREET_SECURITY_KEY}" />
+			<input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}" />
 			<input type="hidden" name="submit_talk_unread" id="form_talks_list_submit_unread" value="" />
 			<input type="hidden" name="submit_talk_read" id="form_talks_list_submit_read" value="" />
 			<input type="hidden" name="submit_talk_del" id="form_talks_list_submit_del" value="" />

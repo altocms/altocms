@@ -14,8 +14,7 @@
 {$oType = $oTopic->getContentType()}
 
 <article class="topic topic-type-{$oTopic->getType()} js-topic {if ! $bTopicList}topic-single{/if} {block name='topic_class'}{/block}" id="{block name='topic_id'}{/block}" {block name='topic_attributes'}{/block}>
-	
-	
+
 	<div class="topic-author">
 		<a href="{$oUser->getUserWebPath()}"><img src="{$oUser->getProfileAvatarPath(48)}" alt="avatar" class="avatar" /></a>
 		<a rel="author" href="{$oUser->getUserWebPath()}">{$oUser->getLogin()}</a>
@@ -24,7 +23,7 @@
 			{date_format date=$oTopic->getDateAdd() format="j F Y, H:i"}
 		</time>
 	</div>
-	
+
 	{**
 	 * Хидер
 	 *}
@@ -33,22 +32,22 @@
 			<div class="blog-title">
 				<a href="{$oBlog->getUrlFull()}" class="topic-blog">{$oBlog->getTitle()|escape:'html'}</a>
 			</div>
-			
+
 			{* Заголовок *}
 			<h1 class="topic-title word-wrap">
 				{if $oTopic->getPublish() == 0}   
 					<i class="icon-file" title="{$aLang.topic_unpublish}"></i>
 				{/if}
-				
+
 				{block name='topic_icon'}{/block}
-				
+
 				{if $bTopicList}
 					<a href="{$oTopic->getUrl()}">{$oTopic->getTitle()|escape:'html'}</a>
 				{else}
 					{$oTopic->getTitle()|escape:'html'}
 				{/if}
 			</h1>
-			
+
 			{* Информация *}
 			<div class="topic-info">
 				{* Управление *}
@@ -60,7 +59,7 @@
 
 						{if $oTopic->getIsAllowDelete()}
 							<li>
-								<a href="{router page='topic'}delete/{$oTopic->getId()}/?security_ls_key={$LIVESTREET_SECURITY_KEY}" 
+								<a href="{router page='topic'}delete/{$oTopic->getId()}/?security_ls_key={$ALTO_SECURITY_KEY}"
 								   title="{$aLang.topic_delete}" 
 								   onclick="return confirm('{$aLang.topic_delete_confirm}');" 
 								   class="actions-delete">{$aLang.topic_delete}</a>
@@ -109,7 +108,6 @@
 	{/if}
 
 	{block name='topic_header_after'}{/block}
-
 
 	{**
 	 * Текст
@@ -169,37 +167,35 @@
 	 * Футер
 	 *}
 	{block name='topic_footer'}
-					
+
 		<footer class="topic-footer">
 			{block name='topic_footer_begin'}{/block}
-			
-		
+
 			{if !$bTopicList}
 			{* Теги *}
 			<ul class="topic-tags js-favourite-insert-after-form js-favourite-tags-topic-{$oTopic->getId()}">
 				<li>{$aLang.topic_tags}:</li>
-				
+
 				{strip}
 					{foreach $oTopic->getTagsArray() as $sTag}
 						<li><a rel="tag" href="{router page='tag'}{$sTag|escape:'url'}/">{$sTag|escape}</a>{if !$sTag@last}, {/if}</li>
 					{foreachelse}
 						<li>{$aLang.topic_tags_empty}</li>
 					{/foreach}
-					
+
 					{if $oUserCurrent}
 						{if $oFavourite}
 							{foreach $oFavourite->getTagsArray() as $sTag}
 								<li class="topic-tags-user js-favourite-tag-user">, <a rel="tag" href="{$oUserCurrent->getUserWebPath()}favourites/topics/tag/{$sTag|escape:'url'}/">{$sTag|escape}</a></li>
 							{/foreach}
 						{/if}
-						
+
 						<li class="topic-tags-edit js-favourite-tag-edit" {if !$oFavourite}style="display:none;"{/if}>
 							<a href="#" onclick="return ls.favourite.showEditTags({$oTopic->getId()},'topic',this);" class="link-dotted">{$aLang.favourite_form_tags_button_show}</a>
 						</li>
 					{/if}
 				{/strip}
 			</ul>
-
 
 			{* Информация *}
 			<ul class="topic-info">
@@ -221,10 +217,9 @@
 									vote-count-negative
 								{/if}
 							{/if}
-							
+
 							{if $oVote} 
 								voted
-								
 								{if $oVote->getDirection() > 0}
 									voted-up
 								{elseif $oVote->getDirection() < 0}
@@ -242,10 +237,9 @@
 						{/if}
 					</div>
 					<div class="vote-item vote-up js-vote-up"><i></i></div>
-					
+
 				</li>
 
-				
 				{* Избранное *}
 				<li class="topic-info-favourite">
 					<div onclick="return ls.favourite.toggle({$oTopic->getId()},this,'topic');" 
@@ -269,7 +263,6 @@
 				{hook run='topic_show_info' topic=$oTopic}
 			</ul>
 
-			
 			{* Всплывающий блок появляющийся при нажатии на кнопку Поделиться *}
 			<div class="popover" data-type="popover-target" id="topic_share_{$oTopic->getId()}">
 				<div class="popover-arrow"></div><div class="popover-arrow-inner"></div>
@@ -280,7 +273,7 @@
 				</div>
 			</div>
 			{/if} <!-- /if bTopicList не показываем в списке теги и пр.-->
-			
+
 			{if ! $bTopicList}
 				{hook run='topic_show_end' topic=$oTopic}
 			{/if}
@@ -288,7 +281,7 @@
 			{block name='topic_footer_end'}{/block}
 		</footer>
 	{/block}
-	
+
 	{block name='topic_footer_after'}{/block}
 </article>
 

@@ -59,7 +59,8 @@ function smarty_function_widget_exec($aParams, $oSmartyTemplate) {
                 }
             } else {
                 $sTemplate = E::Plugin_GetDelegate('template', 'widgets/widget.' . $sWidgetName . '.tpl');
-                if (!F::File_Exists(Config::Get('path.smarty.template') . $sTemplate)) {
+                $sTemplate = F::File_Exists($sTemplate, $oSmartyTemplate->getTemplateDir());
+                if (!$sTemplate) {
                     // * LS-compatible * //
                     $sTemplate = E::Plugin_GetDelegate('template', 'blocks/block.' . $sWidgetName . '.tpl');
                 }

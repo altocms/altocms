@@ -44,9 +44,9 @@
 						</td>
 						<td align="center">
 							{if $aPlugin.is_active}
-								<a href="{router page='admin'}plugins/?plugin={$aPlugin.code}&action=deactivate&security_ls_key={$LIVESTREET_SECURITY_KEY}" class="button">{$aLang.plugins_plugin_deactivate}</a>
+								<a href="{router page='admin'}plugins/?plugin={$aPlugin.code}&action=deactivate&security_ls_key={$ALTO_SECURITY_KEY}" class="button">{$aLang.plugins_plugin_deactivate}</a>
 							{else}
-								<a href="{router page='admin'}plugins/?plugin={$aPlugin.code}&action=activate&security_ls_key={$LIVESTREET_SECURITY_KEY}" class="button button-primary">{$aLang.plugins_plugin_activate}</a>
+								<a href="{router page='admin'}plugins/?plugin={$aPlugin.code}&action=activate&security_ls_key={$ALTO_SECURITY_KEY}" class="button button-primary">{$aLang.plugins_plugin_activate}</a>
 							{/if}
 						</td>
 					</tr>
@@ -54,7 +54,7 @@
 			</tbody>
 		</table>
 
-		<input type="hidden" name="security_ls_key" value="{$LIVESTREET_SECURITY_KEY}" /> 
+		<input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}" />
 		<input type="submit" 
 			   name="submit_plugins_del" 
 			   value="{$aLang.plugins_submit_delete}" 
