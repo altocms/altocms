@@ -229,15 +229,45 @@ class Func {
         exit;
     }
 
+    static protected function _CallerStr($nOffset = 2) {
+
+        $aCaller = static::_Caller($nOffset);
+        $sCallerStr = '';
+        $sPosition = '';
+        if ($aCaller) {
+            if (isset($aCaller['class']) && isset($aCaller['function']) && isset($aCaller['type'])) {
+                $sCallerStr = $aCaller['class'] . $aCaller['type'] . $aCaller['function'] . '()';
+            }
+            if (isset($aCaller['file']) && isset($aCaller['line'])) {
+                $sPosition = ' in ' . $aCaller['file'] . ' on line ' . $aCaller['line'];
+            }
+        }
+        return $sCallerStr . $sPosition;
+    }
+
     /**
-     * @param int $nOffset
+     * @param int  $nOffset
+     * @param bool $bString
      *
-     * @return mixed
+     * @return string
      */
-    static protected function _Caller($nOffset = 1) {
+    static protected function _Caller($nOffset = 1, $bString = false) {
 
         $aData = static::_CallStack($nOffset + 1, 1);
         if (sizeof($aData)) {
+            if ($bString) {
+                if ($aCaller = $aData[0]) {
+                    $sCallerStr = '';
+                    $sPosition = '';
+                    if (isset($aCaller['class']) && isset($aCaller['function']) && isset($aCaller['type'])) {
+                        $sCallerStr = $aCaller['class'] . $aCaller['type'] . $aCaller['function'] . '()';
+                    }
+                    if (isset($aCaller['file']) && isset($aCaller['line'])) {
+                        $sPosition = ' in ' . $aCaller['file'] . ' on line ' . $aCaller['line'];
+                    }
+                }
+                return $sCallerStr . $sPosition;
+            }
             return ($aData[0]);
         }
     }
@@ -272,7 +302,12 @@ class Func {
 
     static public function SysWarning($Message) {
 
-        trigger_error($Message, E_USER_WARNING);
+        $aCaller = self::_Caller();
+        self::_errorHandler(
+            E_USER_WARNING, $Message,
+            isset($aCaller['file']) ? $aCaller['file'] : 'Unknown',
+            isset($aCaller['line']) ? $aCaller['line'] : 0
+        );
     }
 
     static public function IsDebug() {

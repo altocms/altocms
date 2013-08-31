@@ -97,10 +97,13 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
     public function PrepareFile($sFile, $sDestination) {
 
         $sContents = F::File_GetContents($sFile);
-        $sContents = $this->PrepareContents($sContents, $sFile, $sDestination);
-        if (F::File_PutContents($sDestination, $sContents)) {
-            return $sDestination;
+        if ($sContents !== false) {
+            $sContents = $this->PrepareContents($sContents, $sFile, $sDestination);
+            if (F::File_PutContents($sDestination, $sContents)) {
+                return $sDestination;
+            }
         }
+        F::SysWarning('Can not prepare asset file "' . $sFile . '"');
     }
 
     public function PrepareContents($sContents, $sSource) {
