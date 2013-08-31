@@ -27,7 +27,7 @@ $config['view']['grid']['fluid_max_width'] = 1200;
 $config['view']['grid']['fixed_width'] = 1000;
 
 $config['head']['default']['js'] = Config::Get('head.default.js');
-$config['head']['default']['js'][] = '___path.static.assets___/js/init.js';
+$config['head']['default']['js'][] = '___path.skin.dir___/assets/js/init.js';
 
 $config['head']['default']['css'] = array_merge(
     Config::Get('head.default.css'),
@@ -59,7 +59,7 @@ $config['head']['default']['css'] = array_merge(
          '___path.skin.dir___/assets/css/admin.css',
          '___path.skin.dir___/assets/css/toolbar.css',
          '___path.skin.dir___/assets/css/poll.css',
-         '___path.static.skin___/themes/___view.theme___/style.css',
+         '___path.skin.dir___/themes/___view.theme___/style.css',
          '___path.skin.dir___/assets/css/print.css',
     )
 );

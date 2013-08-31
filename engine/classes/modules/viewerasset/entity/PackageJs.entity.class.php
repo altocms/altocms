@@ -49,7 +49,7 @@ class ModuleViewerAsset_EntityPackageJs extends ModuleViewerAsset_EntityPackage 
         $sContents = F::File_GetContents($sFile);
         if ($sContents !== false) {
             $sContents = $this->PrepareContents($sContents, $sFile, $sDestination);
-            if (F::File_PutContents($sDestination, $sContents)) {
+            if (F::File_PutContents($sDestination, $sContents) !== false) {
                 return $sDestination;
             }
         }
