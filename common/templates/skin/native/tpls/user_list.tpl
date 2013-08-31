@@ -55,8 +55,8 @@
 
                 <tr>
                     <td class="cell-name">
-                        <a href="{$oUserList->getUserWebPath()}"><img src="{$oUserList->getProfileAvatarPath(24)}" alt="avatar" class="table-avatar" /></a>
-                        <p class="username word-wrap"><a href="{$oUserList->getUserWebPath()}">{$oUserList->getLogin()}</a>
+                        <a href="{$oUserList->getProfileUrl()}"><img src="{$oUserList->getAvatarUrl(24)}" alt="avatar" class="table-avatar" /></a>
+                        <p class="username word-wrap"><a href="{$oUserList->getProfileUrl()}">{$oUserList->getLogin()}</a>
                             {if $oUserNote}
                                 <i class="icon-comment js-tooltip" title="{$oUserNote->getText()|escape:'html'}"></i>
                             {/if}
@@ -139,9 +139,9 @@
         {$oUserNote = $oUserList->getUserNote()}
 
         <div class="userlist-grid user">
-            <img src="{$oUserList->getProfileAvatarPath(100)}" alt="avatar" class="userlist-grid avatar" />
+            <img src="{$oUserList->getAvatarUrl(100)}" alt="avatar" class="userlist-grid avatar" />
 
-            <a class="user-info" href="{$oUserList->getUserWebPath()}">
+            <a class="user-info" href="{$oUserList->getProfileUrl()}">
                 <div class="rating">{$oUserList->getRating()}</div>
 
                 <div class="links">

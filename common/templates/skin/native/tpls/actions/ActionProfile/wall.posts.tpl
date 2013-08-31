@@ -10,11 +10,11 @@
 		<div class="comment">	
 			<ul class="comment-info">
 				<li>
-					<a href="{$oWallUser->getUserWebPath()}">
-						<img src="{$oWallUser->getProfileAvatarPath(24)}" alt="avatar" class="avatar" />
+					<a href="{$oWallUser->getProfileUrl()}">
+						<img src="{$oWallUser->getAvatarUrl(24)}" alt="avatar" class="avatar" />
 					</a>
 				</li>
-				<li class="comment-author"><a href="{$oWallUser->getUserWebPath()}">{$oWallUser->getLogin()}</a></li>
+				<li class="comment-author"><a href="{$oWallUser->getProfileUrl()}">{$oWallUser->getLogin()}</a></li>
 				<li class="comment-date">
 					<time datetime="{date_format date=$oWall->getDateAdd() format='c'}">
 						{date_format date=$oWall->getDateAdd() hours_back="12" minutes_back="60" now="60" day="day H:i" format="j F Y, H:i"}

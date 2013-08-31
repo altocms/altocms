@@ -15,7 +15,7 @@
 				
 				<td class="cell-avatar">
 					{$oUser = $oTalk->getUser()}
-					<img src="{$oUser->getProfileAvatarPath(24)}" alt="avatar" class="avatar" />
+					<img src="{$oUser->getAvatarUrl(24)}" alt="avatar" class="avatar" />
 				</td>
 				<td class="cell-username">
 					{strip}
@@ -26,26 +26,27 @@
 							{/if}
 						{/foreach}
 					{/strip}
-					<a href="{$oUser->getUserWebPath()}" class="user {if $oTalkUser->getUserActive()!=$TALK_USER_ACTIVE}inactive{/if}" {if $oTalkUser->getUserActive()!=$TALK_USER_ACTIVE}title="{$aLang.talk_speaker_not_found}"{/if}>{$oUser->getLogin()}</a>
+					<a href="{$oUser->getProfileUrl()}" class="user {if $oTalkUser->getUserActive()!=$TALK_USER_ACTIVE}inactive{/if}"
+                       {if $oTalkUser->getUserActive()!=$TALK_USER_ACTIVE}title="{$aLang.talk_speaker_not_found}"{/if}>{$oUser->getLogin()}</a>
 
 					<div class="talk-speakers">
-						
+
 						<div class="speakers-count"><i class="icon-native-talk-speakers"></i>+{count($aTalkUserOther)}</div>
-						
+
 						<div class="speakers-trigger"><i></i></div>
 						<div class="speakers">
 							{strip}
-								
+
 								{foreach from=$aTalkUserOther item=oTalkUser name=users}
 									{assign var="oUser" value=$oTalkUser->getUser()}
-									{if !$smarty.foreach.users.first}, {/if}<a href="{$oUser->getUserWebPath()}" class="username {if $oTalkUser->getUserActive()!=$TALK_USER_ACTIVE}inactive{/if}">{$oUser->getLogin()}</a>
+									{if !$smarty.foreach.users.first}, {/if}
+                                    <a href="{$oUser->getProfileUrl()}" class="username {if $oTalkUser->getUserActive()!=$TALK_USER_ACTIVE}inactive{/if}">{$oUser->getLogin()}</a>
 								{/foreach}
 							{/strip}
 						</div>
 					</div>
 				</td>
-				
-				
+
 				<td class="cell-favourite">
 					<a href="#" 
 					   onclick="return ls.favourite.toggle({$oTalk->getId()},this,'talk');" 
@@ -63,7 +64,7 @@
 						</a>
 						&nbsp;&nbsp;&bull;&nbsp;&nbsp;{$oTalk->getTextLast()|strip_tags|truncate:50:'...'|escape:'html'}
 					{/strip}
-					
+
 					{if $oUserCurrent->getId()==$oTalk->getUserIdLast()}
 						&rarr;
 					{else}
@@ -83,7 +84,6 @@
 				</td>
 			</tr>
 		{/foreach}
-		
-		
+
 	</tbody>
 </table>

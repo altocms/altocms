@@ -16,8 +16,8 @@
 <article class="topic topic-type-{$oTopic->getType()} js-topic {if ! $bTopicList}topic-single{/if} {block name='topic_class'}{/block}" id="{block name='topic_id'}{/block}" {block name='topic_attributes'}{/block}>
 
 	<div class="topic-author">
-		<a href="{$oUser->getUserWebPath()}"><img src="{$oUser->getProfileAvatarPath(48)}" alt="avatar" class="avatar" /></a>
-		<a rel="author" href="{$oUser->getUserWebPath()}">{$oUser->getLogin()}</a>
+		<a href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl(48)}" alt="avatar" class="avatar" /></a>
+		<a rel="author" href="{$oUser->getProfileUrl()}">{$oUser->getLogin()}</a>
 		<br />
 		<time datetime="{date_format date=$oTopic->getDateAdd() format='c'}" title="{date_format date=$oTopic->getDateAdd() format='j F Y, H:i'}">
 			{date_format date=$oTopic->getDateAdd() format="j F Y, H:i"}
@@ -186,7 +186,9 @@
 					{if $oUserCurrent}
 						{if $oFavourite}
 							{foreach $oFavourite->getTagsArray() as $sTag}
-								<li class="topic-tags-user js-favourite-tag-user">, <a rel="tag" href="{$oUserCurrent->getUserWebPath()}favourites/topics/tag/{$sTag|escape:'url'}/">{$sTag|escape}</a></li>
+								<li class="topic-tags-user js-favourite-tag-user">,
+                                    <a rel="tag" href="{$oUserCurrent->getProfileUrl()}favourites/topics/tag/{$sTag|escape:'url'}/">{$sTag|escape}</a>
+                                </li>
 							{/foreach}
 						{/if}
 

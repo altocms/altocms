@@ -30,7 +30,7 @@
 							<input type="checkbox"
 								   checked
 								   data-user-id="{$iUserId}" />
-							<a href="{$oUser->getUserWebPath()}">{$oUser->getLogin()}</a>
+							<a href="{$oUser->getProfileUrl()}">{$oUser->getLogin()}</a>
 						</li>
 					{/if}
 				{/foreach}

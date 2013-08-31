@@ -21,7 +21,7 @@
                            type="checkbox"
                            data-user-id="{$iUserId}"
                             {if isset($aUserfeedSubscribedUsers.$iUserId)} checked{/if} />
-                    <a href="{$oUser->getUserWebPath()}">{$oUser->getLogin()}</a>
+                    <a href="{$oUser->getProfileUrl()}">{$oUser->getLogin()}</a>
                 </li>
             {/foreach}
         </ul>

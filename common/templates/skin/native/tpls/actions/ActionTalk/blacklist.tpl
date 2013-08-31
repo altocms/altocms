@@ -16,7 +16,7 @@
 		{if $aUsersBlacklist}
 			<ul class="list" id="black_list">
 				{foreach $aUsersBlacklist as $oUser}
-					<li id="blacklist_item_{$oUser->getId()}_area"><a href="{$oUser->getUserWebPath()}" class="user">{$oUser->getLogin()}</a> - <a href="#" id="blacklist_item_{$oUser->getId()}" class="delete">{$aLang.blog_delete}</a></li>
+					<li id="blacklist_item_{$oUser->getId()}_area"><a href="{$oUser->getProfileUrl()}" class="user">{$oUser->getLogin()}</a> - <a href="#" id="blacklist_item_{$oUser->getId()}" class="delete">{$aLang.blog_delete}</a></li>
 				{/foreach}
 			</ul>
 		{/if}

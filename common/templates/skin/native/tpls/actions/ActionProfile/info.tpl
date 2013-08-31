@@ -135,7 +135,7 @@
             {if $oConfig->GetValue('general.reg.invite') and $oUserInviteFrom}
                 <li>
                     <em>{$aLang.profile_invite_from}</em>
-                    <span><a href="{$oUserInviteFrom->getUserWebPath()}">{$oUserInviteFrom->getLogin()}</a></span>
+                    <span><a href="{$oUserInviteFrom->getProfileUrl()}">{$oUserInviteFrom->getLogin()}</a></span>
                 </li>
             {/if}
 
@@ -143,7 +143,7 @@
                 <li>
                     <em>{$aLang.profile_invite_to}</em>
                     {foreach $aUsersInvite as $oUserInvite}
-                        <span><a href="{$oUserInvite->getUserWebPath()}">{$oUserInvite->getLogin()}</a></span>
+                        <span><a href="{$oUserInvite->getProfileUrl()}">{$oUserInvite->getLogin()}</a></span>
                         <br/>
                     {/foreach}
                 </li>
@@ -188,7 +188,7 @@
 
     </div>
     {if $aUsersFriend}
-        <h2 class="header-table mb-15"><a href="{$oUserProfile->getUserWebPath()}friends/">{$aLang.profile_friends}</a>
+        <h2 class="header-table mb-15"><a href="{$oUserProfile->getProfileUrl()}friends/">{$aLang.profile_friends}</a>
             ({$iCountFriendsUser})</h2>
         {include file='user_list_avatar.tpl' aUsersList=$aUsersFriend}
     {/if}

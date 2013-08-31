@@ -120,7 +120,7 @@
 
         {* Аватар *}
 		<div class="js-ajax-avatar-upload avatar-change">
-			<img src="{$oUserCurrent->getProfileAvatarPath(100)}" class="js-ajax-image-upload-image" />
+			<img src="{$oUserCurrent->getAvatarUrl(100)}" class="js-ajax-image-upload-image" />
 
 			<div>
 				<label for="avatar" class="form-input-file">

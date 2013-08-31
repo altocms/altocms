@@ -336,10 +336,6 @@ abstract class ModuleViewerAsset_EntityPackage extends Entity {
         return 1;
     }
 
-    public function Append($sFile, $aFileParams) {
-
-    }
-
     public function AddFiles($aFiles, $sAssetName = null, $bAppend = true, $bReplace = false) {
 
         foreach ($aFiles as $sName => $aFileParams) {

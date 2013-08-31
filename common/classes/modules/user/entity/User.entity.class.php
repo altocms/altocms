@@ -562,12 +562,17 @@ class ModuleUser_EntityUser extends Entity {
         return $this->getUserUrl();
     }
 
+    public function getUserUrl() {
+
+        return $this->getProfileUrl();
+    }
+
     /**
      * Возвращает URL до профиля пользователя
      *
      * @return string
      */
-    public function getUserUrl() {
+    public function getProfileUrl() {
 
         return Router::GetPath('profile') . $this->getLogin() . '/';
     }

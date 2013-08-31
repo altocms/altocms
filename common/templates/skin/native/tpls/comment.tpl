@@ -52,8 +52,8 @@
 		<ul class="comment-info">
 			<li>
 				{* Аватар пользователя *}
-				<a href="{$oUser->getUserWebPath()}">
-					<img src="{$oUser->getProfileAvatarPath(24)}" alt="{$oUser->getLogin()}" class="avatar" />
+				<a href="{$oUser->getProfileUrl()}">
+					<img src="{$oUser->getAvatarUrl(24)}" alt="{$oUser->getLogin()}" class="avatar" />
 				</a>
 			</li>
 			{* Автор комментария *}
@@ -62,7 +62,7 @@
 					<span class="comment-topic-author" title="{if $sAuthorNotice}{$sAuthorNotice}{/if}">{$aLang.comment_target_author}</span>
 				{/if}-->
 
-				<a href="{$oUser->getUserWebPath()}">{$oUser->getLogin()}</a>
+				<a href="{$oUser->getProfileUrl()}">{$oUser->getLogin()}</a>
 			</li> 
 			
 			{* Дата *}

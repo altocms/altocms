@@ -8,9 +8,9 @@
     {$oUser = $oTalk->getUser()}
     <article class="topic topic-type-talk">
         <div class="topic-author">
-            <a href="{$oUser->getUserWebPath()}"><img src="{$oUser->getProfileAvatarPath(48)}" width="32px" alt="avatar"
+            <a href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl(48)}" width="32px" alt="avatar"
                                                       class="avatar"/></a>
-            <a href="{$oUser->getUserWebPath()}" class="author">{$oUser->getLogin()}</a>
+            <a href="{$oUser->getProfileUrl()}" class="author">{$oUser->getLogin()}</a>
             <br/>
             <time datetime="{date_format date=$oTalk->getDate() format='c'}" pubdate>
                 {date_format date=$oTalk->getDate() format="j F Y, H:i"}
@@ -30,7 +30,7 @@
 
                         {if $oUser->getId() != $oUserRecipient->getId()}
                             <a class="user {if $oTalkUser->getUserActive() != $TALK_USER_ACTIVE}inactive{/if}"
-                               href="{$oUserRecipient->getUserWebPath()}"
+                               href="{$oUserRecipient->getProfileUrl()}"
                                {if $oTalkUser->getUserActive() != $TALK_USER_ACTIVE}title="{$aLang.talk_speaker_not_found}"{/if}>{$oUserRecipient->getLogin()}</a>{if ! $oTalkUser@last}, {/if}
                         {/if}
                     {/foreach}
@@ -70,10 +70,11 @@
                                     {if $oTalkUser->getUserActive()!=$TALK_USER_DELETE_BY_AUTHOR}
                                         <li id="speaker_item_{$oTalkUser->getUserId()}_area">
                                             <a class="user {if $oTalkUser->getUserActive()!=$TALK_USER_ACTIVE}inactive{/if}"
-                                               href="{$oUser->getUserWebPath()}">{$oUser->getLogin()}</a>
-                                            {if $oTalkUser->getUserActive()==$TALK_USER_ACTIVE}- <a href="#"
-                                                                                                    id="speaker_item_{$oTalkUser->getUserId()}"
-                                                                                                    class="delete">{$aLang.blog_delete}</a>{/if}
+                                               href="{$oUser->getProfileUrl()}">{$oUser->getLogin()}</a>
+                                            {if $oTalkUser->getUserActive()==$TALK_USER_ACTIVE}
+                                                - <a href="#" id="speaker_item_{$oTalkUser->getUserId()}"
+                                                     class="delete">{$aLang.blog_delete}</a>
+                                            {/if}
                                         </li>
                                     {/if}
                                 {/if}

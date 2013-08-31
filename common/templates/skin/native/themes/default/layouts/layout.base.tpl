@@ -164,17 +164,17 @@
 
 						<div class="menu">
 							{if $oUserCurrent}
-								{$aLang.userbar_hello}, <a href="{$oUserCurrent->getUserWebPath()}" class="username">{$oUserCurrent->getLogin()}</a>
+								{$aLang.userbar_hello}, <a href="{$oUserCurrent->getProfileUrl()}" class="username">{$oUserCurrent->getLogin()}</a>
 
 								<div class="usermenu-trigger"><i></i></div>
 
 								<div class="dropdown-usermenu">
-									<a href="{$oUserCurrent->getUserWebPath()}"><img src="{$oUserCurrent->getProfileAvatarPath(24)}" alt="avatar" class="avatar" /></a>
-									<a href="{$oUserCurrent->getUserWebPath()}" class="user-title">{$aLang.user_menu_profile}</a>
+									<a href="{$oUserCurrent->getProfileUrl()}"><img src="{$oUserCurrent->getAvatarUrl(24)}" alt="avatar" class="avatar" /></a>
+									<a href="{$oUserCurrent->getProfileUrl()}" class="user-title">{$aLang.user_menu_profile}</a>
 
 									<ul class="links">
 										<li></li>
-										<li><i class="icon-native-usermenu-favourites"></i><a href="{$oUserCurrent->getUserWebPath()}favourites/topics/">{$aLang.user_menu_profile_favourites}</a></li>
+										<li><i class="icon-native-usermenu-favourites"></i><a href="{$oUserCurrent->getProfileUrl()}favourites/topics/">{$aLang.user_menu_profile_favourites}</a></li>
 										<li><i class="icon-native-usermenu-talk"></i><a href="{router page='talk'}">{$aLang.talk_menu_inbox}</a></li>
 										<li><i class="icon-native-usermenu-settings"></i><a href="{router page='settings'}">{$aLang.settings_menu}</a></li>
 										{hook run='userbar_item'}

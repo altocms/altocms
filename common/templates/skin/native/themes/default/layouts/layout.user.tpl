@@ -14,7 +14,7 @@
 	<div class="profile">
 		{hook run='profile_top_begin' oUserProfile=$oUserProfile}
 		
-		<a href="{$oUserProfile->getUserWebPath()}"><img src="{$oUserProfile->getProfileAvatarPath(100)}" alt="avatar" class="avatar" itemprop="photo" /></a>
+		<a href="{$oUserProfile->getProfileUrl()}"><img src="{$oUserProfile->getAvatarUrl(100)}" alt="avatar" class="avatar" itemprop="photo" /></a>
 		
 		<ul>
 			<li class="profile-name">
@@ -66,12 +66,12 @@
 	<ul class="nav nav-folding">
 		{hook run='profile_sidebar_menu_item_first' oUserProfile=$oUserProfile}
 
-		<li {if $sAction=='profile' && ($aParams[0]=='whois' or $aParams[0]=='')}class="active"{/if}><a href="{$oUserProfile->getUserWebPath()}">{$aLang.user_menu_profile_whois}</a></li>
-		<li {if $sAction=='profile' && $aParams[0]=='wall'}class="active"{/if}><a href="{$oUserProfile->getUserWebPath()}wall/">{$aLang.user_menu_profile_wall}{if ($iCountWallUser)>0} <span class="nav-count">{$iCountWallUser}</span>{/if}</a></li>
-		<li {if $sAction=='profile' && $aParams[0]=='created'}class="active"{/if}><a href="{$oUserProfile->getUserWebPath()}created/topics/">{$aLang.user_menu_publication}{if ($iCountCreated)>0} <span class="nav-count">{$iCountCreated}</span>{/if}</a></li>
-		<li {if $sAction=='profile' && $aParams[0]=='favourites'}class="active"{/if}><a href="{$oUserProfile->getUserWebPath()}favourites/topics/">{$aLang.user_menu_profile_favourites}{if ($iCountFavourite)>0} <span class="nav-count">{$iCountFavourite}</span>{/if}</a></li>
-		<li {if $sAction=='profile' && $aParams[0]=='friends'}class="active"{/if}><a href="{$oUserProfile->getUserWebPath()}friends/">{$aLang.user_menu_profile_friends}{if ($iCountFriendsUser)>0} <span class="nav-count">{$iCountFriendsUser}</span>{/if}</a></li> 
-		<!-- <li {if $sAction=='profile' && $aParams[0]=='stream'}class="active"{/if}><a href="{$oUserProfile->getUserWebPath()}stream/">{$aLang.user_menu_profile_stream}</a></li>
+		<li {if $sAction=='profile' && ($aParams[0]=='whois' or $aParams[0]=='')}class="active"{/if}><a href="{$oUserProfile->getProfileUrl()}">{$aLang.user_menu_profile_whois}</a></li>
+		<li {if $sAction=='profile' && $aParams[0]=='wall'}class="active"{/if}><a href="{$oUserProfile->getProfileUrl()}wall/">{$aLang.user_menu_profile_wall}{if ($iCountWallUser)>0} <span class="nav-count">{$iCountWallUser}</span>{/if}</a></li>
+		<li {if $sAction=='profile' && $aParams[0]=='created'}class="active"{/if}><a href="{$oUserProfile->getProfileUrl()}created/topics/">{$aLang.user_menu_publication}{if ($iCountCreated)>0} <span class="nav-count">{$iCountCreated}</span>{/if}</a></li>
+		<li {if $sAction=='profile' && $aParams[0]=='favourites'}class="active"{/if}><a href="{$oUserProfile->getProfileUrl()}favourites/topics/">{$aLang.user_menu_profile_favourites}{if ($iCountFavourite)>0} <span class="nav-count">{$iCountFavourite}</span>{/if}</a></li>
+		<li {if $sAction=='profile' && $aParams[0]=='friends'}class="active"{/if}><a href="{$oUserProfile->getProfileUrl()}friends/">{$aLang.user_menu_profile_friends}{if ($iCountFriendsUser)>0} <span class="nav-count">{$iCountFriendsUser}</span>{/if}</a></li>
+		<!-- <li {if $sAction=='profile' && $aParams[0]=='stream'}class="active"{/if}><a href="{$oUserProfile->getProfileUrl()}stream/">{$aLang.user_menu_profile_stream}</a></li>
 		
 		{if $oUserCurrent and $oUserCurrent->getId() == $oUserProfile->getId()}
 			<li {if $sAction=='talk'}class="active"{/if}><a href="{router page='talk'}">{$aLang.talk_menu_inbox}{if $iUserCurrentCountTalkNew} ({$iUserCurrentCountTalkNew}){/if}</a></li>

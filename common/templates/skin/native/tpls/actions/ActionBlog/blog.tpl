@@ -96,14 +96,14 @@
                 <strong>{$aLang.blog_user_administrators} ({$iCountBlogAdministrators}):</strong>
 
                 {* Создатель блога *}
-                <a href="{$oUserOwner->getUserWebPath()}" class="user"><i
+                <a href="{$oUserOwner->getProfileUrl()}" class="user"><i
                             class="icon-user"></i>{$oUserOwner->getLogin()}</a>
 
                 {* Список администраторов блога *}
                 {if $aBlogAdministrators}
                     {foreach $aBlogAdministrators as $oBlogUser}
                         {$oUser = $oBlogUser->getUser()}
-                        <a href="{$oUser->getUserWebPath()}" class="user"><i class="icon-user"></i>{$oUser->getLogin()}
+                        <a href="{$oUser->getProfileUrl()}" class="user"><i class="icon-user"></i>{$oUser->getLogin()}
                         </a>
                     {/foreach}
                 {/if}
@@ -116,7 +116,7 @@
                 {if $aBlogModerators}
                     {foreach $aBlogModerators as $oBlogUser}
                         {$oUser = $oBlogUser->getUser()}
-                        <a href="{$oUser->getUserWebPath()}" class="user"><i class="icon-user"></i>{$oUser->getLogin()}
+                        <a href="{$oUser->getProfileUrl()}" class="user"><i class="icon-user"></i>{$oUser->getLogin()}
                         </a>
                     {/foreach}
                 {else}
@@ -131,7 +131,7 @@
                 {if $aBlogUsers}
                     {foreach $aBlogUsers as $oBlogUser}
                         {$oUser = $oBlogUser->getUser()}
-                        <a href="{$oUser->getUserWebPath()}" class="user"><i class="icon-user"></i>{$oUser->getLogin()}
+                        <a href="{$oUser->getProfileUrl()}" class="user"><i class="icon-user"></i>{$oUser->getLogin()}
                         </a>
                     {/foreach}
 

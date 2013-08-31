@@ -26,12 +26,12 @@
 			<ul id="invited_list">
 				{foreach $aBlogUsersInvited as $oBlogUser}
 					{$oUser = $oBlogUser->getUser()}
-					
+
 					<li id="blog-invite-remove-item-{$oBlogEdit->getId()}-{$oUser->getId()}">
-						<a href="{$oUser->getUserWebPath()}" class="user">{$oUser->getLogin()}</a> - 
+						<a href="{$oUser->getProfileUrl()}" class="user">{$oUser->getLogin()}</a> -
 						<a href="#" onclick="return ls.blog.repeatInvite({$oUser->getId()}, {$oBlogEdit->getId()});">{$aLang.blog_user_invite_readd}</a>
 						<a href="#" onclick="return ls.blog.removeInvite({$oUser->getId()}, {$oBlogEdit->getId()});">{$aLang.blog_user_invite_remove}</a>
-					</li>						
+					</li>
 				{/foreach}
 			</ul>
 		{/if}
