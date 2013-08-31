@@ -310,29 +310,31 @@ class Config extends Storage {
     static public function KeyReplace($xCfg, $sRoot = self::DEFAULT_CONFIG_ROOT) {
 
         if (is_array($xCfg)) {
+            $xResult = array();
             foreach ($xCfg as $k => $v) {
-                $k_replaced = static::KeyReplace($k, $sRoot);
-                if ($k == $k_replaced) {
-                    $xCfg[$k] = static::KeyReplace($v, $sRoot);
+                if (strpos($k, self::KEY_LINK_STR) !== false) {
+                    $sNewKey = static::KeyReplace($k, $sRoot);
                 } else {
-                    $xCfg[$k_replaced] = static::KeyReplace($v, $sRoot);
-                    unset($xCfg[$k]);
+                    $sNewKey = $k;
                 }
+                $xResult[$sNewKey] = static::KeyReplace($v, $sRoot);
+                unset($xCfg[$k]);
             }
         } else {
+            $xResult = $xCfg;
             if (strpos($xCfg, self::KEY_LINK_STR) !== false
                 && preg_match_all(
                     self::KEY_LINK_PREG, $xCfg, $aMatch, PREG_SET_ORDER
                 )
             ) {
                 foreach ($aMatch as $aItem) {
-                    $xCfg = str_replace(
-                        self::KEY_LINK_STR . $aItem[1] . self::KEY_LINK_STR, Config::Get($aItem[1], $sRoot), $xCfg
+                    $xResult = str_replace(
+                        self::KEY_LINK_STR . $aItem[1] . self::KEY_LINK_STR, Config::Get($aItem[1], $sRoot), $xResult
                     );
                 }
             }
         }
-        return $xCfg;
+        return $xResult;
     }
 
     /**
