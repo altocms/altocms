@@ -167,18 +167,16 @@ class ModuleTalk extends Module {
         if (is_null($aAllowData)) {
             $aAllowData = array('user', 'talk_user', 'favourite', 'comment_last');
         }
-        func_array_simpleflip($aAllowData);
+        $aAllowData = F::Array_FlipIntKeys($aAllowData);
         if (!is_array($aTalkId)) {
             $aTalkId = array($aTalkId);
         }
-        /**
-         * Получаем "голые" разговоры
-         */
+
+        // * Получаем "голые" разговоры
         $aTalks = $this->GetTalksByArrayId($aTalkId);
-        /**
-         * Формируем ID дополнительных данных, которые нужно получить
-         */
-        if (isset($aAllowData['favourite']) and $this->oUserCurrent) {
+
+        // * Формируем ID дополнительных данных, которые нужно получить
+        if (isset($aAllowData['favourite']) && $this->oUserCurrent) {
             $aFavouriteTalks = $this->Favourite_GetFavouritesByArray($aTalkId, 'talk', $this->oUserCurrent->getId());
         }
 
@@ -188,30 +186,26 @@ class ModuleTalk extends Module {
             if (isset($aAllowData['user'])) {
                 $aUserId[] = $oTalk->getUserId();
             }
-            if (isset($aAllowData['comment_last']) and $oTalk->getCommentIdLast()) {
+            if (isset($aAllowData['comment_last']) && $oTalk->getCommentIdLast()) {
                 $aCommentLastId[] = $oTalk->getCommentIdLast();
             }
         }
-        /**
-         * Получаем дополнительные данные
-         */
 
+        // * Получаем дополнительные данные
         $aTalkUsers = array();
         $aCommentLast = array();
         $aUsers = isset($aAllowData['user']) && is_array($aAllowData['user']) ? $this->User_GetUsersAdditionalData(
             $aUserId, $aAllowData['user']
         ) : $this->User_GetUsersAdditionalData($aUserId);
 
-        if (isset($aAllowData['talk_user']) and $this->oUserCurrent) {
+        if (isset($aAllowData['talk_user']) && $this->oUserCurrent) {
             $aTalkUsers = $this->GetTalkUsersByArray($aTalkId, $this->oUserCurrent->getId());
         }
         if (isset($aAllowData['comment_last'])) {
             $aCommentLast = $this->Comment_GetCommentsAdditionalData($aCommentLastId, array());
         }
 
-        /**
-         * Добавляем данные к результату - списку разговоров
-         */
+        // * Добавляем данные к результату - списку разговоров
         foreach ($aTalks as $oTalk) {
             if (isset($aUsers[$oTalk->getUserId()])) {
                 $oTalk->setUser($aUsers[$oTalk->getUserId()]);
@@ -231,7 +225,7 @@ class ModuleTalk extends Module {
                 $oTalk->setIsFavourite(false);
             }
 
-            if ($oTalk->getCommentIdLast() and isset($aCommentLast[$oTalk->getCommentIdLast()])) {
+            if ($oTalk->getCommentIdLast() && isset($aCommentLast[$oTalk->getCommentIdLast()])) {
                 $oTalk->setCommentLast($aCommentLast[$oTalk->getCommentIdLast()]);
             } else {
                 $oTalk->setCommentLast(null);

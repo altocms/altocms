@@ -89,10 +89,7 @@ class Loader {
                     } else {
                         // Если уже существую привязанные к модулю ключи,
                         // то сливаем старые и новое значения ассоциативно
-                        Config::Set(
-                            $sKey,
-                            func_array_merge_assoc(Config::Get($sKey), $aConfig)
-                        );
+                        Config::Set($sKey, F::Array_Merge(Config::Get($sKey), $aConfig));
                     }
                 }
             }

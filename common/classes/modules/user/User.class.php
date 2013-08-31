@@ -22,6 +22,7 @@
 class ModuleUser extends Module {
 
     const USER_SESSION_KEY = 'user_key';
+
     /**
      * Статусы дружбы между пользователями
      */
@@ -30,24 +31,28 @@ class ModuleUser extends Module {
     const USER_FRIEND_DELETE = 4;
     const USER_FRIEND_REJECT = 8;
     const USER_FRIEND_NULL = 16;
+
     /**
      * Объект маппера
      *
      * @var ModuleUser_MapperUser
      */
     protected $oMapper;
+
     /**
      * Объект текущего пользователя
      *
      * @var ModuleUser_EntityUser|null
      */
     protected $oUserCurrent = null;
+
     /**
      * Объект сессии текущего пользователя
      *
      * @var ModuleUser_EntitySession|null
      */
     protected $oSession = null;
+
     /**
      * Список типов пользовательских полей
      *
@@ -65,9 +70,8 @@ class ModuleUser extends Module {
     public function Init() {
 
         $this->oMapper = Engine::GetMapper(__CLASS__);
-        /**
-         * Проверяем есть ли у юзера сессия, т.е. залогинен или нет
-         */
+
+        // * Проверяем есть ли у юзера сессия, т.е. залогинен или нет
         $nUserId = intval($this->Session_Get('user_id'));
         if ($nUserId && ($oUser = $this->GetUserById($nUserId)) && $oUser->getActivate()) {
             if ($this->oSession = $oUser->getSession()) {
@@ -87,9 +91,8 @@ class ModuleUser extends Module {
          * В куках стоит время на сколько запоминать юзера
          */
         $this->AutoLogin();
-        /**
-         * Обновляем сессию
-         */
+
+        // * Обновляем сессию
         if (isset($this->oSession)) {
             $this->UpdateSession();
         }
@@ -101,6 +104,7 @@ class ModuleUser extends Module {
      * @return array
      */
     public function GetUserFieldTypes() {
+
         return $this->aUserFieldTypes;
     }
 
@@ -142,13 +146,11 @@ class ModuleUser extends Module {
             $aAllowData = array('vote', 'session', 'friend', 'geo_target', 'note');
         }
         $aAllowData = F::Array_FlipIntKeys($aAllowData);
-        /**
-         * Получаем юзеров
-         */
+
+        // * Получаем юзеров
         $aUsers = $this->GetUsersByArrayId($aUsersId);
-        /**
-         * Получаем дополнительные данные
-         */
+
+        // * Получаем дополнительные данные
         $aSessions = array();
         $aFriends = array();
         $aVote = array();
@@ -170,9 +172,8 @@ class ModuleUser extends Module {
         if (isset($aAllowData['note']) && $this->oUserCurrent) {
             $aNotes = $this->GetUserNotesByArray($aUsersId, $this->oUserCurrent->getId());
         }
-        /**
-         * Добавляем данные к результату
-         */
+
+        // * Добавляем данные к результату
         foreach ($aUsers as $oUser) {
             if (isset($aSessions[$oUser->getId()])) {
                 $oUser->setSession($aSessions[$oUser->getId()]);
@@ -231,14 +232,12 @@ class ModuleUser extends Module {
 
         $aUsers = array();
         $aUserIdNotNeedQuery = array();
-        /**
-         * Делаем мульти-запрос к кешу
-         */
+
+        // * Делаем мульти-запрос к кешу
         $aCacheKeys = F::Array_ChangeValues($aUsersId, 'user_');
         if (false !== ($data = $this->Cache_Get($aCacheKeys))) {
-            /**
-             * проверяем что досталось из кеша
-             */
+
+            // * Проверяем что досталось из кеша
             foreach ($aCacheKeys as $sValue => $sKey) {
                 if (array_key_exists($sKey, $data)) {
                     if ($data[$sKey]) {
@@ -249,31 +248,27 @@ class ModuleUser extends Module {
                 }
             }
         }
-        /**
-         * Смотрим каких юзеров не было в кеше и делаем запрос в БД
-         */
+
+        // * Смотрим каких юзеров не было в кеше и делаем запрос в БД
         $aUserIdNeedQuery = array_diff($aUsersId, array_keys($aUsers));
         $aUserIdNeedQuery = array_diff($aUserIdNeedQuery, $aUserIdNotNeedQuery);
         $aUserIdNeedStore = $aUserIdNeedQuery;
         if ($data = $this->oMapper->GetUsersByArrayId($aUserIdNeedQuery)) {
             foreach ($data as $oUser) {
-                /**
-                 * Добавляем к результату и сохраняем в кеш
-                 */
+
+                // * Добавляем к результату и сохраняем в кеш
                 $aUsers[$oUser->getId()] = $oUser;
                 $this->Cache_Set($oUser, "user_{$oUser->getId()}", array(), 'P4D');
                 $aUserIdNeedStore = array_diff($aUserIdNeedStore, array($oUser->getId()));
             }
         }
-        /**
-         * Сохраняем в кеш запросы не вернувшие результата
-         */
+
+        // * Сохраняем в кеш запросы не вернувшие результата
         foreach ($aUserIdNeedStore as $sId) {
             $this->Cache_Set(null, "user_{$sId}", array(), 'P4D');
         }
-        /**
-         * Сортируем результат согласно входящему массиву
-         */
+
+        // * Сортируем результат согласно входящему массиву
         $aUsers = F::Array_SortByKeysArray($aUsers, $aUsersId);
         return $aUsers;
     }
@@ -343,14 +338,12 @@ class ModuleUser extends Module {
 
         $aSessions = array();
         $aUserIdNotNeedQuery = array();
-        /**
-         * Делаем мульти-запрос к кешу
-         */
+
+        // * Делаем мульти-запрос к кешу
         $aCacheKeys = F::Array_ChangeValues($aUsersId, 'user_session_');
         if (false !== ($data = $this->Cache_Get($aCacheKeys))) {
-            /**
-             * проверяем что досталось из кеша
-             */
+
+            // * проверяем что досталось из кеша
             foreach ($aCacheKeys as $sValue => $sKey) {
                 if (array_key_exists($sKey, $data)) {
                     if ($data[$sKey] && $data[$sKey]['session']) {
@@ -361,17 +354,15 @@ class ModuleUser extends Module {
                 }
             }
         }
-        /**
-         * Смотрим каких юзеров не было в кеше и делаем запрос в БД
-         */
+
+        // * Смотрим каких юзеров не было в кеше и делаем запрос в БД
         $aUserIdNeedQuery = array_diff($aUsersId, array_keys($aSessions));
         $aUserIdNeedQuery = array_diff($aUserIdNeedQuery, $aUserIdNotNeedQuery);
         $aUserIdNeedStore = $aUserIdNeedQuery;
+
         if ($data = $this->oMapper->GetSessionsByArrayId($aUserIdNeedQuery)) {
             foreach ($data as $oSession) {
-                /**
-                 * Добавляем к результату и сохраняем в кеш
-                 */
+                // * Добавляем к результату и сохраняем в кеш
                 $aSessions[$oSession->getUserId()] = $oSession;
                 $this->Cache_Set(
                     array('time' => time(), 'session' => $oSession),
@@ -381,15 +372,13 @@ class ModuleUser extends Module {
                 $aUserIdNeedStore = array_diff($aUserIdNeedStore, array($oSession->getUserId()));
             }
         }
-        /**
-         * Сохраняем в кеш запросы не вернувшие результата
-         */
+
+        // * Сохраняем в кеш запросы не вернувшие результата
         foreach ($aUserIdNeedStore as $sId) {
             $this->Cache_Set(array('time' => time(), 'session' => null), "user_session_{$sId}", array(), 'P4D');
         }
-        /**
-         * Сортируем результат согласно входящему массиву
-         */
+
+        // * Сортируем результат согласно входящему массиву
         $aSessions = F::Array_SortByKeysArray($aSessions, $aUsersId);
         return $aSessions;
     }
@@ -472,11 +461,11 @@ class ModuleUser extends Module {
 
         if ($sId = $this->oMapper->Add($oUser)) {
             $oUser->setId($sId);
+
             //чистим зависимые кеши
             $this->Cache_CleanByTags(array('user_new'));
-            /**
-             * Создаем персональный блог
-             */
+
+            // * Создаем персональный блог (проверки на права там внутри)
             $this->Blog_CreatePersonalBlog($oUser);
             return $oUser;
         }
@@ -591,9 +580,9 @@ class ModuleUser extends Module {
     /**
      * Авторизация юзера
      *
-     * @param   ModuleUser_EntityUser $oUser                  - Объект пользователя
-     * @param   bool                  $bRemember              - Запоминать пользователя или нет
-     * @param   null                  $sSessionKey            - Ключ сессии
+     * @param   ModuleUser_EntityUser $oUser       - Объект пользователя
+     * @param   bool                  $bRemember   - Запоминать пользователя или нет
+     * @param   string                $sSessionKey - Ключ сессии
      *
      * @return  bool
      */
@@ -602,26 +591,22 @@ class ModuleUser extends Module {
         if (!$oUser->getId() || !$oUser->getActivate()) {
             return false;
         }
-        /**
-         * Получаем ключ текущей сессии
-         */
+
+        // * Получаем ключ текущей сессии
         if (is_null($sSessionKey)) {
             $sSessionKey = $this->Session_GetKey();
         }
-        /**
-         * Создаём новую сессию
-         */
+
+        // * Создаём новую сессию
         if (!$this->CreateSession($oUser, $sSessionKey)) {
             return false;
         }
-        /**
-         * Запоминаем в сесси юзера
-         */
+
+        // * Запоминаем в сесси юзера
         $this->Session_Set('user_id', $oUser->getId());
         $this->oUserCurrent = $oUser;
-        /**
-         * Ставим куку
-         */
+
+        // * Ставим куку
         if ($bRemember) {
             $this->Session_SetCookie($this->GetKeyName(), $sSessionKey, Config::Get('sys.cookie.time'));
         }
@@ -727,6 +712,7 @@ class ModuleUser extends Module {
         $this->oSession->setIpLast(F::GetUserIp());
 
         $sCacheKey = "user_session_{$this->oSession->getUserId()}";
+
         // Используем кеширование по запросу
         if (false === ($data = $this->Cache_Get($sCacheKey, true))) {
             $data = array(
@@ -885,8 +871,8 @@ class ModuleUser extends Module {
     /**
      * Получить список юзеров по первым  буквам логина
      *
-     * @param string $sUserLogin    Логин
-     * @param int    $nLimit        Количество
+     * @param string $sUserLogin - Логин
+     * @param int    $nLimit     - Количество
      *
      * @return array
      */
@@ -904,8 +890,8 @@ class ModuleUser extends Module {
     /**
      * Получить список отношений друзей
      *
-     * @param   int|array $aUsersId      - Список ID пользователей проверяемых на дружбу
-     * @param   int       $nUserId      - ID пользователя у которого проверяем друзей
+     * @param   int|array $aUsersId - Список ID пользователей проверяемых на дружбу
+     * @param   int       $nUserId  - ID пользователя у которого проверяем друзей
      *
      * @return array
      */
@@ -925,14 +911,11 @@ class ModuleUser extends Module {
 
         $aFriends = array();
         $aUserIdNotNeedQuery = array();
-        /**
-         * Делаем мульти-запрос к кешу
-         */
+
+        // * Делаем мульти-запрос к кешу
         $aCacheKeys = F::Array_ChangeValues($aUsersId, 'user_friend_', '_' . $nUserId);
         if (false !== ($data = $this->Cache_Get($aCacheKeys))) {
-            /**
-             * проверяем что досталось из кеша
-             */
+            // * проверяем что досталось из кеша
             foreach ($aCacheKeys as $sValue => $sKey) {
                 if (array_key_exists($sKey, $data)) {
                     if ($data[$sKey]) {
@@ -943,17 +926,14 @@ class ModuleUser extends Module {
                 }
             }
         }
-        /**
-         * Смотрим каких френдов не было в кеше и делаем запрос в БД
-         */
+
+        // * Смотрим каких френдов не было в кеше и делаем запрос в БД
         $aUserIdNeedQuery = array_diff($aUsersId, array_keys($aFriends));
         $aUserIdNeedQuery = array_diff($aUserIdNeedQuery, $aUserIdNotNeedQuery);
         $aUserIdNeedStore = $aUserIdNeedQuery;
         if ($data = $this->oMapper->GetFriendsByArrayId($aUserIdNeedQuery, $nUserId)) {
             foreach ($data as $oFriend) {
-                /**
-                 * Добавляем к результату и сохраняем в кеш
-                 */
+                // * Добавляем к результату и сохраняем в кеш
                 $aFriends[$oFriend->getFriendId($nUserId)] = $oFriend;
                 /**
                  * Тут кеш нужно будет продумать как-то по другому.
@@ -966,15 +946,13 @@ class ModuleUser extends Module {
                 $aUserIdNeedStore = array_diff($aUserIdNeedStore, array($oFriend->getFriendId()));
             }
         }
-        /**
-         * Сохраняем в кеш запросы не вернувшие результата
-         */
+
+        // * Сохраняем в кеш запросы не вернувшие результата
         foreach ($aUserIdNeedStore as $sId) {
             $this->Cache_Set(null, "user_friend_{$sId}_{$nUserId}", array(), 'P4D');
         }
-        /**
-         * Сортируем результат согласно входящему массиву
-         */
+
+        // * Сортируем результат согласно входящему массиву
         $aFriends = F::Array_SortByKeysArray($aFriends, $aUsersId);
         return $aFriends;
     }
@@ -998,16 +976,14 @@ class ModuleUser extends Module {
         }
 
         $aFriends = array();
-        $s = join(',', $aUsersId);
-        if (false === ($data = $this->Cache_Get("user_friend_{$nUserId}_id_{$s}"))) {
+        $sCacheKey = "user_friend_{$nUserId}_id_" . join(',', $aUsersId);
+        if (false === ($data = $this->Cache_Get($sCacheKey))) {
             $data = $this->oMapper->GetFriendsByArrayId($aUsersId, $nUserId);
             foreach ($data as $oFriend) {
                 $aFriends[$oFriend->getFriendId($nUserId)] = $oFriend;
             }
 
-            $this->Cache_Set(
-                $aFriends, "user_friend_{$nUserId}_id_{$s}", array("friend_change_user_{$nUserId}"), 'P1D'
-            );
+            $this->Cache_Set($aFriends, $sCacheKey, array("friend_change_user_{$nUserId}"), 'P1D');
             return $aFriends;
         }
         return $data;
@@ -1446,9 +1422,8 @@ class ModuleUser extends Module {
      * @param ModuleUser_EntityUser $oUser Объект пользователя
      */
     public function DeleteAvatar($oUser) {
-        /**
-         * Если аватар есть, удаляем его и его рейсайзы
-         */
+
+        // * Если аватар есть, удаляем его и его рейсайзы
         if ($oUser->getProfileAvatar()) {
             $aSize = array_merge(Config::Get('module.user.avatar_size'), array(100));
             foreach ($aSize as $iSize) {
@@ -1478,8 +1453,7 @@ class ModuleUser extends Module {
         if ($aSize) {
             $oImage = $this->Image_CreateImageObject($sFileTmp);
             /**
-             * Если объект изображения не создан,
-             * возвращаем ошибку
+             * Если объект изображения не создан, возвращаем ошибку
              */
             if ($sError = $oImage->get_last_error()) {
                 // Вывод сообщения об ошибки, произошедшей при создании объекта изображения
@@ -1573,6 +1547,7 @@ class ModuleUser extends Module {
         $sCharset = Config::Get('module.user.login.charset');
         $nMin = intval(Config::Get('module.user.login.min_size'));
         $nMax = intval(Config::Get('module.user.login.max_size'));
+
         // Если какой-то из трех параметров не задан, то проверка не выполняется
         if (!$sCharset || $nMin || $nMax) {
             return true;
@@ -1723,9 +1698,8 @@ class ModuleUser extends Module {
     public function GetUserNotesByUserId($nUserId, $iCurrPage, $iPerPage) {
 
         $aResult = $this->oMapper->GetUserNotesByUserId($nUserId, $iCount, $iCurrPage, $iPerPage);
-        /**
-         * Цепляем пользователей
-         */
+
+        // * Цепляем пользователей
         $aUsersId = array();
         foreach ($aResult as $oNote) {
             $aUsersId[] = $oNote->getTargetUserId();
@@ -1806,9 +1780,7 @@ class ModuleUser extends Module {
                 $aNotes[$oNote->getTargetUserId()] = $oNote;
             }
 
-            $this->Cache_Set(
-                $aNotes, $sCacheKey, array("user_note_change_by_user_{$nUserId}"), 'P1D'
-            );
+            $this->Cache_Set($aNotes, $sCacheKey, array("user_note_change_by_user_{$nUserId}"), 'P1D');
             return $aNotes;
         }
         return $data;
@@ -1866,9 +1838,10 @@ class ModuleUser extends Module {
      */
     public function GetGroupPrefixUser($nPrefixLength = 1) {
 
-        if (false === ($data = $this->Cache_Get("group_prefix_user_{$nPrefixLength}"))) {
+        $sCacheKey = "group_prefix_user_{$nPrefixLength}";
+        if (false === ($data = $this->Cache_Get($sCacheKey))) {
             $data = $this->oMapper->GetGroupPrefixUser($nPrefixLength);
-            $this->Cache_Set($data, "group_prefix_user_{$nPrefixLength}", array("user_new"), 'P1D');
+            $this->Cache_Set($data, $sCacheKey, array("user_new"), 'P1D');
         }
         return $data;
     }

@@ -112,20 +112,19 @@ class ModuleComment extends Module {
      * @return array
      */
     public function GetCommentsAdditionalData($aCommentId, $aAllowData = null) {
+
         if (is_null($aAllowData)) {
             $aAllowData = array('vote', 'target', 'favourite', 'user' => array());
         }
-        func_array_simpleflip($aAllowData);
+        $aAllowData = F::Array_FlipIntKeys($aAllowData);
         if (!is_array($aCommentId)) {
             $aCommentId = array($aCommentId);
         }
-        /**
-         * Получаем комменты
-         */
+
+        // * Получаем комменты
         $aComments = $this->GetCommentsByArrayId($aCommentId);
-        /**
-         * Формируем ID дополнительных данных, которые нужно получить
-         */
+
+        // * Формируем ID дополнительных данных, которые нужно получить
         $aUserId = array();
         $aTargetId = array('topic' => array(), 'talk' => array());
         foreach ($aComments as $oComment) {
@@ -136,15 +135,13 @@ class ModuleComment extends Module {
                 $aTargetId[$oComment->getTargetType()][] = $oComment->getTargetId();
             }
         }
-        /**
-         * Получаем дополнительные данные
-         */
+
+        // * Получаем дополнительные данные
         $aUsers = (isset($aAllowData['user']) && is_array($aAllowData['user']))
             ? $this->User_GetUsersAdditionalData($aUserId, $aAllowData['user'])
             : $this->User_GetUsersAdditionalData($aUserId);
-        /**
-         * В зависимости от типа target_type достаем данные
-         */
+
+        // * В зависимости от типа target_type достаем данные
         $aTargets = array();
         //$aTargets['topic']=isset($aAllowData['target']) && is_array($aAllowData['target']) ? $this->Topic_GetTopicsAdditionalData($aTargetId['topic'],$aAllowData['target']) : $this->Topic_GetTopicsAdditionalData($aTargetId['topic']);
         $aTargets['topic'] = $this->Topic_GetTopicsAdditionalData(
@@ -157,9 +154,8 @@ class ModuleComment extends Module {
         if (isset($aAllowData['favourite']) && $this->oUserCurrent) {
             $aFavouriteComments = $this->Favourite_GetFavouritesByArray($aCommentId, 'comment', $this->oUserCurrent->getId());
         }
-        /**
-         * Добавляем данные к результату
-         */
+
+        // * Добавляем данные к результату
         foreach ($aComments as $oComment) {
             if (isset($aUsers[$oComment->getUserId()])) {
                 $oComment->setUser($aUsers[$oComment->getUserId()]);
@@ -193,6 +189,7 @@ class ModuleComment extends Module {
      * @return array
      */
     public function GetCommentsByArrayId($aCommentId) {
+
         if (!$aCommentId) {
             return array();
         }
@@ -260,6 +257,7 @@ class ModuleComment extends Module {
      * @return array
      */
     public function GetCommentsByArrayIdSolid($aCommentId) {
+
         if (!is_array($aCommentId)) {
             $aCommentId = array($aCommentId);
         }

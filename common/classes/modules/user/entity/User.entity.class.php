@@ -485,6 +485,9 @@ class ModuleUser_EntityUser extends Entity {
                 $sPath . "?" . date('His', strtotime($this->getProfileDate()))
             );
         } else {
+            $sPath = Config::Get('path.static.assets') . '/images/avatars/avatar_'
+                . ($this->getProfileSex() == 'woman' ? 'female' : 'male') . '.png';
+            $s1 = 1;
             return Config::Get('path.static.assets') . '/images/avatars/avatar_' . ($this->getProfileSex() == 'woman'
                 ? 'female' : 'male') . '_' . $iSize . 'x' . $iSize . '.png';
         }

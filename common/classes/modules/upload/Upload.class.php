@@ -49,6 +49,22 @@ class ModuleUpload extends Module {
         $this->sLastError = '';
     }
 
+    /**
+     * Move temporary file to destination
+     *
+     * @param $sTmpFile
+     * @param $sTargetFile
+     *
+     * @return bool
+     */
+    protected function MoveTmpFile($sTmpFile, $sTargetFile) {
+
+        if (F::File_Move($sTmpFile, $sTargetFile)) {
+            return $sTargetFile;
+        }
+        return false;
+    }
+
     public function GetError() {
 
         return $this->nLastError;
@@ -98,6 +114,15 @@ class ModuleUpload extends Module {
         return false;
     }
 
+    /**
+     * Upload remote file by URL
+     *
+     * @param       $sUrl
+     * @param null  $sDir
+     * @param array $aParams
+     *
+     * @return bool
+     */
     public function UploadRemote($sUrl, $sDir = null, $aParams = array()) {
 
         if (!isset($aParams['max_size'])) {
@@ -147,12 +172,44 @@ class ModuleUpload extends Module {
         return $this->MoveTmpFile($sTmpFile, $sDir);
     }
 
-    protected function MoveTmpFile($sTmpFile, $sTargetFile) {
+    /**
+     * @param $sFilePath
+     *
+     * @return mixed
+     */
+    public function Exists($sFilePath) {
 
-        if (F::File_Move($sTmpFile, $sTargetFile)) {
-            return $sTargetFile;
-        }
-        return false;
+        return F::File_Exists($sFilePath);
+    }
+
+    /**
+     * @param $sFilePath
+     *
+     * @return mixed
+     */
+    public function Delete($sFilePath) {
+
+        return F::File_Delete($sFilePath);
+    }
+
+    /**
+     * @param $sFilePath
+     *
+     * @return mixed
+     */
+    public function Dir2Url($sFilePath) {
+
+        return F::File_Dir2($sFilePath);
+    }
+
+    /**
+     * @param $sUrl
+     *
+     * @return mixed
+     */
+    public function Url2Dir($sUrl) {
+
+        return F::File_Url2Dir($sUrl);
     }
 
 }
