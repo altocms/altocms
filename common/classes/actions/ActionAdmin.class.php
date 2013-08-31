@@ -1567,7 +1567,7 @@ class ActionAdmin extends Action {
 
     protected function _eventUsersProfileInfo($oUserProfile) {
 
-        $this->SetTemplateAction('users/users_profile_info');
+        $this->SetTemplateAction('users/profile_info');
     }
 
     protected function _eventUsersFilter() {

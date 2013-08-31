@@ -1,4 +1,4 @@
-{extends file='actions/ActionAdmin/users/users_profile.tpl'}
+{extends file='actions/ActionAdmin/users/profile.tpl'}
 
 {block name="content-body-sidebar" prepend}
     <script type="text/javascript">
