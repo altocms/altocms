@@ -204,7 +204,7 @@
 
 			{* Навигация *}
 			{if $sNav or $sNavContent}
-				<div class="nav-group">
+				<div class="nav-group nav-content">
 					{if $sNav}
 						{if in_array($sNav, $aMenuContainers)}
 							{$aMenuFetch.$sNav}

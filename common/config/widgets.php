@@ -71,13 +71,13 @@ $config['widgets'][] = array(
 );
 
 $config['widgets'][] = array(
-    'name' => 'actions/ActionPeople/sidebar.tpl',
+    'name' => 'usersStatistics.tpl',
     'wgroup' => 'right',
     'on' => 'people',
 );
 
 $config['widgets'][] = array(
-    'name' => 'actions/ActionProfile/sidebar.tpl',
+    'name' => 'userActions.tpl',
     'wgroup' => 'right',
     'on' => 'profile, talk, settings',
 );

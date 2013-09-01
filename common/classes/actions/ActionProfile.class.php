@@ -1179,7 +1179,7 @@ class ActionProfile extends Action {
                 )
             );
 
-            F::IncludeLib('XXTEA/encrypt.php';
+            F::IncludeLib('XXTEA/encrypt.php');
             $sCode = $this->oUserCurrent->getId() . '_' . $oUser->getId();
             $sCode = rawurlencode(base64_encode(xxtea_encrypt($sCode, Config::Get('module.talk.encrypt'))));
 

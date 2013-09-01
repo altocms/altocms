@@ -5,6 +5,7 @@
  */
 
 .nav-group  { margin: 0; }
+.nav-content ul.nav { margin-left: 75px;}
 
 .nav.nav-main 					{ background: transparent; }
 .nav.nav-main li					{ position: relative; margin-right: 13px; padding-left: 18px; font-size: 16px; }
@@ -153,7 +154,7 @@
 /* Userlist mode switcher
 -------------------------------------------------- */
 .nav.nav-userlist { float: left; }
-.nav.nav-userlist-switcher	{ float: left; margin: 7px 0 0 15px; }
+.nav.nav-userlist-switcher	{ float: left; margin: 7px 0 0 0px !important; position: absolute; left: 0;}
 .nav.nav-userlist-switcher li { margin-right: 10px; }
 .nav.nav-userlist-switcher li a { padding: 0; }
 .nav.nav-userlist-switcher li i { opacity: 0.7; }

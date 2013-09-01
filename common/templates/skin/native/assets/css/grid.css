@@ -5,7 +5,7 @@
  */
 
 #container		 { margin: 0 auto; _margin-bottom: 20px; padding: 0 50px; position: relative; }
-#header          { position: relative; min-height: 40px; padding: 60px 300px 60px 60px; }
+#header          { position: relative; min-height: 40px; padding: 60px 300px 60px 75px; }
 #nav			 { overflow: hidden; }
 #wrapper		 { overflow: hidden; zoom: 1; padding: 40px 0; clear: both; }
 #content-wrapper { float: left; width: 100%; margin-right: -300px; }
