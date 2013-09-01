@@ -44,21 +44,18 @@ class ActionSettings extends Action {
      *
      */
     public function Init() {
-        /**
-         * Проверяем авторизован ли юзер
-         */
+
+        // * Проверяем авторизован ли юзер
         if (!$this->User_IsAuthorization()) {
             $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
             return Router::Action('error');
         }
-        /**
-         * Получаем текущего юзера
-         */
+
+        // * Получаем текущего юзера
         $this->oUserCurrent = $this->User_GetUserCurrent();
         $this->SetDefaultEvent('profile');
-        /**
-         * Устанавливаем title страницы
-         */
+
+        // * Устанавливаем title страницы
         $this->Viewer_AddHtmlTitle($this->Lang_Get('settings_menu'));
     }
 
@@ -66,6 +63,7 @@ class ActionSettings extends Action {
      * Регистрация евентов
      */
     protected function RegisterEvent() {
+
         $this->AddEventPreg('/^profile$/i', '/^upload-avatar/i', '/^$/i', 'EventUploadAvatar');
         $this->AddEventPreg('/^profile$/i', '/^resize-avatar/i', '/^$/i', 'EventResizeAvatar');
         $this->AddEventPreg('/^profile$/i', '/^remove-avatar/i', '/^$/i', 'EventRemoveAvatar');
@@ -350,13 +348,11 @@ class ActionSettings extends Action {
      * Отмена ресайза аватарки, необходимо удалить временный файл
      */
     protected function EventCancelAvatar() {
-        /**
-         * Устанавливаем формат Ajax ответа
-         */
+
+        // * Устанавливаем формат Ajax ответа
         $this->Viewer_SetResponseAjax('json');
-        /**
-         * Достаем из сессии файл и удаляем
-         */
+
+        // * Достаем из сессии файл и удаляем
         $sFileAvatar = $this->Session_Get('sAvatarFileTmp');
         $this->Image_RemoveFile($sFileAvatar);
         $this->Session_Drop('sAvatarFileTmp');
@@ -391,9 +387,8 @@ class ActionSettings extends Action {
             $this->oUserCurrent->setSettingsNoticeReplyComment(getRequest('settings_notice_reply_comment') ? 1 : 0);
             $this->oUserCurrent->setSettingsNoticeNewFriend(getRequest('settings_notice_new_friend') ? 1 : 0);
             $this->oUserCurrent->setProfileDate(F::Now());
-            /**
-             * Запускаем выполнение хуков
-             */
+
+            // * Запускаем выполнение хуков
             $this->Hook_Run('settings_tuning_save_before', array('oUser' => $this->oUserCurrent));
             if ($this->User_Update($this->oUserCurrent)) {
                 $this->Message_AddNoticeSingle($this->Lang_Get('settings_tuning_submit_ok'));
@@ -574,33 +569,28 @@ class ActionSettings extends Action {
      *
      */
     protected function EventProfile() {
-        /**
-         * Устанавливаем title страницы
-         */
+
+        // * Устанавливаем title страницы
         $this->Viewer_AddHtmlTitle($this->Lang_Get('settings_menu_profile'));
         $this->Viewer_Assign('aUserFields', $this->User_getUserFields(''));
         $this->Viewer_Assign('aUserFieldsContact', $this->User_getUserFields(array('contact', 'social')));
-        /**
-         * Загружаем в шаблон JS текстовки
-         */
+
+        // * Загружаем в шаблон JS текстовки
         $this->Lang_AddLangJs(
             array(
                  'settings_profile_field_error_max'
             )
         );
-        /**
-         * Если нажали кнопку "Сохранить"
-         */
-        if (isPost('submit_profile_edit')) {
-            $this->Security_ValidateSendForm();
+
+        // * Если нажали кнопку "Сохранить"
+        if ($this->isPost('submit_profile_edit')) {
 
             $bError = false;
             /**
              * Заполняем профиль из полей формы
              */
-            /**
-             * Определяем гео-объект
-             */
+
+            // * Определяем гео-объект
             if (getRequest('geo_city')) {
                 $oGeoObject = $this->Geo_GetGeoObject('city', getRequestStr('geo_city'));
             } elseif (getRequest('geo_region')) {
@@ -610,25 +600,22 @@ class ActionSettings extends Action {
             } else {
                 $oGeoObject = null;
             }
-            /**
-             * Проверяем имя
-             */
+
+            // * Проверяем имя
             if (F::CheckVal(getRequestStr('profile_name'), 'text', 2, Config::Get('module.user.name_max'))) {
                 $this->oUserCurrent->setProfileName(getRequestStr('profile_name'));
             } else {
                 $this->oUserCurrent->setProfileName(null);
             }
-            /**
-             * Проверяем пол
-             */
+
+            // * Проверяем пол
             if (in_array(getRequestStr('profile_sex'), array('man', 'woman', 'other'))) {
                 $this->oUserCurrent->setProfileSex(getRequestStr('profile_sex'));
             } else {
                 $this->oUserCurrent->setProfileSex('other');
             }
-            /**
-             * Проверяем дату рождения
-             */
+
+            // * Проверяем дату рождения
             if (F::CheckVal(getRequestStr('profile_birthday_day'), 'id', 1, 2)
                 && F::CheckVal(
                     getRequestStr('profile_birthday_month'), 'id', 1, 2
@@ -646,42 +633,34 @@ class ActionSettings extends Action {
             } else {
                 $this->oUserCurrent->setProfileBirthday(null);
             }
-            /**
-             * Проверяем информацию о себе
-             */
+
+            // * Проверяем информацию о себе
             if (F::CheckVal(getRequestStr('profile_about'), 'text', 1, 3000)) {
                 $this->oUserCurrent->setProfileAbout($this->Text_Parser(getRequestStr('profile_about')));
             } else {
                 $this->oUserCurrent->setProfileAbout(null);
             }
-            /**
-             * Ставим дату последнего изменения профиля
-             */
+
+            // * Ставим дату последнего изменения профиля
             $this->oUserCurrent->setProfileDate(F::Now());
-            /**
-             * Запускаем выполнение хуков
-             */
+
+            // * Запускаем выполнение хуков
             $this->Hook_Run(
                 'settings_profile_save_before', array('oUser' => $this->oUserCurrent, 'bError' => &$bError)
             );
-            /**
-             * Сохраняем изменения профиля
-             */
+
+            // * Сохраняем изменения профиля
             if (!$bError) {
                 if ($this->User_Update($this->oUserCurrent)) {
 
-                    /*
-                     * Обновляем название личного блога
-                     */
+                    // * Обновляем название личного блога
                     $oBlog = $this->oUserCurrent->getBlog();
                     if (getRequestStr('blog_title') && $this->checkBlogFields($oBlog)) {
                         $oBlog->setTitle(strip_tags(getRequestStr('blog_title')));
                         $this->Blog_UpdateBlog($oBlog);
                     }
 
-                    /**
-                     * Создаем связь с гео-объектом
-                     */
+                    // * Создаем связь с гео-объектом
                     if ($oGeoObject) {
                         $this->Geo_CreateTarget($oGeoObject, 'user', $this->oUserCurrent->getId());
                         if ($oCountry = $oGeoObject->getCountry()) {
@@ -707,9 +686,7 @@ class ActionSettings extends Action {
                     }
                     $this->User_Update($this->oUserCurrent);
 
-                    /**
-                     * Обрабатываем дополнительные поля, type = ''
-                     */
+                    // * Обрабатываем дополнительные поля, type = ''
                     $aFields = $this->User_getUserFields('');
                     $aData = array();
                     foreach ($aFields as $iId => $aField) {
@@ -718,14 +695,12 @@ class ActionSettings extends Action {
                         }
                     }
                     $this->User_setUserFieldsValues($this->oUserCurrent->getId(), $aData);
-                    /**
-                     * Динамические поля контактов, type = array('contact','social')
-                     */
+
+                    // * Динамические поля контактов, type = array('contact','social')
                     $aType = array('contact', 'social');
                     $aFields = $this->User_getUserFields($aType);
-                    /**
-                     * Удаляем все поля с этим типом
-                     */
+
+                    // * Удаляем все поля с этим типом
                     $this->User_DeleteUserFieldValues($this->oUserCurrent->getId(), $aType);
                     $aFieldsContactType = getRequest('profile_user_field_type');
                     $aFieldsContactValue = getRequest('profile_user_field_value');
@@ -751,14 +726,12 @@ class ActionSettings extends Action {
                 }
             }
         }
-        /**
-         * Загружаем гео-объект привязки
-         */
+
+        // * Загружаем гео-объект привязки
         $oGeoTarget = $this->Geo_GetTargetByTarget('user', $this->oUserCurrent->getId());
         $this->Viewer_Assign('oGeoTarget', $oGeoTarget);
-        /**
-         * Загружаем в шаблон список стран, регионов, городов
-         */
+
+        // * Загружаем в шаблон список стран, регионов, городов
         $aCountries = $this->Geo_GetCountries(array(), array('sort' => 'asc'), 1, 300);
         $this->Viewer_Assign('aGeoCountries', $aCountries['collection']);
         if ($oGeoTarget) {
@@ -788,16 +761,14 @@ class ActionSettings extends Action {
     protected function checkBlogFields($oBlog = null) {
 
         $bOk = true;
-        /**
-         * Проверяем есть ли название блога
-         */
+
+        // * Проверяем есть ли название блога
         if (!F::CheckVal(getRequestStr('blog_title'), 'text', 2, 200)) {
             $this->Message_AddError($this->Lang_Get('blog_create_title_error'), $this->Lang_Get('error'));
             $bOk = false;
         } else {
-            /**
-             * Проверяем есть ли уже блог с таким названием
-             */
+
+            // * Проверяем есть ли уже блог с таким названием
             if ($oBlogExists = $this->Blog_GetBlogByTitle(getRequestStr('blog_title'))) {
                 if (!$oBlog || $oBlog->getId() != $oBlogExists->getId()) {
                     $this->Message_AddError(
@@ -828,21 +799,25 @@ class ActionSettings extends Action {
             'iCountWallUser',
             $this->Wall_GetCountWall(array('wall_user_id' => $this->oUserCurrent->getId(), 'pid' => null))
         );
-        /**
-         * Общее число публикация и избранного
-         */
+
+        // * Общее число публикация и избранного
+        $this->Viewer_Assign('iCountTopicUser', $iCountTopicUser);
+        $this->Viewer_Assign('iCountCommentUser', $iCountCommentUser);
+        $this->Viewer_Assign('iCountTopicFavourite', $iCountTopicFavourite);
+        $this->Viewer_Assign('iCountCommentFavourite', $iCountCommentFavourite);
+        $this->Viewer_Assign('iCountNoteUser', $iCountNoteUser);
+
         $this->Viewer_Assign('iCountCreated', $iCountNoteUser + $iCountTopicUser + $iCountCommentUser);
         $this->Viewer_Assign('iCountFavourite', $iCountCommentFavourite + $iCountTopicFavourite);
         $this->Viewer_Assign('iCountFriendsUser', $this->User_GetCountUsersFriend($this->oUserCurrent->getId()));
 
-        /**
-         * Загружаем в шаблон необходимые переменные
-         */
+        // * Загружаем в шаблон необходимые переменные
         $this->Viewer_Assign('sMenuItemSelect', $this->sMenuItemSelect);
         $this->Viewer_Assign('sMenuSubItemSelect', $this->sMenuSubItemSelect);
 
         $this->Hook_Run('action_shutdown_settings');
     }
+
 }
 
 // EOF

@@ -4,6 +4,10 @@
 
 {extends file='[layouts]layout.base.tpl'}
 
+{block name='layout_options'}
+    {$sNav = 'settings'}
+{/block}
+
 {block name='layout_content_begin'}
 	{**
 	 * Шапка профиля

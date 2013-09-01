@@ -14,7 +14,7 @@
 
 
     {function name=userfield}
-        <div class="form-field js-user-field-item" {if ! $oField}id="profile_user_field_template" style="display:none;"{/if}>
+        <div class="form-field js-user-field-item" {if !$oField}id="profile_user_field_template" style="display:none;"{/if}>
             <select name="profile_user_field_type[]"  onchange="ls.userfield.changeFormField(this);">
                 {foreach $aUserFieldsContact as $oFieldAll}
                     <option value="{$oFieldAll->getId()}" {if $oField && $oFieldAll->getId() == $oField->getId()}selected{/if}>{$oFieldAll->getTitle()|escape:'html'}</option>
