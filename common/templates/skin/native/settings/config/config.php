@@ -108,6 +108,7 @@ $config['head']['default']['css'] = array_merge(
          '___path.skin.url___/assets/css/common.css',
          '___path.skin.url___/assets/css/icons.css',
          '___path.skin.url___/assets/css/navs.css',
+         '___path.skin.url___/assets/css/tooltip.css',
          '___path.skin.url___/assets/css/popover.css',
          '___path.skin.url___/assets/css/tables.css',
          '___path.skin.url___/assets/css/topic.css',

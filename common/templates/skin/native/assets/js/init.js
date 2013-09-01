@@ -7,7 +7,7 @@ jQuery(document).ready(function($){
 	 */
 	//$(document).popover({ selector: '.js-popover-default' });
     //$('.js-popover-default').popover({trigger: 'hover'});
-    $('.js-title-comment').popover({trigger: 'click', placement: 'left', delay: { show: 500, hide: 100 }});
+    $('.js-title-comment').tooltip({trigger: 'hover', placement: 'left', delay: { show: 500, hide: 100 }});
 
 	/**
 	 * Modals

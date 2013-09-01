@@ -659,7 +659,7 @@ $config['head']['default']['css'] = array(
     '___path.frontend.dir___/libs/css/forms.css',
     '___path.frontend.dir___/libs/css/navs.css',
     '___path.frontend.dir___/libs/css/modals.css',
-    '___path.frontend.dir___/libs/css/tooltip.css',
+    //'___path.frontend.dir___/libs/css/tooltip.css',
     '___path.frontend.dir___/libs/css/popover.css',
     '___path.frontend.dir___/libs/css/alerts.css',
     '___path.frontend.dir___/libs/css/toolbar.css'
