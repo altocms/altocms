@@ -5,14 +5,14 @@ jQuery(document).ready(function($){
 	/**
 	 * Popovers
 	 */
-	$(document).popover({ selector: '.js-popover-default' });
-
+	//$(document).popover({ selector: '.js-popover-default' });
+    //$('.js-popover-default').popover({trigger: 'hover'});
+    $('.js-title-comment').popover({trigger: 'click', placement: 'left', delay: { show: 500, hide: 100 }});
 
 	/**
 	 * Modals
 	 */
-	$('.js-modal-default').modal();
-
+	//$('.js-modal-default').modal();
 
 	/**
 	 * Datepicker
@@ -71,16 +71,17 @@ jQuery(document).ready(function($){
 	/**
 	 * Toolbar
 	 */
-	$('#toolbar').toolbar({
-		alignTo: '#wrapper',
-		align: 'right',
-		offsetX: 10,
-		offsetY: 0
-	});
+    if ($('#toolbar').length && 1==2) {
+        $('#toolbar').toolbar({
+            alignTo: '#wrapper',
+            align: 'right',
+            offsetX: 10,
+            offsetY: 0
+        });
 
-	ls.toolbar.topic.init(); // Тул-бар топиков
-	ls.toolbar.up.init();    // Кнопка "UP"
-
+        ls.toolbar.topic.init(); // Тул-бар топиков
+        ls.toolbar.up.init();    // Кнопка "UP"
+    }
 
 	/**
 	 * Code highlight
@@ -91,13 +92,15 @@ jQuery(document).ready(function($){
 	/**
 	 * Blocks
 	 */
-	ls.blocks.init();
+    if (ls.blocks)
+        ls.blocks.init();
 
 
 	/**
 	 * Activity
 	 */
-	ls.stream.init();
+    if (ls.stream)
+        ls.stream.init();
 
 
 	/**

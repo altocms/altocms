@@ -3,6 +3,12 @@
  *
  * @template modals/*.tpl
  */
+.modal {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+}
 
 .modal .modal-close,
 .modal .close {
@@ -29,3 +35,28 @@
 .write-list li.write-item-type-photoset .write-item-image { background-position: -300px 0; }
 .write-list li.write-item-type-blog .write-item-image     { background-position: -400px 0; }
 .write-list li.write-item-type-draft .write-item-image    { background-position: -500px 0; }
+
+.modal-dialog {
+    border-radius: 3px;
+    border: 1px solid #455f7b;
+}
+
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 999;
+    background-color: #000000;
+}
+
+.modal-backdrop.fade {
+    opacity: 0;
+    filter: alpha(opacity=0);
+}
+
+.modal-backdrop.in {
+    opacity: 0.5;
+    filter: alpha(opacity=50);
+}

@@ -84,10 +84,12 @@ $config['path']['runtime']['url']       = '___path.root.url___/_run/';          
 
 $config['path']['templates']['dir']     = '___path.dir.common___/templates/';
 $config['path']['framework']['dir']     = '___path.dir.common___/templates/framework/';
+$config['path']['frontend']['dir']      = '___path.dir.common___/templates/frontend/';
+$config['path']['frontend']['url']      = '___path.root.url___/common/templates/frontend/';
 
 $config['path']['skins']['dir']         = '___path.templates.dir___/skin/';             // путь к папке для скинов
 $config['path']['skin']['dir']          = '___path.skins.dir___/___view.skin___/';      // путь к папке текущего скина
-//$config['path']['skin']['url']          = '___path.root.url___/templates/skin/___view.skin___/';    // URL-путь к папке текущего скина
+$config['path']['skin']['url']          = '___path.root.url___common/templates/skin/___view.skin___/';    // URL-путь к папке текущего скина
 
 /**
  * Следующие параметры определяем для совместимости с LS
@@ -579,67 +581,67 @@ $config['router']['config']['autodefine'] = true;
  */
 $config['head']['default']['js'] = array(
     /* Vendor libs */
-    '___path.framework.dir___/js/vendor/html5shiv.min.js' => array('browser' => 'lt IE 9'),
-    '___path.framework.dir___/js/vendor/jquery-1.9.1.min.js' => array('name' => 'jquery', 'asset' => 'mini'),
-    '___path.framework.dir___/js/vendor/jquery-migrate-1.2.1.min.js' => array('asset' => 'mini'),
-    '___path.framework.dir___/js/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js' => array('asset' => 'mini'),
-    '___path.framework.dir___/js/vendor/jquery-ui/js/localization/jquery-ui-datepicker-ru.js',
-    '___path.framework.dir___/js/vendor/jquery.browser.js',
-    '___path.framework.dir___/js/vendor/jquery.scrollto.js',
-    '___path.framework.dir___/js/vendor/jquery.rich-array.min.js',
-    '___path.framework.dir___/js/vendor/jquery.form.js',
-    '___path.framework.dir___/js/vendor/jquery.jqplugin.js',
-    '___path.framework.dir___/js/vendor/jquery.cookie.js',
-    '___path.framework.dir___/js/vendor/jquery.serializejson.js',
-    '___path.framework.dir___/js/vendor/jquery.file.js',
-    '___path.framework.dir___/js/vendor/jcrop/jquery.Jcrop.js',
-    '___path.framework.dir___/js/vendor/jquery.placeholder.min.js',
-    '___path.framework.dir___/js/vendor/jquery.charcount.js',
-    '___path.framework.dir___/js/vendor/jquery.imagesloaded.js',
-    '___path.framework.dir___/js/vendor/notifier/jquery.notifier.js',
-    '___path.framework.dir___/js/vendor/prettify/prettify.js',
-    '___path.framework.dir___/js/vendor/prettyphoto/js/jquery.prettyphoto.js',
-    '___path.framework.dir___/js/vendor/parsley/parsley.js',
-    '___path.framework.dir___/js/vendor/parsley/i18n/messages.ru.js',
+    '___path.frontend.dir___/libs/js/vendor/html5shiv.min.js' => array('browser' => 'lt IE 9'),
+    '___path.frontend.dir___/libs/js/vendor/jquery-1.9.1.min.js' => array('name' => 'jquery', 'asset' => 'mini'),
+    '___path.frontend.dir___/libs/js/vendor/jquery-migrate-1.2.1.min.js' => array('asset' => 'mini'),
+    '___path.frontend.dir___/libs/js/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js' => array('asset' => 'mini'),
+    '___path.frontend.dir___/libs/js/vendor/jquery-ui/js/localization/jquery-ui-datepicker-ru.js',
+    '___path.frontend.dir___/libs/js/vendor/jquery.browser.js',
+    '___path.frontend.dir___/libs/js/vendor/jquery.scrollto.js',
+    '___path.frontend.dir___/libs/js/vendor/jquery.rich-array.min.js',
+    '___path.frontend.dir___/libs/js/vendor/jquery.form.js',
+    '___path.frontend.dir___/libs/js/vendor/jquery.jqplugin.js',
+    '___path.frontend.dir___/libs/js/vendor/jquery.cookie.js',
+    '___path.frontend.dir___/libs/js/vendor/jquery.serializejson.js',
+    '___path.frontend.dir___/libs/js/vendor/jquery.file.js',
+    '___path.frontend.dir___/libs/js/vendor/jcrop/jquery.Jcrop.js',
+    '___path.frontend.dir___/libs/js/vendor/jquery.placeholder.min.js',
+    '___path.frontend.dir___/libs/js/vendor/jquery.charcount.js',
+    '___path.frontend.dir___/libs/js/vendor/jquery.imagesloaded.js',
+    '___path.frontend.dir___/libs/js/vendor/notifier/jquery.notifier.js',
+    '___path.frontend.dir___/libs/js/vendor/prettify/prettify.js',
+    '___path.frontend.dir___/libs/js/vendor/prettyphoto/js/jquery.prettyphoto.js',
+    '___path.frontend.dir___/libs/js/vendor/parsley/parsley.js',
+    '___path.frontend.dir___/libs/js/vendor/parsley/i18n/messages.ru.js',
 
     /* Core */
-    '___path.framework.dir___/js/core/main.js',
-    '___path.framework.dir___/js/core/hook.js',
+    '___path.frontend.dir___/libs/js/core/main.js',
+    '___path.frontend.dir___/libs/js/core/hook.js',
 
     /* User Interface */
-    '___path.framework.dir___/js/ui/popup.js',
-    '___path.framework.dir___/js/ui/dropdown.js',
-    '___path.framework.dir___/js/ui/tooltip.js',
-    '___path.framework.dir___/js/ui/popover.js',
-    '___path.framework.dir___/js/ui/tab.js',
-    '___path.framework.dir___/js/ui/modal.js',
-    '___path.framework.dir___/js/ui/toolbar.js',
+    '___path.frontend.dir___/libs/js/ui/over.js',
+    '___path.frontend.dir___/libs/js/ui/dropdown.js',
+    '___path.frontend.dir___/libs/js/ui/tooltip.js',
+    '___path.frontend.dir___/libs/js/ui/popover.js',
+    '___path.frontend.dir___/libs/js/ui/tab.js',
+    '___path.frontend.dir___/libs/js/ui/modal.js',
+    '___path.frontend.dir___/libs/js/ui/toolbar.js',
 
     /* LiveStreet */
-    '___path.framework.dir___/js/livestreet/favourite.js',
-    '___path.framework.dir___/js/livestreet/blocks.js',
-    '___path.framework.dir___/js/livestreet/pagination.js',
-    '___path.framework.dir___/js/livestreet/editor.js',
-    '___path.framework.dir___/js/livestreet/talk.js',
-    '___path.framework.dir___/js/livestreet/vote.js',
-    '___path.framework.dir___/js/livestreet/poll.js',
-    '___path.framework.dir___/js/livestreet/subscribe.js',
-    '___path.framework.dir___/js/livestreet/geo.js',
-    '___path.framework.dir___/js/livestreet/wall.js',
-    '___path.framework.dir___/js/livestreet/usernote.js',
-    '___path.framework.dir___/js/livestreet/comments.js',
-    '___path.framework.dir___/js/livestreet/blog.js',
-    '___path.framework.dir___/js/livestreet/user.js',
-    '___path.framework.dir___/js/livestreet/userfeed.js',
-    '___path.framework.dir___/js/livestreet/stream.js',
-    '___path.framework.dir___/js/livestreet/photoset.js',
-    '___path.framework.dir___/js/livestreet/toolbar.js',
-    '___path.framework.dir___/js/livestreet/settings.js',
-    '___path.framework.dir___/js/livestreet/topic.js',
-    '___path.framework.dir___/js/livestreet/admin.js',
-    '___path.framework.dir___/js/livestreet/admin.userfield.js',
-    '___path.framework.dir___/js/livestreet/captcha.js',
-    '___path.framework.dir___/js/livestreet/init.js',
+    '___path.frontend.dir___/libs/js/livestreet/favourite.js',
+    '___path.frontend.dir___/libs/js/livestreet/blocks.js',
+    '___path.frontend.dir___/libs/js/livestreet/pagination.js',
+    '___path.frontend.dir___/libs/js/livestreet/editor.js',
+    '___path.frontend.dir___/libs/js/livestreet/talk.js',
+    '___path.frontend.dir___/libs/js/livestreet/vote.js',
+    '___path.frontend.dir___/libs/js/livestreet/poll.js',
+    '___path.frontend.dir___/libs/js/livestreet/subscribe.js',
+    '___path.frontend.dir___/libs/js/livestreet/geo.js',
+    '___path.frontend.dir___/libs/js/livestreet/wall.js',
+    '___path.frontend.dir___/libs/js/livestreet/usernote.js',
+    '___path.frontend.dir___/libs/js/livestreet/comments.js',
+    '___path.frontend.dir___/libs/js/livestreet/blog.js',
+    '___path.frontend.dir___/libs/js/livestreet/user.js',
+    '___path.frontend.dir___/libs/js/livestreet/userfeed.js',
+    '___path.frontend.dir___/libs/js/livestreet/stream.js',
+    '___path.frontend.dir___/libs/js/livestreet/photoset.js',
+    '___path.frontend.dir___/libs/js/livestreet/toolbar.js',
+    '___path.frontend.dir___/libs/js/livestreet/settings.js',
+    '___path.frontend.dir___/libs/js/livestreet/topic.js',
+    '___path.frontend.dir___/libs/js/livestreet/admin.js',
+    '___path.frontend.dir___/libs/js/livestreet/admin.userfield.js',
+    '___path.frontend.dir___/libs/js/livestreet/captcha.js',
+    '___path.frontend.dir___/libs/js/livestreet/init.js',
 );
 
 //потенциально проблемные файлы выводим в футере
@@ -649,18 +651,18 @@ $config['footer']['default']['js'] = array(
 
 $config['head']['default']['css'] = array(
     // Framework styles
-    '___path.framework.dir___/css/reset.css',
-    '___path.framework.dir___/css/helpers.css',
-    '___path.framework.dir___/css/text.css',
-    '___path.framework.dir___/css/dropdowns.css',
-    '___path.framework.dir___/css/buttons.css',
-    '___path.framework.dir___/css/forms.css',
-    '___path.framework.dir___/css/navs.css',
-    '___path.framework.dir___/css/modals.css',
-    '___path.framework.dir___/css/tooltip.css',
-    '___path.framework.dir___/css/popover.css',
-    '___path.framework.dir___/css/alerts.css',
-    '___path.framework.dir___/css/toolbar.css'
+    '___path.frontend.dir___/libs/css/reset.css',
+    '___path.frontend.dir___/libs/css/helpers.css',
+    '___path.frontend.dir___/libs/css/text.css',
+    '___path.frontend.dir___/libs/css/dropdowns.css',
+    '___path.frontend.dir___/libs/css/buttons.css',
+    '___path.frontend.dir___/libs/css/forms.css',
+    '___path.frontend.dir___/libs/css/navs.css',
+    '___path.frontend.dir___/libs/css/modals.css',
+    '___path.frontend.dir___/libs/css/tooltip.css',
+    '___path.frontend.dir___/libs/css/popover.css',
+    '___path.frontend.dir___/libs/css/alerts.css',
+    '___path.frontend.dir___/libs/css/toolbar.css'
 );
 
 /**

@@ -95,6 +95,14 @@ input[type="text"] {
 	cursor: pointer;
 	background-repeat: no-repeat;
 	background-color: #eee;
+    border: 1px solid #ddd;
+    margin-right: 10px;
+}
+.form-input-captcha {
+    width: 90px;
+    height: 60px !important;
+    font-size: 42px;
+    color: #777;
 }
 
 /* КНОПКИ - временно (создать buttons.css в skin/native/assets/css) 

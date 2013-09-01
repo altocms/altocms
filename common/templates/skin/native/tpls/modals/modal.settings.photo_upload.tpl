@@ -4,7 +4,7 @@
  * @styles css/modals.css
  *}
 
-{extends file='modals/modal_base.tpl'}
+{extends file='modals/_base.tpl'}
 
 {block name='modal_id'}foto-resize{/block}
 {block name='modal_class'}modal-photo-resize js-modal-default{/block}

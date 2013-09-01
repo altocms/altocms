@@ -24,6 +24,7 @@ class HookMain extends Hook {
      * Регистрируем хуки
      */
     public function RegisterHook() {
+
         $this->AddHook('module_Session_init_after', 'SessionInitAfter', __CLASS__, PHP_INT_MAX);
         $this->AddHook('init_action', 'InitAction', __CLASS__, PHP_INT_MAX);
 
@@ -47,6 +48,7 @@ class HookMain extends Hook {
     }
 
     public function SessionInitAfter() {
+
         if (!Config::Get('_db_')) {
             Config::ReReadCustomConfig();
         }
@@ -77,10 +79,12 @@ class HookMain extends Hook {
     }
 
     public function insertfields() {
+
         return $this->Viewer_Fetch('topics/inject.topic.fields.tpl');
     }
 
     public function showfields($aVars) {
+
         $oTopic = $aVars['topic'];
         $bTopicList = $aVars['bTopicList'];
         $sReturn = '';
@@ -94,9 +98,9 @@ class HookMain extends Hook {
                         if ($oTopic->getField($oField->getFieldId()) || $oField->getFieldType() == 'photoset') {
                             $this->Viewer_Assign('oField', $oField);
                             $this->Viewer_Assign('oTopic', $oTopic);
-							if($this->Viewer_TemplateExists('forms/view_field_' . $oField->getFieldType() . '.tpl')){
-								$sReturn .= $this->Viewer_Fetch('forms/view_field_' . $oField->getFieldType() . '.tpl');
-							}
+                            if ($this->Viewer_TemplateExists('forms/view_field_' . $oField->getFieldType() . '.tpl')) {
+                                $sReturn .= $this->Viewer_Fetch('forms/view_field_' . $oField->getFieldType() . '.tpl');
+                            }
                         }
                     }
                 }

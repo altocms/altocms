@@ -186,8 +186,8 @@
 								</div>
 							{else}
 								{hook run='userbar_item'}
-								<a href="{router page='login'}" data-type="modal-toggle" data-option-target="modal-login" onclick="jQuery('[data-option-target=tab-pane-login]').tab('activate');">{$aLang.user_login_submit}</a> или
-								<a href="#" data-type="modal-toggle" data-option-target="modal-login" onclick="jQuery('[data-option-target=tab-pane-registration]').tab('activate');">{$aLang.registration_submit}</a>
+								<a href="#" data-toggle="modal" data-target="#modal-login" onclick="jQuery('[href=#tab-pane-login]').tab('show');">{$aLang.user_login_submit}</a> или
+								<a href="#" data-toggle="modal" data-target="#modal-login" onclick="jQuery('[href=#tab-pane-registration]').tab('show');">{$aLang.registration_submit}</a>
 							{/if}
 						</div>
 

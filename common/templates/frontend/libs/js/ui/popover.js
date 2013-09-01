@@ -1,8 +1,11 @@
 /**
  * Popover
  *
- * @version 1.0
- * @author Denis Shakhov <denis.shakhov@gmail.com>
+ * @module popover
+ * 
+ * @license   GNU General Public License, version 2
+ * @copyright 2013 OOO "ЛС-СОФТ" {@link http://livestreetcms.com}
+ * @author    Denis Shakhov <denis.shakhov@gmail.com>
  */
 
 var ls = ls || {};
@@ -14,7 +17,7 @@ var ls = ls || {};
     	this.init('popover', element, options);
   	};
 
-    Popover.prototype = $.extend({}, $.fn.popup.Constructor.prototype, {
+    Popover.prototype = $.extend({}, $.fn.over.Constructor.prototype, {
         constructor: Popover,
 
         hooks : {
@@ -42,12 +45,12 @@ var ls = ls || {};
     });
 
     $.fn.popover = function (options, variable, value) {
-        return ls.popup.initPlugin('popover', this, options, variable, value);
+        return ls.over.initPlugin('popover', this, options, variable, value);
     };
 
     $.fn.popover.Constructor = Popover;
 
-    $.fn.popover.defaults = $.extend({} , $.fn.popup.defaults, {
+    $.fn.popover.defaults = $.extend({} , $.fn.over.defaults, {
     	template: '<div class="popover" data-type="popover-target">' +
                        '<div class="popover-arrow"></div><div class="popover-arrow-inner"></div>' +
                        '<div class="popover-title" data-type="popover-title"></div>' +
@@ -60,7 +63,7 @@ var ls = ls || {};
         event: 'click'
     });
 
-    $.fn.popover.settings = $.extend({} , $.fn.popup.settings, { 
+    $.fn.popover.settings = $.extend({} , $.fn.over.settings, { 
         toggleSelector: '[data-type=popover-toggle]',
         targetSelector: '[data-type=popover-target]'
     });

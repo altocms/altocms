@@ -97,7 +97,7 @@
 .topic-footer .topic-tags li.topic-tags-edit   { margin-left: 20px; }
 .topic-footer .topic-tags li.topic-tags-user a { color: #3CA023; }
 
-.topic-footer .topic-info      { position: absolute; right: 0; top: 11px; overflow: hidden; background-color: #f9f9f9; padding-left: 10px; }
+.topic-footer .topic-info      { position: absolute; right: 0; top: 22px; overflow: hidden; background-color: #f9f9f9; padding-left: 10px; }
 .topic-footer .topic-info li   { float: left; }
 .topic-footer .topic-info li a { text-decoration: none; }
 .topic-footer .topic-info li .favourite { margin-left: 15px; }

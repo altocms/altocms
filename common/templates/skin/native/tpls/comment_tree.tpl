@@ -5,11 +5,11 @@
  *}
 
 {* Добавляем в тулбар кнопку обновления комментариев *}
-{add_block group='toolbar' name='toolbar/toolbar.comment.tpl'
-aPagingCmt=$aPagingCmt
-iTargetId=$iTargetId
-sTargetType=$sTargetType
-iMaxIdComment=$iMaxIdComment
+{wgroup_add name='toolbar' widget='toolbar.comment.tpl'
+    aPagingCmt=$aPagingCmt
+    iTargetId=$iTargetId
+    sTargetType=$sTargetType
+    iMaxIdComment=$iMaxIdComment
 }
 
 

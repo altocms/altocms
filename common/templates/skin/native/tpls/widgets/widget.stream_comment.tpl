@@ -12,7 +12,7 @@
             {$oTopic = $oComment->getTarget()}
             {$oBlog = $oTopic->getBlog()}
             <li class="js-title-comment"
-                title="{$oComment->getText()|strip_tags|trim|truncate:100:'...'|escape:'html'}">
+                data-content="{$oComment->getText()|strip_tags|trim|truncate:100:'...'|escape:'html'}">
 
                 <a href="{$oUser->getProfileUrl()}" class="author">{$oUser->getLogin()}</a> &rarr;
                 <a href="{if $oConfig->GetValue('module.comment.nested_per_page')}{router page='comments'}{else}{$oTopic->getUrl()}#comment{/if}{$oComment->getId()}">

@@ -266,14 +266,9 @@
 			</ul>
 
 			{* Всплывающий блок появляющийся при нажатии на кнопку Поделиться *}
-			<div class="popover" data-type="popover-target" id="topic_share_{$oTopic->getId()}">
-				<div class="popover-arrow"></div><div class="popover-arrow-inner"></div>
-				<div class="popover-content" data-type="popover-content">
 					{hookb run="topic_share" topic=$oTopic bTopicList=$bTopicList}
 						<div class="yashare-auto-init" data-yashareTitle="{$oTopic->getTitle()|escape:'html'}" data-yashareLink="{$oTopic->getUrl()}" data-yashareL10n="ru" data-yashareType="button" data-yashareQuickServices="yaru,vkontakte,facebook,twitter,odnoklassniki,moimir,lj,gplus"></div>
 					{/hookb}
-				</div>
-			</div>
 			{/if} <!-- /if bTopicList не показываем в списке теги и пр.-->
 
 			{if ! $bTopicList}
