@@ -156,6 +156,19 @@ class ModuleImg_EntityImage extends Entity {
         }
     }
 
+    public function SaveUpload($sFile) {
+
+        if ($oImage = $this->GetImage()) {
+            if ($sTmpFile = F::File_GetUploadDir() . F::RandomStr() . '.' . pathinfo($sFile, PATHINFO_EXTENSION)) {
+                $oImage->save($sTmpFile);
+                if ($this->Upload_Move($sTmpFile, $sFile)) {
+                    return $sFile;
+                }
+            }
+        }
+        return false;
+    }
+
     public function Render($sImageFormat = null) {
 
         if ($oImage = $this->GetImage()) {

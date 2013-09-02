@@ -333,6 +333,9 @@ class ModuleImg extends Module {
             list($nW, $nH) = explode('x', $aMatches[2]);
             return $this->Copy($sOriginal, $sFile, $nW, $nH, false);
         }
+        if (!F::File_Exists($sFile)) {
+            return false;
+        }
         if (!$this->nError) {
             return $sFile;
         }

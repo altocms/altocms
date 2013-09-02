@@ -486,11 +486,13 @@ class ModuleUser_EntityUser extends Entity {
                 return $sPath . '-' . $nSize . 'x' . $nSize . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
             }
         } else {
-            $sPath = Config::Get('path.static.assets') . '/images/avatars/avatar_'
-                . ($this->getProfileSex() == 'woman' ? 'female' : 'male') . '.png';
-            $s1 = 1;
-            return Config::Get('path.static.assets') . '/images/avatars/avatar_' . ($this->getProfileSex() == 'woman'
-                ? 'female' : 'male') . '_' . $nSize . 'x' . $nSize . '.png';
+            $sPath = $this->Upload_GetUserAvatarDir(0)
+                . 'avatar_' . Config::Get('view.skin') . '_' . ($this->getProfileSex() == 'woman' ? 'female' : 'male')
+                . '.png';
+            if ($nSize) {
+                $sPath .= '-' . $nSize . 'x' . $nSize . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
+            }
+            return $this->Upload_Dir2Url($sPath);
         }
     }
 
