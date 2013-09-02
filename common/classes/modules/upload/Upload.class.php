@@ -38,9 +38,19 @@ class ModuleUpload extends Module {
 
     protected $nLastError = 0;
     protected $sLastError = '';
+    protected $aModConfig = array();
+
 
     public function Init() {
 
+        $this->aModConfig = Config::Get('module.upload');
+        $this->aModConfig['file_extensions'] = array_merge($this->aModConfig['file_extensions'], (array)Config::Get('module.topic.upload_mime_types'));
+        $nLimit = F::MemSize2Int(Config::Get('module.topic.max_filesize_limit'));
+        if ($nLimit && $nLimit < $this->aModConfig['max_filesize']) {
+            $this->aModConfig['max_filesize'] = $nLimit;
+        }
+        $this->aModConfig['img_max_width'] = Config::Get('view.img_max_width');
+        $this->aModConfig['img_max_height'] = Config::Get('view.img_max_height');
     }
 
     protected function _resetError() {
@@ -75,6 +85,33 @@ class ModuleUpload extends Module {
         return $this->sLastError;
     }
 
+    protected function _checkUploadedFile($sFile) {
+
+        $sExtension = strtolower(pathinfo($sFile, PATHINFO_EXTENSION));
+        // Check allow extensions
+        if ($this->aModConfig['file_extensions']
+            && !in_array($sExtension, $this->aModConfig['file_extensions'])) {
+            return false;
+        }
+        // Check filesize
+        if ($this->aModConfig['max_filesize'] && filesize($sFile) > $this->aModConfig['max_filesize']) {
+            return false;
+        }
+        // Check images
+        if (in_array($sExtension, array('gif', 'png', 'jpg', 'jpeg'))) {
+            $oImg = $this->Img_Read($sFile);
+            if ($oImg) {
+                if ($this->aModConfig['img_max_width'] && $this->aModConfig['img_max_width'] < $oImg->GetWidth()) {
+                    return false;
+                }
+                if ($this->aModConfig['img_max_height'] && $this->aModConfig['img_max_height'] < $oImg->GetHeight()) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     /**
      * Upload file from client via HTTP POST
      *
@@ -95,10 +132,14 @@ class ModuleUpload extends Module {
                         $sTmpFile = F::RandomStr() . '.' . pathinfo($aFile['name'], PATHINFO_EXTENSION);
                     }
                     if ($sTmpFile = F::File_MoveUploadedFile($aFile['tmp_name'], $sTmpFile)) {
-                        if ($sDir) {
-                            $sTmpFile = $this->MoveTmpFile($sTmpFile, $sDir);
+                        if ($this->_checkUploadedFile($sTmpFile)) {
+                            if ($sDir) {
+                                $sTmpFile = $this->MoveTmpFile($sTmpFile, $sDir);
+                            }
+                            return $sTmpFile;
+                        } else {
+                            // TODO: Определить ошибку
                         }
-                        return $sTmpFile;
                     }
                 } else {
                     // Файл не был загружен при помощи HTTP POST
@@ -174,7 +215,12 @@ class ModuleUpload extends Module {
                 return false;
             }
         }
-        return $this->MoveTmpFile($sTmpFile, $sDir);
+        if ($this->_checkUploadedFile($sTmpFile)) {
+            return $this->MoveTmpFile($sTmpFile, $sDir);
+        } else {
+            // TODO: Определить ошибку
+        }
+        return false;
     }
 
     /**
