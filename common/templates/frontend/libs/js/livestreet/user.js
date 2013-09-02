@@ -244,6 +244,9 @@ ls.user = (function ($) {
 			$element.find(options.selectors.input_file).on('change', function () {
 				self.currentElements = elements;
 				self.currentOptions = options;
+                if ($(this).data('resize-form')) {
+                    options.resizeForm = $(this).data('resize-form');
+                }
 				self.ajaxUploadImage(null, $(this), options);
 			});
 
@@ -286,18 +289,21 @@ ls.user = (function ($) {
 
 		this.jcropImage && this.jcropImage.destroy();
 
-		$('.js-image-crop').attr('src', sImgFile + '?' + Math.random()).css({
-			'width': 'auto',
-			'height': 'auto'
-		});
-
-		if ($('#modal-image-crop').length)
-			$('#modal-image-crop').modal('show');
+        if (!options.resizeForm) {
+            options.resizeForm = '#modal-image-crop';
+        }
+		if ($(options.resizeForm).length)
+			$(options.resizeForm).modal('show');
 		else {
-			ls.debug('Error [Ajax Image Upload]:\nМодальное окно ресайза изображения не найдено');
+			ls.debug('Error [Ajax Image Upload]:\nModal window of image resizing not found');
 		}
+        var imageCrop = $(options.resizeForm).find('.js-image-crop');
+        $(imageCrop).attr('src', sImgFile + '?' + Math.random()).css({
+            'width': 'auto',
+            'height': 'auto'
+        });
 
-		$('.js-image-crop').Jcrop(options.cropOptions, function () {
+        $(imageCrop).Jcrop(options.cropOptions, function () {
 			self.jcropImage = this;
 			this.setSelect([0, 0, 500, 500]);
 		});
@@ -322,54 +328,69 @@ ls.user = (function ($) {
 		});
 	};
 
-	/**
-	 * Отмена ресайза аватарки, подчищаем временный данные
-	 */
-	this.ajaxUploadImageCropCancel = function() {
-		ls.hook.marker('cancelAvatarBefore');
+    /**
+     * Отмена ресайза аватарки, подчищаем временный данные
+     */
+    this.ajaxUploadImageCropCancel = function (button) {
+        ls.hook.marker('cancelAvatarBefore');
 
-		ls.ajax(this.currentOptions.urls.cancel, {}, function(result) {
-			if (result.bStateError) {
-				ls.msg.error(null,result.sMsg);
-			} else {
-				$('#modal-image-crop').modal('hide');
-				ls.hook.run('ls_user_cancel_avatar_after', [result]);
-			}
-		});
-	};
+        var button = $(button);
+        var modal = button.parents('.modal').first();
+        if (!modal.length) {
+            modal = $('#modal-image-crop');
+        }
+        button.addClass('loading');
+        ls.ajax(this.currentOptions.urls.cancel, {}, function (result) {
+            if (result.bStateError) {
+                ls.msg.error(null, result.sMsg);
+            } else {
+                $(modal).modal('hide');
+                ls.hook.run('ls_user_cancel_avatar_after', [result]);
+            }
+            button.removeClass('loading');
+        });
+    };
 
-	/**
-	 * Выполняет ресайз аватарки
-	 */
-	this.ajaxUploadImageCropSubmit = function() {
-		var self = this;
+    /**
+     * Выполняет ресайз аватарки
+     */
+    this.ajaxUploadImageCropSubmit = function (button) {
+        var self = this;
 
-		if ( ! this.jcropImage ) {
-			return false;
-		}
+        if (!this.jcropImage) {
+            return false;
+        }
 
-		var params = {
-			size: this.jcropImage.tellSelect()
-		};
+        var params = {
+            size: this.jcropImage.tellSelect()
+        };
 
-		ls.hook.marker('resizeAvatarBefore');
+        ls.hook.marker('resizeAvatarBefore');
 
-		ls.ajax(self.currentOptions.urls.crop, params, function(result) {
-			if (result.bStateError) {
-				ls.msg.error(null,result.sMsg);
-			} else {
-				self.currentElements.image.attr('src',result.sFile+'?'+Math.random());
-				$('#modal-image-crop').modal('hide');
-				self.currentElements.remove_button.show();
-				self.currentElements.choose_button.text(result.sTitleUpload);
+        var button = $(button);
+        var modal = button.parents('.modal').first();
+        if (!modal.length) {
+            modal = $('#modal-image-crop');
+        }
+        button.addClass('loading');
+        ls.ajax(self.currentOptions.urls.crop, params, function (result) {
+            if (result.bStateError) {
+                ls.msg.error(null, result.sMsg);
+            } else {
+                $('<img src="' + result.sFile + '?' + Math.random() + '" />');
+                self.currentElements.image.attr('src', result.sFile + '?' + Math.random());
+                $(modal).modal('hide');
+                self.currentElements.remove_button.show();
+                self.currentElements.choose_button.text(result.sTitleUpload);
 
-				ls.hook.run('ls_user_resize_avatar_after', [params, result]);
-			}
-		});
+                ls.hook.run('ls_user_resize_avatar_after', [params, result]);
+            }
+            button.removeClass('loading');
+        });
 
-		return false;
-	};
+        return false;
+    };
 
 
-	return this;
+    return this;
 }).call(ls.user || {},jQuery);

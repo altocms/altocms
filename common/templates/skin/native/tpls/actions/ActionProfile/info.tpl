@@ -7,7 +7,7 @@
 
 {extends file='[layouts]layout.user.tpl'}
 
-{block name='layout_options'}
+{block name='layout_options' append}
     {$oSession = $oUserProfile->getSession()}
     {$oGeoTarget = $oUserProfile->getGeoTarget()}
 {/block}

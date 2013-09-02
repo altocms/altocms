@@ -42,6 +42,29 @@ class ModuleImg_EntityImage extends Entity {
         return $nColor;
     }
 
+    public function GetMime() {
+
+        $sMime = $this->getProp('mime');
+        if (!$sMime && ($sFormat = $this->GetFormat())) {
+            $sMime = 'image/' . $sFormat;
+        }
+        return $sMime;
+    }
+
+    public function GetFormat() {
+
+        $sMime = $this->getProp('mime');
+        if ($sMime) {
+            list(, $sFormat) = explode('/', $sMime);
+        } elseif ($sFile = $this->GetFilename()) {
+            $sFormat = strtolower(pathinfo($sFile, PATHINFO_EXTENSION));
+            if ($sFormat == 'jpg') {
+                $sFormat = 'jpeg';
+            }
+        }
+        return $sFormat;
+    }
+
     /**
      * Creates new image
      *
@@ -73,6 +96,7 @@ class ModuleImg_EntityImage extends Entity {
                 $this->SetHeight($aSize[1]);
                 $this->SetMime($aSize['mime']);
                 $this->SetInfo($aImageInfo);
+                $this->SetFilename($sFile);
             }
         }
         return $this;
@@ -129,6 +153,17 @@ class ModuleImg_EntityImage extends Entity {
         if ($oImage = $this->GetImage()) {
             $oImage->save($sFile);
             return $sFile;
+        }
+    }
+
+    public function Render($sImageFormat = null) {
+
+        if ($oImage = $this->GetImage()) {
+            if ($sImageFormat) {
+                $oImage->render($sImageFormat);
+            } else {
+                $oImage->render();
+            }
         }
     }
 

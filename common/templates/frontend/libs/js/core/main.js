@@ -483,7 +483,8 @@ ls = (function ($) {
 	            	form.find('[type=submit]').prop('disabled', false).removeClass('loading');
 	                ls.msg.error(null, result.sMsg);
 
-	                more.warning(result, status, xhr, form);
+                    if (more && more.warning)
+	                    more.warning(result, status, xhr, form);
 	            } else {
 	                if (result.sMsg) {
 	                    form.find('[type=submit]').prop('disabled', false).removeClass('loading');

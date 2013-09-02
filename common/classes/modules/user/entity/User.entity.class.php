@@ -471,25 +471,26 @@ class ModuleUser_EntityUser extends Entity {
     }
 
     /**
-     * Возвращает полный веб путь до аватара нужного размера
+     * Возвращает полный URL до аватары нужного размера
      *
-     * @param   int $iSize    Размер
+     * @param   int $nSize    Размер
      *
      * @return  string
      */
-    public function getAvatarUrl($iSize = 100) {
+    public function getAvatarUrl($nSize = null) {
 
         if ($sPath = $this->getProfileAvatar()) {
-            return str_replace(
-                '_100x100', (($iSize == 0) ? "" : "_{$iSize}x{$iSize}"),
-                $sPath . "?" . date('His', strtotime($this->getProfileDate()))
-            );
+            if (!$nSize) {
+                return $sPath;
+            } else {
+                return $sPath . '-' . $nSize . 'x' . $nSize . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
+            }
         } else {
             $sPath = Config::Get('path.static.assets') . '/images/avatars/avatar_'
                 . ($this->getProfileSex() == 'woman' ? 'female' : 'male') . '.png';
             $s1 = 1;
             return Config::Get('path.static.assets') . '/images/avatars/avatar_' . ($this->getProfileSex() == 'woman'
-                ? 'female' : 'male') . '_' . $iSize . 'x' . $iSize . '.png';
+                ? 'female' : 'male') . '_' . $nSize . 'x' . $nSize . '.png';
         }
     }
 

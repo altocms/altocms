@@ -17,18 +17,17 @@
 
 	<div class="profile">
 		{hook run='profile_top_begin' oUserProfile=$oUserProfile}
-		
-		<a href="{$oUserProfile->getProfileUrl()}"><img src="{$oUserProfile->getAvatarUrl(100)}" alt="avatar" class="avatar" itemprop="photo" /></a>
-		
+
+        <img src="{$oUserProfile->getAvatarUrl(100)}" alt="avatar" class="avatar" itemprop="photo" />
+
 		<ul>
 			<li class="profile-name">
-				
+
 				{if $oUserProfile->getProfileName()}
 					<h2 itemprop="name">{$oUserProfile->getProfileName()|escape:'html'}</h2>
 				{/if}
 				<p itemprop="nickname" class="{if !$oUserProfile->getProfileName()}no-profile-name{/if}">{$oUserProfile->getLogin()} {if $oUserProfile->isOnline()}<span class="profile-online"></span>{/if}</p>
-				
-				
+
 			</li>
 			<li>
 				<div data-vote-type="user"
@@ -62,10 +61,9 @@
 				{$iCountCommentUser|declension:$aLang.comment_declension:'russian'}
 			</li>
 		</ul>
-		
+
 		{hook run='profile_top_end' oUserProfile=$oUserProfile}
 	</div>
-	
 
 	<ul class="nav nav-folding">
 		{hook run='profile_sidebar_menu_item_first' oUserProfile=$oUserProfile}
@@ -76,12 +74,12 @@
 		<li {if $sAction=='profile' && $aParams[0]=='favourites'}class="active"{/if}><a href="{$oUserProfile->getProfileUrl()}favourites/topics/">{$aLang.user_menu_profile_favourites}{if ($iCountFavourite)>0} <span class="nav-count">{$iCountFavourite}</span>{/if}</a></li>
 		<li {if $sAction=='profile' && $aParams[0]=='friends'}class="active"{/if}><a href="{$oUserProfile->getProfileUrl()}friends/">{$aLang.user_menu_profile_friends}{if ($iCountFriendsUser)>0} <span class="nav-count">{$iCountFriendsUser}</span>{/if}</a></li>
 		<!-- <li {if $sAction=='profile' && $aParams[0]=='stream'}class="active"{/if}><a href="{$oUserProfile->getProfileUrl()}stream/">{$aLang.user_menu_profile_stream}</a></li>
-		
+
 		{if $oUserCurrent and $oUserCurrent->getId() == $oUserProfile->getId()}
 			<li {if $sAction=='talk'}class="active"{/if}><a href="{router page='talk'}">{$aLang.talk_menu_inbox}{if $iUserCurrentCountTalkNew} ({$iUserCurrentCountTalkNew}){/if}</a></li>
 			<li {if $sAction=='settings'}class="active"{/if}><a href="{router page='settings'}">{$aLang.settings_menu}</a></li>
 		{/if} -->
-		
+
 		{hook run='profile_sidebar_menu_item_last' oUserProfile=$oUserProfile}
 	</ul>
 {/block}

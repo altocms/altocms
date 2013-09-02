@@ -26,6 +26,11 @@ class ModuleImg extends Module {
 
     }
 
+    /**
+     * Info about all drivers
+     *
+     * @return array
+     */
     public function GetDriversInfo() {
 
         $aInfo = array();
@@ -38,6 +43,13 @@ class ModuleImg extends Module {
         return $aInfo;
     }
 
+    /**
+     * Info about driver's version
+     *
+     * @param $sDriver
+     *
+     * @return bool
+     */
     public function GetDriverVersion($sDriver) {
 
         $sVersion = false;
@@ -71,6 +83,64 @@ class ModuleImg extends Module {
         }
         return $sVersion;
     }
+
+    /**
+     * Returns driver name by key
+     *
+     * @param null $sConfigKey
+     *
+     * @return string
+     */
+    public function GetDriver($sConfigKey = null) {
+
+        $aParams = $this->GetParams($sConfigKey);
+        if (!isset($aParams['driver'])) {
+            $sDriver = strtolower($aParams['driver']);
+        } else {
+            $sDriver = strtolower($this->sDefaultDriver);
+        }
+        if (isset($this->aDrivers[$sDriver])) {
+            return $this->aDrivers[$sDriver];
+        }
+        return $this->sDefaultDriver;
+    }
+
+    public function SetConfig($sConfigKey) {
+
+        if (Config::Get('images.settings.' . $sConfigKey)) {
+            $this->sConfig = $sConfigKey;
+        }
+    }
+
+    public function GetConfigKey() {
+
+        return $this->sConfig;
+    }
+
+    public function LoadParams($sConfigKey) {
+
+        $aParams = Config::Get('default');
+        if ($sConfigKey != 'default') {
+            $aParams = F::Array_Merge($aParams, Config::Get($sConfigKey));
+        }
+        return $aParams;
+    }
+
+    public function GetParams($sConfigKey = null) {
+
+        if (!$sConfigKey) {
+            $sConfigKey = $this->GetConfigKey();
+        }
+        if (!Config::Get('images.settings.' . $sConfigKey)) {
+            $sConfigKey = 'default';
+        }
+        return $this->LoadParams($sConfigKey);
+    }
+
+    /* ********************************************************************************
+     * Image manipulations
+     *
+     */
 
     /**
      * Creates image
@@ -113,77 +183,55 @@ class ModuleImg extends Module {
         return $oImage;
     }
 
-    public function SetConfig($sConfigKey) {
-
-        if (Config::Get('images.settings.' . $sConfigKey)) {
-            $this->sConfig = $sConfigKey;
-        }
-    }
-
-    public function GetConfigKey() {
-
-        return $this->sConfig;
-    }
-
-    public function GetDriver($sConfigKey = null) {
-
-        $aParams = $this->GetParams($sConfigKey);
-        if (!isset($aParams['driver'])) {
-            $sDriver = strtolower($aParams['driver']);
-        } else {
-            $sDriver = strtolower($this->sDefaultDriver);
-        }
-        if (isset($this->aDrivers[$sDriver])) {
-            return $this->aDrivers[$sDriver];
-        }
-        return $this->sDefaultDriver;
-    }
-
-    public function LoadParams($sConfigKey) {
-
-        $aParams = Config::Get('default');
-        if ($sConfigKey != 'default') {
-            $aParams = F::Array_Merge($aParams, Config::Get($sConfigKey));
-        }
-        return $aParams;
-    }
-
-    public function GetParams($sConfigKey = null) {
-
-        if (!$sConfigKey) {
-            $sConfigKey = $this->GetConfigKey();
-        }
-        if (!Config::Get('images.settings.' . $sConfigKey)) {
-            $sConfigKey = 'default';
-        }
-        return $this->LoadParams($sConfigKey);
-    }
-
     /**
-     * Duplicates image file with other size
+     * @param string|object $xImage
+     * @param null          $nWidth
+     * @param null          $nHeight
+     * @param bool          $bFit     - вписывать новое изображение в заданные рамки
      *
-     * @param $sFile
-     *
-     * @return mixed
+     * @return \PHPixie\Image
      */
-    public function Duplicate($sFile) {
+    public function Resize($xImage, $nWidth = null, $nHeight = null, $bFit = true) {
 
-        $this->nError = 0;
-        if (preg_match('~^(.+)-(\d+x\d+)\.[a-z]+$~i', $sFile, $aMatches)) {
-            $sOriginal = $aMatches[1];
-            list($nW, $nH) = explode('x', $aMatches[2]);
-            try {
-                if (F::File_Exists($sOriginal) && ($oImg = $this->Read($sOriginal))) {
-                    $oImg->Resize($nW, $nH, false);
-                    $oImg->save($sFile);
-                }
-            } catch(ErrorException $oE) {
-                $this->nError = -1;
-            }
+        if (!$xImage || (!$nWidth && !$nHeight)) {
+            return false;
         }
-        if (!$this->nError) {
-            return $sFile;
+        if (!is_object($xImage)) {
+            $oImg = $this->Read($xImage);
+        } else {
+            $oImg = $xImage;
         }
+        return $oImg->resize($nWidth, $nHeight, $bFit);
+    }
+
+    public function Crop($xImage, $nWidth, $nHeight = null, $nPosX = null, $nPosY = null) {
+
+        if (!$xImage) {
+            return false;
+        }
+        if (!is_object($xImage)) {
+            $oImg = $this->Read($xImage);
+        } else {
+            $oImg = $xImage;
+        }
+        $nW = $oImg->getWidth();
+        $nH = $oImg->getHeight();
+
+        if ($nW < $nWidth) {
+            $nWidth = $nW;
+        }
+
+        if ($nH < $nHeight) {
+            $nHeight = $nH;
+        }
+
+        if ($nHeight == $nH && $nWidth == $nW) {
+            return $oImg;
+        }
+
+        $oImg->crop($nWidth, $nHeight, $nPosX, $nPosY);
+
+        return $oImg;
     }
 
     /**
@@ -271,16 +319,106 @@ class ModuleImg extends Module {
     }
 
     /**
-     * Renders image from file to browser
+     * Duplicates image file with other sizes
      *
      * @param $sFile
      *
+     * @return string|bool
+     */
+    public function Duplicate($sFile) {
+
+        $this->nError = 0;
+        if (preg_match('~^(.+)-(\d+x\d+)\.[a-z]+$~i', $sFile, $aMatches)) {
+            $sOriginal = $aMatches[1];
+            list($nW, $nH) = explode('x', $aMatches[2]);
+            return $this->Copy($sOriginal, $sFile, $nW, $nH, false);
+        }
+        if (!$this->nError) {
+            return $sFile;
+        }
+    }
+
+    /**
+     * Copy image file with other sizes
+     *
+     * @param string $sFile        - full path of source image file
+     * @param string $sDestination - full path or newname only
+     * @param int    $nWidth       - new width
+     * @param int    $nHeight      - new height
+     * @param bool   $bFit         - to fit image's sizes into new sizes
+     *
+     * @return string|bool
+     */
+    public function Copy($sFile, $sDestination, $nWidth = null, $nHeight = null, $bFit = true) {
+
+        if (basename($sDestination) == $sDestination) {
+            $sDestination = dirname($sFile) . '/' . $sDestination;
+        }
+        try {
+            if (F::File_Exists($sFile) && ($oImg = $this->Read($sFile))) {
+                $oImg->Resize($nWidth, $nHeight, $bFit);
+                $oImg->save($sDestination);
+                return $sDestination;
+            }
+        } catch(ErrorException $oE) {
+            $this->nError = -1;
+        }
+    }
+
+    /**
+     * Rename image file and set new sizes
+     *
+     * @param string $sFile        - full path of source image file
+     * @param string $sDestination - full path or newname only
+     * @param int    $nWidth       - new width
+     * @param int    $nHeight      - new height
+     * @param bool   $bFit         - to fit image's sizes into new sizes
+     *
+     * @return string|bool
+     */
+    public function Rename($sFile, $sDestination, $nWidth = null, $nHeight = null, $bFit = true) {
+
+        if ($sDestination = $this->Copy($sFile, $sDestination, $nWidth, $nHeight, $bFit)) {
+            F::File_Delete($sFile);
+            return $sDestination;
+        }
+    }
+
+    /**
+     * Set new image's sises and save to source file
+     *
+     * @param string $sFile        - full path of source image file
+     * @param int    $nWidth       - new width
+     * @param int    $nHeight      - new height
+     * @param bool   $bFit         - to fit image's sizes into new sizes
+     *
+     * @return string|bool
+     */
+    public function ResizeFile($sFile, $nWidth = null, $nHeight = null, $bFit = true) {
+
+        if ($sDestination = $this->Copy($sFile, basename($sFile), $nWidth, $nHeight, $bFit)) {
+            return $sDestination;
+        }
+    }
+
+    /**
+     * Renders image from file to browser
+     *
+     * @param $sFile
+     * @param $sImageFormat
+     *
      * @return bool
      */
-    public function Render($sFile) {
+    public function RenderFile($sFile, $sImageFormat = null) {
 
         if ($oImg = $this->Read($sFile)) {
-            $oImg->render();
+            if (!$sImageFormat) {
+                $sImageFormat = $oImg->GetFormat();
+                if (!in_array($sImageFormat, array('jpeg', 'png', 'gif'))) {
+                    $sImageFormat = null;
+                }
+            }
+            $oImg->Render($sImageFormat);
             return true;
         }
     }
@@ -294,7 +432,7 @@ class ModuleImg extends Module {
      */
     public function Delete($sFile) {
 
-        return F::File_Delete($sFile) && F::File_DeleteAs($sFile) . '-*.*';
+        return F::File_Delete($sFile) && F::File_DeleteAs($sFile . '-*.*');
     }
 
 }

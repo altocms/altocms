@@ -39,7 +39,8 @@ class ActionImg extends Action {
             if (headers_sent()) {
                 Router::Location($sUrl);
             } else {
-                $this->Img_Render($sFile);
+                header_remove();
+                $this->Img_RenderFile($sFile);
                 exit;
             }
         }

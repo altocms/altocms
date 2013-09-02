@@ -490,8 +490,9 @@ class AltoFunc_File {
     static public function Copy($sSource, $sTarget, $bRewrite = false) {
 
         if (F::File_Exists($sTarget) && !$bRewrite) {
-            $bResult = true;
-        } elseif (F::File_Exists($sSource) && F::File_CheckDir(dirname($sTarget))) {
+            return false;
+        }
+        if (F::File_Exists($sSource) && F::File_CheckDir(dirname($sTarget))) {
             $bResult = @copy($sSource, $sTarget);
             if (!$bResult) {
                 F::SysWarning('Can not copy file from "' . $sSource . '" to "' . $sTarget . '"');
@@ -559,7 +560,8 @@ class AltoFunc_File {
     static public function Move($sSource, $sTarget, $bRewrite = false) {
 
         if (static::Copy($sSource, $sTarget, $bRewrite)) {
-            return static::Delete($sSource);
+            static::Delete($sSource);
+            return $sTarget;
         }
         return false;
     }
@@ -626,12 +628,16 @@ class AltoFunc_File {
      * Разбирает полный путь файла
      * В отличии от стандартной функции pathinfo() выделяет GET-параметры и очищает от них имя и расширение файла
      *
-     * @param string $sPath
+     * @param string     $sPath
+     * @param string|int $xOptions
      *
      * @return array
      */
-    static public function PathInfo($sPath) {
+    static public function PathInfo($sPath, $xOptions = null) {
 
+        if (is_numeric($xOptions)) {
+            return pathinfo($sPath, $xOptions);
+        }
         $aResult = array_merge(
             array(
                  'dirname'   => '',
@@ -665,7 +671,9 @@ class AltoFunc_File {
             ),
             $aResult
         );
-
+        if ($xOptions) {
+            return isset($aResult[$xOptions]) ? $aResult[$xOptions] : '';
+        }
         return $aResult;
     }
 
@@ -835,10 +843,15 @@ class AltoFunc_File {
         } elseif (substr($sFileName, -1) == '/') {
             $sFileName .= basename($sUploadedFile);
         }
-        $sTmpFile = Config::Get('sys.cache.dir') . $sFileName;
+        $sTmpFile = static::GetUploadDir() . $sFileName;
         if (static::CheckDir(dirname($sTmpFile)) && move_uploaded_file($sUploadedFile, $sTmpFile)) {
             return $sTmpFile;
         }
+    }
+
+    static public function GetUploadDir() {
+
+        return static::NormPath(Config::Get('sys.cache.dir') . '/uploads/');
     }
 
 }

@@ -78,17 +78,22 @@ class ModuleUpload extends Module {
     /**
      * Upload file from client via HTTP POST
      *
-     * @param string      $aFile
-     * @param string|null $sDir
+     * @param string $aFile
+     * @param string $sDir
+     * @param bool   $bOriginalName
      *
      * @return bool|string
      */
-    public function UploadLocal($aFile, $sDir = null) {
+    public function UploadLocal($aFile, $sDir = null, $bOriginalName = false) {
 
-        if (is_array($aFile) && isset($aFile['tmp_name'])) {
+        if (is_array($aFile) && isset($aFile['tmp_name']) && isset($aFile['name'])) {
             if ($aFile['error'] === UPLOAD_ERR_OK) {
                 if (is_uploaded_file($aFile['tmp_name'])) {
-                    $sTmpFile = Config::Get('sys.cache.dir') . F::RandomStr();
+                    if ($bOriginalName) {
+                        $sTmpFile = $aFile['name'];
+                    } else {
+                        $sTmpFile = F::RandomStr() . '.' . pathinfo($aFile['name'], PATHINFO_EXTENSION);
+                    }
                     if ($sTmpFile = F::File_MoveUploadedFile($aFile['tmp_name'], $sTmpFile)) {
                         if ($sDir) {
                             $sTmpFile = $this->MoveTmpFile($sTmpFile, $sDir);
@@ -184,12 +189,40 @@ class ModuleUpload extends Module {
 
     /**
      * @param $sFilePath
+     * @param $sDestination
+     * @param $bRewrite
+     *
+     * @return mixed
+     */
+    public function Move($sFilePath, $sDestination, $bRewrite = true) {
+
+        return F::File_Move($sFilePath, $sDestination, $bRewrite);
+    }
+
+    /**
+     * @param $sFilePath
+     * @param $sDestination
+     *
+     * @return mixed
+     */
+    public function Copy($sFilePath, $sDestination) {
+
+        return F::File_Copy($sFilePath, $sDestination);
+    }
+
+    /**
+     * @param $sFilePath
      *
      * @return mixed
      */
     public function Delete($sFilePath) {
 
         return F::File_Delete($sFilePath);
+    }
+
+    public function DeleteAs($sFilePattern) {
+
+        return F::File_DeleteAs($sFilePattern);
     }
 
     /**
@@ -199,7 +232,7 @@ class ModuleUpload extends Module {
      */
     public function Dir2Url($sFilePath) {
 
-        return F::File_Dir2($sFilePath);
+        return F::File_Dir2Url($sFilePath);
     }
 
     /**
@@ -210,6 +243,60 @@ class ModuleUpload extends Module {
     public function Url2Dir($sUrl) {
 
         return F::File_Url2Dir($sUrl);
+    }
+
+    /**
+     * Path to user's upload dir
+     *
+     * @param int  $nUserId
+     * @param bool $bAutoMake
+     *
+     * @return string
+     */
+    public function GetUserUploadDir($nUserId, $bAutoMake = true) {
+
+        $nMaxLen = 6;
+        $nSplitLen = 2;
+        $sPath = join('/', str_split(str_pad($nUserId, $nMaxLen, '0', STR_PAD_LEFT), $nSplitLen));
+        $sResult = F::File_NormPath(F::File_RootDir() . Config::Get('path.uploads.images') . $sPath . '/');
+        if ($bAutoMake) {
+            F::File_CheckDir($sResult, $bAutoMake);
+        }
+        return $sResult;
+    }
+
+    /**
+     * Path to user's dir for avatars
+     *
+     * @param int  $nUserId
+     * @param bool $bAutoMake
+     *
+     * @return string
+     */
+    public function GetUserAvatarDir($nUserId, $bAutoMake = true) {
+
+        $sResult = $this->GetUserUploadDir($nUserId) . 'avatar/';
+        if ($bAutoMake) {
+            F::File_CheckDir($sResult, $bAutoMake);
+        }
+        return $sResult;
+    }
+
+    /**
+     * Path to user's dir for uploaded images
+     *
+     * @param int  $nUserId
+     * @param bool $bAutoMake
+     *
+     * @return string
+     */
+    public function GetUserImageDir($nUserId, $bAutoMake = true) {
+
+        $sResult = $this->GetUserUploadDir($nUserId) . date('Y/m/d/');
+        if ($bAutoMake) {
+            F::File_CheckDir($sResult, $bAutoMake);
+        }
+        return $sResult;
     }
 
 }

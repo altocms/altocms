@@ -1306,129 +1306,56 @@ class ModuleUser extends Module {
     /**
      * Загрузка аватара пользователя
      *
-     * @param  string                $sFileTmp    Серверный путь до временного аватара
-     * @param  ModuleUser_EntityUser $oUser       Объект пользователя
-     * @param  array                 $aSize       Размер области из которой нужно вырезать картинку - array('x1'=>0,'y1'=>0,'x2'=>100,'y2'=>100)
+     * @param  string                $sFile - Серверный путь до оригинального файла с аватарой
+     * @param  ModuleUser_EntityUser $oUser - Объект пользователя
+     * @param  array                 $aSize - Размер области из которой нужно вырезать картинку - array('x1'=>0,'y1'=>0,'x2'=>100,'y2'=>100)
      *
      * @return string|bool
      */
-    public function UploadAvatar($sFileTmp, $oUser, $aSize = array()) {
+    public function UploadAvatar($sFile, $oUser, $aSize = array()) {
 
-        if (!file_exists($sFileTmp)) {
+        if (!F::File_Exists($sFile)) {
             return false;
         }
-        $sPath = $this->Image_GetIdDir($oUser->getId());
-        $aParams = $this->Image_BuildParams('avatar');
-
-        /**
-         * Срезаем квадрат
-         */
-        $oImage = $this->Image_CreateImageObject($sFileTmp);
-        /**
-         * Если объект изображения не создан,
-         * возвращаем ошибку
-         */
-        if ($sError = $oImage->get_last_error()) {
-            // Вывод сообщения об ошибки, произошедшей при создании объекта изображения
-            // $this->Message_AddError($sError,$this->Lang_Get('error'));
-            @unlink($sFileTmp);
-            return false;
-        }
-
         if (!$aSize) {
-            $oImage = $this->Image_CropSquare($oImage);
-            $oImage->set_jpg_quality($aParams['jpg_quality']);
-            $oImage->output(null, $sFileTmp);
+            $oImg = $this->Img_CropSquare($sFile, true);
         } else {
-            $iWSource = $oImage->get_image_params('width');
-            $iHSource = $oImage->get_image_params('height');
-            $x1 = $x2 = $y1 = $y2 = 0; // инициализация переменных
-            /**
-             * Достаем переменные x1 и т.п. из $aSize
-             */
-            extract($aSize /*,EXTR_PREFIX_SAME,'ops'*/);
-            if ($x1 > $x2) {
-                // меняем значения переменных
-                $x1 = $x1 + $x2;
-                $x2 = $x1 - $x2;
-                $x1 = $x1 - $x2;
+            if (!isset($aSize['w'])) {
+                $aSize['w'] = $aSize['x2'] - $aSize['x1'];
             }
-            if ($y1 > $y2) {
-                $y1 = $y1 + $y2;
-                $y2 = $y1 - $y2;
-                $y1 = $y1 - $y2;
+            if (!isset($aSize['h'])) {
+                $aSize['h'] = $aSize['y2'] - $aSize['y1'];
             }
-            if ($x1 < 0) {
-                $x1 = 0;
+            $oImg = $this->Img_Crop($sFile, $aSize['w'], $aSize['h'], $aSize['x1'], $aSize['y1']);
+        }
+        // Файл для временного сохранения аватары
+        $sTmpFile = F::File_GetUploadDir() . F::RandomStr() . '.' . pathinfo($sFile, PATHINFO_EXTENSION);
+        // Файл, куда будет записана аватара
+        $sAvatar = $this->Upload_GetUserAvatarDir($oUser->GetId()) . 'avatar.' . pathinfo($sFile, PATHINFO_EXTENSION);
+        if ($oImg->Save($sTmpFile)) {
+            // Окончательная запись файла только через модуль Upload
+            if ($sFileAvatar = $this->Upload_Move($sTmpFile, $sAvatar, true)) {
+                return $this->Upload_Dir2Url($sAvatar);
             }
-            if ($y1 < 0) {
-                $y1 = 0;
-            }
-            if ($x2 > $iWSource) {
-                $x2 = $iWSource;
-            }
-            if ($y2 > $iHSource) {
-                $y2 = $iHSource;
-            }
-
-            $iW = $x2 - $x1;
-            // Допускаем минимальный клип в 32px (исключая маленькие изображения)
-            if ($iW < 32 && $x1 + 32 <= $iWSource) {
-                $iW = 32;
-            }
-            $iH = $iW;
-            if ($iH + $y1 > $iHSource) {
-                $iH = $iHSource - $y1;
-            }
-            $oImage->crop($iW, $iH, $x1, $y1);
-            $oImage->output(null, $sFileTmp);
         }
 
-        if ($sFileAvatar = $this->Image_Resize(
-            $sFileTmp, $sPath, 'avatar_100x100', Config::Get('view.img_max_width'), Config::Get('view.img_max_height'),
-            100, 100, false, $aParams
-        )
-        ) {
-            $aSize = Config::Get('module.user.avatar_size');
-            foreach ($aSize as $iSize) {
-                if ($iSize == 0) {
-                    $this->Image_Resize(
-                        $sFileTmp, $sPath, 'avatar', Config::Get('view.img_max_width'),
-                        Config::Get('view.img_max_height'), null, null, false, $aParams
-                    );
-                } else {
-                    $this->Image_Resize(
-                        $sFileTmp, $sPath, "avatar_{$iSize}x{$iSize}", Config::Get('view.img_max_width'),
-                        Config::Get('view.img_max_height'), $iSize, $iSize, false, $aParams
-                    );
-                }
-            }
-            @unlink($sFileTmp);
-            /**
-             * Если все нормально, возвращаем расширение загруженного аватара
-             */
-            return $this->Image_GetWebPath($sFileAvatar);
-        }
-        @unlink($sFileTmp);
-        /**
-         * В случае ошибки, возвращаем false
-         */
+        // * В случае ошибки, возвращаем false
         return false;
     }
 
     /**
-     * Удаляет аватар пользователя
+     * Удаляет аватары пользователя всех размеров
      *
      * @param ModuleUser_EntityUser $oUser Объект пользователя
+     *
+     * @return bool
      */
     public function DeleteAvatar($oUser) {
 
         // * Если аватар есть, удаляем его и его рейсайзы
-        if ($oUser->getProfileAvatar()) {
-            $aSize = array_merge(Config::Get('module.user.avatar_size'), array(100));
-            foreach ($aSize as $iSize) {
-                $this->Image_RemoveFile($this->Image_GetServerPath($oUser->getProfileAvatarPath($iSize)));
-            }
+        if ($sAavatar = $oUser->getProfileAvatar()) {
+            $sFile = $this->Upload_Url2Dir($sAavatar);
+            return $this->Upload_Delete($sFile) && $this->Upload_DeleteAs($sFile . '-*.*');
         }
     }
 

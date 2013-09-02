@@ -119,22 +119,27 @@
 
 
         {* Аватар *}
-		<div class="js-ajax-avatar-upload avatar-change">
-			<img src="{$oUserCurrent->getAvatarUrl(100)}" class="js-ajax-image-upload-image" />
+		<fieldset class="js-ajax-avatar-upload avatar-change">
+            <legend>{$aLang.settings_profile_avatar}</legend>
+			<img src="{$oUserCurrent->getAvatarUrl()}" class="js-ajax-image-upload-image" />
 
 			<div>
 				<label for="avatar" class="form-input-file">
                     <span class="link-dotted js-ajax-image-upload-choose">
-                        {if $oUserCurrent->getProfileAvatar()}{$aLang.settings_profile_avatar_change}{else}{$aLang.settings_profile_avatar_upload}{/if}
+                        {if $oUserCurrent->getProfileAvatar()}
+                            {$aLang.settings_profile_avatar_change}
+                        {else}
+                            {$aLang.settings_profile_avatar_upload}
+                        {/if}
                     </span>
-                    <input type="file" name="avatar" id="avatar" class="js-ajax-image-upload-file">
+                    <input type="file" name="avatar" id="avatar" class="js-ajax-image-upload-file" data-resize-form="#avatar-resize">
                 </label>
 
 				<a href="#" class="js-ajax-image-upload-remove link-dotted" style="{if ! $oUserCurrent->getProfileAvatar()}display:none;{/if}">
                     {$aLang.settings_profile_avatar_delete}
                 </a>
 			</div>
-		</div>
+		</fieldset>
 
 
         {hook run='form_settings_profile_end'}
