@@ -2296,6 +2296,19 @@ class ModuleTopic extends Module {
         return false;
     }
 
+    protected function _saveTopicImage($sImageFile, $oUser) {
+
+        $sFileTmp = $this->Img_TransformFile($sFileTmp, 'topic');
+        if ($sFileTmp) {
+            $sDirUpload = $this->Upload_GetUserImageDir($oUser->getId());
+            $sFileImage = $this->Upload_Uniqname($sDirUpload, F::File_GetExtension($sFileTmp));
+            if ($sFileImage = $this->Upload_Move($sFileTmp, $sFileImage)) {
+                return $this->Upload_Dir2Url($sFileImage);
+            }
+        }
+        return false;
+    }
+
     /**
      * Загрузка изображений при написании топика
      *
@@ -2307,18 +2320,7 @@ class ModuleTopic extends Module {
     public function UploadTopicImageFile($aFile, $oUser) {
 
         if ($sFileTmp = $this->Upload_UploadLocal($aFile)) {
-            $sDirUpload = $this->Image_GetIdDir($oUser->getId());
-            $aParams = $this->Image_BuildParams('topic');
-
-            if ($sFileImage = $this->Image_Resize(
-                $sFileTmp, $sDirUpload, F::RandomStr(6), Config::Get('view.img_max_width'),
-                Config::Get('view.img_max_height'), Config::Get('view.img_resize_width'), null, true, $aParams
-            )
-            ) {
-                @unlink($sFileTmp);
-                return $this->Image_GetWebPath($sFileImage);
-            }
-            @unlink($sFileTmp);
+            return $this->_saveTopicImage($sFileTmp, $oUser);
         }
         return false;
     }
@@ -2332,61 +2334,11 @@ class ModuleTopic extends Module {
      * @return string|int
      */
     public function UploadTopicImageUrl($sUrl, $oUser) {
-        /**
-         * Проверяем, является ли файл изображением
-         */
-        if (!@getimagesize($sUrl)) {
-            return ModuleImage::UPLOAD_IMAGE_ERROR_TYPE;
-        }
-        /**
-         * Открываем файловый поток и считываем файл поблочно,
-         * контролируя максимальный размер изображения
-         */
-        $oFile = fopen($sUrl, 'r');
-        if (!$oFile) {
-            return ModuleImage::UPLOAD_IMAGE_ERROR_READ;
-        }
 
-        $iMaxSizeKb = Config::Get('view.img_max_size_url');
-        $iSizeKb = 0;
-        $sContent = '';
-        while (!feof($oFile) && $iSizeKb < $iMaxSizeKb) {
-            $sContent .= fread($oFile, 1024 * 1);
-            $iSizeKb++;
+        if ($sFileTmp = $this->Upload_UploadRemote($sUrl)) {
+            return $this->_saveTopicImage($sFileTmp, $oUser);
         }
-        /**
-         * Если конец файла не достигнут,
-         * значит файл имеет недопустимый размер
-         */
-        if (!feof($oFile)) {
-            return ModuleImage::UPLOAD_IMAGE_ERROR_SIZE;
-        }
-        fclose($oFile);
-        /**
-         * Создаем tmp-файл, для временного хранения изображения
-         */
-        $sFileTmp = Config::Get('sys.cache.dir') . F::RandomStr();
-
-        $fp = fopen($sFileTmp, 'w');
-        fwrite($fp, $sContent);
-        fclose($fp);
-
-        $sDirSave = $this->Image_GetIdDir($oUser->getId());
-        $aParams = $this->Image_BuildParams('topic');
-        /**
-         * Передаем изображение на обработку
-         */
-        if ($sFileImg = $this->Image_Resize(
-            $sFileTmp, $sDirSave, F::RandomStr(), Config::Get('view.img_max_width'),
-            Config::Get('view.img_max_height'), Config::Get('view.img_resize_width'), null, true, $aParams
-        )
-        ) {
-            @unlink($sFileTmp);
-            return $this->Image_GetWebPath($sFileImg);
-        }
-
-        @unlink($sFileTmp);
-        return ModuleImage::UPLOAD_IMAGE_ERROR;
+        return false;
     }
 
     /**
@@ -2506,7 +2458,7 @@ class ModuleTopic extends Module {
      *
      * @param ModuleTopic_EntityTopicPhoto $oPhoto Объект фото
      */
-    public function updateTopicPhoto($oPhoto) {
+    public function UpdateTopicPhoto($oPhoto) {
 
         $this->Cache_CleanByTags(array('photoset_photo_update'));
         $this->oMapperTopic->updateTopicPhoto($oPhoto);
@@ -2517,7 +2469,7 @@ class ModuleTopic extends Module {
      *
      * @param ModuleTopic_EntityTopicPhoto $oPhoto    Объект фото
      */
-    public function deleteTopicPhoto($oPhoto) {
+    public function DeleteTopicPhoto($oPhoto) {
 
         $this->Cache_CleanByTags(array('photoset_photo_update'));
         $this->oMapperTopic->deleteTopicPhoto($oPhoto->getId());
@@ -2543,54 +2495,19 @@ class ModuleTopic extends Module {
      */
     public function UploadTopicPhoto($aFile) {
 
-        $sPath = Config::Get('path.uploads.images') . '/topic/' . date('Y/m/d') . '/';
-
-        $sFileTmp = $this->Upload_UploadLocal($aFile, $sPath);
-        if (!$sFileTmp) {
-            return false;
-        }
-        $sFileName = basename($sFileTmp);
-        $aParams = $this->Image_BuildParams('photoset');
-        $oImage = $this->Image_CreateImageObject($sFileTmp);
-
-        // * Если объект изображения не создан, возвращаем ошибку
-        if ($sError = $oImage->get_last_error()) {
-            // Вывод сообщения об ошибки, произошедшей при создании объекта изображения
-            $this->Message_AddError($sError, $this->Lang_Get('error'));
-            @unlink($sFileTmp);
-            return false;
-        }
-        /**
-         * Превышает максимальные размеры из конфига
-         */
-        if (($oImage->get_image_params('width') > Config::Get('view.img_max_width'))
-            || ($oImage->get_image_params('height') > Config::Get('view.img_max_height'))
-        ) {
-            $this->Message_AddError($this->Lang_Get('topic_photoset_error_size'), $this->Lang_Get('error'));
-            @unlink($sFileTmp);
-            return false;
-        }
-        /**
-         * Добавляем к загруженному файлу расширение
-         */
-        $sFile = $sFileTmp . '.' . $oImage->get_image_params('format');
-        rename($sFileTmp, $sFile);
-
-        $aSizes = Config::Get('module.topic.photoset.size');
-        foreach ($aSizes as $aSize) {
-            // * Для каждого указанного в конфиге размера генерируем картинку
-            $sNewFileName = $sFileName . '_' . $aSize['w'];
-            $oImage = $this->Image_CreateImageObject($sFile);
-            if ($aSize['crop']) {
-                $this->Image_CropProportion($oImage, $aSize['w'], $aSize['h'], true);
-                $sNewFileName .= 'crop';
+        $sFileTmp = $this->Upload_UploadLocal($aFile);
+        if ($sFileTmp) {
+            $sFileTmp = $this->Img_TransformFile($sFileTmp, 'photoset');
+            if ($sFileTmp) {
+                $sDirUpload = $this->Upload_GetUserImageDir($this->oUserCurrent->getId());
+                $sFileImage = $this->Upload_Uniqname($sDirUpload, F::File_GetExtension($sFileTmp));
+                if ($sFileImage = $this->Upload_Move($sFileTmp, $sFileImage)) {
+                    return $this->Upload_Dir2Url($sFileImage);
+                }
             }
-            $this->Image_Resize(
-                $sFile, $sPath, $sNewFileName, Config::Get('view.img_max_width'), Config::Get('view.img_max_height'),
-                $aSize['w'], $aSize['h'], true, $aParams, $oImage
-            );
         }
-        return F::File_NormPath($this->Image_GetWebPath($sFile));
+
+        return false;
     }
 
     /**

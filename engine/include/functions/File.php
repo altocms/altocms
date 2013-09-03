@@ -854,6 +854,15 @@ class AltoFunc_File {
         return static::NormPath(Config::Get('sys.cache.dir') . '/uploads/');
     }
 
+    static public function Uniqname($sDir, $sExtension, $nLength = 6) {
+
+        $sFileName = F::RandomStr($nLength) . ($sExtension ? ('.' . $sExtension) : '');
+        while(static::Exists($sDir . '/' . $sFileName)) {
+            $sFileName = static::Uniqname($sDir, $sExtension, $nLength);
+        }
+        return static::NormPath($sDir . '/' . $sFileName);
+    }
+
 }
 
 // EOF

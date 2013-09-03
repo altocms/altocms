@@ -18,7 +18,7 @@ $config['view']['description'] = 'Description your site'; // seo description
 $config['view']['keywords']    = 'site, google, internet';      // seo keywords
 $config['view']['tinymce']         = false;  // использовать или нет визуальный редактор TinyMCE
 $config['view']['noindex']          = true;   // "прятать" или нет ссылки от поисковиков, оборачивая их в тег <noindex> и добавляя rel="nofollow"
-$config['view']['img_resize_width'] = 570;    // до какого размера в пикселях ужимать картинку по щирине при загрузки её в топики и комменты
+$config['view']['img_resize_width'] = 570;    // до какого размера в пикселях ужимать картинку по ширине при загрузки её в топики и комменты
 $config['view']['img_max_width'] = 5000;    // максимальная ширина загружаемых изображений в пикселях
 $config['view']['img_max_height'] = 5000;    // максимальная высота загружаемых изображений в пикселях
 $config['view']['img_max_size_url'] = 500;    // максимальный размер картинки в kB для загрузки по URL
@@ -382,6 +382,20 @@ $config['module']['image']['foto']['round_corner']   = false;
 $config['module']['image']['topic']['watermark_use']  = false;
 $config['module']['image']['topic']['round_corner']   = false;
 
+// Параметры для загружаемых изображений по умолчанию
+$config['module']['image']['preset']['default'] = array(
+    'driver' => 'GD', // 'GD', 'Imagick' or 'Gmagick'
+    'jpg_quality' => 70,
+    'watermark' => array(
+        'use' => false,
+        'type' => 'text',
+    ),
+    'size' => array(
+        'width' => 1200,
+        'height' => 700,
+    ),
+);
+
 // Модуль Security
 $config['module']['security']['hash']  = 'alto_security_key'; // "примесь" к строке, хешируемой в качестве security-кода
 $config['module']['security']['randomkey']  = false; // генерация случайных ключей во время одной сессии
@@ -432,15 +446,6 @@ $config['module']['topic']['photoset']['size'] = array(             // спис�
 		'h' => 50,
 		'crop' => true,
 	)
-);
-
-$config['images']['settings']['default'] = array(
-    'driver' => 'GD', // 'GD', 'Imagick' or 'Gmagick'
-    'jpg_quality' => 95,
-    'watermark' => array(
-        'use' => false,
-        'type' => 'text',
-    ),
 );
 
 // Какие модули должны быть загружены на старте

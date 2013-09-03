@@ -107,7 +107,7 @@ class ModuleImg extends Module {
 
     public function SetConfig($sConfigKey) {
 
-        if (Config::Get('images.settings.' . $sConfigKey)) {
+        if (Config::Get('module.image.preset.' . $sConfigKey)) {
             $this->sConfig = $sConfigKey;
         }
     }
@@ -131,7 +131,7 @@ class ModuleImg extends Module {
         if (!$sConfigKey) {
             $sConfigKey = $this->GetConfigKey();
         }
-        if (!Config::Get('images.settings.' . $sConfigKey)) {
+        if (!Config::Get('module.image.preset.' . $sConfigKey)) {
             $sConfigKey = 'default';
         }
         return $this->LoadParams($sConfigKey);
@@ -150,7 +150,7 @@ class ModuleImg extends Module {
      * @param int|string $sColor
      * @param int        $nOpacity
      *
-     * @return \PHPixie\Image
+     * @return ModuleImg_EntityImage
      */
     public function Create($nWidth, $nHeight, $sColor = 0xffffff, $nOpacity = 0) {
 
@@ -170,7 +170,7 @@ class ModuleImg extends Module {
      * @param string $sFile
      * @param string $sConfigKey
      *
-     * @return \PHPixie\Image
+     * @return ModuleImg_EntityImage
      */
     public function Read($sFile, $sConfigKey = null) {
 
@@ -189,7 +189,7 @@ class ModuleImg extends Module {
      * @param null          $nHeight
      * @param bool          $bFit     - вписывать новое изображение в заданные рамки
      *
-     * @return \PHPixie\Image
+     * @return ModuleImg_EntityImage
      */
     public function Resize($xImage, $nWidth = null, $nHeight = null, $bFit = true) {
 
@@ -204,6 +204,17 @@ class ModuleImg extends Module {
         return $oImg->resize($nWidth, $nHeight, $bFit);
     }
 
+    /**
+     * Crop image
+     *
+     * @param      $xImage
+     * @param      $nWidth
+     * @param null $nHeight
+     * @param null $nPosX
+     * @param null $nPosY
+     *
+     * @return bool|ModuleImg_EntityImage|object
+     */
     public function Crop($xImage, $nWidth, $nHeight = null, $nPosX = null, $nPosY = null) {
 
         if (!$xImage) {
@@ -424,6 +435,25 @@ class ModuleImg extends Module {
             $oImg->Render($sImageFormat);
             return true;
         }
+    }
+
+    public function TransformFile($sFile, $sPreset) {
+
+        $sOldKey = $this->GetConfigKey();
+        $this->SetConfig($sPreset);
+        $aParams = $this->GetParams();
+        $bResult = false;
+
+        if ($oImg = $this->Read($sFile)) {
+            $nW = ($aParams['size']['width'] ? $aParams['size']['width'] : null);
+            $nH = ($aParams['size']['height'] ? $aParams['size']['height'] : null);
+            $oImg->Resize($nW, $nH, true);
+            $oImg->Save($sFile);
+
+            $bResult = true;
+        }
+        $this->SetConfig($sOldKey);
+        return $bResult ? $sFile : false;
     }
 
     /**

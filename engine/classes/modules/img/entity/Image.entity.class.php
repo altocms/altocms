@@ -13,13 +13,13 @@ class ModuleImg_EntityImage extends Entity {
     public function __construct($aParams) {
 
         $aDefault = array(
-            'driver' => $this->GetDriver(),
-            'width' => 0,
-            'height' => 0,
-            'color' => 0xffffff,
-            'opacity' => 0,
-            'file' => '',
-            'image' => null,
+            'driver'   => $this->GetDriver(),
+            'width'    => 0,
+            'height'   => 0,
+            'color'    => 0xffffff,
+            'opacity'  => 0,
+            'filename' => '',
+            'image'    => null,
         );
         $aParams = F::Array_Merge($aDefault, $aParams);
         parent::__construct($aParams);

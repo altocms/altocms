@@ -85,6 +85,20 @@ class ModuleUpload extends Module {
         return $this->sLastError;
     }
 
+    protected function _checkUploadedImage($sFile) {
+
+        $aInfo = @getimagesize($sFile);
+        if (!$aInfo) {
+            return false;
+        }
+        if ($this->aModConfig['img_max_width'] && $this->aModConfig['img_max_width'] < $aInfo[0]) {
+                return false;
+            }
+            if ($this->aModConfig['img_max_height'] && $this->aModConfig['img_max_height'] < $aInfo[1]) {
+                return false;
+            }
+    }
+
     protected function _checkUploadedFile($sFile) {
 
         $sExtension = strtolower(pathinfo($sFile, PATHINFO_EXTENSION));
@@ -99,14 +113,8 @@ class ModuleUpload extends Module {
         }
         // Check images
         if (in_array($sExtension, array('gif', 'png', 'jpg', 'jpeg'))) {
-            $oImg = $this->Img_Read($sFile);
-            if ($oImg) {
-                if ($this->aModConfig['img_max_width'] && $this->aModConfig['img_max_width'] < $oImg->GetWidth()) {
-                    return false;
-                }
-                if ($this->aModConfig['img_max_height'] && $this->aModConfig['img_max_height'] < $oImg->GetHeight()) {
-                    return false;
-                }
+            if (!$this->_checkUploadedImage($sFile)) {
+                return false;
             }
         }
         return true;
@@ -343,6 +351,11 @@ class ModuleUpload extends Module {
             F::File_CheckDir($sResult, $bAutoMake);
         }
         return $sResult;
+    }
+
+    public function Uniqname($sDir, $sExtension, $nLength = 6) {
+
+        return F::File_Uniqname($sDir, $sExtension, $nLength);
     }
 
 }
