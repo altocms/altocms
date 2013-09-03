@@ -323,14 +323,18 @@ class Config extends Storage {
         } else {
             $xResult = $xCfg;
             if (strpos($xCfg, self::KEY_LINK_STR) !== false
-                && preg_match_all(
-                    self::KEY_LINK_PREG, $xCfg, $aMatch, PREG_SET_ORDER
-                )
+                && preg_match_all(self::KEY_LINK_PREG, $xCfg, $aMatch, PREG_SET_ORDER)
             ) {
-                foreach ($aMatch as $aItem) {
-                    $xResult = str_replace(
-                        self::KEY_LINK_STR . $aItem[1] . self::KEY_LINK_STR, Config::Get($aItem[1], $sRoot), $xResult
-                    );
+                if (count($aMatch) == 1 && $aMatch[0][0] == $xCfg) {
+                    $xResult = Config::Get($aMatch[0][1], $sRoot);
+                } else {
+                    foreach ($aMatch as $aItem) {
+                        $xResult = str_replace(
+                            self::KEY_LINK_STR . $aItem[1] . self::KEY_LINK_STR,
+                            Config::Get($aItem[1], $sRoot),
+                            $xResult
+                        );
+                    }
                 }
             }
         }
