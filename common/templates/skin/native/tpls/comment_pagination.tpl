@@ -13,7 +13,7 @@
 		<ul>
 			<li>{$aLang.paging}:</li>				
 				
-			{if $oConfig->GetValue('module.comment.nested_page_reverse')}
+			{if Config::Get('module.comment.nested_page_reverse')}
 				{if $aPagingCmt.iCurrentPage > 1}
 					<li><a href="{$aPagingCmt.sGetParams}{$sGetSep}cmtpage=1">&larr;</a></li>
 				{/if}

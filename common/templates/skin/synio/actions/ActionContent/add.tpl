@@ -94,7 +94,7 @@
 			<h2>{$aLang.topic_photoset_upload_title}</h2>
 
 			<div class="topic-photo-upload-rules">
-				{$aLang.topic_photoset_upload_rules|ls_lang:"SIZE%%`$oConfig->get('module.topic.photoset.photo_max_size')`":"COUNT%%`$oConfig->get('module.topic.photoset.count_photos_max')`"}
+				{$aLang.topic_photoset_upload_rules|ls_lang:"SIZE%%`Config::Get('module.topic.photoset.photo_max_size')`":"COUNT%%`Config::Get('module.topic.photoset.count_photos_max')`"}
 			</div>
 
 			<input type="hidden" name="topic_main_photo" id="topic_main_photo" value="{$_aRequest.topic_main_photo}" />

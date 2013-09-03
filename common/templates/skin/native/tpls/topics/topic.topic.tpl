@@ -4,7 +4,7 @@
  * @styles css/topic.css
  *}
 
-{extends file='topics/topic_base.tpl'}
+{extends file='topics/_topic_base.tpl'}
 
 
 {block name='topic_content_text'}

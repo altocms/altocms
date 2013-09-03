@@ -4,7 +4,7 @@
  * @styles css/modals.css
  *}
 
-{extends file='modals/_base.tpl'}
+{extends file='modals/_modal_base.tpl'}
 
 {block name='modal_id'}modal-blog-delete{/block}
 {block name='modal_class'}modal-blog-delete js-modal-default{/block}

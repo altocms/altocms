@@ -5,7 +5,7 @@
  * @scripts <framework>/js/livestreet/poll.js
  *}
 
-{extends file='topics/topic_base.tpl'}
+{extends file='topics/_topic_base.tpl'}
 
 {block name='topic_header_after'}
 	<div class="poll js-poll" data-poll-id="{$oTopic->getId()}">

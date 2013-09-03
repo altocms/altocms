@@ -132,14 +132,14 @@
         <!-- АКТИВНОСТЬ -->
         <h2 class="header-table">{$aLang.profile_activity}</h2>
         <ul class="profile-contacts">
-            {if $oConfig->GetValue('general.reg.invite') and $oUserInviteFrom}
+            {if Config::Get('general.reg.invite') and $oUserInviteFrom}
                 <li>
                     <em>{$aLang.profile_invite_from}</em>
                     <span><a href="{$oUserInviteFrom->getProfileUrl()}">{$oUserInviteFrom->getLogin()}</a></span>
                 </li>
             {/if}
 
-            {if $oConfig->GetValue('general.reg.invite') and $aUsersInvite}
+            {if Config::Get('general.reg.invite') and $aUsersInvite}
                 <li>
                     <em>{$aLang.profile_invite_to}</em>
                     {foreach $aUsersInvite as $oUserInvite}

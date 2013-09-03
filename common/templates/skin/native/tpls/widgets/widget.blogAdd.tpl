@@ -20,7 +20,7 @@
 
 		<a href="{router page='blog'}add/" class="button button-primary button-large">{$aLang.blog_add}</a>
 	{else}
-		<p>{$aLang.blog_cant_add|ls_lang:"rating%%`$oConfig->get('acl.create.blog.rating')`"}</p>
+		<p>{$aLang.blog_cant_add|ls_lang:"rating%%`Config::Get('acl.create.blog.rating')`"}</p>
 
 		<button class="button button-primary button-large" disabled>{$aLang.blog_add}</button>
 	{/if}

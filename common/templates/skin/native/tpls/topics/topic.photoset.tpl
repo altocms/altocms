@@ -4,7 +4,7 @@
  * @styles css/topic.css
  *}
 
-{extends file='topics/topic_base.tpl'}
+{extends file='topics/_topic_base.tpl'}
 
 
 {* Preview Image *}
@@ -60,7 +60,7 @@
 			<h2 class="photoset-title">{$oTopic->getPhotosetCount()} {$oTopic->getPhotosetCount()|declension:$aLang.topic_photoset_count_images}</h2>
 			
 			<ul class="photoset-images" id="topic-photo-images">
-				{$aPhotos = $oTopic->getPhotosetPhotos(0, $oConfig->get('module.topic.photoset.per_page'))}
+				{$aPhotos = $oTopic->getPhotosetPhotos(0, Config::Get('module.topic.photoset.per_page'))}
 
 				{if $aPhotos}
 					{foreach $aPhotos as $oPhoto}

@@ -127,7 +127,7 @@
 			<h2 class="photoset-title">{$oTopic->getPhotosetCount()} {$oTopic->getPhotosetCount()|declension:$aLang.topic_photoset_count_images}</h2>
 
 			<ul class="photoset-images" id="topic-photo-images">
-				{$aPhotos = $oTopic->getPhotosetPhotos(0, $oConfig->get('module.topic.photoset.per_page'))}
+				{$aPhotos = $oTopic->getPhotosetPhotos(0, Config::Get('module.topic.photoset.per_page'))}
 
 				{if $aPhotos}
 					{foreach $aPhotos as $oPhoto}
@@ -202,7 +202,7 @@
 			{* Информация *}
 			<ul class="topic-info">
 				{* Голосование *}
-				{if $oVote || ($oUserCurrent && $oTopic->getUserId() == $oUserCurrent->getId()) || strtotime($oTopic->getDateAdd()) < $smarty.now-$oConfig->GetValue('acl.vote.topic.limit_time')}
+				{if $oVote || ($oUserCurrent && $oTopic->getUserId() == $oUserCurrent->getId()) || strtotime($oTopic->getDateAdd()) < $smarty.now-Config::Get('acl.vote.topic.limit_time')}
 					{$bShowVoteInfo = true}
 				{/if}
 
@@ -212,7 +212,7 @@
 					data-vote-type="topic"
 					data-vote-id="{$oTopic->getId()}"
 					class="vote vote-topic js-vote 
-							{if $oVote || ($oUserCurrent && $oTopic->getUserId() == $oUserCurrent->getId()) || strtotime($oTopic->getDateAdd()) < $smarty.now-$oConfig->GetValue('acl.vote.topic.limit_time')}
+							{if $oVote || ($oUserCurrent && $oTopic->getUserId() == $oUserCurrent->getId()) || strtotime($oTopic->getDateAdd()) < $smarty.now-Config::Get('acl.vote.topic.limit_time')}
 								{if $oTopic->getRating() > 0}
 									vote-count-positive
 								{elseif $oTopic->getRating() < 0}

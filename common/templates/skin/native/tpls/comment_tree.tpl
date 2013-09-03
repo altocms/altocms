@@ -52,7 +52,7 @@
      * Комментарии
      *}
     {$iCurrentLevel = -1}
-    {$iMaxLevel = $oConfig->GetValue('module.comment.max_tree')}
+    {$iMaxLevel = Config::Get('module.comment.max_tree')}
 
     {foreach $aComments as $oComment}
     {$iCommentLevel = $oComment->getLevel()}

@@ -4,7 +4,7 @@
  * @styles css/modals.css
  *}
 
-{extends file='modals/_base.tpl'}
+{extends file='modals/_modal_base.tpl'}
 
 {block name='modal_id'}modal-login{/block}
 {block name='modal_class'}modal-login js-modal-default{/block}
@@ -22,7 +22,7 @@
         </div>
 
         <div class="tab-pane" id="tab-pane-registration" data-type="tab-pane">
-            {if ! $oConfig->GetValue('general.reg.invite')}
+            {if ! Config::Get('general.reg.invite')}
                 {include file='forms/form.auth.signup.tpl' isModal=true}
             {else}
                 {include file='forms/form.auth.invite.tpl' isModal=true}

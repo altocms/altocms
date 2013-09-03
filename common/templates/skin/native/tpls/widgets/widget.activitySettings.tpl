@@ -15,7 +15,7 @@
 		
 		<ul class="activity-settings-filter">
 			{foreach $aStreamEventTypes as $sType => $aEventType}
-				{if ! ($oConfig->get('module.stream.disable_vote_events') && substr($sType, 0, 4) == 'vote')}
+				{if ! (Config::Get('module.stream.disable_vote_events') && substr($sType, 0, 4) == 'vote')}
 					<li>
 						<label>
 							<input type="checkbox"

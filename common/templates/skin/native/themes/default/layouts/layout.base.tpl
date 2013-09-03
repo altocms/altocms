@@ -48,8 +48,8 @@
 			LIVESTREET_SECURITY_KEY = '{$ALTO_SECURITY_KEY}',
 			SESSION_ID				= '{$_sPhpSessionId}',
 			SESSION_NAME			= '{$_sPhpSessionName}',
-			LANGUAGE				= '{$oConfig->GetValue('lang.current')}',
-			WYSIWYG					= {if $oConfig->GetValue('view.wysiwyg')}true{else}false{/if};
+			LANGUAGE				= '{Config::Get('lang.current')}',
+			WYSIWYG					= {if Config::Get('view.wysiwyg')}true{else}false{/if};
 
 		var aRouter = [];
 		{foreach $aRouter as $sPage => $sPath}
@@ -67,8 +67,8 @@
 		ls.lang.load({json var = $aLangJs});
 		ls.lang.load({lang_load name="blog, talk_favourite_add, talk_favourite_del, topic_question_create_answers_error_max"});
 
-		ls.registry.set('comment_max_tree', {json var=$oConfig->Get('module.comment.max_tree')});
-		ls.registry.set('block_stream_show_tip', {json var=$oConfig->Get('block.stream.show_tip')});
+		ls.registry.set('comment_max_tree', {json var=Config::Get('module.comment.max_tree')});
+		ls.registry.set('block_stream_show_tip', {json var=Config::Get('block.stream.show_tip')});
 	</script>
 
 	{**

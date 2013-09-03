@@ -79,7 +79,7 @@
 		<textarea name="blog_description" id="blog_description" rows="15" class="js-editor width-full">{$_aRequest.blog_description}</textarea>
 
 		{* Если визуальный редактор отключен выводим справку по разметке для обычного редактора *}
-		{if ! $oConfig->GetValue('view.wysiwyg')}
+		{if ! Config::Get('view.wysiwyg')}
 			{include file='forms/editor.help.tpl' sTagsTargetId='blog_description'}
 		{/if}
 
@@ -94,7 +94,7 @@
 		<p>
 			{if $oBlogEdit and $oBlogEdit->getAvatar()}
 				<div class="avatar-edit">
-					{foreach $oConfig->GetValue('module.blog.avatar_size') as $iSize}
+					{foreach Config::Get('module.blog.avatar_size') as $iSize}
 						{if $iSize}<img src="{$oBlogEdit->getAvatarPath({$iSize})}">{/if}
 					{/foreach}
 					

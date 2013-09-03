@@ -7,7 +7,7 @@
 	<li {if $sMenuSubItemSelect=='account'}class="active"{/if}><a href="{router page='settings'}account/">{$aLang.settings_menu_account}</a></li>
 	<li {if $sMenuSubItemSelect=='tuning'}class="active"{/if}><a href="{router page='settings'}tuning/">{$aLang.settings_menu_tuning}</a></li>
 	
-	{if $oConfig->GetValue('general.reg.invite')}
+	{if Config::Get('general.reg.invite')}
 		<li {if $sMenuItemSelect=='invite'}class="active"{/if}>
 			<a href="{router page='settings'}invite/">{$aLang.settings_menu_invite}</a>
 		</li>
