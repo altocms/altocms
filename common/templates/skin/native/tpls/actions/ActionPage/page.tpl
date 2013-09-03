@@ -8,7 +8,7 @@
 	<h2 class="page-header">{$oPage->getTitle()}</h2>
 
 	<div class="text">
-		{if $oConfig->GetValue('view.tinymce')}
+		{if Config::Get('view.wysiwyg')}
 			{$oPage->getText()}
 		{else}
 			{if $oPage->getAutoBr()}

@@ -589,10 +589,10 @@ class ActionAdmin extends Action {
 
         if ($this->GetPost('submit_data_save')) {
             $aConfig = array();
-            if ($this->GetPost('view--tinymce')) {
-                $aConfig['view.tinymce'] = true;
+            if ($this->GetPost('view--wysiwyg')) {
+                $aConfig['view.wysiwyg'] = true;
             } else {
-                $aConfig['view.tinymce'] = false;
+                $aConfig['view.wysiwyg'] = false;
             }
             if ($this->GetPost('view--noindex')) {
                 $aConfig['view.noindex'] = true;

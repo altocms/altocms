@@ -7,10 +7,14 @@ var ls = ls || {};
 ls.settings = (function ($) {
 
 	this.get = function (sSettingsName) {
-		return this[sSettingsName];
+        if (this[sSettingsName]) {
+            return this[sSettingsName];
+        } else {
+            return {};
+        }
 	};
 
-	this.markitup = {
+	this.markitup_default = {
 		onShiftEnter:  	{keepDefault:false, replaceWith:'<br />\n'},
 		onCtrlEnter:  	{keepDefault:false, openWith:'\n<p>', closeWith:'</p>'},
 		onTab:    		{keepDefault:false, replaceWith:'    '},
@@ -40,7 +44,7 @@ ls.settings = (function ($) {
 		]
 	};
 
-	this.markitupComment = {
+	this.markitup_comment = {
 		onShiftEnter:  	{keepDefault:false, replaceWith:'<br />\n'},
 		onTab:    		{keepDefault:false, replaceWith:'    '},
 		markupSet:  [
@@ -59,7 +63,7 @@ ls.settings = (function ($) {
 		]
 	};
 
-	this.tinymce = {
+	this.tinymce_old = {
 		mode : 									"specific_textareas",
 		editor_selector : 						"mce-editor",
 		theme : 								"advanced",
@@ -91,7 +95,38 @@ ls.settings = (function ($) {
 		}
 	};
 
-	this.tinymceComment = {
+    this.tinymce_default = {
+        mode : 									"specific_textareas",
+        editor_selector : 						"mce-editor",
+        theme : 								"modern",
+        //skin : 								    "livestreet",
+        content_css: '/common/templates/skin/native/assets/css/tinymce.css',
+        menubar: false,
+        toolbar1: "undo redo | styleselect | bold italic strikethrough underline blockquote | alignleft aligncenter alignright | bullist numlist | table | link unlink image media code | cut ",
+        toolbar_items_size: 'small',
+        style_formats: [
+            {title: 'H4', block: 'h4'},
+            {title: 'H5', block: 'h5'},
+            {title: 'H6', block: 'h6'}
+        ],
+        object_resizing : 						true,
+        force_br_newlines :						true,
+        forced_root_block : 					'', // Needed for 3.x
+        force_p_newlines : 						false,
+        plugins : 								"advlist autolink autosave link image lists media pagebreak autoresize table code",
+        convert_urls : 							false,
+        extended_valid_elements : 				"embed[src|type|allowscriptaccess|allowfullscreen|width|height]",
+        pagebreak_separator :					"<cut>",
+        media_strict : 							false,
+        language : 								'ru',
+        inline_styles:							false,
+        formats : {
+            underline : 	{inline : 'u', exact : true},
+            strikethrough : {inline : 's', exact : true}
+        }
+    };
+
+    this.tinymce_comment = {
 		mode : 									"textareas",
 		theme : 								"advanced",
 		skin : 								    "livestreet",

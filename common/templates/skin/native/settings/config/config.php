@@ -2,6 +2,7 @@
 
 $config = array();
 
+$config['view']['wysiwyg'] = true;
 $config['view']['theme'] = 'default';
 $config['module']['user']['profile_photo_width'] = 300;
 
@@ -38,6 +39,8 @@ $config['head']['default']['js'] = array(
     '___path.frontend.url___/libs/js/vendor/jquery-migrate-1.2.1.min.js' => array('asset' => 'mini'),
     '___path.frontend.url___/libs/js/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js' => array('asset' => 'mini'),
     '___path.frontend.url___/libs/js/vendor/jquery-ui/js/localization/jquery-ui-datepicker-ru.js',
+    '___path.frontend.url___/libs/js/vendor/markitup/jquery.markitup.js' => array('name' => 'markitup'),
+    '___path.frontend.url___/libs/js/vendor/tinymce_4.0.5/tinymce.min.js' => array('name' => 'tinymce', 'asset' => 'mini'),
     '___path.frontend.url___/libs/js/vendor/jquery.browser.js',
     '___path.frontend.url___/libs/js/vendor/jquery.scrollto.js',
     '___path.frontend.url___/libs/js/vendor/jquery.rich-array.min.js',

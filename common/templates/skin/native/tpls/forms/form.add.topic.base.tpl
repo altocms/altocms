@@ -84,17 +84,16 @@
 
 		{block name='add_topic_form_text_before'}{/block}
 
-
 		{* Текст топика *}
 		{* TODO: Max length for poll and link *}
 		{include file='forms/form.field.textarea.tpl'
 				 sFieldName    = 'topic_text'
-				 sFieldRules   = 'required="true" rangelength="[2,'|cat:$oConfig->Get('module.topic.max_length')|cat:']"'
+				 sFieldRules   = 'required="true" rangelength="[2,'|cat:Config::Get('module.topic.max_length')|cat:']"'
 				 sFieldLabel   = $aLang.topic_create_text
 				 sFieldClasses = 'width-full js-editor'}
 
 		{* Если визуальный редактор отключен выводим справку по разметке для обычного редактора *}
-		{if ! $oConfig->GetValue('view.wysiwyg')}
+		{if !Config::Get('view.wysiwyg')}
 			{include file='forms/editor.help.tpl' sTagsTargetId='topic_text'}
 		{/if}
 
@@ -118,7 +117,7 @@
 					<h2 class="fieldset-title">{$aLang.topic_photoset_upload_title}</h2>
 
 					<div class="note fieldset-note">
-						{$aLang.topic_photoset_upload_rules|ls_lang:"SIZE%%`$oConfig->get('module.topic.photoset.photo_max_size')`":"COUNT%%`$oConfig->get('module.topic.photoset.count_photos_max')`"}
+						{$aLang.topic_photoset_upload_rules|ls_lang:"SIZE%%`Config::Get('module.topic.photoset.photo_max_size')`":"COUNT%%`Config::Get('module.topic.photoset.count_photos_max')`"}
 					</div>
 				</header>
 

@@ -84,6 +84,7 @@
 .nav.nav-folding > li.talk-checkbox { width: 40px; padding-top: 5px; }
 /* Pills
 -------------------------------------------------- */
+.module > .nav { padding: 0; }
 .nav.nav-pills                 { display: table; border: 1px solid #c2cadb; border-radius: 3px; }
 .nav.nav-pills > li          { margin-right: 0; font-size: 13px; }
 .nav.nav-pills > li > a    { 

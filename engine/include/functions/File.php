@@ -655,7 +655,18 @@ class AltoFunc_File {
             $n = strpos($aResult['basename'], '?');
             $aResult['basename'] = substr($aResult['basename'], 0, $n);
         }
-        if (($aUrlInfo = parse_url($sPath)) && isset($aUrlInfo['host'])) {
+        if (substr($sPath, 0, 2) == '//' && preg_match('~^//[a-z0-9\-]+\.[a-z0-9][a-z0-9\-\.]*[a-z0-9]~', $sPath)) {
+            // Возможно, это URL с протоколом по умолчанию
+            if (isset($_SERVER['SERVER_PROTOCOL'])) {
+                $sProtocol = strtolower(reset(explode('/', $_SERVER['SERVER_PROTOCOL'])));
+            } else {
+                $sProtocol = 'http';
+            }
+            $aUrlInfo = parse_url($sProtocol . ':' . $sPath);
+        } else {
+            $aUrlInfo = parse_url($sPath);
+        }
+        if (isset($aUrlInfo['host'])) {
             $aResult = array_merge($aResult, $aUrlInfo);
         }
         $aResult = array_merge(

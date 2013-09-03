@@ -16,7 +16,7 @@ $config['view']['theme']       = 'default';                     // тема
 $config['view']['name']        = 'Your Site Name';              // название сайта
 $config['view']['description'] = 'Description your site'; // seo description
 $config['view']['keywords']    = 'site, google, internet';      // seo keywords
-$config['view']['tinymce']         = false;  // использовать или нет визуальный редактор TinyMCE
+$config['view']['wysiwyg']         = false;  // использовать или нет визуальный редактор
 $config['view']['noindex']          = true;   // "прятать" или нет ссылки от поисковиков, оборачивая их в тег <noindex> и добавляя rel="nofollow"
 $config['view']['img_resize_width'] = 570;    // до какого размера в пикселях ужимать картинку по ширине при загрузки её в топики и комменты
 $config['view']['img_max_width'] = 5000;    // максимальная ширина загружаемых изображений в пикселях

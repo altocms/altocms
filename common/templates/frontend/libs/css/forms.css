@@ -37,7 +37,7 @@ input[type="checkbox"],
 	margin: 0 2px 0 1px;
 }
 
-textarea { line-height: 1.4em; }
+textarea { line-height: 1.4em; min-height: 400px; }
 
 
 /* Select */

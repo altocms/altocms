@@ -302,12 +302,15 @@ class AltoFunc_Main {
                 }
                 break;
             case 'mail':
-                /*
-                if (preg_match('/^[\da-z\_\-\.\+]+@[\da-z_\-\.]+\.[a-z]{2,5}$/i', $sValue)) {
+                return filter_var($sValue, FILTER_VALIDATE_EMAIL) !== false;
+                break;
+            case 'url':
+                // ф-ция неверно понимает URL без протокола
+                if ((filter_var($sValue, FILTER_VALIDATE_URL) !== false)
+                    || (filter_var('http:' . $sValue, FILTER_VALIDATE_URL) !== false)
+                ) {
                     return true;
                 }
-                */
-                return filter_var($sValue, FILTER_VALIDATE_EMAIL) !== false;
                 break;
             case 'login':
                 if (preg_match('/^[\da-z\_\-]{' . $nMin . ',' . $nMax . '}$/i', $sValue)) {

@@ -17,32 +17,29 @@
 
 {* Дефолтный селектор редактора *}
 {if ! $sEditorSelector}
-	{$sEditorSelector = 'js-editor'}
+	{$sEditorSelector = '.js-editor'}
 {/if}
+<script>
+    var ls = ls || { }
+    ls.editor = ls.editor || { }
 
+    ls.editor.selector = '{$sEditorSelector}';
+    ls.editor.type = '{$sEditorType}';
+</script>
 {* Инициализация *}
-{if $oConfig->GetValue('view.wysiwyg')}
+{if Config::Get('view.wysiwyg')}
 	{* WYSIWYG редактор *}
 
 	{hookb run='editor_init_wysiwyg' sEditorType=$sEditorType sEditorSelector=$sEditorSelector}
-		{if $sEditorType == 'comment'}
-			{$sSettings = 'ls.settings.get("tinymceComment")'}
-		{else}
-			{hook run='editor_init_wysiwyg_settings' sEditorType=$sEditorType assign='sSettings'}
-
-			{if ! $sSettings}
-				{$sSettings = 'ls.settings.get("tinymce")'}
-			{/if}
-		{/if}
-
-		<script src="{cfg name='path.static.framework'}/js/vendor/tinymce/tiny_mce.js"></script>
 
 		<script>
 			jQuery(function($) {
-				tinyMCE.init($.extend({ }, {$sSettings}, {
-					editor_selector : '{$sEditorSelector}',
-					language : {$oConfig->GetValue('lang.current')}
-				}));
+                var settings = $.extend(
+                        ls.settings.get('tinymce_' + ls.editor.type), {
+                            selector : ls.editor.selector,
+                            language : '{Config::Get('lang.current')}'
+                        });
+                tinyMCE.init(settings);
 			});
 		</script>
 	{/hookb}
@@ -52,23 +49,12 @@
 	{hookb run='editor_init_markup' sEditorType=$sEditorType sEditorSelector=$sEditorSelector}
 		{include file='modals/modal.upload_image.tpl'}
 
-		{if $sEditorType == 'comment'}
-			{$sSettings = 'ls.settings.get("markitupComment")'}
-		{else}
-			{hook run='editor_init_markup_settings' sEditorType=$sEditorType assign='sSettings'}
-
-			{if ! $sSettings}
-				{$sSettings = 'ls.settings.get("markitup")'}
-			{/if}
-		{/if}
-
-		<script src="{cfg name='path.static.framework'}/js/vendor/markitup/jquery.markitup.js"></script>
-
 		<script>
 			jQuery(function($) {
+                var settings = ls.settings.get('markitup_' + ls.editor.type);
 				ls.lang.load({lang_load name="panel_b,panel_i,panel_u,panel_s,panel_url,panel_url_promt,panel_code,panel_video,panel_image,panel_cut,panel_quote,panel_list,panel_list_ul,panel_list_ol,panel_title,panel_clear_tags,panel_video_promt,panel_list_li,panel_image_promt,panel_user,panel_user_promt"});
 
-				$('.{$sEditorSelector}').markItUp({$sSettings});
+				$(ls.editor.selector).markItUp(settings);
 			});
 		</script>
 	{/hookb}

@@ -11,17 +11,15 @@
 {block name='modal_title'}{$aLang.uploadimg}{/block}
 
 {block name='modal_header_after'}
-	<ul class="nav nav-pills nav-pills-tabs" data-type="tabs">
-		<li data-type="tab" data-option-target="tab-upload-pc" class="active"><a href="#">{$aLang.uploadimg_from_pc}</a></li>
-		<li data-type="tab" data-option-target="tab-upload-link"><a href="#">{$aLang.uploadimg_from_link}</a></li>
+	<ul class="nav nav-pills" data-type="tabs">
+		<li class="active"><a href="#tab-upload-pc" data-toggle="pill">{$aLang.uploadimg_from_pc}</a></li>
+		<li><a href="#tab-upload-link" data-toggle="pill">{$aLang.uploadimg_from_link}</a></li>
 	</ul>
 {/block}
 
 {block name='modal_content_after'}
 	<div data-type="tab-panes">
-		{**
-		 * Загрузка
-		 *}
+		{* Load from local file *}
 		<form method="POST" action="" enctype="multipart/form-data" id="tab-upload-pc" onsubmit="return false;" data-type="tab-pane" class="tab-pane" style="display: block">
 			<div class="modal-content">
 				<p><label for="img_file">{$aLang.uploadimg_file}:</label>
@@ -44,16 +42,14 @@
 
 				{hook run="uploadimg_additional"}
 			</div>
-			
+
 			<div class="modal-footer">
 				<button type="submit" class="button button-primary js-upload-image-button" data-form-id="tab-upload-pc">{$aLang.uploadimg_submit}</button>
 				<button type="button" class="button" data-type="modal-close">{$aLang.uploadimg_cancel}</button>
 			</div>
 		</form>
 
-		{**
-		 * Ссылка
-		 *}
+		{* Load from URL *}
 		<form method="POST" action="" enctype="multipart/form-data" id="tab-upload-link" onsubmit="return false;" data-type="tab-pane" class="tab-pane">
 			<div class="modal-content">
 				<p><label for="img_file">{$aLang.uploadimg_url}:</label>

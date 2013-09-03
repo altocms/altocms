@@ -44,21 +44,21 @@
 
 
     <script type="text/javascript">
-        var DIR_WEB_ROOT = '{cfg name="path.root.web"}';
-        var DIR_STATIC_SKIN = '{cfg name="path.static.skin"}';
-        var DIR_ROOT_ENGINE_LIB = '{cfg name="path.root.engine_lib"}';
+        var DIR_WEB_ROOT = '{Config::Get("path.root.web")}';
+        var DIR_STATIC_SKIN = '{Config::Get("path.static.skin")}';
+        var DIR_ROOT_ENGINE_LIB = '{Config::Get("path.root.engine_lib")}';
         var ALTO_SECURITY_KEY = '{$ALTO_SECURITY_KEY}';
         var LIVESTREET_SECURITY_KEY = '{$ALTO_SECURITY_KEY}';
         var SESSION_ID = '{$_sPhpSessionId}';
-        var BLOG_USE_TINYMCE = '{cfg name="view.tinymce"}';
+        var WYSIWYG = {if Config::Get("view.wysiwyg")}true{else}false{/if};
 
         var l10n = {
-            'date_format': '{cfg name="l10n.date_format"}',
+            'date_format': '{Config::Get("l10n.date_format")}',
             'week_start': {cfg name="l10n.week_start" default=0}
         };
 
         var TINYMCE_LANG = 'en';
-        {if $oConfig->GetValue('lang.current') == 'russian'}
+        {if Config::Get('lang.current') == 'russian'}
         TINYMCE_LANG = 'ru';
         {/if}
 
@@ -75,7 +75,7 @@
     <script type="text/javascript">
         var tinyMCE = false;
         ls.lang.load({json var = $aLangJs});
-        //ls.registry.set('comment_max_tree', '{cfg name="module.comment.max_tree"}');
+        //ls.registry.set('comment_max_tree', '{Config::Get("module.comment.max_tree")}');
     </script>
 
 {hook run='html_head_end'}
@@ -90,7 +90,7 @@
             <div class="container">
                 <div class="nav-collapse nav logo">
                     <a href="{router page=admin}">
-                        <img src="{cfg name="path.static.skin"}assets/img/admlogo.png" alt="{$sAdminTitle}"/>
+                        <img src="{Config::Get("path.static.skin")}assets/img/admlogo.png" alt="{$sAdminTitle}"/>
                     </a>
                 </div>
                 <a class="brand" href="{router page=admin}">

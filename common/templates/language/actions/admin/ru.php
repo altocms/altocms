@@ -443,7 +443,7 @@ return array(
     'selected_language' => 'Выбран язык',
 
     'set_section_edit' => 'Редактирование',
-    'set_view_tinymce' => 'Использовать визуальный редактор TinyMCE',
+    'set_view_wysiwyg' => 'Использовать визуальный редактор',
     'set_view_noindex' => '"Прятать" ссылки в тексте статей от поисковиков',
     'set_view_img_resize_width' => 'До какого размера по ширине ужимать картинки в тексте',
     'set_view_img_max_width' => 'Максимальная ширина загружаемых изображений',
