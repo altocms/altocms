@@ -49,15 +49,15 @@ class AltoFunc_Main {
     /**
      * Возвращает строку со случайным набором символов
      *
-     * @param   int     $nLen   - длина строка
-     * @param   bool    $bHex   - только шестнадцатиричные символы [0-9a-f]
+     * @param int         $nLen   - длина строка
+     * @param bool|string $sChars - только шестнадцатиричные символы [0-9a-f], либо заданный набор символов
      *
      * @return  string
      */
-    static public function RandomStr($nLen = 32, $bHex = true) {
+    static public function RandomStr($nLen = 32, $sChars = true) {
 
         $sResult = '';
-        if ($bHex) {
+        if ($sChars === true) {
             while (strlen($sResult) < $nLen) {
                 $sResult .= md5(uniqid(md5(rand()), true));
             }
@@ -65,9 +65,12 @@ class AltoFunc_Main {
                 $sResult = substr($sResult, 0, $nLen);
             }
         } else {
-            $nMax = strlen(self::$sRandChars) - 1;
+            if (!is_string($sChars)) {
+                $sChars = self::$sRandChars;
+            }
+            $nMax = strlen($sChars) - 1;
             while (strlen($sResult) < $nLen) {
-                $sResult .= self::$sRandChars[rand(0, $nMax)];
+                $sResult .= $sChars[rand(0, $nMax)];
             }
         }
         return $sResult;
