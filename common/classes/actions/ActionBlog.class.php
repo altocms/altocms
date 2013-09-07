@@ -224,8 +224,8 @@ class ActionBlog extends Action {
         /**
          * Загрузка аватара, делаем ресайзы
          */
-        if (isset($_FILES['avatar']) && is_uploaded_file($_FILES['avatar']['tmp_name'])) {
-            if ($sPath = $this->Blog_UploadBlogAvatar($_FILES['avatar'], $oBlog)) {
+        if ($aUploadedFile = $this->GetUploadedFile('avatar')) {
+            if ($sPath = $this->Blog_UploadBlogAvatar($aUploadedFile, $oBlog)) {
                 $oBlog->setAvatar($sPath);
             } else {
                 $this->Message_AddError($this->Lang_Get('blog_create_avatar_error'), $this->Lang_Get('error'));
@@ -265,66 +265,56 @@ class ActionBlog extends Action {
      *
      */
     protected function EventEditBlog() {
-        /**
-         * Меню
-         */
+
+        // * Меню
         $this->sMenuSubItemSelect = '';
         $this->sMenuItemSelect = 'profile';
-        /**
-         * Проверяем передан ли в УРЛе номер блога
-         */
+
+        // * Проверяем передан ли в URL номер блога
         $sBlogId = $this->GetParam(0);
         if (!$oBlog = $this->Blog_GetBlogById($sBlogId)) {
             return parent::EventNotFound();
         }
-        /**
-         * Проверяем тип блога
-         */
+
+        // * Проверяем тип блога
         if ($oBlog->getType() == 'personal') {
             return parent::EventNotFound();
         }
-        /**
-         * Проверям авторизован ли пользователь
-         */
+
+        // * Проверям авторизован ли пользователь
         if (!$this->User_IsAuthorization()) {
             $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
             return Router::Action('error');
         }
-        /**
-         * Проверка на право редактировать блог
-         */
+
+        // * Проверка на право редактировать блог
         if (!$this->ACL_IsAllowEditBlog($oBlog, $this->oUserCurrent)) {
             return parent::EventNotFound();
         }
 
         $this->Hook_Run('blog_edit_show', array('oBlog' => $oBlog));
-        /**
-         * Устанавливаем title страницы
-         */
+
+        // * Устанавливаем title страницы
         $this->Viewer_AddHtmlTitle($oBlog->getTitle());
         $this->Viewer_AddHtmlTitle($this->Lang_Get('blog_edit'));
 
         $this->Viewer_Assign('oBlogEdit', $oBlog);
 
         $this->Viewer_Assign('aBlogTypes', $this->aBlogTypes);
-        /**
-         * Устанавливаем шаблон для вывода
-         */
+
+        // * Устанавливаем шаблон для вывода
         $this->SetTemplateAction('add');
-        /**
-         * Если нажали кнопку "Сохранить"
-         */
+
+        // * Если нажали кнопку "Сохранить"
         if (isPost('submit_blog_add')) {
-            /**
-             * Запускаем проверку корректности ввода полей при редактировании блога
-             */
+
+            // * Запускаем проверку корректности ввода полей при редактировании блога
             if (!$this->checkBlogFields($oBlog)) {
                 return false;
             }
             $oBlog->setTitle(strip_tags(getRequestStr('blog_title')));
-            /**
-             * Парсим описание блога на предмет ХТМЛ тегов
-             */
+
+            // * Парсим описание блога
             $sText = $this->Text_Parser(getRequestStr('blog_description'));
             $oBlog->setDescription($sText);
 
@@ -337,27 +327,24 @@ class ActionBlog extends Action {
             if ($this->oUserCurrent->isAdministrator()) {
                 $oBlog->setUrl(getRequestStr('blog_url')); // разрешаем смену URL блога только админу
             }
-            /**
-             * Загрузка аватара, делаем ресайзы
-             */
-            if (isset($_FILES['avatar']) && is_uploaded_file($_FILES['avatar']['tmp_name'])) {
-                if ($sPath = $this->Blog_UploadBlogAvatar($_FILES['avatar'], $oBlog)) {
+
+            // * Загрузка аватара, делаем ресайзы
+            if ($aUploadedFile = $this->GetUploadedFile('avatar')) {
+                if ($sPath = $this->Blog_UploadBlogAvatar($aUploadedFile, $oBlog)) {
                     $oBlog->setAvatar($sPath);
                 } else {
                     $this->Message_AddError($this->Lang_Get('blog_create_avatar_error'), $this->Lang_Get('error'));
                     return false;
                 }
             }
-            /**
-             * Удалить аватар
-             */
+
+            // * Удалить аватар
             if (isset($_REQUEST['avatar_delete'])) {
                 $this->Blog_DeleteBlogAvatar($oBlog);
                 $oBlog->setAvatar(null);
             }
-            /**
-             * Обновляем блог
-             */
+
+            // * Обновляем блог
             $this->Hook_Run('blog_edit_before', array('oBlog' => $oBlog));
             if ($this->Blog_UpdateBlog($oBlog)) {
                 $this->Hook_Run('blog_edit_after', array('oBlog' => $oBlog));
@@ -367,9 +354,8 @@ class ActionBlog extends Action {
                 return Router::Action('error');
             }
         } else {
-            /**
-             * Загружаем данные в форму редактирования блога
-             */
+
+            // * Загружаем данные в форму редактирования блога
             $_REQUEST['blog_title'] = $oBlog->getTitle();
             $_REQUEST['blog_url'] = $oBlog->getUrl();
             $_REQUEST['blog_type'] = $oBlog->getType();

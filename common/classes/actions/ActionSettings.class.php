@@ -127,11 +127,11 @@ class ActionSettings extends Action {
          */
         $this->Viewer_SetResponseAjax('jsonIframe', false);
 
-        $sDir = Config::Get('path.uploads.images') . "/tmp/fotos/{$this->oUserCurrent->getId()}";
-        $sFileTmp = $this->Upload_UploadLocal($_FILES['foto']);
-        if ($sFileTmp) {
+        $sDir = Config::Get('path.uploads.images') . '/tmp/fotos/' . $this->oUserCurrent->getId();
+        if (!($aUploadedFile = $this->GetUploadedFile('foto')) || !($sFileTmp = $this->Upload_UploadLocal($aUploadedFile))) {
             return false;
         }
+
         /**
          * Ресайзим и сохраняем именьшенную копию
          * Храним две копии - мелкую для показа пользователю и крупную в качестве исходной для ресайза
@@ -271,13 +271,14 @@ class ActionSettings extends Action {
         // * Устанавливаем формат Ajax ответа
         $this->Viewer_SetResponseAjax('jsonIframe', false);
 
-        if (!isset($_FILES['avatar']['tmp_name'])) {
+        $aUploadedFile = $this->GetUploadedFile('avatar');
+        if (!$aUploadedFile) {
             return false;
         }
         $sError = '';
 
         // Загружаем файл
-        $sUploadedFile = $this->Upload_UploadLocal($_FILES['avatar']);
+        $sUploadedFile = $this->Upload_UploadLocal($aUploadedFile);
         if ($sUploadedFile) {
             if ($this->Img_ResizeFile($sUploadedFile, self::PREVIEW_RESIZE, self::PREVIEW_RESIZE)) {
                 // Сохраняем аватару в оригинале

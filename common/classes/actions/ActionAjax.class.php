@@ -1068,41 +1068,14 @@ class ActionAjax extends Action {
         }
         $sFile = null;
         // * Был выбран файл с компьютера и он успешно загрузился?
-        if (is_uploaded_file($_FILES['img_file']['tmp_name'])) {
-            if (!$sFile = $this->Topic_UploadTopicImageFile($_FILES['img_file'], $this->oUserCurrent)) {
+        if ($aUploadedFile = $this->GetUploadedFile('img_file')) {
+            if (!$sFile = $this->Topic_UploadTopicImageFile($aUploadedFile, $this->oUserCurrent)) {
                 $this->Message_AddErrorSingle($this->Lang_Get('uploadimg_file_error'), $this->Lang_Get('error'));
                 return;
             }
-        } elseif (isPost('img_url') && $_REQUEST['img_url'] != '' && $_REQUEST['img_url'] != 'http://') {
-            // * Загрузка файла по URl
-            $sFile = $this->Topic_UploadTopicImageUrl($_REQUEST['img_url'], $this->oUserCurrent);
-            switch (true) {
-                case is_string($sFile):
-                    break;
-
-                case ($sFile == ModuleImage::UPLOAD_IMAGE_ERROR_READ):
-                    $this->Message_AddErrorSingle(
-                        $this->Lang_Get('uploadimg_url_error_read'), $this->Lang_Get('error')
-                    );
-                    return;
-
-                case ($sFile == ModuleImage::UPLOAD_IMAGE_ERROR_SIZE):
-                    $this->Message_AddErrorSingle(
-                        $this->Lang_Get('uploadimg_url_error_size'), $this->Lang_Get('error')
-                    );
-                    return;
-
-                case ($sFile == ModuleImage::UPLOAD_IMAGE_ERROR_TYPE):
-                    $this->Message_AddErrorSingle(
-                        $this->Lang_Get('uploadimg_url_error_type'), $this->Lang_Get('error')
-                    );
-                    return;
-
-                default:
-                case ($sFile == ModuleImage::UPLOAD_IMAGE_ERROR):
-                    $this->Message_AddErrorSingle($this->Lang_Get('uploadimg_url_error'), $this->Lang_Get('error'));
-                    return;
-            }
+        } elseif (($sUrl = $this->GetPost('img_url')) && ($sUrl != 'http://')) {
+            // * Загрузка файла по URL
+            $sFile = $this->Topic_UploadTopicImageUrl($sUrl, $this->oUserCurrent);
         }
         // * Если файл успешно загружен, формируем HTML вставки и возвращаем в ajax ответе
         if ($sFile) {
@@ -1117,6 +1090,8 @@ class ActionAjax extends Action {
 
             $sText = $this->Image_BuildHTML($oFile->GetPathUrl(), $_REQUEST);
             $this->Viewer_AssignAjax('sText', $sText);
+        } else {
+            $this->Message_AddErrorSingle($this->Upload_GetErrorMsg(), $this->Lang_Get('error'));
         }
     }
 

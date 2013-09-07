@@ -923,7 +923,8 @@ class ActionContent extends Action {
         /**
          * Файл был загружен?
          */
-        if (!isset($_FILES['Filedata']['tmp_name'])) {
+        $aUploadedFile = $this->GetUploadedFile('Filedata');
+        if (!$aUploadedFile) {
             $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
             return false;
         }
@@ -969,7 +970,7 @@ class ActionContent extends Action {
         /**
          * Максимальный размер фото
          */
-        if (filesize($_FILES['Filedata']['tmp_name']) > Config::Get('module.topic.photoset.photo_max_size') * 1024) {
+        if (filesize($aUploadedFile['tmp_name']) > Config::Get('module.topic.photoset.photo_max_size') * 1024) {
             $this->Message_AddError(
                 $this->Lang_Get(
                     'topic_photoset_error_bad_filesize',
@@ -978,14 +979,11 @@ class ActionContent extends Action {
             );
             return false;
         }
-        /**
-         * Загружаем файл
-         */
-        $sFile = $this->Topic_UploadTopicPhoto($_FILES['Filedata']);
+
+        // * Загружаем файл
+        $sFile = $this->Topic_UploadTopicPhoto($aUploadedFile);
         if ($sFile) {
-            /**
-             * Создаем фото
-             */
+            // * Создаем фото
             $oPhoto = Engine::GetEntity('Topic_TopicPhoto');
             $oPhoto->setPath($sFile);
             if ($iTopicId) {
@@ -994,9 +992,7 @@ class ActionContent extends Action {
                 $oPhoto->setTargetTmp($sTargetId);
             }
             if ($oPhoto = $this->Topic_AddTopicPhoto($oPhoto)) {
-                /**
-                 * Если топик уже существует (редактирование), то обновляем число фоток в нём
-                 */
+                // * Если топик уже существует (редактирование), то обновляем число фотографий в нём
                 if (isset($oTopic)) {
                     $oTopic->setPhotosetCount($oTopic->getPhotosetCount() + 1);
                     $this->Topic_UpdateTopic($oTopic);
