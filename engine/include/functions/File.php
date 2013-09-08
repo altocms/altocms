@@ -313,6 +313,14 @@ class AltoFunc_File {
         return $aResult;
     }
 
+    /**
+     * Копирование содержимого папки в другую папку
+     *
+     * @param $sDirSrc
+     * @param $sDirTrg
+     *
+     * @return bool
+     */
     static function CopyDir($sDirSrc, $sDirTrg) {
 
         $aSource = self::ReadDir($sDirSrc, 0, true);
@@ -701,6 +709,14 @@ class AltoFunc_File {
         return $aInfo['extension'];
     }
 
+    /**
+     * Замена расширения файла
+     *
+     * @param $sPath
+     * @param $sExtension
+     *
+     * @return string
+     */
     static public function SetExtension($sPath, $sExtension) {
 
         $aInfo = self::PathInfo($sPath);
@@ -863,11 +879,25 @@ class AltoFunc_File {
         }
     }
 
+    /**
+     * Папка для загрузки временных файлов
+     *
+     * @return string
+     */
     static public function GetUploadDir() {
 
         return static::NormPath(Config::Get('sys.cache.dir') . '/uploads/');
     }
 
+    /**
+     * Возвращает уникальное имя файла для конкретной папки
+     *
+     * @param     $sDir
+     * @param     $sExtension
+     * @param int $nLength
+     *
+     * @return string
+     */
     static public function Uniqname($sDir, $sExtension, $nLength = 8) {
 
         $sFileName = F::RandomStr($nLength) . ($sExtension ? ('.' . trim($sExtension, '.')) : '');
@@ -877,6 +907,14 @@ class AltoFunc_File {
         return static::NormPath($sDir . '/' . $sFileName);
     }
 
+    /**
+     * Возвращает уникальное имя файла для папки загрузки файлов
+     *
+     * @param     $sExtension
+     * @param int $nLength
+     *
+     * @return string
+     */
     static public function UploadUniqname($sExtension, $nLength = 8) {
 
         return static::Uniqname(static::GetUploadDir(), $sExtension, $nLength);
