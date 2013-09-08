@@ -384,7 +384,7 @@ $config['module']['image']['topic']['round_corner']   = false;
 
 // Параметры для загружаемых изображений по умолчанию
 $config['module']['image']['preset']['default'] = array(
-    'driver' => 'GD', // 'GD', 'Imagick' or 'Gmagick'
+    'driver' => 'Gmagick,Imagick,GD', // 'GD', 'Imagick' or 'Gmagick', or several libs separated by comma
     'jpg_quality' => 70,
     'watermark' => array(
         'use' => false,

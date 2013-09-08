@@ -14,16 +14,20 @@ class ModuleImg extends Module {
 
     protected $nError = 0;
     protected $sConfig = 'default';
-    protected $aDrivers = array(
-        'gd' => 'GD',
-        'imagick' => 'Imagick',
-        'gmagick' => 'Gmagick',
-    );
+    protected $aDrivers
+        = array(
+            'gmagick' => 'Gmagick',
+            'imagick' => 'Imagick',
+            'gd'      => 'GD',
+        );
     protected $sDefaultDriver = 'GD';
+    protected $aAvailableDrivers = array();
     protected $aParams = array();
 
     public function Init() {
 
+        $this->aAvailableDrivers = $this->GetDriversInfo();
+        $this->sDefaultDriver = reset(array_keys($this->aAvailableDrivers));
     }
 
     /**
@@ -94,13 +98,19 @@ class ModuleImg extends Module {
     public function GetDriver($sConfigKey = null) {
 
         $aParams = $this->GetParams($sConfigKey);
-        if (!isset($aParams['driver'])) {
+        if (isset($aParams['driver'])) {
             $sDriver = strtolower($aParams['driver']);
         } else {
             $sDriver = strtolower($this->sDefaultDriver);
         }
-        if (isset($this->aDrivers[$sDriver])) {
-            return $this->aDrivers[$sDriver];
+        $aDrivers = F::Str2Array($sDriver);
+        foreach($aDrivers as $sDriver) {
+            if (isset($this->aDrivers[$sDriver])) {
+                $sDriver = $this->aDrivers[$sDriver];
+            }
+            if (isset($this->aAvailableDrivers[$sDriver])) {
+                return $sDriver;
+            }
         }
         return $this->sDefaultDriver;
     }
@@ -119,9 +129,9 @@ class ModuleImg extends Module {
 
     public function LoadParams($sConfigKey) {
 
-        $aParams = Config::Get('default');
+        $aParams = Config::Get('module.image.preset.default');
         if ($sConfigKey != 'default') {
-            $aParams = F::Array_Merge($aParams, Config::Get($sConfigKey));
+            $aParams = F::Array_Merge($aParams, Config::Get('module.image.preset.' . $sConfigKey));
         }
         return $aParams;
     }
