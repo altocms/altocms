@@ -42,7 +42,7 @@ class HookStatisticsPerformance extends Hook {
         $aStats = $oEngine->getStats();
         $aStats['cache']['mode'] = (Config::Get('sys.cache.use') ? Config::Get('sys.cache.type') : 'off');
         $aStats['cache']['time'] = round($aStats['cache']['time'], 5);
-        $aStats['memory']['limit'] = ini_get('memory_limit');
+        $aStats['memory']['limit'] = F::MemSizeFormat(F::MemSize2Int(ini_get('memory_limit')), 3);
         $aStats['memory']['usage'] = F::MemSizeFormat(memory_get_usage(), 3);
         $aStats['memory']['peak'] = F::MemSizeFormat(memory_get_peak_usage(true), 3);
         $aStats['viewer']['count'] = ModuleViewer::GetRenderCount();

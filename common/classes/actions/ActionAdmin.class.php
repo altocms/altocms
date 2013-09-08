@@ -364,7 +364,7 @@ class ActionAdmin extends Action {
 
     public function EventPhpinfo() {
 
-        $this->_setTitle($this->Lang_Get('action.admin.menu_info_php'));
+        $this->_setTitle($this->Lang_Get('action.admin.menu_info_phpinfo'));
         $this->SetTemplateAction('info/phpinfo');
 
         $this->_phpInfo(1);
