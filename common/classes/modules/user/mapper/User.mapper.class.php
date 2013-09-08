@@ -109,7 +109,7 @@ class ModuleUser_MapperUser extends Mapper {
             $oUser->getProfileAbout(),
             $oUser->getProfileDate(),
             $oUser->getProfileAvatar(),
-            $oUser->getProfileFoto(),
+            $oUser->getProfilePhoto(),
             $oUser->getSettingsNoticeNewTopic(),
             $oUser->getSettingsNoticeNewComment(),
             $oUser->getSettingsNoticeNewTalk(),

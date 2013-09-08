@@ -369,6 +369,11 @@ class ModuleUser_EntityUser extends Entity {
         return $this->getProp('user_profile_foto');
     }
 
+    public function getProfilePhoto() {
+
+        return $this->getProfileFoto();
+    }
+
     /**
      * Возвращает статус уведомления о новых топиках
      *
@@ -505,27 +510,49 @@ class ModuleUser_EntityUser extends Entity {
     }
 
     /**
-     * Возвращает полный веб путь до фото
+     * Возвращает полный URL до фото
      *
-     * @return null|string
-     */
-    public function getProfileFotoPath() {
-
-        if ($this->getProfileFoto()) {
-            return $this->getProfileFoto();
-        }
-        return $this->getProfileFotoDefault();
-    }
-
-    /**
-     * Возвращает дефолтную фото
+     * @param int $nSize
      *
      * @return string
      */
+    public function GetPhotoUrl($nSize = null) {
+
+        if ($sUrl = $this->getProfilePhoto()) {
+            if (!$nSize) {
+                return $sUrl;
+            } else {
+                return $sUrl . '-' . $nSize . 'x' . $nSize . '.' . pathinfo($sUrl, PATHINFO_EXTENSION);
+            }
+        }
+        return $this->GetDefaultPhotoUrl($nSize);
+    }
+
+    public function GetDefaultPhotoUrl($nSize = null) {
+
+        $sPath = $this->Upload_GetUserAvatarDir(0)
+            . 'user_photo_' . Config::Get('view.skin') . '_' . ($this->getProfileSex() == 'woman' ? 'female' : 'male')
+            . '.png';
+        if ($nSize) {
+            $sPath .= '-' . $nSize . 'x' . $nSize . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
+        }
+        return $this->Upload_Dir2Url($sPath);
+    }
+
+    /**
+     * DEPRECATED
+     */
+    public function getProfileFotoPath() {
+
+        return $this->GetPhotoUrl();
+    }
+
+    /**
+     * DEPRECATED
+     */
     public function getProfileFotoDefault() {
 
-        return Config::Get('path.static.skin') . '/images/user_photo_' . (
-        $this->getProfileSex() == 'woman' ? 'female' : 'male') . '.png';
+        return $this->GetDefaultPhotoUrl();
     }
 
     /**
@@ -897,6 +924,11 @@ class ModuleUser_EntityUser extends Entity {
     public function setProfileFoto($data) {
 
         $this->setProp('user_profile_foto', $data);
+    }
+
+    public function setProfilePhoto($data) {
+
+        $this->setProfileFoto($data);
     }
 
     /**

@@ -28,6 +28,9 @@ class ActionImg extends Action {
         $this->AddEvent('uploads', 'EventUploads');
     }
 
+    /**
+     * Makes image with new size
+     */
     public function EventUploads() {
 
         // Раз оказались здесь, то нет соответствующего изображения. Пробуем его создать
@@ -37,8 +40,11 @@ class ActionImg extends Action {
 
         if (!$sNewFile) {
             if (strpos(basename($sFile), 'avatar') === 0) {
-                // Запрашивается аватара
-                $sNewFile = $this->_makeAvatar($sFile);
+                // Запрашивается аватар
+                $sNewFile = $this->_makeImage($sFile, 'avatar', 100);
+            } elseif (strpos(basename($sFile), 'user_photo') === 0) {
+                // Запрашивается фото
+                $sNewFile = $this->_makeImage($sFile, 'user_photo', 250);
             }
         }
 
@@ -54,24 +60,43 @@ class ActionImg extends Action {
         }
     }
 
-    protected function _makeAvatar($sFile) {
+    /**
+     * Makes default avatar or profile photo
+     *
+     * @param $sFile
+     * @param $sPrefix
+     * @param $nSize
+     *
+     * @return mixed
+     */
+    protected function _makeImage($sFile, $sPrefix, $nSize) {
 
-        $sAvatarFile = $this->_getDefaultAvatar($sFile);
-        if ($sAvatarFile) {
-            $oImg = $this->Img_Read($sAvatarFile);
+        $sImageFile = $this->_getDefaultImage($sFile, $sPrefix);
+        if ($sImageFile) {
+            $oImg = $this->Img_Read($sImageFile);
         } else {
             // Файла нет, создаем пустышку, чтоб в дальнейшем не было пустых запросов
-            $oImg = $this->Img_Create(100, 100);
+            $oImg = $this->Img_Create($nSize, $nSize);
         }
         $oImg->SaveUpload($sFile);
         return $sFile;
     }
 
-    protected function _getDefaultAvatar($sFile) {
+    /**
+     * Gets default avatar or profile photo for the skin
+     *
+     * @param $sFile
+     * @param $sPrefix
+     *
+     * @return bool|mixed|string
+     */
+    protected function _getDefaultImage($sFile, $sPrefix) {
 
-        $sAvatarFile = '';
-        if (strpos(basename($sFile), 'avatar') === 0) {
-            $aPaths = explode('_', basename($sFile));
+        $sImageFile = '';
+        $sName = basename($sFile);
+        if (strpos($sName, $sPrefix) === 0) {
+            $sName = substr($sName, strlen($sPrefix));
+            $aPaths = explode('_', $sName);
             if (count($aPaths) >= 2) {
                 // Определяем путь до аватар скина
                 $sPath = Config::Get('path.skins.dir') . $aPaths[1] . '/assets/images/avatars/';
@@ -82,25 +107,33 @@ class ActionImg extends Action {
                 }
                 // Если задан тип male/female, то ищем сначала с ним
                 if ($sType) {
-                    $sAvatarFile = $this->_seekDefaultAvatar($sPath, 'avatar_' . $sType);
+                    $sImageFile = $this->_seekDefaultImage($sPath, $sPrefix . '_' . $sType);
                 }
-                // Если аватара не найдена
-                if (!$sAvatarFile) {
-                    $sAvatarFile = $this->_seekDefaultAvatar($sPath, 'avatar_' . $sType);
+                // Если аватар не найден
+                if (!$sImageFile) {
+                    $sImageFile = $this->_seekDefaultImage($sPath, $sPrefix . '_' . $sType);
                 }
             }
         }
-        return $sAvatarFile ? $sAvatarFile : false;
+        return $sImageFile ? $sImageFile : false;
     }
 
-    protected function _seekDefaultAvatar($sPath, $sName) {
+    /**
+     * Seeks default avatar or profile photo in the skin's image area
+     *
+     * @param $sPath
+     * @param $sName
+     *
+     * @return bool|mixed|string
+     */
+    protected function _seekDefaultImage($sPath, $sName) {
 
-        $sAvatarFile = '';
+        $sImageFile = '';
         if ($aFiles = glob($sPath . $sName . '.*')) {
-            // Найдена аватара вида avatar_male.png
-            $sAvatarFile = array_shift($aFiles);
+            // Найден файл вида image_male.png
+            $sImageFile = array_shift($aFiles);
         } elseif ($aFiles = glob($sPath . $sName . '_*.*')) {
-            // Найдены аватары вида avatar_male_100x100.png
+            // Найдены файлы вида image_male_100x100.png
             $aFoundFiles = array();
             foreach ($aFiles as $sFile) {
                 if (preg_match('/_(\d+)x(\d+)\./', basename($sFile), $aMatches)) {
@@ -111,9 +144,9 @@ class ActionImg extends Action {
                 }
             }
             krsort($aFoundFiles);
-            $sAvatarFile = array_shift($aFiles);
+            $sImageFile = array_shift($aFiles);
         }
-        return $sAvatarFile ? $sAvatarFile : false;
+        return $sImageFile ? $sImageFile : false;
     }
 
 }

@@ -71,10 +71,10 @@ class ActionSettings extends Action {
         $this->AddEventPreg('/^profile$/i', '/^resize-avatar/i', '/^$/i', 'EventResizeAvatar');
         $this->AddEventPreg('/^profile$/i', '/^remove-avatar/i', '/^$/i', 'EventRemoveAvatar');
         $this->AddEventPreg('/^profile$/i', '/^cancel-avatar/i', '/^$/i', 'EventCancelAvatar');
-        $this->AddEventPreg('/^profile$/i', '/^upload-foto/i', '/^$/i', 'EventUploadFoto');
-        $this->AddEventPreg('/^profile$/i', '/^resize-foto/i', '/^$/i', 'EventResizeFoto');
-        $this->AddEventPreg('/^profile$/i', '/^remove-foto/i', '/^$/i', 'EventRemoveFoto');
-        $this->AddEventPreg('/^profile$/i', '/^cancel-foto/i', '/^$/i', 'EventCancelFoto');
+        $this->AddEventPreg('/^profile$/i', '/^upload-photo/i', '/^$/i', 'EventUploadPhoto');
+        $this->AddEventPreg('/^profile$/i', '/^resize-photo/i', '/^$/i', 'EventResizePhoto');
+        $this->AddEventPreg('/^profile$/i', '/^remove-photo/i', '/^$/i', 'EventRemovePhoto');
+        $this->AddEventPreg('/^profile$/i', '/^cancel-photo/i', '/^$/i', 'EventCancelPhoto');
         $this->AddEvent('profile', 'EventProfile');
         $this->AddEvent('invite', 'EventInvite');
         $this->AddEvent('tuning', 'EventTuning');
@@ -121,98 +121,91 @@ class ActionSettings extends Action {
     /**
      * Загрузка временной картинки фото для последущего ресайза
      */
-    protected function EventUploadFoto() {
-        /**
-         * Устанавливаем формат Ajax ответа
-         */
+    protected function EventUploadPhoto() {
+
+        // * Устанавливаем формат Ajax ответа
         $this->Viewer_SetResponseAjax('jsonIframe', false);
 
-        $sDir = Config::Get('path.uploads.images') . '/tmp/fotos/' . $this->oUserCurrent->getId();
-        if (!($aUploadedFile = $this->GetUploadedFile('foto')) || !($sFileTmp = $this->Upload_UploadLocal($aUploadedFile))) {
-            return false;
+        if (!($aUploadedFile = $this->GetUploadedFile('photo'))) {
+            $this->Message_AddError($this->Lang_Get('settings_profile_photo_error'), $this->Lang_Get('error'));
+            return;
         }
+        $sError = '';
 
-        /**
-         * Ресайзим и сохраняем именьшенную копию
-         * Храним две копии - мелкую для показа пользователю и крупную в качестве исходной для ресайза
-         */
-        if ($sFile = $this->Image_Resize(
-            $sFileTmp, $sDir, 'original', Config::Get('view.img_max_width'), Config::Get('view.img_max_height'), 1000,
-            null, true
-        )
-        ) {
-            if ($sFilePreview = $this->Image_Resize(
-                $sFileTmp, $sDir, 'preview', Config::Get('view.img_max_width'), Config::Get('view.img_max_height'), self::PREVIEW_RESIZE,
-                null, true
-            )
-            ) {
-                /**
-                 * Сохраняем в сессии временный файл с изображением
-                 */
-                $this->Session_Set('sFotoFileTmp', $sFile);
-                $this->Session_Set('sFotoFilePreviewTmp', $sFilePreview);
-                $this->Viewer_AssignAjax('sTmpFile', $this->Image_GetWebPath($sFilePreview));
-                unlink($sFileTmp);
+        $sTmpFile = $this->Upload_UploadLocal($aUploadedFile);
+        if ($sTmpFile) {
+            /**
+             * Ресайзим и сохраняем уменьшенную копию
+             * Храним две копии - мелкую для показа пользователю и крупную в качестве исходной для ресайза
+             */
+            $sPreviewFile = $this->Upload_GetUserAvatarDir($this->oUserCurrent->getId()) . 'photo-preview.' . F::File_GetExtension($sTmpFile);
+            if ($sPreviewFile = $this->Img_Copy($sTmpFile, $sPreviewFile, self::PREVIEW_RESIZE, self::PREVIEW_RESIZE)) {
+                // * Сохраняем в сессии временный файл с изображением
+                $this->Session_Set('sPhotoTmp', $sTmpFile);
+                $this->Session_Set('sPhotoPreview', $sPreviewFile);
+                $this->Viewer_AssignAjax('sTmpFile', $this->Upload_Dir2Url($sPreviewFile));
                 return;
             }
+        } else {
+            $sError = $this->Upload_GetErrorMsg();
+            if (!$sError) {
+                $sError = $this->Lang_Get('settings_profile_photo_error');
+            }
         }
-        $this->Message_AddError($this->Image_GetLastError(), $this->Lang_Get('error'));
-        unlink($sFileTmp);
+
+        $this->Message_AddError($sError, $this->Lang_Get('error'));
+        F::File_Delete($sTmpFile);
     }
 
     /**
      * Вырезает из временной фотки область нужного размера, ту что задал пользователь
      */
-    protected function EventResizeFoto() {
-        /**
-         * Устанавливаем формат Ajax ответа
-         */
+    protected function EventResizePhoto() {
+
+        // * Устанавливаем формат Ajax ответа
         $this->Viewer_SetResponseAjax('json');
-        /**
-         * Достаем из сессии временный файл
-         */
-        $sFile = $this->Session_Get('sFotoFileTmp');
-        $sFilePreview = $this->Session_Get('sFotoFilePreviewTmp');
-        if (!file_exists($sFile)) {
+
+        // * Достаем из сессии временный файл
+        $sTmpFile = $this->Session_Get('sPhotoTmp');
+        $sPreviewFile = $this->Session_Get('sPhotoPreview');
+        if (!F::File_Exists($sTmpFile)) {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
             return;
         }
-        /**
-         * Определяем размер большого фото для подсчета множителя пропорции
-         */
+
+        // * Определяем размер большого фото для подсчета множителя пропорции
         $fRation = 1;
-        if ($aSizeFile = getimagesize($sFile) && isset($aSizeFile[0])) {
-            $fRation
-                = $aSizeFile[0] / self::PREVIEW_RESIZE; // 200 - размер превью по которой пользователь определяет область для ресайза
+        if (($aSizeFile = getimagesize($sTmpFile)) && isset($aSizeFile[0])) {
+            // в self::PREVIEW_RESIZE задана максимальная сторона
+            $fRation = max($aSizeFile[0], $aSizeFile[1]) / self::PREVIEW_RESIZE; // 200 - размер превью по которой пользователь определяет область для ресайза
             if ($fRation < 1) {
                 $fRation = 1;
             }
         }
-        /**
-         * Получаем размер области из параметров
-         */
+
+        // * Получаем размер области из параметров
         $aSize = $this->_getImageSize('size');
         if ($aSize) {
-            $aSize = array('x1' => round($fRation * $aSize['x']), 'y1' => round($fRation * $aSize['y']),
-                           'x2' => round($fRation * $aSize['x2']), 'y2' => round($fRation * $aSize['y2']));
+            $aSize = array(
+                'x1' => round($fRation * $aSize['x1']), 'y1' => round($fRation * $aSize['y1']),
+                'x2' => round($fRation * $aSize['x2']), 'y2' => round($fRation * $aSize['y2'])
+            );
         }
-        /**
-         * Вырезаем аватарку
-         */
-        if ($sFileWeb = $this->User_UploadFoto($sFile, $this->oUserCurrent, $aSize)) {
-            /**
-             * Удаляем старые аватарки
-             */
-            $this->oUserCurrent->setProfileFoto($sFileWeb);
+
+        // * Вырезаем фото
+        if ($sFileWeb = $this->User_UploadPhoto($sTmpFile, $this->oUserCurrent, $aSize)) {
+
+            // * Удаляем старые аватарки
+            $this->oUserCurrent->setProfilePhoto($sFileWeb);
             $this->User_Update($this->oUserCurrent);
 
-            $this->Image_RemoveFile($sFilePreview);
-            /**
-             * Удаляем из сессии
-             */
-            $this->Session_Drop('sFotoFileTmp');
-            $this->Session_Drop('sFotoFilePreviewTmp');
-            $this->Viewer_AssignAjax('sFile', $this->oUserCurrent->getProfileFoto());
+            $this->Img_Delete($sTmpFile);
+            $this->Img_Delete($sPreviewFile);
+
+            // * Удаляем из сессии
+            $this->Session_Drop('sPhotoTmp');
+            $this->Session_Drop('sPhotoPreview');
+            $this->Viewer_AssignAjax('sFile', $this->oUserCurrent->getPhotoUrl(250));
             $this->Viewer_AssignAjax('sTitleUpload', $this->Lang_Get('settings_profile_photo_change'));
         } else {
             $this->Message_AddError($this->Lang_Get('settings_profile_avatar_error'), $this->Lang_Get('error'));
@@ -222,45 +215,36 @@ class ActionSettings extends Action {
     /**
      * Удаляет фото
      */
-    protected function EventRemoveFoto() {
-        /**
-         * Устанавливаем формат Ajax ответа
-         */
+    protected function EventRemovePhoto() {
+
+        // * Устанавливаем формат Ajax ответа
         $this->Viewer_SetResponseAjax('json');
-        /**
-         * Удаляем
-         */
-        $this->User_DeleteFoto($this->oUserCurrent);
-        $this->oUserCurrent->setProfileFoto(null);
+
+        // * Удаляем
+        $this->User_DeletePhoto($this->oUserCurrent);
+        $this->oUserCurrent->setProfilePhoto(null);
         $this->User_Update($this->oUserCurrent);
-        /**
-         * Возвращает дефолтную аватарку
-         */
-        $this->Viewer_AssignAjax('sFile', $this->oUserCurrent->getProfileFotoDefault());
+
+        // * Возвращает дефолтную аватарку
+        $this->Viewer_AssignAjax('sFile', $this->oUserCurrent->GetPhotoUrl(250));
         $this->Viewer_AssignAjax('sTitleUpload', $this->Lang_Get('settings_profile_photo_upload'));
     }
 
     /**
      * Отмена ресайза фотки, необходимо удалить временный файл
      */
-    protected function EventCancelFoto() {
-        /**
-         * Устанавливаем формат Ajax ответа
-         */
-        $this->Viewer_SetResponseAjax('json');
-        /**
-         * Достаем из сессии файл и удаляем
-         */
-        $sFile = $this->Session_Get('sFotoFileTmp');
-        $this->Image_RemoveFile($sFile);
+    protected function EventCancelPhoto() {
 
-        $sFile = $this->Session_Get('sFotoFilePreviewTmp');
-        $this->Image_RemoveFile($sFile);
-        /**
-         * Удаляем из сессии
-         */
-        $this->Session_Drop('sFotoFileTmp');
-        $this->Session_Drop('sFotoFilePreviewTmp');
+        // * Устанавливаем формат Ajax ответа
+        $this->Viewer_SetResponseAjax('json');
+
+        // * Достаем из сессии файл и удаляем
+        $sFile = $this->Session_Get('sPhotoTmp');
+        $this->Img_Delete($sFile);
+
+        // * Удаляем из сессии
+        $this->Session_Drop('sPhotoTmp');
+        $this->Session_Drop('sPhotoPreview');
     }
 
     /**
@@ -273,7 +257,8 @@ class ActionSettings extends Action {
 
         $aUploadedFile = $this->GetUploadedFile('avatar');
         if (!$aUploadedFile) {
-            return false;
+            $this->Message_AddError($this->Lang_Get('settings_profile_avatar_upload_error'), $this->Lang_Get('error'));
+            return;
         }
         $sError = '';
 
@@ -281,17 +266,20 @@ class ActionSettings extends Action {
         $sUploadedFile = $this->Upload_UploadLocal($aUploadedFile);
         if ($sUploadedFile) {
             if ($this->Img_ResizeFile($sUploadedFile, self::PREVIEW_RESIZE, self::PREVIEW_RESIZE)) {
-                // Сохраняем аватару в оригинале
+                // Сохраняем аватар в оригинале
                 $sAvatarFile = $this->Upload_GetUserAvatarDir($this->oUserCurrent->getId()) . 'original.' . F::File_GetExtension($sUploadedFile);
                 if ($sAvatarFile = $this->Upload_Move($sUploadedFile, $sAvatarFile, true)) {
-                    // Зачем-то сохраняем в сессии
+                    // Сохраняем в сессии
                     $this->Session_Set('sAvatarFileTmp', $sAvatarFile);
                     $this->Viewer_AssignAjax('sTmpFile', $this->Upload_Dir2Url($sAvatarFile));
                     return;
                 }
             }
         } else {
-            $sError = $this->Lang_Get('settings_profile_avatar_upload_error');
+            $sError = $this->Upload_GetErrorMsg();
+            if (!$sError) {
+                $sError = $this->Lang_Get('settings_profile_avatar_upload_error');
+            }
         }
         if (!$sError) {
             $sError = 'Image loading error';
@@ -319,12 +307,14 @@ class ActionSettings extends Action {
 
         // * Вырезаем аватару
         if ($sFileWeb = $this->User_UploadAvatar($sFileAvatar, $this->oUserCurrent, $aSize)) {
-            /**
-             * Удаляем старые аватарки
-             */
+
+            // * Удаляем старые аватарки
             if ($sFileWeb != $this->oUserCurrent->getProfileAvatar()) {
                 $this->User_DeleteAvatar($this->oUserCurrent);
+            } else {
+                $this->User_DeleteAvatarSizes($this->oUserCurrent);
             }
+
             $this->oUserCurrent->setProfileAvatar($sFileWeb);
 
             $this->User_Update($this->oUserCurrent);
@@ -337,22 +327,19 @@ class ActionSettings extends Action {
     }
 
     /**
-     * Удаляет аватар
+     * Удаляет аватар текущего пользователя
      */
     protected function EventRemoveAvatar() {
-        /**
-         * Устанавливаем формат Ajax ответа
-         */
+
+        // * Устанавливаем формат Ajax ответа
         $this->Viewer_SetResponseAjax('json');
-        /**
-         * Удаляем
-         */
+
+        // * Удаляем
         $this->User_DeleteAvatar($this->oUserCurrent);
         $this->oUserCurrent->setProfileAvatar(null);
         $this->User_Update($this->oUserCurrent);
-        /**
-         * Возвращает дефолтную аватарку
-         */
+
+        // * Возвращает дефолтную аватарку
         $this->Viewer_AssignAjax('sFile', $this->oUserCurrent->getProfileAvatarPath(100));
         $this->Viewer_AssignAjax('sTitleUpload', $this->Lang_Get('settings_profile_avatar_upload'));
     }

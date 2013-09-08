@@ -371,7 +371,7 @@ class ModuleImg extends Module {
         try {
             if (F::File_Exists($sFile) && ($oImg = $this->Read($sFile))) {
                 $oImg->Resize($nWidth, $nHeight, $bFit);
-                $oImg->save($sDestination);
+                $oImg->Save($sDestination);
                 return $sDestination;
             }
         } catch(ErrorException $oE) {
@@ -465,7 +465,12 @@ class ModuleImg extends Module {
      */
     public function Delete($sFile) {
 
-        return F::File_Delete($sFile) && F::File_DeleteAs($sFile . '-*.*');
+        return F::File_Delete($sFile) && $this->DeleteDuplicates($sFile);
+    }
+
+    public function DeleteDuplicates($sFile) {
+
+        return F::File_DeleteAs($sFile . '-*.*');
     }
 
 }

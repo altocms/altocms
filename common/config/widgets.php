@@ -79,6 +79,7 @@ $config['widgets'][] = array(
 $config['widgets'][] = array(
     'name' => 'userActions.tpl',
     'wgroup' => 'right',
+    'priority' => 150,
     'on' => 'profile, talk, settings',
 );
 
@@ -129,17 +130,8 @@ $config['widgets'][] = array(
     'name' => 'widgets/widget.userPhoto.tpl',
     'wgroup' => 'right',
     'priority' => 100,
-    'action' => array(
-        'profile'
-    ),
-);
-
-$config['widgets'][] = array(
-    'name' => 'widgets/widget.userActions.tpl',
-    'wgroup' => 'right',
-    'priority' => 50,
-    'action' => array(
-        'profile'
+    'on' => array(
+        'settings/profile'
     ),
 );
 

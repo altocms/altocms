@@ -83,7 +83,7 @@
                     </button>
                 </div>
                 <div class="accordion-body collapse" id="user-profile-photo-img-{$oUserProfile->GetId()}">
-                    <img src="{$oUserProfile->getProfileFoto()}" alt="photo"
+                    <img src="{$oUserProfile->getPhotoUrl(250)}" alt="photo"
                          class="photo img-polaroid userid-{$oUserProfile->GetId()}" />
                 </div>
             </div>

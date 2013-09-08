@@ -1306,7 +1306,7 @@ class ModuleUser extends Module {
     /**
      * Загрузка аватара пользователя
      *
-     * @param  string                $sFile - Серверный путь до оригинального файла с аватарой
+     * @param  string                $sFile - Путь до оригинального файла
      * @param  ModuleUser_EntityUser $oUser - Объект пользователя
      * @param  array                 $aSize - Размер области из которой нужно вырезать картинку - array('x1'=>0,'y1'=>0,'x2'=>100,'y2'=>100)
      *
@@ -1328,11 +1328,15 @@ class ModuleUser extends Module {
             }
             $oImg = $this->Img_Crop($sFile, $aSize['w'], $aSize['h'], $aSize['x1'], $aSize['y1']);
         }
-        // Файл для временного сохранения аватары
-        $sTmpFile = F::File_GetUploadDir() . F::RandomStr() . '.' . pathinfo($sFile, PATHINFO_EXTENSION);
-        // Файл, куда будет записана аватара
-        $sAvatar = $this->Upload_GetUserAvatarDir($oUser->GetId()) . 'avatar.' . pathinfo($sFile, PATHINFO_EXTENSION);
-        if ($oImg->Save($sTmpFile)) {
+        $sExtension = strtolower(pathinfo($sFile, PATHINFO_EXTENSION));
+        $sName = pathinfo($sFile, PATHINFO_FILENAME);
+
+        // Сохраняем аватар во временный файл
+        if ($sTmpFile = $oImg->Save(F::File_UploadUniqname($sExtension))) {
+
+            // Файл, куда будет записан аватар
+            $sAvatar = $this->Upload_GetUserAvatarDir($oUser->GetId()) . 'avatar' . $sName . '.' . $sExtension;
+
             // Окончательная запись файла только через модуль Upload
             if ($sFileAvatar = $this->Upload_Move($sTmpFile, $sAvatar, true)) {
                 return $this->Upload_Dir2Url($sAvatar);
@@ -1340,13 +1344,14 @@ class ModuleUser extends Module {
         }
 
         // * В случае ошибки, возвращаем false
+        $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
         return false;
     }
 
     /**
      * Удаляет аватары пользователя всех размеров
      *
-     * @param ModuleUser_EntityUser $oUser Объект пользователя
+     * @param ModuleUser_EntityUser $oUser - Объект пользователя
      *
      * @return bool
      */
@@ -1360,89 +1365,62 @@ class ModuleUser extends Module {
     }
 
     /**
+     * Удаляет аватары производных размеров (основной не трогает)
+     *
+     * @param ModuleUser_EntityUser $oUser
+     *
+     * @return bool
+     */
+    public function DeleteAvatarSizes($oUser) {
+
+        // * Если аватар есть, удаляем его и его рейсайзы
+        if ($sAavatar = $oUser->getProfileAvatar()) {
+            $sFile = $this->Upload_Url2Dir($sAavatar);
+            return $this->Upload_DeleteAs($sFile . '-*.*');
+        }
+    }
+
+    /**
      * загрузка фотографии пользователя
      *
-     * @param  string                $sFileTmp    Серверный путь до временной фотографии
-     * @param  ModuleUser_EntityUser $oUser       Объект пользователя
-     * @param  array                 $aSize       Размер области из которой нужно вырезать картинку - array('x1'=>0,'y1'=>0,'x2'=>100,'y2'=>100)
+     * @param  string                $sFile - Серверный путь до временной фотографии
+     * @param  ModuleUser_EntityUser $oUser - Объект пользователя
+     * @param  array                 $aSize - Размер области из которой нужно вырезать картинку - array('x1'=>0,'y1'=>0,'x2'=>100,'y2'=>100)
      *
      * @return string|bool
      */
-    public function UploadFoto($sFileTmp, $oUser, $aSize = array()) {
+    public function UploadPhoto($sFile, $oUser, $aSize = array()) {
 
-        if (!file_exists($sFileTmp)) {
+        if (!F::File_Exists($sFile)) {
             return false;
         }
-        $sDirUpload = $this->Image_GetIdDir($oUser->getId());
-        $aParams = $this->Image_BuildParams('foto');
+        if (!$aSize) {
+            $oImg = $this->Img_CropSquare($sFile, true);
+        } else {
+            if (!isset($aSize['w'])) {
+                $aSize['w'] = $aSize['x2'] - $aSize['x1'];
+            }
+            if (!isset($aSize['h'])) {
+                $aSize['h'] = $aSize['y2'] - $aSize['y1'];
+            }
+            $oImg = $this->Img_Crop($sFile, $aSize['w'], $aSize['h'], $aSize['x1'], $aSize['y1']);
+        }
+        $sExtension = strtolower(pathinfo($sFile, PATHINFO_EXTENSION));
 
+        // Сохраняем фото во временный файл
+        if ($sTmpFile = $oImg->Save(F::File_UploadUniqname($sExtension))) {
 
-        if ($aSize) {
-            $oImage = $this->Image_CreateImageObject($sFileTmp);
-            /**
-             * Если объект изображения не создан, возвращаем ошибку
-             */
-            if ($sError = $oImage->get_last_error()) {
-                // Вывод сообщения об ошибки, произошедшей при создании объекта изображения
-                // $this->Message_AddError($sError,$this->Lang_Get('error'));
-                @unlink($sFileTmp);
-                return false;
-            }
+            // Файл, куда будет записано фото
+            $sPhoto = $this->Upload_Uniqname($this->Upload_GetUserImageDir($oUser->GetId()), $sExtension);
 
-            $iWSource = $oImage->get_image_params('width');
-            $iHSource = $oImage->get_image_params('height');
-            $x1 = $x2 = $y1 = $y2 = 0; // инициализация переменных
-            /**
-             * Достаем переменные x1 и т.п. из $aSize
-             */
-            extract($aSize, EXTR_PREFIX_SAME, 'ops');
-            if ($x1 > $x2) {
-                // меняем значения переменных
-                $x1 = $x1 + $x2;
-                $x2 = $x1 - $x2;
-                $x1 = $x1 - $x2;
+            // Окончательная запись файла только через модуль Upload
+            if ($sPhotoFile = $this->Upload_Move($sTmpFile, $sPhoto, true)) {
+                return $this->Upload_Dir2Url($sPhotoFile);
             }
-            if ($y1 > $y2) {
-                $y1 = $y1 + $y2;
-                $y2 = $y1 - $y2;
-                $y1 = $y1 - $y2;
-            }
-            if ($x1 < 0) {
-                $x1 = 0;
-            }
-            if ($y1 < 0) {
-                $y1 = 0;
-            }
-            if ($x2 > $iWSource) {
-                $x2 = $iWSource;
-            }
-            if ($y2 > $iHSource) {
-                $y2 = $iHSource;
-            }
-
-            $iW = $x2 - $x1;
-            // Допускаем минимальный клип в 32px (исключая маленькие изображения)
-            if ($iW < 32 && $x1 + 32 <= $iWSource) {
-                $iW = 32;
-            }
-            $iH = $y2 - $y1;
-            $oImage->crop($iW, $iH, $x1, $y1);
-            $oImage->output(null, $sFileTmp);
         }
 
-        $sFileFoto = $this->Image_Resize(
-            $sFileTmp, $sDirUpload, F::RandomStr(6), Config::Get('view.img_max_width'),
-            Config::Get('view.img_max_height'), Config::Get('module.user.profile_photo_width'), null, true, $aParams
-        );
-        if ($sFileFoto) {
-            @unlink($sFileTmp);
-            /**
-             * удаляем старое фото
-             */
-            $this->DeleteFoto($oUser);
-            return $this->Image_GetWebPath($sFileFoto);
-        }
-        @unlink($sFileTmp);
+        // * В случае ошибки, возвращаем false
+        $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
         return false;
     }
 
@@ -1451,9 +1429,9 @@ class ModuleUser extends Module {
      *
      * @param ModuleUser_EntityUser $oUser
      */
-    public function DeleteFoto($oUser) {
+    public function DeletePhoto($oUser) {
 
-        $this->Image_RemoveFile($this->Image_GetServerPath($oUser->getProfileFoto()));
+        $this->Img_Delete($this->Upload_Url2Dir($oUser->getProfilePhoto()));
     }
 
     /**
@@ -1501,9 +1479,9 @@ class ModuleUser extends Module {
     /**
      * Получить значения дополнительных полей профиля пользователя
      *
-     * @param int   $nUserId      ID пользователя
-     * @param bool  $bOnlyNoEmpty Загружать только непустые поля
-     * @param array $aType        Типы полей, null - все типы
+     * @param int   $nUserId      - ID пользователя
+     * @param bool  $bOnlyNoEmpty - Загружать только непустые поля
+     * @param array $aType        - Типы полей, null - все типы
      *
      * @return array
      */
@@ -1515,8 +1493,8 @@ class ModuleUser extends Module {
     /**
      * Получить по имени поля его значение дял определённого пользователя
      *
-     * @param int    $nUserId    ID пользователя
-     * @param string $sName      Имя поля
+     * @param int    $nUserId - ID пользователя
+     * @param string $sName   - Имя поля
      *
      * @return string
      */
@@ -1542,7 +1520,7 @@ class ModuleUser extends Module {
     /**
      * Добавить поле
      *
-     * @param ModuleUser_EntityField $oField    Объект пользовательского поля
+     * @param ModuleUser_EntityField $oField - Объект пользовательского поля
      *
      * @return bool
      */
@@ -1554,7 +1532,7 @@ class ModuleUser extends Module {
     /**
      * Изменить поле
      *
-     * @param ModuleUser_EntityField $oField    Объект пользовательского поля
+     * @param ModuleUser_EntityField $oField - Объект пользовательского поля
      *
      * @return bool
      */
@@ -1566,7 +1544,7 @@ class ModuleUser extends Module {
     /**
      * Удалить поле
      *
-     * @param int $nId    ID пользовательского поля
+     * @param int $nId - ID пользовательского поля
      *
      * @return bool
      */
@@ -1578,8 +1556,8 @@ class ModuleUser extends Module {
     /**
      * Проверяет существует ли поле с таким именем
      *
-     * @param string   $sName  Имя поля
-     * @param int|null $nId    ID поля
+     * @param string $sName - Имя поля
+     * @param int    $nId   - ID поля
      *
      * @return bool
      */
@@ -1910,7 +1888,7 @@ class ModuleUser extends Module {
             $aUsers = $this->GetUsersByArrayId($aUsersId);
             foreach ($aUsers as $oUser) {
                 $this->DeleteAvatar($oUser);
-                $this->DeleteFoto($oUser);
+                $this->DeletePhoto($oUser);
             }
         }
         foreach ($aUsersId as $nUserId) {

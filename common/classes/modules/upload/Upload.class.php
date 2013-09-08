@@ -13,27 +13,42 @@ class ModuleUpload extends Module {
     const ERR_NOT_POST_UPLOADED     = 10001;
     const ERR_NOT_FILE_VARIABLE     = 10002;
     const ERR_MAKE_UPLOAD_DIR       = 10003;
-    const ERR_REMOTE_FILE_OPEN      = 10004;
-    const ERR_REMOTE_FILE_MAXSIZE   = 10005;
-    const ERR_REMOTE_FILE_READ      = 10006;
-    const ERR_REMOTE_FILE_WRITE     = 10007;
+    const ERR_MOVE_UPLOAD_FILE      = 10004;
+    const ERR_COPY_UPLOAD_FILE      = 10005;
+    const ERR_REMOTE_FILE_OPEN      = 10011;
+    const ERR_REMOTE_FILE_MAXSIZE   = 10012;
+    const ERR_REMOTE_FILE_READ      = 10013;
+    const ERR_REMOTE_FILE_WRITE     = 10014;
+    const ERR_NOT_ALLOWED_EXTENSION = 10051;
+    const ERR_FILE_TOO_LARGE        = 10052;
+    const ERR_IMG_NO_INFO           = 10061;
+    const ERR_IMG_LARGE_WIDTH       = 10062;
+    const ERR_IMG_LARGE_HEIGHT      = 10063;
 
     protected $aUploadErrors
         = array(
-            UPLOAD_ERR_OK                 => 'Ok',
-            UPLOAD_ERR_INI_SIZE           => 'The uploaded file exceeds the upload_max_filesize directive in php.ini',
-            UPLOAD_ERR_FORM_SIZE          => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form',
-            UPLOAD_ERR_PARTIAL            => 'The uploaded file was only partially uploaded',
-            UPLOAD_ERR_NO_FILE            => 'No file was uploaded',
-            UPLOAD_ERR_NO_TMP_DIR         => 'Missing a temporary folder',
-            UPLOAD_ERR_CANT_WRITE         => 'Failed to write file to disk',
-            UPLOAD_ERR_EXTENSION          => 'A PHP extension stopped the file upload',
-            self::ERR_NOT_POST_UPLOADED   => 'File did not upload via POST method',
-            self::ERR_NOT_FILE_VARIABLE   => 'Argument is not $_FILE[] variable',
-            self::ERR_REMOTE_FILE_OPEN    => 'Cannot open remote file',
-            self::ERR_REMOTE_FILE_MAXSIZE => 'Remote file is too large',
-            self::ERR_REMOTE_FILE_READ    => 'Cannot read remote file',
-            self::ERR_REMOTE_FILE_WRITE   => 'Cannot write remote file',
+            UPLOAD_ERR_OK                   => 'Ok',
+            UPLOAD_ERR_INI_SIZE             => 'The uploaded file exceeds the upload_max_filesize directive in php.ini',
+            UPLOAD_ERR_FORM_SIZE            => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form',
+            UPLOAD_ERR_PARTIAL              => 'The uploaded file was only partially uploaded',
+            UPLOAD_ERR_NO_FILE              => 'No file was uploaded',
+            UPLOAD_ERR_NO_TMP_DIR           => 'Missing a temporary folder',
+            UPLOAD_ERR_CANT_WRITE           => 'Failed to write file to disk',
+            UPLOAD_ERR_EXTENSION            => 'A PHP extension stopped the file upload',
+            self::ERR_NOT_POST_UPLOADED     => 'File did not upload via POST method',
+            self::ERR_NOT_FILE_VARIABLE     => 'Argument is not $_FILE[] variable',
+            self::ERR_MAKE_UPLOAD_DIR       => 'Cannot make upload dir',
+            self::ERR_MOVE_UPLOAD_FILE      => 'Cannot move uploaded file',
+            self::ERR_COPY_UPLOAD_FILE      => 'Cannot copy uploaded file',
+            self::ERR_REMOTE_FILE_OPEN      => 'Cannot open remote file',
+            self::ERR_REMOTE_FILE_MAXSIZE   => 'Remote file is too large',
+            self::ERR_REMOTE_FILE_READ      => 'Cannot read remote file',
+            self::ERR_REMOTE_FILE_WRITE     => 'Cannot write remote file',
+            self::ERR_NOT_ALLOWED_EXTENSION => 'Not allowed file extension',
+            self::ERR_FILE_TOO_LARGE        => 'File is too large',
+            self::ERR_IMG_NO_INFO           => 'Cannot get info about image (may be file is corrupted)',
+            self::ERR_IMG_LARGE_WIDTH       => 'Width of image is too large',
+            self::ERR_IMG_LARGE_HEIGHT      => 'Height of image is too large',
         );
 
     protected $nLastError = 0;
@@ -72,6 +87,7 @@ class ModuleUpload extends Module {
         if (F::File_Move($sTmpFile, $sTargetFile)) {
             return $sTargetFile;
         }
+        $this->nLastError = self::ERR_MOVE_UPLOAD_FILE;
         return false;
     }
 
@@ -82,21 +98,32 @@ class ModuleUpload extends Module {
 
     public function GetErrorMsg() {
 
-        return $this->sLastError;
+        if ($this->nLastError) {
+            if (isset($this->aUploadErrors[$this->nLastError])) {
+                $this->sLastError = $this->aUploadErrors[$this->nLastError];
+            } else {
+                $this->sLastError = 'Unknown error during file uploading';
+            }
+            return $this->sLastError;
+        }
     }
 
     protected function _checkUploadedImage($sFile) {
 
         $aInfo = @getimagesize($sFile);
         if (!$aInfo) {
+            $this->nLastError = self::ERR_IMG_NO_INFO;
             return false;
         }
         if ($this->aModConfig['img_max_width'] && $this->aModConfig['img_max_width'] < $aInfo[0]) {
-                return false;
-            }
-            if ($this->aModConfig['img_max_height'] && $this->aModConfig['img_max_height'] < $aInfo[1]) {
-                return false;
-            }
+            $this->nLastError = self::ERR_IMG_LARGE_WIDTH;
+            return false;
+        }
+        if ($this->aModConfig['img_max_height'] && $this->aModConfig['img_max_height'] < $aInfo[1]) {
+            $this->nLastError = self::ERR_IMG_LARGE_HEIGHT;
+            return false;
+        }
+        return true;
     }
 
     protected function _checkUploadedFile($sFile) {
@@ -105,10 +132,12 @@ class ModuleUpload extends Module {
         // Check allow extensions
         if ($this->aModConfig['file_extensions']
             && !in_array($sExtension, $this->aModConfig['file_extensions'])) {
+            $this->nLastError = self::ERR_NOT_ALLOWED_EXTENSION;
             return false;
         }
         // Check filesize
         if ($this->aModConfig['max_filesize'] && filesize($sFile) > $this->aModConfig['max_filesize']) {
+            $this->nLastError = self::ERR_FILE_TOO_LARGE;
             return false;
         }
         // Check images
@@ -135,9 +164,9 @@ class ModuleUpload extends Module {
             if ($aFile['error'] === UPLOAD_ERR_OK) {
                 if (is_uploaded_file($aFile['tmp_name'])) {
                     if ($bOriginalName) {
-                        $sTmpFile = $aFile['name'];
+                        $sTmpFile = F::File_GetUploadDir() . $aFile['name'];
                     } else {
-                        $sTmpFile = F::RandomStr() . '.' . pathinfo($aFile['name'], PATHINFO_EXTENSION);
+                        $sTmpFile = basename(F::File_UploadUniqname(pathinfo($aFile['name'], PATHINFO_EXTENSION)));
                     }
                     if ($sTmpFile = F::File_MoveUploadedFile($aFile['tmp_name'], $sTmpFile)) {
                         if ($this->_checkUploadedFile($sTmpFile)) {
@@ -145,8 +174,6 @@ class ModuleUpload extends Module {
                                 $sTmpFile = $this->MoveTmpFile($sTmpFile, $sDir);
                             }
                             return $sTmpFile;
-                        } else {
-                            // TODO: Определить ошибку
                         }
                     }
                 } else {
@@ -159,11 +186,6 @@ class ModuleUpload extends Module {
             }
         } else {
             $this->nLastError = self::ERR_NOT_FILE_VARIABLE;
-        }
-        if (isset($this->aUploadErrors[$this->nLastError])) {
-            $this->sLastError = $this->aUploadErrors[$this->nLastError];
-        } else {
-            $this->sLastError = 'Unknown error during file uploading';
         }
         return false;
     }
@@ -225,8 +247,6 @@ class ModuleUpload extends Module {
         }
         if ($this->_checkUploadedFile($sTmpFile)) {
             return $this->MoveTmpFile($sTmpFile, $sDir);
-        } else {
-            // TODO: Определить ошибку
         }
         return false;
     }
@@ -250,7 +270,11 @@ class ModuleUpload extends Module {
      */
     public function Move($sFilePath, $sDestination, $bRewrite = true) {
 
-        return F::File_Move($sFilePath, $sDestination, $bRewrite);
+        $sResult = F::File_Move($sFilePath, $sDestination, $bRewrite);
+        if (!$sResult) {
+            $this->nLastError = self::ERR_MOVE_UPLOAD_FILE;
+        }
+        return $sResult;
     }
 
     /**
@@ -261,7 +285,11 @@ class ModuleUpload extends Module {
      */
     public function Copy($sFilePath, $sDestination) {
 
-        return F::File_Copy($sFilePath, $sDestination);
+        $sResult = F::File_Copy($sFilePath, $sDestination);
+        if (!$sResult) {
+            $this->nLastError = self::ERR_COPY_UPLOAD_FILE;
+        }
+        return $sResult;
     }
 
     /**
@@ -353,7 +381,7 @@ class ModuleUpload extends Module {
         return $sResult;
     }
 
-    public function Uniqname($sDir, $sExtension, $nLength = 6) {
+    public function Uniqname($sDir, $sExtension, $nLength = 8) {
 
         return F::File_Uniqname($sDir, $sExtension, $nLength);
     }

@@ -101,30 +101,33 @@
 
 
         {* Контакты *}
-		<fieldset>
-			<legend>{$aLang.settings_profile_section_contacts}</legend>
+        <fieldset>
+            <legend>{$aLang.settings_profile_section_contacts}</legend>
 
-			{$aUserFieldContactValues = $oUserCurrent->getUserFieldValues(true,array('contact','social'))}
+            {$aUserFieldContactValues = $oUserCurrent->getUserFieldValues(true,array('contact','social'))}
 
-			<div id="user-field-contact-contener">
+            <div id="user-field-contact-contener">
                 {foreach $aUserFieldContactValues as $oField}
                     {call userfield oField=$oField}
                 {/foreach}
-			</div>
+            </div>
 
-			{if $aUserFieldsContact}
-				<button type="button" class="button" onclick="return ls.userfield.addFormField();">{$aLang.user_field_add}</button>
-			{/if}
-		</fieldset>
+            {if $aUserFieldsContact}
+                <button type="button" class="button"
+                        onclick="return ls.userfield.addFormField();">{$aLang.user_field_add}</button>
+            {/if}
+        </fieldset>
 
 
         {* Аватар *}
-		<fieldset class="js-ajax-avatar-upload avatar-change">
+        <fieldset class="js-ajax-avatar-upload avatar-change">
             <legend>{$aLang.settings_profile_avatar}</legend>
-			<img src="{$oUserCurrent->getAvatarUrl()}" class="js-ajax-image-upload-image" />
+            <img src="{$oUserCurrent->getAvatarUrl()}" class="js-ajax-image-upload-image"/>
 
-			<div>
-				<label for="avatar" class="form-input-file">
+            <div>
+                <ul class="profile-avatar-menu">
+                    <li class="profile-avatar-edit">
+                        <label for="profile-avatar" class="form-input-file">
                     <span class="link-dotted js-ajax-image-upload-choose">
                         {if $oUserCurrent->getProfileAvatar()}
                             {$aLang.settings_profile_avatar_change}
@@ -132,14 +135,19 @@
                             {$aLang.settings_profile_avatar_upload}
                         {/if}
                     </span>
-                    <input type="file" name="avatar" id="avatar" class="js-ajax-image-upload-file" data-resize-form="#avatar-resize">
-                </label>
-
-				<a href="#" class="js-ajax-image-upload-remove link-dotted" style="{if ! $oUserCurrent->getProfileAvatar()}display:none;{/if}">
-                    {$aLang.settings_profile_avatar_delete}
-                </a>
-			</div>
-		</fieldset>
+                            <input type="file" name="avatar" id="profile-avatar" class="js-ajax-image-upload-file"
+                                   data-resize-form="#avatar-resize">
+                        </label>
+                    </li>
+                    <li class="profile-avatar-remove">
+                        <a href="#" class="js-ajax-image-upload-remove link-dotted"
+                           style="{if ! $oUserCurrent->getProfileAvatar()}display:none;{/if}">
+                            {$aLang.settings_profile_avatar_delete}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </fieldset>
 
 
         {hook run='form_settings_profile_end'}

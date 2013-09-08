@@ -103,7 +103,16 @@
 .block-type-profile-photo .status.status-online  { background: #b7bc1c; background: rgba(183, 188, 28, .8); color: #fff; }
 .block-type-profile-photo .status.status-offline { background: #333; background: rgba(0, 0, 0, .6); color: #fff; }
 
-.block-type-profile-photo .upload-photo          { padding: 7px 10px 10px; background: #f7f7f7; }
+.profile-photo-menu    {
+    padding: 7px 10px 10px;
+    background: #f7f7f7;
+    display: block;
+}
+.profile-photo-edit, .profile-photo-remove {
+    display: block;
+    width: 250px;
+    height: 18px;
+}
 
 /**
  * @type profile note
@@ -121,7 +130,7 @@
  * @type profile actions
  * @file blocks/block.profileActions.tpl
  */
- .block-type-profile-actions { border: none; }
+.block-type-profile-actions { border: none; min-height: 120px; }
 .block-type-profile-actions ul li            { margin-bottom: 10px; }
 .block-type-profile-actions ul li:last-child { margin-bottom: 0; }
 .block-type-profile-actions ul li a	 { text-decoration: none; color: #728ba0; font-size: 12px; }

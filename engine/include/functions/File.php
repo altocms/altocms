@@ -849,6 +849,9 @@ class AltoFunc_File {
      */
     static public function MoveUploadedFile($sUploadedFile, $sFileName = null) {
 
+        if (!is_uploaded_file($sUploadedFile)) {
+            return false;
+        }
         if (!$sFileName) {
             $sFileName = basename($sUploadedFile);
         } elseif (substr($sFileName, -1) == '/') {
@@ -865,13 +868,18 @@ class AltoFunc_File {
         return static::NormPath(Config::Get('sys.cache.dir') . '/uploads/');
     }
 
-    static public function Uniqname($sDir, $sExtension, $nLength = 6) {
+    static public function Uniqname($sDir, $sExtension, $nLength = 8) {
 
-        $sFileName = F::RandomStr($nLength) . ($sExtension ? ('.' . $sExtension) : '');
+        $sFileName = F::RandomStr($nLength) . ($sExtension ? ('.' . trim($sExtension, '.')) : '');
         while(static::Exists($sDir . '/' . $sFileName)) {
             $sFileName = static::Uniqname($sDir, $sExtension, $nLength);
         }
         return static::NormPath($sDir . '/' . $sFileName);
+    }
+
+    static public function UploadUniqname($sExtension, $nLength = 8) {
+
+        return static::Uniqname(static::GetUploadDir(), $sExtension, $nLength);
     }
 
 }

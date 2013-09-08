@@ -59,10 +59,10 @@ ls.user = (function ($) {
 				element: '.js-ajax-photo-upload'
 			},
 			urls: {
-				upload: aRouter['settings'] + 'profile/upload-foto/',
-				remove: aRouter['settings'] + 'profile/remove-foto/',
-				cancel: aRouter['settings'] + 'profile/cancel-foto/',
-				crop:   aRouter['settings'] + 'profile/resize-foto/'
+				upload: aRouter['settings'] + 'profile/upload-photo/',
+				remove: aRouter['settings'] + 'profile/remove-photo/',
+				cancel: aRouter['settings'] + 'profile/cancel-photo/',
+				crop:   aRouter['settings'] + 'profile/resize-photo/'
 			}
 		});
 
@@ -352,7 +352,7 @@ ls.user = (function ($) {
     };
 
     /**
-     * Выполняет ресайз аватарки
+     * Выполняет ресайз аватара
      */
     this.ajaxUploadImageCropSubmit = function (button) {
         var self = this;
