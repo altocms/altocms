@@ -39,7 +39,10 @@ class ActionImg extends Action {
         $sNewFile = $this->Img_Duplicate($sFile);
 
         if (!$sNewFile) {
-            if (strpos(basename($sFile), 'avatar') === 0) {
+            if (strpos(basename($sFile), 'avatar_blog') === 0) {
+                // Запрашивается аватар блога
+                $sNewFile = $this->_makeImage($sFile, 'avatar_blog', 100);
+            } elseif (strpos(basename($sFile), 'avatar') === 0) {
                 // Запрашивается аватар
                 $sNewFile = $this->_makeImage($sFile, 'avatar', 100);
             } elseif (strpos(basename($sFile), 'user_photo') === 0) {
@@ -94,24 +97,25 @@ class ActionImg extends Action {
 
         $sImageFile = '';
         $sName = basename($sFile);
-        if (strpos($sName, $sPrefix) === 0) {
-            $sName = substr($sName, strlen($sPrefix));
-            $aPaths = explode('_', $sName);
-            if (count($aPaths) >= 2) {
+        if (preg_match('/^' . preg_quote($sPrefix) . '([a-z0-9]+)?_([a-z0-9\.]+)(_(male|female))?([\-0-9a-z\.]+)?(\.[a-z]+)$/i', $sName, $aMatches)) {
+            $sName = $aMatches[1];
+            $sSkin = $aMatches[2];
+            $sType = $aMatches[4];
+            $sExtension = $aMatches[6];
+            if ($sExtension && substr($sSkin, -strlen($sExtension)) == $sExtension) {
+                $sSkin = substr($sSkin, 0, strlen($sSkin)-strlen($sExtension));
+            }
+            if ($sSkin) {
                 // Определяем путь до аватар скина
-                $sPath = Config::Get('path.skins.dir') . $aPaths[1] . '/assets/images/avatars/';
-                if ($n = strpos($aPaths[2], '.')) {
-                    $sType = substr($aPaths[2], 0, $n);
-                } else {
-                    $sType = '';
-                }
+                $sPath = Config::Get('path.skins.dir') . $sSkin . '/assets/images/avatars/';
+
                 // Если задан тип male/female, то ищем сначала с ним
                 if ($sType) {
                     $sImageFile = $this->_seekDefaultImage($sPath, $sPrefix . '_' . $sType);
                 }
                 // Если аватар не найден
                 if (!$sImageFile) {
-                    $sImageFile = $this->_seekDefaultImage($sPath, $sPrefix . '_' . $sType);
+                    $sImageFile = $this->_seekDefaultImage($sPath, $sPrefix);
                 }
             }
         }

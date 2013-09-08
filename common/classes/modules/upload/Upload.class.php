@@ -59,7 +59,9 @@ class ModuleUpload extends Module {
     public function Init() {
 
         $this->aModConfig = Config::Get('module.upload');
-        $this->aModConfig['file_extensions'] = array_merge($this->aModConfig['file_extensions'], (array)Config::Get('module.topic.upload_mime_types'));
+        $this->aModConfig['file_extensions'] = array_merge(
+            $this->aModConfig['file_extensions'], (array)Config::Get('module.topic.upload_mime_types')
+        );
         $nLimit = F::MemSize2Int(Config::Get('module.topic.max_filesize_limit'));
         if ($nLimit && $nLimit < $this->aModConfig['max_filesize']) {
             $this->aModConfig['max_filesize'] = $nLimit;

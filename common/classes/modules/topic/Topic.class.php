@@ -2467,23 +2467,15 @@ class ModuleTopic extends Module {
     /**
      * Удалить изображение
      *
-     * @param ModuleTopic_EntityTopicPhoto $oPhoto    Объект фото
+     * @param ModuleTopic_EntityTopicPhoto $oPhoto - Объект фото
      */
     public function DeleteTopicPhoto($oPhoto) {
 
-        $this->Cache_CleanByTags(array('photoset_photo_update'));
         $this->oMapperTopic->deleteTopicPhoto($oPhoto->getId());
 
-        $this->Image_RemoveFile($this->Image_GetServerPath($oPhoto->getWebPath()));
-        $aSizes = Config::Get('module.topic.photoset.size');
-        // Удаляем все сгенерированные миниатюры основываясь на данных из конфига.
-        foreach ($aSizes as $aSize) {
-            $sSize = $aSize['w'];
-            if ($aSize['crop']) {
-                $sSize .= 'crop';
-            }
-            $this->Image_RemoveFile($this->Image_GetServerPath($oPhoto->getWebPath($sSize)));
-        }
+        $sFile = $this->Update_Url2Dir($oPhoto->getPath());
+        $this->Img_Delete($sFile);
+        $this->Cache_CleanByTags(array('photoset_photo_update'));
     }
 
     /**

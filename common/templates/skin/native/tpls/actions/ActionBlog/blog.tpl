@@ -17,14 +17,14 @@
             ls.lang.load({lang_load name="blog_fold_info,blog_expand_info"});
         });
     </script>
-{* Подключаем модальное окно удаления блога если пользователь админ *}
-    {if $oUserCurrent and $oUserCurrent->isAdministrator()}
+    {* Подключаем модальное окно удаления блога если пользователь админ *}
+    {if E::IsAdmin()}
         {include file='modals/modal.blog_delete.tpl'}
     {/if}
     <div class="blog">
         <header class="blog-header">
             {* Аватар *}
-            <img src="{$oBlog->getAvatarPath(48)}" alt="avatar" class="avatar"/>
+            <img src="{$oBlog->getAvatarUrl(48)}" alt="avatar" class="avatar"/>
 
             <ul>
                 <li class="blog-title">

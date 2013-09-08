@@ -95,7 +95,7 @@
 			{if $oBlogEdit and $oBlogEdit->getAvatar()}
 				<div class="avatar-edit">
 					{foreach Config::Get('module.blog.avatar_size') as $iSize}
-						{if $iSize}<img src="{$oBlogEdit->getAvatarPath({$iSize})}">{/if}
+						{if $iSize}<img src="{$oBlogEdit->getAvatarUrl({$iSize})}">{/if}
 					{/foreach}
 					
 					<label><input type="checkbox" id="avatar_delete" name="avatar_delete" value="on"> {$aLang.blog_create_avatar_delete}</label>

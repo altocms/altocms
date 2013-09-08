@@ -354,7 +354,7 @@ class ActionSettings extends Action {
 
         // * Достаем из сессии файл и удаляем
         $sFileAvatar = $this->Session_Get('sAvatarFileTmp');
-        $this->Image_RemoveFile($sFileAvatar);
+        $this->Img_Delete($sFileAvatar);
         $this->Session_Drop('sAvatarFileTmp');
     }
 

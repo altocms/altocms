@@ -483,6 +483,40 @@ class ModuleImg extends Module {
         return F::File_DeleteAs($sFile . '-*.*');
     }
 
+    /**
+     * Возвращает валидный Html код тега <img>
+     *
+     * @param $sUrl
+     * @param $aParams
+     *
+     * @return string
+     */
+    public function BuildHTML($sUrl, $aParams) {
+
+        $sText = '<img src="' . $sUrl . '" ';
+        if (isset($aParams['title']) && $aParams['title'] != '') {
+            $sText .= ' title="' . htmlspecialchars($aParams['title']) . '" ';
+
+            // * Если не определен ALT заполняем его тайтлом
+            if (!isset($aParams['alt'])) {
+                $aParams['alt'] = $aParams['title'];
+            }
+        }
+        if (isset($aParams['align']) && in_array($aParams['align'], array('left', 'right', 'center'))) {
+            if ($aParams['align'] == 'center') {
+                $sText .= ' class="image-center"';
+            } else {
+                $sText .= ' align="' . htmlspecialchars($aParams['align']) . '" ';
+            }
+        }
+        $sAlt = isset($aParams['alt'])
+            ? ' alt="' . htmlspecialchars($aParams['alt']) . '"'
+            : ' alt=""';
+        $sText .= $sAlt . ' />';
+
+        return $sText;
+    }
+
 }
 
 // EOF

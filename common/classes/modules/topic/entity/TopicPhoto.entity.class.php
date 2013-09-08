@@ -63,7 +63,7 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
     /**
      * Вовзращает полный веб путь до файла
      *
-     * @return mixed|null
+     * @return string|null
      */
     public function getPath() {
 
@@ -82,6 +82,7 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
         if ($sUrl = $this->getPath()) {
             if ($sWidth) {
                 $sResizedUrl = '';
+
                 if (E::ActivePlugin('ls')) {
                     // Включена совместимость с LS
                     $aPathInfo = pathinfo($sUrl);
@@ -91,6 +92,7 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
                         $sResizedUrl = '';
                     }
                 }
+
                 if (!$sResizedUrl) {
                     $nSize = intval($sWidth);
                     $bCrop = strpos($sWidth, 'crop');
@@ -104,7 +106,7 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
                 }
             }
         }
-        return F::File_normPath($sResizedUrl ? $sResizedUrl : $sUrl);
+        return F::File_NormPath($sResizedUrl ? $sResizedUrl : $sUrl);
     }
 
     /**

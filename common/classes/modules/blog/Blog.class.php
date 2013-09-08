@@ -1084,74 +1084,23 @@ class ModuleBlog extends Module {
     /**
      * Загружает аватар в блог
      *
-     * @param array                 $aFile    Массив $_FILES при загрузке аватара
-     * @param ModuleBlog_EntityBlog $oBlog    Блог
+     * @param array                 $aFile - Массив $_FILES при загрузке аватара
+     * @param ModuleBlog_EntityBlog $oBlog - Блог
      *
      * @return bool
      */
     public function UploadBlogAvatar($aFile, $oBlog) {
 
-        if (!is_array($aFile) || !isset($aFile['tmp_name'])) {
-            return false;
-        }
-
-        $sFileTmp = Config::Get('sys.cache.dir') . F::RandomStr();
-        if (!move_uploaded_file($aFile['tmp_name'], $sFileTmp)) {
-            return false;
-        }
-
-        $sPath = $this->Image_GetIdDir($oBlog->getOwnerId());
-        $aParams = $this->Image_BuildParams('avatar');
-
-        $oImage = $this->Image_CreateImageObject($sFileTmp);
-        /**
-         * Если объект изображения не создан, возвращаем ошибку
-         */
-        if ($sError = $oImage->get_last_error()) {
-            // Вывод сообщения об ошибки, произошедшей при создании объекта изображения
-            // $this->Message_AddError($sError,$this->Lang_Get('error'));
-            @unlink($sFileTmp);
-            return false;
-        }
-        /**
-         * Срезаем квадрат
-         */
-        $oImage = $this->Image_CropSquare($oImage);
-
-        $aSize = Config::Get('module.blog.avatar_size');
-        rsort($aSize, SORT_NUMERIC);
-        $sSizeBig = array_shift($aSize);
-        if ($oImage
-            && ($sFileAvatar = $this->Image_Resize(
-                $sFileTmp, $sPath, "avatar_blog_{$oBlog->getUrl()}_{$sSizeBig}x{$sSizeBig}",
-                Config::Get('view.img_max_width'), Config::Get('view.img_max_height'), $sSizeBig, $sSizeBig, false,
-                $aParams, $oImage
-            ))
-        ) {
-            foreach ($aSize as $iSize) {
-                if ($iSize == 0) {
-                    $this->Image_Resize(
-                        $sFileTmp, $sPath, "avatar_blog_{$oBlog->getUrl()}", Config::Get('view.img_max_width'),
-                        Config::Get('view.img_max_height'), null, null, false, $aParams, $oImage
-                    );
-                } else {
-                    $this->Image_Resize(
-                        $sFileTmp, $sPath, "avatar_blog_{$oBlog->getUrl()}_{$iSize}x{$iSize}",
-                        Config::Get('view.img_max_width'), Config::Get('view.img_max_height'), $iSize, $iSize, false,
-                        $aParams, $oImage
-                    );
-                }
+        $sFileTmp = $this->Upload_UploadLocal($aFile);
+        if ($sFileTmp && ($oImg = $this->Img_CropSquare($sFileTmp))) {
+            $sFile = $this->Update_Uniqname($this->Update_GetUserImageDir(), strtolower(pathinfo($sFileTmp, PATHINFO_EXTENSION)));
+            if ($oImg->Save($sFile)) {
+                return $this->Upload_Dir2Url($sFile);
             }
-            @unlink($sFileTmp);
-            /**
-             * Если все нормально, возвращаем расширение загруженного аватара
-             */
-            return $this->Image_GetWebPath($sFileAvatar);
+            F::File_Delete($sFile);
         }
-        @unlink($sFileTmp);
-        /**
-         * В случае ошибки, возвращаем false
-         */
+
+        // * В случае ошибки, возвращаем false
         return false;
     }
 
@@ -1161,14 +1110,10 @@ class ModuleBlog extends Module {
      * @param ModuleBlog_EntityBlog $oBlog    Блог
      */
     public function DeleteBlogAvatar($oBlog) {
-        /**
-         * Если аватар есть, удаляем его и его рейсайзы
-         */
-        if ($oBlog->getAvatar()) {
-            $aSize = array_merge(Config::Get('module.blog.avatar_size'), array(48));
-            foreach ($aSize as $iSize) {
-                $this->Image_RemoveFile($this->Image_GetServerPath($oBlog->getAvatarPath($iSize)));
-            }
+
+        // * Если аватар есть, удаляем его и его рейсайзы
+        if ($sUrl = $oBlog->getAvatar()) {
+            $this->Img_Delete($this->Upload_Url2Dir($sUrl));
         }
     }
 
