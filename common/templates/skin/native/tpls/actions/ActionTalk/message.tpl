@@ -35,7 +35,7 @@
                         {/if}
                     {/foreach}
 
-                    {if $oTalk->getUserId()==$oUserCurrent->getId() or $oUserCurrent->isAdministrator()}
+                    {if $oTalk->getUserId()==$oUserCurrent->getId() OR E::IsAdmin()}
                         &nbsp;&nbsp;&nbsp;
                         <a href="#" class="link-dotted"
                            onclick="jQuery('#talk_recipients').toggle(); return false;">{$aLang.talk_speaker_edit}</a>
@@ -49,7 +49,7 @@
          * Участники личного сообщения
          *}
 
-        {if $oTalk->getUserId()==$oUserCurrent->getId() or $oUserCurrent->isAdministrator()}
+        {if $oTalk->getUserId()==$oUserCurrent->getId() OR E::IsAdmin()}
             <div class="talk-recipients" id="talk_recipients">
                 <h3>{$aLang.talk_speaker_title}</h3>
 

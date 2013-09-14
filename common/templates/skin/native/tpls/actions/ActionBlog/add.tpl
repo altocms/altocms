@@ -46,12 +46,12 @@
 
 		{* URL блога *}
 		<p><label for="blog_url">{$aLang.blog_create_url}:</label>
-		<input type="text" id="blog_url" name="blog_url" value="{$_aRequest.blog_url}" class="width-full" {if $_aRequest.blog_id and !$oUserCurrent->isAdministrator()}disabled{/if} />
+		<input type="text" id="blog_url" name="blog_url" value="{$_aRequest.blog_url}" class="width-full" {if $_aRequest.blog_id AND !E::IsAdmin()}disabled{/if} />
 		<small class="note">{$aLang.blog_create_url_notice}</small></p>
 
 
 		{* Категория блога *}
-		{if Config::Get('module.blog.category_allow') and ($oUserCurrent->isAdministrator() or !Config::Get('module.blog.category_only_admin'))}
+		{if Config::Get('module.blog.category_allow') AND (E::IsAdmin() OR !Config::Get('module.blog.category_only_admin'))}
 			<p><label for="blog_category">{$aLang.blog_create_category}:</label>
 			<select name="blog_category" id="blog_category" class="width-200" >
 				{if Config::Get('module.blog.category_allow_empty')}

@@ -105,7 +105,7 @@ $config['head']['default']['css'] = array_merge(
          '___path.frontend.url___/libs/js/vendor/prettify/prettify.css',
          '___path.frontend.url___/libs/js/vendor/prettyphoto/css/prettyphoto.css',
          '___path.frontend.url___/libs/js/vendor/notifier/jquery.notifier.css',
-         //'___path.frontend.dir___/bootstrap-3.0.0/css/bootstrap.min.css' => array('name' => 'bootstrap'),
+
          '___path.skin.url___/assets/css/grid.css',
          '___path.skin.url___/assets/css/forms.css',
          '___path.skin.url___/assets/css/common.css',

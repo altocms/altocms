@@ -4,7 +4,7 @@
  * @styles css/admin.css
  *}
 
-{if $bIsShowStatsPerformance and $oUserCurrent and $oUserCurrent->isAdministrator()}
+{if $bIsShowStatsPerformance and E::IsAdmin()}
 	<div class="alert alert-info stat-performance">
 		{hook run='statistics_performance_begin'}
 

@@ -44,10 +44,10 @@
 														{else}
 															comment-list-item
 														{/if}">
-	{if ! $oComment->getDelete() or $bOneComment or ($oUserCurrent and $oUserCurrent->isAdministrator())}
+	{if ! $oComment->getDelete() OR $bOneComment OR E::IsAdmin()}
 		<a name="comment{$oComment->getId()}"></a>
-		
-		
+
+
 		{* Информация *}
 		<ul class="comment-info">
 			<li>
@@ -64,14 +64,14 @@
 
 				<a href="{$oUser->getProfileUrl()}">{$oUser->getLogin()}</a>
 			</li> 
-			
+
 			{* Дата *}
 			<li class="comment-date">
 				<a href="{if Config::Get('module.comment.nested_per_page')}{router page='comments'}{else}#comment{/if}{$oComment->getId()}" title="{$aLang.comment_url_notice}">
 					<time datetime="{date_format date=$oComment->getDate() format='c'}">{date_format date=$oComment->getDate() hours_back="12" minutes_back="60" now="60" day="day H:i" format="j F Y, H:i"}</time>
 				</a>
 			</li>
-			
+
 			{* Ссылки на родительские/дочерние комментарии *}
 			{if ! $bList and $oComment->getPid()}
 				<li class="comment-goto comment-goto-parent">
@@ -80,12 +80,12 @@
 			{/if}
 
 			<li class="comment-goto comment-goto-child"><a href="#" title="{$aLang.comment_goto_child}">↓</a></li>
-			
+
 			{**
 			 * Блок голосования
 			 * Не выводим блок голосования в личных сообщениях и списках
 			 *}
-			{if $oComment->getTargetType() != 'talk'}						
+			{if $oComment->getTargetType() != 'talk'}
 				<li data-vote-type="comment"
 					data-vote-id="{$oComment->getId()}"
 					class="vote vote-comment js-vote
@@ -94,10 +94,10 @@
 						{elseif $oComment->getRating() < 0}
 							vote-count-negative
 						{/if}    
-						
+
 						{if $oVote} 
 							voted 
-							
+
 							{if $oVote->getDirection() > 0}
 								voted-up
 							{else}
@@ -110,7 +110,7 @@
 				</li>
 			{/if}
 		</ul>
-		
+
 
 		{* Текст комментария *}
 		<div id="comment_content_id_{$oComment->getId()}" class="comment-content text">
@@ -121,22 +121,22 @@
 		{* Кнопки ответа, удаления и т.д. *}
 		{if $oUserCurrent}
 			<ul class="comment-actions">
-				{if ! $bList and ! $oComment->getDelete() and ! $bAllowNewComment}
+				{if ! $bList AND ! $oComment->getDelete() AND ! $bAllowNewComment}
 					<li><a href="#" onclick="ls.comments.toggleCommentForm({$oComment->getId()}); return false;" class="reply-link link-dotted">{$aLang.comment_answer}</a></li>
 				{/if}
-					
-				{if ! $oComment->getDelete() and $oUserCurrent and $oUserCurrent->isAdministrator()}
+
+				{if ! $oComment->getDelete() AND E::IsAdmin()}
 					<li><a href="#" class="comment-delete link-dotted" onclick="ls.comments.toggle(this,{$oComment->getId()}); return false;">{$aLang.comment_delete}</a></li>
 				{/if}
-				
-				{if $oComment->getDelete() and $oUserCurrent and $oUserCurrent->isAdministrator()}   										
+
+				{if $oComment->getDelete() AND E::IsAdmin()}
 					<li><a href="#" class="comment-repair link-dotted" onclick="ls.comments.toggle(this,{$oComment->getId()}); return false;">{$aLang.comment_repair}</a></li>
 				{/if}
-				
+
 				{hook run='comment_action' comment=$oComment}
 			</ul>
 		{/if}
-	{else}				
+	{else}
 		{$aLang.comment_was_delete}
-	{/if}	
+	{/if}
 </section>

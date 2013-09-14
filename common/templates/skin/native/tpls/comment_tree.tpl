@@ -23,7 +23,7 @@
         </h3>
 
         {* Подписка на комментарии *}
-        {if $bAllowSubscribe and $oUserCurrent}
+        {if $bAllowSubscribe AND $oUserCurrent}
         {*<label class="comments-subscribe">
             <input
                 type="checkbox"

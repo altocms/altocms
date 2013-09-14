@@ -15,7 +15,7 @@
 {/block}
 
 {block name='block_content'}
-	{if $oUserCurrent and ($oUserCurrent->getRating() > {cfg name='acl.create.blog.rating'} or $oUserCurrent->isAdministrator())}
+	{if $oUserCurrent AND ($oUserCurrent->getRating() > {cfg name='acl.create.blog.rating'} OR E::IsAdmin())}
 		<p>{$aLang.blog_can_add}</p>
 
 		<a href="{router page='blog'}add/" class="button button-primary button-large">{$aLang.blog_add}</a>

@@ -12,7 +12,7 @@
 {block name='block_content'}
 	{if $oUserCurrent}
 		<small class="note">{$aLang.stream_settings_note_follow_friend}</small>
-		
+
 		{if $aStreamFriends}
 			<ul class="user-list-mini max-height-200 js-activity-block-users">
 				{foreach $aStreamFriends as $oUser}

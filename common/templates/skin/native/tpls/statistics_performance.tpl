@@ -1,4 +1,4 @@
-{if $bIsShowStatsPerformance AND $oUserCurrent AND $oUserCurrent->isAdministrator()}
+{if $bIsShowStatsPerformance AND E::IsAdmin()}
 <div class="stat-performance i-container">
     {hook run='statistics_performance_begin'}
     <table>

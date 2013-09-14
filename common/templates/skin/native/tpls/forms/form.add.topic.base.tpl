@@ -66,14 +66,14 @@
 				 sFieldNote  = $aLang.topic_create_title_notice
 				 sFieldLabel = $aLang.topic_create_title}
 
-		{if $aParams[0] != 'add' AND $oUserCurrent->isAdministrator()}
+		{if $aParams[0] != 'add' AND E::IsAdmin()}
 		<p><label for="topic_url">{$aLang.topic_create_url}:</label>
 			<span class="b-topic-url-demo">{$_aRequest.topic_url_before}</span><span
-					class="b-topic_url_demo-edit">{$_aRequest.topic_url}</span>{if $_aRequest.topic_url  AND $oUserCurrent->isAdministrator()}<input
+					class="b-topic_url_demo-edit">{$_aRequest.topic_url}</span>{if $_aRequest.topic_url  AND E::IsAdmin()}<input
 			type="text" id="topic_url" name="topic_url" value="{$_aRequest.topic_url}"
 			class="input-text input-width-300" style="display: none;"/>{/if}<span
 					class="b-topic_url_demo">{$_aRequest.topic_url_after}</span>
-			{if $aParams[0] != 'add' AND $oUserCurrent->isAdministrator() AND $_aRequest.topic_url}
+			{if $aParams[0] != 'add' AND E::IsAdmin() AND $_aRequest.topic_url}
 			<button class="btn js-tip-help" title="{$aLang.topic_create_url_edit}" onclick="ls.topic.editUrl(this); return false;"><i class="icon-edit"></i></button>
 			{/if}
 			<button class="btn js-tip-help" title="{$aLang.topic_create_url_short}" onclick="ls.topic.shortUrl('{$_aRequest.topic_url_short}'); return false;"><i class="icon-share-alt"></i></button>
@@ -220,7 +220,7 @@
 
 
 		{* Принудительный вывод топиков на главную (доступно только админам) *}
-		{if $oUserCurrent->isAdministrator()}
+		{if E::IsAdmin()}
 			{include file='forms/form.field.checkbox.tpl'
 					 sFieldName  = 'topic_publish_index'
 					 sFieldNote  = $aLang.topic_create_publish_index_notice

@@ -150,12 +150,12 @@
             {* Управление *}
             <ul class="actions">
                 {* Администрирование *}
-                {if $oUserCurrent and ($oUserCurrent->getId() == $oBlog->getOwnerId() or $oUserCurrent->isAdministrator() or $oBlog->getUserIsAdministrator() )}
+                {if $oUserCurrent AND ($oUserCurrent->getId() == $oBlog->getOwnerId() OR E::IsAdmin() OR $oBlog->getUserIsAdministrator() )}
                     <li>
                         <a href="{router page='blog'}edit/{$oBlog->getId()}/" title="{$aLang.blog_edit}"
                            class="edit">{$aLang.blog_edit}</a>
 
-                        {if $oUserCurrent->isAdministrator()}
+                        {if E::IsAdmin()}
                             <a href="#" title="{$aLang.blog_delete}" data-type="modal-toggle"
                                data-option-target="modal-blog-delete" class="delete">{$aLang.blog_delete}</a>
                         {else}

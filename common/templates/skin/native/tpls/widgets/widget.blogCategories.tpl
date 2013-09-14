@@ -12,7 +12,7 @@
 {block name='block_type'}blog-categories{/block}
 
 {block name='block_header_end'}
-    {if $oUserCurrent and $oUserCurrent->isAdministrator()}
+    {if E::IsAdmin()}
         <a href="{router page="admin"}blogcategory/" title="{$aLang.admin_list_blogcategory}"
            class="icon-cog blog-categories-admin"></a>
     {/if}
