@@ -29,5 +29,5 @@
 {/block}
 
 {block name='modal_footer_begin'}
-	<button type="submit" class="button button-primary" onclick="jQuery('#js-blog-delete-form').submit()">{$aLang.blog_delete}</button>
+	<button type="submit" class="btn-primary" onclick="jQuery('#js-blog-delete-form').submit()">{$aLang.blog_delete}</button>
 {/block}

@@ -115,7 +115,7 @@
 
 
 		{* Кнопки *}
-		<button type="submit" name="submit_blog_add" class="button button-primary">
+		<button type="submit" name="submit_blog_add" class="btn-primary">
 			{if $sEvent == 'add'}
 				{$aLang.blog_create_submit}
 			{else}

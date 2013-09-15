@@ -36,7 +36,8 @@ $config['head']['default']['js'] = array(
     /* Vendor libs */
     '___path.frontend.url___/libs/js/vendor/html5shiv.min.js' => array('browser' => 'lt IE 9'),
     '___path.frontend.url___/libs/js/vendor/jquery-1.9.1.min.js' => array('name' => 'jquery', 'asset' => 'mini'),
-    '___path.frontend.url___/libs/js/vendor/jquery-migrate-1.2.1.min.js' => array('asset' => 'mini'),
+    //'___path.frontend.url___/libs/js/vendor/jquery-migrate-1.2.1.min.js' => array('asset' => 'mini'),
+    '___path.frontend.url___/libs/js/vendor/jquery-migrate-1.2.1.js' => array('asset' => 'mini'),
     '___path.frontend.url___/libs/js/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js' => array('asset' => 'mini'),
     '___path.frontend.url___/libs/js/vendor/jquery-ui/js/localization/jquery-ui-datepicker-ru.js',
     '___path.frontend.url___/libs/js/vendor/markitup/jquery.markitup.js' => array('name' => 'markitup'),
@@ -58,6 +59,7 @@ $config['head']['default']['js'] = array(
     '___path.frontend.url___/libs/js/vendor/prettyphoto/js/jquery.prettyphoto.js',
     '___path.frontend.url___/libs/js/vendor/parsley/parsley.js',
     '___path.frontend.url___/libs/js/vendor/parsley/i18n/messages.ru.js',
+    '___path.frontend.url___/libs/js/vendor/swfobject/swfobject.js',
 
     /* Core */
     '___path.frontend.url___/libs/js/core/main.js',
@@ -126,6 +128,7 @@ $config['head']['default']['css'] = array_merge(
          '___path.skin.url___/assets/css/admin.css',
          '___path.skin.url___/assets/css/toolbar.css',
          '___path.skin.url___/assets/css/poll.css',
+         '___path.skin.url___/assets/css/tinymce.css',
          '___path.skin.url___/themes/___view.theme___/style.css',
          '___path.skin.url___/assets/css/print.css',
     )

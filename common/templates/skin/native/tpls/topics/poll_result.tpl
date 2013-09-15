@@ -27,6 +27,6 @@
 </ul>
 
 {* Кнопка сортировки *}
-<button class="button button-icon js-poll-result-button-sort" title="{$aLang.topic_question_vote_result_sort}"><i class="icon-align-left"></i></button>
+<button class="btn btn-icon js-poll-result-button-sort" title="{$aLang.topic_question_vote_result_sort}"><i class="icon-align-left"></i></button>
 
 <span class="poll-result-total">{$aLang.topic_question_vote_result}: {$oTopic->getQuestionCountVote()} | {$aLang.topic_question_abstain_result}: {$oTopic->getQuestionCountVoteAbstain()}</span>

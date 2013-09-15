@@ -81,8 +81,8 @@
 					{/foreach}
 				</ul>
 
-				<button type="submit" class="button button-primary js-poll-button-vote">{$aLang.topic_question_vote}</button>
-				<button type="submit" class="button js-poll-button-abstain">{$aLang.topic_question_abstain}</button>
+				<button type="submit" class="btn-primary js-poll-button-vote">{$aLang.topic_question_vote}</button>
+				<button type="submit" class="btn js-poll-button-abstain">{$aLang.topic_question_abstain}</button>
 			{else}
 				{include file='topics/poll_result.tpl'}
 			{/if}

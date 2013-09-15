@@ -55,8 +55,8 @@
 		
 		{hook run='form_add_talk_end'}
 		
-		<button type="submit" class="button button-primary" name="submit_talk_add">{$aLang.talk_create_submit}</button>
-		<button type="submit" class="button" name="submit_preview" onclick="jQuery('#text_preview').show(); ls.tools.textPreview('talk_text',false); return false;">{$aLang.topic_create_submit_preview}</button>		
+		<button type="submit" class="btn-primary" name="submit_talk_add">{$aLang.talk_create_submit}</button>
+		<button type="submit" class="btn" name="submit_preview" onclick="jQuery('#text_preview').show(); ls.tools.textPreview('talk_text',false); return false;">{$aLang.topic_create_submit_preview}</button>
 	</form>
 
 	{hook run='talk_add_end'}

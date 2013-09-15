@@ -60,7 +60,7 @@
 						  class="input-text input-width-full js-wall-reply-text" 
 						  placeholder="{$aLang.wall_reply_placeholder}" 
 						  onclick="return ls.wall.expandReply({$oWall->getId()});"></textarea>
-				<button type="button" onclick="ls.wall.addReply(jQuery('#wall-reply-text-{$oWall->getId()}').val(), {$oWall->getId()});" class="button button-primary js-button-wall-submit">{$aLang.wall_reply_submit}</button>
+				<button type="button" onclick="ls.wall.addReply(jQuery('#wall-reply-text-{$oWall->getId()}').val(), {$oWall->getId()});" class="btn-primary js-button-wall-submit">{$aLang.wall_reply_submit}</button>
 			</form>
 		{/if}
 	</div>

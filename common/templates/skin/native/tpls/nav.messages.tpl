@@ -5,7 +5,7 @@
 <div class="page-header">
 	{$aLang.talk_menu_inbox}
 	
-	<a href="{router page='talk'}add/" class="button button-small">{$aLang.talk_menu_inbox_create}</a>
+	<a href="{router page='talk'}add/" class="btn button-small">{$aLang.talk_menu_inbox_create}</a>
 	
 	<a class="accordion-header link-dotted" onclick="jQuery('#block_talk_search_content').toggle(); return false;">{$aLang.talk_filter_title}</a>
 	
@@ -32,8 +32,8 @@
 			<p><label for="talk_filter_favourite"><input type="checkbox" {if $_aRequest.favourite}checked {/if} class="input-checkbox" name="favourite" value="1" id="talk_filter_favourite" />
 			{$aLang.talk_filter_label_favourite}</label></p>
 
-			<input type="submit" name="submit_talk_filter" value="{$aLang.talk_filter_submit}" class="button button-primary" />
-			<input type="submit" name="" value="{$aLang.talk_filter_submit_clear}" class="button" onclick="return ls.talk.clearFilter();" />
+			<input type="submit" name="submit_talk_filter" value="{$aLang.talk_filter_submit}" class="btn-primary" />
+			<input type="submit" name="" value="{$aLang.talk_filter_submit_clear}" class="btn" onclick="return ls.talk.clearFilter();" />
 		</form>
 	</div> 
 </div>

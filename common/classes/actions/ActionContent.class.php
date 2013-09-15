@@ -49,7 +49,7 @@ class ActionContent extends Action {
      *
      * @var ModuleTopic_EntityContent|null
      */
-    protected $oType = null;
+    protected $oContentType = null;
 
     /**
      * Инициализация
@@ -127,11 +127,11 @@ class ActionContent extends Action {
         /*
          * Получаем тип контента
          */
-        if (!$this->oType = $this->Topic_GetContentTypeByUrl($oTopic->getType())) {
+        if (!$this->oContentType = $this->Topic_GetContentTypeByUrl($oTopic->getType())) {
             return parent::EventNotFound();
         }
 
-        $this->Viewer_Assign('oType', $this->oType);
+        $this->Viewer_Assign('oContentType', $this->oContentType);
         /**
          * Если права на редактирование
          */
@@ -190,7 +190,7 @@ class ActionContent extends Action {
                 $_REQUEST['answer'][] = $aAnswer['text'];
             }
 
-            foreach ($this->oType->getFields() as $oField) {
+            foreach ($this->oContentType->getFields() as $oField) {
                 if ($oTopic->getField($oField->getFieldId())) {
                     $sValue = $oTopic->getField($oField->getFieldId())->getValueSource();
                     if ($oField->getFieldType() == 'file') {
@@ -275,16 +275,16 @@ class ActionContent extends Action {
         /*
          * Получаем тип контента
          */
-        if (!$this->oType = $this->Topic_GetContentTypeByUrl($this->sCurrentEvent)) {
+        if (!$this->oContentType = $this->Topic_GetContentTypeByUrl($this->sCurrentEvent)) {
             return parent::EventNotFound();
         }
 
-        $this->Viewer_Assign('oType', $this->oType);
+        $this->Viewer_Assign('oContentType', $this->oContentType);
 
         /**
          * Если тип контента не доступен текущему юзеру
          */
-        if (!$this->oType->isAccessible()) {
+        if (!$this->oContentType->isAccessible()) {
             return parent::EventNotFound();
         }
 
@@ -298,7 +298,7 @@ class ActionContent extends Action {
         $this->Viewer_Assign('aBlogsAllow', $this->Blog_GetBlogsAllowByUser($this->oUserCurrent));
         $this->Viewer_Assign('bEditDisabled', false);
         $this->Viewer_AddHtmlTitle(
-            $this->Lang_Get('topic_topic_create') . ' ' . mb_strtolower($this->oType->getContentTitle())
+            $this->Lang_Get('topic_topic_create') . ' ' . mb_strtolower($this->oContentType->getContentTitle())
         );
         if (!is_numeric(getRequest('topic_id'))) {
             $_REQUEST['topic_id'] = '';
@@ -375,8 +375,8 @@ class ActionContent extends Action {
         $oTopic->setTextSource(getRequestStr('topic_text'));
         $oTopic->setTags(getRequestStr('topic_tags'));
         $oTopic->setUserId($this->oUserCurrent->getId());
-        $oTopic->setType($this->oType->getContentUrl());
-        if ($this->oType->isAllow('link')) {
+        $oTopic->setType($this->oContentType->getContentUrl());
+        if ($this->oContentType->isAllow('link')) {
             $oTopic->setLinkUrl(getRequestStr('topic_link_url'));
         }
         $oTopic->setDateAdd(F::Now());
@@ -438,7 +438,7 @@ class ActionContent extends Action {
         /**
          * Варианты ответов
          */
-        if ($this->oType->isAllow('question') && getRequestStr('question_title') && getRequest('answer', array())) {
+        if ($this->oContentType->isAllow('question') && getRequestStr('question_title') && getRequest('answer', array())) {
             $oTopic->setQuestionTitle(strip_tags(getRequestStr('question_title')));
             $oTopic->clearQuestionAnswer();
             foreach (getRequest('answer', array()) as $sAnswer) {
@@ -449,7 +449,7 @@ class ActionContent extends Action {
         /*
          * Если есть прикрепленные фото
          */
-        if ($this->oType->isAllow('photoset') && $sTargetTmp = $this->Session_GetCookie('ls_photoset_target_tmp')) {
+        if ($this->oContentType->isAllow('photoset') && $sTargetTmp = $this->Session_GetCookie('ls_photoset_target_tmp')) {
             $oTopic->setTargetTmp($sTargetTmp);
             if ($aPhotos = $this->Topic_getPhotosByTargetTmp($sTargetTmp)) {
                 $oPhotoMain = $this->Topic_getTopicPhotoById(getRequestStr('topic_main_photo'));
@@ -591,7 +591,7 @@ class ActionContent extends Action {
         $oTopic->setBlogId(getRequestStr('blog_id'));
         $oTopic->setTitle(strip_tags(getRequestStr('topic_title')));
         $oTopic->setTextSource(getRequestStr('topic_text'));
-        if ($this->oType->isAllow('link')) {
+        if ($this->oContentType->isAllow('link')) {
             $oTopic->setLinkUrl(getRequestStr('topic_link_url'));
         }
         $oTopic->setTags(getRequestStr('topic_tags'));
@@ -658,7 +658,7 @@ class ActionContent extends Action {
         /**
          * изменяем вопрос/ответы только если еще никто не голосовал
          */
-        if ($this->oType->isAllow('question') && getRequestStr('question_title') && getRequest('answer', array())
+        if ($this->oContentType->isAllow('question') && getRequestStr('question_title') && getRequest('answer', array())
             && $oTopic->getQuestionCountVote() == 0
         ) {
             $oTopic->setQuestionTitle(strip_tags(getRequestStr('question_title')));
@@ -670,7 +670,7 @@ class ActionContent extends Action {
         /*
          * Если есть прикрепленные фото
          */
-        if ($this->oType->isAllow('photoset') && $aPhotos = $oTopic->getPhotosetPhotos()) {
+        if ($this->oContentType->isAllow('photoset') && $aPhotos = $oTopic->getPhotosetPhotos()) {
             $oPhotoMain = $this->Topic_getTopicPhotoById(getRequestStr('topic_main_photo'));
             if (!$oPhotoMain || $oPhotoMain->getTopicId() != $oTopic->getId()) {
                 $oPhotoMain = $aPhotos[0];

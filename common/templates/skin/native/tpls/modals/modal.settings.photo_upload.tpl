@@ -15,11 +15,11 @@
 {/block}
 
 {block name='modal_footer_begin'}
-    <button type="submit" class="button button-primary"
+    <button type="submit" class="btn-primary"
             onclick="return ls.user.ajaxUploadImageCropSubmit(this);">
         {$aLang.settings_profile_avatar_resize_apply}
     </button>
-    <button type="submit" class="button" onclick="return ls.user.ajaxUploadImageCropCancel(this);">
+    <button type="submit" class="btn" onclick="return ls.user.ajaxUploadImageCropCancel(this);">
         {$aLang.settings_profile_avatar_resize_cancel}
     </button>
 {/block}

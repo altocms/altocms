@@ -31,7 +31,7 @@
                             data-url="{$oBlogItem->getUrlFull()}">{$oBlogItem->getTitle()|escape:'html'}</option>
                 {/foreach}
             </select></p>
-        <button onclick="ls.blog.navigatorGoSelectBlog();" class="button" id="blog-navigator-button"
+        <button onclick="ls.blog.navigatorGoSelectBlog();" class="btn" id="blog-navigator-button"
                 disabled>{$aLang.block_blog_navigator_button}</button>
     {else}
         No categories {* TODO: Language *}

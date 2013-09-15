@@ -118,8 +118,8 @@
                 <button type="submit" name="submit_comment"
                         id="comment-button-submit"
                         onclick="ls.comments.add('form_comment',{$iTargetId},'{$sTargetType}'); return false;"
-                        class="button button-primary">{$aLang.comment_add}</button>
-                <button type="button" onclick="ls.comments.preview();" class="button">{$aLang.comment_preview}</button>
+                        class="btn-primary">{$aLang.comment_add}</button>
+                <button type="button" onclick="ls.comments.preview();" class="btn">{$aLang.comment_preview}</button>
             </form>
         </div>
     {else}

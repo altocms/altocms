@@ -44,8 +44,8 @@
 			</div>
 
 			<div class="modal-footer">
-				<button type="submit" class="button button-primary js-upload-image-button" data-form-id="tab-upload-pc">{$aLang.uploadimg_submit}</button>
-				<button type="button" class="button" data-type="modal-close">{$aLang.uploadimg_cancel}</button>
+				<button type="submit" class="btn-primary js-upload-image-button" data-form-id="tab-upload-pc">{$aLang.uploadimg_submit}</button>
+				<button type="button" class="btn" data-type="modal-close">{$aLang.uploadimg_cancel}</button>
 			</div>
 		</form>
 
@@ -72,9 +72,9 @@
 			</div>
 
 			<div class="modal-footer">
-				<button type="submit" class="button button-primary js-insert-image-button">{$aLang.uploadimg_link_submit_paste}</button>
-				<button type="submit" class="button button-primary js-upload-image-button" data-form-id="tab-upload-link">{$aLang.uploadimg_link_submit_load}</button>
-				<button type="button" class="button" data-type="modal-close">{$aLang.uploadimg_cancel}</button>
+				<button type="submit" class="btn-primary js-insert-image-button">{$aLang.uploadimg_link_submit_paste}</button>
+				<button type="submit" class="btn-primary js-upload-image-button" data-form-id="tab-upload-link">{$aLang.uploadimg_link_submit_load}</button>
+				<button type="button" class="btn" data-type="modal-close">{$aLang.uploadimg_cancel}</button>
 			</div>
 		</form>
 	</div>

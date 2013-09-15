@@ -21,5 +21,5 @@
 {/block}
 
 {block name='modal_footer_begin'}
-	<button type="submit" class="button button-primary" onclick="ls.photoset.upload();">{$aLang.topic_photoset_upload_choose}</button>
+	<button type="submit" class="btn-primary" onclick="ls.photoset.upload();">{$aLang.topic_photoset_upload_choose}</button>
 {/block}

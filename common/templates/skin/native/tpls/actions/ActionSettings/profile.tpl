@@ -113,7 +113,7 @@
             </div>
 
             {if $aUserFieldsContact}
-                <button type="button" class="button"
+                <button type="button" class="btn"
                         onclick="return ls.userfield.addFormField();">{$aLang.user_field_add}</button>
             {/if}
         </fieldset>

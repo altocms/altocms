@@ -36,8 +36,8 @@
             <textarea rows="4" cols="20" class="width-full mb-15 js-user-note-edit-text"></textarea>
 
             <button type="submit"
-                    class="button button-primary js-user-note-edit-save">{$aLang.user_note_form_save}</button>
-            <button type="submit" class="button js-user-note-edit-cancel">{$aLang.user_note_form_cancel}</button>
+                    class="btn-primary js-user-note-edit-save">{$aLang.user_note_form_save}</button>
+            <button type="submit" class="btn js-user-note-edit-cancel">{$aLang.user_note_form_cancel}</button>
         </div>
     </div>
 {/block}
