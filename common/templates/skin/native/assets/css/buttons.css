@@ -1,0 +1,76 @@
+/*
+ * КНОПКИ
+  */
+
+.btn, [class^=btn-], [class*=" btn-"] {
+    display: inline-block;
+
+    padding: 7px 12px;
+    text-align: center;
+
+    border-radius: 4px;
+    border: 1px solid #c3cbdc;
+    box-sizing: content-box;
+    height: auto;
+    line-height: 100%;
+    font-family: "PT Sans", arial, sans-serif;
+    font-size: 13px;
+    color: #435D79;
+
+    background: #fdfdfd;
+    background: -moz-linear-gradient(top, #fdfdfd 0%, #f6f6f6 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #fdfdfd), color-stop(100%, #f6f6f6));
+    background: -webkit-linear-gradient(top, #fdfdfd 0%, #f6f6f6 100%);
+    background: -o-linear-gradient(top, #fdfdfd 0%, #f6f6f6 100%);
+    background: -ms-linear-gradient(top, #fdfdfd 0%, #f6f6f6 100%);
+    background: linear-gradient(top, #fdfdfd 0%, #f6f6f6 100%);
+
+    cursor: pointer;
+    text-decoration: none !important;
+}
+
+.btn:hover, [class^=btn-]:hover, [class*=" btn-"]:hover {
+    background: #fdfdfd;
+    background: -moz-linear-gradient(top, #fdfdfd 0%, #f6f6f6 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #fdfdfd), color-stop(100%, #f6f6f6));
+    background: -webkit-linear-gradient(top, #fdfdfd 0%, #f6f6f6 100%);
+    background: -o-linear-gradient(top, #fdfdfd 0%, #f6f6f6 100%);
+    background: -ms-linear-gradient(top, #fdfdfd 0%, #f6f6f6 100%);
+    background: linear-gradient(top, #fdfdfd 0%, #f6f6f6 100%);
+
+    border-color: #abb8d3;
+    color: #435D79;
+}
+
+.btn-primary {
+    border-color: #455f7b;
+    color: #4c5f67;
+}
+
+.btn-primary.active {
+    background: #6e849b;
+    color: #fff;
+}
+
+.btn-large {
+    font-size: 18px;
+    padding: 7px 20px;
+}
+
+.btn-small {
+    font-size: 12px;
+    padding: 0px 12px;
+}
+
+.btn-icon {
+    font-size: 12px;
+    padding: 0;
+}
+
+.btn-readmore {
+    margin-right: 20px;
+}
+
+.swfupload {
+    color: #FF0000;
+}

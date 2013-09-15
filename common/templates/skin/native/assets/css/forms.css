@@ -105,59 +105,6 @@ input[type="text"] {
     color: #777;
 }
 
-/* КНОПКИ - временно (создать buttons.css в skin/native/assets/css) 
--------------------------------------------------------------------------- */
-
-
-.btn, [class|=btn] {
-	display: inline-block;
-
-	padding: 7px 12px!important;
-	text-align: center;
-
-	border-radius: 4px;
-	border: 1px solid #c3cbdc;
-	box-sizing: content-box;
-	height: auto; 
-	line-height: 100%;
-	font-family: "PT Sans", arial, sans-serif; 
-	font-size: 13px;
-	color: #435D79;
-
-	background: #fdfdfd;
-	background: -moz-linear-gradient(top,  #fdfdfd 0%, #f6f6f6 100%);
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fdfdfd), color-stop(100%,#f6f6f6));
-	background: -webkit-linear-gradient(top,  #fdfdfd 0%,#f6f6f6 100%);
-	background: -o-linear-gradient(top,  #fdfdfd 0%,#f6f6f6 100%);
-	background: -ms-linear-gradient(top,  #fdfdfd 0%,#f6f6f6 100%);
-	background: linear-gradient(top,  #fdfdfd 0%,#f6f6f6 100%);
-
-	cursor: pointer;
-	text-decoration: none!important;
-}
-
-a.btn, a[class|=btn] { padding: inherit; }
-
-.btn:hover, [class|=btn]:hover 	{
-	background: #fdfdfd;
-	background: -moz-linear-gradient(top,  #fdfdfd 0%, #f6f6f6 100%);
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fdfdfd), color-stop(100%,#f6f6f6));
-	background: -webkit-linear-gradient(top,  #fdfdfd 0%,#f6f6f6 100%);
-	background: -o-linear-gradient(top,  #fdfdfd 0%,#f6f6f6 100%);
-	background: -ms-linear-gradient(top,  #fdfdfd 0%,#f6f6f6 100%);
-	background: linear-gradient(top,  #fdfdfd 0%,#f6f6f6 100%);
-
-	border-color: #abb8d3; color: #435D79; 
-}
-
-.btn-primary 	{ border-color: #455f7b; color: #4c5f67; }
-.btn-primary.active { background: #6e849b; color: #fff; }
-.btn-large 		{ font-size: 18px; padding: 7px 20px; }
-.btn-small 	{ font-size: 12px; padding: 0px 12px;}
-.btn-icon {  font-size: 12px; padding: 0; }
-
-.btn-readmore { margin-right: 20px; }
-
 .fieldset-title  { font-size: 14px; line-height: 1em; margin-bottom: 4px; font-weight: bold; }
 .fieldset-body   { padding: 10px; margin: 8px; }
 .fieldset-note   { display: block; color: #aaa; font-size: 13px; margin-bottom: 10px; }
@@ -189,3 +136,12 @@ a.btn, a[class|=btn] { padding: inherit; }
 
 .fieldset-photoset-progress          { margin: 15px; }
 .fieldset-photoset-progress-filename { margin-bottom: 5px; }
+
+.photoset-upload-progress {
+    margin-bottom: 10px;
+}
+.photoset-upload-progress-filename {
+    float: left;
+    margin: 3px 10px;
+    background: transparent;
+}
