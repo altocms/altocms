@@ -3475,6 +3475,8 @@ class ActionAdmin extends Action {
 
     public function EventAjaxConfig() {
 
+        $this->Viewer_SetResponseAjax('json');
+
         if ($sKeys = $this->GetPost('keys')) {
             if (!is_array($sKeys)) {
                 $aKeys = F::ArrayToStr($sKeys);
