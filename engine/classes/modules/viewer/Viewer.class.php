@@ -334,6 +334,11 @@ class ModuleViewer extends Module {
         return F::File_NormPath(Config::Get('path.runtime.dir') . 'assets/');
     }
 
+    /**
+     * Возвращает URL к общей asset-папке
+     *
+     * @return string
+     */
     public function GetAssetUrl() {
 
         return Config::Get('path.runtime.url') . 'assets/';
@@ -382,6 +387,8 @@ class ModuleViewer extends Module {
         $this->Assign('aHtmlRssAlternate', $this->aHtmlRssAlternate);
         $this->Assign('sHtmlCanonical', $this->sHtmlCanonical);
         $this->Assign('aHtmlHeadTags', $this->aHtmlHeadTags);
+
+        $this->Assign('aJsAssets', $this->ViewerAsset_GetPreparedAssetLinks());
 
         // * Загружаем список активных плагинов
         $aPlugins = $this->oEngine->GetPlugins();
@@ -1062,25 +1069,18 @@ class ModuleViewer extends Module {
      */
     protected function InitFileParams() {
 
-        if ($aFiles = Config::Get('head.default.js')) {
-            $this->ViewerAsset_AddJsFiles($aFiles);
-        }
-        if ($aFiles = Config::Get('head.default.css')) {
-            $this->ViewerAsset_AddCssFiles($aFiles);
-        }
-        if ($aFiles = Config::Get('head.default.less')) {
-            $this->ViewerAsset_AddLessFiles($aFiles);
-        }
+        $this->ViewerAsset_AssetMake(Config::Get('head.default'));
     }
 
 
     /**
      * Добавляет js-файл в конец списка
      *
-     * @param   string $sFile      js-файл
-     * @param   array $aParams    - Параметры, например, можно указать параметр 'name'=>'jquery.plugin.foo'
-     *                              для исключения повторного добавления файла с таким именем
-     * @param   bool $bReplace   - заменять ли файл с таким же именем, если он уже есть
+     * @param string $sFile    - js-файл
+     * @param array  $aParams  - Параметры, например, можно указать параметр 'name'=>'jquery.plugin.foo'
+     *                           для исключения повторного добавления файла с таким именем
+     * @param bool   $bReplace - заменять ли файл с таким же именем, если он уже есть
+     *
      * @return bool
      */
     public function AppendScript($sFile, $aParams = array(), $bReplace = false) {
@@ -1091,12 +1091,12 @@ class ModuleViewer extends Module {
     /**
      * Добавляет js-файл в начало списка
      *
-     * @param   string $sFile      - js-файл
-     * @param   array  $aParams    - Параметры, например, можно указать параметр 'name'=>'jquery.plugin.foo'
-     *                               для исключения повторного добавления файла с таким именем
-     * @param   bool   $bReplace   - заменять ли файл с таким же именем, если он уже есть
+     * @param string $sFile    - js-файл
+     * @param array  $aParams  - Параметры, например, можно указать параметр 'name'=>'jquery.plugin.foo'
+     *                           для исключения повторного добавления файла с таким именем
+     * @param bool   $bReplace - заменять ли файл с таким же именем, если он уже есть
      *
-     * @return  bool
+     * @return bool
      */
     public function PrependScript($sFile, $aParams = array(), $bReplace = false) {
 
@@ -1106,10 +1106,10 @@ class ModuleViewer extends Module {
     /**
      * Добавляет css-файл в конец списка
      *
-     * @param   string $sFile    - css-файл стилей
-     * @param   array  $aParams  - Параметры, например, можно указать параметр 'name'=>'blueprint'
-     *                             для исключения повторного добавления файла с таким именем
-     * @param   bool   $bReplace - заменять ли файл с таким же именем, если он уже есть
+     * @param string $sFile    - css-файл стилей
+     * @param array  $aParams  - Параметры, например, можно указать параметр 'name'=>'blueprint'
+     *                           для исключения повторного добавления файла с таким именем
+     * @param bool   $bReplace - заменять ли файл с таким же именем, если он уже есть
      *
      * @return bool
      */
@@ -1121,10 +1121,10 @@ class ModuleViewer extends Module {
     /**
      * Добавляет css-файл в начало списка
      *
-     * @param   string $sFile      - css-файл стилей
-     * @param   array  $aParams    - Параметры, например, можно указать параметр 'name'=>'blueprint'
-     *                              для исключения повторного добавления файла с таким именем
-     * @param   bool   $bReplace   - заменять ли файл с таким же именем, если он уже есть
+     * @param string $sFile      - css-файл стилей
+     * @param array  $aParams    - Параметры, например, можно указать параметр 'name'=>'blueprint'
+     *                             для исключения повторного добавления файла с таким именем
+     * @param bool   $bReplace   - заменять ли файл с таким же именем, если он уже есть
      *
      * @return bool
      */
@@ -1133,6 +1133,39 @@ class ModuleViewer extends Module {
         return $this->ViewerAsset_PrependCss($sFile, $aParams, $bReplace);
     }
 
+    /**
+     * Готовит для подключения js-файл
+     *
+     * @param string $sFile
+     * @param array  $aParams
+     * @param bool   $bReplace
+     */
+    public function PrepareScript($sFile, $aParams = array(), $bReplace = false) {
+
+        if (is_array($aParams)) {
+            $aParams['prepare'] = true;
+        } else {
+            $aParams = array('prepare' => true);
+        }
+        return $this->ViewerAsset_AppendJs($sFile, $aParams, $bReplace);
+    }
+
+    /**
+     * Готовит для подключения css-файл
+     *
+     * @param string $sFile
+     * @param array  $aParams
+     * @param bool   $bReplace
+     */
+    public function PrepareStyle($sFile, $aParams = array(), $bReplace = false) {
+
+        if (is_array($aParams)) {
+            $aParams['prepare'] = true;
+        } else {
+            $aParams = array('prepare' => true);
+        }
+        return $this->ViewerAsset_AppendCss($sFile, $aParams, $bReplace);
+    }
 
     /**
      * Строит массив для подключения css и js,
@@ -1195,91 +1228,6 @@ class ModuleViewer extends Module {
         $this->SetHtmlHeadFiles($aHtmlHeadFiles);
     }
 
-    /**
-     * Конвертирует относительные пути в css файлах в абсолютные
-     *
-     * @param  string $sContent - Контент CSS
-     * @param  string $sSourcePath
-     *
-     * @return string
-     */
-    protected function ConvertPathInCss($sContent, $sSourcePath) {
-
-        // Есть ли в файле URLs
-        if (!preg_match_all('|url\((.*?)\)|is', $sContent, $aMatchedUrl, PREG_OFFSET_CAPTURE)) {
-            return $sContent;
-        }
-        // Если файл составной, то определяем источники составных частей
-        preg_match_all('|\/\*\[' . self::ALTO_SRC . '=(.*?)\]\*\/|is', $sContent, $aMatchedSrc, PREG_OFFSET_CAPTURE);
-
-        if ($nPos = strpos($sSourcePath, ',')) $sSourceDir = dirname(substr($sSourcePath, 0, $nPos)) . '/';
-        else $sSourceDir = dirname($sSourcePath) . '/';
-
-        /**
-         * Обрабатываем список URLs, ставя им в соответствие исходники
-         */
-        $aUrls = array();
-        foreach ($aMatchedUrl[1] as $aPart) {
-            $sUrl = $aPart[0];
-            $nPos = $aPart[1];
-            if (!isset($aUrls[$sUrl])) {
-                // Определяем источник
-                $sDir = $sSourceDir;
-                if ($aMatchedSrc) {
-                    foreach ($aMatchedSrc[1] as $aSrc) {
-                        if ($aSrc[1] < $nPos) $sDir = dirname($aSrc[0]) . '/';
-                        else break;
-                    }
-                }
-                $aUrls[$sUrl] = $sDir;
-            }
-        }
-
-        foreach ($aUrls as $sFilePath => $sDir) {
-            /**
-             * Don't touch data URIs
-             */
-            if (strstr($sFilePath, 'data:')) {
-                continue;
-            }
-            $sFilePathAbsolute = preg_replace('~\'|"~', '', trim($sFilePath));
-            /**
-             * Если путь является абсолютным, необрабатываем
-             */
-            if (substr($sFilePathAbsolute, 0, 1) == "/" || substr($sFilePathAbsolute, 0, 5) == 'http:' || substr($sFilePathAbsolute, 0, 6) == 'https:') {
-                continue;
-            }
-            /**
-             * Обрабатываем относительный путь
-             */
-            $sRealPath = $this->GetRealpath($sDir . $sFilePathAbsolute);
-            $this->AddAssetFile($sRealPath);
-            //$sFilePathAbsolute = $this->GetWebPath($this->GetRealpath($sDir.$sFilePathAbsolute));
-            $sFilePathAbsolute = $this->AssetFileUrl($sRealPath);
-
-            // * Заменяем относительные пути в файле на абсолютные
-            $sContent = str_replace($sFilePath, $sFilePathAbsolute, $sContent);
-        }
-        return $sContent;
-    }
-
-    /**
-     * Выполняет преобразование JS файла
-     *
-     * @param  string $sContent
-     * @return string
-     */
-    protected function CompressJs($sContent) {
-
-        $sContent = (Config::Get('compress.js.use'))
-            ? JSMin::minify($sContent)
-            : $sContent;
-        /**
-         * Добавляем разделитель в конце файла
-         * с расчетом на возможное их слияние в будущем
-         */
-        return rtrim($sContent, ";") . ";" . PHP_EOL;
-    }
 
     /**
      * Аналог realpath + обработка URL

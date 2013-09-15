@@ -13,16 +13,19 @@
  * @since   1.0
  */
 
-abstract class ModuleViewerAsset_EntityPackage extends Entity {
+class ModuleViewerAsset_EntityPackage extends Entity {
 
-    protected $sOutType = '';
+    protected $sOutType = '*';
     protected $sAssetType = '';
 
     protected $bMerge = false;
     protected $bCompress = false;
 
     protected $aFiles = array();
+
+    protected $aAssetNames = array();
     protected $aAssets = array();
+
     protected $aLinks = array();
     protected $aHtmlLinkParams = array();
 
@@ -67,7 +70,7 @@ abstract class ModuleViewerAsset_EntityPackage extends Entity {
     public function AddLink($sOutType, $sLink, $aParams = array()) {
 
         if ($sOutType != $this->sOutType) {
-            $this->ViewerAsset->AddLink($sOutType, $sLink, $aParams);
+            $this->ViewerAsset_AddLink('*', $sLink, $aParams);
         } else {
             $this->aLinks[] = array_merge($aParams, array('link' => $sLink));
         }
@@ -212,34 +215,38 @@ abstract class ModuleViewerAsset_EntityPackage extends Entity {
         // Создаем окончательные наборы, сливая prepend и append
         $this->aAssets = array();
         if ($this->aFiles) {
-            foreach ($this->aFiles as $sAsset => $aFileStack) {
-                if (isset($aFileStack['_prepend_']) && $aFileStack['_append_']) {
-                    if ($aFileStack['_prepend_'] && $aFileStack['_append_']) {
+            foreach ($this->aAssetNames as $sAsset) {
+                $aFileStacks = $this->aFiles[$sAsset];
+                if (isset($aFileStacks['_prepend_']) && isset($aFileStacks['_append_'])) {
+                    if ($aFileStacks['_prepend_'] && $aFileStacks['_append_']) {
                         $this->aAssets[$sAsset] = array_merge(
-                            array_reverse($aFileStack['_prepend_']), $aFileStack['_append_']
+                            array_reverse($aFileStacks['_prepend_']), $aFileStacks['_append_']
                         );
                     } else {
-                        if (!$aFileStack['_append_']) {
-                            $this->aAssets[$sAsset] = array_reverse($aFileStack['_prepend_']);
+                        if (!$aFileStacks['_append_']) {
+                            $this->aAssets[$sAsset] = array_reverse($aFileStacks['_prepend_']);
                         } else {
-                            $this->aAssets[$sAsset] = $aFileStack['_append_'];
+                            $this->aAssets[$sAsset] = $aFileStacks['_append_'];
                         }
                     }
                 }
             }
         }
+
         // Обрабатываем наборы
         foreach ($this->aAssets as $sAsset => $aFiles) {
             if (count($aFiles) == 1) {
                 // Одиночный файл
                 $aFileParams = array_shift($aFiles);
                 if ($aFileParams['throw']) {
+                    // Throws without prepare
                     $this->AddLink($aFileParams['info']['extension'], $aFileParams['file'], $aFileParams);
                 } else {
+                    // Prepares single file
                     $this->MakeSingle($sAsset, $aFileParams);
                 }
             } else {
-                // В наборе несколько файлов
+                // Prepares set of several files
                 $this->MakeMerge($sAsset, $aFiles);
             }
         }
@@ -307,17 +314,25 @@ abstract class ModuleViewerAsset_EntityPackage extends Entity {
         if (!isset($aFileParams['browser'])) {
             $aFileParams['browser'] = null;
         }
+        $aFileParams['prepare'] = isset($aFileParams['prepare'])? (bool)isset($aFileParams['prepare']) : false;
         $aFileParams['name'] = F::File_NormPath($aFileParams['name']);
+
         return $aFileParams;
     }
 
-    protected function _add($sFileName, $aFileParams, $sAssetName = null, $bAppend = true, $bReplace = false) {
+    protected function _add($sFileName, $aFileParams, $sAssetName = null, $bPrepend = false, $bReplace = false) {
 
         $aFileParams = $this->_prepareParams($sFileName, $aFileParams, $sAssetName);
         $sName = $aFileParams['name'];
         $sAssetName = $aFileParams['asset'];
+        // If this asset does not exist then add it into stack
         if (!isset($this->aFiles[$sAssetName])) {
             $this->aFiles[$sAssetName] = array('_append_' => array(), '_prepend_' => array());
+            if ($bPrepend) {
+                array_unshift($this->aAssetNames, $sAssetName);
+            } else {
+                $this->aAssetNames[] = $sAssetName;
+            }
         }
         if (isset($this->aFiles[$sAssetName]['_append_'][$sName])) {
             if ($bReplace) {
@@ -332,14 +347,14 @@ abstract class ModuleViewerAsset_EntityPackage extends Entity {
                 return 0;
             }
         }
-        $this->aFiles[$sAssetName][$bAppend ? '_append_' : '_prepend_'][$sName] = $aFileParams;
+        $this->aFiles[$sAssetName][$bPrepend ? '_prepend_' : '_append_'][$sName] = $aFileParams;
         return 1;
     }
 
-    public function AddFiles($aFiles, $sAssetName = null, $bAppend = true, $bReplace = false) {
+    public function AddFiles($aFiles, $sAssetName = null, $bPrepend = false, $bReplace = false) {
 
         foreach ($aFiles as $sName => $aFileParams) {
-            $this->_add($sName, $aFileParams, $sAssetName, $bAppend, $bReplace);
+            $this->_add($sName, $aFileParams, $sAssetName, $bPrepend, $bReplace);
         }
     }
 
@@ -441,9 +456,19 @@ abstract class ModuleViewerAsset_EntityPackage extends Entity {
         }
     }
 
-    public function GetLinks() {
+    public function GetLinks($bPreparedOnly = null) {
 
-        return $this->aLinks;
+        if (is_null($bPreparedOnly)) {
+            return $this->aLinks;
+        } else {
+            $aResult = array();
+            foreach ($this->aLinks as $sIdx => $aLinkData) {
+                if ($aLinkData['prepare'] == (bool)$bPreparedOnly) {
+                    $aResult[$sIdx] = $aLinkData;
+                }
+            }
+            return $aResult;
+        }
     }
 
     public function GetBrowserLinks() {
@@ -472,14 +497,27 @@ abstract class ModuleViewerAsset_EntityPackage extends Entity {
         return $sResult;
     }
 
-    public function BuildHtmlLinks() {
+    public function GetLinksArray($bPreparedOnly = null) {
 
+        $aLinks = $this->GetLinks($bPreparedOnly);
         $aResult = array();
-        foreach ($this->aLinks as $aLinkData) {
-            $aResult[$this->sOutType][] = $this->BuildLink($aLinkData);
+        foreach($aLinks as $aLinkData) {
+            $aResult[$this->sOutType][$aLinkData['name']] = $aLinkData['link'];
         }
         return $aResult;
     }
+
+    public function BuildHtmlLinks($bPreparedOnly = false) {
+
+        $aResult = array();
+        foreach ($this->aLinks as $aLinkData) {
+            if ($aLinkData['prepare'] == (bool)$bPreparedOnly) {
+                $aResult[$this->sOutType][] = $this->BuildLink($aLinkData);
+            }
+        }
+        return $aResult;
+    }
+
 }
 
 // EOF

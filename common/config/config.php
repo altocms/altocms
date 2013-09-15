@@ -587,6 +587,7 @@ $config['router']['config']['autodefine'] = true;
  *      'asset' - указывает на один набор при слиянии файлов
  *      'name'  - "каноническое" имя файла
  *      'place' - место размещения (только для js)
+ *      'prepare' - файл готовится, но не включается в HTML
  */
 $config['head']['default']['js'] = array(
     /* Vendor libs */
@@ -599,7 +600,7 @@ $config['head']['default']['js'] = array(
     '___path.frontend.dir___/libs/js/vendor/jquery.scrollto.js',
     '___path.frontend.dir___/libs/js/vendor/jquery.rich-array.min.js',
     '___path.frontend.dir___/libs/js/vendor/jquery.form.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery.jqplugin.js',
+    //'___path.frontend.dir___/libs/js/vendor/jquery.jqplugin.js',
     '___path.frontend.dir___/libs/js/vendor/jquery.cookie.js',
     '___path.frontend.dir___/libs/js/vendor/jquery.serializejson.js',
     '___path.frontend.dir___/libs/js/vendor/jquery.file.js',
@@ -612,6 +613,8 @@ $config['head']['default']['js'] = array(
     '___path.frontend.dir___/libs/js/vendor/prettyphoto/js/jquery.prettyphoto.js',
     '___path.frontend.dir___/libs/js/vendor/parsley/parsley.js',
     '___path.frontend.dir___/libs/js/vendor/parsley/i18n/messages.ru.js',
+    '___path.frontend.dir___/libs/js/vendor/swfobject/swfobject.js',
+    '___path.frontend.dir___/libs/js/vendor/swfupload/swfupload.js' => array('name' => 'swfupload.js', 'prepare' => true),
 
     /* Core */
     '___path.frontend.dir___/libs/js/core/main.js',

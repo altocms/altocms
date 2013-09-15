@@ -31,18 +31,18 @@ class ModuleViewerAsset extends Module {
      */
     public function AssetFileDir($sFile) {
 
-        return F::File_NormPath($this->GetAssetDir() . $this->Hash(dirname($sFile)) . '/' . basename($sFile));
+        return F::File_NormPath($this->Viewer_GetAssetDir() . $this->Hash(dirname($sFile)) . '/' . basename($sFile));
     }
 
     /**
-     * Преобразует URL к файлу в URL к asset-ресурсу
+     * Преобразует путь к файлу в URL к asset-ресурсу
      *
      * @param   string $sFile
      * @return  string
      */
     public function AssetFileUrl($sFile) {
 
-        return F::File_NormPath($this->GetAssetUrl() . $this->Hash(dirname($sFile)) . '/' . basename($sFile));
+        return F::File_NormPath($this->Viewer_GetAssetUrl() . $this->Hash(dirname($sFile)) . '/' . basename($sFile));
     }
 
     /**
@@ -50,51 +50,47 @@ class ModuleViewerAsset extends Module {
      */
     public function  Init() {
 
-        foreach ($this->aAssetTypes as $sType) {
-            $aParams = array('asset_type' => $sType);
-            $this->aAssets[$sType] = Engine::GetEntity('ViewerAsset_Package' . ucfirst($sType), $aParams);
-        }
     }
 
     /**
-     * @param $sType
+     * @param string $sType
      *
-     * @return mixed
+     * @return ModuleViewerAsset_EntityPackage
      */
     protected function _getAssetPackage($sType) {
 
-        if (isset($this->aAssets[$sType])) {
-            return $this->aAssets[$sType];
+        $oResult = null;
+        if (!isset($this->aAssets[$sType])) {
+            if (in_array($sType, $this->aAssetTypes)) {
+                $aParams = array('asset_type' => $sType);
+                $this->aAssets[$sType] = Engine::GetEntity('ViewerAsset_Package' . ucfirst($sType), $aParams);
+                $oResult = $this->aAssets[$sType];
+            } else {
+                if (!isset($this->aAssets['*'])) {
+                    $this->aAssets['*'] = Engine::GetEntity('ViewerAsset_Package');
+                }
+                $oResult = $this->aAssets['*'];
+            }
+        } else {
+            $oResult = $this->aAssets[$sType];
         }
+        return $oResult;
     }
 
     /**
-     * @param      $sType
-     * @param      $aFiles
-     * @param null $sAssetName
-     * @param bool $bAppend
-     * @param bool $bReplace
+     * @param string       $sType
+     * @param array|string $aFiles
+     * @param array        $aOptions
      */
-    protected function _add($sType, $aFiles, $sAssetName = null, $bAppend = true, $bReplace = false) {
+    protected function _add($sType, $aFiles, $aOptions = array()) {
 
         if ($oAssetPackage = $this->_getAssetPackage($sType)) {
-            if (!is_array($aFiles)) {
-                $aFiles = array((string)$aFiles);
-            }
             $aAddFiles = array();
             foreach ($aFiles as $sFileName => $aFileParams) {
                 // extract & normalize full file path
-                if (is_numeric($sFileName)) {
-                    // single file name or array of options
-                    if (!is_array($aFileParams)) {
-                        $sFilePath = F::File_NormPath((string)$aFileParams);
-                    } elseif (isset($aFileParams['name'])) {
-                        $sFilePath = F::File_NormPath($aFileParams['name']);
-                    } else {
-                        $sFilePath = '';
-                    }
+                if (isset($aFileParams['file'])) {
+                    $sFilePath = F::File_NormPath($aFileParams['file']);
                 } else {
-                    // filename => array of options
                     $sFilePath = F::File_NormPath((string)$sFileName);
                 }
                 // if file path defined
@@ -107,108 +103,199 @@ class ModuleViewerAsset extends Module {
                     if (!isset($aFileParams['name'])) {
                         $aFileParams['name'] = $aFileParams['file'];
                     }
-                    if ($sAssetName) {
-                        $aFileParams['asset'] = $sAssetName;
-                    }
                     $aAddFiles[$aFileParams['name']] = $aFileParams;
                 } else {
                     F::SysWarning('Can not define asset file path "' . $sFilePath . '"');
                 }
             }
             if ($aAddFiles) {
-                $oAssetPackage->AddFiles($aAddFiles, null, $bAppend, $bReplace);
+                $oAssetPackage->AddFiles(
+                    $aAddFiles, null,
+                    isset($aOptions['prepend']) ? $aOptions['prepend'] : false,
+                    isset($aOptions['replace']) ? $aOptions['replace'] : false
+                );
             }
         }
     }
 
-    /**
-     * @param      $sType
-     * @param      $aFiles
-     * @param null $sAssetName
-     */
-    public function AddFiles($sType, $aFiles, $sAssetName = null) {
+    public function AssetMake($aFiles) {
 
-        return $this->_add($sType, $aFiles, $sAssetName);
+        //$sPakHash = md5(serialize($aFiles));
+        if (isset($aFiles['js'])) {
+            $this->AddJsFiles($aFiles['js']);
+        }
+        if (isset($aFiles['css'])) {
+            $this->AddCssFiles($aFiles['css']);
+        }
+        if (isset($aFiles['less'])) {
+            $this->AddLessFiles($aFiles['less']);
+        }
+
     }
 
     /**
-     * @param      $aFiles
-     * @param null $sAssetName
+     * @param string $sType
+     * @param array  $aFiles
+     * @param string $sAssetName
+     * @param array  $aOptions
      */
-    public function AddJsFiles($aFiles, $sAssetName = null) {
+    public function AddFiles($sType, $aFiles, $sAssetName = null, $aOptions = array()) {
 
-        return $this->AddFiles('js', $aFiles, $sAssetName);
+        if (!is_array($aFiles)) {
+            $aFiles = array(
+                array('file' => (string)$aFiles),
+            );
+        }
+        $aAssetFiles = array();
+        foreach ($aFiles as $sFileName => $aFileParams) {
+            $sName = '';
+            // extract & normalize full file path
+            if (is_numeric($sFileName)) {
+                // single file name or array of options
+                if (!is_array($aFileParams)) {
+                    $sName = $sFile = F::File_NormPath((string)$aFileParams);
+                } else {
+                    $sFile = isset($aFileParams['file']) ? $aFileParams['file'] : null;
+                    $sName = isset($aFileParams['name']) ? $aFileParams['name'] : $sFile;
+                }
+            } else {
+                // filename => array of options
+                if (isset($aFileParams['file'])) {
+                    $sFile = F::File_NormPath($aFileParams['file']);
+                } else {
+                    $sFile = F::File_NormPath((string)$sFileName);
+                }
+                $sName = isset($aFileParams['name']) ? $aFileParams['name'] : $sFile;
+            }
+            if (!is_array($aFileParams)) {
+                $aFileParams = array();
+            }
+            $aFileParams['file'] = $sFile;
+            $aFileParams['name'] = $sName;
+            if ($sAssetName) {
+                $aFileParams['asset'] = $sAssetName;
+            }
+            $aAssetFiles[$sName] = $aFileParams;
+        }
+        return $this->_add($sType, $aAssetFiles, $aOptions);
     }
 
     /**
-     * @param      $aFiles
-     * @param null $sAssetName
+     * @param array  $aFiles
+     * @param string $sAssetName
+     * @param array  $aOptions
      */
-    public function AddCssFiles($aFiles, $sAssetName = null) {
+    public function AddJsFiles($aFiles, $sAssetName = null, $aOptions = array()) {
 
-        return $this->AddFiles('css', $aFiles, $sAssetName);
+        return $this->AddFiles('js', $aFiles, $sAssetName, $aOptions);
     }
 
     /**
-     * @param      $aFiles
-     * @param null $sAssetName
+     * @param array  $aFiles
+     * @param string $sAssetName
+     * @param array  $aOptions
      */
-    public function AddLessFiles($aFiles, $sAssetName = null) {
+    public function AddCssFiles($aFiles, $sAssetName = null, $aOptions = array()) {
 
-        return $this->AddFiles('less', $aFiles, $sAssetName);
+        return $this->AddFiles('css', $aFiles, $sAssetName, $aOptions);
     }
 
     /**
-     * @param      $aFiles
-     * @param null $sAssetName
+     * @param array  $aFiles
+     * @param string $sAssetName
+     * @param array  $aOptions
      */
-    public function AddImgFiles($aFiles, $sAssetName = null) {
+    public function AddLessFiles($aFiles, $sAssetName = null, $aOptions = array()) {
 
-        return $this->AddFiles('img', $aFiles, $sAssetName);
+        return $this->AddFiles('less', $aFiles, $sAssetName, $aOptions);
     }
 
     /**
-     * @param       $sFile
+     * @param string $sFile
      * @param array $aParams
      * @param bool  $bReplace
      */
     public function AppendJs($sFile, $aParams = array(), $bReplace = false) {
 
-        $this->_add('js', array($sFile => $aParams), null, true, $bReplace);
+        $aOptions = array(
+            'prepend' => false,
+            'replace' => (bool)$bReplace,
+        );
+        return $this->AddFiles('js', array($sFile => $aParams), null, $aOptions);
     }
 
     /**
-     * @param       $sFile
+     * @param string $sFile
      * @param array $aParams
      * @param bool  $bReplace
      */
     public function PrependJs($sFile, $aParams = array(), $bReplace = false) {
 
-        $this->_add('js', array($sFile => $aParams), null, false, $bReplace);
+        $aOptions = array(
+            'prepend' => true,
+            'replace' => (bool)$bReplace,
+        );
+        return $this->AddFiles('js', array($sFile => $aParams), null, $aOptions);
     }
 
     /**
-     * @param       $sFile
+     * @param string $sFile
+     * @param array  $aParams
+     * @param bool   $bReplace
+     */
+    public function PrepareJs($sFile, $aParams = array(), $bReplace = false) {
+
+        $aOptions = array(
+            'prepare' => true,
+            'replace' => (bool)$bReplace,
+        );
+        return $this->AddFiles('js', array($sFile => $aParams), null, $aOptions);
+    }
+
+    /**
+     * @param string $sFile
      * @param array $aParams
      * @param bool  $bReplace
      */
     public function AppendCss($sFile, $aParams = array(), $bReplace = false) {
 
-        $this->_add('css', array($sFile => $aParams), null, true, $bReplace);
+        $aOptions = array(
+            'prepend' => false,
+            'replace' => (bool)$bReplace,
+        );
+        return $this->AddFiles('css', array($sFile => $aParams), null, $aOptions);
     }
 
     /**
-     * @param       $sFile
+     * @param string $sFile
      * @param array $aParams
      * @param bool  $bReplace
      */
     public function PrependCss($sFile, $aParams = array(), $bReplace = false) {
 
-        $this->_add('css', array($sFile => $aParams), null, false, $bReplace);
+        $aOptions = array(
+            'prepend' => true,
+            'replace' => (bool)$bReplace,
+        );
+        return $this->AddFiles('css', array($sFile => $aParams), null, $aOptions);
     }
 
     /**
-     * @param $sType
+     * @param string $sFile
+     * @param array $aParams
+     * @param bool  $bReplace
+     */
+    public function PrepareCss($sFile, $aParams = array(), $bReplace = false) {
+
+        $aOptions = array(
+            'prepare' => true,
+            'replace' => (bool)$bReplace,
+        );
+        return $this->AddFiles('css', array($sFile => $aParams), null, $aOptions);
+    }
+
+    /**
+     * @param string $sType
      */
     public function Clear($sType) {
 
@@ -234,8 +321,8 @@ class ModuleViewerAsset extends Module {
     }
 
     /**
-     * @param $sType
-     * @param $aFiles
+     * @param string $sType
+     * @param array $aFiles
      */
     public function Exclude($sType, $aFiles) {
 
@@ -286,6 +373,17 @@ class ModuleViewerAsset extends Module {
             }
         }
         return $aLinks;
+    }
+
+    public function GetPreparedAssetLinks() {
+
+        $aResult = array();
+        foreach($this->aAssets as $oAssetPackage) {
+            if ($aLinks = $oAssetPackage->GetLinksArray(true)) {
+                $aResult = F::Array_Merge($aResult, reset($aLinks));
+            }
+        }
+        return $aResult;
     }
 
 }
