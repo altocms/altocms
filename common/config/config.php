@@ -614,7 +614,22 @@ $config['head']['default']['js'] = array(
     '___path.frontend.dir___/libs/js/vendor/parsley/parsley.js',
     '___path.frontend.dir___/libs/js/vendor/parsley/i18n/messages.ru.js',
     '___path.frontend.dir___/libs/js/vendor/swfobject/swfobject.js',
-    '___path.frontend.dir___/libs/js/vendor/swfupload/swfupload.js' => array('name' => 'swfupload.js', 'prepare' => true),
+
+    /* */
+    '___path.frontend.dir___/libs/js/vendor/swfobject/plugin/swfupload.js' => array(
+        'name'    => 'swfobject/plugin/swfupload.js',
+        'prepare' => true
+    ),
+    '___path.frontend.dir___/libs/js/vendor/swfupload/swfupload.js'        => array(
+        'name'    => 'swfupload/swfupload.js',
+        'prepare' => true
+    ),
+    '___path.frontend.dir___/libs/js/vendor/swfupload/swfupload.swf'       => array(
+        'name'     => 'swfupload/swfupload.swf',
+        'prepare'  => true,
+        'compress' => false,
+        'merge'    => false
+    ),
 
     /* Core */
     '___path.frontend.dir___/libs/js/core/main.js',
