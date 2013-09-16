@@ -557,15 +557,12 @@ $config['router']['page']['settings']      = 'ActionSettings';
 $config['router']['page']['tag']           = 'ActionTag';
 $config['router']['page']['talk']          = 'ActionTalk';
 $config['router']['page']['rss']           = 'ActionRss';
-$config['router']['page']['link']          = 'ActionLink';
-$config['router']['page']['question']      = 'ActionQuestion';
 $config['router']['page']['blogs']         = 'ActionBlogs';
 $config['router']['page']['search']        = 'ActionSearch';
 $config['router']['page']['admin']         = 'ActionAdmin';
 $config['router']['page']['ajax']          = 'ActionAjax';
 $config['router']['page']['feed']          = 'ActionUserfeed';
 $config['router']['page']['stream']        = 'ActionStream';
-$config['router']['page']['photoset']      = 'ActionPhotoset';
 $config['router']['page']['subscribe']     = 'ActionSubscribe';
 $config['router']['page']['img']           = 'ActionImg';
 

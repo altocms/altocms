@@ -62,16 +62,24 @@ $config['head']['default']['js'] = array(
     '___path.frontend.url___/libs/js/vendor/swfobject/swfobject.js',
 
     /* */
+    /*
     '___path.frontend.dir___/libs/js/vendor/swfobject/plugin/swfupload.js' => array(
         'name'    => 'swfobject/plugin/swfupload.js',
         'prepare' => true
     ),
-    '___path.frontend.dir___/libs/js/vendor/swfupload/swfupload.js'        => array(
+    */
+    '___path.frontend.dir___/libs/js/vendor/swfupload-2.2/swfupload.js' => array(
         'name'    => 'swfupload/swfupload.js',
         'prepare' => true
     ),
-    '___path.frontend.dir___/libs/js/vendor/swfupload/swfupload.swf'       => array(
+    '___path.frontend.dir___/libs/js/vendor/swfupload-2.2/swfupload.swf' => array(
         'name'     => 'swfupload/swfupload.swf',
+        'prepare'  => true,
+        'compress' => false,
+        'merge'    => false
+    ),
+    '___path.frontend.dir___/libs/js/vendor/swfupload-2.2/swfuploadbutton.swf' => array(
+        'name'     => 'swfupload/swfuploadbutton.swf',
         'prepare'  => true,
         'compress' => false,
         'merge'    => false
@@ -126,6 +134,7 @@ $config['head']['default']['css'] = array_merge(
 
          '___path.skin.url___/assets/css/grid.css',
          '___path.skin.url___/assets/css/forms.css',
+         '___path.skin.url___/assets/css/buttons.css',
          '___path.skin.url___/assets/css/common.css',
          '___path.skin.url___/assets/css/icons.css',
          '___path.skin.url___/assets/css/navs.css',
