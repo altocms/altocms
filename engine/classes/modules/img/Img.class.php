@@ -211,17 +211,17 @@ class ModuleImg extends Module {
         } else {
             $oImg = $xImage;
         }
-        return $oImg->resize($nWidth, $nHeight, $bFit);
+        return $oImg->Resize($nWidth, $nHeight, $bFit);
     }
 
     /**
      * Crop image
      *
-     * @param      $xImage
-     * @param      $nWidth
-     * @param null $nHeight
-     * @param null $nPosX
-     * @param null $nPosY
+     * @param string|object $xImage
+     * @param int           $nWidth
+     * @param int           $nHeight
+     * @param int           $nPosX
+     * @param int           $nPosY
      *
      * @return bool|ModuleImg_EntityImage|object
      */
@@ -238,6 +238,10 @@ class ModuleImg extends Module {
         $nW = $oImg->getWidth();
         $nH = $oImg->getHeight();
 
+        if (!$nHeight) {
+            $nHeight = $nWidth;
+        }
+
         if ($nW < $nWidth) {
             $nWidth = $nW;
         }
@@ -250,7 +254,50 @@ class ModuleImg extends Module {
             return $oImg;
         }
 
-        $oImg->crop($nWidth, $nHeight, $nPosX, $nPosY);
+        $oImg->Crop($nWidth, $nHeight, $nPosX, $nPosY);
+
+        return $oImg;
+    }
+
+    /**
+     * Crop image from center
+     *
+     * @param string|object $xImage
+     * @param int           $nWidth
+     * @param int           $nHeight
+     *
+     * @return bool|ModuleImg_EntityImage|object
+     */
+    public function CropCenter($xImage, $nWidth, $nHeight = null) {
+
+        if (!$xImage) {
+            return false;
+        }
+        if (!is_object($xImage)) {
+            $oImg = $this->Read($xImage);
+        } else {
+            $oImg = $xImage;
+        }
+        $nW = $oImg->getWidth();
+        $nH = $oImg->getHeight();
+
+        if (!$nHeight) {
+            $nHeight = $nWidth;
+        }
+
+        if ($nW < $nWidth) {
+            $nWidth = $nW;
+        }
+
+        if ($nH < $nHeight) {
+            $nHeight = $nH;
+        }
+
+        if ($nHeight == $nH && $nWidth == $nW) {
+            return $oImg;
+        }
+
+        $oImg->Crop($nWidth, $nHeight, round(($nW - $nWidth) / 2), round(($nH - $nHeight) / 2));
 
         return $oImg;
     }
@@ -283,9 +330,9 @@ class ModuleImg extends Module {
         $nNewSize = min($nWidth, $nHeight);
 
         if ($bCenter) {
-            $oImg->crop($nNewSize, $nNewSize, ($nWidth - $nNewSize) / 2, ($nHeight - $nNewSize) / 2);
+            $oImg->Crop($nNewSize, $nNewSize, ($nWidth - $nNewSize) / 2, ($nHeight - $nNewSize) / 2);
         } else {
-            $oImg->crop($nNewSize, $nNewSize, 0, 0);
+            $oImg->Crop($nNewSize, $nNewSize, 0, 0);
         }
         // * Возвращаем объект изображения
         return $oImg;
@@ -330,9 +377,9 @@ class ModuleImg extends Module {
         }
 
         if ($bCenter) {
-            $oImg->crop($nNewWidth, $nNewHeight, ($nWidth - $nNewWidth) / 2, ($nHeight - $nNewHeight) / 2);
+            $oImg->Crop($nNewWidth, $nNewHeight, ($nWidth - $nNewWidth) / 2, ($nHeight - $nNewHeight) / 2);
         } else {
-            $oImg->crop($nNewWidth, $nNewHeight, 0, 0);
+            $oImg->Crop($nNewWidth, $nNewHeight, 0, 0);
         }
 
         // * Возвращаем объект изображения
@@ -353,7 +400,23 @@ class ModuleImg extends Module {
             $sOriginal = $aMatches[1];
             list($nW, $nH) = explode('x', $aMatches[2]);
             $sModifier = (isset($aMatches[4]) ? $aMatches[4] : '');
-            return $this->Copy($sOriginal, $sFile, $nW, $nH, false);
+            if ($sModifier == 'fit') {
+                $sResultFile = $this->Copy($sOriginal, $sFile, $nW, $nH, true);
+            } elseif ($sModifier == 'pad') {
+                $sResultFile = $this->Copy($sOriginal, $sFile, $nW, $nH, false);
+            } elseif ($sModifier == 'crop') {
+                if ($oImg = $this->Resize($sOriginal, $nW, $nH, false)) {
+                    $oImg = $this->CropCenter($oImg, $nW, $nH);
+                    $sResultFile = $oImg->Save($sFile);
+                }
+            } else {
+                $oImg = $this->Resize($sOriginal, $nW, $nH, true);
+                $oBackImg = $this->Create($nW, $nH, 0xffffff, 0);
+                $nX = round(($oBackImg->GetWidth() - $oImg->GetWidth()) / 2);
+                $nY = round(($oBackImg->GetHeight() - $oImg->GetHeight()) / 2);
+                $sResultFile = $oBackImg->Overlay($oImg, $nX, $nY)->Save($sFile);
+            }
+            return $sResultFile;
         }
         if (!F::File_Exists($sFile)) {
             return false;

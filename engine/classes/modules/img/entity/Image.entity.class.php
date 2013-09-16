@@ -42,6 +42,11 @@ class ModuleImg_EntityImage extends Entity {
         return $nColor;
     }
 
+    /**
+     * Gets mime type of image
+     *
+     * @return string
+     */
     public function GetMime() {
 
         $sMime = $this->getProp('mime');
@@ -51,6 +56,11 @@ class ModuleImg_EntityImage extends Entity {
         return $sMime;
     }
 
+    /**
+     * Gets image format
+     *
+     * @return string
+     */
     public function GetFormat() {
 
         $sMime = $this->getProp('mime');
@@ -63,6 +73,30 @@ class ModuleImg_EntityImage extends Entity {
             }
         }
         return $sFormat;
+    }
+
+    /**
+     * Gets image width (or null)
+     *
+     * @return string|null
+     */
+    public function GetWidth() {
+
+        if ($oImage = $this->GetImage()) {
+            return $oImage->width;
+        }
+    }
+
+    /**
+     * Gets image height (or null)
+     *
+     * @return string|null
+     */
+    public function GetHeight() {
+
+        if ($oImage = $this->GetImage()) {
+            return $oImage->height;
+        }
     }
 
     /**
@@ -105,13 +139,19 @@ class ModuleImg_EntityImage extends Entity {
     public function Resize($nWidth = null, $nHeight = null, $bFit = true) {
 
         if ($oImage = $this->GetImage()) {
-            $oImage->resize($nWidth, $nHeight, $bFit);
-            if ($nWidth) {
-                $this->SetWidth($nWidth);
+            if ($nWidth && $nHeight) {
+                $nWScale = $nWidth / $oImage->width;
+                $nHScale = $nHeight / $oImage->height;
+                $nScale = ($bFit ? min($nWScale, $nHScale) : max($nWScale, $nHScale));
+            }elseif($nWidth) {
+                $nScale = $nWidth/$oImage->width;
+            }elseif($nHeight) {
+                $nScale = $nHeight/$oImage->height;
+            }else {
+                throw new \Exception("Either width or height must be set");
             }
-            if ($nHeight) {
-                $this->SetHeight($nHeight);
-            }
+
+            $oImage->scale($nScale);
         }
         return $this;
     }
@@ -143,6 +183,16 @@ class ModuleImg_EntityImage extends Entity {
         if ($oImage = $this->GetImage()) {
             if ($bHorizontally || $bVertically) {
                 $oImage->flip($bHorizontally, $bVertically);
+            }
+        }
+        return $this;
+    }
+
+    public function Overlay($oOverlay, $nX = 0, $nY = 0) {
+
+        if ($oImage = $this->GetImage()) {
+            if ($oOverImage = $oOverlay->GetImage()) {
+                $oImage->overlay($oOverImage, $nX, $nY);
             }
         }
         return $this;
