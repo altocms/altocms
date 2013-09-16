@@ -109,11 +109,13 @@
             </a>
             <script type="text/javascript">
                 jQuery(function ($) {
+                    /*
                     if (window.swfobject.getFlashPlayerVersion()) {
                         ls.photoset.initSwfUpload({
                             post_params: { 'topic_id': {json var=$_aRequest.topic_id} }
                         });
                     }
+                    */
                 });
             </script>
             <div class="fieldset-body fieldset-photoset" {if !count($aPhotos)}style="xdisplay:none;"{/if}>
@@ -151,8 +153,8 @@
 
                 {include file='forms/form.field.hidden.tpl' sFieldName='topic_main_photo' value=$_aRequest.topic_main_photo}
 
-                <label class="form-input-file">
-                <span class="btn-primary" id="js-photoset-image-upload-flash">{$aLang.topic_photoset_upload_choose}</span>
+                <label class="form-input-file btn-primary">
+                    <span id="js-photoset-image-upload-flash">{$aLang.topic_photoset_upload_choose}</span>
                     <input type="file" name="Filedata" id="js-photoset-image-upload" data-topic-id="{$_aRequest.topic_id}">
                 </label>
             </div>
@@ -220,19 +222,17 @@
 
     {* Теги *}
     {include file='forms/form.field.text.tpl'
-    sFieldName    = 'topic_tags'
-    sFieldRules   = 'required="false" rangetags="[1,15]"'
-    sFieldNote    = $aLang.topic_create_tags_notice
-    sFieldLabel   = $aLang.topic_create_tags
-    sFieldClasses = 'width-full autocomplete-tags-sep'}
-
+        sFieldName    = 'topic_tags'
+        sFieldRules   = 'required="false" rangetags="[1,15]"'
+        sFieldNote    = $aLang.topic_create_tags_notice
+        sFieldLabel   = $aLang.topic_create_tags
+        sFieldClasses = 'width-full autocomplete-tags-sep'}
 
     {* Запретить комментарии *}
     {include file='forms/form.field.checkbox.tpl'
-    sFieldName  = 'topic_forbid_comment'
-    sFieldNote  = $aLang.topic_create_forbid_comment_notice
-    sFieldLabel = $aLang.topic_create_forbid_comment}
-
+        sFieldName  = 'topic_forbid_comment'
+        sFieldNote  = $aLang.topic_create_forbid_comment_notice
+        sFieldLabel = $aLang.topic_create_forbid_comment}
 
     {* Принудительный вывод топиков на главную (доступно только админам) *}
     {if E::IsAdmin()}
@@ -260,10 +260,9 @@
     {/if}
 
     {include file='forms/form.field.button.tpl'
-    sFieldName    = 'submit_topic_publish'
-    sFieldStyle   = 'primary'
-    sFieldClasses = 'fl-r'
-    sFieldText    = $sSubmitInputText}
+        sFieldName    = 'submit_topic_publish'
+        sFieldClasses = 'btn-primary fl-r'
+        sFieldText    = $sSubmitInputText}
     {include file='forms/form.field.button.tpl' sFieldType='button' sFieldClasses='js-topic-preview-text-button' sFieldText=$aLang.topic_create_submit_preview}
     {include file='forms/form.field.button.tpl' sFieldName='submit_topic_save' sFieldText=$aLang.topic_create_submit_save}
     </form>

@@ -2502,6 +2502,11 @@ class ModuleTopic extends Module {
         return false;
     }
 
+    public function UploadPhotoError() {
+
+        return $this->Upload_GetErrorMsg();
+    }
+
     /**
      * Пересчитывает счетчик избранных топиков
      *

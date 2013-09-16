@@ -28,6 +28,7 @@
  * @since   1.0
  */
 class ModuleSecurity extends Module {
+
     protected $sKeyName;
     protected $sKeyLen;
 
@@ -36,6 +37,7 @@ class ModuleSecurity extends Module {
      *
      */
     public function Init() {
+
         $this->sKeyName = 'ALTO_SECURITY_KEY';
         $this->sKeyLen = 32;
     }
@@ -48,6 +50,7 @@ class ModuleSecurity extends Module {
      * @return  bool
      */
     public function ValidateSendForm($bBreak = true) {
+
         if (!($this->ValidateSessionKey())) {
             if ($bBreak) {
                 die('Hacking attempt!');
@@ -64,6 +67,7 @@ class ModuleSecurity extends Module {
      * @return bool
      */
     public function ValidateReferal() {
+
         if (isset($_SERVER['HTTP_REFERER'])) {
             $aUrl = parse_url($_SERVER['HTTP_REFERER']);
             if (strcasecmp($aUrl['host'], $_SERVER['HTTP_HOST']) == 0) {
@@ -83,13 +87,19 @@ class ModuleSecurity extends Module {
      * @return  bool
      */
     public function ValidateSessionKey($sCode = null) {
+
         if (!$sCode) {
-            $sCode = getRequestStr('security_ls_key');
+            if (isset($_SERVER['HTTP_X_ALTO_AJAX_KEY'])) {
+                $sCode = (string)$_SERVER['HTTP_X_ALTO_AJAX_KEY'];
+            } else {
+                $sCode = getRequestStr('security_ls_key');
+            }
         }
         return ($sCode == $this->GetSessionKey());
     }
 
     public function GetSessionKey() {
+
         $sSessionKey = $this->Session_Get($this->sKeyName);
         if (is_null($sSessionKey)) {
             $sSessionKey = $this->_generateSessionKey();
@@ -103,12 +113,12 @@ class ModuleSecurity extends Module {
      * @return string
      */
     public function SetSessionKey() {
+
         $sSessionKey = $this->_generateSessionKey();
 
         $this->Session_Set($this->sKeyName, $sSessionKey);
         $this->Viewer_Assign($this->sKeyName, $sSessionKey);
-        /* LS-compatible */
-        $this->Viewer_Assign('LIVESTREET_SECURITY_KEY', $sSessionKey);
+
         return $sSessionKey;
     }
 
@@ -118,6 +128,7 @@ class ModuleSecurity extends Module {
      * @return string
      */
     protected function _generateSessionKey() {
+
         // Сохраняем текущий ключ для ajax-запросов
         if (F::AjaxRequest() && ($sKey = $this->Session_Get($this->sKeyName))) {
             return $sKey;
@@ -139,6 +150,7 @@ class ModuleSecurity extends Module {
      * @return  string
      */
     public function Salted($sData, $sType = null) {
+
         $sSalt = Config::Get('security.salt_' . $sType);
         if ($sSalt !== false && !$sSalt) {
             $sSalt = $sType;
@@ -156,6 +168,7 @@ class ModuleSecurity extends Module {
      * @return  bool
      */
     public function CheckSalted($sSalted, $sData, $sType = null) {
+
         if (substr($sSalted, 0, 3) == '0x:') {
             return $sSalted == $this->Salted($sData, $sType);
         } else {
@@ -164,11 +177,13 @@ class ModuleSecurity extends Module {
     }
 
     public function GetUserAgentHash() {
+
         $sUserAgent = ((isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : '');
         return $this->Salted($sUserAgent, 'auth');
     }
 
     public function GetClientHash() {
+
         $sClientHash = $this->GetUserAgentHash();
         if (isset($_SERVER['REMOTE_ADDR'])) {
             $sClientHash .= $_SERVER['REMOTE_ADDR'];
@@ -179,6 +194,7 @@ class ModuleSecurity extends Module {
     }
 
     public function GenerateUniqKey() {
+
         $sData = serialize(Config::Get('path.root'));
         if (isset($_SERVER['SERVER_ADDR'])) {
             $sData .= $_SERVER['SERVER_ADDR'];
@@ -187,6 +203,7 @@ class ModuleSecurity extends Module {
     }
 
     public function GetUniqKey() {
+
         $sUniqKey = Config::Get('alto.uniq_key');
         if (!$sUniqKey) {
             $sUniqKey = $this->GenerateUniqKey();

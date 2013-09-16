@@ -6,7 +6,7 @@
 	    id="{$sFieldName}" 
 	    name="{$sFieldName}" 
 	    value="{if isset($sFieldValue)}{$sFieldValue}{else}{if isset($_aRequest[$sFieldName])}{$_aRequest[$sFieldName]}{/if}{/if}"
-	    class="btn {if $sFieldStyle}button-{$sFieldStyle}{/if} {$sFieldClasses}"
+	    class="btn {$sFieldClasses}"
 	    {if $bFieldIsDisabled}disabled{/if}>
 	{if $sFieldIcon}<i class="{$sFieldIcon}"></i>{/if}
 	{$sFieldText}

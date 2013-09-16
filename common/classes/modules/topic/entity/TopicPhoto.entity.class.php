@@ -82,10 +82,10 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
         if ($sUrl = $this->getPath()) {
             if ($sWidth) {
                 $sResizedUrl = '';
+                $aPathInfo = pathinfo($sUrl);
 
                 if (E::ActivePlugin('ls')) {
                     // Включена совместимость с LS
-                    $aPathInfo = pathinfo($sUrl);
                     $sResizedUrl = $aPathInfo['dirname'] . '/' . $aPathInfo['filename'] . '_' . $sWidth . '.'
                         . $aPathInfo['extension'];
                     if (F::File_LocalUrl($sResizedUrl) && !F::File_Exists(F::File_Url2Dir($sResizedUrl))) {
@@ -98,9 +98,9 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
                     $bCrop = strpos($sWidth, 'crop');
                     if ($nSize) {
                         if ($bCrop) {
-                            $sResizedUrl .= '-' . $nSize . 'x' . $nSize . '-crop.' . $aPathInfo['extension'];
+                            $sResizedUrl = $sUrl . '-' . $nSize . 'x' . $nSize . '-crop.' . $aPathInfo['extension'];
                         } else {
-                            $sResizedUrl .= '-' . $nSize . 'x' . $nSize . '.' . $aPathInfo['extension'];
+                            $sResizedUrl = $sUrl . '-' . $nSize . 'x' . $nSize . '.' . $aPathInfo['extension'];
                         }
                     }
                 }

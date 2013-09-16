@@ -349,9 +349,10 @@ class ModuleImg extends Module {
     public function Duplicate($sFile) {
 
         $this->nError = 0;
-        if (preg_match('~^(.+)-(\d+x\d+)\.[a-z]+$~i', $sFile, $aMatches)) {
+        if (preg_match('~^(.+)-(\d+x\d+)(\-([a-z]+))?\.[a-z]+$~i', $sFile, $aMatches)) {
             $sOriginal = $aMatches[1];
             list($nW, $nH) = explode('x', $aMatches[2]);
+            $sModifier = (isset($aMatches[4]) ? $aMatches[4] : '');
             return $this->Copy($sOriginal, $sFile, $nW, $nH, false);
         }
         if (!F::File_Exists($sFile)) {

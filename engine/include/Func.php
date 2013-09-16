@@ -300,11 +300,11 @@ class Func {
         return $xResult;
     }
 
-    static public function SysWarning($Message) {
+    static public function SysWarning($sMessage) {
 
         $aCaller = self::_Caller();
         self::_errorHandler(
-            E_USER_WARNING, $Message,
+            E_USER_WARNING, $sMessage,
             isset($aCaller['file']) ? $aCaller['file'] : 'Unknown',
             isset($aCaller['line']) ? $aCaller['line'] : 0
         );

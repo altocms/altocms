@@ -163,7 +163,7 @@ ls.swfupload = (function ($) {
         this.swfOptions = {
             // Backend Settings
             upload_url: ls.actionUrl("content") + "photo/upload",
-            post_params: {'SSID': SESSION_ID, 'security_ls_key': ALTO_SECURITY_KEY},
+            post_params: {'SSID': SESSION_ID, 'security_ls_key': ls.cfg.security_key},
 
             prevent_swf_caching : false,
 

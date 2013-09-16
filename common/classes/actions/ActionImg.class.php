@@ -61,6 +61,7 @@ class ActionImg extends Action {
                 exit;
             }
         }
+        exit;
     }
 
     /**

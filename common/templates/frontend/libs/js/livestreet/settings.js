@@ -102,12 +102,12 @@ ls.settings = (function ($) {
         //skin : 								    "livestreet",
         content_css: '/common/templates/skin/native/assets/css/tinymce.css',
         menubar: false,
-        toolbar1: "undo redo | styleselect | bold italic strikethrough underline blockquote | alignleft aligncenter alignright | bullist numlist | table | link unlink image media code | cut ",
+        toolbar1: "undo redo | styleselect | bold italic strikethrough underline blockquote | alignleft aligncenter alignright | bullist numlist | table | link unlink image media | code | cut ",
         toolbar_items_size: 'small',
         style_formats: [
-            {title: 'H4', block: 'h4'},
-            {title: 'H5', block: 'h5'},
-            {title: 'H6', block: 'h6'}
+            {title: 'Head 1', block: 'h4'},
+            {title: 'Head 2', block: 'h5'},
+            {title: 'Head 3', block: 'h6'}
         ],
         object_resizing : 						true,
         force_br_newlines :						true,
