@@ -95,10 +95,10 @@ class ActionContent extends Action {
         $this->AddEvent('delete', 'EventDelete');
 
         //Фото
-        $this->AddEvent('deleteimage', 'EventDeletePhoto'); // Удаление изображения
-        $this->AddEvent('upload', 'EventUpload'); // Загрузка изображения на сервер
-        $this->AddEvent('getMore', 'EventGetMore'); // Подгрузка изображений
-        $this->AddEvent('setimagedescription', 'EventSetPhotoDescription'); // Установка описания к фото
+        $this->AddEventPreg('/^photo$/i', '/^upload$/i', 'EventPhotoUpload'); // Загрузка изображения в фотосет
+        $this->AddEventPreg('/^photo$/i', '/^delete$/i', 'EventPhotoDelete'); // Удаление изображения
+        $this->AddEventPreg('/^photo$/i', '/^description$/i', 'EventPhotoDescription'); // Установка описания к фото
+        $this->AddEventPreg('/^photo$/i', '/^getmore$/i', 'EventPhotoGetMore'); // Подгрузка изображений
 
         //Переход для топика с оригиналом
         $this->AddEvent('go', 'EventGo');
@@ -774,7 +774,7 @@ class ActionContent extends Action {
      * AJAX подгрузка следующих фото
      *
      */
-    protected function EventGetMore() {
+    protected function EventPhotoGetMore() {
         /**
          * Устанавливаем формат Ajax ответа
          */
@@ -813,7 +813,7 @@ class ActionContent extends Action {
      * AJAX удаление фото
      *
      */
-    protected function EventDeletePhoto() {
+    protected function EventPhotoDelete() {
         /**
          * Устанавливаем формат Ajax ответа
          */
@@ -867,7 +867,7 @@ class ActionContent extends Action {
      * AJAX установка описания фото
      *
      */
-    protected function EventSetPhotoDescription() {
+    protected function EventPhotoDescription() {
         /**
          * Устанавливаем формат Ajax ответа
          */
@@ -903,7 +903,7 @@ class ActionContent extends Action {
      *
      * @return bool
      */
-    protected function EventUpload() {
+    protected function EventPhotoUpload() {
         /**
          * Устанавливаем формат Ajax ответа
          * В зависимости от типа загрузчика устанавливается тип ответа
