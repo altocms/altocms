@@ -614,7 +614,7 @@ class Engine extends LsObject {
      * @param array $aArgs    Список аргументов
      * @return mixed
      */
-    public function _CallModule($sName, $aArgs) {
+    public function _CallModule($sName, &$aArgs) {
 
         list($oModule, $sModuleName, $sMethod) = $this->GetModule($sName);
 
@@ -631,7 +631,8 @@ class Engine extends LsObject {
         $sModuleName = strtolower($sModuleName);
         $aResultHook = array();
         if (!in_array($sModuleName, array('plugin', 'hook'))) {
-            $aResultHook = $this->_CallModule('Hook_Run', array('module_' . $sModuleName . '_' . strtolower($sMethod) . '_before', &$aArgs));
+            $aArgsHook = array('module_' . $sModuleName . '_' . strtolower($sMethod) . '_before', $aArgs);
+            $aResultHook = $this->_CallModule('Hook_Run', $aArgsHook);
         }
         /**
          * Хук может делегировать результат выполнения метода модуля,
