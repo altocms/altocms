@@ -511,6 +511,14 @@ class ModuleImg extends Module {
         }
     }
 
+    /**
+     * Transform image from file using config preset
+     *
+     * @param $sFile
+     * @param $sPreset
+     *
+     * @return bool
+     */
     public function TransformFile($sFile, $sPreset) {
 
         $sOldKey = $this->GetConfigKey();
@@ -519,9 +527,11 @@ class ModuleImg extends Module {
         $bResult = false;
 
         if ($oImg = $this->Read($sFile)) {
-            $nW = ($aParams['size']['width'] ? $aParams['size']['width'] : null);
-            $nH = ($aParams['size']['height'] ? $aParams['size']['height'] : null);
-            $oImg->Resize($nW, $nH, true);
+            $nW = (isset($aParams['size']['width']) ? $aParams['size']['width'] : null);
+            $nH = (isset($aParams['size']['height']) ? $aParams['size']['height'] : null);
+            if (($nW && $nW < $oImg->GetWidth()) || ($nH && $nH < $oImg->GetHeight())) {
+                $oImg->Resize($nW, $nH, true);
+            }
             $oImg->Save($sFile);
 
             $bResult = true;
@@ -557,6 +567,9 @@ class ModuleImg extends Module {
      */
     public function BuildHTML($sUrl, $aParams) {
 
+        if (substr($sUrl, 0, 1) == '@') {
+            $sUrl = F::File_RootUrl() . substr($sUrl, 1);
+        }
         $sText = '<img src="' . $sUrl . '" ';
         if (isset($aParams['title']) && $aParams['title'] != '') {
             $sText .= ' title="' . htmlspecialchars($aParams['title']) . '" ';

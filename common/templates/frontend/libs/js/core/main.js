@@ -151,6 +151,212 @@ ls.registry = (function ($) {
 }).call(ls.registry || {}, jQuery);
 
 /**
+ * Загрузка изображений
+ */
+ls.img = (function ($) {
+
+    this.ajaxUploadInit = function(options) {
+        var self = this;
+
+        var defaults = {
+            cropOptions: {
+                minSize: [32, 32]
+            },
+            selectors: {
+                form: '.js-ajax-image-upload',
+                image: '.js-ajax-image-upload-image',
+                image_crop: '.js-image-upload-crop',
+                remove_button: '.js-ajax-image-upload-remove',
+                choose_button: '.js-ajax-image-upload-choose',
+                input_file: '.js-ajax-image-upload-file',
+                crop_cancel_button: '.js-ajax-image-upload-crop-cancel',
+                crop_submit_button: '.js-ajax-image-upload-crop-submit'
+            },
+            urls: {
+                upload: '', // ls.actionUrl('settings') + 'profile/upload-avatar/',
+                remove: '',
+                cancel: '',
+                crop:   ''
+            },
+            onUploaded: function(imageUrl, options) {
+                self.currentForms.image.attr('src', imageUrl + '?' + Math.random());
+                if (options.resizeForm) {
+                    self.ajaxUploadModalCrop(imageUrl, options);
+                }
+            }
+        };
+
+        var options = $.extend(true, {}, defaults, options);
+
+        $(options.selectors.form).each(function () {
+            var $form = $(this);
+
+            var forms = {
+                form: $form,
+                remove_button:  $form.find(options.selectors.remove_button),
+                choose_button:  $form.find(options.selectors.choose_button),
+                image:  $form.find(options.selectors.image),
+                image_crop:  $form.find(options.selectors.image_crop)
+            };
+
+            console.log('===', options.selectors.input_file, $form.find(options.selectors.input_file));
+            $form.find(options.selectors.input_file).on('change', function () {
+                self.currentForms = forms;
+                self.currentOptions = options;
+                if ($(this).data('resize-form')) {
+                    options.resizeForm = $(this).data('resize-form');
+                }
+                self.ajaxUpload(null, $(this), options);
+            });
+
+            forms.remove_button.on('click', function (e) {
+                self.ajaxUploadRemove(options, forms);
+                e.preventDefault();
+            });
+        });
+    };
+
+    /**
+     * Upload temporary image
+     *
+     * @param form
+     * @param input
+     * @param options
+     */
+    this.ajaxUpload = function(form, input, options) {
+        var self = this;
+
+        if ( !form && input ) {
+            var form = $('<form method="post" enctype="multipart/form-data"></form>').hide().appendTo('body');
+
+            input.clone(true).insertAfter(input);
+            input.appendTo(form);
+        }
+
+        ls.ajaxSubmit(options.urls.upload, form, function (data) {
+            if (data.bStateError) {
+                ls.msg.error(data.sMsgTitle,data.sMsg);
+            } else {
+                if (options.onUploaded) {
+                    if (data.sText && data.sText.match(/^<img\s+/)) {
+                        var img = $(data.sText);
+                        var url = img.attr('src');
+                    } else {
+                        url = '';
+                    }
+                    options.onUploaded(url, options);
+                }
+            }
+            form.remove();
+        }.bind(this));
+    };
+
+    /**
+     * Resize & crop image before final uploading
+     *
+     * @param sImgFile
+     * @param options
+     */
+    this.ajaxUploadModalCrop = function(sImgFile, options) {
+        var self = this;
+
+        this.jcropImage && this.jcropImage.destroy();
+
+        if (!options.resizeForm) {
+            options.resizeForm = '#modal-image-crop';
+        }
+        if ($(options.resizeForm).length)
+            $(options.resizeForm).modal('show');
+        else {
+            ls.debug('Error [Ajax Image Upload]:\nModal window of image resizing not found');
+        }
+        var imageCrop = $(options.resizeForm).find('.js-image-upload-crop');
+        $(imageCrop).attr('src', sImgFile + '?' + Math.random()).css({
+            'width': 'auto',
+            'height': 'auto'
+        });
+
+        $(imageCrop).Jcrop(options.cropOptions, function () {
+            self.jcropImage = this;
+            this.setSelect([0, 0, 500, 500]);
+        });
+    };
+
+    /**
+     * Removes uploaded image
+     */
+    this.ajaxUploadRemove = function(options, elements) {
+        ls.ajax(options.urls.remove, {}, function(result) {
+            if (result.bStateError) {
+                ls.msg.error(null,result.sMsg);
+            } else {
+                elements.image.attr('src', result.sFile + '?' + Math.random());
+                elements.remove_button.hide();
+                elements.choose_button.text(result.sTitleUpload);
+            }
+        });
+    };
+
+    /**
+     * Cancels drop/resizing
+     */
+    this.ajaxUploadCropCancel = function (button) {
+        var button = $(button);
+        var modal = button.parents('.modal').first();
+        if (!modal.length) {
+            modal = $('#modal-image-crop');
+        }
+        button.addClass('loading');
+        ls.ajax(this.currentOptions.urls.cancel, {}, function (result) {
+            if (result.bStateError) {
+                ls.msg.error(null, result.sMsg);
+            } else {
+                $(modal).modal('hide');
+            }
+            button.removeClass('loading');
+        });
+    };
+
+    /**
+     * Crop/Resize uploaded image
+     */
+    this.ajaxUploadCropSubmit = function (button) {
+        var self = this;
+
+        if (!this.jcropImage) {
+            return false;
+        }
+
+        var params = {
+            size: this.jcropImage.tellSelect()
+        };
+
+        var button = $(button);
+        var modal = button.parents('.modal').first();
+        if (!modal.length) {
+            modal = $('#modal-image-crop');
+        }
+        button.addClass('loading');
+        ls.ajax(self.currentOptions.urls.crop, params, function (result) {
+            if (result.bStateError) {
+                ls.msg.error(null, result.sMsg);
+            } else {
+                $('<img src="' + result.sFile + '?' + Math.random() + '" />');
+                self.currentForms.image.attr('src', result.sFile + '?' + Math.random());
+                $(modal).modal('hide');
+                self.currentForms.remove_button.show();
+                self.currentForms.choose_button.text(result.sTitleUpload);
+            }
+            button.removeClass('loading');
+        });
+
+        return false;
+    };
+
+    return this;
+}).call(ls.img || {}, jQuery);
+
+/**
  * Flash загрузчик
  */
 ls.swfupload = (function ($) {

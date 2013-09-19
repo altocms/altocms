@@ -102,8 +102,9 @@ ls.settings = (function ($) {
         //skin : 								    "livestreet",
         content_css: '/common/templates/skin/native/assets/css/tinymce.css',
         menubar: false,
-        toolbar1: "undo redo | styleselect | bold italic strikethrough underline blockquote | alignleft aligncenter alignright | bullist numlist | table | link unlink image media | code | cut ",
+        toolbar: "undo redo | styleselect | bold italic strikethrough underline blockquote | alignleft aligncenter alignright | bullist numlist table | link unlink | altoimage media | code | cut ",
         toolbar_items_size: 'small',
+        image_advtab: false,
         style_formats: [
             {title: 'Head 1', block: 'h4'},
             {title: 'Head 2', block: 'h5'},
@@ -113,7 +114,7 @@ ls.settings = (function ($) {
         force_br_newlines :						true,
         forced_root_block : 					'', // Needed for 3.x
         force_p_newlines : 						false,
-        plugins : 								"advlist autolink autosave link image lists media pagebreak autoresize table code",
+        plugins : 								"advlist autolink autosave link lists media pagebreak autoresize table code altoimage",
         convert_urls : 							false,
         extended_valid_elements : 				"embed[src|type|allowscriptaccess|allowfullscreen|width|height]",
         pagebreak_separator :					"<cut>",
