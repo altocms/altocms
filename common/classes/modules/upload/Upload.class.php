@@ -62,10 +62,14 @@ class ModuleUpload extends Module {
         $this->aModConfig['file_extensions'] = array_merge(
             $this->aModConfig['file_extensions'], (array)Config::Get('module.topic.upload_mime_types')
         );
+
         $nLimit = F::MemSize2Int(Config::Get('module.topic.max_filesize_limit'));
         if ($nLimit && $nLimit < $this->aModConfig['max_filesize']) {
             $this->aModConfig['max_filesize'] = $nLimit;
+        } else {
+            $this->aModConfig['max_filesize'] = F::MemSize2Int($this->aModConfig['max_filesize']);
         }
+
         $this->aModConfig['img_max_width'] = Config::Get('view.img_max_width');
         $this->aModConfig['img_max_height'] = Config::Get('view.img_max_height');
     }
@@ -93,12 +97,23 @@ class ModuleUpload extends Module {
         return false;
     }
 
+    /**
+     * Return error code
+     *
+     * @return int
+     */
     public function GetError() {
 
         return $this->nLastError;
     }
 
-    public function GetErrorMsg() {
+    /**
+     * Return error messge
+     *
+     * @param bool $bReset
+     * @return string
+     */
+    public function GetErrorMsg($bReset = true) {
 
         if ($this->nLastError) {
             if (isset($this->aUploadErrors[$this->nLastError])) {
@@ -106,10 +121,19 @@ class ModuleUpload extends Module {
             } else {
                 $this->sLastError = 'Unknown error during file uploading';
             }
-            return $this->sLastError;
+            $nError = $this->sLastError;
+            if ($bReset) {
+                $this->nLastError = 0;
+            }
+            return $nError;
         }
     }
 
+    /**
+     * @param $sFile
+     *
+     * @return bool
+     */
     protected function _checkUploadedImage($sFile) {
 
         $aInfo = @getimagesize($sFile);
@@ -128,6 +152,11 @@ class ModuleUpload extends Module {
         return true;
     }
 
+    /**
+     * @param $sFile
+     *
+     * @return bool
+     */
     protected function _checkUploadedFile($sFile) {
 
         $sExtension = strtolower(pathinfo($sFile, PATHINFO_EXTENSION));
@@ -162,6 +191,7 @@ class ModuleUpload extends Module {
      */
     public function UploadLocal($aFile, $sDir = null, $bOriginalName = false) {
 
+        $this->nLastError = 0;
         if (is_array($aFile) && isset($aFile['tmp_name']) && isset($aFile['name'])) {
             if ($aFile['error'] === UPLOAD_ERR_OK) {
                 if (is_uploaded_file($aFile['tmp_name'])) {
@@ -203,6 +233,7 @@ class ModuleUpload extends Module {
      */
     public function UploadRemote($sUrl, $sDir = null, $aParams = array()) {
 
+        $this->nLastError = 0;
         if (!isset($aParams['max_size'])) {
             $aParams['max_size'] = 0;
         } else {

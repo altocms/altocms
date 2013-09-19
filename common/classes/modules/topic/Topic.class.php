@@ -2298,7 +2298,7 @@ class ModuleTopic extends Module {
 
     protected function _saveTopicImage($sImageFile, $oUser) {
 
-        $sFileTmp = $this->Img_TransformFile($sFileTmp, 'topic');
+        $sFileTmp = $this->Img_TransformFile($sImageFile, 'topic');
         if ($sFileTmp) {
             $sDirUpload = $this->Upload_GetUserImageDir($oUser->getId());
             $sFileImage = $this->Upload_Uniqname($sDirUpload, F::File_GetExtension($sFileTmp));
@@ -2310,10 +2310,8 @@ class ModuleTopic extends Module {
     }
 
     /**
-     * Загрузка изображений при написании топика
-     *
-     * @param  array                 $aFile    Массив $_FILES
-     * @param  ModuleUser_EntityUser $oUser    Объект пользователя
+     * @param array $aFile
+     * @param ModuleUser_EntityUser $oUser
      *
      * @return string|bool
      */

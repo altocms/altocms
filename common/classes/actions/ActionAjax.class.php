@@ -1069,8 +1069,13 @@ class ActionAjax extends Action {
         $sFile = null;
         // * Был выбран файл с компьютера и он успешно загрузился?
         if ($aUploadedFile = $this->GetUploadedFile('img_file')) {
-            if (!$sFile = $this->Topic_UploadTopicImageFile($aUploadedFile, $this->oUserCurrent)) {
-                $this->Message_AddErrorSingle($this->Lang_Get('uploadimg_file_error'), $this->Lang_Get('error'));
+            $sFile = $this->Topic_UploadTopicImageFile($aUploadedFile, $this->oUserCurrent);
+            if (!$sFile) {
+                $sMessage = $this->Lang_Get('uploadimg_file_error');
+                if ($this->Upload_GetError()) {
+                    $sMessage .= ' (' . $this->Upload_GetErrorMsg() . ')';
+                }
+                $this->Message_AddErrorSingle($sMessage, $this->Lang_Get('error'));
                 return;
             }
         } elseif (($sUrl = $this->GetPost('img_url')) && ($sUrl != 'http://')) {
@@ -1088,7 +1093,7 @@ class ActionAjax extends Action {
             $oFile->setUserId($this->oUserCurrent->getId());
             $this->Mresource_Add($oFile);
 
-            $sText = $this->Image_BuildHTML($oFile->GetPathUrl(), $_REQUEST);
+            $sText = $this->Img_BuildHTML($oFile->GetPathUrl(), $_REQUEST);
             $this->Viewer_AssignAjax('sText', $sText);
         } else {
             $this->Message_AddErrorSingle($this->Upload_GetErrorMsg(), $this->Lang_Get('error'));
