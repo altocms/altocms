@@ -10,6 +10,8 @@
 
 class ModuleImg_EntityImage extends Entity {
 
+    protected $_fResizeScaleLimit = 0.5;
+
     public function __construct($aParams) {
 
         $aDefault = array(
@@ -26,6 +28,13 @@ class ModuleImg_EntityImage extends Entity {
         $this->oPxImage = new \PHPixie\Image(new ModuleImgPx());
     }
 
+    /**
+     * Convert hex-decoded color into integer
+     *
+     * @param int|string $xColor
+     *
+     * @return int
+     */
     protected function _color($xColor) {
 
         if (is_string($xColor)) {
@@ -78,7 +87,7 @@ class ModuleImg_EntityImage extends Entity {
     /**
      * Gets image width (or null)
      *
-     * @return string|null
+     * @return int|null
      */
     public function GetWidth() {
 
@@ -90,7 +99,7 @@ class ModuleImg_EntityImage extends Entity {
     /**
      * Gets image height (or null)
      *
-     * @return string|null
+     * @return int|null
      */
     public function GetHeight() {
 
@@ -107,7 +116,7 @@ class ModuleImg_EntityImage extends Entity {
      * @param int|string $xColor
      * @param int        $nOpacity
      *
-     * @return $this
+     * @return ModuleImg_EntityImage
      */
     public function Create($nWidth, $nHeight, $xColor = 0xffffff, $nOpacity = 0) {
 
@@ -119,6 +128,14 @@ class ModuleImg_EntityImage extends Entity {
         return $this;
     }
 
+    /**
+     * Read image from file
+     *
+     * @param string      $sFile
+     * @param string|null $sConfigKey
+     *
+     * @return ModuleImg_EntityImage
+     */
     public function Read($sFile, $sConfigKey = null) {
 
         $oPxImage = new \PHPixie\Image(new ModuleImgPx());
@@ -136,26 +153,59 @@ class ModuleImg_EntityImage extends Entity {
         return $this;
     }
 
+    /**
+     * Resize image
+     *
+     * @param int  $nWidth
+     * @param int  $nHeight
+     * @param bool $bFit
+     *
+     * @return ModuleImg_EntityImage
+     * @throws Exception
+     */
     public function Resize($nWidth = null, $nHeight = null, $bFit = true) {
 
         if ($oImage = $this->GetImage()) {
             if ($nWidth && $nHeight) {
-                $nWScale = $nWidth / $oImage->width;
-                $nHScale = $nHeight / $oImage->height;
-                $nScale = ($bFit ? min($nWScale, $nHScale) : max($nWScale, $nHScale));
+                $fWScale = $nWidth / $oImage->width;
+                $fHScale = $nHeight / $oImage->height;
+                $fScale = ($bFit ? min($fWScale, $fHScale) : max($fWScale, $fHScale));
             }elseif($nWidth) {
-                $nScale = $nWidth/$oImage->width;
+                $fScale = $nWidth/$oImage->width;
             }elseif($nHeight) {
-                $nScale = $nHeight/$oImage->height;
+                $fScale = $nHeight/$oImage->height;
             }else {
-                throw new \Exception("Either width or height must be set");
+                throw new \Exception('Either width or height must be set');
             }
 
-            $oImage->scale($nScale);
+            $fScale = round($fScale, 6);
+            if ($fScale < 1 && $this->_fResizeScaleLimit && $this->_fResizeScaleLimit > $fScale) {
+                $fResultScale = 1.0;
+                while ($fResultScale > $fScale) {
+                    $fStepScale = $fScale / $fResultScale;
+                    if ($fStepScale < $this->_fResizeScaleLimit) {
+                        $fStepScale = $this->_fResizeScaleLimit;
+                    }
+                    $oImage->scale($fStepScale);
+                    $fResultScale = $fResultScale * $fStepScale;
+                }
+            } elseif ($fScale != 1.0) {
+                $oImage->scale($fScale);
+            }
         }
         return $this;
     }
 
+    /**
+     * Crop image
+     *
+     * @param int $nWidth
+     * @param int $nHeight
+     * @param int $nPosX
+     * @param int $nPosY
+     *
+     * @return ModuleImg_EntityImage
+     */
     public function Crop($nWidth, $nHeight, $nPosX = 0, $nPosY = 0) {
 
         if ($oImage = $this->GetImage()) {
@@ -170,6 +220,15 @@ class ModuleImg_EntityImage extends Entity {
         return $this;
     }
 
+    /**
+     * Rotate image
+     *
+     * @param int $nAngle
+     * @param int $xColor
+     * @param int $nOpacity
+     *
+     * @return ModuleImg_EntityImage
+     */
     public function Rotate($nAngle, $xColor = 0xffffff, $nOpacity = 0) {
 
         if ($oImage = $this->GetImage()) {
@@ -178,6 +237,14 @@ class ModuleImg_EntityImage extends Entity {
         return $this;
     }
 
+    /**
+     * Flip image
+     *
+     * @param bool $bHorizontally
+     * @param bool $bVertically
+     *
+     * @return ModuleImg_EntityImage
+     */
     public function Flip($bHorizontally = false, $bVertically = false) {
 
         if ($oImage = $this->GetImage()) {
@@ -188,6 +255,13 @@ class ModuleImg_EntityImage extends Entity {
         return $this;
     }
 
+    /**
+     * @param ModuleImg_EntityImage $oOverlay
+     * @param int                   $nX
+     * @param int                   $nY
+     *
+     * @return ModuleImg_EntityImage
+     */
     public function Overlay($oOverlay, $nX = 0, $nY = 0) {
 
         if ($oImage = $this->GetImage()) {
@@ -198,14 +272,25 @@ class ModuleImg_EntityImage extends Entity {
         return $this;
     }
 
+    /**
+     * @param $sFile
+     *
+     * @return string|bool
+     */
     public function Save($sFile) {
 
         if ($oImage = $this->GetImage()) {
             $oImage->save($sFile);
             return $sFile;
         }
+        return false;
     }
 
+    /**
+     * @param $sFile
+     *
+     * @return string|bool
+     */
     public function SaveUpload($sFile) {
 
         if ($oImage = $this->GetImage()) {
