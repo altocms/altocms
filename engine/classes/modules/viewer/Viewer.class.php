@@ -1304,6 +1304,24 @@ class ModuleViewer extends Module {
      */
     public function SetHtmlHeadFiles($aText) {
 
+        $aCfg = array(
+            'url' => array(
+                'root' => Config::Get('path.root.url'),
+            ),
+            'assets' => $this->ViewerAsset_GetPreparedAssetLinks(),
+            'lang' => Config::Get('lang.current'),
+            'wysiwyg' => Config::Get('view.wysiwyg'),
+        );
+
+        $sScript = 'var ls = ls || { };' . PHP_EOL;
+        $sScript .= 'ls.cfg = ' . json_encode($aCfg) . ';' . PHP_EOL;
+        $sScript = '<script>' . $sScript . '</script>' . PHP_EOL;
+
+        if (isset($aText['js'])) {
+            $aText['js'] = $sScript . $aText['js'];
+        } else {
+            $aText['js'] = $sScript;
+        }
         $this->aHtmlHeadFiles = $aText;
     }
 
