@@ -28,7 +28,7 @@ class ModuleGeo_EntityGeo extends Entity {
      */
     public function getName() {
 
-        return $this->getLangProp('name');
+        return $this->getLangSuffixProp('name');
     }
 
     /**

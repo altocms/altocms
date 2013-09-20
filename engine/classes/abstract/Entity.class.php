@@ -137,7 +137,7 @@ abstract class Entity extends LsObject {
      *
      * @return mixed|null
      */
-    public function getLangProp($sKey, $xDefault = null, $sLang = null) {
+    public function getLangSuffixProp($sKey, $xDefault = null, $sLang = null) {
 
         if (is_null($sLang)) {
             $sLang = $this->Lang_GetLang();
@@ -155,6 +155,30 @@ abstract class Entity extends LsObject {
                 return $sVal;
             }
             return $xDefault;
+        }
+        return $sResult;
+    }
+
+    /**
+     * Localize substring like {{<key>}}
+     *
+     * @param string $sKey
+     *
+     * @return string
+     */
+    public function getLangTextProp($sKey) {
+
+        $sResult = $this->getProp($sKey);
+        if (preg_match_all('/({{(.+)}})/u', $sResult, $aMatches)) {
+            $aReplacement = array();
+            foreach ($aMatches as $aMatch) {
+                if (!isset($aReplacement[$aMatch[1]]) && !is_null($sText = E::Lang_Get($aMatch[2]))) {
+                    $aReplacement[$aMatch[1]] = $sText;
+                }
+            }
+            if ($aReplacement) {
+                $sResult = str_replace(array_keys($aReplacement), array_values($aReplacement), $sResult);
+            }
         }
         return $sResult;
     }
