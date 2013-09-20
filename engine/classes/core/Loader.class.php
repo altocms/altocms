@@ -38,131 +38,18 @@ class Loader {
         }
 
         /*
-         * Загружает конфиги модулей вида /config/modules/[module_name]/config.php
-         */
-        $sDirConfig = $sConfigDir . '/modules/';
-        $aFiles = glob($sDirConfig . '*/config.php');
-        if ($aFiles) {
-            foreach ($aFiles as $sFileConfig) {
-                $sDirModule = basename(dirname($sFileConfig));
-                $aConfig = F::IncludeFile($sFileConfig, true, true);
-                if (!empty($aConfig) && is_array($aConfig)) {
-                    // Если конфиг этого модуля пуст, то загружаем массив целиком
-                    $sKey = 'module.' . $sDirModule;
-                    if (!Config::isExist($sKey)) {
-                        Config::Set($sKey, $aConfig);
-                    } else {
-                        // Если уже существуют привязанные к модулю ключи,
-                        // то сливаем старые и новое значения ассоциативно
-                        Config::Set($sKey, F::Array_Merge(Config::Get($sKey), $aConfig));
-                    }
-                }
-            }
-        }
-
-        /*
          * Инклудим все *.php файлы из каталога {path.root.engine}/include/ - это файлы ядра
          */
         $sDirInclude = Config::Get('path.dir.engine') . '/include/';
-        $aIncludeFiles = glob($sDirInclude . '*.php');
-        if ($aIncludeFiles) {
-            foreach ($aIncludeFiles as $sPath) {
-                F::IncludeFile($sPath);
-            }
-        }
+        self::_includeAllFiles($sDirInclude);
 
-        /**
-         * Ищет routes-конфиги модулей вида /config/modules/[module_name]/config.route.php и объединяет их с текущим
-         *
-         * @see Router.class.php
-         */
-        $sDirConfig = $sConfigDir . '/modules/';
-        $aFiles = glob($sDirConfig . '*/config.route.php');
-        if ($aFiles) {
-            foreach ($aFiles as $sFileConfig) {
-                $aConfig = F::IncludeFile($sFileConfig, true, true);
-                if (!empty($aConfig) && is_array($aConfig)) {
-                    // Если конфиг этого модуля пуст, то загружаем массив целиком
-                    $sKey = 'router';
-                    if (!Config::isExist($sKey)) {
-                        Config::Set($sKey, $aConfig);
-                    } else {
-                        // Если уже существую привязанные к модулю ключи,
-                        // то сливаем старые и новое значения ассоциативно
-                        Config::Set($sKey, F::Array_Merge(Config::Get($sKey), $aConfig));
-                    }
-                }
-            }
-        }
+        // Load main config level
+        self::_loadConfigFiles($sConfigDir, Config::LEVEL_MAIN);
 
-        if (isset($_SERVER['HTTP_APP_ENV']) && $_SERVER['HTTP_APP_ENV'] == 'test') {
-            /*
-             * Подгружаем файл тестового конфига
-             */
-            /*
-            if (file_exists(Config::Get('path.root.dir') . '/config/config.test.php')) {
-                Config::LoadFromFile(Config::Get('path.root.dir') . '/config/config.test.php', false);
-            } else {
-                throw new Exception('Config for test envirenment is not found.
-                    Rename /config/config.test.php.dist to /config/config.test.php and rewrite DB settings.
-                    After that check base_url in /test/behat/behat.yml it option must be correct site url.');
-            }
-            */
-        } else {
-            /*
-             * LS-compatible
-             * Подгружаем файлы локального и продакшн-конфига
-             */
-            $sFile = $sConfigDir . '/config.local.php';
-            if (F::File_Exists($sFile)) {
-                if ($aConfig = F::File_IncludeFile($sFile, true, Config::Get())) {
-                    Config::Load($aConfig, true);
-                }
-            }
-            $sFile = $sConfigDir . '/config.stable.php';
-            if (F::File_Exists($sFile)) {
-                if ($aConfig = F::File_IncludeFile($sFile, true, Config::Get())) {
-                    Config::Load($aConfig, true);
-                }
-            }
-        }
+        // Load application config level
+        $sAppConfigDir = Config::Get('path.dir.app') . '/config/';
+        self::_loadConfigFiles($sAppConfigDir, Config::LEVEL_APP);
 
-        /*
-         * Загружает конфиг-файлы плагинов вида /plugins/[plugin_name]/config/*.php
-         * и include-файлы вида /plugins/[plugin_name]/include/*.php
-         */
-        $sPluginsDir = F::GetPluginsDir();
-        if ($aPluginsList = F::GetPluginsList()) {
-            $aPluginsList = array_map('trim', $aPluginsList);
-            foreach ($aPluginsList as $sPlugin) {
-                // Загружаем все конфиг-файлы плагина
-                $aConfigFiles = glob($sPluginsDir . '/' . $sPlugin . '/config/*.php');
-                if ($aConfigFiles) {
-                    foreach ($aConfigFiles as $sPath) {
-                        $aConfig = F::IncludeFile($sPath, true, true);
-                        if (!empty($aConfig) && is_array($aConfig)) {
-                            // Если конфиг этого плагина пуст, то загружаем массив целиком
-                            $sKey = "plugin.$sPlugin";
-                            if (!Config::isExist($sKey)) {
-                                Config::Set($sKey, $aConfig);
-                            } else {
-                                // Если уже существую привязанные к плагину ключи,
-                                // то сливаем старые и новое значения ассоциативно
-                                Config::Set($sKey, F::Array_Merge(Config::Get($sKey), $aConfig));
-                            }
-                        }
-                    }
-                }
-
-                // Подключаем include-файлы плагина
-                $aIncludeFiles = glob($sPluginsDir . '/' . $sPlugin . '/include/*.php');
-                if ($aIncludeFiles) {
-                    foreach ($aIncludeFiles as $sPath) {
-                        F::IncludeFile($sPath);
-                    }
-                }
-            }
-        }
         self::_checkRequiredDirs();
 
         $aSeekDirClasses = array(
@@ -197,6 +84,104 @@ class Loader {
         F::IncludeFile((Config::Get('path.dir.engine') . '/classes/core/Engine.class.php'));
     }
 
+    static protected function _includeAllFiles($sDirInclude) {
+
+        $aIncludeFiles = glob($sDirInclude . '*.php');
+        if ($aIncludeFiles) {
+            foreach ($aIncludeFiles as $sPath) {
+                F::IncludeFile($sPath);
+            }
+        }
+    }
+
+    static protected function _loadConfigFiles($sConfigDir, $nConfigLevel) {
+
+        // * Загружаем конфиги модулей вида /config/modules/[module_name]/config.php
+        $sDirConfig = $sConfigDir . '/modules/';
+        $aFiles = glob($sDirConfig . '*/config.php');
+        if ($aFiles) {
+            foreach ($aFiles as $sFileConfig) {
+                $sDirModule = basename(dirname($sFileConfig));
+                $aConfig = F::IncludeFile($sFileConfig, true, true);
+                if (!empty($aConfig) && is_array($aConfig)) {
+                    $sKey = 'module.' . $sDirModule;
+                    Config::Load(array($sKey => $aConfig), false, null, $nConfigLevel);
+                }
+            }
+        }
+
+        /**
+         * Ищет routes-конфиги модулей вида /config/modules/[module_name]/config.route.php и объединяет их с текущим
+         *
+         * @see Router.class.php
+         */
+        $sDirConfig = $sConfigDir . '/modules/';
+        $aFiles = glob($sDirConfig . '*/config.route.php');
+        if ($aFiles) {
+            foreach ($aFiles as $sFileConfig) {
+                $aConfig = F::IncludeFile($sFileConfig, true, true);
+                if (!empty($aConfig) && is_array($aConfig)) {
+                    $sKey = 'router.' . $sDirModule;
+                    Config::Load(array($sKey => $aConfig), false, null, $nConfigLevel);
+                }
+            }
+        }
+
+        /*
+         * LS-compatible
+         * Подгружаем файлы локального и продакшн-конфига
+         */
+        $sFile = $sConfigDir . '/config.local.php';
+        if (F::File_Exists($sFile)) {
+            if ($aConfig = F::File_IncludeFile($sFile, true, Config::Get())) {
+                Config::Load($aConfig, true, null, $nConfigLevel);
+            }
+        }
+        $sFile = $sConfigDir . '/config.stable.php';
+        if (F::File_Exists($sFile)) {
+            if ($aConfig = F::File_IncludeFile($sFile, true, Config::Get())) {
+                Config::Load($aConfig, true, null, $nConfigLevel);
+            }
+        }
+
+        /*
+         * Загружает конфиг-файлы плагинов вида /plugins/[plugin_name]/config/*.php
+         * и include-файлы вида /plugins/[plugin_name]/include/*.php
+         */
+        $sPluginsDir = F::GetPluginsDir($nConfigLevel == Config::LEVEL_APP);
+        if ($aPluginsList = F::GetPluginsList()) {
+            $aPluginsList = array_map('trim', $aPluginsList);
+            foreach ($aPluginsList as $sPlugin) {
+                // Загружаем все конфиг-файлы плагина
+                $aConfigFiles = glob($sPluginsDir . '/' . $sPlugin . '/config/*.php');
+                if ($aConfigFiles) {
+                    foreach ($aConfigFiles as $sPath) {
+                        $aConfig = F::IncludeFile($sPath, true, true);
+                        if (!empty($aConfig) && is_array($aConfig)) {
+                            // Если конфиг этого плагина пуст, то загружаем массив целиком
+                            $sKey = 'plugin.' . $sPlugin;
+                            if (!Config::isExist($sKey)) {
+                                Config::Set($sKey, $aConfig, null, $nConfigLevel);
+                            } else {
+                                // Если уже существую привязанные к плагину ключи,
+                                // то сливаем старые и новое значения ассоциативно
+                                Config::Set($sKey, F::Array_Merge(Config::Get($sKey), $aConfig), null, $nConfigLevel);
+                            }
+                        }
+                    }
+                }
+
+                // Подключаем include-файлы плагина
+                $aIncludeFiles = glob($sPluginsDir . '/' . $sPlugin . '/include/*.php');
+                if ($aIncludeFiles) {
+                    foreach ($aIncludeFiles as $sPath) {
+                        F::IncludeFile($sPath);
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Load subconfig file
      *
@@ -222,13 +207,13 @@ class Loader {
     static protected function _checkRequiredDirs() {
 
         if (!F::File_CheckDir(Config::Get('path.dir.app'), false)) {
-            die('Application folder "'. F::LocalDir(Config::Get('path.dir.app')) . '" does not exist');
+            die('Application folder "' . F::LocalDir(Config::Get('path.dir.app')) . '" does not exist');
         }
         if (!F::File_CheckDir(Config::Get('path.tmp.dir'), false)) {
-            die('Required folder "'. F::LocalDir(Config::Get('path.tmp.dir')) . '" does not exist');
+            die('Required folder "' . F::LocalDir(Config::Get('path.tmp.dir')) . '" does not exist');
         }
         if (!F::File_CheckDir(Config::Get('path.runtime.dir'), false)) {
-            die('Required folder "'. F::LocalDir(Config::Get('path.runtime.dir')) . '" does not exist');
+            die('Required folder "' . F::LocalDir(Config::Get('path.runtime.dir')) . '" does not exist');
         }
     }
 
@@ -255,7 +240,8 @@ class Loader {
             // Если нет, то проверяем файл экшена среди плагинов
             $aPlugins = F::GetPluginsList();
             foreach ($aPlugins as $sPlugin) {
-                if ($sActionFile = F::File_Exists('plugins/' . $sPlugin . '/classes/actions/' . $sFileName, $aSeekDirs)) {
+                if ($sActionFile = F::File_Exists('plugins/' . $sPlugin . '/classes/actions/' . $sFileName, $aSeekDirs)
+                ) {
                     $sActionClass = 'Plugin' . ucfirst($sPlugin) . '_Action' . ucfirst($sAction);
                     $bOk = true;
                     break;
@@ -351,6 +337,7 @@ class Loader {
     }
 
     static protected $_aFailedClasses = array();
+
     /**
      * Try to load class using PRS-0 naming standard
      *

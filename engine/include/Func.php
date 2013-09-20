@@ -377,14 +377,23 @@ class Func {
     /**
      * Returns full dir path to plugins folder
      *
+     * @param bool $bApplication
      * @return string
      */
-    static public function GetPluginsDir() {
+    static public function GetPluginsDir($bApplication = false) {
 
         if (class_exists('Config', false)) {
-            $sPluginsDir = Config::Get('path.dir.common') . 'plugins/';
+            if ($bApplication) {
+                $sPluginsDir = Config::Get('path.dir.app') . 'plugins/';
+            } else {
+                $sPluginsDir = Config::Get('path.dir.common') . 'plugins/';
+            }
         } else {
-            $sPluginsDir = F::File_RootDir() . 'common/plugins/';
+            if ($bApplication) {
+                $sPluginsDir = F::File_RootDir() . 'app/plugins/';
+            } else {
+                $sPluginsDir = F::File_RootDir() . 'common/plugins/';
+            }
         }
         return $sPluginsDir;
     }

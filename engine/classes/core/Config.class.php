@@ -21,11 +21,12 @@
  */
 class Config extends Storage {
 
-    const LEVEL_MAIN = 0;
-    const LEVEL_CUSTOM = 1;
-    const LEVEL_ACTION = 2;
-    const LEVEL_SKIN = 3;
-    const LEVEL_SKIN_CUSTOM = 4;
+    const LEVEL_MAIN        = 0;
+    const LEVEL_APP         = 1;
+    const LEVEL_CUSTOM      = 2;
+    const LEVEL_ACTION      = 3;
+    const LEVEL_SKIN        = 4;
+    const LEVEL_SKIN_CUSTOM = 5;
 
     /**
      * Default config root key
@@ -89,10 +90,10 @@ class Config extends Storage {
     /**
      * Load configuration array from file
      *
-     * @param string $sFile  - Путь до файла конфига
-     * @param bool   $bReset - Сбосить старые значения
+     * @param string $sFile    - Путь до файла конфига
+     * @param bool   $bReset   - Сбосить старые значения
      * @param string $sRootKey - Корневой ключ конфига
-     * @param int    $nLevel - Уровень конфига
+     * @param int    $nLevel   - Уровень конфига
      *
      * @return  bool|Config
      */
@@ -111,7 +112,7 @@ class Config extends Storage {
     /**
      * Add configuration array from file
      *
-     * @param        $sFile
+     * @param string $sFile
      * @param string $sRootKey
      * @param int    $nLevel
      *
@@ -121,13 +122,14 @@ class Config extends Storage {
 
         return static::LoadFromFile($sFile, false, $sRootKey, $nLevel);
     }
+
     /**
      * Loads configuration array from given array
      *
-     * @param array  $aConfig - Массив конфига
-     * @param bool   $bReset  - Сбросить старые значения
-     * @param string $sRootKey   - Корневой ключ конфига
-     * @param int    $nLevel  - Уровень конфига
+     * @param array  $aConfig  - Массив конфига
+     * @param bool   $bReset   - Сбросить старые значения
+     * @param string $sRootKey - Корневой ключ конфига
+     * @param int    $nLevel   - Уровень конфига
      *
      * @return  bool|Config
      */
@@ -142,6 +144,14 @@ class Config extends Storage {
         return static::getInstance();
     }
 
+    /**
+     * Makes storage key using root key & level
+     *
+     * @param null $sRootKey
+     * @param null $nLevel
+     *
+     * @return string
+     */
     protected function _storageKey($sRootKey = null, $nLevel = null) {
 
         if (is_null($nLevel)) {
@@ -179,10 +189,10 @@ class Config extends Storage {
     /**
      * Устанавливает значения конфига
      *
-     * @param array  $aConfig - Массив конфига
-     * @param bool   $bReset  - Сбросить старые значения
-     * @param string $sRootKey   - Корневой ключ конфига
-     * @param int    $nLevel  - Уровень конфига
+     * @param array  $aConfig  - Массив конфига
+     * @param bool   $bReset   - Сбросить старые значения
+     * @param string $sRootKey - Корневой ключ конфига
+     * @param int    $nLevel   - Уровень конфига
      *
      * @return  bool
      */
@@ -209,7 +219,7 @@ class Config extends Storage {
     /**
      * Установка нового уровня конфигурации (все уровни между текущим и новым уровнем будут очищены)
      *
-     * @param null $nLevel
+     * @param int $nLevel
      */
     public function _setLevel($nLevel = null) {
 
@@ -235,7 +245,7 @@ class Config extends Storage {
     /**
      * Retrive information from configuration array
      *
-     * @param string $sKey  - Ключ
+     * @param string $sKey     - Ключ
      * @param string $sRootKey - Корневой ключ конфига
      * @param int    $nLevel
      *
@@ -243,9 +253,13 @@ class Config extends Storage {
      */
     static public function Get($sKey = '', $sRootKey = null, $nLevel = null) {
 
+        if (is_integer($sRootKey) && is_null($nLevel)) {
+            $nLevel = $sRootKey;
+            $sRootKey = null;
+        }
         // Return all config array
         if (!$sKey) {
-            return static::getInstance()->GetConfig($sRootKey);
+            return static::getInstance()->GetConfig($sRootKey, $nLevel);
         }
 
         return static::getInstance()->GetValue($sKey, $sRootKey, $nLevel);
@@ -268,9 +282,9 @@ class Config extends Storage {
     /**
      * Получает значение из конфигурации по переданному ключу
      *
-     * @param string $sKey  - Ключ
+     * @param string $sKey     - Ключ
      * @param string $sRootKey - Корневой ключ конфига
-     * @param int $nLevel
+     * @param int    $nLevel
      *
      * @return mixed
      */
@@ -363,7 +377,7 @@ class Config extends Storage {
      * @param string $sKey   - Ключ
      * @param mixed  $xValue - Значение
      * @param string $sRoot  - Корневой ключ конфига
-     * @param int $nLevel
+     * @param int    $nLevel
      *
      * @return bool
      */
@@ -426,6 +440,12 @@ class Config extends Storage {
         return false;
     }
 
+    /**
+     * @param string|null $sKeyPrefix
+     * @param bool        $bCacheOnly
+     *
+     * @return array
+     */
     static public function ReadCustomConfig($sKeyPrefix = null, $bCacheOnly = false) {
 
         $aConfig = array();
@@ -457,11 +477,17 @@ class Config extends Storage {
         return $aConfig;
     }
 
+    /**
+     *
+     */
     static public function ReReadCustomConfig() {
 
         self::ReadCustomConfig(null, false);
     }
 
+    /**
+     * @param string|null $sKeyPrefix
+     */
     static public function ResetCustomConfig($sKeyPrefix = null) {
 
         $sPrefix = self::CUSTOM_CONFIG_PREFIX . $sKeyPrefix;

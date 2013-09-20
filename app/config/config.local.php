@@ -8,32 +8,6 @@
  *-------------------------------------------------------
  */
 
-define('DEBUG', 0);
 
-/**
- * Настройки для локального сервера.
- * Для использования - переименовать файл в config.local.php
- */
-
-/**
- * Настройка базы данных
- */
-$config['db']['params']['host'] = 'localhost';
-$config['db']['params']['port'] = '3306';
-$config['db']['params']['user'] = 'root';
-$config['db']['params']['pass'] = '';
-$config['db']['params']['type']   = 'mysql';
-$config['db']['params']['dbname'] = 'social';
-$config['db']['table']['prefix'] = 'prefix_';
-$config['db']['tables']['engine'] = 'InnoDB';
-
-/**
- * "Примеси" ("соли") для повышения безопасности хешируемых данных
- */
-$config['security']['salt_sess']  = '123456789012345678901234567890';
-$config['security']['salt_pass']  = 'qwertyuiopqwertyuiopqwertyuiop';
-$config['security']['salt_auth']  = '1234567890qwertyuiopasdfghjkl0';
-
-return $config;
 
 // EOF

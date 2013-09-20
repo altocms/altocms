@@ -150,13 +150,13 @@ class ActionAdmin extends Action {
             'admin_dashboard_updates' => array(
                 'name' => 'admin_dashboard_updates',
                 'key' => 'admin.dashboard.updates',
-                'status' => (bool)Config::Val('admin.dashboard.updates', 1),
+                'status' => Config::Val('admin.dashboard.updates', true),
                 'label' => $this->Lang_Get('action.admin.dashboard_updates_title')
             ),
             'admin_dashboard_news' => array(
                 'name' => 'admin_dashboard_news',
                 'key' => 'admin.dashboard.news',
-                'status' => (bool)Config::Val('admin.dashboard.news', 1),
+                'status' => Config::Val('admin.dashboard.news', true),
                 'label' => $this->Lang_Get('action.admin.dashboard_news_title')
             ),
         );
@@ -262,7 +262,7 @@ class ActionAdmin extends Action {
                 'label' => $this->Lang_Get('action.admin.site_info'),
                 'data' => array(
                     'url' => array('label' => $this->Lang_Get('action.admin.info_site_url'), 'value' => Config::Get('path.root.url'),),
-                    'skin' => array('label' => $this->Lang_Get('action.admin.info_site_skin'), 'value' => $this->Viewer_GetSkin(),),
+                    'skin' => array('label' => $this->Lang_Get('action.admin.info_site_skin'), 'value' => Config::Get('view.skin', Config::LEVEL_CUSTOM),),
                     'client' => array('label' => $this->Lang_Get('action.admin.info_site_client'), 'value' => $_SERVER['HTTP_USER_AGENT'],),
                     'empty' => array('label' => '', 'value' => '',),
                 ),
