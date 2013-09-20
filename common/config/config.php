@@ -83,7 +83,6 @@ $config['path']['runtime']['dir']       = '___path.root.dir___/_run/';          
 $config['path']['runtime']['url']       = '___path.root.url___/_run/';              // путь к папке для runtime-файлов
 
 $config['path']['templates']['dir']     = '___path.dir.common___/templates/';
-$config['path']['framework']['dir']     = '___path.dir.common___/templates/framework/';
 $config['path']['frontend']['dir']      = '___path.dir.common___/templates/frontend/';
 $config['path']['frontend']['url']      = '___path.root.url___/common/templates/frontend/';
 

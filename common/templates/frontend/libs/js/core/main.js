@@ -199,7 +199,6 @@ ls.img = (function ($) {
                 image_crop:  $form.find(options.selectors.image_crop)
             };
 
-            console.log('===', options.selectors.input_file, $form.find(options.selectors.input_file));
             $form.find(options.selectors.input_file).on('change', function () {
                 self.currentForms = forms;
                 self.currentOptions = options;

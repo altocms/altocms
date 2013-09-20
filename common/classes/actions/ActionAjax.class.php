@@ -44,6 +44,7 @@ class ActionAjax extends Action {
      * Регистрация евентов
      */
     protected function RegisterEvent() {
+
         $this->AddEventPreg('/^vote$/i', '/^comment$/', 'EventVoteComment');
         $this->AddEventPreg('/^vote$/i', '/^topic$/', 'EventVoteTopic');
         //$this->AddEventPreg('/^vote$/i', '/^blog$/', 'EventVoteBlog');
@@ -76,6 +77,8 @@ class ActionAjax extends Action {
         $this->AddEventPreg('/^geo/i', '/^get/', '/^cities/', 'EventGeoGetCities');
 
         $this->AddEventPreg('/^infobox/i', '/^info/', '/^blog/', 'EventInfoboxInfoBlog');
+
+        $this->AddEvent('fetch', 'EventFetch');
     }
 
 
@@ -112,13 +115,14 @@ class ActionAjax extends Action {
         $oViewer->Assign('oUserCurrent', $this->oUserCurrent);
 
         // * Устанавливаем переменные для ajax ответа
-        $this->Viewer_AssignAjax('sText', $oViewer->Fetch("infobox.info.blog.tpl"));
+        $this->Viewer_AssignAjax('sText', $oViewer->Fetch('infobox.info.blog.tpl'));
     }
 
     /**
      * Получение списка регионов по стране
      */
     protected function EventGeoGetRegions() {
+
         $iCountryId = getRequestStr('country');
         $iLimit = 200;
         if (is_numeric(getRequest('limit')) && getRequest('limit') > 0) {
@@ -149,6 +153,7 @@ class ActionAjax extends Action {
      * Получение списка городов по региону
      */
     protected function EventGeoGetCities() {
+
         $iRegionId = getRequestStr('region');
         $iLimit = 500;
         if (is_numeric(getRequest('limit')) && getRequest('limit') > 0) {
@@ -551,7 +556,7 @@ class ActionAjax extends Action {
             $this->Message_AddNoticeSingle($this->Lang_Get('topic_question_vote_ok'), $this->Lang_Get('attention'));
             $oViewer = $this->Viewer_GetLocalViewer();
             $oViewer->Assign('oTopic', $oTopic);
-            $this->Viewer_AssignAjax('sText', $oViewer->Fetch("question_result.tpl"));
+            $this->Viewer_AssignAjax('sText', $oViewer->Fetch('question_result.tpl'));
         } else {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
             return;
@@ -818,6 +823,7 @@ class ActionAjax extends Action {
      *
      */
     protected function EventStreamComment() {
+
         if ($aComments = $this->Comment_GetCommentsOnline('topic', Config::Get('block.stream.row'))) {
             $oViewer = $this->Viewer_GetLocalViewer();
             $oViewer->Assign('aComments', $aComments);
@@ -835,6 +841,7 @@ class ActionAjax extends Action {
      *
      */
     protected function EventStreamTopic() {
+
         if ($oTopics = $this->Topic_GetTopicsLast(Config::Get('block.stream.row'))) {
             $oViewer = $this->Viewer_GetLocalViewer();
             $oViewer->Assign('oTopics', $oTopics);
@@ -1184,6 +1191,25 @@ class ActionAjax extends Action {
         $this->Viewer_AssignAjax('bState', $bState);
         $this->Viewer_AssignAjax('sTextToggle', $sTextToggle);
     }
+
+    /**
+     *
+     */
+    protected function EventFetch() {
+
+        $sHtml = '';
+        $bState = false;
+        if ($sTpl = $this->GetParam(0)) {
+            $sTpl = 'ajax.' . $sTpl . '.tpl';
+            if ($this->Viewer_TemplateExists($sTpl)) {
+                $sHtml = $this->Viewer_Fetch($sTpl);
+                $bState = true;
+            }
+        }
+        $this->Viewer_AssignAjax('sHtml', $sHtml);
+        $this->Viewer_AssignAjax('bState', $bState);
+    }
+
 }
 
 // EOF

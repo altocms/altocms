@@ -178,7 +178,7 @@ class ModuleImg_EntityImage extends Entity {
                 throw new \Exception('Either width or height must be set');
             }
 
-            $fScale = round($fScale, 6);
+            $fScale = round($fScale, 9);
             if ($fScale < 1 && $this->_fResizeScaleLimit && $this->_fResizeScaleLimit > $fScale) {
                 $fResultScale = 1.0;
                 while ($fResultScale > $fScale) {

@@ -2301,7 +2301,7 @@ class ModuleTopic extends Module {
         $sFileTmp = $this->Img_TransformFile($sImageFile, 'topic');
         if ($sFileTmp) {
             $sDirUpload = $this->Upload_GetUserImageDir($oUser->getId());
-            $sFileImage = $this->Upload_Uniqname($sDirUpload, F::File_GetExtension($sFileTmp));
+            $sFileImage = $this->Upload_Uniqname($sDirUpload, strtolower(F::File_GetExtension($sFileTmp)));
             if ($sFileImage = $this->Upload_Move($sFileTmp, $sFileImage)) {
                 return $this->Upload_Dir2Url($sFileImage);
             }
