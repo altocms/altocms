@@ -64,6 +64,19 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
         return $sContents;
     }
 
+    /**
+     * @param string $sDestination
+     *
+     * @return bool
+     */
+    public function CheckDestination($sDestination) {
+
+        if (Config::Get('compress.css.force')) {
+            return false;
+        }
+        return parent::CheckDestination($sDestination);
+    }
+
     public function PreProcess() {
 
         if ($this->aFiles) {

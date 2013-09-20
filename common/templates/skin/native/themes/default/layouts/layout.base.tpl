@@ -47,17 +47,6 @@
 
 
     <script>
-        var ls = ls || { };
-        ls.cfg = {
-            url: {
-                root: '{cfg name="path.root.url"}'
-            },
-            assets: {json var=$aJsAssets},
-            security_key: '{$ALTO_SECURITY_KEY}',
-            lang: '{Config::Get('lang.current')}',
-            wysiwyg: {if Config::Get('view.wysiwyg')}true{else}false{/if}
-        };
-
         var DIR_WEB_ROOT = '{cfg name="path.root.web"}',
                 DIR_STATIC_SKIN = '{cfg name="path.static.skin"}',
                 DIR_STATIC_FRAMEWORK = '{cfg name="path.static.framework"}',

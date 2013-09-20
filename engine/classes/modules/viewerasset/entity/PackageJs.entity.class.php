@@ -64,6 +64,19 @@ class ModuleViewerAsset_EntityPackageJs extends ModuleViewerAsset_EntityPackage 
         parent::PreProcess();
     }
 
+    /**
+     * @param string $sDestination
+     *
+     * @return bool
+     */
+    public function CheckDestination($sDestination) {
+
+        if (Config::Get('compress.js.force')) {
+            return false;
+        }
+        return parent::CheckDestination($sDestination);
+    }
+
     public function Process() {
 
         foreach ($this->aLinks as $nIdx => $aLinkData) {

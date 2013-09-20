@@ -1,13 +1,27 @@
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
+
 Function.prototype.bind = function (context) {
     var fn = this;
     if (jQuery.type(fn) != 'function') {
         throw new TypeError('Function.prototype.bind: call on non-function');
     }
-    ;
+
     if (jQuery.type(context) == 'null') {
         throw new TypeError('Function.prototype.bind: cant be bound to null');
     }
-    ;
+
     return function () {
         return fn.apply(context, arguments);
     };
@@ -80,7 +94,7 @@ ls.lang = (function ($) {
     };
 
     /**
-     * Отображение сообщения об ошибке
+     * Получить текстовку
      */
     this.get = function (name, replace) {
         if (this.msgs[name]) {
@@ -368,7 +382,7 @@ ls.swfupload = (function ($) {
         this.swfOptions = {
             // Backend Settings
             upload_url: ls.actionUrl("content") + "photo/upload",
-            post_params: {'SSID': SESSION_ID, 'security_ls_key': ls.cfg.security_key},
+            post_params: {'SSID': SESSION_ID, 'security_key': ls.cfg.security_key},
 
             prevent_swf_caching : false,
 
@@ -555,6 +569,7 @@ ls.tools = (function ($) {
      * Предпросмотр
      */
     this.textPreview = function (textId, save, divPreview) {
+
         var text = ls.cfg.wysiwyg ? tinyMCE.activeEditor.getContent() : $('#' + textId).val();
         var ajaxUrl = ls.actionUrl('ajax') + 'preview/text/';
         var ajaxOptions = {text: text, save: save};
@@ -652,7 +667,7 @@ ls = (function ($) {
     this.ajax = function (url, params, callback, more) {
         more = more || {};
         params = params || {};
-        params.security_ls_key = ls.cfg.security_key;
+        params.security_key = ls.cfg.security_key;
 
         $.each(params, function (k, v) {
             if (typeof(v) == "boolean") {
@@ -663,7 +678,7 @@ ls = (function ($) {
         if (url.indexOf('/') == 0) {
             url = ls.cfg.url.root + url;
         } else if (url.indexOf('http://') != 0 && url.indexOf('https://') != 0) {
-            url = aRouter['ajax'] + url ;
+            url = ls.actionUrl('ajax') + url ;
         }
         if (url.substring(url.length-1) != '/') {
             url += '/';
@@ -724,7 +739,7 @@ ls = (function ($) {
         form = typeof form == 'string' ? $(form) : form;
 
         if (url.indexOf('http://') != 0 && url.indexOf('https://') != 0 && url.indexOf('/') != 0) {
-            url = aRouter['ajax'] + url + '/';
+            url = ls.actionUrl('ajax') + url + '/';
         }
 
         var options = {
@@ -732,7 +747,7 @@ ls = (function ($) {
             url: url,
             dataType: more.dataType || 'json',
             data: {
-                security_ls_key: ls.cfg.security_key
+                security_key: ls.cfg.security_key
             },
             beforeSubmit: function (arr, form, options) {
                 form.find('[type=submit]').prop('disabled', true).addClass('loading');
@@ -918,5 +933,4 @@ ls.ie = (function ($) {
 var ALTO_SECURITY_KEY = ALTO_SECURITY_KEY || LIVESTREET_SECURITY_KEY;
 
 ls.cfg = ls.cfg || { };
-ls.cfg.secret_key = ls.cfg.secret_key || ALTO_SECURITY_KEY;
-
+ls.cfg.security_key = ls.cfg.security_key || ALTO_SECURITY_KEY;
