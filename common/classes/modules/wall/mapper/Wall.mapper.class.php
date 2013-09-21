@@ -28,7 +28,8 @@ class ModuleWall_MapperWall extends Mapper {
      * @return bool|int
      */
     public function AddWall($oWall) {
-        $sql = "INSERT INTO " . Config::Get('db.table.wall') . " SET ?a ";
+
+        $sql = "INSERT INTO ?_wall SET ?a ";
         if ($iId = $this->oDb->query($sql, $oWall->_getData())) {
             return $iId;
         }
@@ -43,9 +44,10 @@ class ModuleWall_MapperWall extends Mapper {
      * @return bool
      */
     public function UpdateWall($oWall) {
+
         $sql
             = "
-            UPDATE " . Config::Get('db.table.wall') . "
+            UPDATE ?_wall
 			SET 
 			 	count_reply = ?d,
 			 	last_reply = ?
@@ -63,7 +65,8 @@ class ModuleWall_MapperWall extends Mapper {
      * @return bool
      */
     public function DeleteWallById($iId) {
-        $sql = "DELETE FROM " . Config::Get('db.table.wall') . " WHERE id = ?d ";
+
+        $sql = "DELETE FROM ?_wall WHERE id = ?d ";
         return $this->oDb->query($sql, $iId);
     }
 
@@ -73,7 +76,8 @@ class ModuleWall_MapperWall extends Mapper {
      * @return bool
      */
     public function DeleteWallsByPid($iPid) {
-        $sql = "DELETE FROM " . Config::Get('db.table.wall') . " WHERE pid = ?d ";
+
+        $sql = "DELETE FROM ?_wall WHERE pid = ?d ";
         return $this->oDb->query($sql, $iPid);
     }
 
@@ -89,6 +93,7 @@ class ModuleWall_MapperWall extends Mapper {
      * @return array
      */
     public function GetWall($aFilter, $aOrder, &$iCount, $iCurrPage, $iPerPage) {
+
         $aOrderAllow = array('id', 'date_add');
         $sOrder = '';
         foreach ($aOrder as $key => $value) {
@@ -108,7 +113,7 @@ class ModuleWall_MapperWall extends Mapper {
             SELECT
                 id
             FROM
-                " . Config::Get('db.table.wall') . "
+                ?_wall
             WHERE
 					1 = 1
 					{ AND pid = ?d }
@@ -151,11 +156,12 @@ class ModuleWall_MapperWall extends Mapper {
      * @return int
      */
     public function GetCountWall($aFilter) {
+
         $sql
             = "SELECT
 					count(*) as c
 				FROM
-					" . Config::Get('db.table.wall') . "
+					?_wall
 				WHERE
 					1 = 1
 					{ AND pid = ?d }
@@ -190,14 +196,15 @@ class ModuleWall_MapperWall extends Mapper {
      * @return array
      */
     public function GetWallsByArrayId($aArrayId) {
-        if (!is_array($aArrayId) or count($aArrayId) == 0) {
+
+        if (!is_array($aArrayId) || count($aArrayId) == 0) {
             return array();
         }
 
         $sql
             = "
             SELECT *
-            FROM " . Config::Get('db.table.wall') . "
+            FROM ?_wall
             WHERE
                 id IN(?a)
             ORDER BY FIELD(id,?a) ";

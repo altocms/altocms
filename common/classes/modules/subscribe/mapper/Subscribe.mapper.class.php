@@ -20,6 +20,7 @@
  * @since   1.0
  */
 class ModuleSubscribe_MapperSubscribe extends Mapper {
+
     /**
      * Добавляет подписку в БД
      *
@@ -28,7 +29,8 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
      * @return int|bool
      */
     public function AddSubscribe($oSubscribe) {
-        $sql = "INSERT INTO " . Config::Get('db.table.subscribe') . " SET ?a ";
+
+        $sql = "INSERT INTO ?_subscribe SET ?a ";
         if ($iId = $this->oDb->query($sql, $oSubscribe->_getData())) {
             return $iId;
         }
@@ -44,7 +46,8 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
      * @return ModuleSubscribe_EntitySubscribe|null
      */
     public function GetSubscribeByTypeAndMail($sType, $sMail) {
-        $sql = "SELECT * FROM " . Config::Get('db.table.subscribe') . " WHERE target_type = ? and mail = ?";
+
+        $sql = "SELECT * FROM ?_subscribe WHERE target_type = ? AND mail = ?";
         if ($aRow = $this->oDb->selectRow($sql, $sType, $sMail)) {
             return Engine::GetEntity('Subscribe', $aRow);
         }
@@ -59,7 +62,8 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
      * @return int
      */
     public function UpdateSubscribe($oSubscribe) {
-        $sql = "UPDATE " . Config::Get('db.table.subscribe') . "
+
+        $sql = "UPDATE ?_subscribe
 			SET 
 			 	status = ?, 
 			 	date_remove = ?
@@ -83,7 +87,8 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
      * @return int
      */
     public function ChangeSubscribeMail($sMailOld, $sMailNew, $iUserId = null) {
-        $sql = "UPDATE " . Config::Get('db.table.subscribe') . "
+
+        $sql = "UPDATE ?_subscribe
 			SET
 			 	mail = ?
 			WHERE mail = ? { and user_id = ?d }
@@ -126,7 +131,7 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
             = "SELECT
 					*
 				FROM
-					" . Config::Get('db.table.subscribe') . "
+					?_subscribe
 				WHERE
 					1 = 1
 					{ AND target_type = ? }
@@ -167,7 +172,8 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
      * @return int|bool
      */
     public function AddTrack($oTrack) {
-        $sql = "INSERT INTO " . Config::Get('db.table.track') . " SET ?a ";
+
+        $sql = "INSERT INTO ?_track SET ?a ";
         if ($iId = $this->oDb->query($sql, $oTrack->_getData())) {
             return $iId;
         }
@@ -182,7 +188,8 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
      * @return int
      */
     public function UpdateTrack($oTrack) {
-        $sql = "UPDATE " . Config::Get('db.table.track') . "
+
+        $sql = "UPDATE ?_track
 			SET
 			 	status = ?,
 			 	date_remove = ?
@@ -208,6 +215,7 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
      * @return array
      */
     public function GetTracks($aFilter, $aOrder, &$iCount, $iCurrPage, $iPerPage) {
+
         $aOrderAllow = array('id', 'date_add', 'status');
         $sOrder = '';
         foreach ($aOrder as $key => $value) {
@@ -230,7 +238,7 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
             = "SELECT
 					*
 				FROM
-					" . Config::Get('db.table.track') . " trc
+					?_track trc
 				WHERE
 					1 = 1
 					{ AND trc.target_type = ? }
@@ -240,8 +248,8 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
 					{ AND trc.`key` = ? }
 					{ AND trc.status = ?d }
 					{ AND exists   (  SELECT ?d
-					                  FROM   " . Config::Get('db.table.topic_read') . " as tr,
-					                         " . Config::Get('db.table.topic') . " as t
+					                  FROM   ?_topic_read as tr,
+					                         ?_topic as t
 					                  WHERE   t.topic_id = trc.target_id
 					                  AND t.topic_id = tr.topic_id
 					                  AND (t.topic_count_comment - tr.comment_count_last) > 0
@@ -270,6 +278,7 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
         }
         return $aResult;
     }
+
 }
 
 // EOF

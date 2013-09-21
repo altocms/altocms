@@ -605,7 +605,7 @@ class ModuleBlog_MapperBlog extends Mapper {
                 UPDATE ?_blog b
                 SET b.blog_count_topic = (
                     SELECT count(*)
-                    FROM " . Config::Get('db.table.topic') . " t
+                    FROM ?_topic t
                     WHERE
                         t.blog_id = b.blog_id
                     AND
@@ -885,7 +885,7 @@ class ModuleBlog_MapperBlog extends Mapper {
                 SUM(t.topic_rating) as sum_rating
             FROM
                 ?_blog as b,
-                " . Config::Get('db.table.topic') . " as t
+                ?_topic as t
             WHERE
                 b.blog_id=t.blog_id
                 AND

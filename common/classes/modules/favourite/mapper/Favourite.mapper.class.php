@@ -30,7 +30,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      */
     public function AddFavourite(ModuleFavourite_EntityFavourite $oFavourite) {
         $sql = "
-			INSERT INTO " . Config::Get('db.table.favourite') . "
+			INSERT INTO ?_favourite
 				( target_id, target_type, user_id, tags )
 			VALUES
 				(?d, ?, ?d, ?)
@@ -54,7 +54,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      */
     public function UpdateFavourite(ModuleFavourite_EntityFavourite $oFavourite) {
         $sql = "
-			UPDATE " . Config::Get('db.table.favourite') . "
+			UPDATE ?_favourite
 				SET tags = ? WHERE user_id = ?d and target_id = ?d and target_type = ?
 		";
         $bResult = $this->oDb->query(
@@ -81,7 +81,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
             return array();
         }
         $sql = "SELECT *
-				FROM " . Config::Get('db.table.favourite') . "
+				FROM ?_favourite
 				WHERE
 					user_id = ?d
 					AND
@@ -106,7 +106,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      */
     public function DeleteFavourite(ModuleFavourite_EntityFavourite $oFavourite) {
         $sql = "
-			DELETE FROM " . Config::Get('db.table.favourite') . "
+			DELETE FROM ?_favourite
 			WHERE
 				user_id = ?d
 			AND
@@ -132,7 +132,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      */
     public function DeleteTags($oFavourite) {
         $sql = "
-			DELETE FROM " . Config::Get('db.table.favourite_tag') . "
+			DELETE FROM ?_favourite_tag
 			WHERE
 				user_id = ?d
 				AND
@@ -158,7 +158,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      */
     public function AddTag($oTag) {
         $sql = "
-			INSERT INTO " . Config::Get('db.table.favourite_tag') . "
+			INSERT INTO ?_favourite_tag
 				SET target_id = ?d, target_type = ?, user_id = ?d, is_user = ?d, text =?
 		";
         $bResult = $this->oDb->query(
@@ -183,7 +183,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      */
     public function SetFavouriteTargetPublish($aTargetId, $sTargetType, $iPublish) {
         $sql = "
-			UPDATE " . Config::Get('db.table.favourite') . "
+			UPDATE ?_favourite
 			SET 
 				target_publish = ?d
 			WHERE
@@ -210,7 +210,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
     public function GetFavouritesByUserId($sUserId, $sTargetType, &$iCount, $iCurrPage, $iPerPage, $aExcludeTarget = array()) {
         $sql = "
 			SELECT target_id
-			FROM " . Config::Get('db.table.favourite') . "
+			FROM ?_favourite
 			WHERE 
 					user_id = ?
 				AND
@@ -252,7 +252,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
         $sql = "SELECT
 					count(target_id) as count
 				FROM 
-					" . Config::Get('db.table.favourite') . "
+					?_favourite
 				WHERE 
 						user_id = ?
 					AND
@@ -284,10 +284,10 @@ class ModuleFavourite_MapperFavourite extends Mapper {
         $sql = "
 			SELECT f.target_id
 			FROM 
-				" . Config::Get('db.table.favourite') . " AS f,
-				" . Config::Get('db.table.comment') . " AS c,
-				" . Config::Get('db.table.topic') . " AS t,
-				" . Config::Get('db.table.blog') . " AS b
+				?_favourite AS f,
+				?_comment AS c,
+				?_topic AS t,
+				?_blog AS b
 			WHERE 
 					f.user_id = ?d
 				AND
@@ -329,10 +329,10 @@ class ModuleFavourite_MapperFavourite extends Mapper {
         $sql = "SELECT
 					count(f.target_id) as count
 				FROM 
-					" . Config::Get('db.table.favourite') . " AS f,
-					" . Config::Get('db.table.comment') . " AS c,
-					" . Config::Get('db.table.topic') . " AS t,
-					" . Config::Get('db.table.blog') . " AS b
+					?_favourite AS f,
+					?_comment AS c,
+					?_topic AS t,
+					?_blog AS b
 				WHERE 
 						f.user_id = ?d
 					AND
@@ -367,9 +367,9 @@ class ModuleFavourite_MapperFavourite extends Mapper {
         $sql = "
 			SELECT f.target_id
 			FROM 
-				" . Config::Get('db.table.favourite') . " AS f,
-				" . Config::Get('db.table.topic') . " AS t,
-				" . Config::Get('db.table.blog') . " AS b
+				?_favourite AS f,
+				?_topic AS t,
+				?_blog AS b
 			WHERE 
 					f.user_id = ?d
 				AND
@@ -409,9 +409,9 @@ class ModuleFavourite_MapperFavourite extends Mapper {
         $sql = "SELECT
 					count(f.target_id) as count
 				FROM 
-					" . Config::Get('db.table.favourite') . " AS f,
-					" . Config::Get('db.table.topic') . " AS t,
-					" . Config::Get('db.table.blog') . " AS b
+					?_favourite AS f,
+					?_topic AS t,
+					?_blog AS b
 				WHERE 
 						f.user_id = ?d
 					AND
@@ -440,7 +440,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
     public function DeleteFavouriteByTargetId($aTargetsId, $sTargetType) {
         $aTargetsId = $this->_arrayId($aTargetsId);
         $sql = "
-			DELETE FROM " . Config::Get('db.table.favourite') . "
+			DELETE FROM ?_favourite
 			WHERE 
 				target_id IN(?a) 
 				AND 
@@ -459,7 +459,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
     public function DeleteTagByTarget($aTargetsId, $sTargetType) {
         $aTargetsId = $this->_arrayId($aTargetsId);
         $sql = "
-			DELETE FROM " . Config::Get('db.table.favourite_tag') . "
+			DELETE FROM ?_favourite_tag
 			WHERE
 				target_type = ?
 				AND
@@ -483,7 +483,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
 			text,
 			count(text)	as count
 			FROM
-				" . Config::Get('db.table.favourite_tag') . "
+				?_favourite_tag
 			WHERE
 				1=1
 				{AND user_id = ?d }
@@ -541,7 +541,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
         $sql = "SELECT
 					*
 				FROM
-					" . Config::Get('db.table.favourite_tag') . "
+					?_favourite_tag
 				WHERE
 					1 = 1
 					{ AND user_id = ?d }

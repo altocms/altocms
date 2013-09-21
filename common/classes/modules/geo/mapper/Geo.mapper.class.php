@@ -29,7 +29,7 @@ class ModuleGeo_MapperGeo extends Mapper {
      */
     public function AddTarget($oTarget) {
 
-        $sql = "INSERT INTO " . Config::Get('db.table.geo_target') . " SET ?a ";
+        $sql = "INSERT INTO ?_geo_target SET ?a ";
         if ($this->oDb->query($sql, $oTarget->_getData())) {
             return true;
         }
@@ -56,7 +56,7 @@ class ModuleGeo_MapperGeo extends Mapper {
             = "SELECT
 					*
 				FROM
-					" . Config::Get('db.table.geo_target') . "
+					?_geo_target
 				WHERE
 					1 = 1
 					{ AND geo_type = ? }
@@ -98,6 +98,7 @@ class ModuleGeo_MapperGeo extends Mapper {
      * @return array
      */
     public function GetGroupCountriesByTargetType($sTargetType, $iLimit) {
+
         $sql
             = "
 			SELECT
@@ -108,11 +109,11 @@ class ModuleGeo_MapperGeo extends Mapper {
 						count(*) as count,
 						country_id
 					FROM
-						" . Config::Get('db.table.geo_target') . "
+						?_geo_target
 					WHERE target_type = ? AND country_id IS NOT NULL
 					GROUP BY country_id ORDER BY count DESC LIMIT 0, ?d
 				) as t
-				JOIN " . Config::Get('db.table.geo_country') . " as g on t.country_id=g.id
+				JOIN ?_geo_country as g on t.country_id=g.id
 			ORDER BY g.name_ru
 		";
         $aResult = array();
@@ -133,6 +134,7 @@ class ModuleGeo_MapperGeo extends Mapper {
      * @return array
      */
     public function GetGroupCitiesByTargetType($sTargetType, $iLimit) {
+
         $sql
             = "
 			SELECT
@@ -143,11 +145,11 @@ class ModuleGeo_MapperGeo extends Mapper {
 						count(*) as count,
 						city_id
 					FROM
-						" . Config::Get('db.table.geo_target') . "
+						?_geo_target
 					WHERE target_type = ? AND city_id IS NOT NULL
 					GROUP BY city_id ORDER BY count DESC LIMIT 0, ?d
 				) as t
-				JOIN " . Config::Get('db.table.geo_city') . " as g on t.city_id=g.id
+				JOIN ?_geo_city as g on t.city_id=g.id
 			ORDER BY g.name_ru
 		";
         $aResult = array();
@@ -167,13 +169,14 @@ class ModuleGeo_MapperGeo extends Mapper {
      * @return bool|int
      */
     public function DeleteTargets($aFilter) {
+
         if (!$aFilter) {
             return false;
         }
         $sql
             = "DELETE
 				FROM
-					" . Config::Get('db.table.geo_target') . "
+					?_geo_target
 				WHERE
 					1 = 1
 					{ AND geo_type = ? }
@@ -227,7 +230,7 @@ class ModuleGeo_MapperGeo extends Mapper {
             = "SELECT
 					*
 				FROM
-					" . Config::Get('db.table.geo_country') . "
+					?_geo_country
 				WHERE
 					1 = 1
 					{ AND id = ?d }
@@ -294,7 +297,7 @@ class ModuleGeo_MapperGeo extends Mapper {
             = "SELECT
 					*
 				FROM
-					" . Config::Get('db.table.geo_region') . "
+					?_geo_region
 				WHERE
 					1 = 1
 					{ AND id = ?d }
@@ -364,7 +367,7 @@ class ModuleGeo_MapperGeo extends Mapper {
             = "SELECT
 					*
 				FROM
-					" . Config::Get('db.table.geo_city') . "
+					?_geo_city
 				WHERE
 					1 = 1
 					{ AND id = ?d }

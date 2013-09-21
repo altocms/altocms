@@ -20,6 +20,7 @@
  * @since   1.0
  */
 class ModuleVote_MapperVote extends Mapper {
+
     /**
      * Добавляет голосование
      *
@@ -28,7 +29,8 @@ class ModuleVote_MapperVote extends Mapper {
      * @return bool
      */
     public function AddVote(ModuleVote_EntityVote $oVote) {
-        $sql = "INSERT INTO " . Config::Get('db.table.vote') . "
+
+        $sql = "INSERT INTO ?_vote
 			(target_id,
 			target_type,
 			user_voter_id,
@@ -56,13 +58,14 @@ class ModuleVote_MapperVote extends Mapper {
      * @return array
      */
     public function GetVoteByArray($aArrayId, $sTargetType, $sUserId) {
+
         if (!is_array($aArrayId) || count($aArrayId) == 0) {
             return array();
         }
         $sql = "SELECT
 					*
 				FROM 
-					" . Config::Get('db.table.vote') . "
+					?_vote
 				WHERE
 					target_id IN(?a)
 					AND
@@ -87,9 +90,10 @@ class ModuleVote_MapperVote extends Mapper {
      * @return  bool
      */
     public function DeleteVoteByTarget($aTargetsId, $sTargetType) {
+
         $aTargetsId = $this->_arrayId($aTargetsId);
         $sql = "
-			DELETE FROM " . Config::Get('db.table.vote') . "
+			DELETE FROM ?_vote
 			WHERE
 				target_id IN(?a)
 				AND
@@ -99,7 +103,8 @@ class ModuleVote_MapperVote extends Mapper {
     }
 
     public function Update($oVote) {
-        $sql = "UPDATE " . Config::Get('db.table.vote') . "
+
+        $sql = "UPDATE ?_vote
                     SET vote_direction=?d, vote_value=?f, vote_date=?
                     WHERE target_id=?d AND target_type=? AND user_voter_id=?d
         ";

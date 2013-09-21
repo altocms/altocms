@@ -20,6 +20,7 @@
  * @since   1.0
  */
 class ModuleUserfeed_MapperUserfeed extends Mapper {
+
     /**
      * Подписать пользователя
      *
@@ -30,10 +31,16 @@ class ModuleUserfeed_MapperUserfeed extends Mapper {
      * @return bool
      */
     public function subscribeUser($iUserId, $iSubscribeType, $iTargetId) {
-        $sql = 'SELECT * FROM ' . Config::Get('db.table.userfeed_subscribe') . ' WHERE
+
+        $sql = '
+            SELECT *
+            FROM ?_userfeed_subscribe
+            WHERE
                 user_id = ?d AND subscribe_type = ?d AND target_id = ?d';
         if (!$this->oDb->select($sql, $iUserId, $iSubscribeType, $iTargetId)) {
-            $sql = 'INSERT INTO ' . Config::Get('db.table.userfeed_subscribe') . ' SET
+            $sql = '
+                INSERT INTO ?_userfeed_subscribe
+                SET
                     user_id = ?d, subscribe_type = ?d, target_id = ?d';
             $this->oDb->query($sql, $iUserId, $iSubscribeType, $iTargetId);
             return true;
@@ -51,7 +58,10 @@ class ModuleUserfeed_MapperUserfeed extends Mapper {
      * @return bool
      */
     public function unsubscribeUser($iUserId, $iSubscribeType, $iTargetId) {
-        $sql = 'DELETE FROM ' . Config::Get('db.table.userfeed_subscribe') . ' WHERE
+
+        $sql = '
+            DELETE FROM ?_userfeed_subscribe
+            WHERE
                 user_id = ?d AND subscribe_type = ?d AND target_id = ?d';
         $this->oDb->query($sql, $iUserId, $iSubscribeType, $iTargetId);
         return true;
@@ -65,8 +75,12 @@ class ModuleUserfeed_MapperUserfeed extends Mapper {
      * @return array
      */
     public function getUserSubscribes($iUserId) {
-        $sql = 'SELECT subscribe_type, target_id FROM ' . Config::Get('db.table.userfeed_subscribe')
-            . ' WHERE user_id = ?d';
+
+        $sql = '
+            SELECT subscribe_type, target_id
+            FROM ?_userfeed_subscribe
+            WHERE
+                user_id = ?d';
         $aSubscribes = $this->oDb->select($sql, $iUserId);
         $aResult = array('blogs' => array(), 'users' => array());
 
@@ -94,21 +108,22 @@ class ModuleUserfeed_MapperUserfeed extends Mapper {
      * @return array
      */
     public function readFeed($aUserSubscribes, $iCount, $iFromId) {
+
         $sql
             = "
-							SELECT 		
-								t.topic_id										
-							FROM 
-								" . Config::Get('db.table.topic') . " as t,
-								" . Config::Get('db.table.blog') . " as b
-							WHERE 
-								t.topic_publish = 1 
-								AND t.blog_id=b.blog_id 
-								AND b.blog_type!='close' 
-								{ AND t.topic_id < ?d }
-								AND ( 1=0 { OR t.blog_id IN (?a) } { OR t.user_id IN (?a) } ) 								
-                            ORDER BY t.topic_id DESC	
-                            { LIMIT 0, ?d }";
+				SELECT
+					t.topic_id
+				FROM
+					?_topic as t,
+					?_blog as b
+				WHERE
+					t.topic_publish = 1
+					AND t.blog_id=b.blog_id
+					AND b.blog_type!='close'
+					{ AND t.topic_id < ?d }
+					AND ( 1=0 { OR t.blog_id IN (?a) } { OR t.user_id IN (?a) } )
+                ORDER BY t.topic_id DESC
+                { LIMIT 0, ?d }";
 
         $aTopics = $aTopics = $this->oDb->selectCol(
             $sql,
@@ -129,32 +144,34 @@ class ModuleUserfeed_MapperUserfeed extends Mapper {
      * @return bool
      */
     public function GetCountTrackNew($sUserId) {
+
         $sql
             = "
-					SELECT
-						SUM(t.topic_count_comment - tr.comment_count_last) as count_new
-					FROM
-  						" . Config::Get('db.table.topic_read') . " as tr,
-						" . Config::Get('db.table.topic') . " as t
-					WHERE
-						t.topic_id=tr.topic_id
-						AND
-						tr.user_id=?d
-						AND
-						t.topic_id IN (
-							SELECT target_id FROM " . Config::Get('db.table.track') . " WHERE
-								target_type = ?
-								AND
-								user_id = ?d
-								AND
-								status=?d
-							)
+				SELECT
+					SUM(t.topic_count_comment - tr.comment_count_last) as count_new
+				FROM
+ 						?_topic_read as tr,
+					?_topic as t
+				WHERE
+					t.topic_id=tr.topic_id
+					AND
+					tr.user_id=?d
+					AND
+					t.topic_id IN (
+						SELECT target_id FROM ?_track WHERE
+							target_type = ?
+							AND
+							user_id = ?d
+							AND
+							status=?d
+						)
 		";
         if ($aRow = $this->oDb->selectRow($sql, $sUserId, 'topic_new_comment', $sUserId, 1)) {
             return $aRow['count_new'];
         }
         return false;
     }
+
 }
 
 // EOF

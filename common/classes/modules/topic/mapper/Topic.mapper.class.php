@@ -20,6 +20,7 @@
  * @since   1.0
  */
 class ModuleTopic_MapperTopic extends Mapper {
+
     /**
      * Добавляет топик
      *
@@ -28,7 +29,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return int|bool
      */
     public function AddTopic(ModuleTopic_EntityTopic $oTopic) {
-        $sql = "INSERT INTO " . Config::Get('db.table.topic') . "
+
+        $sql = "INSERT INTO ?_topic
 			(blog_id,
 			user_id,
 			topic_type,
@@ -68,7 +70,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return int|bool
      */
     public function AddTopicContent(ModuleTopic_EntityTopic $oTopic) {
-        $sql = "INSERT INTO " . Config::Get('db.table.topic_content') . "
+
+        $sql = "INSERT INTO ?_topic_content
 			(topic_id,
 			topic_text,
 			topic_text_short,
@@ -92,7 +95,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return int
      */
     public function AddTopicTag(ModuleTopic_EntityTopicTag $oTopicTag) {
-        $sql = "INSERT INTO " . Config::Get('db.table.topic_tag') . "
+
+        $sql = "INSERT INTO ?_topic_tag
 			(topic_id,
 			user_id,
 			blog_id,
@@ -114,9 +118,10 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return  bool
      */
     public function DeleteTopicContentByTopicId($aIds) {
+
         $sql
             = "
-            DELETE FROM " . Config::Get('db.table.topic_content') . "
+            DELETE FROM ?_topic_content
             WHERE topic_id IN (?a) ";
         return ($this->oDb->query($sql, $aIds) !== false);
     }
@@ -129,10 +134,11 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return  bool
      */
     public function DeleteTopicTagsByTopicId($aIds) {
+
         $aIds = $this->_arrayId($aIds);
         $sql
             = "
-            DELETE FROM " . Config::Get('db.table.topic_tag') . "
+            DELETE FROM ?_topic_tag
             WHERE topic_id IN (?a)
         ";
         return ($this->oDb->query($sql, $aIds) !== false);
@@ -147,10 +153,11 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return  bool
      */
     public function DeleteTopic($aIds) {
+
         $aIds = $this->_arrayId($aIds);
         $sql
             = "
-            DELETE FROM " . Config::Get('db.table.topic') . "
+            DELETE FROM ?_topic
             WHERE topic_id IN (?a)
         ";
         return ($this->oDb->query($sql, $aIds) !== false);
@@ -165,7 +172,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return int|null
      */
     public function GetTopicUnique($nUserId, $sHash) {
-        $sql = "SELECT topic_id FROM " . Config::Get('db.table.topic') . "
+
+        $sql = "SELECT topic_id FROM ?_topic
 			WHERE
 				topic_text_hash =?
 				{AND user_id = ?d}
@@ -185,9 +193,10 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return int
      */
     public function GetTopicIdByUrl($sUrl) {
+
         $sql
             = "
-            SELECT topic_id FROM " . Config::Get('db.table.topic') . "
+            SELECT topic_id FROM ?_topic
             WHERE
                 topic_url =?
             LIMIT 0,1
@@ -204,9 +213,10 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return int
      */
     public function GetTopicsIdLikeUrl($sUrl) {
+
         $sql
             = "
-            SELECT topic_id FROM " . Config::Get('db.table.topic') . "
+            SELECT topic_id FROM ?_topic
             WHERE
                 topic_url = '" . $sUrl . "'
                 OR topic_url RLIKE '^" . $sUrl . "-[0-9]+$'
@@ -223,6 +233,7 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return array
      */
     public function GetTopicsByArrayId($aArrayId) {
+
         if (!is_array($aArrayId) || count($aArrayId) == 0) {
             return array();
         }
@@ -232,8 +243,8 @@ class ModuleTopic_MapperTopic extends Mapper {
 					t.*,
 					tc.*
 				FROM 
-					" . Config::Get('db.table.topic') . " as t
-					JOIN  " . Config::Get('db.table.topic_content') . " AS tc ON t.topic_id=tc.topic_id
+					?_topic as t
+					JOIN  ?_topic_content AS tc ON t.topic_id=tc.topic_id
 				WHERE 
 					t.topic_id IN(?a)
 				ORDER BY FIELD(t.topic_id,?a) ";
@@ -257,6 +268,7 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return array
      */
     public function GetTopics($aFilter, &$iCount, $iCurrPage, $iPerPage) {
+
         $sWhere = $this->buildFilter($aFilter);
 
         if (!isset($aFilter['order'])) {
@@ -273,8 +285,8 @@ class ModuleTopic_MapperTopic extends Mapper {
             SELECT
 			    t.topic_id
 			FROM
-			    " . Config::Get('db.table.topic') . " as t,
-				" . Config::Get('db.table.blog') . " as b
+			    ?_topic as t,
+				?_blog as b
 			WHERE
 			    1=1
 				" . $sWhere . "
@@ -292,8 +304,8 @@ class ModuleTopic_MapperTopic extends Mapper {
             SELECT
 			    t.topic_id
 			FROM
-			    " . Config::Get('db.table.topic') . " as t,
-				" . Config::Get('db.table.blog') . " as b
+			    ?_topic as t,
+				?_blog as b
 			WHERE
 			    1=1
 				" . $sWhere . "
@@ -312,13 +324,14 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return int
      */
     public function GetCountTopics($aFilter) {
+
         $sWhere = $this->buildFilter($aFilter);
         $sql
             = "SELECT
 					count(t.topic_id) as count
 				FROM 
-					" . Config::Get('db.table.topic') . " as t,
-					" . Config::Get('db.table.blog') . " as b
+					?_topic as t,
+					?_blog as b
 				WHERE 
 					1=1
 					
@@ -340,6 +353,7 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return array
      */
     public function GetAllTopics($aFilter) {
+
         $sWhere = $this->buildFilter($aFilter);
 
         if (!isset($aFilter['order'])) {
@@ -353,8 +367,8 @@ class ModuleTopic_MapperTopic extends Mapper {
             = "SELECT
 						t.topic_id
 					FROM 
-						" . Config::Get('db.table.topic') . " as t,
-						" . Config::Get('db.table.blog') . " as b
+						?_topic as t,
+						?_blog as b
 					WHERE 
 						1=1
 						" . $sWhere . "
@@ -383,12 +397,13 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return array
      */
     public function GetTopicsByTag($sTag, $aExcludeBlog, &$iCount, $iCurrPage, $iPerPage) {
+
         $sql
             = "
             SELECT
 			    topic_id
 			FROM
-			    " . Config::Get('db.table.topic_tag') . "
+			    ?_topic_tag
 			WHERE
 			    topic_tag_text = ?
 				{ AND blog_id NOT IN (?a) }
@@ -419,11 +434,12 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return array
      */
     public function GetTopicsRatingByDate($sDate, $iLimit, $aExcludeBlog = array()) {
+
         $sql
             = "SELECT
 						t.topic_id
 					FROM 
-						" . Config::Get('db.table.topic') . " as t
+						?_topic as t
 					WHERE
 						t.topic_publish = 1
 						AND
@@ -456,12 +472,13 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return array
      */
     public function GetTopicTags($iLimit, $aExcludeTopic = array()) {
+
         $sql
             = "SELECT
 			tt.topic_tag_text,
 			count(tt.topic_tag_text) as count
 			FROM 
-				" . Config::Get('db.table.topic_tag') . " as tt
+				?_topic_tag as tt
 			WHERE 
 				1=1
 				{AND tt.topic_id NOT IN(?a) }
@@ -499,14 +516,15 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return array
      */
     public function GetOpenTopicTags($iLimit, $iUserId = null) {
+
         $sql
             = "
 			SELECT 
 				tt.topic_tag_text,
 				count(tt.topic_tag_text) as count
 			FROM 
-				" . Config::Get('db.table.topic_tag') . " as tt,
-				" . Config::Get('db.table.blog') . " as b
+				?_topic_tag as tt,
+				?_blog as b
 			WHERE
 				1 = 1
 				{ AND tt.user_id = ?d }
@@ -542,7 +560,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return bool
      */
     public function increaseTopicCountComment($sTopicId) {
-        $sql = "UPDATE " . Config::Get('db.table.topic') . "
+
+        $sql = "UPDATE ?_topic
 			SET 
 				topic_count_comment=topic_count_comment+1
 			WHERE
@@ -560,7 +579,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return bool
      */
     public function UpdateTopic(ModuleTopic_EntityTopic $oTopic) {
-        $sql = "UPDATE " . Config::Get('db.table.topic') . "
+
+        $sql = "UPDATE ?_topic
 			SET 
 				blog_id = ?d,
 				topic_title = ?,
@@ -610,7 +630,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return bool
      */
     public function UpdateTopicContent(ModuleTopic_EntityTopic $oTopic) {
-        $sql = "UPDATE " . Config::Get('db.table.topic_content') . "
+
+        $sql = "UPDATE ?_topic_content
 			SET
 				topic_text= ?,
 				topic_text_short= ?,
@@ -634,6 +655,7 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return string
      */
     protected function buildFilter($aFilter) {
+
         $sWhere = '';
         if (isset($aFilter['topic_date_more'])) {
             $sWhere .= " AND t.topic_date_add >  " . $this->oDb->escape($aFilter['topic_date_more']);
@@ -710,12 +732,13 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return bool
      */
     public function GetTopicTagsByLike($sTag, $iLimit) {
+
         $sTag = mb_strtolower($sTag, 'UTF-8');
         $sql
             = "SELECT
 				topic_tag_text
 			FROM 
-				" . Config::Get('db.table.topic_tag') . "
+				?_topic_tag
 			WHERE
 				topic_tag_text LIKE ?
 			GROUP BY 
@@ -739,7 +762,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return int
      */
     public function UpdateTopicRead(ModuleTopic_EntityTopicRead $oTopicRead) {
-        $sql = "UPDATE " . Config::Get('db.table.topic_read') . "
+
+        $sql = "UPDATE ?_topic_read
 			SET 
 				comment_count_last = ? ,
 				comment_id_last = ? ,
@@ -764,7 +788,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return bool
      */
     public function AddTopicRead(ModuleTopic_EntityTopicRead $oTopicRead) {
-        $sql = "INSERT INTO " . Config::Get('db.table.topic_read') . "
+
+        $sql = "INSERT INTO ?_topic_read
 			SET 
 				comment_count_last = ? ,
 				comment_id_last = ? ,
@@ -788,7 +813,7 @@ class ModuleTopic_MapperTopic extends Mapper {
     public function DeleteTopicReadByArrayId($aIds) {
         $sql
             = "
-			DELETE FROM " . Config::Get('db.table.topic_read') . "
+			DELETE FROM ?_topic_read
 			WHERE topic_id IN(?a)
 		";
         return ($this->oDb->query($sql, $aIds) !== false);
@@ -803,6 +828,7 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return array
      */
     public function GetTopicsReadByArray($aArrayId, $sUserId) {
+
         if (!is_array($aArrayId) || count($aArrayId) == 0) {
             return array();
         }
@@ -811,7 +837,7 @@ class ModuleTopic_MapperTopic extends Mapper {
             = "SELECT
 					t.*
 				FROM 
-					" . Config::Get('db.table.topic_read') . " as t
+					?_topic_read as t
 				WHERE 
 					t.topic_id IN(?a)
 					AND
@@ -834,9 +860,10 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return bool
      */
     public function AddTopicQuestionVote(ModuleTopic_EntityTopicQuestionVote $oTopicQuestionVote) {
+
         $sql
             = "
-            INSERT INTO " . Config::Get('db.table.topic_question_vote') . "
+            INSERT INTO ?_topic_question_vote
                 (topic_id, user_voter_id, answer)
 			VALUES(?d, ?d, ?f)
 		";
@@ -855,6 +882,7 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return array
      */
     public function GetTopicsQuestionVoteByArray($aArrayId, $sUserId) {
+
         if (!is_array($aArrayId) || count($aArrayId) == 0) {
             return array();
         }
@@ -863,10 +891,10 @@ class ModuleTopic_MapperTopic extends Mapper {
             = "SELECT
 					v.*
 				FROM 
-					" . Config::Get('db.table.topic_question_vote') . " as v
+					?_topic_question_vote as v
 				WHERE 
 					v.topic_id IN(?a)
-					AND	
+					AND
 					v.user_voter_id = ?d
 				";
         $aVotes = array();
@@ -967,7 +995,7 @@ class ModuleTopic_MapperTopic extends Mapper {
      */
     public function MoveTopicsTags($sBlogId, $sBlogIdNew) {
 
-        $sql = "UPDATE " . Config::Get('db.table.topic_tag') . "
+        $sql = "UPDATE ?_topic_tag
 			SET 
 				blog_id= ?d
 			WHERE
@@ -991,7 +1019,7 @@ class ModuleTopic_MapperTopic extends Mapper {
             $aTopics = array($aTopics);
         }
 
-        $sql = "UPDATE " . Config::Get('db.table.topic_tag') . "
+        $sql = "UPDATE ?_topic_tag
 			SET 
 				blog_id= ?d
 			WHERE
@@ -1009,6 +1037,7 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return array
      */
     public function GetTopicPhotosByArrayId($aPhotoId) {
+
         if (!is_array($aPhotoId) || count($aPhotoId) == 0) {
             return array();
         }
@@ -1017,7 +1046,7 @@ class ModuleTopic_MapperTopic extends Mapper {
             = "SELECT
 					*
 				FROM 
-					" . Config::Get('db.table.topic_photo') . "
+					?_topic_photo
 				WHERE 
 					id IN(?a)
 				ORDER BY FIELD(id,?a) ";
@@ -1040,8 +1069,9 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return array
      */
     public function getPhotosByTopicId($iTopicId, $iFromId, $iCount) {
+
         $sql
-            = 'SELECT * FROM ' . Config::Get('db.table.topic_photo') . ' WHERE topic_id = ?d {AND id > ?d LIMIT 0, ?d}';
+            = 'SELECT * FROM ?_topic_photo WHERE topic_id = ?d {AND id > ?d LIMIT 0, ?d}';
         $aPhotos = $this->oDb->select($sql, $iTopicId, ($iFromId !== null) ? $iFromId : DBSIMPLE_SKIP, $iCount);
         $aReturn = array();
         if (is_array($aPhotos) && count($aPhotos)) {
@@ -1060,7 +1090,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return array
      */
     public function getPhotosByTargetTmp($sTargetTmp) {
-        $sql = 'SELECT * FROM ' . Config::Get('db.table.topic_photo') . ' WHERE target_tmp = ?';
+
+        $sql = 'SELECT * FROM ?_topic_photo WHERE target_tmp = ?';
         $aPhotos = $this->oDb->select($sql, $sTargetTmp);
         $aReturn = array();
         if (is_array($aPhotos) && count($aPhotos)) {
@@ -1079,7 +1110,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return ModuleTopic_EntityTopicPhoto|null
      */
     public function getTopicPhotoById($iPhotoId) {
-        $sql = 'SELECT * FROM ' . Config::Get('db.table.topic_photo') . ' WHERE id = ?d';
+
+        $sql = 'SELECT * FROM ?_topic_photo WHERE id = ?d';
         $aPhoto = $this->oDb->selectRow($sql, $iPhotoId);
         if ($aPhoto) {
             return Engine::GetEntity('Topic_TopicPhoto', $aPhoto);
@@ -1096,7 +1128,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return int
      */
     public function getCountPhotosByTopicId($iTopicId) {
-        $sql = 'SELECT count(id) FROM ' . Config::Get('db.table.topic_photo') . ' WHERE topic_id = ?d';
+
+        $sql = 'SELECT count(id) FROM ?_topic_photo WHERE topic_id = ?d';
         $aPhotosCount = $this->oDb->selectCol($sql, $iTopicId);
         return $aPhotosCount[0];
     }
@@ -1109,7 +1142,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return int
      */
     public function getCountPhotosByTargetTmp($sTargetTmp) {
-        $sql = 'SELECT count(id) FROM ' . Config::Get('db.table.topic_photo') . ' WHERE target_tmp = ?';
+
+        $sql = 'SELECT count(id) FROM ?_topic_photo WHERE target_tmp = ?';
         $aPhotosCount = $this->oDb->selectCol($sql, $sTargetTmp);
         return $aPhotosCount[0];
     }
@@ -1122,13 +1156,17 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return bool
      */
     public function addTopicPhoto($oPhoto) {
+
         if (!$oPhoto->getTopicId() && !$oPhoto->getTargetTmp()) {
             return false;
         }
         $sTargetType = ($oPhoto->getTopicId()) ? 'topic_id' : 'target_tmp';
         $iTargetId = ($sTargetType == 'topic_id') ? $oPhoto->getTopicId() : $oPhoto->getTargetTmp();
-        $sql = 'INSERT INTO ' . Config::Get('db.table.topic_photo') . ' SET
-                        path = ?, description = ?, ?# = ?';
+
+        $sql = '
+                INSERT INTO ?_topic_photo
+                SET
+                    path = ?, description = ?, ?# = ?';
         return $this->oDb->query($sql, $oPhoto->getPath(), $oPhoto->getDescription(), $sTargetType, $iTargetId);
     }
 
@@ -1140,13 +1178,14 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return  bool
      */
     public function updateTopicPhoto($oPhoto) {
+
         if (!$oPhoto->getTopicId() && !$oPhoto->getTargetTmp()) {
             return false;
         }
         if ($oPhoto->getTopicId()) {
             $oPhoto->setTargetTmp = null;
         }
-        $sql = 'UPDATE ' . Config::Get('db.table.topic_photo') . ' SET
+        $sql = 'UPDATE ?_topic_photo SET
                         path = ?, description = ?, topic_id = ?d, target_tmp=? WHERE id = ?d';
         $bResult = $this->oDb->query(
             $sql, $oPhoto->getPath(), $oPhoto->getDescription(), $oPhoto->getTopicId(), $oPhoto->getTargetTmp(),
@@ -1161,7 +1200,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @param int $iPhotoId    ID фото
      */
     public function deleteTopicPhoto($iPhotoId) {
-        $sql = "DELETE FROM " . Config::Get('db.table.topic_photo') . " WHERE  id= ?d";
+
+        $sql = "DELETE FROM ?_topic_photo WHERE  id= ?d";
         return $this->oDb->query($sql, $iPhotoId) !== false;
     }
 
@@ -1171,12 +1211,13 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return bool
      */
     public function RecalculateFavourite() {
+
         $sql
             = "
-                UPDATE " . Config::Get('db.table.topic') . " t
+                UPDATE ?_topic t
                 SET t.topic_count_favourite = (
                     SELECT count(f.user_id)
-                    FROM " . Config::Get('db.table.favourite') . " f
+                    FROM ?_favourite f
                     WHERE 
                         f.target_id = t.topic_id
                     AND
@@ -1195,12 +1236,13 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return bool
      */
     public function RecalculateVote() {
+
         $sql
             = "
-                UPDATE " . Config::Get('db.table.topic') . " t
+                UPDATE ?_topic t
                 SET t.topic_count_vote_up = (
                     SELECT count(*)
-                    FROM " . Config::Get('db.table.vote') . " v
+                    FROM ?_vote v
                     WHERE
                         v.target_id = t.topic_id
                     AND
@@ -1209,7 +1251,7 @@ class ModuleTopic_MapperTopic extends Mapper {
                         v.target_type = 'topic'
                 ), t.topic_count_vote_down = (
                     SELECT count(*)
-                    FROM " . Config::Get('db.table.vote') . " v
+                    FROM ?_vote v
                     WHERE
                         v.target_id = t.topic_id
                     AND
@@ -1218,7 +1260,7 @@ class ModuleTopic_MapperTopic extends Mapper {
                         v.target_type = 'topic'
                 ), t.topic_count_vote_abstain = (
                     SELECT count(*)
-                    FROM " . Config::Get('db.table.vote') . " v
+                    FROM ?_vote v
                     WHERE
                         v.target_id = t.topic_id
                     AND
@@ -1240,11 +1282,12 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return array
      */
     public function getContentTypes($aFilter) {
+
         $sql
             = "SELECT
 						*
 					FROM
-						" . Config::Get('db.table.content') . "
+						?_content
 					WHERE
 						1=1
 						{ AND content_active = ?d }
@@ -1272,7 +1315,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return int|bool
      */
     public function AddContentType(ModuleTopic_EntityContent $oType) {
-        $sql = "INSERT INTO " . Config::Get('db.table.content') . "
+
+        $sql = "INSERT INTO ?_content
 			(content_title,
 			content_title_decl,
 			content_url,
@@ -1280,7 +1324,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 			content_access,
 			content_config
 			)
-			VALUES(	?,	?,	?,  ?d, ?d, ?)
+			VALUES(?, ?, ?, ?d, ?d, ?)
 		";
         if ($iId = $this->oDb->query(
             $sql,
@@ -1306,7 +1350,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return bool
      */
     public function UpdateContentType(ModuleTopic_EntityContent $oType) {
-        $sql = "UPDATE " . Config::Get('db.table.content') . "
+
+        $sql = "UPDATE ?_content
 			SET
 				content_title=?,
 				content_title_decl=?,
@@ -1342,11 +1387,12 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return ModuleTopic_EntityContent|null
      */
     public function getContentTypeById($nId) {
+
         $sql
             = "SELECT
 						*
 					FROM
-						" . Config::Get('db.table.content') . "
+						?_content
 					WHERE
 						content_id = ?d
 					";
@@ -1364,11 +1410,12 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return ModuleTopic_EntityContent|null
      */
     public function getContentTypeByUrl($sUrl) {
+
         $sql
             = "SELECT
 						*
 					FROM
-						" . Config::Get('db.table.content') . "
+						?_content
 					WHERE
 						content_url = ?
 					";
@@ -1387,7 +1434,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return bool
      */
     public function changeType($sTypeOld, $sTypeNew) {
-        $sql = "UPDATE " . Config::Get('db.table.topic') . "
+
+        $sql = "UPDATE ?_topic
 			SET
 				topic_type = ?
 			WHERE
@@ -1406,7 +1454,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return int|bool
      */
     public function AddContentField(ModuleTopic_EntityField $oField) {
-        $sql = "INSERT INTO " . Config::Get('db.table.content_field') . "
+
+        $sql = "INSERT INTO ?_content_field
 			(
 			content_id,
 			field_name,
@@ -1443,7 +1492,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return bool
      */
     public function UpdateContentField(ModuleTopic_EntityField $oField) {
-        $sql = "UPDATE " . Config::Get('db.table.content_field') . "
+
+        $sql = "UPDATE ?_content_field
 			SET
 				content_id=?d,
 				field_name=?,
@@ -1480,11 +1530,12 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return array
      */
     public function getContentFields($aFilter) {
+
         $sql
             = "SELECT
 						*
 					FROM
-						" . Config::Get('db.table.content_field') . "
+						?_content_field
 					WHERE
 						1=1
 						{ AND content_id = ?d }
@@ -1509,6 +1560,7 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @TODO рефакторинг + solid
      */
     public function GetFieldsByArrayId($aArrayId) {
+
         if (!is_array($aArrayId) || count($aArrayId) == 0) {
             return array();
         }
@@ -1517,7 +1569,7 @@ class ModuleTopic_MapperTopic extends Mapper {
             = "SELECT
 					*
 				FROM
-					" . Config::Get('db.table.content_field') . "
+					?_content_field
 				WHERE
 					content_id IN(?a)
 				";
@@ -1538,11 +1590,12 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return ModuleTopic_EntityField|null
      */
     public function getContentFieldById($nId) {
+
         $sql
             = "SELECT
 						*
 					FROM
-						" . Config::Get('db.table.content_field') . "
+						?_content_field
 					WHERE
 						field_id = ?d
 					";
@@ -1560,7 +1613,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return bool
      */
     public function DeleteField($oField) {
-        $sql = "DELETE FROM " . Config::Get('db.table.content_field') . "
+
+        $sql = "DELETE FROM ?_content_field
 			WHERE
 				field_id = ?d
 		";
@@ -1576,7 +1630,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return bool
      */
     public function DeleteTopicValuesByTopicId($sTopicId) {
-        $sql = "DELETE FROM " . Config::Get('db.table.content_values') . "
+
+        $sql = "DELETE FROM ?_content_values
 			WHERE
 				target_id = ?d
 				AND
@@ -1593,7 +1648,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return int
      */
     public function AddTopicValue(ModuleTopic_EntityContentValues $oValue) {
-        $sql = "INSERT INTO " . Config::Get('db.table.content_values') . "
+
+        $sql = "INSERT INTO ?_content_values
 			(target_id,
 			target_type,
 			field_id,
@@ -1625,7 +1681,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @return bool
      */
     public function UpdateContentFieldValue(ModuleTopic_EntityContentValues $oValue) {
-        $sql = "UPDATE " . Config::Get('db.table.content_values') . "
+
+        $sql = "UPDATE ?_content_values
 			SET
 				value=?,
 				value_varchar=?,
@@ -1652,6 +1709,7 @@ class ModuleTopic_MapperTopic extends Mapper {
      * @TODO рефакторинг + solid
      */
     public function GetTopicValuesByArrayId($aArrayId) {
+
         if (!is_array($aArrayId) || count($aArrayId) == 0) {
             return array();
         }
@@ -1660,7 +1718,7 @@ class ModuleTopic_MapperTopic extends Mapper {
             = "SELECT
 					*
 				FROM
-					" . Config::Get('db.table.content_values') . "
+					?_content_values
 				WHERE
 					target_id IN(?a)
 					AND
@@ -1674,6 +1732,7 @@ class ModuleTopic_MapperTopic extends Mapper {
         }
         return $aFields;
     }
+
 }
 
 // EOF

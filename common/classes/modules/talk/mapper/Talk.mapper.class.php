@@ -20,6 +20,7 @@
  * @since   1.0
  */
 class ModuleTalk_MapperTalk extends Mapper {
+
     /**
      * Добавляет новую тему разговора
      *
@@ -28,7 +29,8 @@ class ModuleTalk_MapperTalk extends Mapper {
      * @return int|bool
      */
     public function AddTalk(ModuleTalk_EntityTalk $oTalk) {
-        $sql = "INSERT INTO " . Config::Get('db.table.talk') . "
+
+        $sql = "INSERT INTO ?_talk
 			(user_id,
 			talk_title,
 			talk_text,
@@ -55,11 +57,12 @@ class ModuleTalk_MapperTalk extends Mapper {
      * @param int $iTalkId    ID разговора
      */
     public function DeleteTalk($iTalkId) {
+
         // Удаление беседы
-        $sql = 'DELETE FROM ' . Config::Get('db.table.talk') . '  WHERE talk_id = ?d';
+        $sql = 'DELETE FROM ?_talk  WHERE talk_id = ?d';
         $this->oDb->query($sql, $iTalkId);
         // Физическое удаление пользователей беседы (не флагом)
-        $sql = 'DELETE FROM ' . Config::Get('db.table.talk_user') . '  WHERE talk_id = ?d';
+        $sql = 'DELETE FROM ?_talk_user  WHERE talk_id = ?d';
         $this->oDb->query($sql, $iTalkId);
     }
 
@@ -71,7 +74,8 @@ class ModuleTalk_MapperTalk extends Mapper {
      * @return int
      */
     public function UpdateTalk(ModuleTalk_EntityTalk $oTalk) {
-        $sql = "UPDATE " . Config::Get('db.table.talk') . " SET
+
+        $sql = "UPDATE ?_talk SET
 				talk_date_last = ? ,
 				talk_user_id_last = ? ,
 				talk_comment_id_last = ? ,
@@ -94,7 +98,8 @@ class ModuleTalk_MapperTalk extends Mapper {
      * @return array
      */
     public function GetTalksByArrayId($aArrayId) {
-        if (!is_array($aArrayId) or count($aArrayId) == 0) {
+
+        if (!is_array($aArrayId) || count($aArrayId) == 0) {
             return array();
         }
 
@@ -102,7 +107,7 @@ class ModuleTalk_MapperTalk extends Mapper {
             = "SELECT
 					t.*
 				FROM 
-					" . Config::Get('db.table.talk') . " as t
+					?_talk as t
 				WHERE 
 					t.talk_id IN(?a)
 				ORDER BY FIELD(t.talk_id,?a) ";
@@ -124,7 +129,8 @@ class ModuleTalk_MapperTalk extends Mapper {
      * @return array
      */
     public function GetTalkUserByArray($aArrayId, $sUserId) {
-        if (!is_array($aArrayId) or count($aArrayId) == 0) {
+
+        if (!is_array($aArrayId) || count($aArrayId) == 0) {
             return array();
         }
 
@@ -132,7 +138,7 @@ class ModuleTalk_MapperTalk extends Mapper {
             = "SELECT
 					t.*
 				FROM 
-					" . Config::Get('db.table.talk_user') . " as t
+					?_talk_user as t
 				WHERE 
 					t.talk_id IN(?a)
 					AND
@@ -161,8 +167,8 @@ class ModuleTalk_MapperTalk extends Mapper {
 				t.*,
 				u.user_login as user_login
 				FROM 
-					" . Config::Get('db.table.talk') . " as t,
-					" . Config::Get('db.table.user') . " as u
+					?_talk as t,
+					?_user as u
 				WHERE 
 					t.talk_id = ?d
 					AND
@@ -183,7 +189,8 @@ class ModuleTalk_MapperTalk extends Mapper {
      * @return bool
      */
     public function AddTalkUser(ModuleTalk_EntityTalkUser $oTalkUser) {
-        $sql = "INSERT INTO " . Config::Get('db.table.talk_user') . "
+
+        $sql = "INSERT INTO ?_talk_user
 			(talk_id,
 			user_id,
 			date_last,
@@ -215,7 +222,8 @@ class ModuleTalk_MapperTalk extends Mapper {
      * @return bool
      */
     public function UpdateTalkUser(ModuleTalk_EntityTalkUser $oTalkUser) {
-        $sql = "UPDATE " . Config::Get('db.table.talk_user') . "
+
+        $sql = "UPDATE ?_talk_user
 			SET 
 				date_last = ?,
 				comment_id_last = ?d,
@@ -249,12 +257,13 @@ class ModuleTalk_MapperTalk extends Mapper {
      * @return bool
      */
     public function DeleteTalkUserByArray($aTalkId, $sUserId, $iActive) {
+
         if (!is_array($aTalkId)) {
             $aTalkId = array($aTalkId);
         }
         $sql
             = "
-			UPDATE " . Config::Get('db.table.talk_user') . "
+			UPDATE ?_talk_user
 			SET 
 				talk_user_active = ?d
 			WHERE
@@ -274,12 +283,13 @@ class ModuleTalk_MapperTalk extends Mapper {
      * @return bool
      */
     public function GetCountCommentNew($sUserId) {
+
         $sql
             = "
 			SELECT
 				SUM(tu.comment_count_new) as count_new
 			FROM
-  				" . Config::Get('db.table.talk_user') . " as tu
+  				?_talk_user as tu
 			WHERE
   				tu.user_id = ?d
   				AND
@@ -299,12 +309,13 @@ class ModuleTalk_MapperTalk extends Mapper {
      * @return int
      */
     public function GetCountTalkNew($sUserId) {
+
         $sql
             = "
 			SELECT
 			    COUNT(tu.talk_id) as count_new
 			FROM
-  				" . Config::Get('db.table.talk_user') . " as tu
+  				?_talk_user as tu
 			WHERE
 				tu.user_id = ?d
   				AND
@@ -329,18 +340,19 @@ class ModuleTalk_MapperTalk extends Mapper {
      * @return array
      */
     public function GetTalksByUserId($sUserId, &$iCount, $iCurrPage, $iPerPage) {
+
         $sql
             = "SELECT
 					tu.talk_id
 				FROM 
-					" . Config::Get('db.table.talk_user') . " as tu,
-					" . Config::Get('db.table.talk') . " as t
+					?_talk_user as tu,
+					?_talk as t
 				WHERE 
 					tu.user_id = ?d 
 					AND
 					tu.talk_id=t.talk_id
 					AND
-					tu.talk_user_active = ?d	
+					tu.talk_user_active = ?d
 				ORDER BY t.talk_date_last desc, t.talk_date desc
 				LIMIT ?d, ?d
 					";
@@ -366,12 +378,13 @@ class ModuleTalk_MapperTalk extends Mapper {
      * @return array
      */
     public function GetUsersTalk($sTalkId, $aUserActive = array()) {
+
         $sql
             = "
 			SELECT 
 				user_id
 			FROM 
-				" . Config::Get('db.table.talk_user') . "
+				?_talk_user
 			WHERE
 				talk_id = ? 
 				{ AND talk_user_active IN(?a) }
@@ -399,13 +412,14 @@ class ModuleTalk_MapperTalk extends Mapper {
      * @return int
      */
     public function increaseCountCommentNew($sTalkId, $aExcludeId) {
-        if (!is_null($aExcludeId) and !is_array($aExcludeId)) {
+
+        if (!is_null($aExcludeId) && !is_array($aExcludeId)) {
             $aExcludeId = array($aExcludeId);
         }
 
         $sql
             = "UPDATE
-				" . Config::Get('db.table.talk_user') . "
+				?_talk_user
 				SET comment_count_new=comment_count_new+1 
 			WHERE
 				talk_id = ? 
@@ -427,7 +441,7 @@ class ModuleTalk_MapperTalk extends Mapper {
 			SELECT 
 				t.* 
 			FROM 
-				" . Config::Get('db.table.talk_user') . " as t
+				?_talk_user as t
 			WHERE
 				talk_id = ? 
 			";
@@ -452,16 +466,17 @@ class ModuleTalk_MapperTalk extends Mapper {
      * @return array('collection'=>array,'count'=>int)
      */
     public function GetTalksByFilter($aFilter, &$iCount, $iCurrPage, $iPerPage) {
-        if (isset($aFilter['id']) and !is_array($aFilter['id'])) {
+
+        if (isset($aFilter['id']) && !is_array($aFilter['id'])) {
             $aFilter['id'] = array($aFilter['id']);
         }
         $sql
             = "SELECT
 					tu.talk_id
 				FROM 
-					" . Config::Get('db.table.talk_user') . " as tu,
-					" . Config::Get('db.table.talk') . " as t,
-					" . Config::Get('db.table.user') . " as u
+					?_talk_user as tu,
+					?_talk as t,
+					?_user as u
 				WHERE 
 					tu.talk_id=t.talk_id
 					AND tu.talk_user_active = ?d
@@ -476,7 +491,7 @@ class ModuleTalk_MapperTalk extends Mapper {
 					{ AND u.user_login = ? }
 					{ AND t.user_id = ? }
 				ORDER BY t.talk_date_last desc, t.talk_date desc
-				LIMIT ?d, ?d	
+				LIMIT ?d, ?d
 					";
 
         $aTalks = array();
@@ -485,7 +500,7 @@ class ModuleTalk_MapperTalk extends Mapper {
             $sql,
             ModuleTalk::TALK_USER_ACTIVE,
             (!empty($aFilter['user_id']) ? $aFilter['user_id'] : DBSIMPLE_SKIP),
-            ((isset($aFilter['id']) and count($aFilter['id'])) ? $aFilter['id'] : DBSIMPLE_SKIP),
+            ((isset($aFilter['id']) && count($aFilter['id'])) ? $aFilter['id'] : DBSIMPLE_SKIP),
             (!empty($aFilter['only_new']) ? 0 : DBSIMPLE_SKIP),
             (!empty($aFilter['date_max']) ? $aFilter['date_max'] : DBSIMPLE_SKIP),
             (!empty($aFilter['date_min']) ? $aFilter['date_min'] : DBSIMPLE_SKIP),
@@ -512,11 +527,12 @@ class ModuleTalk_MapperTalk extends Mapper {
      * @return array
      */
     public function GetBlacklistByUserId($sUserId) {
+
         $sql
             = "SELECT
 					tb.user_target_id
 				FROM 
-					" . Config::Get('db.table.talk_blacklist') . " as tb
+					?_talk_blacklist as tb
 				WHERE 
 					tb.user_id = ?d";
         $aTargetId = array();
@@ -536,11 +552,12 @@ class ModuleTalk_MapperTalk extends Mapper {
      * @return array
      */
     public function GetBlacklistByTargetId($sUserId) {
+
         $sql
             = "SELECT
 					tb.user_id
 				FROM 
-					" . Config::Get('db.table.talk_blacklist') . " as tb
+					?_talk_blacklist as tb
 				WHERE 
 					tb.user_target_id = ?d";
         $aUserId = array();
@@ -561,9 +578,10 @@ class ModuleTalk_MapperTalk extends Mapper {
      * @return bool
      */
     public function AddUserToBlacklist($sTargetId, $sUserId) {
+
         $sql
             = "
-			INSERT INTO " . Config::Get('db.table.talk_blacklist') . "
+			INSERT INTO ?_talk_blacklist
 				( user_id, user_target_id )
 			VALUES
 				(?d, ?d)
@@ -583,9 +601,10 @@ class ModuleTalk_MapperTalk extends Mapper {
      * @return bool
      */
     public function DeleteUserFromBlacklist($sTargetId, $sUserId) {
+
         $sql
             = "
-			DELETE FROM " . Config::Get('db.table.talk_blacklist') . "
+			DELETE FROM ?_talk_blacklist
 			WHERE
 				user_id = ?d
 			AND
@@ -606,9 +625,10 @@ class ModuleTalk_MapperTalk extends Mapper {
      * @return bool
      */
     public function AddUserArrayToBlacklist($aTargetId, $sUserId) {
+
         $sql
             = "
-			INSERT INTO " . Config::Get('db.table.talk_blacklist') . "
+			INSERT INTO ?_talk_blacklist
 				( user_id, user_target_id )
 			VALUES
 				(?d, ?d)

@@ -18,7 +18,7 @@
 class PluginProfiler_ModuleProfiler_MapperProfiler extends Mapper {
 
 	public function AddEntry(PluginProfiler_ModuleProfiler_EntityEntry $oEntry) {
-		$sql = "INSERT IGNORE INTO ".Config::Get('db.table.profiler')." 
+		$sql = "INSERT IGNORE INTO ?_profiler
 			(request_date,
 			request_id,
 			time_full,
@@ -38,7 +38,7 @@ class PluginProfiler_ModuleProfiler_MapperProfiler extends Mapper {
 			SELECT 
 				MAX(request_date) as max_date,
 				COUNT(*) as count 
-			FROM ".Config::Get('db.table.profiler') ."
+			FROM ?_profiler
 		";
 
 		if($aData = $this->oDb->selectRow($sql)) {
@@ -63,7 +63,7 @@ class PluginProfiler_ModuleProfiler_MapperProfiler extends Mapper {
 					MAX(time_full) as time_full, 
 					COUNT(time_id) as count_time_id,
 					MIN(request_date) as request_date
-				FROM ".Config::Get('db.table.profiler')."
+				FROM ?_profiler
 				WHERE 
 					1=1
 					{ AND request_date >= ? }
@@ -100,9 +100,9 @@ class PluginProfiler_ModuleProfiler_MapperProfiler extends Mapper {
 				COUNT(pc.time_id) as child_count,
 				pp.time_full as parent_time_full
 			FROM
-				".Config::Get('db.table.profiler')." as p
-			LEFT JOIN ".Config::Get('db.table.profiler')." as pc ON p.request_id=pc.request_id AND p.time_id = pc.time_pid
-			LEFT JOIN ".Config::Get('db.table.profiler')." AS pp  ON p.request_id=pp.request_id AND p.time_pid = pp.time_id
+				?_profiler as p
+			LEFT JOIN ?_profiler as pc ON p.request_id=pc.request_id AND p.time_id = pc.time_pid
+			LEFT JOIN ?_profiler AS pp  ON p.request_id=pp.request_id AND p.time_pid = pp.time_id
 			WHERE
 				p.request_id=?
 				{ AND p.time_pid=?d }
@@ -118,7 +118,7 @@ class PluginProfiler_ModuleProfiler_MapperProfiler extends Mapper {
 	public function GetReportStatById($sReportId) {
 		$sql = "
 			SELECT time_full, time_name, time_comment
-			FROM ".Config::Get('db.table.profiler')."
+			FROM ?_profiler
 			WHERE request_id=?
 		";
 
@@ -136,7 +136,7 @@ class PluginProfiler_ModuleProfiler_MapperProfiler extends Mapper {
 	 */
 	public function DeleteEntryByRequestId($aIds) {
 		$sql = "
-			DELETE FROM ".Config::Get('db.table.profiler')."
+			DELETE FROM ?_profiler
 			WHERE request_id IN(?a)
 		";
 

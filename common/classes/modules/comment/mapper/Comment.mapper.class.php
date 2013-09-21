@@ -36,15 +36,15 @@ class ModuleComment_MapperComment extends Mapper {
         $sDate, $sTargetType, $iLimit, $aExcludeTarget = array(), $aExcludeParentTarget = array()
     ) {
         $sql = "SELECT
-					comment_id				
+					comment_id
 				FROM 
-					" . Config::Get('db.table.comment') . "
+					?_comment
 				WHERE 
-					target_type = ? 	
+					target_type = ?
 					AND 
-					comment_date >= ?	
+					comment_date >= ?
 					AND 
-					comment_rating >= 0			 
+					comment_rating >= 0
 					AND
 					comment_delete = 0
 					AND 
@@ -80,7 +80,7 @@ class ModuleComment_MapperComment extends Mapper {
      * @return int|null
      */
     public function GetCommentUnique($sTargetId, $sTargetType, $sUserId, $sCommentPid, $sHash) {
-        $sql = "SELECT comment_id FROM " . Config::Get('db.table.comment') . "
+        $sql = "SELECT comment_id FROM ?_comment
 			WHERE 
 				target_id = ?d 
 				AND
@@ -117,7 +117,7 @@ class ModuleComment_MapperComment extends Mapper {
         $sql = "SELECT
 					comment_id 				
 				FROM 
-					" . Config::Get('db.table.comment') . "
+					?_comment
 				WHERE 								
 					target_type = ?
 					AND
@@ -158,7 +158,7 @@ class ModuleComment_MapperComment extends Mapper {
         $sql = "SELECT
 					*				
 				FROM 
-					" . Config::Get('db.table.comment') . "
+					?_comment
 				WHERE 	
 					comment_id IN(?a) 					
 				ORDER by FIELD(comment_id,?a)";
@@ -184,7 +184,7 @@ class ModuleComment_MapperComment extends Mapper {
         $sql = "SELECT
 					comment_id	
 				FROM 
-					" . Config::Get('db.table.comment_online') . "
+					?_comment_online
 				WHERE 												
 					target_type = ?
 				{ AND target_parent_id NOT IN(?a) }
@@ -216,7 +216,7 @@ class ModuleComment_MapperComment extends Mapper {
         $aTargetsId = $this->_arrayId($aTargetsId);
         $sql = "
             SELECT comment_id
-            FROM " . Config::Get('db.table.comment') . "
+            FROM ?_comment
             WHERE   target_id IN (?a) AND target_type = ?
         ";
         return ($this->oDb->selectCol($sql, $aTargetsId, $sTargetType) !== false);
@@ -236,7 +236,7 @@ class ModuleComment_MapperComment extends Mapper {
 					comment_id as ARRAY_KEY,
 					comment_pid as PARENT_KEY
 				FROM 
-					" . Config::Get('db.table.comment') . "
+					?_comment
 				WHERE 
 					target_id = ?d 
 					AND			
@@ -261,7 +261,7 @@ class ModuleComment_MapperComment extends Mapper {
         $sql = "SELECT
 					comment_id 
 				FROM 
-					" . Config::Get('db.table.comment') . "
+					?_comment
 				WHERE 
 					target_id = ?d 
 					AND			
@@ -297,7 +297,7 @@ class ModuleComment_MapperComment extends Mapper {
 					comment_left,
 					comment_right 
 				FROM 
-					" . Config::Get('db.table.comment') . "
+					?_comment
 				WHERE 
 					target_id = ?d 
 					AND			
@@ -324,7 +324,7 @@ class ModuleComment_MapperComment extends Mapper {
         $sql = "SELECT
 					comment_id 
 				FROM 
-					" . Config::Get('db.table.comment') . "
+					?_comment
 				WHERE 
 					target_id = ?d 
 					AND			
@@ -357,7 +357,7 @@ class ModuleComment_MapperComment extends Mapper {
         $sql = "SELECT
 					count(comment_id) as c
 				FROM 
-					" . Config::Get('db.table.comment') . "
+					?_comment
 				WHERE 
 					target_id = ?d 
 					AND			
@@ -383,7 +383,7 @@ class ModuleComment_MapperComment extends Mapper {
         $sql = "SELECT
 					count(comment_id) as c
 				FROM 
-					" . Config::Get('db.table.comment') . "
+					?_comment
 				WHERE 
 					target_id = ?d 
 					AND			
@@ -411,7 +411,7 @@ class ModuleComment_MapperComment extends Mapper {
         $sql = "SELECT
 					*
 				FROM 
-					" . Config::Get('db.table.comment') . "
+					?_comment
 				WHERE 
 					target_id = ?d 
 					AND			
@@ -443,7 +443,7 @@ class ModuleComment_MapperComment extends Mapper {
         $sql = "SELECT
 					comment_id
 				FROM 
-					" . Config::Get('db.table.comment') . "
+					?_comment
 				WHERE 
 					target_id = ?d 
 					AND			
@@ -480,7 +480,7 @@ class ModuleComment_MapperComment extends Mapper {
         $sql = "SELECT
 					comment_id 					
 				FROM 
-					" . Config::Get('db.table.comment') . "
+					?_comment
 				WHERE 
 					user_id = ?d 
 					AND
@@ -525,7 +525,7 @@ class ModuleComment_MapperComment extends Mapper {
         $sql = "SELECT
 					count(comment_id) as count					
 				FROM 
-					" . Config::Get('db.table.comment') . "
+					?_comment
 				WHERE 
 					user_id = ?d 
 					AND
@@ -556,7 +556,7 @@ class ModuleComment_MapperComment extends Mapper {
      * @return bool|int
      */
     public function AddComment(ModuleComment_EntityComment $oComment) {
-        $sql = "INSERT INTO " . Config::Get('db.table.comment') . "
+        $sql = "INSERT INTO ?_comment
 			(comment_pid,
 			target_id,
 			target_type,
@@ -596,11 +596,9 @@ class ModuleComment_MapperComment extends Mapper {
             $iLeft = $oCommentParent->getRight();
             $iLevel = $oCommentParent->getLevel() + 1;
 
-            $sql = "UPDATE " . Config::Get('db.table.comment')
-                . " SET comment_left=comment_left+2 WHERE target_id=?d and target_type=? and comment_left>? ;";
+            $sql = "UPDATE ?_comment SET comment_left=comment_left+2 WHERE target_id=?d and target_type=? and comment_left>? ;";
             $this->oDb->query($sql, $oComment->getTargetId(), $oComment->getTargetType(), $iLeft - 1);
-            $sql = "UPDATE " . Config::Get('db.table.comment')
-                . " SET comment_right=comment_right+2 WHERE target_id=?d and target_type=? and comment_right>? ;";
+            $sql = "UPDATE ?_comment SET comment_right=comment_right+2 WHERE target_id=?d and target_type=? and comment_right>? ;";
             $this->oDb->query($sql, $oComment->getTargetId(), $oComment->getTargetType(), $iLeft - 1);
         } else {
             if ($oCommentLast = $this->GetCommentLast($oComment->getTargetId(), $oComment->getTargetType())) {
@@ -612,8 +610,7 @@ class ModuleComment_MapperComment extends Mapper {
         }
 
         if ($iId = $this->AddComment($oComment)) {
-            $sql = "UPDATE " . Config::Get('db.table.comment')
-                . " SET comment_left = ?d, comment_right = ?d, comment_level = ?d WHERE comment_id = ? ;";
+            $sql = "UPDATE ?_comment SET comment_left = ?d, comment_right = ?d, comment_level = ?d WHERE comment_id = ? ;";
             $this->oDb->query($sql, $iLeft, $iLeft + 1, $iLevel, $iId);
             $this->oDb->commit();
             return $iId;
@@ -635,7 +632,7 @@ class ModuleComment_MapperComment extends Mapper {
      * @return ModuleComment_EntityComment|null
      */
     public function GetCommentLast($sTargetId, $sTargetType) {
-        $sql = "SELECT * FROM " . Config::Get('db.table.comment') . "
+        $sql = "SELECT * FROM ?_comment
 			WHERE 
 				target_id = ?d 
 				AND
@@ -657,7 +654,7 @@ class ModuleComment_MapperComment extends Mapper {
      * @return bool|int
      */
     public function AddCommentOnline(ModuleComment_EntityCommentOnline $oCommentOnline) {
-        $sql = "REPLACE INTO " . Config::Get('db.table.comment_online') . "
+        $sql = "REPLACE INTO ?_comment_online
 			SET 
 				target_id= ?d ,			
 				target_type= ? ,
@@ -683,7 +680,7 @@ class ModuleComment_MapperComment extends Mapper {
      * @return bool
      */
     public function DeleteCommentOnlineByTargetId($sTargetId, $sTargetType) {
-        $sql = "DELETE FROM " . Config::Get('db.table.comment_online') . " WHERE target_id = ?d and target_type = ? ";
+        $sql = "DELETE FROM ?_comment_online WHERE target_id = ?d and target_type = ? ";
         if ($this->oDb->query($sql, $sTargetId, $sTargetType)) {
             return true;
         }
@@ -698,7 +695,7 @@ class ModuleComment_MapperComment extends Mapper {
      * @return bool
      */
     public function UpdateComment(ModuleComment_EntityComment $oComment) {
-        $sql = "UPDATE " . Config::Get('db.table.comment') . "
+        $sql = "UPDATE ?_comment
 			SET 
 				comment_text= ?,
 				comment_rating= ?f,
@@ -737,7 +734,7 @@ class ModuleComment_MapperComment extends Mapper {
      * @return bool
      */
     public function SetCommentsPublish($sTargetId, $sTargetType, $iPublish) {
-        $sql = "UPDATE " . Config::Get('db.table.comment') . "
+        $sql = "UPDATE ?_comment
 			SET 
 				comment_publish = ?
 			WHERE
@@ -758,7 +755,7 @@ class ModuleComment_MapperComment extends Mapper {
     public function DeleteCommentByTargetId($aTargetsId, $sTargetType) {
         $aTargetsId = $this->_arrayId($aTargetsId);
         $sql = "
-			DELETE FROM " . Config::Get('db.table.comment') . "
+			DELETE FROM ?_comment
 			WHERE
 				target_id IN (?a)
 				AND
@@ -778,7 +775,7 @@ class ModuleComment_MapperComment extends Mapper {
     public function DeleteCommentOnlineByArrayId($aCommentsId, $sTargetType) {
         $aCommentsId = $this->_arrayId($aCommentsId);
         $sql = "
-			DELETE FROM " . Config::Get('db.table.comment_online') . "
+			DELETE FROM ?_comment_online
 			WHERE 
 				comment_id IN (?a) 
 				AND 
@@ -798,7 +795,7 @@ class ModuleComment_MapperComment extends Mapper {
      */
     public function UpdateTargetParentByTargetId($sParentId, $sTargetType, $aTargetId) {
         $sql = "
-			UPDATE " . Config::Get('db.table.comment') . "
+			UPDATE ?_comment
 			SET 
 				target_parent_id = ?d
 			WHERE 
@@ -821,7 +818,7 @@ class ModuleComment_MapperComment extends Mapper {
      */
     public function UpdateTargetParentByTargetIdOnline($sParentId, $sTargetType, $aTargetId) {
         $sql = "
-			UPDATE " . Config::Get('db.table.comment_online') . "
+			UPDATE ?_comment_online
 			SET 
 				target_parent_id = ?d
 			WHERE 
@@ -844,7 +841,7 @@ class ModuleComment_MapperComment extends Mapper {
      */
     public function MoveTargetParent($sParentId, $sTargetType, $sParentIdNew) {
         $sql = "
-			UPDATE " . Config::Get('db.table.comment') . "
+			UPDATE ?_comment
 			SET 
 				target_parent_id = ?d
 			WHERE 
@@ -867,7 +864,7 @@ class ModuleComment_MapperComment extends Mapper {
      */
     public function MoveTargetParentOnline($sParentId, $sTargetType, $sParentIdNew) {
         $sql = "
-			UPDATE " . Config::Get('db.table.comment_online') . "
+			UPDATE ?_comment_online
 			SET 
 				target_parent_id = ?d
 			WHERE 
@@ -894,7 +891,7 @@ class ModuleComment_MapperComment extends Mapper {
     public function RestoreTree($iPid, $iLft, $iLevel, $aTargetId, $sTargetType) {
         $iRgt = $iLft + 1;
         $iLevel++;
-        $sql = "SELECT comment_id FROM " . Config::Get('db.table.comment') . " WHERE target_id = ? and target_type = ? { and comment_pid = ?  } { and comment_pid IS NULL and 1=?d}
+        $sql = "SELECT comment_id FROM ?_comment WHERE target_id = ? and target_type = ? { and comment_pid = ?  } { and comment_pid IS NULL and 1=?d}
 				ORDER BY  comment_id ASC";
 
         if ($aRows = $this->oDb->select(
@@ -907,7 +904,7 @@ class ModuleComment_MapperComment extends Mapper {
         }
         $iLevel--;
         if (!is_null($iPid)) {
-            $sql = "UPDATE " . Config::Get('db.table.comment') . "
+            $sql = "UPDATE ?_comment
 				SET comment_left=?d, comment_right=?d , comment_level =?d
 				WHERE comment_id = ? ";
             $this->oDb->query($sql, $iLft, $iRgt, $iLevel, $iPid);
@@ -922,7 +919,7 @@ class ModuleComment_MapperComment extends Mapper {
      * @return array
      */
     public function GetCommentTypes() {
-        $sql = "SELECT target_type FROM " . Config::Get('db.table.comment') . "
+        $sql = "SELECT target_type FROM ?_comment
 			GROUP BY target_type ";
         $aTypes = array();
         if ($aRows = $this->oDb->select($sql)) {
@@ -943,7 +940,7 @@ class ModuleComment_MapperComment extends Mapper {
      * @return array
      */
     public function GetTargetIdByType($sTargetType, $iPage, $iPerPage) {
-        $sql = "SELECT target_id FROM " . Config::Get('db.table.comment') . "
+        $sql = "SELECT target_id FROM ?_comment
 			WHERE  target_type = ? GROUP BY target_id ORDER BY target_id LIMIT ?d, ?d ";
         if ($aRows = $this->oDb->select($sql, $sTargetType, ($iPage - 1) * $iPerPage, $iPerPage)) {
             return $aRows;
@@ -958,10 +955,10 @@ class ModuleComment_MapperComment extends Mapper {
      */
     public function RecalculateFavourite() {
         $sql = "
-            UPDATE " . Config::Get('db.table.comment') . " c
+            UPDATE ?_comment c
             SET c.comment_count_favourite = (
                 SELECT count(f.user_id)
-                FROM " . Config::Get('db.table.favourite') . " f
+                FROM ?_favourite f
                 WHERE 
                     f.target_id = c.comment_id
                 AND
@@ -1009,7 +1006,7 @@ class ModuleComment_MapperComment extends Mapper {
         $sql = "SELECT
 					comment_id
 				FROM
-					" . Config::Get('db.table.comment') . "
+					?_comment
 				WHERE
 					1 = 1
 					{ AND comment_id = ?d }

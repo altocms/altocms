@@ -31,7 +31,7 @@ class ModuleNotify_MapperNotify extends Mapper {
 
         $sql
             = "
-			INSERT INTO " . Config::Get('db.table.notify_task') . "
+			INSERT INTO ?_notify_task
 				( user_login, user_mail, notify_subject, notify_text, date_created, notify_task_status )
 			VALUES
 				( ?, ?, ?, ?, ?, ?d )
@@ -81,7 +81,7 @@ class ModuleNotify_MapperNotify extends Mapper {
         }
         $sql
             = "
-			INSERT INTO " . Config::Get('db.table.notify_task') . "
+			INSERT INTO ?_notify_task
 				( user_login, user_mail, notify_subject, notify_text, date_created, notify_task_status )
 			VALUES 
 				" . implode(', ', $aValues);
@@ -100,7 +100,7 @@ class ModuleNotify_MapperNotify extends Mapper {
 
         $sql
             = "
-			DELETE FROM " . Config::Get('db.table.notify_task') . "
+			DELETE FROM ?_notify_task
 			WHERE
 				notify_task_id = ?d
 		";
@@ -121,7 +121,7 @@ class ModuleNotify_MapperNotify extends Mapper {
 
         $sql
             = "
-			DELETE FROM " . Config::Get('db.table.notify_task') . "
+			DELETE FROM ?_notify_task
 			WHERE
 				notify_task_id IN(?a)
 		";
@@ -142,7 +142,7 @@ class ModuleNotify_MapperNotify extends Mapper {
 
         $sql
             = "SELECT *
-				FROM " . Config::Get('db.table.notify_task') . "
+				FROM ?_notify_task
 				ORDER BY date_created ASC
 				LIMIT ?d";
         $aTasks = array();

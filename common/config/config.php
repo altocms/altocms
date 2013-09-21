@@ -467,6 +467,11 @@ $config['db']['params']['lazy'] = true; // "ленивое" подключени
  */
 $config['db']['table']['prefix'] = 'prefix_';
 
+/*
+ * Можно не объявлять таблицы, если их названия совпадают с именами в SQL-запросах,
+ * тогда в запросах достаточно подставлять в качестве имени таблицы ?_table_name
+ * Либо можно явно определить имя таблицы и использовать так: Config::Get('db.table.table_name)
+ *
 $config['db']['table']['user']                  = '___db.table.prefix___user';
 $config['db']['table']['blog']                  = '___db.table.prefix___blog';
 $config['db']['table']['topic']                 = '___db.table.prefix___topic';
@@ -512,6 +517,7 @@ $config['db']['table']['user_changemail']       = '___db.table.prefix___user_cha
 $config['db']['table']['adminban']              = '___db.table.prefix___adminban';
 $config['db']['table']['adminips']              = '___db.table.prefix___adminips';
 $config['db']['table']['storage']               = '___db.table.prefix___storage';
+*/
 
 $config['db']['tables']['engine'] = 'InnoDB';  // InnoDB или MyISAM
 /**

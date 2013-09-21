@@ -726,6 +726,9 @@ abstract class DbSimple_Database extends DbSimple_LastError
      */
     private function _expandPlaceholdersFlow($query)
     {
+        if (strpos($query, '?') === false) {
+            return $query;
+        }
         $re = '{
             (?>
                 # Ignored chunks.
@@ -750,7 +753,7 @@ abstract class DbSimple_Database extends DbSimple_LastError
               |
             (?>
                 # Placeholder
-                (\?) ( [_dsafn&|\#]? )                           #2 #3
+                (\?) ( [_dsafn&|\#]?\w* )                           #2 #3
             )
         }sx';
         $query = preg_replace_callback(
@@ -778,8 +781,8 @@ abstract class DbSimple_Database extends DbSimple_LastError
             $type = $m[4];
 
             // Idenifier prefix.
-            if ($type == '_') {
-                return $this->_identPrefix;
+            if ($type && $type[0] == '_') {
+                return $this->_addPrefix2Table($m[0]);
             }
 
             // Value-based placeholder.
