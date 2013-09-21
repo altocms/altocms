@@ -1,6 +1,6 @@
 <?php
 
-$config['base'] =
+$config['params'] =
     array(
         array(
             'label' => 'action.admin.set_section_general',

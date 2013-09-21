@@ -1,5 +1,4 @@
 <!doctype html>
-
 <!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="ru"> <![endif]-->
 <!--[if IE 7]>    <html class="no-js ie7 oldie" lang="ru"> <![endif]-->
 <!--[if IE 8]>    <html class="no-js ie8 oldie" lang="ru"> <![endif]-->
@@ -144,7 +143,7 @@
 </div>
 
 <div id="content" class="b-content">{block name="content"}
-
+    <div id="sticknote" class="b-sticknote">wait...</div>
     <div id="content-header" class="b-content-header">
         <h1 class="b-content-header-title">{$sPageTitle}</h1>
     </div>

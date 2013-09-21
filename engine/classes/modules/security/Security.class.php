@@ -92,7 +92,9 @@ class ModuleSecurity extends Module {
             if (isset($_SERVER['HTTP_X_ALTO_AJAX_KEY'])) {
                 $sCode = (string)$_SERVER['HTTP_X_ALTO_AJAX_KEY'];
             } else {
-                $sCode = getRequestStr('security_ls_key');
+                if (!($sCode = getRequestStr('security_key'))) {
+                    $sCode = getRequestStr('security_ls_key');
+                }
             }
         }
         return ($sCode == $this->GetSessionKey());

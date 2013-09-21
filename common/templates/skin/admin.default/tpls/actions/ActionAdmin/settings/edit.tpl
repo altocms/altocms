@@ -1,4 +1,4 @@
-{extends file='./config.tpl'}
+{extends file='./_settings.tpl'}
 
 {block name="content-body-formcontent"}
     <div class="b-wbox-header">
@@ -6,11 +6,11 @@
     </div>
     <div class="b-wbox-content">
         <div class="control-group">
-            <label class="control-label">{$aLang.action.admin.set_view_tinymce}</label>
+            <label class="control-label">{$aLang.action.admin.set_view_wysiwyg}</label>
 
             <div class="controls">
                 <label>
-                    <input type="checkbox" name="view--tinymce" value="1" {if Config::Get('view.tinymce')}checked{/if}/>
+                    <input type="checkbox" name="view--wysiwyg" value="1" {if Config::Get('view.wysiwyg')}checked{/if}/>
                 </label>
             </div>
         </div>

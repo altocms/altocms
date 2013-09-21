@@ -5,10 +5,10 @@
         <a href="#" class="btn btn-primary disabled"><i class="icon-plus-sign"></i></a>
     </div>
     <div class="btn-group">
-        <a class="btn {if $sMode=='ids'}active{/if}" href="{router page='admin'}banlist/ids/">
+        <a class="btn {if $sMode=='ids'}active{/if}" href="{router page='admin'}users-banlist/ids/">
             {$aLang.action.admin.banlist_ids}
         </a>
-        <a class="btn {if $sMode=='ips'}active{/if}" href="{router page='admin'}banlist/ips/">
+        <a class="btn {if $sMode=='ips'}active{/if}" href="{router page='admin'}users-banlist/ips/">
             {$aLang.action.admin.banlist_ips}
         </a>
     </div>

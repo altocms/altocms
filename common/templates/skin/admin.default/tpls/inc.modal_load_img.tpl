@@ -1,6 +1,6 @@
 <div class="modal modal-image-upload" id="window_upload_img">
     <header class="modal-header">
-        <button type="button" class="close jqmClose">×</button>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <h3>{$aLang.uploadimg}</h3>
     </header>
 
@@ -86,9 +86,3 @@
         </div>
     </div>
 </div>
-
-<script>
-$(function(){
-    $('#window_upload_img').jqm();
-});
-</script>

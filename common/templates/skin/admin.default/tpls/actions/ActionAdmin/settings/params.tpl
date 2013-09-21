@@ -1,4 +1,4 @@
-{extends file='./config.tpl'}
+{extends file='./_settings.tpl'}
 
 {block name="content-body-formcontent"}
 

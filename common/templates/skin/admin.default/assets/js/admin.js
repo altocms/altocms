@@ -44,6 +44,16 @@ var admin = admin || {};
         if (element.data('adm-progress-store')) element.html(element.data('adm-progress-store'));
     };
 
+    $this.stickNoteOn = function(msg) {
+        var stick = $('#sticknote');
+        var w = stick.parent().innerWidth();
+        stick.text(msg).css({ left: (w - stick.outerWidth()) / 2 }).slideDown();
+    }
+
+    $this.stickNoteOff = function() {
+        $('#sticknote').slideUp();
+    }
+
     // plugins
     $this.plugin = {
         turn:function (pluginId, action) {

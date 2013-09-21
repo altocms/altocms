@@ -158,11 +158,16 @@ class ModuleViewerAsset_EntityPackage extends Entity {
         if (!$this->CheckDestination($sDestination)) {
             $sContents = '';
             $bCompress = true;
+            $bPrepare = null;
             foreach ($aFiles as $aFileParams) {
                 $sFileContents = F::File_GetContents($aFileParams['file']);
                 $sContents .= $this->PrepareContents($sFileContents, $aFileParams['file']) . PHP_EOL;
                 if (isset($aFileParams['compress'])) {
                     $bCompress = $bCompress && (bool)$aFileParams['compress'];
+                }
+                // Если хотя бы один файл из набора нужно выводить, то весь набор выводится
+                if ((is_null($bPrepare) || $bPrepare === true) && isset($aFileParams['prepare']) && !$aFileParams['prepare']) {
+                    $bPrepare = false;
                 }
             }
             if (F::File_PutContents($sDestination, $sContents)) {
@@ -170,6 +175,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
                     'file' => $sDestination,
                     'asset' => $sAsset,
                     'compress' => $bCompress,
+                    'prepare' => is_null($bPrepare) ? false : $bPrepare,
                 );
                 $this->AddLink($this->sOutType, F::File_Dir2Url($sDestination), $aParams);
             } else {

@@ -46,8 +46,8 @@ return array(
 
     'menu_logs' => 'Журналы',
     'menu_logs_error' => 'Ошибки системы',
-    'menu_logs_sql_error' => 'Ошибки SQL',
-    'menu_logs_sql_log' => 'SQL-запросы',
+    'menu_logs_sqlerror' => 'Ошибки SQL',
+    'menu_logs_sqllog' => 'SQL-запросы',
 
     'menu_tools' => 'Инструменты',
     'menu_tools_reset' => 'Сброс данных',

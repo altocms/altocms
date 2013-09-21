@@ -21,9 +21,10 @@
     {if $aDashboardWidgets.admin_dashboard_updates.status}
         <div class="span6" id="admin-dashboard-updates">
             <div class="b-wbox b-wbox-console">
-                <div class="b-wbox-header">
+                <div class="b-wbox-header loading">
                     <button type="button" class="close tip-top" title="{$aLang.action.admin.content_turn_off}"
-                            onclick="return ls.dashboard.updatesOff();">×
+                            onclick="return ls.dashboard.updatesOff();">
+                        &times;
                     </button>
                     <h3 class="b-wbox-header-title">{$aLang.action.admin.dashboard_updates_title}</h3>
                 </div>
@@ -37,7 +38,8 @@
             <div class="b-wbox b-wbox-console">
                 <div class="b-wbox-header">
                     <button type="button" class="close tip-top" title="{$aLang.action.admin.content_turn_off}"
-                            onclick="return ls.dashboard.newsOff();">×
+                            onclick="return ls.dashboard.newsOff();">
+                        &times;
                     </button>
                     <h3 class="b-wbox-header-title">{$aLang.action.admin.dashboard_news_title}</h3>
                 </div>
@@ -65,7 +67,7 @@
     </div>
     <div class="modal uniform" id="dashboard_add_form">
         <header class="modal-header">
-            <button type="button" class="close jqmClose">&times;</button>
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             <h3 class="modal-title">{$aLang.action.admin.widgets_title}</h3>
         </header>
 
@@ -95,11 +97,15 @@
 
         ls.dashboard = {
             widgetOff: function (widgetId, widgetKey, widgetName) {
+                admin.stickNoteOn('wait');
                 var params = { };
-                params[widgetKey] = false;
+                params[widgetKey] = false;console.log(params);
                 ls.ajaxConfig(params, function () {
-                    $(widgetId).animate({ width: 0, opacity: 0 }, function () {
-                        $(this).remove();
+                    $(widgetId).animate({ height: '1px' }, function () {
+                        $(this).animate({ width: 0, opacity: 0 }, function () {
+                            $(this).remove();
+                            admin.stickNoteOff();
+                        });
                     });
                     $('[value=' + widgetName + ']')
                             .prop('checked', false)
@@ -117,12 +123,9 @@
                 return false;
             },
             showAddForm: function () {
-                $('#dashboard_add_form').jqmShow();
+                $('#dashboard_add_form').modal('show');
             }
         };
 
-        $(function () {
-            $('#dashboard_add_form').jqm();
-        });
     </script>
 {/block}

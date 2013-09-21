@@ -12,7 +12,7 @@
 <div class="span12">
     <div class="modal uniform" id="userfield_form">
         <header class="modal-header">
-            <button type="button" class="close jqmClose">&times;</button>
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             <h3 class="modal-title">{$aLang.action.admin.user_field_admin_title_add}</h3>
         </header>
 
@@ -74,11 +74,5 @@
         </div>
     </div>
 </div>
-
-<script>
-    $(function() {
-        $('#userfield_form').jqm();
-    });
-</script>
 
 {/block}

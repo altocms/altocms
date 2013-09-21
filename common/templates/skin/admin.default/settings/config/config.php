@@ -2,7 +2,7 @@
 
 $config['path']['smarty']['template'] = array(
     'themes' => '___path.skins.dir___/___view.skin___/themes/',
-    '___path.skins.dir___/___view.skin___/tpls/',
+    'tpls'   => '___path.skins.dir___/___view.skin___/tpls/',
 );
 
 $config['head']['default']['css'] = array(
@@ -24,11 +24,16 @@ $config['head']['default']['css'] = array(
 );
 
 $config['head']['default']['js'] = array(
+    '___path.frontend.url___/libs/js/vendor/jquery-1.9.1.min.js' => array('name' => 'jquery', 'asset' => 'mini'),
+    '___path.frontend.url___/libs/js/vendor/jquery-migrate-1.2.1.min.js' => array('asset' => 'mini'),
+    '___path.frontend.url___/libs/js/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js' => array('asset' => 'mini'),
+    '___path.frontend.url___/libs/js/vendor/jquery-ui/js/localization/jquery-ui-datepicker-ru.js',
+    '___path.frontend.url___/libs/js/vendor/markitup/jquery.markitup.js' => array('name' => 'markitup'),
+    '___path.frontend.url___/libs/js/vendor/tinymce_4/tinymce.min.js' => array('name' => 'tinymce', 'asset' => 'mini'),
+
+    '___path.frontend.dir___/bootstrap-3.0.0/js/bootstrap.min.js' => array('name' => 'bootstrap'),
+
     '___path.skin.dir___/assets/js/excanvas.min.js',
-    '___path.skin.dir___/assets/js/jquery.min.js',
-    '___path.skin.dir___/assets/js/jquery.ui.custom.js',
-    '___path.skin.dir___/assets/js/bootstrap.min.js',
-    '___path.skin.dir___/assets/js/bootstrap-datepicker.js',
     '___path.skin.dir___/assets/js/jquery.flot.min.js',
     '___path.skin.dir___/assets/js/jquery.flot.resize.min.js',
     '___path.skin.dir___/assets/js/jquery.peity.min.js',
@@ -37,21 +42,19 @@ $config['head']['default']['js'] = array(
     '___path.skin.dir___/assets/js/midnight.js',
     '___path.skin.dir___/assets/js/midnight.dashboard.js',
     '___path.frontend.dir___/libs/js/vendor/notifier/jquery.notifier.js',
-    //'___path.frontend.dir___/libs/js/vendor/jquery.jqmodal.js',
     '___path.frontend.dir___/libs/js/vendor/jquery.scrollto.js',
     '___path.frontend.dir___/libs/js/vendor/jquery.rich-array.min.js',
-    '___path.frontend.dir___/libs/js/vendor/markitup/jquery.markitup.js',
+
     '___path.frontend.dir___/libs/js/vendor/jquery.form.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery.jqplugin.js',
     '___path.frontend.dir___/libs/js/vendor/jquery.cookie.js',
     '___path.frontend.dir___/libs/js/vendor/jquery.serializejson.js',
     '___path.frontend.dir___/libs/js/vendor/jquery.file.js',
     '___path.frontend.dir___/libs/js/vendor/jcrop/jquery.Jcrop.js',
-    //'___path.frontend.dir___/libs/js/vendor/poshytip/jquery.poshytip.js',
     '___path.frontend.dir___/libs/js/vendor/jquery.placeholder.min.js',
     '___path.frontend.dir___/libs/js/vendor/jquery.charcount.js',
     '___path.frontend.dir___/libs/js/vendor/prettify/prettify.js',
-    '___path.frontend.dir___/ls/js/main.js',
+
+    '___path.frontend.dir___/libs/js/core/main.js',
     '___path.frontend.dir___/ls/js/favourite.js',
     '___path.frontend.dir___/ls/js/talk.js',
     '___path.frontend.dir___/ls/js/vote.js',

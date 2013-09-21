@@ -52,7 +52,7 @@
                             </div>
                         </td>
                         <td>
-                            <a href="{router page='admin'}blogtypes/edit/{$oBlogType->getId()}/">
+                            <a href="{router page='admin'}settings-blogtypes/edit/{$oBlogType->getId()}/">
                                 <i class="icon-edit tip-top" title="{$aLang.action.admin.content_edit}"></i></a>
                         </td>
                     </tr>

@@ -67,7 +67,7 @@
                     </td>
                     <td class="number"> {$oUser->getId()} &nbsp;</td>
                     <td>
-                        <a href="{router page='admin'}users/profile/{$oUser->getId()}/"
+                        <a href="{router page='admin'}users-list/profile/{$oUser->getId()}/"
                            {if $oUserCurrent->GetId()==$oUser->getId()}style="font-weight:bold;"{/if}
                            class="link">
                             <i class="icon-user {$classIcon}"></i>

@@ -137,12 +137,6 @@ class Loader {
                 Config::Load($aConfig, true, null, $nConfigLevel);
             }
         }
-        $sFile = $sConfigDir . '/config.stable.php';
-        if (F::File_Exists($sFile)) {
-            if ($aConfig = F::File_IncludeFile($sFile, true, Config::Get())) {
-                Config::Load($aConfig, true, null, $nConfigLevel);
-            }
-        }
 
         /*
          * Загружает конфиг-файлы плагинов вида /plugins/[plugin_name]/config/*.php

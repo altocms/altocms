@@ -650,3 +650,15 @@ button[name=mblog_category_add_blog], button[name=mblog_category_del_blog] {
     cursor: pointer;
     border-bottom: 1px dotted #777;
 }
+.b-sticknote {
+    margin: 0 auto;
+    min-width: 200px;
+    height: auto;
+    position: absolute;
+    background: #FFFF99;
+    padding: 8px 8px 4px 8px;
+    text-align: center;
+    font-weight: bold;
+    display: none;
+    box-shadow: 0 2px 3px rgba(128, 128, 128, 0.3);
+}

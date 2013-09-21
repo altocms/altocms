@@ -5,22 +5,22 @@
         <a href="#" class="btn btn-primary disabled"><i class="icon-plus-sign"></i></a>
     </div>
     <div class="btn-group">
-        <a href="{router page='admin'}config/base/" class="btn {if $sMode=='base'}active{/if}">
+        <a href="{router page='admin'}settings-site/params/" class="btn {if $sMode=='params'}active{/if}">
             {$aLang.action.admin.settings_base}
         </a>
-        <a href="{router page='admin'}config/edit/" class="btn {if $sMode=='edit'}active{/if}">
+        <a href="{router page='admin'}settings-site/edit/" class="btn {if $sMode=='edit'}active{/if}">
             {$aLang.action.admin.settings_edit}
         </a>
-        <a href="{router page='admin'}config/links/" class="btn {if $sMode=='links'}active{/if}">
+        <a href="{router page='admin'}settings-site/links/" class="btn {if $sMode=='links'}active{/if}">
             {$aLang.action.admin.settings_links}
         </a>
-        <a href="{router page='admin'}config/sys/" class="btn {if $sMode=='sys'}active{/if}">
+        <a href="{router page='admin'}settings-site/sys/" class="btn {if $sMode=='sys'}active{/if}">
             {$aLang.action.admin.settings_sys}
         </a>
-        <a href="{router page='admin'}config/cssjs/" class="btn {if $sMode=='cssjs'}active{/if}">
+        <a href="{router page='admin'}settings-site/cssjs/" class="btn {if $sMode=='cssjs'}active{/if}">
             {$aLang.action.admin.settings_cssjs}
         </a>
-        <!-- a href="{router page='admin'}config/acl/" class="btn {if $sMode=='acl'}active{/if}">
+        <!-- a href="{router page='admin'}settings-site/acl/" class="btn {if $sMode=='acl'}active{/if}">
                 {$aLang.action.admin.settings_acl}
             </a -->
     </div>

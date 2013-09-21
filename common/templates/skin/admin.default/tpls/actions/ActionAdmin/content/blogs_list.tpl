@@ -82,7 +82,7 @@
     </div>
     <div id="blog_delete_form" class="modal">
         <header class="modal-header">
-            <button type="button" class="close jqmClose">&times;</button>
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             <h3>{$aLang.blog_admin_delete_title}</h3>
         </header>
 
@@ -125,9 +125,8 @@
                 $('#blog_delete_name').text(blogTitle);
                 $('#blog_delete_topics').text(topicsNum);
                 form.find('[name=delete_blog_id]').val(blogId);
-                form.jqmShow();
+                form.modal('show');
             }
         }
-        $('#blog_delete_form').jqm();
     </script>
 {/block}
