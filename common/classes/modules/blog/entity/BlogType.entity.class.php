@@ -14,6 +14,11 @@
  */
 class ModuleBlog_EntityBlogType extends Entity {
 
+    protected $aDefaults = array(
+        'type_name' => '{{blogtypes_type_%%type_code%%_name}}',
+        'type_description' => '{{blogtypes_type_%%type_code%%_description}}'
+    );
+
     public function Init() {
 
         parent::Init();
@@ -48,8 +53,21 @@ class ModuleBlog_EntityBlogType extends Entity {
         return $sValue;
     }
 
+    public function getProp($sKey) {
+
+        if ($sKey == 'type_name' || $sKey == 'type_description') {
+            $sValue = parent::getProp($sKey);
+            if (!$sValue) {
+                $sValue = str_replace('%%type_code%%', $this->getTypeCode(), $this->aDefaults[$sKey]);
+            }
+            return $sValue;
+        }
+        return parent::getProp($sKey);
+    }
+
     public function GetName($sLang = null) {
-        return $this->_getPropLangText('blogtypes_type_%%type_code%%_name', 'name', $this->getTypeCode(), $sLang);
+
+        return $this->getLangTextProp('type_name', $sLang);
     }
 
     public function GetTitle($sLang = null) {
@@ -57,7 +75,8 @@ class ModuleBlog_EntityBlogType extends Entity {
     }
 
     public function GetDescription($sLang = null) {
-        return $this->_getPropLangText('blogtypes_type_%%type_code%%_description', 'description', '', $sLang);
+
+        return $this->getLangTextProp('type_description', $sLang);
     }
 
     /**

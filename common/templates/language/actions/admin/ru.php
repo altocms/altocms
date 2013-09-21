@@ -730,8 +730,9 @@ return array(
     'blogtypes_acl_title'            => 'Права доступа к блогу',
 
     'blogtypes_typecode'             => 'Тип',
-    'blogtypes_name'                 => 'Название типа',
+    'blogtypes_name'                 => 'Название типа блога',
     'blogtypes_title'                => 'Название блога по умолчанию',
+    'blogtypes_description'          => 'Описание типа блога',
     'blogtypes_min_rating'           => 'Минимальный рейтинг для создания',
     'blogtypes_allow_add'            => 'Могут создавать пользователи',
     'blogtypes_allow_add_notice'     => 'Могут ли пользователи (не администраторы) создавать блоги этого типа',

@@ -822,15 +822,14 @@ class Engine extends LsObject {
     }
 
     /**
-     * Создает объект сущности, контролируя варианты кастомизации
+     * Возвращает класс сущности, контролируя варианты кастомизации
      *
      * @param  string $sName    Имя сущности, возможны сокращенные варианты.
      * Например <pre>ModuleUser_EntityUser</pre> эквивалентно <pre>User_User</pre> и эквивалентно <pre>User</pre> т.к. имя сущности совпадает с именем модуля
-     * @param  array  $aParams
-     * @return Entity
+     * @return string
      * @throws Exception
      */
-    public static function GetEntity($sName, $aParams = array()) {
+    public static function GetEntityClass($sName) {
 
         if (!isset(self::$aClasses[$sName])) {
             /*
@@ -912,6 +911,21 @@ class Engine extends LsObject {
         } else {
             $sClass = self::$aClasses[$sName];
         }
+        return $sClass;
+    }
+
+    /**
+     * Создает объект сущности, контролируя варианты кастомизации
+     *
+     * @param  string $sName    Имя сущности, возможны сокращенные варианты.
+     * Например <pre>ModuleUser_EntityUser</pre> эквивалентно <pre>User_User</pre> и эквивалентно <pre>User</pre> т.к. имя сущности совпадает с именем модуля
+     * @param  array  $aParams
+     * @return Entity
+     * @throws Exception
+     */
+    public static function GetEntity($sName, $aParams = array()) {
+
+        $sClass = self::GetEntityClass($sName);
         $oEntity = new $sClass($aParams);
         $oEntity->Init();
         return $oEntity;
@@ -928,8 +942,11 @@ class Engine extends LsObject {
     public static function GetEntityRows($sName, $aRows = array()) {
 
         $aResult = array();
+        $sClass = self::GetEntityClass($sName);
         foreach ($aRows as $nI => $aRow) {
-            $aResult[$nI] = Engine::GetEntity($sName, $aRow);
+            $oEntity = new $sClass($aRow);
+            $oEntity->Init();
+            $aResult[$nI] = $oEntity;
         }
         return $aResult;
     }

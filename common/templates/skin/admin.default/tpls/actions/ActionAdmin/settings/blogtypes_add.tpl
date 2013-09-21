@@ -38,11 +38,14 @@
         </div>
 
         <div class="control-group">
+            <label for="blogtypes_name" class="control-label">
+                {$aLang.action.admin.blogtypes_name}
+            </label>
+            <div class="controls">
+                <input type="text" name="blogtypes_name" value="{$_aRequest.blogtypes_name}" class="input-text" />
+            </div>
             {foreach $aLangList as $sLang}
-                <label for="blogtypes_name" class="control-label">
-                    {if $sLang@first}
-                        {$aLang.action.admin.blogtypes_name}
-                    {/if}
+                <label class="control-label">
                     {if count($aLangList)>0}
                         [
                         <strong>{$sLang}</strong>
@@ -50,8 +53,28 @@
                     {/if}
                 </label>
                 <div class="controls">
-                    <input type="text" name="blogtypes_name[{$sLang}]"
-                           value="{$_aRequest.blogtypes_name.$sLang}" class="input-text" readonly/>
+                    <input type="text" name="blogtypes_name_{$sLang}"
+                           value="{$oBlogType->getName($sLang)}" class="input-text" readonly/>
+                </div>
+            {/foreach}
+
+            <label for="blogtypes_description" class="control-label">
+                {$aLang.action.admin.blogtypes_description}
+            </label>
+            <div class="controls">
+                <input type="text" name="blogtypes_description" value="{$_aRequest.blogtypes_description}" class="input-text" />
+            </div>
+            {foreach $aLangList as $sLang}
+                <label class="control-label">
+                    {if count($aLangList)>0}
+                        [
+                        <strong>{$sLang}</strong>
+                        ]
+                    {/if}
+                </label>
+                <div class="controls">
+                    <input type="text" name="blogtypes_description_{$sLang}"
+                           value="{$oBlogType->getDescription($sLang)}" class="input-text" readonly/>
                 </div>
             {/foreach}
         </div>

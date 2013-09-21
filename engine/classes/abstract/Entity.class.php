@@ -137,7 +137,7 @@ abstract class Entity extends LsObject {
      *
      * @return mixed|null
      */
-    public function getLangSuffixProp($sKey, $xDefault = null, $sLang = null) {
+    public function getLangSuffixProp($sKey, $sLang = null, $xDefault = null) {
 
         if (is_null($sLang)) {
             $sLang = $this->Lang_GetLang();
@@ -166,19 +166,23 @@ abstract class Entity extends LsObject {
      *
      * @return string
      */
-    public function getLangTextProp($sKey) {
+    public function getLangTextProp($sKey, $sLang = null) {
 
-        $sResult = $this->getProp($sKey);
-        if (preg_match_all('/({{(.+)}})/u', $sResult, $aMatches)) {
-            $aReplacement = array();
-            foreach ($aMatches as $aMatch) {
-                if (!isset($aReplacement[$aMatch[1]]) && !is_null($sText = E::Lang_Get($aMatch[2]))) {
-                    $aReplacement[$aMatch[1]] = $sText;
+        $sResult = $this->getProp('[' . $sLang . ']' . $sKey);
+        if (!$sResult) {
+            $sResult = $this->getProp($sKey);
+            if (preg_match_all('/({{(.+)}})/u', $sResult, $aMatches, PREG_SET_ORDER)) {
+                $aReplacement = array();
+                foreach ($aMatches as $aMatch) {
+                    if (!is_null($sText = E::Lang_Get('[' . $sLang . ']' . $aMatch[2]))) {
+                        $aReplacement[$aMatch[1]] = $sText;
+                    }
+                }
+                if ($aReplacement) {
+                    $sResult = strtr($sResult, $aReplacement);
                 }
             }
-            if ($aReplacement) {
-                $sResult = str_replace(array_keys($aReplacement), array_values($aReplacement), $sResult);
-            }
+            $this->setProp('[' . $sLang . ']' . $sKey, $sResult);
         }
         return $sResult;
     }

@@ -2580,8 +2580,9 @@ class ActionAdmin extends Action {
                     $_REQUEST['blogtypes_acl_comment'] = 0;
                 }
 
+                $_REQUEST['blogtypes_name'] = $oBlogType->GetProp('type_name');
+                $_REQUEST['blogtypes_description'] = $oBlogType->GetProp('type_description');
                 foreach ($aLangList as $sLang) {
-                    $_REQUEST['blogtypes_name'][$sLang] = $oBlogType->GetName($sLang);
                     $_REQUEST['blogtypes_title'][$sLang] = $oBlogType->GetTitle($sLang);
                 }
 
@@ -2606,13 +2607,9 @@ class ActionAdmin extends Action {
             if ($oBlogType) {
                 $oBlogType->_setValidateScenario('update');
 
-                $aLangList = $this->Lang_GetLangList();
-                $aNames = $this->GetPost('blogtypes_name');
-                $aTitles = $this->GetPost('blogtypes_title');
-                foreach ($aLangList as $sLang) {
-                    $oBlogType->setProp('name_' . $sLang, empty($aNames[$sLang]) ? null : $aNames[$sLang]);
-                    $oBlogType->setProp('title_' . $sLang, empty($aTitles[$sLang]) ? null : $aTitles[$sLang]);
-                }
+                $oBlogType->setProp('type_name', $this->GetPost('blogtypes_name'));
+                $oBlogType->setProp('type_description', $this->GetPost('blogtypes_description'));
+
                 $oBlogType->SetAllowAdd($this->GetPost('blogtypes_allow_add') ? 1 : 0);
                 $oBlogType->SetMinRateAdd($this->GetPost('blogtypes_min_rating'));
                 $oBlogType->SetMaxNum($this->GetPost('blogtypes_max_num'));
@@ -2675,13 +2672,8 @@ class ActionAdmin extends Action {
 
         $sTypeCode = $this->GetPost('blogtypes_typecode');
         $oBlogType->SetTypeCode($sTypeCode);
-        $aLangList = $this->Lang_GetLangList();
-        $aNames = $this->GetPost('blogtypes_name');
-        $aTitles = $this->GetPost('blogtypes_title');
-        foreach ($aLangList as $sLang) {
-            $oBlogType->setProp('name_' . $sLang, empty($aNames[$sLang]) ? $sTypeCode : $aNames[$sLang]);
-            $oBlogType->setProp('title_' . $sLang, empty($aTitles[$sLang]) ? null : $aTitles[$sLang]);
-        }
+        $oBlogType->setProp('type_name', $this->GetPost('blogtypes_name'));
+        $oBlogType->setProp('type_description', $this->GetPost('blogtypes_description'));
 
         $oBlogType->SetAllowAdd($this->GetPost('blogtypes_allow_add') ? 1 : 0);
         $oBlogType->SetMinRateAdd($this->GetPost('blogtypes_min_rating'));

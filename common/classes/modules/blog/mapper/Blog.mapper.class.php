@@ -151,9 +151,7 @@ class ModuleBlog_MapperBlog extends Mapper {
 
         $aBlogs = array();
         if ($aRows = $this->oDb->select($sql, $aArrayId, $sOrder == '' ? $aArrayId : DBSIMPLE_SKIP)) {
-            foreach ($aRows as $aBlog) {
-                $aBlogs[] = Engine::GetEntity('Blog', $aBlog);
-            }
+            $aBlogs = Engine::GetEntityRows('Blog', $aRows);
         }
         return $aBlogs;
     }
@@ -264,9 +262,7 @@ class ModuleBlog_MapperBlog extends Mapper {
 
         $aBlogUsers = array();
         if ($aRows) {
-            foreach ($aRows as $aUser) {
-                $aBlogUsers[] = Engine::GetEntity('Blog_BlogUser', $aUser);
-            }
+            $aBlogUsers = Engine::GetEntityRows('Blog_BlogUser', $aRows);
         }
         return $aBlogUsers;
     }
@@ -295,9 +291,7 @@ class ModuleBlog_MapperBlog extends Mapper {
                 bu.user_id = ?d ";
         $aBlogUsers = array();
         if ($aRows = $this->oDb->select($sql, $aArrayId, $sUserId)) {
-            foreach ($aRows as $aUser) {
-                $aBlogUsers[] = Engine::GetEntity('Blog_BlogUser', $aUser);
-            }
+            $aBlogUsers = Engine::GetEntityRows('Blog_BlogUser', $aRows);
         }
         return $aBlogUsers;
     }
@@ -514,13 +508,11 @@ class ModuleBlog_MapperBlog extends Mapper {
                     b.blog_type<>'personal'
                 ORDER by b.blog_rating desc
                 LIMIT 0, ?d";
-        $aReturn = array();
+        $aResult = array();
         if ($aRows = $this->oDb->select($sql, $nUserId, $nLimit)) {
-            foreach ($aRows as $aRow) {
-                $aReturn[] = Engine::GetEntity('Blog', $aRow);
-            }
+            $aResult = Engine::GetEntityRows('Blog', $aRows);
         }
-        return $aReturn;
+        return $aResult;
     }
 
     /**
@@ -543,13 +535,11 @@ class ModuleBlog_MapperBlog extends Mapper {
                     b.blog_type<>'personal'
                 ORDER BY b.blog_rating DESC
                 LIMIT 0, ?d";
-        $aReturn = array();
+        $aResult = array();
         if ($aRows = $this->oDb->select($sql, $sUserId, $nLimit)) {
-            foreach ($aRows as $aRow) {
-                $aReturn[] = Engine::GetEntity('Blog', $aRow);
-            }
+            $aReturn = Engine::GetEntityRows('Blog', $aRows);
         }
-        return $aReturn;
+        return $aResult;
     }
 
     /**
@@ -767,43 +757,50 @@ class ModuleBlog_MapperBlog extends Mapper {
         $sql = "
             INSERT INTO ?_blog_type
             SET
-                type_code = ?,
-                allow_add = ?d,
-                min_rate_add = ?f,
-                allow_list = ?d,
-                min_rate_list = ?f,
-                index_ignore = ?d,
-                membership = ?d,
-                acl_write = ?d,
-                acl_read = ?d,
-                acl_comment = ?d,
-                min_rate_write = ?f,
-                min_rate_read = ?f,
-                min_rate_comment = ?f,
-                content_type = ?,
-                active = ?d,
-                norder = ?d,
-                candelete = ?d
+                type_code = ?:type_code,
+                type_name = ?:type_name,
+                type_description = ?:type_description,
+                allow_add = ?d:allow_add,
+                min_rate_add = ?f:min_rate_add,
+                allow_list = ?d:allow_list,
+                min_rate_list = ?f:min_rate_list,
+                index_ignore = ?d:index_ignore,
+                membership = ?d:membership,
+                acl_write = ?d:acl_write,
+                acl_read = ?d:acl_read,
+                acl_comment = ?d:acl_comment,
+                min_rate_write = ?f:min_rate_write,
+                min_rate_read = ?f:min_rate_read,
+                min_rate_comment = ?f:min_rate_comment,
+                content_type = ?:content_type,
+                active = ?d:active,
+                norder = ?d:norder,
+                candelete = ?d:candelete
         ";
-        $nId = $this->oDb->query($sql,
-            $oBlogType->getTypeCode(),
-            $oBlogType->getAllowAdd() ? 1 : 0,
-            $oBlogType->getMinRateAdd(),
-            $oBlogType->getAllowList() ? 1 : 0,
-            $oBlogType->getMinRateList(),
-            $oBlogType->IsIndexIgnore() ? 1 : 0,
-            $oBlogType->getMembership(),
-            $oBlogType->getAclWrite(),
-            $oBlogType->getAclRead(),
-            $oBlogType->getAclComment(),
-            $oBlogType->getMinRateWrite(),
-            $oBlogType->getMinRateRead(),
-            $oBlogType->getMinRateComment(),
-            $oBlogType->getContentType(),
-            $oBlogType->IsActive() ? 1 : 0,
-            $oBlogType->getNorder(),
-            $oBlogType->CanDelete() ? 1 : 0,
-            $oBlogType->getId()
+        $nId = $this->oDb->sqlQuery(
+            $sql,
+            array(
+                 ':type_code'        => $oBlogType->getTypeCode(),
+                 ':type_name'        => $oBlogType->getTypeName(),
+                 ':type_description' => $oBlogType->getTypeDescription(),
+                 ':allow_add'        => $oBlogType->getAllowAdd() ? 1 : 0,
+                 ':min_rate_add'     => $oBlogType->getMinRateAdd(),
+                 ':allow_list'       => $oBlogType->getAllowList() ? 1 : 0,
+                 ':min_rate_list'    => $oBlogType->getMinRateList(),
+                 ':index_ignore'     => $oBlogType->IsIndexIgnore() ? 1 : 0,
+                 ':membership'       => $oBlogType->getMembership(),
+                 ':acl_write'        => $oBlogType->getAclWrite(),
+                 ':acl_read'         => $oBlogType->getAclRead(),
+                 ':acl_comment'      => $oBlogType->getAclComment(),
+                 ':min_rate_write'   => $oBlogType->getMinRateWrite(),
+                 ':min_rate_read'    => $oBlogType->getMinRateRead(),
+                 ':min_rate_comment' => $oBlogType->getMinRateComment(),
+                 ':content_type'     => $oBlogType->getContentType(),
+                 ':active'           => $oBlogType->IsActive() ? 1 : 0,
+                 ':norder'           => $oBlogType->getNOrder(),
+                 ':candelete'        => $oBlogType->CanDelete() ? 1 : 0,
+                 ':id'               => $oBlogType->getId()
+            )
         );
         return $nId ? $nId : false;
     }
@@ -821,43 +818,50 @@ class ModuleBlog_MapperBlog extends Mapper {
             = "
             UPDATE ?_blog_type
             SET
-                allow_add = ?d,
-                min_rate_add = ?f,
-                allow_list = ?d,
-                min_rate_list = ?f,
-                index_ignore = ?d,
-                membership = ?d,
-                acl_write = ?d,
-                acl_read = ?d,
-                acl_comment = ?d,
-                min_rate_write = ?f,
-                min_rate_read = ?f,
-                min_rate_comment = ?f,
-                content_type = ?,
-                active = ?d,
-                norder = ?d,
-                candelete = ?d
+                type_name = ?:type_name,
+                type_description = ?:type_description,
+                allow_add = ?d:allow_add,
+                min_rate_add = ?f:min_rate_add,
+                allow_list = ?d:allow_list,
+                min_rate_list = ?f:min_rate_list,
+                index_ignore = ?d:index_ignore,
+                membership = ?d:membership,
+                acl_write = ?d:acl_write,
+                acl_read = ?d:acl_read,
+                acl_comment = ?d:acl_comment,
+                min_rate_write = ?f:min_rate_write,
+                min_rate_read = ?f:min_rate_read,
+                min_rate_comment = ?f:min_rate_comment,
+                content_type = ?:content_type,
+                active = ?d:active,
+                norder = ?d:norder,
+                candelete = ?d:candelete
             WHERE
-                id = ?d
+                id = ?d:id
         ";
-        $xResult = $this->oDb->query($sql,
-            $oBlogType->getAllowAdd() ? 1 : 0,
-            $oBlogType->getMinRateAdd(),
-            $oBlogType->getAllowList() ? 1 : 0,
-            $oBlogType->getMinRateList(),
-            $oBlogType->IsIndexIgnore() ? 1 : 0,
-            $oBlogType->getMembership(),
-            $oBlogType->getAclWrite(),
-            $oBlogType->getAclRead(),
-            $oBlogType->getAclComment(),
-            $oBlogType->getMinRateWrite(),
-            $oBlogType->getMinRateRead(),
-            $oBlogType->getMinRateComment(),
-            $oBlogType->getContentType(),
-            $oBlogType->IsActive() ? 1 : 0,
-            $oBlogType->getNorder(),
-            $oBlogType->CanDelete() ? 1 : 0,
-            $oBlogType->getId()
+        $xResult = $this->oDb->sqlQuery(
+            $sql,
+            array(
+                 ':type_name'        => $oBlogType->getTypeName(),
+                 ':type_description' => $oBlogType->getTypeDescription(),
+                 ':allow_add'        => $oBlogType->getAllowAdd() ? 1 : 0,
+                 ':min_rate_add'     => $oBlogType->getMinRateAdd(),
+                 ':allow_list'       => $oBlogType->getAllowList() ? 1 : 0,
+                 ':min_rate_list'    => $oBlogType->getMinRateList(),
+                 ':index_ignore'     => $oBlogType->IsIndexIgnore() ? 1 : 0,
+                 ':membership'       => $oBlogType->getMembership(),
+                 ':acl_write'        => $oBlogType->getAclWrite(),
+                 ':acl_read'         => $oBlogType->getAclRead(),
+                 ':acl_comment'      => $oBlogType->getAclComment(),
+                 ':min_rate_write'   => $oBlogType->getMinRateWrite(),
+                 ':min_rate_read'    => $oBlogType->getMinRateRead(),
+                 ':min_rate_comment' => $oBlogType->getMinRateComment(),
+                 ':content_type'     => $oBlogType->getContentType(),
+                 ':active'           => $oBlogType->IsActive() ? 1 : 0,
+                 ':norder'           => $oBlogType->getNOrder(),
+                 ':candelete'        => $oBlogType->CanDelete() ? 1 : 0,
+                 ':id'               => $oBlogType->getId()
+            )
         );
         return $xResult !== false;
     }
@@ -892,9 +896,7 @@ class ModuleBlog_MapperBlog extends Mapper {
             ";
         $aBlogs = array();
         if ($aRows = $this->oDb->select($sql, $aExcludeTypes)) {
-            foreach ($aRows as $aBlog) {
-                $aBlogs[] = Engine::GetEntity('Blog', $aBlog);
-            }
+            $aBlogs = Engine::GetEntityRows('Blog', $aRows);
         }
         return $aBlogs;
     }
