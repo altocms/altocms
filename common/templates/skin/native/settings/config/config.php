@@ -6,7 +6,7 @@ $config['view']['wysiwyg'] = true;
 $config['view']['theme'] = 'default';
 $config['module']['user']['profile_photo_width'] = 300;
 
-$config['path']['smarty']['template'] = array(
+$config['path']['smarty']['template_seek'] = array(
     'themes'  => '___path.skins.dir___/___view.skin___/themes/',
     'layouts' => '___path.skins.dir___/___view.skin___/themes/default/layouts/',
     'tpls'    => '___path.skins.dir___/___view.skin___/tpls/',
@@ -159,7 +159,6 @@ $config['head']['default']['css'] = array_merge(
          '___path.skin.url___/assets/css/print.css',
     )
 );
-
 
 return $config;
 

@@ -107,10 +107,9 @@ abstract class Action extends LsObject {
         $this->aParams = Router::GetParams();
 
         // load action's config if exists
-        Config::SetLevel(Config::LEVEL_ACTION);
         if ($sFile = F::File_Exists('/config/actions/' . $sAction . '.php', Config::Get('path.root.seek'))) {
             // Дополняем текущий конфиг конфигом экшена
-            Config::AddFromFile($sFile);
+            Config::LoadFromFile($sFile, true, Config::LEVEL_ACTION);
         }
     }
 

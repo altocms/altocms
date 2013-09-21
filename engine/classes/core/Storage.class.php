@@ -230,13 +230,17 @@ class Storage {
     public function SetStorage($sStorageKey, $aData = array(), $bReset = true) {
 
         if (is_array($aData)) {
-            if ($this->nSaveMode == self::SAVE_MODE_ARR) {
-                $aData = $this->_keysArray($aData);
-            }
-            if ($bReset || !isset($this->aStorage[$sStorageKey])) {
-                $this->aStorage[$sStorageKey] = $aData;
-            } else {
-                $this->aStorage[$sStorageKey] = F::Array_Merge($this->aStorage[$sStorageKey], $aData);
+            if ($aData) {
+                if ($this->nSaveMode == self::SAVE_MODE_ARR) {
+                    $aData = $this->_keysArray($aData);
+                }
+                if ($bReset || !isset($this->aStorage[$sStorageKey])) {
+                    $this->aStorage[$sStorageKey] = $aData;
+                } else {
+                    $this->aStorage[$sStorageKey] = F::Array_Merge($this->aStorage[$sStorageKey], $aData);
+                }
+            } elseif (!isset($this->aStorage[$sStorageKey])) {
+                $this->aStorage[$sStorageKey] = array();
             }
             return true;
         }

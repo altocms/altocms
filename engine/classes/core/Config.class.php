@@ -217,29 +217,48 @@ class Config extends Storage {
     }
 
     /**
-     * Установка нового уровня конфигурации (все уровни между текущим и новым уровнем будут очищены)
+     * Установка нового уровня конфигурации
      *
-     * @param int $nLevel
+     * @param int  $nLevel
+     * @param bool $bClearLevel
+     * @param bool $bClearBetween
      */
-    public function _setLevel($nLevel = null) {
+    public function _setLevel($nLevel = null, $bClearLevel = true, $bClearBetween = false) {
 
         if ($nLevel > $this->nLevel) {
             while ($nLevel > $this->nLevel) {
-                $this->_clearLevel(++$this->nLevel);
+                if ($bClearBetween) {
+                    $this->_clearLevel(++$this->nLevel);
+                } else {
+                    $this->SetConfig(array(), false, null, ++$this->nLevel);
+                }
             }
         } elseif ($nLevel < $this->nLevel) {
             while ($nLevel < $this->nLevel) {
-                $this->_clearLevel($this->nLevel--);
+                if ($bClearBetween) {
+                    $this->_clearLevel($this->nLevel--);
+                } else {
+                    $this->SetConfig(array(), false, null, $this->nLevel--);
+                }
             }
         } else {
-            $this->_clearLevel($nLevel);
+            if ($bClearLevel) {
+                $this->_clearLevel($nLevel);
+            } else {
+                $this->SetConfig(array(), false, null, $this->nLevel);
+            }
         }
         $this->nLevel = $nLevel;
     }
 
-    static public function SetLevel($nLevel) {
+    static public function SetLevel($nLevel, $bClearBetween = false) {
 
-        return static::getInstance()->_setLevel($nLevel);
+        return static::getInstance()->_setLevel($nLevel, false, $bClearBetween);
+    }
+
+    static public function ResetLevel($nLevel, $bClearBetween = false) {
+
+        return static::getInstance()->_setLevel($nLevel, true, $bClearBetween);
     }
 
     /**

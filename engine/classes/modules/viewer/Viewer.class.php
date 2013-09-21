@@ -236,7 +236,11 @@ class ModuleViewer extends Module {
             }
             // * Load skin widgets
             if (F::File_Exists($sFile = Config::Get('path.smarty.template') . '/settings/config/widgets.php')) {
-                Config::LoadFromFile($sFile, false);
+                $aSkinWidgets = F::IncludeFile($sFile, false, true);
+                if (isset($aSkinWidgets['widgets']) && is_array($aSkinWidgets['widgets']) && count($aSkinWidgets['widgets'])) {
+                    $aWidgets = array_merge(Config::Get('widgets'), $aSkinWidgets['widgets']);
+                    Config::Set('widgets', $aWidgets);
+                }
             }
         }
         // * Заголовок HTML страницы
@@ -257,7 +261,11 @@ class ModuleViewer extends Module {
         $this->oSmarty->error_reporting = error_reporting() & ~E_NOTICE;
 
         // * Папки расположения шаблонов по умолчанию
-        $this->oSmarty->setTemplateDir(F::File_NormPath(F::Str2Array(Config::Get('path.smarty.template'))));
+        if (Config::Get('path.smarty.template_seek')) {
+            $this->oSmarty->setTemplateDir(F::File_NormPath(F::Str2Array(Config::Get('path.smarty.template_seek'))));
+        } else {
+            $this->oSmarty->setTemplateDir(F::File_NormPath(F::Str2Array(Config::Get('path.smarty.template'))));
+        }
 
         // * Для каждого скина устанавливаем свою директорию компиляции шаблонов
         $sCompilePath = F::File_NormPath(Config::Get('path.smarty.compiled'));
