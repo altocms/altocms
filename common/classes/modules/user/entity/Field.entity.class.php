@@ -57,7 +57,7 @@ class ModuleUser_EntityField extends Entity {
      */
     public function getTitle() {
 
-        return $this->getProp('title');
+        return $this->getLangTextProp('title');
     }
 
     /**

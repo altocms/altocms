@@ -7,17 +7,17 @@
 
 <head>
 	{hook run='html_head_begin'}
-	
+
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-	
+
 	<title>{$sHtmlTitle}</title>
-	
+
 	<meta name="description" content="{$sHtmlDescription}">
 	<meta name="keywords" content="{$sHtmlKeywords}">
 
 	{$aHtmlHeadFiles.css}
-	
+
 	<link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
 	<link href="{cfg name='path.static.skin'}/images/favicon.ico?v1" rel="shortcut icon" />
@@ -34,8 +34,7 @@
 	{if $bRefreshToHome}
 		<meta  HTTP-EQUIV="Refresh" CONTENT="3; URL={cfg name='path.root.web'}">
 	{/if}
-	
-	
+
 	<script type="text/javascript">
 		var DIR_WEB_ROOT 			= '{cfg name="path.root.web"}';
 		var DIR_STATIC_SKIN 		= '{cfg name="path.static.skin"}';
@@ -54,19 +53,16 @@
 			aRouter['{$sPage}'] = '{$sPath}';
 		{/foreach}
 	</script>
-	
-	
+
 	{$aHtmlHeadFiles.js}
 
-	
 	<script type="text/javascript">
 		var tinyMCE = false;
 		ls.lang.load({json var = $aLangJs});
 		ls.registry.set('comment_max_tree',{json var=Config::Get('module.comment.max_tree')});
 		ls.registry.set('block_stream_show_tip',{json var=Config::Get('block.stream.show_tip')});
 	</script>
-	
-	
+
 	{if {cfg name='view.grid.type'} == 'fluid'}
 		<style>
 			#container {
@@ -81,8 +77,7 @@
 			}
 		</style>
 	{/if}
-	
-	
+
 	{hook run='html_head_end'}
 </head>
 
@@ -90,7 +85,7 @@
 
 {if $oUserCurrent}
 	{assign var=body_classes value=$body_classes|cat:' ls-user-role-user'}
-	
+
 	{if $oUserCurrent->isAdministrator()}
 		{assign var=body_classes value=$body_classes|cat:' ls-user-role-admin'}
 	{/if}
@@ -102,35 +97,31 @@
 	{assign var=body_classes value=$body_classes|cat:' ls-user-role-not-admin'}
 {/if}
 
-{add_block group='toolbar' name='toolbar_admin.tpl' priority=100}
-{add_block group='toolbar' name='toolbar_scrollup.tpl' priority=-100}
+{wgroup_add group='toolbar' widget='toolbar_admin.tpl' priority=100}
+{wgroup_add group='toolbar' widget='toolbar_scrollup.tpl' priority=-100}
 
 <body class="{$body_classes} width-{cfg name='view.grid.type'}">
 	{hook run='body_begin'}
-	
-	
+
 	{if $oUserCurrent}
 		{include file='window_write.tpl'}
 		{include file='window_favourite_form_tags.tpl'}
 	{else}
 		{include file='window_login.tpl'}
 	{/if}
-	
 
-
-	
 	<div id="header-back"></div>
-	
+
 	<div id="container" class="{hook run='container_class'}">
 		{include file='header_top.tpl'}
         <noscript><div class="b-noscript">{$aLang.noscript_message}</div></noscript>
 		{include file='nav.tpl'}
 
 		<div id="wrapper" class="{if $noSidebar}no-sidebar{/if}{hook run='wrapper_class'}">
-			
+
 			<div id="content-wrapper" {if $sidebarPosition == 'left'}class="content-profile"{/if}>
 				<div id="content" role="main" {if $sMenuItemSelect=='profile'}itemscope itemtype="http://data-vocabulary.org/Person"{/if}>
 					{include file='nav_content.tpl'}
 					{include file='system_message.tpl'}
-					
+
 					{hook run='content_begin'}

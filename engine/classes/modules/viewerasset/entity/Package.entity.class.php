@@ -52,7 +52,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
 
     protected function _crc($sPath) {
 
-        return dechex(F::Crc32($sPath));
+        return str_pad(dechex(F::Crc32($sPath)), 8, '0', STR_PAD_LEFT);
     }
 
     public function GetHash() {

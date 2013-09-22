@@ -171,15 +171,9 @@ abstract class Entity extends LsObject {
         $sResult = $this->getProp('[' . $sLang . ']' . $sKey);
         if (!$sResult) {
             $sResult = $this->getProp($sKey);
-            if (preg_match_all('/({{(.+)}})/u', $sResult, $aMatches, PREG_SET_ORDER)) {
-                $aReplacement = array();
-                foreach ($aMatches as $aMatch) {
-                    if (!is_null($sText = E::Lang_Get('[' . $sLang . ']' . $aMatch[2]))) {
-                        $aReplacement[$aMatch[1]] = $sText;
-                    }
-                }
-                if ($aReplacement) {
-                    $sResult = strtr($sResult, $aReplacement);
+            if (substr($sResult, 0, 2) == '{{' && substr($sResult, -2) == '}}') {
+                if (!is_null($sText = E::Lang_Get('[' . $sLang . ']' . substr($sResult, 2, strlen($sResult) - 4)))) {
+                    $sResult = $sText;
                 }
             }
             $this->setProp('[' . $sLang . ']' . $sKey, $sResult);
