@@ -379,6 +379,28 @@ class AltoFunc_Main {
     }
 
     /**
+     * Даст одинаковый результат на 32-х и 64-х системах
+     *
+     * @param $sData
+     *
+     * @return string
+     */
+    static public function Crc32($sData) {
+
+        $nCrc = abs(crc32((string)$sData));
+        if( $nCrc & 0x80000000){
+            $nCrc ^= 0xffffffff;
+            $nCrc += 1;
+        }
+        return $nCrc;
+    }
+
+    static public function VarCrc32($xData) {
+
+        return self::Crc32(serialize($xData));
+    }
+
+    /**
      * Возвращает текст, обрезанный по заданное число символов
      *
      * @param   string  $sText
