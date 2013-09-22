@@ -99,6 +99,11 @@ class Config extends Storage {
      */
     static public function LoadFromFile($sFile, $bReset = true, $sRootKey = null, $nLevel = null) {
 
+        if (is_integer($sRootKey) && is_null($nLevel)) {
+            $nLevel = $sRootKey;
+            $sRootKey = null;
+        }
+
         // Check if file exists
         if (!F::File_Exists($sFile)) {
             return false;
@@ -134,6 +139,11 @@ class Config extends Storage {
      * @return  bool|Config
      */
     static public function Load($aConfig, $bReset = true, $sRootKey = null, $nLevel = null) {
+
+        if (is_integer($sRootKey) && is_null($nLevel)) {
+            $nLevel = $sRootKey;
+            $sRootKey = null;
+        }
 
         // Check if it`s array
         if (!is_array($aConfig)) {
@@ -197,6 +207,11 @@ class Config extends Storage {
      * @return  bool
      */
     public function SetConfig($aConfig = array(), $bReset = true, $sRootKey = null, $nLevel = null) {
+
+        if (is_integer($sRootKey) && is_null($nLevel)) {
+            $nLevel = $sRootKey;
+            $sRootKey = self::DEFAULT_CONFIG_ROOT;
+        }
 
         $this->_clearQuickMap();
         if (is_null($nLevel)) {
@@ -402,6 +417,10 @@ class Config extends Storage {
      */
     static public function Set($sKey, $xValue, $sRoot = self::DEFAULT_CONFIG_ROOT, $nLevel = null) {
 
+        if (is_integer($sRoot) && is_null($nLevel)) {
+            $nLevel = $sRoot;
+            $sRoot = self::DEFAULT_CONFIG_ROOT;
+        }
         if (isset($xValue['$root$']) && is_array($xValue['$root$'])) {
             $aRoot = $xValue['$root$'];
             unset($xValue['$root$']);

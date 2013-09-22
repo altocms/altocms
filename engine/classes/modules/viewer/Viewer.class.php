@@ -184,6 +184,8 @@ class ModuleViewer extends Module {
      */
     protected $bLocal = false;
 
+    protected $sSkin;
+
     /**
      * Константа для компиляции LESS-файлов
      */
@@ -224,9 +226,40 @@ class ModuleViewer extends Module {
 
         $this->bLocal = (bool)$bLocal;
 
+        // * Создаём объект Smarty
+        $this->oSmarty = $this->CreateSmartyObject();
+
+        $this->InitSkin($this->bLocal);
+
+        // * Устанавливаем необходимые параметры для Smarty
+        $this->oSmarty->compile_check = Config::Get('smarty.compile_check');
+        $this->oSmarty->force_compile = Config::Get('smarty.force_compile');
+
+        // * Подавляем NOTICE ошибки - в этом вся прелесть смарти )
+        $this->oSmarty->error_reporting = error_reporting() & ~E_NOTICE;
+
+        // * Заголовок HTML страницы
+        $this->sHtmlTitle = Config::Get('view.name');
+
+        // * SEO ключевые слова страницы
+        $this->sHtmlKeywords = Config::Get('view.keywords');
+
+        // * SEO описание страницы
+        $this->sHtmlDescription = Config::Get('view.description');
+
+        // * Пустой вызов только для того, чтоб модуль Message инициализировался, если еще не
+        $this->Message_IsInit();
+
+        $this->sCacheDir = Config::Get('path.runtime.dir');
+    }
+
+    protected function InitSkin($bLocal = false) {
+
+        $this->sSkin = Config::Get('view.skin');
         if (!$bLocal) {
             // * Load skin config
-            $aConfig = Config::Get('skin.' . Config::Get('view.skin') . '.config');
+            $s = Config::Get('view.skin');
+            $aConfig = Config::Get('skin.' . $this->sSkin . '.config');
             if (F::File_Exists($sFile = Config::Get('path.smarty.template') . '/settings/config/config.php')) {
                 $aConfig = F::Array_Merge(F::IncludeFile($sFile, false, true), $aConfig);
             }
@@ -243,22 +276,6 @@ class ModuleViewer extends Module {
                 }
             }
         }
-        // * Заголовок HTML страницы
-        $this->sHtmlTitle = Config::Get('view.name');
-
-        // * SEO ключевые слова страницы
-        $this->sHtmlKeywords = Config::Get('view.keywords');
-
-        // * SEO описание страницы
-        $this->sHtmlDescription = Config::Get('view.description');
-
-        // * Создаём объект Smarty и устанавливаем необходимые параметры
-        $this->oSmarty = $this->CreateSmartyObject();
-        $this->oSmarty->compile_check = Config::Get('smarty.compile_check');
-        $this->oSmarty->force_compile = Config::Get('smarty.force_compile');
-
-        // * Подавляем NOTICE ошибки - в этом вся прелесть смарти )
-        $this->oSmarty->error_reporting = error_reporting() & ~E_NOTICE;
 
         // * Папки расположения шаблонов по умолчанию
         if (Config::Get('path.smarty.template_seek')) {
@@ -292,12 +309,8 @@ class ModuleViewer extends Module {
             }
         }
 
-        // * Пустой вызов только для того, чтоб модуль Message инициализировался, если еще не
-        $this->Message_IsInit();
-
         // * Получаем настройки JS-, CSS-файлов
         $this->InitFileParams();
-        $this->sCacheDir = Config::Get('path.runtime.dir');
     }
 
     /**
@@ -646,7 +659,7 @@ class ModuleViewer extends Module {
     public function GetSkin($bSiteSkin = true) {
 
         if ($bSiteSkin) {
-            return Config::Get('view.skin', Config::DEFAULT_CONFIG_ROOT);
+            return Config::Get('view.skin', Config::LEVEL_CUSTOM);
         } else {
             return Config::Get('view.skin');
         }
@@ -1582,6 +1595,10 @@ class ModuleViewer extends Module {
     public function Shutdown() {
 
         $timer = microtime(true);
+
+        if ($this->sSkin != Config::Get('view.skin')) {
+            $this->InitSkin($this->bLocal);
+        }
 
         // * Создаются списки виджетов для вывода
         $this->MakeWidgetsLists();

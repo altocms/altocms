@@ -120,6 +120,8 @@ class ModuleViewerAsset extends Module {
 
     public function AssetMake($aFiles) {
 
+        $this->aAssets = array();
+
         //$sPakHash = md5(serialize($aFiles));
         if (isset($aFiles['js'])) {
             $this->AddJsFiles($aFiles['js']);
