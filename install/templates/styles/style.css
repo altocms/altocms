@@ -53,6 +53,8 @@ h1 span { color: #bbb; margin-left: 20px; }
 	border-radius: 10px 10px 0 0;
 	position: relative;
 }
+#header .logo {float: left; }
+#header h1 { margin: 4px 0 0 48px; }
 #header .lang { position: absolute; top: 23px; right: 30px; text-transform: lowercase; color: #ccc; }
 #content	{ padding: 30px 30px; }
 

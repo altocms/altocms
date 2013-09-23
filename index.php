@@ -14,16 +14,10 @@ ini_set('display_errors', 1);
 header('Content-Type: text/html; charset=utf-8');
 header('X-Powered-By: Alto CMS');
 
-set_include_path(get_include_path() . PATH_SEPARATOR . dirname(__FILE__));
-chdir(dirname(__FILE__));
+defined('ALTO_DIR') or define('ALTO_DIR', dirname(__FILE__));
 
 // Run engine loader
-require_once('./engine/loader.php');
-
-if (is_file('./install/index.php') && (!isset($_SERVER['HTTP_APP_ENV']) || $_SERVER['HTTP_APP_ENV']!='test')) {
-    F::HttpLocation('install/', true);
-    exit;
-}
+require_once(ALTO_DIR . '/engine/loader.php');
 
 $oProfiler = ProfilerSimple::getInstance();
 if (DEBUG) $iTimeId = $oProfiler->Start('full_time');

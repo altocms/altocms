@@ -11,14 +11,13 @@
 /**
  * Настройка путей для первичной загрузки
  */
-$sRootDir = dirname(__DIR__);
 $config = array();
 
-$config['path']['dir']['engine']        = $sRootDir . '/engine/';           // Путь к папке движка
-$config['path']['dir']['libs']          = $sRootDir . '/engine/libs/';      // Путь к библиотекам движка
-$config['path']['dir']['common']        = $sRootDir . '/common/';           // Путь к общим компонентам
-$config['path']['dir']['config']        = $sRootDir . '/common/config/';    // Путь к папке конфигурации
-$config['path']['dir']['app']           = $sRootDir . '/app/';              // Путь к папке приложения
+$config['path']['dir']['engine']        = __DIR__;           // Путь к папке движка
+$config['path']['dir']['libs']          = ALTO_DIR . '/engine/libs/';      // Путь к библиотекам движка по умолчанию
+$config['path']['dir']['common']        = ALTO_DIR . '/common/';           // Путь к общим компонентам по умолчанию
+$config['path']['dir']['config']        = ALTO_DIR . '/common/config/';    // Путь к папке конфигурации по умолчанию
+$config['path']['dir']['app']           = ALTO_DIR . '/app/';              // Путь к папке приложения по умолчанию
 
 return $config;
 

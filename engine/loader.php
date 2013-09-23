@@ -50,4 +50,10 @@ if (isset($_SERVER['SCRIPT_NAME']) && isset($_SERVER['REQUEST_URI']) && $_SERVER
     // для предотвращения зацикливания и ошибки 404
     $_SERVER['REQUEST_URI'] = '/';
 }
+
+if (is_file('./install/index.php') && (!isset($_SERVER['HTTP_APP_ENV']) || $_SERVER['HTTP_APP_ENV']!='test')) {
+    F::HttpLocation('install/', true);
+    exit;
+}
+
 // EOF

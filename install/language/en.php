@@ -66,12 +66,12 @@ return array(
 
     'local_config'                     => 'Local Configuration',
     'local_config_file'                => 'File /config/config.local.php exists and writable',
-    'local_temp_dir'                   => 'Directory /tmp exists and writable',
-    'local_logs_dir'                   => 'Directory /logs exists and writable',
-    'local_uploads_dir'                => 'Directory /uploads exists and writable',
-    'local_templates_dir'              => 'Directory /templates/compiled exists and writable',
-    'local_templates_cache_dir'        => 'Directory /templates/cache exists and writable',
-    'local_plugins_dir'                => 'Directory /plugins exists and writable',
+    'local_temp_dir'                   => 'Folder /tmp exists and writable',
+    'local_logs_dir'                   => 'Folder /logs exists and writable',
+    'local_uploads_dir'                => 'Folder /uploads exists and writable',
+    'local_templates_dir'              => 'Folder /templates/compiled exists and writable',
+    'local_templates_cache_dir'        => 'Folder /templates/cache exists and writable',
+    'local_plugins_dir'                => 'Folder /plugins exists and writable',
 
     'db_params'                        => 'Database (DB) configuration',
     'db_params_host'                   => 'DB hostname',

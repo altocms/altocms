@@ -71,6 +71,8 @@ class AltoFunc_File {
 
         if (class_exists('Config', false)) {
             $sDir = Config::Get('path.root.dir');
+        } elseif (defined('ALTO_DIR')) {
+            $sDir = ALTO_DIR;
         } elseif (isset($_SERVER['DOCUMENT_ROOT'])) {
             $sDir = $_SERVER['DOCUMENT_ROOT'];
         } else {

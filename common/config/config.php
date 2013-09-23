@@ -8,19 +8,35 @@
  *-------------------------------------------------------
  */
 
+/********************************************************
+ * ATTENTION! Don't touch this file!
+ *
+ * All changes of settings you need to do in application
+ * configuration file, which usually placed here:
+ * /app/config/config.php
+ ********************************************************/
+
+/********************************************************
+ * ВНИМАНИЕ! Не вносите изменения в этот файл!
+ *
+ * Все изменения настроек нужно выполнять в файле
+ * конфигурации приложения, который обычно находится здесь:
+ * /app/config/config.php
+ ********************************************************/
+
 /**
  * Настройки HTML вида
  */
-$config['view']['skin']        = 'native';                       // скин
-$config['view']['theme']       = 'default';                     // тема
-$config['view']['name']        = 'Your Site Name';              // название сайта
-$config['view']['description'] = 'Description your site'; // seo description
-$config['view']['keywords']    = 'site, google, internet';      // seo keywords
-$config['view']['wysiwyg']         = false;  // использовать или нет визуальный редактор
+$config['view']['skin']        = 'native';                          // скин
+$config['view']['theme']       = 'default';                         // тема
+$config['view']['name']        = 'Your Site Name';                  // название сайта
+$config['view']['description'] = 'Description your site';           // meta tag description
+$config['view']['keywords']    = 'site, google, internet';          // meta tag keywords
+$config['view']['wysiwyg']          = false;  // использовать или нет визуальный редактор
 $config['view']['noindex']          = true;   // "прятать" или нет ссылки от поисковиков, оборачивая их в тег <noindex> и добавляя rel="nofollow"
 $config['view']['img_resize_width'] = 570;    // до какого размера в пикселях ужимать картинку по ширине при загрузки её в топики и комменты
-$config['view']['img_max_width'] = 5000;    // максимальная ширина загружаемых изображений в пикселях
-$config['view']['img_max_height'] = 5000;    // максимальная высота загружаемых изображений в пикселях
+$config['view']['img_max_width']    = 5000;    // максимальная ширина загружаемых изображений в пикселях
+$config['view']['img_max_height']   = 5000;    // максимальная высота загружаемых изображений в пикселях
 $config['view']['img_max_size_url'] = 500;    // максимальный размер картинки в kB для загрузки по URL
 
 /**
@@ -60,7 +76,7 @@ if (isset($_SERVER['HTTP_HOST'])) {
     // for CLI scripts. or you can append "HTTP_HOST=http://yoursite.url" before script run command
     $config['path']['root']['url']      = null;
 }
-$config['path']['root']['dir'] = dirname(dirname(__DIR__));
+$config['path']['root']['dir'] = ALTO_DIR;
 
 /**
  * Параметры сервера для статики. По умолчанию совпадают с основным сервером
