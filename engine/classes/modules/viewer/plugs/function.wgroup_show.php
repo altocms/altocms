@@ -23,8 +23,19 @@
  */
 function smarty_function_wgroup_show($aParams, $oSmartyTemplate) {
 
+    if (isset($aParams['name'])) {
+        if (!isset($aParams['group'])) {
+            $aParams['group'] = $aParams['name'];
+        } elseif (!isset($aParams['widget'])) {
+            $aParams['widget'] = $aParams['name'];
+        }
+    }
     if (!isset($aParams['group'])) {
-        trigger_error('Parameter "group" does not define in {wgroup ...} function', E_USER_WARNING);
+        $sError = 'Parameter "group" does not define in {wgroup_show ...} function';
+        if ($oSmartyTemplate->template_resource) {
+            $sError .= ' (template: ' . $oSmartyTemplate->template_resource . ')';
+        }
+        trigger_error($sError, E_USER_WARNING);
         return;
     }
     $sWidgetGroup = $aParams['group'];

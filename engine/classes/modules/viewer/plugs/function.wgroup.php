@@ -23,13 +23,20 @@
  */
 function smarty_function_wgroup($aParams, $oSmartyTemplate) {
 
-    if (!isset($aParams['group']) && !isset($aParams['name'])) {
-        trigger_error('Parameter "group" or "name" does not define in {wgroup ...} function', E_USER_WARNING);
-        return;
-    } else {
-        if (!isset($aParams['group']) && isset($aParams['name'])) {
+    if (isset($aParams['name'])) {
+        if (!isset($aParams['group'])) {
             $aParams['group'] = $aParams['name'];
+        } elseif (!isset($aParams['widget'])) {
+            $aParams['widget'] = $aParams['name'];
         }
+    }
+    if (!isset($aParams['group']) && !isset($aParams['name'])) {
+        $sError = 'Parameter "group" does not define in {wgroup ...} function';
+        if ($oSmartyTemplate->template_resource) {
+            $sError .= ' (template: ' . $oSmartyTemplate->template_resource . ')';
+        }
+        trigger_error($sError, E_USER_WARNING);
+        return;
     }
     $sWidgetGroup = $aParams['group'];
     $aWidgetParams = (isset($aParams['params']) ? $aParams['params'] : $aParams);

@@ -24,7 +24,11 @@
 function smarty_function_widget($aParams, $oSmartyTemplate) {
 
     if (!isset($aParams['name']) && !isset($aParams['object']) && !isset($aParams['group']) && !isset($aParams['id'])) {
-        trigger_error('Parameter "name" or "object" or "id" not define in {widget ...} function', E_USER_WARNING);
+        $sError = 'Parameter "name" or "object" or "id" not define in {widget ...} function';
+        if ($oSmartyTemplate->template_resource) {
+            $sError .= ' (template: ' . $oSmartyTemplate->template_resource . ')';
+        }
+        trigger_error($sError, E_USER_WARNING);
         return;
     }
     if (isset($aParams['group'])) {
