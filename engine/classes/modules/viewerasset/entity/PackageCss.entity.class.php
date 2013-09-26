@@ -130,13 +130,13 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
     protected function _convertUrlsInCss($sContent, $sSourceDir) {
 
         // Есть ли в файле URLs
-        if (!preg_match_all('|url\((.*?)\)|is', $sContent, $aMatchedUrl, PREG_OFFSET_CAPTURE)) {
+        if (!preg_match_all('/(?<src>src:)?url\((?<url>.*?)\)/is', $sContent, $aMatchedUrl, PREG_OFFSET_CAPTURE)) {
             return $sContent;
         }
 
         // * Обрабатываем список URLs
         $aUrls = array();
-        foreach ($aMatchedUrl[1] as $aPart) {
+        foreach ($aMatchedUrl['url'] as $nIdx => $aPart) {
             $sPath = $aPart[0];
             //$nPos = $aPart[1];
 
@@ -151,12 +151,18 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
                 continue;
             }
 
+            if ($n = strpos($sPath, '?')) {
+                $sPath = substr($sPath, 0, $n);
+                $sFileParam = substr($sPath, $n);
+            } else {
+                $sFileParam = '';
+            }
             $sRealPath = realpath($sSourceDir . $sPath);
             $sDestination = $this->Viewer_GetAssetDir() . $this->_crc(dirname($sRealPath)) . '/' . basename($sRealPath);
             $aUrls[$sPath] = array(
                 'source'      => $sRealPath,
                 'destination' => $sDestination,
-                'url'         => F::File_Dir2Url($sDestination),
+                'url'         => F::File_Dir2Url($sDestination) . $sFileParam,
             );
             F::File_Copy($sRealPath, $sDestination);
         }
