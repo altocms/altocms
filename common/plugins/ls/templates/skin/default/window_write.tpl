@@ -13,10 +13,10 @@
                     <a href="{router page='content'}saved/" class="write-item-link">{$iUserCurrentCountTopicDraft} {$iUserCurrentCountTopicDraft|declension:$aLang.draft_declension:'russian'}</a>
                 </li>
             {/if}
-            {foreach from=$aContentTypes item=oType}
+            {foreach from=$aContentTypes item=oContentType}
                 <li class="write-item-type-topic">
-                    <a href="{router page='content'}{$oType->getContentUrl()}/add/" class="write-item-image"></a>
-                    <a href="{router page='content'}{$oType->getContentUrl()}/add/" class="write-item-link">{$oType->getContentTitle()|escape:'html'}</a>
+                    <a href="{router page='content'}{$oContentType->getContentUrl()}/add/" class="write-item-image"></a>
+                    <a href="{router page='content'}{$oContentType->getContentUrl()}/add/" class="write-item-link">{$oContentType->getContentTitle()|escape:'html'}</a>
                 </li>
             {/foreach}
             <li class="write-item-type-blog">

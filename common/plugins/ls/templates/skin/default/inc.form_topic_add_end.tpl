@@ -1,5 +1,5 @@
 <div class="topic-additional-fields">
-	{if $oType->isAllow('photoset')}
+	{if $oContentType->isAllow('photoset')}
 
 		<div class="page-header">
             <a href="#" class="link-dotted pointer" onclick="$('.topic-photo-upload').slideToggle();return false;">{$aLang.topic_toggle_images}</a>
@@ -42,7 +42,7 @@
 		</div>
 	{/if}
 
-	{if $oType->isAllow('question')}
+	{if $oContentType->isAllow('question')}
 		<div class="page-header">
             <a href="#" class="link-dotted pointer" onclick="$('#topic-poll').slideToggle();return false;">{$aLang.topic_toggle_poll}</a>
         </div>
@@ -72,7 +72,7 @@
 	{/if}
 
 
-	{if $oType->isAllow('link')}
+	{if $oContentType->isAllow('link')}
 		<div class="page-header">
             <a href="#" class="link-dotted pointer" onclick="$('#topic-link').slideToggle();return false;">{$aLang.topic_toggle_link}</a>
         </div>

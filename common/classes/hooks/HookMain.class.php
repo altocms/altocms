@@ -28,13 +28,13 @@ class HookMain extends Hook {
         $this->AddHook('module_Session_init_after', 'SessionInitAfter', __CLASS__, PHP_INT_MAX);
         $this->AddHook('init_action', 'InitAction', __CLASS__, PHP_INT_MAX);
 
-        $this->AddHook('template_form_add_content', 'insertfields', __CLASS__, -1);
+        $this->AddHook('template_form_add_content', 'insertFields', __CLASS__, -1);
 
         /*
          * Показывавем поля при просмотре топика
          */
-        $this->AddHook('template_topic_content_end', 'showfields', __CLASS__, 150);
-        $this->AddHook('template_topic_preview_content_end', 'showfields', __CLASS__, 150);
+        $this->AddHook('template_topic_content_end', 'showFields', __CLASS__, 150);
+        $this->AddHook('template_topic_preview_content_end', 'showFields', __CLASS__, 150);
 
         /*
          * Упрощенный вывод JS в футере, для проблемных файлов
@@ -78,12 +78,12 @@ class HookMain extends Hook {
         }
     }
 
-    public function insertfields() {
+    public function insertFields() {
 
-        return $this->Viewer_Fetch('topics/inject.topic.fields.tpl');
+        return $this->Viewer_Fetch('inject.topic.fields.tpl');
     }
 
-    public function showfields($aVars) {
+    public function showFields($aVars) {
 
         $oTopic = $aVars['topic'];
         $bTopicList = $aVars['bTopicList'];

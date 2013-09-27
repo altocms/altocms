@@ -38,8 +38,8 @@
 	{strip}
 		<h2 class="page-header">{$aLang.block_create} <a href="#" class="dropdown-create-trigger link-dashed" id="dropdown-create-trigger">
 			{if $sAction=='content'}
-				{foreach from=$aContentTypes item=oType}
-					{if $sEvent==$oType->getContentUrl()}{$oType->getContentTitle()|escape:'html'}{/if}
+				{foreach from=$aContentTypes item=oContentType}
+					{if $sEvent==$oContentType->getContentUrl()}{$oContentType->getContentTitle()|escape:'html'}{/if}
 				{/foreach}
 			{elseif $sMenuItemSelect=='blog'}
 				{$aLang.blog_menu_create}
@@ -52,9 +52,9 @@
 	{/strip}
 	
 	<ul class="dropdown-menu-create" id="dropdown-create-menu" style="display: none">
-		{foreach from=$aContentTypes item=oType}
-            {if $oType->isAccessible()}
-                <li {if $sEvent==$oType->getContentUrl()}class="active"{/if}><a href="{router page='content'}{$oType->getContentUrl()}/add/">{$oType->getContentTitle()|escape:'html'}</a></li>
+		{foreach from=$aContentTypes item=oContentType}
+            {if $oContentType->isAccessible()}
+                <li {if $sEvent==$oContentType->getContentUrl()}class="active"{/if}><a href="{router page='content'}{$oContentType->getContentUrl()}/add/">{$oContentType->getContentTitle()|escape:'html'}</a></li>
             {/if}
         {/foreach}
 		<li {if $sMenuItemSelect=='blog'}class="active"{/if}><a href="{router page='blog'}add/">{$aLang.blog_menu_create}</a></li>

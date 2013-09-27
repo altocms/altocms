@@ -103,7 +103,7 @@
         <br/>
     {/if}
 
-    {if $oType->isAllow('photoset')}
+    {if $oContentType->isAllow('photoset')}
         <h2 class="page-header">
             <a class="link-dotted pointer" onclick="$('.topic-photo-upload').slideToggle();return false;">
                 {$aLang.topic_toggle_images}
@@ -150,7 +150,7 @@
         </div>
     {/if}
 
-    {if $oType->isAllow('question')}
+    {if $oContentType->isAllow('question')}
         <h2 class="page-header">
             <a class="link-dotted pointer" onclick="$('#topic-poll').slideToggle();return false;">
                 {$aLang.topic_toggle_poll}
@@ -187,7 +187,7 @@
         </div>
     {/if}
 
-    {if $oType->isAllow('link')}
+    {if $oContentType->isAllow('link')}
         <h2 class="page-header">
             <a class="link-dotted pointer" onclick="$('#topic-link').slideToggle();return false;">
                 {$aLang.topic_toggle_link}
@@ -224,7 +224,7 @@
         </p>
     {/if}
 
-    <input type="hidden" name="topic_type" value="{$oType->getContentUrl()}"/>
+    <input type="hidden" name="topic_type" value="{$oContentType->getContentUrl()}"/>
 
     {hook run='form_add_topic_topic_end'}
 

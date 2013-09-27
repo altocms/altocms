@@ -1,8 +1,8 @@
 {include file='topic_part_header.tpl'}
 
-{assign var=oType value=$oTopic->getContentType()}
+{assign var=oContentType value=$oTopic->getContentType()}
 
-{if $oType->isAllow('photoset')}
+{if $oContentType->isAllow('photoset')}
 	{assign var=oMainPhoto value=$oTopic->getPhotosetMainPhoto()}
 	{if $oMainPhoto}
 	<div class="topic-photo-preview" id="photoset-main-preview-{$oTopic->getId()}" onclick="window.location='{$oTopic->getUrl()}#photoset'">
@@ -42,7 +42,7 @@
 	{hook run='topic_content_end' topic=$oTopic bTopicList=$bTopicList}
 </div>
 
-{if $oType->isAllow('photoset') && !$bTopicList && $iPhotosCount}
+{if $oContentType->isAllow('photoset') && !$bTopicList && $iPhotosCount}
 	<script type="text/javascript" src="{cfg name='path.root.engine_lib'}/external/prettyPhoto/js/prettyPhoto.js"></script>
 	<link rel='stylesheet' type='text/css' href="{cfg name='path.root.engine_lib'}/external/prettyPhoto/css/prettyPhoto.css" />
 	<script type="text/javascript">
@@ -80,7 +80,7 @@
 	</div>
 {/if}
 
-{if $oType->isAllow('question') && $oTopic->getQuestionAnswers()}
+{if $oContentType->isAllow('question') && $oTopic->getQuestionAnswers()}
 	<div class="poll-zone">
 		<h2>{$oTopic->getQuestionTitle()|escape:'html'}</h2>
 		<div id="topic_question_area_{$oTopic->getId()}" class="poll">
@@ -103,7 +103,7 @@
 {/if}
 
 
-{if $oType->isAllow('link') && $oTopic->getLinkUrl()}
+{if $oContentType->isAllow('link') && $oTopic->getLinkUrl()}
 	<div class="topic-url">
 		{$aLang.topic_link_create_url}: <a href="{router page='content'}go/{$oTopic->getId()}/" title="{$aLang.topic_link_count_jump}: {$oTopic->getLinkCountJump()}">{$oTopic->getLinkUrl()}</a> <span class="link-note">{$aLang.topic_link_count_jump}: {$oTopic->getLinkCountJump()}</span>
 	</div>
