@@ -67,7 +67,7 @@ ls.photoset =( function ($) {
 	this.deletePhoto = function(id)
 	{
 		if (!confirm(ls.lang.get('topic_photoset_photo_delete_confirm'))) {return;}
-		ls.ajax(aRouter['content']+'deleteimage', {'id':id}, function(response){
+		ls.ajax(aRouter['content']+'photo/delete', {'id':id}, function(response){
 			if (!response.bStateError) {
 				$('#photo_'+id).remove();
 				ls.msg.notice(response.sMsgTitle,response.sMsg);

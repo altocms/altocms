@@ -2471,7 +2471,7 @@ class ModuleTopic extends Module {
 
         $this->oMapperTopic->deleteTopicPhoto($oPhoto->getId());
 
-        $sFile = $this->Update_Url2Dir($oPhoto->getPath());
+        $sFile = $this->Uploader_Url2Dir($oPhoto->getPath());
         $this->Img_Delete($sFile);
         $this->Cache_CleanByTags(array('photoset_photo_update'));
     }

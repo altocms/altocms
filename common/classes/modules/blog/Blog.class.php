@@ -1093,7 +1093,7 @@ class ModuleBlog extends Module {
 
         $sFileTmp = $this->Uploader_UploadLocal($aFile);
         if ($sFileTmp && ($oImg = $this->Img_CropSquare($sFileTmp))) {
-            $sFile = $this->Update_Uniqname($this->Update_GetUserImageDir(), strtolower(pathinfo($sFileTmp, PATHINFO_EXTENSION)));
+            $sFile = $this->Uploader_Uniqname($this->Uploader_GetUserImageDir(), strtolower(pathinfo($sFileTmp, PATHINFO_EXTENSION)));
             if ($oImg->Save($sFile)) {
                 return $this->Uploader_Dir2Url($sFile);
             }
