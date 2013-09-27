@@ -2300,10 +2300,10 @@ class ModuleTopic extends Module {
 
         $sFileTmp = $this->Img_TransformFile($sImageFile, 'topic');
         if ($sFileTmp) {
-            $sDirUpload = $this->Upload_GetUserImageDir($oUser->getId());
-            $sFileImage = $this->Upload_Uniqname($sDirUpload, strtolower(F::File_GetExtension($sFileTmp)));
-            if ($sFileImage = $this->Upload_Move($sFileTmp, $sFileImage)) {
-                return $this->Upload_Dir2Url($sFileImage);
+            $sDirUpload = $this->Uploader_GetUserImageDir($oUser->getId());
+            $sFileImage = $this->Uploader_Uniqname($sDirUpload, strtolower(F::File_GetExtension($sFileTmp)));
+            if ($sFileImage = $this->Uploader_Move($sFileTmp, $sFileImage)) {
+                return $this->Uploader_Dir2Url($sFileImage);
             }
         }
         return false;
@@ -2317,7 +2317,7 @@ class ModuleTopic extends Module {
      */
     public function UploadTopicImageFile($aFile, $oUser) {
 
-        if ($sFileTmp = $this->Upload_UploadLocal($aFile)) {
+        if ($sFileTmp = $this->Uploader_UploadLocal($aFile)) {
             return $this->_saveTopicImage($sFileTmp, $oUser);
         }
         return false;
@@ -2333,7 +2333,7 @@ class ModuleTopic extends Module {
      */
     public function UploadTopicImageUrl($sUrl, $oUser) {
 
-        if ($sFileTmp = $this->Upload_UploadRemote($sUrl)) {
+        if ($sFileTmp = $this->Uploader_UploadRemote($sUrl)) {
             return $this->_saveTopicImage($sFileTmp, $oUser);
         }
         return false;
@@ -2485,14 +2485,14 @@ class ModuleTopic extends Module {
      */
     public function UploadTopicPhoto($aFile) {
 
-        $sFileTmp = $this->Upload_UploadLocal($aFile);
+        $sFileTmp = $this->Uploader_UploadLocal($aFile);
         if ($sFileTmp) {
             $sFileTmp = $this->Img_TransformFile($sFileTmp, 'photoset');
             if ($sFileTmp) {
-                $sDirUpload = $this->Upload_GetUserImageDir($this->oUserCurrent->getId());
-                $sFileImage = $this->Upload_Uniqname($sDirUpload, F::File_GetExtension($sFileTmp));
-                if ($sFileImage = $this->Upload_Move($sFileTmp, $sFileImage)) {
-                    return $this->Upload_Dir2Url($sFileImage);
+                $sDirUpload = $this->Uploader_GetUserImageDir($this->oUserCurrent->getId());
+                $sFileImage = $this->Uploader_Uniqname($sDirUpload, F::File_GetExtension($sFileTmp));
+                if ($sFileImage = $this->Uploader_Move($sFileTmp, $sFileImage)) {
+                    return $this->Uploader_Dir2Url($sFileImage);
                 }
             }
         }
@@ -2502,7 +2502,7 @@ class ModuleTopic extends Module {
 
     public function UploadPhotoError() {
 
-        return $this->Upload_GetErrorMsg();
+        return $this->Uploader_GetErrorMsg();
     }
 
     /**

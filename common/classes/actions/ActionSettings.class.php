@@ -132,22 +132,22 @@ class ActionSettings extends Action {
         }
         $sError = '';
 
-        $sTmpFile = $this->Upload_UploadLocal($aUploadedFile);
+        $sTmpFile = $this->Uploader_UploadLocal($aUploadedFile);
         if ($sTmpFile) {
             /**
              * Ресайзим и сохраняем уменьшенную копию
              * Храним две копии - мелкую для показа пользователю и крупную в качестве исходной для ресайза
              */
-            $sPreviewFile = $this->Upload_GetUserAvatarDir($this->oUserCurrent->getId()) . 'photo-preview.' . F::File_GetExtension($sTmpFile);
+            $sPreviewFile = $this->Uploader_GetUserAvatarDir($this->oUserCurrent->getId()) . 'photo-preview.' . F::File_GetExtension($sTmpFile);
             if ($sPreviewFile = $this->Img_Copy($sTmpFile, $sPreviewFile, self::PREVIEW_RESIZE, self::PREVIEW_RESIZE)) {
                 // * Сохраняем в сессии временный файл с изображением
                 $this->Session_Set('sPhotoTmp', $sTmpFile);
                 $this->Session_Set('sPhotoPreview', $sPreviewFile);
-                $this->Viewer_AssignAjax('sTmpFile', $this->Upload_Dir2Url($sPreviewFile));
+                $this->Viewer_AssignAjax('sTmpFile', $this->Uploader_Dir2Url($sPreviewFile));
                 return;
             }
         } else {
-            $sError = $this->Upload_GetErrorMsg();
+            $sError = $this->Uploader_GetErrorMsg();
             if (!$sError) {
                 $sError = $this->Lang_Get('settings_profile_photo_error');
             }
@@ -263,20 +263,20 @@ class ActionSettings extends Action {
         $sError = '';
 
         // Загружаем файл
-        $sUploadedFile = $this->Upload_UploadLocal($aUploadedFile);
+        $sUploadedFile = $this->Uploader_UploadLocal($aUploadedFile);
         if ($sUploadedFile) {
             if ($this->Img_ResizeFile($sUploadedFile, self::PREVIEW_RESIZE, self::PREVIEW_RESIZE)) {
                 // Сохраняем аватар в оригинале
-                $sAvatarFile = $this->Upload_GetUserAvatarDir($this->oUserCurrent->getId()) . 'original.' . F::File_GetExtension($sUploadedFile);
-                if ($sAvatarFile = $this->Upload_Move($sUploadedFile, $sAvatarFile, true)) {
+                $sAvatarFile = $this->Uploader_GetUserAvatarDir($this->oUserCurrent->getId()) . 'original.' . F::File_GetExtension($sUploadedFile);
+                if ($sAvatarFile = $this->Uploader_Move($sUploadedFile, $sAvatarFile, true)) {
                     // Сохраняем в сессии
                     $this->Session_Set('sAvatarFileTmp', $sAvatarFile);
-                    $this->Viewer_AssignAjax('sTmpFile', $this->Upload_Dir2Url($sAvatarFile));
+                    $this->Viewer_AssignAjax('sTmpFile', $this->Uploader_Dir2Url($sAvatarFile));
                     return;
                 }
             }
         } else {
-            $sError = $this->Upload_GetErrorMsg();
+            $sError = $this->Uploader_GetErrorMsg();
             if (!$sError) {
                 $sError = $this->Lang_Get('settings_profile_avatar_upload_error');
             }

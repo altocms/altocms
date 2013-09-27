@@ -1335,11 +1335,11 @@ class ModuleUser extends Module {
         if ($sTmpFile = $oImg->Save(F::File_UploadUniqname($sExtension))) {
 
             // Файл, куда будет записан аватар
-            $sAvatar = $this->Upload_GetUserAvatarDir($oUser->GetId()) . 'avatar' . $sName . '.' . $sExtension;
+            $sAvatar = $this->Uploader_GetUserAvatarDir($oUser->GetId()) . 'avatar' . $sName . '.' . $sExtension;
 
             // Окончательная запись файла только через модуль Upload
-            if ($sFileAvatar = $this->Upload_Move($sTmpFile, $sAvatar, true)) {
-                return $this->Upload_Dir2Url($sAvatar);
+            if ($sFileAvatar = $this->Uploader_Move($sTmpFile, $sAvatar, true)) {
+                return $this->Uploader_Dir2Url($sAvatar);
             }
         }
 
@@ -1359,8 +1359,8 @@ class ModuleUser extends Module {
 
         // * Если аватар есть, удаляем его и его рейсайзы
         if ($sAavatar = $oUser->getProfileAvatar()) {
-            $sFile = $this->Upload_Url2Dir($sAavatar);
-            return $this->Upload_Delete($sFile) && $this->Upload_DeleteAs($sFile . '-*.*');
+            $sFile = $this->Uploader_Url2Dir($sAavatar);
+            return $this->Uploader_Delete($sFile) && $this->Uploader_DeleteAs($sFile . '-*.*');
         }
     }
 
@@ -1375,8 +1375,8 @@ class ModuleUser extends Module {
 
         // * Если аватар есть, удаляем его и его рейсайзы
         if ($sAavatar = $oUser->getProfileAvatar()) {
-            $sFile = $this->Upload_Url2Dir($sAavatar);
-            return $this->Upload_DeleteAs($sFile . '-*.*');
+            $sFile = $this->Uploader_Url2Dir($sAavatar);
+            return $this->Uploader_DeleteAs($sFile . '-*.*');
         }
     }
 
@@ -1411,11 +1411,11 @@ class ModuleUser extends Module {
         if ($sTmpFile = $oImg->Save(F::File_UploadUniqname($sExtension))) {
 
             // Файл, куда будет записано фото
-            $sPhoto = $this->Upload_Uniqname($this->Upload_GetUserImageDir($oUser->GetId()), $sExtension);
+            $sPhoto = $this->Uploader_Uniqname($this->Uploader_GetUserImageDir($oUser->GetId()), $sExtension);
 
             // Окончательная запись файла только через модуль Upload
-            if ($sPhotoFile = $this->Upload_Move($sTmpFile, $sPhoto, true)) {
-                return $this->Upload_Dir2Url($sPhotoFile);
+            if ($sPhotoFile = $this->Uploader_Move($sTmpFile, $sPhoto, true)) {
+                return $this->Uploader_Dir2Url($sPhotoFile);
             }
         }
 
@@ -1431,7 +1431,7 @@ class ModuleUser extends Module {
      */
     public function DeletePhoto($oUser) {
 
-        $this->Img_Delete($this->Upload_Url2Dir($oUser->getProfilePhoto()));
+        $this->Img_Delete($this->Uploader_Url2Dir($oUser->getProfilePhoto()));
     }
 
     /**

@@ -221,11 +221,11 @@ class ModuleBlog_EntityBlog extends Entity {
                 return $sPath . '-' . $nSize . 'x' . $nSize . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
             }
         } else {
-            $sPath = $this->Upload_GetUserImageDir(0) . 'avatar_blog_' . Config::Get('view.skin') . '.png';
+            $sPath = $this->Uploader_GetUserImageDir(0) . 'avatar_blog_' . Config::Get('view.skin') . '.png';
             if ($nSize) {
                 $sPath .= '-' . $nSize . 'x' . $nSize . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
             }
-            return $this->Upload_Dir2Url($sPath);
+            return $this->Uploader_Dir2Url($sPath);
         }
     }
 

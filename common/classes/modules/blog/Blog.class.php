@@ -1091,11 +1091,11 @@ class ModuleBlog extends Module {
      */
     public function UploadBlogAvatar($aFile, $oBlog) {
 
-        $sFileTmp = $this->Upload_UploadLocal($aFile);
+        $sFileTmp = $this->Uploader_UploadLocal($aFile);
         if ($sFileTmp && ($oImg = $this->Img_CropSquare($sFileTmp))) {
             $sFile = $this->Update_Uniqname($this->Update_GetUserImageDir(), strtolower(pathinfo($sFileTmp, PATHINFO_EXTENSION)));
             if ($oImg->Save($sFile)) {
-                return $this->Upload_Dir2Url($sFile);
+                return $this->Uploader_Dir2Url($sFile);
             }
             F::File_Delete($sFile);
         }
@@ -1113,7 +1113,7 @@ class ModuleBlog extends Module {
 
         // * Если аватар есть, удаляем его и его рейсайзы
         if ($sUrl = $oBlog->getAvatar()) {
-            $this->Img_Delete($this->Upload_Url2Dir($sUrl));
+            $this->Img_Delete($this->Uploader_Url2Dir($sUrl));
         }
     }
 

@@ -1079,8 +1079,8 @@ class ActionAjax extends Action {
             $sFile = $this->Topic_UploadTopicImageFile($aUploadedFile, $this->oUserCurrent);
             if (!$sFile) {
                 $sMessage = $this->Lang_Get('uploadimg_file_error');
-                if ($this->Upload_GetError()) {
-                    $sMessage .= ' (' . $this->Upload_GetErrorMsg() . ')';
+                if ($this->Uploader_GetError()) {
+                    $sMessage .= ' (' . $this->Uploader_GetErrorMsg() . ')';
                 }
                 $this->Message_AddErrorSingle($sMessage, $this->Lang_Get('error'));
                 return;
@@ -1103,7 +1103,7 @@ class ActionAjax extends Action {
             $sText = $this->Img_BuildHTML($oFile->GetPathUrl(), $_REQUEST);
             $this->Viewer_AssignAjax('sText', $sText);
         } else {
-            $this->Message_AddErrorSingle($this->Upload_GetErrorMsg(), $this->Lang_Get('error'));
+            $this->Message_AddErrorSingle($this->Uploader_GetErrorMsg(), $this->Lang_Get('error'));
         }
     }
 

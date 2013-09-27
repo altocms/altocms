@@ -491,13 +491,13 @@ class ModuleUser_EntityUser extends Entity {
                 return $sPath . '-' . $nSize . 'x' . $nSize . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
             }
         } else {
-            $sPath = $this->Upload_GetUserAvatarDir(0)
+            $sPath = $this->Uploader_GetUserAvatarDir(0)
                 . 'avatar_' . Config::Get('view.skin') . '_' . ($this->getProfileSex() == 'woman' ? 'female' : 'male')
                 . '.png';
             if ($nSize) {
                 $sPath .= '-' . $nSize . 'x' . $nSize . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
             }
-            return $this->Upload_Dir2Url($sPath);
+            return $this->Uploader_Dir2Url($sPath);
         }
     }
 
@@ -530,13 +530,13 @@ class ModuleUser_EntityUser extends Entity {
 
     public function GetDefaultPhotoUrl($nSize = null) {
 
-        $sPath = $this->Upload_GetUserAvatarDir(0)
+        $sPath = $this->Uploader_GetUserAvatarDir(0)
             . 'user_photo_' . Config::Get('view.skin') . '_' . ($this->getProfileSex() == 'woman' ? 'female' : 'male')
             . '.png';
         if ($nSize) {
             $sPath .= '-' . $nSize . 'x' . $nSize . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
         }
-        return $this->Upload_Dir2Url($sPath);
+        return $this->Uploader_Dir2Url($sPath);
     }
 
     /**
