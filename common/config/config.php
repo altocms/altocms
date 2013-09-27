@@ -91,6 +91,7 @@ $config['path']['static']['framework']      = "___path.static.root___/templates/
 
 $config['path']['uploads']['root']      = '/uploads';                          // папка для загрузки файлов
 $config['path']['uploads']['images']    = '___path.uploads.root___/images/';
+$config['path']['uploads']['files']     = '___path.uploads.root___/files/';
 
 $config['path']['offset_request_url']   = 0;                                   // иногда помогает если сервер использует внутренние реврайты
 

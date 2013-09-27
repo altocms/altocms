@@ -8,7 +8,7 @@
  *----------------------------------------------------------------------------
  */
 
-class ModuleUpload extends Module {
+class ModuleUploader extends Module {
 
     const ERR_NOT_POST_UPLOADED     = 10001;
     const ERR_NOT_FILE_VARIABLE     = 10002;
@@ -54,8 +54,12 @@ class ModuleUpload extends Module {
     protected $nLastError = 0;
     protected $sLastError = '';
     protected $aModConfig = array();
+    protected $sDefaultDriver = 'file';
+    protected $aDrivers = array();
 
-
+    /**
+     * Init module
+     */
     public function Init() {
 
         $this->aModConfig = Config::Get('module.upload');
@@ -72,6 +76,8 @@ class ModuleUpload extends Module {
 
         $this->aModConfig['img_max_width'] = Config::Get('view.img_max_width');
         $this->aModConfig['img_max_height'] = Config::Get('view.img_max_height');
+
+        $this->RegisterDriver('file');
     }
 
     protected function _resetError() {
@@ -81,10 +87,58 @@ class ModuleUpload extends Module {
     }
 
     /**
+     * @param string $sDriver
+     */
+    public function RegisterDriver($sDriver) {
+
+        $this->aDrivers[$sDriver] = false;
+    }
+
+    /**
+     * @return array
+     */
+    public function GetRegisteredDrivers() {
+
+        return array_keys($this->aDrivers);
+    }
+
+    /**
+     * @param string $sDriver
+     */
+    public function SetDefaultDriver($sDriver) {
+
+        $this->sDefaultDriver = $sDriver;
+    }
+
+    /**
+     * @return string
+     */
+    public function GetDefaultDriver() {
+
+        return $this->sDefaultDriver;
+    }
+
+    /**
+     * @param $sDriverName
+     *
+     * @return object|null
+     */
+    public function GetDriver($sDriverName) {
+
+        if (isset($this->aDrivers[$sDriverName])) {
+            if (!$this->aDrivers[$sDriverName]) {
+                $oDriver = Engine::GetEntity('Uploader_Driver' . ucfirst($sDriverName));
+                $this->aDrivers[$sDriverName] = $oDriver;
+            }
+            return $this->aDrivers[$sDriverName];
+        }
+    }
+
+    /**
      * Move temporary file to destination
      *
-     * @param $sTmpFile
-     * @param $sTargetFile
+     * @param string $sTmpFile
+     * @param string TargetFile
      *
      * @return bool
      */
@@ -111,6 +165,7 @@ class ModuleUpload extends Module {
      * Return error messge
      *
      * @param bool $bReset
+     *
      * @return string
      */
     public function GetErrorMsg($bReset = true) {
@@ -130,7 +185,7 @@ class ModuleUpload extends Module {
     }
 
     /**
-     * @param $sFile
+     * @param string $sFile
      *
      * @return bool
      */
@@ -153,7 +208,7 @@ class ModuleUpload extends Module {
     }
 
     /**
-     * @param $sFile
+     * @param string $sFile
      *
      * @return bool
      */
@@ -225,9 +280,9 @@ class ModuleUpload extends Module {
     /**
      * Upload remote file by URL
      *
-     * @param       $sUrl
-     * @param null  $sDir
-     * @param array $aParams
+     * @param string $sUrl
+     * @param string $sDir
+     * @param array  $aParams
      *
      * @return bool
      */
@@ -285,99 +340,73 @@ class ModuleUpload extends Module {
     }
 
     /**
-     * @param $sFilePath
+     * @param string $sFilePath
+     * @param string $sDestination
+     * @param bool   $bRewrite
      *
-     * @return mixed
-     */
-    public function Exists($sFilePath) {
-
-        return F::File_Exists($sFilePath);
-    }
-
-    /**
-     * @param $sFilePath
-     * @param $sDestination
-     * @param $bRewrite
-     *
-     * @return mixed
+     * @return string|bool
      */
     public function Move($sFilePath, $sDestination, $bRewrite = true) {
 
-        $sResult = F::File_Move($sFilePath, $sDestination, $bRewrite);
-        if (!$sResult) {
-            $this->nLastError = self::ERR_MOVE_UPLOAD_FILE;
+        if ($sFilePath == $sDestination) {
+            $sResult = $sDestination;
+        } else {
+            $sResult = F::File_Move($sFilePath, $sDestination, $bRewrite);
+            if (!$sResult) {
+                $this->nLastError = self::ERR_MOVE_UPLOAD_FILE;
+            }
         }
         return $sResult;
     }
 
     /**
-     * @param $sFilePath
-     * @param $sDestination
+     * @param string $sFilePath
+     * @param string $sDestination
      *
-     * @return mixed
+     * @return string|bool
      */
     public function Copy($sFilePath, $sDestination) {
 
-        $sResult = F::File_Copy($sFilePath, $sDestination);
-        if (!$sResult) {
-            $this->nLastError = self::ERR_COPY_UPLOAD_FILE;
+        if ($sFilePath == $sDestination) {
+            $sResult = $sDestination;
+        } else {
+            $sResult = F::File_Copy($sFilePath, $sDestination);
+            if (!$sResult) {
+                $this->nLastError = self::ERR_COPY_UPLOAD_FILE;
+            }
         }
         return $sResult;
-    }
-
-    /**
-     * @param $sFilePath
-     *
-     * @return mixed
-     */
-    public function Delete($sFilePath) {
-
-        return F::File_Delete($sFilePath);
-    }
-
-    public function DeleteAs($sFilePattern) {
-
-        return F::File_DeleteAs($sFilePattern);
-    }
-
-    /**
-     * @param $sFilePath
-     *
-     * @return mixed
-     */
-    public function Dir2Url($sFilePath) {
-
-        return F::File_Dir2Url($sFilePath);
-    }
-
-    /**
-     * @param $sUrl
-     *
-     * @return mixed
-     */
-    public function Url2Dir($sUrl) {
-
-        return F::File_Url2Dir($sUrl);
     }
 
     /**
      * Path to user's upload dir
      *
-     * @param int  $nUserId
-     * @param bool $bAutoMake
+     * @param int    $nUserId
+     * @param string $sDir
+     * @param bool   $bAutoMake
      *
      * @return string
      */
-    public function GetUserUploadDir($nUserId, $bAutoMake = true) {
+    protected function _getUserUploadDir($nUserId, $sDir, $bAutoMake = true) {
 
         $nMaxLen = 6;
         $nSplitLen = 2;
         $sPath = join('/', str_split(str_pad($nUserId, $nMaxLen, '0', STR_PAD_LEFT), $nSplitLen));
-        $sResult = F::File_NormPath(F::File_RootDir() . Config::Get('path.uploads.images') . $sPath . '/');
+        $sResult = F::File_NormPath(F::File_RootDir() . $sDir . $sPath . '/');
         if ($bAutoMake) {
             F::File_CheckDir($sResult, $bAutoMake);
         }
         return $sResult;
+    }
+
+    public function GetUserImagesUploadDir($nUserId, $bAutoMake = true) {
+
+        return $this->_getUserUploadDir($nUserId, Config::Get('path.uploads.images'), $bAutoMake);
+    }
+
+    public function GetUserFilesUploadDir($nUserId, $bAutoMake = true) {
+
+        return $this->_getUserUploadDir($nUserId, Config::Get('path.uploads.files'), $bAutoMake);
     }
 
     /**
@@ -390,7 +419,7 @@ class ModuleUpload extends Module {
      */
     public function GetUserAvatarDir($nUserId, $bAutoMake = true) {
 
-        $sResult = $this->GetUserUploadDir($nUserId) . 'avatar/';
+        $sResult = $this->GetUserImagesUploadDir($nUserId) . 'avatar/';
         if ($bAutoMake) {
             F::File_CheckDir($sResult, $bAutoMake);
         }
@@ -407,16 +436,133 @@ class ModuleUpload extends Module {
      */
     public function GetUserImageDir($nUserId, $bAutoMake = true) {
 
-        $sResult = $this->GetUserUploadDir($nUserId) . date('Y/m/d/');
+        $sResult = $this->GetUserImagesUploadDir($nUserId) . date('Y/m/d/');
         if ($bAutoMake) {
             F::File_CheckDir($sResult, $bAutoMake);
         }
         return $sResult;
     }
 
+    /**
+     * @param int  $nUserId
+     * @param bool $bAutoMake
+     *
+     * @return string
+     */
+    public function GetUserFileDir($nUserId, $bAutoMake = true) {
+
+        $sResult = $this->GetUserFilesUploadDir($nUserId) . date('Y/m/d/');
+        if ($bAutoMake) {
+            F::File_CheckDir($sResult, $bAutoMake);
+        }
+        return $sResult;
+    }
+
+    /**
+     * @param string $sDir
+     * @param string $sExtension
+     * @param int    $nLength
+     *
+     * @return mixed
+     */
     public function Uniqname($sDir, $sExtension, $nLength = 8) {
 
         return F::File_Uniqname($sDir, $sExtension, $nLength);
+    }
+
+    /**
+     * @param string $sFile
+     *
+     * @return string
+     */
+    public function DefineDriver(&$sFile) {
+
+        if (substr($sFile, 0, 1) == '[' && ($n = strpos($sFile, ']'))) {
+            $sDriver = substr($sFile, 1, $n - 1);
+            if ($n == strlen($sFile)) {
+                $sFile = '';
+            } else {
+                $sFile = substr($sFile, $n + 1);
+            }
+        } else {
+            $sDriver = $this->sDefaultDriver;
+        }
+        return $sDriver;
+    }
+
+    /**
+     * @param string $sFilePath
+     *
+     * @return bool|string
+     */
+    public function Exists($sFilePath) {
+
+        $sDriverName = $this->DefineDriver($sFilePath);
+        $oDriver = $this->GetDriver($sDriverName);
+        return $oDriver->Exists($sFilePath);
+    }
+
+    /**
+     * @param string $sFile
+     * @param string $sDestination
+     *
+     * @return string
+     */
+    public function Store($sFile, $sDestination = null) {
+
+        if (!$sDestination) {
+            $sDriverName = $this->sDefaultDriver;
+        } else {
+            $sDriverName = $this->DefineDriver($sDestination);
+        }
+        if ($sDriverName) {
+            $oDriver = $this->GetDriver($sDriverName);
+            $sStored = $oDriver->Store($sFile, $sDestination);
+            if ($sStored) {
+                return '[' . $sStored . ']' . $sStored;
+            }
+        }
+    }
+
+    /**
+     * @param string $sFilePath
+     *
+     * @return bool
+     */
+    public function Delete($sFilePath) {
+
+        $sDriverName = $this->DefineDriver($sFilePath);
+        $oDriver = $this->GetDriver($sDriverName);
+        return $oDriver->Delete($sFilePath);
+    }
+
+    /**
+     * @param string $sFilePath
+     *
+     * @return string
+     */
+    public function Dir2Url($sFilePath) {
+
+        $sDriverName = $this->DefineDriver($sFilePath);
+        $oDriver = $this->GetDriver($sDriverName);
+        return $oDriver->Dir2Url($sFilePath);
+    }
+
+    /**
+     * @param string $sUrl
+     *
+     * @return bool
+     */
+    public function Url2Dir($sUrl) {
+
+        $aDrivers = $this->GetRegisteredDrivers();
+        foreach ($aDrivers as $sDriver) {
+            $oDriver = $this->GetDriver($sDriver);
+            $sFile = $oDriver->Url2Dir($sUrl);
+            if ($sFile) {
+                return $sFile;
+            }
+        }
     }
 
 }

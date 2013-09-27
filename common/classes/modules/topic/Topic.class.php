@@ -2302,7 +2302,7 @@ class ModuleTopic extends Module {
         if ($sFileTmp) {
             $sDirUpload = $this->Uploader_GetUserImageDir($oUser->getId());
             $sFileImage = $this->Uploader_Uniqname($sDirUpload, strtolower(F::File_GetExtension($sFileTmp)));
-            if ($sFileImage = $this->Uploader_Move($sFileTmp, $sFileImage)) {
+            if ($sFileImage = $this->Uploader_Store($sFileTmp, $sFileImage)) {
                 return $this->Uploader_Dir2Url($sFileImage);
             }
         }
@@ -2491,7 +2491,7 @@ class ModuleTopic extends Module {
             if ($sFileTmp) {
                 $sDirUpload = $this->Uploader_GetUserImageDir($this->oUserCurrent->getId());
                 $sFileImage = $this->Uploader_Uniqname($sDirUpload, F::File_GetExtension($sFileTmp));
-                if ($sFileImage = $this->Uploader_Move($sFileTmp, $sFileImage)) {
+                if ($sFileImage = $this->Uploader_Store($sFileTmp, $sFileImage)) {
                     return $this->Uploader_Dir2Url($sFileImage);
                 }
             }

@@ -223,9 +223,9 @@ class ModuleImg_EntityImage extends Entity {
     /**
      * Rotate image
      *
-     * @param int $nAngle
-     * @param int $xColor
-     * @param int $nOpacity
+     * @param int        $nAngle
+     * @param int|string $xColor
+     * @param int        $nOpacity
      *
      * @return ModuleImg_EntityImage
      */
@@ -273,7 +273,7 @@ class ModuleImg_EntityImage extends Entity {
     }
 
     /**
-     * @param $sFile
+     * @param string $sFile
      *
      * @return string|bool
      */
@@ -287,7 +287,7 @@ class ModuleImg_EntityImage extends Entity {
     }
 
     /**
-     * @param $sFile
+     * @param string $sFile
      *
      * @return string|bool
      */
@@ -304,6 +304,9 @@ class ModuleImg_EntityImage extends Entity {
         return false;
     }
 
+    /**
+     * @param string $sImageFormat
+     */
     public function Render($sImageFormat = null) {
 
         if ($oImage = $this->GetImage()) {

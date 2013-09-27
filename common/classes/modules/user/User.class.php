@@ -1337,8 +1337,8 @@ class ModuleUser extends Module {
             // Файл, куда будет записан аватар
             $sAvatar = $this->Uploader_GetUserAvatarDir($oUser->GetId()) . 'avatar' . $sName . '.' . $sExtension;
 
-            // Окончательная запись файла только через модуль Upload
-            if ($sFileAvatar = $this->Uploader_Move($sTmpFile, $sAvatar, true)) {
+            // Окончательная запись файла только через модуль Uploader
+            if ($sFileAvatar = $this->Uploader_Store($sTmpFile, $sAvatar)) {
                 return $this->Uploader_Dir2Url($sAvatar);
             }
         }
@@ -1413,8 +1413,8 @@ class ModuleUser extends Module {
             // Файл, куда будет записано фото
             $sPhoto = $this->Uploader_Uniqname($this->Uploader_GetUserImageDir($oUser->GetId()), $sExtension);
 
-            // Окончательная запись файла только через модуль Upload
-            if ($sPhotoFile = $this->Uploader_Move($sTmpFile, $sPhoto, true)) {
+            // Окончательная запись файла только через модуль Uploader
+            if ($sPhotoFile = $this->Uploader_Store($sTmpFile, $sPhoto)) {
                 return $this->Uploader_Dir2Url($sPhotoFile);
             }
         }
