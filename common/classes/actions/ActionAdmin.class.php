@@ -90,13 +90,13 @@ class ActionAdmin extends Action {
         $this->AddEvent('tools-checkdb', 'EventCheckDb');
 
         //поля контента
-        $this->AddEvent('contenttypes', 'EventContentTypes');
-        $this->AddEvent('contenttypesadd', 'EventContentTypesAdd');
-        $this->AddEvent('contenttypesedit', 'EventContentTypesEdit');
+        $this->AddEvent('settings-contenttypes', 'EventContentTypes');
+        $this->AddEvent('settings-contenttypesadd', 'EventContentTypesAdd');
+        $this->AddEvent('settings-contenttypesedit', 'EventContentTypesEdit');
 
-        $this->AddEvent('fieldadd', 'EventAddField');
-        $this->AddEvent('fieldedit', 'EventEditField');
-        $this->AddEvent('fielddelete', 'EventDeleteField');
+        $this->AddEvent('settings-contenttypes-fieldadd', 'EventAddField');
+        $this->AddEvent('settings-contenttypes-fieldedit', 'EventEditField');
+        $this->AddEvent('settings-contenttypes-fielddelete', 'EventDeleteField');
         $this->AddEvent('ajaxchangeordertypes', 'EventAjaxChangeOrderTypes');
         $this->AddEvent('ajaxchangeorderfields', 'EventAjaxChangeOrderFields');
 
@@ -3002,22 +3002,22 @@ class ActionAdmin extends Action {
             return false;
         }
 
-        $oType = Engine::GetEntity('Topic_Content');
-        $oType->setContentTitle(getRequest('content_title'));
-        $oType->setContentTitleDecl(getRequest('content_title_decl'));
-        $oType->setContentUrl(getRequest('content_url'));
-        $oType->setContentCandelete('1');
-        $oType->setContentAccess(getRequest('content_access'));
+        $oContentType = Engine::GetEntity('Topic_Content');
+        $oContentType->setContentTitle(getRequest('content_title'));
+        $oContentType->setContentTitleDecl(getRequest('content_title_decl'));
+        $oContentType->setContentUrl(getRequest('content_url'));
+        $oContentType->setContentCandelete('1');
+        $oContentType->setContentAccess(getRequest('content_access'));
         $aConfig = getRequest('config');
         if (is_array($aConfig)) {
-            $oType->setExtraValue('photoset', isset($aConfig['photoset']) ? 1 : 0);
-            $oType->setExtraValue('link', isset($aConfig['link']) ? 1 : 0);
-            $oType->setExtraValue('question', isset($aConfig['question']) ? 1 : 0);
+            $oContentType->setExtraValue('photoset', isset($aConfig['photoset']) ? 1 : 0);
+            $oContentType->setExtraValue('link', isset($aConfig['link']) ? 1 : 0);
+            $oContentType->setExtraValue('question', isset($aConfig['question']) ? 1 : 0);
         } else {
-            $oType->setExtra('');
+            $oContentType->setExtra('');
         }
 
-        if ($this->Topic_AddContentType($oType)) {
+        if ($this->Topic_AddContentType($oContentType)) {
             Router::Location('admin/settings-contenttypes/?add=success');
         }
 
@@ -3026,10 +3026,10 @@ class ActionAdmin extends Action {
     protected function EventContentTypesEdit() {
 
         // * Получаем тип
-        if (!$oType = $this->Topic_GetContentTypeById($this->GetParam(0))) {
+        if (!$oContentType = $this->Topic_GetContentTypeById($this->GetParam(0))) {
             return parent::EventNotFound();
         }
-        $this->Viewer_Assign('oType', $oType);
+        $this->Viewer_Assign('oContentType', $oContentType);
 
         // * Устанавливаем шаблон вывода
         $this->_setTitle($this->Lang_Get('action.admin.contenttypes_edit_title'));
@@ -3049,22 +3049,22 @@ class ActionAdmin extends Action {
         if (isset($_REQUEST['submit_type_add'])) {
 
             // * Обрабатываем отправку формы
-            return $this->SubmitContentTypesEdit($oType);
+            return $this->SubmitContentTypesEdit($oContentType);
         } else {
-            $_REQUEST['content_id'] = $oType->getContentId();
-            $_REQUEST['content_title'] = $oType->getContentTitle();
-            $_REQUEST['content_title_decl'] = $oType->getContentTitleDecl();
-            $_REQUEST['content_url'] = $oType->getContentUrl();
-            $_REQUEST['content_candelete'] = $oType->getContentCandelete();
-            $_REQUEST['content_access'] = $oType->getContentAccess();
-            $_REQUEST['config']['photoset'] = $oType->getExtraValue('photoset');
-            $_REQUEST['config']['question'] = $oType->getExtraValue('question');
-            $_REQUEST['config']['link'] = $oType->getExtraValue('link');
+            $_REQUEST['content_id'] = $oContentType->getContentId();
+            $_REQUEST['content_title'] = $oContentType->getContentTitle();
+            $_REQUEST['content_title_decl'] = $oContentType->getContentTitleDecl();
+            $_REQUEST['content_url'] = $oContentType->getContentUrl();
+            $_REQUEST['content_candelete'] = $oContentType->getContentCandelete();
+            $_REQUEST['content_access'] = $oContentType->getContentAccess();
+            $_REQUEST['config']['photoset'] = $oContentType->getExtraValue('photoset');
+            $_REQUEST['config']['question'] = $oContentType->getExtraValue('question');
+            $_REQUEST['config']['link'] = $oContentType->getExtraValue('link');
         }
 
     }
 
-    protected function SubmitContentTypesEdit($oType) {
+    protected function SubmitContentTypesEdit($oContentType) {
 
         // * Проверяем отправлена ли форма с данными
         if (!isPost('submit_type_add')) {
@@ -3076,27 +3076,27 @@ class ActionAdmin extends Action {
             return false;
         }
 
-        $sTypeOld = $oType->getContentUrl();
+        $sTypeOld = $oContentType->getContentUrl();
 
-        $oType->setContentTitle(getRequest('content_title'));
-        $oType->setContentTitleDecl(getRequest('content_title_decl'));
-        $oType->setContentUrl(getRequest('content_url'));
-        $oType->setContentAccess(getRequest('content_access'));
+        $oContentType->setContentTitle(getRequest('content_title'));
+        $oContentType->setContentTitleDecl(getRequest('content_title_decl'));
+        $oContentType->setContentUrl(getRequest('content_url'));
+        $oContentType->setContentAccess(getRequest('content_access'));
         $aConfig = getRequest('config');
         if (is_array($aConfig)) {
-            $oType->setExtraValue('photoset', isset($aConfig['photoset']) ? 1 : 0);
-            $oType->setExtraValue('link', isset($aConfig['link']) ? 1 : 0);
-            $oType->setExtraValue('question', isset($aConfig['question']) ? 1 : 0);
+            $oContentType->setExtraValue('photoset', isset($aConfig['photoset']) ? 1 : 0);
+            $oContentType->setExtraValue('link', isset($aConfig['link']) ? 1 : 0);
+            $oContentType->setExtraValue('question', isset($aConfig['question']) ? 1 : 0);
         } else {
-            $oType->setExtra('');
+            $oContentType->setExtra('');
         }
 
-        if ($this->Topic_UpdateContentType($oType)) {
+        if ($this->Topic_UpdateContentType($oContentType)) {
 
-            if ($oType->getContentUrl() != $sTypeOld) {
+            if ($oContentType->getContentUrl() != $sTypeOld) {
 
                 //меняем у уже созданных топиков системный тип
-                $this->Topic_changeType($sTypeOld, $oType->getContentUrl());
+                $this->Topic_ChangeType($sTypeOld, $oContentType->getContentUrl());
             }
 
             Router::Location('admin/settings-contenttypes/?edit=success');
@@ -3125,9 +3125,9 @@ class ActionAdmin extends Action {
         if (is_array(getRequest('order'))) {
 
             foreach (getRequest('order') as $oOrder) {
-                if (is_numeric($oOrder['order']) && is_numeric($oOrder['id']) && $oType = $this->Topic_GetContentTypeById($oOrder['id'])) {
-                    $oType->setContentSort($oOrder['order']);
-                    $this->Topic_UpdateContentType($oType);
+                if (is_numeric($oOrder['order']) && is_numeric($oOrder['id']) && $oContentType = $this->Topic_GetContentTypeById($oOrder['id'])) {
+                    $oContentType->setContentSort($oOrder['order']);
+                    $this->Topic_UpdateContentType($oContentType);
                 }
             }
 
@@ -3185,21 +3185,21 @@ class ActionAdmin extends Action {
         $this->_setTitle($this->Lang_Get('action.admin.contenttypes_add_field_title'));
 
         // * Получаем тип
-        if (!$oType = $this->Topic_GetContentTypeById($this->GetParam(0))) {
+        if (!$oContentType = $this->Topic_GetContentTypeById($this->GetParam(0))) {
             return parent::EventNotFound();
         }
 
-        $this->Viewer_Assign('oType', $oType);
+        $this->Viewer_Assign('oContentType', $oContentType);
 
         // * Устанавливаем шаблон вывода
         $this->SetTemplateAction('settings/contenttypes_fieldadd');
 
         // * Обрабатываем отправку формы
-        return $this->SubmitAddField($oType);
+        return $this->SubmitAddField($oContentType);
 
     }
 
-    protected function SubmitAddField($oType) {
+    protected function SubmitAddField($oContentType) {
 
         // * Проверяем отправлена ли форма с данными
         if (!isPost('submit_field')) {
@@ -3207,13 +3207,13 @@ class ActionAdmin extends Action {
         }
 
         // * Проверка корректности полей формы
-        if (!$this->CheckFieldsField($oType)) {
+        if (!$this->CheckFieldsField($oContentType)) {
             return false;
         }
 
         $oField = Engine::GetEntity('Topic_Field');
         $oField->setFieldType(getRequest('field_type'));
-        $oField->setContentId($oType->getContentId());
+        $oField->setContentId($oContentType->getContentId());
         $oField->setFieldName(getRequest('field_name'));
         $oField->setFieldDescription(getRequest('field_description'));
         $oField->setFieldRequired(getRequest('field_required'));
@@ -3222,7 +3222,7 @@ class ActionAdmin extends Action {
         }
 
         if ($this->Topic_AddContentField($oField)) {
-            Router::Location('admin/settings-contenttypesedit/' . $oType->getContentId() . '/?fieldadd=success');
+            Router::Location('admin/settings-contenttypesedit/' . $oContentType->getContentId() . '/?fieldadd=success');
         }
 
     }
@@ -3239,11 +3239,11 @@ class ActionAdmin extends Action {
         $this->Viewer_Assign('oField', $oField);
 
         // * Получаем тип
-        if (!$oType = $this->Topic_GetContentTypeById($oField->getContentId())) {
+        if (!$oContentType = $this->Topic_GetContentTypeById($oField->getContentId())) {
             return parent::EventNotFound();
         }
 
-        $this->Viewer_Assign('oType', $oType);
+        $this->Viewer_Assign('oContentType', $oContentType);
 
         // * Устанавливаем шаблон вывода
         $this->SetTemplateAction('settings/contenttypes_fieldadd');
@@ -3252,7 +3252,7 @@ class ActionAdmin extends Action {
         if (isset($_REQUEST['submit_field'])) {
 
             // * Обрабатываем отправку формы
-            return $this->SubmitEditField($oType, $oField);
+            return $this->SubmitEditField($oContentType, $oField);
         } else {
             $_REQUEST['field_id'] = $oField->getFieldId();
             $_REQUEST['field_type'] = $oField->getFieldType();
@@ -3264,7 +3264,7 @@ class ActionAdmin extends Action {
 
     }
 
-    protected function SubmitEditField($oType, $oField) {
+    protected function SubmitEditField($oContentType, $oField) {
 
         // * Проверяем отправлена ли форма с данными
         if (!isPost('submit_field')) {
@@ -3272,7 +3272,7 @@ class ActionAdmin extends Action {
         }
 
         // * Проверка корректности полей формы
-        if (!$this->CheckFieldsField($oType)) {
+        if (!$this->CheckFieldsField($oContentType)) {
             return false;
         }
 
@@ -3284,7 +3284,7 @@ class ActionAdmin extends Action {
         }
 
         if ($this->Topic_UpdateContentField($oField)) {
-            Router::Location('admin/settings-contenttypesedit/' . $oType->getContentId() . '/?fieldedit=success');
+            Router::Location('admin/settings-contenttypesedit/' . $oContentType->getContentId() . '/?fieldedit=success');
         }
 
 
@@ -3296,12 +3296,12 @@ class ActionAdmin extends Action {
         if (!$oField = $this->Topic_GetContentFieldById($this->GetParam(0))) {
             return parent::EventNotFound();
         }
-        if (!$oType = $this->Topic_GetContentTypeById($oField->getContentId())) {
+        if (!$oContentType = $this->Topic_GetContentTypeById($oField->getContentId())) {
             return parent::EventNotFound();
         }
 
         $this->Topic_DeleteField($oField);
-        Router::Location('admin/settings-contenttypesedit/' . $oType->getContentId() . '/?fielddelete=success');
+        Router::Location('admin/settings-contenttypesedit/' . $oContentType->getContentId() . '/?fielddelete=success');
     }
 
 
@@ -3336,7 +3336,7 @@ class ActionAdmin extends Action {
         return $bOk;
     }
 
-    protected function CheckFieldsField($oType = null) {
+    protected function CheckFieldsField($oContentType = null) {
 
         $this->Security_ValidateSendForm();
 
@@ -3353,7 +3353,7 @@ class ActionAdmin extends Action {
         }
 
         if (Router::GetActionEvent() == 'fieldadd') {
-            if ($oType == 'photoset' && (getRequest('field_type', null, 'post') == 'photoset' || $oType->isPhotosetEnable())) {
+            if ($oContentType == 'photoset' && (getRequest('field_type', null, 'post') == 'photoset' || $oContentType->isPhotosetEnable())) {
                 $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
                 $bOk = false;
             }

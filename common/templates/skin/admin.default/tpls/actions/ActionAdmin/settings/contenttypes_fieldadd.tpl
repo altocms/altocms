@@ -26,42 +26,42 @@ function selectfield(f){
 
 <form action="" method="post" id="popup-login-form" class="form-horizontal uniform">
 	<input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}" />
-		{*<input type="hidden" name="topic_type" value="{$oType->getContentId()}"/>*}
+		{*<input type="hidden" name="topic_type" value="{$oContentType->getContentId()}"/>*}
 
     <div class="b-wbox">
         <div class="b-wbox-header">
-            {if $sEvent=='fieldadd'}
+            {if $sEvent=='settings-contenttypes-fieldadd'}
                 <div class="b-wbox-header-title">
-                    {$aLang.action.admin.content_add_field_title}
-                    ({$aLang.action.admin.content_for} "{$oType->getContentTitle()|escape:'html'}")
+                    {$aLang.action.admin.contenttypes_add_field_title}
+                    ({$aLang.action.admin.contenttypes_for} "{$oContentType->getContentTitle()|escape:'html'}")
                 </div>
-            {elseif $sEvent=='fieldedit'}
+            {elseif $sEvent=='settings-contenttypes-fieldedit'}
                 <div class="b-wbox-header-title">
-                    {$aLang.action.admin.content_edit_field_title}: {$oField->getFieldName()|escape:'html'}
-                    ({$aLang.action.admin.content_for} "{$oType->getContentTitle()|escape:'html'}")
+                    {$aLang.action.admin.contenttypes_edit_field_title}: {$oField->getFieldName()|escape:'html'}
+                    ({$aLang.action.admin.contenttypes_for} "{$oContentType->getContentTitle()|escape:'html'}")
                 </div>
             {/if}
         </div>
         <div class="b-wbox-content nopadding">
             <div class="control-group">
                 <label for="field_type" class="control-label">
-                    {$aLang.action.admin.content_type}:
+                    {$aLang.action.admin.contenttypes_type}:
                 </label>
 
                 <div class="controls">
                     <select name="field_type" id="field_type" onChange="selectfield(jQuery(this).val());" class="input-text input-width-300" {if $sEvent=='fieldedit'}disabled{/if}>
-                        <option value="input" {if $_aRequest.field_type=='input'}selected{/if} title="{$aLang.action.admin.content_field_input_notice}">
-                            {$aLang.action.admin.content_field_input}</option>
-                        <option value="textarea" {if $_aRequest.field_type=='textarea'}selected{/if} title="{$aLang.action.admin.content_field_textarea_notice}">
-                            {$aLang.action.admin.content_field_textarea}</option>
-                        <option value="select" {if $_aRequest.field_type=='select'}selected{/if} title="{$aLang.action.admin.content_field_select_notice}">
-                            {$aLang.action.admin.content_field_select}</option>
-                        <option value="date" {if $_aRequest.field_type=='date'}selected{/if} title="{$aLang.action.admin.content_field_date_notice}">
-                            {$aLang.action.admin.content_field_date}</option>
-                        <option value="link" {if $_aRequest.field_type=='link'}selected{/if} title="{$aLang.action.admin.content_field_link_notice}">
-                            {$aLang.action.admin.content_field_link}</option>
-                        <option value="file" {if $_aRequest.field_type=='file'}selected{/if} title="{$aLang.action.admin.content_field_file_notice}">
-                            {$aLang.action.admin.content_field_file}</option>
+                        <option value="input" {if $_aRequest.field_type=='input'}selected{/if} title="{$aLang.action.admin.contenttypes_field_input_notice}">
+                            {$aLang.action.admin.contenttypes_field_input}</option>
+                        <option value="textarea" {if $_aRequest.field_type=='textarea'}selected{/if} title="{$aLang.action.admin.contenttypes_field_textarea_notice}">
+                            {$aLang.action.admin.contenttypes_field_textarea}</option>
+                        <option value="select" {if $_aRequest.field_type=='select'}selected{/if} title="{$aLang.action.admin.contenttypes_field_select_notice}">
+                            {$aLang.action.admin.contenttypes_field_select}</option>
+                        <option value="date" {if $_aRequest.field_type=='date'}selected{/if} title="{$aLang.action.admin.contenttypes_field_date_notice}">
+                            {$aLang.action.admin.contenttypes_field_date}</option>
+                        <option value="link" {if $_aRequest.field_type=='link'}selected{/if} title="{$aLang.action.admin.contenttypes_field_link_notice}">
+                            {$aLang.action.admin.contenttypes_field_link}</option>
+                        <option value="file" {if $_aRequest.field_type=='file'}selected{/if} title="{$aLang.action.admin.contenttypes_field_file_notice}">
+                            {$aLang.action.admin.contenttypes_field_file}</option>
                         {hook run='admin_content_add_field_list'}
 					</select>
                 </div>
@@ -69,7 +69,7 @@ function selectfield(f){
 
             <div class="control-group">
                 <label for="field_name" class="control-label">
-                    {$aLang.action.admin.content_name}:
+                    {$aLang.action.admin.contenttypes_name}:
                 </label>
 
                 <div class="controls">
@@ -79,7 +79,7 @@ function selectfield(f){
 
             <div class="control-group">
                 <label for="field_description" class="control-label">
-                    {$aLang.action.admin.content_description}:
+                    {$aLang.action.admin.contenttypes_description}:
                 </label>
 
                 <div class="controls">
@@ -89,7 +89,7 @@ function selectfield(f){
 
             <div class="control-group" {if !$_aRequest.field_type || $_aRequest.field_type!='select'}style="display:none;"{/if} id="select_inputval">
                 <label for="field_description" class="control-label">
-                    {$aLang.action.admin.content_values}:
+                    {$aLang.action.admin.contenttypes_values}:
                 </label>
 
                 <div class="controls">
@@ -101,13 +101,13 @@ function selectfield(f){
                 {if $aPluginActive.dao}
                     {include file="`$aTemplatePathPlugin.dao`inject.topiccck.tpl"}
                 {else}
-                    {$aLang.action.admin.content_buydao}
+                    {$aLang.action.admin.contenttypes_buydao}
                 {/if}
             </div>
 
             <div class="form-actions">
                 <button type="submit"  name="submit_field" class="btn btn-primary" id="popup-field-submit">
-                    {$aLang.action.admin.content_submit}
+                    {$aLang.action.admin.contenttypes_submit}
                 </button>
             </div>
         </div>

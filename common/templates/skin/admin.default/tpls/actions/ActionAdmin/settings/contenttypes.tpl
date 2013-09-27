@@ -3,7 +3,7 @@
 {block name="content-bar"}
     {if count($aTypes)>0}
         <div class="btn-group">
-            <a href="{router page='admin'}contenttypesadd/" class="btn btn-primary tip-top"
+            <a href="{router page='admin'}settings-contenttypesadd/" class="btn btn-primary tip-top"
                title="{$aLang.action.admin.contenttypes_add}"><i class="icon-plus-sign"></i></a>
         </div>
     {/if}
@@ -61,18 +61,18 @@
                     </thead>
 
                     <tbody class="content">
-                    {foreach from=$aTypes item=oType}
-                        <tr id="{$oType->getContentId()}" class="cursor-x">
+                    {foreach from=$aTypes item=oContentType}
+                        <tr id="{$oContentType->getContentId()}" class="cursor-x">
                             <td class="center">
-                                {$oType->getContentTitle()|escape:'html'}{if !$oType->getContentCandelete()} <em>
+                                {$oContentType->getContentTitle()|escape:'html'}{if !$oContentType->getContentCandelete()} <em>
                                     [{$aLang.action.admin.contenttypes_standart}]</em>{/if}
                             </td>
                             <td class="center">
-                                {$oType->getContentUrl()|escape:'html'}
+                                {$oContentType->getContentUrl()|escape:'html'}
                             </td>
                             <td class="center">
                                 <span>
-                                    {if $oType->getContentActive()}
+                                    {if $oContentType->getContentActive()}
                                         {$aLang.action.admin.contenttypes_on}
                                     {else}
                                         {$aLang.action.admin.contenttypes_off}
@@ -80,10 +80,10 @@
                                 </span>
                             </td>
                             <td class="center">
-                                <a href="{router page='admin'}contenttypesedit/{$oType->getContentId()}/">
+                                <a href="{router page='admin'}settings-contenttypesedit/{$oContentType->getContentId()}/">
                                     <i class="icon-edit tip-top" title="{$aLang.action.admin.contenttypes_edit}"></i></a>
-                                <a href="{router page='admin'}contenttypes/?toggle={if $oType->getContentActive()}off{else}on{/if}&content_id={$oType->getContentId()}&security_ls_key={$ALTO_SECURITY_KEY}">
-                                    {if $oType->getContentActive()}
+                                <a href="{router page='admin'}settings-contenttypes/?toggle={if $oContentType->getContentActive()}off{else}on{/if}&content_id={$oContentType->getContentId()}&security_ls_key={$ALTO_SECURITY_KEY}">
+                                    {if $oContentType->getContentActive()}
                                         <i class="icon-ban-circle tip-top"
                                            title="{$aLang.action.admin.contenttypes_turn_off}"></i>
                                     {else}

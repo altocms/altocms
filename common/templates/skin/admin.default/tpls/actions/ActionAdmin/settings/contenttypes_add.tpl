@@ -68,7 +68,7 @@
                     <div class="b-wbox-header-title">{$aLang.action.admin.contenttypes_add_title}</div>
                 {elseif $sEvent=='contentedit'}
                     <div class="b-wbox-header-title">{$aLang.action.admin.contenttypes_edit_title}
-                        : {$oType->getContentTitle()|escape:'html'}</div>
+                        : {$oContentType->getContentTitle()|escape:'html'}</div>
                 {/if}
             </div>
             <div class="b-wbox-content nopadding">
@@ -98,7 +98,7 @@
                     </div>
                 </div>
 
-                <div class="control-group" {if $oType && !$oType->getContentCandelete()}style="display:none;"{/if}>
+                <div class="control-group" {if $oContentType && !$oContentType->getContentCandelete()}style="display:none;"{/if}>
                     <label for="content_url" class="control-label">
                         {$aLang.action.admin.contenttypes_url}:
                     </label>
@@ -152,7 +152,7 @@
                 </div>
             </div>
 
-            {if $sEvent=='contentedit'}
+            {if $sEvent=='settings-contenttypesedit'}
                 <div class="b-wbox-header">
                     <div class="b-wbox-header-title">{$aLang.action.admin.contenttypes_fields_added}</div>
                 </div>
@@ -168,7 +168,7 @@
                         </thead>
 
                         <tbody class="content">
-                        {foreach from=$oType->getFields() item=oField name=el2}
+                        {foreach from=$oContentType->getFields() item=oField name=el2}
                             <tr id="{$oField->getFieldId()}" class="cursor-x">
                                 <td align="center">
                                     {$oField->getFieldType()}
@@ -180,9 +180,9 @@
                                     {$oField->getFieldDescription()}
                                 </td>
                                 <td align="center">
-                                    <a href="{router page='admin'}fieldedit/{$oField->getFieldId()}/">{$aLang.action.admin.contenttypes_edit}</a>
+                                    <a href="{router page='admin'}settings-contenttypes-fieldedit/{$oField->getFieldId()}/">{$aLang.action.admin.contenttypes_edit}</a>
                                     |
-                                    <a href="{router page='admin'}fielddelete/{$oField->getFieldId()}/?security_ls_key={$ALTO_SECURITY_KEY}"
+                                    <a href="{router page='admin'}settings-contenttypes-fielddelete/{$oField->getFieldId()}/?security_ls_key={$ALTO_SECURITY_KEY}"
                                        onclick="return confirm('{$aLang.action.admin.contenttypes_field_detele_confirm}');">{$aLang.action.admin.contenttypes_delete}</a>
                                 </td>
                             </tr>
@@ -190,7 +190,7 @@
                         </tbody>
                     </table>
                     <div class="control-group">
-                        <a class="btn fl-r" href="{router page="admin"}fieldadd/{$oType->getContentId()}/">
+                        <a class="btn fl-r" href="{router page="admin"}settings-contenttypes-fieldadd/{$oContentType->getContentId()}/">
                             <i class="icon-plus-sign"></i> {$aLang.action.admin.contenttypes_add_field}
                         </a>
                     </div>
