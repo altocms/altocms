@@ -41,12 +41,14 @@ abstract class Entity extends LsObject {
      * @var array
      */
     protected $_aData = array();
+
     /**
      * Имя поля с первичным ключом в БД
      *
      * @var null|string
      */
     protected $sPrimaryKey = null;
+
     /**
      * Список правил валидации полей
      * @see ModuleValidate
@@ -54,6 +56,7 @@ abstract class Entity extends LsObject {
      * @var array
      */
     protected $aValidateRules = array();
+
     /**
      * Список ошибок валидации в разрезе полей, например
      * <pre>
@@ -66,6 +69,7 @@ abstract class Entity extends LsObject {
      * @var array
      */
     protected $aValidateErrors = array();
+
     /**
      * Сценарий валиадции полей
      * @see _setValidateScenario
@@ -86,6 +90,9 @@ abstract class Entity extends LsObject {
         $this->Init();
     }
 
+    /**
+     *
+     */
     public function __wakeup() {
 
         $this->Init();
@@ -386,27 +393,47 @@ abstract class Entity extends LsObject {
     /**
      * Получает массив данных сущности
      *
-     * @param array|null $aKeys    Список полей, данные по которым необходимо вернуть, если не передан, то возвращаются все данные
+     * @param array|bool $aKeys - Список полей, данные по которым необходимо вернуть,
+     *                            если не передан, то возвращаются все данные.
+     *                            Если true - рекурсивное преобразование в массив
      * @return array
      */
-    public function _getData($aKeys = array()) {
+    public function getAllProps($aKeys = null) {
 
-        if (!is_array($aKeys) || !count($aKeys)) return $this->_aData;
+        if (is_null($aKeys) || (is_array($aKeys) && !count($aKeys))) {
+            return $this->_aData;
+        }
 
+        if (is_bool($aKeys)) {
+            $aKeys = array_keys($this->_aData);
+            $bRecursively = (bool)$aKeys;
+        }
         $aReturn = array();
-        foreach ($aKeys as $key) {
-            if ($this->isProp($key)) {
-                $aReturn[$key] = $this->getProp($key);
+        foreach ($aKeys as $sKey) {
+            if (!$bRecursively) {
+                $aReturn[$sKey] = $this->getProp($sKey);
+            } else {
+                $xValue = $this->getProp($sKey);
+                if (is_object($xValue) && $xValue instanceOf Entity) {
+                    $aResult[$sKey] = $xValue->getAllProps($bRecursively);
+                } else {
+                    $aResult[$sKey] = $xValue;
+                }
             }
         }
         return $aReturn;
     }
 
     /**
-     * Возвращает данные по конкретному полю    // LS-compatible
-     *
-     * @param string $sKey    Название поля, например <pre>'my_property'</pre>
-     * @return null|mixed
+     * LS-compatible
+     */
+    public function _getData($aKeys = array()) {
+
+        return $this->getAllProps($aKeys);
+    }
+
+    /**
+     * LS-compatible
      */
     public function _getDataOne($sKey) {
 
@@ -414,23 +441,16 @@ abstract class Entity extends LsObject {
     }
 
     /**
-     * Рекурсивное преобразование объекта и вложенных объектов в массив
-     *
-     * @return array
+     * LS-compatible
      */
     public function _getDataArray() {
 
-        $aResult = array();
-        foreach ($this->_aData as $sKey => $sValue) {
-            if (is_object($sValue) && $sValue instanceOf Entity) {
-                $aResult[$sKey] = $sValue->_getDataArray();
-            } else {
-                $aResult[$sKey] = $sValue;
-            }
-        }
-        return $aResult;
+        return $this->getAllProps(true);
     }
 
+    /**
+     * @return string
+     */
     public function getEntityName() {
 
         $aInfo = Engine::getInstance()->GetClassInfo($this, Engine::CI_ENTITY);
@@ -657,7 +677,9 @@ abstract class Entity extends LsObject {
 
     /**
      * Устанавливает сценарий валидации
-     * Если использовать валидацию без сценария, то будут использоваться только те правила, где нет никаких сценариев, либо указан пустой сценарий ''
+     *
+     * Если использовать валидацию без сценария, то будут использоваться только те правила, где нет никаких сценариев,
+     * либо указан пустой сценарий ''
      * Если указать сценарий, то проверка будет только по правилом, где в списке сценарией есть указанный
      *
      * @param string $sValue
