@@ -55,7 +55,8 @@ class ModuleUploader extends Module {
     protected $sLastError = '';
     protected $aModConfig = array();
     protected $sDefaultDriver = 'file';
-    protected $aDrivers = array();
+    protected $aRegisteredDrivers = array();
+    protected $aLoadedDrivers = array();
 
     /**
      * Init module
@@ -87,11 +88,21 @@ class ModuleUploader extends Module {
     }
 
     /**
-     * @param string $sDriver
+     * @param string $sDriverName
+     * @param string $sClass
      */
-    public function RegisterDriver($sDriver) {
+    public function RegisterDriver($sDriverName, $sClass = null) {
 
-        $this->aDrivers[$sDriver] = false;
+        if (!$sClass) {
+            $sClass = 'Uploader_Driver' . ucfirst($sDriverName);
+        }
+        $this->aRegisteredDrivers[$sDriverName] = $sClass;
+    }
+
+    public function LoadDriver($sDriverName) {
+
+        $sClass = $this->aRegisteredDrivers[$sDriverName];
+        return Engine::GetEntity($sClass);
     }
 
     /**
@@ -99,15 +110,15 @@ class ModuleUploader extends Module {
      */
     public function GetRegisteredDrivers() {
 
-        return array_keys($this->aDrivers);
+        return array_keys($this->aRegisteredDrivers);
     }
 
     /**
-     * @param string $sDriver
+     * @param string $sDriverName
      */
-    public function SetDefaultDriver($sDriver) {
+    public function SetDefaultDriver($sDriverName) {
 
-        $this->sDefaultDriver = $sDriver;
+        $this->sDefaultDriver = $sDriverName;
     }
 
     /**
@@ -125,12 +136,12 @@ class ModuleUploader extends Module {
      */
     public function GetDriver($sDriverName) {
 
-        if (isset($this->aDrivers[$sDriverName])) {
-            if (!$this->aDrivers[$sDriverName]) {
-                $oDriver = Engine::GetEntity('Uploader_Driver' . ucfirst($sDriverName));
-                $this->aDrivers[$sDriverName] = $oDriver;
+        if (isset($this->aRegisteredDrivers[$sDriverName])) {
+            if (!isset($this->aLoadedDrivers[$sDriverName])) {
+                $oDriver = $this->LoadDriver($sDriverName);
+                $this->aLoadedDrivers[$sDriverName] = $oDriver;
             }
-            return $this->aDrivers[$sDriverName];
+            return $this->aLoadedDrivers[$sDriverName];
         }
     }
 
@@ -517,9 +528,14 @@ class ModuleUploader extends Module {
         }
         if ($sDriverName) {
             $oDriver = $this->GetDriver($sDriverName);
-            $sStored = $oDriver->Store($sFile, $sDestination);
-            if ($sStored) {
-                return '[' . $sStored . ']' . $sStored;
+            $oStoredItem = $oDriver->Store($sFile, $sDestination);
+            if ($oStoredItem) {
+                if (!$oStoredItem->GetUuid()) {
+                    $oStoredItem->SetUuid($sDriverName);
+                }
+                $oMresource = Engine::GetEntity('Mresource', $oStoredItem);
+                $this->Mresource_Add($oMresource);
+                return $oStoredItem;
             }
         }
     }

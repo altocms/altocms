@@ -19,7 +19,7 @@ class ModuleMresource extends Module {
     const TYPE_AUDIO = 4;
     const TYPE_FLASH = 8;
     const TYPE_PHOTO = 16; // Элемент фотосета
-    const TYPE_HREF = 32;
+    const TYPE_HREF  = 32;
 
     /** @var  ModuleMresource_MapperMresource */
     protected $oMapper;
@@ -129,23 +129,23 @@ class ModuleMresource extends Module {
             return null;
         }
         if (is_array($oMediaResource)) {
+            $aResources = $oMediaResource;
             // Групповое добавление
             $xResult = array();
-            foreach ($oMediaResource as $oResource) {
-                if ($nId = $this->oMapper->Add($oResource)) {
-                    $xResult[] = $nId;
-                    $oResource->setId($nId);
+            foreach ($aResources as $nIdx => $oResource) {
+                if ($nId = $this->oMapper->Add($oMediaResource)) {
+                    $aResources[$nIdx] = $this->GetMresourceById($nId);
                 }
             }
         } else {
-            if ($xResult = $this->oMapper->Add($oMediaResource)) {
-                $oMediaResource->setId($xResult);
+            if ($nId = $this->oMapper->Add($oMediaResource)) {
+                $oMediaResource = $this->GetMresourceById($nId);
             }
         }
-        if ($xResult) {
+        if ($nId) {
             //чистим зависимые кеши
             $this->Cache_CleanByTags(array('mresource_update'));
-            return $xResult;
+            return $nId;
         }
         return 0;
     }
@@ -194,6 +194,19 @@ class ModuleMresource extends Module {
             }
         }
         return true;
+    }
+
+    public function GetMresourceById($iId) {
+
+        $aData = $this->oMapper->GetMresourcesById(array($iId));
+        if (isset($aData[$iId])) {
+            return $aData[$iId];
+        }
+        return null;
+    }
+
+    public function GetMresourceByUrl($sUrl) {
+
     }
 
     public function GetMresourcesByFilter($aFilter, $nPage, $nPerPage) {
@@ -291,6 +304,24 @@ class ModuleMresource extends Module {
             return $this->_deleteMresourcesRel($aMresourceRel);
         }
         return true;
+    }
+
+    /**
+     * Calc hash of URL for seeking & comparation
+     *
+     * @param string $sUrl
+     *
+     * @return string
+     */
+    public function CalcUrlHash($sUrl) {
+
+        if (substr($sUrl, 0, 1) != '@') {
+            $sPathUrl = F::File_LocalUrl($sUrl);
+            if ($sPathUrl) {
+                $sUrl = '@' . trim($sPathUrl, '/');
+            }
+        }
+        return md5($sUrl);
     }
 
 }

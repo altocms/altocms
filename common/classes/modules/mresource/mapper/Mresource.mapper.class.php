@@ -16,7 +16,28 @@ class ModuleMresource_MapperMresource extends Mapper {
 
     public function Add($oMresource) {
 
+        $aParams = array(
+            ':date_add' => F::Now(),
+            ':user_id' => $oMresource->GetUserId(),
+            ':link' => $oMresource->IsLink() ? 1 : 0,
+            ':type' => $oMresource->GetType(),
+            ':path_url' => $oMresource->GetPathUrl(),
+            ':path_file' => $oMresource->GetPathFile(),
+            ':hash_url' => $oMresource->GetHashUrl(),
+            ':hash_file' => $oMresource->GetHashFile(),
+            ':storage' => $oMresource->GetStorage(),
+            ':uuid' => $oMresource->GetUuid(),
+        );
         $sql = "
+            SELECT mresource_id
+            FROM ?_mresource
+            WHERE
+                storage = ?:storage AND uuid = ?:uuid
+            LIMIT 1
+            ";
+        $nId = $this->oDb->sqlSelectCell($sql, $aParams);
+        if (!$nId) {
+            $sql = "
             INSERT INTO ?_mresource
             SET
                 date_add = ?:date_add,
@@ -26,21 +47,12 @@ class ModuleMresource_MapperMresource extends Mapper {
                 path_url = ?:path_url,
                 path_file = ?:path_file,
                 hash_url = ?:hash_url,
-                hash_file = ?:hash_file
+                hash_file = ?:hash_file,
+                storage = ?:storage,
+                uuid = ?:uuid
         ";
-        $nId = $this->oDb->sqlQuery(
-            $sql,
-            array(
-                 ':date_add' => F::Now(),
-                 ':user_id' => $oMresource->GetUserId(),
-                 ':link' => $oMresource->IsLink() ? 1 : 0,
-                 ':type' => $oMresource->GetType(),
-                 ':path_url' => $oMresource->GetPathUrl(),
-                 ':path_file' => $oMresource->GetPathFile(),
-                 ':hash_url' => $oMresource->GetHashUrl(),
-                 ':hash_file' => $oMresource->GetHashFile(),
-            )
-        );
+            $nId = $this->oDb->sqlQuery($sql, $aParams);
+        }
         return $nId ? $nId : false;
     }
 
@@ -128,6 +140,13 @@ class ModuleMresource_MapperMresource extends Mapper {
         if (isset($aFilter['id']) && !isset($aFilter['mresource_id'])) {
             $aFilter['mresource_id'] = $aFilter['id'];
         }
+        if (isset($aFilter['mresource_id']) && !isset($aCriteria['limit'])) {
+            if (is_array($aFilter['mresource_id'])) {
+                $aCriteria['limit'] = count($aFilter['mresource_id']);
+            } else {
+                $aCriteria['limit'] = 1;
+            }
+        }
         list($nOffset, $nLimit) = $this->_prepareLimit($aCriteria);
 
         // Формируем строку лимита и автосчетчик общего числа записей
@@ -136,7 +155,7 @@ class ModuleMresource_MapperMresource extends Mapper {
         } elseif ($nLimit != false) {
             $sSqlLimit = 'LIMIT ' . $nLimit;
         } else {
-            $sSqlLimit = 'LIMIT 0';
+            $sSqlLimit = '';
         }
 
         $bTargetsCount = false;
@@ -311,9 +330,7 @@ class ModuleMresource_MapperMresource extends Mapper {
         $aData = $this->GetMresourcesByCriteria($aCriteria);
         $aResult = array();
         if ($aData['data']) {
-            foreach($aData['data'] as $nI => $aRow) {
-                $aResult[$nI] = Engine::GetEntity('Mresource', $aRow);
-            }
+            $aResult = Engine::GetEntityRows('Mresource', $aData['data']);
         }
         return $aResult;
     }

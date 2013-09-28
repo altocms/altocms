@@ -10,6 +10,24 @@
 
 class ModuleMresource_EntityMresource extends Entity {
 
+    public function __construct($aParam = null) {
+
+        if ($aParam && $aParam instanceOf ModuleUploader_EntityItem) {
+            $oUploaderItem = $aParam;
+            $aParam = $oUploaderItem->getAllProps();
+        } else {
+            $oUploaderItem = null;
+        }
+        parent::__construct($aParam);
+        if ($oUploaderItem) {
+            $this->SetUrl($oUploaderItem->GetUrl());
+            if ($oUploaderItem->GetFile()) {
+                $this->SetFile($oUploaderItem->GetFile());
+            }
+            $this->SetType($oUploaderItem->getProp('is_image') ? ModuleMresource::TYPE_IMAGE : 0);
+        }
+    }
+
     /**
      * Checks if resource is external link
      *
@@ -65,7 +83,7 @@ class ModuleMresource_EntityMresource extends Entity {
         }
         if ($sPathUrl) {
             // Сохраняем относительный путь
-            $this->SetPathUrl('@' . $sPathUrl);
+            $this->SetPathUrl('@' . trim($sPathUrl, '/'));
             if (!$this->getPathFile()) {
                 $this->SetFile(F::File_Url2Dir($sUrl));
             }
@@ -103,6 +121,9 @@ class ModuleMresource_EntityMresource extends Entity {
                 $this->SetPathFile($sFile);
             }
             $this->SetLink(false);
+            if (!$this->GetStorage()) {
+                $this->SetStorage('file');
+            }
         } else {
             $this->SetPathFile(null);
         }
@@ -147,6 +168,19 @@ class ModuleMresource_EntityMresource extends Entity {
         return $sPathFile;
     }
 
+    public function GetUuid() {
+
+        $sResult = $this->getProp('uuid');
+        if (!$sResult) {
+            if ($this->GetStorage() == 'file') {
+                $sResult = str_pad($this->GetUserId(), 8, '0', STR_PAD_LEFT) . '-' . $this->GetHashFile();
+            } elseif (!$this->GetStorage()) {
+                $sResult = $this->GetHashUrl();
+            }
+        }
+        return $sResult;
+    }
+
     /**
      * Recalc both hashs (url & dir)
      */
@@ -158,7 +192,7 @@ class ModuleMresource_EntityMresource extends Entity {
             $sHashFile = null;
         }
         if ($sPathUrl = $this->GetPathUrl()) {
-            $sHashUrl = md5($sPathUrl);
+            $sHashUrl = $this->Mresource_CalcUrlHash($sPathUrl);
         } else {
             $sHashUrl = null;
         }

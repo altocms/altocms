@@ -1062,8 +1062,9 @@ class ActionAjax extends Action {
      *
      */
     protected function EventUploadImage() {
-        /**
-         * Т.к. используется обработка отправки формы, то устанавливаем тип ответа 'jsonIframe' (тот же JSON только обернутый в textarea)
+        /*
+         * Т.к. используется обработка отправки формы, то устанавливаем тип ответа 'jsonIframe'
+         * (тот же JSON только обернутый в textarea)
          * Это позволяет избежать ошибок в некоторых браузерах, например, Opera
          */
         $this->Viewer_SetResponseAjax('jsonIframe', false);
@@ -1091,16 +1092,7 @@ class ActionAjax extends Action {
         }
         // * Если файл успешно загружен, формируем HTML вставки и возвращаем в ajax ответе
         if ($sFile) {
-            $oFile = Engine::GetEntity('Mresource');
-            $oFile->SetTargetType('topic');
-            $oFile->SetLink(0);
-            $oFile->setType(ModuleMresource::TYPE_IMAGE);
-            $oFile->setUrl($sFile);
-            $oFile->setTopicId(0);
-            $oFile->setUserId($this->oUserCurrent->getId());
-            $this->Mresource_Add($oFile);
-
-            $sText = $this->Img_BuildHTML($oFile->GetPathUrl(), $_REQUEST);
+            $sText = $this->Img_BuildHTML($sFile, $_REQUEST);
             $this->Viewer_AssignAjax('sText', $sText);
         } else {
             $this->Message_AddErrorSingle($this->Uploader_GetErrorMsg(), $this->Lang_Get('error'));

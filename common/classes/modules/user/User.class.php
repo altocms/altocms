@@ -1338,8 +1338,12 @@ class ModuleUser extends Module {
             $sAvatar = $this->Uploader_GetUserAvatarDir($oUser->GetId()) . 'avatar' . $sName . '.' . $sExtension;
 
             // Окончательная запись файла только через модуль Uploader
-            if ($sFileAvatar = $this->Uploader_Store($sTmpFile, $sAvatar)) {
-                return $this->Uploader_Dir2Url($sAvatar);
+            if ($xStoredFile = $this->Uploader_Store($sTmpFile, $sAvatar)) {
+                if (is_object($xStoredFile)) {
+                    return $xStoredFile->GetUrl();
+                } else {
+                    return $this->Uploader_Dir2Url($xStoredFile);
+                }
             }
         }
 
@@ -1414,8 +1418,12 @@ class ModuleUser extends Module {
             $sPhoto = $this->Uploader_Uniqname($this->Uploader_GetUserImageDir($oUser->GetId()), $sExtension);
 
             // Окончательная запись файла только через модуль Uploader
-            if ($sPhotoFile = $this->Uploader_Store($sTmpFile, $sPhoto)) {
-                return $this->Uploader_Dir2Url($sPhotoFile);
+            if ($xStoredFile = $this->Uploader_Store($sTmpFile, $sPhoto)) {
+                if (is_object($xStoredFile)) {
+                    return $xStoredFile->GetUrl();
+                } else {
+                    return $this->Uploader_Dir2Url($xStoredFile);
+                }
             }
         }
 

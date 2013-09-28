@@ -2,11 +2,26 @@
 
 class ModuleUploader_EntityDriverFile extends Entity {
 
+    /**
+     * Checks if file exists in storage
+     *
+     * @param string $sFile
+     *
+     * @return string|bool
+     */
     public function Exists($sFile) {
 
         return F::File_Exists($sFile);
     }
 
+    /**
+     * Saves file in storage
+     *
+     * @param string $sFile
+     * @param string $sDestination
+     *
+     * @return bool|string
+     */
     public function Store($sFile, $sDestination = null) {
 
         if (!$sDestination) {
@@ -18,12 +33,36 @@ class ModuleUploader_EntityDriverFile extends Entity {
             $sDestination = $this->Uniqname($sDirUpload, strtolower(F::File_GetExtension($sFile)));
         }
         if ($sDestination) {
+            $sMimeType = ModuleImg::MimeType($sFile);
+            $bIsImage = (strpos($sMimeType, 'image/') === 0);
+            $nUserId = E::UserId();
+            $sUuid = str_pad($nUserId, 8, '0', STR_PAD_LEFT) . '-' . md5_file($sFile);
             if ($sStoredFile = $this->Uploader_Move($sFile, $sDestination, true)) {
-                return '[file]' . $sStoredFile;
+                $oStoredItem = Engine::GetEntity(
+                    'Uploader_Item',
+                    array(
+                         'storage'           => 'file',
+                         'uuid'              => $sUuid,
+                         'original_filename' => basename($sFile),
+                         'url'               => $this->Dir2Url($sStoredFile),
+                         'file'              => $sStoredFile,
+                         'user_id'           => $nUserId,
+                         'mime_type'         => $sMimeType,
+                         'is_image'          => $bIsImage,
+                    )
+                );
+                return $oStoredItem;
             }
         }
     }
 
+    /**
+     * Deletes file from storage
+     *
+     * @param string $sFile
+     *
+     * @return bool
+     */
     public function Delete($sFile) {
 
         if (strpos($sFile, '*')) {
