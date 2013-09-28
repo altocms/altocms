@@ -2,25 +2,25 @@
 
 {block name="content-bar"}
     <div class="btn-group">
-        <a href="{router page='admin'}plugins/add/" class="btn btn-primary tip-top"
+        <a href="{router page='admin'}site-plugins/add/" class="btn btn-primary tip-top"
            title="{$aLang.action.admin.plugin_load}"><i class="icon-plus-sign"></i></a>
     </div>
     <div class="btn-group">
-        <a class="btn {if $sMode=='all' || $sMode==''}active{/if}" href="{router page='admin'}plugins/list/all/">
+        <a class="btn {if $sMode=='all' || $sMode==''}active{/if}" href="{router page='admin'}site-plugins/list/all/">
             {$aLang.action.admin.all_plugins}
         </a>
-        <a class="btn {if $sMode=='active'}active{/if}" href="{router page='admin'}plugins/list/active/">
+        <a class="btn {if $sMode=='active'}active{/if}" href="{router page='admin'}site-plugins/list/active/">
             {$aLang.action.admin.active_plugins}
         </a>
-        <a class="btn {if $sMode=='inactive'}active{/if}" href="{router page='admin'}plugins/list/inactive/">
+        <a class="btn {if $sMode=='inactive'}active{/if}" href="{router page='admin'}site-plugins/list/inactive/">
             {$aLang.action.admin.inactive_plugins}
         </a>
     </div>
 {/block}
 
 {block name="content-body"}
-    <form action="{router page='admin'}plugins/" method="post" id="form_plugins_list" class="uniform">
-        <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+    <form action="{router page='admin'}site-plugins/" method="post" id="form_plugins_list" class="uniform">
+        <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
 
         <div class="b-wbox">
             <div class="b-wbox-content nopadding">

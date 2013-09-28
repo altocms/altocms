@@ -275,7 +275,7 @@ abstract class Plugin extends LsObject {
      *
      * @return string
      */
-    public function GetName($bSkipPrefix) {
+    public function GetName($bSkipPrefix = true) {
 
         $sName = get_class($this);
         return $bSkipPrefix ? substr($sName, 6) : $sName;

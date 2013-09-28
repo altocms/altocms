@@ -33,7 +33,9 @@ class ModulePlugin extends Module {
      *
      * @var string
      */
-    protected $sPluginsDir;
+    protected $sPluginsCommonDir;
+
+    protected $sPluginsAppDir;
 
     /**
      * Список плагинов
@@ -70,7 +72,8 @@ class ModulePlugin extends Module {
      */
     public function Init() {
 
-        $this->sPluginsDir = F::GetPluginsDir();
+        $this->sPluginsCommonDir = F::GetPluginsDir();
+        $this->sPluginsAppDir = F::GetPluginsDir(true);
     }
 
     /**
@@ -80,7 +83,7 @@ class ModulePlugin extends Module {
      */
     public function GetPluginsDir() {
 
-        return $this->sPluginsDir;
+        return $this->sPluginsCommonDir;
     }
 
     /**
@@ -92,7 +95,7 @@ class ModulePlugin extends Module {
      */
     public function GetPluginManifest($sPluginId) {
 
-        $sXmlFile = $this->sPluginsDir . $sPluginId . '/' . self::PLUGIN_XML_FILE;
+        $sXmlFile = $this->sPluginsCommonDir . $sPluginId . '/' . self::PLUGIN_XML_FILE;
         if ($sXml = F::File_GetContents($sXmlFile)) {
             return $sXml;
         }
@@ -110,7 +113,7 @@ class ModulePlugin extends Module {
 
         if (is_null($this->aPluginsList)) {
             // Если списка плагинов нет, то создаем его
-            if ($aPaths = glob($this->sPluginsDir . '*', GLOB_ONLYDIR)) {
+            if ($aPaths = glob($this->sPluginsCommonDir . '*', GLOB_ONLYDIR)) {
                 $aList = array_map('basename', $aPaths);
                 $aActivePlugins = $this->GetActivePlugins();
                 foreach ($aList as $sPluginId) {
@@ -253,7 +256,7 @@ class ModulePlugin extends Module {
 
         $sPluginName = F::StrCamelize($sPluginId);
 
-        $sFile = F::File_NormPath("{$this->sPluginsDir}{$sPluginId}/Plugin{$sPluginName}.class.php");
+        $sFile = F::File_NormPath("{$this->sPluginsCommonDir}{$sPluginId}/Plugin{$sPluginName}.class.php");
         if (F::File_Exists($sFile)) {
             F::IncludeFile($sFile);
 
@@ -461,7 +464,7 @@ class ModulePlugin extends Module {
 
         $sPluginName = F::StrCamelize($sPluginId);
 
-        $sFile = "{$this->sPluginsDir}{$sPluginId}/Plugin{$sPluginName}.class.php";
+        $sFile = "{$this->sPluginsCommonDir}{$sPluginId}/Plugin{$sPluginName}.class.php";
         if (F::File_Exists($sFile)) {
             F::IncludeFile($sFile);
 
@@ -543,7 +546,7 @@ class ModulePlugin extends Module {
 
         // * Записываем данные в файл PLUGINS.DAT
         if (F::File_PutContents(
-            $this->sPluginsDir . Config::Get('sys.plugins.activation_file'), implode(PHP_EOL, $aPlugins)
+            $this->sPluginsAppDir . Config::Get('sys.plugins.activation_file'), implode(PHP_EOL, $aPlugins)
         ) !== false
         ) {
             return true;
@@ -574,7 +577,7 @@ class ModulePlugin extends Module {
             }
 
             // * Удаляем директорию с плагином
-            F::File_RemoveDir($this->sPluginsDir . $sPluginId);
+            F::File_RemoveDir($this->sPluginsCommonDir . $sPluginId);
         }
     }
 
