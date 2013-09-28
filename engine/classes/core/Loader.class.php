@@ -322,6 +322,10 @@ class Loader {
                         $sPath = $aOptions;
                     }
                     if ($sPath) {
+                        if (isset($aOptions['classmap'][$sClassName])) {
+                            $sFile = $sPath . '/' . $aOptions['classmap'][$sClassName];
+                            return self::_includeFile($sFile);
+                        }
                         return self::_autoloadPSR0($sClassName, $sPath);
                     }
                 }
