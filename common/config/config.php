@@ -27,7 +27,7 @@
 /**
  * Настройки HTML вида
  */
-$config['view']['skin']        = 'native';                          // скин
+$config['view']['skin']        = 'synio';                          // скин
 $config['view']['theme']       = 'default';                         // тема
 $config['view']['name']        = 'Your Site Name';                  // название сайта
 $config['view']['description'] = 'Description your site';           // meta tag description
@@ -727,7 +727,7 @@ $config['compress']['css']['csstidy']['template']            = 'highest_compress
  * Параметры компрессии js-файлов
  */
 $config['compress']['js']['merge']  = true;         // указывает на необходимость слияния файлов по указанным блокам.
-$config['compress']['js']['use']    = true;         // указывает на необходимость компрессии файлов. Компрессия используется только в активированном режиме слияния файлов.
+$config['compress']['js']['use']    = false;         // указывает на необходимость компрессии файлов. Компрессия используется только в активированном режиме слияния файлов.
 $config['compress']['js']['force']  = false;        // если заданно 'compress.js.merge', то слияние выполняется, даже если результирующий файл есть
 
 /**
