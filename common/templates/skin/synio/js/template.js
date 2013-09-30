@@ -43,7 +43,7 @@ jQuery(document).ready(function($){
 		return false;
 	});
 
-	$('.js-login-form-show').click(function(){console.log(123123);
+	$('.js-login-form-show').click(function(){
 		if (ls.blocks.switchTab('login','popup-login')) {
 			$('#window_login_form').jqmShow();
 		} else {
