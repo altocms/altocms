@@ -187,6 +187,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
                 'file' => $sDestination,
                 'asset' => $sAsset,
                 'compress' => $this->bCompress,
+                'prepare' => false,
             );
             $this->AddLink($this->sOutType, F::File_Dir2Url($sDestination), $aParams);
         }
