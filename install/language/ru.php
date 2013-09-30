@@ -24,7 +24,7 @@ return array(
     'error_db_saved'                   => 'Не удалось сохранить данные в базе.',
     'error_db_no_data'                 => 'Не удалось получить данные из базы.',
 
-    'error_local_config_invalid'       => 'Файл локальной конфигурации <strong>/config/config.local.php</strong> не найден.',
+    'error_local_config_invalid'       => 'Файл локальной конфигурации <strong>/app/config/config.local.php</strong> не найден.',
 
     'site_name_invalid'                => 'Указано недопустимое название сайта.',
     'site_description_invalid'         => 'Указано недопустимое описание сайта.',
@@ -53,7 +53,7 @@ return array(
 
     'start_paragraph'                  => '<p>Добро пожаловать в установку Alto CMS. Ознакомьтесь с результатами и следуйте подсказкам.</p>
 	                    <p><b>Внимание.</b> Для успешной иснталяции вы должны переименовать файл
-	                    /config/config.local.php.dist в /config/config.local.php и дать этому файлу права на запись.</p>
+	                    /app/config/config.local.php.txt в /app/config/config.local.php и дать этому файлу права на запись.</p>
 	                    <p><b>Внимание.</b> Папки /_tmp, /_run, /uploads должны иметь права на запись.</p>',
 
     'php_params'                       => 'Основные настройки PHP',
@@ -66,14 +66,11 @@ return array(
     'local_config'                     => 'Локальная конфигурация',
     'local_file_is_writable'           => 'Файл %%file%% существует и доступен для записи',
     'local_folder_is_writable'         => 'Файл %%folder%% существует и доступен для записи',
-    'local_config_file'                => 'Файл /config/config.local.php существует и доступен для записи',
+    'local_config_file'                => 'Файл /app/config/config.local.php существует и доступен для записи',
     'local_temp_dir'                   => 'Папка /_tmp существует и доступна для записи',
     'local_runtime_dir'                => 'Папка /_run существует и доступна для записи',
-    //'local_logs_dir'=>'Папка /logs существует и доступна для записи',
     'local_uploads_dir'                => 'Папка /uploads существует и доступна для записи',
-    //'local_templates_dir'=>'Папка /templates/compiled существует и доступна для записи',
-    //'local_templates_cache_dir'=>'Папка /templates/cache существует и доступна для записи',
-    'local_plugins_dir'                => 'Папка /plugins существует и доступна для записи',
+    'local_plugins_dir'                => 'Папка /app/plugins существует и доступна для записи',
 
     'db_params'                        => 'Настройка базы данных',
     'db_params_host'                   => 'Имя сервера БД',

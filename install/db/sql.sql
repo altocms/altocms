@@ -41,6 +41,45 @@ INSERT INTO `prefix_blog` (`blog_id`, `user_owner_id`, `blog_title`, `blog_descr
 -- --------------------------------------------------------
 
 --
+-- Структура таблицы `prefix_blog_type`
+--
+
+CREATE TABLE IF NOT EXISTS `prefix_blog_type` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `type_code` varchar(10) NOT NULL,
+  `allow_add` tinyint(1) DEFAULT '1',
+  `min_rating` float DEFAULT '0',
+  `show_title` tinyint(1) DEFAULT '1',
+  `index_ignore` tinyint(1) DEFAULT '0',
+  `membership` tinyint(4) DEFAULT '0',
+  `acl_write` int(11) DEFAULT NULL,
+  `min_rate_write` float DEFAULT '0',
+  `acl_read` int(11) DEFAULT NULL,
+  `min_rate_read` float DEFAULT '0',
+  `acl_comment` int(11) DEFAULT NULL,
+  `min_rate_comment` float DEFAULT '0',
+  `active` tinyint(1) DEFAULT '1',
+  `norder` int(11) DEFAULT '0',
+  `candelete` tinyint(1) DEFAULT '1',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `code` (`type_code`),
+  KEY `numord` (`norder`),
+  KEY `allow_add` (`allow_add`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;
+
+--
+-- Дамп данных таблицы `prefix_blog_type`
+--
+
+INSERT INTO `prefix_blog_type` (`id`, `type_code`, `allow_add`, `min_rating`, `show_title`, `index_ignore`, `membership`, `acl_write`, `min_rate_write`, `acl_read`, `min_rate_read`, `acl_comment`, `min_rate_comment`, `active`, `norder`, `candelete`) VALUES
+(1, 'personal', 0, 0, 1, 0, 0, 0, 0, 1, 0, 2, -10, 1, 0, 0),
+(2, 'open', 1, 1, 1, 0, 1, 2, -10, 1, 0, 2, -10, 1, 0, 0),
+(3, 'close', 1, 1, 1, 1, 2, 4, 0, 4, 0, 4, -10, 1, 0, 0),
+(4, 'hidden', 0, 10, 0, 1, 4, 4, 0, 4, 0, 4, -10, 1, 0, 0);
+
+-- --------------------------------------------------------
+
+--
 -- Структура таблицы `prefix_blog_user`
 --
 
@@ -215,6 +254,54 @@ CREATE TABLE IF NOT EXISTS `prefix_invite` (
 -- Дамп данных таблицы `prefix_invite`
 --
 
+-- --------------------------------------------------------
+
+-- --
+-- Структура таблицы 'prefix_mresource'
+--
+
+CREATE TABLE IF NOT EXISTS `prefix_mresource` (
+  `mresource_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `date_add` datetime NOT NULL,
+  `date_del` datetime DEFAULT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `link` tinyint(1) NOT NULL,
+  `type` int(11) NOT NULL,
+  `path_url` varchar(512) NOT NULL,
+  `path_file` varchar(512) DEFAULT NULL,
+  `hash_url` varchar(64) DEFAULT NULL,
+  `hash_file` varchar(64) DEFAULT NULL,
+  `candelete` tinyint(1) DEFAULT '1',
+  PRIMARY KEY (`mresource_id`),
+  KEY `user_id` (`user_id`),
+  KEY `type` (`type`),
+  KEY `hash_file` (`hash_file`),
+  KEY `hash_url` (`hash_url`),
+  KEY `link` (`link`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 ;
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы 'prefix_mresource_target'
+--
+
+CREATE TABLE IF NOT EXISTS `prefix_mresource_target` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `mresource_id` int(11) NOT NULL,
+  `target_type` varchar(32) NOT NULL,
+  `target_id` int(11) NOT NULL,
+  `date_add` int(11) NOT NULL,
+  `target_tmp` varchar(32) DEFAULT NULL,
+  `description` text,
+  `incount` int(11) DEFAULT '1',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_id` (`target_type`,`target_id`,`mresource_id`),
+  KEY `target_tmp` (`target_tmp`),
+  KEY `target_type` (`target_type`),
+  KEY `target_id` (`target_id`),
+  KEY `mresource_id` (`mresource_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 ;
 
 -- --------------------------------------------------------
 
@@ -461,12 +548,13 @@ CREATE TABLE IF NOT EXISTS `prefix_topic` (
   `topic_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `blog_id` int(11) unsigned NOT NULL,
   `user_id` int(11) unsigned NOT NULL,
-  `topic_type` varchar(30) NOT NULL DEFAULT 'topic',
+  `topic_type` varchar(30) DEFAULT 'topic',
   `topic_title` varchar(200) NOT NULL,
   `topic_tags` varchar(250) NOT NULL COMMENT 'tags separated by a comma',
   `topic_date_add` datetime NOT NULL,
   `topic_date_edit` datetime DEFAULT NULL,
-  `topic_user_ip` varchar(40) NOT NULL,
+  `topic_date_show` datetime DEFAULT NULL,
+  `topic_user_ip` varchar(20) NOT NULL,
   `topic_publish` tinyint(1) NOT NULL DEFAULT '0',
   `topic_publish_draft` tinyint(1) NOT NULL DEFAULT '1',
   `topic_publish_index` tinyint(1) NOT NULL DEFAULT '0',
@@ -482,15 +570,17 @@ CREATE TABLE IF NOT EXISTS `prefix_topic` (
   `topic_forbid_comment` tinyint(1) NOT NULL DEFAULT '0',
   `topic_text_hash` varchar(32) NOT NULL,
   `topic_url` varchar(250) DEFAULT NULL,
+  `topic_index_ignore` tinyint(2) DEFAULT '0',
   PRIMARY KEY (`topic_id`),
   KEY `blog_id` (`blog_id`),
-  KEY `user_id` (`user_id`),
-  KEY `topic_date_add` (`topic_date_add`),
-  KEY `topic_rating` (`topic_rating`),
-  KEY `topic_publish` (`topic_publish`),
-  KEY `topic_text_hash` (`topic_text_hash`),
   KEY `topic_count_comment` (`topic_count_comment`),
-  KEY `topic_url` (`topic_url`)
+  KEY `topic_date_add` (`topic_date_add`),
+  KEY `topic_publish` (`topic_publish`),
+  KEY `topic_rating` (`topic_rating`),
+  KEY `topic_text_hash` (`topic_text_hash`),
+  KEY `user_id` (`user_id`),
+  KEY `topic_url` (`topic_url`),
+  KEY `topic_index_ignore` (`topic_index_ignore`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 --
@@ -530,9 +620,11 @@ CREATE TABLE IF NOT EXISTS `prefix_topic_photo` (
   `path` varchar(255) NOT NULL,
   `description` text,
   `target_tmp` varchar(40) DEFAULT NULL,
+  `date_add` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `topic_id` (`topic_id`),
-  KEY `target_tmp` (`target_tmp`)
+  KEY `target_tmp` (`target_tmp`),
+  KEY `date_add` (`date_add`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 --
@@ -933,6 +1025,7 @@ CREATE TABLE IF NOT EXISTS `prefix_content` (
   `content_url` varchar(50) NOT NULL,
   `content_active` tinyint(1) NOT NULL DEFAULT '1',
   `content_candelete` tinyint(1) NOT NULL DEFAULT '0',
+  `content_cancreate` tinyint(1) NOT NULL DEFAULT '0',
   `content_access` tinyint(1) NOT NULL DEFAULT '1',
   `content_config` text DEFAULT NULL,
   PRIMARY KEY (`content_id`),
@@ -970,8 +1063,8 @@ CREATE TABLE IF NOT EXISTS `prefix_content_field` (
 
 CREATE TABLE IF NOT EXISTS `prefix_content_values` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `target_id` int(11) unsigned DEFAULT NULL,
   `target_type` varchar(40) NOT NULL DEFAULT 'topic',
+  `target_id` int(11) unsigned DEFAULT NULL,
   `field_id` int(11) unsigned NOT NULL,
   `field_type` varchar(40) NOT NULL DEFAULT 'input',
   `value_type` enum('string','text','number') NOT NULL,
@@ -979,8 +1072,9 @@ CREATE TABLE IF NOT EXISTS `prefix_content_values` (
   `value_varchar` varchar(250) DEFAULT NULL,
   `value_source` text NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `target_id` (`target_id`),
   KEY `target_type` (`target_type`),
+  KEY `target_id` (`target_id`),
+  KEY `value_type` (`value_type`),
   KEY `field_id` (`field_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 

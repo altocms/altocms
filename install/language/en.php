@@ -24,7 +24,7 @@ return array(
     'error_db_saved'                   => 'Unable to save data into the DB.',
     'error_db_no_data'                 => 'Unable to get data from the DB.',
 
-    'error_local_config_invalid'       => "Can't find local configuration file <strong>/config/config.local.php</strong>.",
+    'error_local_config_invalid'       => "Can't find local configuration file <strong>/app/config/config.local.php</strong>.",
 
     'site_name_invalid'                => 'Chosen site name is not allowed.',
     'site_description_invalid'         => 'Chosen site description is not allowed.',
@@ -52,7 +52,7 @@ return array(
     'step'                             => 'Step',
 
     'start_paragraph'                  => '<p>Welcome to Alto CMS installation. </p>
-	                    <p><b>Notice:</b> You need to rename file /config/config.local.php.dist to /config/config.local.php
+	                    <p><b>Notice:</b> You need to rename file /app/config/config.local.php.txt to /app/config/config.local.php
 	                    and apply read-write (rw) permision to it.</p>
 	                    <p><b>Notice:</b> Make sure that the following directories have rw permissions:
 	                    /_tmp, /_run, /uploads</p>',
@@ -65,13 +65,11 @@ return array(
     'php_params_simplexml'             => 'SimpleXML support',
 
     'local_config'                     => 'Local Configuration',
-    'local_config_file'                => 'File /config/config.local.php exists and writable',
-    'local_temp_dir'                   => 'Folder /tmp exists and writable',
-    'local_logs_dir'                   => 'Folder /logs exists and writable',
+    'local_config_file'                => 'File /app/config/config.local.php exists and writable',
+    'local_temp_dir'                   => 'Folder /_tmp exists and writable',
+    'local_runtime_dir'                => 'Folder /_run exists and writable',
     'local_uploads_dir'                => 'Folder /uploads exists and writable',
-    'local_templates_dir'              => 'Folder /templates/compiled exists and writable',
-    'local_templates_cache_dir'        => 'Folder /templates/cache exists and writable',
-    'local_plugins_dir'                => 'Folder /plugins exists and writable',
+    'local_plugins_dir'                => 'Folder /app/plugins exists and writable',
 
     'db_params'                        => 'Database (DB) configuration',
     'db_params_host'                   => 'DB hostname',

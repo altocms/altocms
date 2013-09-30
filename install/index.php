@@ -34,7 +34,7 @@ class Install {
      *
      * @var string
      */
-    const SESSSION_KEY_STEP_NAME = 'alto_install_step';
+    const SESSION_KEY_STEP_NAME = 'alto_install_step';
 
     /**
      * Название файла локальной конфигурации
@@ -456,7 +456,8 @@ class Install {
             $sConfig = preg_replace('~' . preg_quote($sName) . '.+;~Ui', $sName . ' = ' . $sVar . ';', $sConfig);
         } else {
             $sConfig = str_replace(
-                'return $config;', $sName . ' = ' . $sVar . ';' . PHP_EOL . 'return $config;', $sConfig
+                'return $config;',
+                $sName . ' = ' . $sVar . ';' . PHP_EOL . PHP_EOL . 'return $config;', $sConfig
             );
         }
         file_put_contents($sPath, $sConfig);
@@ -529,9 +530,9 @@ class Install {
     public function Run($sStepName = null) {
 
         if (is_null($sStepName)) {
-            $sStepName = $this->GetSessionVar(self::SESSSION_KEY_STEP_NAME, self::INSTALL_DEFAULT_STEP);
+            $sStepName = $this->GetSessionVar(self::SESSION_KEY_STEP_NAME, self::INSTALL_DEFAULT_STEP);
         } else {
-            $this->SetSessionVar(self::SESSSION_KEY_STEP_NAME, $sStepName);
+            $this->SetSessionVar(self::SESSION_KEY_STEP_NAME, $sStepName);
         }
 
         if (!in_array($sStepName, $this->aSteps)) {
@@ -544,7 +545,7 @@ class Install {
          */
         if ($this->GetRequest('install_step_prev') && $iKey != 0) {
             $sStepName = $this->aSteps[--$iKey];
-            $this->SetSessionVar(self::SESSSION_KEY_STEP_NAME, $sStepName);
+            $this->SetSessionVar(self::SESSION_KEY_STEP_NAME, $sStepName);
         }
 
         $this->Assign('next_step_display', ($iKey == count($this->aSteps) - 1) ? 'none' : 'inline-block');
@@ -569,7 +570,7 @@ class Install {
             $this->$sFunctionName();
         } else {
             $sFunctionName = 'Step' . self::INSTALL_DEFAULT_STEP;
-            $this->SetSessionVar(self::SESSSION_KEY_STEP_NAME, self::INSTALL_DEFAULT_STEP);
+            $this->SetSessionVar(self::SESSION_KEY_STEP_NAME, self::INSTALL_DEFAULT_STEP);
             $this->$sFunctionName();
         }
     }
@@ -847,7 +848,7 @@ class Install {
      *
      */
     protected function StepAdmin() {
-        $this->SetSessionVar(self::SESSSION_KEY_STEP_NAME, 'Admin');
+        $this->SetSessionVar(self::SESSION_KEY_STEP_NAME, 'Admin');
         $this->SetStep('Admin');
         /**
          * Передаем данные из запроса во вьювер, сохраняя значение в сессии
@@ -906,8 +907,10 @@ class Install {
             $aParams['prefix']
         );
         if (!$bUpdated) {
-            $this->aMessages[] = array('type' => 'error',
-                                       'text' => $this->Lang('error_db_saved') . '<br />' . mysql_error());
+            $this->aMessages[] = array(
+                'type' => 'error',
+                'text' => $this->Lang('error_db_saved') . '<br />' . mysql_error()
+            );
             $this->Layout('steps/admin.tpl');
             return false;
         }
@@ -926,10 +929,10 @@ class Install {
      * Завершающий этап. Переход в расширенный режим
      */
     protected function StepEnd() {
-        // TODO: Проверка, что эта страница уже выводилась, и усиленно заставит юзера удалить install
+        // TODO: Проверка, что эта страница уже выводилась, и усиленно заставить юзера удалить install
         $this->SetStep('End');
         $this->Assign('next_step_display', 'none');
-        $this->SetSessionVar(self::SESSSION_KEY_STEP_NAME, 'End');
+        $this->SetSessionVar(self::SESSION_KEY_STEP_NAME, 'End');
         /**
          * Если пользователь выбрал расширенный режим, переводим на новый шаг
          */
@@ -949,7 +952,7 @@ class Install {
         /**
          * Сохраняем в сессию название текущего шага
          */
-        $this->SetSessionVar(self::SESSSION_KEY_STEP_NAME, 'Extend');
+        $this->SetSessionVar(self::SESSION_KEY_STEP_NAME, 'Extend');
         $this->SetStep('Extend');
         /**
          * Получаем значения запрашиваемых данных либо устанавливаем принятые по умолчанию
@@ -1190,7 +1193,7 @@ class Install {
     protected function StepFinish() {
         $this->SetStep('Finish');
         $this->Assign('next_step_display', 'none');
-        $this->SetSessionVar(self::SESSSION_KEY_STEP_NAME, 'Finish');
+        $this->SetSessionVar(self::SESSION_KEY_STEP_NAME, 'Finish');
         $this->Layout('steps/finish.tpl');
     }
 
@@ -1234,7 +1237,7 @@ class Install {
         $sLocalConfigPath = $this->sConfigDir . '/config.local.php';
         if (!file_exists($sLocalConfigPath) || !is_writeable($sLocalConfigPath)) {
             // пытаемся создать файл локального конфига
-            @copy($this->sConfigDir . '/config.local.php.dist', $sLocalConfigPath);
+            @copy($this->sConfigDir . '/config.local.php.txt', $sLocalConfigPath);
         }
         if (!file_exists($sLocalConfigPath) || !is_writeable($sLocalConfigPath)) {
             $bOk = false;
