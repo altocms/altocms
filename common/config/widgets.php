@@ -69,20 +69,21 @@ $config['widgets'][] = array(
         'blog' => array('{topics}', '{topic}', '{blog}'),
     ),
 );
-
+/*
 $config['widgets'][] = array(
     'name' => 'usersStatistics.tpl',
     'wgroup' => 'right',
     'on' => 'people',
 );
-
+*/
+/*
 $config['widgets'][] = array(
     'name' => 'userActions.tpl',
     'wgroup' => 'right',
     'priority' => 150,
     'on' => 'profile, talk, settings',
 );
-
+*/
 $config['widgets'][] = array(
     'name' => 'userfeedBlogs',
     'wgroup' => 'right',
@@ -107,16 +108,7 @@ $config['widgets'][] = array(
         'blog' => array('{topic}')
     ),
 );
-
-$config['widgets'][] = array(
-    'name' => 'widgets/widget.blogAdd.tpl',
-    'wgroup' => 'right',
-    'priority' => 125,
-    'action' => array(
-        'blogs'
-    ),
-);
-
+/*
 $config['widgets'][] = array(
     'name' => 'widgets/widget.userPhoto.tpl',
     'wgroup' => 'right',
@@ -143,5 +135,5 @@ $config['widgets'][] = array(
         'profile'
     ),
 );
-
+*/
 // EOF
