@@ -16,7 +16,7 @@
             <div class="b-wbox-header-title">{$aLang.action.admin.blogtypes_add_title}</div>
         {elseif $sMode=='edit'}
             <div class="b-wbox-header-title">{$aLang.action.admin.blogtypes_edit_title}
-                : {$oBlogType->getName()|escape:'html'}</div>
+                : {if $oBlogType}{$oBlogType->getName()|escape:'html'}{/if}</div>
         {/if}
     </div>
     <div class="b-wbox-header">
@@ -54,7 +54,7 @@
                 </label>
                 <div class="controls">
                     <input type="text" name="blogtypes_name_{$sLang}"
-                           value="{$oBlogType->getName($sLang)}" class="input-text" readonly/>
+                           value="{if $oBlogType}{$oBlogType->getName($sLang)}{/if}" class="input-text" readonly/>
                 </div>
             {/foreach}
 
@@ -74,7 +74,7 @@
                 </label>
                 <div class="controls">
                     <input type="text" name="blogtypes_description_{$sLang}"
-                           value="{$oBlogType->getDescription($sLang)}" class="input-text" readonly/>
+                           value="{if $oBlogType}{$oBlogType->getDescription($sLang)}{/if}" class="input-text" readonly/>
                 </div>
             {/foreach}
         </div>
@@ -231,21 +231,6 @@
 
         </div>
 
-        <div class="control-group">
-            <label class="control-label">{$aLang.action.admin.widget_active}</label>
-
-            <div class="controls">
-                <label>
-                    <input type="radio" name="blogtypes_active" value="1"
-                           {if $_aRequest.blogtypes_active}checked="checked"{/if}> {$aLang.action.admin.word_yes}
-                </label>
-                <label>
-                    <input type="radio" name="blogtypes_active" value="0"
-                           {if !$_aRequest.blogtypes_active}checked="checked"{/if}> {$aLang.action.admin.word_no}
-                </label>
-            </div>
-        </div>
-
     </div>
 
     <div class="b-wbox-header">
@@ -311,6 +296,26 @@
                 </select>
                 <span class="help-block">{$aLang.action.admin.blogtypes_contenttypes_notice}</span>
 
+            </div>
+        </div>
+    </div>
+
+    <div class="b-wbox-header">
+        <div class="b-wbox-header-title"></div>
+    </div>
+    <div class="b-wbox-content nopadding">
+        <div class="control-group">
+            <label class="control-label">{$aLang.action.admin.widget_active}</label>
+
+            <div class="controls">
+                <label>
+                    <input type="radio" name="blogtypes_active" value="1"
+                           {if $_aRequest.blogtypes_active}checked="checked"{/if}> {$aLang.action.admin.word_yes}
+                </label>
+                <label>
+                    <input type="radio" name="blogtypes_active" value="0"
+                           {if !$_aRequest.blogtypes_active}checked="checked"{/if}> {$aLang.action.admin.word_no}
+                </label>
             </div>
         </div>
     </div>

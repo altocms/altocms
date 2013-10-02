@@ -818,6 +818,7 @@ class ModuleBlog_MapperBlog extends Mapper {
             = "
             UPDATE ?_blog_type
             SET
+                type_code = ?:type_code,
                 type_name = ?:type_name,
                 type_description = ?:type_description,
                 allow_add = ?d:allow_add,
@@ -842,6 +843,7 @@ class ModuleBlog_MapperBlog extends Mapper {
         $xResult = $this->oDb->sqlQuery(
             $sql,
             array(
+                 ':type_code'        => $oBlogType->getTypeCode(),
                  ':type_name'        => $oBlogType->getTypeName(),
                  ':type_description' => $oBlogType->getTypeDescription(),
                  ':allow_add'        => $oBlogType->getAllowAdd() ? 1 : 0,
@@ -859,7 +861,7 @@ class ModuleBlog_MapperBlog extends Mapper {
                  ':content_type'     => $oBlogType->getContentType(),
                  ':active'           => $oBlogType->IsActive() ? 1 : 0,
                  ':norder'           => $oBlogType->getNOrder(),
-                 ':candelete'        => $oBlogType->CanDelete() ? 1 : 0,
+                 ':candelete'        => $oBlogType->CanDelete() ? 1 : (is_null($oBlogType->CanDelete()) ? 1 : 0),
                  ':id'               => $oBlogType->getId()
             )
         );

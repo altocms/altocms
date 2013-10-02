@@ -2,13 +2,13 @@
 
 {block name="content-bar"}
     <div class="btn-group">
-        <a href="{router page='admin'}blogtypes/add/" class="btn btn-primary tip-top"
+        <a href="{router page='admin'}settings-blogtypes/add/" class="btn btn-primary tip-top"
            title="{$aLang.action.admin.blogtypes_add}"><i class="icon-plus-sign"></i></a>
     </div>
 {/block}
 
 {block name="content-body"}
-<form action="{router page='admin'}blogtypes/" method="post" id="form_blogtype_list" class="uniform">
+<form action="{router page='admin'}settings-blogtypes/" method="post" id="form_blogtype_list" class="uniform">
     <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
     <input type="hidden" name="blogtype_action" value="">
     <div class="b-wbox">
@@ -54,6 +54,10 @@
                         <td>
                             <a href="{router page='admin'}settings-blogtypes/edit/{$oBlogType->getId()}/">
                                 <i class="icon-edit tip-top" title="{$aLang.action.admin.content_edit}"></i></a>
+                            {if $oBlogType AND $oBlogType->CanDelete()}
+                            <a href="{router page='admin'}settings-blogtypes/delete/{$oBlogType->getId()}/">
+                                <i class="icon-trash tip-top" title="{$aLang.action.admin.content_delete}"></i></a>
+                            {/if}
                         </td>
                     </tr>
                 {/foreach}

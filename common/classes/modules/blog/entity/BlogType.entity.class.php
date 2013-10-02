@@ -149,7 +149,10 @@ class ModuleBlog_EntityBlogType extends Entity {
     }
 
     public function CanDelete() {
-        return (bool)$this->getProp('candelete');
+        if (is_null($xVal = $this->getProp('candelete'))) {
+            return true;
+        }
+        return (bool)$xVal;
     }
 
     public function IsAllowAdd() {
