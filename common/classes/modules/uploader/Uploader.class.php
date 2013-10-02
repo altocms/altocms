@@ -338,14 +338,18 @@ class ModuleUploader extends Module {
             }
         }
         if ($sContent) {
-            $sTmpFile = Config::Get('sys.cache.dir') . F::RandomStr();
+            $sTmpFile = F::File_UploadUniqname(F::File_GetExtension($sUrl));
             if (!file_put_contents($sTmpFile, $sContent)) {
                 $this->nLastError = self::ERR_REMOTE_FILE_READ;
                 return false;
             }
         }
         if ($this->_checkUploadedFile($sTmpFile)) {
-            return $this->MoveTmpFile($sTmpFile, $sDir);
+            if ($sDir) {
+                return $this->MoveTmpFile($sTmpFile, $sDir);
+            } else {
+                return $sTmpFile;
+            }
         }
         return false;
     }
