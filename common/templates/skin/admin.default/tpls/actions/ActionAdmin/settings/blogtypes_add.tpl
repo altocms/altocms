@@ -146,7 +146,7 @@
             <div class="controls">
                 <select name="blogtypes_acl_write">
                     <option value="" {if !$_aRequest.blogtypes_acl_write}selected{/if}>
-                        {$aLang.action.admin.blogtypes_acl_nobody}
+                        {$aLang.action.admin.blogtypes_acl_owner}
                     </option>
                     <option value="{ModuleBlog::BLOG_USER_ACL_MEMBER}"
                             {if $_aRequest.blogtypes_acl_write==ModuleBlog::BLOG_USER_ACL_MEMBER}selected{/if}>
@@ -176,7 +176,7 @@
             <div class="controls">
                 <select name="blogtypes_acl_read">
                     <option value="" {if !$_aRequest.blogtypes_acl_read}selected{/if}>
-                        {$aLang.action.admin.blogtypes_acl_nobody}
+                        {$aLang.action.admin.blogtypes_acl_owner}
                     </option>
                     <option value="{ModuleBlog::BLOG_USER_ACL_MEMBER}"
                             {if $_aRequest.blogtypes_acl_read==ModuleBlog::BLOG_USER_ACL_MEMBER}selected{/if}>
@@ -209,7 +209,7 @@
             <div class="controls">
                 <select name="blogtypes_acl_comment">
                     <option value="" {if !$_aRequest.blogtypes_acl_comment}selected{/if}>
-                        {$aLang.action.admin.blogtypes_acl_nobody}
+                        {$aLang.action.admin.blogtypes_acl_owner}
                     </option>
                     <option value="{ModuleBlog::BLOG_USER_ACL_MEMBER}"
                             {if $_aRequest.blogtypes_acl_comment==ModuleBlog::BLOG_USER_ACL_MEMBER}selected{/if}>

@@ -1174,11 +1174,11 @@ class ModuleBlog extends Module {
     public function GetAllowBlogTypes($oUser, $sAction, $bTypeCodesOnly = false) {
 
         $aFilter = array(
-            'exclude_type' => 'personal',
+            'exclude_type' => in_array($sAction, array('add', 'list')) ? 'personal' : null,
             'is_active' => true,
         );
 
-        if ($sAction && !in_array($sAction, array('add', 'list'))) {
+        if ($sAction && !in_array($sAction, array('add', 'list', 'write'))) {
             return array();
         }
 
@@ -1197,6 +1197,8 @@ class ModuleBlog extends Module {
             } elseif ($sAction == 'list') {
                 $aFilter['allow_list'] = true;
                 $aFilter['min_rate_list'] = $oUser->GetUserRating();
+            } elseif ($sAction == 'write') {
+                $aFilter['min_rate_write'] = $oUser->GetUserRating();
             }
         }
         $aBlogTypes = $this->GetBlogTypes($aFilter, $bTypeCodesOnly);

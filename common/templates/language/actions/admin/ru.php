@@ -746,7 +746,7 @@ return array(
     'blogtypes_acl_comment'          => 'Кто может комментировать',
     'blogtypes_acl_comment_notice'   => 'Кто, кроме владельца блога, может его комментировать',
 
-    'blogtypes_acl_nobody'           => 'Никто (только владелец)',
+    'blogtypes_acl_owner'            => 'Только владелец',
     'blogtypes_acl_members'          => 'Только участники',
     'blogtypes_acl_users'            => 'Все пользователи',
     'blogtypes_acl_guests'           => 'Любые посетители сайта',

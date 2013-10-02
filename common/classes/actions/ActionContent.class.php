@@ -143,13 +143,13 @@ class ActionContent extends Action {
          */
         $this->Hook_Run('topic_edit_show', array('oTopic' => $oTopic));
 
-        $aBlogTypes = $this->Blog_GetAllowBlogTypes($this->oUserCurrent, 'add', true);
-        $bPersonalBlogs = in_array('personal', $aBlogTypes);
+        $aBlogTypes = $this->Blog_GetAllowBlogTypes($this->oUserCurrent, 'write', true);
+        $bPersonalBlog = in_array('personal', $aBlogTypes);
 
         /**
          * Загружаем переменные в шаблон
          */
-        $this->Viewer_Assign('bPersonalBlogs', $bPersonalBlogs);
+        $this->Viewer_Assign('bPersonalBlog', $bPersonalBlog);
         /**
          * Загружаем переменные в шаблон
          */
@@ -288,13 +288,13 @@ class ActionContent extends Action {
             return parent::EventNotFound();
         }
 
-        $aBlogTypes = $this->Blog_GetAllowBlogTypes($this->oUserCurrent, 'add', true);
-        $bPersonalBlogs = in_array('personal', $aBlogTypes);
+        $aBlogTypes = $this->Blog_GetAllowBlogTypes($this->oUserCurrent, 'write', true);
+        $bPersonalBlog = in_array('personal', $aBlogTypes);
 
         /**
          * Загружаем переменные в шаблон
          */
-        $this->Viewer_Assign('bPersonalBlogs', $bPersonalBlogs);
+        $this->Viewer_Assign('bPersonalBlog', $bPersonalBlog);
         $this->Viewer_Assign('aBlogsAllow', $this->Blog_GetBlogsAllowByUser($this->oUserCurrent));
         $this->Viewer_Assign('bEditDisabled', false);
         $this->Viewer_AddHtmlTitle(
