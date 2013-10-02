@@ -947,7 +947,7 @@ class AltoFunc_File {
     static public function MimeType($sFile) {
 
         $sMimeType = '';
-        if (is_null(self::hFinfo) && function_exists('finfo_fopen')) {
+        if (is_null(self::$hFinfo) && function_exists('finfo_fopen')) {
             $hFinfo = finfo_open(FILEINFO_MIME_TYPE);
         } else {
             $hFinfo = null;
