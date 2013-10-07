@@ -17,16 +17,18 @@ class Func {
     static protected $aExtsions = array();
 
     static public function init() {
-        self::_loadExtension('File');
+
+        static::_loadExtension('File');
         register_shutdown_function('F::done');
         set_error_handler('F::_errorHandler');
         set_exception_handler('F::_exceptionHandler');
     }
 
     static public function done() {
+
         if ($aError = error_get_last()) {
             //while (ob_get_level()) ob_end_clean();
-            self::_errorHandler($aError['type'], $aError['message'], $aError['file'], $aError['line']);
+            static::_errorHandler($aError['type'], $aError['message'], $aError['file'], $aError['line']);
         }
     }
 
@@ -34,19 +36,25 @@ class Func {
      * @return string
      */
     static public function _errorLogFile() {
-        return self::_getConfig('sys.logs.error_file', self::ERROR_LOG);
+
+        return static::_getConfig('sys.logs.error_file', static::ERROR_LOG);
     }
 
     /**
      * @return bool
      */
     static public function _errorLogExtInfo() {
-        return (bool)self::_getConfig('sys.logs.error_extinfo', true);
+
+        return (bool)static::_getConfig('sys.logs.error_extinfo', true);
     }
 
+    /**
+     * @param $sError
+     */
     static public function _errorLog($sError) {
+
         $sText = '';
-        if (self::_errorLogExtInfo() && isset($_SERVER) && is_array($_SERVER)) {
+        if (static::_errorLogExtInfo() && isset($_SERVER) && is_array($_SERVER)) {
             foreach ($_SERVER as $sKey => $sVal) {
                 if (!in_array($sKey, array('PATH', 'SystemRoot', 'COMSPEC', 'PATHEXT', 'WINDIR')))
                     $sText .= "  _SERVER['$sKey']=$sVal\n";
@@ -56,13 +64,21 @@ class Func {
             $sText = $sError;
         }
 
-        if (!self::_log($sText, self::_errorLogFile(), 'ERROR')) {
+        if (!static::_log($sText, static::_errorLogFile(), 'ERROR')) {
             // Если не получилось вывести в лог-файл, то выводим ошибку на экран
             echo $sError;
         }
     }
 
+    /**
+     * @param string $sText
+     * @param string $sLogFile
+     * @param string $sLevel
+     *
+     * @return bool
+     */
     static public function _log($sText, $sLogFile, $sLevel = null) {
+
         if (class_exists('ModuleLogger', false) || Loader::Autoload('ModuleLogger')) {
             // Если загружен модуль Logger, то логгируем ошибку с его помощью
             return E::Logger_Dump($sLogFile, $sText, $sLevel);
@@ -75,12 +91,30 @@ class Func {
         return false;
     }
 
-    static public function _errorDisplay($sError) {
-        if (!self::AjaxRequest())
-            echo '<span style="display:none;">"></span><br/></div>' . $sError . '<br/>See details in ' . self::_errorLogFile();
+    /**
+     * @param string $sError
+     * @param string $sLogFile
+     */
+    static public function _errorDisplay($sError, $sLogFile = null) {
+
+        if (!static::AjaxRequest()) {
+            echo '<span style="display:none;">"></span><br/></div>' . $sError . '<br/>';
+            if ($sLogFile) {
+                echo 'See details in ' . $sLogFile;
+            }
+        }
     }
 
+    /**
+     * @param int    $nErrNo
+     * @param string $sErrMsg
+     * @param string $sErrFile
+     * @param int    $nErrLine
+     *
+     * @return bool
+     */
     static public function _errorHandler($nErrNo, $sErrMsg, $sErrFile, $nErrLine) {
+
         $aErrors = array(
             E_ERROR => 'E_ERROR',
             E_WARNING => 'E_WARNING',
@@ -100,25 +134,39 @@ class Func {
         );
 
         if ($nErrNo & error_reporting()) {
-            self::_errorDisplay("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg");
-            self::_errorLog("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg ($sErrFile on line $nErrLine)");
+            if (F::IsDebug()) {
+                static::_errorDisplay("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg ($sErrFile on line $nErrLine)");
+            } else {
+                static::_errorDisplay("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg", static::_errorLogFile());
+                static::_errorLog("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg ($sErrFile on line $nErrLine)");
+            }
         }
 
         /* Don't execute PHP internal error handler */
         return true;
     }
 
+    /**
+     * @param $oException
+     */
     static public function _exceptionHandler($oException) {
-        self::_errorDisplay('Exception: ' . $oException->getMessage());
+
+        static::_errorDisplay('Exception: ' . $oException->getMessage());
         $sLogMsg = 'Exception: ' . $oException->getMessage();
         if (property_exists($oException, 'sAdditionalInfo')) {
             $sLogMsg .= "\n" . $oException->sAdditionalInfo;
         }
-        self::_errorLog($sLogMsg);
+        static::_errorLog($sLogMsg);
     }
 
-
+    /**
+     * @param $sName
+     * @param $aArguments
+     *
+     * @return mixed
+     */
     static public function __callStatic($sName, $aArguments) {
+
         if ($nPos = strpos($sName, '_')) {
             $sExtension = substr($sName, 0, $nPos);
             $sMethod = substr($sName, $nPos + 1);
@@ -126,15 +174,15 @@ class Func {
             $sExtension = 'Main';
             $sMethod = $sName;
         }
-        if (!isset(self::$aExtsions[$sExtension])) {
-            self::_loadExtension($sExtension);
+        if (!isset(static::$aExtsions[$sExtension])) {
+            static::_loadExtension($sExtension);
         }
-        if (isset(self::$aExtsions[$sExtension]) && method_exists(self::$aExtsions[$sExtension], $sMethod)) {
-            return call_user_func_array(self::$aExtsions[$sExtension] . '::' . $sMethod, $aArguments);
+        if (isset(static::$aExtsions[$sExtension]) && method_exists(static::$aExtsions[$sExtension], $sMethod)) {
+            return call_user_func_array(static::$aExtsions[$sExtension] . '::' . $sMethod, $aArguments);
         }
 
         // Function not found
-        $aCaller = self::_Caller(2);
+        $aCaller = static::_Caller(2);
         $sCallerStr = 'Func::' . $sName . '()';
         $sPosition = '';
         if ($aCaller) {
@@ -146,18 +194,24 @@ class Func {
             }
         }
         $sMsg = 'Call to undefined method ' . $sCallerStr . $sPosition;
-        self::_FatalError($sMsg);
+        static::_FatalError($sMsg);
     }
 
+    /**
+     * @param $sExtension
+     */
     static protected function _loadExtension($sExtension) {
-        if (!isset(self::$aExtsions[$sExtension])) {
+
+        if (!isset(static::$aExtsions[$sExtension])) {
             // сначала проверяем кастомные функции
             if (is_file($sFile = dirname(dirname(__DIR__)) . '/include/functions/' . $sExtension . '.php')) {
-                self::IncludeFile($sFile);
-                self::$aExtsions[$sExtension] = 'AppFunc_' . $sExtension;
+                static::IncludeFile($sFile);
+                static::$aExtsions[$sExtension] = 'AppFunc_' . $sExtension;
             } elseif (is_file($sFile = __DIR__ . '/functions/' . $sExtension . '.php')) {
-                self::IncludeFile($sFile);
-                self::$aExtsions[$sExtension] = 'AltoFunc_' . $sExtension;
+                static::IncludeFile($sFile);
+                static::$aExtsions[$sExtension] = 'AltoFunc_' . $sExtension;
+            } else {
+                static::_FatalError('Cannot found functions set (extension) "' . $sExtension . '"');
             }
         }
     }
@@ -169,24 +223,75 @@ class Func {
      * @throws Exception
      */
     static protected function _FatalError($sMessage) {
+
         echo '<p>Fatal error: ' . $sMessage . '</p>';
         throw new Exception('Fatal error');
         exit;
     }
 
-    static protected function _Caller($nOffset = 1) {
-        $aData = self::_CallStack($nOffset + 1, 1);
+    static protected function _CallerStr($nOffset = 2) {
+
+        $aCaller = static::_Caller($nOffset);
+        $sCallerStr = '';
+        $sPosition = '';
+        if ($aCaller) {
+            if (isset($aCaller['class']) && isset($aCaller['function']) && isset($aCaller['type'])) {
+                $sCallerStr = $aCaller['class'] . $aCaller['type'] . $aCaller['function'] . '()';
+            }
+            if (isset($aCaller['file']) && isset($aCaller['line'])) {
+                $sPosition = ' in ' . $aCaller['file'] . ' on line ' . $aCaller['line'];
+            }
+        }
+        return $sCallerStr . $sPosition;
+    }
+
+    /**
+     * @param int  $nOffset
+     * @param bool $bString
+     *
+     * @return string
+     */
+    static protected function _Caller($nOffset = 1, $bString = false) {
+
+        $aData = static::_CallStack($nOffset + 1, 1);
         if (sizeof($aData)) {
+            if ($bString) {
+                if ($aCaller = $aData[0]) {
+                    $sCallerStr = '';
+                    $sPosition = '';
+                    if (isset($aCaller['class']) && isset($aCaller['function']) && isset($aCaller['type'])) {
+                        $sCallerStr = $aCaller['class'] . $aCaller['type'] . $aCaller['function'] . '()';
+                    }
+                    if (isset($aCaller['file']) && isset($aCaller['line'])) {
+                        $sPosition = ' in ' . $aCaller['file'] . ' on line ' . $aCaller['line'];
+                    }
+                }
+                return $sCallerStr . $sPosition;
+            }
             return ($aData[0]);
         }
     }
 
+    /**
+     * @param int  $nOffset
+     * @param null $nLength
+     *
+     * @return array
+     */
     static protected function _CallStack($nOffset = 1, $nLength = null) {
+
         $aStack = array_slice(debug_backtrace(), $nOffset, $nLength);
         return $aStack;
     }
 
+    /**
+     * @param      $sParam
+     * @param null $xDefault
+     *
+     * @return mixed|null
+     */
     static public function _getConfig($sParam, $xDefault = null) {
+
         if (class_exists('Config', false)) {
             $xResult = Config::Get($sParam);
         } else {
@@ -195,8 +300,29 @@ class Func {
         return $xResult;
     }
 
+    static public function SysWarning($sMessage) {
+
+        $aCaller = self::_Caller();
+        self::_errorHandler(
+            E_USER_WARNING, $sMessage,
+            isset($aCaller['file']) ? $aCaller['file'] : 'Unknown',
+            isset($aCaller['line']) ? $aCaller['line'] : 0
+        );
+    }
+
+    static public function IsDebug() {
+
+        return defined('DEBUG') && DEBUG;
+    }
+
+    /**
+     * @param $sMsg
+     *
+     * @return bool
+     */
     static public function LogError($sMsg) {
-        return self::_log($sMsg, self::_errorLogFile(), 'ERROR');
+
+        return static::_log($sMsg, static::_errorLogFile(), 'ERROR');
     }
 
     /**
@@ -208,20 +334,26 @@ class Func {
      * @return  mixed
      */
     static public function IncludeFile($sFile, $bOnce = true, $bConfig = false) {
+
         $sDir = dirname($sFile);
-        if ($sDir == '.' || $sDir == '..') {
-            $aCaller = self::_Caller();
+        if ($sDir == '.' || $sDir == '..' || substr($sDir, 0, 2) == './' || substr($sDir, 0, 3) == '../') {
+            $aCaller = static::_Caller();
             if (isset($aCaller['file'])) {
-                $sFile = dirname($aCaller['file']) . '/' . $sFile;
+                $sRealPath = realpath(dirname($aCaller['file']) . '/' . $sFile);
             }
+        } else {
+            $sRealPath = realpath($sFile);
         }
-        if (isset(self::$aExtsions['File'])) {
-            return call_user_func_array(self::$aExtsions['File'] . '::IncludeFile', array($sFile, $bOnce, $bConfig));
+        if ($sRealPath) {
+            $sFile = $sRealPath;
+        }
+        if (isset(static::$aExtsions['File']) && is_callable($sFunc = static::$aExtsions['File'] . '::IncludeFile')) {
+            return call_user_func_array($sFunc, array($sFile, $bOnce, $bConfig));
         } else {
             if ($bOnce) {
-                return include($sFile);
-            } else {
                 return include_once($sFile);
+            } else {
+                return include($sFile);
             }
         }
     }
@@ -234,16 +366,66 @@ class Func {
      * @return  mixed
      */
     static public function IncludeLib($sFile, $bOnce = true) {
+
         if (class_exists('Config', false)) {
-            return self::IncludeFile(Config::Get('path.dir.lib') . 'external/' . $sFile, $bOnce);
+            return static::IncludeFile(Config::Get('path.dir.libs') . '/' . $sFile, $bOnce);
         } else {
-            return self::IncludeFile(dirname(__DIR__) . '/lib/external/' . $sFile, $bOnce);
+            return static::IncludeFile(dirname(__DIR__) . '/libs/' . $sFile, $bOnce);
         }
     }
 
-    static public function GetPluginsDir() {
-        return F::File_RootDir() . 'plugins/';
+    /**
+     * Returns full dir path to plugins folder
+     *
+     * @param bool $bApplication
+     * @return string
+     */
+    static public function GetPluginsDir($bApplication = false) {
+
+        if (class_exists('Config', false)) {
+            if ($bApplication) {
+                $sPluginsDir = Config::Get('path.dir.app') . 'plugins/';
+            } else {
+                $sPluginsDir = Config::Get('path.dir.common') . 'plugins/';
+            }
+        } else {
+            if ($bApplication) {
+                $sPluginsDir = F::File_RootDir() . 'app/plugins/';
+            } else {
+                $sPluginsDir = F::File_RootDir() . 'common/plugins/';
+            }
+        }
+        return $sPluginsDir;
     }
+
+    /**
+     * Returns full dir path to plugins dat file
+     *
+     * @return string
+     */
+    static public function GetPluginsDatDir() {
+
+        if (class_exists('Config', false)) {
+            return Config::Get('path.dir.app') . 'plugins/';
+        } else {
+            return F::File_RootDir() . 'app/plugins/';
+        }
+    }
+
+    /**
+     * Returns full dir path of plugins dat file
+     *
+     * @return string
+     */
+    static public function GetPluginsDatFile() {
+
+        if (class_exists('Config', false)) {
+            return static::GetPluginsDatDir() . Config::Get('sys.plugins.activation_file');
+        } else {
+            return static::GetPluginsDatDir() . 'plugins.dat';
+        }
+    }
+
     /**
      * Получить список плагинов
      *
@@ -251,12 +433,9 @@ class Func {
      * @return  array
      */
     static public function GetPluginsList($bAll = false) {
-        $sPluginsDir = self::GetPluginsDir();
-        if (class_exists('Config', false)) {
-            $sPluginsListFile = $sPluginsDir . Config::Get('sys.plugins.activation_file');
-        } else {
-            $sPluginsListFile = $sPluginsDir . 'plugins.dat';
-        }
+
+        $sPluginsDir = static::GetPluginsDir();
+        $sPluginsListFile = static::GetPluginsDatFile();
         $aPlugins = array();
         if ($bAll) {
             $aPluginRaw = array();
@@ -316,7 +495,15 @@ class Func {
         return $xDefault;
     }
 
+    /**
+     * @param      $sName
+     * @param null $xDefault
+     * @param null $sType
+     *
+     * @return string
+     */
     static public function GetRequestStr($sName, $xDefault = null, $sType = null) {
+
         return (string)static::GetRequest($sName, $xDefault, $sType);
     }
 
@@ -328,6 +515,7 @@ class Func {
      * @return  bool
      */
     static function GetPost($sName, $xDefault = null) {
+
         return static::GetRequest($sName, $xDefault, 'post');
     }
 
@@ -339,6 +527,7 @@ class Func {
      * @return  bool
      */
     static function GetPostStr($sName, $sDefault = null) {
+
         if (!is_null($sDefault)) $sDefault = (string)$sDefault;
         return static::GetRequestStr($sName, $sDefault, 'post');
     }
@@ -350,9 +539,9 @@ class Func {
      * @return  bool
      */
     static function isPost($sName) {
+
         return (static::GetPost($sName) !== null);
     }
-
 
     /**
      * Check if request is ajax
@@ -360,7 +549,12 @@ class Func {
      * @return  bool
      */
     static public function AjaxRequest() {
-        return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest';
+
+        return (isset($_SERVER['HTTP_X_REQUESTED_WITH'])
+            && strtolower(
+                $_SERVER['HTTP_X_REQUESTED_WITH'] === 'xmlhttprequest'
+            ))
+        || (isset($_REQUEST['ALTO_AJAX']) && $_REQUEST['ALTO_AJAX']);
     }
 
     /**
@@ -369,6 +563,7 @@ class Func {
      * @param   string|array    $xData
      */
     static public function StripSlashes(&$xData) {
+
         if (is_array($xData)) {
             array_walk($xData, 'static::StripSlashes');
         } else {
@@ -383,6 +578,7 @@ class Func {
      * @return  void
      */
     static public function HtmlSpecialChars(&$xData) {
+
         if (is_array($xData)) {
             array_walk($xData, 'static::HtmlSpecialChars');
         } else {
@@ -406,7 +602,8 @@ class Func {
      * @return  string
      */
     static public function RealUrl($sLocation, $bRealHost = false) {
-        $sProtocol = self::HttpProtocol();
+
+        $sProtocol = static::HttpProtocol();
 
         $aParts = parse_url($sLocation);
         // если парсером хост не обнаружен, то задан относительный путь
@@ -449,6 +646,7 @@ class Func {
      * @return string
      */
     static public function HttpProtocol() {
+
         $sProtocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0';
         return $sProtocol;
     }
@@ -513,7 +711,7 @@ class Func {
                         break;
                 }
 
-                header(self::HttpProtocol() . ' ' . $nResponseCode . ' ' . $sText);
+                header(static::HttpProtocol() . ' ' . $nResponseCode . ' ' . $sText);
 
                 $GLOBALS['http_response_code'] = $nResponseCode;
             } else {
@@ -524,7 +722,14 @@ class Func {
         }
     }
 
+    /**
+     * @param      $sLocation
+     * @param bool $bRealHost
+     *
+     * @return mixed
+     */
     static public function HeaderLocation($sLocation, $bRealHost = false) {
+
         return HttpLocation($sLocation, $bRealHost);
     }
 
@@ -544,7 +749,7 @@ class Func {
     static public function HttpLocation($sLocation, $bRealHost = false) {
 
         // Приведение адреса к абсолютному виду
-        $sUrl = self::RealUrl($sLocation, $bRealHost);
+        $sUrl = static::RealUrl($sLocation, $bRealHost);
 
         $aHeaders = array(
             'Expires: Fri, 01 Jan 2010 05:00:00 GMT',
@@ -555,7 +760,7 @@ class Func {
             array('Pragma: no-cache'),
         );
 
-        self::HttpHeader(303, $aHeaders, $sUrl);
+        static::HttpHeader(303, $aHeaders, $sUrl);
     }
 
     /**
@@ -567,9 +772,9 @@ class Func {
     static public function HttpRedirect($sLocation, $bRealHost = false) {
 
         // Приведение адреса к абсолютному виду
-        $sUrl = self::RealUrl($sLocation, $bRealHost);
+        $sUrl = static::RealUrl($sLocation, $bRealHost);
 
-        self::HttpHeader(301, null, $sUrl);
+        static::HttpHeader(301, null, $sUrl);
     }
 
     /**
@@ -640,27 +845,35 @@ class F extends Func {
  * Аналоги ф-ций preg_*, корректно обрабатывающие нелатиницу в UTF-8 при использовании флага PREG_OFFSET_CAPTURE
  */
 if (!function_exists('mb_preg_match_all')) {
-    function mb_preg_match_fix($bFuncAll, $sPattern, $sSubject, &$aMatches,
-                               $nFlags = PREG_OFFSET_CAPTURE, $nOffset = 0, $sEncoding = NULL)
-    {
-        if (is_null($sEncoding))
+
+    function mb_preg_match_fix(
+        $bFuncAll, $sPattern, $sSubject, &$aMatches,
+        $nFlags = PREG_OFFSET_CAPTURE, $nOffset = 0, $sEncoding = NULL
+    ) {
+        if (is_null($sEncoding)) {
             $sEncoding = mb_internal_encoding();
+        }
 
         $nOffset = strlen(mb_substr($sSubject, 0, $nOffset, $sEncoding));
         if ($bFuncAll) {
-            $ret = preg_match_all($sPattern, $sSubject, $aMatches, $nFlags, $nOffset);
-            if ($ret && ($nFlags & PREG_OFFSET_CAPTURE))
-                foreach ($aMatches as &$ha_match)
-                    foreach ($ha_match as &$ha_match)
+            $bResult = preg_match_all($sPattern, $sSubject, $aMatches, $nFlags, $nOffset);
+            if ($bResult && ($nFlags & PREG_OFFSET_CAPTURE)) {
+                foreach ($aMatches as &$ha_match) {
+                    foreach ($ha_match as &$ha_match) {
                         $ha_match[1] = mb_strlen(substr($sSubject, 0, $ha_match[1]), $sEncoding);
+                    }
+                }
+            }
         } else {
-            $ret = preg_match($sPattern, $sSubject, $aMatches, $nFlags, $nOffset);
-            if ($ret && ($nFlags & PREG_OFFSET_CAPTURE))
-                foreach ($aMatches as &$ha_match)
+            $bResult = preg_match($sPattern, $sSubject, $aMatches, $nFlags, $nOffset);
+            if ($bResult && ($nFlags & PREG_OFFSET_CAPTURE)) {
+                foreach ($aMatches as &$ha_match) {
                     $ha_match[1] = mb_strlen(substr($sSubject, 0, $ha_match[1]), $sEncoding);
+                }
+            }
         }
 
-        return $ret;
+        return $bResult;
         /*
         if ($ret && ($nFlags & PREG_OFFSET_CAPTURE))
             foreach ($aMatches as &$ha_match)
@@ -671,10 +884,12 @@ if (!function_exists('mb_preg_match_all')) {
     }
 
     function mb_preg_match($sPattern, $sSubject, &$aMatches, $nFlags = PREG_OFFSET_CAPTURE, $nOffset = 0, $sEncoding = NULL) {
+
         return mb_preg_match_fix(0, $sPattern, $sSubject, $aMatches, $nFlags, $nOffset, $sEncoding);
     }
 
     function mb_preg_match_all($sPattern, $sSubject, &$aMatches, $nFlags = PREG_OFFSET_CAPTURE, $nOffset = 0, $sEncoding = NULL) {
+
         return mb_preg_match_fix(1, $sPattern, $sSubject, $aMatches, $nFlags, $nOffset, $sEncoding);
     }
 

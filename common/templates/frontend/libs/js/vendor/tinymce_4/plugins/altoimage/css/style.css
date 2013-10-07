@@ -1,0 +1,74 @@
+
+#mce-plugin-altoimage, #mce-plugin-altoimage * {
+    font-size: 12px;
+}
+#mce-plugin-altoimage.loading {
+    background: url(../img/loader.gif) center center no-repeat;
+    min-height: 220px;
+    width: 100%;
+}
+#mce-plugin-altoimage button {
+    font-weight: bold;
+}
+
+#mce-plugin-altoimage-form {
+    padding: 20px;
+    text-align: center;
+    height: 320px;
+}
+
+#mce-plugin-altoimage-form .b-topic-image-wrapper {
+    margin-top: 20px;
+    width: 200px;
+    height: 200px;
+    border: 1px solid #CCC;
+    float: left;
+    text-align: center;
+}
+#mce-plugin-altoimage-form .b-topic-image-wrapper img {
+    margin: auto;
+}
+#mce-plugin-altoimage-form .b-topic-image-tools {
+    width: 330px;
+    height: 200px;
+}
+#mce-plugin-altoimage-form .b-topic-image-tools-align {
+    width: 100%;
+    height: 154px;
+}
+#mce-plugin-altoimage-form .b-topic-image-tools-size {
+    width: 100%;
+    height: 60px;
+}
+#mce-plugin-altoimage-form .b-image-align {
+    width: 100px;
+    height: 20px;
+    float: left;
+    margin-right: 10px;
+    text-align: center;
+    padding-top: 110px;
+}
+#mce-plugin-altoimage-form .b-image-align.i-left {
+    background: url(../img/img-left.png) top center no-repeat;
+}
+#mce-plugin-altoimage-form .b-image-align.i-bottom {
+    background: url(../img/img-bottom.png) top center no-repeat;
+}
+#mce-plugin-altoimage-form .b-image-align.i-right {
+    background: url(../img/img-right.png) top center no-repeat;
+}
+
+#mce-plugin-altoimage-form h6 {
+    font-weight: bold;
+    color: #555;
+    padding-bottom: 6px;
+    width: 100%;
+    font-size: 1.1em;
+}
+#mce-plugin-altoimage-form [type=text] {
+    height: 25px;
+    width: 99%;
+}
+#mce-plugin-altoimage-form .i-image-size {
+    width: 60px;
+}

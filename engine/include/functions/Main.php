@@ -3,7 +3,6 @@
  * @Project: Alto CMS
  * @Project URI: http://altocms.com
  * @Description: Advanced Community Engine
- * @Version: 0.9a
  * @Copyright: Alto CMS Team
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
@@ -18,10 +17,12 @@ class AltoFunc_Main {
     static protected $aMemSizeUnits = array('B', 'K', 'M', 'G', 'T', 'P');
 
     static public function StrUnderscore($sStr) {
+
         return strtolower(preg_replace('/([^A-Z])([A-Z])/', "$1_$2", $sStr));
     }
 
     static public function StrCamelize($sStr) {
+
         $aParts = explode('_', $sStr);
         $sCamelized = '';
         foreach ($aParts as $sPart) {
@@ -31,28 +32,32 @@ class AltoFunc_Main {
     }
 
     static public function Str2Array($sStr, $sSeparator = ',', $bSkipEmpty = false) {
+
         return F::Array_Str2Array($sStr, $sSeparator, $bSkipEmpty);
     }
 
     static public function Str2ArrayInt($sStr, $sSeparator = ',', $bUnique = true) {
+
         return F::Array_Str2ArrayInt($sStr, $sSeparator, $bUnique);
     }
 
     static public function Val2Array($xVal, $sSeparator = ',', $bSkipEmpty = false) {
+
         return F::Array_Val2Array($xVal, $sSeparator, $bSkipEmpty);
     }
 
     /**
      * Возвращает строку со случайным набором символов
      *
-     * @param   int     $nLen   - длина строка
-     * @param   bool    $bHex   - только шестнадцатиричные символы [0-9a-f]
+     * @param int         $nLen   - длина строка
+     * @param bool|string $sChars - только шестнадцатиричные символы [0-9a-f], либо заданный набор символов
      *
      * @return  string
      */
-    static public function RandomStr($nLen = 32, $bHex = true) {
+    static public function RandomStr($nLen = 32, $sChars = true) {
+
         $sResult = '';
-        if ($bHex) {
+        if ($sChars === true) {
             while (strlen($sResult) < $nLen) {
                 $sResult .= md5(uniqid(md5(rand()), true));
             }
@@ -60,9 +65,12 @@ class AltoFunc_Main {
                 $sResult = substr($sResult, 0, $nLen);
             }
         } else {
-            $nMax = strlen(self::$sRandChars) - 1;
+            if (!is_string($sChars)) {
+                $sChars = self::$sRandChars;
+            }
+            $nMax = strlen($sChars) - 1;
             while (strlen($sResult) < $nLen) {
-                $sResult .= self::$sRandChars[rand(0, $nMax)];
+                $sResult .= $sChars[rand(0, $nMax)];
             }
         }
         return $sResult;
@@ -75,6 +83,7 @@ class AltoFunc_Main {
      * @return  string
      */
     static public function MemSizeFormat($nValue, $nDecimal = 0) {
+
         $aUnits = self::$aMemSizeUnits;
         $nIndex = 0;
         $nResult = intval($nValue);
@@ -101,6 +110,7 @@ class AltoFunc_Main {
      * @return int|number
      */
     static public function MemSize2Int($sNum) {
+
         $nValue = floatval($sNum);
         if (!is_numeric($sChar = strtoupper(substr($sNum, -1)))) {
             if ($sChar == 'B') {
@@ -119,6 +129,7 @@ class AltoFunc_Main {
      * @return  string
      */
     static public function JsonEncode($xData) {
+
         if (function_exists('json_encode')) {
             return json_encode($xData);
         }
@@ -146,24 +157,24 @@ class AltoFunc_Main {
                 return $xData;
             }
         }
-        $isList = true;
+        $bList = true;
         for ($i = 0, reset($xData); $i < count($xData); $i++, next($xData)) {
             if (key($xData) !== $i) {
-                $isList = false;
+                $bList = false;
                 break;
             }
         }
-        $result = array();
-        if ($isList) {
-            foreach ($xData as $v) {
-                $result[] = self::jsonEncode($v);
+        $aResult = array();
+        if ($bList) {
+            foreach ($xData as $sVal) {
+                $aResult[] = self::jsonEncode($sVal);
             }
-            return '[' . join(',', $result) . ']';
+            return '[' . join(',', $aResult) . ']';
         } else {
-            foreach ($xData as $k => $v) {
-                $result[] = self::jsonEncode($k) . ':' . self::jsonEncode($v);
+            foreach ($xData as $sKey => $sVal) {
+                $aResult[] = self::jsonEncode($sKey) . ':' . self::jsonEncode($sVal);
             }
-            return '{' . join(',', $result) . '}';
+            return '{' . join(',', $aResult) . '}';
         }
 
     }
@@ -177,6 +188,7 @@ class AltoFunc_Main {
      * @return  array
      */
     static public function GetAllUserIp($aTrusted = null, $aNonTrusted = null) {
+
         if (!$aTrusted) {
             if (class_exists('Config', false)) {
                 $aTrusted = (array)Config::Get('sys.ip.trusted');
@@ -246,6 +258,7 @@ class AltoFunc_Main {
      * @return  string
      */
     static public function GetUserIp($aTrusted = null, $aNonTrusted = null) {
+
         $aIpParams = self::GetAllUserIp($aTrusted, $aNonTrusted);
         $aExcludeIp = (array)F::_getConfig('sys.ip.exclude', array('127.0.0.1', 'fe80::1', '::1'));
         if (F::_getConfig('sys.ip.exclude_server', true) && isset($_SERVER['SERVER_ADDR'])) {
@@ -275,13 +288,14 @@ class AltoFunc_Main {
         return $sIp;
     }
 
-    static public function CheckVal($sValue, $sParam, $iMin = 1, $iMax = 100) {
+    static public function CheckVal($sValue, $sParam, $nMin = 1, $nMax = 100) {
+
         if (!is_scalar($sValue)) {
             return false;
         }
         switch ($sParam) {
             case 'id':
-                if (preg_match('/^\d{' . $iMin . ',' . $iMax . '}$/', $sValue)) {
+                if (preg_match('/^\d{' . $nMin . ',' . $nMax . '}$/', $sValue)) {
                     return true;
                 }
                 break;
@@ -291,15 +305,18 @@ class AltoFunc_Main {
                 }
                 break;
             case 'mail':
-                /*
-                if (preg_match('/^[\da-z\_\-\.\+]+@[\da-z_\-\.]+\.[a-z]{2,5}$/i', $sValue)) {
-                    return true;
-                }
-                */
                 return filter_var($sValue, FILTER_VALIDATE_EMAIL) !== false;
                 break;
+            case 'url':
+                // ф-ция неверно понимает URL без протокола
+                if ((filter_var($sValue, FILTER_VALIDATE_URL) !== false)
+                    || (filter_var('http:' . $sValue, FILTER_VALIDATE_URL) !== false)
+                ) {
+                    return true;
+                }
+                break;
             case 'login':
-                if (preg_match('/^[\da-z\_\-]{' . $iMin . ',' . $iMax . '}$/i', $sValue)) {
+                if (preg_match('/^[\da-z\_\-]{' . $nMin . ',' . $nMax . '}$/i', $sValue)) {
                     return true;
                 }
                 break;
@@ -309,12 +326,12 @@ class AltoFunc_Main {
                 }
                 break;
             case 'password':
-                if (mb_strlen($sValue, 'UTF-8') >= $iMin) {
+                if (mb_strlen($sValue, 'UTF-8') >= $nMin) {
                     return true;
                 }
                 break;
             case 'text':
-                if (mb_strlen($sValue, 'UTF-8') >= $iMin && mb_strlen($sValue, 'UTF-8') <= $iMax) {
+                if (mb_strlen($sValue, 'UTF-8') >= $nMin && mb_strlen($sValue, 'UTF-8') <= $nMax) {
                     return true;
                 }
                 break;
@@ -333,6 +350,7 @@ class AltoFunc_Main {
      * @return  string
      */
     static public function DoSalt($xData, $sSalt) {
+
         if (!is_string($xData)) {
             $sData = serialize($xData);
         }
@@ -350,6 +368,7 @@ class AltoFunc_Main {
      * @return  string
      */
     static public function DoHashe($xData) {
+
         if (!is_string($xData)) {
             $sData = serialize($xData);
         }
@@ -357,6 +376,28 @@ class AltoFunc_Main {
             $sData = (string)$xData;
         }
         return (md5(sha1($sData)));
+    }
+
+    /**
+     * Даст одинаковый результат на 32-х и 64-х системах
+     *
+     * @param $sData
+     *
+     * @return string
+     */
+    static public function Crc32($sData) {
+
+        $nCrc = abs(crc32((string)$sData));
+        if( $nCrc & 0x80000000){
+            $nCrc ^= 0xffffffff;
+            $nCrc += 1;
+        }
+        return $nCrc;
+    }
+
+    static public function VarCrc32($xData) {
+
+        return self::Crc32(serialize($xData));
     }
 
     /**
@@ -369,6 +410,7 @@ class AltoFunc_Main {
      * @return  string
      */
     static public function TruncateText($sText, $nLen, $sPostfix = '') {
+
         if (mb_strlen($sText, 'UTF-8') > $nLen) {
             $sText = mb_substr($sText, 0, $nLen - mb_strlen($sPostfix)) . $sPostfix;
         }
@@ -379,14 +421,15 @@ class AltoFunc_Main {
      * Возвращает текст, обрезанный по заданное число слов
      *
      * @param   string $sText
-     * @param   int    $iCountWords
+     * @param   int    $nCountWords
      *
      * @return  string
      */
-    static public function CatText($sText, $iCountWords) {
+    static public function CatText($sText, $nCountWords) {
+
         $aWords = preg_split('#[\s\r\n]+#um', $sText);
-        if ($iCountWords < count($aWords)) {
-            $aWords = array_slice($aWords, 0, $iCountWords);
+        if ($nCountWords < count($aWords)) {
+            $aWords = array_slice($aWords, 0, $nCountWords);
         }
         return join(' ', $aWords);
     }
@@ -399,6 +442,7 @@ class AltoFunc_Main {
      * @return string
      */
     static public function Serialize($xData) {
+
         $sData = serialize($xData);
         $sCrc32 = dechex(crc32($sData));
         return $sCrc32 . '|' . $sData;
@@ -409,10 +453,12 @@ class AltoFunc_Main {
      * Аналог unserialize() с контролем CRC32
      *
      * @param $sData
+     * @param $xDefaultOnError
      *
      * @return mixed|null
      */
-    static public function Unserialize($sData) {
+    static public function Unserialize($sData, $xDefaultOnError = null) {
+
         if (is_string($sData) && strpos($sData, '|')) {
             list($sCrc32, $sData) = explode('|', $sData);
             if ($sCrc32 && $sData && $sCrc32 == dechex(crc32($sData))) {
@@ -420,10 +466,11 @@ class AltoFunc_Main {
                 return $xData;
             }
         }
-        return null;
+        return $xDefaultOnError;
     }
 
     static public function IpRange($sIp) {
+
         $aIp = explode('.', $sIp) + array(0, 0, 0, 0);
         $aIp = array_map('intval', $aIp);
 
@@ -459,6 +506,7 @@ class AltoFunc_Main {
      * @return  int|null
      */
     static public function ToSeconds($sInterval) {
+
         if (is_numeric($sInterval)) {
             return intval($sInterval);
         }
@@ -475,6 +523,7 @@ class AltoFunc_Main {
     }
 
     static public function DateTimeAdd($sDate, $sInterval) {
+
         $date = new DateTime($sDate);
         $date->add(new DateInterval('PT' . self::ToSeconds($sInterval) . 'S'));
         return $date->format('Y-m-d H:i:s');
@@ -488,6 +537,7 @@ class AltoFunc_Main {
     }
 
     static public function Now() {
+
         return date('Y-m-d H:i:s');
     }
 
@@ -502,6 +552,7 @@ class AltoFunc_Main {
      * @return  string
      */
     static public function Translit($sText, $xLang = true) {
+
         if ($xLang === true) {
             if (class_exists('ModuleLang', false)) {
                 $xLang = E::Lang_GetLang();
@@ -512,20 +563,24 @@ class AltoFunc_Main {
             }
         }
 
-        if ($xLang === false) {
-            $sText = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $sText);
-        } else {
+        $sText = strtolower($sText);
+        if ($xLang !== false) {
             $aChars = UserLocale::getLocale($xLang, 'translit');
             if ($aChars) {
                 $sText = str_replace(array_keys($aChars), array_values($aChars), $sText);
             }
             $sText = preg_replace('/[-]{2,}/', '-', $sText);
-            $sText = strtolower(iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $sText));
         }
-        return $sText;
+        $sResult = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $sText);
+        // В некоторых случаях может возвращаться пустая строка
+        if (!$sResult) {
+            $sResult = $sText;
+        }
+        return $sResult;
     }
 
     static public function TranslitUrl($sText, $xLang = true) {
+
         $aSymbols = array(
             "_" => "-", "'" => "", "`" => "", "^" => "", " " => "-", '.' => '', ',' => '', ':' => '', '"' => '',
             "'" => '', '<' => '', '>' => '', '«' => '', '»' => '', ' ' => '-', '(' => '-', ')' => '-'
@@ -538,7 +593,6 @@ class AltoFunc_Main {
         $sText = trim($sText, '-');
         return $sText;
     }
-
 
 }
 

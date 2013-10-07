@@ -1,6 +1,8 @@
-config/config.local.php
-config/config.test.php
-templates/cache/*
-templates/compiled/*
 uploads/*
-plugins/plugins.dat
+_tmp/*
+!.htaccess
+_run/*
+common/config/config.local.php
+common/config/config.test.php
+app/config/config.php
+app/config/config.local.php
