@@ -53,7 +53,7 @@ class ModuleBlog_EntityBlogType extends Entity {
         return $sValue;
     }
 
-    public function getProp($sKey, $xDefault = null) {
+    public function getProp($sKey, $xDefault = NULL) {
 
         if ($sKey == 'type_name' || $sKey == 'type_description') {
             $sValue = parent::getProp($sKey);
