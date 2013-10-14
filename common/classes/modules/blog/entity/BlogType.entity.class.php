@@ -53,7 +53,7 @@ class ModuleBlog_EntityBlogType extends Entity {
         return $sValue;
     }
 
-    public function getProp($sKey) {
+    public function getProp($sKey, $xDefault = null) {
 
         if ($sKey == 'type_name' || $sKey == 'type_description') {
             $sValue = parent::getProp($sKey);
@@ -62,7 +62,7 @@ class ModuleBlog_EntityBlogType extends Entity {
             }
             return $sValue;
         }
-        return parent::getProp($sKey);
+        return parent::getProp($sKey, $xDefault);
     }
 
     public function GetName($sLang = null) {
