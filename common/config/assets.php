@@ -43,7 +43,24 @@ $config['ls']['head']['default']['js']  = array(
     '___path.frontend.dir___/ls/js/settings.js',
     '___path.frontend.dir___/ls/js/topic.js',
     '___path.frontend.dir___/ls/js/hook.js',
-    '___path.skin.dir___/js/template.js',
+
+    '___path.frontend.dir___/libs/js/vendor/swfobject/swfobject.js',
+
+    /* */
+    '___path.frontend.dir___/libs/js/vendor/swfobject/plugin/swfupload.js' => array(
+        'name'    => 'swfobject/plugin/swfupload.js',
+        'prepare' => true
+    ),
+    '___path.frontend.dir___/libs/js/vendor/swfupload/swfupload.js'        => array(
+        'name'    => 'swfupload/swfupload.js',
+        'prepare' => true
+    ),
+    '___path.frontend.dir___/libs/js/vendor/swfupload/swfupload.swf'       => array(
+        'name'     => 'swfupload/swfupload.swf',
+        'prepare'  => true,
+        'compress' => false,
+        'merge'    => false
+    ),
 );
 
 $config['ls']['head']['default']['css'] = array(
