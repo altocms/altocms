@@ -66,6 +66,7 @@ class ActionProfile extends Action {
         $this->AddEvent('ajax-note-remove', 'EventAjaxNoteRemove');
 
         $this->AddEventPreg('/^.+$/i', '/^(whois)?$/i', 'EventWhois');
+        $this->AddEventPreg('/^.+$/i', '/^(info)?$/i', 'EventInfo');
 
         $this->AddEventPreg('/^.+$/i', '/^wall$/i', '/^$/i', 'EventWall');
         $this->AddEventPreg('/^.+$/i', '/^wall$/i', '/^add$/i', 'EventWallAdd');
@@ -409,7 +410,7 @@ class ActionProfile extends Action {
      * Показывает инфу профиля
      *
      */
-    protected function EventWhois() {
+    protected function EventInfo() {
 
         if (!$this->CheckUserProfile()) {
             return parent::EventNotFound();
@@ -473,6 +474,11 @@ class ActionProfile extends Action {
          * Устанавливаем шаблон вывода
          */
         $this->SetTemplateAction('info');
+    }
+
+    protected function EventWhois() {
+
+        return $this->EventInfo();
     }
 
     /**

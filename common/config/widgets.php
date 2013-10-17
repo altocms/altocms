@@ -76,14 +76,14 @@ $config['widgets'][] = array(
     'on' => 'people',
 );
 */
-/*
+
 $config['widgets'][] = array(
-    'name' => 'userActions.tpl',
+    'name' => 'actions/ActionProfile/sidebar.tpl',
     'wgroup' => 'right',
     'priority' => 150,
     'on' => 'profile, talk, settings',
 );
-*/
+
 $config['widgets'][] = array(
     'name' => 'userfeedBlogs',
     'wgroup' => 'right',
