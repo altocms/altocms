@@ -158,8 +158,8 @@ ls.swfupload = (function ($) {
 		
 		this.swfOptions = {
 			// Backend Settings
-			upload_url: aRouter['content']+"upload",
-			post_params: {'SSID':SESSION_ID, 'security_ls_key': ALTO_SECURITY_KEY},
+            upload_url: aRouter["content"] + "photo/upload",
+            post_params: {'SSID': SESSION_ID, 'security_key': ALTO_SECURITY_KEY},
 
 			// File Upload Settings
 			file_types : "*.jpg;*.jpe;*.jpeg;*.png;*.gif;*.JPG;*.JPE;*.JPEG;*.PNG;*.GIF",
@@ -186,7 +186,7 @@ ls.swfupload = (function ($) {
 			button_cursor: SWFUpload.CURSOR.HAND,
 
 			// Flash Settings
-			flash_url : DIR_ROOT_ENGINE_LIB+'/external/swfupload/swfupload.swf',
+			flash_url : ls.cfg.assets['swfupload/swfupload.swf'],
 
 			custom_settings : {
 			},
@@ -203,27 +203,29 @@ ls.swfupload = (function ($) {
 		var f = {};
 		
 		f.onSwfobject = function(){
-			if(window.swfobject && swfobject.swfupload){
-				f.onSwfobjectSwfupload();
-			}else{
-				ls.debug('window.swfobject && swfobject.swfupload is undefined, load swfobject/plugin/swfupload.js');
-				$.getScript(
-					DIR_ROOT_ENGINE_LIB+'/external/swfobject/plugin/swfupload.js',
-					f.onSwfobjectSwfupload
-				);
-			}
+            if(window.swfobject && swfobject.swfupload){
+                f.onSwfobjectSwfupload();
+            }else{
+                if (ls.cfg.assets['swfobject/plugin/swfupload.js']) {
+                    ls.debug('window.swfobject && swfobject.swfupload is undefined, load swfobject/plugin/swfupload.js');
+                    $.getScript(ls.cfg.assets['swfobject/plugin/swfupload.js'], f.onSwfobjectSwfupload);
+                } else {
+                    ls.debug('cannot load swfobject/plugin/swfupload.js');
+                }
+            }
 		}.bind(this);
 		
 		f.onSwfobjectSwfupload = function(){
-			if(window.SWFUpload){
-				f.onSwfupload();
-			}else{
-				ls.debug('window.SWFUpload is undefined, load swfupload/swfupload.js');
-				$.getScript(
-					DIR_ROOT_ENGINE_LIB+'/external/swfupload/swfupload.js',
-					f.onSwfupload
-				);
-			}
+            if(window.SWFUpload){
+                f.onSwfupload();
+            }else{
+                if (ls.cfg.assets['swfupload/swfupload.js']) {
+                    ls.debug('window.SWFUpload is undefined, load swfupload/swfupload.js');
+                    $.getScript(ls.cfg.assets['swfupload/swfupload.js'], f.onSwfupload);
+                } else {
+                    ls.debug('cannot load swfupload/swfupload.js');
+                }
+            }
 		}.bind(this);
 		
 		f.onSwfupload = function(){
@@ -233,15 +235,12 @@ ls.swfupload = (function ($) {
 		
 		
 		(function(){
-			if(window.swfobject){
-				f.onSwfobject();
-			}else{
-				ls.debug('window.swfobject is undefined, load swfobject/swfobject.js');
-				$.getScript(
-					DIR_ROOT_ENGINE_LIB+'/external/swfobject/swfobject.js',
-					f.onSwfobject
-				);
-			}
+            if (window.swfobject) {
+                //f.onSwfobject();
+                f.onSwfobjectSwfupload();
+            } else {
+                ls.debug('window.swfobject is undefined, need to load swfobject/swfobject.js');
+            }
 		}.bind(this))();
 	};
 	
@@ -543,7 +542,7 @@ ls = (function ($) {
 	this.ajax = function(url,params,callback,more){
 		more=more || {};
 		params=params || {};
-		params.security_ls_key=ALTO_SECURITY_KEY;
+		params.security_key=ALTO_SECURITY_KEY;
 
 		$.each(params,function(k,v){
 			if (typeof(v) == "boolean") {
@@ -621,7 +620,7 @@ ls = (function ($) {
 			type: 'POST',
 			url: url,
 			dataType: more.dataType || 'json',
-			data: {security_ls_key: ALTO_SECURITY_KEY},
+			data: {security_key: ALTO_SECURITY_KEY},
 			success: callback || function(){
 				ls.debug("ajax success: ");
 				ls.debug.apply(this,arguments);

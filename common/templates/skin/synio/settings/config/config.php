@@ -25,7 +25,7 @@ $config['view']['grid']['fluid_max_width'] = 1300;
 /* Fixed settings */
 $config['view']['grid']['fixed_width'] = 976;
 
-
+/*
 $config['head']['default']['js']  = array(
     '___path.frontend.dir___/libs/js/vendor/html5shiv.min.js' => array('browser'=>'lt IE 9'), // хак для IE версии ниже 9
     //'___path.root.engine_lib___/external/jquery/jquery.js' => array('name'=>'jquery.js'), // файлы с таким же параметром 'name' добавляться повторно не будут
@@ -71,6 +71,10 @@ $config['head']['default']['js']  = array(
     '___path.frontend.dir___/ls/js/hook.js',
     '___path.skin.dir___/js/template.js',
 );
+*/
+
+$config['head']['default']['js'] = Config::Get('assets.ls.head.default.js');
+$config['head']['default']['js'][] = '___path.skin.dir___/js/template.js';
 
 $config['head']['default']['css'] = array(
     "___path.skin.dir___/css/reset.css",

@@ -41,11 +41,12 @@
 		var DIR_ROOT_ENGINE_LIB 	= '{cfg name="path.root.engine_lib"}';
 		var LIVESTREET_SECURITY_KEY = '{$ALTO_SECURITY_KEY}';
 		var SESSION_ID				= '{$_sPhpSessionId}';
-		var BLOG_USE_TINYMCE		= '{cfg name="view.tinymce"}';
-		
-		var TINYMCE_LANG = 'en';
-		{if $oConfig->GetValue('lang.current') == 'russian'}
-			TINYMCE_LANG = 'ru';
+		var BLOG_USE_TINYMCE		= '{cfg name="view.wysiwyg"}';
+
+		{if Config::Get('lang.current') == 'ru'}
+			var TINYMCE_LANG = 'ru';
+        {else}
+            var TINYMCE_LANG = 'en';
 		{/if}
 
 		var aRouter = new Array();

@@ -164,3 +164,15 @@
 .b-topic_url_demo-edit {
     background-color: #ffee99;
 }
+
+#form-topic-add .topic-fieldset {
+    margin-bottom: 5px;
+    padding-top: 0;
+    border: none;
+}
+
+#form-topic-add .topic-fieldset-body {
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    background: #F1F7FD;
+}
