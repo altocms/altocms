@@ -668,7 +668,7 @@ class AltoFunc_File {
         if (substr($sPath, 0, 2) == '//' && preg_match('~^//[a-z0-9\-]+\.[a-z0-9][a-z0-9\-\.]*[a-z0-9]~', $sPath)) {
             // Возможно, это URL с протоколом по умолчанию
             if (isset($_SERVER['SERVER_PROTOCOL'])) {
-                $sProtocol = strtolower(reset(explode('/', $_SERVER['SERVER_PROTOCOL'])));
+                $sProtocol = strtolower(strstr($_SERVER['SERVER_PROTOCOL'], '/', true));
             } else {
                 $sProtocol = 'http';
             }
