@@ -52,7 +52,6 @@
                                 {$oMresource->GetPathUrl()}
                             </td>
                             <td>
-                                {$oMresource->GetImgUrl(100)}<br/>
                                 {if $oMresource->GetImgUrl(100)}
                                     <img src="{$oMresource->GetImgUrl(100)}" alt="" style="border: 1px solid #CCC;"/>
                                 {/if}

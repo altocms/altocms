@@ -1,6 +1,6 @@
 <?php
 
-$config['path']['smarty']['template'] = array(
+$config['smarty']['dir']['templates'] = array(
     'themes' => '___path.skins.dir___/___view.skin___/themes/',
     'tpls'   => '___path.skins.dir___/___view.skin___/tpls/',
 );
