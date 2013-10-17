@@ -109,6 +109,10 @@ class ActionImg extends Action {
             if ($sSkin) {
                 // Определяем путь до аватар скина
                 $sPath = Config::Get('path.skins.dir') . $sSkin . '/assets/images/avatars/';
+                if (!is_dir($sPath)) {
+                    // старая структура скина
+                    $sPath = Config::Get('path.skins.dir') . $sSkin . '/images/';
+                }
 
                 // Если задан тип male/female, то ищем сначала с ним
                 if ($sType) {

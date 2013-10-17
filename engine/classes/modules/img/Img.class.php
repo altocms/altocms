@@ -399,6 +399,9 @@ class ModuleImg extends Module {
         $this->nError = 0;
         if (preg_match('~^(.+)-(\d+x\d+)(\-([a-z]+))?\.[a-z]+$~i', $sFile, $aMatches)) {
             $sOriginal = $aMatches[1];
+            if (!F::File_Exists($sOriginal)) {
+                return false;
+            }
             list($nW, $nH) = explode('x', $aMatches[2]);
             $sModifier = (isset($aMatches[4]) ? $aMatches[4] : '');
             if ($sModifier == 'fit') {
