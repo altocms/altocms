@@ -53,8 +53,8 @@ class ActionImg extends Action {
 
         // Если файл успешно создан, то выводим его
         if ($sNewFile) {
-            if (headers_sent()) {
-                Router::Location($sUrl);
+            if (headers_sent($sFile, $nLine)) {
+                Router::Location($sUrl . '?rnd=' . uniqid());
             } else {
                 header_remove();
                 $this->Img_RenderFile($sNewFile);
