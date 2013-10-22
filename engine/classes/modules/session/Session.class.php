@@ -249,8 +249,9 @@ class ModuleSession extends Module {
      */
     public function DropSession() {
 
-        if ($this->bUseStandartSession) {
-            unset($_SESSION);
+        if ($this->bUseStandartSession && session_id()) {
+            session_unset();
+            $this->DelCookie(Config::Get('sys.session.name'));
             session_destroy();
         } else {
             unset($this->sId);

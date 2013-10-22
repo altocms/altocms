@@ -693,16 +693,21 @@ class ModuleUser extends Module {
         }
         if ($this->oUserCurrent) {
             // И закрываем все сессии текущего юзера
+            // TODO: разделить закрытие всех сессий и закрытие текущей
             $this->CloseAllSessions();
         }
         $this->Cache_CleanByTags(array('user_session_update'));
 
-        $this->oUserCurrent = null;
-        $this->oSession = null;
         // * Удаляем из сессии
         $this->Session_Drop('user_id');
+
         // * Удаляем куки
         $this->Session_DelCookie($this->GetKeyName());
+
+        $this->Session_DropSession();
+
+        $this->oUserCurrent = null;
+        $this->oSession = null;
     }
 
     /**
