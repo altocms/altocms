@@ -8,7 +8,7 @@
 
 {block name="content-body"}
     <form action="{router page='admin'}widgets/" method="post" id="form_widgets_list" class="uniform">
-        <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+        <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
         <input type="hidden" name="widget_action" value="">
 
         <div class="b-wbox">

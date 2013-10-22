@@ -24,7 +24,7 @@ aceAdmin.sort = function(sort, order) {
 {/literal}
 
 <form method="post" action="" id="admin_form_invite_list">
-    <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}" />
+    <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}" />
 
 {if $aInvites}
 {include file='inc.paging.tpl'}
@@ -89,12 +89,12 @@ aceAdmin.sort = function(sort, order) {
         <td> {$aInvite.invite_id} &nbsp;</td>
         <td> {$aInvite.invite_code} &nbsp;</td>
         <td>
-            <a href="{router page='admin'}users/profile/{$aInvite.from_login}/" class="link">{$aInvite.from_login}</a>
+            <a href="{router page='admin'}users-list/profile/{$aInvite.from_login}/" class="link">{$aInvite.from_login}</a>
         </td>
         <td class="center;">{$aInvite.invite_date_add}</td>
         <td>
             {if $aInvite.to_login}
-            <a href="{router page='admin'}users/profile/{$aInvite.to_login}/" class="link">{$aInvite.to_login}</a>
+            <a href="{router page='admin'}users-list/profile/{$aInvite.to_login}/" class="link">{$aInvite.to_login}</a>
             {else}
             &nbsp;
             {/if}

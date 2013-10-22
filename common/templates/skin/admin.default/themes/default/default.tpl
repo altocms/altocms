@@ -123,7 +123,7 @@
                     </li>
                     <li class="divider-vertical"></li>
                     <li>
-                        <a href="{router page='login'}exit/?security_ls_key={$ALTO_SECURITY_KEY}">
+                        <a href="{router page='login'}exit/?security_key={$ALTO_SECURITY_KEY}">
                             <i class="icon-off"></i>
                         {$aLang.exit}
                         </a>

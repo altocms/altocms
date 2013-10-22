@@ -364,9 +364,7 @@ class ModuleViewer extends Module {
     public function GetSmartyVersion() {
 
         $sSmartyVersion = null;
-        if (property_exists($this->oSmarty, '_version')) {
-            $sSmartyVersion = $this->oSmarty->_version;
-        } elseif (defined('Smarty::SMARTY_VERSION')) {
+        if (defined('Smarty::SMARTY_VERSION')) {
             $sSmartyVersion = Smarty::SMARTY_VERSION;
         }
         return $sSmartyVersion;

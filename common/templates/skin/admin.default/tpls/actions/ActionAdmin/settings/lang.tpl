@@ -3,7 +3,7 @@
 {block name="content-body"}
     <div class="span12">
         <form action="" method="POST" class="form-horizontal uniform" enctype="multipart/form-data">
-            <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+            <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
             <input type="hidden" name="submit_data_save" value="1">
             <input type="hidden" name="lang_exclude" value="">
 

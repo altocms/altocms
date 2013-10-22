@@ -30,7 +30,7 @@
                     <tr>
                         <td class="number">{$oTopic->getId()}</td>
                         <td>
-                            <a href="{router page='admin'}users/profile/{$oTopic->getUser()->getId()}/">{$oTopic->getUser()->getLogin()}</a>
+                            <a href="{router page='admin'}users-list/profile/{$oTopic->getUser()->getId()}/">{$oTopic->getUser()->getLogin()}</a>
                         </td>
                         <td class="name">
                             <a href="{$oTopic->getUrl()}">{$oTopic->getTitle()}</a>
@@ -42,7 +42,7 @@
                             <a href="{$oTopic->getUrlEdit()}"
                                title="{$aLang.action.admin.topic_edit}">
                                 <i class="icon-edit"></i></a>
-                            <a href="{router page='content'}delete/{$oTopic->getId()}/?security_ls_key={$ALTO_SECURITY_KEY}" title="{$aLang.topic_delete}" onclick="return confirm('{$aLang.topic_delete_confirm}');" >
+                            <a href="{router page='content'}delete/{$oTopic->getId()}/?security_key={$ALTO_SECURITY_KEY}" title="{$aLang.topic_delete}" onclick="return confirm('{$aLang.topic_delete_confirm}');" >
                                 <i class="icon-remove"></i></a>
                         </td>
                     </tr>

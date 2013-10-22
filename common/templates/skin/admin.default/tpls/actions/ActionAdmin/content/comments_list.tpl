@@ -32,7 +32,7 @@
                     <tr>
                         <td class="number">{$oComment->GetId()}</td>
                         <td>
-                            <a href="{router page='admin'}users/profile/{$aTopic.user_login}">{$oComment->GetUser()->GetLogin()}</a>
+                            <a href="{router page='admin'}users-list/profile/{$aTopic.user_login}">{$oComment->GetUser()->GetLogin()}</a>
                         </td>
                         <td class="name">
                             <a href="{$oComment->GetCommentUrlFull()}">{$oComment->GetText()}</a>

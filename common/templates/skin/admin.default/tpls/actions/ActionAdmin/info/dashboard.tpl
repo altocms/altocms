@@ -73,7 +73,7 @@
 
         <form method="post" action="">
             <div class="modal-content">
-                <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+                <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
                 <input type="hidden" name="widgets[]" value=""/>
 
                 {foreach $aDashboardWidgets as $aWidget}

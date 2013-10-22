@@ -44,7 +44,7 @@
 
                 <div class="accordion-body collapse collapse-save" id="admin_form_ban">
                     <form method="post" action="" class="well well-small">
-                        <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+                        <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
 
                         <div class="row control-group {if $sUserFilterLogin}success{/if}">
                             <label for="user_login">{$aLang.action.admin.user_login}</label>
@@ -112,7 +112,7 @@
 </div>
 
     <form action="" method="post" id="ban-do-command">
-        <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+        <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
         <input type="hidden" name="adm_user_cmd" value=""/>
         <input type="hidden" name="bans_list" value=""/>
         <input type="hidden" name="return_url" value="{$PATH_WEB_CURRENT|escape:'html'}"/>

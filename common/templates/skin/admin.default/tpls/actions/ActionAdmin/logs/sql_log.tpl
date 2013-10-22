@@ -24,7 +24,7 @@
     </div>
 
     <form action="" method="post">
-        <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+        <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
 
         <div class="navbar navbar-inner">
                 <button type="submit" name="submit_logs_del" class="btn btn-danger pull-right {if !$aLogs}disabled{/if}">

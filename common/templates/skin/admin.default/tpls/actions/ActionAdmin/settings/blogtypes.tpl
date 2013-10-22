@@ -9,7 +9,7 @@
 
 {block name="content-body"}
 <form action="{router page='admin'}settings-blogtypes/" method="post" id="form_blogtype_list" class="uniform">
-    <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+    <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
     <input type="hidden" name="blogtype_action" value="">
     <div class="b-wbox">
         <div class="b-wbox-content nopadding">

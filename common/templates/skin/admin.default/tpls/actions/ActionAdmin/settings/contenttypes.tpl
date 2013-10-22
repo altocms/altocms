@@ -82,7 +82,7 @@
                             <td class="center">
                                 <a href="{router page='admin'}settings-contenttypesedit/{$oContentType->getContentId()}/">
                                     <i class="icon-edit tip-top" title="{$aLang.action.admin.contenttypes_edit}"></i></a>
-                                <a href="{router page='admin'}settings-contenttypes/?toggle={if $oContentType->getContentActive()}off{else}on{/if}&content_id={$oContentType->getContentId()}&security_ls_key={$ALTO_SECURITY_KEY}">
+                                <a href="{router page='admin'}settings-contenttypes/?toggle={if $oContentType->getContentActive()}off{else}on{/if}&content_id={$oContentType->getContentId()}&security_key={$ALTO_SECURITY_KEY}">
                                     {if $oContentType->getContentActive()}
                                         <i class="icon-ban-circle tip-top"
                                            title="{$aLang.action.admin.contenttypes_turn_off}"></i>

@@ -155,7 +155,7 @@
     <div class="span12">
 
         <form action="" method="POST" class="form-horizontal uniform" enctype="multipart/form-data">
-            <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+            <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
             <input type="hidden" name="adm_cmd" value="generate_topics_url"/>
             <div class="b-wbox">
                 <div class="b-wbox-content nopadding">

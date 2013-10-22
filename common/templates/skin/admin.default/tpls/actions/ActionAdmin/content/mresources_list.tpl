@@ -96,7 +96,7 @@
 
             <input type="hidden" name="cmd" value="delete_blog"/>
             <input type="hidden" name="delete_blog_id" value=""/>
-            <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}" />
+            <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}" />
             <input type="hidden" name="return-path" value="{Router::Url('link')}" />
             <button type="submit" class="btn btn-primary">{$aLang.action.admin.blog_delete}</button>
         </form>

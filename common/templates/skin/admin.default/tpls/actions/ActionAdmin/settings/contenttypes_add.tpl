@@ -60,7 +60,7 @@
 
 
     <form method="POST" name="typeadd" enctype="multipart/form-data" class="form-horizontal uniform">
-        <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+        <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
 
         <div class="b-wbox">
             <div class="b-wbox-header">
@@ -182,7 +182,7 @@
                                 <td align="center">
                                     <a href="{router page='admin'}settings-contenttypes-fieldedit/{$oField->getFieldId()}/">{$aLang.action.admin.contenttypes_edit}</a>
                                     |
-                                    <a href="{router page='admin'}settings-contenttypes-fielddelete/{$oField->getFieldId()}/?security_ls_key={$ALTO_SECURITY_KEY}"
+                                    <a href="{router page='admin'}settings-contenttypes-fielddelete/{$oField->getFieldId()}/?security_key={$ALTO_SECURITY_KEY}"
                                        onclick="return confirm('{$aLang.action.admin.contenttypes_field_detele_confirm}');">{$aLang.action.admin.contenttypes_delete}</a>
                                 </td>
                             </tr>

@@ -21,7 +21,7 @@
     </div>
 
     <form action="{router page='admin'}plugins/" method="post" id="form_plugins_list">
-        <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+        <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
 
         <div class="b-wbox">
             <div class="b-wbox-content nopadding">
