@@ -18,7 +18,7 @@
 	-webkit-box-shadow: 0 0 15px rgba(0,0,0,.5); box-shadow: 0 0 15px rgba(0,0,0,.5);
 	overflow: hidden;
 }
-.modal .modal-header 		{ padding: 15px 30px 0; }
+.modal .modal-header 		{ padding: 15px 15px 0; }
 .modal .modal-header h3 	{ font-size: 20px; font-weight: bold; margin-right: 20px; }
 .modal .modal-content 		{ padding: 30px 30px; }
 .modal .modal-content input[type=text] { width: 95%; }

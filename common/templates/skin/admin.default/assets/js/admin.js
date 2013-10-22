@@ -171,7 +171,9 @@ var admin = admin || {};
         }
         if (options.header) {
             if (typeof(options.header) == 'string') {
-                header = $('<div class="modal-header"><h3>' + options.header + '</h3></div>');
+                header = $('<div class="modal-header">'
+                    + '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>'
+                    + '<h3>' + options.header + '</h3></div>');
             } else {
                 header = $('<div class="modal-header" />').wrapInner(options.header);
             }
