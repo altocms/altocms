@@ -20,30 +20,35 @@
  * @since 1.0
  */
 class ActionContent extends Action {
+
     /**
      * Главное меню
      *
      * @var string
      */
     protected $sMenuHeadItemSelect = 'blog';
+
     /**
      * Меню
      *
      * @var string
      */
     protected $sMenuItemSelect = 'topic';
+
     /**
      * СубМеню
      *
      * @var string
      */
     protected $sMenuSubItemSelect = 'topic';
+
     /**
      * Текущий юзер
      *
      * @var ModuleUser_EntityUser|null
      */
     protected $oUserCurrent = null;
+
     /**
      * Текущий тип контента
      *
@@ -163,7 +168,7 @@ class ActionContent extends Action {
         /**
          * Проверяем отправлена ли форма с данными(хотяб одна кнопка)
          */
-        if (isset($_REQUEST['submit_topic_publish']) or isset($_REQUEST['submit_topic_save'])) {
+        if (isset($_REQUEST['submit_topic_publish']) || isset($_REQUEST['submit_topic_save'])) {
             /**
              * Обрабатываем отправку формы
              */
@@ -230,29 +235,26 @@ class ActionContent extends Action {
      *
      */
     protected function EventDelete() {
+
         $this->Security_ValidateSendForm();
-        /**
-         * Получаем номер топика из УРЛ и проверяем существует ли он
-         */
+
+        // * Получаем номер топика из УРЛ и проверяем существует ли он
         $sTopicId = $this->GetParam(0);
         if (!($oTopic = $this->Topic_GetTopicById($sTopicId))) {
             return parent::EventNotFound();
         }
-        /**
-         * проверяем есть ли право на удаление топика
-         */
+
+        // * проверяем есть ли право на удаление топика
         if (!$this->ACL_IsAllowDeleteTopic($oTopic, $this->oUserCurrent)) {
             return parent::EventNotFound();
         }
-        /**
-         * Удаляем топик
-         */
+
+        // * Удаляем топик
         $this->Hook_Run('topic_delete_before', array('oTopic' => $oTopic));
         $this->Topic_DeleteTopic($oTopic);
         $this->Hook_Run('topic_delete_after', array('oTopic' => $oTopic));
-        /**
-         * Перенаправляем на страницу со списком топиков из блога этого топика
-         */
+
+        // * Перенаправляем на страницу со списком топиков из блога этого топика
         Router::Location($oTopic->getBlog()->getUrlFull());
     }
 
@@ -362,7 +364,7 @@ class ActionContent extends Action {
         /**
          * Проверяем отправлена ли форма с данными (хотяб одна кнопка)
          */
-        if (!isPost('submit_topic_publish') && !isPost('submit_topic_save')) {
+        if (!F::isPost('submit_topic_publish') && !F::isPost('submit_topic_save')) {
             return false;
         }
         $oTopic = Engine::GetEntity('Topic');
@@ -581,6 +583,7 @@ class ActionContent extends Action {
      * @return mixed
      */
     protected function SubmitEdit($oTopic) {
+
         $oTopic->_setValidateScenario('topic');
         /**
          * Сохраняем старое значение идентификатора блога
@@ -652,6 +655,7 @@ class ActionContent extends Action {
 
         $oTopic->setCutText($sTextCut);
         $oTopic->setText($this->Text_Parser($sTextNew));
+
         // Получаем ссылки, полученные при парсинге текста
         $oTopic->setTextLinks($this->Text_GetLinks());
         $oTopic->setTextShort($this->Text_Parser($sTextShort));
@@ -1056,6 +1060,7 @@ class ActionContent extends Action {
      * @return bool
      */
     protected function checkTopicFields($oTopic) {
+
         $this->Security_ValidateSendForm();
 
         $bOk = true;
@@ -1079,6 +1084,7 @@ class ActionContent extends Action {
      *
      */
     public function EventShutdown() {
+
         $this->Viewer_Assign('sMenuHeadItemSelect', $this->sMenuHeadItemSelect);
         $this->Viewer_Assign('sMenuItemSelect', $this->sMenuItemSelect);
         $this->Viewer_Assign('sMenuSubItemSelect', $this->sMenuSubItemSelect);

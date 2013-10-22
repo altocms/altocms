@@ -220,7 +220,7 @@ class ActionProfile extends Action {
         /**
          * Устанавливаем шаблон вывода
          */
-        $this->SetTemplateAction('created.topics');
+        $this->SetTemplateAction('created_topics');
     }
 
     /**
@@ -260,7 +260,7 @@ class ActionProfile extends Action {
         /**
          * Устанавливаем шаблон вывода
          */
-        $this->SetTemplateAction('created.comments');
+        $this->SetTemplateAction('created_comments');
     }
 
     /**
@@ -309,7 +309,7 @@ class ActionProfile extends Action {
         /**
          * Устанавливаем шаблон вывода
          */
-        $this->SetTemplateAction('favourite.topics');
+        $this->SetTemplateAction('favourite_topics');
     }
 
     /**
@@ -362,7 +362,7 @@ class ActionProfile extends Action {
         /**
          * Устанавливаем шаблон вывода
          */
-        $this->SetTemplateAction('favourite.topics');
+        $this->SetTemplateAction('favourite_topics');
     }
 
     /**
@@ -403,7 +403,7 @@ class ActionProfile extends Action {
         /**
          * Устанавливаем шаблон вывода
          */
-        $this->SetTemplateAction('favourite.comments');
+        $this->SetTemplateAction('favourite_comments');
     }
 
     /**
@@ -773,7 +773,7 @@ class ActionProfile extends Action {
         /**
          * Устанавливаем шаблон вывода
          */
-        $this->SetTemplateAction('created.notes');
+        $this->SetTemplateAction('created_notes');
     }
 
     /**
@@ -1344,7 +1344,7 @@ class ActionProfile extends Action {
         );
 
         $this->Viewer_Assign('sText', $this->Lang_Get('settings_profile_mail_change_to_notice'));
-        $this->SetTemplateAction('changemail.confirm');
+        $this->SetTemplateAction('changemail_confirm');
     }
 
     /**
@@ -1382,7 +1382,7 @@ class ActionProfile extends Action {
                 'settings_profile_mail_change_ok', array('mail' => htmlspecialchars($oChangemail->getMailTo()))
             )
         );
-        $this->SetTemplateAction('changemail.confirm');
+        $this->SetTemplateAction('changemail_confirm');
     }
 
     /**
