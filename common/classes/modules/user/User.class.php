@@ -467,6 +467,9 @@ class ModuleUser extends Module {
 
             // * Создаем персональный блог (проверки на права там внутри)
             $this->Blog_CreatePersonalBlog($oUser);
+
+            // Авторизуем пользователя
+            $this->Authorization($oUser, true);
             return $oUser;
         }
         return false;
