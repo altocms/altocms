@@ -395,6 +395,10 @@ class ModuleViewer extends Module {
      */
     public function VarAssign() {
 
+        if (!$this->oSmarty) {
+            $this->InitTemplator();
+        }
+
         foreach ($this->aVarsTemplate as $sName => $xValue) {
             $this->_assignTpl($sName, $xValue);
             unset($this->aVarsTemplate[$sName]);
