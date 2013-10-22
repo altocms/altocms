@@ -489,18 +489,19 @@ class ActionProfile extends Action {
         if (!$this->CheckUserProfile()) {
             return parent::EventNotFound();
         }
-        /**
-         * Получаем записи стены
-         */
-        $aWall = $this->Wall_GetWall(
-            array('wall_user_id' => $this->oUserProfile->getId(), 'pid' => null), array('id' => 'desc'), 1,
+
+        // * Получаем записи стены
+        $aWallItems = $this->Wall_GetWall(
+            array('wall_user_id' => $this->oUserProfile->getId(), 'pid' => 0), array('id' => 'desc'), 1,
             Config::Get('module.wall.per_page')
         );
-        $this->Viewer_Assign('aWall', $aWall['collection']);
-        $this->Viewer_Assign('iCountWall', $aWall['count']);
-        /**
-         * Устанавливаем шаблон вывода
-         */
+        $this->Viewer_Assign('aWallItems', $aWallItems['collection']);
+        $this->Viewer_Assign('iCountWall', $aWallItems['count']);
+
+        // LS-compatible
+        $this->Viewer_Assign('aWall', $aWallItems['collection']);
+
+        // * Устанавливаем шаблон вывода
         $this->SetTemplateAction('wall');
     }
 
@@ -508,22 +509,19 @@ class ActionProfile extends Action {
      * Добавление записи на стену
      */
     public function EventWallAdd() {
-        /**
-         * Устанавливаем формат Ajax ответа
-         */
+
+        // * Устанавливаем формат Ajax ответа
         $this->Viewer_SetResponseAjax('json');
-        /**
-         * Пользователь авторизован?
-         */
+
+        // * Пользователь авторизован?
         if (!$this->oUserCurrent) {
             return parent::EventNotFound();
         }
         if (!$this->CheckUserProfile()) {
             return parent::EventNotFound();
         }
-        /**
-         * Создаем запись
-         */
+
+        // * Создаем запись
         $oWall = Engine::GetEntity('Wall');
         $oWall->_setValidateScenario('add');
         $oWall->setWallUserId($this->oUserProfile->getId());
@@ -533,25 +531,22 @@ class ActionProfile extends Action {
 
         $this->Hook_Run('wall_add_validate_before', array('oWall' => $oWall));
         if ($oWall->_Validate()) {
-            /**
-             * Экранируем текст и добавляем запись в БД
-             */
+
+            // * Экранируем текст и добавляем запись в БД
             $oWall->setText($this->Text_Parser($oWall->getText()));
             $this->Hook_Run('wall_add_before', array('oWall' => $oWall));
             if ($this->AddWallMessage($oWall)) {
                 $this->Hook_Run('wall_add_after', array('oWall' => $oWall));
-                /**
-                 * Отправляем уведомления
-                 */
+
+                // * Отправляем уведомления
                 if ($oWall->getWallUserId() != $oWall->getUserId()) {
                     $this->Notify_SendWallNew($oWall, $this->oUserCurrent);
                 }
                 if (($oWallParent = $oWall->GetPidWall()) && ($oWallParent->getUserId() != $oWall->getUserId())) {
                     $this->Notify_SendWallReply($oWallParent, $oWall, $this->oUserCurrent);
                 }
-                /**
-                 * Добавляем событие в ленту
-                 */
+
+                // * Добавляем событие в ленту
                 $this->Stream_Write($oWall->getUserId(), 'add_wall', $oWall->getId());
             } else {
                 $this->Message_AddError($this->Lang_Get('wall_add_error'), $this->Lang_Get('error'));
@@ -603,16 +598,14 @@ class ActionProfile extends Action {
      * Ajax подгрузка сообщений стены
      */
     public function EventWallLoad() {
-        /**
-         * Устанавливаем формат Ajax ответа
-         */
+
+        // * Устанавливаем формат Ajax ответа
         $this->Viewer_SetResponseAjax('json');
         if (!$this->CheckUserProfile()) {
             return parent::EventNotFound();
         }
-        /**
-         * Формируем фильтр для запроса к БД
-         */
+
+        // * Формируем фильтр для запроса к БД
         $aFilter = array(
             'wall_user_id' => $this->oUserProfile->getId(),
             'pid'          => null
@@ -625,36 +618,39 @@ class ActionProfile extends Action {
             $this->Message_AddError($this->Lang_Get('error'));
             return;
         }
-        /**
-         * Получаем сообщения и формируем ответ
-         */
-        $aWall = $this->Wall_GetWall($aFilter, array('id' => 'desc'), 1, Config::Get('module.wall.per_page'));
-        $this->Viewer_Assign('aWall', $aWall['collection']);
+
+        // * Получаем сообщения и формируем ответ
+        $aWallItems = $this->Wall_GetWall($aFilter, array('id' => 'desc'), 1, Config::Get('module.wall.per_page'));
+        $this->Viewer_Assign('aWallItems', $aWallItems['collection']);
+        // LS-compatible
+        $this->Viewer_Assign('aWall', $aWallItems['collection']);
+
         $this->Viewer_Assign(
             'oUserCurrent', $this->oUserCurrent
         ); // хак, т.к. к этому моменту текущий юзер не загружен в шаблон
+        $sText = $this->Viewer_Fetch('actions/ActionProfile/wall_items.tpl');
         $this->Viewer_AssignAjax('sText', $this->Viewer_Fetch('actions/ActionProfile/wall_items.tpl'));
-        $this->Viewer_AssignAjax('iCountWall', $aWall['count']);
-        $this->Viewer_AssignAjax('iCountWallReturn', count($aWall['collection']));
+        $this->Viewer_AssignAjax('iCountWall', $aWallItems['count']);
+        $this->Viewer_AssignAjax('iCountWallReturn', count($aWallItems['collection']));
     }
 
     /**
      * Подгрузка ответов на стене к сообщению
      */
     public function EventWallLoadReply() {
-        /**
-         * Устанавливаем формат Ajax ответа
-         */
+
+        // * Устанавливаем формат Ajax ответа
         $this->Viewer_SetResponseAjax('json');
         if (!$this->CheckUserProfile()) {
             return parent::EventNotFound();
         }
-        if (!($oWall = $this->Wall_GetWallById(getRequestStr('iPid'))) || $oWall->getPid()) {
+        // пока оставлю здесь, логику не понял
+        //if (!($oWall = $this->Wall_GetWallById($this->GetPost('iPid'))) || $oWall->getPid()) {
+        if (!($oWall = $this->Wall_GetWallById($this->GetPost('iPid')))) {
             return parent::EventNotFound();
         }
-        /**
-         * Формируем фильтр для запроса к БД
-         */
+
+        // * Формируем фильтр для запроса к БД
         $aFilter = array(
             'wall_user_id' => $this->oUserProfile->getId(),
             'pid'          => $oWall->getId()
@@ -667,10 +663,8 @@ class ActionProfile extends Action {
             $this->Message_AddError($this->Lang_Get('error'));
             return;
         }
-        /**
-         * Получаем сообщения и формируем ответ
-         * Необходимо вернуть все ответы, но ставим "разумное" ограничение
-         */
+
+        // * Получаем сообщения и формируем ответ. Необходимо вернуть все ответы, но ставим "разумное" ограничение
         $aWall = $this->Wall_GetWall($aFilter, array('id' => 'asc'), 1, 300);
         $this->Viewer_Assign('aReplyWall', $aWall['collection']);
         $this->Viewer_AssignAjax('sText', $this->Viewer_Fetch('actions/ActionProfile/wall_items_reply.tpl'));

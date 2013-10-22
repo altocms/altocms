@@ -140,8 +140,8 @@ class ModuleWall extends Module {
     /**
      * Получение записей по ID с дополнительные связаными данными
      *
-     * @param array $aWallId       Список ID сообщений
-     * @param array $aAllowData    Список типов дополнительных данных для подгрузки в сообщения стены
+     * @param array $aWallId    - Список ID сообщений
+     * @param array $aAllowData - Список типов дополнительных данных для подгрузки в сообщения стены
      *
      * @return array
      */
@@ -156,9 +156,8 @@ class ModuleWall extends Module {
         }
 
         $aWalls = $this->GetWallsByArrayId($aWallId);
-        /**
-         * Формируем ID дополнительных данных, которые нужно получить
-         */
+
+        // * Формируем ID дополнительных данных, которые нужно получить
         $aUserId = array();
         $aWallUserId = array();
         $aWallReplyId = array();
@@ -169,32 +168,29 @@ class ModuleWall extends Module {
             if (isset($aAllowData['wall_user'])) {
                 $aWallUserId[] = $oWall->getWallUserId();
             }
-            /**
-             * Список последних записей хранится в строке через запятую
-             */
-            if (isset($aAllowData['reply']) && is_null($oWall->getPid()) && $oWall->getLastReply()) {
+
+            // * Список последних записей хранится в строке через запятую
+            if (isset($aAllowData['reply']) && !$oWall->getPid() && $oWall->getLastReply()) {
                 $aReply = explode(',', trim($oWall->getLastReply()));
                 $aWallReplyId = array_merge($aWallReplyId, $aReply);
             }
         }
-        /**
-         * Получаем дополнительные данные
-         */
-        $aUsers = isset($aAllowData['user']) && is_array($aAllowData['user']) ? $this->User_GetUsersAdditionalData(
-            $aUserId, $aAllowData['user']
-        ) : $this->User_GetUsersAdditionalData($aUserId);
-        $aWallUsers
-            =
-            isset($aAllowData['wall_user']) && is_array($aAllowData['wall_user']) ? $this->User_GetUsersAdditionalData(
-                $aWallUserId, $aAllowData['wall_user']
-            ) : $this->User_GetUsersAdditionalData($aWallUserId);
+
+        // * Получаем дополнительные данные
+        $aUsers = (isset($aAllowData['user']) && is_array($aAllowData['user']))
+            ? $this->User_GetUsersAdditionalData($aUserId, $aAllowData['user'])
+            : $this->User_GetUsersAdditionalData($aUserId);
+
+        $aWallUsers = (isset($aAllowData['wall_user']) && is_array($aAllowData['wall_user']))
+            ? $this->User_GetUsersAdditionalData($aWallUserId, $aAllowData['wall_user'])
+            : $this->User_GetUsersAdditionalData($aWallUserId);
+
         $aWallReply = array();
         if (isset($aAllowData['reply']) && count($aWallReplyId)) {
             $aWallReply = $this->GetWallAdditionalData($aWallReplyId, array('user' => array()));
         }
-        /**
-         * Добавляем данные к результату
-         */
+
+        // * Добавляем данные к результату
         foreach ($aWalls as $oWall) {
             if (isset($aUsers[$oWall->getUserId()])) {
                 $oWall->setUser($aUsers[$oWall->getUserId()]);
