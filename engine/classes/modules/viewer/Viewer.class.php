@@ -289,6 +289,12 @@ class ModuleViewer extends Module {
             $this->oSmarty->caching = Smarty::CACHING_LIFETIME_SAVED;
             $this->oSmarty->cache_lifetime = F::ToSeconds(Config::Get('smarty.cache_lifetime'));
         }
+
+        // Переносим накопленные переменные в шаблон
+        foreach ($this->aVarsTemplate as $sName => $xValue) {
+            $this->_assignTpl($sName, $xValue);
+            unset($this->aVarsTemplate[$sName]);
+        }
     }
 
     /**
@@ -494,6 +500,9 @@ class ModuleViewer extends Module {
          * Но предварительно проверяем наличие делегата
          */
         if ($sTemplate) {
+            if (!$this->oSmarty) {
+                $this->InitTemplator();
+            }
             $sTemplate = $this->Plugin_GetDelegate('template', $sTemplate);
             if ($this->TemplateExists($sTemplate, true)) {
                 // Установка нового secret key непосредственно перед рендерингом
@@ -517,6 +526,10 @@ class ModuleViewer extends Module {
      * @return  string
      */
     public function Fetch($sTemplate, $aOptions = array()) {
+
+        if (!$this->oSmarty) {
+            $this->InitTemplator();
+        }
 
         // * Проверяем наличие делегата
         $sTemplate = $this->Plugin_GetDelegate('template', $sTemplate);
@@ -782,6 +795,9 @@ class ModuleViewer extends Module {
      */
     public function TemplateExists($sTemplate, $bException = false) {
 
+        if (!$this->oSmarty) {
+            $this->InitTemplator();
+        }
         $bResult = $this->oSmarty->templateExists($sTemplate);
         if (!$bResult && $bException) {
             $sMessage = 'Can not find the template "' . $sTemplate . '" in skin "' . Config::Get('view.skin') . '"';
