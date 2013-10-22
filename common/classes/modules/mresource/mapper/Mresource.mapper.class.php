@@ -172,6 +172,9 @@ class ModuleMresource_MapperMresource extends Mapper {
         } else {
             $sFields = 'mr.*';
         }
+        if ($bTargetsCount) {
+            $sFields .= ', 0 AS targets_count';
+        }
         $oSql = $this->oDb->sql("
             SELECT
                 mresource_id AS ARRAY_KEY,
@@ -205,6 +208,7 @@ class ModuleMresource_MapperMresource extends Mapper {
                  ':hash_file_a' => (isset($aFilter['hash_file']) && is_array($aFilter['hash_file'])) ? $aFilter['hash_file'] : DBSIMPLE_SKIP
             )
         )->select();
+
         if ($aRows && $bTargetsCount) {
             $aId = array_keys($aRows);
             $sql = "

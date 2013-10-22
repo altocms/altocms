@@ -1295,6 +1295,8 @@ class ActionAdmin extends Action {
         $this->Viewer_Assign('aPaging', $aPaging);
     }
 
+    /**********************************************************************************/
+
     /**
      * View and managment of Mresources
      */
@@ -1305,7 +1307,7 @@ class ActionAdmin extends Action {
 
         $sCmd = $this->GetPost('cmd');
         if ($sCmd == 'delete') {
-            $this->_commentDelete();
+            $this->_eventMresourcesDelete();
         }
 
         // * Передан ли номер страницы
@@ -1314,12 +1316,40 @@ class ActionAdmin extends Action {
         $aFilter = array(
             //'type' => ModuleMresource::TYPE_IMAGE,
         );
-        $aResult = $this->Mresource_GetMresourcesByFilter($aFilter, $nPage, Config::Get('admin.items_per_page'));
+        $aCriteria = array(
+            'fields' => array('mr.*', 'targets_count'),
+            'filter' => $aFilter,
+            'limit'  => array(($nPage - 1) * Config::Get('admin.items_per_page'), Config::Get('admin.items_per_page')),
+        );
+        $aResult = $this->Mresource_GetMresourcesByCriteria($aCriteria);
+        //$aResult = $this->Mresource_GetMresourcesByFilter($aFilter, $nPage, Config::Get('admin.items_per_page'));
         $aPaging = $this->Viewer_MakePaging($aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4,
             Router::GetPath('admin') . 'content-mresources/');
 
+        $this->Lang_AddLangJs(
+            array(
+                 'action.admin.mresource_delete_confirm',
+                 'action.admin.mresource_will_be_delete',
+            )
+        );
+
         $this->Viewer_Assign('aMresources', $aResult['collection']);
         $this->Viewer_Assign('aPaging', $aPaging);
+    }
+
+    /**
+     * @return bool
+     */
+    protected function _eventMresourcesDelete() {
+
+        if ($iMresourceId = $this->GetPost('mresource_id')) {
+            if ($this->Mresource_DeleteMresources($iMresourceId)) {
+                $this->Message_AddNotice($this->Lang_Get('action.admin.mresource_deleted'));
+                return true;
+            }
+        }
+        $this->Message_AddError($this->Lang_Get('action.admin.mresource_not_deleted'));
+        return false;
     }
 
     /**********************************************************************************/

@@ -209,6 +209,15 @@ class ModuleMresource extends Module {
 
     }
 
+    public function GetMresourcesByCriteria($aCriteria) {
+
+        $aData = $this->oMapper->GetMresourcesByCriteria($aCriteria);
+        if ($aData['data']) {
+            $aData['data'] = Engine::GetEntityRows('Mresource', $aData['data']);
+        }
+        return array('collection' => $aData['data'], 'count' => 0);
+    }
+
     public function GetMresourcesByFilter($aFilter, $nPage, $nPerPage) {
 
         $aData = $this->oMapper->GetMresourcesByFilter($aFilter, $nPage, $nPerPage);
@@ -237,6 +246,9 @@ class ModuleMresource extends Module {
      */
     public function DeleteMresources($aId, $bNoCheckTargets = false) {
 
+        if (!is_array($aId)) {
+            $aId = array(intval($aId));
+        }
         $aMresources = $this->oMapper->GetMresourcesById($aId);
         if (!$bNoCheckTargets && $aMresources) {
             foreach ($aMresources as $oMresource) {
@@ -247,7 +259,7 @@ class ModuleMresource extends Module {
             }
         }
         $bResult = $this->oMapper->DeleteMresources($aId);
-        if ($bResult && $aMresources) {
+        if ($bResult && $aMresources && $aId) {
             // Удаляем файлы
             foreach ($aId as $nId) {
                 if (isset($aMresources[$nId]) && $aMresources[$nId]->IsFile() && $aMresources[$nId]->CanDelete()) {

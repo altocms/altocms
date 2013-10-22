@@ -149,6 +149,10 @@ return array(
 
     /* MRESOURCES */
     'mresources_title' => 'Медиаресурсы',
+    'mresource_delete_confirm' => 'Удалить этот медиаресурс?',
+    'mresource_will_be_delete' => 'Медиаресурс будет удален. Продолжить?',
+    'mresource_deleted' => 'Медиаресурс удален',
+    'mresource_not_deleted' => 'Медиаресурс не удален',
 
     /* USERS */
     'users_title' => 'Пользователи',
