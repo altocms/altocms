@@ -19,7 +19,7 @@
  * @package blocks
  * @since   1.0
  */
-class WidgetActivitySettings extends Block {
+class WidgetActivitySettings extends Widget {
     /**
      * Запуск обработки
      */
