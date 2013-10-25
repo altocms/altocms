@@ -443,7 +443,7 @@ class ModuleSubscribe extends Module {
      */
     public function GetUrlTargetTopicNewComment($iTargetId) {
 
-        if ($oTopic = $this->Topic_GetTopicById($iTargetId) && $oTopic->getPublish()) {
+        if (($oTopic = $this->Topic_GetTopicById($iTargetId)) && $oTopic->getPublish()) {
             return $oTopic->getUrl();
         }
         return false;

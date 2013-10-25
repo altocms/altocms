@@ -64,6 +64,7 @@ class ModuleNotify extends Module {
      *
      */
     public function Init() {
+
         $this->oViewerLocal = $this->Viewer_GetLocalViewer();
         $this->oMapper = Engine::GetMapper(__CLASS__);
         $this->sDir = Config::Get('module.notify.dir');
@@ -92,7 +93,7 @@ class ModuleNotify extends Module {
         }
         $this->Send(
             $oUserTo,
-            $this->sPrefix . '.comment_new.tpl',
+            $this->sPrefix . 'comment_new.tpl',
             $this->Lang_Get('notify_subject_comment_new'),
             array(
                  'oUserTo'      => $oUserTo,
@@ -126,7 +127,7 @@ class ModuleNotify extends Module {
         }
         $this->Send(
             $oUserTo,
-            $this->sPrefix . '.comment_reply.tpl',
+            $this->sPrefix . 'comment_reply.tpl',
             $this->Lang_Get('notify_subject_comment_reply'),
             array(
                  'oUserTo'      => $oUserTo,
@@ -160,7 +161,7 @@ class ModuleNotify extends Module {
         }
         $this->Send(
             $oUserTo,
-            $this->sPrefix . '.topic_new.tpl',
+            $this->sPrefix . 'topic_new.tpl',
             $this->Lang_Get('notify_subject_topic_new') . ' «' . htmlspecialchars($oBlog->getTitle()) . '»',
             array(
                  'oUserTo'    => $oUserTo,
@@ -178,9 +179,10 @@ class ModuleNotify extends Module {
      * @param ModuleUser_EntityUser $oUser    Объект пользователя
      */
     public function SendReactivationCode(ModuleUser_EntityUser $oUser) {
+
         $this->Send(
             $oUser,
-            $this->sPrefix . '.reactivation.tpl',
+            $this->sPrefix . 'reactivation.tpl',
             $this->Lang_Get('notify_subject_reactvation'),
             array(
                  'oUser' => $oUser,
@@ -195,9 +197,10 @@ class ModuleNotify extends Module {
      * @param string                $sPassword    Пароль пользователя
      */
     public function SendRegistrationActivate(ModuleUser_EntityUser $oUser, $sPassword) {
+
         $this->Send(
             $oUser,
-            $this->sPrefix . '.registration_activate.tpl',
+            $this->sPrefix . 'registration_activate.tpl',
             $this->Lang_Get('notify_subject_registration_activate'),
             array(
                  'oUser'     => $oUser,
@@ -213,9 +216,10 @@ class ModuleNotify extends Module {
      * @param string                $sPassword    Пароль пользователя
      */
     public function SendRegistration(ModuleUser_EntityUser $oUser, $sPassword) {
+
         $this->Send(
             $oUser,
-            $this->sPrefix . '.registration.tpl',
+            $this->sPrefix . 'registration.tpl',
             $this->Lang_Get('notify_subject_registration'),
             array(
                  'oUser'     => $oUser,
@@ -232,9 +236,10 @@ class ModuleNotify extends Module {
      * @param ModuleUser_EntityInvite $oInvite      Объект инвайта
      */
     public function SendInvite(ModuleUser_EntityUser $oUserFrom, $sMailTo, ModuleUser_EntityInvite $oInvite) {
+
         $this->Send(
             $sMailTo,
-            $this->sPrefix . '.invite.tpl',
+            $this->sPrefix . 'invite.tpl',
             $this->Lang_Get('notify_subject_invite'),
             array(
                  'sMailTo'   => $sMailTo,
@@ -264,7 +269,7 @@ class ModuleNotify extends Module {
         }
         $this->Send(
             $oUserTo,
-            $this->sPrefix . '.talk_new.tpl',
+            $this->sPrefix . 'talk_new.tpl',
             $this->Lang_Get('notify_subject_talk_new'),
             array(
                  'oUserTo'   => $oUserTo,
@@ -297,7 +302,7 @@ class ModuleNotify extends Module {
         }
         $this->Send(
             $oUserTo,
-            $this->sPrefix . '.talk_comment_new.tpl',
+            $this->sPrefix . 'talk_comment_new.tpl',
             $this->Lang_Get('notify_subject_talk_comment_new'),
             array(
                  'oUserTo'      => $oUserTo,
@@ -330,7 +335,7 @@ class ModuleNotify extends Module {
         }
         $this->Send(
             $oUserTo,
-            $this->sPrefix . '.user_friend_new.tpl',
+            $this->sPrefix . 'user_friend_new.tpl',
             $this->Lang_Get('notify_subject_user_friend_new'),
             array(
                  'oUserTo'   => $oUserTo,
@@ -355,7 +360,7 @@ class ModuleNotify extends Module {
     ) {
         $this->Send(
             $oUserTo,
-            $this->sPrefix . '.blog_invite_new.tpl',
+            $this->sPrefix . 'blog_invite_new.tpl',
             $this->Lang_Get('notify_subject_blog_invite_new'),
             array(
                  'oUserTo'   => $oUserTo,
@@ -373,9 +378,10 @@ class ModuleNotify extends Module {
      * @param ModuleUser_EntityReminder $oReminder    объект напоминания пароля
      */
     public function SendReminderCode(ModuleUser_EntityUser $oUser, ModuleUser_EntityReminder $oReminder) {
+
         $this->Send(
             $oUser,
-            $this->sPrefix . '.reminder_code.tpl',
+            $this->sPrefix . 'reminder_code.tpl',
             $this->Lang_Get('notify_subject_reminder_code'),
             array(
                  'oUser'     => $oUser,
@@ -391,9 +397,10 @@ class ModuleNotify extends Module {
      * @param string                $sNewPassword    Новый пароль
      */
     public function SendReminderPassword(ModuleUser_EntityUser $oUser, $sNewPassword) {
+
         $this->Send(
             $oUser,
-            $this->sPrefix . '.reminder_password.tpl',
+            $this->sPrefix . 'reminder_password.tpl',
             $this->Lang_Get('notify_subject_reminder_password'),
             array(
                  'oUser'        => $oUser,
@@ -414,7 +421,7 @@ class ModuleNotify extends Module {
     ) {
         $this->Send(
             $oWallParent->getUser(),
-            $this->sPrefix . '.wall.reply.tpl',
+            $this->sPrefix . 'wall.reply.tpl',
             $this->Lang_Get('notify_subject_wall_reply'),
             array(
                  'oWallParent' => $oWallParent,
@@ -433,9 +440,10 @@ class ModuleNotify extends Module {
      * @param ModuleUser_EntityUser $oUser    Объект пользователя
      */
     public function SendWallNew(ModuleWall_EntityWall $oWall, ModuleUser_EntityUser $oUser) {
+
         $this->Send(
             $oWall->getWallUser(),
-            $this->sPrefix . '.wall.new.tpl',
+            $this->sPrefix . 'wall.new.tpl',
             $this->Lang_Get('notify_subject_wall_new'),
             array(
                  'oUserTo'   => $oWall->getWallUser(),
@@ -449,7 +457,7 @@ class ModuleNotify extends Module {
     /**
      * Универсальный метод отправки уведомлений на email
      *
-     * @param ModuleUser_EntityUser|string $oUserTo     Кому отправляем (пользователь или email)
+     * @param ModuleUser_EntityUser|string $xUserTo     Кому отправляем (пользователь или email)
      * @param string                       $sTemplate   Шаблон для отправки
      * @param string                       $sSubject    Тема письма
      * @param array                        $aAssign     Ассоциативный массив для загрузки переменных в шаблон письма
@@ -457,13 +465,13 @@ class ModuleNotify extends Module {
      * @param bool                         $bForceSend  Отправлять сразу, даже при опции module.notify.delayed = true
      */
     public function Send(
-        $oUserTo, $sTemplate, $sSubject, $aAssign = array(), $sPluginName = null, $bForceSend = false
+        $xUserTo, $sTemplate, $sSubject, $aAssign = array(), $sPluginName = null, $bForceSend = false
     ) {
-        if ($oUserTo instanceof ModuleUser_EntityUser) {
-            $sMail = $oUserTo->getMail();
-            $sName = $oUserTo->getLogin();
+        if ($xUserTo instanceof ModuleUser_EntityUser) {
+            $sMail = $xUserTo->getMail();
+            $sName = $xUserTo->getLogin();
         } else {
-            $sMail = $oUserTo;
+            $sMail = $xUserTo;
             $sName = '';
         }
         /**
@@ -517,6 +525,7 @@ class ModuleNotify extends Module {
      * передаем их в меппер
      */
     public function Shutdown() {
+
         if (!empty($this->aTask) && Config::Get('module.notify.delayed')) {
             $this->oMapper->AddTaskArray($this->aTask);
             $this->aTask = array();
@@ -531,6 +540,7 @@ class ModuleNotify extends Module {
      * @return array
      */
     public function GetTasksDelayed($iLimit = 10) {
+
         return ($aResult = $this->oMapper->GetTasks($iLimit))
             ? $aResult
             : array();
@@ -542,6 +552,7 @@ class ModuleNotify extends Module {
      * @param ModuleNotify_EntityTask $oTask    Объект задания на отправку
      */
     public function SendTask($oTask) {
+
         $this->Mail_SetAdress($oTask->getUserMail(), $oTask->getUserLogin());
         $this->Mail_SetSubject($oTask->getNotifySubject());
         $this->Mail_SetBody($oTask->getNotifyText());
@@ -557,6 +568,7 @@ class ModuleNotify extends Module {
      * @return bool
      */
     public function DeleteTask($oTask) {
+
         return $this->oMapper->DeleteTask($oTask);
     }
 
@@ -568,6 +580,7 @@ class ModuleNotify extends Module {
      * @return bool
      */
     public function DeleteTaskByArrayId($aArrayId) {
+
         return $this->oMapper->DeleteTaskByArrayId($aArrayId);
     }
 
@@ -580,6 +593,7 @@ class ModuleNotify extends Module {
      * @return string
      */
     public function GetTemplatePath($sName, $sPluginName = null) {
+
         if ($sPluginName) {
             $sPluginName = preg_match('/^Plugin([\w]+)(_[\w]+)?$/Ui', $sPluginName, $aMatches)
                 ? strtolower($aMatches[1])
