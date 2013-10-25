@@ -1003,7 +1003,7 @@ class ModuleBlog_MapperBlog extends Mapper {
             'allow_add', 'min_rate_add', 'allow_list', 'min_rate_list', 'acl_read', 'min_rate_read', 'acl_write',
             'min_rate_write', 'acl_comment', 'min_rate_comment', 'index_ignore', 'membership',
         );
-        if ($aFilter && array_intersect($aFilter, $aBlogTypeFields)) {
+        if ($aFilter && array_intersect(array_keys($aFilter), $aBlogTypeFields)) {
             $bBlogTypeJoin = true;
         } else {
             $bBlogTypeJoin = false;
