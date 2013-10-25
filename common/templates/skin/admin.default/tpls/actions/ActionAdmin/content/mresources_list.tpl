@@ -5,12 +5,12 @@
         <a href="#" class="btn btn-primary disabled"><i class="icon-plus-sign"></i></a>
     </div>
     <div class="btn-group">
-        <a class="btn {if $sMode=='all' || $sMode==''}active{/if}" href="{router page='admin'}blogs/list/">
+        <a class="btn {if $sMode=='all' || $sMode==''}active{/if}" href="{router page='admin'}content-blogs/list/">
             {$aLang.action.admin.blogs_all_types} <span class="badge badge-up">{$nBlogsTotal}</span>
         </a>
         {foreach $aBlogTypes as $oBlogType}
             <a class="btn {if $sMode==$oBlogType->GetTypeCode()}active{/if}"
-               href="{router page='admin'}blogs/list/{$oBlogType->GetTypeCode()}/">
+               href="{router page='admin'}content-blogs/list/{$oBlogType->GetTypeCode()}/">
                 {$oBlogType->GetName()} <span class="badge badge-up">{$oBlogType->GetBlogsCount()}</span>
             </a>
         {/foreach}

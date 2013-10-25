@@ -73,7 +73,7 @@
         <a href="{router page="admin"}users-banlist/">{$aLang.action.admin.menu_users_banlist}</a>
     </li>
     <!-- li class="nav-menu_invites {if $sEvent=='invites'}active{/if}">
-        <a href="{router page="admin"}invites/">{$aLang.action.admin.menu_users_invites}</a>
+        <a href="{router page="admin"}users-invites/">{$aLang.action.admin.menu_users_invites}</a>
     </li -->
     {hook run='admin_menu_users'}
 

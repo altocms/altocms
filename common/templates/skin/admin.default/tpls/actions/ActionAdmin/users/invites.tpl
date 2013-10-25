@@ -6,16 +6,16 @@
 
     <ul class="nav nav-tabs">
     <li class="nav-tabs-add">
-        <a href="{router page='admin'}invites/new/"><i class="icon-plus-sign"></i></a>
+        <a href="{router page='admin'}users-invites/new/"><i class="icon-plus-sign"></i></a>
     </li>
     <li {if $sMode=='list' || $sMode==''}class="active"{/if}>
-        <a href="{router page='admin'}invites/list/">All invites <span class="badge">{{$iCount}}</span></a>
+        <a href="{router page='admin'}users-invites/list/">All invites <span class="badge">{$iCount}</span></a>
     </li>
 </ul>
 
 {literal}
 <script type="text/javascript">
-aceAdmin.sort = function(sort, order) {
+admin.sort = function(sort, order) {
   $('#invite_sort').val(sort);
   $('#invite_order').val(order);
   $('#admin_form_invite_list').submit();
@@ -33,50 +33,50 @@ aceAdmin.sort = function(sort, order) {
         <th>&nbsp;</th>
         <th>
             {if $sInviteSort=='id'}
-            <a href="#" onclick="aceAdmin.sort('id', {if $sInviteOrder==1}2{else}1{/if}); return false;"><b> id </b></a>
+            <a href="#" onclick="admin.sort('id', {if $sInviteOrder==1}2{else}1{/if}); return false;"><b> id </b></a>
             <b>{if $sInviteOrder==1}&darr;{else}&uarr;{/if}</b>
             {else}
-            <a href="#" onclick="aceAdmin.sort('id', 1); return false;"> id </a>
+            <a href="#" onclick="admin.sort('id', 1); return false;"> id </a>
             {/if}
         </th>
         <th>
             {if $sInviteSort=='code'}
-            <a href="#" onclick="aceAdmin.sort('code', {if $sInviteOrder==1}2{else}1{/if}); return false;"><b> {$oLang->adm_invite_code}</b></a>
+            <a href="#" onclick="admin.sort('code', {if $sInviteOrder==1}2{else}1{/if}); return false;"><b> {$oLang->adm_invite_code}</b></a>
             <b>{if $sInviteOrder==1}&darr;{else}&uarr;{/if}</b>
             {else}
-            <a href="#" onclick="aceAdmin.sort('code', 1); return false;"> {$oLang->adm_invite_code} </a>
+            <a href="#" onclick="admin.sort('code', 1); return false;"> {$oLang->adm_invite_code} </a>
             {/if}
         </th>
         <th>
             {if $sInviteSort=='user_from'}
-            <a href="#" onclick="aceAdmin.sort('user_from', {if $sInviteOrder==1}2{else}1{/if}); return false;"><b> {$oLang->adm_invite_user_from} </b></a>
+            <a href="#" onclick="admin.sort('user_from', {if $sInviteOrder==1}2{else}1{/if}); return false;"><b> {$oLang->adm_invite_user_from} </b></a>
             <b>{if $sInviteOrder==1}&darr;{else}&uarr;{/if}</b>
             {else}
-            <a href="#" onclick="aceAdmin.sort('user_from', 1); return false;"> {$oLang->adm_invite_user_from} </a>
+            <a href="#" onclick="admin.sort('user_from', 1); return false;"> {$oLang->adm_invite_user_from} </a>
             {/if}
         </th>
         <th>
             {if $sInviteSort=='date_add'}
-            <a href="#" onclick="aceAdmin.sort('date_add', {if $sInviteOrder==1}2{else}1{/if}); return false;"><b> {$oLang->adm_invite_date_add} </b></a>
+            <a href="#" onclick="admin.sort('date_add', {if $sInviteOrder==1}2{else}1{/if}); return false;"><b> {$oLang->adm_invite_date_add} </b></a>
             <b>{if $sInviteOrder==1}&darr;{else}&uarr;{/if}</b>
             {else}
-            <a href="#" onclick="aceAdmin.sort('date_add', 1); return false;"> {$oLang->adm_invite_date_add} </a>
+            <a href="#" onclick="admin.sort('date_add', 1); return false;"> {$oLang->adm_invite_date_add} </a>
             {/if}
         </th>
         <th>
             {if $sInviteSort=='user_to'}
-            <a href="#" onclick="aceAdmin.sort('user_to', {if $sInviteOrder==1}2{else}1{/if}); return false;"><b> {$oLang->adm_invite_user_to} </b></a>
+            <a href="#" onclick="admin.sort('user_to', {if $sInviteOrder==1}2{else}1{/if}); return false;"><b> {$oLang->adm_invite_user_to} </b></a>
             <b>{if $sInviteOrder==1}&darr;{else}&uarr;{/if}</b>
             {else}
-            <a href="#" onclick="aceAdmin.sort('user_to', 1); return false;"> {$oLang->adm_invite_user_to} </a>
+            <a href="#" onclick="admin.sort('user_to', 1); return false;"> {$oLang->adm_invite_user_to} </a>
             {/if}
         </th>
         <th>
             {if $sInviteSort=='date_used'}
-            <a href="#" onclick="aceAdmin.sort('date_used', {if $sInviteOrder==1}2{else}1{/if}); return false;"><b> {$oLang->adm_invite_date_used} </b></a>
+            <a href="#" onclick="admin.sort('date_used', {if $sInviteOrder==1}2{else}1{/if}); return false;"><b> {$oLang->adm_invite_date_used} </b></a>
             <b>{if $sInviteOrder==1}&darr;{else}&uarr;{/if}</b>
             {else}
-            <a href="#" onclick="aceAdmin.sort('date_used', 1); return false;"> {$oLang->adm_invite_date_used} </a>
+            <a href="#" onclick="admin.sort('date_used', 1); return false;"> {$oLang->adm_invite_date_used} </a>
             {/if}
         </th>
     </tr>
