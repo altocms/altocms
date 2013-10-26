@@ -60,7 +60,7 @@
 
 {hook run='comment_tree_end' iTargetId=$iTargetId sTargetType=$sTargetType}
 
-{if $bAllowNewComment}
+{if !$bAllowNewComment}
     {$sNoticeNotAllow}
 {else}
     {if $oUserCurrent}

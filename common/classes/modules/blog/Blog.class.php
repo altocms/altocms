@@ -891,54 +891,13 @@ class ModuleBlog extends Module {
     /**
      * Получает список блогов в которые может постить юзер
      *
-     * @param ModuleUser_EntityUser $oUser    Объект пользователя
+     * @param ModuleUser_EntityUser $oUser - Объект пользователя
      *
      * @return array
      */
     public function GetBlogsAllowByUser($oUser) {
 
-        if ($oUser->isAdministrator()) {
-            return $this->GetBlogs();
-        } else {
-            // Блоги, созданные пользователем
-            $aAllowBlogs = $this->GetBlogsByOwnerId($oUser->getId());
-
-            // Блоги, в которых состоит пользователь
-            $aBlogUsers = $this->GetBlogUsersByUserId($oUser->getId());
-            foreach ($aBlogUsers as $oBlogUser) {
-                $oBlog = $oBlogUser->getBlog();
-                if ($oBlogUser->getIsAdministrator() || $oBlogUser->getIsModerator()
-                    || $this->ACL_CanAddTopic($oUser, $oBlog)
-                ) {
-                    if (!isset($aAllowBlogs[$oBlog->getId()])) {
-                        $aAllowBlogs[$oBlog->getId()] = $oBlog;
-                    }
-                }
-            }
-            // Блоги, в которые можно писать без вступления
-            $aFilter = array(
-                'acl_write'      => self::BLOG_USER_ACL_USER,
-                'min_rate_write' => $oUser->GetUserRating(),
-            );
-            // Получаем типы блогов
-            if ($aBlogTypes = $this->GetBlogTypes($aFilter, true)) {
-                // Получаем ID блогов
-                $aCriteria = array(
-                    'filter' => array('blog_type' => $aBlogTypes)
-                );
-                $aResult = $this->oMapper->GetBlogsIdByCriteria($aCriteria);
-                // Получаем сами блоги
-                if ($aResult['data'] && ($aBlogs = $this->GetBlogsAdditionalData($aResult['data'], array()))) {
-                    foreach ($aBlogs as $oBlog) {
-                        if (!isset($aAllowBlogs[$oBlog->getId()])) {
-                            $aAllowBlogs[$oBlog->getId()] = $oBlog;
-                        }
-                    }
-                }
-            }
-            $this->_sortByTitle($aAllowBlogs);
-            return $aAllowBlogs;
-        }
+        return $this->GetBlogsAllowTo('write', $oUser);
     }
 
     /**
@@ -960,7 +919,10 @@ class ModuleBlog extends Module {
                 return isset($aAllowBlogs[$iBlog]) ? $aAllowBlogs[$iBlog] : array();
             }
             return $aAllowBlogs;
-        } else {
+        }
+
+        $sCacheKey = array($sAllow, $oUser->GetId(), intval($iBlog), (bool)$bCheckOnly);
+        if (false === ($aAllowBlogs = $this->Cache_Get($sCacheKey))) {
             // Блоги, созданные пользователем
             $aAllowBlogs = $this->GetBlogsByOwnerId($oUser->getId());
             if ($iBlog && isset($aAllowBlogs[$iBlog])) {
@@ -1049,8 +1011,10 @@ class ModuleBlog extends Module {
             }
 
             $this->_sortByTitle($aAllowBlogs);
-            return $aAllowBlogs;
+            $this->Cache_Set($aAllowBlogs, $sCacheKey, array('blog_update', 'user_update'), 'P1D');
         }
+        return $aAllowBlogs;
+
     }
 
     /**
