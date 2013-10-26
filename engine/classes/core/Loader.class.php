@@ -201,13 +201,13 @@ class Loader {
     static protected function _checkRequiredDirs() {
 
         if (!F::File_CheckDir(Config::Get('path.dir.app'), false)) {
-            die('Application folder "' . F::LocalDir(Config::Get('path.dir.app')) . '" does not exist');
+            die('Application folder "' . F::File_LocalDir(Config::Get('path.dir.app')) . '" does not exist');
         }
         if (!F::File_CheckDir(Config::Get('path.tmp.dir'), false)) {
-            die('Required folder "' . F::LocalDir(Config::Get('path.tmp.dir')) . '" does not exist');
+            die('Required folder "' . F::File_LocalDir(Config::Get('path.tmp.dir')) . '" does not exist');
         }
         if (!F::File_CheckDir(Config::Get('path.runtime.dir'), false)) {
-            die('Required folder "' . F::LocalDir(Config::Get('path.runtime.dir')) . '" does not exist');
+            die('Required folder "' . F::File_LocalDir(Config::Get('path.runtime.dir')) . '" does not exist');
         }
     }
 

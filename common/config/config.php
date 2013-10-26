@@ -76,7 +76,7 @@ if (isset($_SERVER['HTTP_HOST'])) {
     // for CLI scripts. or you can append "HTTP_HOST=http://yoursite.url" before script run command
     $config['path']['root']['url']      = null;
 }
-$config['path']['root']['dir'] = ALTO_DIR;
+$config['path']['root']['dir'] = ALTO_DIR . '\\';
 
 /**
  * Параметры сервера для статики. По умолчанию совпадают с основным сервером
