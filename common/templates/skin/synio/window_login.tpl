@@ -142,8 +142,8 @@
                     {hookb run="popup_registration_captcha"}
                         <p>
                             <label for="popup-registration-captcha">{$aLang.registration_captcha}</label>
-                            <img src="{cfg name='path.root.url'}/captcha/" class="captcha-image"
-                                 onclick="this.src='{cfg name='path.root.url'}/captcha/?n='+Math.random();" />
+                            <img src="{cfg name='path.root.url'}captcha/" class="captcha-image"
+                                 onclick="this.src='{cfg name='path.root.url'}captcha/?n='+Math.random();" />
                             &rarr;
                             <input type="text" name="captcha" id="popup-registration-captcha" value="" maxlength="3"
                                    class="input-text captcha-text js-ajax-validate"/>

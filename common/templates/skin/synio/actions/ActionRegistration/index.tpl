@@ -96,8 +96,8 @@
             <dl class="form-item">
                 <dt><label for="registration-user-captcha">{$aLang.registration_captcha}:</label></dt>
                 <dd>
-                    <img src="{cfg name='path.root.url'}/captcha/" class="captcha-image"
-                         onclick="this.src='{cfg name='path.root.url'}/captcha/?n='+Math.random();"/>
+                    <img src="{cfg name='path.root.url'}captcha/" class="captcha-image"
+                         onclick="this.src='{cfg name='path.root.url'}captcha/?n='+Math.random();"/>
                     <input type="text" name="captcha" id="registration-user-captcha" value="" maxlength="3"
                            class="input-text captcha-text js-ajax-validate" style="width: 165px"/>
                     <small class="validate-error-hide validate-error-field-captcha"></small>
