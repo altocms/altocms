@@ -2520,7 +2520,7 @@ class ActionAdmin extends Action {
     protected function _eventBlogTypesAdd() {
 
         $this->_setTitle($this->Lang_Get('action.admin.blogtypes_menu'));
-        $this->SetTemplateAction('settings/blogtypes_add');
+        $this->SetTemplateAction('settings/blogtypes_edit');
 
         $aLangList = $this->Lang_GetLangList();
         $this->Viewer_Assign('aLangList', $aLangList);
@@ -2555,7 +2555,7 @@ class ActionAdmin extends Action {
     protected function _eventBlogTypesEdit() {
 
         $this->_setTitle($this->Lang_Get('action.admin.blogtypes_menu'));
-        $this->SetTemplateAction('settings/blogtypes_add');
+        $this->SetTemplateAction('settings/blogtypes_edit');
 
         $nBlogTypeId = intval($this->getParam(1));
         if ($nBlogTypeId) {
@@ -2652,30 +2652,17 @@ class ActionAdmin extends Action {
                 $oBlogType->SetActive($this->GetPost('blogtypes_active'));
                 $oBlogType->SetContentType($this->GetPost('blogtypes_contenttype'));
 
-                $nAclAll = ~(ModuleBlog::BLOG_USER_ACL_GUEST | ModuleBlog::BLOG_USER_ACL_USER | ModuleBlog::BLOG_USER_ACL_MEMBER);
+                // Установка прав на запись
+                $nAclValue = intval($this->GetPost('blogtypes_acl_write'));
+                $oBlogType->SetAclWrite($nAclValue);
 
-                $nAclValue = $this->GetPost('blogtypes_acl_write');
-                if (!$nAclValue) {
-                    // Сброс битовой маски
-                    $oBlogType->SetAclWrite($oBlogType->GetAclWrite() & ~$nAclAll);
-                } else {
-                    // Установка битового значения
-                    $oBlogType->SetAclWrite($oBlogType->GetAclWrite() | $nAclValue);
-                }
+                // Установка прав на чтение
+                $nAclValue = intval($this->GetPost('blogtypes_acl_read'));
+                $oBlogType->SetAclRead($nAclValue);
 
-                $nAclValue = $this->GetPost('blogtypes_acl_read');
-                if (!$nAclValue) {
-                    $oBlogType->SetAclRead($oBlogType->GetAclRead() & ~$nAclAll);
-                } else {
-                    $oBlogType->SetAclRead($oBlogType->GetAclRead() | $nAclValue);
-                }
-
-                $nAclValue = $this->GetPost('blogtypes_acl_comment');
-                if (!$nAclValue) {
-                    $oBlogType->SetAclComment($oBlogType->GetAclComment() & ~$nAclAll);
-                } else {
-                    $oBlogType->SetAclComment($oBlogType->GetAclComment() | $nAclValue);
-                }
+                // Установка прав на комментирование
+                $nAclValue = intval($this->GetPost('blogtypes_acl_comment'));
+                $oBlogType->SetAclComment($nAclValue);
 
                 $this->Hook_Run('blogtype_edit_validate_before', array('oBlogType' => $oBlogType));
                 if ($oBlogType->_Validate()) {
@@ -3007,7 +2994,7 @@ class ActionAdmin extends Action {
     protected function EventContentTypesAdd() {
 
         $this->_setTitle($this->Lang_Get('action.admin.contenttypes_add_title'));
-        $this->SetTemplateAction('settings/contenttypes_add');
+        $this->SetTemplateAction('settings/contenttypes_edit');
 
         // * Вызов хуков
         $this->Hook_Run('topic_type_add_show');
@@ -3063,7 +3050,7 @@ class ActionAdmin extends Action {
 
         // * Устанавливаем шаблон вывода
         $this->_setTitle($this->Lang_Get('action.admin.contenttypes_edit_title'));
-        $this->SetTemplateAction('settings/contenttypes_add');
+        $this->SetTemplateAction('settings/contenttypes_edit');
 
         if (getRequest('fieldadd')) {
             $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success_fieldadd'));

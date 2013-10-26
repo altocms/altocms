@@ -902,6 +902,7 @@ class ModuleBlog extends Module {
         } else {
             // Блоги, созданные пользователем
             $aAllowBlogs = $this->GetBlogsByOwnerId($oUser->getId());
+
             // Блоги, в которых состоит пользователь
             $aBlogUsers = $this->GetBlogUsersByUserId($oUser->getId());
             foreach ($aBlogUsers as $oBlogUser) {
@@ -935,6 +936,118 @@ class ModuleBlog extends Module {
                     }
                 }
             }
+            $this->_sortByTitle($aAllowBlogs);
+            return $aAllowBlogs;
+        }
+    }
+
+    /**
+     * Получает список блогов, которые доступны пользователю для заданного действия.
+     * Или проверяет на заданное действие конкретный блог
+     *
+     * @param string $sAllow
+     * @param string $oUser
+     * @param int    $iBlog
+     * @param bool   $bCheckOnly
+     *
+     * @return array|bool
+     */
+    public function GetBlogsAllowTo($sAllow, $oUser, $iBlog = null, $bCheckOnly = false) {
+
+        if ($oUser->isAdministrator()) {
+            $aAllowBlogs = $this->GetBlogs();
+            if ($iBlog) {
+                return isset($aAllowBlogs[$iBlog]) ? $aAllowBlogs[$iBlog] : array();
+            }
+            return $aAllowBlogs;
+        } else {
+            // Блоги, созданные пользователем
+            $aAllowBlogs = $this->GetBlogsByOwnerId($oUser->getId());
+            if ($iBlog && isset($aAllowBlogs[$iBlog])) {
+                return $aAllowBlogs[$iBlog];
+            }
+
+            // Блоги, в которых состоит пользователь
+            $aBlogUsers = $this->GetBlogUsersByUserId($oUser->getId());
+            foreach ($aBlogUsers as $oBlogUser) {
+                /** @var ModuleBlog_EntityBlogType $oBlog */
+                $oBlog = $oBlogUser->getBlog();
+                $oBlogType = $oBlog->GetBlogType();
+
+                // админа и модератора блога не проверяем
+                if ($oBlogUser->getIsAdministrator() || $oBlogUser->getIsModerator()) {
+                    $aAllowBlogs[$oBlog->getId()] = $oBlog;
+                } else {
+                    $bAllow = false;
+                    if ($sAllow == 'write') {
+                        $bAllow = ($oBlogType->GetAclWrite(self::BLOG_USER_ACL_MEMBER)
+                                && $oBlogType->GetMinRateWrite() <= $oUser->getRating())
+                            || $this->ACL_CheckBlogEditContent($oBlog, $oUser);
+                    } elseif ($sAllow == 'read') {
+                        $bAllow = $oBlogType->GetAclRead(self::BLOG_USER_ACL_MEMBER)
+                            && $oBlogType->GetMinRateRead() <= $oUser->getRating();
+                    } elseif ($sAllow == 'comment') {
+                        $bAllow = $oBlogType->GetAclComment(self::BLOG_USER_ACL_MEMBER)
+                            && $oBlogType->GetMinRateComment() <= $oUser->getRating();
+                    }
+                    if ($bAllow) {
+                        $aAllowBlogs[$oBlog->getId()] = $oBlog;
+                        // Если задан конкретный блог и он найден, то проверять больше не нужно
+                        if ($iBlog && isset($aAllowBlogs[$iBlog])) {
+                            return $aAllowBlogs[$iBlog];
+                        }
+                    }
+                }
+            }
+
+            if ($sAllow == 'write') {
+                // Блоги, в которые можно писать без вступления
+                $aFilter = array(
+                    'acl_write'      => self::BLOG_USER_ACL_USER,
+                    'min_rate_write' => $oUser->GetUserRating(),
+                );
+            } elseif ($sAllow == 'read') {
+                // Блоги, в которые можно писать без вступления
+                $aFilter = array(
+                    'acl_read'      => self::BLOG_USER_ACL_USER,
+                    'min_rate_read' => $oUser->GetUserRating(),
+                );
+            } elseif ($sAllow == 'comment') {
+                // Блоги, в которые можно писать без вступления
+                $aFilter = array(
+                    'acl_comment'      => self::BLOG_USER_ACL_USER,
+                    'min_rate_comment' => $oUser->GetUserRating(),
+                );
+            }
+
+            // Получаем типы блогов
+            if ($aBlogTypes = $this->GetBlogTypes($aFilter, true)) {
+                // Получаем ID блогов
+                $aCriteria = array(
+                    'filter' => array('blog_type' => $aBlogTypes)
+                );
+                // Получаем ID блогов
+                $aResult = $this->oMapper->GetBlogsIdByCriteria($aCriteria);
+
+                // Получаем сами блоги
+                if ($aResult['data']) {
+                    // если задана только проверка, то сам блог(и) не нужен
+                    if ($iBlog && $bCheckOnly) {
+                        return in_array($iBlog, $aResult['data']);
+                    }
+                    if ($aBlogs = $this->GetBlogsAdditionalData($aResult['data'], array())) {
+                        foreach ($aBlogs as $oBlog) {
+                            if (!isset($aAllowBlogs[$oBlog->getId()])) {
+                                $aAllowBlogs[$oBlog->getId()] = $oBlog;
+                            }
+                        }
+                    }
+                }
+            }
+            if ($iBlog) {
+                return isset($aAllowBlogs[$iBlog]) ? $aAllowBlogs[$iBlog] : array();
+            }
+
             $this->_sortByTitle($aAllowBlogs);
             return $aAllowBlogs;
         }
@@ -1264,6 +1377,10 @@ class ModuleBlog extends Module {
                 }
                 if (isset($aFilter['min_rate_read'])) {
                     $bOk = $bOk && ($oBlogType->GetMinRateRead() <= $aFilter['min_rate_read']);
+                    if (!$bOk) continue;
+                }
+                if (isset($aFilter['min_rate_comment'])) {
+                    $bOk = $bOk && ($oBlogType->GetMinRateComment() <= $aFilter['min_rate_comment']);
                     if (!$bOk) continue;
                 }
                 if (isset($aFilter['acl_write'])) {

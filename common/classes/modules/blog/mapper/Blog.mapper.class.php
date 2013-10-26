@@ -169,7 +169,7 @@ class ModuleBlog_MapperBlog extends Mapper {
             INSERT INTO ?_blog_user
             SET
                 blog_id = ?d,
-                user_id = ?d
+                user_id = ?d,
                 user_role = ?d
             ";
         $xResult = $this->oDb->query($sql, $oBlogUser->getBlogId(), $oBlogUser->getUserId(), $oBlogUser->getUserRole());
