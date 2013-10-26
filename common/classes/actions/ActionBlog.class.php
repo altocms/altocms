@@ -828,7 +828,7 @@ class ActionBlog extends Action {
         $this->Viewer_SetHtmlCanonical($oTopic->getUrl());
 
         // Вызов хуков
-        $this->Hook_Run('topic_show', array("oTopic" => $oTopic));
+        $this->Hook_Run('topic_show', array('oTopic' => $oTopic));
 
         // Загружаем переменные в шаблон
         $this->Viewer_Assign('oTopic', $oTopic);
