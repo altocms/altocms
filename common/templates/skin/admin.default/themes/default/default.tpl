@@ -88,8 +88,8 @@
         <div class="navbar-inner">
             <div class="container">
                 <div class="nav-collapse nav logo">
-                    <a href="{router page=admin}">
-                        <img src="{Config::Get("path.static.skin")}assets/img/admlogo.png" alt="{$sAdminTitle}"/>
+                    <a href="{router page="admin"}">
+                        <img src="{asset skin=Config::Get("view.skin")}assets/img/admlogo.png" alt="{$sAdminTitle}"/>
                     </a>
                 </div>
                 <a class="brand" href="{router page=admin}">

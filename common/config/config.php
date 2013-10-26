@@ -86,8 +86,6 @@ $config['path']['static']['dir']        = '___path.root.dir___';        // По�
 
 $config['path']['root']['engine_lib']   = '___path.root.web___/engine/lib/';  // Путь до библиотек в файловой системе
 $config['path']['static']['skin']       = '___path.static.url___/templates/skin/___view.skin___/';
-$config['path']['static']['assets']         = '___path.static.skin___/assets';                 // Папка с ассетами (js, css, images)
-$config['path']['static']['framework']      = "___path.static.root___/templates/framework";
 
 $config['path']['uploads']['root']      = '/uploads';                          // папка для загрузки файлов
 $config['path']['uploads']['images']    = '___path.uploads.root___/images/';
@@ -106,6 +104,8 @@ $config['path']['frontend']['url']      = '___path.root.url___/common/templates/
 $config['path']['skins']['dir']         = '___path.templates.dir___/skin/';             // путь к папке для скинов
 $config['path']['skin']['dir']          = '___path.skins.dir___/___view.skin___/';      // путь к папке текущего скина
 $config['path']['skin']['url']          = '___path.root.url___common/templates/skin/___view.skin___/';    // URL-путь к папке текущего скина
+$config['path']['skin']['assets']['url']= '___path.runtime.url___assets/skin/___view.skin___/';
+$config['path']['skin']['assets']['dir']= '___path.runtime.dir___assets/skin/___view.skin___/';
 
 /**
  * Следующие параметры определяем для совместимости с LS
@@ -553,6 +553,7 @@ $config['router']['rewrite'] = array();
 // Правила реврайта для REQUEST_URI
 $config['router']['uri'] = array(
     '~^(uploads/images/[\w\/\_\-\.]+\.(png|jpg|jpeg|gif)\/?$)~i' => 'img/$1',
+    '~^_run/assets/([\w\-\.]+/.+)$~i' => 'asset/$1',
     // запрет обработки статичных файлов с заданными расширениями
     /* допустимые значения:
      *  - @ignore   - запрос игнорируется и его обработка прекращается

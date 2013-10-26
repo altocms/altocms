@@ -70,6 +70,7 @@ class ActionImg extends Action {
                 exit;
             }
         }
+        F::HttpHeader('404 Not Found');
         exit;
     }
 

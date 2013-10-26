@@ -56,7 +56,7 @@
 			{hook run='copyright'}
 			
 			<div class="design-by">
-				<img src="{cfg name='path.static.skin'}/images/xeoart.png" alt="xeoart" />
+				<img src="{cfg name='path.skin.assets.url'}/images/xeoart.png" alt="xeoart" />
 				Design by <a href="http://xeoart.com">xeoart</a>
 				<div>2012</div>
 			</div>
