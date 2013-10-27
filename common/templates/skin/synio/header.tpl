@@ -1,9 +1,9 @@
 <!doctype html>
 
-<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="ru"> <![endif]-->
-<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="ru"> <![endif]-->
-<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="ru"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="ru"> <!--<![endif]-->
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="{Config::Get('i18n.lang')}" dir="{Config::Get('i18n.dir')}"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="{Config::Get('i18n.lang')}" dir="{Config::Get('i18n.dir')}"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="{Config::Get('i18n.lang')}" dir="{Config::Get('i18n.dir')}"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="{Config::Get('i18n.lang')}" dir="{Config::Get('i18n.dir')}"> <!--<![endif]-->
 
 <head>
 	{hook run='html_head_begin'}

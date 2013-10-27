@@ -80,6 +80,7 @@ class Loader {
             Config::Get('lang.current'),
             array('local' => Config::Get('i18n.locale'), 'timezone' => Config::Get('i18n.timezone'))
         );
+        Config::Set('i18n', UserLocale::getLocale());
 
         F::IncludeFile((Config::Get('path.dir.engine') . '/classes/core/Engine.class.php'));
     }
