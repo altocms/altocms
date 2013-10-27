@@ -124,9 +124,10 @@ $config['path']['smarty']['compiled'] = '___path.tmp.dir___/templates/___view.sk
 $config['path']['smarty']['cache']    = '___path.tmp.dir___/templates/___view.skin___-___view.theme___/cache/';
 $config['path']['smarty']['plug']     = '___path.root.engine___/classes/modules/viewer/plugs/';
 
-$config['smarty']['compile_check']    = true;   // Проверять или нет файлы шаблона на изменения перед компиляцией, false может значительно увеличить быстродействие, но потребует ручного удаления кеша при изменения шаблона
-$config['smarty']['force_compile']    = false;  // Принудительно компилировать шаблоны (отменяет действие 'compile_check')
-$config['smarty']['cache_lifetime']   = false;  // Кеширование отрендеренных шаблонов
+$config['smarty']['compile_check']          = true;   // Проверять или нет файлы шаблона на изменения перед компиляцией, false может значительно увеличить быстродействие, но потребует ручного удаления кеша при изменения шаблона
+$config['smarty']['force_compile']          = false;  // Принудительно компилировать шаблоны (отменяет действие 'compile_check')
+$config['smarty']['merge_compiled_includes']= false;  // Слияние скомпилированных шаблонов (увеличивает скорость рендеринга при большом числе подшаблонов)
+$config['smarty']['cache_lifetime']         = false;  // Кеширование отрендеренных шаблонов
 
 /**
  * Настройки плагинов
@@ -354,7 +355,8 @@ $config['module']['comment']['use_nested'] = false; 	// Использовать
 $config['module']['comment']['nested_per_page'] = 0; 	// Число комментов на одну страницу в топике, актуально только при use_nested = true
 $config['module']['comment']['nested_page_reverse'] = true; 	// Определяет порядок вывода страниц. true - последние комментарии на первой странице, false - последние комментарии на последней странице
 $config['module']['comment']['favourite_target_allow'] = array('topic'); 	// Список типов комментов, которые разрешено добавлять в избранное
-$config['module']['comment']['edit']['enable'] = '5 minutes';    // В течение какого времени можно редактировать комментарии
+$config['module']['comment']['edit']['enable'] = '5 minutes';   // В течение какого времени можно редактировать комментарии
+$config['module']['comment']['edit']['rest_time'] = true;       // Показывать ли оставшееся время для редактирования комментария
 
 // Модуль Talk
 $config['module']['talk']['per_page']   = 30;           // Число приватных сообщений на одну страницу

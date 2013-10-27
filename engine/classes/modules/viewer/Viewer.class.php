@@ -258,8 +258,9 @@ class ModuleViewer extends Module {
         $this->oSmarty = $this->CreateSmartyObject();
 
         // * Устанавливаем необходимые параметры для Smarty
-        $this->oSmarty->compile_check = Config::Get('smarty.compile_check');
-        $this->oSmarty->force_compile = Config::Get('smarty.force_compile');
+        $this->oSmarty->compile_check = (bool)Config::Get('smarty.compile_check');
+        $this->oSmarty->force_compile = (bool)Config::Get('smarty.force_compile');
+        $this->oSmarty->merge_compiled_includes = (bool)Config::Get('smarty.merge_compiled_includes');
 
         // * Подавляем NOTICE ошибки - в этом вся прелесть смарти )
         $this->oSmarty->error_reporting = error_reporting() & ~E_NOTICE;
