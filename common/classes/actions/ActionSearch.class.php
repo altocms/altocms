@@ -15,6 +15,7 @@
 F::File_IncludeLib('Jevix/jevix.class.php');
 
 class ActionSearch extends Action {
+
     protected $aReq;
     protected $sPatternW = '[\wа-яА-Я\.\*-]'; // символ слова
     protected $sPatternB = '[^\wа-яА-Я\.\*-]'; // граница слова
@@ -45,6 +46,7 @@ class ActionSearch extends Action {
      * Инициализация
      */
     public function Init() {
+
         $this->SetDefaultEvent('index');
         $this->Viewer_AddHtmlTitle($this->Lang_Get('search'));
 
@@ -118,6 +120,7 @@ class ActionSearch extends Action {
      * @return void
      */
     protected function RegisterEvent() {
+
         $this->AddEvent('index', 'EventIndex');
         $this->AddEvent('opensearch', 'EventOpensearch');
 
@@ -129,9 +132,10 @@ class ActionSearch extends Action {
     /**
      * Протоколирование запросов
      *
-     * @param   array|null $aVars
+     * @param array|null $aVars
      */
     public function OutLog($aVars = null) {
+
         if (!$this->bLogEnable) {
             return;
         }
@@ -171,6 +175,7 @@ class ActionSearch extends Action {
      * @return string
      */
     protected function PreparePattern() {
+
         if ($this->bSearchStrict) {
             $sRegexp = $this->aReq['regexp'];
             $sRegexp = str_replace('[[:>:]]', $this->sPatternB, $sRegexp);
@@ -186,11 +191,12 @@ class ActionSearch extends Action {
     /**
      * "Подсветка" текста
      *
-     * @param   string $sText
+     * @param string $sText
      *
-     * @return  string
+     * @return string
      */
     protected function TextHighlite($sText) {
+
         $sRegexp = $this->PreparePattern();
         if ($this->bSearchStrict) {
             $sText = preg_replace($sRegexp, $this->sSnippetBeforeMatch . '\\0' . $this->sSnippetAfterMatch, $sText);
@@ -205,12 +211,12 @@ class ActionSearch extends Action {
     /**
      * Создание фрагмента для сниппета
      *
-     * @param   $sText
-     * @param   $aSet
-     * @param   $nPos
-     * @param   $nLen
+     * @param string $sText
+     * @param array  $aSet
+     * @param int    $nPos
+     * @param int    $nLen
      *
-     * @return  string
+     * @return string
      */
     protected function MakeSnippetFragment($sText, $aSet, $nPos, $nLen) {
 
@@ -275,11 +281,12 @@ class ActionSearch extends Action {
     /**
      * Создание сниппета
      *
-     * @param   $sText
+     * @param string $sText
      *
-     * @return  string
+     * @return string
      */
     protected function MakeSnippet($sText) {
+
         $aError = array();
         $sRegexp = $this->PreparePattern();
         // * Если задано, то вырезаем все теги
@@ -353,9 +360,9 @@ class ActionSearch extends Action {
     /**
      * Обработка основного события
      *
-     * @return void
      */
     public function EventIndex() {
+
         $sEvent = Router::GetActionEvent();
 
         if ($sEvent == 'comments') {
@@ -372,9 +379,9 @@ class ActionSearch extends Action {
     /**
      * Поддержка OpenSearch
      *
-     * @return void
      */
     public function EventOpensearch() {
+
         header('Content-type: text/xml; charset=utf-8');
         $sOutText
             = '<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
@@ -392,6 +399,7 @@ class ActionSearch extends Action {
      * Поиск топиков
      */
     public function EventTopics() {
+
         $this->aReq = $this->PrepareRequest('topics');
         $this->OutLog();
         if ($this->aReq['regexp']) {
@@ -404,9 +412,7 @@ class ActionSearch extends Action {
             if ($aResult['count'] > 0) {
                 $aTopicsFound = $this->Topic_GetTopicsAdditionalData($aResult['collection']);
 
-                /**
-                 * Подсветка поисковой фразы в тексте или формирование сниппета
-                 */
+                // * Подсветка поисковой фразы в тексте или формирование сниппета
                 foreach ($aTopicsFound AS $oTopic) {
                     if ($oTopic && $oTopic->getBlog()) {
                         if ($this->nModeOutList == 'short') {
@@ -437,6 +443,9 @@ class ActionSearch extends Action {
             $aResult['count'], $this->aReq['iPage'], $this->nItemsPerPage, 4,
             Config::Get('path.root.url') . '/search/topics', array('q' => $this->aReq['q'])
         );
+
+        $this->SetTemplateAction('results');
+
         // *  Отправляем данные в шаблон
         $this->Viewer_AddHtmlTitle($this->aReq['q']);
         $this->Viewer_Assign('bIsResults', $aResult['count']);
@@ -463,9 +472,8 @@ class ActionSearch extends Action {
             if ($aResult['count'] == 0) {
                 $aComments = array();
             } else {
-                /**
-                 * Получаем объекты по списку идентификаторов
-                 */
+
+                // * Получаем объекты по списку идентификаторов
                 $aComments = $this->Comment_GetCommentsAdditionalData($aResult['collection']);
 
                 //подсветка поисковой фразы
@@ -494,6 +502,9 @@ class ActionSearch extends Action {
             $aResult['count'], $this->aReq['iPage'], $this->nItemsPerPage, 4,
             Config::Get('path.root.url') . '/search/comments', array('q' => $this->aReq['q'])
         );
+
+        $this->SetTemplateAction('results');
+
         // *  Отправляем данные в шаблон
         $this->Viewer_AddHtmlTitle($this->aReq['q']);
         $this->Viewer_Assign('bIsResults', $aResult['count']);
@@ -548,6 +559,9 @@ class ActionSearch extends Action {
             $aResult['count'], $this->aReq['iPage'], $this->nItemsPerPage, 4,
             Config::Get('path.root.url') . '/search/blogs', array('q' => $this->aReq['q'])
         );
+
+        $this->SetTemplateAction('results');
+
         // *  Отправляем данные в шаблон
         $this->Viewer_AddHtmlTitle($this->aReq['q']);
         $this->Viewer_Assign('bIsResults', $aResult['count']);
@@ -561,6 +575,7 @@ class ActionSearch extends Action {
      * Разбор запроса
      */
     protected function PrepareRequest($sType = null) {
+
         $sRequest = trim(getRequest('q'));
 
         // * Иногда ломается кодировка, напр., если ввели поиск в адресной строке браузера
@@ -599,7 +614,7 @@ class ActionSearch extends Action {
             $aReq['regexp'] = '';
         }
 
-        /**
+        /*
          * Проверка длины каждого слова в запросе
          * Хотя бы одно слово должно быть больше минимальной длины
          * Слова меньше минимальной длины исключаем из поиска
@@ -639,7 +654,7 @@ class ActionSearch extends Action {
         if ($aReq['regexp']) {
             if ($this->bSearchStrict) {
                 $aReq['regexp'] = str_replace('\\*', '*', $aReq['regexp']);
-                /**
+                /*
                  * Проверка на "лишние" символы, оставляем только "слова"
                  * На месте "небукв" оставляем пробелы
                  */
@@ -684,6 +699,7 @@ class ActionSearch extends Action {
         }
         // *  Передача данных в шаблонизатор
         $this->Viewer_Assign('aReq', $aReq);
+
         return $aReq;
     }
 
