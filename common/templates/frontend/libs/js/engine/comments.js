@@ -58,11 +58,15 @@ ls.comments = (function ($) {
 	
 	this.initEvent = function() {
 		$('#form_comment_text').bind('keyup', function(e) {
-			key = e.keyCode || e.which;
-			if(e.ctrlKey && (key == 13)) {
-				$('#comment-button-submit').click();
-				return false;
-			}
+			var key = e.keyCode || e.which;
+            if(e.ctrlKey && (key == 13)) {
+                if ($(this).parents('form').find('[name=comment_mode]').val() == 'edit') {
+                    $('#comment-button-edit').click();
+                } else {
+                    $('#comment-button-submit').click();
+                }
+                return false;
+            }
 		});
 		
 		if(this.options.folding){

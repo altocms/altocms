@@ -429,18 +429,18 @@ ls.comments = (function ($) {
 	// Прокрутка к комментарию
 	this.scrollToComment = function(idComment) {
 		$.scrollTo('#comment_id_'+idComment, 1000, {offset: -250});
-						
+
 		if (this.iCurrentViewComment) {
 			$('#comment_id_'+this.iCurrentViewComment).removeClass(this.options.classes.comment_current);
-		}				
+		}
 		$('#comment_id_'+idComment).addClass(this.options.classes.comment_current);
-		this.iCurrentViewComment=idComment;		
+		this.iCurrentViewComment=idComment;
 	};
 
 
 	// Прокрутка к родительскому комментарию
 	this.goToParentComment = function(id, pid) {
-		thisObj = this;
+		var thisObj = this;
 		$('.'+this.options.classes.comment_goto_child).hide().find('a').unbind();
 
 		$("#comment_id_"+pid).find('.'+this.options.classes.comment_goto_child).show().find("a").bind("click", function(){
@@ -467,11 +467,11 @@ ls.comments = (function ($) {
 		});
 		return false;
 	};
-	
+
 	this.expandComment = function(folding) {
 		$(folding).removeClass("folded").parent().nextAll(".comment-wrapper").show();
 	};
-	
+
 	this.collapseComment = function(folding) {
 		$(folding).addClass("folded").parent().nextAll(".comment-wrapper").hide();
 	};
@@ -481,7 +481,7 @@ ls.comments = (function ($) {
 			this.expandComment(v);
 		}.bind(this));
 	};
-	
+
 	this.collapseCommentAll = function() {
 		$.each($(".folding"),function(k,v){
 			this.collapseComment(v);
@@ -540,16 +540,20 @@ ls.comments = (function ($) {
         this.checkEditTimers();
 		ls.hook.run('ls_comments_init_after',[],this);
 	};
-	
+
 	this.initEvent = function() {
 		$('#form_comment_text').bind('keyup', function(e) {
-			key = e.keyCode || e.which;
+			var key = e.keyCode || e.which;
 			if(e.ctrlKey && (key == 13)) {
-				$('#comment-button-submit').click();
+                if ($(this).parents('form').find('[name=comment_mode]').val() == 'edit') {
+                    $('#comment-button-edit').click();
+                } else {
+                    $('#comment-button-submit').click();
+                }
 				return false;
 			}
 		});
-		
+
 		if(this.options.folding){
 			$(".folding").click(function(e){
 				if ($(e.target).hasClass("folded")) {

@@ -569,7 +569,6 @@ ls.tools = (function ($) {
      * Предпросмотр
      */
     this.textPreview = function (textId, save, divPreview) {
-
         var text = ls.cfg.wysiwyg ? tinyMCE.activeEditor.getContent() : $('#' + textId).val();
         var ajaxUrl = ls.actionUrl('ajax') + 'preview/text/';
         var ajaxOptions = {text: text, save: save};

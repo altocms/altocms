@@ -906,12 +906,26 @@ class ModuleBlog extends Module {
      *
      * @param string $sAllow
      * @param string $oUser
-     * @param int    $iBlog
+     * @param int    $xBlog
      * @param bool   $bCheckOnly
      *
      * @return array|bool
      */
-    public function GetBlogsAllowTo($sAllow, $oUser, $iBlog = null, $bCheckOnly = false) {
+    public function GetBlogsAllowTo($sAllow, $oUser, $xBlog = null, $bCheckOnly = false) {
+
+        if (is_object($xBlog)) {
+            $iBlog = $xBlog->GetId();
+        } else {
+            $iBlog = intval($xBlog);
+        }
+
+        $sCacheKey = 'blogs_allow_to_' . serialize(array($sAllow, $oUser ? $oUser->GetId() : 0, intval($iBlog), (bool)$bCheckOnly));
+        if ($iBlog && $bCheckOnly) {
+            // Если только проверка прав, то проверяем временный кеш
+            if (is_int($xCacheResult = $this->Cache_Get($sCacheKey, 'tmp'))) {
+                return $xCacheResult;
+            }
+        }
 
         if ($oUser->isAdministrator()) {
             $aAllowBlogs = $this->GetBlogs();
@@ -921,42 +935,44 @@ class ModuleBlog extends Module {
             return $aAllowBlogs;
         }
 
-        $sCacheKey = array($sAllow, $oUser->GetId(), intval($iBlog), (bool)$bCheckOnly);
         if (false === ($aAllowBlogs = $this->Cache_Get($sCacheKey))) {
-            // Блоги, созданные пользователем
-            $aAllowBlogs = $this->GetBlogsByOwnerId($oUser->getId());
-            if ($iBlog && isset($aAllowBlogs[$iBlog])) {
-                return $aAllowBlogs[$iBlog];
-            }
+            if ($oUser) {
+                // Блоги, созданные пользователем
+                $aAllowBlogs = $this->GetBlogsByOwnerId($oUser->getId());
+                if ($iBlog && isset($aAllowBlogs[$iBlog])) {
+                    return $aAllowBlogs[$iBlog];
+                }
 
-            // Блоги, в которых состоит пользователь
-            $aBlogUsers = $this->GetBlogUsersByUserId($oUser->getId());
-            foreach ($aBlogUsers as $oBlogUser) {
-                /** @var ModuleBlog_EntityBlogType $oBlog */
-                $oBlog = $oBlogUser->getBlog();
-                $oBlogType = $oBlog->GetBlogType();
+                // Блоги, в которых состоит пользователь
+                $aBlogUsers = $this->GetBlogUsersByUserId($oUser->getId());
 
-                // админа и модератора блога не проверяем
-                if ($oBlogUser->getIsAdministrator() || $oBlogUser->getIsModerator()) {
-                    $aAllowBlogs[$oBlog->getId()] = $oBlog;
-                } else {
-                    $bAllow = false;
-                    if ($sAllow == 'write') {
-                        $bAllow = ($oBlogType->GetAclWrite(self::BLOG_USER_ACL_MEMBER)
-                                && $oBlogType->GetMinRateWrite() <= $oUser->getRating())
-                            || $this->ACL_CheckBlogEditContent($oBlog, $oUser);
-                    } elseif ($sAllow == 'read') {
-                        $bAllow = $oBlogType->GetAclRead(self::BLOG_USER_ACL_MEMBER)
-                            && $oBlogType->GetMinRateRead() <= $oUser->getRating();
-                    } elseif ($sAllow == 'comment') {
-                        $bAllow = $oBlogType->GetAclComment(self::BLOG_USER_ACL_MEMBER)
-                            && $oBlogType->GetMinRateComment() <= $oUser->getRating();
-                    }
-                    if ($bAllow) {
+                foreach ($aBlogUsers as $oBlogUser) {
+                    /** @var ModuleBlog_EntityBlogType $oBlog */
+                    $oBlog = $oBlogUser->getBlog();
+                    $oBlogType = $oBlog->GetBlogType();
+
+                    // админа и модератора блога не проверяем
+                    if ($oBlogUser->getIsAdministrator() || $oBlogUser->getIsModerator()) {
                         $aAllowBlogs[$oBlog->getId()] = $oBlog;
-                        // Если задан конкретный блог и он найден, то проверять больше не нужно
-                        if ($iBlog && isset($aAllowBlogs[$iBlog])) {
-                            return $aAllowBlogs[$iBlog];
+                    } else {
+                        $bAllow = false;
+                        if ($sAllow == 'write') {
+                            $bAllow = ($oBlogType->GetAclWrite(self::BLOG_USER_ACL_MEMBER)
+                                    && $oBlogType->GetMinRateWrite() <= $oUser->getRating())
+                                || $this->ACL_CheckBlogEditContent($oBlog, $oUser);
+                        } elseif ($sAllow == 'read') {
+                            $bAllow = $oBlogType->GetAclRead(self::BLOG_USER_ACL_MEMBER)
+                                && $oBlogType->GetMinRateRead() <= $oUser->getRating();
+                        } elseif ($sAllow == 'comment') {
+                            $bAllow = $oBlogType->GetAclComment(self::BLOG_USER_ACL_MEMBER)
+                                && $oBlogType->GetMinRateComment() <= $oUser->getRating();
+                        }
+                        if ($bAllow) {
+                            $aAllowBlogs[$oBlog->getId()] = $oBlog;
+                            // Если задан конкретный блог и он найден, то проверять больше не нужно
+                            if ($iBlog && isset($aAllowBlogs[$iBlog])) {
+                                return $aAllowBlogs[$iBlog];
+                            }
                         }
                     }
                 }
@@ -969,7 +985,7 @@ class ModuleBlog extends Module {
                     'min_rate_write' => $oUser->GetUserRating(),
                 );
             } elseif ($sAllow == 'read') {
-                // Блоги, в которые можно писать без вступления
+                // Блоги, которые можно читать без вступления
                 $aFilter = array(
                     'acl_read'      => self::BLOG_USER_ACL_USER,
                     'min_rate_read' => $oUser->GetUserRating(),
@@ -1012,6 +1028,11 @@ class ModuleBlog extends Module {
 
             $this->_sortByTitle($aAllowBlogs);
             $this->Cache_Set($aAllowBlogs, $sCacheKey, array('blog_update', 'user_update'), 'P1D');
+        }
+        if ($iBlog && $bCheckOnly) {
+            // Если только проверка прав, то сохраняем во временный кеш
+            // Чтоб не было ложных сробатываний, используем в этом кеше числовое значение
+            $this->Cache_Set($sCacheKey, $aAllowBlogs ? 1 : 0, array('blog_update', 'user_update'), 0, 'tmp');
         }
         return $aAllowBlogs;
 

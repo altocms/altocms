@@ -81,8 +81,10 @@ class ActionBlog extends Action {
      */
     protected $aBadBlogUrl
         = array(
-            'new', 'good', 'bad', 'discussed', 'top', 'edit', 'add', 'admin', 'delete', 'invite', 'ajaxaddcomment',
-            'ajaxaddbloginvite', 'ajaxresponsecomment', 'ajaxrebloginvite', 'ajaxbloginfo', 'ajaxblogjoin',
+            'new', 'good', 'bad', 'discussed', 'top', 'edit', 'add', 'admin', 'delete', 'invite',
+            'ajaxaddcomment', 'ajaxresponsecomment', 'ajaxgetcomment', 'ajaxupdatecomment',
+            'ajaxaddbloginvite', 'ajaxrebloginvite', 'ajaxremovebloginvite',
+            'ajaxbloginfo', 'ajaxblogjoin',
         );
 
     /**
@@ -808,7 +810,11 @@ class ActionBlog extends Action {
             $this->Viewer_Assign('aPagingCmt', $aPaging);
         }
 
-        $bAllowNewComment = $this->Blog_GetBlogsAllowTo('comment', $this->oUserCurrent, $oTopic->getBlog()->GetId(), true);
+        if ($this->oUserCurrent) {
+            $bAllowNewComment = $this->Blog_GetBlogsAllowTo('comment', $this->oUserCurrent, $oTopic->getBlog()->GetId(), true);
+        } else {
+            $bAllowNewComment = false;
+        }
 
         // Отмечаем дату прочтения топика
         if ($this->oUserCurrent) {
@@ -1417,7 +1423,7 @@ class ActionBlog extends Action {
             return;
         }
 
-        if (!$oComment->getEditTime()) {
+        if (!$oComment->isEditable()) {
             $this->Message_AddErrorSingle($this->Lang_Get('comment_cannot_edit'), $this->Lang_Get('error'));
             return;
         }

@@ -155,7 +155,7 @@ ls.swfupload = (function ($) {
 	this.swfOptions = {};
 
 	this.initOptions = function() {
-		
+
 		this.swfOptions = {
 			// Backend Settings
             upload_url: aRouter["content"] + "photo/upload",
@@ -194,14 +194,13 @@ ls.swfupload = (function ($) {
 			// Debug Settings
 			debug: false
 		};
-		
+
 		ls.hook.run('ls_swfupload_init_options_after',arguments,this.swfOptions);
-		
 	};
 
 	this.loadSwf = function() {
 		var f = {};
-		
+
 		f.onSwfobject = function(){
             if(window.swfobject && swfobject.swfupload){
                 f.onSwfobjectSwfupload();
@@ -214,7 +213,7 @@ ls.swfupload = (function ($) {
                 }
             }
 		}.bind(this);
-		
+
 		f.onSwfobjectSwfupload = function(){
             if(window.SWFUpload){
                 f.onSwfupload();
@@ -227,13 +226,12 @@ ls.swfupload = (function ($) {
                 }
             }
 		}.bind(this);
-		
+
 		f.onSwfupload = function(){
 			this.initOptions();
 			$(this).trigger('load');
 		}.bind(this);
-		
-		
+
 		(function(){
             if (window.swfobject) {
                 //f.onSwfobject();
@@ -243,7 +241,7 @@ ls.swfupload = (function ($) {
             }
 		}.bind(this))();
 	};
-	
+
 
 	this.init = function(opt) {
 		if (opt) {
@@ -319,10 +317,16 @@ ls.tools = (function ($) {
 	* Предпросмотр
 	*/
 	this.textPreview = function(textId, save, divPreview) {
-		var text =(BLOG_USE_TINYMCE) ? tinyMCE.activeEditor.getContent()  : $('#'+textId).val();
+		var text =(BLOG_USE_TINYMCE || (ls.cfg && ls.cfg.wysiwyg)) ? tinyMCE.activeEditor.getContent()  : $('#'+textId).val();
 		var ajaxUrl = aRouter['ajax']+'preview/text/';
 		var ajaxOptions = {text: text, save: save};
-		ls.hook.marker('textPreviewAjaxBefore');
+
+        if (!divPreview) {
+            divPreview = 'text_preview';
+        }
+        var elementPreview = $('#'+divPreview);
+        elementPreview.addClass('loader');
+
 		ls.ajax(ajaxUrl, ajaxOptions, function(result){
 			if (!result) {
 				ls.msg.error('Error','Please try again later');
@@ -330,15 +334,8 @@ ls.tools = (function ($) {
 			if (result.bStateError) {
 				ls.msg.error(result.sMsgTitle||'Error',result.sMsg||'Please try again later');
 			} else {
-				if (!divPreview) {
-					divPreview = 'text_preview';
-				}
-				var elementPreview = $('#'+divPreview);
-				ls.hook.marker('textPreviewDisplayBefore');
-				if (elementPreview.length) {
-					elementPreview.html(result.sText);
-					ls.hook.marker('textPreviewDisplayAfter');
-				}
+                elementPreview.removeClass('loader');
+                elementPreview.html(result.sText);
 			}
 		});
 	};
@@ -633,7 +630,7 @@ ls = (function ($) {
 		};
 
 		ls.hook.run('ls_ajaxsubmit_before', [options], this);
-		
+
 		form.ajaxSubmit(options);
 	};
 
@@ -794,7 +791,7 @@ ls.ie = (function ($) {
 	this.bordersizing = function(inputs) {
 		if ($('html').hasClass('ie7')) {
 			if (!tinyMCE) $('textarea.mce-editor').addClass('markItUpEditor');
-			
+
 			inputs.each(function(){
 				var obj = $(this);
 				if (obj.css('box-sizing') == 'border-box') {
@@ -804,7 +801,7 @@ ls.ie = (function ($) {
 			});
 		}
 	};
-	
+
 	return this;
 }).call(ls.ie || {},jQuery);
 
