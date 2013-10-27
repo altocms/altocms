@@ -942,21 +942,26 @@ class AltoFunc_File {
             ),
         );
     static protected $nMimeTypeSignaturesMax = 0;
-    static protected $hFinfo = null;
 
+    /**
+     * Определение MimeType файлов
+     *
+     * @param string $sFile
+     *
+     * @return string|null
+     */
     static public function MimeType($sFile) {
 
         $sMimeType = '';
-        if (is_null(self::$hFinfo) && function_exists('finfo_fopen')) {
+        if (function_exists('finfo_fopen')) {
             $hFinfo = finfo_open(FILEINFO_MIME_TYPE);
         } else {
             $hFinfo = null;
         }
         if ($hFinfo) {
-                if ($sMimeType = finfo_file($hFinfo, $sFile)) {
-                }
+            $sMimeType = finfo_file($hFinfo, $sFile);
             finfo_close($hFinfo);
-        } elseif(function_exists('mime_content_type')) {
+        } elseif (function_exists('mime_content_type')) {
             $sMimeType = mime_content_type($sFile);
         }
         if ($sMimeType) {
@@ -984,7 +989,7 @@ class AltoFunc_File {
                         self::$nMimeTypeSignaturesMax = $nLen;
                     }
                     self::$aMimeTypeSignatures[$sMimeType][$nIdx] = array(
-                        'offset' => $nOffset,
+                        'offset'    => $nOffset,
                         'signature' => $sSignature,
                     );
                 }
