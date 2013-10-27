@@ -596,6 +596,7 @@ class ModuleACL extends Module {
 
         $sUserRole = '';
         $bCurrentUser = false;
+        $bResult = false;
 
         // Если пользователь не передан, то берется текущий
         if (!$oUser) {
@@ -606,6 +607,12 @@ class ModuleACL extends Module {
             }
         } elseif ($this->User_GetUserCurrent() && $this->User_GetUserCurrent()->getId() == $oUser->getId()) {
             $bCurrentUser = true;
+        }
+
+        $sCacheKey = 'acl_blog_user_rights' . serialize(array($oBlog->GetId(), $oUser ? $oUser->GetId() : 0, $bCurrentUser, $sRights));
+        // Сначала проверяем кеш
+        if (is_int($xCacheResult = $this->Cache_Get($sCacheKey, 'tmp'))) {
+            return $xCacheResult;
         }
 
         if ($bCurrentUser) {
@@ -628,9 +635,12 @@ class ModuleACL extends Module {
 
         if ($sUserRole) {
             $aUserRights = $this->GetUserRights('blogs', $sUserRole);
-            return isset($aUserRights[$sRights]) && (bool)$aUserRights[$sRights];
+            $bResult = isset($aUserRights[$sRights]) && (bool)$aUserRights[$sRights];
         }
-        return false;
+
+        $this->Cache_Set($sCacheKey, $bResult ? 1 : 0, array('blog_update', 'user_update'), 0, 'tmp');
+
+        return $bResult;
     }
 
     /**
