@@ -46,7 +46,7 @@ $config['ls']['head']['default']['js']  = array(
 
     '___path.frontend.dir___/libs/js/vendor/swfobject/swfobject.js',
 
-    /* */
+    /* swfupload */
     '___path.frontend.dir___/libs/js/vendor/swfobject/plugin/swfupload.js' => array(
         'name'    => 'swfobject/plugin/swfupload.js',
         'prepare' => true
@@ -57,6 +57,14 @@ $config['ls']['head']['default']['js']  = array(
     ),
     '___path.frontend.dir___/libs/js/vendor/swfupload/swfupload.swf'       => array(
         'name'     => 'swfupload/swfupload.swf',
+        'prepare'  => true,
+        'compress' => false,
+        'merge'    => false
+    ),
+
+    /* TinyMCE */
+    '___path.frontend.dir___/libs/js/vendor/tinymce_4/tinymce.min.js'       => array(
+        'name'     => 'tinymce_4/tinymce.min.js',
         'prepare'  => true,
         'compress' => false,
         'merge'    => false
