@@ -85,7 +85,6 @@ $config['path']['static']['url']        = '___path.root.url___';        // По�
 $config['path']['static']['dir']        = '___path.root.dir___';        // Полный путь до static-сервера в файловой системе
 
 $config['path']['root']['engine_lib']   = '___path.root.web___/engine/lib/';  // Путь до библиотек в файловой системе
-$config['path']['static']['skin']       = '___path.static.url___/templates/skin/___view.skin___/';
 
 $config['path']['uploads']['root']      = '/uploads';                          // папка для загрузки файлов
 $config['path']['uploads']['images']    = '___path.uploads.root___/images/';
@@ -115,6 +114,7 @@ $config['path']['root']['web']          = '___path.root.url___';        // Оп�
 $config['path']['root']['server']       = '___path.root.dir___';        // Определяем для совместимости с LS
 $config['path']['static']['root']       = '___path.static.url___';      // Определяем для совместимости с LS
 $config['path']['root']['engine']       = '___path.root.dir___/engine/';// Определяем для совместимости с LS
+$config['path']['static']['skin']       = '___path.skin.url___/';       // Определяем для совместимости с LS
 
 /**
  * Настройки шаблонизатора Smarty
