@@ -3,9 +3,9 @@
 $config['ls']['head']['default']['js']  = array(
     '___path.frontend.dir___/libs/js/vendor/html5shiv.min.js' => array('browser'=>'lt IE 9'), // хак для IE версии ниже 9
     //'___path.root.engine_lib___/external/jquery/jquery.js' => array('name'=>'jquery.js'), // файлы с таким же параметром 'name' добавляться повторно не будут
-    '___path.frontend.dir___/libs/js/vendor/jquery-1.9.1.min.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery-migrate-1.2.1.min.js',
-    '___path.frontend.dir___/ls/lib/jquery-ui.js',
+    '___path.frontend.dir___/libs/js/vendor/jquery-1.10.2.min.js' => array('name' => 'jquery', 'asset' => 'mini'),
+    '___path.frontend.dir___/libs/js/vendor/jquery-migrate-1.2.1.min.js' => array('asset' => 'mini'),
+    '___path.frontend.dir___/libs/js/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js' => array('asset' => 'mini'),
     '___path.frontend.dir___/ls/lib/jquery.notifier.js',
     '___path.frontend.dir___/ls/lib/jquery.jqmodal.js',
     '___path.frontend.dir___/libs/js/vendor/jquery.scrollto.js',
