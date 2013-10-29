@@ -241,14 +241,22 @@ class AltoFunc_File {
     /**
      * Удаление содержимого папки
      *
-     * @param string $sDir
+     * @param string|array $xDir
      * @param bool   $bSafe
      *
      * @return bool
      */
-    static public function ClearDir($sDir, $bSafe = true) {
+    static public function ClearDir($xDir, $bSafe = true) {
 
         $bResult = true;
+        if (is_array($xDir)) {
+            foreach($xDir as $sDir) {
+                $bResult = $bResult && self::ClearDir($sDir, $bSafe);
+            }
+            return $bResult;
+        } else {
+            $sDir = (string)$xDir;
+        }
         $sDir = self::NormPath($sDir);
         if (substr($sDir, -1) != '/') {
             $sDir .= '/';
