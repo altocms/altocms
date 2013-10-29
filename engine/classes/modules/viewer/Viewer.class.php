@@ -1637,8 +1637,8 @@ class ModuleViewer extends Module {
      */
     public function ClearSmartyFiles() {
 
-        $this->oSmarty->clearCompiledTemplate();
-        $this->oSmarty->clearAllCache();
+        F::File_ClearDir(Config::Get('path.smarty.compiled'));
+        F::File_ClearDir(Config::Get('path.smarty.cache'));
         F::File_ClearDir(Config::Get('path.tmp.dir') . '/templates/');
     }
 
