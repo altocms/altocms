@@ -300,7 +300,7 @@ class ActionContent extends Action {
         $this->Viewer_Assign('aBlogsAllow', $this->Blog_GetBlogsAllowByUser($this->oUserCurrent));
         $this->Viewer_Assign('bEditDisabled', false);
         $this->Viewer_AddHtmlTitle(
-            $this->Lang_Get('topic_topic_create') . ' ' . mb_strtolower($this->oContentType->getContentTitle())
+            $this->Lang_Get('topic_topic_create') . ' ' . mb_strtolower($this->oContentType->getContentTitle(), 'UTF-8')
         );
         if (!is_numeric(getRequest('topic_id'))) {
             $_REQUEST['topic_id'] = '';
