@@ -213,7 +213,7 @@ class Loader {
     }
 
     /**
-     * Автоопределение класса или фала экшена
+     * Автоопределение класса или файла экшена
      *
      * @param   string      $sAction
      * @param   string|null $sEvent
