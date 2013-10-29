@@ -495,7 +495,6 @@ class ModulePlugin extends Module {
                 unset($aActivePlugins[array_shift($aIndex)]);
             }
 
-
             // * Сбрасываем весь кеш, т.к. могут быть закешированы унаследованые плагинами сущности
             $this->Cache_Clean();
             if (!$this->SetActivePlugins($aActivePlugins)) {
@@ -508,8 +507,7 @@ class ModulePlugin extends Module {
             }
 
             // * Очищаем компилированные шаблоны Smarty
-            $oSmarty = $this->Viewer_GetSmartyObject();
-            $oSmarty->clearCompiledTemplate();
+            $this->Viewer_ClearSmartyFiles();
         }
         return $bResult;
     }
@@ -524,6 +522,13 @@ class ModulePlugin extends Module {
         return F::GetPluginsList();
     }
 
+    /**
+     * Активирован ли указанный плагин
+     *
+     * @param $sPlugin
+     *
+     * @return bool
+     */
     public function IsActivePlugin($sPlugin) {
 
         $aPlugins = $this->GetActivePlugins();
