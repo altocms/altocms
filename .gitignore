@@ -6,3 +6,4 @@ common/config/config.local.php
 common/config/config.test.php
 app/config/config.php
 app/config/config.local.php
+app/plugins/*
