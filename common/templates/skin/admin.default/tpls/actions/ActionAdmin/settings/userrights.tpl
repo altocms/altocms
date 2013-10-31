@@ -100,7 +100,7 @@
     <div class="b-wbox-content nopadding">
         <div class="form-actions">
             <button type="submit" class="btn btn-primary"
-                    name="submit_type_add">{$aLang.action.admin.content_submit}</button>
+                    name="submit_type_add">{$aLang.action.admin.save}</button>
             {if $sEvent=='add'}
                 <p><span class="help-block">{$aLang.action.admin.content_afteradd}</span></p>
             {/if}

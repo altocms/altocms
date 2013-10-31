@@ -77,7 +77,7 @@ class ActionAdmin extends Action {
         $this->AddEvent('site-widgets', 'EventWidgets');
         $this->AddEvent('site-plugins', 'EventPlugins');
 
-        $this->AddEvent('logs-logs', 'EventLogs');
+        $this->AddEvent('logs-error', 'EventLogs');
         $this->AddEvent('logs-sqlerror', 'EventLogs');
         $this->AddEvent('logs-sqllog', 'EventLogs');
 
@@ -2057,13 +2057,11 @@ class ActionAdmin extends Action {
      */
     protected function EventLogs() {
 
-        $sMode = $this->GetParam(0);
-        if ($sMode == 'sqlerrors') {
+        if ($this->sCurrentEvent == 'logs-sqlerror') {
             $sLogFile = Config::Get('sys.logs.dir') . Config::Get('sys.logs.sql_error_file');
-        } elseif ($sMode == 'sql') {
+        } elseif ($this->sCurrentEvent == 'logs-sqllog') {
             $sLogFile = Config::Get('sys.logs.dir') . Config::Get('sys.logs.sql_query_file');
         } else {
-            $sMode = 'errors';
             $sLogFile = Config::Get('sys.logs.dir') . F::ERROR_LOG;
         }
 
@@ -2072,11 +2070,11 @@ class ActionAdmin extends Action {
         }
 
         $sLogTxt = F::File_GetContents($sLogFile);
-        if ($sMode == 'sqlerrors') {
+        if ($this->sCurrentEvent == 'logs-sqlerror') {
             $this->_setTitle($this->Lang_Get('action.admin.logs_sql_errors_title'));
             $this->SetTemplateAction('logs/sql_errors');
             $this->_eventLogsSqlErrors($sLogTxt);
-        } elseif ($sMode == 'sql') {
+        } elseif ($this->sCurrentEvent == 'logs-sqllog') {
             $this->_setTitle($this->Lang_Get('action.admin.logs_sql_title'));
             $this->SetTemplateAction('logs/sql_log');
             $this->_eventLogsSql($sLogTxt);
@@ -2086,7 +2084,6 @@ class ActionAdmin extends Action {
             $this->_eventLogsErrors($sLogTxt);
         }
 
-        $this->Viewer_Assign('sMode', $sMode);
         $this->Viewer_Assign('sLogTxt', $sLogTxt);
     }
 
