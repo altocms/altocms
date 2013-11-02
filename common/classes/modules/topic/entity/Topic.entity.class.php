@@ -506,23 +506,18 @@ class ModuleTopic_EntityTopic extends Entity {
         // ЧПУ по маске
         $sCreateDate = strtotime($this->GetDateAdd());
         $aReplace = array(
-            '%year%'      => date('Y', $sCreateDate),
-            '%month%'     => date('m', $sCreateDate),
-            '%day%'       => date('d', $sCreateDate),
-            '%hour%'      => date('H', $sCreateDate),
-            '%minute%'    => date('i', $sCreateDate),
-            '%second%'    => date('s', $sCreateDate),
-            '%topic_id%'  => $this->GetId(),
-            '%topic_url%' => $this->GetTopicUrl(),
+            '%year%'       => date('Y', $sCreateDate),
+            '%month%'      => date('m', $sCreateDate),
+            '%day%'        => date('d', $sCreateDate),
+            '%hour%'       => date('H', $sCreateDate),
+            '%minute%'     => date('i', $sCreateDate),
+            '%second%'     => date('s', $sCreateDate),
+            '%topic_type%' => $this->GetTopicType(),
+            '%topic_id%'   => $this->GetId(),
+            '%topic_url%'  => $this->GetTopicUrl(),
+            '%login%'      => $this->GetUser()->GetLogin(),
+            '%blog_url%'   => $this->GetBlog()->GetUrl(),
         );
-
-        $aReplace['%login%'] = $this->GetUser()->GetLogin();
-
-        if ($this->GetBlog()->getType() == 'personal') {
-            $aReplace['%blog_url%'] = $this->GetUser()->GetLogin();
-        } else {
-            $aReplace['%blog_url%'] = $this->GetBlog()->GetUrl();
-        }
 
         $sUrl = ($bFullUrl ? F::File_RootUrl() : '') . strtr($sUrlMask, $aReplace);
         $this->setProp($sKey, $sUrl);

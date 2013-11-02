@@ -989,16 +989,17 @@ class Router extends LsObject {
         if ($sUrlPattern) {
             $sUrlPattern = preg_quote($sUrlPattern);
             $aReplace = array(
-                '%year%' => '\d{4}',
-                '%month%' => '\d{2}',
-                '%day%' => '\d{2}',
-                '%hour%' => '\d{2}',
-                '%minute%' => '\d{2}',
-                '%second%' => '\d{2}',
-                '%login%' => '[\w_\-]+',
-                '%blog_url%' => '[\w_\-]+',
-                '%topic_id%' => '(\d+)',
-                '%topic_url%' => '([\w\-]+)',
+                '%year%'       => '\d{4}',
+                '%month%'      => '\d{2}',
+                '%day%'        => '\d{2}',
+                '%hour%'       => '\d{2}',
+                '%minute%'     => '\d{2}',
+                '%second%'     => '\d{2}',
+                '%login%'      => '[\w_\-]+',
+                '%blog_url%'   => '[\w_\-]+',
+                '%topic_type%' => '[\w_\-]+',
+                '%topic_id%'   => '(\d+)',
+                '%topic_url%'  => '([\w\-]+)',
             );
             // Если последним символом в шаблоне идет слеш, то надо его сделать опциональным
             if (substr($sUrlPattern, -1) == '/') {
