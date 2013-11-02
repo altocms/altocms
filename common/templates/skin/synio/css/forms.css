@@ -47,6 +47,7 @@ form .pointer {cursor:pointer;}
     border-radius: 3px;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
+    cursor: pointer;
 }
 .captcha-text {
     vertical-align: top;

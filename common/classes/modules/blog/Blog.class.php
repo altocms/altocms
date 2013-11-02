@@ -398,6 +398,7 @@ class ModuleBlog extends Module {
         if ($oBlogType && $oBlogType->IsActive()) {
             $oBlog = Engine::GetEntity('Blog');
             $oBlog->setOwnerId($oUser->getId());
+            $oBlog->setOwner($oUser);
             $oBlog->setTitle($this->Lang_Get('blogs_personal_title') . ' ' . $oUser->getLogin());
             $oBlog->setType('personal');
             $oBlog->setDescription($this->Lang_Get('blogs_personal_description'));
