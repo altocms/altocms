@@ -480,12 +480,17 @@ class ModuleTopic_EntityTopic extends Entity {
     /**
      * Возвращает полный URL до топика
      *
-     * @param   string|null  $sUrlMask  - еcли передан параметр, то формирует URL по этой маске
-     * @param   bool        $bFullUrl   - возвращать полный путь (или относительный, если false)
+     * @param   string|null $sUrlMask - еcли передан параметр, то формирует URL по этой маске
+     * @param   bool        $bFullUrl - возвращать полный путь (или относительный, если false)
      *
      * @return  string
      */
     public function getUrl($sUrlMask = null, $bFullUrl = true) {
+
+        $sKey = '-url-' . ($sUrlMask ? $sUrlMask : '') . ($bFullUrl ? '-1' : '-0');
+        if ($this->isProp($sKey)) {
+            return $this->getProp($sKey);
+        }
 
         if (!$sUrlMask) {
             $sUrlMask = Router::GetTopicUrlMask();
@@ -519,7 +524,10 @@ class ModuleTopic_EntityTopic extends Entity {
             $aReplace['%blog_url%'] = $this->GetBlog()->GetUrl();
         }
 
-        return ($bFullUrl ? F::File_RootUrl() : '') . strtr($sUrlMask, $aReplace);
+        $sUrl = ($bFullUrl ? F::File_RootUrl() : '') . strtr($sUrlMask, $aReplace);
+        $this->setProp($sKey, $sUrl);
+
+        return $sUrl;
     }
 
     /**
