@@ -649,11 +649,25 @@ class ModuleBlog_MapperBlog extends Mapper {
 
         if (isset($aFilter['type']) && !isset($aFilter['include_type'])) {
             $aCriteria['filter']['blog_type'] = $aFilter['type'];
+            unset($aFilter['type']);
         } elseif (isset($aFilter['include_type'])) {
             $aCriteria['filter']['blog_type'] = $aFilter['include_type'];
+            unset($aFilter['include_type']);
         }
         if (isset($aFilter['exclude_type'])) {
             $aCriteria['filter']['not_blog_type'] = $aFilter['exclude_type'];
+            unset($aFilter['exclude_type']);
+        }
+        if (isset($aFilter['title'])) {
+            if (strpos($aFilter['title'], '%') !== false) {
+                $aCriteria['filter']['blog_title_like'] = $aFilter['title'];
+            } else {
+                $aCriteria['filter']['blog_title'] = $aFilter['title'];
+            }
+            unset($aFilter['title']);
+        }
+        if ($aFilter && is_array($aFilter)) {
+            $aCriteria['filter'] = F::Array_Merge($aCriteria['filter'], $aFilter);
         }
 
         if (is_array($aOrder) && $aOrder) {
@@ -935,8 +949,8 @@ class ModuleBlog_MapperBlog extends Mapper {
             }
         }
         if (isset($aFilter['blog_title_like'])) {
-            if (substr($aFilter['blog_title'], -1) !== '%') {
-                $aFilter['blog_title'] .= '%';
+            if (substr($aFilter['blog_title_like'], -1) !== '%') {
+                $aFilter['blog_title_like'] .= '%';
             }
         }
 

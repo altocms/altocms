@@ -17,7 +17,7 @@
         <input type="text" placeholder="{$aLang.blogs_search_title_hint}" autocomplete="off" name="blog_title"
                class="input-text" value=""
                onkeyup="ls.timer.run(ls.blog.searchBlogs,'blogs_search',['form-blogs-search'],1000);">
-
+        <input type="hidden" name="blog_type" value="{$sShow}">
         <div class="input-submit" onclick="jQuery('#form-blogs-search').submit()"></div>
     </div>
 </form>
