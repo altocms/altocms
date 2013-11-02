@@ -384,7 +384,7 @@ class ActionContent extends Action {
         $oTopic->setDateAdd(F::Now());
         $oTopic->setUserIp(F::GetUserIp());
 
-        $sTopicUrl = $this->Topic_CorrectTopicUrl($oTopic->getTitleTranslit());
+        $sTopicUrl = $this->Topic_CorrectTopicUrl($oTopic->MakeTopicUrl());
         $oTopic->setTopicUrl($sTopicUrl);
         /**
          * Проверка корректности полей формы

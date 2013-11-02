@@ -518,6 +518,9 @@ class ModuleTopic_EntityTopic extends Entity {
             '%login%'      => $this->GetUser()->GetLogin(),
             '%blog_url%'   => $this->GetBlog()->GetUrl(),
         );
+        if (substr($sUrlMask, -1) == '%') {
+            $sUrlMask .= '/';
+        }
 
         $sUrl = ($bFullUrl ? F::File_RootUrl() : '') . strtr($sUrlMask, $aReplace);
         $this->setProp($sKey, $sUrl);
@@ -533,6 +536,15 @@ class ModuleTopic_EntityTopic extends Entity {
     public function GetTitleTranslit() {
 
         return F::TranslitUrl($this->getTitle());
+    }
+
+    public function MakeTopicUrl() {
+
+        $sUrl = $this->GetTitleTranslit();
+        if (preg_match('/^\d+$/', $sUrl)) {
+            $sUrl = 't' . $sUrl;
+        }
+        return $sUrl;
     }
 
     /**
