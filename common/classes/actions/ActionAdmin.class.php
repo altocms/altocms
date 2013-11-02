@@ -3016,7 +3016,7 @@ class ActionAdmin extends Action {
             return false;
         }
 
-        $oContentType = Engine::GetEntity('Topic_Content');
+        $oContentType = Engine::GetEntity('Topic_ContentType');
         $oContentType->setContentTitle(getRequest('content_title'));
         $oContentType->setContentTitleDecl(getRequest('content_title_decl'));
         $oContentType->setContentUrl(getRequest('content_url'));

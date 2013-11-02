@@ -18,6 +18,7 @@
                     <th class="span1">ID</th>
                     <th>User</th>
                     <th>Title</th>
+                    <th>URL</th>
                     <th>Date</th>
                     <th>Votes</th>
                     <th>Rating</th>
@@ -34,6 +35,9 @@
                         </td>
                         <td class="name">
                             <a href="{$oTopic->getUrl()}">{$oTopic->getTitle()}</a>
+                        </td>
+                        <td class="name">
+                            <a href="{$oTopic->getUrl()}">/{$oTopic->getUrl(null, false)}</a>
                         </td>
                         <td class="center">{$oTopic->getTopicDateAdd()}</td>
                         <td class="number">{$oTopic->getTopicCountVote()}</td>

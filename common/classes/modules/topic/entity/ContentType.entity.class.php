@@ -14,7 +14,7 @@
  * @package modules.topic
  * @since   1.0
  */
-class ModuleTopic_EntityContent extends Entity {
+class ModuleTopic_EntityContentType extends Entity {
 
     protected $aFields = null;
 
