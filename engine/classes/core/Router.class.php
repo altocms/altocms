@@ -126,9 +126,16 @@ class Router extends LsObject {
     /**
      * Маска фомирования URL топика
      *
-     * @var null
+     * @var string
      */
     static protected $sTopicUrlMask = null;
+
+    /**
+     * Маска фомирования URL профиля пользователя
+     *
+     * @var string
+     */
+    static protected $sUserUrlMask = null;
 
     /**
      * Делает возможным только один экземпляр этого класса
@@ -304,6 +311,14 @@ class Router extends LsObject {
         $sTopicUrlPattern = self::GetTopicUrlPattern();
         if ($sTopicUrlPattern) {
             $aRewrite = array_merge($aRewrite, array($sTopicUrlPattern => 'blog/$1.html'));
+        }
+        $sUserUrlPattern = self::GetUserUrlPattern();
+        if ($sUserUrlPattern) {
+            if (strpos(self::GetUserUrlMask(), '%user_id%')) {
+                $aRewrite = array_merge($aRewrite, array($sUserUrlPattern => 'profile/id-$1'));
+            } elseif (strpos(self::GetUserUrlMask(), '%login%')) {
+                $aRewrite = array_merge($aRewrite, array($sUserUrlPattern => 'profile/login-$1'));
+            }
         }
         return $aRewrite;
     }
@@ -949,8 +964,9 @@ class Router extends LsObject {
                     $aParts = explode('%topic_url%', $sUrlMask, 2);
                     $sUrlMask = $aParts[0] . '%topic_url%' . str_replace('%topic_url%', '', $aParts[1]);
                 }
-                $sUrlMask = preg_replace('~\/+~', '/', $sUrlMask);
+                $sUrlMask = preg_replace('#\/+#', '/', $sUrlMask);
             }
+            self::$sTopicUrlMask = $sUrlMask;
         } else {
             $sUrlMask = self::$sTopicUrlMask;
         }
@@ -988,7 +1004,46 @@ class Router extends LsObject {
             if (substr($sUrlPattern, -1) == '/') {
                 $sUrlPattern .= '?';
             }
-            $sUrlPattern = '~^' . strtr($sUrlPattern, $aReplace) . '$~i';
+            $sUrlPattern = '#^' . strtr($sUrlPattern, $aReplace) . '$#i';
+        }
+        return $sUrlPattern;
+    }
+
+    /**
+     * Возвращает маску формирования URL профиля пользователя
+     *
+     * @param  bool     $bEmptyIfWrong
+     * @return string
+     */
+    static public function GetUserUrlMask($bEmptyIfWrong = true) {
+
+        $sUrlMask = Config::Get('module.user.profile_url');
+        if ($bEmptyIfWrong && (strpos($sUrlMask, '%user_id%') === false) && (strpos($sUrlMask, '%login%') === false)) {
+            // В маске обязательно должны быть либо '%user_id%', либо '%login%'
+            $sUrlMask = '';
+        }
+        return $sUrlMask;
+    }
+
+    /**
+     * Returns pattern for user's profile URL
+     *
+     * @return string
+     */
+    static public function GetUserUrlPattern() {
+
+        $sUrlPattern = self::GetUserUrlMask();
+        if ($sUrlPattern) {
+            $sUrlPattern = preg_quote($sUrlPattern);
+            $aReplace = array(
+                '%login%' => '([\w_\-]+)',
+                '%user_id%' => '(\d+)',
+            );
+            // Если последним символом в шаблоне идет слеш, то надо его сделать опциональным
+            if (substr($sUrlPattern, -1) == '/') {
+                $sUrlPattern .= '?';
+            }
+            $sUrlPattern = '#^' . strtr($sUrlPattern, $aReplace) . '$#i';
         }
         return $sUrlPattern;
     }

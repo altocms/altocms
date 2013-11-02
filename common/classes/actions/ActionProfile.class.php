@@ -100,13 +100,19 @@ class ActionProfile extends Action {
      * Проверка корректности профиля
      */
     protected function CheckUserProfile() {
-        /**
-         * Проверяем есть ли такой юзер
-         */
-        if (!($this->oUserProfile = $this->User_GetUserByLogin($this->sCurrentEvent))) {
-            return false;
+
+        // * Проверяем есть ли такой юзер
+        if (preg_match('/^(id|login)\-(.+)$/i', $this->sCurrentEvent, $aMatches)) {
+            if ($aMatches[1] == 'id') {
+                $this->oUserProfile = $this->User_GetUserById($aMatches[2]);
+            } else {
+                $this->oUserProfile = $this->User_GetUserByLogin($aMatches[2]);
+            }
+        } else {
+            $this->oUserProfile = $this->User_GetUserByLogin($this->sCurrentEvent);
         }
-        return true;
+
+        return $this->oUserProfile;
     }
 
     /**
