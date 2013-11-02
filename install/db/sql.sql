@@ -269,6 +269,8 @@ CREATE TABLE IF NOT EXISTS `prefix_mresource` (
   `date_add` datetime NOT NULL,
   `date_del` datetime DEFAULT NULL,
   `user_id` int(10) unsigned NOT NULL,
+  `storage` varchar(16) DEFAULT NULL,
+  `uuid` varchar(64) NOT NULL,
   `link` tinyint(1) NOT NULL,
   `type` int(11) NOT NULL,
   `path_url` varchar(512) NOT NULL,
@@ -276,12 +278,15 @@ CREATE TABLE IF NOT EXISTS `prefix_mresource` (
   `hash_url` varchar(64) DEFAULT NULL,
   `hash_file` varchar(64) DEFAULT NULL,
   `candelete` tinyint(1) DEFAULT '1',
+  `params` text,
   PRIMARY KEY (`mresource_id`),
   KEY `user_id` (`user_id`),
   KEY `type` (`type`),
   KEY `hash_file` (`hash_file`),
   KEY `hash_url` (`hash_url`),
-  KEY `link` (`link`)
+  KEY `link` (`link`),
+  KEY `storage` (`storage`),
+  KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 ;
 
 -- --------------------------------------------------------
