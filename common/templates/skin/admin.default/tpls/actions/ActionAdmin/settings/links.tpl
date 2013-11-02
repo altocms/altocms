@@ -140,11 +140,14 @@
     </div>
 
 <script>
-    $(function(){
-        $('input[name=topic_link]').change(function(){
-            var s=$('#topic_link_' + $(this).val());
+    $(function () {
+        $('input[name=topic_link]').change(function () {
+            var s = $('#topic_link_' + $(this).val());
             if (s.length && s.text()) {
                 $('input[name=topic_link_url]').val(s.text());
+            }
+            if ($(this).val() == 'custom') {
+                $('input[name=topic_link_url]').focus();
             }
         });
     });

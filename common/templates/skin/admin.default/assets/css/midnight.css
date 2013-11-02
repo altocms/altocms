@@ -1205,6 +1205,7 @@ form {
 	border-bottom: 1px solid #eeeeee;
 	margin-bottom: 0;
     padding-left: 10px;
+    padding-bottom: 4px;
     min-height: 50px;
 }
 .form-horizontal .control-group:last-child {
@@ -1221,9 +1222,9 @@ form {
 .form-horizontal input[type=text],
 .form-horizontal input[type=password],
 .form-horizontal textarea {
-	width: 80%;
-    padding-top: 4px;
-    padding-bottom: 4px;
+    width: 80%;
+    padding-top: 2px;
+    padding-bottom: 2px;
 }
 .form-horizontal input.i-inline {
     width: auto;
