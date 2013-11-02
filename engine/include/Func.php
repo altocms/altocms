@@ -138,9 +138,9 @@ class Func {
                 static::_errorDisplay("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg ($sErrFile on line $nErrLine)");
             } else {
                 static::_errorDisplay("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg", static::_errorLogFile());
-                static::_errorLog("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg ($sErrFile on line $nErrLine)");
             }
         }
+        static::_errorLog("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg ($sErrFile on line $nErrLine)");
 
         /* Don't execute PHP internal error handler */
         return true;
@@ -304,7 +304,8 @@ class Func {
 
         $aCaller = self::_Caller();
         self::_errorHandler(
-            E_USER_WARNING, $sMessage,
+            E_USER_WARNING,
+            $sMessage,
             isset($aCaller['file']) ? $aCaller['file'] : 'Unknown',
             isset($aCaller['line']) ? $aCaller['line'] : 0
         );
