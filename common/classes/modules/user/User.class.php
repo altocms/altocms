@@ -1463,19 +1463,33 @@ class ModuleUser extends Module {
         $aDisabledLogins = F::Array_Str2Array(Config::Get('module.user.login.disabled'));
         if (F::Array_StrInArray($sLogin, $aDisabledLogins)) {
             return false;
+        } elseif(strpos(strtolower($sLogin), 'id-') === 0 || strpos(strtolower($sLogin), 'login-') === 0) {
+            return false;
         }
 
         $sCharset = Config::Get('module.user.login.charset');
         $nMin = intval(Config::Get('module.user.login.min_size'));
         $nMax = intval(Config::Get('module.user.login.max_size'));
 
-        // Если какой-то из трех параметров не задан, то проверка не выполняется
-        if (!$sCharset || $nMin || $nMax) {
-            return true;
+        // Логин не может быть меньше 1
+        if (!$nMin) {
+            $nMin =1;
         }
-        // поверка на набор символов и длину логина
-        if (preg_match('/^[' . $sCharset . ']{' . $nMin . ',' . $nMax . '}$/i', $sLogin)) {
-            return true;
+
+        if (!$sCharset) {
+            // поверка на длину логина
+            if (!$nMax) {
+                return strlen($sLogin) >= $nMin;
+            } else {
+                return strlen($sLogin) >= $nMin && strlen($sLogin) <= $nMax;
+            }
+        } else {
+            // поверка на набор символов и длину логина
+            if (!$nMax) {
+                return strlen($sLogin) >= $nMin && preg_match('/^[' . $sCharset . ']$/i', $sLogin);
+            } else {
+                return preg_match('/^[' . $sCharset . ']{' . $nMin . ',' . $nMax . '}$/i', $sLogin);
+            }
         }
         return false;
     }
