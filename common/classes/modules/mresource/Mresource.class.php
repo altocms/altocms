@@ -173,7 +173,19 @@ class ModuleMresource extends Module {
         // Добавляем новые ресурсы, если есть
         if ($aNewMresources) {
             foreach ($aNewMresources as $oMresource) {
-                $nId = $this->oMapper->Add($oMresource);
+                $oSavedMresource = $this->GetMresourcesByUuid($oMresource->GetStorageUuid());
+                // Если ресурс в базе есть, но файла нет (если удален извне), то удаляем ресус из базы
+                if ($oSavedMresource && !$oSavedMresource->isLink() && !$oSavedMresource->Exists()) {
+                    $this->DeleteMresources($oSavedMresource, false);
+                    $oSavedMresource = null;
+                }
+                if (!$oSavedMresource) {
+                    // Если ресурса нет, то добавляем
+                    $nId = $this->oMapper->Add($oMresource);
+                } else {
+                    // Если ресурс есть, то просто его ID берем
+                    $nId = $oSavedMresource->getId();
+                }
                 if ($nId && isset($aMresourcesRel[$oMresource->GetHash()])) {
                     // Такой ресурс есть, удаляем из списка на добавление
                     $aMresourcesRel[$oMresource->GetHash()]->SetMresourceId($nId);
@@ -205,9 +217,20 @@ class ModuleMresource extends Module {
         return null;
     }
 
-    public function GetMresourceByUrl($sUrl) {
+    public function GetMresourcesByUuid($xUuid) {
 
+        $bSingleRec = !is_array($xUuid);
+        $aData = $this->oMapper->GetMresourcesByUuid($xUuid);
+        if ($aData) {
+            if ($bSingleRec) {
+                return reset($aData);
+            } else {
+                return $aData;
+            }
+        }
+        return $bSingleRec ? null : array();
     }
+
 
     public function GetMresourcesByCriteria($aCriteria) {
 
@@ -240,33 +263,39 @@ class ModuleMresource extends Module {
      * Deletes media resources by ID
      *
      * @param $aId
+     * @param $bDeleteFiles
      * @param $bNoCheckTargets
      *
      * @return bool
      */
-    public function DeleteMresources($aId, $bNoCheckTargets = false) {
+    public function DeleteMresources($aId, $bDeleteFiles = true, $bNoCheckTargets = false) {
 
-        if (!is_array($aId)) {
-            $aId = array(intval($aId));
-        }
-        $aMresources = $this->oMapper->GetMresourcesById($aId);
-        if (!$bNoCheckTargets && $aMresources) {
-            foreach ($aMresources as $oMresource) {
-                // Если число ссылок > 0, то не удаляем
-                if ($oMresource->getTargetsCount() > 0) {
-                    unset($aId[$oMresource->getId()]);
+        $aId = $this->_entitiesId($aId);
+
+        if ($bDeleteFiles) {
+            $aMresources = $this->oMapper->GetMresourcesById($aId);
+            if (!$bNoCheckTargets && $aMresources) {
+                foreach ($aMresources as $oMresource) {
+                    // Если число ссылок > 0, то не удаляем
+                    if ($oMresource->getTargetsCount() > 0) {
+                        unset($aId[$oMresource->getId()]);
+                    }
                 }
             }
         }
+
         $bResult = $this->oMapper->DeleteMresources($aId);
-        if ($bResult && $aMresources && $aId) {
-            // Удаляем файлы
-            foreach ($aId as $nId) {
-                if (isset($aMresources[$nId]) && $aMresources[$nId]->IsFile() && $aMresources[$nId]->CanDelete()) {
-                    if ($aMresources[$nId]->IsImage()) {
-                        $this->Img_Delete($aMresources[$nId]->GetFile());
-                    } else {
-                        F::File_Delete($aMresources[$nId]->GetFile());
+
+        if ($bDeleteFiles) {
+            if ($bResult && $aMresources && $aId) {
+                // Удаляем файлы
+                foreach ($aId as $nId) {
+                    if (isset($aMresources[$nId]) && $aMresources[$nId]->IsFile() && $aMresources[$nId]->CanDelete()) {
+                        if ($aMresources[$nId]->IsImage()) {
+                            $this->Img_Delete($aMresources[$nId]->GetFile());
+                        } else {
+                            F::File_Delete($aMresources[$nId]->GetFile());
+                        }
                     }
                 }
             }

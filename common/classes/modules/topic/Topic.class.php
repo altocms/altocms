@@ -756,10 +756,10 @@ class ModuleTopic extends Module {
                 $this->Comment_SetCommentsPublish($oTopic->getId(), 'topic', $oTopic->getPublish());
             }
 
-			if(Router::GetAction()=='content'){
-				$this->processTopicFields($oTopic, 'update');
-			}
-			
+            if (Router::GetAction() == 'content') {
+                $this->processTopicFields($oTopic, 'update');
+            }
+
             $this->UpdateMresources($oTopic);
 
             // чистим зависимые кеши

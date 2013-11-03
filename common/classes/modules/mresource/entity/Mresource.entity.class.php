@@ -177,8 +177,14 @@ class ModuleMresource_EntityMresource extends Entity {
             } elseif (!$this->GetStorage()) {
                 $sResult = $this->GetHashUrl();
             }
+            $this->setProp('uuid', $sResult);
         }
         return $sResult;
+    }
+
+    public function GetStorageUuid() {
+
+        return '[' . $this->getStorage() . ']' . $this->GetUuid();
     }
 
     /**
@@ -234,6 +240,16 @@ class ModuleMresource_EntityMresource extends Entity {
             return $sUrl;
         }
         return null;
+    }
+
+    public function Exists() {
+
+        if ($this->GetStorage() == 'file') {
+            $sCheckUuid = '[file]' . $this->GetFile();
+        } else {
+            $sCheckUuid = $this->GetStorageUuid();
+        }
+        return $this->Uploader_Exists($sCheckUuid);
     }
 
 }

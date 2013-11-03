@@ -726,6 +726,19 @@ class ModuleTopic_EntityTopic extends Entity {
         return $this->Mresource_BuildMresourceHashList($aResources);
     }
 
+    public function setTextLinks($xData) {
+
+        if (!is_array($xData)) {
+            $xData = array((string)$xData);
+        }
+        $this->setExtraValue('intext_links', $xData);
+    }
+
+    public function getTextLinks() {
+
+        return (array)$this->getExtraValue('intext_links');
+    }
+
     /***************************************************************************************************************************************************
      * методы расширения типов топика
      ***************************************************************************************************************************************************
@@ -1338,7 +1351,7 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function setForbidComment($data) {
 
-        $this->setProp('topic_forbid_comment', $data);
+        $this->setProp('topic_forbid_comment', $data ? 1 : 0);
     }
 
     /**

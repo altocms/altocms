@@ -137,8 +137,30 @@ class ModuleMresource_MapperMresource extends Mapper {
     public function GetMresourcesByCriteria($aCriteria) {
 
         $aFilter = (isset($aCriteria['filter']) ? $aCriteria['filter'] : array());
+        $aParams = array();
+        $aUuidFilter = array();
         if (isset($aFilter['id']) && !isset($aFilter['mresource_id'])) {
             $aFilter['mresource_id'] = $aFilter['id'];
+        }
+        if (isset($aFilter['storage_uuid'])) {
+            if (is_array($aFilter['storage_uuid'])) {
+                $nUniqUid = 0;
+                foreach ($aFilter['storage_uuid'] as $nCnt => $aStorageUuid) {
+                    if ($aStorageUuid['storage']) {
+                        $aUuidFilter[] = '(storage=?:storage' . $nCnt . ' AND uuid=?:uuid' . $nCnt . ')';
+                        $aParams[':storage' . $nCnt] = $aStorageUuid['storage'];
+                        $aParams[':uuid' . $nCnt] = $aStorageUuid['uuid'];
+                        $nUniqUid++;
+                    } else {
+                        $aUuidFilter[] = '(uuid=?:uuid' . $nCnt . ')';
+                        $aParams[':uuid' . $nCnt] = $aStorageUuid['uuid'];
+                    }
+                }
+                if (sizeof($aFilter['storage_uuid']) == $nUniqUid && !isset($aCriteria['limit'])) {
+                    $aCriteria['limit'] = $nUniqUid;
+                }
+                unset($aFilter['storage_uuid']);
+            }
         }
         if (isset($aFilter['mresource_id']) && !isset($aCriteria['limit'])) {
             if (is_array($aFilter['mresource_id'])) {
@@ -175,13 +197,20 @@ class ModuleMresource_MapperMresource extends Mapper {
         if ($bTargetsCount) {
             $sFields .= ', 0 AS targets_count';
         }
+
+        if ($aUuidFilter) {
+            $sUuidFilter = '1=1 AND (' . implode(' OR ', $aUuidFilter) . ')';
+        } else {
+            $sUuidFilter = '1=1';
+        }
+
         $oSql = $this->oDb->sql("
             SELECT
                 mresource_id AS ARRAY_KEY,
                 $sFields
             FROM ?_mresource AS mr
             WHERE
-                1=1
+                $sUuidFilter
                 {AND mr.mresource_id=?d:mresource_id}
                 {AND mr.mresource_id IN (?a:mresource_ids)}
                 {AND mr.user_id=?d:user_id}
@@ -194,7 +223,8 @@ class ModuleMresource_MapperMresource extends Mapper {
                 {AND mr.hash_file IN (?:hash_file_a)}
             $sSqlLimit
         ");
-        $aRows = $oSql->bind(
+        $aParams = array_merge(
+            $aParams,
             array(
                  ':mresource_id' => (isset($aFilter['mresource_id']) && !is_array($aFilter['mresource_id'])) ? $aFilter['mresource_id'] : DBSIMPLE_SKIP,
                  ':mresource_ids' => (isset($aFilter['mresource_id']) && is_array($aFilter['mresource_id'])) ? $aFilter['mresource_id'] : DBSIMPLE_SKIP,
@@ -207,7 +237,8 @@ class ModuleMresource_MapperMresource extends Mapper {
                  ':hash_file' => (isset($aFilter['hash_file']) && !is_array($aFilter['hash_file'])) ? $aFilter['hash_file'] : DBSIMPLE_SKIP,
                  ':hash_file_a' => (isset($aFilter['hash_file']) && is_array($aFilter['hash_file'])) ? $aFilter['hash_file'] : DBSIMPLE_SKIP
             )
-        )->select();
+        );
+        $aRows = $oSql->bind($aParams)->select();
 
         if ($aRows && $bTargetsCount) {
             $aId = array_keys($aRows);
@@ -337,6 +368,40 @@ class ModuleMresource_MapperMresource extends Mapper {
             $aResult = Engine::GetEntityRows('Mresource', $aData['data']);
         }
         return $aResult;
+    }
+
+    /**
+     * @param array|string $aStorageUuid
+     *
+     * @return array|ModuleMresource_EntityMresource
+     */
+    public function GetMresourcesByUuid($aStorageUuid) {
+
+        $aCriteria = array(
+            'filter' => array(
+                'storage_uuid' => array(),
+            ),
+            'fields' => array(
+                'mr.*',
+                'targets_count',
+            ),
+        );
+        if (!is_array($aStorageUuid)) {
+            $aStorageUuid = array($aStorageUuid);
+        }
+        foreach ($aStorageUuid as $sUuid) {
+            if (substr($sUuid, 0, 1) == '[' && ($n = strpos($sUuid, ']'))) {
+                $sStorage = substr($sUuid, 1, $n - 1);
+                $sUuid = substr($sUuid, $n + 1);
+            } else {
+                $sStorage = null;
+            }
+            $aCriteria['filter']['storage_uuid'][] = array('storage' => $sStorage, 'uuid' => $sUuid);
+        }
+
+        $aData = $this->GetMresourcesByCriteria($aCriteria);
+
+        return $aData['data'] ? Engine::GetEntityRows('Mresource', $aData['data']) : array();
     }
 
     /**

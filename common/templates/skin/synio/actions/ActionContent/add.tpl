@@ -75,16 +75,16 @@
         <small class="note">{$aLang.topic_create_title_notice}</small>
     </p>
 
-    {if $aParams[0] != 'add' AND $oUserCurrent->isAdministrator()}
+    {if $aParams[0] != 'add' AND E::IsAdmin()}
         <p><label for="topic_url">{$aLang.topic_create_url}:</label>
-            <span class="b-topic-url-demo">{$_aRequest.topic_url_before}</span><span
-                    class="b-topic_url_demo-edit">{$_aRequest.topic_url}</span>
-            {if $_aRequest.topic_url AND $oUserCurrent->isAdministrator()}
-                <input type="text" id="topic_url" name="topic_url" value="{$_aRequest.topic_url}"
+            <span class="b-topic-url-demo">{$aEditTopicUrl.before}</span><span
+                    class="b-topic_url_demo-edit">{$aEditTopicUrl.input}</span>
+            {if $_aRequest.topic_url_input AND E::IsAdmin()}
+                <input type="text" id="topic_url" name="topic_url" value="{$_aRequest.topic_url_input}"
                        class="input-text input-width-300" style="display: none;"/>
             {/if}
-            <span class="b-topic_url_demo">{$_aRequest.topic_url_after}</span>
-            {if $aParams[0] != 'add' AND $oUserCurrent->isAdministrator()}
+            <span class="b-topic_url_demo">{$aEditTopicUrl.after}</span>
+            {if $aParams[0] != 'add' AND E::IsAdmin()}
                 <button class="button js-tip-help" title="{$aLang.topic_create_url_edit}"
                         onclick="ls.topic.editUrl(this); return false;"><i class="icon-edit"></i></button>
             {/if}
@@ -233,12 +233,24 @@
     {hook run='form_add_topic_topic_end'}
 
     <button type="submit" name="submit_topic_publish" id="submit_topic_publish"
-            class="button button-primary fl-r">{$aLang.topic_create_submit_publish}</button>
-    <button type="submit" name="submit_preview"
-            onclick="ls.topic.preview('form-topic-add','text_preview'); return false;"
-            class="button">{$aLang.topic_create_submit_preview}</button>
-    <button type="submit" name="submit_topic_save" id="submit_topic_save"
-            class="button">{$aLang.topic_create_submit_save}</button>
+            class="button button-primary fl-r">
+        {if $oTopic AND $oTopic->getPublish()}
+            {$aLang.topic_create_submit_publish_update}
+        {else}
+            {$aLang.topic_create_submit_publish}
+        {/if}
+    </button>
+    <button onclick="ls.topic.preview('form-topic-add','text_preview'); return false;"
+            type="submit" name="submit_preview" class="button">
+        {$aLang.topic_create_submit_preview}
+    </button>
+    <button type="submit" name="submit_topic_save" id="submit_topic_save" class="button">
+        {if $oTopic AND $oTopic->getPublish()}
+            {$aLang.topic_create_submit_publish_draft}
+        {else}
+            {$aLang.topic_create_submit_save}
+        {/if}
+    </button>
 </form>
 
 <div class="topic-preview" style="display: none;" id="text_preview"></div>
