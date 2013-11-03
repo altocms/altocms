@@ -71,6 +71,7 @@ var ls = ls || {};
     };
 
     Popup.initPluginElements = function (type, elements, options, variable, value) {
+        var returnValue;
         elements.each(function () {
             var element = $(this),
                 object = element.data('object');

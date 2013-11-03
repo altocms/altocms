@@ -72,7 +72,7 @@
                             {if $oPage@first}
                                 <i class="icon-arrow-up icon-gray"></i>
                             {else}
-                                <a href="{router page='admin'}content-pages/sort/{$oPage->getId()}/up/?security_ls_key={$ALTO_SECURITY_KEY}"
+                                <a href="{router page='admin'}content-pages/sort/{$oPage->getId()}/up/?security_key={$ALTO_SECURITY_KEY}"
                                    title="{$aLang.action.admin.pages_admin_sort_up} ({$oPage->getSort()})" class="tip-top i-block">
                                     <i class="icon-arrow-up"></i>
                                 </a>
@@ -80,7 +80,7 @@
                             {if $oPage@last}
                                 <i class="icon-arrow-down icon-gray"></i>
                             {else}
-                                <a href="{router page='admin'}content-pages/sort/{$oPage->getId()}/down/?security_ls_key={$ALTO_SECURITY_KEY}"
+                                <a href="{router page='admin'}content-pages/sort/{$oPage->getId()}/down/?security_key={$ALTO_SECURITY_KEY}"
                                    title="{$aLang.action.admin.pages_admin_sort_down} ({$oPage->getSort()})" class="tip-top i-block">
                                     <i class="icon-arrow-down"></i>
                                 </a>
@@ -105,7 +105,7 @@
             header: '{$aLang.action.admin.pages_admin_action_delete}',
             content: '{$aLang.action.admin.pages_admin_action_delete_message} "' + title + '"<br/>{$aLang.action.admin.pages_admin_action_delete_confirm}',
             onConfirm: function() {
-                document.location = "{router page='admin'}content-pages/delete/" + id + "/?security_ls_key={$ALTO_SECURITY_KEY}";
+                document.location = "{router page='admin'}content-pages/delete/" + id + "/?security_key={$ALTO_SECURITY_KEY}";
             }
         })
 

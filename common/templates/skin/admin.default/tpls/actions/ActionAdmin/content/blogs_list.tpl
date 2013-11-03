@@ -5,12 +5,12 @@
         <a href="#" class="btn btn-primary disabled"><i class="icon-plus-sign"></i></a>
     </div>
     <div class="btn-group">
-        <a class="btn {if $sMode=='all' || $sMode==''}active{/if}" href="{router page='admin'}blogs/list/">
+        <a class="btn {if $sMode=='all' || $sMode==''}active{/if}" href="{router page='admin'}content-blogs/list/">
             {$aLang.action.admin.blogs_all_types} <span class="badge badge-up">{$nBlogsTotal}</span>
         </a>
         {foreach $aBlogTypes as $oBlogType}
             <a class="btn {if $sMode==$oBlogType->GetTypeCode()}active{/if}"
-               href="{router page='admin'}blogs/list/{$oBlogType->GetTypeCode()}/">
+               href="{router page='admin'}content-blogs/list/{$oBlogType->GetTypeCode()}/">
                 {$oBlogType->GetName()} <span class="badge badge-up">{$oBlogType->GetBlogsCount()}</span>
             </a>
         {/foreach}
@@ -43,7 +43,7 @@
                         <tr>
                             <td class="number">{$oBlog->GetId()}</td>
                             <td>
-                                <a href="{router page='admin'}users/profile/{$oBlog->GetOwner()->GetId()}/">{$oBlog->GetOwner()->GetLogin()}</a>
+                                <a href="{router page='admin'}users-list/profile/{$oBlog->GetOwner()->GetId()}/">{$oBlog->GetOwner()->GetLogin()}</a>
                             </td>
                             <td class="name">
                                 <a href="{$oBlog->GetUrlFull()}">{$oBlog->GetTitle()}</a>
@@ -110,7 +110,7 @@
 
             <input type="hidden" name="cmd" value="delete_blog"/>
             <input type="hidden" name="delete_blog_id" value=""/>
-            <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}" />
+            <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}" />
             <input type="hidden" name="return-path" value="{Router::Url('link')}" />
             <button type="submit" class="btn btn-primary">{$aLang.action.admin.blog_delete}</button>
         </form>

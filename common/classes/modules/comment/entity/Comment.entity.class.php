@@ -260,7 +260,8 @@ class ModuleComment_EntityComment extends Entity {
      * @param int $data
      */
     public function setId($data) {
-        $this->_aData['comment_id'] = $data;
+
+        $this->setProp('comment_id', $data);
     }
 
     /**
@@ -270,7 +271,7 @@ class ModuleComment_EntityComment extends Entity {
      */
     public function setPid($data) {
 
-        $this->_aData['comment_pid'] = $data;
+        $this->setProp('comment_pid', $data);
     }
 
     /**
@@ -279,7 +280,8 @@ class ModuleComment_EntityComment extends Entity {
      * @param int $data
      */
     public function setLeft($data) {
-        $this->_aData['comment_left'] = $data;
+
+        $this->setProp('comment_left', $data);
     }
 
     /**
@@ -289,7 +291,7 @@ class ModuleComment_EntityComment extends Entity {
      */
     public function setRight($data) {
 
-        $this->_aData['comment_right'] = $data;
+        $this->setProp('comment_right', $data);
     }
 
     /**
@@ -299,7 +301,7 @@ class ModuleComment_EntityComment extends Entity {
      */
     public function setTargetId($data) {
 
-        $this->_aData['target_id'] = $data;
+        $this->setProp('target_id', $data);
     }
 
     /**
@@ -309,7 +311,7 @@ class ModuleComment_EntityComment extends Entity {
      */
     public function setTargetType($data) {
 
-        $this->_aData['target_type'] = $data;
+        $this->setProp('target_type', $data);
     }
 
     /**
@@ -319,7 +321,7 @@ class ModuleComment_EntityComment extends Entity {
      */
     public function setTargetParentId($data) {
 
-        $this->_aData['target_parent_id'] = $data;
+        $this->setProp('target_parent_id', $data);
     }
 
     /**
@@ -329,7 +331,7 @@ class ModuleComment_EntityComment extends Entity {
      */
     public function setUserId($data) {
 
-        $this->_aData['user_id'] = $data;
+        $this->setProp('user_id', $data);
     }
 
     /**
@@ -339,7 +341,7 @@ class ModuleComment_EntityComment extends Entity {
      */
     public function setText($data) {
 
-        $this->_aData['comment_text'] = $data;
+        $this->setProp('comment_text', $data);
         $this->setTextHash(md5($data));
     }
 
@@ -350,7 +352,7 @@ class ModuleComment_EntityComment extends Entity {
      */
     public function setDate($data) {
 
-        $this->_aData['comment_date'] = $data;
+        $this->setProp('comment_date', $data);
     }
 
     /**
@@ -360,7 +362,7 @@ class ModuleComment_EntityComment extends Entity {
      */
     public function setUserIp($data) {
 
-        $this->_aData['comment_user_ip'] = $data;
+        $this->setProp('comment_user_ip', $data);
     }
 
     /**
@@ -370,7 +372,7 @@ class ModuleComment_EntityComment extends Entity {
      */
     public function setRating($data) {
 
-        $this->_aData['comment_rating'] = $data;
+        $this->setProp('comment_rating', $data);
     }
 
     /**
@@ -380,7 +382,7 @@ class ModuleComment_EntityComment extends Entity {
      */
     public function setCountVote($data) {
 
-        $this->_aData['comment_count_vote'] = $data;
+        $this->setProp('comment_count_vote', $data);
     }
 
     /**
@@ -390,7 +392,7 @@ class ModuleComment_EntityComment extends Entity {
      */
     public function setDelete($data) {
 
-        $this->_aData['comment_delete'] = $data;
+        $this->setProp('comment_delete', $data);
     }
 
     /**
@@ -400,7 +402,7 @@ class ModuleComment_EntityComment extends Entity {
      */
     public function setPublish($data) {
 
-        $this->_aData['comment_publish'] = $data;
+        $this->setProp('comment_publish', $data);
     }
 
     /**
@@ -409,7 +411,7 @@ class ModuleComment_EntityComment extends Entity {
      * @param string $data
      */
     public function setTextHash($data) {
-        $this->_aData['comment_text_hash'] = $data;
+        $this->setProp('comment_text_hash', $data);
     }
 
     /**
@@ -419,7 +421,7 @@ class ModuleComment_EntityComment extends Entity {
      */
     public function setLevel($data) {
 
-        $this->_aData['comment_level'] = $data;
+        $this->setProp('comment_level', $data);
     }
 
     /**
@@ -429,7 +431,7 @@ class ModuleComment_EntityComment extends Entity {
      */
     public function setUser($data) {
 
-        $this->_aData['user'] = $data;
+        $this->setProp('user', $data);
     }
 
     /**
@@ -439,7 +441,7 @@ class ModuleComment_EntityComment extends Entity {
      */
     public function setTarget($data) {
 
-        $this->_aData['target'] = $data;
+        $this->setProp('target', $data);
     }
 
     /**
@@ -449,7 +451,7 @@ class ModuleComment_EntityComment extends Entity {
      */
     public function setVote($data) {
 
-        $this->_aData['vote'] = $data;
+        $this->setProp('vote', $data);
     }
 
     /**
@@ -459,7 +461,7 @@ class ModuleComment_EntityComment extends Entity {
      */
     public function setIsFavourite($data) {
 
-        $this->_aData['comment_is_favourite'] = $data;
+        $this->setProp('comment_is_favourite', $data);
     }
 
     /**
@@ -469,9 +471,14 @@ class ModuleComment_EntityComment extends Entity {
      */
     public function setCountFavourite($data) {
 
-        $this->_aData['comment_count_favourite'] = $data;
+        $this->setProp('comment_count_favourite', $data);
     }
 
+    /**
+     * Сколько секунд осталось до конца редактирования
+     *
+     * @return int
+     */
     public function getEditTime() {
 
         if (Config::Get('module.comment.edit.enable') && ($oUser = E::User())
@@ -494,7 +501,42 @@ class ModuleComment_EntityComment extends Entity {
      */
     public function isEditable() {
 
-        return Config::Get('module.comment.edit.enable') && !$this->getDelete() && ($this->getTargetType() != 'talk');
+        if ($this->getTargetType() != 'talk' && ($oUser = $this->User_GetUserCurrent())) {
+            if ($oUser->isAdministrator() || $this->ACL_CheckBlogEditComment($this->getTarget(), $oUser)) {
+                return true;
+            }
+            return ($oUser->GetId() == $this->getUserId()) && Config::Get('module.comment.edit.enable') && !$this->getDelete();
+        }
+        return false;
+    }
+
+    /**
+     * Может ли комментарий быть удален
+     *
+     * @return bool
+     */
+    public function isDeletable() {
+
+        if ($this->getTargetType() != 'talk' && ($oUser = $this->User_GetUserCurrent())) {
+            if ($oUser->isAdministrator() || $this->ACL_CheckBlogDeleteComment($this->getTarget(), $oUser)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Вышло ли время для голосования
+     *
+     * @return bool
+     */
+    public function isVoteExpired() {
+
+        $nTimeLimit = Config::Get('acl.vote.comment.limit_time');
+        if (!$nTimeLimit) {
+            return false;
+        }
+        return strtotime($this->getDate()) < time() - F::ToSeconds($nTimeLimit);
     }
 
 }

@@ -480,12 +480,17 @@ class ModuleTopic_EntityTopic extends Entity {
     /**
      * Возвращает полный URL до топика
      *
-     * @param   string|null  $sUrlMask  - еcли передан параметр, то формирует URL по этой маске
-     * @param   bool        $bFullUrl   - возвращать полный путь (или относительный, если false)
+     * @param   string|null $sUrlMask - еcли передан параметр, то формирует URL по этой маске
+     * @param   bool        $bFullUrl - возвращать полный путь (или относительный, если false)
      *
      * @return  string
      */
     public function getUrl($sUrlMask = null, $bFullUrl = true) {
+
+        $sKey = '-url-' . ($sUrlMask ? $sUrlMask : '') . ($bFullUrl ? '-1' : '-0');
+        if ($this->isProp($sKey)) {
+            return $this->getProp($sKey);
+        }
 
         if (!$sUrlMask) {
             $sUrlMask = Router::GetTopicUrlMask();
@@ -501,25 +506,26 @@ class ModuleTopic_EntityTopic extends Entity {
         // ЧПУ по маске
         $sCreateDate = strtotime($this->GetDateAdd());
         $aReplace = array(
-            '%year%'      => date('Y', $sCreateDate),
-            '%month%'     => date('m', $sCreateDate),
-            '%day%'       => date('d', $sCreateDate),
-            '%hour%'      => date('H', $sCreateDate),
-            '%minute%'    => date('i', $sCreateDate),
-            '%second%'    => date('s', $sCreateDate),
-            '%topic_id%'  => $this->GetId(),
-            '%topic_url%' => $this->GetTopicUrl(),
+            '%year%'       => date('Y', $sCreateDate),
+            '%month%'      => date('m', $sCreateDate),
+            '%day%'        => date('d', $sCreateDate),
+            '%hour%'       => date('H', $sCreateDate),
+            '%minute%'     => date('i', $sCreateDate),
+            '%second%'     => date('s', $sCreateDate),
+            '%topic_type%' => $this->GetTopicType(),
+            '%topic_id%'   => $this->GetId(),
+            '%topic_url%'  => $this->GetTopicUrl(),
+            '%login%'      => $this->GetUser()->GetLogin(),
+            '%blog_url%'   => $this->GetBlog()->GetUrl(),
         );
-
-        $aReplace['%login%'] = $this->GetUser()->GetLogin();
-
-        if ($this->GetBlog()->getType() == 'personal') {
-            $aReplace['%blog_url%'] = $this->GetUser()->GetLogin();
-        } else {
-            $aReplace['%blog_url%'] = $this->GetBlog()->GetUrl();
+        if (substr($sUrlMask, -1) == '%') {
+            $sUrlMask .= '/';
         }
 
-        return ($bFullUrl ? F::File_RootUrl() : '') . strtr($sUrlMask, $aReplace);
+        $sUrl = ($bFullUrl ? F::File_RootUrl() : '') . strtr($sUrlMask, $aReplace);
+        $this->setProp($sKey, $sUrl);
+
+        return $sUrl;
     }
 
     /**
@@ -530,6 +536,15 @@ class ModuleTopic_EntityTopic extends Entity {
     public function GetTitleTranslit() {
 
         return F::TranslitUrl($this->getTitle());
+    }
+
+    public function MakeTopicUrl() {
+
+        $sUrl = $this->GetTitleTranslit();
+        if (preg_match('/^\d+$/', $sUrl)) {
+            $sUrl = 't' . $sUrl;
+        }
+        return $sUrl;
     }
 
     /**
@@ -709,6 +724,19 @@ class ModuleTopic_EntityTopic extends Entity {
             }
         }
         return $this->Mresource_BuildMresourceHashList($aResources);
+    }
+
+    public function setTextLinks($xData) {
+
+        if (!is_array($xData)) {
+            $xData = array((string)$xData);
+        }
+        $this->setExtraValue('intext_links', $xData);
+    }
+
+    public function getTextLinks() {
+
+        return (array)$this->getExtraValue('intext_links');
     }
 
     /***************************************************************************************************************************************************
@@ -1323,7 +1351,7 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function setForbidComment($data) {
 
-        $this->setProp('topic_forbid_comment', $data);
+        $this->setProp('topic_forbid_comment', $data ? 1 : 0);
     }
 
     /**

@@ -9,7 +9,7 @@
 {block name="content-body"}
 
     <form method="POST" enctype="multipart/form-data" class="form-horizontal uniform">
-    <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+    <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
 
     <div class="b-wbox">
     <div class="b-wbox-header">
@@ -100,7 +100,7 @@
     <div class="b-wbox-content nopadding">
         <div class="form-actions">
             <button type="submit" class="btn btn-primary"
-                    name="submit_type_add">{$aLang.action.admin.content_submit}</button>
+                    name="submit_type_add">{$aLang.action.admin.save}</button>
             {if $sEvent=='add'}
                 <p><span class="help-block">{$aLang.action.admin.content_afteradd}</span></p>
             {/if}

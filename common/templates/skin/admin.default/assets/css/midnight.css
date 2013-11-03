@@ -168,7 +168,7 @@ table.no-border, table.no-border tr, table.no-border th, table.no-border td {
 }
 
 .b-sidebar-menu > li > a {
-	padding: 5px 0 5px 19px;
+	padding: 5px 0 5px 25px;
 	display: block;
 	color: #AAAAAA;
     position: relative;
@@ -1205,6 +1205,7 @@ form {
 	border-bottom: 1px solid #eeeeee;
 	margin-bottom: 0;
     padding-left: 10px;
+    padding-bottom: 4px;
     min-height: 50px;
 }
 .form-horizontal .control-group:last-child {
@@ -1221,9 +1222,9 @@ form {
 .form-horizontal input[type=text],
 .form-horizontal input[type=password],
 .form-horizontal textarea {
-	width: 80%;
-    padding-top: 4px;
-    padding-bottom: 4px;
+    width: 80%;
+    padding-top: 2px;
+    padding-bottom: 2px;
 }
 .form-horizontal input.i-inline {
     width: auto;
@@ -1379,6 +1380,12 @@ form {
     -moz-opacity: 0;
     -khtml-opacity: 0;
     opacity: 0;
+}
+
+.i-img-preview-100x100 {
+    max-height: 100px;
+    max-width: 100px;
+    border: 1px solid #CCC;
 }
 
 /* Responsive design */

@@ -44,7 +44,7 @@
         <div class="b-wbox-content nopadding">
             <form action="" method="POST" class="form-horizontal uniform" enctype="multipart/form-data">
                 {hook run='plugin_page_form_add_begin'}
-                <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+                <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
                 <input type="hidden" name="page_id" value="{$_aRequest.page_id}">
 
                 <div class="control-group">

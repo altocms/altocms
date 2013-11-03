@@ -37,7 +37,7 @@ class ModuleNotify_MapperNotify extends Mapper {
 				( ?, ?, ?, ?, ?, ?d )
 		";
 
-        if ($this->oDb->query(
+        $xResult = $this->oDb->query(
             $sql,
             $oNotifyTask->getUserLogin(),
             $oNotifyTask->getUserMail(),
@@ -45,11 +45,8 @@ class ModuleNotify_MapperNotify extends Mapper {
             $oNotifyTask->getNotifyText(),
             $oNotifyTask->getDateCreated(),
             $oNotifyTask->getTaskStatus()
-        ) === 0
-        ) {
-            return true;
-        }
-        return false;
+        );
+        return $xResult !== false;
     }
 
     /**
@@ -86,7 +83,7 @@ class ModuleNotify_MapperNotify extends Mapper {
 			VALUES 
 				" . implode(', ', $aValues);
 
-        return $this->oDb->query($sql);
+        return $this->oDb->query($sql) !== false;
     }
 
     /**
@@ -104,10 +101,7 @@ class ModuleNotify_MapperNotify extends Mapper {
 			WHERE
 				notify_task_id = ?d
 		";
-        if ($this->oDb->query($sql, $oNotifyTask->getTaskId())) {
-            return true;
-        }
-        return false;
+        return $this->oDb->query($sql, $oNotifyTask->getTaskId()) !== false;
     }
 
     /**

@@ -62,7 +62,7 @@
                 </div>
                 <div class="b-wbox-content -box nopadding">
                     <form class="form-horizontal uniform" action="" method="post">
-                        <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+                        <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
                         <input type="hidden" name="return_url" value="{$PATH_WEB_CURRENT|escape:'html'}"/>
                         {$aThemes=$oActiveSkin->GetThemes()}
                         {if $aThemes}
@@ -147,7 +147,7 @@
         {/foreach}
     </div>
     <form action="" method="post" id="form-skin-select">
-        <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+        <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
         <input type="hidden" name="return_url" value="{$PATH_WEB_CURRENT|escape:'html'}"/>
         <input type="hidden" name="skin_activate" value=""/>
     </form>

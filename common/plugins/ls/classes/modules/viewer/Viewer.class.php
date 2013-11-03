@@ -256,6 +256,14 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
 
         return $this->Fetch(Plugin::GetTemplateDir('PluginLs') . 'inc.form_topic_add_end.tpl');
     }
+
+    protected function InitTemplator() {
+
+        parent::InitTemplator();
+        $sDir = Plugin::GetDir('PluginLs') . '/classes/modules/viewer/plugs/';
+        $this->oSmarty->addPluginsDir($sDir);
+    }
+
 }
 
 // EOF

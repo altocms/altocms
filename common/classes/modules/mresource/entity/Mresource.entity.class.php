@@ -177,8 +177,14 @@ class ModuleMresource_EntityMresource extends Entity {
             } elseif (!$this->GetStorage()) {
                 $sResult = $this->GetHashUrl();
             }
+            $this->setProp('uuid', $sResult);
         }
         return $sResult;
+    }
+
+    public function GetStorageUuid() {
+
+        return '[' . $this->getStorage() . ']' . $this->GetUuid();
     }
 
     /**
@@ -207,7 +213,13 @@ class ModuleMresource_EntityMresource extends Entity {
 
     public function GetImgUrl($xSize) {
 
-        if (!$this->IsLink() || $this->IsType(ModuleMresource::TYPE_IMAGE)) {
+        $sPropKey = '-img-url-' . $xSize;
+        $sUrl = $this->getProp($sPropKey);
+        if ($sUrl) {
+            return $sUrl;
+        }
+
+        if (!$this->IsLink() && $this->IsType(ModuleMresource::TYPE_IMAGE)) {
             if (is_string($xSize)) {
                 $xSize = strtolower($xSize);
                 $aSize = explode('x', $xSize);
@@ -231,9 +243,22 @@ class ModuleMresource_EntityMresource extends Entity {
                 }
                 $sUrl .= '-' . $nW . 'x' . $nH . '.' . F::File_GetExtension($sUrl);
             }
-            return $sUrl;
+        } else {
+            $sUrl = $this->GetUrl();
         }
-        return null;
+        $this->setProp($sPropKey, $sUrl);
+
+        return $sUrl;
+    }
+
+    public function Exists() {
+
+        if ($this->GetStorage() == 'file') {
+            $sCheckUuid = '[file]' . $this->GetFile();
+        } else {
+            $sCheckUuid = $this->GetStorageUuid();
+        }
+        return $this->Uploader_Exists($sCheckUuid);
     }
 
 }

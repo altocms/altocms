@@ -1300,7 +1300,7 @@ class ModuleTopic_MapperTopic extends Mapper {
         )
         ) {
             foreach ($aRows as $aType) {
-                $aTypes[$aType['content_url']] = Engine::GetEntity('Topic_Content', $aType);
+                $aTypes[$aType['content_url']] = Engine::GetEntity('Topic_ContentType', $aType);
             }
         }
         return $aTypes;
@@ -1397,7 +1397,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 						content_id = ?d
 					";
         if ($aRow = $this->oDb->selectRow($sql, $nId)) {
-            return Engine::GetEntity('Topic_Content', $aRow);
+            return Engine::GetEntity('Topic_ContentType', $aRow);
         }
         return null;
     }
@@ -1420,7 +1420,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 						content_url = ?
 					";
         if ($aRow = $this->oDb->selectRow($sql, $sUrl)) {
-            return Engine::GetEntity('Topic_Content', $aRow);
+            return Engine::GetEntity('Topic_ContentType', $aRow);
         }
         return null;
     }

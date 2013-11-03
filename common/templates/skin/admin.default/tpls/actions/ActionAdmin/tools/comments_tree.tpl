@@ -11,7 +11,7 @@
 
     {if $bActionEnable}
         <form action="" method="post">
-            <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+            <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
 
             <div class="span12 b-form-actions">
 

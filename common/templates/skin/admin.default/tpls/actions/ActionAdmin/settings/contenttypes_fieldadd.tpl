@@ -25,7 +25,7 @@ function selectfield(f){
 
 
 <form action="" method="post" id="popup-login-form" class="form-horizontal uniform">
-	<input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}" />
+	<input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}" />
 		{*<input type="hidden" name="topic_type" value="{$oContentType->getContentId()}"/>*}
 
     <div class="b-wbox">

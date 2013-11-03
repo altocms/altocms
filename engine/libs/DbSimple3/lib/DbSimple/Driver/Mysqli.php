@@ -33,18 +33,34 @@ class DbSimple_Driver_Mysqli extends DbSimple_Database
 
 		try
 		{
-			$this->link = mysqli_init();
-
-			$this->link->options(MYSQLI_OPT_CONNECT_TIMEOUT,
-				isset($dsn['timeout']) && $dsn['timeout'] ? $dsn['timeout'] : 0);
-
-			$this->link->real_connect((isset($dsn['persist']) && $dsn['persist'])?'p:'.$dsn['host']:$dsn['host'],
-				$dsn['user'], isset($dsn['pass'])?$dsn['pass']:'', $base,
-				empty($dsn['port'])?NULL:$dsn['port'], NULL,
-				(isset($dsn['compression']) && $dsn['compression'])
-					? MYSQLI_CLIENT_COMPRESS : NULL);
-
-			$this->link->set_charset((isset($dsn['enc']) ? $dsn['enc'] : 'UTF8'));
+            $this->link = mysqli_init();
+            if (!$this->link) {
+                $this->_setLastError(-1, 'mysqli_init failed', 'new mysqli');
+            } else {
+                if (!$this->link->options(
+                    MYSQLI_OPT_CONNECT_TIMEOUT,
+                    isset($dsn['timeout']) && $dsn['timeout'] ? $dsn['timeout'] : 0
+                )) {
+                    $this->_setLastError($this->link->connect_errno, $this->link->connect_error, 'new mysqli');
+                } else {
+                    if (!$this->link->real_connect(
+                        (isset($dsn['persist']) && $dsn['persist']) ? 'p:' . $dsn['host'] : $dsn['host'],
+                        $dsn['user'],
+                        isset($dsn['pass']) ? $dsn['pass'] : '', $base,
+                        empty($dsn['port']) ? NULL : $dsn['port'],
+                        NULL,
+                        (isset($dsn['compression']) && $dsn['compression']) ? MYSQLI_CLIENT_COMPRESS : NULL
+                    )) {
+                        $this->_setLastError($this->link->connect_errno, $this->link->connect_error, 'new mysqli');
+                    } else {
+                        if (!$this->link->set_charset((isset($dsn['enc']) ? $dsn['enc'] : 'UTF8'))) {
+                            $this->_setLastError($this->link->connect_errno, $this->link->connect_error, 'new mysqli');
+                        } else {
+                            $this->isMySQLnd = method_exists('mysqli_result', 'fetch_all');
+                        }
+                    }
+                }
+            }
 
 			$this->isMySQLnd = method_exists('mysqli_result', 'fetch_all');
 		}

@@ -28,7 +28,7 @@
 
 {block name="content-body"}
     <form action="" method="POST" class="form-horizontal uniform" enctype="multipart/form-data">
-        <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+        <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
 
         <div class="b-wbox">
             <div class="b-wbox-content nopadding">

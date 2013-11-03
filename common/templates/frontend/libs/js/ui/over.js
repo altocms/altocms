@@ -72,6 +72,7 @@ var ls = ls || {};
     };
 
     Over.initPluginElements = function (type, elements, options, variable, value) {
+        var returnValue;
         elements.each(function () {
             var element = $(this),
                 object = element.data('object');

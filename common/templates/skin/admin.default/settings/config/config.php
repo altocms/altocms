@@ -1,6 +1,6 @@
 <?php
 
-$config['path']['smarty']['template'] = array(
+$config['smarty']['dir']['templates'] = array(
     'themes' => '___path.skins.dir___/___view.skin___/themes/',
     'tpls'   => '___path.skins.dir___/___view.skin___/tpls/',
 );
@@ -24,7 +24,7 @@ $config['head']['default']['css'] = array(
 );
 
 $config['head']['default']['js'] = array(
-    '___path.frontend.url___/libs/js/vendor/jquery-1.9.1.min.js' => array('name' => 'jquery', 'asset' => 'mini'),
+    '___path.frontend.url___/libs/js/vendor/jquery-1.10.2.min.js' => array('name' => 'jquery', 'asset' => 'mini'),
     '___path.frontend.url___/libs/js/vendor/jquery-migrate-1.2.1.min.js' => array('asset' => 'mini'),
     '___path.frontend.url___/libs/js/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js' => array('asset' => 'mini'),
     '___path.frontend.url___/libs/js/vendor/jquery-ui/js/localization/jquery-ui-datepicker-ru.js',

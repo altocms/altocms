@@ -9,7 +9,7 @@
 
 {block name="content-body"}
 <form action="{router page='admin'}settings-blogtypes/" method="post" id="form_blogtype_list" class="uniform">
-    <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+    <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
     <input type="hidden" name="blogtype_action" value="">
     <div class="b-wbox">
         <div class="b-wbox-content nopadding">
@@ -21,6 +21,8 @@
                     <th class="span1">ID</th>
                     <th class="span2">{$aLang.action.admin.blogtypes_typecode}</th>
                     <th>{$aLang.action.admin.blogtypes_name}</th>
+                    <th>{$aLang.action.admin.blogtypes_acl_title}</th>
+                    <th>{$aLang.action.admin.blogtypes_contenttypes}</th>
                     <th class="span2">{$aLang.action.admin.content_status}</th>
                     <th class="span2">{$aLang.action.admin.content_actions}</th>
                 </tr>
@@ -36,12 +38,59 @@
                             {$oBlogType->getId()}
                         </td>
                         <td>
-                            {$oBlogType->getTypeCode()}
+                            <a href="{router page='admin'}content-blogs/list/{$oBlogType->getTypeCode()}">
+                                {$oBlogType->getTypeCode()}
+                            </a>
                         </td>
                         <td>
                             {foreach $aLangList as $sLang}
                                 [ <strong>{$sLang}</strong> ] {$oBlogType->getName($sLang)|escape:'html'}<br/>
                             {/foreach}
+                        </td>
+                        <td>
+                            <div>
+                            W:
+                            {if $oBlogType->GetAclWrite()==0}
+                                {$aLang.action.admin.blogtypes_acl_owner}
+                            {elseif $oBlogType->GetAclWrite(ModuleBlog::BLOG_USER_ACL_MEMBER)}
+                                {$aLang.action.admin.blogtypes_acl_members} ({$oBlogType->GetMinRateWrite()})
+                            {elseif $oBlogType->GetAclWrite(ModuleBlog::BLOG_USER_ACL_USER)}
+                                {$aLang.action.admin.blogtypes_acl_users} ({$oBlogType->GetMinRateWrite()})
+                            {elseif $oBlogType->GetAclWrite(ModuleBlog::BLOG_USER_ACL_GUEST)}
+                                {$aLang.action.admin.blogtypes_acl_guests}
+                            {/if}
+                            </div>
+                            <div>
+                            R:
+                            {if $oBlogType->GetAclRead()==0}
+                                {$aLang.action.admin.blogtypes_acl_owner}
+                            {elseif $oBlogType->GetAclRead(ModuleBlog::BLOG_USER_ACL_MEMBER)}
+                                {$aLang.action.admin.blogtypes_acl_members} ({$oBlogType->GetMinRateRead()})
+                            {elseif $oBlogType->GetAclRead(ModuleBlog::BLOG_USER_ACL_USER)}
+                                {$aLang.action.admin.blogtypes_acl_users} ({$oBlogType->GetMinRateRead()})
+                            {elseif $oBlogType->GetAclRead(ModuleBlog::BLOG_USER_ACL_GUEST)}
+                                {$aLang.action.admin.blogtypes_acl_guests}
+                            {/if}
+                            </div>
+                            <div>
+                            C:
+                            {if $oBlogType->GetAclComment()==0}
+                                {$aLang.action.admin.blogtypes_acl_owner}
+                            {elseif $oBlogType->GetAclComment(ModuleBlog::BLOG_USER_ACL_MEMBER)}
+                                {$aLang.action.admin.blogtypes_acl_members} ({$oBlogType->GetMinRateComment()})
+                            {elseif $oBlogType->GetAclComment(ModuleBlog::BLOG_USER_ACL_USER)}
+                                {$aLang.action.admin.blogtypes_acl_users} ({$oBlogType->GetMinRateComment()})
+                            {elseif $oBlogType->GetAclComment(ModuleBlog::BLOG_USER_ACL_GUEST)}
+                                {$aLang.action.admin.blogtypes_acl_guests}
+                            {/if}
+                            </div>
+                        </td>
+                        <td class="center">
+                            {if !$oBlogType->GetContentType()}
+                                {$aLang.action.admin.blogtypes_contenttypes_any}
+                            {else}
+                                {$oBlogType->GetContentType()}
+                            {/if}
                         </td>
                         <td class="center">
                             <div class="b-switch"

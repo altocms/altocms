@@ -36,8 +36,6 @@ class ModuleViewer extends Module {
      */
     protected $oSmarty;
 
-    protected $aPresetTemplateDirs = array();
-
     /**
      * Коллекция(массив) виджетов
      *
@@ -143,6 +141,13 @@ class ModuleViewer extends Module {
     protected $aHtmlHeadTags = array();
 
     /**
+     * Переменные для передачи в шаблон
+     *
+     * @var array
+     */
+    protected $aVarsTemplate = array();
+
+    /**
      * Переменные для отдачи при ajax запросе
      *
      * @var array
@@ -226,17 +231,7 @@ class ModuleViewer extends Module {
 
         $this->bLocal = (bool)$bLocal;
 
-        // * Создаём объект Smarty
-        $this->oSmarty = $this->CreateSmartyObject();
-
         $this->InitSkin($this->bLocal);
-
-        // * Устанавливаем необходимые параметры для Smarty
-        $this->oSmarty->compile_check = Config::Get('smarty.compile_check');
-        $this->oSmarty->force_compile = Config::Get('smarty.force_compile');
-
-        // * Подавляем NOTICE ошибки - в этом вся прелесть смарти )
-        $this->oSmarty->error_reporting = error_reporting() & ~E_NOTICE;
 
         // * Заголовок HTML страницы
         $this->sHtmlTitle = Config::Get('view.name');
@@ -253,12 +248,66 @@ class ModuleViewer extends Module {
         $this->sCacheDir = Config::Get('path.runtime.dir');
     }
 
+    /**
+     * Инициализация шаблонизатора
+     *
+     */
+    protected function InitTemplator() {
+
+        // * Создаём объект Smarty
+        $this->oSmarty = $this->CreateSmartyObject();
+
+        // * Устанавливаем необходимые параметры для Smarty
+        $this->oSmarty->compile_check = (bool)Config::Get('smarty.compile_check');
+        $this->oSmarty->force_compile = (bool)Config::Get('smarty.force_compile');
+        $this->oSmarty->merge_compiled_includes = (bool)Config::Get('smarty.merge_compiled_includes');
+
+        // * Подавляем NOTICE ошибки - в этом вся прелесть смарти )
+        $this->oSmarty->error_reporting = error_reporting() & ~E_NOTICE;
+
+        // * Папки расположения шаблонов по умолчанию
+        $this->oSmarty->setTemplateDir(F::File_NormPath(F::Str2Array(Config::Get('path.smarty.template'))));
+        if (Config::Get('smarty.dir.templates')) {
+            $this->oSmarty->addTemplateDir(F::File_NormPath(F::Str2Array(Config::Get('smarty.dir.templates'))));
+        }
+
+        // * Для каждого скина устанавливаем свою директорию компиляции шаблонов
+        $sCompilePath = F::File_NormPath(Config::Get('path.smarty.compiled'));
+        F::File_CheckDir($sCompilePath);
+        $this->oSmarty->setCompileDir($sCompilePath);
+        $this->oSmarty->setCacheDir(Config::Get('path.smarty.cache'));
+
+        // * Папки расположения пдагинов Smarty
+        $this->oSmarty->addPluginsDir(array(Config::Get('path.smarty.plug'), 'plugins'));
+        if (Config::Get('smarty.dir.plugins')) {
+            $this->oSmarty->addPluginsDir(F::File_NormPath(F::Str2Array(Config::Get('smarty.dir.plugins'))));
+        }
+
+        $this->oSmarty->default_template_handler_func = array($this, 'SmartyDefaultTemplateHandler');
+
+        // * Параметры кеширования, если заданы
+        if (Config::Get('smarty.cache_lifetime')) {
+            $this->oSmarty->caching = Smarty::CACHING_LIFETIME_SAVED;
+            $this->oSmarty->cache_lifetime = F::ToSeconds(Config::Get('smarty.cache_lifetime'));
+        }
+
+        // Переносим накопленные переменные в шаблон
+        foreach ($this->aVarsTemplate as $sName => $xValue) {
+            $this->_assignTpl($sName, $xValue);
+            unset($this->aVarsTemplate[$sName]);
+        }
+    }
+
+    /**
+     * Инициализация скина
+     *
+     * @param bool $bLocal
+     */
     protected function InitSkin($bLocal = false) {
 
         $this->sSkin = Config::Get('view.skin');
         if (!$bLocal) {
             // * Load skin config
-            $s = Config::Get('view.skin');
             $aConfig = Config::Get('skin.' . $this->sSkin . '.config');
             if (F::File_Exists($sFile = Config::Get('path.smarty.template') . '/settings/config/config.php')) {
                 $aConfig = F::Array_Merge(F::IncludeFile($sFile, false, true), $aConfig);
@@ -275,27 +324,6 @@ class ModuleViewer extends Module {
                     Config::Set('widgets', $aWidgets);
                 }
             }
-        }
-
-        // * Папки расположения шаблонов по умолчанию
-        if (Config::Get('path.smarty.template_seek')) {
-            $this->oSmarty->setTemplateDir(F::File_NormPath(F::Str2Array(Config::Get('path.smarty.template_seek'))));
-        } else {
-            $this->oSmarty->setTemplateDir(F::File_NormPath(F::Str2Array(Config::Get('path.smarty.template'))));
-        }
-
-        // * Для каждого скина устанавливаем свою директорию компиляции шаблонов
-        $sCompilePath = F::File_NormPath(Config::Get('path.smarty.compiled'));
-        F::File_CheckDir($sCompilePath);
-        $this->oSmarty->setCompileDir($sCompilePath);
-        $this->oSmarty->setCacheDir(Config::Get('path.smarty.cache'));
-        $this->oSmarty->addPluginsDir(array(Config::Get('path.smarty.plug'), 'plugins'));
-        $this->oSmarty->default_template_handler_func = array($this, 'SmartyDefaultTemplateHandler');
-
-        // * Параметры кеширования, если заданы
-        if (Config::Get('smarty.cache_lifetime')) {
-            $this->oSmarty->caching = Smarty::CACHING_LIFETIME_SAVED;
-            $this->oSmarty->cache_lifetime = F::ToSeconds(Config::Get('smarty.cache_lifetime'));
         }
 
         // * Загружаем локализованные тексты
@@ -324,8 +352,8 @@ class ModuleViewer extends Module {
 
         $oViewerLocal = new $sClass(Engine::getInstance());
         $oViewerLocal->Init(true);
-        $oViewerLocal->VarAssign();
         $oViewerLocal->Assign('aLang', $this->Lang_GetLangMsg());
+        $oViewerLocal->VarAssign();
         return $oViewerLocal;
     }
 
@@ -337,9 +365,7 @@ class ModuleViewer extends Module {
     public function GetSmartyVersion() {
 
         $sSmartyVersion = null;
-        if (property_exists($this->oSmarty, '_version')) {
-            $sSmartyVersion = $this->oSmarty->_version;
-        } elseif (defined('Smarty::SMARTY_VERSION')) {
+        if (defined('Smarty::SMARTY_VERSION')) {
             $sSmartyVersion = Smarty::SMARTY_VERSION;
         }
         return $sSmartyVersion;
@@ -370,15 +396,24 @@ class ModuleViewer extends Module {
      */
     public function VarAssign() {
 
+        if (!$this->oSmarty) {
+            $this->InitTemplator();
+        }
+
+        foreach ($this->aVarsTemplate as $sName => $xValue) {
+            $this->_assignTpl($sName, $xValue);
+            unset($this->aVarsTemplate[$sName]);
+        }
+
         // * Загружаем весь $_REQUEST, предварительно обработав его функцией func_htmlspecialchars()
         $aRequest = $_REQUEST;
         F::HtmlSpecialChars($aRequest);
-        $this->Assign('_aRequest', $aRequest);
+        $this->_assignTpl('_aRequest', $aRequest);
 
         // * Параметры стандартной сессии
         // TODO: Убрать! Не должно этого быть на страницах сайта
-        $this->Assign('_sPhpSessionName', session_name());
-        $this->Assign('_sPhpSessionId', session_id());
+        $this->_assignTpl('_sPhpSessionName', session_name());
+        $this->_assignTpl('_sPhpSessionId', session_id());
 
         // * Загружаем объект доступа к конфигурации
         // * Перенесено в PluginLs_Viewer
@@ -395,25 +430,25 @@ class ModuleViewer extends Module {
         foreach ($aPages as $sPage => $aAction) {
             $aRouter[$sPage] = Router::GetPath($sPage);
         }
-        $this->Assign('aRouter', $aRouter);
+        $this->_assignTpl('aRouter', $aRouter);
 
         // * Загружаем виджеты
-        $this->Assign('aWidgets', $this->GetWidgets());
+        $this->_assignTpl('aWidgets', $this->GetWidgets());
 
         // * Загружаем HTML заголовки
-        $this->Assign('sHtmlTitle', htmlspecialchars($this->sHtmlTitle));
-        $this->Assign('sHtmlKeywords', htmlspecialchars($this->sHtmlKeywords));
-        $this->Assign('sHtmlDescription', htmlspecialchars($this->sHtmlDescription));
-        $this->Assign('aHtmlHeadFiles', $this->aHtmlHeadFiles);
-        $this->Assign('aHtmlRssAlternate', $this->aHtmlRssAlternate);
-        $this->Assign('sHtmlCanonical', $this->sHtmlCanonical);
-        $this->Assign('aHtmlHeadTags', $this->aHtmlHeadTags);
+        $this->_assignTpl('sHtmlTitle', htmlspecialchars($this->sHtmlTitle));
+        $this->_assignTpl('sHtmlKeywords', htmlspecialchars($this->sHtmlKeywords));
+        $this->_assignTpl('sHtmlDescription', htmlspecialchars($this->sHtmlDescription));
+        $this->_assignTpl('aHtmlHeadFiles', $this->aHtmlHeadFiles);
+        $this->_assignTpl('aHtmlRssAlternate', $this->aHtmlRssAlternate);
+        $this->_assignTpl('sHtmlCanonical', $this->sHtmlCanonical);
+        $this->_assignTpl('aHtmlHeadTags', $this->aHtmlHeadTags);
 
-        $this->Assign('aJsAssets', $this->ViewerAsset_GetPreparedAssetLinks());
+        $this->_assignTpl('aJsAssets', $this->ViewerAsset_GetPreparedAssetLinks());
 
         // * Загружаем список активных плагинов
         $aPlugins = $this->oEngine->GetPlugins();
-        $this->Assign('aPluginActive', array_fill_keys(array_keys($aPlugins), true));
+        $this->_assignTpl('aPluginActive', array_fill_keys(array_keys($aPlugins), true));
 
         // * Загружаем пути до шаблонов плагинов
         $aTemplateWebPathPlugin = array();
@@ -426,8 +461,8 @@ class ModuleViewer extends Module {
         }
         if (E::ActivePlugin('ls')) {
             // LS-compatible //
-            $this->Assign('aTemplateWebPathPlugin', $aTemplateWebPathPlugin);
-            $this->Assign('aTemplatePathPlugin', $aTemplatePathPlugin);
+            $this->_assignTpl('aTemplateWebPathPlugin', $aTemplateWebPathPlugin);
+            $this->_assignTpl('aTemplatePathPlugin', $aTemplatePathPlugin);
         }
 
         $sSkinTheme = Config::Get('view.theme');
@@ -438,7 +473,7 @@ class ModuleViewer extends Module {
         if ($this->CheckTheme($sSkinTheme)) {
             $this->oSmarty->compile_id = $sSkinTheme;
         }
-        $this->Assign('sSkinTheme', $sSkinTheme);
+        $this->_assignTpl('sSkinTheme', $sSkinTheme);
     }
 
     /**
@@ -468,6 +503,9 @@ class ModuleViewer extends Module {
          * Но предварительно проверяем наличие делегата
          */
         if ($sTemplate) {
+            if (!$this->oSmarty) {
+                $this->InitTemplator();
+            }
             $sTemplate = $this->Plugin_GetDelegate('template', $sTemplate);
             if ($this->TemplateExists($sTemplate, true)) {
                 // Установка нового secret key непосредственно перед рендерингом
@@ -491,6 +529,10 @@ class ModuleViewer extends Module {
      * @return  string
      */
     public function Fetch($sTemplate, $aOptions = array()) {
+
+        if (!$this->oSmarty) {
+            $this->InitTemplator();
+        }
 
         // * Проверяем наличие делегата
         $sTemplate = $this->Plugin_GetDelegate('template', $sTemplate);
@@ -710,17 +752,6 @@ class ModuleViewer extends Module {
     }
 
     /**
-     * Загружает переменную в шаблон
-     *
-     * @param string $sName    Имя переменной в шаблоне
-     * @param mixed $value    Значение переменной
-     */
-    public function Assign($sName, $value) {
-
-        $this->oSmarty->assign($sName, $value);
-    }
-
-    /**
      * Загружаем переменную в ajax ответ
      *
      * @param string $sName    Имя переменной в шаблоне
@@ -729,6 +760,32 @@ class ModuleViewer extends Module {
     public function AssignAjax($sName, $value) {
 
         $this->aVarsAjax[$sName] = $value;
+    }
+
+    /**
+     * Загружает переменную в шаблон
+     *
+     * @param string $sName  - Имя переменной в шаблоне
+     * @param mixed  $xValue - Значение переменной
+     */
+    protected function _assignTpl($sName, $xValue) {
+
+        $this->oSmarty->assign($sName, $xValue);
+    }
+
+    /**
+     * Присваивает значение переменной шаблона
+     *
+     * @param string $sName  - Имя переменной шаблона
+     * @param mixed  $xValue - Значение переменной
+     */
+    public function Assign($sName, $xValue) {
+
+        if ($this->oSmarty) {
+            $this->_assignTpl($sName, $xValue);
+        } else {
+            $this->aVarsTemplate[$sName] = $xValue;
+        }
     }
 
     /**
@@ -741,6 +798,9 @@ class ModuleViewer extends Module {
      */
     public function TemplateExists($sTemplate, $bException = false) {
 
+        if (!$this->oSmarty) {
+            $this->InitTemplator();
+        }
         $bResult = $this->oSmarty->templateExists($sTemplate);
         if (!$bResult && $bException) {
             $sMessage = 'Can not find the template "' . $sTemplate . '" in skin "' . Config::Get('view.skin') . '"';
@@ -1577,8 +1637,8 @@ class ModuleViewer extends Module {
      */
     public function ClearSmartyFiles() {
 
-        $this->oSmarty->clearCompiledTemplate();
-        $this->oSmarty->clearAllCache();
+        F::File_ClearDir(Config::Get('path.smarty.compiled'));
+        F::File_ClearDir(Config::Get('path.smarty.cache'));
         F::File_ClearDir(Config::Get('path.tmp.dir') . '/templates/');
     }
 
@@ -1600,11 +1660,17 @@ class ModuleViewer extends Module {
             $this->InitSkin($this->bLocal);
         }
 
+        if (!$this->oSmarty) {
+            $this->InitTemplator();
+        }
+
         // * Создаются списки виджетов для вывода
         $this->MakeWidgetsLists();
 
         // * Добавляем JS и CSS по предписанным правилам
         $this->BuildHeadFiles();
+
+        // * Передача переменных в шаблон
         $this->VarAssign();
 
         // * Рендерим меню для шаблонов и передаем контейнеры в шаблон

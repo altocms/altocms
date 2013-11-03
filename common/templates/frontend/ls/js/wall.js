@@ -121,7 +121,7 @@ ls.wall = (function ($) {
 	};
 
 	this.loadReplyNew = function(iPid) {
-		var divFirst=$('#wall-reply-container-'+iPid).find('.js-wall-reply-item::last');
+		var divFirst=$('#wall-reply-container-'+iPid).find('.js-wall-reply-item:last');
 		if (divFirst.length) {
 			var idMore=divFirst.attr('id').replace('wall-reply-item-','');
 		} else {

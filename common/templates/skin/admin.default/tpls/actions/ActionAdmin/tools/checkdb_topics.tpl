@@ -33,7 +33,7 @@
                     </tbody>
                 </table>
                 <form method="post">
-                    <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+                    <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
                     <input type="hidden" name="do_action" value="clear_topics_co"/>
                     <button class="btn {if $aCommentsOnlineTopics}btn-primary{else} disabled{/if}">{$aLang.action.admin.checkdb_clear_unlinked_comments}</button>
                 </form>

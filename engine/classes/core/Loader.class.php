@@ -80,6 +80,7 @@ class Loader {
             Config::Get('lang.current'),
             array('local' => Config::Get('i18n.locale'), 'timezone' => Config::Get('i18n.timezone'))
         );
+        Config::Set('i18n', UserLocale::getLocale());
 
         F::IncludeFile((Config::Get('path.dir.engine') . '/classes/core/Engine.class.php'));
     }
@@ -201,18 +202,18 @@ class Loader {
     static protected function _checkRequiredDirs() {
 
         if (!F::File_CheckDir(Config::Get('path.dir.app'), false)) {
-            die('Application folder "' . F::LocalDir(Config::Get('path.dir.app')) . '" does not exist');
+            die('Application folder "' . F::File_LocalDir(Config::Get('path.dir.app')) . '" does not exist');
         }
         if (!F::File_CheckDir(Config::Get('path.tmp.dir'), false)) {
-            die('Required folder "' . F::LocalDir(Config::Get('path.tmp.dir')) . '" does not exist');
+            die('Required folder "' . F::File_LocalDir(Config::Get('path.tmp.dir')) . '" does not exist');
         }
         if (!F::File_CheckDir(Config::Get('path.runtime.dir'), false)) {
-            die('Required folder "' . F::LocalDir(Config::Get('path.runtime.dir')) . '" does not exist');
+            die('Required folder "' . F::File_LocalDir(Config::Get('path.runtime.dir')) . '" does not exist');
         }
     }
 
     /**
-     * Автоопределение класса или фала экшена
+     * Автоопределение класса или файла экшена
      *
      * @param   string      $sAction
      * @param   string|null $sEvent
@@ -247,13 +248,17 @@ class Loader {
         }
     }
 
-    static protected function _includeFile($sFile) {
+    static protected function _includeFile($sFile, $sCheckClassname = null) {
 
         if (class_exists('F', false)) {
-            return F::IncludeFile($sFile);
+            $xResult = F::IncludeFile($sFile);
         } else {
-            return include_once $sFile;
+            $xResult = include_once $sFile;
         }
+        if ($sCheckClassname) {
+            return class_exists($sCheckClassname, false);
+        }
+        return $xResult;
     }
 
     /**
@@ -279,7 +284,7 @@ class Loader {
                     return true;
                 }
             } elseif ($aInfo[Engine::CI_CLASSPATH]) {
-                return self::_includeFile($aInfo[Engine::CI_CLASSPATH]);
+                return self::_includeFile($aInfo[Engine::CI_CLASSPATH], $sClassName);
             }
         }
         if (self::_autoloadPSR0($sClassName)) {
@@ -303,7 +308,7 @@ class Loader {
                 $sFile = isset($sFile['file']) ? $sFile['file'] : null;
             }
             if ($sFile) {
-                return self::_includeFile($sFile);
+                return self::_includeFile($sFile, $sClassName);
             }
         }
         // May be Namespace_Package or Namespace\Package
@@ -324,7 +329,7 @@ class Loader {
                     if ($sPath) {
                         if (isset($aOptions['classmap'][$sClassName])) {
                             $sFile = $sPath . '/' . $aOptions['classmap'][$sClassName];
-                            return self::_includeFile($sFile);
+                            return self::_includeFile($sFile, $sClassName);
                         }
                         return self::_autoloadPSR0($sClassName, $sPath);
                     }
@@ -362,9 +367,9 @@ class Loader {
                 return false;
             }
             if ($sFile = F::File_Exists($sClassName . '.php', $sPath)) {
-                return self::_includeFile($sFile);
+                return self::_includeFile($sFile, $sClassName);
             } elseif ($sFile = F::File_Exists($sClassName . '.class.php', $sPath)) {
-                return self::_includeFile($sFile);
+                return self::_includeFile($sFile, $sClassName);
             }
         }
         self::$_aFailedClasses[$sCheckKey] = false;

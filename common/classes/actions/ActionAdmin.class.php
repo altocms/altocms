@@ -77,7 +77,7 @@ class ActionAdmin extends Action {
         $this->AddEvent('site-widgets', 'EventWidgets');
         $this->AddEvent('site-plugins', 'EventPlugins');
 
-        $this->AddEvent('logs-logs', 'EventLogs');
+        $this->AddEvent('logs-error', 'EventLogs');
         $this->AddEvent('logs-sqlerror', 'EventLogs');
         $this->AddEvent('logs-sqllog', 'EventLogs');
 
@@ -1295,6 +1295,8 @@ class ActionAdmin extends Action {
         $this->Viewer_Assign('aPaging', $aPaging);
     }
 
+    /**********************************************************************************/
+
     /**
      * View and managment of Mresources
      */
@@ -1305,7 +1307,7 @@ class ActionAdmin extends Action {
 
         $sCmd = $this->GetPost('cmd');
         if ($sCmd == 'delete') {
-            $this->_commentDelete();
+            $this->_eventMresourcesDelete();
         }
 
         // * Передан ли номер страницы
@@ -1314,12 +1316,41 @@ class ActionAdmin extends Action {
         $aFilter = array(
             //'type' => ModuleMresource::TYPE_IMAGE,
         );
-        $aResult = $this->Mresource_GetMresourcesByFilter($aFilter, $nPage, Config::Get('admin.items_per_page'));
+        $aCriteria = array(
+            'fields' => array('mr.*', 'targets_count'),
+            'filter' => $aFilter,
+            'limit'  => array(($nPage - 1) * Config::Get('admin.items_per_page'), Config::Get('admin.items_per_page')),
+            'with'   => array('user'),
+        );
+        $aResult = $this->Mresource_GetMresourcesByCriteria($aCriteria);
+
         $aPaging = $this->Viewer_MakePaging($aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4,
             Router::GetPath('admin') . 'content-mresources/');
 
+        $this->Lang_AddLangJs(
+            array(
+                 'action.admin.mresource_delete_confirm',
+                 'action.admin.mresource_will_be_delete',
+            )
+        );
+
         $this->Viewer_Assign('aMresources', $aResult['collection']);
         $this->Viewer_Assign('aPaging', $aPaging);
+    }
+
+    /**
+     * @return bool
+     */
+    protected function _eventMresourcesDelete() {
+
+        if ($iMresourceId = $this->GetPost('mresource_id')) {
+            if ($this->Mresource_DeleteMresources($iMresourceId)) {
+                $this->Message_AddNotice($this->Lang_Get('action.admin.mresource_deleted'));
+                return true;
+            }
+        }
+        $this->Message_AddError($this->Lang_Get('action.admin.mresource_not_deleted'));
+        return false;
     }
 
     /**********************************************************************************/
@@ -2027,13 +2058,11 @@ class ActionAdmin extends Action {
      */
     protected function EventLogs() {
 
-        $sMode = $this->GetParam(0);
-        if ($sMode == 'sqlerrors') {
+        if ($this->sCurrentEvent == 'logs-sqlerror') {
             $sLogFile = Config::Get('sys.logs.dir') . Config::Get('sys.logs.sql_error_file');
-        } elseif ($sMode == 'sql') {
+        } elseif ($this->sCurrentEvent == 'logs-sqllog') {
             $sLogFile = Config::Get('sys.logs.dir') . Config::Get('sys.logs.sql_query_file');
         } else {
-            $sMode = 'errors';
             $sLogFile = Config::Get('sys.logs.dir') . F::ERROR_LOG;
         }
 
@@ -2042,11 +2071,11 @@ class ActionAdmin extends Action {
         }
 
         $sLogTxt = F::File_GetContents($sLogFile);
-        if ($sMode == 'sqlerrors') {
+        if ($this->sCurrentEvent == 'logs-sqlerror') {
             $this->_setTitle($this->Lang_Get('action.admin.logs_sql_errors_title'));
             $this->SetTemplateAction('logs/sql_errors');
             $this->_eventLogsSqlErrors($sLogTxt);
-        } elseif ($sMode == 'sql') {
+        } elseif ($this->sCurrentEvent == 'logs-sqllog') {
             $this->_setTitle($this->Lang_Get('action.admin.logs_sql_title'));
             $this->SetTemplateAction('logs/sql_log');
             $this->_eventLogsSql($sLogTxt);
@@ -2056,7 +2085,6 @@ class ActionAdmin extends Action {
             $this->_eventLogsErrors($sLogTxt);
         }
 
-        $this->Viewer_Assign('sMode', $sMode);
         $this->Viewer_Assign('sLogTxt', $sLogTxt);
     }
 
@@ -2490,7 +2518,7 @@ class ActionAdmin extends Action {
     protected function _eventBlogTypesAdd() {
 
         $this->_setTitle($this->Lang_Get('action.admin.blogtypes_menu'));
-        $this->SetTemplateAction('settings/blogtypes_add');
+        $this->SetTemplateAction('settings/blogtypes_edit');
 
         $aLangList = $this->Lang_GetLangList();
         $this->Viewer_Assign('aLangList', $aLangList);
@@ -2525,7 +2553,7 @@ class ActionAdmin extends Action {
     protected function _eventBlogTypesEdit() {
 
         $this->_setTitle($this->Lang_Get('action.admin.blogtypes_menu'));
-        $this->SetTemplateAction('settings/blogtypes_add');
+        $this->SetTemplateAction('settings/blogtypes_edit');
 
         $nBlogTypeId = intval($this->getParam(1));
         if ($nBlogTypeId) {
@@ -2622,30 +2650,17 @@ class ActionAdmin extends Action {
                 $oBlogType->SetActive($this->GetPost('blogtypes_active'));
                 $oBlogType->SetContentType($this->GetPost('blogtypes_contenttype'));
 
-                $nAclAll = ~(ModuleBlog::BLOG_USER_ACL_GUEST | ModuleBlog::BLOG_USER_ACL_USER | ModuleBlog::BLOG_USER_ACL_MEMBER);
+                // Установка прав на запись
+                $nAclValue = intval($this->GetPost('blogtypes_acl_write'));
+                $oBlogType->SetAclWrite($nAclValue);
 
-                $nAclValue = $this->GetPost('blogtypes_acl_write');
-                if (!$nAclValue) {
-                    // Сброс битовой маски
-                    $oBlogType->SetAclWrite($oBlogType->GetAclWrite() & ~$nAclAll);
-                } else {
-                    // Установка битового значения
-                    $oBlogType->SetAclWrite($oBlogType->GetAclWrite() | $nAclValue);
-                }
+                // Установка прав на чтение
+                $nAclValue = intval($this->GetPost('blogtypes_acl_read'));
+                $oBlogType->SetAclRead($nAclValue);
 
-                $nAclValue = $this->GetPost('blogtypes_acl_read');
-                if (!$nAclValue) {
-                    $oBlogType->SetAclRead($oBlogType->GetAclRead() & ~$nAclAll);
-                } else {
-                    $oBlogType->SetAclRead($oBlogType->GetAclRead() | $nAclValue);
-                }
-
-                $nAclValue = $this->GetPost('blogtypes_acl_comment');
-                if (!$nAclValue) {
-                    $oBlogType->SetAclComment($oBlogType->GetAclComment() & ~$nAclAll);
-                } else {
-                    $oBlogType->SetAclComment($oBlogType->GetAclComment() | $nAclValue);
-                }
+                // Установка прав на комментирование
+                $nAclValue = intval($this->GetPost('blogtypes_acl_comment'));
+                $oBlogType->SetAclComment($nAclValue);
 
                 $this->Hook_Run('blogtype_edit_validate_before', array('oBlogType' => $oBlogType));
                 if ($oBlogType->_Validate()) {
@@ -2977,7 +2992,7 @@ class ActionAdmin extends Action {
     protected function EventContentTypesAdd() {
 
         $this->_setTitle($this->Lang_Get('action.admin.contenttypes_add_title'));
-        $this->SetTemplateAction('settings/contenttypes_add');
+        $this->SetTemplateAction('settings/contenttypes_edit');
 
         // * Вызов хуков
         $this->Hook_Run('topic_type_add_show');
@@ -3002,7 +3017,7 @@ class ActionAdmin extends Action {
             return false;
         }
 
-        $oContentType = Engine::GetEntity('Topic_Content');
+        $oContentType = Engine::GetEntity('Topic_ContentType');
         $oContentType->setContentTitle(getRequest('content_title'));
         $oContentType->setContentTitleDecl(getRequest('content_title_decl'));
         $oContentType->setContentUrl(getRequest('content_url'));
@@ -3033,7 +3048,7 @@ class ActionAdmin extends Action {
 
         // * Устанавливаем шаблон вывода
         $this->_setTitle($this->Lang_Get('action.admin.contenttypes_edit_title'));
-        $this->SetTemplateAction('settings/contenttypes_add');
+        $this->SetTemplateAction('settings/contenttypes_edit');
 
         if (getRequest('fieldadd')) {
             $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success_fieldadd'));

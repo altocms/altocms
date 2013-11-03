@@ -1,9 +1,9 @@
 <!doctype html>
 
-<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="ru"> <![endif]-->
-<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="ru"> <![endif]-->
-<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="ru"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="ru"> <!--<![endif]-->
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="{Config::Get('i18n.lang')}" dir="{Config::Get('i18n.dir')}"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="{Config::Get('i18n.lang')}" dir="{Config::Get('i18n.dir')}"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="{Config::Get('i18n.lang')}" dir="{Config::Get('i18n.dir')}"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="{Config::Get('i18n.lang')}" dir="{Config::Get('i18n.dir')}"> <!--<![endif]-->
 
 <head>
 	{hook run='html_head_begin'}
@@ -20,7 +20,7 @@
 
 	<link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
-	<link href="{cfg name='path.static.skin'}/images/favicon.ico?v1" rel="shortcut icon" />
+	<link href="{cfg name='path.skin.assets.url'}images/favicon.ico?v1" rel="shortcut icon" />
 	<link rel="search" type="application/opensearchdescription+xml" href="{router page='search'}opensearch/" title="{cfg name='view.name'}" />
 
 	{if $aHtmlRssAlternate}
@@ -41,11 +41,12 @@
 		var DIR_ROOT_ENGINE_LIB 	= '{cfg name="path.root.engine_lib"}';
 		var LIVESTREET_SECURITY_KEY = '{$ALTO_SECURITY_KEY}';
 		var SESSION_ID				= '{$_sPhpSessionId}';
-		var BLOG_USE_TINYMCE		= '{cfg name="view.tinymce"}';
-		
-		var TINYMCE_LANG = 'en';
-		{if $oConfig->GetValue('lang.current') == 'russian'}
-			TINYMCE_LANG = 'ru';
+		var BLOG_USE_TINYMCE		= '{cfg name="view.wysiwyg"}';
+
+		{if Config::Get('lang.current') == 'ru'}
+			var TINYMCE_LANG = 'ru';
+        {else}
+            var TINYMCE_LANG = 'en';
 		{/if}
 
 		var aRouter = new Array();

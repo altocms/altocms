@@ -140,11 +140,14 @@
     </div>
 
 <script>
-    $(function(){
-        $('input[name=topic_link]').change(function(){
-            var s=$('#topic_link_' + $(this).val());
+    $(function () {
+        $('input[name=topic_link]').change(function () {
+            var s = $('#topic_link_' + $(this).val());
             if (s.length && s.text()) {
                 $('input[name=topic_link_url]').val(s.text());
+            }
+            if ($(this).val() == 'custom') {
+                $('input[name=topic_link_url]').focus();
             }
         });
     });
@@ -155,7 +158,7 @@
     <div class="span12">
 
         <form action="" method="POST" class="form-horizontal uniform" enctype="multipart/form-data">
-            <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+            <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
             <input type="hidden" name="adm_cmd" value="generate_topics_url"/>
             <div class="b-wbox">
                 <div class="b-wbox-content nopadding">

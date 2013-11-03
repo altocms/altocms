@@ -605,10 +605,12 @@ class ModuleTopic extends Module {
         }
         $oTopicId = null;
 
+        $oBlog = $oTopic->GetBlog();
         // * Если топик успешно удален, удаляем связанные данные
         if ($bResult = $this->oMapperTopic->DeleteTopic($nTopicId)) {
             $bResult = $this->DeleteTopicAdditionalData($nTopicId);
             $this->DeleteMresources($oTopic);
+            $this->Blog_RecalculateCountTopicByBlogId($oBlog->GetId());
         }
 
         // * Чистим зависимые кеши
@@ -753,7 +755,10 @@ class ModuleTopic extends Module {
                  */
                 $this->Comment_SetCommentsPublish($oTopic->getId(), 'topic', $oTopic->getPublish());
             }
-            $this->processTopicFields($oTopic, 'update');
+
+            if (Router::GetAction() == 'content') {
+                $this->processTopicFields($oTopic, 'update');
+            }
 
             $this->UpdateMresources($oTopic);
 

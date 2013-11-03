@@ -138,9 +138,9 @@ class Func {
                 static::_errorDisplay("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg ($sErrFile on line $nErrLine)");
             } else {
                 static::_errorDisplay("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg", static::_errorLogFile());
-                static::_errorLog("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg ($sErrFile on line $nErrLine)");
             }
         }
+        static::_errorLog("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg ($sErrFile on line $nErrLine)");
 
         /* Don't execute PHP internal error handler */
         return true;
@@ -304,7 +304,8 @@ class Func {
 
         $aCaller = self::_Caller();
         self::_errorHandler(
-            E_USER_WARNING, $sMessage,
+            E_USER_WARNING,
+            $sMessage,
             isset($aCaller['file']) ? $aCaller['file'] : 'Unknown',
             isset($aCaller['line']) ? $aCaller['line'] : 0
         );
@@ -435,23 +436,23 @@ class Func {
     static public function GetPluginsList($bAll = false) {
 
         $sPluginsDir = static::GetPluginsDir();
-        $sPluginsListFile = static::GetPluginsDatFile();
+        $sPluginsDatFile = static::GetPluginsDatFile();
         $aPlugins = array();
+        $aPluginsRaw = array();
         if ($bAll) {
-            $aPluginRaw = array();
             $aPaths = glob($sPluginsDir . '*', GLOB_ONLYDIR);
             if ($aPaths)
                 foreach ($aPaths as $sPath) {
-                    $aPluginRaw[] = basename($sPath);
+                    $aPluginsRaw[] = basename($sPath);
                 }
         } else {
-            if ($aPluginRaw = @file($sPluginsListFile)) {
-                $aPluginRaw = array_map('trim', $aPluginRaw);
-                $aPluginRaw = array_unique($aPluginRaw);
+            if (is_file($sPluginsDatFile) && ($aPluginsRaw = @file($sPluginsDatFile))) {
+                $aPluginsRaw = array_map('trim', $aPluginsRaw);
+                $aPluginsRaw = array_unique($aPluginsRaw);
             }
         }
-        if ($aPluginRaw)
-            foreach ($aPluginRaw as $sPlugin) {
+        if ($aPluginsRaw)
+            foreach ($aPluginsRaw as $sPlugin) {
                 $sPluginXML = "$sPluginsDir/$sPlugin/plugin.xml";
                 if (is_file($sPluginXML)) {
                     $aPlugins[] = $sPlugin;

@@ -415,9 +415,8 @@ abstract class EntityORM extends Entity {
             $sModuleName = Engine::GetModuleName($sRootDelegater);
             $sPluginPrefix = Engine::GetPluginPrefix($sRootDelegater);
         }
-        return Engine::GetInstance()->_CallModule(
-            "{$sPluginPrefix}{$sModuleName}_{$sName}{$sEntityName}", array($this)
-        );
+        $aCallArgs = array($this);
+        return Engine::GetInstance()->_CallModule("{$sPluginPrefix}{$sModuleName}_{$sName}{$sEntityName}", $aCallArgs);
     }
 
     /**
@@ -642,7 +641,8 @@ abstract class EntityORM extends Entity {
                     if ($bUseFilter) {
                         $mCmdArgs = array_merge($mCmdArgs, $aArgs[0]);
                     }
-                    $res = Engine::GetInstance()->_CallModule($sCmd, array($mCmdArgs));
+                    $aCallArgs = array($mCmdArgs);
+                    $res = Engine::GetInstance()->_CallModule($sCmd, $aCallArgs);
 
                     // Сохраняем данные только в случае "чистой" выборки
                     if (!$bUseFilter) {

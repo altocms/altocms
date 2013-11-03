@@ -5,10 +5,10 @@
         <a href="#" class="btn btn-primary disabled"><i class="icon-plus-sign"></i></a>
     </div>
     <div class="btn-group">
-        <a class="btn {if $sMode=='list'}active{/if}" href="{router page='admin'}users/list/">
+        <a class="btn {if $sMode=='list'}active{/if}" href="{router page='admin'}users-list/list/">
             All users <span class="badge badge-up">{$nCountUsers}</span>
         </a>
-        <a class="btn {if $sMode=='admins'}active{/if}" href="{router page='admin'}users/admins/">
+        <a class="btn {if $sMode=='admins'}active{/if}" href="{router page='admin'}users-list/admins/">
             Admins <span class="badge badge-up">{$nCountAdmins}</span>
         </a>
     </div>
@@ -39,7 +39,7 @@
 
                 <div class="accordion-body collapse" id="admin_user_unban">
                     <form method="post" action="{$sFormAction}" class="well well-small">
-                        <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+                        <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
 
                         {if $oUserProfile->getBanLine()}
                             {$aLang.action.admin.ban_upto} {$oUserProfile->getBanLine()} <br/>
@@ -74,7 +74,7 @@
                 <div class="accordion-body collapse" id="admin_user_ban">
                     <form method="post" action="{$sFormAction}" class="well well-small">
                         <br/>
-                        <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+                        <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
 
                         <input type="hidden" name="adm_user_list"
                                value="{if $oUserProfile}{$oUserProfile->getId()}{/if}"/>
@@ -119,8 +119,8 @@
             </div>
 
             <div class="accordion-body {if !$aFilter}collapse{/if} collapse-save" id="admin_form_seek">
-                <form method="post" action="{router page='admin'}users/" class="well well-small" id="user_filter_form">
-                    <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+                <form method="post" action="{router page='admin'}users-list/" class="well well-small" id="user_filter_form">
+                    <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
 
                     <div class="control-group {if $aFilter.login}success{/if}">
                         <label for="user_filter_login">{$aLang.action.admin.user_login}</label>
@@ -199,7 +199,7 @@
 
             <div class="accordion-body collapse" id="admin_form_send">
                 <form method="post" action="" class="well well-small">
-                    <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+                    <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
 
                     <div class="control-group">
                         <label for="users_list">{$aLang.talk_create_users}:</label>
@@ -279,9 +279,9 @@
             </div>
 
             <div class="accordion-body collapse" id="admin_user_setadmin">
-                <form method="post" action="{router page='admin'}users/">
+                <form method="post" action="{router page='admin'}users-list/">
 
-                    <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+                    <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
 
                     <div class="well well-small">
                         <div class="row control-group">

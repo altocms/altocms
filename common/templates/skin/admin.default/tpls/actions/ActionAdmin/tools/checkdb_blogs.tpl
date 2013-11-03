@@ -32,7 +32,7 @@
                     </tbody>
                 </table>
                 <form method="post">
-                    <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+                    <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
                     <input type="hidden" name="do_action" value="clear_blogs_joined"/>
                     <button class="btn {if $aJoinedBlogs}btn-primary{else} disabled{/if}">{$aLang.action.admin.checkdb_clear_unlinked_blogs}</button>
                 </form>
@@ -68,7 +68,7 @@
                     </tbody>
                 </table>
                 <form method="post">
-                    <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+                    <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
                     <input type="hidden" name="do_action" value="clear_blogs_co"/>
                     <button class="btn {if $aCommentsOnlineBlogs}btn-primary{else} disabled{/if}">{$aLang.action.admin.checkdb_clear_unlinked_blogs}</button>
                 </form>

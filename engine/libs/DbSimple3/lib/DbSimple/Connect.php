@@ -136,38 +136,55 @@ class DbSimple_Connect {
         $this->shema = ucfirst($parsed['scheme']);
         require_once __DIR__ . '/Driver/' . $this->shema . '.php';
         $class = 'DbSimple_Driver_' . $this->shema;
+
+        $nErrorFlag = error_reporting();
+        error_reporting($nErrorFlag & ~E_WARNING & ~E_USER_WARNING);
         $this->DbSimple = new $class($parsed);
         $this->errmsg = & $this->DbSimple->errmsg;
         $this->error = & $this->DbSimple->error;
-        $prefix = isset($parsed['prefix']) ? $parsed['prefix'] : ($this->_identPrefix ? $this->_identPrefix : false);
-        if ($prefix) {
-            $this->DbSimple->setIdentPrefix($prefix);
-        }
+        error_reporting($nErrorFlag);
 
-        if ($this->_cachePrefix) {
-            $this->DbSimple->setCachePrefix($this->_cachePrefix);
-        }
-        if ($this->_cacher) {
-            $this->DbSimple->setCacher($this->_cacher);
-        }
-        if ($this->_logger) {
-            $this->DbSimple->setLogger($this->_logger);
-        }
-        if ($this->_preformatter) {
-            $this->DbSimple->setPreFormatter($this->_preformatter);
-        }
-        if ($this->_tablefunc) {
-            $this->DbSimple->setTableNameFunc($this->_tablefunc);
-        }
+        if (!$this->DbSimple || $this->error) {
+            // Error of database initialization
+            if ($this->DbSimple && $this->DbSimple->errmsg) {
+                error_reporting($nErrorFlag & ~E_WARNING & ~E_USER_WARNING);
+                F::SysWarning($this->DbSimple->errmsg);
+                error_reporting($nErrorFlag);
+            }
+            die("<br><br>\n\n Cannot connect to database");
+        } else {
+            $prefix = isset($parsed['prefix'])
+                ? $parsed['prefix']
+                : ($this->_identPrefix ? $this->_identPrefix : false);
+            if ($prefix) {
+                $this->DbSimple->setIdentPrefix($prefix);
+            }
 
-        $this->DbSimple->setErrorHandler(
-            $this->errorHandler !== null ? $this->errorHandler : array(&$this, 'errorHandler')
-        );
-        // Eval init queries if they are exist
-        foreach ($this->init as $query) {
-            call_user_func_array(array($this->DbSimple, 'query'), $query);
+            if ($this->_cachePrefix) {
+                $this->DbSimple->setCachePrefix($this->_cachePrefix);
+            }
+            if ($this->_cacher) {
+                $this->DbSimple->setCacher($this->_cacher);
+            }
+            if ($this->_logger) {
+                $this->DbSimple->setLogger($this->_logger);
+            }
+            if ($this->_preformatter) {
+                $this->DbSimple->setPreFormatter($this->_preformatter);
+            }
+            if ($this->_tablefunc) {
+                $this->DbSimple->setTableNameFunc($this->_tablefunc);
+            }
+
+            $this->DbSimple->setErrorHandler(
+                $this->errorHandler !== null ? $this->errorHandler : array(&$this, 'errorHandler')
+            );
+            // Eval init queries if they are exist
+            foreach ($this->init as $query) {
+                call_user_func_array(array($this->DbSimple, 'query'), $query);
+            }
+            $this->init = array();
         }
-        $this->init = array();
     }
 
     /**

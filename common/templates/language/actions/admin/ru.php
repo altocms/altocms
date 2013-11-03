@@ -149,6 +149,10 @@ return array(
 
     /* MRESOURCES */
     'mresources_title' => 'Медиаресурсы',
+    'mresource_delete_confirm' => 'Удалить этот медиаресурс?',
+    'mresource_will_be_delete' => 'Медиаресурс будет удален. Продолжить?',
+    'mresource_deleted' => 'Медиаресурс удален',
+    'mresource_not_deleted' => 'Медиаресурс не удален',
 
     /* USERS */
     'users_title' => 'Пользователи',
@@ -393,6 +397,7 @@ return array(
         %second% — секунды
         %login% — логин автора топика
         %blog_url% — url блога (для персональных блогов будет заменен на логин автора)
+        %topic_type% — тип публикации
         %topic_id% — id публикации
         %topic_url% — относительный URL публикации (обычно — транслитерация его заголовка)
 
@@ -736,8 +741,8 @@ return array(
     'blogtypes_min_rating'           => 'Минимальный рейтинг для создания',
     'blogtypes_allow_add'            => 'Могут создавать пользователи',
     'blogtypes_allow_add_notice'     => 'Могут ли пользователи (не администраторы) создавать блоги этого типа',
-    'blogtypes_membership'           => 'Членство в блогах',
-    'blogtypes_membership_notice'    => 'Члены блогов могут иметь преимущества перед другими пользователями',
+    'blogtypes_membership'           => 'Подписка на блоги',
+    'blogtypes_membership_notice'    => 'Подписчики блогов могут иметь преимущества перед другими пользователями',
 
     'blogtypes_acl_write'            => 'Кто может писать',
     'blogtypes_acl_write_notice'     => 'Кто, кроме владельца блога, может в него писать',
@@ -747,7 +752,7 @@ return array(
     'blogtypes_acl_comment_notice'   => 'Кто, кроме владельца блога, может его комментировать',
 
     'blogtypes_acl_owner'            => 'Только владелец',
-    'blogtypes_acl_members'          => 'Только участники',
+    'blogtypes_acl_members'          => 'Только подписчики',
     'blogtypes_acl_users'            => 'Все пользователи',
     'blogtypes_acl_guests'           => 'Любые посетители сайта',
 
@@ -762,22 +767,22 @@ return array(
     'blog_user_role_member'          => 'Участник',
     'blog_user_role_notmember'       => 'Любой',
 
-    // Членство в блоге
-    'blog_membership_none'      => 'Нет',
-    'blog_membership_free'      => 'Свободное',
-    'blog_membership_request'   => 'По запросу',
-    'blog_membership_invite'    => 'По приглашению',
+    // Подписка на блоги
+    'blog_membership_none'          => 'Нет',
+    'blog_membership_free'          => 'Свободная',
+    'blog_membership_request'       => 'По запросу',
+    'blog_membership_invite'        => 'По приглашению',
 
-    'blogtypes_content_title'        => 'Контент блога',
-    'blogtypes_show_title'           => 'Показывать заголовки блогов',
-    'blogtypes_show_title_notice'    => 'Заголовки блогов будут показываться в списках блогов',
-    'blogtypes_index_content'        => 'Индексировать контент',
-    'blogtypes_index_content_notice' => 'Контент блогов будет индексироваться и выдаваться при поиске',
-    'blogtypes_contenttypes'         => 'Тип контента',
-    'blogtypes_contenttypes_notice'  => 'Допустимый тип контанта, который может быть в блоге',
-    'blogtypes_contenttypes_any'     => 'Любой',
+    'blogtypes_content_title'       => 'Контент блога',
+    'blogtypes_show_title'          => 'Показывать заголовки блогов',
+    'blogtypes_show_title_notice'   => 'Заголовки блогов будут показываться в списках блогов',
+    'blogtypes_index_content'       => 'Индексировать контент',
+    'blogtypes_index_content_notice'=> 'Контент блогов будет индексироваться и выдаваться при поиске',
+    'blogtypes_contenttypes'        => 'Тип контента',
+    'blogtypes_contenttypes_notice' => 'Допустимый тип контанта, который может быть в блоге',
+    'blogtypes_contenttypes_any'    => 'Любой',
 
-    'blogtypes_err_id_notfound' => 'Тип блога с заданным ID не найден',
+    'blogtypes_err_id_notfound'     => 'Тип блога с заданным ID не найден',
 
     /*
      * User rights

@@ -7,8 +7,8 @@
 {/block}
 
 {block name="content-body"}
-    <form action="{router page='admin'}widgets/" method="post" id="form_widgets_list" class="uniform">
-        <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+    <form action="{router page='admin'}site-widgets/" method="post" id="form_widgets_list" class="uniform">
+        <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
         <input type="hidden" name="widget_action" value="">
 
         <div class="b-wbox">
@@ -84,7 +84,7 @@
                                 </div>
                             </td>
                             <td class="center">
-                                <a href="{router page="admin"}widgets/edit/{$oWidget->GetId()}"><i
+                                <a href="{router page="admin"}site-widgets/edit/{$oWidget->GetId()}"><i
                                             class="icon-edit"></i></a>
                             </td>
                         </tr>

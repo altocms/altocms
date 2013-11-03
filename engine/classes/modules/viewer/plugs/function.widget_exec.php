@@ -62,7 +62,10 @@ function smarty_function_widget_exec($aParams, $oSmartyTemplate) {
                 $sTemplate = F::File_Exists($sTemplate, $oSmartyTemplate->getTemplateDir());
                 if (!$sTemplate) {
                     // * LS-compatible * //
-                    $sTemplate = E::Plugin_GetDelegate('template', 'blocks/block.' . $sWidgetName . '.tpl');
+                    $sLsTemplate = E::Plugin_GetDelegate('template', 'blocks/block.' . $sWidgetName . '.tpl');
+                    if (F::File_Exists($sTemplate, $oSmartyTemplate->getTemplateDir())) {
+                        $sTemplate = $sLsTemplate;
+                    }
                 }
             }
         } else {

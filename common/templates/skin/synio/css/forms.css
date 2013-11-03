@@ -40,7 +40,23 @@ form .pointer {cursor:pointer;}
 .note { display: block; margin-top: 3px; font-size: 11px; line-height: 16px; color: #aaa; }
 .note.note-header { margin-bottom: 20px; }
 
-.captcha-image { vertical-align: top; }
+.captcha-image {
+    vertical-align: top;
+    height: 60px;
+    border: 1px solid #c9c9c9;
+    border-radius: 3px;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    cursor: pointer;
+}
+.captcha-text {
+    vertical-align: top;
+    height: 60px;
+    width: 140px;
+    font-size: 44px;
+    padding: 2px;
+    color: #555;
+}
 
 .counter-wrapper { margin-bottom: 15px; position: relative; }
 .counter-wrapper .counter { color: #777; position: absolute; top: 0; right: 0; }

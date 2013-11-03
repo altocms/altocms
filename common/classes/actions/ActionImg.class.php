@@ -14,6 +14,10 @@
  */
 class ActionImg extends Action {
 
+    const USER_AVATAR_SIZE = 100;
+    const USER_PHOTO_SIZE = 250;
+    const BLOG_AVATAR_SIZE = 100;
+
     /**
      * Инициализация
      *
@@ -39,28 +43,34 @@ class ActionImg extends Action {
         $sNewFile = $this->Img_Duplicate($sFile);
 
         if (!$sNewFile) {
+            if (preg_match('/\-(\d+)x(\d+)\.[a-z]{3}$/i', $sFile, $aMatches)) {
+                $nSize = $aMatches[1];
+            } else {
+                $nSize = 0;
+            }
             if (strpos(basename($sFile), 'avatar_blog') === 0) {
                 // Запрашивается аватар блога
-                $sNewFile = $this->_makeImage($sFile, 'avatar_blog', 100);
+                $sNewFile = $this->_makeImage($sFile, 'avatar_blog', $nSize ? $nSize : self::BLOG_AVATAR_SIZE);
             } elseif (strpos(basename($sFile), 'avatar') === 0) {
                 // Запрашивается аватар
-                $sNewFile = $this->_makeImage($sFile, 'avatar', 100);
+                $sNewFile = $this->_makeImage($sFile, 'avatar', $nSize ? $nSize : self::USER_AVATAR_SIZE);
             } elseif (strpos(basename($sFile), 'user_photo') === 0) {
                 // Запрашивается фото
-                $sNewFile = $this->_makeImage($sFile, 'user_photo', 250);
+                $sNewFile = $this->_makeImage($sFile, 'user_photo', $nSize ? $nSize : self::USER_PHOTO_SIZE);
             }
         }
 
         // Если файл успешно создан, то выводим его
         if ($sNewFile) {
-            if (headers_sent()) {
-                Router::Location($sUrl);
+            if (headers_sent($sFile, $nLine)) {
+                Router::Location($sUrl . '?rnd=' . uniqid());
             } else {
                 header_remove();
                 $this->Img_RenderFile($sNewFile);
                 exit;
             }
         }
+        F::HttpHeader('404 Not Found');
         exit;
     }
 
@@ -75,9 +85,9 @@ class ActionImg extends Action {
      */
     protected function _makeImage($sFile, $sPrefix, $nSize) {
 
-        $sImageFile = $this->_getDefaultImage($sFile, $sPrefix);
+        $sImageFile = $this->_getDefaultImage($sFile, $sPrefix, $nSize);
         if ($sImageFile) {
-            $oImg = $this->Img_Read($sImageFile);
+            $oImg = $this->Img_Resize($sImageFile, $nSize, $nSize);
         } else {
             // Файла нет, создаем пустышку, чтоб в дальнейшем не было пустых запросов
             $oImg = $this->Img_Create($nSize, $nSize);
@@ -91,10 +101,11 @@ class ActionImg extends Action {
      *
      * @param $sFile
      * @param $sPrefix
+     * @param $nSize
      *
      * @return bool|mixed|string
      */
-    protected function _getDefaultImage($sFile, $sPrefix) {
+    protected function _getDefaultImage($sFile, $sPrefix, $nSize) {
 
         $sImageFile = '';
         $sName = basename($sFile);
@@ -109,14 +120,18 @@ class ActionImg extends Action {
             if ($sSkin) {
                 // Определяем путь до аватар скина
                 $sPath = Config::Get('path.skins.dir') . $sSkin . '/assets/images/avatars/';
+                if (!is_dir($sPath)) {
+                    // старая структура скина
+                    $sPath = Config::Get('path.skins.dir') . $sSkin . '/images/';
+                }
 
                 // Если задан тип male/female, то ищем сначала с ним
                 if ($sType) {
-                    $sImageFile = $this->_seekDefaultImage($sPath, $sPrefix . '_' . $sType);
+                    $sImageFile = $this->_seekDefaultImage($sPath, $sPrefix . '_' . $sType, $nSize);
                 }
                 // Если аватар не найден
                 if (!$sImageFile) {
-                    $sImageFile = $this->_seekDefaultImage($sPath, $sPrefix);
+                    $sImageFile = $this->_seekDefaultImage($sPath, $sPrefix, $nSize);
                 }
             }
         }
@@ -128,10 +143,11 @@ class ActionImg extends Action {
      *
      * @param $sPath
      * @param $sName
+     * @param $nSize
      *
      * @return bool|mixed|string
      */
-    protected function _seekDefaultImage($sPath, $sName) {
+    protected function _seekDefaultImage($sPath, $sName, $nSize) {
 
         $sImageFile = '';
         if ($aFiles = glob($sPath . $sName . '.*')) {
@@ -148,8 +164,14 @@ class ActionImg extends Action {
                     $aFoundFiles[0] = $sFile;
                 }
             }
-            krsort($aFoundFiles);
-            $sImageFile = array_shift($aFiles);
+            ksort($aFoundFiles);
+            $sImageFile = reset($aFoundFiles);
+            while (list($nImgSize, $sImgFile) = each($aFoundFiles)) {
+                if ($nImgSize >= $nSize) {
+                    $sImageFile = $sImgFile;
+                    break;
+                }
+            }
         }
         return $sImageFile ? $sImageFile : false;
     }

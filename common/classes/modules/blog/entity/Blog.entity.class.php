@@ -161,7 +161,14 @@ class ModuleBlog_EntityBlog extends Entity {
      */
     public function getUrl() {
 
-        return $this->getProp('blog_url');
+        $sUrl = $this->getProp('blog_url');
+        if (!$sUrl && $this->getType() == 'personal') {
+            $sUrl = F::TranslitUrl($this->getOwner()->getLogin());
+            if (!$sUrl) {
+                $sUrl = 'user-' . $this->getOwnerId();
+            }
+        }
+        return $sUrl;
     }
 
     /**

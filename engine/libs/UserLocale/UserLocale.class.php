@@ -19,18 +19,20 @@
 class UserLocale {
 
     static $sDefaultLanguage = 'ru';
-    static $aDefaultLocale = array(
-        'name' => 'Russian',
-        'xml:lang' => 'ru',
-        'lang' => 'ru',
-        'charset' => 'utf-8',
-        'locale' => 'ru_RU.UTF-8',
-        'timezone' => 'Europe/Moscow',
-        'date_format' => array(
-            'full' => 'd.m.Y',
-        ),
-        'week_start' => 1,
-    );
+    static $aDefaultLocale
+        = array(
+            'name'        => 'Russian',
+            'xml:lang'    => 'ru',
+            'lang'        => 'ru',
+            'charset'     => 'utf-8',
+            'locale'      => 'ru_RU.UTF-8',
+            'timezone'    => 'Europe/Moscow',
+            'date_format' => array(
+                'full' => 'd.m.Y',
+            ),
+            'week_start'  => 1,
+            'dir'         => 'auto',
+        );
     static $sCurrentLanguage = 'ru';
     static $aLocales = array();
 

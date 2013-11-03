@@ -143,7 +143,7 @@
 </div>
 
     <form action="" method="post" id="user-do-command">
-        <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+        <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
         <input type="hidden" name="adm_user_cmd" value=""/>
         <input type="hidden" name="users_list" value=""/>
         <input type="hidden" name="return_url" value="{$PATH_WEB_CURRENT|escape:'html'}"/>

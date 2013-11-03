@@ -169,7 +169,7 @@ class ModuleBlog_MapperBlog extends Mapper {
             INSERT INTO ?_blog_user
             SET
                 blog_id = ?d,
-                user_id = ?d
+                user_id = ?d,
                 user_role = ?d
             ";
         $xResult = $this->oDb->query($sql, $oBlogUser->getBlogId(), $oBlogUser->getUserId(), $oBlogUser->getUserRole());
@@ -649,11 +649,25 @@ class ModuleBlog_MapperBlog extends Mapper {
 
         if (isset($aFilter['type']) && !isset($aFilter['include_type'])) {
             $aCriteria['filter']['blog_type'] = $aFilter['type'];
+            unset($aFilter['type']);
         } elseif (isset($aFilter['include_type'])) {
             $aCriteria['filter']['blog_type'] = $aFilter['include_type'];
+            unset($aFilter['include_type']);
         }
         if (isset($aFilter['exclude_type'])) {
             $aCriteria['filter']['not_blog_type'] = $aFilter['exclude_type'];
+            unset($aFilter['exclude_type']);
+        }
+        if (isset($aFilter['title'])) {
+            if (strpos($aFilter['title'], '%') !== false) {
+                $aCriteria['filter']['blog_title_like'] = $aFilter['title'];
+            } else {
+                $aCriteria['filter']['blog_title'] = $aFilter['title'];
+            }
+            unset($aFilter['title']);
+        }
+        if ($aFilter && is_array($aFilter)) {
+            $aCriteria['filter'] = F::Array_Merge($aCriteria['filter'], $aFilter);
         }
 
         if (is_array($aOrder) && $aOrder) {
@@ -935,8 +949,8 @@ class ModuleBlog_MapperBlog extends Mapper {
             }
         }
         if (isset($aFilter['blog_title_like'])) {
-            if (substr($aFilter['blog_title'], -1) !== '%') {
-                $aFilter['blog_title'] .= '%';
+            if (substr($aFilter['blog_title_like'], -1) !== '%') {
+                $aFilter['blog_title_like'] .= '%';
             }
         }
 
@@ -1003,7 +1017,7 @@ class ModuleBlog_MapperBlog extends Mapper {
             'allow_add', 'min_rate_add', 'allow_list', 'min_rate_list', 'acl_read', 'min_rate_read', 'acl_write',
             'min_rate_write', 'acl_comment', 'min_rate_comment', 'index_ignore', 'membership',
         );
-        if ($aFilter && array_intersect($aFilter, $aBlogTypeFields)) {
+        if ($aFilter && array_intersect(array_keys($aFilter), $aBlogTypeFields)) {
             $bBlogTypeJoin = true;
         } else {
             $bBlogTypeJoin = false;

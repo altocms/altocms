@@ -17,7 +17,7 @@
                     <input type="submit" name="recalcfavourites_submit" value="{$aLang.action.admin.execute}"
                            class="btn btn-primary pull-right"/>
                 </div>
-                <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+                <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
             </div>
         </form>
     {/if}

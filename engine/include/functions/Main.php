@@ -569,7 +569,7 @@ class AltoFunc_Main {
             if ($aChars) {
                 $sText = str_replace(array_keys($aChars), array_values($aChars), $sText);
             }
-            $sText = preg_replace('/[-]{2,}/', '-', $sText);
+            $sText = preg_replace('/[\-]{2,}/', '-', $sText);
         }
         $sResult = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $sText);
         // В некоторых случаях может возвращаться пустая строка
@@ -589,7 +589,7 @@ class AltoFunc_Main {
         $sText = str_replace(array_keys($aSymbols), array_values($aSymbols), $sText);
         $sText = preg_replace('/[^a-z0-9\-]/', '-', $sText);
         $sText = preg_replace('/\s/', '-', $sText);
-        $sText = preg_replace('/[-]{2,}/', '-', $sText);
+        $sText = preg_replace('/[\-]{2,}/', '-', $sText);
         $sText = trim($sText, '-');
         return $sText;
     }

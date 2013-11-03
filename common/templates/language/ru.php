@@ -293,6 +293,8 @@ return array(
     'topic_create_publish_index'                => 'Принудительно вывести на главную',
     'topic_create_publish_index_notice'         => 'Если отметить эту галку, то статья сразу попадёт на главную страницу (опция доступна только администраторам)',
     'topic_create_submit_publish'               => 'Опубликовать',
+    'topic_create_submit_publish_update'        => 'Обновить публикацию',
+    'topic_create_submit_publish_draft'         => 'Перенести в черновики',
     'topic_create_submit_update'                => 'Обновить',
     'topic_create_submit_save'                  => 'Сохранить в черновиках',
     'topic_create_submit_preview'               => 'Предпросмотр',
@@ -1163,6 +1165,12 @@ return array(
     'tags_help_standart_table'                  => 'Набор тегов для создания таблицы. Тег &lt;td&gt; обозначает ячейку таблицы, тег &lt;th&gt; - ячейку в заголовке, &lt;tr&gt; - строчку таблицы. Все содержимое таблицы помещайте в тег &lt;table&gt;.',
     'tags_help_standart_ul'                     => 'Ненумерованный список; каждый элемент списка задается тегом &lt;li&gt;, набор элементов списка помещайте в тег &lt;ul&gt;.',
     'tags_help_standart_ol'                     => 'Нумерованный список; каждый элемент списка задается тегом &lt;li&gt;, набор элементов списка помещайте в тег &lt;ol&gt;.',
+
+    /**
+     * Права доступа
+     */
+    'acl_cannot_show_content'                   => 'У Вас нет прав на просмотр контента',
+    'acl_cannot_comment'                        => 'У Вас нет прав на добавление комментариев',
 
     /**
      * Системные сообщения

@@ -23,7 +23,9 @@ class PluginLs extends Plugin {
             'window_write.tpl' => '_window_write.tpl',
             'sharer.tpl' => '_sharer.tpl',
             'actions/ActionPage/page.tpl',
-            'topic_list.tpl','topic.tpl'
+            'topic_list.tpl',
+            'topic.tpl',
+            'actions/ActionProfile/info.tpl' => 'actions/ActionProfile/whois.tpl',
         ),
     );
 
@@ -31,6 +33,10 @@ class PluginLs extends Plugin {
         'module' => array(
             'ModuleViewer',
             'ModuleWidget',
+            'ModuleSecurity',
+        ),
+        'action' => array(
+            'ActionSettings',
         ),
     );
 

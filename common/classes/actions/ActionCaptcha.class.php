@@ -26,10 +26,12 @@ class ActionCaptcha extends Action {
     }
 
     protected function RegisterEvent() {
+
         $this->AddEvent('index', 'EventIndex');
     }
 
     public function EventIndex() {
+
         $oCaptcha = new KCAPTCHA();
         $this->Session_Set('captcha_keystring', $oCaptcha->getKeyString());
         exit;

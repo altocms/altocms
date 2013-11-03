@@ -26,10 +26,10 @@ var ls = ls || {};
     };
 
     Toolbar.prototype = {
-    	/**
-    	 * Position
-    	 */
-    	position: function () {
+        /**
+         * Position
+         */
+        position: function () {
             typeof this.options.onPosition === 'function' && $.proxy(this.options.onPosition, this)();
 
             var targetPos = this.$target.offset();
@@ -38,7 +38,7 @@ var ls = ls || {};
                 'top': targetPos.top + this.options.offsetY,
                 'left': (this.options.align == 'right' ? targetPos.left + this.$target.outerWidth() + this.options.offsetX : targetPos.left - this.$toolbar.outerWidth() - this.options.offsetX) - $(document).scrollLeft()
             })
-    	}
+        }
     };
 
 

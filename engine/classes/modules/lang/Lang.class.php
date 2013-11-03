@@ -467,7 +467,7 @@ class ModuleLang extends Module {
             $sText = (string)$aLangMsg;
         } else {
             if (isset($this->aLangMsg[$sLang][$sName])) {
-                $sText = (string)$this->aLangMsg[$sLang][$sName];
+                $sText = $this->aLangMsg[$sLang][$sName];
             } else {
                 //return 'NOT_FOUND_LANG_TEXT';
                 return strtoupper($sName);
@@ -481,7 +481,7 @@ class ModuleLang extends Module {
             $sText = strtr($sText, $aReplacePairs);
         }
 
-        if (Config::Get('module.lang.delete_undefined') && $bDelete && is_string($sLang)) {
+        if (Config::Get('module.lang.delete_undefined') && $bDelete && is_string($sText)) {
             $sText = preg_replace('|\%\%[\S]+\%\%|U', '', $sText);
         }
         return $sText;

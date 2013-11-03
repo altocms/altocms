@@ -241,14 +241,22 @@ class AltoFunc_File {
     /**
      * Удаление содержимого папки
      *
-     * @param string $sDir
+     * @param string|array $xDir
      * @param bool   $bSafe
      *
      * @return bool
      */
-    static public function ClearDir($sDir, $bSafe = true) {
+    static public function ClearDir($xDir, $bSafe = true) {
 
         $bResult = true;
+        if (is_array($xDir)) {
+            foreach($xDir as $sDir) {
+                $bResult = $bResult && self::ClearDir($sDir, $bSafe);
+            }
+            return $bResult;
+        } else {
+            $sDir = (string)$xDir;
+        }
         $sDir = self::NormPath($sDir);
         if (substr($sDir, -1) != '/') {
             $sDir .= '/';
@@ -668,7 +676,7 @@ class AltoFunc_File {
         if (substr($sPath, 0, 2) == '//' && preg_match('~^//[a-z0-9\-]+\.[a-z0-9][a-z0-9\-\.]*[a-z0-9]~', $sPath)) {
             // Возможно, это URL с протоколом по умолчанию
             if (isset($_SERVER['SERVER_PROTOCOL'])) {
-                $sProtocol = strtolower(reset(explode('/', $_SERVER['SERVER_PROTOCOL'])));
+                $sProtocol = strtolower(strstr($_SERVER['SERVER_PROTOCOL'], '/', true));
             } else {
                 $sProtocol = 'http';
             }
@@ -942,21 +950,26 @@ class AltoFunc_File {
             ),
         );
     static protected $nMimeTypeSignaturesMax = 0;
-    static protected $hFinfo = null;
 
+    /**
+     * Определение MimeType файлов
+     *
+     * @param string $sFile
+     *
+     * @return string|null
+     */
     static public function MimeType($sFile) {
 
         $sMimeType = '';
-        if (is_null(self::$hFinfo) && function_exists('finfo_fopen')) {
+        if (function_exists('finfo_fopen')) {
             $hFinfo = finfo_open(FILEINFO_MIME_TYPE);
         } else {
             $hFinfo = null;
         }
         if ($hFinfo) {
-                if ($sMimeType = finfo_file($hFinfo, $sFile)) {
-                }
+            $sMimeType = finfo_file($hFinfo, $sFile);
             finfo_close($hFinfo);
-        } elseif(function_exists('mime_content_type')) {
+        } elseif (function_exists('mime_content_type')) {
             $sMimeType = mime_content_type($sFile);
         }
         if ($sMimeType) {
@@ -984,7 +997,7 @@ class AltoFunc_File {
                         self::$nMimeTypeSignaturesMax = $nLen;
                     }
                     self::$aMimeTypeSignatures[$sMimeType][$nIdx] = array(
-                        'offset' => $nOffset,
+                        'offset'    => $nOffset,
                         'signature' => $sSignature,
                     );
                 }

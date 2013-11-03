@@ -73,15 +73,15 @@
         <a href="{router page="admin"}users-banlist/">{$aLang.action.admin.menu_users_banlist}</a>
     </li>
     <!-- li class="nav-menu_invites {if $sEvent=='invites'}active{/if}">
-        <a href="{router page="admin"}invites/">{$aLang.action.admin.menu_users_invites}</a>
+        <a href="{router page="admin"}users-invites/">{$aLang.action.admin.menu_users_invites}</a>
     </li -->
     {hook run='admin_menu_users'}
 
     <li class="nav-header"><i class="icon-cog"></i>{$aLang.action.admin.menu_settings}</li>
-    <li class="nav-menu_settings {if $sEvent=='settings-config'}active{/if}">
+    <li class="nav-menu_settings {if $sEvent=='settings-site'}active{/if}">
         <a href="{router page="admin"}settings-site/">{$aLang.action.admin.menu_settings_site}</a>
     </li>
-    <li class="nav-menu_lang {if $sEvent=='lang'}active{/if}">
+    <li class="nav-menu_lang {if $sEvent=='settings-lang'}active{/if}">
         <a href="{router page="admin"}settings-lang/">{$aLang.action.admin.menu_settings_lang}</a>
     </li>
     <li class="nav-menu_blogtypes {if $sEvent=='settings-blogtypes'}active{/if}">
@@ -111,7 +111,7 @@
     {hook run='admin_menu_site'}
 
     <li class="nav-header"><i class="icon-list-alt"></i>{$aLang.action.admin.menu_logs}</li>
-    <li class="nav-menu_logs_errors {if $sEvent=='logs-error' and $sMode=='errors'}active{/if}">
+    <li class="nav-menu_logs_errors {if $sEvent=='logs-error'}active{/if}">
         <a href="{router page="admin"}logs-error/">{$aLang.action.admin.menu_logs_error}</a>
     </li>
     <li class="nav-menu_logs_sqlerrors {if $sEvent=='logs-sqlerror'}active{/if}">

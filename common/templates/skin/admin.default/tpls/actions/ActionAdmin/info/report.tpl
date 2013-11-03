@@ -2,7 +2,7 @@
 
 {block name="content-body"}
     <form action="" method="post" target="_blank" class="uniform">
-        <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+        <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
 
         {foreach $aInfoData as $sSectionKey=>$aSection}
             <div class="span6">

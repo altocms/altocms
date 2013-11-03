@@ -603,11 +603,42 @@ class ModuleUser_EntityUser extends Entity {
     /**
      * Возвращает URL до профиля пользователя
      *
+     * @param   string|null $sUrlMask - еcли передан параметр, то формирует URL по этой маске
+     * @param   bool        $bFullUrl - возвращать полный путь (или относительный, если false)
+     *
      * @return string
      */
-    public function getProfileUrl() {
+    public function getProfileUrl($sUrlMask = null, $bFullUrl = true) {
 
-        return Router::GetPath('profile') . $this->getLogin() . '/';
+        $sKey = '-url-' . ($sUrlMask ? $sUrlMask : '') . ($bFullUrl ? '-1' : '-0');
+        if ($this->isProp($sKey)) {
+            return $this->getProp($sKey);
+        }
+
+        if (!$sUrlMask) {
+            $sUrlMask = Router::GetUserUrlMask();
+        }
+        if (!$sUrlMask) {
+            // формирование URL по умолчанию
+            return Router::GetPath('profile') . $this->getLogin() . '/';
+        }
+        $aReplace = array(
+            '%user_id%' => $this->GetId(),
+            '%login%'   => $this->GetLogin(),
+        );
+        $sUrl = strtr($sUrlMask, $aReplace);
+        if (strpos($sUrl, '/')) {
+            list($sAction, $sPath) = explode('/', $sUrl, 2);
+            $sUrl = Router::GetPath($sAction) . $sPath;
+        } else {
+            $sUrl = F::File_RootUrl() . $sUrl;
+        }
+        if (substr($sUrl, -1) !== '/') {
+            $sUrl .= '/';
+        }
+        $this->setProp($sKey, $sUrl);
+
+        return $sUrl;
     }
 
     /**

@@ -312,13 +312,8 @@ class ModuleACL extends Module {
         if ($oBlog->getOwnerId() == $oUser->getId()) {
             return true;
         }
-        $oBlogUser = $this->Blog_GetBlogUserByBlogIdAndUserId($oBlog->getId(), $oUser->getId());
-        if ($oBlogUser) {
-            if ($oBlogUser->getIsAdministrator() || $oBlogUser->getIsModerator() || $this->ACL_CanAddTopic($oUser, $oBlog)) {
-                return true;
-            }
-        }
-        return false;
+
+        return (bool)$this->Blog_GetBlogsAllowTo('write', $oUser, $oBlog->getId(), true);
     }
 
     /**
@@ -334,17 +329,17 @@ class ModuleACL extends Module {
         if (!$oBlog->getBlogType()->IsPrivate()) {
             return true;
         }
+        if (!$oUser && !$oBlog->getBlogType()->GetAclRead(ModuleBlog::BLOG_USER_ACL_GUEST)) {
+            return false;
+        }
         if ($oUser->isAdministrator()) {
             return true;
         }
         if ($oBlog->getOwnerId() == $oUser->getId()) {
             return true;
         }
-        $oBlogUser = $this->Blog_GetBlogUserByBlogIdAndUserId($oBlog->getId(), $oUser->getId());
-        if ($oBlogUser && $oBlogUser->getUserRole() > ModuleBlog::BLOG_USER_ROLE_GUEST) {
-            return true;
-        }
-        return false;
+
+        return (bool)$this->Blog_GetBlogsAllowTo('read', $oUser, $oBlog->getId(), true);
     }
 
     /**
@@ -569,8 +564,8 @@ class ModuleACL extends Module {
     /**
      * Получение прав для конкретной группы и, опционально, роли
      *
-     * @param      $sGroup
-     * @param null $sRole
+     * @param string $sGroup
+     * @param string $sRole
      *
      * @return array
      */
@@ -591,9 +586,9 @@ class ModuleACL extends Module {
     /**
      * Вспомогательный метод проверки прав пользователя блога
      *
-     * @param $oBlog
-     * @param $oUser
-     * @param $sRights
+     * @param ModuleBlog_EntityBlog $oBlog
+     * @param ModuleUser_EntityUser $oUser
+     * @param string                $sRights
      *
      * @return bool
      */
@@ -601,6 +596,7 @@ class ModuleACL extends Module {
 
         $sUserRole = '';
         $bCurrentUser = false;
+        $bResult = false;
 
         // Если пользователь не передан, то берется текущий
         if (!$oUser) {
@@ -611,6 +607,12 @@ class ModuleACL extends Module {
             }
         } elseif ($this->User_GetUserCurrent() && $this->User_GetUserCurrent()->getId() == $oUser->getId()) {
             $bCurrentUser = true;
+        }
+
+        $sCacheKey = 'acl_blog_user_rights' . serialize(array($oBlog->GetId(), $oUser ? $oUser->GetId() : 0, $bCurrentUser, $sRights));
+        // Сначала проверяем кеш
+        if (is_int($xCacheResult = $this->Cache_Get($sCacheKey, 'tmp'))) {
+            return $xCacheResult;
         }
 
         if ($bCurrentUser) {
@@ -633,16 +635,19 @@ class ModuleACL extends Module {
 
         if ($sUserRole) {
             $aUserRights = $this->GetUserRights('blogs', $sUserRole);
-            return isset($aUserRights[$sRights]) && (bool)$aUserRights[$sRights];
+            $bResult = isset($aUserRights[$sRights]) && (bool)$aUserRights[$sRights];
         }
-        return false;
+
+        $this->Cache_Set($sCacheKey, $bResult ? 1 : 0, array('blog_update', 'user_update'), 0, 'tmp');
+
+        return $bResult;
     }
 
     /**
      * Право на управление пользователями блога
      *
-     * @param      $oBlog
-     * @param null $oUser   - если не задано, то берется текущий авторизованный пользователь
+     * @param ModuleBlog_EntityBlog $oBlog
+     * @param ModuleUser_EntityUser $oUser - если не задано, то берется текущий авторизованный пользователь
      *
      * @return bool
      */
@@ -654,8 +659,8 @@ class ModuleACL extends Module {
     /**
      * Право на редактирование блога
      *
-     * @param      $oBlog
-     * @param null $oUser   - если не задано, то берется текущий авторизованный пользователь
+     * @param ModuleBlog_EntityBlog $oBlog
+     * @param ModuleUser_EntityUser $oUser - если не задано, то берется текущий авторизованный пользователь
      *
      * @return bool
      */
@@ -667,8 +672,8 @@ class ModuleACL extends Module {
     /**
      * Право на редактирование контента блога
      *
-     * @param      $oBlog
-     * @param null $oUser   - если не задано, то берется текущий авторизованный пользователь
+     * @param ModuleBlog_EntityBlog $oBlog
+     * @param ModuleUser_EntityUser $oUser - если не задано, то берется текущий авторизованный пользователь
      *
      * @return bool
      */
@@ -680,8 +685,8 @@ class ModuleACL extends Module {
     /**
      * Право на удаление контента блога
      *
-     * @param      $oBlog
-     * @param null $oUser   - если не задано, то берется текущий авторизованный пользователь
+     * @param ModuleBlog_EntityBlog $oBlog
+     * @param ModuleUser_EntityUser $oUser - если не задано, то берется текущий авторизованный пользователь
      *
      * @return bool
      */
@@ -693,8 +698,8 @@ class ModuleACL extends Module {
     /**
      * Право на редактирование комментариев блога
      *
-     * @param      $oBlog
-     * @param null $oUser   - если не задано, то берется текущий авторизованный пользователь
+     * @param ModuleBlog_EntityBlog $oBlog
+     * @param ModuleUser_EntityUser $oUser - если не задано, то берется текущий авторизованный пользователь
      *
      * @return bool
      */
@@ -706,8 +711,8 @@ class ModuleACL extends Module {
     /**
      * Право на удаление комментариев блога
      *
-     * @param      $oBlog
-     * @param null $oUser   - если не задано, то берется текущий авторизованный пользователь
+     * @param ModuleBlog_EntityBlog $oBlog
+     * @param ModuleUser_EntityUser $oUser - если не задано, то берется текущий авторизованный пользователь
      *
      * @return bool
      */

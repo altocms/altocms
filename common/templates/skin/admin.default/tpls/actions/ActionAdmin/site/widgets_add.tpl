@@ -2,14 +2,14 @@
 
 {block name="content-bar"}
     <div class="btn-group">
-        <a href="{router page='admin'}widgets/" class="btn"><i class="icon-chevron-left"></i></a>
+        <a href="{router page='admin'}site-widgets/" class="btn"><i class="icon-chevron-left"></i></a>
     </div>
 {/block}
 
 {block name="content-body"}
     <div class="span12">
         <form method="post" action="" class="form-horizontal uniform">
-            <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+            <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
 
             <div class="b-wbox">
                 <div class="b-wbox-header">

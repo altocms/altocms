@@ -154,6 +154,7 @@ ls.photoset = ( function ($) {
         var input = $('#js-photoset-image-upload');
         var form = $('<form method="post" enctype="multipart/form-data">' +
             '<input type="hidden" name="is_iframe" value="true" />' +
+            '<input type="hidden" name="ALTO_AJAX" value="1" />' +
             '<input type="hidden" name="topic_id" value="' + input.data('topic-id') + '" />' +
             '</form>').hide().appendTo('body');
 

@@ -27,7 +27,7 @@ class ModuleImg extends Module {
     public function Init() {
 
         $this->aAvailableDrivers = $this->GetDriversInfo();
-        $this->sDefaultDriver = reset(array_keys($this->aAvailableDrivers));
+        $this->sDefaultDriver = F::Array_FirstKey($this->aAvailableDrivers);
     }
 
     /**
@@ -61,7 +61,8 @@ class ModuleImg extends Module {
         if (isset($this->aDrivers[$sDriver])) {
             if ($this->aDrivers[$sDriver] == 'Imagick') {
                 if (class_exists('Imagick')) {
-                    $aInfo = Imagick::getVersion();
+                    $img = new \Imagick();
+                    $aInfo = $img->getVersion();
                     $sVersion = $aInfo['versionString'];
                     if (preg_match('/\w+\s\d+\.[\d\.\-]+/', $sVersion, $aMatches)) {
                         $sVersion = $aMatches[0];
@@ -398,6 +399,9 @@ class ModuleImg extends Module {
         $this->nError = 0;
         if (preg_match('~^(.+)-(\d+x\d+)(\-([a-z]+))?\.[a-z]+$~i', $sFile, $aMatches)) {
             $sOriginal = $aMatches[1];
+            if (!F::File_Exists($sOriginal)) {
+                return false;
+            }
             list($nW, $nH) = explode('x', $aMatches[2]);
             $sModifier = (isset($aMatches[4]) ? $aMatches[4] : '');
             if ($sModifier == 'fit') {

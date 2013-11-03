@@ -36,7 +36,7 @@ class Config extends Storage {
     const DEFAULT_CONFIG_ROOT = '__config__';
 
     const KEY_LINK_STR = '___';
-    const KEY_LINK_PREG = '~___([\S|\.]+)___~Ui';
+    const KEY_LINK_PREG = '~___([\S|\.]+)(___/|___)~Ui';
 
     const CUSTOM_CONFIG_PREFIX = 'custom.config.';
 
@@ -377,11 +377,11 @@ class Config extends Storage {
                     $xResult = Config::Get($aMatch[0][1], $sRoot);
                 } else {
                     foreach ($aMatch as $aItem) {
-                        $xResult = str_replace(
-                            self::KEY_LINK_STR . $aItem[1] . self::KEY_LINK_STR,
-                            Config::Get($aItem[1], $sRoot),
-                            $xResult
-                        );
+                        $sReplacement = Config::Get($aItem[1], $sRoot);
+                        if ($aItem[2] == '___/' && substr($sReplacement, -1) != '/' && substr($sReplacement, -1) != '\\') {
+                            $sReplacement .= '/';
+                        }
+                        $xResult = str_replace(self::KEY_LINK_STR . $aItem[1] . $aItem[2], $sReplacement, $xResult);
                     }
                 }
             }

@@ -11,7 +11,9 @@
     jQuery(function ($) {
         if (window.swfobject.getFlashPlayerVersion()) {
             ls.photoset.initSwfUpload({
-                post_params: { 'topic_id': {json var=$_aRequest.topic_id} }
+                post_params: {
+                    'topic_id': {json var=$_aRequest.topic_id}
+                }
             });
         }
     });
@@ -73,16 +75,16 @@
         <small class="note">{$aLang.topic_create_title_notice}</small>
     </p>
 
-    {if $aParams[0] != 'add' AND $oUserCurrent->isAdministrator()}
+    {if $aParams[0] != 'add' AND E::IsAdmin()}
         <p><label for="topic_url">{$aLang.topic_create_url}:</label>
-            <span class="b-topic-url-demo">{$_aRequest.topic_url_before}</span><span
-                    class="b-topic_url_demo-edit">{$_aRequest.topic_url}</span>
-            {if $_aRequest.topic_url AND $oUserCurrent->isAdministrator()}
-                <input type="text" id="topic_url" name="topic_url" value="{$_aRequest.topic_url}"
+            <span class="b-topic-url-demo">{$aEditTopicUrl.before}</span><span
+                    class="b-topic_url_demo-edit">{$aEditTopicUrl.input}</span>
+            {if $_aRequest.topic_url_input AND E::IsAdmin()}
+                <input type="text" id="topic_url" name="topic_url" value="{$_aRequest.topic_url_input}"
                        class="input-text input-width-300" style="display: none;"/>
             {/if}
-            <span class="b-topic_url_demo">{$_aRequest.topic_url_after}</span>
-            {if $aParams[0] != 'add' AND $oUserCurrent->isAdministrator()}
+            <span class="b-topic_url_demo">{$aEditTopicUrl.after}</span>
+            {if $aParams[0] != 'add' AND E::IsAdmin()}
                 <button class="button js-tip-help" title="{$aLang.topic_create_url_edit}"
                         onclick="ls.topic.editUrl(this); return false;"><i class="icon-edit"></i></button>
             {/if}
@@ -104,33 +106,34 @@
     {/if}
 
     {if $oContentType->isAllow('photoset')}
-        <h2 class="page-header">
-            <a class="link-dotted pointer" onclick="$('.topic-photo-upload').slideToggle();return false;">
+        <fieldset class="topic-fieldset photoset">
+            <a href="#" class="topic-fieldset-title link-dotted pointer" onclick="$('.topic-photo-upload').slideToggle();return false;">
                 {$aLang.topic_toggle_images}
             </a>
-        </h2>
-        <div class="topic-photo-upload" {if !count($aPhotos)}style="display:none;"{/if}>
-            <h2>{$aLang.topic_photoset_upload_title}</h2>
+            <div class="topic-fieldset-body topic-photo-upload" {if !count($aPhotos)}style="display:none;"{/if}>
+                <h4>{$aLang.topic_photoset_upload_title}</h4>
 
-            <div class="topic-photo-upload-rules">
-                {$aLang.topic_photoset_upload_rules|ls_lang:"SIZE%%`Config::Get('module.topic.photoset.photo_max_size')`":"COUNT%%`Config::Get('module.topic.photoset.count_photos_max')`"}
-            </div>
+                <div class="topic-photo-upload-rules">
+                    {$nMaxSixe=Config::Get('module.topic.photoset.photo_max_size')}
+                    {$nMaxCount=Config::Get('module.topic.photoset.count_photos_max')}
+                    {$aLang.topic_photoset_upload_rules|ls_lang:"SIZE%%$nMaxSixe":"COUNT%%$nMaxCount"}
+                </div>
 
-            <input type="hidden" name="topic_main_photo" id="topic_main_photo" value="{$_aRequest.topic_main_photo}"/>
+                <input type="hidden" name="topic_main_photo" id="topic_main_photo" value="{$_aRequest.topic_main_photo}"/>
 
-            <ul id="swfu_images">
-                {if count($aPhotos)}
-                    {foreach from=$aPhotos item=oPhoto}
-                        {if $_aRequest.topic_main_photo && $_aRequest.topic_main_photo == $oPhoto->getId()}
-                            {assign var=bIsMainPhoto value=true}
-                        {/if}
-                        <li id="photo_{$oPhoto->getId()}" {if $bIsMainPhoto}class="marked-as-preview"{/if}>
-                            <img src="{$oPhoto->getWebPath('100crop')}" alt="image"/>
-                            <textarea
-                                    onBlur="ls.photoset.setPreviewDescription({$oPhoto->getId()}, this.value)">{$oPhoto->getDescription()}</textarea><br/>
-                            <a href="javascript:ls.photoset.deletePhoto('{$oPhoto->getId()}')" class="image-delete">
-                                {$aLang.topic_photoset_photo_delete}
-                            </a>
+                <ul id="swfu_images">
+                    {if count($aPhotos)}
+                        {foreach from=$aPhotos item=oPhoto}
+                            {if $_aRequest.topic_main_photo && $_aRequest.topic_main_photo == $oPhoto->getId()}
+                                {assign var=bIsMainPhoto value=true}
+                            {/if}
+                            <li id="photo_{$oPhoto->getId()}" {if $bIsMainPhoto}class="marked-as-preview"{/if}>
+                                <img src="{$oPhoto->getWebPath('100crop')}" alt="image"/>
+                                <textarea
+                                        onBlur="ls.photoset.setPreviewDescription({$oPhoto->getId()}, this.value)">{$oPhoto->getDescription()}</textarea><br/>
+                                <a href="javascript:ls.photoset.deletePhoto('{$oPhoto->getId()}')" class="image-delete">
+                                    {$aLang.topic_photoset_photo_delete}
+                                </a>
                             <span id="photo_preview_state_{$oPhoto->getId()}" class="photo-preview-state">
                             {if $bIsMainPhoto}
                                 {$aLang.topic_photoset_is_preview}
@@ -139,67 +142,68 @@
                                    class="mark-as-preview">{$aLang.topic_photoset_mark_as_preview}</a>
                             {/if}
                             </span>
-                        </li>
-                        {assign var=bIsMainPhoto value=false}
-                    {/foreach}
-                {/if}
-            </ul>
+                            </li>
+                            {assign var=bIsMainPhoto value=false}
+                        {/foreach}
+                    {/if}
+                </ul>
 
-            <a href="javascript:ls.photoset.showForm()"
-               id="photoset-start-upload">{$aLang.topic_photoset_upload_choose}</a>
-        </div>
+                <a href="javascript:ls.photoset.showForm()"
+                   id="photoset-start-upload">{$aLang.topic_photoset_upload_choose}</a>
+            </div>
+        </fieldset>
     {/if}
 
     {if $oContentType->isAllow('question')}
-        <h2 class="page-header">
-            <a class="link-dotted pointer" onclick="$('#topic-poll').slideToggle();return false;">
+        <fieldset class="topic-fieldset poll">
+            <a href="#" class="topic-fieldset-title link-dotted pointer" onclick="$('#topic-poll').slideToggle();return false;">
                 {$aLang.topic_toggle_poll}
             </a>
-        </h2>
-        <div class="poll-create" id="topic-poll" {if !$_aRequest.question_title}style="display:none;"{/if}>
-            <label>{$aLang.topic_question_create_question}:</label>
-            <input type="text" value="{$_aRequest.question_title}" name="question_title"
-                   class="input-text input-width-300" {if $bEditDisabled}disabled{/if} />
-            <label>{$aLang.topic_question_create_answers}:</label>
-            <ul class="question-list" id="question_list">
-                {if count($_aRequest.answer)>=2}
-                    {foreach from=$_aRequest.answer item=sAnswer key=i}
-                        <li>
-                            <input type="text" value="{$sAnswer}" name="answer[]" class="input-text input-width-300"
-                                   {if $bEditDisabled}disabled{/if} />
-                            {if !$bEditDisabled and $i>1}
-                                <a href="#" class="icon-synio-remove" onClick="return ls.poll.removeAnswer(this);"></a>
-                            {/if}
-                        </li>
-                    {/foreach}
-                {else}
-                    <li><input type="text" value="" name="answer[]" class="input-text input-width-300"
-                               {if $bEditDisabled}disabled{/if} /></li>
-                    <li><input type="text" value="" name="answer[]" class="input-text input-width-300"
-                               {if $bEditDisabled}disabled{/if} /></li>
-                {/if}
-            </ul>
+            <div class="topic-fieldset-body poll-create" id="topic-poll" {if !$_aRequest.question_title}style="display:none;"{/if}>
+                <label>{$aLang.topic_question_create_question}:</label>
+                <input type="text" value="{$_aRequest.question_title}" name="question_title"
+                       class="input-text input-width-300" {if $bEditDisabled}disabled{/if} />
+                <label>{$aLang.topic_question_create_answers}:</label>
+                <ul class="question-list" id="question_list">
+                    {if count($_aRequest.answer)>=2}
+                        {foreach from=$_aRequest.answer item=sAnswer key=i}
+                            <li>
+                                <input type="text" value="{$sAnswer}" name="answer[]" class="input-text input-width-300"
+                                       {if $bEditDisabled}disabled{/if} />
+                                {if !$bEditDisabled and $i>1}
+                                    <a href="#" class="icon-synio-remove" onClick="return ls.poll.removeAnswer(this);"></a>
+                                {/if}
+                            </li>
+                        {/foreach}
+                    {else}
+                        <li><input type="text" value="" name="answer[]" class="input-text input-width-300"
+                                   {if $bEditDisabled}disabled{/if} /></li>
+                        <li><input type="text" value="" name="answer[]" class="input-text input-width-300"
+                                   {if $bEditDisabled}disabled{/if} /></li>
+                    {/if}
+                </ul>
 
-            {if !$bEditDisabled}
-                <a href="#" onClick="ls.poll.addAnswer(); return false;"
-                   class="link-dotted">{$aLang.topic_question_create_answers_add}</a>
-            {/if}
-        </div>
+                {if !$bEditDisabled}
+                    <a href="#" onClick="ls.poll.addAnswer(); return false;"
+                       class="link-dotted">{$aLang.topic_question_create_answers_add}</a>
+                {/if}
+            </div>
+        </fieldset>
     {/if}
 
     {if $oContentType->isAllow('link')}
-        <h2 class="page-header">
-            <a class="link-dotted pointer" onclick="$('#topic-link').slideToggle();return false;">
+        <fieldset class="topic-fieldset link">
+            <a href="#" class="link-dotted pointer" onclick="$('#topic-link').slideToggle();return false;">
                 {$aLang.topic_toggle_link}
             </a>
-        </h2>
-        <div class="poll-create" id="topic-link" {if !$_aRequest.topic_link_url}style="display:none;"{/if}>
-            <p><label for="topic_link_url">{$aLang.topic_link_create_url}:</label>
-                <input type="text" id="topic_link_url" name="topic_link_url" value="{$_aRequest.topic_link_url}"
-                       class="input-text input-width-full"/>
-                <small class="note">{$aLang.topic_link_create_url_notice}</small>
-            </p>
-        </div>
+            <div class="topic-fieldset-body link" id="topic-link" {if !$_aRequest.topic_link_url}style="display:none;"{/if}>
+                <p><label for="topic_link_url">{$aLang.topic_link_create_url}:</label>
+                    <input type="text" id="topic_link_url" name="topic_link_url" value="{$_aRequest.topic_link_url}"
+                           class="input-text input-width-full"/>
+                    <small class="note">{$aLang.topic_link_create_url_notice}</small>
+                </p>
+            </div>
+        </fieldset>
     {/if}
 
     <p><label for="topic_tags">{$aLang.topic_create_tags}:</label>
@@ -229,12 +233,24 @@
     {hook run='form_add_topic_topic_end'}
 
     <button type="submit" name="submit_topic_publish" id="submit_topic_publish"
-            class="button button-primary fl-r">{$aLang.topic_create_submit_publish}</button>
-    <button type="submit" name="submit_preview"
-            onclick="ls.topic.preview('form-topic-add','text_preview'); return false;"
-            class="button">{$aLang.topic_create_submit_preview}</button>
-    <button type="submit" name="submit_topic_save" id="submit_topic_save"
-            class="button">{$aLang.topic_create_submit_save}</button>
+            class="button button-primary fl-r">
+        {if $oTopic AND $oTopic->getPublish()}
+            {$aLang.topic_create_submit_publish_update}
+        {else}
+            {$aLang.topic_create_submit_publish}
+        {/if}
+    </button>
+    <button onclick="ls.topic.preview('form-topic-add','text_preview'); return false;"
+            type="submit" name="submit_preview" class="button">
+        {$aLang.topic_create_submit_preview}
+    </button>
+    <button type="submit" name="submit_topic_save" id="submit_topic_save" class="button">
+        {if $oTopic AND $oTopic->getPublish()}
+            {$aLang.topic_create_submit_publish_draft}
+        {else}
+            {$aLang.topic_create_submit_save}
+        {/if}
+    </button>
 </form>
 
 <div class="topic-preview" style="display: none;" id="text_preview"></div>
