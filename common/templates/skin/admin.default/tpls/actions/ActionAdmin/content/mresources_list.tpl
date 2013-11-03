@@ -22,11 +22,12 @@
 
         <div class="b-wbox">
             <div class="b-wbox-content nopadding">
-                <table class="table table-striped table-condensed blogs-list">
+                <table class="table table-striped table-condensed mresources-list">
                     <thead>
                     <tr>
                         <th class="span1">ID</th>
                         <th>Date</th>
+                        <th>User</th>
                         <th>Url</th>
                         <th>Preview</th>
                         <th>Targets</th>
@@ -36,10 +37,16 @@
 
                     <tbody>
                     {foreach $aMresources as $oMresource}
+                        {$oUser = $oMresource->getUser()}
                         <tr>
                             <td class="number">{$oMresource->GetId()}</td>
                             <td class="center">
                                 {$oMresource->GetDateAdd()}
+                            </td>
+                            <td class="name">
+                                {if $oUser}
+                                    <a href="{$oUser->getProfileUrl()}">{$oUser->getLogin()}</a>
+                                {/if}
                             </td>
                             <td class="name">
                                 {if $oMresource->IsLink()}
@@ -55,7 +62,7 @@
                             </td>
                             <td>
                                 {if $oMresource->GetImgUrl(100)}
-                                    <img src="{$oMresource->GetImgUrl(100)}" alt="" style="border: 1px solid #CCC;"/>
+                                    <img src="{$oMresource->GetImgUrl(100)}" alt="" class="i-img-preview-100x100"/>
                                 {/if}
                             </td>
                             <td class="center">

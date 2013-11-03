@@ -1320,9 +1320,10 @@ class ActionAdmin extends Action {
             'fields' => array('mr.*', 'targets_count'),
             'filter' => $aFilter,
             'limit'  => array(($nPage - 1) * Config::Get('admin.items_per_page'), Config::Get('admin.items_per_page')),
+            'with'   => array('user'),
         );
         $aResult = $this->Mresource_GetMresourcesByCriteria($aCriteria);
-        //$aResult = $this->Mresource_GetMresourcesByFilter($aFilter, $nPage, Config::Get('admin.items_per_page'));
+
         $aPaging = $this->Viewer_MakePaging($aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4,
             Router::GetPath('admin') . 'content-mresources/');
 

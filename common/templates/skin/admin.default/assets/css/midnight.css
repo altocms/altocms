@@ -1382,6 +1382,12 @@ form {
     opacity: 0;
 }
 
+.i-img-preview-100x100 {
+    max-height: 100px;
+    max-width: 100px;
+    border: 1px solid #CCC;
+}
+
 /* Responsive design */
 /*
 @media (max-width: 480px) {

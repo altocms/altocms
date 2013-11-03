@@ -236,9 +236,26 @@ class ModuleMresource extends Module {
 
         $aData = $this->oMapper->GetMresourcesByCriteria($aCriteria);
         if ($aData['data']) {
-            $aData['data'] = Engine::GetEntityRows('Mresource', $aData['data']);
+            $aCollection = Engine::GetEntityRows('Mresource', $aData['data']);
+            if (isset($aCriteria['with'])) {
+                if (!is_array($aCriteria['with'])) {
+                    $aCriteria['with'] = array($aCriteria['with']);
+                }
+                foreach($aCriteria['with'] as $sRelEntity) {
+                    if ($sRelEntity == 'user') {
+                        $aUserId = array_values(array_unique(F::Array_Column($aData['data'], 'user_id')));
+                        $aUsers = $this->User_GetUsersByArrayId($aUserId);
+                        foreach ($aCollection as $oMresource) {
+                            if (isset($aUsers[$oMresource->getUserId()])) {
+                                $oMresource->setUser($aUsers[$oMresource->getUserId()]);
+                            }
+                        }
+                        $aUsers = null;
+                    }
+                }
+            }
         }
-        return array('collection' => $aData['data'], 'count' => 0);
+        return array('collection' => $aCollection, 'count' => 0);
     }
 
     public function GetMresourcesByFilter($aFilter, $nPage, $nPerPage) {
