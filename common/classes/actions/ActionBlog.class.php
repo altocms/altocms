@@ -216,9 +216,8 @@ class ActionBlog extends Action {
         $oBlog = Engine::GetEntity('Blog');
         $oBlog->setOwnerId($this->oUserCurrent->getId());
         $oBlog->setTitle(strip_tags(getRequestStr('blog_title')));
-        /**
-         * Парсим текст на предмет разных ХТМЛ тегов
-         */
+
+        // * Парсим текст на предмет разных HTML-тегов
         $sText = $this->Text_Parser(getRequestStr('blog_description'));
         $oBlog->setDescription($sText);
         $oBlog->setType(getRequestStr('blog_type'));
@@ -226,9 +225,8 @@ class ActionBlog extends Action {
         $oBlog->setLimitRatingTopic(getRequestStr('blog_limit_rating_topic'));
         $oBlog->setUrl(getRequestStr('blog_url'));
         $oBlog->setAvatar(null);
-        /**
-         * Загрузка аватара, делаем ресайзы
-         */
+
+        // * Загрузка аватара блога
         if ($aUploadedFile = $this->GetUploadedFile('avatar')) {
             if ($sPath = $this->Blog_UploadBlogAvatar($aUploadedFile, $oBlog)) {
                 $oBlog->setAvatar($sPath);
@@ -237,11 +235,10 @@ class ActionBlog extends Action {
                 return false;
             }
         }
-        /**
-         * Создаём блог
-         */
+
+        // * Создаём блог
         $this->Hook_Run('blog_add_before', array('oBlog' => $oBlog));
-        if ($this->Blog_AddBlog($oBlog)) {
+        if ($this->_addBlog($oBlog)) {
             $this->Hook_Run('blog_add_after', array('oBlog' => $oBlog));
 
             // Получаем блог, это для получение полного пути блога,
@@ -258,6 +255,18 @@ class ActionBlog extends Action {
         } else {
             $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
         }
+    }
+
+    /**
+     * Добавдение блога
+     *
+     * @param $oBlog
+     *
+     * @return bool|ModuleBlog_EntityBlog
+     */
+    protected function _addBlog($oBlog) {
+
+        return $this->Blog_AddBlog($oBlog);
     }
 
     /**
@@ -346,7 +355,7 @@ class ActionBlog extends Action {
 
             // Обновляем блог
             $this->Hook_Run('blog_edit_before', array('oBlog' => $oBlog));
-            if ($this->Blog_UpdateBlog($oBlog)) {
+            if ($this->_updateBlog($oBlog)) {
                 $this->Hook_Run('blog_edit_after', array('oBlog' => $oBlog));
                 Router::Location($oBlog->getUrlFull());
             } else {
@@ -363,6 +372,18 @@ class ActionBlog extends Action {
             $_REQUEST['blog_limit_rating_topic'] = $oBlog->getLimitRatingTopic();
             $_REQUEST['blog_id'] = $oBlog->getId();
         }
+    }
+
+    /**
+     * Обновление блога
+     *
+     * @param $oBlog
+     *
+     * @return bool
+     */
+    protected function _updateBlog($oBlog) {
+
+        return $this->Blog_UpdateBlog($oBlog);
     }
 
     /**
@@ -1905,7 +1926,7 @@ class ActionBlog extends Action {
         // * Удаляяем блог и перенаправляем пользователя к списку блогов
         $this->Hook_Run('blog_delete_before', array('sBlogId' => $nBlogId));
 
-        if ($this->Blog_DeleteBlog($nBlogId)) {
+        if ($this->_deleteBlog($oBlog)) {
             $this->Hook_Run('blog_delete_after', array('sBlogId' => $nBlogId));
             $this->Message_AddNoticeSingle(
                 $this->Lang_Get('blog_admin_delete_success'), $this->Lang_Get('attention'), true
@@ -1914,6 +1935,18 @@ class ActionBlog extends Action {
         } else {
             Router::Location($oBlog->getUrlFull());
         }
+    }
+
+    /**
+     * Удаление блога
+     *
+     * @param $oBlog
+     *
+     * @return bool
+     */
+    protected function _deleteBlog($oBlog) {
+
+        return $this->Blog_DeleteBlog($oBlog);
     }
 
     /**
