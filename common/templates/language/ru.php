@@ -293,6 +293,8 @@ return array(
     'topic_create_publish_index'                => 'Принудительно вывести на главную',
     'topic_create_publish_index_notice'         => 'Если отметить эту галку, то статья сразу попадёт на главную страницу (опция доступна только администраторам)',
     'topic_create_submit_publish'               => 'Опубликовать',
+    'topic_create_submit_publish_update'        => 'Обновить публикацию',
+    'topic_create_submit_publish_draft'         => 'Перенести в черновики',
     'topic_create_submit_update'                => 'Обновить',
     'topic_create_submit_save'                  => 'Сохранить в черновиках',
     'topic_create_submit_preview'               => 'Предпросмотр',
