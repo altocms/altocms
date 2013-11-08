@@ -435,6 +435,11 @@ abstract class ModuleORM extends Module {
         } elseif (!substr_count($sEntityFull, '_')) {
             $sEntityFull = Engine::GetPluginPrefix($this)
                 . 'Module' . Engine::GetModuleName($this) . '_Entity' . $sEntityFull;
+        } elseif (strpos($sEntityFull, '_') && (strpos($sEntityFull, 'Module') !== 0) && !strpos($sEntityFull, '_Entity')) {
+            if (substr_count($sEntityFull, '_') == 1) {
+                list($sModule, $sEntity) = explode('_', $sEntityFull);
+                $sEntityFull = Engine::GetPluginPrefix($this) . 'Module' . $sModule . '_Entity' . $sEntity;
+            }
         }
 
         // Если параметр #cache указан и пуст, значит игнорируем кэширование для запроса
@@ -502,9 +507,10 @@ abstract class ModuleORM extends Module {
                 $sRelPrimaryKey = method_exists($oRelEntityEmpty, '_getPrimaryKey')
                     ? F::StrCamelize($oRelEntityEmpty->_getPrimaryKey())
                     : 'Id';
+                $aCallParams = array($aEntityKeys[$sRelKey]);
                 $aRelData = Engine::GetInstance()->_CallModule(
                     "{$sRelPluginPrefix}{$sRelModuleName}_get{$sRelEntityName}ItemsByArray{$sRelPrimaryKey}",
-                    array($aEntityKeys[$sRelKey])
+                    $aCallParams
                 );
 
                 /**
