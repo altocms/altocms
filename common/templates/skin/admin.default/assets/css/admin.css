@@ -159,10 +159,7 @@ td.number {
     text-align: right;
     padding-right: 4px;
 }
-td.center {
-    text-align: center;
-}
-td.checkbox {
+td.center, td.checkbox {
     text-align: center;
 }
 td.checkbox [type=checkbox] {

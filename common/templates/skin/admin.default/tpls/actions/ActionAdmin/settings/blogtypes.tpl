@@ -43,6 +43,7 @@
                             </a>
                         </td>
                         <td>
+                            {$oBlogType->getTypeName()|escape:'html'}<br/>
                             {foreach $aLangList as $sLang}
                                 [ <strong>{$sLang}</strong> ] {$oBlogType->getName($sLang)|escape:'html'}<br/>
                             {/foreach}

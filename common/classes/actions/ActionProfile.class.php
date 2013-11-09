@@ -930,8 +930,8 @@ class ActionProfile extends Action {
                 /**
                  * Добавляем событие в ленту
                  */
-                $this->Stream_write($oFriend->getUserFrom(), 'add_friend', $oFriend->getUserTo());
-                $this->Stream_write($oFriend->getUserTo(), 'add_friend', $oFriend->getUserFrom());
+                $this->Stream_Write($oFriend->getUserFrom(), 'add_friend', $oFriend->getUserTo());
+                $this->Stream_Write($oFriend->getUserTo(), 'add_friend', $oFriend->getUserFrom());
                 /**
                  * Добавляем пользователей к друг другу в ленту активности
                  */
@@ -1089,8 +1089,8 @@ class ActionProfile extends Action {
                     /**
                      * Добавляем событие в ленту
                      */
-                    $this->Stream_write($oFriend->getUserFrom(), 'add_friend', $oFriend->getUserTo());
-                    $this->Stream_write($oFriend->getUserTo(), 'add_friend', $oFriend->getUserFrom());
+                    $this->Stream_Write($oFriend->getUserFrom(), 'add_friend', $oFriend->getUserTo());
+                    $this->Stream_Write($oFriend->getUserTo(), 'add_friend', $oFriend->getUserFrom());
                     $this->Message_AddNoticeSingle($this->Lang_Get('user_friend_add_ok'), $this->Lang_Get('attention'));
 
                     $oViewerLocal = $this->GetViewerLocal();

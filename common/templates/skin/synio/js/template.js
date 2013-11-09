@@ -52,6 +52,35 @@ jQuery(document).ready(function ($) {
         return false;
     });
 
+    $('input.input-file').each(function () {
+        var uploader = $(this).wrap('<div class="file-uploader" />').parent();
+        uploader.append('<span class="file-uploader-filename">File not choosen</span>')
+            .append('<span class="file-uploader-button button">Choose file</span>')
+            .click(function(e) {
+                console.log(this);
+                if (!$(e.target).is('input[type=file]')) {
+                    e.stopPropagation();
+                    $(this).find('input[type=file]').click();
+                }
+            });
+        $(this).change(function() {
+            var filename = $(this).val();
+            if (filename) {
+                var n1 = filename.lastIndexOf('/');
+                var n2 = filename.lastIndexOf('\\');
+                if (n1 >= 0 || n2 >= 0) {
+                    if (n1 == -1) {
+                        n1 = n2;
+                    } else {
+                        n1 = (n1 > n2) ? n1 : n2;
+                    }
+                    filename = filename.substr(n1 + 1, filename.length);
+                }
+            }
+            uploader.find('.file-uploader-filename').text(filename);
+        });
+    });
+
     // Datepicker
     /**
      * TODO: навесить языки на datepicker

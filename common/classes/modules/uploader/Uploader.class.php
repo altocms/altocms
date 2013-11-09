@@ -444,14 +444,17 @@ class ModuleUploader extends Module {
     /**
      * Path to user's dir for uploaded images
      *
-     * @param int  $nUserId
+     * @param int  $iUserId
      * @param bool $bAutoMake
      *
      * @return string
      */
-    public function GetUserImageDir($nUserId, $bAutoMake = true) {
+    public function GetUserImageDir($iUserId = null, $bAutoMake = true) {
 
-        $sResult = $this->GetUserImagesUploadDir($nUserId) . date('Y/m/d/');
+        if (is_null($iUserId)) {
+            $iUserId = intval(E::UserId());
+        }
+        $sResult = $this->GetUserImagesUploadDir($iUserId) . date('Y/m/d/');
         if ($bAutoMake) {
             F::File_CheckDir($sResult, $bAutoMake);
         }

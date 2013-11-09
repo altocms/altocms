@@ -332,7 +332,7 @@ class ActionAjax extends Action {
             /**
              * Добавляем событие в ленту
              */
-            $this->Stream_write($oTopicVote->getVoterId(), 'vote_topic', $oTopic->getId());
+            $this->Stream_Write($oTopicVote->getVoterId(), 'vote_topic', $oTopic->getId());
         } else {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
             return;
@@ -395,7 +395,7 @@ class ActionAjax extends Action {
                         /**
                          * Добавляем событие в ленту
                          */
-                        $this->Stream_write($oBlogVote->getVoterId(), 'vote_blog', $oBlog->getId());
+                        $this->Stream_Write($oBlogVote->getVoterId(), 'vote_blog', $oBlog->getId());
                     } else {
                         $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('attention'));
                         return;
@@ -487,7 +487,7 @@ class ActionAjax extends Action {
             /**
              * Добавляем событие в ленту
              */
-            $this->Stream_write($oUserVote->getVoterId(), 'vote_user', $oUser->getId());
+            $this->Stream_Write($oUserVote->getVoterId(), 'vote_user', $oUser->getId());
         } else {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
             return;
@@ -1176,7 +1176,7 @@ class ActionAjax extends Action {
             $sTextToggle = $this->Lang_Get('comment_delete');
         }
         // * Обновление события в ленте активности
-        $this->Stream_write($oComment->getUserId(), 'add_comment', $oComment->getId(), !$oComment->getDelete());
+        $this->Stream_Write($oComment->getUserId(), 'add_comment', $oComment->getId(), !$oComment->getDelete());
 
         // * Показываем сообщение и передаем переменные в ajax ответ
         $this->Message_AddNoticeSingle($sMsg, $this->Lang_Get('attention'));

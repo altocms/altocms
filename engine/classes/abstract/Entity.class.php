@@ -169,7 +169,8 @@ abstract class Entity extends LsObject {
     /**
      * Localize substring like {{<key>}}
      *
-     * @param string $sKey
+     * @param string $sKey  - Property key
+     * @param string $sLang - Language
      *
      * @return string
      */

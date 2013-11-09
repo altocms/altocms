@@ -29,6 +29,9 @@ abstract class ModuleORM extends Module {
      *
      * @var MapperORM
      */
+    protected $oMapper = null;
+
+    /** @var null LS compatible */
     protected $oMapperORM = null;
 
     /**
@@ -47,7 +50,9 @@ abstract class ModuleORM extends Module {
      */
     protected function _LoadMapperORM() {
 
-        $this->oMapperORM = new MapperORM($this->oEngine->Database_GetConnect());
+        $this->oMapper = new MapperORM($this->oEngine->Database_GetConnect());
+        // LS compatible
+        $this->oMapperORM = $this->oMapper;
     }
 
     /**
@@ -64,7 +69,7 @@ abstract class ModuleORM extends Module {
      */
     protected function _AddEntity($oEntity) {
 
-        $res = $this->oMapperORM->AddEntity($oEntity);
+        $res = $this->oMapper->AddEntity($oEntity);
 
         // сбрасываем кеш
         if ($res === 0 || $res) {
@@ -108,7 +113,7 @@ abstract class ModuleORM extends Module {
      */
     protected function _UpdateEntity($oEntity) {
 
-        $res = $this->oMapperORM->UpdateEntity($oEntity);
+        $res = $this->oMapper->UpdateEntity($oEntity);
         if ($res === 0 || $res) { // запись не изменилась, либо изменилась
             // Обновление связей many_to_many
             $aRelationsData = $oEntity->_getRelationsData();
@@ -160,7 +165,7 @@ abstract class ModuleORM extends Module {
      */
     protected function _DeleteEntity($oEntity) {
 
-        $res = $this->oMapperORM->DeleteEntity($oEntity);
+        $res = $this->oMapper->DeleteEntity($oEntity);
         if ($res) {
             // сбрасываем кеш
             $sEntity = $this->Plugin_GetRootDelegater('entity', get_class($oEntity));
@@ -211,7 +216,7 @@ abstract class ModuleORM extends Module {
      */
     protected function _ShowColumnsFrom($oEntity) {
 
-        return $this->oMapperORM->ShowColumnsFrom($oEntity);
+        return $this->oMapper->ShowColumnsFrom($oEntity);
     }
 
     /**
@@ -223,7 +228,7 @@ abstract class ModuleORM extends Module {
      */
     protected function _ShowPrimaryIndexFrom($oEntity) {
 
-        return $this->oMapperORM->ShowPrimaryIndexFrom($oEntity);
+        return $this->oMapper->ShowPrimaryIndexFrom($oEntity);
     }
 
     /**
@@ -411,7 +416,7 @@ abstract class ModuleORM extends Module {
             $sEntityFull = Engine::GetPluginPrefix($this)
                 . 'Module' . Engine::GetModuleName($this) . '_Entity' . $sEntityFull;
         }
-        return $this->oMapperORM->GetByFilter($aFilter, $sEntityFull);
+        return $this->oMapper->GetByFilter($aFilter, $sEntityFull);
     }
 
     /**
@@ -444,7 +449,7 @@ abstract class ModuleORM extends Module {
 
         // Если параметр #cache указан и пуст, значит игнорируем кэширование для запроса
         if (array_key_exists('#cache', $aFilter) && !$aFilter['#cache']) {
-            $aEntities = $this->oMapperORM->GetItemsByFilter($aFilter, $sEntityFull);
+            $aEntities = $this->oMapper->GetItemsByFilter($aFilter, $sEntityFull);
         } else {
             $sEntityFullRoot = $this->Plugin_GetRootDelegater('entity', $sEntityFull);
             $sCacheKey = $sEntityFullRoot . '_items_by_filter_' . serialize($aFilter);
@@ -462,7 +467,7 @@ abstract class ModuleORM extends Module {
             }
 
             if (false === ($aEntities = $this->Cache_Get($sCacheKey))) {
-                $aEntities = $this->oMapperORM->GetItemsByFilter($aFilter, $sEntityFull);
+                $aEntities = $this->oMapper->GetItemsByFilter($aFilter, $sEntityFull);
                 $this->Cache_Set($aEntities, $sCacheKey, $aCacheTags, $iCacheTime);
             }
         }
@@ -578,7 +583,7 @@ abstract class ModuleORM extends Module {
         }
         // Если параметр #cache указан и пуст, значит игнорируем кэширование для запроса
         if (array_key_exists('#cache', $aFilter) && !$aFilter['#cache']) {
-            $iCount = $this->oMapperORM->GetCountItemsByFilter($aFilter, $sEntityFull);
+            $iCount = $this->oMapper->GetCountItemsByFilter($aFilter, $sEntityFull);
         } else {
             $sEntityFullRoot = $this->Plugin_GetRootDelegater('entity', $sEntityFull);
             $sCacheKey = $sEntityFullRoot . '_count_items_by_filter_' . serialize($aFilter);
@@ -596,7 +601,7 @@ abstract class ModuleORM extends Module {
             }
 
             if (false === ($iCount = $this->Cache_Get($sCacheKey))) {
-                $iCount = $this->oMapperORM->GetCountItemsByFilter($aFilter, $sEntityFull);
+                $iCount = $this->oMapper->GetCountItemsByFilter($aFilter, $sEntityFull);
                 $this->Cache_Set($iCount, $sCacheKey, $aCacheTags, $iCacheTime);
             }
         }
@@ -642,7 +647,7 @@ abstract class ModuleORM extends Module {
 
         // Если параметр #cache указан и пуст, значит игнорируем кэширование для запроса
         if (array_key_exists('#cache', $aJoinData) && !$aJoinData['#cache']) {
-            $aEntities = $this->oMapperORM->GetItemsByJoinTable($aJoinData, $sEntityFull);
+            $aEntities = $this->oMapper->GetItemsByJoinTable($aJoinData, $sEntityFull);
         } else {
             $sEntityFullRoot = $this->Plugin_GetRootDelegater('entity', $sEntityFull);
             $sCacheKey = $sEntityFullRoot . '_items_by_join_table_' . serialize($aJoinData);
@@ -662,7 +667,7 @@ abstract class ModuleORM extends Module {
             // Добавление тега для обработки MANY_TO_MANY
             $aCacheTags[] = 'm2m_' . $aJoinData['#relation_key'] . $aJoinData['#by_key'] . $aJoinData['#by_value'];
             if (false === ($aEntities = $this->Cache_Get($sCacheKey))) {
-                $aEntities = $this->oMapperORM->GetItemsByJoinTable($aJoinData, $sEntityFull);
+                $aEntities = $this->oMapper->GetItemsByJoinTable($aJoinData, $sEntityFull);
                 $this->Cache_Set($aEntities, $sCacheKey, $aCacheTags, $iCacheTime);
             }
         }
@@ -699,7 +704,7 @@ abstract class ModuleORM extends Module {
         }
         // Если параметр #cache указан и пуст, значит игнорируем кэширование для запроса
         if (array_key_exists('#cache', $aJoinData) && !$aJoinData['#cache']) {
-            $iCount = $this->oMapperORM->GetCountItemsByJoinTable($aJoinData, $sEntityFull);
+            $iCount = $this->oMapper->GetCountItemsByJoinTable($aJoinData, $sEntityFull);
         } else {
             $sEntityFullRoot = $this->Plugin_GetRootDelegater('entity', $sEntityFull);
             $sCacheKey = $sEntityFullRoot . '_count_items_by_join_table_' . serialize($aJoinData);
@@ -718,7 +723,7 @@ abstract class ModuleORM extends Module {
 
             $aCacheTags[] = 'm2m_' . $aJoinData['#relation_key'] . $aJoinData['#by_key'] . $aJoinData['#by_value'];
             if (false === ($iCount = $this->Cache_Get($sCacheKey))) {
-                $iCount = $this->oMapperORM->GetCountItemsByJoinTable($aJoinData, $sEntityFull);
+                $iCount = $this->oMapper->GetCountItemsByJoinTable($aJoinData, $sEntityFull);
                 $this->Cache_Set($iCount, $sCacheKey, $aCacheTags, $iCacheTime);
             }
         }
@@ -945,7 +950,7 @@ abstract class ModuleORM extends Module {
         * [4] -> 'topic_id' - название столбца в таблице связи, в котором содержатся id сущности, для которой объявляется связь,
         *      в нашем случае топиков
         */
-        $aSavedSet = $this->oMapperORM->getManyToManySet($aRelation[3], $aRelation[4], $iEntityId, $aRelation[2]);
+        $aSavedSet = $this->oMapper->getManyToManySet($aRelation[3], $aRelation[4], $iEntityId, $aRelation[2]);
         $aCurrentSet = array();
         foreach ($aRelationData as $oEntity) {
             $aCurrentSet[] = $oEntity->getProp($oEntity->_getPrimaryKey());
@@ -955,7 +960,7 @@ abstract class ModuleORM extends Module {
         }
         $aInsertSet = array_diff($aCurrentSet, $aSavedSet);
         $aDeleteSet = array_diff($aSavedSet, $aCurrentSet);
-        $this->oMapperORM->updateManyToManySet(
+        $this->oMapper->updateManyToManySet(
             $aRelation[3], $aRelation[4], $iEntityId, $aRelation[2], $aInsertSet, $aDeleteSet
         );
     }
@@ -969,7 +974,7 @@ abstract class ModuleORM extends Module {
      */
     protected function _deleteManyToManySet($sDbTableAlias, $sEntityKey, $iEntityId) {
 
-        $this->oMapperORM->deleteManyToManySet($sDbTableAlias, $sEntityKey, $iEntityId);
+        $this->oMapper->deleteManyToManySet($sDbTableAlias, $sEntityKey, $iEntityId);
     }
 
 }

@@ -3423,7 +3423,7 @@ class ActionAdmin extends Action {
                 $this->Viewer_AssignAjax('iCountVote', $oUser->getCountVote());
 
                 // * Добавляем событие в ленту
-                //$this->Stream_write($oUserVote->getVoterId(), 'vote_user', $oUser->getId());
+                //$this->Stream_Write($oUserVote->getVoterId(), 'vote_user', $oUser->getId());
                 $this->Message_AddNoticeSingle($this->Lang_Get('user_vote_ok'), $this->Lang_Get('attention'));
             } else {
                 $this->Message_AddErrorSingle($this->Lang_Get('action.admin.vote_error'), $this->Lang_Get('error'));

@@ -75,6 +75,8 @@ class ModuleBlog extends Module {
      */
     protected $oUserCurrent = null;
 
+    protected $aDefaultAdditionalData = array('vote', 'owner' => array(), 'relation_user');
+
     /**
      * Инициализация
      *
@@ -148,16 +150,16 @@ class ModuleBlog extends Module {
     /**
      * Получает дополнительные данные(объекты) для блогов по их ID
      *
-     * @param array|int $aBlogId       Список ID блогов
-     * @param array     $aAllowData    Список типов дополнительных данных, которые нужно получить для блогов
-     * @param array     $aOrder        Порядок сортировки
+     * @param array|int $aBlogId    - Список ID блогов
+     * @param array     $aAllowData - Список типов дополнительных данных, которые нужно получить для блогов
+     * @param array     $aOrder     - Порядок сортировки
      *
      * @return array
      */
     public function GetBlogsAdditionalData($aBlogId, $aAllowData = null, $aOrder = null) {
 
         if (is_null($aAllowData)) {
-            $aAllowData = array('vote', 'owner' => array(), 'relation_user');
+            $aAllowData = $this->aDefaultAdditionalData;
         }
         $aAllowData = F::Array_FlipIntKeys($aAllowData);
         if (!is_array($aBlogId)) {
@@ -1264,9 +1266,9 @@ class ModuleBlog extends Module {
     /**
      * Возвращает список доступных типов для определенного действия
      *
-     * @param      $oUser
-     * @param      $sAction
-     * @param bool $bTypeCodesOnly
+     * @param ModuleUser_EntityUser $oUser
+     * @param string                $sAction
+     * @param bool                  $bTypeCodesOnly
      *
      * @return array
      */

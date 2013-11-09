@@ -506,6 +506,9 @@ class ModuleViewer extends Module {
             if (!$this->oSmarty) {
                 $this->InitTemplator();
             }
+            // Подавляем обработку ошибок
+            $this->oSmarty->muteExpectedErrors();
+
             $sTemplate = $this->Plugin_GetDelegate('template', $sTemplate);
             if ($this->TemplateExists($sTemplate, true)) {
                 // Установка нового secret key непосредственно перед рендерингом
@@ -517,6 +520,7 @@ class ModuleViewer extends Module {
                 self::$_renderTime += (microtime(true) - self::$_renderStart);
                 self::$_renderStart = 0;
             }
+            $this->oSmarty->unmuteExpectedErrors();
         }
     }
 
@@ -560,6 +564,9 @@ class ModuleViewer extends Module {
                 }
             }
 
+            // * Подавляем вывод ошибок
+            $this->oSmarty->muteExpectedErrors();
+
             self::$_renderCount++;
             self::$_renderStart = microtime(true);
 
@@ -572,6 +579,8 @@ class ModuleViewer extends Module {
                 $this->oSmarty->caching = $nOldCaching;
                 $this->oSmarty->cache_lifetime = $nOldCacheLifetime;
             }
+
+            $this->oSmarty->unmuteExpectedErrors();
 
             return $sContent;
         }

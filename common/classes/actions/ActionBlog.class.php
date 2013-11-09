@@ -246,7 +246,7 @@ class ActionBlog extends Action {
             $oBlog->Blog_GetBlogById($oBlog->getId());
 
             // Добавляем событие в ленту
-            $this->Stream_write($oBlog->getOwnerId(), 'add_blog', $oBlog->getId());
+            $this->Stream_Write($oBlog->getOwnerId(), 'add_blog', $oBlog->getId());
 
             // Подписываем владельца блога на свой блог
             $this->Userfeed_subscribeUser($oBlog->getOwnerId(), ModuleUserfeed::SUBSCRIBE_TYPE_BLOG, $oBlog->getId());
@@ -1847,7 +1847,7 @@ class ActionBlog extends Action {
             /**
              * Добавляем событие в ленту
              */
-            $this->Stream_write($oBlogUser->getUserId(), 'join_blog', $oBlog->getId());
+            $this->Stream_Write($oBlogUser->getUserId(), 'join_blog', $oBlog->getId());
         } else {
             $sMessage = $this->Lang_Get('blog_user_invite_reject');
         }
@@ -2042,7 +2042,7 @@ class ActionBlog extends Action {
                     /**
                      * Добавляем событие в ленту
                      */
-                    $this->Stream_write($this->oUserCurrent->getId(), 'join_blog', $oBlog->getId());
+                    $this->Stream_Write($this->oUserCurrent->getId(), 'join_blog', $oBlog->getId());
                     /**
                      * Добавляем подписку на этот блог в ленту пользователя
                      */

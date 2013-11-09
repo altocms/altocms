@@ -43,6 +43,7 @@
             </label>
             <div class="controls">
                 <input type="text" name="blogtypes_name" value="{$_aRequest.blogtypes_name}" class="input-text" />
+                <span class="help-block">{$aLang.action.admin.blogtypes_name_notice}</span>
             </div>
             {foreach $aLangList as $sLang}
                 <label class="control-label">
@@ -63,6 +64,7 @@
             </label>
             <div class="controls">
                 <input type="text" name="blogtypes_description" value="{$_aRequest.blogtypes_description}" class="input-text" />
+                <span class="help-block">{$aLang.action.admin.blogtypes_description_notice}</span>
             </div>
             {foreach $aLangList as $sLang}
                 <label class="control-label">
