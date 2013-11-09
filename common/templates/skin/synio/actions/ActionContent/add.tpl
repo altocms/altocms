@@ -2,7 +2,7 @@
     {include file='header.tpl' menu_content='create'}
 {else}
     {include file='header.tpl'}
-    <h2 class="page-header">{$aLang.topic_topic_edit}: <b>{$_aRequest.topic_title|escape:'html'}</b></h2>
+    <h2 class="page-header">{$aLang.topic_topic_edit}: <b>{$_aRequest.topic_title}</b></h2>
 {/if}
 
 {include file='editor.tpl'}
