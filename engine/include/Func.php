@@ -56,8 +56,32 @@ class Func {
         $sText = '';
         if (static::_errorLogExtInfo() && isset($_SERVER) && is_array($_SERVER)) {
             foreach ($_SERVER as $sKey => $sVal) {
-                if (!in_array($sKey, array('PATH', 'SystemRoot', 'COMSPEC', 'PATHEXT', 'WINDIR')))
-                    $sText .= "  _SERVER['$sKey']=$sVal\n";
+                if (!in_array($sKey, array('PATH', 'SystemRoot', 'COMSPEC', 'PATHEXT', 'WINDIR'))) {
+                    $sText .= "  _SERVER['$sKey']=";
+                    if (is_scalar($sVal)) {
+                        $sText .= $sVal;
+                    } else {
+                        $sText .= gettype($sVal);
+                        if (is_array($sVal)) {
+                            $sText .= '(';
+                            $nCnt = 0;
+                            foreach ($sVal as $xIdx => $sItem) {
+                                if ($nCnt++) {
+                                    $sText .= ',';
+                                }
+                                if (is_scalar($sItem)) {
+                                    $sText .= $xIdx . '=>' . $sItem;
+                                } else {
+                                    $sText .= $xIdx . '=>' . gettype($sItem) . '()';
+                                }
+                            }
+                            $sText .= ')';
+                        } else {
+                            $sText .= '()';
+                        }
+                    }
+                    $sText .= "\n";
+                }
             }
             $sText = "$sError\n---\n$sText\n---\n";
         } else {

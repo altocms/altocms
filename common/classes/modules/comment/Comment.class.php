@@ -33,6 +33,8 @@ class ModuleComment extends Module {
      */
     protected $oUserCurrent = null;
 
+    protected $aAdditionalData = array('vote', 'target', 'favourite', 'user' => array());
+
     /**
      * Инициализация
      *
@@ -89,8 +91,8 @@ class ModuleComment extends Module {
      * @return array('collection'=>array, 'count'=>int)
      */
     public function GetCommentsAll($sTargetType, $iPage, $iPerPage, $aExcludeTarget = array(), $aExcludeParentTarget = array()) {
-        $s = serialize($aExcludeTarget) . serialize($aExcludeParentTarget);
-        $sCacheKey = "comment_all_{$sTargetType}_{$iPage}_{$iPerPage}_{$s}";
+
+        $sCacheKey = "comment_all_" . serialize(func_get_args());
         if (false === ($data = $this->Cache_Get($sCacheKey))) {
             $data = array(
                 'collection' => $this->oMapper->GetCommentsAll($sTargetType, $iCount, $iPage, $iPerPage, $aExcludeTarget, $aExcludeParentTarget),
@@ -114,7 +116,7 @@ class ModuleComment extends Module {
     public function GetCommentsAdditionalData($aCommentId, $aAllowData = null) {
 
         if (is_null($aAllowData)) {
-            $aAllowData = array('vote', 'target', 'favourite', 'user' => array());
+            $aAllowData = $this->aAdditionalData;
         }
         $aAllowData = F::Array_FlipIntKeys($aAllowData);
         if (!is_array($aCommentId)) {

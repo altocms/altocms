@@ -63,6 +63,8 @@ class ModuleUser extends Module {
             'social', 'contact'
         );
 
+    protected $aAdditionalData = array('vote', 'session', 'friend', 'geo_target', 'note');
+
     /**
      * Инициализация
      *
@@ -143,7 +145,7 @@ class ModuleUser extends Module {
         }
 
         if (is_null($aAllowData)) {
-            $aAllowData = array('vote', 'session', 'friend', 'geo_target', 'note');
+            $aAllowData = $this->aAdditionalData;
         }
         $aAllowData = F::Array_FlipIntKeys($aAllowData);
 

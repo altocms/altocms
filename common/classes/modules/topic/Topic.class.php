@@ -61,6 +61,11 @@ class ModuleTopic extends Module {
      */
     protected $aTopicTypesObjects = array();
 
+    protected $aAdditionalData = array('user' => array(), 'blog' => array('owner' => array(), 'relation_user'), 'vote',
+                                  'favourite', 'fields', 'comment_new');
+
+    protected $aAdditionalDataContentType = array('fields' => array());
+
     /**
      * Инициализация
      *
@@ -84,7 +89,7 @@ class ModuleTopic extends Module {
     public function getContentTypes($aFilter, $aAllowData = null) {
 
         if (is_null($aAllowData)) {
-            $aAllowData = array('fields' => array());
+            $aAllowData = $this->aAdditionalDataContentType;
         }
         $s = serialize($aFilter);
         if (false === ($data = $this->Cache_Get("content_types_{$s}"))) {
@@ -402,8 +407,7 @@ class ModuleTopic extends Module {
     public function GetTopicsAdditionalData($aTopicId, $aAllowData = null) {
 
         if (is_null($aAllowData)) {
-            $aAllowData = array('user' => array(), 'blog' => array('owner' => array(), 'relation_user'), 'vote',
-                                'favourite', 'fields', 'comment_new');
+            $aAllowData = $this->aAdditionalData;
         }
         $aAllowData = F::Array_FlipIntKeys($aAllowData);
         if (!is_array($aTopicId)) {

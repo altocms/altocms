@@ -47,6 +47,8 @@ class ModuleTalk extends Module {
      */
     protected $oUserCurrent = null;
 
+    protected $aAdditionalData = array('user', 'talk_user', 'favourite', 'comment_last');
+
     /**
      * Инициализация
      *
@@ -165,7 +167,7 @@ class ModuleTalk extends Module {
     public function GetTalksAdditionalData($aTalkId, $aAllowData = null) {
 
         if (is_null($aAllowData)) {
-            $aAllowData = array('user', 'talk_user', 'favourite', 'comment_last');
+            $aAllowData = $this->aAdditionalData;
         }
         $aAllowData = F::Array_FlipIntKeys($aAllowData);
         if (!is_array($aTalkId)) {

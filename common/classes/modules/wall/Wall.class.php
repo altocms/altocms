@@ -33,6 +33,8 @@ class ModuleWall extends Module {
      */
     protected $oUserCurrent;
 
+    protected $aAdditionalData = array('user' => array(), 'wall_user' => array(), 'reply');
+
     /**
      * Инициализация
      *
@@ -148,7 +150,7 @@ class ModuleWall extends Module {
     public function GetWallAdditionalData($aWallId, $aAllowData = null) {
 
         if (is_null($aAllowData)) {
-            $aAllowData = array('user' => array(), 'wall_user' => array(), 'reply');
+            $aAllowData = $this->aAdditionalData;
         }
         $aAllowData = F::Array_FlipIntKeys($aAllowData);
         if (!is_array($aWallId)) {
