@@ -67,6 +67,16 @@ class CacheBackendFile extends Dklab_Cache_Backend_Profiler implements ICacheBac
         return parent::save(serialize($xData), $sName, $aTags, $nTimeLife);
     }
 
+    public function Remove($sName) {
+
+        return parent::remove($sName);
+    }
+
+    public function Clean($sMode = Zend_Cache::CLEANING_MODE_ALL, $aTags = array()) {
+
+        return parent::clean($sMode, $aTags);
+    }
+
 }
 
 // EOF
