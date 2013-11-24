@@ -19,9 +19,11 @@ class Func {
     static public function init() {
 
         static::_loadExtension('File');
-        register_shutdown_function('F::done');
-        set_error_handler('F::_errorHandler');
-        set_exception_handler('F::_exceptionHandler');
+        if (!defined('ALTO_INSTALL')) {
+            register_shutdown_function('F::done');
+            set_error_handler('F::_errorHandler');
+            set_exception_handler('F::_exceptionHandler');
+        }
     }
 
     static public function done() {
@@ -103,7 +105,8 @@ class Func {
      */
     static public function _log($sText, $sLogFile, $sLevel = null) {
 
-        if (class_exists('ModuleLogger', false) || Loader::Autoload('ModuleLogger')) {
+
+        if (class_exists('ModuleLogger', false) || (class_exists('Loader', false) && Loader::Autoload('ModuleLogger'))) {
             // Если загружен модуль Logger, то логгируем ошибку с его помощью
             return E::Logger_Dump($sLogFile, $sText, $sLevel);
         } elseif (class_exists('Config', false)) {

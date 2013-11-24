@@ -16,6 +16,7 @@
 error_reporting(E_ALL);
 
 define('ALTO_NO_LOADER', 1);
+define('ALTO_INSTALL', 1);
 define('ALTO_DIR', dirname(dirname(__FILE__)));
 
 require_once(ALTO_DIR . '/engine/loader.php');
@@ -97,6 +98,13 @@ class Install {
     protected $aMessages = array();
 
     /**
+     * Массив ошибок
+     *
+     * @var array
+     */
+    protected $aErrors = array();
+
+    /**
      * Директория с шаблонами
      *
      * @var string
@@ -135,7 +143,7 @@ class Install {
     protected $aValidEnv
         = array(
             //'safe_mode' => array('0', 'off', ''),
-            'register_globals' => array('0', 'off', ''),
+            //'register_globals' => array('0', 'off', ''),
             'allow_url_fopen'  => array('1', 'on'),
             'UTF8_support'     => '1',
             'http_input'       => array('', 'pass'),
@@ -433,14 +441,19 @@ class Install {
      * @return bool
      */
     protected function SaveConfig($sName, $sVar, $sPath) {
+
         if (!file_exists($sPath)) {
-            $this->aMessages[] = array('type' => 'error',
-                                       'text' => $this->Lang('config_file_not_exists', array('path' => $sPath)));
+            $this->aMessages[] = array(
+                'type' => 'error',
+                'text' => $this->Lang('config_file_not_exists', array('path' => $sPath)),
+            );
             return false;
         }
         if (!is_writeable($sPath)) {
-            $this->aMessages[] = array('type' => 'error',
-                                       'text' => $this->Lang('config_file_not_writable', array('path' => $sPath)));
+            $this->aMessages[] = array(
+                'type' => 'error',
+                'text' => $this->Lang('config_file_not_writable', array('path' => $sPath)),
+            );
             return false;
         }
 
@@ -551,20 +564,16 @@ class Install {
         $this->Assign('next_step_display', ($iKey == count($this->aSteps) - 1) ? 'none' : 'inline-block');
         $this->Assign('prev_step_display', ($iKey == 0) ? 'none' : 'inline-block');
 
-        /**
-         * Если шаг отновиться к simple mode, то корректируем количество шагов
-         */
+        // * Если шаг отновиться к simple mode, то корректируем количество шагов
         if (in_array($sStepName, $this->aSimpleModeSteps)) {
             $this->SetStepCount(count($this->aSimpleModeSteps));
         }
-        /**
-         * Передаем во вьевер данные для формирование таймлайна шагов
-         */
+
+        // * Assign variables for viewer
         $this->Assign('install_step_number', $iKey + 1);
         $this->Assign('install_step_count', is_null($this->iStepCount) ? count($this->aSteps) : $this->iStepCount);
-        /**
-         * Пердаем управление на метод текущего шага
-         */
+
+        // * Go to the current step
         $sFunctionName = 'Step' . $sStepName;
         if (@method_exists($this, $sFunctionName)) {
             $this->$sFunctionName();
@@ -609,9 +618,7 @@ class Install {
         if (!$this->ValidateEnviroment()) {
             $this->Assign('next_step_disabled', 'disabled');
         } else {
-            /**
-             * Прописываем в конфигурацию абсолютные пути
-             */
+            // * Прописываем в конфигурацию абсолютные пути
             $this->SavePath();
 
             if ($this->GetRequest('install_step_next')) {
@@ -749,36 +756,26 @@ class Install {
              * Проверяем была ли проведена установка базы в течении сеанса.
              * Открываем .sql файл и добавляем в базу недостающие таблицы
              */
-            if ($this->GetSessionVar('INSTALL_DATABASE_DONE', '') != md5(
-                    serialize(array($aParams['server'], $aParams['name']))
-                )
-            ) {
-                /**
-                 * Отдельным файлом запускаем создание GEO-базы
-                 */
-                $aRes = $this->CreateTables('geo_base.sql', array_merge($aParams, array('check_table' => 'geo_city')));
-                if ($aRes) {
-                    list($bResult, $aErrors) = array_values($aRes);
+            if ($this->GetSessionVar('INSTALL_DATABASE_DONE', '') != md5(serialize(array($aParams['server'], $aParams['name'])))) {
+
+                // * Отдельным файлом запускаем создание GEO-базы
+                $bResult = $this->CreateTables('geo_base.sql', array_merge($aParams, array('check_table' => 'geo_city')));
+                if (!$bResult) {
+                    foreach ($this->aErrors as $sError) {
+                        $this->aMessages[] = array('type' => 'error', 'text' => $sError);
+                    }
+                    $this->Layout('steps/db.tpl');
+                    return false;
+                }
+
+                if (!$aParams['convert'] && !$aParams['convert_from_10'] && !$aParams['convert_to_alto']) {
+                    $bResult = $this->CreateTables('sql.sql', array_merge($aParams, array('check_table' => 'topic')));
                     if (!$bResult) {
-                        foreach ($aErrors as $sError) {
+                        foreach ($this->aErrors as $sError) {
                             $this->aMessages[] = array('type' => 'error', 'text' => $sError);
                         }
                         $this->Layout('steps/db.tpl');
                         return false;
-                    }
-                }
-
-                if (!$aParams['convert'] && !$aParams['convert_from_10'] && !$aParams['convert_to_alto']) {
-                    $aRes = $this->CreateTables('sql.sql', array_merge($aParams, array('check_table' => 'topic')));
-                    if ($aRes) {
-                        list($bResult, $aErrors) = array_values($aRes);
-                        if (!$bResult) {
-                            foreach ($aErrors as $sError) {
-                                $this->aMessages[] = array('type' => 'error', 'text' => $sError);
-                            }
-                            $this->Layout('steps/db.tpl');
-                            return false;
-                        }
                     } else {
                         return $this->StepAdmin();
                     }
@@ -1239,16 +1236,14 @@ class Install {
             // пытаемся создать файл локального конфига
             @copy($this->sConfigDir . '/config.local.php.txt', $sLocalConfigPath);
         }
-        if (!file_exists($sLocalConfigPath) || !is_writeable($sLocalConfigPath)) {
+        if (!is_file($sLocalConfigPath) || !is_writeable($sLocalConfigPath)) {
             $bOk = false;
             $this->Assign('validate_local_config', '<span style="color:red;">' . $this->Lang('no') . '</span>');
         } else {
             $this->Assign('validate_local_config', '<span style="color:green;">' . $this->Lang('yes') . '</span>');
         }
 
-        /**
-         * Проверяем доступность и достаточность прав у соответствующих папок
-         */
+        // * Проверяем доступность и права у соответствующих папок
         $sTempDir = dirname(dirname(__FILE__)) . '/_tmp';
         if (!is_dir($sTempDir) || !is_writable($sTempDir)) {
             $bOk = false;
@@ -1282,6 +1277,15 @@ class Install {
         }
 
         return $bOk;
+    }
+
+    protected function sqlQuery($sSql) {
+
+        $xResult = mysql_query($sSql);
+        if (!$xResult) {
+            $this->aErrors[] = mysql_error();
+        }
+        return $xResult;
     }
 
     /**
@@ -1369,51 +1373,39 @@ class Install {
     protected function CreateTables($sFileName, $aParams) {
 
         $aQuery = $this->_loadQueries($sFileName, $aParams);
-        /**
-         * Массив для сбора ошибок
-         */
-        $aErrors = array();
-        /**
-         * Смотрим, какие таблицы существуют в базе данных
-         */
+
+        // * Смотрим, какие таблицы существуют в базе данных
         $aDbTables = array();
         $aResult = @mysql_query('SHOW TABLES');
         if (!$aResult) {
-            return array('result' => false, 'errors' => array($this->Lang('error_db_no_data')));
+            $this->aErrors[] = $this->Lang('error_db_no_data');
+            return false;
         }
         while ($aRow = mysql_fetch_array($aResult, MYSQL_NUM)) {
             $aDbTables[] = $aRow[0];
         }
-        /**
-         * Если среди таблиц БД уже есть таблица prefix_topic, то выполнять SQL-дамп не нужно
-         */
+
+        // * Если среди таблиц БД уже есть таблица prefix_topic, то выполнять SQL-дамп не нужно
         if (in_array($aParams['prefix'] . $aParams['check_table'], $aDbTables)) {
             return false;
         }
-        /**
-         * Выполняем запросы по очереди
-         */
+
+        // * Выполняем запросы по очереди
         foreach ($aQuery as $sQuery) {
             $sQuery = trim($sQuery);
-            /**
-             * Заменяем движок, если таковой указан в запросе
-             */
+
+            // * Заменяем движок, если таковой указан в запросе
             if (isset($aParams['engine'])) {
                 $sQuery = str_ireplace('ENGINE=InnoDB', "ENGINE={$aParams['engine']}", $sQuery);
             }
 
+            $bResult = true;
             if ($sQuery != '' && !$this->IsUseDbTable($sQuery, $aDbTables)) {
-                $bResult = mysql_query($sQuery);
-                if (!$bResult) {
-                    $aErrors[] = mysql_error();
-                }
+                $bResult = $bResult && $this->sqlQuery($sQuery);
             }
         }
 
-        if (count($aErrors) == 0) {
-            return array('result' => true, 'errors' => null);
-        }
-        return array('result' => false, 'errors' => $aErrors);
+        return $bResult;
     }
 
     /**
