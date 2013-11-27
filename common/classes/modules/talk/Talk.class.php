@@ -166,6 +166,9 @@ class ModuleTalk extends Module {
      */
     public function GetTalksAdditionalData($aTalkId, $aAllowData = null) {
 
+        if (!$aTalkId) {
+            return array();
+        }
         if (is_null($aAllowData)) {
             $aAllowData = $this->aAdditionalData;
         }
@@ -402,7 +405,7 @@ class ModuleTalk extends Module {
      */
     public function GetTalkById($nId) {
 
-        if (!is_numeric($nId)) {
+        if (!intval($nId)) {
             return null;
         }
         $aTalks = $this->GetTalksAdditionalData($nId);
@@ -564,18 +567,19 @@ class ModuleTalk extends Module {
             'collection' => $this->oMapper->GetTalksByUserId($nUserId, $iCount, $iPage, $iPerPage),
             'count'      => $iCount
         );
-        $aTalks = $this->GetTalksAdditionalData($data['collection']);
-        /**
-         * Добавляем данные об участниках разговора
-         */
-        foreach ($aTalks as $oTalk) {
-            $aResult = $this->GetTalkUsersByTalkId($oTalk->getId());
-            foreach ((array)$aResult as $oTalkUser) {
-                $aTalkUsers[$oTalkUser->getUserId()] = $oTalkUser;
+        if ($data['collection']) {
+            $aTalks = $this->GetTalksAdditionalData($data['collection']);
+
+            // * Добавляем данные об участниках разговора
+            foreach ($aTalks as $oTalk) {
+                $aResult = $this->GetTalkUsersByTalkId($oTalk->getId());
+                foreach ((array)$aResult as $oTalkUser) {
+                    $aTalkUsers[$oTalkUser->getUserId()] = $oTalkUser;
+                }
+                $oTalk->setTalkUsers($aTalkUsers);
             }
-            $oTalk->setTalkUsers($aTalkUsers);
+            $data['collection'] = $aTalks;
         }
-        $data['collection'] = $aTalks;
         return $data;
     }
 
@@ -594,19 +598,20 @@ class ModuleTalk extends Module {
             'collection' => $this->oMapper->GetTalksByFilter($aFilter, $iCount, $iPage, $iPerPage),
             'count'      => $iCount
         );
-        $aTalks = $this->GetTalksAdditionalData($data['collection']);
-        /**
-         * Добавляем данные об участниках разговора
-         */
-        foreach ($aTalks as $oTalk) {
-            $aResult = $this->GetTalkUsersByTalkId($oTalk->getId());
-            $aTalkUsers = array();
-            foreach ((array)$aResult as $oTalkUser) {
-                $aTalkUsers[$oTalkUser->getUserId()] = $oTalkUser;
+        if ($data['collection']) {
+            $aTalks = $this->GetTalksAdditionalData($data['collection']);
+
+            // * Добавляем данные об участниках разговора
+            foreach ($aTalks as $oTalk) {
+                $aResult = $this->GetTalkUsersByTalkId($oTalk->getId());
+                $aTalkUsers = array();
+                foreach ((array)$aResult as $oTalkUser) {
+                    $aTalkUsers[$oTalkUser->getUserId()] = $oTalkUser;
+                }
+                $oTalk->setTalkUsers($aTalkUsers);
             }
-            $oTalk->setTalkUsers($aTalkUsers);
+            $data['collection'] = $aTalks;
         }
-        $data['collection'] = $aTalks;
         return $data;
     }
 
@@ -764,21 +769,22 @@ class ModuleTalk extends Module {
 
         // Получаем список идентификаторов избранных комментов
         $data = $this->Favourite_GetFavouritesByUserId($nUserId, 'talk', $iCurrPage, $iPerPage);
-        // Получаем комменты по переданому массиву айдишников
-        $aTalks = $this->GetTalksAdditionalData($data['collection']);
 
-        /**
-         * Добавляем данные об участниках разговора
-         */
-        foreach ($aTalks as $oTalk) {
-            $aResult = $this->GetTalkUsersByTalkId($oTalk->getId());
-            $aTalkUsers = array();
-            foreach ((array)$aResult as $oTalkUser) {
-                $aTalkUsers[$oTalkUser->getUserId()] = $oTalkUser;
+        if ($data['collection']) {
+            // Получаем комменты по переданому массиву айдишников
+            $aTalks = $this->GetTalksAdditionalData($data['collection']);
+
+            // * Добавляем данные об участниках разговора
+            foreach ($aTalks as $oTalk) {
+                $aResult = $this->GetTalkUsersByTalkId($oTalk->getId());
+                $aTalkUsers = array();
+                foreach ((array)$aResult as $oTalkUser) {
+                    $aTalkUsers[$oTalkUser->getUserId()] = $oTalkUser;
+                }
+                $oTalk->setTalkUsers($aTalkUsers);
             }
-            $oTalk->setTalkUsers($aTalkUsers);
+            $data['collection'] = $aTalks;
         }
-        $data['collection'] = $aTalks;
         return $data;
     }
 

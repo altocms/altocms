@@ -78,22 +78,27 @@ class ModuleUserfeed extends Module {
      * @return array
      */
     public function read($iUserId, $iCount = null, $iFromId = null) {
+
         if (!$iCount) {
             $iCount = Config::Get('module.userfeed.count_default');
         }
         $aUserSubscribes = $this->oMapper->getUserSubscribes($iUserId);
         $aTopicsIds = $this->oMapper->readFeed($aUserSubscribes, $iCount, $iFromId);
-        return $this->Topic_getTopicsAdditionalData($aTopicsIds);
+        if ($aTopicsIds) {
+            return $this->Topic_GetTopicsAdditionalData($aTopicsIds);
+        }
+        return array();
     }
 
     /**
      * Получить ленту топиков по подписке
      *
-     * @param int $iUserId ID пользователя, для которого получаем ленту
-     * @param int $iCount  Число получаемых записей (если null, из конфига)
-     * @param int $iFromId Получить записи, начиная с указанной
+     * @param int  $iUserId ID пользователя, для которого получаем ленту
+     * @param int  $iPage
+     * @param int  $iPerPage
+     * @param bool $iOnlyNew
      *
-     * @return array
+     * @return mixed
      */
     public function trackread($iUserId, $iPage = 1, $iPerPage = 10, $iOnlyNew = false) {
         $aTopicTracks = $this->Subscribe_GetTracks(
@@ -104,7 +109,7 @@ class ModuleUserfeed extends Module {
         foreach ($aTopicTracks['collection'] as $oTrack) {
             $aTopicsIds[] = $oTrack->getTargetId();
         }
-        $aTopicTracks['collection'] = $this->Topic_getTopicsAdditionalData($aTopicsIds);
+        $aTopicTracks['collection'] = $this->Topic_GetTopicsAdditionalData($aTopicsIds);
         return $aTopicTracks;
     }
 

@@ -102,7 +102,9 @@ class ModuleWall extends Module {
             'collection' => $this->oMapper->GetWall($aFilter, $aOrder, $iCount, $iCurrPage, $iPerPage),
             'count'      => $iCount
         );
-        $aResult['collection'] = $this->GetWallAdditionalData($aResult['collection'], $aAllowData);
+        if ($aResult['collection']) {
+            $aResult['collection'] = $this->GetWallAdditionalData($aResult['collection'], $aAllowData);
+        }
         return $aResult;
     }
 
@@ -149,6 +151,9 @@ class ModuleWall extends Module {
      */
     public function GetWallAdditionalData($aWallId, $aAllowData = null) {
 
+        if (!$aWallId) {
+            return array();
+        }
         if (is_null($aAllowData)) {
             $aAllowData = $this->aAdditionalData;
         }
@@ -227,7 +232,7 @@ class ModuleWall extends Module {
      */
     public function GetWallById($iId) {
 
-        if (!is_numeric($iId)) {
+        if (!intval($iId)) {
             return null;
         }
         $aResult = $this->GetWallAdditionalData($iId);

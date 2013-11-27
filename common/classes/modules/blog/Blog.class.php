@@ -75,7 +75,7 @@ class ModuleBlog extends Module {
      */
     protected $oUserCurrent = null;
 
-    protected $aDefaultAdditionalData = array('vote', 'owner' => array(), 'relation_user');
+    protected $aAdditionalData = array('vote', 'owner' => array(), 'relation_user');
 
     /**
      * Инициализация
@@ -158,29 +158,29 @@ class ModuleBlog extends Module {
      */
     public function GetBlogsAdditionalData($aBlogId, $aAllowData = null, $aOrder = null) {
 
+        if (!$aBlogId) {
+            return array();
+        }
         if (is_null($aAllowData)) {
-            $aAllowData = $this->aDefaultAdditionalData;
+            $aAllowData = $this->aAdditionalData;
         }
         $aAllowData = F::Array_FlipIntKeys($aAllowData);
         if (!is_array($aBlogId)) {
             $aBlogId = array($aBlogId);
         }
-        /**
-         * Получаем блоги
-         */
+
+        // * Получаем блоги
         $aBlogs = $this->GetBlogsByArrayId($aBlogId, $aOrder);
-        /**
-         * Формируем ID дополнительных данных, которые нужно получить
-         */
+
+        // * Формируем ID дополнительных данных, которые нужно получить
         $aUserId = array();
         foreach ($aBlogs as $oBlog) {
             if (isset($aAllowData['owner'])) {
                 $aUserId[] = $oBlog->getOwnerId();
             }
         }
-        /**
-         * Получаем дополнительные данные
-         */
+
+        // * Получаем дополнительные данные
         $aBlogUsers = array();
         $aBlogsVote = array();
         $aUsers = (isset($aAllowData['owner']) && is_array($aAllowData['owner']))
@@ -192,9 +192,8 @@ class ModuleBlog extends Module {
         if (isset($aAllowData['vote']) && $this->oUserCurrent) {
             $aBlogsVote = $this->Vote_GetVoteByArray($aBlogId, 'blog', $this->oUserCurrent->getId());
         }
-        /**
-         * Добавляем данные к результату - списку блогов
-         */
+
+        // * Добавляем данные к результату - списку блогов
         foreach ($aBlogs as $oBlog) {
             if (isset($aUsers[$oBlog->getOwnerId()])) {
                 $oBlog->setOwner($aUsers[$oBlog->getOwnerId()]);
@@ -331,18 +330,18 @@ class ModuleBlog extends Module {
     /**
      * Получить блог по айдишнику(номеру)
      *
-     * @param int $sBlogId    ID блога
+     * @param int $iBlogId    ID блога
      *
      * @return ModuleBlog_EntityBlog|null
      */
-    public function GetBlogById($sBlogId) {
+    public function GetBlogById($iBlogId) {
 
-        if (!intval($sBlogId)) {
+        if (!intval($iBlogId)) {
             return null;
         }
-        $aBlogs = $this->GetBlogsAdditionalData($sBlogId);
-        if (isset($aBlogs[$sBlogId])) {
-            return $aBlogs[$sBlogId];
+        $aBlogs = $this->GetBlogsAdditionalData($iBlogId);
+        if (isset($aBlogs[$iBlogId])) {
+            return $aBlogs[$iBlogId];
         }
         return null;
     }
@@ -514,8 +513,9 @@ class ModuleBlog extends Module {
         if ($bReturnIdOnly) {
             return $data;
         }
-
-        $data = $this->GetBlogsAdditionalData($data);
+        if ($data) {
+            $data = $this->GetBlogsAdditionalData($data);
+        }
         return $data;
     }
 
@@ -533,8 +533,9 @@ class ModuleBlog extends Module {
         if ($bReturnIdOnly) {
             return $data;
         }
-
-        $data = $this->GetBlogsAdditionalData($data);
+        if ($data) {
+            $data = $this->GetBlogsAdditionalData($data);
+        }
         return $data;
     }
 
@@ -598,16 +599,16 @@ class ModuleBlog extends Module {
     /**
      * Получает отношения юзера к блогам(состоит в блоге или нет)
      *
-     * @param int      $sUserId          ID пользователя
+     * @param int      $iUserId          ID пользователя
      * @param int|null $iRole            Роль пользователя в блоге
      * @param bool     $bReturnIdOnly    Возвращать только ID блогов или полные объекты
      *
      * @return array
      */
-    public function GetBlogUsersByUserId($sUserId, $iRole = null, $bReturnIdOnly = false) {
+    public function GetBlogUsersByUserId($iUserId, $iRole = null, $bReturnIdOnly = false) {
 
         $aFilter = array(
-            'user_id' => $sUserId
+            'user_id' => $iUserId
         );
         if ($iRole !== null) {
             $aFilter['user_role'] = $iRole;
@@ -616,7 +617,7 @@ class ModuleBlog extends Module {
         if (false === ($data = $this->Cache_Get($sCacheKey))) {
             $data = $this->oMapper->GetBlogUsers($aFilter);
             $this->Cache_Set(
-                $data, $sCacheKey, array('blog_update', "blog_relation_change_{$sUserId}"), 60 * 60 * 24 * 3
+                $data, $sCacheKey, array('blog_update', "blog_relation_change_{$iUserId}"), 60 * 60 * 24 * 3
             );
         }
         /**
@@ -631,7 +632,7 @@ class ModuleBlog extends Module {
              * Если указано возвращать полные объекты
              */
             if (!$bReturnIdOnly) {
-                $aUsers = $this->User_GetUsersAdditionalData($sUserId);
+                $aUsers = $this->User_GetUsersAdditionalData($iUserId);
                 $aBlogs = $this->Blog_GetBlogsAdditionalData($aBlogId);
                 foreach ($data as $oBlogUser) {
                     if (isset($aUsers[$oBlogUser->getUserId()])) {
@@ -653,16 +654,16 @@ class ModuleBlog extends Module {
     /**
      * Состоит ли юзер в конкретном блоге
      *
-     * @param int $sBlogId    ID блога
-     * @param int $sUserId    ID пользователя
+     * @param int $iBlogId    ID блога
+     * @param int $iUserId    ID пользователя
      *
      * @return ModuleBlog_EntityBlogUser|null
      */
-    public function GetBlogUserByBlogIdAndUserId($sBlogId, $sUserId) {
+    public function GetBlogUserByBlogIdAndUserId($iBlogId, $iUserId) {
 
-        if ($aBlogUser = $this->GetBlogUsersByArrayBlog($sBlogId, $sUserId)) {
-            if (isset($aBlogUser[$sBlogId])) {
-                return $aBlogUser[$sBlogId];
+        if ($aBlogUser = $this->GetBlogUsersByArrayBlog($iBlogId, $iUserId)) {
+            if (isset($aBlogUser[$iBlogId])) {
+                return $aBlogUser[$iBlogId];
             }
         }
         return null;
@@ -672,17 +673,17 @@ class ModuleBlog extends Module {
      * Получить список отношений блог-юзер по списку айдишников
      *
      * @param array $aBlogId    Список ID блогов
-     * @param int   $nUserId    ID пользователя
+     * @param int   $iUserId    ID пользователя
      *
      * @return array
      */
-    public function GetBlogUsersByArrayBlog($aBlogId, $nUserId) {
+    public function GetBlogUsersByArrayBlog($aBlogId, $iUserId) {
 
         if (!$aBlogId) {
             return array();
         }
         if (Config::Get('sys.cache.solid')) {
-            return $this->GetBlogUsersByArrayBlogSolid($aBlogId, $nUserId);
+            return $this->GetBlogUsersByArrayBlogSolid($aBlogId, $iUserId);
         }
         if (!is_array($aBlogId)) {
             $aBlogId = array($aBlogId);
@@ -693,7 +694,7 @@ class ModuleBlog extends Module {
         /**
          * Делаем мульти-запрос к кешу
          */
-        $aCacheKeys = F::Array_ChangeValues($aBlogId, 'blog_relation_user_', '_' . $nUserId);
+        $aCacheKeys = F::Array_ChangeValues($aBlogId, 'blog_relation_user_', '_' . $iUserId);
         if (false !== ($data = $this->Cache_Get($aCacheKeys))) {
             /**
              * проверяем что досталось из кеша
@@ -714,7 +715,7 @@ class ModuleBlog extends Module {
         $aBlogIdNeedQuery = array_diff($aBlogId, array_keys($aBlogUsers));
         $aBlogIdNeedQuery = array_diff($aBlogIdNeedQuery, $aBlogIdNotNeedQuery);
         $aBlogIdNeedStore = $aBlogIdNeedQuery;
-        if ($data = $this->oMapper->GetBlogUsersByArrayBlog($aBlogIdNeedQuery, $nUserId)) {
+        if ($data = $this->oMapper->GetBlogUsersByArrayBlog($aBlogIdNeedQuery, $iUserId)) {
             foreach ($data as $oBlogUser) {
                 /**
                  * Добавляем к результату и сохраняем в кеш
@@ -730,7 +731,7 @@ class ModuleBlog extends Module {
          * Сохраняем в кеш запросы не вернувшие результата
          */
         foreach ($aBlogIdNeedStore as $sId) {
-            $this->Cache_Set(null, "blog_relation_user_{$sId}_{$nUserId}", array(), 'P4D');
+            $this->Cache_Set(null, "blog_relation_user_{$sId}_{$iUserId}", array(), 'P4D');
         }
         /**
          * Сортируем результат согласно входящему массиву
@@ -834,7 +835,9 @@ class ModuleBlog extends Module {
             );
             $this->Cache_Set($data, $sCacheKey, array('blog_update', 'blog_new'), 'P2D');
         }
-        $data['collection'] = $this->GetBlogsAdditionalData($data['collection'], $aAllowData);
+        if ($data['collection']) {
+            $data['collection'] = $this->GetBlogsAdditionalData($data['collection'], $aAllowData);
+        }
         return $data;
     }
 

@@ -489,7 +489,10 @@ class ModuleStream extends Module {
     public function getUserSubscribes($iUserId) {
 
         $aIds = $this->oMapper->getUserSubscribes($iUserId);
-        return $this->User_GetUsersAdditionalData($aIds);
+        if ($aIds) {
+            return $this->User_GetUsersAdditionalData($aIds);
+        }
+        return array();
     }
 
     /**

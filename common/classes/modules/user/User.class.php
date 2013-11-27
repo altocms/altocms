@@ -556,7 +556,7 @@ class ModuleUser extends Module {
      */
     public function GetUserById($nId) {
 
-        if (!is_numeric($nId)) {
+        if (!intval($nId)) {
             return null;
         }
         $aUsers = $this->GetUsersAdditionalData($nId);
@@ -815,7 +815,9 @@ class ModuleUser extends Module {
             $data = $this->oMapper->GetUsersByDateLast($nLimit);
             $this->Cache_Set($data, "user_date_last_{$nLimit}", array("user_session_update"), 'P1D');
         }
-        $data = $this->GetUsersAdditionalData($data);
+        if ($data) {
+            $data = $this->GetUsersAdditionalData($data);
+        }
         return $data;
     }
 
@@ -839,7 +841,9 @@ class ModuleUser extends Module {
                 'count'      => $iCount);
             $this->Cache_Set($data, $sCacheKey, array('user_update', 'user_new'), 'P1D');
         }
-        $data['collection'] = $this->GetUsersAdditionalData($data['collection'], $aAllowData);
+        if ($data['collection']) {
+            $data['collection'] = $this->GetUsersAdditionalData($data['collection'], $aAllowData);
+        }
         return $data;
     }
 
@@ -893,7 +897,9 @@ class ModuleUser extends Module {
             $data = $this->oMapper->GetUsersByLoginLike($sUserLogin, $nLimit);
             $this->Cache_Set($data, $sCacheKey, array("user_new"), 'P2D');
         }
-        $data = $this->GetUsersAdditionalData($data);
+        if ($data) {
+            $data = $this->GetUsersAdditionalData($data);
+        }
         return $data;
     }
 
@@ -1115,7 +1121,9 @@ class ModuleUser extends Module {
             );
             $this->Cache_Set($data, $sCacheKey, array("friend_change_user_{$nUserId}"), 'P2D');
         }
-        $data['collection'] = $this->GetUsersAdditionalData($data['collection']);
+        if ($data['collection']) {
+            $data['collection'] = $this->GetUsersAdditionalData($data['collection']);
+        }
         return $data;
     }
 
@@ -1257,7 +1265,9 @@ class ModuleUser extends Module {
             $data = $this->oMapper->GetUsersInvite($nUserId);
             $this->Cache_Set($data, "users_invite_{$nUserId}", array("invate_new_from_{$nUserId}"), 'P1D');
         }
-        $data = $this->GetUsersAdditionalData($data);
+        if ($data) {
+            $data = $this->GetUsersAdditionalData($data);
+        }
         return $data;
     }
 
@@ -1636,18 +1646,22 @@ class ModuleUser extends Module {
 
         $aResult = $this->oMapper->GetUserNotesByUserId($nUserId, $iCount, $iCurrPage, $iPerPage);
 
-        // * Цепляем пользователей
-        $aUsersId = array();
-        foreach ($aResult as $oNote) {
-            $aUsersId[] = $oNote->getTargetUserId();
-        }
-        $aUsers = $this->GetUsersAdditionalData($aUsersId, array());
-        foreach ($aResult as $oNote) {
-            if (isset($aUsers[$oNote->getTargetUserId()])) {
-                $oNote->setTargetUser($aUsers[$oNote->getTargetUserId()]);
-            } else {
-                // пустого пользователя во избеания ошибок, т.к. пользователь всегда должен быть
-                $oNote->setTargetUser(Engine::GetEntity('User'));
+        if ($aResult) {
+            // * Цепляем пользователей
+            $aUsersId = array();
+            foreach ($aResult as $oNote) {
+                $aUsersId[] = $oNote->getTargetUserId();
+            }
+            if ($aUsersId) {
+                $aUsers = $this->GetUsersAdditionalData($aUsersId, array());
+                foreach ($aResult as $oNote) {
+                    if (isset($aUsers[$oNote->getTargetUserId()])) {
+                        $oNote->setTargetUser($aUsers[$oNote->getTargetUserId()]);
+                    } else {
+                        // пустого пользователя во избеания ошибок, т.к. пользователь всегда должен быть
+                        $oNote->setTargetUser(Engine::GetEntity('User'));
+                    }
+                }
             }
         }
         return array('collection' => $aResult, 'count' => $iCount);

@@ -795,7 +795,7 @@ class ModuleTopic extends Module {
      */
     public function GetTopicById($nId) {
 
-        if (!is_numeric($nId)) {
+        if (!intval($nId)) {
             return null;
         }
         $aTopics = $this->GetTopicsAdditionalData($nId);
@@ -970,10 +970,11 @@ class ModuleTopic extends Module {
         $data = ($this->oUserCurrent && $nUserId == $this->oUserCurrent->getId())
             ? $this->Favourite_GetFavouritesByUserId($nUserId, 'topic', $iCurrPage, $iPerPage, $aCloseTopics)
             : $this->Favourite_GetFavouriteOpenTopicsByUserId($nUserId, $iCurrPage, $iPerPage);
-        /**
-         * Получаем записи по переданому массиву айдишников
-         */
-        $data['collection'] = $this->GetTopicsAdditionalData($data['collection']);
+
+        // * Получаем записи по переданому массиву айдишников
+        if ($data['collection']) {
+            $data['collection'] = $this->GetTopicsAdditionalData($data['collection']);
+        }
         return $data;
     }
 
@@ -1016,7 +1017,9 @@ class ModuleTopic extends Module {
             );
             $this->Cache_Set($data, $sCacheKey, array('topic_update', 'topic_new'), 'P1D');
         }
-        $data['collection'] = $this->GetTopicsAdditionalData($data['collection'], $aAllowData);
+        if ($data['collection']) {
+            $data['collection'] = $this->GetTopicsAdditionalData($data['collection'], $aAllowData);
+        }
         return $data;
     }
 
@@ -1551,7 +1554,9 @@ class ModuleTopic extends Module {
             $data = $this->oMapperTopic->GetTopicsRatingByDate($sDate, $iLimit, $aCloseBlogs);
             $this->Cache_Set($data, $sCacheKey, array('topic_update'), 'P3D');
         }
-        $data = $this->GetTopicsAdditionalData($data);
+        if ($data) {
+            $data = $this->GetTopicsAdditionalData($data);
+        }
         return $data;
     }
 
@@ -1649,15 +1654,18 @@ class ModuleTopic extends Module {
 
         $s = serialize($aCloseBlogs);
         if (false === ($data = $this->Cache_Get("topic_tag_{$sTag}_{$iPage}_{$iPerPage}_{$s}"))) {
-            $data = array('collection' => $this->oMapperTopic->GetTopicsByTag(
-                $sTag, $aCloseBlogs, $iCount, $iPage, $iPerPage
-            ), 'count'                 => $iCount);
+            $data = array(
+                'collection' => $this->oMapperTopic->GetTopicsByTag($sTag, $aCloseBlogs, $iCount, $iPage, $iPerPage),
+                'count'      => $iCount
+            );
             $this->Cache_Set(
                 $data, "topic_tag_{$sTag}_{$iPage}_{$iPerPage}_{$s}", array('topic_update', 'topic_new'),
                 60 * 60 * 24 * 2
             );
         }
-        $data['collection'] = $this->GetTopicsAdditionalData($data['collection']);
+        if ($data['collection']) {
+            $data['collection'] = $this->GetTopicsAdditionalData($data['collection']);
+        }
         return $data;
     }
 

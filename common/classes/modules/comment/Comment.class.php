@@ -52,7 +52,8 @@ class ModuleComment extends Module {
      * @return ModuleComment_EntityComment|null
      */
     public function GetCommentById($nId) {
-        if (!is_numeric($nId)) {
+
+        if (!intval($nId)) {
             return null;
         }
         $aComments = $this->GetCommentsAdditionalData($nId);
@@ -99,9 +100,9 @@ class ModuleComment extends Module {
                 'count'      => $iCount);
             $this->Cache_Set($data, $sCacheKey, array("comment_new_{$sTargetType}", "comment_update_status_{$sTargetType}"), 'P1D');
         }
-        $data['collection'] = $this->GetCommentsAdditionalData(
-            $data['collection'], array('target', 'favourite', 'user' => array())
-        );
+        if ($data['collection']) {
+            $data['collection'] = $this->GetCommentsAdditionalData($data['collection'], array('target', 'favourite', 'user' => array()));
+        }
         return $data;
     }
 
@@ -115,6 +116,9 @@ class ModuleComment extends Module {
      */
     public function GetCommentsAdditionalData($aCommentId, $aAllowData = null) {
 
+        if (!$aCommentId) {
+            return array();
+        }
         if (is_null($aAllowData)) {
             $aAllowData = $this->aAdditionalData;
         }
@@ -300,7 +304,9 @@ class ModuleComment extends Module {
             $data = $this->oMapper->GetCommentsOnline($sTargetType, $aCloseBlogs, $iLimit);
             $this->Cache_Set($data, $sCacheKey, array("comment_online_update_{$sTargetType}"), 'P1D');
         }
-        $data = $this->GetCommentsAdditionalData($data);
+        if ($data) {
+            $data = $this->GetCommentsAdditionalData($data);
+        }
         return $data;
     }
 
@@ -332,7 +338,9 @@ class ModuleComment extends Module {
                 array("comment_new_user_{$nId}_{$sTargetType}", "comment_update_status_{$sTargetType}"), 'P2D'
             );
         }
-        $data['collection'] = $this->GetCommentsAdditionalData($data['collection']);
+        if ($data['collection']) {
+            $data['collection'] = $this->GetCommentsAdditionalData($data['collection']);
+        }
         return $data;
     }
 
@@ -392,7 +400,9 @@ class ModuleComment extends Module {
                       "comment_update_rating_{$sTargetType}"), 'P2D'
             );
         }
-        $data = $this->GetCommentsAdditionalData($data);
+        if ($data) {
+            $data = $this->GetCommentsAdditionalData($data);
+        }
         return $data;
     }
 
@@ -407,6 +417,7 @@ class ModuleComment extends Module {
      * @return array('comments'=>array,'iMaxIdComment'=>int)
      */
     public function GetCommentsByTargetId($nId, $sTargetType, $iPage = 1, $iPerPage = 0) {
+
         if (Config::Get('module.comment.use_nested')) {
             return $this->GetCommentsTreeByTargetId($nId, $sTargetType, $iPage, $iPerPage);
         }
@@ -437,6 +448,7 @@ class ModuleComment extends Module {
      * @return  array
      */
     public function GetCommentsIdByTargetsId($aTargetsId, $sTargetType) {
+
         return $this->oMapper->GetCommentsIdByTargetsId($aTargetsId, $sTargetType);
     }
 
@@ -451,6 +463,7 @@ class ModuleComment extends Module {
      * @return array('comments'=>array, 'iMaxIdComment'=>int, 'count'=>int)
      */
     public function GetCommentsTreeByTargetId($nId, $sTargetType, $iPage = 1, $iPerPage = 0) {
+
         if (!Config::Get('module.comment.nested_page_reverse')
             && $iPerPage
             && $iCountPage = ceil($this->GetCountCommentsRootByTargetId($nId, $sTargetType) / $iPerPage)
@@ -474,7 +487,9 @@ class ModuleComment extends Module {
                 array("comment_new_{$sTargetType}_{$nId}"), 'P2D'
             );
         }
-        $aReturn['comments'] = $this->GetCommentsAdditionalData($aReturn['comments']);
+        if ($aReturn['comments']) {
+            $aReturn['comments'] = $this->GetCommentsAdditionalData($aReturn['comments']);
+        }
         return $aReturn;
     }
 
@@ -705,6 +720,7 @@ class ModuleComment extends Module {
      * @return array('comments'=>array,'iMaxIdComment'=>int)
      */
     public function GetCommentsNewByTargetId($nId, $sTargetType, $nIdCommentLast) {
+
         $sCacheKey = "comment_target_{$nId}_{$sTargetType}_{$nIdCommentLast}";
         if (false === ($aComments = $this->Cache_Get($sCacheKey))) {
             $aComments = $this->oMapper->GetCommentsNewByTargetId($nId, $sTargetType, $nIdCommentLast);
@@ -828,6 +844,7 @@ class ModuleComment extends Module {
      * @return array
      */
     public function GetCommentsFavouriteByUserId($sUserId, $iCurrPage, $iPerPage) {
+
         $aCloseTopics = array();
         /**
          * Получаем список идентификаторов избранных комментов
@@ -838,7 +855,9 @@ class ModuleComment extends Module {
         /**
          * Получаем комменты по переданому массиву айдишников
          */
-        $data['collection'] = $this->GetCommentsAdditionalData($data['collection']);
+        if ($data['collection']) {
+            $data['collection'] = $this->GetCommentsAdditionalData($data['collection']);
+        }
         return $data;
     }
 
@@ -850,6 +869,7 @@ class ModuleComment extends Module {
      * @return int
      */
     public function GetCountCommentsFavouriteByUserId($sUserId) {
+
         return ($this->oUserCurrent && $sUserId == $this->oUserCurrent->getId())
             ? $this->Favourite_GetCountFavouritesByUserId($sUserId, 'comment')
             : $this->Favourite_GetCountFavouriteOpenCommentsByUserId($sUserId);
@@ -1104,11 +1124,15 @@ class ModuleComment extends Module {
      * @return array
      */
     public function GetCommentsByFilter($aFilter, $aOrder, $iCurrPage, $iPerPage, $aAllowData = null) {
+
         if (is_null($aAllowData)) {
             $aAllowData = array('target', 'user' => array());
         }
         $aCollection = $this->oMapper->GetCommentsByFilter($aFilter, $aOrder, $iCount, $iCurrPage, $iPerPage);
-        return array('collection' => $this->GetCommentsAdditionalData($aCollection, $aAllowData), 'count' => $iCount);
+        if ($aCollection) {
+            $aCollection = $this->GetCommentsAdditionalData($aCollection, $aAllowData);
+        }
+        return array('collection' => $aCollection, 'count' => $iCount);
     }
 
     /**
@@ -1119,6 +1143,7 @@ class ModuleComment extends Module {
      * @return array
      */
     public function GetCommentItemsByArrayId($aCommentId) {
+
         return $this->GetCommentsByArrayId($aCommentId);
     }
 
