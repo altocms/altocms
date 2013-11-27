@@ -18,6 +18,7 @@ if (!class_exists('Plugin')) {
 class PluginLs extends Plugin {
 
     protected $aDelegates = array(
+        /*
         'template' => array(
             'page_main_menu.tpl' => '_page_main_menu.tpl',
             'window_write.tpl' => '_window_write.tpl',
@@ -27,6 +28,7 @@ class PluginLs extends Plugin {
             'topic.tpl',
             'actions/ActionProfile/info.tpl' => 'actions/ActionProfile/whois.tpl',
         ),
+        */
     );
 
     protected $aInherits = array(
