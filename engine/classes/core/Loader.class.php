@@ -26,15 +26,7 @@ class Loader {
         // Load additional config files if defined
         $aConfigLoad = F::Str2Array(Config::Get('config_load'));
         if ($aConfigLoad) {
-            foreach ($aConfigLoad as $sName) {
-                $sFile = $sConfigDir . '/' . $sName . '.php';
-                self::_loadConfigSection($sFile, $sName);
-
-                $sFile = $sConfigDir . '/' . $sName . '.local.php';
-                if (F::File_Exists($sFile)) {
-                    self::_loadConfigSection($sFile, $sName);
-                }
-            }
+            self::_loadConfigSections($sConfigDir, $aConfigLoad);
         }
 
         /*
@@ -48,6 +40,9 @@ class Loader {
 
         // Load application config level
         $sAppConfigDir = Config::Get('path.dir.app') . '/config/';
+        if ($aConfigLoad) {
+            self::_loadConfigSections($sAppConfigDir, $aConfigLoad, Config::LEVEL_APP);
+        }
         self::_loadConfigFiles($sAppConfigDir, Config::LEVEL_APP);
 
         self::_checkRequiredDirs();
@@ -178,12 +173,31 @@ class Loader {
     }
 
     /**
+     * @param $sConfigDir
+     * @param $aConfigSections
+     * @param $nConfigLevel
+     */
+    protected static function _loadConfigSections($sConfigDir, $aConfigSections, $nConfigLevel = 0) {
+
+        foreach ($aConfigSections as $sName) {
+            $sFile = $sConfigDir . '/' . $sName . '.php';
+            self::_loadSectionFile($sFile, $sName);
+
+            $sFile = $sConfigDir . '/' . $sName . '.local.php';
+            if (F::File_Exists($sFile)) {
+                self::_loadSectionFile($sFile, $sName, $nConfigLevel);
+            }
+        }
+    }
+
+    /**
      * Load subconfig file
      *
      * @param $sFile
      * @param $sName
+     * @param $nConfigLevel
      */
-    static protected function _loadConfigSection($sFile, $sName) {
+    static protected function _loadSectionFile($sFile, $sName, $nConfigLevel = 0) {
 
         $aConfig = array();
         if (F::File_Exists($sFile)) {
@@ -196,7 +210,7 @@ class Loader {
                 }
             }
         }
-        Config::Load(array($sName => $aConfig), false);
+        Config::Load(array($sName => $aConfig), false, null, $nConfigLevel);
     }
 
     static protected function _checkRequiredDirs() {
