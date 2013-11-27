@@ -325,7 +325,7 @@ abstract class Plugin extends LsObject {
         $aDirs = Config::Get('path.root.seek');
         foreach($aDirs as $sDir) {
             $sPluginDir = $sDir . '/plugins/' . $sName . '/';
-            if (is_dir($sPluginDir)) {
+            if (is_file($sPluginDir . 'plugin.xml')) {
                 return F::File_NormPath($sPluginDir);
             }
         }
