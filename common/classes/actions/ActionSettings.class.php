@@ -75,6 +75,12 @@ class ActionSettings extends Action {
         $this->AddEventPreg('/^profile$/i', '/^resize-photo/i', '/^$/i', 'EventResizePhoto');
         $this->AddEventPreg('/^profile$/i', '/^remove-photo/i', '/^$/i', 'EventRemovePhoto');
         $this->AddEventPreg('/^profile$/i', '/^cancel-photo/i', '/^$/i', 'EventCancelPhoto');
+
+        $this->AddEventPreg('/^profile$/i', '/^upload-foto/i', '/^$/i', 'EventUploadPhoto');
+        $this->AddEventPreg('/^profile$/i', '/^resize-foto/i', '/^$/i', 'EventResizePhoto');
+        $this->AddEventPreg('/^profile$/i', '/^remove-foto/i', '/^$/i', 'EventRemovePhoto');
+        $this->AddEventPreg('/^profile$/i', '/^cancel-foto/i', '/^$/i', 'EventCancelPhoto');
+
         $this->AddEvent('profile', 'EventProfile');
         $this->AddEvent('invite', 'EventInvite');
         $this->AddEvent('tuning', 'EventTuning');
@@ -126,7 +132,7 @@ class ActionSettings extends Action {
         // * Устанавливаем формат Ajax ответа
         $this->Viewer_SetResponseAjax('jsonIframe', false);
 
-        if (!($aUploadedFile = $this->GetUploadedFile('photo'))) {
+        if (!($aUploadedFile = $this->GetUploadedFile('photo')) && !($aUploadedFile = $this->GetUploadedFile('foto'))) {
             $this->Message_AddError($this->Lang_Get('settings_profile_photo_error'), $this->Lang_Get('error'));
             return;
         }
