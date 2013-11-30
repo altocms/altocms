@@ -5,7 +5,7 @@
         <div class="status {if $oUserProfile->isOnline()}status-online{else}status-offline{/if}">
             {if $oUserProfile->isOnline()}{$aLang.user_status_online}{else}{$aLang.user_status_offline}{/if}
         </div>
-        <img src="{$oUserProfile->getProfileFotoPath()}" alt="photo" class="profile-photo" id="foto-img"/>
+        <img src="{$oUserProfile->getPhotoUrl()}" alt="photo" class="profile-photo" id="foto-img"/>
     </div>
 
     {if $sAction=='settings' AND E::UserId() == $oUserProfile->getId()}
@@ -18,7 +18,7 @@
         </script>
         <p class="upload-photo">
             <a href="#" id="foto-upload" class="link-dotted">
-                {if $oUserCurrent->getProfileFoto()}
+                {if $oUserCurrent->getProfilePhoto()}
                     {$aLang.settings_profile_photo_change}
                 {else}
                     {$aLang.settings_profile_photo_upload}
@@ -26,7 +26,7 @@
             </a>&nbsp;&nbsp;&nbsp;
             <a href="#" id="foto-remove" class="link-dotted" onclick="return ls.user.removeFoto();"
                style="{if !$oUserCurrent->getProfileFoto()}display:none;{/if}">
-                {$aLang.settings_profile_foto_delete}
+                {$aLang.settings_profile_photo_delete}
             </a>
         </p>
         <div class="modal modal-upload-photo" id="foto-resize">

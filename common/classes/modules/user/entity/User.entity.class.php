@@ -21,6 +21,9 @@
  */
 class ModuleUser_EntityUser extends Entity {
 
+    const DEFAULT_AVATAR_SIZE = 100;
+    const DEFAULT_PHOTO_SIZE = 250;
+
     /**
      * Определяем правила валидации
      * Правила валидации нужно определять только здесь!
@@ -364,14 +367,14 @@ class ModuleUser_EntityUser extends Entity {
      *
      * @return string|null
      */
-    public function getProfileFoto() {
+    public function getProfilePhoto() {
 
         return $this->getProp('user_profile_foto');
     }
 
-    public function getProfilePhoto() {
+    public function getProfileFoto() {
 
-        return $this->getProfileFoto();
+        return $this->getProfilePhoto();
     }
 
     /**
@@ -478,25 +481,32 @@ class ModuleUser_EntityUser extends Entity {
     /**
      * Возвращает полный URL до аватары нужного размера
      *
-     * @param   int $nSize    Размер
+     * @param int|string $xSize - Размер (120 | '120x100')
      *
      * @return  string
      */
-    public function getAvatarUrl($nSize = null) {
+    public function getAvatarUrl($xSize = null) {
 
-        if ($sPath = $this->getProfileAvatar()) {
-            if (!$nSize) {
-                return $sPath;
+        // Gets default size from config or sets it to 100
+        if (!$xSize) {
+            if (Config::Get('module.user.profile_avatar_size')) {
+                $xSize = Config::Get('module.user.profile_avatar_size');
             } else {
-                return $sPath . '-' . $nSize . 'x' . $nSize . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
+                $xSize = self::DEFAULT_AVATAR_SIZE;
             }
+        }
+        if (strpos($xSize, 'x')) {
+            list($nW, $nH) = array_map('intval', explode('x', $xSize));
+        } else {
+            $nW = $nH = intval($xSize);
+        }
+        if ($sPath = $this->getProfileAvatar()) {
+            return $sPath . '-' . $nW . 'x' . $nH . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
         } else {
             $sPath = $this->Uploader_GetUserAvatarDir(0)
                 . 'avatar_' . Config::Get('view.skin') . '_' . ($this->getProfileSex() == 'woman' ? 'female' : 'male')
                 . '.png';
-            if ($nSize) {
-                $sPath .= '-' . $nSize . 'x' . $nSize . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
-            }
+            $sPath .= '-' . $nW . 'x' . $nH . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
             return $this->Uploader_Dir2Url($sPath);
         }
     }
@@ -504,37 +514,50 @@ class ModuleUser_EntityUser extends Entity {
     /**
      * DEPRECATED
      */
-    public function getProfileAvatarPath($iSize = 100) {
+    public function getProfileAvatarPath($xSize = null) {
 
-        return $this->getAvatarUrl($iSize);
+        return $this->getAvatarUrl($xSize);
     }
 
     /**
-     * Возвращает полный URL до фото
+     * Возвращает полный URL до фото профиля
      *
-     * @param int $nSize
+     * @param int|string $xSize - рвзмер (240 | '240x320')
      *
      * @return string
      */
-    public function GetPhotoUrl($nSize = null) {
+    public function GetPhotoUrl($xSize = null) {
 
         if ($sUrl = $this->getProfilePhoto()) {
-            if (!$nSize) {
-                return $sUrl;
-            } else {
-                return $sUrl . '-' . $nSize . 'x' . $nSize . '.' . pathinfo($sUrl, PATHINFO_EXTENSION);
+            if (!$xSize) {
+                if (Config::Get('module.user.profile_photo_size')) {
+                    $xSize = Config::Get('module.user.profile_photo_size');
+                } else {
+                    $xSize = self::DEFAULT_PHOTO_SIZE;
+                }
             }
+            if (strpos($xSize, 'x')) {
+                list($nW, $nH) = array_map('intval', explode('x', $xSize));
+            } else {
+                $nW = $nH = intval($xSize);
+            }
+            return $sUrl . '-' . $nW . 'x' . $nH . '.' . pathinfo($sUrl, PATHINFO_EXTENSION);
         }
-        return $this->GetDefaultPhotoUrl($nSize);
+        return $this->GetDefaultPhotoUrl($xSize);
     }
 
-    public function GetDefaultPhotoUrl($nSize = null) {
+    public function GetDefaultPhotoUrl($xSize = null) {
 
         $sPath = $this->Uploader_GetUserAvatarDir(0)
             . 'user_photo_' . Config::Get('view.skin') . '_' . ($this->getProfileSex() == 'woman' ? 'female' : 'male')
             . '.png';
-        if ($nSize) {
-            $sPath .= '-' . $nSize . 'x' . $nSize . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
+        if ($xSize) {
+            if (strpos($xSize, 'x')) {
+                list($nW, $nH) = array_map('intval', explode('x', $xSize));
+            } else {
+                $nW = $nH = intval($xSize);
+            }
+            $sPath .= '-' . $nW . 'x' . $nH . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
         }
         return $this->Uploader_Dir2Url($sPath);
     }

@@ -34,10 +34,10 @@ ls.user = (function ($) {
             $('#add_friend_form').children().each(function (i, item) {
                 $(item).removeAttr('disabled')
             });
+
             if (!result) {
-                ls.msg.error('Error', 'Please try again later');
-            }
-            if (result.bStateError) {
+                ls.msg.error('Error', 'System error. Please try again later');
+            } else if (result.bStateError) {
                 ls.msg.error(null, result.sMsg);
             } else {
                 ls.msg.notice(null, result.sMsg);
@@ -59,7 +59,9 @@ ls.user = (function ($) {
 
         ls.hook.marker('removeFriendBefore');
         ls.ajax(url, params, function (result) {
-            if (result.bStateError) {
+            if (!result) {
+                ls.msg.error('Error', 'System error. Please try again later');
+            } else if (result.bStateError) {
                 ls.msg.error(null, result.sMsg);
             } else {
                 ls.msg.notice(null, result.sMsg);
@@ -87,12 +89,14 @@ ls.user = (function ($) {
             input.appendTo(form);
         }
         ls.winModal.wait();
-        ls.ajaxSubmit(aRouter['settings'] + 'profile/upload-avatar/', form, function (data) {
+        ls.ajaxSubmit(aRouter['settings'] + 'profile/upload-avatar/', form, function (result) {
             ls.winModal.close();
-            if (data.bStateError) {
-                ls.msg.error(data.sMsgTitle, data.sMsg);
+            if (!result) {
+                ls.msg.error('Error', 'System error. Please try again later');
+            } else if (result.bStateError) {
+                ls.msg.error(result.sMsgTitle, data.sMsg);
             } else {
-                this.showResizeAvatar(data.sTmpFile);
+                this.showResizeAvatar(result.sTmpFile);
             }
         }.bind(this));
     };
@@ -105,7 +109,7 @@ ls.user = (function ($) {
         if (this.jcropAvatar) {
             this.jcropAvatar.destroy();
         }
-        $('#avatar-resize-original-img').attr('src', sImgFile + '?' + Math.random());
+        $('#avatar-resize-original-img').removeAttr('style').attr('src', sImgFile + '?' + Math.random());
         $('#avatar-resize').jqmShow();
         var $this = this;
         $('#avatar-resize-original-img').Jcrop({
@@ -129,7 +133,9 @@ ls.user = (function ($) {
 
         ls.hook.marker('resizeAvatarBefore');
         ls.ajax(url, params, function (result) {
-            if (result.bStateError) {
+            if (!result) {
+                ls.msg.error('Error', 'System error. Please try again later');
+            } else if (result.bStateError) {
                 ls.msg.error(null, result.sMsg);
             } else {
                 $('#avatar-img').attr('src', result.sFile + '?' + Math.random());
@@ -152,7 +158,9 @@ ls.user = (function ($) {
 
         ls.hook.marker('removeAvatarBefore');
         ls.ajax(url, params, function (result) {
-            if (result.bStateError) {
+            if (!result) {
+                ls.msg.error('Error', 'System error. Please try again later');
+            } else if (result.bStateError) {
                 ls.msg.error(null, result.sMsg);
             } else {
                 $('#avatar-img').attr('src', result.sFile + '?' + Math.random());
@@ -174,7 +182,9 @@ ls.user = (function ($) {
 
         ls.hook.marker('cancelAvatarBefore');
         ls.ajax(url, params, function (result) {
-            if (result.bStateError) {
+            if (!result) {
+                ls.msg.error('Error', 'System error. Please try again later');
+            } else if (result.bStateError) {
                 ls.msg.error(null, result.sMsg);
             } else {
                 $('#avatar-resize').jqmHide();
@@ -201,12 +211,14 @@ ls.user = (function ($) {
             input.appendTo(form);
         }
         ls.winModal.wait();
-        ls.ajaxSubmit(aRouter['settings'] + 'profile/upload-photo/', form, function (data) {
+        ls.ajaxSubmit(aRouter['settings'] + 'profile/upload-photo/', form, function (result) {
             ls.winModal.close();
-            if (data.bStateError) {
-                ls.msg.error(data.sMsgTitle, data.sMsg);
+            if (!result) {
+                ls.msg.error('Error', 'System error. Please try again later');
+            } else if (result.bStateError) {
+                ls.msg.error(result.sMsgTitle, result.sMsg);
             } else {
-                this.showResizeFoto(data.sTmpFile);
+                this.showResizeFoto(result.sTmpFile);
             }
         }.bind(this));
     };
@@ -219,7 +231,7 @@ ls.user = (function ($) {
         if (this.jcropFoto) {
             this.jcropFoto.destroy();
         }
-        $('#foto-resize-original-img').attr('src', sImgFile + '?' + Math.random());
+        $('#foto-resize-original-img').removeAttr('style').attr('src', sImgFile + '?' + Math.random());
         $('#foto-resize').jqmShow();
         var $this = this;
         $('#foto-resize-original-img').Jcrop({
@@ -242,7 +254,9 @@ ls.user = (function ($) {
 
         ls.hook.marker('resizeFotoBefore');
         ls.ajax(url, params, function (result) {
-            if (result.bStateError) {
+            if (!result) {
+                ls.msg.error('Error', 'System error. Please try again later');
+            } else if (result.bStateError) {
                 ls.msg.error(null, result.sMsg);
             } else {
                 $('#foto-img').attr('src', result.sFile + '?' + Math.random());
@@ -265,7 +279,9 @@ ls.user = (function ($) {
 
         ls.hook.marker('removeFotoBefore');
         ls.ajax(url, params, function (result) {
-            if (result.bStateError) {
+            if (!result) {
+                ls.msg.error('Error', 'System error. Please try again later');
+            } else if (result.bStateError) {
                 ls.msg.error(null, result.sMsg);
             } else {
                 $('#foto-img').attr('src', result.sFile + '?' + Math.random());
@@ -287,7 +303,9 @@ ls.user = (function ($) {
 
         ls.hook.marker('cancelFotoBefore');
         ls.ajax(url, params, function (result) {
-            if (result.bStateError) {
+            if (!result) {
+                ls.msg.error('Error', 'System error. Please try again later');
+            } else if (result.bStateError) {
                 ls.msg.error(null, result.sMsg);
             } else {
                 $('#foto-resize').jqmHide();
@@ -350,7 +368,9 @@ ls.user = (function ($) {
         ls.hook.marker('registrationBefore');
         ls.ajaxSubmit(url, form, function (result) {
             this.formLoader(form, true);
-            if (result.bStateError) {
+            if (!result) {
+                ls.msg.error('Error', 'System error. Please try again later');
+            } else if (result.bStateError) {
                 ls.msg.error(null, result.sMsg);
             } else {
                 if (typeof(form) == 'string') {
@@ -360,7 +380,10 @@ ls.user = (function ($) {
                 if (result.aErrors) {
                     $.each(result.aErrors, function (sField, aErrors) {
                         if (aErrors[0]) {
-                            form.find('.validate-error-field-' + sField).removeClass('validate-error-hide').addClass('validate-error-show').text(aErrors[0]);
+                            form.find('.validate-error-field-' + sField)
+                                .removeClass('validate-error-hide')
+                                .addClass('validate-error-show')
+                                .text(aErrors[0]);
                         }
                     });
                 } else {
@@ -392,8 +415,13 @@ ls.user = (function ($) {
             }
             form.find('.validate-error-show').removeClass('validate-error-show').addClass('validate-error-hide');
 
-            if (result.bStateError) {
-                form.find('.validate-error-login').removeClass('validate-error-hide').addClass('validate-error-show').html(result.sMsg);
+            if (!result) {
+                ls.msg.error('Error', 'System error. Please try again later');
+            } else if (result.bStateError) {
+                form.find('.validate-error-login')
+                    .removeClass('validate-error-hide')
+                    .addClass('validate-error-show')
+                    .html(result.sMsg);
             } else {
                 if (result.sMsg) {
                     ls.msg.notice(null, result.sMsg);
@@ -440,8 +468,13 @@ ls.user = (function ($) {
             }
             form.find('.validate-error-show').removeClass('validate-error-show').addClass('validate-error-hide');
 
-            if (result.bStateError) {
-                form.find('.validate-error-reminder').removeClass('validate-error-hide').addClass('validate-error-show').text(result.sMsg);
+            if (!result) {
+                ls.msg.error('Error', 'System error. Please try again later');
+            } else if (result.bStateError) {
+                form.find('.validate-error-reminder')
+                    .removeClass('validate-error-hide')
+                    .addClass('validate-error-show')
+                    .text(result.sMsg);
             } else {
                 form.find('input').val('');
                 if (result.sMsg) {
@@ -469,8 +502,13 @@ ls.user = (function ($) {
             }
             form.find('.validate-error-show').removeClass('validate-error-show').addClass('validate-error-hide');
 
-            if (result.bStateError) {
-                form.find('.validate-error-reactivation').removeClass('validate-error-hide').addClass('validate-error-show').text(result.sMsg);
+            if (!result) {
+                ls.msg.error('Error', 'System error. Please try again later');
+            } else if (result.bStateError) {
+                form.find('.validate-error-reactivation')
+                    .removeClass('validate-error-hide')
+                    .addClass('validate-error-show')
+                    .text(result.sMsg);
             } else {
                 form.find('input').val('');
                 if (result.sMsg) {
@@ -492,7 +530,9 @@ ls.user = (function ($) {
         ls.hook.marker('searchUsersBefore');
         ls.ajaxSubmit(url, form, function (result) {
             inputSearch.removeClass('loader');
-            if (result.bStateError) {
+            if (!result) {
+                ls.msg.error('Error', 'System error. Please try again later');
+            } else if (result.bStateError) {
                 $('#users-list-search').hide();
                 $('#users-list-original').show();
             } else {
@@ -517,7 +557,10 @@ ls.user = (function ($) {
             $('#search-user-login').removeClass('loader');
             $('#user-prefix-filter').find('.active').removeClass('active');
             obj.parent().addClass('active');
-            if (result.bStateError) {
+
+            if (!result) {
+                ls.msg.error('Error', 'System error. Please try again later');
+            } else if (result.bStateError) {
                 $('#users-list-search').hide();
                 $('#users-list-original').show();
             } else {
@@ -542,7 +585,6 @@ ls.user = (function ($) {
         }
         return false;
     };
-
 
     return this;
 }).call(ls.user || {}, jQuery);

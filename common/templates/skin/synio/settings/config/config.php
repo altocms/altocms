@@ -59,7 +59,10 @@ $config['head']['default']['css'] = array(
 
 // Notifies/Emails
 $config['module']['notify']['dir']           = '/notify/';
-$config['module']['notify']['prefix']        = 'notify.';  // Префикс шаблонов емэйлов
+$config['module']['notify']['prefix']        = 'notify.';       // Префикс шаблонов писем
+
+$config['module']['user']['profile_photo_size'] = 250;          // размер фотопрофиля по умолчанию
+$config['module']['user']['profile_avatar_size'] = 80;          // размер аватара по умолчанию
 
 return $config;
 

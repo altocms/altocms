@@ -562,6 +562,18 @@ class ModuleUploader extends Module {
     /**
      * @param string $sFilePath
      *
+     * @return bool
+     */
+    public function DeleteAs($sFilePath) {
+
+        $sDriverName = $this->DefineDriver($sFilePath);
+        $oDriver = $this->GetDriver($sDriverName);
+        return $oDriver->Delete($sFilePath);
+    }
+
+    /**
+     * @param string $sFilePath
+     *
      * @return string
      */
     public function Dir2Url($sFilePath) {
