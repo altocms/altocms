@@ -180,6 +180,15 @@ class ModuleMresource_MapperMresource extends Mapper {
             $sSqlLimit = '';
         }
 
+        if (isset($aCriteria['order'])) {
+            $sOrder = $aCriteria['order'];
+        } else {
+            $sOrder = 'mresource_id DESC';
+        }
+        if ($sOrder) {
+            $sSqlOrder = 'ORDER BY ' . $sOrder;
+        }
+
         $bTargetsCount = false;
         if (isset($aCriteria['fields'])) {
             if (is_array($aCriteria['fields'])) {
@@ -221,6 +230,7 @@ class ModuleMresource_MapperMresource extends Mapper {
                 {AND mr.hash_url IN (?a:hash_url_a)}
                 {AND mr.hash_file=?:hash_file}
                 {AND mr.hash_file IN (?:hash_file_a)}
+            $sSqlOrder
             $sSqlLimit
         ");
         $aParams = array_merge(
@@ -546,6 +556,7 @@ class ModuleMresource_MapperMresource extends Mapper {
             DELETE FROM ?_mresource_target
             WHERE
                 target_type=?
+                AND
                 target_id=?d
         ";
         $xResult = $this->oDb->query(

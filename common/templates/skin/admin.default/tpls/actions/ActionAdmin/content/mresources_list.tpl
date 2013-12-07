@@ -51,8 +51,6 @@
                             <td class="name">
                                 {if $oMresource->IsLink()}
                                     <i class="icon-globe"></i>
-                                {elseif $oMresource->IsType(ModuleMresource::TYPE_PHOTO)}
-                                    <i class="icon-th"></i>
                                 {elseif $oMresource->IsType(ModuleMresource::TYPE_IMAGE)}
                                     <i class="icon-picture"></i>
                                 {elseif $oMresource->IsType(ModuleMresource::TYPE_IMAGE)}

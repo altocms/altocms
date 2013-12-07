@@ -1197,12 +1197,32 @@ class ModuleTopic_MapperTopic extends Mapper {
     /**
      * Удалить изображение
      *
-     * @param int $iPhotoId    ID фото
+     * @param int $iPhotoId - ID фото
+     *
+     * @return  bool
      */
     public function deleteTopicPhoto($iPhotoId) {
 
         $sql = "DELETE FROM ?_topic_photo WHERE  id= ?d";
         return $this->oDb->query($sql, $iPhotoId) !== false;
+    }
+
+    /**
+     * Присоединение фотографий к фотосету топика
+     *
+     * @param ModuleTopic_EntityTopic $oTopic
+     *
+     * @return bool
+     */
+    public function attachTmpPhotoToTopic($oTopic) {
+
+        if ($sTargetTmp = $oTopic->getTargetTmp()) {
+            $sql = "
+                UPDATE ?_topic_photo SET topic_id=?d WHERE target_tmp=?
+            ";
+            return $this->oDb->query($sql, $oTopic->getId(), $sTargetTmp) !== false;
+        }
+        return true;
     }
 
     /**

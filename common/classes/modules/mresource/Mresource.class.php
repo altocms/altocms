@@ -95,23 +95,22 @@ class ModuleMresource extends Module {
     /**
      * Нормализация URL
      *
-     * @param $sUrl
-     * @param $sReplace
-     * @param $aAdditional
+     * @param string|array $xUrl
+     * @param string       $sReplace
+     * @param string       $sAdditional
      *
      * @return array|string
      */
-    public function NormalizeUrl($sUrl, $sReplace = '@', $aAdditional = '') {
+    public function NormalizeUrl($xUrl, $sReplace = '@', $sAdditional = '') {
 
-        if (is_array($sUrl)) {
-            $aUrls = $sUrl;
-            foreach ($aUrls as $nI => $sUrl) {
-                $aUrls[$nI] = $this->NormalizeUrl((string)$sUrl, $sReplace, $aAdditional);
+        if (is_array($xUrl)) {
+            foreach ($xUrl as $nI => $sUrl) {
+                $aUrls[$nI] = $this->NormalizeUrl((string)$sUrl, $sReplace, $sAdditional);
             }
             return $aUrls;
         }
         $sUrl = str_replace(
-            array('http://@' . $aAdditional, 'https://@' . $aAdditional, 'ftp://@' . $aAdditional), $sReplace, $sUrl
+            array('http://@' . $sAdditional, 'https://@' . $sAdditional, 'ftp://@' . $sAdditional), $sReplace, $xUrl
         );
         return F::File_NormPath($sUrl);
     }
@@ -131,7 +130,6 @@ class ModuleMresource extends Module {
         if (is_array($oMediaResource)) {
             $aResources = $oMediaResource;
             // Групповое добавление
-            $xResult = array();
             foreach ($aResources as $nIdx => $oResource) {
                 if ($nId = $this->oMapper->Add($oMediaResource)) {
                     $aResources[$nIdx] = $this->GetMresourceById($nId);
@@ -150,6 +148,15 @@ class ModuleMresource extends Module {
         return 0;
     }
 
+    /**
+     * Add relations between mresources and target
+     *
+     * @param $aMresourcesRel
+     * @param $sTargetType
+     * @param $nTargetId
+     *
+     * @return bool
+     */
     public function AddTargetRel($aMresourcesRel, $sTargetType, $nTargetId) {
 
         if (!is_array($aMresourcesRel)) {
@@ -295,7 +302,10 @@ class ModuleMresource extends Module {
                 foreach ($aMresources as $oMresource) {
                     // Если число ссылок > 0, то не удаляем
                     if ($oMresource->getTargetsCount() > 0) {
-                        unset($aId[$oMresource->getId()]);
+                        $iIdx = array_search($oMresource->getId(), $aId);
+                        if ($iIdx !== false) {
+                            unset($aId[$iIdx]);
+                        }
                     }
                 }
             }
@@ -355,11 +365,26 @@ class ModuleMresource extends Module {
         return true;
     }
 
+    /**
+     * Deletes mresources' relations by target type & id
+     *
+     * @param string $sTargetType
+     * @param int    $nTargetId
+     *
+     * @return bool
+     */
     public function DeleteMresourcesRelByTarget($sTargetType, $nTargetId) {
 
         $aMresourceRel = $this->oMapper->GetMresourcesRelByTarget($sTargetType, $nTargetId);
         if ($aMresourceRel) {
-            return $this->_deleteMresourcesRel($aMresourceRel);
+            if ($this->oMapper->DeleteTargetRel($sTargetType, $nTargetId)) {
+                $aMresId = array();
+                foreach ($aMresourceRel as $oResourceRel) {
+                    $aMresId[] = $oResourceRel->GetMresourceId();
+                }
+                $aMresId = array_unique($aMresId);
+            }
+            return $this->DeleteMresources($aMresId);
         }
         return true;
     }

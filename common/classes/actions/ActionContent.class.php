@@ -439,7 +439,7 @@ class ActionContent extends Action {
         }
 
         // * Если есть прикрепленные фото
-        if ($this->oContentType->isAllow('photoset') && $sTargetTmp = $this->Session_GetCookie('ls_photoset_target_tmp')) {
+        if ($this->oContentType->isAllow('photoset') && ($sTargetTmp = $this->Session_GetCookie('ls_photoset_target_tmp'))) {
             $oTopic->setTargetTmp($sTargetTmp);
             if ($aPhotos = $this->Topic_getPhotosByTargetTmp($sTargetTmp)) {
                 $oPhotoMain = $this->Topic_getTopicPhotoById(F::GetRequestStr('topic_main_photo'));
