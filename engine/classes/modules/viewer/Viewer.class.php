@@ -810,7 +810,9 @@ class ModuleViewer extends Module {
         if (!$this->oSmarty) {
             $this->InitTemplator();
         }
+        $this->oSmarty->muteExpectedErrors();
         $bResult = $this->oSmarty->templateExists($sTemplate);
+        $this->oSmarty->unmuteExpectedErrors();
         if (!$bResult && $bException) {
             $sMessage = 'Can not find the template "' . $sTemplate . '" in skin "' . Config::Get('view.skin') . '"';
             if ($aTpls = $this->GetSmartyObject()->template_objects) {
