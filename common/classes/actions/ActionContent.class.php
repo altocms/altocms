@@ -274,28 +274,20 @@ class ActionContent extends Action {
      */
     protected function EventAdd() {
 
-        /**
-         * Устанавливаем шаблон вывода
-         */
+        // * Устанавливаем шаблон вывода
         $this->SetTemplateAction('add');
 
-        /**
-         * Вызов хуков
-         */
+        // * Вызов хуков
         $this->Hook_Run('topic_add_show');
 
-        /*
-         * Получаем тип контента
-         */
+        // * Получаем тип контента
         if (!$this->oContentType = $this->Topic_GetContentTypeByUrl($this->sCurrentEvent)) {
             return parent::EventNotFound();
         }
 
         $this->Viewer_Assign('oContentType', $this->oContentType);
 
-        /**
-         * Если тип контента не доступен текущему юзеру
-         */
+        // * Если тип контента не доступен текущему юзеру
         if (!$this->oContentType->isAccessible()) {
             return parent::EventNotFound();
         }
@@ -303,9 +295,7 @@ class ActionContent extends Action {
         $aBlogTypes = $this->Blog_GetAllowBlogTypes($this->oUserCurrent, 'write', true);
         $bPersonalBlog = in_array('personal', $aBlogTypes);
 
-        /**
-         * Загружаем переменные в шаблон
-         */
+        // * Загружаем переменные в шаблон
         $this->Viewer_Assign('bPersonalBlog', $bPersonalBlog);
         $this->Viewer_Assign('aBlogsAllow', $this->Blog_GetBlogsAllowByUser($this->oUserCurrent));
         $this->Viewer_Assign('bEditDisabled', false);
@@ -315,19 +305,19 @@ class ActionContent extends Action {
         if (!is_numeric(getRequest('topic_id'))) {
             $_REQUEST['topic_id'] = '';
         }
-        /**
-         * Если нет временного ключа для нового топика, то генерируем; если есть, то загружаем фото по этому ключу
-         */
+
+        // * Если нет временного ключа для нового топика, то генерируем; если есть, то загружаем фото по этому ключу
         if ($sTargetTmp = $this->Session_GetCookie('ls_photoset_target_tmp')) {
             $this->Session_SetCookie('ls_photoset_target_tmp', $sTargetTmp, 'P1D');
             $this->Viewer_Assign('aPhotos', $this->Topic_getPhotosByTargetTmp($sTargetTmp));
         } else {
             $this->Session_SetCookie('ls_photoset_target_tmp', F::RandomStr(), 'P1D');
         }
-        /**
-         * Обрабатываем отправку формы
-         */
-        return $this->SubmitAdd();
+
+        // Если POST-запрос, то обрабатываем отправку формы
+        if ($this->IsPost()) {
+            return $this->SubmitAdd();
+        }
     }
 
     /**
@@ -423,7 +413,7 @@ class ActionContent extends Action {
         // * Проверяем разрешено ли постить топик по времени
         if (isPost('submit_topic_publish') && !$this->ACL_CanPostTopicTime($this->oUserCurrent)) {
             $this->Message_AddErrorSingle($this->Lang_Get('topic_time_limit'), $this->Lang_Get('error'));
-            return;
+            return false;
         }
 
         // * Теперь можно смело добавлять топик к блогу
@@ -514,7 +504,7 @@ class ActionContent extends Action {
             if ($oTrack = $this->Subscribe_AddTrackSimple(
                 'topic_new_comment', $oTopic->getId(), $this->oUserCurrent->getId()
             )) {
-                //если пользователь не отписался от обновлений топика
+                // Если пользователь не отписался от обновлений топика
                 if (!$oTrack->getStatus()) {
                     $oTrack->setStatus(1);
                     $this->Subscribe_UpdateTrack($oTrack);

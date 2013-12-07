@@ -585,9 +585,9 @@ class AltoFunc_Main {
             "_" => "-", "'" => "", "`" => "", "^" => "", " " => "-", '.' => '', ',' => '', ':' => '', '"' => '',
             "'" => '', '<' => '', '>' => '', '«' => '', '»' => '', ' ' => '-', '(' => '-', ')' => '-'
         );
-        $sText = self::Translit($sText, $xLang);
+        $sText = mb_strtolower(self::Translit($sText, $xLang), 'utf-8');
         $sText = str_replace(array_keys($aSymbols), array_values($aSymbols), $sText);
-        $sText = preg_replace('/[^a-z0-9\-]/', '-', $sText);
+        $sText = preg_replace('/[^a-z0-9\-]/i', '-', $sText);
         $sText = preg_replace('/\s/', '-', $sText);
         $sText = preg_replace('/[\-]{2,}/', '-', $sText);
         $sText = trim($sText, '-');
