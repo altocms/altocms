@@ -107,18 +107,18 @@ class ModuleBlog_MapperBlog extends Mapper {
     /**
      * Получает список блогов по ID
      *
-     * @param array|int  $aArrayId    Список ID блогов
+     * @param array|int  $aBlogId    Список ID блогов
      * @param array|null $aOrder      Сортировка блогов
      *
      * @return array
      */
-    public function GetBlogsByArrayId($aArrayId, $aOrder = null) {
+    public function GetBlogsByArrayId($aBlogId, $aOrder = null) {
 
-        if (!$aArrayId) {
+        if (!$aBlogId) {
             return array();
         }
-        if (!is_array($aArrayId)) {
-            $aArrayId = array(intval($aArrayId));
+        if (!is_array($aBlogId)) {
+            $aBlogId = array(intval($aBlogId));
         }
 
         if (!is_array($aOrder)) {
@@ -134,6 +134,7 @@ class ModuleBlog_MapperBlog extends Mapper {
             }
         }
         $sOrder = trim($sOrder, ',');
+        $nLimit = sizeof($aBlogId);
 
         $sql
             = "SELECT
@@ -144,13 +145,14 @@ class ModuleBlog_MapperBlog extends Mapper {
                     blog_id IN(?a)
                 ORDER BY
                     { FIELD(blog_id,?a) }
+                LIMIT $nLimit
             ";
         if ($sOrder != '') {
             $sql .= $sOrder;
         }
 
         $aBlogs = array();
-        if ($aRows = $this->oDb->select($sql, $aArrayId, $sOrder == '' ? $aArrayId : DBSIMPLE_SKIP)) {
+        if ($aRows = $this->oDb->select($sql, $aBlogId, $sOrder == '' ? $aBlogId : DBSIMPLE_SKIP)) {
             $aBlogs = Engine::GetEntityRows('Blog', $aRows);
         }
         return $aBlogs;
@@ -270,17 +272,17 @@ class ModuleBlog_MapperBlog extends Mapper {
     /**
      * Получает список отношений пользователя к блогам
      *
-     * @param array $aArrayId Список ID блогов
-     * @param int   $sUserId  ID блогов
+     * @param array $aBlogId Список ID блогов
+     * @param int   $nUserId  ID блогов
      *
      * @return array
      */
-    public function GetBlogUsersByArrayBlog($aArrayId, $sUserId) {
+    public function GetBlogUsersByArrayBlog($aBlogId, $nUserId) {
 
-        if (!is_array($aArrayId) || count($aArrayId) == 0) {
+        if (!is_array($aBlogId) || count($aBlogId) == 0) {
             return array();
         }
-
+        $nLimit = sizeof($aBlogId);
         $sql = "SELECT
                     bu.*
                 FROM 
@@ -288,9 +290,10 @@ class ModuleBlog_MapperBlog extends Mapper {
                 WHERE 
                     bu.blog_id IN(?a)
                     AND
-                bu.user_id = ?d ";
+                    bu.user_id = ?d
+                LIMIT $nLimit";
         $aBlogUsers = array();
-        if ($aRows = $this->oDb->select($sql, $aArrayId, $sUserId)) {
+        if ($aRows = $this->oDb->select($sql, $aBlogId, $nUserId)) {
             $aBlogUsers = Engine::GetEntityRows('Blog_BlogUser', $aRows);
         }
         return $aBlogUsers;
@@ -518,12 +521,12 @@ class ModuleBlog_MapperBlog extends Mapper {
     /**
      * Получает список блогов, которые создал пользователь
      *
-     * @param int $sUserId   ID пользователя
+     * @param int $nUserId   ID пользователя
      * @param int $nLimit    Ограничение на выборку элементов
      *
      * @return array
      */
-    public function GetBlogsRatingSelf($sUserId, $nLimit) {
+    public function GetBlogsRatingSelf($nUserId, $nLimit) {
 
         $sql = "SELECT
                     b.*
@@ -536,7 +539,7 @@ class ModuleBlog_MapperBlog extends Mapper {
                 ORDER BY b.blog_rating DESC
                 LIMIT 0, ?d";
         $aResult = array();
-        if ($aRows = $this->oDb->select($sql, $sUserId, $nLimit)) {
+        if ($aRows = $this->oDb->select($sql, $nUserId, $nLimit)) {
             $aReturn = Engine::GetEntityRows('Blog', $aRows);
         }
         return $aResult;
@@ -740,11 +743,11 @@ class ModuleBlog_MapperBlog extends Mapper {
     /**
      * Возвращает объект типа блога по ID
      *
-     * @param $nId
+     * @param $nBlogTypeId
      *
      * @return ModuleBlog_BlogType|null
      */
-    public function GetBlogTypeById($nId) {
+    public function GetBlogTypeById($nBlogTypeId) {
 
         $sql
             = "
@@ -752,7 +755,7 @@ class ModuleBlog_MapperBlog extends Mapper {
             FROM ?_blog_type AS bt
             WHERE bt.id=?d
             ";
-        $aRow = $this->oDb->selectRow($sql, $nId);
+        $aRow = $this->oDb->selectRow($sql, $nBlogTypeId);
         if ($aRow) {
             return Engine::GetEntity('Blog_BlogType', $aRow);
         }
