@@ -1257,6 +1257,21 @@ form {
 .help-inline.selected {
     color: #555555;
 }
+.input-append {
+    height: 26px;
+}
+.input-append .add-on {
+    height: 16px;
+    font-size: 12px;
+}
+.input-append .btn-group {
+    height: 26px;
+}
+.input-append .btn {
+    height: 16px;
+    font-size: 12px;
+}
+
 .dropdown-menu li a:hover, .dropdown-menu .active a, .dropdown-menu .active a:hover {
     background-color: #272541;
     background-image: -webkit-gradient(linear, 0 0%, 0 100%, from(#292C3E), to(#13152A));

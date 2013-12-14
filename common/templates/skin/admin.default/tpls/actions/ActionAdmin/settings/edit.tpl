@@ -83,11 +83,11 @@
             <label class="control-label">{$aLang.action.admin.set_edit_comment}</label>
 
             <div class="controls">
-                <label>
+                <label {if !$nCommentEditTime}class="checked"{/if}>
                     <input type="radio" name="edit_comment" value="off" {if !$nCommentEditTime}checked{/if}/>
                     {$aLang.action.admin.set_edit_comment_disabled}
                 </label>
-                <label>
+                <label {if $nCommentEditTime}class="checked"{/if}>
                     <input type="radio" name="edit_comment" value="on" {if $nCommentEditTime}checked{/if}/>
                     {$aLang.action.admin.set_edit_comment_enabled}
 

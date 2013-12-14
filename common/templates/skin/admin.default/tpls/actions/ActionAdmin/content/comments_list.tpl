@@ -32,7 +32,7 @@
                     <tr>
                         <td class="number">{$oComment->GetId()}</td>
                         <td>
-                            <a href="{router page='admin'}users-list/profile/{$aTopic.user_login}">{$oComment->GetUser()->GetLogin()}</a>
+                            <a href="{router page='admin'}users-list/profile/{$oComment->GetUser()->GetId()}/">{$oComment->GetUser()->GetLogin()}</a>
                         </td>
                         <td class="name">
                             <a href="{$oComment->GetCommentUrlFull()}">{$oComment->GetText()}</a>
@@ -51,7 +51,7 @@
                         </td>
                         <td class="center">{$oComment->GetCommentDate()}</td>
                         <td class="number">{$oComment->GetCommentCountVote()}</td>
-                        <td class="number">{if $oComment->GetCommentDeleted()}{$aLang.action.admin.yes}{/if}</td>
+                        <td class="number">{if $oComment->GetCommentDeleted()}{$aLang.action.admin.word_yes}{/if}</td>
                         <td class="center">
                             <!--
                             <a href="{router page='topic'}edit/{$oComment->GetId()}/"

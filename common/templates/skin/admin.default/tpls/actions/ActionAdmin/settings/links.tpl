@@ -9,17 +9,17 @@
             <label class="control-label">{$aLang.action.admin.set_links_homepage_label}</label>
 
             <div class="controls">
-                <label>
+                <label {if $sHomePageSelect == 'home'}class="checked"{/if}>
                     <input type="radio" name="homepage" value="home" {if $sHomePageSelect == 'home'}checked{/if}/>
-                    <span class="help-inline">{$aLang.action.admin.set_links_homepage_home}</span>
+                    {$aLang.action.admin.set_links_homepage_home}
                 </label>
-                <label>
+                <label {if $sHomePageSelect == 'index'}class="checked"{/if}>
                     <input type="radio" name="homepage" value="index" {if $sHomePageSelect == 'index'}checked{/if}/>
-                    <span class="help-inline">{$aLang.action.admin.set_links_homepage_index}</span>
+                    {$aLang.action.admin.set_links_homepage_index}
                 </label>
-                <label>
+                <label {if $sHomePageSelect == 'page'}class="checked"{/if}>
                     <input type="radio" name="homepage" value="page" {if $sHomePageSelect == 'page'}checked{/if}/>
-                    <span class="help-inline">{$aLang.action.admin.set_links_homepage_page}</span>
+                    {$aLang.action.admin.set_links_homepage_page}
                     <select name="page_url">
                         {foreach $aPages as $oPage}
                             <option value="{$oPage->GetUrl()}"
@@ -127,11 +127,11 @@
             <label class="control-label">{$aLang.action.admin.set_links_drafts_enable}</label>
 
             <div class="controls">
-                <label>
+                <label {if Config::Get('module.topic.draft_link')}class="checked"{/if}>
                     <input type="radio" name="draft_link" value="on" {if Config::Get('module.topic.draft_link')}checked{/if}/>
                     {$aLang.action.admin.word_yes}
                 </label>
-                <label>
+                <label {if !Config::Get('module.topic.draft_link')}class="checked"{/if}>
                     <input type="radio" name="draft_link" value="off" {if !Config::Get('module.topic.draft_link')}checked{/if}/>
                     {$aLang.action.admin.word_no}
                 </label>
