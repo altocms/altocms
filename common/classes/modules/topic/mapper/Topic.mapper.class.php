@@ -747,7 +747,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 				";
         $aResult = array();
         if ($aRows = $this->oDb->select($sql, $sTag . '%', $iLimit)) {
-            $aResult = Engine::GetEntity('Topic_TopicTag', $aRows);
+            $aResult = Engine::GetEntityRows('Topic_TopicTag', $aRows);
         }
         return $aResult;
     }
@@ -1044,7 +1044,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 				WHERE 
 					id IN(?a)
 				ORDER BY FIELD(id,?a)
-				LIMIT $$nLimit
+				LIMIT $nLimit
 				";
         $aResult = array();
         if ($aRows = $this->oDb->select($sql, $aPhotoId, $aPhotoId)) {

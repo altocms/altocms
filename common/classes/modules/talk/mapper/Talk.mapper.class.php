@@ -146,7 +146,7 @@ class ModuleTalk_MapperTalk extends Mapper {
 				";
         $aTalkUsers = array();
         if ($aRows = $this->oDb->select($sql, $aTalkId, $sUserId)) {
-            $aTalkUsers = Engine::GetEntity('Talk_TalkUser', $aRows);
+            $aTalkUsers = Engine::GetEntityRows('Talk_TalkUser', $aRows);
         }
         return $aTalkUsers;
     }
@@ -434,7 +434,7 @@ class ModuleTalk_MapperTalk extends Mapper {
 			";
         $aResult = array();
         if ($aRows = $this->oDb->select($sql, $iTalkId)) {
-            $aResult = Engine::GetEntity('Talk_TalkUser', $aRows);;
+            $aResult = Engine::GetEntityRows('Talk_TalkUser', $aRows);;
         }
 
         return $aResult;

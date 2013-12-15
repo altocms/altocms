@@ -594,6 +594,32 @@ class AltoFunc_Main {
         return $sText;
     }
 
+    /**
+     * URL encoding with double encoding for slashes
+     *
+     * @param string $sStr
+     *
+     * @return string
+     */
+    static function UrlEncode($sStr) {
+
+        $s = urlencode($sStr);
+        $s = str_replace(array('%2F', '%5C'), array('%252F', '%255C'), $s);
+        return str_replace(array('%2F', '%5C'), array('%252F', '%255C'), urlencode($sStr));
+    }
+
+    /**
+     * URL encoding with double encoding for slashes
+     *
+     * @param string $sStr
+     *
+     * @return string
+     */
+    static function UrlDecode($sStr) {
+
+        return urldecode(str_replace(array('%252F', '%255C'), array('%2F', '%5C'), $sStr));
+    }
+
 }
 
 // EOF

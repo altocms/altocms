@@ -208,7 +208,7 @@ class ModuleWall_MapperWall extends Mapper {
             WHERE
                 id IN(?a)
             ORDER BY FIELD(id,?a)
-            LIMIT $$nLimit";
+            LIMIT $nLimit";
         $aResult = array();
         if ($aRows = $this->oDb->select($sql, $aMessageId, $aMessageId)) {
             $aResult = Engine::GetEntityRows('Wall', $aRows);
