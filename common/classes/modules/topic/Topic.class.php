@@ -1272,11 +1272,8 @@ class ModuleTopic extends Module {
                 $aFilter['blog_type']['close'] = $aOpenBlogs;
             }
         }
-        $aReturn = $this->GetTopicsByFilter($aFilter, 1, $nCount);
-        if (isset($aReturn['collection'])) {
-            return $aReturn['collection'];
-        }
-        return false;
+        $aResult = $this->GetTopicsByFilter($aFilter, 1, $nCount);
+        return isset($aResult['collection']) ? $aResult['collection'] : false;
     }
 
     /**
@@ -1648,16 +1645,13 @@ class ModuleTopic extends Module {
             ? $this->Blog_GetInaccessibleBlogsByUser($this->oUserCurrent)
             : $this->Blog_GetInaccessibleBlogsByUser();
 
-        $s = serialize($aCloseBlogs);
-        if (false === ($data = $this->Cache_Get("topic_tag_{$sTag}_{$iPage}_{$iPerPage}_{$s}"))) {
+        $sCacheKey = "topic_tag_{$sTag}_{$iPage}_{$iPerPage}_" . serialize($aCloseBlogs);
+        if (false === ($data = $this->Cache_Get($sCacheKey))) {
             $data = array(
                 'collection' => $this->oMapper->GetTopicsByTag($sTag, $aCloseBlogs, $iCount, $iPage, $iPerPage),
                 'count'      => $iCount
             );
-            $this->Cache_Set(
-                $data, "topic_tag_{$sTag}_{$iPage}_{$iPerPage}_{$s}", array('topic_update', 'topic_new'),
-                60 * 60 * 24 * 2
-            );
+            $this->Cache_Set($data, $sCacheKey, array('topic_update', 'topic_new'), 'P1D');
         }
         if ($data['collection']) {
             $data['collection'] = $this->GetTopicsAdditionalData($data['collection']);

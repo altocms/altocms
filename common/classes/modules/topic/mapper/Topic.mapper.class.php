@@ -228,16 +228,16 @@ class ModuleTopic_MapperTopic extends Mapper {
     /**
      * Получить список топиков по списку айдишников
      *
-     * @param array $aArrayId    Список ID топиков
+     * @param array $aTopicId    Список ID топиков
      *
      * @return array
      */
-    public function GetTopicsByArrayId($aArrayId) {
+    public function GetTopicsByArrayId($aTopicId) {
 
-        if (!is_array($aArrayId) || count($aArrayId) == 0) {
+        if (!is_array($aTopicId) || count($aTopicId) == 0) {
             return array();
         }
-
+        $nLimit = sizeof($aTopicId);
         $sql
             = "SELECT
 					t.*,
@@ -247,12 +247,11 @@ class ModuleTopic_MapperTopic extends Mapper {
 					JOIN  ?_topic_content AS tc ON t.topic_id=tc.topic_id
 				WHERE 
 					t.topic_id IN(?a)
-				ORDER BY FIELD(t.topic_id,?a) ";
+				ORDER BY FIELD(t.topic_id,?a)
+				LIMIT $nLimit";
         $aTopics = array();
-        if ($aRows = $this->oDb->select($sql, $aArrayId, $aArrayId)) {
-            foreach ($aRows as $aTopic) {
-                $aTopics[] = Engine::GetEntity('Topic', $aTopic);
-            }
+        if ($aRows = $this->oDb->select($sql, $aTopicId, $aTopicId)) {
+            $aTopics = Engine::GetEntityRows('Topic', $aRows);
         }
         return $aTopics;
     }
@@ -488,23 +487,24 @@ class ModuleTopic_MapperTopic extends Mapper {
 				count desc
 			LIMIT 0, ?d
 				";
-        $aReturn = array();
-        $aReturnSort = array();
+
+        $aResult = array();
         $aRows = $this->oDb->select(
             $sql,
             (is_array($aExcludeTopic) && count($aExcludeTopic)) ? $aExcludeTopic : DBSIMPLE_SKIP,
             $iLimit
         );
         if ($aRows) {
+            $aData = array();
             foreach ($aRows as $aRow) {
-                $aReturn[mb_strtolower($aRow['topic_tag_text'], 'UTF-8')] = $aRow;
+                $aData[mb_strtolower($aRow['topic_tag_text'], 'UTF-8')] = $aRow;
             }
-            ksort($aReturn);
-            foreach ($aReturn as $aRow) {
-                $aReturnSort[] = Engine::GetEntity('Topic_TopicTag', $aRow);
+            ksort($aData);
+            foreach ($aData as $aRow) {
+                $aResult[] = Engine::GetEntity('Topic_TopicTag', $aRow);
             }
         }
-        return $aReturnSort;
+        return $aResult;
     }
 
     /**
@@ -521,7 +521,7 @@ class ModuleTopic_MapperTopic extends Mapper {
             = "
 			SELECT 
 				tt.topic_tag_text,
-				count(tt.topic_tag_text) as count
+				COUNT(tt.topic_tag_text) as count
 			FROM 
 				?_topic_tag as tt,
 				?_blog as b
@@ -538,18 +538,18 @@ class ModuleTopic_MapperTopic extends Mapper {
 				count DESC
 			LIMIT 0, ?d
 				";
-        $aReturn = array();
-        $aReturnSort = array();
+        $aResult = array();
         if ($aRows = $this->oDb->select($sql, is_null($iUserId) ? DBSIMPLE_SKIP : $iUserId, $iLimit)) {
+            $aData = array();
             foreach ($aRows as $aRow) {
-                $aReturn[mb_strtolower($aRow['topic_tag_text'], 'UTF-8')] = $aRow;
+                $aData[mb_strtolower($aRow['topic_tag_text'], 'UTF-8')] = $aRow;
             }
-            ksort($aReturn);
-            foreach ($aReturn as $aRow) {
-                $aReturnSort[] = Engine::GetEntity('Topic_TopicTag', $aRow);
+            ksort($aData);
+            foreach ($aData as $aRow) {
+                $aResult[] = Engine::GetEntity('Topic_TopicTag', $aRow);
             }
         }
-        return $aReturnSort;
+        return $aResult;
     }
 
     /**
@@ -745,13 +745,11 @@ class ModuleTopic_MapperTopic extends Mapper {
 				topic_tag_text
 			LIMIT 0, ?d
 				";
-        $aReturn = array();
+        $aResult = array();
         if ($aRows = $this->oDb->select($sql, $sTag . '%', $iLimit)) {
-            foreach ($aRows as $aRow) {
-                $aReturn[] = Engine::GetEntity('Topic_TopicTag', $aRow);
-            }
+            $aResult = Engine::GetEntity('Topic_TopicTag', $aRows);
         }
-        return $aReturn;
+        return $aResult;
     }
 
     /**
@@ -822,14 +820,14 @@ class ModuleTopic_MapperTopic extends Mapper {
     /**
      * Получить список просмотром/чтения топиков по списку айдишников
      *
-     * @param array $aArrayId    Список ID топиков
-     * @param int   $sUserId     ID пользователя
+     * @param array $aTopicId    Список ID топиков
+     * @param int   $iUserId     ID пользователя
      *
      * @return array
      */
-    public function GetTopicsReadByArray($aArrayId, $sUserId) {
+    public function GetTopicsReadByArray($aTopicId, $iUserId) {
 
-        if (!is_array($aArrayId) || count($aArrayId) == 0) {
+        if (!is_array($aTopicId) || count($aTopicId) == 0) {
             return array();
         }
 
@@ -844,10 +842,8 @@ class ModuleTopic_MapperTopic extends Mapper {
 					t.user_id = ?d 
 				";
         $aReads = array();
-        if ($aRows = $this->oDb->select($sql, $aArrayId, $sUserId)) {
-            foreach ($aRows as $aRow) {
-                $aReads[] = Engine::GetEntity('Topic_TopicRead', $aRow);
-            }
+        if ($aRows = $this->oDb->select($sql, $aTopicId, $iUserId)) {
+            $aReads = Engine::GetEntityRows('Topic_TopicRead', $aRows);
         }
         return $aReads;
     }
@@ -876,14 +872,14 @@ class ModuleTopic_MapperTopic extends Mapper {
     /**
      * Получить список голосований в топике-опросе по списку айдишников
      *
-     * @param array $aArrayId    Список ID топиков
-     * @param int   $sUserId     ID пользователя
+     * @param array $aTopicId    Список ID топиков
+     * @param int   $iUserId     ID пользователя
      *
      * @return array
      */
-    public function GetTopicsQuestionVoteByArray($aArrayId, $sUserId) {
+    public function GetTopicsQuestionVoteByArray($aTopicId, $iUserId) {
 
-        if (!is_array($aArrayId) || count($aArrayId) == 0) {
+        if (!is_array($aTopicId) || count($aTopicId) == 0) {
             return array();
         }
 
@@ -898,10 +894,8 @@ class ModuleTopic_MapperTopic extends Mapper {
 					v.user_voter_id = ?d
 				";
         $aVotes = array();
-        if ($aRows = $this->oDb->select($sql, $aArrayId, $sUserId)) {
-            foreach ($aRows as $aRow) {
-                $aVotes[] = Engine::GetEntity('Topic_TopicQuestionVote', $aRow);
-            }
+        if ($aRows = $this->oDb->select($sql, $aTopicId, $iUserId)) {
+            $aVotes = Engine::GetEntityRows('Topic_TopicQuestionVote', $aRows);
         }
         return $aVotes;
     }
@@ -1041,7 +1035,7 @@ class ModuleTopic_MapperTopic extends Mapper {
         if (!is_array($aPhotoId) || count($aPhotoId) == 0) {
             return array();
         }
-
+        $nLimit = sizeof($aPhotoId);
         $sql
             = "SELECT
 					*
@@ -1049,37 +1043,38 @@ class ModuleTopic_MapperTopic extends Mapper {
 					?_topic_photo
 				WHERE 
 					id IN(?a)
-				ORDER BY FIELD(id,?a) ";
-        $aReturn = array();
+				ORDER BY FIELD(id,?a)
+				LIMIT $$nLimit
+				";
+        $aResult = array();
         if ($aRows = $this->oDb->select($sql, $aPhotoId, $aPhotoId)) {
-            foreach ($aRows as $aPhoto) {
-                $aReturn[] = Engine::GetEntity('Topic_TopicPhoto', $aPhoto);
-            }
+            $aResult = Engine::GetEntityRows('Topic_TopicPhoto', $aRows);
         }
-        return $aReturn;
+        return $aResult;
     }
 
     /**
      * Получить список изображений из фотосета по id топика
      *
-     * @param int      $iTopicId    ID топика
-     * @param int|null $iFromId     ID с которого начинать выборку
-     * @param int|null $iCount      Количество
+     * @param int $iTopicId - ID топика
+     * @param int $iFromId  - ID с которого начинать выборку
+     * @param int $iCount   - Количество
      *
      * @return array
      */
     public function getPhotosByTopicId($iTopicId, $iFromId, $iCount) {
 
-        $sql
-            = 'SELECT * FROM ?_topic_photo WHERE topic_id = ?d {AND id > ?d LIMIT 0, ?d}';
-        $aPhotos = $this->oDb->select($sql, $iTopicId, ($iFromId !== null) ? $iFromId : DBSIMPLE_SKIP, $iCount);
-        $aReturn = array();
-        if (is_array($aPhotos) && count($aPhotos)) {
-            foreach ($aPhotos as $aPhoto) {
-                $aReturn[] = Engine::GetEntity('Topic_TopicPhoto', $aPhoto);
-            }
+        $sql = "
+            SELECT *
+            FROM ?_topic_photo
+            WHERE
+                topic_id = ?d {AND id > ?d LIMIT 0, ?d}";
+        $aRows = $this->oDb->select($sql, $iTopicId, ($iFromId !== null) ? $iFromId : DBSIMPLE_SKIP, $iCount);
+        $aResult = array();
+        if ($aRows) {
+            $aResult = Engine::GetEntityRows('Topic_TopicPhoto', $aRows);
         }
-        return $aReturn;
+        return $aResult;
     }
 
     /**
@@ -1091,15 +1086,13 @@ class ModuleTopic_MapperTopic extends Mapper {
      */
     public function getPhotosByTargetTmp($sTargetTmp) {
 
-        $sql = 'SELECT * FROM ?_topic_photo WHERE target_tmp = ?';
-        $aPhotos = $this->oDb->select($sql, $sTargetTmp);
-        $aReturn = array();
-        if (is_array($aPhotos) && count($aPhotos)) {
-            foreach ($aPhotos as $aPhoto) {
-                $aReturn[] = Engine::GetEntity('Topic_TopicPhoto', $aPhoto);
-            }
+        $sql = "SELECT * FROM ?_topic_photo WHERE target_tmp = ?";
+        $aRows = $this->oDb->select($sql, $sTargetTmp);
+        $aResult = array();
+        if ($aRows) {
+            $aResult = Engine::GetEntityRows('Topic_TopicPhoto', $aRows);
         }
-        return $aReturn;
+        return $aResult;
     }
 
     /**
@@ -1111,10 +1104,10 @@ class ModuleTopic_MapperTopic extends Mapper {
      */
     public function getTopicPhotoById($iPhotoId) {
 
-        $sql = 'SELECT * FROM ?_topic_photo WHERE id = ?d';
-        $aPhoto = $this->oDb->selectRow($sql, $iPhotoId);
-        if ($aPhoto) {
-            return Engine::GetEntity('Topic_TopicPhoto', $aPhoto);
+        $sql = "SELECT * FROM ?_topic_photo WHERE id = ?d LIMIT 1";
+        $aRow = $this->oDb->selectRow($sql, $iPhotoId);
+        if ($aRow) {
+            return Engine::GetEntity('Topic_TopicPhoto', $aRow);
         } else {
             return null;
         }
@@ -1129,9 +1122,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      */
     public function getCountPhotosByTopicId($iTopicId) {
 
-        $sql = 'SELECT count(id) FROM ?_topic_photo WHERE topic_id = ?d';
-        $aPhotosCount = $this->oDb->selectCol($sql, $iTopicId);
-        return $aPhotosCount[0];
+        $sql = "SELECT COUNT(id) FROM ?_topic_photo WHERE topic_id = ?d";
+        return $this->oDb->selectCell($sql, $iTopicId);
     }
 
     /**
@@ -1143,9 +1135,8 @@ class ModuleTopic_MapperTopic extends Mapper {
      */
     public function getCountPhotosByTargetTmp($sTargetTmp) {
 
-        $sql = 'SELECT count(id) FROM ?_topic_photo WHERE target_tmp = ?';
-        $aPhotosCount = $this->oDb->selectCol($sql, $sTargetTmp);
-        return $aPhotosCount[0];
+        $sql = "SELECT count(id) FROM ?_topic_photo WHERE target_tmp = ?";
+        return $this->oDb->selectCell($sql, $sTargetTmp);
     }
 
     /**
@@ -1167,7 +1158,8 @@ class ModuleTopic_MapperTopic extends Mapper {
                 INSERT INTO ?_topic_photo
                 SET
                     path = ?, description = ?, ?# = ?';
-        return $this->oDb->query($sql, $oPhoto->getPath(), $oPhoto->getDescription(), $sTargetType, $iTargetId);
+        $iId = $this->oDb->query($sql, $oPhoto->getPath(), $oPhoto->getDescription(), $sTargetType, $iTargetId);
+        return $iId ? $iId : false;
     }
 
     /**
@@ -1574,14 +1566,14 @@ class ModuleTopic_MapperTopic extends Mapper {
     /**
      * Возвращает список полей по списку id типов контента
      *
-     * @param array $aArrayId    Список ID типов контента
+     * @param array $aContentId    Список ID типов контента
      *
      * @return array
      * @TODO рефакторинг + solid
      */
-    public function GetFieldsByArrayId($aArrayId) {
+    public function GetFieldsByArrayId($aContentId) {
 
-        if (!is_array($aArrayId) || count($aArrayId) == 0) {
+        if (!is_array($aContentId) || count($aContentId) == 0) {
             return array();
         }
 
@@ -1594,10 +1586,8 @@ class ModuleTopic_MapperTopic extends Mapper {
 					content_id IN(?a)
 				";
         $aFields = array();
-        if ($aRows = $this->oDb->select($sql, $aArrayId)) {
-            foreach ($aRows as $aRow) {
-                $aFields[] = Engine::GetEntity('Topic_Field', $aRow);
-            }
+        if ($aRows = $this->oDb->select($sql, $aContentId)) {
+            $aFields = Engine::GetEntityRows('Topic_Field', $aRows);
         }
         return $aFields;
     }
@@ -1723,14 +1713,14 @@ class ModuleTopic_MapperTopic extends Mapper {
     /**
      * Возвращает список полей по списку id топиков
      *
-     * @param array $aArrayId    Список ID топиков
+     * @param array $aTargetId    Список ID топиков
      *
      * @return array
      * @TODO рефакторинг + solid
      */
-    public function GetTopicValuesByArrayId($aArrayId) {
+    public function GetTopicValuesByArrayId($aTargetId) {
 
-        if (!is_array($aArrayId) || count($aArrayId) == 0) {
+        if (!is_array($aTargetId) || count($aTargetId) == 0) {
             return array();
         }
 
@@ -1745,10 +1735,8 @@ class ModuleTopic_MapperTopic extends Mapper {
 					target_type = 'topic'
 				";
         $aFields = array();
-        if ($aRows = $this->oDb->select($sql, $aArrayId)) {
-            foreach ($aRows as $aRow) {
-                $aFields[] = Engine::GetEntity('Topic_ContentValues', $aRow);
-            }
+        if ($aRows = $this->oDb->select($sql, $aTargetId)) {
+            $aFields = Engine::GetEntityRows('Topic_ContentValues', $aRows);
         }
         return $aFields;
     }
