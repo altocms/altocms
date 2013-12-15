@@ -151,6 +151,11 @@ class ModuleTopic_EntityTopicTag extends Entity {
         $this->setProp('size', $data);
     }
 
+    public function getLink() {
+
+        return Router::GetPath('tag') . F::UrlEncode($this->getText()) . '/';
+    }
+
 }
 
 // EOF
