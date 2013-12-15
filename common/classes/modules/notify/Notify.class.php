@@ -575,13 +575,13 @@ class ModuleNotify extends Module {
     /**
      * Удаляет отложенные Notify-задания по списку идентификаторов
      *
-     * @param  array $aArrayId    Список ID заданий на отправку
+     * @param  array $aTaskId    Список ID заданий на отправку
      *
      * @return bool
      */
-    public function DeleteTaskByArrayId($aArrayId) {
+    public function DeleteTaskByArrayId($aTaskId) {
 
-        return $this->oMapper->DeleteTaskByArrayId($aArrayId);
+        return $this->oMapper->DeleteTaskByArrayId($aTaskId);
     }
 
     /**
@@ -594,45 +594,53 @@ class ModuleNotify extends Module {
      */
     public function GetTemplatePath($sName, $sPluginName = null) {
 
-        if ($sPluginName) {
-            $sPluginName = preg_match('/^Plugin([\w]+)(_[\w]+)?$/Ui', $sPluginName, $aMatches)
-                ? strtolower($aMatches[1])
-                : strtolower($sPluginName);
+        $sCacheKey = 'template_path_' . $sName . '-' . $sPluginName;
+        if (false === ($data = $this->Cache_Get($sCacheKey, 'tmp'))) {
 
-            $sDir = Plugin::GetTemplateDir($sPluginName) . $this->sDir . '/';
-        } else {
-            $sDir = F::File_NormPath($this->Viewer_GetTemplateDir() . '/' . $this->sDir . '/');
-        }
+            if ($sPluginName) {
+                $sPluginName = preg_match('/^Plugin([\w]+)(_[\w]+)?$/Ui', $sPluginName, $aMatches)
+                    ? strtolower($aMatches[1])
+                    : strtolower($sPluginName);
 
-        // Ищем шаблон по текущему языку
-        $sLangDir = $sDir . $this->Lang_GetLang();
-        if (is_dir($sLangDir)) {
-            return $sLangDir . '/' . $sName;
-        }
+                $sDir = Plugin::GetTemplateDir($sPluginName) . $this->sDir . '/';
+            } else {
+                $sDir = F::File_NormPath($this->Viewer_GetTemplateDir() . '/' . $this->sDir . '/');
+            }
 
-        // Если шаблон не найден, ищем в алиасах
-        $aAliases = $this->Lang_GetLangAliases();
-        foreach ($aAliases as $sAlias) {
-            if (is_dir($sLangDir = $sDir . $sAlias)) {
+            // Ищем шаблон по текущему языку
+            $sLangDir = $sDir . $this->Lang_GetLang();
+            if (is_dir($sLangDir)) {
                 return $sLangDir . '/' . $sName;
             }
-        }
 
-        // Ищем шаблон по языку по умолчанию
-        $sLangDir = $sDir . $this->Lang_GetDefaultLang();
-        if (is_dir($sLangDir)) {
-            return $sLangDir . '/' . $sName;
-        }
+            // Если шаблон не найден, ищем в алиасах
+            $aAliases = $this->Lang_GetLangAliases();
+            foreach ($aAliases as $sAlias) {
+                if (is_dir($sLangDir = $sDir . $sAlias)) {
+                    return $sLangDir . '/' . $sName;
+                }
+            }
 
-        // Если шаблон не найден, ищем в алиасах
-        $aAliases = $this->Lang_GetDefaultLangAliases();
-        foreach ($aAliases as $sAlias) {
-            if (is_dir($sLangDir = $sDir . $sAlias)) {
+            // Ищем шаблон по языку по умолчанию
+            $sLangDir = $sDir . $this->Lang_GetDefaultLang();
+            if (is_dir($sLangDir)) {
                 return $sLangDir . '/' . $sName;
             }
+
+            // Если шаблон не найден, ищем в алиасах
+            $aAliases = $this->Lang_GetDefaultLangAliases();
+            foreach ($aAliases as $sAlias) {
+                if (is_dir($sLangDir = $sDir . $sAlias)) {
+                    return $sLangDir . '/' . $sName;
+                }
+            }
+
+            $sResult = $sDir . $this->Lang_GetLangDefault() . '/' . $sName;
+
+            $this->Cache_Set($sResult, $sCacheKey, array(), 'P30D', 'tmp');
         }
 
-        return $sDir . $this->Lang_GetLangDefault() . '/' . $sName;
+        return $sResult;
     }
 }
 

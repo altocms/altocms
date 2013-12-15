@@ -29,6 +29,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      * @return bool
      */
     public function AddFavourite(ModuleFavourite_EntityFavourite $oFavourite) {
+
         $sql = "
 			INSERT INTO ?_favourite
 				( target_id, target_type, user_id, tags )
@@ -53,6 +54,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      * @return bool
      */
     public function UpdateFavourite(ModuleFavourite_EntityFavourite $oFavourite) {
+
         $sql = "
 			UPDATE ?_favourite
 				SET tags = ? WHERE user_id = ?d and target_id = ?d and target_type = ?
@@ -507,19 +509,20 @@ class ModuleFavourite_MapperFavourite extends Mapper {
 				count desc
 			LIMIT 0, ?d
 				";
-        $aReturn = array();
-        $aReturnSort = array();
+
+        $aResult = array();
         $aRows = $this->oDb->select(
             $sql, $iUserId, $sTargetType, is_null($bIsUser) ? DBSIMPLE_SKIP : $bIsUser, $iLimit
         );
         if ($aRows) {
+            $aData = array();
             foreach ($aRows as $aRow) {
-                $aReturn[mb_strtolower($aRow['text'], 'UTF-8')] = $aRow;
+                $aData[mb_strtolower($aRow['text'], 'UTF-8')] = $aRow;
             }
-            ksort($aReturn);
-            $aReturnSort = Engine::GetEntityRows('ModuleFavourite_EntityTag', $aReturn);
+            ksort($aData);
+            $aResult = Engine::GetEntityRows('ModuleFavourite_EntityTag', $aData);
         }
-        return $aReturnSort;
+        return $aResult;
     }
 
     /**

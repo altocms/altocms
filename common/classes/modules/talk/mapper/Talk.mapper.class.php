@@ -41,20 +41,19 @@ class ModuleTalk_MapperTalk extends Mapper {
 			)
 			VALUES(?d, ?, ?, ?, ?, ?, ?)
 		";
-        if ($iId = $this->oDb->query(
+        $iId = $this->oDb->query(
             $sql, $oTalk->getUserId(), $oTalk->getTitle(), $oTalk->getText(), $oTalk->getDate(), $oTalk->getDateLast(),
             $oTalk->getUserIdLast(), $oTalk->getUserIp()
-        )
-        ) {
-            return $iId;
-        }
-        return false;
+        );
+        return $iId ? $iId : false;
     }
 
     /**
      * Удаление письма из БД
      *
      * @param int $iTalkId    ID разговора
+     *
+     * @return bool
      */
     public function DeleteTalk($iTalkId) {
 
@@ -64,6 +63,8 @@ class ModuleTalk_MapperTalk extends Mapper {
         // Физическое удаление пользователей беседы (не флагом)
         $sql = 'DELETE FROM ?_talk_user  WHERE talk_id = ?d';
         $this->oDb->query($sql, $iTalkId);
+
+        return true;
     }
 
     /**
@@ -93,16 +94,16 @@ class ModuleTalk_MapperTalk extends Mapper {
     /**
      * Получить список разговоров по списку айдишников
      *
-     * @param array $aArrayId    Список ID сообщений
+     * @param array $aTalkId    Список ID сообщений
      *
      * @return array
      */
-    public function GetTalksByArrayId($aArrayId) {
+    public function GetTalksByArrayId($aTalkId) {
 
-        if (!is_array($aArrayId) || count($aArrayId) == 0) {
+        if (!is_array($aTalkId) || count($aTalkId) == 0) {
             return array();
         }
-
+        $nLimit = sizeof($aTalkId);
         $sql
             = "SELECT
 					t.*
@@ -110,12 +111,11 @@ class ModuleTalk_MapperTalk extends Mapper {
 					?_talk as t
 				WHERE 
 					t.talk_id IN(?a)
-				ORDER BY FIELD(t.talk_id,?a) ";
+				ORDER BY FIELD(t.talk_id,?a)
+				LIMIT $nLimit";
         $aTalks = array();
-        if ($aRows = $this->oDb->select($sql, $aArrayId, $aArrayId)) {
-            foreach ($aRows as $aRow) {
-                $aTalks[] = Engine::GetEntity('Talk', $aRow);
-            }
+        if ($aRows = $this->oDb->select($sql, $aTalkId, $aTalkId)) {
+            $aTalks = Engine::GetEntityRows('Talk', $aRows);
         }
         return $aTalks;
     }
@@ -123,14 +123,14 @@ class ModuleTalk_MapperTalk extends Mapper {
     /**
      * Получить список отношений разговор-юзер по списку айдишников
      *
-     * @param array $aArrayId    Список ID сообщений
+     * @param array $aTalkId    Список ID сообщений
      * @param int   $sUserId     ID пользователя
      *
      * @return array
      */
-    public function GetTalkUserByArray($aArrayId, $sUserId) {
+    public function GetTalkUserByArray($aTalkId, $sUserId) {
 
-        if (!is_array($aArrayId) || count($aArrayId) == 0) {
+        if (!is_array($aTalkId) || count($aTalkId) == 0) {
             return array();
         }
 
@@ -145,10 +145,8 @@ class ModuleTalk_MapperTalk extends Mapper {
 					t.user_id = ?d
 				";
         $aTalkUsers = array();
-        if ($aRows = $this->oDb->select($sql, $aArrayId, $sUserId)) {
-            foreach ($aRows as $aRow) {
-                $aTalkUsers[] = Engine::GetEntity('Talk_TalkUser', $aRow);
-            }
+        if ($aRows = $this->oDb->select($sql, $aTalkId, $sUserId)) {
+            $aTalkUsers = Engine::GetEntity('Talk_TalkUser', $aRows);
         }
         return $aTalkUsers;
     }
@@ -156,11 +154,11 @@ class ModuleTalk_MapperTalk extends Mapper {
     /**
      * Получает тему разговора по айдишнику
      *
-     * @param int $sId    ID сообщения
+     * @param int $iTalkId    ID сообщения
      *
      * @return ModuleTalk_EntityTalk|null
      */
-    public function GetTalkById($sId) {
+    public function GetTalkById($iTalkId) {
 
         $sql
             = "SELECT
@@ -175,7 +173,7 @@ class ModuleTalk_MapperTalk extends Mapper {
 					t.user_id=u.user_id
 					";
 
-        if ($aRow = $this->oDb->selectRow($sql, $sId)) {
+        if ($aRow = $this->oDb->selectRow($sql, $iTalkId)) {
             return Engine::GetEntity('Talk', $aRow);
         }
         return null;
@@ -200,18 +198,15 @@ class ModuleTalk_MapperTalk extends Mapper {
 			ON DUPLICATE KEY 
 				UPDATE talk_user_active = ?d 
 		";
-        if ($this->oDb->query(
+        $xResult = $this->oDb->query(
                 $sql,
                 $oTalkUser->getTalkId(),
                 $oTalkUser->getUserId(),
                 $oTalkUser->getDateLast(),
                 $oTalkUser->getUserActive(),
                 $oTalkUser->getUserActive()
-            ) === 0
-        ) {
-            return true;
-        }
-        return false;
+            );
+        return $xResult !== false;
     }
 
     /**
@@ -372,12 +367,12 @@ class ModuleTalk_MapperTalk extends Mapper {
     /**
      * Получает список юзеров в теме разговора
      *
-     * @param  int   $sTalkId        ID разговора
+     * @param  int   $iTalkId        ID разговора
      * @param  array $aUserActive    Список статусов
      *
      * @return array
      */
-    public function GetUsersTalk($sTalkId, $aUserActive = array()) {
+    public function GetUsersTalk($iTalkId, $aUserActive = array()) {
 
         $sql
             = "
@@ -389,29 +384,21 @@ class ModuleTalk_MapperTalk extends Mapper {
 				talk_id = ? 
 				{ AND talk_user_active IN(?a) }
 			";
-        $aReturn = array();
-        if ($aRows = $this->oDb->select(
-            $sql, $sTalkId,
-            (count($aUserActive) ? $aUserActive : DBSIMPLE_SKIP)
-        )
-        ) {
-            foreach ($aRows as $aRow) {
-                $aReturn[] = $aRow['user_id'];
-            }
-        }
 
-        return $aReturn;
+        $aResult = $this->oDb->selectCol($sql, $iTalkId, (count($aUserActive) ? $aUserActive : DBSIMPLE_SKIP));
+
+        return $aResult ? $aResult : array();
     }
 
     /**
      * Увеличивает число новых комментов у юзеров
      *
-     * @param int   $sTalkId       ID разговора
+     * @param int   $iTalkId       ID разговора
      * @param array $aExcludeId    Список ID пользователей для исключения
      *
      * @return int
      */
-    public function increaseCountCommentNew($sTalkId, $aExcludeId) {
+    public function increaseCountCommentNew($iTalkId, $aExcludeId) {
 
         if (!is_null($aExcludeId) && !is_array($aExcludeId)) {
             $aExcludeId = array($aExcludeId);
@@ -424,18 +411,18 @@ class ModuleTalk_MapperTalk extends Mapper {
 			WHERE
 				talk_id = ? 
 				{ AND user_id NOT IN (?a) }";
-        $bResult = $this->oDb->select($sql, $sTalkId, !is_null($aExcludeId) ? $aExcludeId : DBSIMPLE_SKIP);
+        $bResult = $this->oDb->select($sql, $iTalkId, !is_null($aExcludeId) ? $aExcludeId : DBSIMPLE_SKIP);
         return $bResult !== false;
     }
 
     /**
      * Возвращает массив пользователей, участвующих в разговоре
      *
-     * @param  int $sTalkId    ID разговора
+     * @param  int $iTalkId    ID разговора
      *
      * @return array
      */
-    public function GetTalkUsers($sTalkId) {
+    public function GetTalkUsers($iTalkId) {
         $sql
             = "
 			SELECT 
@@ -445,14 +432,12 @@ class ModuleTalk_MapperTalk extends Mapper {
 			WHERE
 				talk_id = ? 
 			";
-        $aReturn = array();
-        if ($aRows = $this->oDb->select($sql, $sTalkId)) {
-            foreach ($aRows as $aRow) {
-                $aReturn[] = Engine::GetEntity('Talk_TalkUser', $aRow);
-            }
+        $aResult = array();
+        if ($aRows = $this->oDb->select($sql, $iTalkId)) {
+            $aResult = Engine::GetEntity('Talk_TalkUser', $aRows);;
         }
 
-        return $aReturn;
+        return $aResult;
     }
 
     /**
@@ -586,10 +571,8 @@ class ModuleTalk_MapperTalk extends Mapper {
 			VALUES
 				(?d, ?d)
 		";
-        if ($this->oDb->query($sql, $sUserId, $sTargetId) === 0) {
-            return true;
-        }
-        return false;
+        $xResult = $this->oDb->query($sql, $sUserId, $sTargetId);
+        return $xResult !== false;
     }
 
     /**

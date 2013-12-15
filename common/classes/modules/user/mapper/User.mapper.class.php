@@ -265,13 +265,13 @@ class ModuleUser_MapperUser extends Mapper {
     /**
      * Список сессий юзеров по ID
      *
-     * @param   array $aArrayId    Список ID пользователей
+     * @param   array $aUserId    Список ID пользователей
      *
      * @return  array
      */
-    public function GetSessionsByArrayId($aArrayId) {
+    public function GetSessionsByArrayId($aUserId) {
 
-        if (!is_array($aArrayId) || count($aArrayId) == 0) {
+        if (!is_array($aUserId) || count($aUserId) == 0) {
             return array();
         }
 
@@ -284,27 +284,25 @@ class ModuleUser_MapperUser extends Mapper {
 				INNER JOIN ?_session as s ON s.session_key=u.user_last_session
 			WHERE
 				u.user_id IN(?a)
-			LIMIT " . count($aArrayId) . "
+			LIMIT " . count($aUserId) . "
 			";
-        $aRes = array();
-        if ($aRows = $this->oDb->select($sql, $aArrayId)) {
-            foreach ($aRows as $aRow) {
-                $aRes[] = Engine::GetEntity('User_Session', $aRow);
-            }
+        $aResult = array();
+        if ($aRows = $this->oDb->select($sql, $aUserId)) {
+            $aResult = Engine::GetEntityRows('User_Session', $aRows);
         }
-        return $aRes;
+        return $aResult;
     }
 
     /**
      * Список юзеров по ID
      *
-     * @param array $aArrayId Список ID пользователей
+     * @param array $aUserId Список ID пользователей
      *
      * @return array
      */
-    public function GetUsersByArrayId($aArrayId) {
+    public function GetUsersByArrayId($aUserId) {
 
-        if (!is_array($aArrayId) || count($aArrayId) == 0) {
+        if (!is_array($aUserId) || count($aUserId) == 0) {
             return array();
         }
 
@@ -321,13 +319,11 @@ class ModuleUser_MapperUser extends Mapper {
 			WHERE
 				u.user_id IN(?a)
 			ORDER BY FIELD(u.user_id,?a)
-			LIMIT " . count($aArrayId) . "
+			LIMIT " . count($aUserId) . "
 			";
         $aUsers = array();
-        if ($aRows = $this->oDb->select($sql, $aArrayId, $aArrayId)) {
-            foreach ($aRows as $aUser) {
-                $aUsers[] = Engine::GetEntity('User', $aUser);
-            }
+        if ($aRows = $this->oDb->select($sql, $aUserId, $aUserId)) {
+            $aUsers = Engine::GetEntityRows('User', $aRows);
         }
         return $aUsers;
     }
@@ -441,13 +437,8 @@ class ModuleUser_MapperUser extends Mapper {
 				session_date_last DESC
 			LIMIT 0, ?d
 				";
-        $aReturn = array();
-        if ($aRows = $this->oDb->select($sql, $iLimit)) {
-            foreach ($aRows as $aRow) {
-                $aReturn[] = $aRow['user_id'];
-            }
-        }
-        return $aReturn;
+        $aResult = $this->oDb->selectCol($sql, $iLimit);
+        return $aResult ? $aResult : array();
     }
 
     /**
@@ -470,13 +461,8 @@ class ModuleUser_MapperUser extends Mapper {
 				user_id DESC
 			LIMIT 0, ?d
 				";
-        $aReturn = array();
-        if ($aRows = $this->oDb->select($sql, $iLimit)) {
-            foreach ($aRows as $aRow) {
-                $aReturn[] = $aRow['user_id'];
-            }
-        }
-        return $aReturn;
+        $aResult = $this->oDb->selectCol($sql, $iLimit);
+        return $aResult ? $aResult : array();
     }
 
     /**
@@ -544,13 +530,8 @@ class ModuleUser_MapperUser extends Mapper {
 				user_login LIKE ?
 			LIMIT 0, ?d
 				";
-        $aReturn = array();
-        if ($aRows = $this->oDb->select($sql, $sUserLogin . '%', $iLimit)) {
-            foreach ($aRows as $aRow) {
-                $aReturn[] = $aRow['user_id'];
-            }
-        }
-        return $aReturn;
+        $aResult = $this->oDb->selectCol($sql, $sUserLogin . '%', $iLimit);
+        return $aResult ? $aResult : array();
     }
 
     /**
@@ -1312,13 +1293,11 @@ class ModuleUser_MapperUser extends Mapper {
 				user_id = ?d
 			ORDER BY id DESC
 			LIMIT ?d, ?d ";
-        $aReturn = array();
+        $aResult = array();
         if ($aRows = $this->oDb->selectPage($iCount, $sql, $iUserId, ($iCurrPage - 1) * $iPerPage, $iPerPage)) {
-            foreach ($aRows as $aRow) {
-                $aReturn[] = Engine::GetEntity('ModuleUser_EntityNote', $aRow);
-            }
+            $aResult = Engine::GetEntityRows('ModuleUser_EntityNote', $aRows);
         }
-        return $aReturn;
+        return $aResult;
     }
 
     /**
@@ -1652,13 +1631,13 @@ class ModuleUser_MapperUser extends Mapper {
 				user_activate = 1
 			GROUP BY prefix
 			ORDER BY prefix ";
-        $aReturn = array();
+        $aResult = array();
         if ($aRows = $this->oDb->select($sql, $iPrefixLength)) {
             foreach ($aRows as $aRow) {
-                $aReturn[] = mb_strtoupper($aRow['prefix'], 'utf-8');
+                $aResult[] = mb_strtoupper($aRow['prefix'], 'utf-8');
             }
         }
-        return $aReturn;
+        return $aResult;
     }
 
 }

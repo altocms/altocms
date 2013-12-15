@@ -51,15 +51,15 @@ class ModuleVote_MapperVote extends Mapper {
     /**
      * Получить список голосований по списку айдишников
      *
-     * @param array  $aArrayId       Список ID владельцев
-     * @param string $sTargetType    Тип владельца
-     * @param int    $sUserId        ID пользователя
+     * @param array  $aTargetId   - Список ID владельцев
+     * @param string $sTargetType - Тип владельца
+     * @param int    $iUserId     - ID пользователя
      *
      * @return array
      */
-    public function GetVoteByArray($aArrayId, $sTargetType, $sUserId) {
+    public function GetVoteByArray($aTargetId, $sTargetType, $iUserId) {
 
-        if (!is_array($aArrayId) || count($aArrayId) == 0) {
+        if (!is_array($aTargetId) || count($aTargetId) == 0) {
             return array();
         }
         $sql = "SELECT
@@ -73,10 +73,8 @@ class ModuleVote_MapperVote extends Mapper {
 					AND
 					user_voter_id = ?d ";
         $aVotes = array();
-        if ($aRows = $this->oDb->select($sql, $aArrayId, $sTargetType, $sUserId)) {
-            foreach ($aRows as $aRow) {
-                $aVotes[] = Engine::GetEntity('Vote', $aRow);
-            }
+        if ($aRows = $this->oDb->select($sql, $aTargetId, $sTargetType, $iUserId)) {
+            $aVotes = Engine::GetEntityRows('Vote', $aRows);
         }
         return $aVotes;
     }
