@@ -751,9 +751,11 @@ ls = (function ($) {
             beforeSubmit: function (arr, form, options) {
                 form.find('[type=submit]').prop('disabled', true).addClass('loading');
             },
+            /*
             beforeSerialize: function (form, options) {
                 return form.parsley('validate');
             },
+            */
             success: typeof callback == 'function' ? function (result, status, xhr, form) {
                 if (result.bStateError) {
                     form.find('[type=submit]').prop('disabled', false).removeClass('loading');
@@ -797,6 +799,21 @@ ls = (function ($) {
         form.on('submit', function (e) {
             ls.ajaxSubmit(url, form, callback, more);
             e.preventDefault();
+        });
+    };
+
+    /**
+     * Загрузка изображения
+     */
+    this.ajaxUploadImg = function (form, sToLoad) {
+        ls.ajaxSubmit('upload/image/', form, function (data) {ls.log('===', data);
+            if (data.bStateError) {
+                ls.msg.error(data.sMsgTitle, data.sMsg);
+            } else {
+                $.markItUp({replaceWith: data.sText});
+                $('#window_upload_img').find('input[type="text"], input[type="file"]').val('');
+                $('#window_upload_img').jqmHide();
+            }
         });
     };
 

@@ -1237,6 +1237,9 @@ form {
 .form-horizontal input.i-inline {
     width: auto;
 }
+.input-width-full {
+    width: 95%;
+}
 /* Special for markItUp */
 .form-horizontal .markItUp {
     width: 82%;

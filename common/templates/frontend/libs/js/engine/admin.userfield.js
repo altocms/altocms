@@ -11,7 +11,7 @@ ls.userfield =( function ($) {
 		$('#user_fields_form_pattern').val('');
 		$('#user_fields_form_type').val('');
 		$('#user_fields_form_action').val('add');
-		$('#userfield_form').jqmShow(); 
+		$('#userfield_form').jqmShow();
 	};
 	
 	this.showEditForm = function(id) {

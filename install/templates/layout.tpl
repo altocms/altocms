@@ -25,12 +25,13 @@
 
         <form action="___FORM_ACTION___" method="POST">
             ___CONTENT___
-            <br/>
+            <div class="btn-group">
 
+            <input type="submit" class="button button-primary" name="install_step_next" value="___LANG_NEXT___"
+                   ___NEXT_STEP_DISABLED___ style="float: right; display:___NEXT_STEP_DISPLAY___;"/>
             <input type="submit" class="button" name="install_step_prev" value="___LANG_PREV___"
                    ___PREV_STEP_DISABLED___ style="display:___PREV_STEP_DISPLAY___;"/>
-            <input type="submit" class="button button-primary" name="install_step_next" value="___LANG_NEXT___"
-                   ___NEXT_STEP_DISABLED___ style="display:___NEXT_STEP_DISPLAY___;"/>
+            </div>
         </form>
     </div>
 </div>

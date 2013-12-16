@@ -12,25 +12,8 @@
 
 {include file='inc.modal_load_img.tpl' sToLoad='page_text'}
 
-    {if Config::Get('view.wysiwyg')}
-        <script type="text/javascript" src="{cfg name='path.root.engine_lib'}external/tinymce-jq_3.5.8/tiny_mce.js"></script>
-        {literal}
-            <script type="text/javascript">
-                jQuery(function () {
-                    tinyMCE.init(ls.settings.getTinymce());
-                });
-            </script>
-        {/literal}
+    {include file='inc.editor.tpl'}
 
-    {else}
-        <script type="text/javascript">
-            jQuery(function ($) {
-                ls.lang.load({lang_load name="panel_b,panel_i,panel_u,panel_s,panel_url,panel_url_promt,panel_code,panel_video,panel_image,panel_cut,panel_quote,panel_list,panel_list_ul,panel_list_ol,panel_title,panel_clear_tags,panel_video_promt,panel_list_li,panel_image_promt,panel_user,panel_user_promt"});
-                // Подключаем редактор
-                $('#page_text').markItUp(ls.settings.getMarkitup());
-            });
-        </script>
-    {/if}
     <div class="b-wbox">
         <div class="b-wbox-header">
             <div class="b-wbox-header-title">
@@ -91,7 +74,7 @@
 
                     <div class="controls">
                         <textarea name="page_text" id="page_text" rows="20"
-                                  class="mce-editor">{$_aRequest.page_text}</textarea>
+                                  class="editor-markitup">{$_aRequest.page_text}</textarea>
                     </div>
                 </div>
 

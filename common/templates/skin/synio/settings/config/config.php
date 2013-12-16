@@ -31,8 +31,8 @@ $config['head']['default']['js'][] = '___path.skin.dir___/js/template.js';
 $config['head']['default']['css'] = array(
     "___path.skin.dir___/css/reset.css",
     "___path.skin.dir___/css/base.css",
-    "___path.frontend.dir___/libs/js/vendor/markitup/skins/synio/style.css",
-    "___path.frontend.dir___/libs/js/vendor/markitup/sets/synio/style.css",
+    "___path.frontend.dir___/libs/js/vendor/markitup/skins/default/style.css",
+    "___path.frontend.dir___/libs/js/vendor/markitup/sets/default/style.css",
     "___path.frontend.dir___/libs/js/vendor/jcrop/jquery.Jcrop.css",
     "___path.frontend.dir___/libs/js/vendor/prettify/prettify.css",
     "___path.skin.dir___/css/grid.css",

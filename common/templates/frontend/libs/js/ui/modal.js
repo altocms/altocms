@@ -314,7 +314,7 @@ var ls = ls || {};
         url: false,
         center: true,
         ajaxVar:         'sText',
-        loaderText:      'Идет загрузка...',
+        loaderText:      'Loading...',
         lockTime:        30,
         closeOnEsc:      true
     };
@@ -324,11 +324,11 @@ var ls = ls || {};
      * @type {Object}
      */
     $.fn.modal.settings = {
-        modalClass:      'modal',
-        overlayClass:    'modal-overlay',
-        loaderClass:     'modal-loader',
-        loaderTextClass: 'modal-loader-text',
-        lockClass:       'modal-lock',
+        modalClass:      'b-modal',
+        overlayClass:    'b-modal-overlay',
+        loaderClass:     'b-modal-loader',
+        loaderTextClass: 'b-modal-loader-text',
+        lockClass:       'b-modal-lock',
 
         modalSelector:   '[data-type=modal]',
         toggleSelector:  '[data-type=modal-toggle]',

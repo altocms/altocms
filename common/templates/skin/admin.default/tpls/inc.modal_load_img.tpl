@@ -1,11 +1,11 @@
-<div class="modal modal-image-upload" id="window_upload_img">
-    <header class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+<div class="b-modal modal-image-upload" id="window_upload_img">
+    <header class="b-modal-header">
+        <button type="button" class="b-modal-close" data-type="modal-close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <h3>{$aLang.uploadimg}</h3>
     </header>
 
-    <div class="modal-content">
-        <ul class="nav nav-tabs">
+    <div class="b-modal-content">
+        <ul class="b-modal-nav nav nav-tabs">
             <li class="active js-block-upload-img-item">
                 <a href="#block_upload_img_content_pc" data-toggle="tab">{$aLang.uploadimg_from_pc}</a>
             </li>
@@ -42,7 +42,7 @@
                 {hook run="uploadimg_additional"}
 
                 <button type="submit" class="btn btn-primary"
-                        onclick="ls.ajaxUploadImg('block_upload_img_content_pc','{$sToLoad}');">
+                        onclick="ls.ajaxUploadImg('#block_upload_img_content_pc','{$sToLoad}');">
                     {$aLang.uploadimg_submit}
                 </button>
             </form>
@@ -77,9 +77,9 @@
                         onclick="ls.topic.insertImageToEditor($('#img_url').val(),$('#form-image-url-align').val(),$('#form-image-url-title').val());">
                 {$aLang.uploadimg_link_submit_paste}
                 </button>
-                {$aLang.or}
+                {$aLang.word_or}
                 <button type="submit" class="btn btn-primary"
-                        onclick="ls.ajaxUploadImg('block_upload_img_content_link','{$sToLoad}');">
+                        onclick="ls.ajaxUploadImg('#block_upload_img_content_link','{$sToLoad}');">
                 {$aLang.uploadimg_link_submit_load}
                 </button>
             </form>

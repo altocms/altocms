@@ -6,7 +6,7 @@ $config['smarty']['dir']['templates'] = array(
 );
 
 $config['head']['default']['css'] = array(
-    '___path.frontend.dir___/libs/js/vendor/markitup/skins/simple/style.css',
+    '___path.frontend.dir___/libs/js/vendor/markitup/skins/default/style.css',
     '___path.frontend.dir___/libs/js/vendor/markitup/sets/default/style.css',
     '___path.frontend.dir___/libs/js/vendor/jcrop/jquery.Jcrop.css',
     '___path.frontend.dir___/libs/js/vendor/prettify/prettify.css',
@@ -19,6 +19,7 @@ $config['head']['default']['css'] = array(
     '___path.skin.dir___/assets/css/bootstrap-responsive.min.css',
     '___path.skin.dir___/assets/css/datepicker.css',
     '___path.skin.dir___/assets/css/fullcalendar.css',
+    '___path.skin.dir___/assets/css/modals.css',
     '___path.skin.dir___/assets/css/midnight.css',
     '___path.skin.dir___/assets/css/admin.css',
 );
@@ -55,6 +56,7 @@ $config['head']['default']['js'] = array(
     '___path.frontend.dir___/libs/js/vendor/prettify/prettify.js',
 
     '___path.frontend.dir___/libs/js/core/main.js',
+    '___path.frontend.dir___/libs/js/ui/modal.js',
     '___path.frontend.dir___/ls/js/favourite.js',
     '___path.frontend.dir___/ls/js/talk.js',
     '___path.frontend.dir___/ls/js/vote.js',

@@ -47,7 +47,7 @@
 <form action="" method="POST" enctype="multipart/form-data" id="form-topic-add" class="wrapper-content">
     {hook run='form_add_topic_topic_begin'}
 
-    <input type="hidden" name="security_ls_key" value="{$ALTO_SECURITY_KEY}"/>
+    <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
 
     <p><label for="blog_id">{$aLang.topic_create_blog}</label>
         <select name="blog_id" id="blog_id" onChange="ls.blog.loadInfo(jQuery(this).val());" class="input-width-full">
@@ -99,7 +99,7 @@
     <textarea name="topic_text" id="topic_text" class="mce-editor markitup-editor input-width-full"
               rows="20">{$_aRequest.topic_text}</textarea>
 
-    {if !$oConfig->GetValue('view.tinymce')}
+    {if !Config::Get('view.wysiwyg')}
         {include file='tags_help.tpl' sTagsTargetId="topic_text"}
         <br/>
         <br/>
@@ -130,15 +130,15 @@
                             <li id="photo_{$oPhoto->getId()}" {if $bIsMainPhoto}class="marked-as-preview"{/if}>
                                 <img src="{$oPhoto->getWebPath('100crop')}" alt="image"/>
                                 <textarea
-                                        onBlur="ls.photoset.setPreviewDescription({$oPhoto->getId()}, this.value)">{$oPhoto->getDescription()}</textarea><br/>
-                                <a href="javascript:ls.photoset.deletePhoto('{$oPhoto->getId()}')" class="image-delete">
+                                        onblur="ls.photoset.setPreviewDescription({$oPhoto->getId()}, this.value)">{$oPhoto->getDescription()}</textarea><br/>
+                                <a href="#" onclick="ls.photoset.deletePhoto('{$oPhoto->getId()}'); return false;" class="image-delete">
                                     {$aLang.topic_photoset_photo_delete}
                                 </a>
                             <span id="photo_preview_state_{$oPhoto->getId()}" class="photo-preview-state">
                             {if $bIsMainPhoto}
                                 {$aLang.topic_photoset_is_preview}
                             {else}
-                                <a href="javascript:ls.photoset.setPreview('{$oPhoto->getId()}')"
+                                <a href="#" onclick="ls.photoset.setPreview('{$oPhoto->getId()}'); return false;"
                                    class="mark-as-preview">{$aLang.topic_photoset_mark_as_preview}</a>
                             {/if}
                             </span>
@@ -148,7 +148,7 @@
                     {/if}
                 </ul>
 
-                <a href="javascript:ls.photoset.showForm()"
+                <a href="#" onclick="ls.photoset.showForm(); return false;"
                    id="photoset-start-upload">{$aLang.topic_photoset_upload_choose}</a>
             </div>
         </fieldset>

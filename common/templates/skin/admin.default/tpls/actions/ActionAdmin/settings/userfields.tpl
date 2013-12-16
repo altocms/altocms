@@ -10,13 +10,13 @@
 {block name="content-body"}
 
 <div class="span12">
-    <div class="modal uniform" id="userfield_form">
-        <header class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h3 class="modal-title">{$aLang.action.admin.user_field_admin_title_add}</h3>
+    <div class="b-modal" id="userfield_form">
+        <header class="b-modal-header">
+            <button type="button" class="b-modal-close" data-type="modal-close" data-dismiss="b-modal" aria-hidden="true">&times;</button>
+            <h3 class="b-modal-title">{$aLang.action.admin.user_field_admin_title_add}</h3>
         </header>
 
-        <form class="modal-content">
+        <form class="b-modal-content uniform">
             <p><label for="user_fields_form_type">{$aLang.action.admin.userfield_form_type}:</label>
                 <select id="user_fields_form_type" class="input-text input-width-full">
                     <option value=""></option>

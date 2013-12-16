@@ -74,8 +74,8 @@ $config['ls']['head']['default']['js']  = array(
 $config['ls']['head']['default']['css'] = array(
     '___path.frontend.dir___/libs/css/reset.css',
     '___path.frontend.dir___/libs/css/print.css',
-    '___path.frontend.dir___/libs/js/vendor/markitup/skins/synio/style.css',
-    '___path.frontend.dir___/libs/js/vendor/markitup/sets/synio/style.css',
+    '___path.frontend.dir___/libs/js/vendor/markitup/skins/default/style.css',
+    '___path.frontend.dir___/libs/js/vendor/markitup/sets/default/style.css',
     '___path.frontend.dir___/libs/js/vendor/jcrop/jquery.Jcrop.css',
     '___path.frontend.dir___/libs/js/vendor/prettify/prettify.css',
 );

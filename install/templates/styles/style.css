@@ -173,7 +173,9 @@ form .icon-question-sign { cursor: help; }
 }
 .button.button-primary:hover { background: #2abcfe; }
 
-
+.btn-group {
+    height: 30px;
+}
 
 
 
