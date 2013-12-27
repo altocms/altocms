@@ -935,11 +935,13 @@ if (!function_exists('json_encode'))
     F::IncludeLib('Services_JSON-1.0.3/JSON.php');
 
     function json_encode($value) {
-        return (new Services_JSON)->encodeUnsafe($value);
+        $json = new Services_JSON();
+        return $json->encodeUnsafe($value);
     }
 
     function json_decode($json, $assoc = false) {
-        return (new Services_JSON($assoc ? SERVICES_JSON_LOOSE_TYPE : 0))->decode($json);
+        $json = new Services_JSON($assoc ? SERVICES_JSON_LOOSE_TYPE : 0);
+        return $json->decode($json);
     }
 }
 
