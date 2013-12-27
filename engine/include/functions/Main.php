@@ -129,54 +129,7 @@ class AltoFunc_Main {
      * @return  string
      */
     static public function JsonEncode($xData) {
-
-        if (function_exists('json_encode')) {
-            return json_encode($xData);
-        }
-        if (is_null($xData)) {
-            return 'null';
-        }
-        if ($xData === false) {
-            return 'false';
-        }
-        if ($xData === true) {
-            return 'true';
-        }
-        if (is_scalar($xData)) {
-            if (is_float($xData)) {
-                // Always use "." for floats.
-                return floatval(str_replace(",", ".", strval($xData)));
-            }
-
-            if (is_string($xData)) {
-                static $jsonReplaces
-                = array(array("\\", "/", "\n", "\t", "\r", "\b", "\f", '"'),
-                        array('\\\\', '\\/', '\\n', '\\t', '\\r', '\\b', '\\f', '\"'));
-                return '"' . str_replace($jsonReplaces[0], $jsonReplaces[1], $xData) . '"';
-            } else {
-                return $xData;
-            }
-        }
-        $bList = true;
-        for ($i = 0, reset($xData); $i < count($xData); $i++, next($xData)) {
-            if (key($xData) !== $i) {
-                $bList = false;
-                break;
-            }
-        }
-        $aResult = array();
-        if ($bList) {
-            foreach ($xData as $sVal) {
-                $aResult[] = self::jsonEncode($sVal);
-            }
-            return '[' . join(',', $aResult) . ']';
-        } else {
-            foreach ($xData as $sKey => $sVal) {
-                $aResult[] = self::jsonEncode($sKey) . ':' . self::jsonEncode($sVal);
-            }
-            return '{' . join(',', $aResult) . '}';
-        }
-
+        return json_encode($xData);
     }
 
     /**

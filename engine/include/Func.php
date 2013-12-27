@@ -925,4 +925,24 @@ if (!function_exists('mb_preg_match_all')) {
 
 F::init();
 
+/**
+ * Shims for json_* functions for when the php_json extension is missing (that's the case with Debian-based distros
+ * that have it removed due to a license conflict).
+ */
+if (!function_exists('json_encode'))
+{
+    // JSON support courtesy of Services_JSON Pear library
+    F::IncludeLib('Services_JSON-1.0.3/JSON.php');
+
+    function json_encode($value) {
+        $json = new Services_JSON();
+        return $json->encodeUnsafe($value);
+    }
+
+    function json_decode($json, $assoc = false) {
+        $json = new Services_JSON($assoc ? SERVICES_JSON_LOOSE_TYPE : 0);
+        return $json->decode($json);
+    }
+}
+
 // EOF
