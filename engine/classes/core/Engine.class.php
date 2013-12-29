@@ -927,7 +927,7 @@ class Engine extends LsObject {
 
         $sClass = self::GetEntityClass($sName);
         $oEntity = new $sClass($aParams);
-        $oEntity->Init();
+        //$oEntity->Init();
         return $oEntity;
     }
 
