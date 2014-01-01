@@ -432,10 +432,13 @@ ls.swfupload = (function ($) {
                 f.onSwfobjectSwfupload();
             }else{
                 if (ls.cfg.assets['swfobject/plugin/swfupload.js']) {
-                    ls.debug('window.swfobject && swfobject.swfupload is undefined, load swfobject/plugin/swfupload.js');
-                    $.getScript(ls.cfg.assets['swfobject/plugin/swfupload.js'], f.onSwfobjectSwfupload);
+                    ls.debug('window.swfobject && swfobject.swfupload is undefined, loading "swfobject/plugin/swfupload.js"...');
+                    $.getScript(ls.cfg.assets['swfobject/plugin/swfupload.js'], function() {
+                        ls.debug('...file "swfobject/plugin/swfupload.js" loaded');
+                        f.onSwfobjectSwfupload();
+                    });
                 } else {
-                    ls.debug('cannot load swfobject/plugin/swfupload.js');
+                    ls.debug('cannot load "swfobject/plugin/swfupload.js"');
                 }
             }
         }.bind(this);
@@ -445,10 +448,13 @@ ls.swfupload = (function ($) {
                 f.onSwfupload();
             }else{
                 if (ls.cfg.assets['swfupload/swfupload.js']) {
-                    ls.debug('window.SWFUpload is undefined, load swfupload/swfupload.js');
-                    $.getScript(ls.cfg.assets['swfupload/swfupload.js'], f.onSwfupload);
+                    ls.debug('window.SWFUpload is undefined, loading "swfupload/swfupload.js"');
+                    $.getScript(ls.cfg.assets['swfupload/swfupload.js'], function() {
+                        ls.debug('...file "swfupload/swfupload.js" loaded');
+                        f.onSwfupload();
+                    });
                 } else {
-                    ls.debug('cannot load swfupload/swfupload.js');
+                    ls.debug('cannot load "swfupload/swfupload.js"');
                 }
             }
         }.bind(this);
@@ -735,7 +741,7 @@ ls = (function ($) {
      */
     this.ajaxSubmit = function (url, form, callback, more) {
         var more = more || {}
-        form = typeof form == 'string' ? $(form) : form;
+        form = $(form);
 
         if (url.indexOf('http://') != 0 && url.indexOf('https://') != 0 && url.indexOf('/') != 0) {
             url = ls.actionUrl('ajax') + url + '/';
@@ -806,7 +812,7 @@ ls = (function ($) {
      * Загрузка изображения
      */
     this.ajaxUploadImg = function (form, sToLoad) {
-        ls.ajaxSubmit('upload/image/', form, function (data) {ls.log('===', data);
+        ls.ajaxSubmit('upload/image/', form, function (data) {
             if (data.bStateError) {
                 ls.msg.error(data.sMsgTitle, data.sMsg);
             } else {

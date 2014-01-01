@@ -12,14 +12,14 @@ ls.photoset = ( function ($) {
     this.init = function () {
         var self = this;
 
-        $('#js-photoset-image-upload').on('change', function (e) {
+        $('#js-photoset-upload-input').on('change', function (e) {
             self.upload();
         });
     };
 
     this.initSwfUpload = function (opt) {
         opt = opt || {};
-        opt.button_placeholder_id = 'js-photoset-image-upload-flash';
+        opt.button_placeholder_id = 'js-photoset-upload-button';
         opt.post_params.ls_photoset_target_tmp = $.cookie('ls_photoset_target_tmp') ? $.cookie('ls_photoset_target_tmp') : 0;
 
         $(ls.swfupload).unbind('load').bind('load', function () {
@@ -151,7 +151,7 @@ ls.photoset = ( function ($) {
     this.upload = function () {
         ls.photoset.addPhotoEmpty();
 
-        var input = $('#js-photoset-image-upload');
+        var input = $('#js-photoset-upload-input');
         var form = $('<form method="post" enctype="multipart/form-data">' +
             '<input type="hidden" name="is_iframe" value="true" />' +
             '<input type="hidden" name="ALTO_AJAX" value="1" />' +

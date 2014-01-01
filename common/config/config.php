@@ -631,10 +631,11 @@ $config['head']['default']['js'] = array(
     '___path.frontend.dir___/libs/js/vendor/jquery.cookie.js',
     '___path.frontend.dir___/libs/js/vendor/jquery.serializejson.js',
     '___path.frontend.dir___/libs/js/vendor/jquery.file.js',
-    '___path.frontend.dir___/libs/js/vendor/jcrop/jquery.Jcrop.js',
     '___path.frontend.dir___/libs/js/vendor/jquery.placeholder.min.js',
     '___path.frontend.dir___/libs/js/vendor/jquery.charcount.js',
     '___path.frontend.dir___/libs/js/vendor/jquery.imagesloaded.js',
+    '___path.frontend.dir___/libs/js/vendor/jcrop/jquery.Jcrop.js',
+    '___path.frontend.dir___/libs/js/vendor/markitup/jquery.markitup.js',
     '___path.frontend.dir___/libs/js/vendor/notifier/jquery.notifier.js',
     '___path.frontend.dir___/libs/js/vendor/prettify/prettify.js',
     '___path.frontend.dir___/libs/js/vendor/prettyphoto/js/jquery.prettyphoto.js',
@@ -663,6 +664,7 @@ $config['head']['default']['js'] = array(
     '___path.frontend.dir___/libs/js/core/hook.js',
 
     /* User Interface */
+    /*
     '___path.frontend.dir___/libs/js/ui/over.js',
     '___path.frontend.dir___/libs/js/ui/dropdown.js',
     '___path.frontend.dir___/libs/js/ui/tooltip.js',
@@ -670,8 +672,11 @@ $config['head']['default']['js'] = array(
     '___path.frontend.dir___/libs/js/ui/tab.js',
     '___path.frontend.dir___/libs/js/ui/modal.js',
     '___path.frontend.dir___/libs/js/ui/toolbar.js',
+    */
+    '___path.frontend.dir___/bootstrap-3.0.0/js/bootstrap.min.js',
 
     /* Engine */
+    '___path.frontend.dir___/ls/js/settings.js',
     '___path.frontend.dir___/libs/js/engine/favourite.js',
     '___path.frontend.dir___/libs/js/engine/blocks.js',
     '___path.frontend.dir___/libs/js/engine/pagination.js',

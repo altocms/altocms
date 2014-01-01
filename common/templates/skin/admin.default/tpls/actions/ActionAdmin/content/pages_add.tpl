@@ -10,9 +10,7 @@
 
 <div class="span12">
 
-{include file='inc.modal_load_img.tpl' sToLoad='page_text'}
-
-    {include file='inc.editor.tpl'}
+    {include file='inc.editor.tpl' sImgToLoad='page_text'}
 
     <div class="b-wbox">
         <div class="b-wbox-header">

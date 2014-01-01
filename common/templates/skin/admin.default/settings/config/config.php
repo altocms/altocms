@@ -25,12 +25,12 @@ $config['head']['default']['css'] = array(
 );
 
 $config['head']['default']['js'] = array(
-    '___path.frontend.url___/libs/js/vendor/jquery-1.10.2.min.js' => array('name' => 'jquery', 'asset' => 'mini'),
-    '___path.frontend.url___/libs/js/vendor/jquery-migrate-1.2.1.min.js' => array('asset' => 'mini'),
-    '___path.frontend.url___/libs/js/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js' => array('asset' => 'mini'),
-    '___path.frontend.url___/libs/js/vendor/jquery-ui/js/localization/jquery-ui-datepicker-ru.js',
-    '___path.frontend.url___/libs/js/vendor/markitup/jquery.markitup.js' => array('name' => 'markitup'),
-    '___path.frontend.url___/libs/js/vendor/tinymce_4/tinymce.min.js' => array('name' => 'tinymce', 'asset' => 'mini'),
+    '___path.frontend.dir___/libs/js/vendor/jquery-1.10.2.min.js' => array('name' => 'jquery', 'asset' => 'mini'),
+    '___path.frontend.dir___/libs/js/vendor/jquery-migrate-1.2.1.min.js' => array('asset' => 'mini'),
+    '___path.frontend.dir___/libs/js/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js' => array('asset' => 'mini'),
+    '___path.frontend.dir___/libs/js/vendor/jquery-ui/js/localization/jquery-ui-datepicker-ru.js',
+    '___path.frontend.dir___/libs/js/vendor/markitup/jquery.markitup.js' => array('name' => 'markitup'),
+    '___path.frontend.dir___/libs/js/vendor/tinymce_4/tinymce.min.js' => array('name' => 'tinymce', 'asset' => 'mini'),
 
     '___path.frontend.dir___/bootstrap-3.0.0/js/bootstrap.min.js' => array('name' => 'bootstrap'),
 

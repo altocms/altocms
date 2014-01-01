@@ -1089,6 +1089,9 @@ class ActionAjax extends Action {
         } elseif (($sUrl = $this->GetPost('img_url')) && ($sUrl != 'http://')) {
             // * Загрузка файла по URL
             $sFile = $this->Topic_UploadTopicImageUrl($sUrl, $this->oUserCurrent);
+        } else {
+            $this->Message_AddErrorSingle($this->Lang_Get('uploadimg_file_error'));
+            return;
         }
         // * Если файл успешно загружен, формируем HTML вставки и возвращаем в ajax ответе
         if ($sFile) {
