@@ -858,6 +858,18 @@ ls = (function ($) {
         }
     }
 
+    this.getAssetUrl = function(asset) {
+        if (this.cfg && this.cfg.assets && this.cfg.assets[asset]) {
+            return this.cfg.assets[asset];
+        }
+    }
+
+    this.getAssetPath = function(asset) {
+        var url = this.getAssetUrl(asset);
+        if (url) {
+            return url.substring(0, url.lastIndexOf('/'));
+        }
+    }
     /**
      * Дебаг сообщений
      */

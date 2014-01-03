@@ -5,7 +5,7 @@
     {include file='menu.blog_edit.tpl'}
 {/if}
 
-{include file='editor.tpl' sImgToLoad='blog_description' sSettingsTinymce='ls.settings.getTinymceComment()' sSettingsMarkitup='ls.settings.getMarkitupComment()'}
+{include file='inc.editor.tpl' sImgToLoad='blog_description' sSettingsTinymce='ls.settings.getTinymceComment()' sSettingsMarkitup='ls.settings.getMarkitupComment()'}
 
 <script type="text/javascript">
     jQuery(document).ready(function($){
@@ -51,7 +51,7 @@
     <p>
         <label for="blog_description">{$aLang.blog_create_description}:</label>
         <textarea name="blog_description" id="blog_description" rows="15"
-                  class="input-text input-width-full mce-editor markitup-editor input-width-full">{$_aRequest.blog_description}</textarea>
+                  class="input-text input-width-full js-editor-wysiwyg js-editor-markitup input-width-full">{$_aRequest.blog_description}</textarea>
         <small class="note">{$aLang.blog_create_description_notice}</small>
     </p>
 

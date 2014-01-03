@@ -51,7 +51,7 @@ ls.comments = (function ($) {
 		this.toggleCommentForm(this.iCurrentShowFormComment);
 		
 		if (typeof(this.options.wysiwyg)!='number') {
-			this.options.wysiwyg = Boolean(WYSIWYG && tinyMCE);
+			this.options.wysiwyg = Boolean(WYSIWYG && tinymce);
 		}
 		ls.hook.run('ls_comments_init_after',[],this);
 	};

@@ -5,7 +5,7 @@
     <h2 class="page-header">{$aLang.topic_topic_edit}: <b>{$_aRequest.topic_title}</b></h2>
 {/if}
 
-{include file='editor.tpl'}
+{include file='inc.editor.tpl'}
 
 <script type="text/javascript">
     jQuery(function ($) {
@@ -96,7 +96,7 @@
     {/if}
 
     <label for="topic_text">{$aLang.topic_create_text}:</label>
-    <textarea name="topic_text" id="topic_text" class="mce-editor markitup-editor input-width-full"
+    <textarea name="topic_text" id="topic_text" class="js-editor-wysiwyg js-editor-markitup input-width-full"
               rows="20">{$_aRequest.topic_text}</textarea>
 
     {if !Config::Get('view.wysiwyg')}

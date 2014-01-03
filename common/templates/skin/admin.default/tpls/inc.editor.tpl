@@ -1,12 +1,15 @@
-{if $oConfig->GetValue('view.wysiwyg')}
+{if Config::Get('view.wysiwyg')}
     {if !$sSettingsTinymce}
         {assign var="sSettingsTinymce" value="ls.settings.getTinymce()"}
     {/if}
     <script type="text/javascript">
-        jQuery.getScript("{cfg name='path.frontend.url'}libs/js/vendor/tinymce_4/tinymce.min.js");
-        jQuery(function ($) {
-            tinyMCE.init({$sSettingsTinymce});
-        });
+        if (!tinymce) {
+            jQuery.getScript(ls.cfg.assets['tinymce_4'], function() {
+                jQuery(function ($) {
+                    tinymce.init({$sSettingsTinymce});
+                });
+            });
+        }
     </script>
 {else}
     {if !$sImgToLoad}
@@ -20,7 +23,7 @@
     <script type="text/javascript">
         jQuery(function ($) {
             ls.lang.load({lang_load name="panel_b,panel_i,panel_u,panel_s,panel_url,panel_url_promt,panel_code,panel_video,panel_image,panel_cut,panel_quote,panel_list,panel_list_ul,panel_list_ol,panel_title,panel_clear_tags,panel_video_promt,panel_list_li,panel_image_promt,panel_user,panel_user_promt"});
-            $('.editor-markitup').markItUp({$sSettingsMarkitup});
+            $('.js-editor-markitup').markItUp({$sSettingsMarkitup});
         });
     </script>
 {/if}

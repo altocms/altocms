@@ -72,7 +72,7 @@
 
                     <div class="controls">
                         <textarea name="page_text" id="page_text" rows="20"
-                                  class="editor-markitup">{$_aRequest.page_text}</textarea>
+                                  class="js-editor-markitup">{$_aRequest.page_text}</textarea>
                     </div>
                 </div>
 

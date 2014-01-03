@@ -48,7 +48,8 @@
         var DIR_ROOT_ENGINE_LIB = '{Config::Get('path.root.engine_lib')}';
         var LIVESTREET_SECURITY_KEY = '{$ALTO_SECURITY_KEY}';
         var SESSION_ID          = '{$_sPhpSessionId}';
-        var BLOG_USE_TINYMCE    = '{Config::Get('view.wysiwyg')}';
+        var WYSIWYG             = '{Config::Get('view.wysiwyg')}' ? true : false;
+        var BLOG_USE_TINYMCE    = WYSIWYG;
 
         {if Config::Get('lang.current') == 'ru'}
         var TINYMCE_LANG = 'ru';
@@ -65,7 +66,7 @@
     {$aHtmlHeadFiles.js}
 
     <script type="text/javascript">
-        var tinyMCE = tinyMCE || tinymce || null;
+        var tinyMCE = null;
         ls.lang.load({json var = $aLangJs});
         ls.registry.set('comment_max_tree', {json var=Config::Get('module.comment.max_tree')});
         ls.registry.set('block_stream_show_tip', {json var=Config::Get('block.stream.show_tip')});

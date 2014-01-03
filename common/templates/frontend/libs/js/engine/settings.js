@@ -96,10 +96,13 @@ ls.settings = (function ($) {
 	};
 
     this.tinymce_default = {
-        mode : 									"specific_textareas",
-        editor_selector : 						"mce-editor",
-        theme : 								"modern",
-        //skin : 								    "livestreet",
+        mode:               'specific_textareas',
+        editor_selector:    'js-editor-wysiwyg',
+        theme:              'modern',
+        relative_urls : false,
+        remove_script_host : true,
+        document_base_url: 'http://www.site.com.loc/path1/',
+        //convert_urls: true,
         content_css: '/common/templates/frontend/libs/js/vendor/tinymce_4.0.5/plugins/altoimage/css/style.css,/common/templates/skin/native/assets/css/tinymce.css',
         menubar: false,
         toolbar: "undo redo | styleselect | bold italic strikethrough underline blockquote | alignleft aligncenter alignright | bullist numlist table | link unlink | altoimage media | code | cut ",
@@ -110,20 +113,26 @@ ls.settings = (function ($) {
             {title: 'Head 2', block: 'h5'},
             {title: 'Head 3', block: 'h6'}
         ],
-        object_resizing : 						true,
-        force_br_newlines :						true,
-        forced_root_block : 					'', // Needed for 3.x
-        force_p_newlines : 						false,
-        plugins : 								"advlist autolink autosave link lists media pagebreak autoresize table code altoimage",
-        convert_urls : 							false,
-        extended_valid_elements : 				"embed[src|type|allowscriptaccess|allowfullscreen|width|height]",
-        pagebreak_separator :					"<cut>",
-        media_strict : 							false,
-        language : 								'ru',
-        inline_styles:							false,
-        formats : {
-            underline : 	{inline : 'u', exact : true},
-            strikethrough : {inline : 's', exact : true}
+        object_resizing: true,
+        force_br_newlines: true,
+        forced_root_block: '', // Needed for 3.x
+        force_p_newlines: false,
+        plugins: "advlist autolink autosave link lists media pagebreak autoresize table code altoimage",
+        //convert_urls: false,
+        extended_valid_elements: "embed[src|type|allowscriptaccess|allowfullscreen|width|height]",
+        pagebreak_separator: "<cut>",
+        media_strict: false,
+        language: 'ru',
+        inline_styles: false,
+        formats: {
+            underline: {inline: 'u', exact: true},
+            strikethrough: {inline: 's', exact: true}
+        },
+        setup : function(ed) {
+            ed.documentBaseUrl = 'http://aaa.com.loc/bbb/';
+            ed.documentBaseURL = 'http://aaa.com.loc/bbb/';
+            ed.baseURL = 'http://aaa.com.loc/bbb/';
+            ls.log('====================', ed);
         }
     };
 
@@ -168,5 +177,25 @@ ls.settings = (function ($) {
 		}
 	};
 
-	return this;
+    this.getMarkitup = function() {
+        return this.markitup_default;
+    }
+
+    this.getMarkitupComment = function() {
+        return this.markitup_comment;
+    }
+
+    this.getTinymce = function() {
+        if ($('.js-editor-wysiwyg').length) {
+            return this.tinymce_default;
+        } else {
+            return this.tinymce_old;
+        }
+    }
+
+    this.getTinymceComment = function() {
+        return this.tinymce_comment;
+    }
+
+    return this;
 }).call(ls.settings || {},jQuery);
