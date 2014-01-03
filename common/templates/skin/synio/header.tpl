@@ -39,11 +39,11 @@
     {/if}
 
     {if $bRefreshToHome}
-        <meta HTTP-EQUIV="Refresh" CONTENT="3; URL={Config::Get('path.root.web')}">
+        <meta HTTP-EQUIV="Refresh" CONTENT="3; URL={Config::Get('path.root.url')}">
     {/if}
 
     <script type="text/javascript">
-        var DIR_WEB_ROOT        = '{Config::Get('path.root.web')}';
+        var DIR_WEB_ROOT        = '{Config::Get('path.root.url')}';
         var DIR_STATIC_SKIN     = '{Config::Get('path.static.skin')}';
         var DIR_ROOT_ENGINE_LIB = '{Config::Get('path.root.engine_lib')}';
         var LIVESTREET_SECURITY_KEY = '{$ALTO_SECURITY_KEY}';

@@ -1,6 +1,6 @@
 {if $sMenuItemSelect=='index' AND $sMenuSubItemSelect=='top'}
 	<ul class="nav nav-pills mb-30">
-		<li {if $sMenuSubItemSelect=='good'}class="active"{/if}><a href="{Config::Get('path.root.web')}/">{$aLang.blog_menu_all_good}</a></li>
+		<li {if $sMenuSubItemSelect=='good'}class="active"{/if}><a href="{Config::Get('path.root.url')}/">{$aLang.blog_menu_all_good}</a></li>
 		<li {if $sMenuSubItemSelect=='new'}class="active"{/if}>
 			<a href="{router page='index'}newall/" title="{$aLang.blog_menu_top_period_all}">{$aLang.blog_menu_all_new}</a>
 			{if $iCountTopicsNew>0}<a href="{router page='index'}new/" class="new" title="{$aLang.blog_menu_top_period_24h}">+{$iCountTopicsNew}</a>{/if}

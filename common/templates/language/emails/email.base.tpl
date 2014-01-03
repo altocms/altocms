@@ -68,7 +68,7 @@
 											{block name='content'}{/block}
 											<br>
 											<br>
-											{$aLang.notify_regards} <a href="{Config::Get('path.root.web')}">{Config::Get('view.name')}</a>
+											{$aLang.notify_regards} <a href="{Config::Get('path.root.url')}">{Config::Get('view.name')}</a>
 										</td>
 									</tr>
 								</table>
@@ -81,7 +81,7 @@
 						<tr>
 							<td valign="center">
 								<img src="{$sImagesDir}/blank.gif" width="27" height="10" style="vertical-align: middle">
-								<a href="{Config::Get('path.root.web')}" style="color: #{$sFooterLinkColor} !important;">{Config::Get('view.name')}</a>
+								<a href="{Config::Get('path.root.url')}" style="color: #{$sFooterLinkColor} !important;">{Config::Get('view.name')}</a>
 							</td>
 						</tr>
 					</table>

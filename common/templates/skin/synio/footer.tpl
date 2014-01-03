@@ -29,7 +29,7 @@
 
         <ul class="footer-list">
             <li class="footer-list-header">{$aLang.footer_menu_navigate_title}</li>
-            <li><a href="{Config::Get('path.root.web')}">{$aLang.topic_title}</a></li>
+            <li><a href="{Config::Get('path.root.url')}">{$aLang.topic_title}</a></li>
             <li><a href="{router page='blogs'}">{$aLang.blogs}</a></li>
             <li><a href="{router page='people'}">{$aLang.people}</a></li>
             <li><a href="{router page='stream'}">{$aLang.stream_menu}</a></li>

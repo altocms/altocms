@@ -1,10 +1,10 @@
 <header id="header" role="banner">
     {hook run='header_banner_begin'}
-    <h1 class="site-name"><a href="{Config::Get('path.root.web')}">{Config::Get('view.name')}</a></h1>
+    <h1 class="site-name"><a href="{Config::Get('path.root.url')}">{Config::Get('view.name')}</a></h1>
 
     <ul class="nav nav-main" id="nav-main">
         <li {if $sMenuHeadItemSelect=='blog'}class="active"{/if}><a
-                    href="{Config::Get('path.root.web')}">{$aLang.blog_menu_all}</a> <i></i></li>
+                    href="{Config::Get('path.root.url')}">{$aLang.blog_menu_all}</a> <i></i></li>
         {if count($aContentTypes)>1}
             {foreach from=$aContentTypes item=oContentType}
                 <li {if $sMenuHeadItemSelect=='filter' AND $sEvent==$oContentType->getContentUrl()}class="active"{/if}><a

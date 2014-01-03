@@ -7,7 +7,7 @@
     <Image height="64" width="64" type="image/png">{Config::Get('path.static.skin')}/images/logo.png</Image>
     <Image height="16" width="16" type="image/vnd.microsoft.icon">{Config::Get('path.static.skin')}/images/favicon.ico
     </Image>
-    <Developer>{Config::Get('view.name')} ({Config::Get('path.root.web')})</Developer>
+    <Developer>{Config::Get('view.name')} ({Config::Get('path.root.url')})</Developer>
     <Attribution>
         © «{Config::Get('view.name')}»
     </Attribution>

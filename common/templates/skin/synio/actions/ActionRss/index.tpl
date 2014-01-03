@@ -6,9 +6,9 @@
 	<atom:link href="{$PATH_WEB_CURRENT}/" rel="self" type="application/rss+xml" />
 	<description><![CDATA[{$aChannel.description}]]></description>
 	<language>{$aChannel.language}</language>
-	<managingEditor>{$aChannel.managingEditor} ({Config::Get('path.root.web')})</managingEditor>
-	<webMaster>{$aChannel.managingEditor} ({Config::Get('path.root.web')})</webMaster>
-	<copyright>{Config::Get('path.root.web')}</copyright>
+	<managingEditor>{$aChannel.managingEditor} ({Config::Get('path.root.url')})</managingEditor>
+	<webMaster>{$aChannel.managingEditor} ({Config::Get('path.root.url')})</webMaster>
+	<copyright>{Config::Get('path.root.url')}</copyright>
 	<generator>{$aChannel.generator}</generator>
 {foreach $aItems as $oItem}
 		<item>

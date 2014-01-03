@@ -6,4 +6,4 @@ Letter topic: <b>{$oTalk->getTitle()|escape:'html'}</b><br>
 <br>
 Don't forget to register before!
 <br><br>
-Best regards, site administration <a href="{Config::Get('path.root.web')}">{Config::Get('view.name')}</a>
+Best regards, site administration <a href="{Config::Get('path.root.url')}">{Config::Get('view.name')}</a>

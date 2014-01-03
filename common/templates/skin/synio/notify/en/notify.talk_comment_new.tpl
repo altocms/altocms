@@ -9,4 +9,4 @@ has left a new comment to the message<b>«{$oTalk->getTitle()|escape:'html'}»</
 <br><br>
 Best regards, 
 <br>
-<a href="{Config::Get('path.root.web')}">{Config::Get('view.name')}</a>
+<a href="{Config::Get('path.root.url')}">{Config::Get('view.name')}</a>

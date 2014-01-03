@@ -3,7 +3,7 @@
 
 <div class="topic">
 	<div class="topic-content text">
-		{if Config::Get('view.tinymce')}
+		{if Config::Get('view.wysiwyg')}
 			{$oPage->getText()}
 		{else}
 			{if $oPage->getAutoBr()}

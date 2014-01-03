@@ -6,4 +6,4 @@ to join the blog <a href="{$oBlog->getUrlFull()}">"{$oBlog->getTitle()|escape:'h
 <br><br>
 Best regards, 
 <br>
-<a href="{Config::Get('path.root.web')}">{Config::Get('view.name')}</a>
+<a href="{Config::Get('path.root.url')}">{Config::Get('view.name')}</a>

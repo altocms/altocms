@@ -4,4 +4,4 @@ Your post: <i>{$oWallParent->getText()}</i><br/><br/>
 Reply post: <i>{$oWall->getText()}</i>
 
 <br/><br/>
-Best regards, site administration <a href="{Config::Get('path.root.web')}">{Config::Get('view.name')}</a>
+Best regards, site administration <a href="{Config::Get('path.root.url')}">{Config::Get('view.name')}</a>

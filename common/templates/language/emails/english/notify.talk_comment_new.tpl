@@ -5,4 +5,4 @@ The user <a href="{$oUserFrom->getUserWebPath()}">{$oUserFrom->getLogin()}</a> l
 <br>
 Do not forget to register before!							
 <br><br>
-Best regards, site administration <a href="{Config::Get('path.root.web')}">{Config::Get('view.name')}</a>
+Best regards, site administration <a href="{Config::Get('path.root.url')}">{Config::Get('view.name')}</a>

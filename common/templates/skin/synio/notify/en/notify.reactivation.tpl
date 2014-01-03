@@ -1,4 +1,4 @@
-You have requested re-activation of your account at <a href="{Config::Get('path.root.web')}">{Config::Get('view.name')}</a>.<br>
+You have requested re-activation of your account at <a href="{Config::Get('path.root.url')}">{Config::Get('view.name')}</a>.<br>
 <br>
 
 Here is the link, which will activate your account:
@@ -7,4 +7,4 @@ Here is the link, which will activate your account:
 <br><br>
 Best regards, 
 <br>
-<a href="{Config::Get('path.root.web')}">{Config::Get('view.name')}</a>
+<a href="{Config::Get('path.root.url')}">{Config::Get('view.name')}</a>

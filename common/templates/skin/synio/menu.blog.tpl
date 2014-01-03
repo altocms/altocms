@@ -1,6 +1,6 @@
 <ul class="nav nav-menu">
     <li {if $sMenuItemSelect=='index' AND $sMenuSubItemSelect=='good'}class="active"{/if}>
-        <a href="{Config::Get('path.root.web')}">{$aLang.blog_menu_all}</a>
+        <a href="{Config::Get('path.root.url')}">{$aLang.blog_menu_all}</a>
     </li>
 
     <li {if $sMenuSubItemSelect=='new'}class="active"{/if}>

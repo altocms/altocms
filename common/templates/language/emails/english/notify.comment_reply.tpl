@@ -3,4 +3,4 @@ The user <a href="{$oUserComment->getUserWebPath()}">{$oUserComment->getLogin()}
 	Message: <i>{$oComment->getText()}</i>	
 {/if}				
 <br><br>
-Best regards, site administration <a href="{Config::Get('path.root.web')}">{Config::Get('view.name')}</a>
+Best regards, site administration <a href="{Config::Get('path.root.url')}">{Config::Get('view.name')}</a>
