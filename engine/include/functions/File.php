@@ -292,35 +292,70 @@ class AltoFunc_File {
     static function ReadDir($sDir, $nFlag = 0, $bRecursively = false) {
 
         if (substr($sDir, -1) == '*') {
+            $sMask = '*';
             $sDir = substr($sDir, 0, strlen($sDir) - 1);
-        }
-        $aResult = glob($sDir . '/{,.}*', $nFlag | GLOB_BRACE);
-        // исключаем из выдачи '.' и '..'
-        $nCnt = 0;
-        foreach ($aResult as $n => $sFile) {
-            if (basename($sFile) == '.' || basename($sFile) == '..') {
-                unset($aResult[$n]);
-                if (++$nCnt > 1) {
-                    break;
-                } // исключаем лишние циклы
-            }
+        } elseif ((substr($sDir, -1) != '/') && (substr(basename($sDir), 0, 2) == '*.')) {
+            $sMask = basename($sDir);
+            $sDir = dirname($sDir);
+        } else {
+            $sMask = '*';
         }
 
         if ($bRecursively) {
-            if ($nFlag & GLOB_ONLYDIR) {
-                $aSubDirs = $aResult;
-            } else {
-                $aSubDirs = self::ReadDir($sDir, GLOB_ONLYDIR);
+            $aSubDirs = glob($sDir . '/{,.}*', $nFlag | GLOB_BRACE | GLOB_ONLYDIR);
+            // исключаем из выдачи '.' и '..'
+            $nCnt = 0;
+            foreach ($aSubDirs as $n => $sFile) {
+                if (basename($sFile) == '.' || basename($sFile) == '..') {
+                    unset($aSubDirs[$n]);
+                    if (++$nCnt > 1) {
+                        break;
+                    } // исключаем лишние циклы
+                }
             }
-            if ($aSubDirs) {
-                foreach ($aSubDirs as $sSubDir) {
-                    if ($aSubResult = self::ReadDir($sSubDir, $nFlag)) {
-                        $aResult = array_merge($aResult, $aSubResult);
-                    }
+        } else {
+            $aSubDirs = array();
+        }
+
+        if ($nFlag & GLOB_ONLYDIR) {
+            return $aSubDirs;
+        }
+
+        if (substr($sDir, -1) != '/') {
+            $sDir .= '/';
+        }
+        if (substr($sMask, 0, 1) == '*') {
+            $aResult = glob($sDir . '{,.}' . $sMask, $nFlag | GLOB_BRACE);
+        } else {
+            $aResult = glob($sDir . $sMask, $nFlag | GLOB_BRACE);
+        }
+
+        if ($bRecursively && $aSubDirs) {
+            foreach ($aSubDirs as $sSubDir) {
+                if ($aSubResult = self::ReadDir($sSubDir . '/' . $sMask, $nFlag, $bRecursively)) {
+                    $aResult = array_merge($aResult, $aSubResult);
                 }
             }
         }
         return $aResult;
+    }
+
+    static public function ReadFileList($sDir, $nFlag = 0, $bRecursively = false) {
+
+        if ($nFlag & GLOB_ONLYDIR) {
+            return array();
+        }
+        $sDir = str_replace('\\', '/', $sDir);
+        if (substr($sDir, -1) == '/') {
+            $sDir .= '*';
+        }
+        $aFileList = self::ReadDir($sDir, $nFlag, $bRecursively);
+        foreach ($aFileList as $nKey => $sFile) {
+            if (is_dir($sFile)) {
+                unset($aFileList[$nKey]);
+            }
+        }
+        return $aFileList;
     }
 
     /**

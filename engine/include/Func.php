@@ -55,6 +55,7 @@ class Func {
      */
     static public function _errorLog($sError) {
 
+        $sError = mb_convert_encoding($sError, 'UTF-8');
         $sText = '';
         if (static::_errorLogExtInfo() && isset($_SERVER) && is_array($_SERVER)) {
             foreach ($_SERVER as $sKey => $sVal) {
