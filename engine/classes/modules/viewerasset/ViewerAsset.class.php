@@ -151,6 +151,21 @@ class ModuleViewerAsset extends Module {
         $aAssetFiles = array();
         foreach ($aFiles as $sFileName => $aFileParams) {
             $sName = '';
+            // if name hase '*' then add files by pattern
+            if (strpos($sFileName, '*')) {
+                $aFiles = F::File_ReadFileList($sFileName, 0, true);
+                if ($aFiles) {
+                    $aAddFiles = array();
+                    foreach($aFiles as $sAddFile) {
+                        $sAddType = F::File_GetExtension($sAddFile);
+                        $aAddFiles[$sAddType][$sAddFile] = $aFileParams;
+                    }
+                    foreach ($aAddFiles as $sAddType=>$aAdditionalFiles) {
+                        $this->AddFiles($sAddType, $aAdditionalFiles, $sAssetName, $aOptions);
+                    }
+                }
+                continue;
+            }
             // extract & normalize full file path
             if (is_numeric($sFileName)) {
                 // single file name or array of options
@@ -381,7 +396,7 @@ class ModuleViewerAsset extends Module {
 
         $aResult = array();
         foreach($this->aAssets as $oAssetPackage) {
-            if ($aLinks = $oAssetPackage->GetLinksArray(true)) {
+            if ($aLinks = $oAssetPackage->GetLinksArray(true, true)) {
                 $aResult = F::Array_Merge($aResult, reset($aLinks));
             }
         }

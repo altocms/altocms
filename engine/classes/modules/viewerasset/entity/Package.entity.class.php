@@ -125,10 +125,21 @@ class ModuleViewerAsset_EntityPackage extends Entity {
     public function MakeSingle($sAsset, $aFileParams) {
 
         $sFile = $aFileParams['file'];
-        if ($aFileParams['merge']) {
-            $sSubdir = $this->_crc($sAsset . dirname($sFile));
+        if (isset($aFileParams['dir_from'])) {
+            $sLocalPath = F::File_LocalPath(dirname($sFile), $aFileParams['dir_from']);
+            $sDir = $aFileParams['dir_from'];
         } else {
-            $sSubdir = $this->_crc(dirname($sFile));
+            $sLocalPath = '';
+            $sDir = dirname($sFile);
+        }
+
+        if ($aFileParams['merge']) {
+            $sSubdir = $this->_crc($sAsset . $sDir);
+        } else {
+            $sSubdir = $this->_crc($sDir);
+        }
+        if ($sLocalPath) {
+            $sSubdir .= '/' . $sLocalPath;
         }
         $sDestination = $this->Viewer_GetAssetDir() . $sSubdir . '/' . basename($sFile);
         if (!$this->CheckDestination($sDestination)) {
@@ -463,14 +474,14 @@ class ModuleViewerAsset_EntityPackage extends Entity {
         }
     }
 
-    public function GetLinks($bPreparedOnly = null) {
+    public function GetLinks($bPreparedOnly = null, $bSkipWithoutName = false) {
 
         if (is_null($bPreparedOnly)) {
             return $this->aLinks;
         } else {
             $aResult = array();
             foreach ($this->aLinks as $sIdx => $aLinkData) {
-                if ($aLinkData['prepare'] == (bool)$bPreparedOnly) {
+                if (($aLinkData['prepare'] == (bool)$bPreparedOnly) && (!$bSkipWithoutName || $aLinkData['file'] != $aLinkData['name'])) {
                     $aResult[$sIdx] = $aLinkData;
                 }
             }
@@ -504,9 +515,9 @@ class ModuleViewerAsset_EntityPackage extends Entity {
         return $sResult;
     }
 
-    public function GetLinksArray($bPreparedOnly = null) {
+    public function GetLinksArray($bPreparedOnly = null, $bSkipWithoutName = false) {
 
-        $aLinks = $this->GetLinks($bPreparedOnly);
+        $aLinks = $this->GetLinks($bPreparedOnly, $bSkipWithoutName);
         $aResult = array();
         foreach($aLinks as $aLinkData) {
             $aResult[$this->sOutType][$aLinkData['name']] = $aLinkData['link'];
