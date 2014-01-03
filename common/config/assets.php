@@ -10,7 +10,6 @@ $config['ls']['head']['default']['js']  = array(
     '___path.frontend.dir___/ls/lib/jquery.jqmodal.js',
     '___path.frontend.dir___/libs/js/vendor/jquery.scrollto.js',
     '___path.frontend.dir___/libs/js/vendor/jquery.rich-array.min.js',
-    '___path.frontend.dir___/libs/js/vendor/markitup/jquery.markitup.js',
     '___path.frontend.dir___/libs/js/vendor/jquery.form.js',
     '___path.frontend.dir___/libs/js/vendor/jquery.jqplugin.js',
     '___path.frontend.dir___/libs/js/vendor/jquery.cookie.js',
@@ -40,10 +39,10 @@ $config['ls']['head']['default']['js']  = array(
     '___path.frontend.dir___/ls/js/stream.js',
     '___path.frontend.dir___/ls/js/photoset.js',
     '___path.frontend.dir___/ls/js/toolbar.js',
-    '___path.frontend.dir___/ls/js/settings.js',
     '___path.frontend.dir___/ls/js/topic.js',
     '___path.frontend.dir___/ls/js/hook.js',
 
+    '___path.frontend.dir___/libs/js/engine/settings.js',
     '___path.frontend.dir___/libs/js/vendor/swfobject/swfobject.js',
 
     /* swfupload */
@@ -62,13 +61,44 @@ $config['ls']['head']['default']['js']  = array(
         'merge'    => false
     ),
 
+    /* markitUp */
+    '___path.frontend.dir___/libs/js/vendor/markitup/jquery.markitup.js'       => array(
+        'dir_from' => '___path.frontend.dir___/libs/js/vendor/markitup/',
+        'name'     => 'markitup',
+    ),
+
     /* TinyMCE */
     '___path.frontend.dir___/libs/js/vendor/tinymce_4/tinymce.min.js'       => array(
-        'name'     => 'tinymce_4/tinymce.min.js',
+        'dir_from' => '___path.frontend.dir___/libs/js/vendor/tinymce_4/',
+        'name'     => 'tinymce_4',
+        'compress' => false,
+        'merge'    => false
+    ),
+    '___path.frontend.dir___/libs/js/vendor/tinymce_4/plugins/*'       => array(
+        'dir_from'  => '___path.frontend.dir___/libs/js/vendor/tinymce_4/',
+        'prepare'   => true,
+        'compress'  => false,
+        'merge'     => false
+    ),
+    '___path.frontend.dir___/libs/js/vendor/tinymce_4/langs/*'       => array(
+        'dir_from' => '___path.frontend.dir___/libs/js/vendor/tinymce_4/',
         'prepare'  => true,
         'compress' => false,
         'merge'    => false
     ),
+    '___path.frontend.dir___/libs/js/vendor/tinymce_4/skins/*'       => array(
+        'dir_from' => '___path.frontend.dir___/libs/js/vendor/tinymce_4/',
+        'prepare'  => true,
+        'compress' => false,
+        'merge'    => false
+    ),
+    '___path.frontend.dir___/libs/js/vendor/tinymce_4/themes/*'       => array(
+        'dir_from' => '___path.frontend.dir___/libs/js/vendor/tinymce_4/',
+        'prepare'  => true,
+        'compress' => false,
+        'merge'    => false
+    ),
+
 );
 
 $config['ls']['head']['default']['css'] = array(
