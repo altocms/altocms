@@ -3,4 +3,4 @@ The user <a href="{$oUser->getUserWebPath()}">{$oUser->getLogin()}</a> post on <
 Post: <i>{$oWall->getText()}</i>
 
 <br/><br/>
-Best regards, site administration <a href="{cfg name='path.root.web'}">{cfg name='view.name'}</a>
+Best regards, site administration <a href="{Config::Get('path.root.web')}">{Config::Get('view.name')}</a>

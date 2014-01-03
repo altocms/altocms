@@ -27,7 +27,7 @@
                 <th>
                     E-mail
                 </th>
-                {if $oConfig->GetValue('general.reg.activation')}
+                {if Config::Get('general.reg.activation')}
                     <th>
                         {$aLang.action.admin.users_activated}
                     </th>
@@ -46,7 +46,7 @@
 
             <tbody>
                 {foreach $aUsers as $oUser}
-                    {if $oConfig->GetValue('general.reg.activation') AND !$oUser->getDateActivate()}
+                    {if Config::Get('general.reg.activation') AND !$oUser->getDateActivate()}
                         {assign var=classIcon value='icon-gray'}
                     {elseif $oUser->isAdministrator()}
                         {assign var=classIcon value='icon-green'}
@@ -86,7 +86,7 @@
                     </td>
                     {/if}
                     <td>{$oUser->getUserMail()}</td>
-                    {if $oConfig->GetValue('general.reg.activation')}
+                    {if Config::Get('general.reg.activation')}
                         <td class="center">&nbsp;
                             {if $oUser->getDateActivate()}
                                 {$oUser->getDateActivate()}

@@ -6,4 +6,4 @@ Their reply reads as follows: <i>{$oWall->getText()}</i>
 <br/><br/>
 Best regards, 
 <br>
-<a href="{cfg name='path.root.web'}">{cfg name='view.name'}</a>
+<a href="{Config::Get('path.root.web'{Config::Get('view.name')}me'}</a>

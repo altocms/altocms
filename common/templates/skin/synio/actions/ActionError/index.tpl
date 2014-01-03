@@ -11,7 +11,7 @@
 	<br />
 	<br />
 	<p><a href="javascript:history.go(-1);">{$aLang.site_history_back}</a><br />
-	<a href="{cfg name='path.root.web'}">{$aLang.site_go_main}</a></p>
+	<a href="{Config::Get('path.root.web')}">{$aLang.site_go_main}</a></p>
 </div>
 
 

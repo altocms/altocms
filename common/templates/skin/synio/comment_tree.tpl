@@ -34,8 +34,8 @@
     {foreach from=$aComments item=oComment name=rublist}
         {assign var="cmtlevel" value=$oComment->getLevel()}
 
-        {if $cmtlevel>$oConfig->GetValue('module.comment.max_tree')}
-            {assign var="cmtlevel" value=$oConfig->GetValue('module.comment.max_tree')}
+        {if $cmtlevel > Config::Get('module.comment.max_tree')}
+            {$cmtlevel=Config::Get('module.comment.max_tree')}
         {/if}
 
         {if $nesting < $cmtlevel}
@@ -65,7 +65,7 @@
 {else}
     {if $oUserCurrent}
 
-        {include file='editor.tpl' sImgToLoad='form_comment_text' sSettingsTinymce='ls.settings.getTinymceComment()' sSettingsMarkitup='ls.settings.getMarkitupComment()'}
+        {include file='inc.editor.tpl' sImgToLoad='form_comment_text' sSettingsTinymce='ls.settings.getTinymceComment()' sSettingsMarkitup='ls.settings.getMarkitupComment()'}
         <h4 class="reply-header" id="comment_id_0">
             <a href="#" class="link-dotted"
                onclick="ls.comments.toggleCommentForm(0); return false;">{$sNoticeCommentAdd}</a>
@@ -78,7 +78,7 @@
                 {hook run='form_add_comment_begin'}
 
                 <textarea name="comment_text" id="form_comment_text"
-                          class="mce-editor markitup-editor input-width-full"></textarea>
+                          class="js-editor-wysiwyg js-editor-markitup input-width-full"></textarea>
 
                 {hook run='form_add_comment_end'}
 

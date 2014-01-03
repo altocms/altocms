@@ -1,8 +1,7 @@
-	{assign var="oBlog" value=$oTopic->getBlog()}
-	{assign var="oUser" value=$oTopic->getUser()}
-	{assign var="oVote" value=$oTopic->getVote()}
-	{assign var="oFavourite" value=$oTopic->getFavourite()}
-
+{assign var="oBlog" value=$oTopic->getBlog()}
+{assign var="oUser" value=$oTopic->getUser()}
+{assign var="oVote" value=$oTopic->getVote()}
+{assign var="oFavourite" value=$oTopic->getFavourite()}
 
 	<footer class="topic-footer">
 		<ul class="topic-tags js-favourite-insert-after-form js-favourite-tags-topic-{$oTopic->getId()}">
@@ -54,10 +53,10 @@
 			<li class="topic-info-share" data-topic-id="{$oTopic->getId()}" onclick="jQuery('#topic_share_{$oTopic->getId()}').slideToggle(); return false;"><i class="icon-synio-share-blue" title="{$aLang.topic_share}"></i></li>
 			
 			<li class="topic-info-favourite" onclick="return ls.favourite.toggle({$oTopic->getId()},$('#fav_topic_{$oTopic->getId()}'),'topic');">
-				<i id="fav_topic_{$oTopic->getId()}" class="favourite {if $oUserCurrent && $oTopic->getIsFavourite()}active{/if}"></i>
+				<i id="fav_topic_{$oTopic->getId()}" class="favourite {if $oUserCurrent AND $oTopic->getIsFavourite()}active{/if}"></i>
 				<span class="favourite-count" id="fav_count_topic_{$oTopic->getId()}">{if $oTopic->getCountFavourite()>0}{$oTopic->getCountFavourite()}{/if}</span>
 			</li>
-		
+
 			{if $bTopicList}
 				<li class="topic-info-comments">
 					{if $oTopic->getCountCommentNew()}
@@ -80,14 +79,13 @@
 				</li>
 			{/if}
 
-
-			{if $oVote || ($oUserCurrent && $oTopic->getUserId() == $oUserCurrent->getId()) || strtotime($oTopic->getDateAdd()) < $smarty.now-$oConfig->GetValue('acl.vote.topic.limit_time')}
+			{if $oVote OR (E::UserId() == $oTopic->getUserId()) OR strtotime($oTopic->getDateAdd()) < ($smarty.now-Config::Get('acl.vote.topic.limit_time'))}
 				{assign var="bVoteInfoShow" value=true}
 			{/if}
-			
+
 			<li class="topic-info-vote">
 				<div id="vote_area_topic_{$oTopic->getId()}" class="vote-topic
-																	{if $oVote || ($oUserCurrent && $oTopic->getUserId() == $oUserCurrent->getId()) || strtotime($oTopic->getDateAdd()) < $smarty.now-$oConfig->GetValue('acl.vote.topic.limit_time')}
+																	{if $oVote OR (E::UserId() == $oTopic->getUserId()) OR strtotime($oTopic->getDateAdd()) < ($smarty.now-Config::Get('acl.vote.topic.limit_time'))}
 																		{if $oTopic->getRating() > 0}
 																			vote-count-positive
 																		{elseif $oTopic->getRating() < 0}
@@ -96,14 +94,13 @@
 																			vote-count-zero
 																		{/if}
 																	{/if}
-																	
-																	{if !$oUserCurrent or ($oUserCurrent && $oTopic->getUserId() != $oUserCurrent->getId())}
+
+																	{if E::UserId() != $oTopic->getUserId()}
 																		vote-not-self
 																	{/if}
-																	
+
 																	{if $oVote} 
 																		voted
-																		
 																		{if $oVote->getDirection() > 0}
 																			voted-up
 																		{elseif $oVote->getDirection() < 0}
@@ -114,12 +111,12 @@
 																	{else}
 																		not-voted
 																	{/if}
-																	
-																	{if (strtotime($oTopic->getDateAdd()) < $smarty.now-$oConfig->GetValue('acl.vote.topic.limit_time') && !$oVote) || ($oUserCurrent && $oTopic->getUserId() == $oUserCurrent->getId())}
+
+																	{if (strtotime($oTopic->getDateAdd()) < $smarty.now-Config::Get('acl.vote.topic.limit_time') AND !$oVote) OR (E::UserId() == $oTopic->getUserId())}
 																		vote-nobuttons
 																	{/if}
-																	
-																	{if strtotime($oTopic->getDateAdd()) > $smarty.now-$oConfig->GetValue('acl.vote.topic.limit_time')}
+
+																	{if strtotime($oTopic->getDateAdd()) > $smarty.now-Config::Get('acl.vote.topic.limit_time')}
 																		vote-not-expired
 																	{/if}
 
@@ -151,7 +148,6 @@
 			{hook run='topic_show_info' topic=$oTopic}
 		</ul>
 
-		
 		{if !$bTopicList}
 			{hook run='topic_show_end' topic=$oTopic}
 		{/if}

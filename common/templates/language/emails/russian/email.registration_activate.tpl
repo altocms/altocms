@@ -1,7 +1,7 @@
 {extends file='emails/email.base.tpl'}
 
 {block name='content'}
-	Вы зарегистрировались на сайте <a href="{cfg name='path.root.web'}">{cfg name='view.name'}</a>
+	Вы зарегистрировались на сайте <a href="{Config::Get('path.root.web'{Config::Get('view.name')}me'}</a>
 	<br>
 	<br>
 	Ваши регистрационные данные:<br>

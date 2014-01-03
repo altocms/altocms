@@ -3,11 +3,7 @@
 		{assign var="oUser" value=$oComment->getUser()}
 		{assign var="oTopic" value=$oComment->getTarget()}
 		{assign var="oBlog" value=$oTopic->getBlog()}
-		
-		
-		
-		
-		
+
 		<section class="comment">
 			<ul class="comment-info">
 				<li class="comment-author">
@@ -24,7 +20,7 @@
 					</li>
 				{/if}
 				<li class="comment-link">
-					<a href="{if $oConfig->GetValue('module.comment.nested_per_page')}{router page='comments'}{else}{$oTopic->getUrl()}#comment{/if}{$oComment->getId()}" title="{$aLang.comment_url_notice}">
+					<a href="{if Config::Get('module.comment.nested_per_page')}{router page='comments'}{else}{$oTopic->getUrl()}#comment{/if}{$oComment->getId()}" title="{$aLang.comment_url_notice}">
 						<i class="icon-synio-link"></i>
 					</a>
 				</li>
@@ -37,27 +33,24 @@
 					<span class="vote-count" id="vote_total_comment_{$oComment->getId()}">{$oComment->getRating()}</span>
 				</li>
 			</ul>
-					
-					
-			<div class="comment-content">						
-				<div class="text">						
+
+			<div class="comment-content">
+				<div class="text">
 					{if $oComment->isBad()}
-						{$oComment->getText()}						
+						{$oComment->getText()}
 					{else}
 						{$oComment->getText()}
-					{/if}		
+					{/if}
 				</div>
 			</div>
-			
-			
+
 			<div class="comment-path">
 				<a href="{$oBlog->getUrlFull()}" class="blog-name">{$oBlog->getTitle()|escape:'html'}</a> &rarr;
 				<a href="{$oTopic->getUrl()}" class="comment-path-topic">{$oTopic->getTitle()|escape:'html'}</a>
 				<a href="{$oTopic->getUrl()}#comments" class="comment-path-comments">{$oTopic->getCountComment()}</a>
 			</div>
 		</section>
-	{/foreach}	
+	{/foreach}
 </div>
-
 
 {include file='paging.tpl' aPaging=$aPaging}

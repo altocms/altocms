@@ -1,1 +1,1 @@
-<meta HTTP-EQUIV="Refresh" CONTENT="0; URL={cfg name='path.root.web'}">
+<meta HTTP-EQUIV="Refresh" CONTENT="0; URL={Config::Get('path.root.web')}">

@@ -25,9 +25,9 @@
     <link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700&subset=latin,cyrillic' rel='stylesheet'
           type='text/css'>
 
-    <link href="{cfg name='path.static.skin'}assets/img/favicon.ico?v0.9" rel="shortcut icon"/>
+    <link href="{Config::Get('path.static.skin')}assets/img/favicon.ico?v0.9" rel="shortcut icon"/>
     <link rel="search" type="application/opensearchdescription+xml" href="{router page='search'}opensearch/"
-          title="{cfg name='view.name'}"/>
+          title="{Config::Get('view.name')}"/>
 
 {if $aHtmlRssAlternate}
     <link rel="alternate" type="application/rss+xml" href="{$aHtmlRssAlternate.url}" title="{$aHtmlRssAlternate.title}">
@@ -38,7 +38,7 @@
 {/if}
 
 {if $bRefreshToHome}
-    <meta HTTP-EQUIV="Refresh" CONTENT="3; URL={cfg name='path.root.web'}">
+    <meta HTTP-EQUIV="Refresh" CONTENT="3; URL={Config::Get('path.root.web')}">
 {/if}
 
 
@@ -99,7 +99,7 @@
                 <div class="nav-collapse">
                     <ul class="nav">
                         <li class="divider-vertical"></li>
-                        <li><a href="{cfg name='path.root.web'}" target="_blank">{$aLang.action.admin.goto_site}</a></li>
+                        <li><a href="{Config::Get('path.root.web')}" target="_blank">{$aLang.action.admin.goto_site}</a></li>
                     {hook run='main_menu'}
                     </ul>
                 </div>

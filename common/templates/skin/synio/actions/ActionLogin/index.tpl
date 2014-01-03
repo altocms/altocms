@@ -39,7 +39,7 @@
 </form>
 
 
-{if $oConfig->GetValue('general.reg.invite')}
+{if Config::Get('general.reg.invite')}
 	<br /><br />
 	<form action="{router page='registration'}invite/" method="POST">
 		<h2>{$aLang.registration_invite}</h2>

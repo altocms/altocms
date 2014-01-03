@@ -49,9 +49,9 @@
 
 {if $oContentType->isAllow('photoset') AND !$bTopicList AND $iPhotosCount}
     <script type="text/javascript"
-            src="{cfg name='path.frontend.url'}/libs/js/vendor/prettyphoto/js/jquery.prettyphoto.js"></script>
+            src="{Config::Get('path.frontend.url')}/libs/js/vendor/prettyphoto/js/jquery.prettyphoto.js"></script>
     <link rel='stylesheet' type='text/css'
-          href="{cfg name='path.frontend.url'}/libs/js/vendor/prettyphoto/css/prettyphoto.css"/>
+          href="{Config::Get('path.frontend.url')}/libs/js/vendor/prettyphoto/css/prettyphoto.css"/>
     <script type="text/javascript">
         jQuery(document).ready(function ($) {
             $('.photoset-image').prettyPhoto({

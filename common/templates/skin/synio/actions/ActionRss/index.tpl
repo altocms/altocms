@@ -6,20 +6,19 @@
 	<atom:link href="{$PATH_WEB_CURRENT}/" rel="self" type="application/rss+xml" />
 	<description><![CDATA[{$aChannel.description}]]></description>
 	<language>{$aChannel.language}</language>
-	<managingEditor>{$aChannel.managingEditor} ({cfg name='path.root.web'})</managingEditor>
-	<webMaster>{$aChannel.managingEditor} ({cfg name='path.root.web'})</webMaster>
-	<copyright>{cfg name='path.root.web'}</copyright>
+	<managingEditor>{$aChannel.managingEditor} ({Config::Get('path.root.web')})</managingEditor>
+	<webMaster>{$aChannel.managingEditor} ({Config::Get('path.root.web')})</webMaster>
+	<copyright>{Config::Get('path.root.web')}</copyright>
 	<generator>{$aChannel.generator}</generator>
-{foreach from=$aItems item=oItem}
+{foreach $aItems as $oItem}
 		<item>
 			<title>{$oItem.title|escape:'html'}</title>
 			<guid isPermaLink="true">{$oItem.guid}</guid>
 			<link>{$oItem.link}</link>
 			<dc:creator>{$oItem.author}</dc:creator>
 			<description><![CDATA[{$oItem.description}]]></description>
-			<pubDate>{date_format date=$oItem.pubDate format="r"}</pubDate>			
-			<category>{$oItem.category|replace:',':'</category>
-			<category>'}</category>
+			<pubDate>{date_format date=$oItem.pubDate format="r"}</pubDate>
+			<category>{$oItem.category|replace:',':'</category><category>'}</category>
 		</item>
 {/foreach}
 </channel>

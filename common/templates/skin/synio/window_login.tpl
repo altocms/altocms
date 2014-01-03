@@ -19,7 +19,7 @@
                 <li class="active js-block-popup-login-item" data-type="login">
                     <a href="#">{$aLang.user_login_submit}</a>
                 </li>
-                {if !$oConfig->GetValue('general.reg.invite')}
+                {if !Config::Get('general.reg.invite')}
                     <li class="js-block-popup-login-item" data-type="registration">
                         <a href="#">{$aLang.registration}</a>
                     </li>
@@ -66,7 +66,7 @@
                 {hook run='login_popup_end'}
             </div>
 
-            {if !$oConfig->GetValue('general.reg.invite')}
+            {if !Config::Get('general.reg.invite')}
             <div data-type="registration" class="tab-content js-block-popup-login-content" style="display:none;">
                 <script type="text/javascript">
                     jQuery(document).ready(function ($) {
@@ -142,8 +142,8 @@
                     {hookb run="popup_registration_captcha"}
                         <p>
                             <label for="popup-registration-captcha">{$aLang.registration_captcha}</label>
-                            <img src="{cfg name='path.root.url'}captcha/" class="captcha-image"
-                                 onclick="this.src='{cfg name='path.root.url'}captcha/?n='+Math.random();" />
+                            <img src="{Config::Get('path.root.url')}captcha/" class="captcha-image"
+                                 onclick="this.src='{Config::Get('path.root.url')}captcha/?n='+Math.random();" />
                             &rarr;
                             <input type="text" name="captcha" id="popup-registration-captcha" value="" maxlength="3"
                                    class="input-text captcha-text js-ajax-validate"/>
