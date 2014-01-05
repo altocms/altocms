@@ -549,7 +549,7 @@ ls.tools = (function ($) {
  * Дополнительные функции
  */
 ls = (function ($) {
-
+    var $that = this;
     /**
      * Глобальные опции
      */
@@ -583,20 +583,20 @@ ls = (function ($) {
             data: params,
             dataType: more.dataType || 'json',
             success: callback || function () {
-                ls.debug("ajax success: ");
-                ls.debug.apply(this, arguments);
+                $that.debug("ajax success: ");
+                $that.debug.apply(this, arguments);
             }.bind(this),
             error: more.error || function (msg) {
-                ls.debug("ajax error: ");
-                ls.debug.apply(this, arguments);
+                $that.debug("ajax error: ");
+                $that.debug.apply(this, arguments);
             }.bind(this),
             complete: more.complete || function (msg) {
-                ls.debug("ajax complete: ");
-                ls.debug.apply(this, arguments);
+                $that.debug("ajax complete: ");
+                $that.debug.apply(this, arguments);
             }.bind(this)
         };
 
-        ls.hook.run('ls_ajax_before', [ajaxOptions], this);
+        $that.hook.run('ls_ajax_before', [ajaxOptions], this);
 
         return $.ajax(ajaxOptions);
     };
@@ -620,7 +620,7 @@ ls = (function ($) {
             params.keys.push(key);
             params[key] = val;
         });
-        return ls.ajax(url, params, callback, more);
+        return $that.ajax(url, params, callback, more);
     };
 
     /**
@@ -641,17 +641,17 @@ ls = (function ($) {
             dataType: more.dataType || 'json',
             data: {security_key: ALTO_SECURITY_KEY},
             success: callback || function () {
-                ls.debug("ajax success: ");
-                ls.debug.apply(this, arguments);
+                $that.debug("ajax success: ");
+                $that.debug.apply(this, arguments);
             }.bind(this),
             error: more.error || function () {
-                ls.debug("ajax error: ");
-                ls.debug.apply(this, arguments);
+                $that.debug("ajax error: ");
+                $that.debug.apply(this, arguments);
             }.bind(this)
 
         };
 
-        ls.hook.run('ls_ajaxsubmit_before', [options], this);
+        $that.hook.run('ls_ajaxsubmit_before', [options], this);
 
         form.ajaxSubmit(options);
     };
@@ -660,18 +660,46 @@ ls = (function ($) {
      * Загрузка изображения
      */
     this.ajaxUploadImg = function (form, sToLoad) {
-        ls.hook.marker('ajaxUploadImgBefore');
-        ls.ajaxSubmit('upload/image/', form, function (data) {
+        $that.ajaxSubmit('upload/image/', form, function (data) {
             if (data.bStateError) {
-                ls.msg.error(data.sMsgTitle, data.sMsg);
+                $that.msg.error(data.sMsgTitle, data.sMsg);
             } else {
-                $.markItUp({replaceWith: data.sText});
+                $that.insertToEditor(data.sText);
                 $('#window_upload_img').find('input[type="text"], input[type="file"]').val('');
                 $('#window_upload_img').jqmHide();
-                ls.hook.marker('ajaxUploadImgAfter');
             }
         });
     };
+
+    this.insertToEditor = function(html) {
+        $.markItUp({replaceWith: html});
+    }
+
+    /**
+     * Определение URL экшена
+     *
+     * @param action
+     */
+    this.actionUrl = function(action) {
+        if (aRouter && aRouter[action]) {
+            return aRouter[action];
+        } else {
+            return $that.cfg.url.root + action + '/';
+        }
+    }
+
+    this.getAssetUrl = function(asset) {
+        if (this.cfg && this.cfg.assets && this.cfg.assets[asset]) {
+            return this.cfg.assets[asset];
+        }
+    }
+
+    this.getAssetPath = function(asset) {
+        var url = this.getAssetUrl(asset);
+        if (url) {
+            return url.substring(0, url.lastIndexOf('/'));
+        }
+    }
 
     /**
      * Дебаг сообщений

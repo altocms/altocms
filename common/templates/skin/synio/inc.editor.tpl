@@ -1,3 +1,8 @@
+{if !$sImgToLoad}
+    {assign var="sImgToLoad" value="topic_text"}
+{/if}
+{include file='window_load_img.tpl' sToLoad=$sImgToLoad}
+
 {if Config::Get('view.wysiwyg')}
     {if !$sSettingsTinymce}
         {assign var="sSettingsTinymce" value="ls.settings.getTinymce()"}
@@ -5,16 +10,10 @@
     <script type="text/javascript">
             jQuery(function ($) {
                 var settings = {$sSettingsTinymce};
-                ls.log(settings);
                 tinymce.init(settings);
             });
     </script>
 {else}
-    {if !$sImgToLoad}
-        {assign var="sImgToLoad" value="topic_text"}
-    {/if}
-    {include file='window_load_img.tpl' sToLoad=$sImgToLoad}
-
     {if !$sSettingsTinymce}
         {assign var="sSettingsMarkitup" value="ls.settings.getMarkitup()"}
     {/if}
@@ -24,6 +23,9 @@
             // Подключаем редактор
             var settings = {$sSettingsMarkitup};
             $('.js-editor-markitup').markItUp(settings);
+            ls.insertToEditor = function(markup) {
+                $.markItUp({ replaceWith: markup });
+            }
         });
     </script>
 {/if}

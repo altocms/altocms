@@ -41,8 +41,9 @@ $config['ls']['head']['default']['js']  = array(
     '___path.frontend.dir___/ls/js/toolbar.js',
     '___path.frontend.dir___/ls/js/topic.js',
     '___path.frontend.dir___/ls/js/hook.js',
+    '___path.frontend.dir___/ls/js/settings.js',
 
-    '___path.frontend.dir___/libs/js/engine/settings.js',
+    //'___path.frontend.dir___/libs/js/engine/settings.js',
     '___path.frontend.dir___/libs/js/vendor/swfobject/swfobject.js',
 
     /* swfupload */

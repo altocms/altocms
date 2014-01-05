@@ -63,46 +63,10 @@ ls.settings = (function ($) {
 		]
 	};
 
-	this.tinymce_old = {
-		mode : 									"specific_textareas",
-		editor_selector : 						"mce-editor",
-		theme : 								"advanced",
-		skin : 								    "livestreet",
-		theme_advanced_toolbar_location : 		"top",
-		theme_advanced_toolbar_align : 			"left",
-		theme_advanced_buttons1 : 				"lshselect,bold,italic,underline,strikethrough,|,bullist,numlist,|,undo,redo,|,lslink,unlink,lsvideo,lsimage,pagebreak,code",
-		theme_advanced_buttons2 : 				"",
-		theme_advanced_buttons3 : 				"",
-		theme_advanced_statusbar_location : 	"bottom",
-		theme_advanced_resizing : 				true,
-		theme_advanced_resize_horizontal : 		0,
-		theme_advanced_resizing_use_cookie : 	0,
-		theme_advanced_path : 					false,
-		object_resizing : 						true,
-		force_br_newlines :						true,
-		forced_root_block : 					'', // Needed for 3.x
-		force_p_newlines : 						false,
-		plugins : 								"lseditor,safari,inlinepopups,media,pagebreak,autoresize",
-		convert_urls : 							false,
-		extended_valid_elements : 				"embed[src|type|allowscriptaccess|allowfullscreen|width|height]",
-		pagebreak_separator :					"<cut>",
-		media_strict : 							false,
-		language : 								'ru',
-		inline_styles:							false,
-		formats : {
-			underline : 	{inline : 'u', exact : true},
-			strikethrough : {inline : 's', exact : true}
-		}
-	};
-
     this.tinymce_default = {
         mode:               'specific_textareas',
         editor_selector:    'js-editor-wysiwyg',
         theme:              'modern',
-        relative_urls : false,
-        remove_script_host : true,
-        document_base_url: 'http://www.site.com.loc/path1/',
-        //convert_urls: true,
         content_css: '/common/templates/frontend/libs/js/vendor/tinymce_4.0.5/plugins/altoimage/css/style.css,/common/templates/skin/native/assets/css/tinymce.css',
         menubar: false,
         toolbar: "undo redo | styleselect | bold italic strikethrough underline blockquote | alignleft aligncenter alignright | bullist numlist table | link unlink | altoimage media | code | cut ",
@@ -127,12 +91,6 @@ ls.settings = (function ($) {
         formats: {
             underline: {inline: 'u', exact: true},
             strikethrough: {inline: 's', exact: true}
-        },
-        setup : function(ed) {
-            ed.documentBaseUrl = 'http://aaa.com.loc/bbb/';
-            ed.documentBaseURL = 'http://aaa.com.loc/bbb/';
-            ed.baseURL = 'http://aaa.com.loc/bbb/';
-            ls.log('====================', ed);
         }
     };
 

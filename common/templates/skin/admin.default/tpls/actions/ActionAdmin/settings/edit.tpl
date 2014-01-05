@@ -92,7 +92,7 @@
                     {$aLang.action.admin.set_edit_comment_enabled}
 
                     <div class="input-append">
-                        <input type="text" name="edit_comment_time" value="{$nCommentEditTime}" />
+                        <input type="text" name="edit_comment_time" value="{$nCommentEditTime}" style="width: 40px;" />
                     <span class="btn-group">
                         <a href="#" class="btn dropdown-toggle" data-toggle="dropdown"><span class="content">{$sCommentEditUnit}</span> <span class="caret"></span></a>
                         <ul class="dropdown-menu">
