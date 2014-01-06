@@ -664,23 +664,12 @@ class ModuleComment_MapperComment extends Mapper {
      */
     public function AddCommentOnline(ModuleComment_EntityCommentOnline $oCommentOnline) {
 
-        $sql = "SELECT comment_id FROM ?_comment_online WHERE comment_id=? LIMIT 1";
-        if ($this->oDb->select($sql, $oCommentOnline->getCommentId())) {
-            $sql = "
-                UPDATE ?_comment_online
-                SET
-                    target_id= ?d ,
-                    target_type= ? ,
-                    target_parent_id = ?d
-                WHERE
-                    comment_id= ?d
-            ";
-        } else {
-            $sql = "
+        $this->DeleteCommentOnlineByTargetId($oCommentOnline->getTargetId(), $oCommentOnline->getTargetType());
+        $sql
+            = "
                 INSERT INTO ?_comment_online (target_id, target_type, target_parent_id, comment_id)
                 VALUES (?d, ?, ?d, ?d)
             ";
-        }
         $xResult = $this->oDb->query(
             $sql,
             $oCommentOnline->getTargetId(),
