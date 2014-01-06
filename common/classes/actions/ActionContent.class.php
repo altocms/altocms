@@ -108,6 +108,7 @@ class ActionContent extends Action {
         //Переход для топика с оригиналом
         $this->AddEvent('go', 'EventGo');
 
+        $this->AddEventPreg('/^add$/i', array('EventAdd', 'add'));
         $this->AddEventPreg('/^[\w\-\_]+$/i', '/^add$/i', array('EventAdd', 'add'));
     }
 
@@ -282,7 +283,9 @@ class ActionContent extends Action {
 
         // * Получаем тип контента
         if (!$this->oContentType = $this->Topic_GetContentTypeByUrl($this->sCurrentEvent)) {
-            return parent::EventNotFound();
+            if (!($this->oContentType = $this->Topic_GetContentTypeDefault())) {
+                return parent::EventNotFound();
+            }
         }
 
         $this->Viewer_Assign('oContentType', $this->oContentType);

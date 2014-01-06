@@ -161,6 +161,20 @@ class ModuleTopic extends Module {
     }
 
     /**
+     * TODO: Задание типа контента по умолчанию в админке
+     *
+     * @return mixed|null
+     */
+    public function GetContentTypeDefault() {
+
+        $aTypes = $this->getContentTypes(array('content_active' => 1));
+        if ($aTypes) {
+            return reset($aTypes);
+        }
+        return null;
+    }
+
+    /**
      * заменить системный тип контента у уже созданных топиков
      *
      * @param string $sTypeOld
