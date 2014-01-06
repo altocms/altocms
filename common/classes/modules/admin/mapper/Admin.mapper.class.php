@@ -226,9 +226,9 @@ class ModuleAdmin_MapperAdmin extends Mapper {
     public function UpdateCustomConfig($aData) {
 
         $sql = "
-            SELECT storage_key FROM ?_storage WHERE storage_key IN (?a) LIMIT ?
+            SELECT storage_key FROM ?_storage WHERE storage_key IN (?a) LIMIT ?d
         ";
-        $aExists = $this->oDb->selectCol($sql, F::Array_Column($aData), sizeof($aData));
+        $aExists = $this->oDb->selectCol($sql, F::Array_Column($aData, 'storage_key'), sizeof($aData));
         $aInsert = array();
         $aUpdate = array();
         foreach($aData as $aItem) {
