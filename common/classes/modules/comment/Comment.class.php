@@ -703,6 +703,7 @@ class ModuleComment extends Module {
      * @return bool|int
      */
     public function AddCommentOnline(ModuleComment_EntityCommentOnline $oCommentOnline) {
+
         $bResult = $this->oMapper->AddCommentOnline($oCommentOnline);
         $this->Cache_Clean(
             Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("comment_online_update_{$oCommentOnline->getTargetType()}")

@@ -50,7 +50,7 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         $this->UnbanUsers($aUsersId);
         foreach($aUsersId as $nUserId) {
             $sql = "
-                REPLACE INTO ?_adminban
+                INSERT INTO ?_adminban
                 SET user_id=?d, bandate=?, banline=?, banunlim=?, bancomment=?, banactive=1";
             if ($this->oDb->query($sql, $nUserId, F::Now(), $sDate, $nUnlim ? 1 : 0, $sComment) === false)
                 return false;
@@ -225,9 +225,32 @@ class ModuleAdmin_MapperAdmin extends Mapper {
      */
     public function UpdateCustomConfig($aData) {
 
-        $sql = "REPLACE INTO ?_storage(?#) VALUES(?a)";
-        // multi insert
-        return ($this->oDb->query($sql, array_keys($aData[0]), array_values($aData)) !== false);
+        $sql = "
+            SELECT storage_key FROM ?_storage WHERE storage_key IN (?a) LIMIT ?
+        ";
+        $aExists = $this->oDb->selectCol($sql, F::Array_Column($aData), sizeof($aData));
+        $aInsert = array();
+        $aUpdate = array();
+        foreach($aData as $aItem) {
+            if (in_array($aItem['storage_key'], $aExists)) {
+                $aUpdate[] = $aItem;
+            } else {
+                $aInsert[] = $aItem;
+            }
+        }
+        if ($aInsert) {
+            $sql = "INSERT INTO ?_storage(?#) VALUES(?a)";
+            // multi insert
+            $this->oDb->query($sql, array_keys($aData[0]), array_values($aData));
+        }
+        if ($aUpdate) {
+            $sql = "UPDATE ?_storage SET storage_val=? WHERE storage_key=?";
+            foreach($aUpdate as $aItem) {
+                $this->oDb->query($sql, $aItem['storage_val'], $aItem['storage_key']);
+            }
+        }
+
+        return true;
     }
 
     public function GetCustomConfig($sPrefix = '') {

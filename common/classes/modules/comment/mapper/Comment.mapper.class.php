@@ -664,18 +664,31 @@ class ModuleComment_MapperComment extends Mapper {
      */
     public function AddCommentOnline(ModuleComment_EntityCommentOnline $oCommentOnline) {
 
-        $sql = "REPLACE INTO ?_comment_online
-			SET 
-				target_id= ?d ,
-				target_type= ? ,
-				target_parent_id = ?d,
-				comment_id= ?d
-		";
-        $iId = $this->oDb->query(
-            $sql, $oCommentOnline->getTargetId(), $oCommentOnline->getTargetType(),
-            $oCommentOnline->getTargetParentId(), $oCommentOnline->getCommentId()
+        $sql = "SELECT comment_id FROM ?_comment_online WHERE comment_id=? LIMIT 1";
+        if ($this->oDb->select($sql, $oCommentOnline->getCommentId())) {
+            $sql = "
+                UPDATE ?_comment_online
+                SET
+                    target_id= ?d ,
+                    target_type= ? ,
+                    target_parent_id = ?d
+                WHERE
+                    comment_id= ?d
+            ";
+        } else {
+            $sql = "
+                INSERT INTO ?_comment_online (target_id, target_type, target_parent_id, comment_id)
+                VALUES (?d, ?, ?d, ?d)
+            ";
+        }
+        $xResult = $this->oDb->query(
+            $sql,
+            $oCommentOnline->getTargetId(),
+            $oCommentOnline->getTargetType(),
+            $oCommentOnline->getTargetParentId(),
+            $oCommentOnline->getCommentId()
         );
-        return $iId ? $iId : false;
+        return $xResult !== false;
     }
 
     /**

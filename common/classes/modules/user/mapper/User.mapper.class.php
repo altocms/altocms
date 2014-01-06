@@ -156,26 +156,44 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function CreateSession(ModuleUser_EntitySession $oSession) {
 
-        $sql
-            = "REPLACE INTO ?_session
-			SET
-				session_key = ? ,
-				user_id = ?d ,
-				session_ip_create = ? ,
-				session_ip_last = ? ,
-				session_date_create = ? ,
-				session_date_last = ? ,
-				session_agent_hash = ?
-		";
-        $bResult = $this->oDb->query(
+        $sql = "SELECT session_key FROM ?_session WHERE session_key=? LIMIT 1";
+        if ($this->oDb->select($sql, $oSession->getKey())) {
+            $sql
+                = "UPDATE ?_session
+                    SET
+                        user_id = ?d:user_id ,
+                        session_ip_create = ?:ip_create ,
+                        session_ip_last = ?:ip_last ,
+                        session_date_create = ?:date_create ,
+                        session_date_last = ?:date_last ,
+                        session_agent_hash = ?:agent_hash
+                    WHERE
+                        session_key = ?:key ,
+            ";
+        } else {
+            $sql
+                = "INSERT INTO ?_session
+                    SET
+                        session_key = ?:key ,
+                        user_id = ?d:user_id ,
+                        session_ip_create = ?:ip_create ,
+                        session_ip_last = ?:ip_last ,
+                        session_date_create = ?:date_create ,
+                        session_date_last = ?:date_last ,
+                        session_agent_hash = ?:agent_hash
+            ";
+        }
+        $bResult = $this->oDb->sqlQuery(
             $sql,
-            $oSession->getKey(),
-            $oSession->getUserId(),
-            $oSession->getIpCreate(),
-            $oSession->getIpLast(),
-            $oSession->getDateCreate(),
-            $oSession->getDateLast(),
-            $oSession->getUserAgentHash()
+            array(
+                 ':key'         => $oSession->getKey(),
+                 ':user_id'     => $oSession->getUserId(),
+                 ':ip_create'   => $oSession->getIpCreate(),
+                 ':ip_last'     => $oSession->getIpLast(),
+                 ':date_create' => $oSession->getDateCreate(),
+                 ':date_last'   => $oSession->getDateLast(),
+                 ':agent_hash'  => $oSession->getUserAgentHash()
+            )
         );
         return ($bResult !== false);
     }
