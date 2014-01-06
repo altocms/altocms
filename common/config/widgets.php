@@ -52,6 +52,7 @@ $config['widgets'][] = array(
         'index',
         'community',
         'filter',
+        'comments',
         'blog' => array('{topics}', '{topic}', '{blog}'),
         'tag',
     ),
@@ -66,6 +67,7 @@ $config['widgets'][] = array(
         'index',
         'community',
         'filter',
+        'comments',
         'blog' => array('{topics}', '{topic}', '{blog}'),
     ),
 );

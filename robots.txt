@@ -8,6 +8,7 @@ Disallow: /search/
 Disallow: /blog/draft/
 Disallow: /content/draft/
 Disallow: /draft/
+Disallow: /comments/
 #
 #Sitemap: http://site.com/sitemap.xml
 #Host: site.com
