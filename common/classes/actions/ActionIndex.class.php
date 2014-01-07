@@ -135,7 +135,7 @@ class ActionIndex extends Action {
             Router::GetPath('index') . 'top', array('period' => $sPeriod)
         );
 
-        $this->Viewer_AddHtmlTitle($this->Lang_Get('blog_menu_all_top'));
+        $this->Viewer_AddHtmlTitle($this->Lang_Get('blog_menu_all_top') . ($iPage>1 ? (' (' . $iPage . ')') : ''));
         /**
          * Загружаем переменные в шаблон
          */
@@ -196,7 +196,7 @@ class ActionIndex extends Action {
             Router::GetPath('index') . 'discussed', array('period' => $sPeriod)
         );
 
-        $this->Viewer_AddHtmlTitle($this->Lang_Get('blog_menu_collective_discussed'));
+        $this->Viewer_AddHtmlTitle($this->Lang_Get('blog_menu_collective_discussed') . ($iPage>1 ? (' (' . $iPage . ')') : ''));
         /**
          * Загружаем переменные в шаблон
          */
@@ -280,7 +280,7 @@ class ActionIndex extends Action {
             Router::GetPath('index') . 'newall'
         );
 
-        $this->Viewer_AddHtmlTitle($this->Lang_Get('blog_menu_all_new'));
+        $this->Viewer_AddHtmlTitle($this->Lang_Get('blog_menu_all_new')  . ($iPage>1 ? (' (' . $iPage . ')') : ''));
         /**
          * Загружаем переменные в шаблон
          */
