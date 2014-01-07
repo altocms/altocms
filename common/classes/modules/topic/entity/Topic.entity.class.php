@@ -424,12 +424,27 @@ class ModuleTopic_EntityTopic extends Entity {
     /**
      * Возвращает массив тегов
      *
+     * @param bool $bTextOnly
      * @return array
      */
-    public function getTagsArray() {
+    public function getTagsArray($bTextOnly = true) {
 
-        if ($this->getTags()) {
-            return explode(',', $this->getTags());
+        if ($sTags = $this->getTags()) {
+            if ($bTextOnly) {
+                return explode(',', $sTags);
+            }
+            $aTexts = explode(',', $sTags);
+            $aData = array();
+            foreach ($aTexts as $nI => $sText) {
+                $aData[] = array(
+                    'topic_tag_id'   => -$nI,
+                    'topic_id'       => $this->getId(),
+                    'user_id'        => $this->getUserId(),
+                    'blog_id'        => $this->getBlogId(),
+                    'topic_tag_text' => $sText,
+                );
+            }
+            return E::GetEntityRows('Topic_TopicTag', $aData);
         }
         return array();
     }

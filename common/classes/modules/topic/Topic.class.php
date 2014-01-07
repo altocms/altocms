@@ -461,25 +461,32 @@ class ModuleTopic extends Module {
         $aFavouriteTopics = array();
         $aTopicsQuestionVote = array();
         $aTopicsRead = array();
+
         $aUsers = isset($aAllowData['user']) && is_array($aAllowData['user'])
             ? $this->User_GetUsersAdditionalData($aUserId, $aAllowData['user'])
             : $this->User_GetUsersAdditionalData($aUserId);
+
         $aBlogs = isset($aAllowData['blog']) && is_array($aAllowData['blog'])
             ? $this->Blog_GetBlogsAdditionalData($aBlogId, $aAllowData['blog'])
             : $this->Blog_GetBlogsAdditionalData($aBlogId);
+
         if (isset($aAllowData['vote']) && $this->oUserCurrent) {
             $aTopicsVote = $this->Vote_GetVoteByArray($aTopicId, 'topic', $this->oUserCurrent->getId());
             $aTopicsQuestionVote = $this->GetTopicsQuestionVoteByArray($aTopicId, $this->oUserCurrent->getId());
         }
+
         if (isset($aAllowData['favourite']) && $this->oUserCurrent) {
             $aFavouriteTopics = $this->GetFavouriteTopicsByArray($aTopicId, $this->oUserCurrent->getId());
         }
+
         if (isset($aAllowData['fields'])) {
             $aTopicFieldValues = $this->GetTopicValuesByArrayId($aTopicId);
         }
+
         if (isset($aAllowData['comment_new']) && $this->oUserCurrent) {
             $aTopicsRead = $this->GetTopicsReadByArray($aTopicId, $this->oUserCurrent->getId());
         }
+
         $aPhotosetMainPhotos = $this->GetTopicPhotosByArrayId($aPhotoMainId);
         /**
          * Добавляем данные к результату - списку топиков

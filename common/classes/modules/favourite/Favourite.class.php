@@ -36,21 +36,19 @@ class ModuleFavourite extends Module {
     /**
      * Получает информацию о том, найден ли таргет в избранном или нет
      *
-     * @param  int    $sTargetId      ID владельца
+     * @param  int    $nTargetId      ID владельца
      * @param  string $sTargetType    Тип владельца
-     * @param  int    $sUserId        ID пользователя
+     * @param  int    $nUserId        ID пользователя
      *
      * @return ModuleFavourite_EntityFavourite|null
      */
-    public function GetFavourite($sTargetId, $sTargetType, $sUserId) {
+    public function GetFavourite($nTargetId, $sTargetType, $nUserId) {
 
-        if (!is_numeric($sTargetId) || !is_string($sTargetType)) {
+        if (!is_numeric($nTargetId) || !is_string($sTargetType)) {
             return null;
         }
-        $data = $this->GetFavouritesByArray($sTargetId, $sTargetType, $sUserId);
-        return (isset($data[$sTargetId]))
-            ? $data[$sTargetId]
-            : null;
+        $data = $this->GetFavouritesByArray($nTargetId, $sTargetType, $nUserId);
+        return (isset($data[$nTargetId])) ? $data[$nTargetId] : null;
     }
 
     /**
@@ -131,27 +129,25 @@ class ModuleFavourite extends Module {
      *
      * @param  array  $aTargetId      Список ID владельцев
      * @param  string $sTargetType    Тип владельца
-     * @param  int    $sUserId        ID пользователя
+     * @param  int    $nUserId        ID пользователя
      *
      * @return array
      */
-    public function GetFavouritesByArraySolid($aTargetId, $sTargetType, $sUserId) {
+    public function GetFavouritesByArraySolid($aTargetId, $sTargetType, $nUserId) {
 
         if (!is_array($aTargetId)) {
             $aTargetId = array($aTargetId);
         }
         $aTargetId = array_unique($aTargetId);
         $aFavourites = array();
-        $s = join(',', $aTargetId);
-        if (false === ($data = $this->Cache_Get("favourite_{$sTargetType}_{$sUserId}_id_{$s}"))) {
-            $data = $this->oMapper->GetFavouritesByArray($aTargetId, $sTargetType, $sUserId);
+
+        $sCacheKey = "favourite_{$sTargetType}_{$nUserId}_id_" . join(',', $aTargetId);
+        if (false === ($data = $this->Cache_Get($sCacheKey))) {
+            $data = $this->oMapper->GetFavouritesByArray($aTargetId, $sTargetType, $nUserId);
             foreach ($data as $oFavourite) {
                 $aFavourites[$oFavourite->getTargetId()] = $oFavourite;
             }
-            $this->Cache_Set(
-                $aFavourites, "favourite_{$sTargetType}_{$sUserId}_id_{$s}",
-                array("favourite_{$sTargetType}_change_user_{$sUserId}"), 60 * 60 * 24 * 1
-            );
+            $this->Cache_Set($aFavourites, $sCacheKey, array("favourite_{$sTargetType}_change_user_{$nUserId}"), 'P1D');
             return $aFavourites;
         }
         return $data;
@@ -160,7 +156,7 @@ class ModuleFavourite extends Module {
     /**
      * Получает список таргетов из избранного
      *
-     * @param  int    $sUserId           ID пользователя
+     * @param  int    $nUserId           ID пользователя
      * @param  string $sTargetType       Тип владельца
      * @param  int    $iCurrPage         Номер страницы
      * @param  int    $iPerPage          Количество элементов на страницу
@@ -168,24 +164,20 @@ class ModuleFavourite extends Module {
      *
      * @return array
      */
-    public function GetFavouritesByUserId($sUserId, $sTargetType, $iCurrPage, $iPerPage, $aExcludeTarget = array()) {
+    public function GetFavouritesByUserId($nUserId, $sTargetType, $iCurrPage, $iPerPage, $aExcludeTarget = array()) {
 
-        $s = serialize($aExcludeTarget);
-        if (false === (
-            $data = $this->Cache_Get("{$sTargetType}_favourite_user_{$sUserId}_{$iCurrPage}_{$iPerPage}_{$s}"))
-        ) {
+        $sCacheKey = "{$sTargetType}_favourite_user_{$nUserId}_{$iCurrPage}_{$iPerPage}_" . serialize($aExcludeTarget);
+        if (false === ($data = $this->Cache_Get($sCacheKey))) {
             $data = array(
-                'collection' => $this->oMapper->GetFavouritesByUserId(
-                    $sUserId, $sTargetType, $iCount, $iCurrPage, $iPerPage, $aExcludeTarget
-                ),
+                'collection' => $this->oMapper->GetFavouritesByUserId($nUserId, $sTargetType, $iCount, $iCurrPage, $iPerPage, $aExcludeTarget),
                 'count'      => $iCount
             );
             $this->Cache_Set(
                 $data,
-                "{$sTargetType}_favourite_user_{$sUserId}_{$iCurrPage}_{$iPerPage}_{$s}",
+                $sCacheKey,
                 array(
                      "favourite_{$sTargetType}_change",
-                     "favourite_{$sTargetType}_change_user_{$sUserId}"
+                     "favourite_{$sTargetType}_change_user_{$nUserId}"
                 ),
                 60 * 60 * 24 * 1
             );
