@@ -145,14 +145,14 @@ class ModuleBlog_MapperBlog extends Mapper {
                     blog_id IN(?a)
                 ORDER BY
                     { FIELD(blog_id,?a) }
-                LIMIT $nLimit
             ";
         if ($sOrder != '') {
             $sql .= $sOrder;
         }
+        $sql .= ' LIMIT ' . $nLimit;
 
         $aBlogs = array();
-        if ($aRows = $this->oDb->select($sql, $aBlogId, $sOrder == '' ? $aBlogId : DBSIMPLE_SKIP)) {
+        if ($aRows = $this->oDb->select($sql, $aBlogId, !$sOrder ? $aBlogId : DBSIMPLE_SKIP)) {
             $aBlogs = Engine::GetEntityRows('Blog', $aRows);
         }
         return $aBlogs;
