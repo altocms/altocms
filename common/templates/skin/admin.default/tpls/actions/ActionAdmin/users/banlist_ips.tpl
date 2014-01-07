@@ -25,7 +25,7 @@
         <td class="center">{$aIp.bancomment}</td>
         <td class="center">
             <a href="#" onclick="admin.user.unsetBan('{$aIp.id}', 'ip'); return false;"
-               class="btn btn-mini tip-top" title="{$aLang.action.admin.exclude}"><i class="icon-thumbs-up"></i></a>
+               class="btn btn-mini tip-top" title="{$aLang.action.admin.exclude}"><i class="icon icon-thumbs-up"></i></a>
         </td>
     </tr>
     {/foreach}

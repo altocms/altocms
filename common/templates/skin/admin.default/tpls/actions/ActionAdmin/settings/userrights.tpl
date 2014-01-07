@@ -2,7 +2,7 @@
 
 {block name="content-bar"}
     <div class="btn-group">
-        <a href="#" class="btn btn-primary disabled"><i class="icon-plus-sign"></i></a>
+        <a href="#" class="btn btn-primary disabled"><i class="icon icon-plus-sign"></i></a>
     </div>
 {/block}
 

@@ -4,7 +4,7 @@
     {if count($aTypes)>0}
         <div class="btn-group">
             <a href="{router page='admin'}settings-contenttypesadd/" class="btn btn-primary tip-top"
-               title="{$aLang.action.admin.contenttypes_add}"><i class="icon-plus-sign"></i></a>
+               title="{$aLang.action.admin.contenttypes_add}"><i class="icon icon-plus-sign"></i></a>
         </div>
     {/if}
 {/block}
@@ -81,13 +81,13 @@
                             </td>
                             <td class="center">
                                 <a href="{router page='admin'}settings-contenttypesedit/{$oContentType->getContentId()}/">
-                                    <i class="icon-edit tip-top" title="{$aLang.action.admin.contenttypes_edit}"></i></a>
+                                    <i class="icon icon-edit tip-top" title="{$aLang.action.admin.contenttypes_edit}"></i></a>
                                 <a href="{router page='admin'}settings-contenttypes/?toggle={if $oContentType->getContentActive()}off{else}on{/if}&content_id={$oContentType->getContentId()}&security_key={$ALTO_SECURITY_KEY}">
                                     {if $oContentType->getContentActive()}
-                                        <i class="icon-ban-circle tip-top"
+                                        <i class="icon icon-ban-circle tip-top"
                                            title="{$aLang.action.admin.contenttypes_turn_off}"></i>
                                     {else}
-                                        <i class="icon-ok-circle tip-top"
+                                        <i class="icon icon-ok-circle tip-top"
                                            title="{$aLang.action.admin.contenttypes_turn_on}"></i>
                                     {/if}
                                 </a>

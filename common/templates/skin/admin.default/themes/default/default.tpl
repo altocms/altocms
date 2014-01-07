@@ -20,12 +20,9 @@
 
     <meta name="viewport" content="width=device-width,initial-scale=1">
 
-{$aHtmlHeadFiles.css}
+	{$aHtmlHeadFiles.css}
 
-    <link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700&subset=latin,cyrillic' rel='stylesheet'
-          type='text/css'>
-
-    <link href="{Config::Get('path.static.skin')}assets/img/favicon.ico?v0.9" rel="shortcut icon"/>
+    <link href="{Config::Get('path.static.skin')}assets/img/favicon.ico?v1" rel="shortcut icon"/>
     <link rel="search" type="application/opensearchdescription+xml" href="{router page='search'}opensearch/"
           title="{Config::Get('view.name')}"/>
 
@@ -67,7 +64,12 @@
         {/foreach}
     </script>
 
-
+	<style>
+	@font-face {
+		font-family:'Icons Halflings';src:url('{Config::Get('path.static.skin')}assets/css/fonts/icons-halflings-regular.eot');src:url('{Config::Get('path.static.skin')}assets/css/fonts/icons-halflings-regular.eot?#iefix') format('embedded-opentype'),url('{Config::Get('path.static.skin')}assets/css/fonts/icons-halflings-regular.woff') format('woff'),url('{Config::Get('path.static.skin')}assets/css/fonts/icons-halflings-regular.ttf') format('truetype'),url('{Config::Get('path.static.skin')}assets/css/fonts/icons-halflings-regular.svg#icons-halflingsregular') format('svg');
+	}
+	</style>
+	
 {$aHtmlHeadFiles.js}
 
 
@@ -83,72 +85,83 @@
 <body class="{$body_classes}">
 {hook run='body_begin'}
 
-<header id="header" class="b-view-header">
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-        <div class="navbar-inner">
-            <div class="container">
-                <div class="nav-collapse nav logo">
-                    <a href="{router page="admin"}">
-                        <img src="{asset skin=Config::Get("view.skin")}assets/img/admlogo.png" alt="{$sAdminTitle}"/>
-                    </a>
-                </div>
-                <a class="brand" href="{router page=admin}">
-                {$sAdminTitle}
-                </a>
+<!-- NAVBAR -->
+<div class="navbar navbar-inverse navbar-fixed-top">
+<div class="navbar-header">
+      <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+<nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+        <ul class="nav navbar-nav navbar-right">
+			<li class="dropdown">
+			<a data-toggle="dropdown" class="dropdown-toggle" href="#">
+			<img src="{$oUserCurrent->getAvatarUrl(24)}" alt="avatar" class="avatar"/>
+			{$oUserCurrent->getLogin()}
+			</a>
+			
+			<ul class="dropdown-menu">
+				<li><a href="{$oUserCurrent->getUserUrl()}"><i class="icon icon-user"></i> {$aLang.user_menu_profile}</a></li>
+				<li><a href="/settings/profile/"><i class="icon icon-cog"></i> {$aLang.settings_menu}</a></li>
+				<li><a href="{router page='login'}exit/?security_key={$ALTO_SECURITY_KEY}"><i class="icon icon-off"></i> {$aLang.exit}</a></li>
+				</ul>
+			</li>
+        </ul>
 
-                <div class="nav-collapse">
-                    <ul class="nav">
-                        <li class="divider-vertical"></li>
-                        <li><a href="{Config::Get('path.root.url')}" target="_blank">{$aLang.action.admin.goto_site}</a></li>
-                    {hook run='main_menu'}
-                    </ul>
-                </div>
+        <ul class="nav navbar-nav navbar-right">
+			<li>
+			<a href="/"><i class="icon icon-home"></i> {$aLang.action.admin.goto_site}</a></li>
+			<li>
 
-                <ul class="nav nav-collapse pull-right">
-                    <li>
-                        <a href="{$oUserCurrent->getUserUrl()}" class="username">
-                            <img src="{$oUserCurrent->getAvatarUrl(24)}" alt="avatar" class="avatar"/>
-                        {$oUserCurrent->getLogin()}
-                        </a>
-                    </li>
-                    <li class="divider-vertical"></li>
-                    <li>
-                        <a href="{router page='talk'}">
-                            <i class="icon-envelope"></i>
-                        {$aLang.user_privat_messages}
-                        {if $iUserCurrentCountTalkNew}
-                            <span class="badge badge-important badge-up">{$iUserCurrentCountTalkNew}</span>
-                        {/if}
-                        </a>
-                    </li>
-                    <li class="divider-vertical"></li>
-                    <li>
-                        <a href="{router page='login'}exit/?security_key={$ALTO_SECURITY_KEY}">
-                            <i class="icon-off"></i>
-                        {$aLang.exit}
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-</header>
+            <li>
+              <a href="#" data-toggle="dropdown">
+                <i class="icon icon-send"></i> Онлайн <span class="badge badge-success">178</span> 
+              </a>
+            </li>
 
+			<li>
+			<a href="{router page='talk'}">
+			<i class="icon icon-envelope"></i>
+                {$aLang.user_privat_messages}
+                {if $iUserCurrentCountTalkNew}
+				<span class="badge badge-important">{$iUserCurrentCountTalkNew}</span>
+                {/if}
+               </a>
+            </li>
+
+            <li>
+              <a href="{router page='feed'}track/">
+                <i class="icon icon-bell"></i> {$aLang.subscribe_menu} {if $iUserCurrentCountTrack}<span class="badge badge-important">{$iUserCurrentCountTrack}</span>{/if}
+              </a>
+            </li>
+	
+        </ul>
+</nav>
+</div>
+
+<div class="container">
+<!-- SIDEBAR -->
 <div id="sidebar" class="b-sidebar">
+{block name="sidebar"}{/block}
     <div class="b-sidebar-top">
         <!--Action: [{$sAction}], Event: [{$sEvent}]--><br/>
         <span id="window-width"></span>
     </div>
-{block name="sidebar"}{/block}
 </div>
 
-<div id="content" class="b-content">{block name="content"}
+<!-- CONTENT -->
+<div id="content" class="b-content">
+
+{block name="content"}
     <div id="sticknote" class="b-sticknote">wait...</div>
     <div id="content-header" class="b-content-header">
         <h1 class="b-content-header-title">{$sPageTitle}</h1>
     </div>
     <div id="breadcrumb" class="b-content-breadcrumb">
-        <a href="#" ><i class="icon-asterisk"></i> {$aLang.action.admin.title}</a>
+        <a href="#" ><i class="icon icon-asterisk"></i> {$aLang.action.admin.title}</a>
         <a href="#" class="current">{$sPageTitle}</a>
     </div>
 
@@ -169,6 +182,8 @@
 
     </div>
 {/block}
+
+</div>
 
 </div>
 

@@ -11,7 +11,7 @@
             <div class="b-wbox-header">
                     <div class="buttons">
                         <button class="btn btn-mini btn-toggle" data-toggle="collapse" data-target="#section_{$section}">
-                            <i class="icon-plus"></i>
+                            <i class="icon icon-plus"></i>
                         </button>
                     </div>
                 <h3 class="b-wbox-header-title">{$sSectionKey}</h3>

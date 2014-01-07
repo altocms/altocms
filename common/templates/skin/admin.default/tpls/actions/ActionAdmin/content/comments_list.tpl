@@ -2,7 +2,7 @@
 
 {block name="content-bar"}
     <div class="btn-group">
-        <a href="#" class="btn btn-primary disabled"><i class="icon-plus-sign"></i></a>
+        <a href="#" class="btn btn-primary disabled"><i class="icon icon-plus-sign"></i></a>
     </div>
 {/block}
 
@@ -56,10 +56,10 @@
                             <!--
                             <a href="{router page='topic'}edit/{$oComment->GetId()}/"
                                title="{$aLang.action.admin.topic_edit}">
-                                <i class="icon-edit"></i></a>
+                                <i class="icon icon-edit"></i></a>
                             <a href="#" title="{$aLang.action.admin.topic_delete}"
                                onclick="admin.comment.del('{$aLang.action.admin.topic_del_confirm}','{$oComment->GetTitle}','{$aTopic.topic_id}'); return false;">
-                                <i class="icon-remove"></i></a>
+                                <i class="icon icon-remove"></i></a>
                                 -->
                         </td>
                     </tr>

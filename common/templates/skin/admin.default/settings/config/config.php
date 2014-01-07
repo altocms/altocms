@@ -16,12 +16,12 @@ $config['head']['default']['css'] = array(
     '___path.skin.dir___/assets/css/uniform.css',
 
     '___path.skin.dir___/assets/css/bootstrap.min.css',
-    '___path.skin.dir___/assets/css/bootstrap-responsive.min.css',
     '___path.skin.dir___/assets/css/datepicker.css',
     '___path.skin.dir___/assets/css/fullcalendar.css',
     '___path.skin.dir___/assets/css/modals.css',
-    '___path.skin.dir___/assets/css/midnight.css',
+    '___path.skin.dir___/assets/css/base.css',
     '___path.skin.dir___/assets/css/admin.css',
+    '___path.skin.dir___/assets/css/theme.css',
 );
 
 $config['head']['default']['js'] = array(

@@ -3,7 +3,7 @@
 {block name="content-bar"}
     <div class="btn-group">
         <a href="#" class="btn btn-primary tip-top" onclick="ls.userfield.showAddForm(); return false;"
-           title="{$aLang.action.admin.user_field_add}"><i class="icon-plus-sign"></i></a>
+           title="{$aLang.action.admin.user_field_add}"><i class="icon icon-plus-sign"></i></a>
     </div>
 {/block}
 
@@ -64,9 +64,9 @@
                         <td class="userfield-actions">
                             <a href="javascript:ls.userfield.showEditForm('{$oField->getId()}')"
                                title="{$aLang.action.admin.user_field_update}"
-                               class="icon-edit"></a>
+                               class="icon icon-edit"></a>
                             <a href="javascript:ls.userfield.deleteUserfield('{$oField->getId()}')"
-                               title="{$aLang.action.admin.user_field_delete}" class="icon-remove"></a>
+                               title="{$aLang.action.admin.user_field_delete}" class="icon icon-remove"></a>
                         </td>
                     </tr>
                 {/foreach}

@@ -2,9 +2,9 @@
 
 {block name="content-bar"}
     <div class="btn-group span6">
-        <a href="{router page="admin"}{$sEvent}/all/" class="btn {if $sMode=='all'}active{/if}">All</a>
-        <a href="{router page="admin"}{$sEvent}/adm/" class="btn {if $sMode=='adm'}active{/if}">Admin</a>
-        <a href="{router page="admin"}{$sEvent}/site/" class="btn {if $sMode=='site'}active{/if}">Site</a>
+        <a href="{router page="admin"}{$sEvent}/all/" class="btn btn-default {if $sMode=='all'}active{/if}">All</a>
+        <a href="{router page="admin"}{$sEvent}/adm/" class="btn btn-default {if $sMode=='adm'}active{/if}">Admin</a>
+        <a href="{router page="admin"}{$sEvent}/site/" class="btn btn-default {if $sMode=='site'}active{/if}">Site</a>
     </div>
 {/block}
 
@@ -15,7 +15,7 @@
 
             <div class="b-wbox">
                 <div class="b-wbox-header">
-                    <span class="icon tip-top" title="Skin for Site"><i class="icon-globe"></i></span>
+                    <span class="icon tip-top" title="Skin for Site"><i class="icon icon-globe"></i></span>
 
                     <h3 class="b-wbox-header-title">
                         {$oActiveSkin->GetName()}
@@ -56,11 +56,11 @@
         <div class="span6">
             <div class="b-wbox">
                 <div class="b-wbox-header">
-                    <span class="icon"><i class="icon-chevron-left"></i></span>
+                    <span class="icon"><i class="icon icon-chevron-left"></i></span>
 
                     <div class="b-wbox-header-title">{$aLang.action.admin.skin_settings} {$oActiveSkin->GetName()}</div>
                 </div>
-                <div class="b-wbox-content -box nopadding">
+                <div class="b-wbox-content-box">
                     <form class="form-horizontal uniform" action="" method="post">
                         <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
                         <input type="hidden" name="return_url" value="{$PATH_WEB_CURRENT|escape:'html'}"/>
@@ -104,9 +104,9 @@
                 <div class="b-wbox">
                     <div class="b-wbox-header">
                         {if $oSkin->GetType() == 'adminpanel'}
-                            <span class="icon tip-top" title="Skin for Adminpanel"><i class="icon-asterisk"></i></span>
+                            <span class="icon tip-top" title="Skin for Adminpanel"><i class="icon icon-asterisk"></i></span>
                         {else}
-                            <span class="icon tip-top" title="Skin for Site"><i class="icon-globe"></i></span>
+                            <span class="icon tip-top" title="Skin for Site"><i class="icon icon-globe"></i></span>
                         {/if}
 
                         <h3 class="b-wbox-header-title">
@@ -116,11 +116,11 @@
 
                         <div class="buttons">
                             {if $oSkin->GetType() == 'adminpanel'}
-                                <button class="btn btn-primary btn-mini disabled"><i class="icon-ok"></i></button>
+                                <button class="btn btn-primary btn-mini disabled"><i class="icon icon-ok"></i></button>
                             {else}
                                 <button class="btn btn-primary btn-mini tip-top skin_select"
                                         title="{$aLang.action.admin.activate}" id="skin-{$oSkin->GetId()}">
-                                    <i class="icon-ok"></i></button>
+                                    <i class="icon icon-ok"></i></button>
                             {/if}
                         </div>
                     </div>

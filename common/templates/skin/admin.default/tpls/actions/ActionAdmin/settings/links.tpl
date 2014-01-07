@@ -179,7 +179,7 @@
 
             <div class="navbar navbar-inner">
                 <input type="submit" name="submit_data_save" value="{$aLang.action.admin.set_links_generate_button}"
-                       class="btn pull-right"/>
+                       class="btn btn-default pull-right"/>
             </div>
         </form>
     </div>

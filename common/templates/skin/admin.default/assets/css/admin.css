@@ -1,10 +1,5 @@
-.-box:after {
-    content: ".";
-    display: block;
-    height: 0;
-    clear: both;
-    visibility: hidden;
-}
+.-box { overflow: hidden;}
+
 * html.-box {
     height: 1%;
 }
@@ -13,7 +8,7 @@
 }
 
 body {
-    padding-top: 60px;
+    padding-top: 9px;
 }
 h1 { font-size: 30px; line-height: 40px; }
 h2 { font-size: 24px; line-height: 30px; }
@@ -46,11 +41,9 @@ a.i-block {
     display: inline-block;
 }
 
-.navbar.navbar-fixed-top {
-    box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
-}
 .well {
-    margin-bottom: 18px;
+    margin-bottom: 10px;
+    margin-top: 10px;
 }
 .well-white {
 
@@ -257,9 +250,9 @@ td.check-row input[type=checkbox] {
 
 /* Toolbar
 ---------------------------------------------------- */
-.toolbar 					{ position: fixed; top: 136px; z-index: 20; display: none; }
-.toolbar section 			{ width: 25px; padding: 8px; overflow: hidden; line-height: 14px; background: #fff; -webkit-box-shadow: 0 0 5px rgba(0,0,0,.03); box-shadow: 0 0 5px rgba(0,0,0,.03); margin-bottom: 10px; border-radius: 10px; }
-.toolbar section i			{ display: block; width: 25px; height: 25px; }
+.toolbar                    { position: fixed; top: 136px; z-index: 20; display: none; }
+.toolbar section            { width: 25px; padding: 8px; overflow: hidden; line-height: 14px; background: #fff; -webkit-box-shadow: 0 0 5px rgba(0,0,0,.03); box-shadow: 0 0 5px rgba(0,0,0,.03); margin-bottom: 10px; border-radius: 10px; }
+.toolbar section i          { display: block; width: 25px; height: 25px; }
 
 .nav.logo img {
     margin-top: 5px;

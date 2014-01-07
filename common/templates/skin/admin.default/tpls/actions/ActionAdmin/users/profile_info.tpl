@@ -26,8 +26,8 @@
                     title:function () {
                         var label = $('#' + name + '_label');
                         return ''
-                                + '<button class="btn btn-mini btn-danger pull-right popover-close"><i class="icon-remove icon-white"></i></button>'
-                                + '<button class="btn btn-mini btn-success pull-right popover-save"><i class="icon-ok icon-white"></i></button>'
+                                + '<button class="btn btn-mini btn-danger pull-right popover-close"><i class="icon icon-remove icon-white"></i></button>'
+                                + '<button class="btn btn-mini btn-success pull-right popover-save"><i class="icon icon-ok icon-white"></i></button>'
                                 + (label.length ? label.text() : '');
                     }
                 });
@@ -140,7 +140,7 @@
         <td class="adm_field">
             <button class="btn btn-mini"
                     onclick="admin.editField('user_profile_about', this, 'text'); return false;">
-                <i class="icon-edit"></i>
+                <i class="icon icon-edit"></i>
             </button>
             <span id="user_profile_about_view"
                   class="adm_field_value">{$oUserProfile->getProfileAbout()|escape:'html'}</span>
@@ -152,7 +152,7 @@
         <td class="adm_field">
             <button class="btn btn-mini"
                     onclick="admin.editField('user_profile_site', this, 'url'); return false;">
-                <i class="icon-edit"></i>
+                <i class="icon icon-edit"></i>
             </button>
             <span id="user_profile_site_view" class="adm_field_value">
                 <a href="{$oUserProfile->getProfileSite(true)|escape:'hex'}">
@@ -168,7 +168,7 @@
         <td class="adm_field">
             <button class="btn btn-mini"
                     onclick="admin.editField('user_profile_email', this, 'email'); return false;">
-                <i class="icon-edit"></i>
+                <i class="icon icon-edit"></i>
             </button>
 
             <span id="user_profile_email_view">

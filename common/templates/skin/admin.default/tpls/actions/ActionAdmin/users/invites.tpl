@@ -6,7 +6,7 @@
 
     <ul class="nav nav-tabs">
     <li class="nav-tabs-add">
-        <a href="{router page='admin'}users-invites/new/"><i class="icon-plus-sign"></i></a>
+        <a href="{router page='admin'}users-invites/new/"><i class="icon icon-plus-sign"></i></a>
     </li>
     <li {if $sMode=='list' || $sMode==''}class="active"{/if}>
         <a href="{router page='admin'}users-invites/list/">All invites <span class="badge">{$iCount}</span></a>
