@@ -261,6 +261,8 @@ class ModuleMresource extends Module {
                     }
                 }
             }
+        } else {
+            $aCollection = array();
         }
         return array('collection' => $aCollection, 'count' => 0);
     }
