@@ -437,7 +437,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
 						b.blog_type IN ('open', 'personal')
 					;";
         $aRow = $this->oDb->selectRow($sql, $iUserId);
-        return ($aRow ? $aRow['count'] : false);
+        return ($aRow ? $aRow['cnt'] : false);
     }
 
     /**
