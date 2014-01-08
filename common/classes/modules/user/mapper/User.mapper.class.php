@@ -168,7 +168,7 @@ class ModuleUser_MapperUser extends Mapper {
                         session_date_last = ?:date_last ,
                         session_agent_hash = ?:agent_hash
                     WHERE
-                        session_key = ?:key ,
+                        session_key = ?:key
             ";
         } else {
             $sql

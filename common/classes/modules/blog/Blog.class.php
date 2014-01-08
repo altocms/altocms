@@ -934,6 +934,10 @@ class ModuleBlog extends Module {
         }
 
         if ($oUser->isAdministrator()) {
+            // Если админ и если проверка на конкретный блог, то возвращаем без проверки
+            if ($iBlog) {
+                return $iBlog;
+            }
             $aAllowBlogs = $this->GetBlogs();
             if ($iBlog) {
                 return isset($aAllowBlogs[$iBlog]) ? $aAllowBlogs[$iBlog] : array();
