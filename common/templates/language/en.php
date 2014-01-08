@@ -303,7 +303,7 @@ return array(
     'topic_link_edit'                           => 'Edit link-topic',
     'topic_link_count_jump'                     => 'visitors',
     'topic_link_create_url'                     => "Source",
-    'topic_link_create_url_notice'              => 'E.g., http://livestreet.ru/blog/dev_livestreet/113.html',
+    'topic_link_create_url_notice'              => 'E.g., http://altocms.com/218.html',
     'topic_link_create_url_error'               => 'Link should consist of 2 upto 200 chars',
     'topic_link_create_text'                    => 'Short description (500 chars at max.)',
     'topic_link_create_text_notice'             => 'HTML tags forbidden',

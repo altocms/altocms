@@ -281,6 +281,30 @@ class AltoFunc_File {
     }
 
     /**
+     * @param $aDirs
+     *
+     * @return mixed
+     */
+    static protected function _excludeDotted($aDirs) {
+
+        if (!$aDirs) {
+            return $aDirs;
+        }
+
+        // исключаем из выдачи '.' и '..'
+        $nCnt = 0;
+        foreach ($aDirs as $n => $sFile) {
+            if (basename($sFile) == '.' || basename($sFile) == '..') {
+                unset($aDirs[$n]);
+                if (++$nCnt > 1) {
+                    // исключаем лишние циклы
+                    return $aDirs;
+                }
+            }
+        }
+    }
+
+    /**
      * Возвращает содержимое папки, в т.ч. и скрытые файлы и подпапки
      *
      * @param string $sDir
@@ -304,15 +328,7 @@ class AltoFunc_File {
         if ($bRecursively) {
             $aSubDirs = glob($sDir . '/{,.}*', $nFlag | GLOB_BRACE | GLOB_ONLYDIR);
             // исключаем из выдачи '.' и '..'
-            $nCnt = 0;
-            foreach ($aSubDirs as $n => $sFile) {
-                if (basename($sFile) == '.' || basename($sFile) == '..') {
-                    unset($aSubDirs[$n]);
-                    if (++$nCnt > 1) {
-                        break;
-                    } // исключаем лишние циклы
-                }
-            }
+            $aSubDirs = self::_excludeDotted($aSubDirs);
         } else {
             $aSubDirs = array();
         }
@@ -329,6 +345,7 @@ class AltoFunc_File {
         } else {
             $aResult = glob($sDir . $sMask, $nFlag | GLOB_BRACE);
         }
+        $aResult = self::_excludeDotted($aResult);
 
         if ($bRecursively && $aSubDirs) {
             foreach ($aSubDirs as $sSubDir) {

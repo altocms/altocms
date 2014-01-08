@@ -317,7 +317,7 @@ return array(
     'topic_link_edit'                           => 'Редактирование топика-ссылки',
     'topic_link_count_jump'                     => 'переходов',
     'topic_link_create_url'                     => 'Источник',
-    'topic_link_create_url_notice'              => 'Например, http://livestreet.ru/blog/dev_livestreet/113.html',
+    'topic_link_create_url_notice'              => 'Например, http://altocms.com/218.html',
     'topic_link_create_url_error'               => 'Ссылка должна быть от 2 до 200 символов',
     'topic_link_create_text'                    => 'Краткое описание (максимум 500 символов)',
     'topic_link_create_text_notice'             => 'HTML-теги запрещены',
