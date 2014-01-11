@@ -2,7 +2,7 @@
 
 {block name="content-bar"}
     <div class="btn-group">
-        <a href="#" class="btn btn-primary disabled"><i class="icon-plus-sign"></i></a>
+        <a href="#" class="btn btn-primary disabled"><i class="icon icon-plus-sign"></i></a>
     </div>
 {/block}
 
@@ -85,7 +85,7 @@
                             </td>
                             <td class="center">
                                 <a href="{router page="admin"}site-widgets/edit/{$oWidget->GetId()}"><i
-                                            class="icon-edit"></i></a>
+                                            class="icon icon-edit"></i></a>
                             </td>
                         </tr>
                     {/foreach}

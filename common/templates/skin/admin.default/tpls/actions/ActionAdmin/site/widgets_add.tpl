@@ -2,7 +2,7 @@
 
 {block name="content-bar"}
     <div class="btn-group">
-        <a href="{router page='admin'}site-widgets/" class="btn"><i class="icon-chevron-left"></i></a>
+        <a href="{router page='admin'}site-widgets/" class="btn btn-default"><i class="icon icon-chevron-left"></i></a>
     </div>
 {/block}
 
@@ -54,7 +54,7 @@
                         <div class="controls">
                             <span class="input-append pull-left">
                                 <input type="text" name="widget_priority" value="{$oWidget->GetPriority()}" />
-                                <span class="add-on"><i class="icon-circle-arrow-up"></i></span>
+                                <span class="add-on"><i class="icon icon-circle-arrow-up"></i></span>
                             </span>
                             <!-- label class="offset3">
                                 <input type="checkbox" class="input-checkbox" value="{$oWidget->GetPriority()}" >
@@ -77,12 +77,12 @@
                                 {$aLang.action.admin.widget_display_from}
                                 <span class="input-append">
                                     <input type="text" name="widget_period_from" value="{$oWidget->GetDateFrom()}" class="datepicker" />
-                                    <span class="add-on"><i class="icon-calendar"></i></span>
+                                    <span class="add-on"><i class="icon icon-calendar"></i></span>
                                 </span>
                                 {$aLang.action.admin.widget_display_upto}
                                 <span class="input-append">
                                     <input type="text" name="widget_period_upto" value="{$oWidget->GetDateUpto()}" class="datepicker" />
-                                    <span class="add-on"><i class="icon-calendar"></i></span>
+                                    <span class="add-on"><i class="icon icon-calendar"></i></span>
                                 </span>
                             </label>
                         </div>

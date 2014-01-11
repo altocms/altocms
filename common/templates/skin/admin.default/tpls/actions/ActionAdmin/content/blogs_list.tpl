@@ -2,14 +2,14 @@
 
 {block name="content-bar"}
     <div class="btn-group">
-        <a href="#" class="btn btn-primary disabled"><i class="icon-plus-sign"></i></a>
+        <a href="#" class="btn btn-primary disabled"><i class="icon icon-plus-sign"></i></a>
     </div>
     <div class="btn-group">
-        <a class="btn {if $sMode=='all' || $sMode==''}active{/if}" href="{router page='admin'}content-blogs/list/">
+        <a class="btn btn-default {if $sMode=='all' || $sMode==''}active{/if}" href="{router page='admin'}content-blogs/list/">
             {$aLang.action.admin.blogs_all_types} <span class="badge badge-up">{$nBlogsTotal}</span>
         </a>
         {foreach $aBlogTypes as $oBlogType}
-            <a class="btn {if $sMode==$oBlogType->GetTypeCode()}active{/if}"
+            <a class="btn btn-default {if $sMode==$oBlogType->GetTypeCode()}active{/if}"
                href="{router page='admin'}content-blogs/list/{$oBlogType->GetTypeCode()}/">
                 {$oBlogType->GetName()} <span class="badge badge-up">{$oBlogType->GetBlogsCount()}</span>
             </a>
@@ -60,15 +60,15 @@
                             <td class="number">{$oBlog->GetBlogRating()}</td>
                             <td class="center">
                                 {if $oBlog->GetType()=='personal'}
-                                    <i class="icon-edit opacity50"></i>
+                                    <i class="icon icon-edit opacity50"></i>
                                 {else}
                                     <a href="{router page='blog'}edit/{$oBlog->GetId()}/"
                                        title="{$aLang.action.admin.blog_edit}">
-                                        <i class="icon-edit"></i></a>
+                                        <i class="icon icon-edit"></i></a>
                                 {/if}
                                 <a href="#" title="{$aLang.action.admin.blog_delete}"
                                    onclick="admin.blog.del('{$oBlog->GetTitle()|escape:'html'}','{$oBlog->GetId()}', '{$oBlog->GetBlogCountTopic()}'); return false;">
-                                    <i class="icon-remove"></i></a>
+                                    <i class="icon icon-remove"></i></a>
                             </td>
                         </tr>
                     {/foreach}

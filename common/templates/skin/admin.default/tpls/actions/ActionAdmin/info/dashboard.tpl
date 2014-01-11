@@ -3,10 +3,10 @@
 {block name="content-bar"}
     <div class="btn-group">
         <a href="#" class="btn btn-primary tip-top" onclick="ls.dashboard.showAddForm(); return false;"
-           title="{$aLang.action.admin.user_field_add}"><i class="icon-plus-sign"></i></a>
+           title="{$aLang.action.admin.user_field_add}"><i class="icon icon-plus-sign"></i></a>
     </div>
     <div class="btn-group">
-        <a href="{router page='admin'}info-dashboard/" class="btn {if $sMenuItem=='index'}active{/if}">
+        <a href="{router page='admin'}info-dashboard/" class="btn btn-default {if $sMenuItem=='index'}active{/if}">
             {$aLang.action.admin.dashboard_main}
         </a>
         {hook run='admin_dashboard_left_items'}

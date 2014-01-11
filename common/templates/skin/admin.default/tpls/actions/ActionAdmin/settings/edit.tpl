@@ -90,19 +90,18 @@
                 <label {if $nCommentEditTime}class="checked"{/if}>
                     <input type="radio" name="edit_comment" value="on" {if $nCommentEditTime}checked{/if}/>
                     {$aLang.action.admin.set_edit_comment_enabled}
-
+					
                     <div class="input-append">
                         <input type="text" name="edit_comment_time" value="{$nCommentEditTime}" style="width: 40px;" />
-                    <span class="btn-group">
-                        <a href="#" class="btn dropdown-toggle" data-toggle="dropdown"><span class="content">{$sCommentEditUnit}</span> <span class="caret"></span></a>
+                    <div class="btn-group dropup">
+                        <a href="#" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="content">{$sCommentEditUnit}</span> <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             {foreach $aTimeUnits as $sUnit}
                                 <li><a href="#" onclick="admin.selectDropdown(this); return false;">{$sUnit.name}</a></li>
                             {/foreach}
                         </ul>
-                    </span>
                     </div>
-
+					</div>
                     <input type="hidden" name="edit_comment_unit">
                 </label>
             </div>

@@ -70,11 +70,11 @@
                         <a href="{router page='admin'}users-list/profile/{$oUser->getId()}/"
                            {if $oUserCurrent->GetId()==$oUser->getId()}style="font-weight:bold;"{/if}
                            class="link">
-                            <i class="icon-user {$classIcon}"></i>
+                            <i class="icon icon-user {$classIcon}"></i>
                             {$oUser->getLogin()}
                         </a>
                         <div class="pull-right">
-                        <i class="icon-globe {if $oUser->IsOnline()}icon-green{else}icon-gray{/if}" data-toggle="popover" data-popover="#user-win-iplist"
+                        <i class="icon icon-globe {if $oUser->IsOnline()}icon-green{else}icon-gray{/if}" data-toggle="popover" data-popover="#user-win-iplist"
                            onclick="admin.user.setIpInfo('{$oUser->getIpRegister()}', '{$sLastIp}')"></i>
                             {if $oUser->IsOnline()}<div class="status-on">on</div>{else}<div class="status-off">off</div>{/if}
                         </div>
@@ -109,7 +109,7 @@
                         <td class="center">
                             {if $oUser->GetLogin()!='admin'}
                                 <a href="#" onclick="admin.user.unsetAdmin('{$oUser->GetLogin()}')"
-                                   class="link tip-top" title="{$aLang.action.admin.exclude}"><i class="icon-remove-sign"></i></a>&nbsp;
+                                   class="link tip-top" title="{$aLang.action.admin.exclude}"><i class="icon icon-remove-sign"></i></a>&nbsp;
                             {/if}
                         </td>
                     {else}

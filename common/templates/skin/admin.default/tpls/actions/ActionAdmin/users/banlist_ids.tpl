@@ -22,7 +22,7 @@
         <tr>
             <td class="number"> {$oUser->getId()} &nbsp;</td>
             <td {if $oUserCurrent->GetId()==$oUser->getId()}style="font-weight:bold;"{/if}>
-                <i class="icon-user icon-red"></i>
+                <i class="icon icon-user icon-red"></i>
                 <a href="{router page='admin'}users-list/profile/{$oUser->getLogin()}/"
                    class="link">{$oUser->getLogin()}</a></td>
             <td class="center ip-split">
@@ -35,7 +35,7 @@
             <td>{$oUser->getBanComment()}</td>
             <td class="center">
                 <a href="#" onclick="admin.user.unsetBan('{$oUser->getId()}', 'user'); return false;"
-                   class="btn btn-mini tip-top" title="{$aLang.action.admin.exclude}"><i class="icon-thumbs-up"></i></a>
+                   class="btn btn-mini tip-top" title="{$aLang.action.admin.exclude}"><i class="icon icon-thumbs-up"></i></a>
             </td>
         </tr>
         {/foreach}

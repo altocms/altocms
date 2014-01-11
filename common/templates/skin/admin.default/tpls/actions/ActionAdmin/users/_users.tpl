@@ -2,13 +2,13 @@
 
 {block name="content-bar"}
     <div class="btn-group">
-        <a href="#" class="btn btn-primary disabled"><i class="icon-plus-sign"></i></a>
+        <a href="#" class="btn btn-primary disabled"><i class="icon icon-plus-sign"></i></a>
     </div>
     <div class="btn-group">
-        <a class="btn {if $sMode=='list'}active{/if}" href="{router page='admin'}users-list/list/">
+        <a class="btn btn-default {if $sMode=='list'}active{/if}" href="{router page='admin'}users-list/list/">
             All users <span class="badge badge-up">{$nCountUsers}</span>
         </a>
-        <a class="btn {if $sMode=='admins'}active{/if}" href="{router page='admin'}users-list/admins/">
+        <a class="btn btn-default {if $sMode=='admins'}active{/if}" href="{router page='admin'}users-list/admins/">
             Admins <span class="badge badge-up">{$nCountAdmins}</span>
         </a>
     </div>
@@ -30,9 +30,9 @@
             {if $oUserProfile->IsBannedByLogin()}
             <div class="accordion-group no-border">
                 <div class="accordion-heading">
-                    <button class="btn-block btn left" data-target="#admin_user_unban" data-toggle="collapse"
+                    <button class="btn-block btn btn-default left" data-target="#admin_user_unban" data-toggle="collapse"
                             data-parent="#user-comands-switch">
-                        <i class="icon-thumbs-up"></i>
+                        <i class="icon icon-thumbs-up"></i>
                         {$aLang.action.admin.users_unban}
                     </button>
                 </div>
@@ -64,9 +64,9 @@
                 {else}
             <div class="accordion-group no-border">
                 <div class="accordion-heading">
-                    <button class="btn-block btn left" data-target="#admin_user_ban" data-toggle="collapse"
+                    <button class="btn-block btn btn-default left" data-target="#admin_user_ban" data-toggle="collapse"
                             data-parent="#user-comands-switch">
-                        <i class="icon-ban-circle"></i>
+                        <i class="icon icon-ban-circle"></i>
                         {$aLang.action.admin.users_ban}
                     </button>
                 </div>
@@ -110,10 +110,10 @@
         {if !$oUserProfile}
         <div class="accordion-group no-border">
             <div class="accordion-heading">
-                <button class="btn-block btn left" data-target="#admin_form_seek" data-toggle="collapse"
+                <button class="btn-block btn btn-default left" data-target="#admin_form_seek" data-toggle="collapse"
                         data-parent="#user-comands-switch">
-                    {if $aFilter}<i class="icon-filter icon-green pull-right"></i>{/if}
-                    <i class="icon-search"></i>
+                    {if $aFilter}<i class="icon icon-filter icon-green pull-right"></i>{/if}
+                    <i class="icon icon-search"></i>
                     {$aLang.action.admin.seek_users}
                 </button>
             </div>
@@ -126,7 +126,7 @@
                         <label for="user_filter_login">{$aLang.action.admin.user_login}</label>
 
                         <div class="input-prepend">
-                            <span class="add-on"><i class="icon-user"></i></span><input type="text"
+                            <span class="add-on"><i class="icon icon-user"></i></span><input type="text"
                                                                                         name="user_filter_login"
                                                                                         id="user_filter_login"
                                                                                         value="{$aFilter.login}"
@@ -150,7 +150,7 @@
                         <label for="user_filter_regdate">{$aLang.action.admin.users_date_reg}</label>
 
                         <div class="input-prepend">
-                            <span class="add-on"><i class="icon-calendar"></i></span><input type="text"
+                            <span class="add-on"><i class="icon icon-calendar"></i></span><input type="text"
                                                                                             name="user_filter_regdate"
                                                                                             id="user_filter_regdate"
                                                                                             value="{$aFilter.regdate}"
@@ -182,7 +182,7 @@
                     <input type="hidden" name="adm_userlist_filter" value="1"/>
                     <button type="submit" name="adm_action_submit"
                             class="btn btn-primary">{$aLang.action.admin.seek}</button>
-                    <button type="reset" name="adm_action_reset" class="btn"
+                    <button type="reset" name="adm_action_reset" class="btn btn-default"
                             onclick="admin.user.filterReset('#user_filter_form');return false;">{$aLang.action.admin.reset}</button>
                 </form>
             </div>
@@ -190,9 +190,9 @@
 
         <div class="accordion-group no-border">
             <div class="accordion-heading">
-                <button class="btn-block btn left" data-target="#admin_form_send" data-toggle="collapse"
+                <button class="btn-block btn btn-default left" data-target="#admin_form_send" data-toggle="collapse"
                         data-parent="#user-comands-switch">
-                    <i class="icon-envelope"></i>
+                    <i class="icon icon-envelope"></i>
                     {$aLang.user_write_prvmsg}
                 </button>
             </div>
@@ -271,9 +271,9 @@
 
         <div class="accordion-group no-border">
             <div class="accordion-heading">
-                <button class="btn-block btn left" data-target="#admin_user_setadmin" data-toggle="collapse"
+                <button class="btn-block btn btn-default left" data-target="#admin_user_setadmin" data-toggle="collapse"
                         data-parent="#user-comands-switch">
-                    <i class="icon-asterisk"></i>
+                    <i class="icon icon-asterisk"></i>
                     {$aLang.action.admin.include_admin}
                 </button>
             </div>
@@ -288,7 +288,7 @@
                             <label for="user_login_admin">{$aLang.action.admin.user_login}</label>
 
                             <div class="input-prepend">
-                                <span class="add-on"><i class="icon-user"></i></span><input type="text" name="user_login_admin"
+                                <span class="add-on"><i class="icon icon-user"></i></span><input type="text" name="user_login_admin"
                                                                                             id="user_login_admin"
                                                                                             class="wide users_list autocomplete-users-sep"/>
                             </div>

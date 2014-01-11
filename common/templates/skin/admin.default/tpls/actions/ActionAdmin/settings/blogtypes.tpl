@@ -3,7 +3,7 @@
 {block name="content-bar"}
     <div class="btn-group">
         <a href="{router page='admin'}settings-blogtypes/add/" class="btn btn-primary tip-top"
-           title="{$aLang.action.admin.blogtypes_add}"><i class="icon-plus-sign"></i></a>
+           title="{$aLang.action.admin.blogtypes_add}"><i class="icon icon-plus-sign"></i></a>
     </div>
 {/block}
 
@@ -23,8 +23,9 @@
                     <th>{$aLang.action.admin.blogtypes_name}</th>
                     <th>{$aLang.action.admin.blogtypes_acl_title}</th>
                     <th>{$aLang.action.admin.blogtypes_contenttypes}</th>
-                    <th class="span2">{$aLang.action.admin.content_status}</th>
-                    <th class="span2">{$aLang.action.admin.content_actions}</th>
+                    <th class="center">{$aLang.action.admin.content_status}</th>
+                    <th class="center">{$aLang.action.admin.content_actions}</th>
+					<th class="center"></th>
                 </tr>
                 </thead>
 
@@ -103,10 +104,10 @@
                         </td>
                         <td>
                             <a href="{router page='admin'}settings-blogtypes/edit/{$oBlogType->getId()}/">
-                                <i class="icon-edit tip-top" title="{$aLang.action.admin.content_edit}"></i></a>
+                                <i class="icon icon-edit tip-top" title="{$aLang.action.admin.content_edit}"></i></a>
                             {if $oBlogType AND $oBlogType->CanDelete()}
                             <a href="{router page='admin'}settings-blogtypes/delete/{$oBlogType->getId()}/">
-                                <i class="icon-trash tip-top" title="{$aLang.action.admin.content_delete}"></i></a>
+                                <i class="icon icon-trash tip-top" title="{$aLang.action.admin.content_delete}"></i></a>
                             {/if}
                         </td>
                     </tr>

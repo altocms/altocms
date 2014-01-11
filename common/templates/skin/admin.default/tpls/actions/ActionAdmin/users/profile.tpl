@@ -13,14 +13,14 @@
                 var result = '';
                 if (value < 0) {
                     result += '<input type="hidden" name="sign" value="-1" />';
-                    result += '<i class="icon-minus icon-red adm_vote_sign"></i>';
+                    result += '<i class="icon icon-minus icon-red adm_vote_sign"></i>';
                 } else {
                     result += '<input type="hidden" name="sign" value="1" />';
-                    result += '<i class="icon-plus icon-green adm_vote_sign"></i>';
+                    result += '<i class="icon icon-plus icon-green adm_vote_sign"></i>';
                 }
                 result += '<input type="text" name="value" value="' + Math.abs(value) + '" class="adm_vote_value" />';
-                result += '<button class="btn btn-mini btn-danger pull-right cancel"><i class="icon-remove icon-white"></i></button>';
-                result += '<button class="btn btn-mini btn-success pull-right confirm"><i class="icon-ok icon-white"></i></button>'
+                result += '<button class="btn btn-mini btn-danger pull-right cancel"><i class="icon icon-remove icon-white"></i></button>';
+                result += '<button class="btn btn-mini btn-success pull-right confirm"><i class="icon icon-ok icon-white"></i></button>'
                 return result;
             },
             html: true,
@@ -78,7 +78,7 @@
                     <button class="btn-block btn left" data-target="#user-profile-photo-img-{$oUserProfile->GetId()}"
                             data-toggle="collapse"
                             data-parent="#user-profile-photo-{$oUserProfile->GetId()}">
-                        <i class="icon-picture"></i>
+                        <i class="icon icon-picture"></i>
                         {$aLang.action.admin.user_photo}
                     </button>
                 </div>
@@ -99,14 +99,14 @@
                 {$oLang->user_rating}
 
                 <div style="display: inline-block; margin: auto;">
-                    <i class="icon-arrow-up icon-green adm_vote_plus"
+                    <i class="icon icon-arrow-up icon-green adm_vote_plus"
                        onclick="admin.formVote(this, '{$nParamVoteValue}'); return false;"></i>
 
                     <div class="total {if $oUserProfile->getRating()>=0}positive{else}negative{/if}"
                          style="display: inline-block;">{if $oUserProfile->getRating()>0}
                         +{/if}{$oUserProfile->getRating()}</div>
 
-                    <i class="icon-arrow-down icon-red adm_vote_minus"
+                    <i class="icon icon-arrow-down icon-red adm_vote_minus"
                        onclick="admin.formVote(this, '-{$nParamVoteValue}'); return false;"></i>
                 </div>
             </div>

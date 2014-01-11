@@ -2,13 +2,13 @@
 
 {block name="content-bar"}
     <div class="btn-group">
-        <a href="#" class="btn btn-primary disabled"><i class="icon-plus-sign"></i></a>
+        <a href="#" class="btn btn-primary disabled"><i class="icon icon-plus-sign"></i></a>
     </div>
     <div class="btn-group">
-        <a class="btn {if $sMode=='ids'}active{/if}" href="{router page='admin'}users-banlist/ids/">
+        <a class="btn btn-default {if $sMode=='ids'}active{/if}" href="{router page='admin'}users-banlist/ids/">
             {$aLang.action.admin.banlist_ids}
         </a>
-        <a class="btn {if $sMode=='ips'}active{/if}" href="{router page='admin'}users-banlist/ips/">
+        <a class="btn btn-default {if $sMode=='ips'}active{/if}" href="{router page='admin'}users-banlist/ips/">
             {$aLang.action.admin.banlist_ips}
         </a>
     </div>
@@ -36,8 +36,8 @@
                 <div class="accordion-heading">
                     <button class="btn-block btn left" data-target="#admin_form_ban" data-toggle="collapse"
                             data-parent="#user-comands-switch">
-                        {if $aFilter}<i class="icon-filter icon-green pull-right"></i>{/if}
-                        <i class="icon-ban-circle"></i>
+                        {if $aFilter}<i class="icon icon-filter icon-green pull-right"></i>{/if}
+                        <i class="icon icon-ban-circle"></i>
                         {$aLang.action.admin.banlist_add}
                     </button>
                 </div>
@@ -50,7 +50,7 @@
                             <label for="user_login">{$aLang.action.admin.user_login}</label>
 
                             <div class="input-prepend">
-                                <span class="add-on"><i class="icon-user"></i></span><input type="text"
+                                <span class="add-on"><i class="icon icon-user"></i></span><input type="text"
                                                                                             name="user_login"
                                                                                             id="user_login"
                                                                                             value="{$sUserFilterLogin}"

@@ -2,10 +2,10 @@
 
 {block name="content-bar"}
     <div class="btn-group">
-        <a href="#" class="btn btn-primary disabled"><i class="icon-plus-sign"></i></a>
+        <a href="#" class="btn btn-primary disabled"><i class="icon icon-plus-sign"></i></a>
     </div>
     <div class="btn-group">
-        <a class="btn {if $sMode=='all' || $sMode==''}active{/if}" href="{router page='admin'}content-blogs/list/">
+        <a class="btn btn-default {if $sMode=='all' || $sMode==''}active{/if}" href="{router page='admin'}content-blogs/list/">
             {$aLang.action.admin.blogs_all_types} <span class="badge badge-up">{$nBlogsTotal}</span>
         </a>
         {foreach $aBlogTypes as $oBlogType}
@@ -50,11 +50,11 @@
                             </td>
                             <td class="name">
                                 {if $oMresource->IsLink()}
-                                    <i class="icon-globe"></i>
+                                    <i class="icon icon-globe"></i>
                                 {elseif $oMresource->IsType(ModuleMresource::TYPE_IMAGE)}
-                                    <i class="icon-picture"></i>
+                                    <i class="icon icon-picture"></i>
                                 {elseif $oMresource->IsType(ModuleMresource::TYPE_IMAGE)}
-                                    <i class="icon-stop"></i>
+                                    <i class="icon icon-stop"></i>
                                 {/if}
                                 {$oMresource->GetPathUrl()}
                             </td>
@@ -70,10 +70,10 @@
                                 {if !$oMresource->GetTargetsCount()}
                                     <a href="#" title="{$aLang.action.admin.delete}" class="tip-top i-block"
                                        onclick="return admin.confirmDelete('{$oMresource->getId()}', '{$oMresource->GetImgUrl(100)}'); return false;">
-                                        <i class="icon-remove"></i>
+                                        <i class="icon icon-remove"></i>
                                     </a>
                                 {else}
-                                    <!-- i class="icon-remove disabled"></i -->
+                                    <!-- i class="icon icon-remove disabled"></i -->
                                 {/if}
                             </td>
                         </tr>

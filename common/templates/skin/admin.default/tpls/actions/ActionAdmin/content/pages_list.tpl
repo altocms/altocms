@@ -2,7 +2,7 @@
 
 {block name="content-bar"}
     <div class="btn-group">
-        <a href="{router page='admin'}content-pages/add/" class="btn btn-primary"><i class="icon-plus-sign"></i></a>
+        <a href="{router page='admin'}content-pages/add/" class="btn btn-primary"><i class="icon icon-plus-sign"></i></a>
     </div>
 {/block}
 
@@ -40,7 +40,7 @@
                             {$oPage->GetId()}
                         </td>
                         <td style="padding-left: {$oPage->getLevel()*20+10}px;">
-                            {if $oPage->getLevel()==0}<i class="icon-folder-open"></i>{else}<i class="icon-file"></i>{/if}
+                            {if $oPage->getLevel()==0}<i class="icon icon-folder-open"></i>{else}<i class="icon icon-file"></i>{/if}
                             <a href="{router page='page'}{$oPage->getUrlFull()}/">{$oPage->getTitle()}</a>
                         </td>
                         <td>
@@ -63,26 +63,26 @@
                         <td class="center">
                             <a href="{router page='admin'}content-pages/edit/{$oPage->getId()}/"
                                title="{$aLang.action.admin.pages_admin_action_edit}" class="tip-top i-block">
-                                <i class="icon-edit"></i>
+                                <i class="icon icon-edit"></i>
                             </a>
                             <a href="#" title="{$aLang.action.admin.pages_admin_action_delete}" class="tip-top i-block"
                                   onclick="return admin.confirmDelete('{$oPage->getId()}', '{$oPage->getTitle()}'); return false;">
-                                <i class="icon-remove"></i>
+                                <i class="icon icon-remove"></i>
                             </a>
                             {if $oPage@first}
-                                <i class="icon-arrow-up icon-gray"></i>
+                                <i class="icon icon-arrow-up icon-gray"></i>
                             {else}
                                 <a href="{router page='admin'}content-pages/sort/{$oPage->getId()}/up/?security_key={$ALTO_SECURITY_KEY}"
                                    title="{$aLang.action.admin.pages_admin_sort_up} ({$oPage->getSort()})" class="tip-top i-block">
-                                    <i class="icon-arrow-up"></i>
+                                    <i class="icon icon-arrow-up"></i>
                                 </a>
                             {/if}
                             {if $oPage@last}
-                                <i class="icon-arrow-down icon-gray"></i>
+                                <i class="icon icon-arrow-down icon-gray"></i>
                             {else}
                                 <a href="{router page='admin'}content-pages/sort/{$oPage->getId()}/down/?security_key={$ALTO_SECURITY_KEY}"
                                    title="{$aLang.action.admin.pages_admin_sort_down} ({$oPage->getSort()})" class="tip-top i-block">
-                                    <i class="icon-arrow-down"></i>
+                                    <i class="icon icon-arrow-down"></i>
                                 </a>
                             {/if}
                         </td>
