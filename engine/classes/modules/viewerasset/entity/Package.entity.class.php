@@ -70,7 +70,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
     public function AddLink($sOutType, $sLink, $aParams = array()) {
 
         if ($sOutType != $this->sOutType) {
-            $this->ViewerAsset_AddLink('*', $sLink, $aParams);
+            $this->ViewerAsset_AddLinksToAssets('*', array($sLink => $aParams));
         } else {
             $this->aLinks[] = array_merge($aParams, array('link' => $sLink));
         }
@@ -132,7 +132,6 @@ class ModuleViewerAsset_EntityPackage extends Entity {
             $sLocalPath = '';
             $sDir = dirname($sFile);
         }
-
         if ($aFileParams['merge']) {
             $sSubdir = $this->_crc($sAsset . $sDir);
         } else {
@@ -141,7 +140,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
         if ($sLocalPath) {
             $sSubdir .= '/' . $sLocalPath;
         }
-        $sDestination = $this->Viewer_GetAssetDir() . $sSubdir . '/' . basename($sFile);
+        $sDestination = F::File_GetAssetDir() . $sSubdir . '/' . basename($sFile);
         if (!$this->CheckDestination($sDestination)) {
             if ($sDestination = $this->PrepareFile($sFile, $sDestination)) {
                 $this->AddLink($aFileParams['info']['extension'], F::File_Dir2Url($sDestination), $aFileParams);
@@ -165,7 +164,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
      */
     public function MakeMerge($sAsset, $aFiles) {
 
-        $sDestination = $this->Viewer_GetAssetDir() . md5($sAsset . serialize($aFiles)) . '.' . $this->sOutType;
+        $sDestination = F::File_GetAssetDir() . md5($sAsset . serialize($aFiles)) . '.' . $this->sOutType;
         if (!$this->CheckDestination($sDestination)) {
             $sContents = '';
             $bCompress = true;
@@ -230,6 +229,8 @@ class ModuleViewerAsset_EntityPackage extends Entity {
      */
     public function PreProcess() {
 
+        $bResult = true;
+
         // Создаем окончательные наборы, сливая prepend и append
         $this->aAssets = array();
         if ($this->aFiles) {
@@ -268,14 +269,18 @@ class ModuleViewerAsset_EntityPackage extends Entity {
                 $this->MakeMerge($sAsset, $aFiles);
             }
         }
+
+        return $bResult;
     }
 
     public function Process() {
 
+        return true;
     }
 
     public function PostProcess() {
 
+        return true;
     }
 
     protected function _prepareParams($sFileName, $aFileParams, $sAssetName) {
@@ -405,7 +410,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
 
     protected function _stageBegin($nStage) {
 
-        $sFile = $this->Viewer_GetAssetDir() . '_check/' . $this->GetHash();
+        $sFile = F::File_GetAssetDir() . '_check/' . $this->GetHash();
         if ($aCheckFiles = glob($sFile . '.{1,2,3}.begin.tmp', GLOB_BRACE)) {
             return false;
         } elseif (($nStage == 2) && ($aCheckFiles = glob($sFile . '.{2,3}.end.tmp', GLOB_BRACE))) {
@@ -418,7 +423,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
 
     protected function _stageEnd($nStage, $bFinal = false) {
 
-        $sFile = $this->Viewer_GetAssetDir() . '_check/' . $this->GetHash();
+        $sFile = F::File_GetAssetDir() . '_check/' . $this->GetHash();
         F::File_PutContents($sFile . '.' . $nStage . '.end.tmp', time());
         for ($n = 1; $n <= $nStage; $n++) {
             F::File_Delete($sFile . '.' . $n . '.begin.tmp');

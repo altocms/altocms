@@ -61,7 +61,7 @@ class ModuleViewerAsset_EntityPackageJs extends ModuleViewerAsset_EntityPackage 
         if ($this->aFiles) {
             $this->InitCompressor();
         }
-        parent::PreProcess();
+        return parent::PreProcess();
     }
 
     /**
@@ -79,6 +79,7 @@ class ModuleViewerAsset_EntityPackageJs extends ModuleViewerAsset_EntityPackage 
 
     public function Process() {
 
+        $bResult = true;
         foreach ($this->aLinks as $nIdx => $aLinkData) {
             if (isset($aLinkData['compress']) && $aLinkData['compress']) {
                 $sFile = $aLinkData['file'];
@@ -97,6 +98,7 @@ class ModuleViewerAsset_EntityPackageJs extends ModuleViewerAsset_EntityPackage 
                 }
             }
         }
+        return $bResult;
     }
 
 

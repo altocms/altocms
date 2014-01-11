@@ -186,12 +186,19 @@ class Config extends Storage {
         if (is_null($nLevel)) {
             $nLevel = $this->nLevel;
         }
+        /*
         $aResult = array();
         for ($n = 0; $n <= $nLevel; $n++) {
             $sStorageKey = $this->_storageKey($sKey, $n);
             if ($aConfig = parent::GetStorage($sStorageKey)) {
                 $aResult = F::Array_Merge($aResult, $aConfig);
             }
+        }
+        */
+        $sStorageKey = $this->_storageKey($sKey, $nLevel);
+        $aResult = parent::GetStorage($sStorageKey);
+        if (!$aResult) {
+            $aResult = array();
         }
         return $aResult;
     }
@@ -241,11 +248,12 @@ class Config extends Storage {
     public function _setLevel($nLevel = null, $bClearLevel = true, $bClearBetween = false) {
 
         if ($nLevel > $this->nLevel) {
+            $aConfig = $this->GetConfig(null, $this->nLevel);
             while ($nLevel > $this->nLevel) {
                 if ($bClearBetween) {
                     $this->_clearLevel(++$this->nLevel);
                 } else {
-                    $this->SetConfig(array(), false, null, ++$this->nLevel);
+                    $this->SetConfig($aConfig, false, null, ++$this->nLevel);
                 }
             }
         } elseif ($nLevel < $this->nLevel) {

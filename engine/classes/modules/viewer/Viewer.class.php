@@ -312,7 +312,7 @@ class ModuleViewer extends Module {
             if (F::File_Exists($sFile = Config::Get('path.smarty.template') . '/settings/config/config.php')) {
                 $aConfig = F::Array_Merge(F::IncludeFile($sFile, false, true), $aConfig);
             }
-            Config::SetLevel(Config::LEVEL_SKIN);
+            Config::ResetLevel(Config::LEVEL_SKIN);
             if ($aConfig) {
                 Config::Load($aConfig, false);
             }
@@ -369,26 +369,6 @@ class ModuleViewer extends Module {
             $sSmartyVersion = Smarty::SMARTY_VERSION;
         }
         return $sSmartyVersion;
-    }
-
-    /**
-     * Возвращает путь к общей asset-папке
-     *
-     * @return string
-     */
-    public function GetAssetDir() {
-
-        return F::File_NormPath(Config::Get('path.runtime.dir') . 'assets/');
-    }
-
-    /**
-     * Возвращает URL к общей asset-папке
-     *
-     * @return string
-     */
-    public function GetAssetUrl() {
-
-        return Config::Get('path.runtime.url') . 'assets/';
     }
 
     /**
@@ -1161,7 +1141,7 @@ class ModuleViewer extends Module {
      */
     protected function InitFileParams() {
 
-        $this->ViewerAsset_AssetMake(Config::Get('head.default'));
+        $this->ViewerAsset_AddAssetFiles(Config::Get('head.default'));
     }
 
 
@@ -1655,7 +1635,7 @@ class ModuleViewer extends Module {
 
     public function ClearAssetsFiles() {
 
-        $sDir = $this->GetAssetDir();
+        $sDir = F::File_GetAssetDir();
         F::File_RemoveDir($sDir);
     }
 

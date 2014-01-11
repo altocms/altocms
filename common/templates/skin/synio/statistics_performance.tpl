@@ -18,6 +18,7 @@
             <td>
                 <h4>Viewer</h4>
                 total time: <strong>{$aStatsPerformance.viewer.total}</strong><br/>
+                &mdash; preprocess time: <strong>{$aStatsPerformance.viewer.preproc}</strong><br/>
                 &mdash; render calls: <strong>{$aStatsPerformance.viewer.count}</strong><br/>
                 &mdash; render time: <strong>{$aStatsPerformance.viewer.time}</strong><br/>
             </td>
@@ -27,7 +28,7 @@
                 included files: <br/>
                 &mdash; count: <strong>{$aStatsPerformance.engine.files_count}</strong><br/>
                 &mdash; time: <strong>{$aStatsPerformance.engine.files_time}</strong><br/>
-                full time: <strong>{$aStatsPerformance.engine.full_time}</strong>
+                full time: <strong>{$aStatsPerformance.engine.full_time}{if $aStatsPerformance.engine.exec_time} / {$aStatsPerformance.engine.exec_time}{/if}</strong>
             </td>
             <td>
                 <h4>Memory</h4>

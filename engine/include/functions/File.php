@@ -952,6 +952,26 @@ class AltoFunc_File {
     }
 
     /**
+     * Возвращает путь к общей asset-папке
+     *
+     * @return string
+     */
+    static public function GetAssetDir() {
+
+        return static::NormPath(Config::Get('path.runtime.dir') . 'assets/');
+    }
+
+    /**
+     * Возвращает URL к общей asset-папке
+     *
+     * @return string
+     */
+    static public function GetAssetUrl() {
+
+        return Config::Get('path.runtime.url') . 'assets/';
+    }
+
+    /**
      * Возвращает уникальное имя файла для конкретной папки
      *
      * @param     $sDir

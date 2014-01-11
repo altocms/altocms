@@ -208,7 +208,7 @@ class Engine extends LsObject {
      *
      * @var int
      */
-    public $iTimeLoadModule = 0;
+    public $nTimeLoadModule = 0;
     /**
      * Текущее время в микросекундах на момент инициализации ядра(движка).
      * Определается так:
@@ -218,7 +218,7 @@ class Engine extends LsObject {
      *
      * @var int|null
      */
-    protected $iTimeInit = null;
+    protected $nTimeInit = null;
 
 
     /**
@@ -228,7 +228,7 @@ class Engine extends LsObject {
      */
     public function __construct() {
 
-        $this->iTimeInit = microtime(true);
+        $this->nTimeInit = microtime(true);
         /* DEPRECATED in PHP 5.3 or more */
         if (get_magic_quotes_gpc()) {
             F::StripSlashes($_REQUEST);
@@ -464,7 +464,7 @@ class Engine extends LsObject {
             $this->InitModule($oModule);
         }
         $tm2 = microtime(true);
-        $this->iTimeLoadModule += $tm2 - $tm1;
+        $this->nTimeLoadModule += $tm2 - $tm1;
         dump("load $sModuleClass - \t\t" . ($tm2 - $tm1) . "");
         return $oModule;
     }
@@ -744,16 +744,22 @@ class Engine extends LsObject {
         /**
          * Подсчитываем время выполнения
          */
-        $iTimeInit = $this->GetTimeInit();
-        $iTimeFull = round(microtime(true) - $iTimeInit, 3);
+        $nTimeInit = $this->GetTimeInit();
+        $nTimeFull = microtime(true) - $nTimeInit;
+        if (isset($_SERVER['REQUEST_TIME'])) {
+            $nExecTime = round(microtime(true) - $_SERVER['REQUEST_TIME'], 3);
+        } else {
+            $nExecTime = 0;
+        }
         return array(
             'sql' => $this->Database_GetStats(),
             'cache' => $this->Cache_GetStats(),
             'engine' => array(
-                'time_load_module' => round($this->iTimeLoadModule, 3),
-                'full_time' => round($iTimeFull, 3),
+                'time_load_module' => number_format(round($this->nTimeLoadModule, 3), 3),
+                'full_time' => number_format(round($nTimeFull, 3), 3),
+                'exec_time' => number_format(round($nExecTime, 3), 3),
                 'files_count' => F::File_GetIncludedCount(),
-                'files_time' => round(F::File_GetIncludedTime(), 3),
+                'files_time' => number_format(round(F::File_GetIncludedTime(), 3), 3),
             ),
         );
     }
@@ -765,7 +771,7 @@ class Engine extends LsObject {
      */
     public function GetTimeInit() {
 
-        return $this->iTimeInit;
+        return $this->nTimeInit;
     }
 
     /**

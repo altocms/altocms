@@ -82,11 +82,12 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
         if ($this->aFiles) {
             $this->InitCompressor();
         }
-        parent::PreProcess();
+        return parent::PreProcess();
     }
 
     public function Process() {
 
+        $bResult = true;
         foreach ($this->aLinks as $nIdx => $aLinkData) {
             if (isset($aLinkData['compress']) && $aLinkData['compress']) {
                 $sFile = $aLinkData['file'];
@@ -105,6 +106,7 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
                 }
             }
         }
+        return $bResult;
     }
 
     public function PrepareFile($sFile, $sDestination) {
@@ -158,7 +160,7 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
                 $sFileParam = '';
             }
             $sRealPath = realpath($sSourceDir . $sPath);
-            $sDestination = $this->Viewer_GetAssetDir() . $this->_crc(dirname($sRealPath)) . '/' . basename($sRealPath);
+            $sDestination = F::File_GetAssetDir() . $this->_crc(dirname($sRealPath)) . '/' . basename($sRealPath);
             $aUrls[$sPath] = array(
                 'source'      => $sRealPath,
                 'destination' => $sDestination,

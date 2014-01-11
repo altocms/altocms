@@ -40,6 +40,7 @@ class Loader {
 
         // Load application config level
         $sAppConfigDir = Config::Get('path.dir.app') . '/config/';
+        Config::ResetLevel(Config::LEVEL_APP);
         if ($aConfigLoad) {
             self::_loadConfigSections($sAppConfigDir, $aConfigLoad, Config::LEVEL_APP);
         }
@@ -55,7 +56,7 @@ class Loader {
         Config::Set('path.root.seek', $aSeekDirClasses);
 
         // Подгружаем конфиг из файлового кеша, если он есть
-        Config::SetLevel(Config::LEVEL_CUSTOM);
+        Config::ResetLevel(Config::LEVEL_CUSTOM);
         $aConfig = Config::ReadCustomConfig(null, true);
         if ($aConfig) {
             Config::Load($aConfig, false);
@@ -181,7 +182,7 @@ class Loader {
 
         foreach ($aConfigSections as $sName) {
             $sFile = $sConfigDir . '/' . $sName . '.php';
-            self::_loadSectionFile($sFile, $sName);
+            self::_loadSectionFile($sFile, $sName, $nConfigLevel);
 
             $sFile = $sConfigDir . '/' . $sName . '.local.php';
             if (F::File_Exists($sFile)) {
