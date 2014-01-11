@@ -62,7 +62,7 @@ ls.comments = (function ($) {
     };
 
     this.newComment = function(idComment) {
-        this.options.replyForm.find('[name=comment_id').val(0);
+        this.options.replyForm.find('[name=comment_id]').val(0);
         this.toggleCommentForm(idComment);
         this.formCommentText('');
     };

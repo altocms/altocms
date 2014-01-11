@@ -5,7 +5,7 @@
 <section id="comment_id_{$oComment->getId()}" class="comment {if $oComment->isBad()}comment-bad{/if}
     {if $oComment->getDelete()}
         comment-deleted
-    {elseif $oUserCurrent and $oComment->getUserId() == $oUserCurrent->getId()}
+    {elseif $oUserCurrent AND $oComment->getUserId() == $oUserCurrent->getId()}
         comment-self
     {elseif $sDateReadLast <= $oComment->getDate()}
         comment-new
@@ -43,7 +43,7 @@
             {if $oComment->getTargetType() != 'talk'}
                 <li id="vote_area_comment_{$oComment->getId()}" class="vote
                     {if $oComment->getRating() > 0}vote-count-positive{elseif $oComment->getRating() < 0}vote-count-negative{/if}
-                    {if ($oComment->isVoteExpired() && !$oVote) || (E::UserId() == $oUser->getId())}
+                    {if ($oComment->isVoteExpired() AND !$oVote) OR (E::UserId() == $oUser->getId())}
                         vote-expired
                     {/if}
                     {if $oVote}
@@ -76,32 +76,26 @@
 
             {if $oComment->getPid()}
                 <li class="goto goto-comment-parent">
-                    <a href="#"
-                       onclick="ls.comments.goToParentComment('{$oComment->getId()}','{$oComment->getPid()}'); return false;"
-                       title="{$aLang.comment_goto_parent}">↑</a>
+                    <a href="#" onclick="ls.comments.goToParentComment('{$oComment->getId()}','{$oComment->getPid()}'); return false;" title="{$aLang.comment_goto_parent}">↑</a>
                 </li>
             {/if}
             <li class="goto goto-comment-child"><a href="#" title="{$aLang.comment_goto_child}">↓</a></li>
 
             {if E::User()}
-                {if !$oComment->getDelete() AND !$bAllowNewComment}
+                {if !$oComment->getDelete() AND $bAllowNewComment}
                     <li class="comment-reply">
-                        <a href="#"
-                           onclick="ls.comments.newComment('{$oComment->getId()}'); return false;"
-                           class="reply-link link-dotted">{$aLang.comment_answer}</a>
+                        <a href="#" onclick="ls.comments.newComment('{$oComment->getId()}'); return false;" class="reply-link link-dotted">{$aLang.comment_answer}</a>
                     </li>
                 {/if}
 
                 {if $oComment->isDeletable()}
                     {if !$oComment->getDelete()}
                         <li class="comment-delete">
-                            <a href="#" class="comment-delete link-dotted"
-                               onclick="ls.comments.toggle(this,'{$oComment->getId()}'); return false;">{$aLang.comment_delete}</a>
+                            <a href="#" class="comment-delete link-dotted" onclick="ls.comments.toggle(this,'{$oComment->getId()}'); return false;">{$aLang.comment_delete}</a>
                         </li>
                     {else}
                         <li class="comment-repair">
-                            <a href="#" class="comment-repair link-dotted"
-                               onclick="ls.comments.toggle(this,'{$oComment->getId()}'); return false;">{$aLang.comment_repair}</a>
+                            <a href="#" class="comment-repair link-dotted" onclick="ls.comments.toggle(this,'{$oComment->getId()}'); return false;">{$aLang.comment_repair}</a>
                         </li>
                     {/if}
                 {/if}
