@@ -820,7 +820,7 @@ class ActionTalk extends Action {
                             'sUserId'       => $oUser->getId(),
                             'sUserLogin'    => htmlspecialchars($sUser),
                             'sUserWebPath'  => $oUser->getUserWebPath(),
-                            'sUserAvatar48' => $oUser->getProfileAvatarPath(48)
+                            'sUserAvatar48' => $oUser->getAvatarUrl(48)
                         );
                     } else {
                         $aResult[] = array(
@@ -1108,7 +1108,7 @@ class ActionTalk extends Action {
                                         'sUserLogin'    => $oUser->getLogin(),
                                         'sUserLink'     => $oUser->getUserWebPath(),
                                         'sUserWebPath'  => $oUser->getUserWebPath(),
-                                        'sUserAvatar48' => $oUser->getProfileAvatarPath(48)
+                                        'sUserAvatar48' => $oUser->getAvatarUrl(48)
                                     );
                                     $bState = true;
                                 } else {
@@ -1175,7 +1175,7 @@ class ActionTalk extends Action {
                             'sUserLogin'    => $oUser->getLogin(),
                             'sUserLink'     => $oUser->getUserWebPath(),
                             'sUserWebPath'  => $oUser->getUserWebPath(),
-                            'sUserAvatar48' => $oUser->getProfileAvatarPath(48)
+                            'sUserAvatar48' => $oUser->getAvatarUrl(48)
                         );
                         $bState = true;
                     } else {

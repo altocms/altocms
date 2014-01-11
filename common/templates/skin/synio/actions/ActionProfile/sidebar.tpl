@@ -25,7 +25,7 @@
                 {/if}
             </a>&nbsp;&nbsp;&nbsp;
             <a href="#" id="foto-remove" class="link-dotted" onclick="return ls.user.removeFoto();"
-               style="{if !$oUserCurrent->getProfileFoto()}display:none;{/if}">
+               style="{if !$oUserCurrent->getProfilePhoto()}display:none;{/if}">
                 {$aLang.settings_profile_photo_delete}
             </a>
         </p>

@@ -27,7 +27,7 @@
         </p>
 
         <div class="avatar-change">
-            <div class="avatar"><img src="{$oUserCurrent->getProfileAvatarPath(100)}" id="avatar-img"/></div>
+            <div class="avatar"><img src="{$oUserCurrent->getAvatarUrl(100)}" id="avatar-img"/></div>
 
             <div>
                 <a href="#" id="avatar-upload"

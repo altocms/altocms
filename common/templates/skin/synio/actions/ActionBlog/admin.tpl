@@ -24,7 +24,7 @@
 					
 					<tr>
 						<td class="cell-name">
-							<a href="{$oUser->getUserWebPath()}"><img src="{$oUser->getProfileAvatarPath(24)}" alt="avatar" class="avatar" /></a>
+							<a href="{$oUser->getUserWebPath()}"><img src="{$oUser->getAvatarUrl(24)}" alt="avatar" class="avatar" /></a>
 							<a href="{$oUser->getUserWebPath()}">{$oUser->getLogin()}</a>
 						</td>
 						

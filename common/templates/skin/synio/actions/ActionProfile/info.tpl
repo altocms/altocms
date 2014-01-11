@@ -10,7 +10,7 @@
 {include file='menu.profile_whois.tpl'}
 
 <div class="profile-info-about">
-    <a href="{$oUserProfile->getUserUrl()}" class="avatar"><img src="{$oUserProfile->getProfileAvatarPath(100)}"
+    <a href="{$oUserProfile->getUserUrl()}" class="avatar"><img src="{$oUserProfile->getAvatarUrl(100)}"
                                                                     alt="avatar" itemprop="photo"/></a>
 
     <h3>{$aLang.profile_about}</h3>

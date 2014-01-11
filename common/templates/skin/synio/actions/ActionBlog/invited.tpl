@@ -22,7 +22,7 @@
 						
 						<li id="blog-invite-remove-item-{$oBlogEdit->getId()}-{$oUser->getId()}">
 							<span class="user-avatar user-avatar-n">
-								<a href="{$oUser->getUserWebPath()}"><img src="{$oUser->getProfileAvatarPath(24)}" alt="avatar" /></a>
+								<a href="{$oUser->getUserWebPath()}"><img src="{$oUser->getAvatarUrl(24)}" alt="avatar" /></a>
 								<a href="{$oUser->getUserWebPath()}">{$oUser->getLogin()}</a>
 							</span> -
 							<a href="#" onclick="return ls.blog.repeatInvite({$oUser->getId()}, {$oBlogEdit->getId()});">{$aLang.blog_user_invite_readd}</a>

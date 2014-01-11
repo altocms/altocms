@@ -5,7 +5,7 @@
 	<div id="wall-item-{$oWallItem->getId()}" class="js-wall-item wall-item-wrapper">
 		<div class="wall-item">
 			<a href="{$oWallUser->getUserWebPath()}">
-                <img src="{$oWallUser->getProfileAvatarPath(48)}" alt="avatar" class="avatar" />
+                <img src="{$oWallUser->getAvatarUrl(48)}" alt="avatar" class="avatar" />
             </a>
 
 			<p class="info">

@@ -34,7 +34,7 @@
 				{assign var="oUserNote" value=$oUserList->getUserNote()}
 				<tr>
 					<td class="cell-name">
-						<a href="{$oUserList->getUserWebPath()}"><img src="{$oUserList->getProfileAvatarPath(48)}" alt="avatar" class="avatar" /></a>
+						<a href="{$oUserList->getUserWebPath()}"><img src="{$oUserList->getAvatarUrl(48)}" alt="avatar" class="avatar" /></a>
 						<div class="name {if !$oUserList->getProfileName()}no-realname{/if}">
 							<p class="username word-wrap"><a href="{$oUserList->getUserWebPath()}">{$oUserList->getLogin()}</a></p>
 							{if $oUserList->getProfileName()}<p class="realname">{$oUserList->getProfileName()}</p>{/if}

@@ -59,7 +59,7 @@
 									id="strm_u_{$iUserId}"
 									{if isset($aStreamSubscribedUsers.$iUserId)} checked="checked"{/if}
 									onClick="if (jQuery(this).prop('checked')) { ls.stream.subscribe({$iUserId}) } else { ls.stream.unsubscribe({$iUserId}) } " />
-							<a href="{$oUser->getUserWebPath()}" title="{$oUser->getLogin()}"><img src="{$oUser->getProfileAvatarPath(24)}" alt="avatar" class="avatar" /></a>
+							<a href="{$oUser->getUserWebPath()}" title="{$oUser->getLogin()}"><img src="{$oUser->getAvatarUrl(24)}" alt="avatar" class="avatar" /></a>
 							<a href="{$oUser->getUserWebPath()}">{$oUser->getLogin()}</a>
 						</li>
 					{/foreach}
@@ -96,7 +96,7 @@
 										id="strm_u_{$iUserId}"
 										checked="checked"
 										onClick="if (jQuery(this).prop('checked')) { ls.stream.subscribe({$iUserId}) } else { ls.stream.unsubscribe({$iUserId}) } " />
-								<a href="{$oUser->getUserWebPath()}" title="{$oUser->getLogin()}"><img src="{$oUser->getProfileAvatarPath(24)}" alt="avatar" class="avatar" /></a>
+								<a href="{$oUser->getUserWebPath()}" title="{$oUser->getLogin()}"><img src="{$oUser->getAvatarUrl(24)}" alt="avatar" class="avatar" /></a>
 								<a href="{$oUser->getUserWebPath()}">{$oUser->getLogin()}</a>
 							</li>
 						{/if}

@@ -7,7 +7,7 @@
 		<section class="comment">
 			<ul class="comment-info">
 				<li class="comment-author">
-					<a href="{$oUser->getUserWebPath()}"><img src="{$oUser->getProfileAvatarPath(24)}" alt="avatar" class="comment-avatar" /></a>
+					<a href="{$oUser->getUserWebPath()}"><img src="{$oUser->getAvatarUrl(24)}" alt="avatar" class="comment-avatar" /></a>
 					<a href="{$oUser->getUserWebPath()}">{$oUser->getLogin()}</a>
 				</li>
 				<li class="comment-date">

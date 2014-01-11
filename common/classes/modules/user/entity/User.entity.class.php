@@ -359,7 +359,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function getProfileAvatarType() {
 
-        return ($sPath = $this->getProfileAvatarPath()) ? pathinfo($sPath, PATHINFO_EXTENSION) : null;
+        return ($sPath = $this->getAvatarUrl()) ? pathinfo($sPath, PATHINFO_EXTENSION) : null;
     }
 
     /**

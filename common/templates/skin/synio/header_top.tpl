@@ -33,7 +33,7 @@
 
     {if $oUserCurrent}
         <div class="dropdown-user" id="dropdown-user">
-            <a href="{$oUserCurrent->getUserWebPath()}"><img src="{$oUserCurrent->getProfileAvatarPath(48)}"
+            <a href="{$oUserCurrent->getUserWebPath()}"><img src="{$oUserCurrent->getAvatarUrl(48)}"
                                                              alt="avatar" class="avatar"/></a>
             <a href="{$oUserCurrent->getUserWebPath()}" class="username">{$oUserCurrent->getLogin()}</a>
 
