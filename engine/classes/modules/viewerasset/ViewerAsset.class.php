@@ -415,15 +415,20 @@ public function getFiles() { return $this->aFiles; }
         return md5(serialize($this->aFiles));
     }
 
-    protected function _getAssetsCacheName() {
+    public function GetAssetsCacheName() {
 
         return Config::Get('sys.cache.dir') . 'data/' . $this->GetHash() . '.assets';
+    }
+
+    public function GetAssetsCheckName() {
+
+        return F::File_GetAssetDir() . '_check/' . $this->GetHash() . '.assets.dat';
     }
 
     protected function _checkAssets() {
 
         $xResult = 0;
-        $sFile = $this->_getAssetsCacheName();
+        $sFile = $this->GetAssetsCacheName();
         $sTmpFile = $sFile . '.tmp';
         if (is_file($sTmpFile)) {
             // tmp file cannot live more than 1 minutes
@@ -444,7 +449,8 @@ public function getFiles() { return $this->aFiles; }
 
     protected function _saveAssets() {
 
-        $sFile = $this->_getAssetsCacheName();
+        F::File_PutContents($this->GetAssetsCheckName(), time());
+        $sFile = $this->GetAssetsCacheName();
         F::File_PutContents($sFile, F::Serialize($this->aAssets));
         F::File_Delete($sFile . '.tmp', $this->aAssets);
     }
@@ -463,48 +469,52 @@ public function getFiles() { return $this->aFiles; }
                 return;
             }
         }
-        // makes assets here
-        $sFile = $this->_getAssetsCacheName();
-        F::File_PutContents($sFile . '.tmp', time());
+        if (!F::File_GetContents($this->GetAssetsCheckName())) {
+            // makes assets here
+            $sFile = $this->GetAssetsCacheName();
+            F::File_PutContents($sFile . '.tmp', time());
 
-        // Add files & links to assets
-        foreach ($this->aFiles as $sType => $aData) {
-            if (isset($aData['files'])) {
-                $this->AddFilesToAssets($sType, $aData['files']);
+            // Add files & links to assets
+            foreach ($this->aFiles as $sType => $aData) {
+                if (isset($aData['files'])) {
+                    $this->AddFilesToAssets($sType, $aData['files']);
+                }
+                if (isset($aData['links'])) {
+                    $this->AddLinksToAssets($sType, $aData['links']);
+                }
             }
-            if (isset($aData['links'])) {
-                $this->AddLinksToAssets($sType, $aData['links']);
-            }
-        }
 
-        $nStage = 0;
-        $bDone = true;
-        foreach($this->aAssets as $oAssetPackage) {
-            if ($oAssetPackage->PreProcessBegin()) {
-                $bDone = ($bDone && $oAssetPackage->PreProcess());
-                $oAssetPackage->PreProcessEnd();
+            $nStage = 0;
+            $bDone = true;
+            foreach($this->aAssets as $oAssetPackage) {
+                if ($oAssetPackage->PreProcessBegin()) {
+                    $bDone = ($bDone && $oAssetPackage->PreProcess());
+                    $oAssetPackage->PreProcessEnd();
+                }
             }
-        }
-        if ($bDone) {
-            $nStage += 1;
-        }
-        foreach($this->aAssets as $oAssetPackage) {
-            if ($oAssetPackage->ProcessBegin()) {
-                $bDone = ($bDone && $oAssetPackage->Process());
-                $oAssetPackage->ProcessEnd();
+            if ($bDone) {
+                $nStage += 1;
             }
-        }
-        if ($bDone) {
-            $nStage += 1;
-        }
-        foreach($this->aAssets as $oAssetPackage) {
-            if ($oAssetPackage->PostProcessBegin()) {
-                $bDone = ($bDone && $oAssetPackage->PostProcess());
-                $oAssetPackage->PostProcessEnd();
+            foreach($this->aAssets as $oAssetPackage) {
+                if ($oAssetPackage->ProcessBegin()) {
+                    $bDone = ($bDone && $oAssetPackage->Process());
+                    $oAssetPackage->ProcessEnd();
+                }
             }
-        }
-        if ($bDone) {
-            $nStage += 1;
+            if ($bDone) {
+                $nStage += 1;
+            }
+            foreach($this->aAssets as $oAssetPackage) {
+                if ($oAssetPackage->PostProcessBegin()) {
+                    $bDone = ($bDone && $oAssetPackage->PostProcess());
+                    $oAssetPackage->PostProcessEnd();
+                }
+            }
+            if ($bDone) {
+                $nStage += 1;
+            }
+        } else {
+            $nStage = 3;
         }
 
         if ($nStage == 3) {
