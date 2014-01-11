@@ -110,7 +110,7 @@ abstract class Action extends LsObject {
         Config::ResetLevel(Config::LEVEL_ACTION);
         if ($sFile = F::File_Exists('/config/actions/' . $sAction . '.php', Config::Get('path.root.seek'))) {
             // Дополняем текущий конфиг конфигом экшена
-            Config::LoadFromFile($sFile, true, Config::LEVEL_ACTION);
+            Config::LoadFromFile($sFile, false, Config::LEVEL_ACTION);
         }
     }
 
