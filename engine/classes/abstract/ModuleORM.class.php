@@ -678,7 +678,7 @@ abstract class ModuleORM extends Module {
         /**
          * Если запрашиваем постраничный список, то возвращаем сам список и общее количество записей
          */
-        if (isset($aFilter['#page'])) {
+        if (isset($aJoinData['#page'])) {
             return array('collection' => $aEntities,
                          'count'      => $this->GetCountItemsByJoinTable($aJoinData, $sEntityFull));
         }
