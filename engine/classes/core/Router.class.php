@@ -441,11 +441,6 @@ class Router extends LsObject {
         if ($sInitResult === 'next') {
             $this->ExecAction();
         } else {
-            /**
-             * Замеряем время работы action`а
-             */
-            $oProfiler = ProfilerSimple::getInstance();
-            if (DEBUG) $iTimeId = $oProfiler->Start('ExecAction', self::$sAction);
 
             $res = $this->oAction->ExecEvent();
             self::$sActionEventName = $this->oAction->GetCurrentEventName();
@@ -453,8 +448,6 @@ class Router extends LsObject {
             $this->Hook_Run('action_shutdown_' . strtolower($sActionClass) . '_before');
             $this->oAction->EventShutdown();
             $this->Hook_Run('action_shutdown_' . strtolower($sActionClass) . '_after');
-
-            if (DEBUG) $oProfiler->Stop($iTimeId);
 
             if ($res === 'next') {
                 $this->ExecAction();

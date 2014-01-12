@@ -322,15 +322,7 @@ class Engine extends LsObject {
 
         foreach ($this->aModules as $oModule) {
             if (!$oModule->isInit()) {
-                /**
-                 * Замеряем время инициализации модуля
-                 */
-                $oProfiler = ProfilerSimple::getInstance();
-                if (DEBUG) $iTimeId = $oProfiler->Start('InitModule', get_class($oModule));
-
                 $this->InitModule($oModule);
-
-                if (DEBUG) $oProfiler->Stop($iTimeId);
             }
         }
     }
@@ -423,10 +415,6 @@ class Engine extends LsObject {
 
     protected function ShutdownModule($oModule) {
 
-        // * Замеряем время shutdown`a модуля
-        $oProfiler = ProfilerSimple::getInstance();
-        if (DEBUG) $iTimeId = $oProfiler->Start('ShutdownModule', get_class($oModule));
-
         if ($oModule->InShudownProgress()) {
             // Нельзя запускать shutdown модуля в процессе его shutdown`a
             throw new Exception('Recursive shutdown of module "' . get_class($oModule) . '"');
@@ -434,8 +422,6 @@ class Engine extends LsObject {
         $oModule->SetDone(false);
         $oModule->Shutdown();
         $oModule->SetDone();
-
-        if (DEBUG) $oProfiler->Stop($iTimeId);
     }
 
     /**
@@ -622,11 +608,6 @@ class Engine extends LsObject {
             // comment for ORM testing
             //throw new Exception("The module has no required method: ".$sModuleName.'->'.$sMethod.'()');
         }
-        /**
-         * Замеряем время выполнения метода
-         */
-        $oProfiler = ProfilerSimple::getInstance();
-        if (DEBUG) $iTimeId = $oProfiler->Start('callModule', $sModuleName . '->' . $sMethod . '()');
 
         $sModuleName = strtolower($sModuleName);
         $aResultHook = array();
@@ -652,7 +633,6 @@ class Engine extends LsObject {
             $this->Hook_Run('module_' . $sModuleName . '_' . strtolower($sMethod) . '_after', array('result' => &$result, 'params' => $aArgs));
         }
 
-        if (DEBUG) $oProfiler->Stop($iTimeId);
         return $result;
     }
 

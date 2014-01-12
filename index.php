@@ -19,12 +19,7 @@ defined('ALTO_DIR') or define('ALTO_DIR', dirname(__FILE__));
 // Run engine loader
 require_once(ALTO_DIR . '/engine/loader.php');
 
-$oProfiler = ProfilerSimple::getInstance();
-if (DEBUG) $iTimeId = $oProfiler->Start('full_time');
-
 $oRouter = Router::getInstance();
 $oRouter->Exec();
-
-if (DEBUG) $oProfiler->Stop($iTimeId);
 
 // EOF
