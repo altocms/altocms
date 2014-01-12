@@ -590,6 +590,7 @@ class ActionSettings extends Action {
 
         // * Если нажали кнопку "Сохранить"
         if ($this->isPost('submit_profile_edit')) {
+            $this->Security_ValidateSendForm();
 
             $bError = false;
             /**
