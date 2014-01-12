@@ -564,7 +564,7 @@ class Install {
         $this->Assign('next_step_display', ($iKey == count($this->aSteps) - 1) ? 'none' : 'inline-block');
         $this->Assign('prev_step_display', ($iKey == 0) ? 'none' : 'inline-block');
 
-        // * Если шаг отновиться к simple mode, то корректируем количество шагов
+        // * Если шаг относится к simple mode, то корректируем количество шагов
         if (in_array($sStepName, $this->aSimpleModeSteps)) {
             $this->SetStepCount(count($this->aSimpleModeSteps));
         }
@@ -662,8 +662,7 @@ class Install {
         $aParams['user'] = $this->GetRequest('install_db_user', '');
         $aParams['password'] = $this->GetRequest('install_db_password', '');
         $aParams['create'] = $this->GetRequest('install_db_create', 0);
-        $aParams['convert'] = $this->GetRequest('install_db_convert', 0);
-        $aParams['convert_from_10'] = $this->GetRequest('install_db_convert_from_10', 0);
+        $aParams['convert_from_097'] = $this->GetRequest('install_db_convert_from_alto_097', 0);
         $aParams['convert_to_alto'] = $this->GetRequest('install_db_convert_to_alto', 0);
         $aParams['prefix'] = $this->GetRequest('install_db_prefix', 'prefix_');
         $aParams['engine'] = $this->GetRequest('install_db_engine', 'InnoDB');
@@ -677,14 +676,11 @@ class Install {
             'install_db_create_check', (($aParams['create']) ? 'checked="checked"' : ''), self::SET_VAR_IN_SESSION
         );
         $this->Assign(
-            'install_db_convert_check', (($aParams['convert']) ? 'checked="checked"' : ''), self::SET_VAR_IN_SESSION
-        );
-        $this->Assign(
-            'install_db_convert_from_10_check', (($aParams['convert_from_10']) ? 'checked="checked"' : ''),
+            'install_db_convert_to_alto_check', (($aParams['convert_to_alto']) ? 'checked="checked"' : ''),
             self::SET_VAR_IN_SESSION
         );
         $this->Assign(
-            'install_db_convert_to_alto_check', (($aParams['convert_to_alto']) ? 'checked="checked"' : ''),
+            'install_db_convert_from_alto_097_check', (($aParams['convert_from_097']) ? 'checked="checked"' : ''),
             self::SET_VAR_IN_SESSION
         );
         $this->Assign('install_db_prefix', $aParams['prefix'], self::SET_VAR_IN_SESSION);
@@ -758,9 +754,9 @@ class Install {
              */
             if ($this->GetSessionVar('INSTALL_DATABASE_DONE', '') != md5(serialize(array($aParams['server'], $aParams['name'])))) {
 
-                // * Отдельным файлом запускаем создание GEO-базы
+				// * Отдельным файлом запускаем создание GEO-базы
                 $bResult = $this->CreateTables('geo_base.sql', array_merge($aParams, array('check_table' => 'geo_city')));
-                if (!$bResult) {
+                if (!$bResult && $this->aErrors) {
                     foreach ($this->aErrors as $sError) {
                         $this->aMessages[] = array('type' => 'error', 'text' => $sError);
                     }
@@ -768,8 +764,8 @@ class Install {
                     return false;
                 }
 
-                if (!$aParams['convert'] && !$aParams['convert_from_10'] && !$aParams['convert_to_alto']) {
-                    $bResult = $this->CreateTables('sql.sql', array_merge($aParams, array('check_table' => 'topic')));
+                if (!$aParams['convert_from_097'] && !$aParams['convert_to_alto']) {
+					$bResult = $this->CreateTables('sql.sql', array_merge($aParams, array('check_table' => 'topic')));
                     if (!$bResult) {
                         foreach ($this->aErrors as $sError) {
                             $this->aMessages[] = array('type' => 'error', 'text' => $sError);
@@ -779,40 +775,26 @@ class Install {
                     } else {
                         return $this->StepAdmin();
                     }
-                } elseif ($aParams['convert']) {
-                    /**
-                     * Если указана конвертация старой базы данных
-                     */
-                    list($bResult, $aErrors) = array_values(
-                        $this->ConvertDatabase('convert_0.5.1_to_1.0.3.sql', $aParams)
-                    );
-                    if (!$bResult) {
-                        foreach ($aErrors as $sError) {
-                            $this->aMessages[] = array('type' => 'error', 'text' => $sError);
-                        }
-                        $this->Layout('steps/db.tpl');
-                        return false;
-                    }
-                } elseif ($aParams['convert_from_10']) {
-                    /**
-                     * Если указана конвертация старой базы данных (1.0 -> 1.0.3)
-                     */
-                    list($bResult, $aErrors) = array_values(
-                        $this->ConvertDatabaseFrom10('convert_1.0_to_1.0.3.sql', $aParams)
-                    );
-                    if (!$bResult) {
-                        foreach ($aErrors as $sError) {
-                            $this->aMessages[] = array('type' => 'error', 'text' => $sError);
-                        }
-                        $this->Layout('steps/db.tpl');
-                        return false;
-                    }
                 } elseif ($aParams['convert_to_alto']) {
                     /**
                      * Если указана конвертация Livestreet 1.0.3 to Alto CMS
                      */
                     list($bResult, $aErrors) = array_values(
                         $this->ConvertDatabaseToAlto('convert_1.0.3_to_alto.sql', $aParams)
+                    );
+                    if (!$bResult) {
+                        foreach ($aErrors as $sError) {
+                            $this->aMessages[] = array('type' => 'error', 'text' => $sError);
+                        }
+                        $this->Layout('steps/db.tpl');
+                        return false;
+                    }
+                } elseif ($aParams['convert_from_097']) {
+                    /**
+                     * Если указана конвертация AltoCMS 0.9.7 в Alto CMS 1.0
+                     */
+                    list($bResult, $aErrors) = array_values(
+                        $this->ConvertDatabaseToAlto10('convert_from_097.sql', $aParams)
                     );
                     if (!$bResult) {
                         foreach ($aErrors as $sError) {
@@ -1385,7 +1367,7 @@ class Install {
             $aDbTables[] = $aRow[0];
         }
 
-        // * Если среди таблиц БД уже есть таблица prefix_topic, то выполнять SQL-дамп не нужно
+        // * Если указано проверить наличие таблицы и она уже существует, то выполнять SQL-дамп не нужно
         if (in_array($aParams['prefix'] . $aParams['check_table'], $aDbTables)) {
             return false;
         }
@@ -1435,563 +1417,42 @@ class Install {
     }
 
     /**
-     * Конвертирует базу данных версии 0.5.1 в базу данных версии 1.0.3
-     *
-     * @param $sFileName
-     * @param $aParams
-     *
-     * @return array
-     */
-    protected function ConvertDatabase($sFileName, $aParams) {
-
-        if (!$this->ValidateConvertDatabase($aParams)) {
-            return array('result' => true, 'errors' => array($this->Lang('error_database_converted_already')));
-        }
-
-        $aQuery = $this->_loadQueries($sFileName, $aParams);
-        /**
-         * Массив для сбора ошибок
-         */
-        $aErrors = array();
-
-        /**
-         * Выполняем запросы по очереди
-         */
-        foreach ($aQuery as $sQuery) {
-            $sQuery = trim($sQuery);
-            /**
-             * Заменяем движок, если таковой указан в запросе
-             */
-            if (isset($aParams['engine'])) {
-                $sQuery = str_ireplace('ENGINE=InnoDB', "ENGINE={$aParams['engine']}", $sQuery);
-            }
-
-            if ($sQuery != '') {
-                $bResult = mysql_query($sQuery);
-                if (!$bResult) {
-                    $aErrors[] = mysql_error();
-                }
-            }
-        }
-        /**
-         * Необходимая конвертация в 1.0.3 из 0.5.1
-         */
-
-        /**
-         * Пересчет количества избранного для топиков
-         */
-        $sTable1 = $aParams['prefix'] . 'topic';
-        $sTable2 = $aParams['prefix'] . 'favourite';
-        $sQuery = "
-                UPDATE {$sTable1} t
-                SET t.topic_count_favourite = (
-                    SELECT count(f.user_id)
-                    FROM {$sTable2} f
-                    WHERE
-                        f.target_id = t.topic_id
-                    AND
-                        f.target_publish = 1
-                    AND
-                        f.target_type = 'topic'
-                )
-            ";
-        if (!mysql_query($sQuery)) {
-            $aErrors[] = mysql_error();
-        }
-        /**
-         * Пересчет количества избранного для комментов
-         */
-        $sTable1 = $aParams['prefix'] . 'comment';
-        $sQuery = "
-            UPDATE {$sTable1} c
-            SET c.comment_count_favourite = (
-                SELECT count(f.user_id)
-                FROM {$sTable2} f
-                WHERE
-                    f.target_id = c.comment_id
-                AND
-					f.target_publish = 1
-				AND
-					f.target_type = 'comment'
-            )
-		";
-        if (!mysql_query($sQuery)) {
-            $aErrors[] = mysql_error();
-        }
-        /**
-         * Пересчет счетчиков голосования за топик
-         */
-        $sTable1 = $aParams['prefix'] . 'topic';
-        $sTable2 = $aParams['prefix'] . 'vote';
-        $sQuery = "
-                UPDATE {$sTable1} t
-                SET t.topic_count_vote_up = (
-                    SELECT count(*)
-                    FROM {$sTable2} v
-                    WHERE
-                        v.target_id = t.topic_id
-                    AND
-                        v.vote_direction = 1
-                    AND
-                        v.target_type = 'topic'
-                ), t.topic_count_vote_down = (
-                    SELECT count(*)
-                    FROM {$sTable2} v
-                    WHERE
-                        v.target_id = t.topic_id
-                    AND
-                        v.vote_direction = -1
-                    AND
-                        v.target_type = 'topic'
-                ), t.topic_count_vote_abstain = (
-                    SELECT count(*)
-                    FROM {$sTable2} v
-                    WHERE
-                        v.target_id = t.topic_id
-                    AND
-                        v.vote_direction = 0
-                    AND
-                        v.target_type = 'topic'
-                )
-            ";
-        if (!mysql_query($sQuery)) {
-            $aErrors[] = mysql_error();
-        }
-        /**
-         * Пересчет количества топиков в блогах
-         */
-        $sTable1 = $aParams['prefix'] . 'blog';
-        $sTable2 = $aParams['prefix'] . 'topic';
-        $sQuery = "
-                UPDATE {$sTable1} b
-                SET b.blog_count_topic = (
-                    SELECT count(*)
-                    FROM {$sTable2} t
-                    WHERE
-                        t.blog_id = b.blog_id
-                    AND
-                        t.topic_publish = 1
-                )
-            ";
-        if (!mysql_query($sQuery)) {
-            $aErrors[] = mysql_error();
-        }
-        /**
-         * Проставляем последнего пользователя и последний комментарий во всех личных сообщениях
-         */
-        $sTable1 = $aParams['prefix'] . 'talk';
-        $sTable2 = $aParams['prefix'] . 'comment';
-        $iPage = 1;
-
-        do {
-            $iLimitStart = ($iPage - 1) * 100;
-            $sQuery = "SELECT talk_id, user_id FROM {$sTable1} LIMIT {$iLimitStart},100";
-            if (!$aResults = mysql_query($sQuery)) {
-                $aErrors[] = mysql_error();
-                break;
-            }
-            if (mysql_num_rows($aResults)) {
-                while ($aRow = mysql_fetch_assoc($aResults)) {
-                    $iTalk = $aRow['talk_id'];
-                    $iUserLast = $aRow['user_id'];
-                    $iCommentLast = null;
-                    /**
-                     * Запрашиваем последний комментарий из сообщения
-                     */
-                    $sQuery2
-                        = "SELECT comment_id, user_id FROM {$sTable2} WHERE target_id='{$iTalk}' and target_type='talk' ORDER BY comment_id desc LIMIT 0,1";
-                    if (!$aResults2 = mysql_query($sQuery2)) {
-                        $aErrors[] = mysql_error();
-                        continue;
-                    }
-                    if ($aRow2 = mysql_fetch_assoc($aResults2)) {
-                        $iCommentLast = $aRow2['comment_id'];
-                        $iUserLast = $aRow2['user_id'];
-                    }
-                    /**
-                     * Обновляем значения
-                     */
-                    $sQuery3
-                        =
-                        "UPDATE {$sTable1} SET talk_user_id_last='{$iUserLast}', talk_comment_id_last=" . ($iCommentLast
-                            ? $iCommentLast : 'null') . " WHERE talk_id='{$iTalk}' ";
-                    if (!mysql_query($sQuery3)) {
-                        $aErrors[] = mysql_error();
-                        continue;
-                    }
-                }
-            } else {
-                break;
-            }
-            $iPage++;
-        } while (1);
-        /**
-         * Перенос стран и городов на новую структуру
-         */
-        $sTableUser = $aParams['prefix'] . 'user';
-        $sTableGeoCountry = $aParams['prefix'] . 'geo_country';
-        $sTableGeoCity = $aParams['prefix'] . 'geo_city';
-        $sTableGeoRegion = $aParams['prefix'] . 'geo_region';
-        $sTableGeoTarget = $aParams['prefix'] . 'geo_target';
-        $iPage = 1;
-        do {
-            $iLimitStart = ($iPage - 1) * 100;
-            $sQuery = "SELECT * FROM {$sTableUser} WHERE
-					(`user_profile_country`  IS NOT NULL and `user_profile_country`<>'') or
-					(`user_profile_region`  IS NOT NULL and `user_profile_region`<>'') or
-					(`user_profile_city`  IS NOT NULL and `user_profile_city`<>'')
-
-					 LIMIT {$iLimitStart},100";
-            if (!$aResults = mysql_query($sQuery)) {
-                $aErrors[] = mysql_error();
-                break;
-            }
-            if (mysql_num_rows($aResults)) {
-                while ($aRow = mysql_fetch_assoc($aResults)) {
-                    /**
-                     * Обрабатываем каждого пользователя
-                     */
-                    $iUserId = $aRow['user_id'];
-                    if (!$aRow['user_profile_country']) {
-                        $sQuery2
-                            = "UPDATE {$sTableUser} SET user_profile_country=null, user_profile_region=null, user_profile_city=null WHERE user_id={$iUserId} ";
-                        if (!$aResults2 = mysql_query($sQuery2)) {
-                            $aErrors[] = mysql_error();
-                        }
-                        continue;
-                    }
-                    $sCountry = mysql_real_escape_string($aRow['user_profile_country']);
-                    $sCity = mysql_real_escape_string((string)$aRow['user_profile_city']);
-                    /**
-                     * Ищем страну в гео-базе
-                     */
-                    $sQuery2
-                        = "SELECT id, name_ru FROM {$sTableGeoCountry} WHERE name_ru='{$sCountry}' OR name_en='{$sCountry}' LIMIT 0,1";
-                    if (!($aResults2 = mysql_query($sQuery2))) {
-                        $aErrors[] = mysql_error();
-                        continue;
-                    }
-                    if ($aRow2 = mysql_fetch_assoc($aResults2)) {
-                        $iCountryId = $aRow2['id'];
-                        $sCountryName = mysql_real_escape_string($aRow2['name_ru']);
-                    } else {
-                        $sQuery2
-                            = "UPDATE {$sTableUser} SET user_profile_country=null, user_profile_region=null, user_profile_city=null WHERE user_id={$iUserId} ";
-                        if (!$aResults2 = mysql_query($sQuery2)) {
-                            $aErrors[] = mysql_error();
-                        }
-                        continue;
-                    }
-                    /**
-                     * Ищем город в гео-базе
-                     */
-                    $iCityId = null;
-                    $sCityName = null;
-                    $iRegionId = null;
-                    $sRegionName = null;
-                    if ($sCity) {
-                        $sQuery2
-                            = "SELECT id, region_id, name_ru FROM {$sTableGeoCity} WHERE country_id='{$iCountryId}' and (name_ru='{$sCity}' OR name_en='{$sCity}') LIMIT 0,1";
-                        if (!($aResults2 = mysql_query($sQuery2))) {
-                            $aErrors[] = mysql_error();
-                            continue;
-                        }
-                        if ($aRow2 = mysql_fetch_assoc($aResults2)) {
-                            $iCityId = $aRow2['id'];
-                            $sCityName = mysql_real_escape_string($aRow2['name_ru']);
-                            $iRegionId = $aRow2['region_id'];
-                            /**
-                             * Получаем название региона
-                             */
-                            $sQuery3 = "SELECT name_ru FROM {$sTableGeoRegion} WHERE id='{$iRegionId}' LIMIT 0,1";
-                            if (!$aResults3 = mysql_query($sQuery3)) {
-                                $aErrors[] = mysql_error();
-                                continue;
-                            }
-                            if ($aRow3 = mysql_fetch_assoc($aResults3)) {
-                                $sRegionName = mysql_real_escape_string($aRow3['name_ru']);
-                            } else {
-                                continue;
-                            }
-                        }
-                    }
-                    /**
-                     * Добавляем связь пользователя с гео-объектом
-                     */
-                    $iGeoId = $iCountryId;
-                    $sGeoType = 'country';
-                    if ($iCityId) {
-                        $iGeoId = $iCityId;
-                        $sGeoType = 'city';
-                    }
-                    /**
-                     * Проверяем отсутствие связи
-                     */
-                    $sQuery2
-                        = "SELECT * FROM {$sTableGeoTarget} WHERE target_type='user' AND target_id='{$iUserId}' LIMIT 0,1";
-                    if (!($aResults2 = mysql_query($sQuery2))) {
-                        $aErrors[] = mysql_error();
-                        continue;
-                    }
-                    if ($aRow2 = mysql_fetch_assoc($aResults2)) {
-                        // пропускаем этого пользователя
-                        continue;
-                    }
-                    /**
-                     * Создаем новую связь
-                     */
-                    $sQuery2 = "INSERT INTO {$sTableGeoTarget} SET geo_type='{$sGeoType}', geo_id='{$iGeoId}', target_type='user', target_id='{$iUserId}', country_id="
-                        . ($iCountryId ? $iCountryId : 'null') . ", region_id=" . ($iRegionId ? $iRegionId : 'null')
-                        . " , city_id=" . ($iCityId ? $iCityId : 'null') . "  ";
-                    if (!($aResults2 = mysql_query($sQuery2))) {
-                        $aErrors[] = mysql_error();
-                        continue;
-                    }
-                    /**
-                     * Обновляем информацию о пользователе
-                     */
-                    $sQuery2
-                        = "UPDATE {$sTableUser} SET user_profile_country=" . ($iCountryId ? "'$sCountryName'" : 'null')
-                        . ", user_profile_region=" . ($sRegionName ? "'$sRegionName'" : 'null') . ", user_profile_city="
-                        . ($sCityName ? "'$sCityName'" : 'null') . " WHERE user_id={$iUserId} ";
-                    if (!($aResults2 = mysql_query($sQuery2))) {
-                        $aErrors[] = mysql_error();
-                        continue;
-                    }
-                }
-            } else {
-                break;
-            }
-            $iPage++;
-        } while (1);
-        /**
-         * Перенос ICQ и сайта из профиля пользователя
-         */
-        $sTableUser = $aParams['prefix'] . 'user';
-        $sTableUserField = $aParams['prefix'] . 'user_field';
-        $sTableUserFieldValue = $aParams['prefix'] . 'user_field_value';
-
-        $sFieldIdIcq = null;
-        $sFieldIdWww = null;
-
-        /**
-         * Получаем ID необходимых полей
-         */
-        $sQuery2 = "SELECT id FROM {$sTableUserField} WHERE `type`='contact' AND name='icq' LIMIT 0,1";
-        if (!($aResults2 = mysql_query($sQuery2))) {
-            $aErrors[] = mysql_error();
-        } else {
-            if ($aRow2 = mysql_fetch_assoc($aResults2)) {
-                $sFieldIdIcq = $aRow2['id'];
-            }
-        }
-        $sQuery2 = "SELECT id FROM {$sTableUserField} WHERE `type`='contact' AND name='www' LIMIT 0,1";
-        if (!($aResults2 = mysql_query($sQuery2))) {
-            $aErrors[] = mysql_error();
-        } else {
-            if ($aRow2 = mysql_fetch_assoc($aResults2)) {
-                $sFieldIdWww = $aRow2['id'];
-            }
-        }
-
-        if ($sFieldIdIcq && $sFieldIdWww) {
-            $iPage = 1;
-            do {
-                $iLimitStart = ($iPage - 1) * 100;
-                $sQuery
-                    = "SELECT * FROM {$sTableUser} WHERE `user_profile_country`  IS NOT NULL AND `user_profile_country`<>'' LIMIT {$iLimitStart},100";
-                if (!($aResults = mysql_query($sQuery))) {
-                    $aErrors[] = mysql_error();
-                    break;
-                }
-                if (mysql_num_rows($aResults)) {
-                    while ($aRow = mysql_fetch_assoc($aResults)) {
-                        $iUserId = $aRow['user_id'];
-                        $sIcq = $aRow['user_profile_icq'];
-                        $sWww = $aRow['user_profile_site'];
-                        if ($sIcq) {
-                            $sIcq = mysql_real_escape_string($sIcq);
-                            /**
-                             * Проверяем отсутствие связи
-                             */
-                            $sQuery2
-                                = "SELECT * FROM {$sTableUserFieldValue} WHERE user_id='{$iUserId}' AND field_id='{$sFieldIdIcq}' LIMIT 0,1";
-                            if (!($aResults2 = mysql_query($sQuery2))) {
-                                $aErrors[] = mysql_error();
-                            } else {
-                                if (!($aRow2 = mysql_fetch_assoc($aResults2))) {
-                                    /**
-                                     * Создаем новую связь
-                                     */
-                                    $sQuery3
-                                        = "INSERT INTO {$sTableUserFieldValue} SET user_id='{$iUserId}', field_id='{$sFieldIdIcq}', value='{$sIcq}' ";
-                                    if (!$aResults3 = mysql_query($sQuery3)) {
-                                        $aErrors[] = mysql_error();
-                                    }
-                                }
-                            }
-                        }
-                        if ($sWww) {
-                            $sWww = str_replace('https://', '', $sWww);
-                            $sWww = str_replace('http://', '', $sWww);
-                        }
-                        if ($sWww) {
-                            $sWww = mysql_real_escape_string($sWww);
-                            /**
-                             * Проверяем отсутствие связи
-                             */
-                            $sQuery2
-                                = "SELECT * FROM {$sTableUserFieldValue} WHERE user_id='{$iUserId}' AND field_id='{$sFieldIdWww}' LIMIT 0,1";
-                            if (!($aResults2 = mysql_query($sQuery2))) {
-                                $aErrors[] = mysql_error();
-                            } else {
-                                if (!($aRow2 = mysql_fetch_assoc($aResults2))) {
-                                    /**
-                                     * Создаем новую связь
-                                     */
-                                    $sQuery3
-                                        = "INSERT INTO {$sTableUserFieldValue} SET user_id='{$iUserId}', field_id='{$sFieldIdWww}', value='{$sWww}' ";
-                                    if (!$aResults3 = mysql_query($sQuery3)) {
-                                        $aErrors[] = mysql_error();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    break;
-                }
-                $iPage++;
-            } while (1);
-        }
-        /**
-         * Удаляем поля
-         */
-        $sQuery = "ALTER TABLE `{$sTableUser}` DROP `user_profile_site` ";
-        if (!mysql_query($sQuery)) {
-            $aErrors[] = mysql_error();
-        }
-        $sQuery = "ALTER TABLE `{$sTableUser}` DROP `user_profile_site_name` ";
-        if (!mysql_query($sQuery)) {
-            $aErrors[] = mysql_error();
-        }
-        $sQuery = "ALTER TABLE `{$sTableUser}` DROP `user_profile_icq` ";
-        if (!mysql_query($sQuery)) {
-            $aErrors[] = mysql_error();
-        }
-        /**
-         * Добавление тегов в избранное
-         */
-        $sTablefFavourite = $aParams['prefix'] . 'favourite';
-        $sTablefTopicTag = $aParams['prefix'] . 'topic_tag';
-        $sTablefFavouriteTag = $aParams['prefix'] . 'favourite_tag';
-        $iPage = 1;
-        do {
-            $iLimitStart = ($iPage - 1) * 100;
-            $sQuery
-                = "SELECT f.user_id, f.target_id, t.topic_tag_text FROM `{$sTablefFavourite}` as f, `{$sTablefTopicTag}` as t WHERE f.`target_type`='topic' AND f.`target_id`=t.topic_id  LIMIT {$iLimitStart},100";
-            if (!$aResults = mysql_query($sQuery)) {
-                $aErrors[] = mysql_error();
-                break;
-            }
-            if (mysql_num_rows($aResults)) {
-                while ($aRow = mysql_fetch_assoc($aResults)) {
-                    $iUserId = $aRow['user_id'];
-                    $iTargetId = $aRow['target_id'];
-                    $sText = mysql_real_escape_string($aRow['topic_tag_text']);
-                    /**
-                     * Проверяем наличие
-                     */
-                    $sQuery2
-                        = "SELECT * FROM {$sTablefFavouriteTag} WHERE user_id='{$iUserId}' AND target_id='{$iTargetId}' AND target_type='topic' AND is_user=0 AND text='{$sText}' LIMIT 0,1";
-                    if (!($aResults2 = mysql_query($sQuery2))) {
-                        $aErrors[] = mysql_error();
-                        continue;
-                    }
-                    if ($aRow2 = mysql_fetch_assoc($aResults2)) {
-                        // пропускаем
-                        continue;
-                    }
-                    /**
-                     * Создаем
-                     */
-                    $sQuery2
-                        = "INSERT INTO {$sTablefFavouriteTag} SET user_id='{$iUserId}', target_id='{$iTargetId}', target_type='topic', is_user=0, text='{$sText}' ";
-                    if (!($aResults2 = mysql_query($sQuery2))) {
-                        $aErrors[] = mysql_error();
-                        continue;
-                    }
-                }
-            } else {
-                break;
-            }
-            $iPage++;
-        } while (1);
-        /**
-         * Вырезаем теги из информации о пользователе
-         */
-        $sTableUser = $aParams['prefix'] . 'user';
-        $iPage = 1;
-        do {
-            $iLimitStart = ($iPage - 1) * 100;
-            $sQuery
-                = "SELECT * FROM {$sTableUser} WHERE `user_profile_about`  IS NOT NULL AND `user_profile_about`<>'' LIMIT {$iLimitStart},100";
-            if (!$aResults = mysql_query($sQuery)) {
-                $aErrors[] = mysql_error();
-                break;
-            }
-            if (mysql_num_rows($aResults)) {
-                while ($aRow = mysql_fetch_assoc($aResults)) {
-                    $sAbout = mysql_real_escape_string(htmlspecialchars(strip_tags($aRow['user_profile_about'])));
-                    $iUserId = $aRow['user_id'];
-                    /**
-                     * Обновляем информацию о пользователе
-                     */
-                    $sQuery2 = "UPDATE {$sTableUser} SET user_profile_about='{$sAbout}' WHERE user_id={$iUserId} ";
-                    if (!($aResults2 = mysql_query($sQuery2))) {
-                        $aErrors[] = mysql_error();
-                        continue;
-                    }
-                }
-            } else {
-                break;
-            }
-            $iPage++;
-        } while (1);
-
-        if (count($aErrors) == 0) {
-            return array('result' => true, 'errors' => null);
-        }
-        return array('result' => false, 'errors' => $aErrors);
-    }
-
-    /**
-     * Проверяем, нуждается ли база в конвертации или нет
+     * Проверяем, нуждается ли база в конвертации из 0.9.7 в 1.0 или нет
      *
      * @param array $aParams
      *
      * @return bool
      */
-    protected function ValidateConvertDatabaseFrom10($aParams) {
+    protected function ValidateConvertDatabaseToAlto10($aParams) {
         /**
          * Проверяем, нуждается ли база в конвертации или нет
-         *
+         * Смотрим, какие таблицы существуют в базе данных
          */
-        $sTable = $aParams['prefix'] . 'user';
-        return !$this->isFieldExistsDatabase($sTable, 'user_settings_timezone');
+        $aDbTables = array();
+        $aResult = @mysql_query('SHOW TABLES');
+        if (!$aResult) {
+            return array('result' => false, 'errors' => array($this->Lang('error_db_no_data')));
+        }
+        while ($aRow = mysql_fetch_array($aResult, MYSQL_NUM)) {
+            $aDbTables[] = $aRow[0];
+        }
+        /**
+         * Смотрим на наличие в базе таблицы prefix_content
+         */
+        return !in_array($aParams['prefix'] . 'blog_type', $aDbTables);
     }
 
     /**
-     * Конвертирует базу данных версии 1.0 в базу данных версии 1.0.3
+     * Конвертирует базу данных версии 0.9.7 в базу данных версии 1.0
      *
      * @param $sFileName
      * @param $aParams
      *
      * @return array
      */
-    protected function ConvertDatabaseFrom10($sFileName, $aParams) {
+    protected function ConvertDatabaseToAlto10($sFileName, $aParams) {
 
-        if (!$this->ValidateConvertDatabaseFrom10($aParams)) {
+        if (!$this->ValidateConvertDatabaseToAlto10($aParams)) {
             return array('result' => false, 'errors' => array($this->Lang('error_database_converted_already')));
         }
 
@@ -2029,7 +1490,7 @@ class Install {
 
 
     /**
-     * Проверяем, нуждается ли база в конвертации или нет
+     * Проверяем, нуждается ли база в конвертации c LiveStreet 1.0.3 в AltoCMS 1.0 или нет
      *
      * @param array $aParams
      *
@@ -2055,7 +1516,7 @@ class Install {
     }
 
     /**
-     * Конвертирует базу данных версии 1.0 в базу данных версии 1.0.3
+     * Конвертирует базу данных LiveStreet 1.0.3 в AltoCMS 1.0
      *
      * @param   $sFileName
      * @param   $aParams
@@ -2212,7 +1673,7 @@ class Install {
 
         $sQuery = "
         	UPDATE `{$sPrefix}user`
-        	SET 
+        	SET
         		`user_login`    = '{$sLogin}',
         		`user_mail`     = '{$sMail}',
         		`user_password` = '{$sPassword}'
@@ -2233,7 +1694,7 @@ class Install {
 
         $sQuery = "
         	UPDATE `{$sPrefix}blog`
-        	SET 
+        	SET
         		`blog_title`    = '" . mysql_real_escape_string($sBlogName) . "'
 			WHERE `blog_id` = 1";
 

@@ -52,7 +52,7 @@ return array(
     'step'                             => 'Шаг',
 
     'start_paragraph'                  => '<p>Добро пожаловать в установку Alto CMS. Ознакомьтесь с результатами и следуйте подсказкам.</p>
-	                    <p><b>Внимание.</b> Для успешной иснталяции вы должны переименовать файл
+	                    <p><b>Внимание.</b> Для успешной инсталяции вы должны переименовать файл
 	                    /app/config/config.local.php.txt в /app/config/config.local.php и дать этому файлу права на запись.</p>
 	                    <p><b>Внимание.</b> Папки /_tmp, /_run, /uploads должны иметь права на запись.</p>',
 
@@ -80,7 +80,8 @@ return array(
     'db_params_create'                 => 'Создать базу данных',
     'db_params_convert'                => 'Конвертировать базу LiveStreet 0.5.1 в 1.0.3',
     'db_params_convert_from_10'        => 'Конвертировать базу LiveStreet 1.0 в 1.0.3',
-    'db_params_convert_to_alto'        => 'Конвертировать базу LiveStreet 1.0.3 в Alto CMS',
+    'db_params_convert_to_alto'        => 'Конвертировать базу LiveStreet 1.0.3 в Alto CMS 1.0',
+    'db_params_convert_from_alto_097'  => 'Конвертировать базу Alto CMS 0.9.7 в Alto CMS 1.0',
     'db_params_user'                   => 'Имя пользователя',
     'db_params_password'               => 'Пароль',
     'db_params_prefix'                 => 'Префикс таблиц',
@@ -89,7 +90,7 @@ return array(
     'db_params_engine_notice'          => 'Рекомендуется использовать InnoDB',
 
     'error_table_select'               => 'Ошибка запроса на выборку данных из таблицы %%table%%',
-    'error_database_converted_already' => 'Конвертация отменена, так как структура базы данных соответствует версии 1.0.3',
+    'error_database_converted_already' => 'Конвертация отменена, так как структура базы данных соответствует версии 1.0',
 
     'admin_params'                     => 'Настройка данных администратора',
     'admin_params_login'               => 'Логин',
