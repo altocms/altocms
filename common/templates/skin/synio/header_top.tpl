@@ -33,9 +33,9 @@
 
     {if $oUserCurrent}
         <div class="dropdown-user" id="dropdown-user">
-            <a href="{$oUserCurrent->getUserWebPath()}"><img src="{$oUserCurrent->getAvatarUrl(48)}"
+            <a href="{$oUserCurrent->getProfileUrl()}"><img src="{$oUserCurrent->getAvatarUrl(48)}"
                                                              alt="avatar" class="avatar"/></a>
-            <a href="{$oUserCurrent->getUserWebPath()}" class="username">{$oUserCurrent->getLogin()}</a>
+            <a href="{$oUserCurrent->getProfileUrl()}" class="username">{$oUserCurrent->getDisplayName()}</a>
 
             <div class="dropdown-user-shadow"></div>
             <div class="dropdown-user-trigger" id="dropdown-user-trigger"><i></i></div>
@@ -59,10 +59,10 @@
                     </a>
                 </li>
                 <li class="item-favourite"><i class="item-icon"></i><a
-                            href="{$oUserCurrent->getUserWebPath()}favourites/topics/">{$aLang.user_menu_profile_favourites}</a>
+                            href="{$oUserCurrent->getProfileUrl()}favourites/topics/">{$aLang.user_menu_profile_favourites}</a>
                 </li>
                 <li class="item-profile"><i class="item-icon"></i><a
-                            href="{$oUserCurrent->getUserWebPath()}">{$aLang.footer_menu_user_profile}</a></li>
+                            href="{$oUserCurrent->getProfileUrl()}">{$aLang.footer_menu_user_profile}</a></li>
                 <li class="item-settings"><i class="item-icon"></i><a
                             href="{router page='settings'}profile/">{$aLang.user_settings}</a></li>
                 <li class="item-create"><i class="item-icon"></i><a

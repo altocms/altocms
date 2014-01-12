@@ -24,8 +24,8 @@
 					
 					<tr>
 						<td class="cell-name">
-							<a href="{$oUser->getUserWebPath()}"><img src="{$oUser->getAvatarUrl(24)}" alt="avatar" class="avatar" /></a>
-							<a href="{$oUser->getUserWebPath()}">{$oUser->getLogin()}</a>
+							<a href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl(24)}" alt="avatar" class="avatar" /></a>
+							<a href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
 						</td>
 						
 						{if $oUser->getId()==$oUserCurrent->getId()}

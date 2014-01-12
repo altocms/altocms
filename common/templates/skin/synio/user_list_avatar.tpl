@@ -1,10 +1,10 @@
 {if $aUsersList}
 	<ul class="user-list-avatar">
 		{foreach from=$aUsersList item=oUserList}
-			{assign var="oSession" value=$oUserList->getSession()}
-			
+			{$oSession=$oUserList->getSession()}
+
 			<li>
-				<a href="{$oUserList->getUserWebPath()}" title="{$oUserList->getLogin()}"><img src="{$oUserList->getAvatarUrl(48)}" alt="avatar" class="avatar" /></a>
+				<a href="{$oUserList->getProfileUrl()}" title="{$oUserList->getLogin()}"><img src="{$oUserList->getAvatarUrl(48)}" alt="avatar" class="avatar" /></a>
 			</li>
 		{/foreach}
 	</ul>
@@ -15,6 +15,5 @@
 		<div class="notice-empty">{$aLang.user_empty}</div>
 	{/if}
 {/if}
-
 
 {include file='paging.tpl' aPaging=$aPaging}

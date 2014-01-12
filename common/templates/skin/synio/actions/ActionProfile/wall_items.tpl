@@ -4,12 +4,12 @@
 
 	<div id="wall-item-{$oWallItem->getId()}" class="js-wall-item wall-item-wrapper">
 		<div class="wall-item">
-			<a href="{$oWallUser->getUserWebPath()}">
+			<a href="{$oWallUser->getProfileUrl()}">
                 <img src="{$oWallUser->getAvatarUrl(48)}" alt="avatar" class="avatar" />
             </a>
 
 			<p class="info">
-				<a href="{$oWallUser->getUserWebPath()}">{$oWallUser->getLogin()}</a> ·
+				<a href="{$oWallUser->getProfileUrl()}">{$oWallUser->getDisplayName()}</a> ·
 				<time class="date" datetime="{date_format date=$oWallItem->getDateAdd() format='c'}">
                     {date_format date=$oWallItem->getDateAdd() hours_back="12" minutes_back="60" now="60" day="day H:i" format="j F Y, H:i"}
                 </time>

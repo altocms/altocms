@@ -377,6 +377,11 @@ class ModuleUser_EntityUser extends Entity {
         return $this->getProfilePhoto();
     }
 
+    public function getDisplayName() {
+
+        return $this->getLogin();
+    }
+
     /**
      * Возвращает статус уведомления о новых топиках
      *

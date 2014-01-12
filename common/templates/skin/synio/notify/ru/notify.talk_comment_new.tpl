@@ -1,4 +1,4 @@
-Пользователь <a href="{$oUserFrom->getUserWebPath()}">{$oUserFrom->getLogin()}</a>
+Пользователь <a href="{$oUserFrom->getProfileUrl()}">{$oUserFrom->getDisplayName()}</a>
 оставил новый комментарий к письму <b>«{$oTalk->getTitle()|escape:'html'}»</b>,
 прочитать его можно перейдя по <a href="{router page='talk'}read/{$oTalk->getId()}/#comment{$oTalkComment->getId()}">этой ссылке</a><br>
 {if Config::Get('sys.mail.include_talk')}

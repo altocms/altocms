@@ -1,4 +1,4 @@
-{assign var="oUser" value=$oTopic->getUser()}
+{$oUser=$oTopic->getUser()}
 
 <h3 class="profile-page-header">{$aLang.topic_preview}</h3>
 
@@ -38,7 +38,7 @@
 		</ul>
 
 		<ul class="topic-info">
-			<li class="topic-info-author"><a rel="author" href="{$oUser->getUserWebPath()}">{$oUser->getLogin()}</a></li>
+			<li class="topic-info-author"><a rel="author" href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a></li>
 			{hook run='topic_preview_show_info' topic=$oTopic}
 		</ul>
 

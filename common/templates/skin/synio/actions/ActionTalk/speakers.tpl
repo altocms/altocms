@@ -4,7 +4,7 @@
 
 		{foreach from=$oTalk->getTalkUsers() item=oTalkUser name=users}
 			{assign var="oUserRecipient" value=$oTalkUser->getUser()}
-			<a class="username {if $oTalkUser->getUserActive() != $TALK_USER_ACTIVE}inactive{/if}" href="{$oUserRecipient->getUserWebPath()}">{$oUserRecipient->getLogin()}</a>{if !$smarty.foreach.users.last}, {/if}
+			<a class="username {if $oTalkUser->getUserActive() != $TALK_USER_ACTIVE}inactive{/if}" href="{$oUserRecipient->getProfileUrl()}">{$oUserRecipient->getDisplayName()}</a>{if !$smarty.foreach.users.last}, {/if}
 		{/foreach}
 
 		{if $oTalk->getUserId()==$oUserCurrent->getId() or $oUserCurrent->isAdministrator()}
@@ -28,7 +28,7 @@
 
 							{if $oTalkUser->getUserActive()!=$TALK_USER_DELETE_BY_AUTHOR}
 								<li id="speaker_item_{$oTalkUser->getUserId()}_area">
-									<a class="user {if $oTalkUser->getUserActive()!=$TALK_USER_ACTIVE}inactive{/if}" href="{$oUser->getUserWebPath()}">{$oUser->getLogin()}</a>
+									<a class="user {if $oTalkUser->getUserActive()!=$TALK_USER_ACTIVE}inactive{/if}" href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
 									{if $oTalkUser->getUserActive()==$TALK_USER_ACTIVE}- <a href="#" id="speaker_item_{$oTalkUser->getUserId()}" class="delete">{$aLang.blog_delete}</a>{/if}
 								</li>
 							{/if}

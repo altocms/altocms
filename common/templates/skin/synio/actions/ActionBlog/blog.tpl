@@ -86,15 +86,15 @@
 			{hook run='blog_info_begin' oBlog=$oBlog}
 			<strong>{$aLang.blog_user_administrators} ({$iCountBlogAdministrators})</strong><br />
 			<span class="user-avatar">
-				<a href="{$oUserOwner->getUserWebPath()}"><img src="{$oUserOwner->getAvatarUrl(24)}" alt="avatar" /></a>
-				<a href="{$oUserOwner->getUserWebPath()}">{$oUserOwner->getLogin()}</a>
+				<a href="{$oUserOwner->getProfileUrl()}"><img src="{$oUserOwner->getAvatarUrl(24)}" alt="avatar" /></a>
+				<a href="{$oUserOwner->getProfileUrl()}">{$oUserOwner->getDisplayName()}</a>
 			</span>
 			{if $aBlogAdministrators}
 				{foreach from=$aBlogAdministrators item=oBlogUser}
 					{assign var="oUser" value=$oBlogUser->getUser()}  
 					<span class="user-avatar">
-						<a href="{$oUser->getUserWebPath()}"><img src="{$oUser->getAvatarUrl(24)}" alt="avatar" /></a>
-						<a href="{$oUser->getUserWebPath()}">{$oUser->getLogin()}</a>
+						<a href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl(24)}" alt="avatar" /></a>
+						<a href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
 					</span>
 				{/foreach}
 			{/if}<br /><br />
@@ -104,8 +104,8 @@
 				{foreach from=$aBlogModerators item=oBlogUser}  
 					{assign var="oUser" value=$oBlogUser->getUser()}
 					<span class="user-avatar">
-						<a href="{$oUser->getUserWebPath()}"><img src="{$oUser->getAvatarUrl(24)}" alt="avatar" /></a>
-						<a href="{$oUser->getUserWebPath()}">{$oUser->getLogin()}</a>
+						<a href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl(24)}" alt="avatar" /></a>
+						<a href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
 					</span>
 				{/foreach}
 			{else}
@@ -137,8 +137,8 @@
 
 		<div class="admin">
 			{$aLang.blogs_owner} —
-			<a href="{$oUserOwner->getUserWebPath()}"><img src="{$oUserOwner->getAvatarUrl(24)}" alt="avatar" class="avatar" /></a>
-			<a href="{$oUserOwner->getUserWebPath()}">{$oUserOwner->getLogin()}</a>
+			<a href="{$oUserOwner->getProfileUrl()}"><img src="{$oUserOwner->getAvatarUrl(24)}" alt="avatar" class="avatar" /></a>
+			<a href="{$oUserOwner->getProfileUrl()}">{$oUserOwner->getDisplayName()}</a>
 		</div>
 	</footer>
 </div>

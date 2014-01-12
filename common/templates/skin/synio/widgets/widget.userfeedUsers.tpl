@@ -38,8 +38,8 @@
 											id="usf_u_{$iUserId}"
 											checked="checked"
 											onClick="if (jQuery(this).prop('checked')) { ls.userfeed.subscribe('users',{$iUserId}) } else { ls.userfeed.unsubscribe('users',{$iUserId}) } " />
-									<a href="{$oUser->getUserWebPath()}" title="{$oUser->getLogin()}"><img src="{$oUser->getAvatarUrl(24)}" alt="avatar" class="avatar" /></a>
-									<a href="{$oUser->getUserWebPath()}">{$oUser->getLogin()}</a>
+									<a href="{$oUser->getProfileUrl()}" title="{$oUser->getDisplayName()}"><img src="{$oUser->getAvatarUrl(24)}" alt="avatar" class="avatar" /></a>
+									<a href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
 								</li>
 							{/if}
 						{/foreach}
@@ -69,8 +69,8 @@
 									id="usf_u_{$iUserId}"
 									{if isset($aUserfeedSubscribedUsers.$iUserId)} checked="checked"{/if}
 									onClick="if (jQuery(this).prop('checked')) { ls.userfeed.subscribe('users',{$iUserId}) } else { ls.userfeed.unsubscribe('users',{$iUserId}) } " />
-							<a href="{$oUser->getUserWebPath()}" title="{$oUser->getLogin()}"><img src="{$oUser->getAvatarUrl(24)}" alt="avatar" class="avatar" /></a>
-							<a href="{$oUser->getUserWebPath()}">{$oUser->getLogin()}</a>
+							<a href="{$oUser->getProfileUrl()}" title="{$oUser->getDisplayName()}"><img src="{$oUser->getAvatarUrl(24)}" alt="avatar" class="avatar" /></a>
+							<a href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
 						</li>
 					{/foreach}
 				</ul>

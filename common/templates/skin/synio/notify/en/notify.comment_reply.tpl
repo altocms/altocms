@@ -1,4 +1,4 @@
-<a href="{$oUserComment->getUserWebPath()}">{$oUserComment->getLogin()}</a>
+<a href="{$oUserComment->getProfileUrl()}">{$oUserComment->getDisplayName()}</a>
 has replied to your comment on the topic <b>«{$oTopic->getTitle()|escape:'html'}»</b>.
 <br /><br />
 {if Config::Get('sys.mail.include_comment')}

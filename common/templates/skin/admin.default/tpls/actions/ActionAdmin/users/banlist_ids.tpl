@@ -23,8 +23,7 @@
             <td class="number"> {$oUser->getId()} &nbsp;</td>
             <td {if $oUserCurrent->GetId()==$oUser->getId()}style="font-weight:bold;"{/if}>
                 <i class="icon icon-user icon-red"></i>
-                <a href="{router page='admin'}users-list/profile/{$oUser->getLogin()}/"
-                   class="link">{$oUser->getLogin()}</a></td>
+                <a href="{router page='admin'}users-list/profile/{$oUser->getLogin()}/" class="link">{$oUser->getDisplayName()}</a></td>
             <td class="center ip-split">
                 {$oUser->getIpRegister()}
             </td>

@@ -14,7 +14,7 @@
     {if !$oComment->getDelete() OR $bOneComment OR E::IsAdmin()}
         <a name="comment{$oComment->getId()}"></a>
         <div class="folding"></div>
-        <a href="{$oUser->getUserWebPath()}"><img src="{$oUser->getAvatarUrl(48)}" alt="avatar" class="comment-avatar"/></a>
+        <a href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl(48)}" alt="avatar" class="comment-avatar"/></a>
         <div id="comment_content_id_{$oComment->getId()}" class="comment-content">
             <div class=" text">
                 {$oComment->getText()}
@@ -31,7 +31,7 @@
         <ul class="comment-info">
             <li class="comment-author {if $iAuthorId == $oUser->getId()}comment-topic-author{/if}"
                 title="{if $iAuthorId == $oUser->getId() and $sAuthorNotice}{$sAuthorNotice}{/if}">
-                <a href="{$oUser->getUserWebPath()}">{$oUser->getLogin()}</a>
+                <a href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
             </li>
             <li class="comment-date">
                 <time datetime="{date_format date=$oComment->getDate() format='c'}"

@@ -93,7 +93,7 @@
                 <li>
                     <span>{$aLang.profile_invite_from}:</span>
                     <strong>
-                        <a href="{$oUserInviteFrom->getUserUrl()}">{$oUserInviteFrom->getLogin()}</a>&nbsp;
+                        <a href="{$oUserInviteFrom->getUserUrl()}">{$oUserInviteFrom->getDisplayName()}</a>&nbsp;
                     </strong>
                 </li>
             {/if}
@@ -103,7 +103,7 @@
                     <span>{$aLang.profile_invite_to}:</span>
                     <strong>
                         {foreach $aUsersInvite as $oUserInvite}
-                            <a href="{$oUserInvite->getUserUrl()}">{$oUserInvite->getLogin()}</a>
+                            <a href="{$oUserInvite->getUserUrl()}">{$oUserInvite->getDisplayName()}</a>
                             &nbsp;
                         {/foreach}
                     </strong>

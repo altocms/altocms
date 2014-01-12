@@ -1,7 +1,7 @@
-{assign var="oBlog" value=$oTopic->getBlog()}
-{assign var="oUser" value=$oTopic->getUser()}
-{assign var="oVote" value=$oTopic->getVote()}
-{assign var="oFavourite" value=$oTopic->getFavourite()}
+{$oBlog=$oTopic->getBlog()}
+{$oUser=$oTopic->getUser()}
+{$oVote=$oTopic->getVote()}
+{$oFavourite=$oTopic->getFavourite()}
 
 	<footer class="topic-footer">
         <ul class="topic-tags js-favourite-insert-after-form js-favourite-tags-topic-{$oTopic->getId()}">
@@ -45,7 +45,7 @@
         <ul class="topic-info">
             <li class="topic-info-author">
                 <a href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl(24)}" alt="avatar" class="avatar"/></a>
-                <a rel="author" href="{$oUser->getUserWebPath()}">{$oUser->getLogin()}</a>
+                <a rel="author" href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
             </li>
             <li class="topic-info-date">
                 <time datetime="{date_format date=$oTopic->getDateAdd() format='c'}"

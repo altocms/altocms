@@ -5,26 +5,23 @@
 
 {assign var="oUser" value=$oTalk->getUser()}
 
-
 <article class="topic topic-type-talk">
 	<header class="topic-header">
 		<h1 class="topic-title">{$oTalk->getTitle()|escape:'html'}</h1>
 		
 	</header>
 
-
 	<div class="topic-content text">
 		{$oTalk->getText()}
 	</div>
-	
-	{include file='actions/ActionTalk/speakers.tpl'}
 
+	{include file='actions/ActionTalk/speakers.tpl'}
 
 	<footer class="topic-footer">
 		<ul class="topic-info">
 			<li class="topic-info-author">
-				<a href="{$oUser->getUserWebPath()}"><img src="{$oUser->getAvatarUrl(24)}" alt="avatar" class="avatar" /></a>
-				<a rel="author" href="{$oUser->getUserWebPath()}">{$oUser->getLogin()}</a>
+				<a href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl(24)}" alt="avatar" class="avatar" /></a>
+				<a rel="author" href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
 			</li>
 			<li class="topic-info-date">
 				<time datetime="{date_format date=$oTalk->getDate() format='c'}" pubdate title="{date_format date=$oTalk->getDate() format='j F Y, H:i'}">
@@ -50,6 +47,5 @@
 	sNoticeCommentAdd=$aLang.topic_comment_add
 	bNoCommentFavourites=true}
 {/if}
-			
-			
+
 {include file='footer.tpl'}

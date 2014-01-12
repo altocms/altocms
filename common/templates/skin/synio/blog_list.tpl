@@ -12,10 +12,14 @@
 				{/if}
 
 				<th class="cell-readers cell-tab">
-					<div class="cell-tab-inner {if $sBlogOrder=='blog_count_user'}active{/if}"><a href="{$sBlogsRootPage}?order=blog_count_user&order_way={if $sBlogOrder=='blog_count_user'}{$sBlogOrderWayNext}{else}{$sBlogOrderWay}{/if}" {if $sBlogOrder=='blog_count_user'}class="{$sBlogOrderWay}"{/if}><span>{$aLang.blogs_readers}</span></a></div>
+					<div class="cell-tab-inner {if $sBlogOrder=='blog_count_user'}active{/if}">
+                        <a href="{$sBlogsRootPage}?order=blog_count_user&order_way={if $sBlogOrder=='blog_count_user'}{$sBlogOrderWayNext}{else}{$sBlogOrderWay}{/if}" {if $sBlogOrder=='blog_count_user'}class="{$sBlogOrderWay}"{/if}><span>{$aLang.blogs_readers}</span></a>
+                    </div>
 				</th>
 				<th class="cell-rating cell-tab align-center">
-					<div class="cell-tab-inner {if $sBlogOrder=='blog_rating'}active{/if}"><a href="{$sBlogsRootPage}?order=blog_rating&order_way={if $sBlogOrder=='blog_rating'}{$sBlogOrderWayNext}{else}{$sBlogOrderWay}{/if}" {if $sBlogOrder=='blog_rating'}class="{$sBlogOrderWay}"{/if}><span>{$aLang.blogs_rating}</span></a></div>
+					<div class="cell-tab-inner {if $sBlogOrder=='blog_rating'}active{/if}">
+                        <a href="{$sBlogsRootPage}?order=blog_rating&order_way={if $sBlogOrder=='blog_rating'}{$sBlogOrderWayNext}{else}{$sBlogOrderWay}{/if}" {if $sBlogOrder=='blog_rating'}class="{$sBlogOrderWay}"{/if}><span>{$aLang.blogs_rating}</span></a>
+                    </div>
 				</th>
 			</tr>
 		</thead>
@@ -36,8 +40,7 @@
 			</tr>
 		</thead>
 	{/if}
-	
-	
+
 	<tbody>
 		{if $aBlogs}
 			{foreach from=$aBlogs item=oBlog}
@@ -55,10 +58,10 @@
 								<i title="{$aLang.blog_closed}" class="icon-synio-topic-private"></i>
 							{/if}
 						</p>
-						
+
 						<span class="user-avatar">
-							<a href="{$oUserOwner->getUserWebPath()}"><img src="{$oUserOwner->getAvatarUrl(24)}" alt="avatar" /></a>
-							<a href="{$oUserOwner->getUserWebPath()}">{$oUserOwner->getLogin()}</a>
+							<a href="{$oUserOwner->getProfileUrl()}"><img src="{$oUserOwner->getAvatarUrl(24)}" alt="avatar" /></a>
+							<a href="{$oUserOwner->getProfileUrl()}">{$oUserOwner->getDisplayName()}</a>
 						</span>
 					</td>
 

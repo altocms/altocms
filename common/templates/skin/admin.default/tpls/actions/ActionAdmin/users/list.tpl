@@ -71,7 +71,7 @@
                            {if $oUserCurrent->GetId()==$oUser->getId()}style="font-weight:bold;"{/if}
                            class="link">
                             <i class="icon icon-user {$classIcon}"></i>
-                            {$oUser->getLogin()}
+                            {$oUser->getDisplayName()}
                         </a>
                         <div class="pull-right">
                         <i class="icon icon-globe {if $oUser->IsOnline()}icon-green{else}icon-gray{/if}" data-toggle="popover" data-popover="#user-win-iplist"

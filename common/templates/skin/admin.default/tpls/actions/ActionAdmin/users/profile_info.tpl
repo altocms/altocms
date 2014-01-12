@@ -209,7 +209,7 @@
         <td class="friends">
             {if $aUsersFrend}
                 {foreach from=$aUsersFrend item=oUserFrend}
-                    <a href="{$oUserFrend->getUserWebPath()}">{$oUserFrend->getLogin()}</a>&nbsp;
+                    <a href="{$oUserFrend->getProfileUrl()}">{$oUserFrend->getDisplayName()}</a>&nbsp;
                 {/foreach}
             {/if}
         </td>
@@ -220,7 +220,7 @@
         <td class="friends">
             {if $aUsersSelfFrend}
                 {foreach from=$aUsersSelfFrend item=oUserFrend}
-                    <a href="{$oUserFrend->getUserWebPath()}">{$oUserFrend->getLogin()}</a>&nbsp;
+                    <a href="{$oUserFrend->getProfileUrl()}">{$oUserFrend->getDisplayName()}</a>&nbsp;
                 {/foreach}
             {/if}
         </td>
@@ -230,7 +230,7 @@
         <tr>
             <td class="adm_var">{$oLang->profile_invite_from}:</td>
             <td class="friends">
-                <a href="{$oUserInviteFrom->getUserWebPath()}">{$oUserInviteFrom->getLogin()}</a>&nbsp;
+                <a href="{$oUserInviteFrom->getProfileUrl()}">{$oUserInviteFrom->getDisplayName()}</a>&nbsp;
             </td>
         </tr>
     {/if}
@@ -240,7 +240,7 @@
             <td class="adm_var">{$oLang->profile_invite_to}:</td>
             <td class="friends">
                 {foreach from=$aUsersInvite item=oUserInvite}
-                    <a href="{$oUserInvite->getUserWebPath()}">{$oUserInvite->getLogin()}</a>&nbsp;
+                    <a href="{$oUserInvite->getProfileUrl()}">{$oUserInvite->getDisplayName()}</a>&nbsp;
                 {/foreach}
             </td>
         </tr>

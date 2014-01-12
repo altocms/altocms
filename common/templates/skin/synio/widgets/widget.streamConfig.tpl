@@ -1,25 +1,24 @@
 {if $oUserCurrent}
-	{literal}
-		<script type="text/javascript">
-			jQuery(document).ready( function() {
-				jQuery('#stream_users_complete').keydown(function (event) {
-					if (event.which == 13) {
-						ls.stream.appendUser()
-					}
-				});
-			 });
-		</script>
-	{/literal}
+    {literal}
+        <script type="text/javascript">
+            jQuery(document).ready(function () {
+                jQuery('#stream_users_complete').keydown(function (event) {
+                    if (event.which == 13) {
+                        ls.stream.appendUser()
+                    }
+                });
+            });
+        </script>
+    {/literal}
 
-
-	<section class="block block-type-activity">
+    <section class="block block-type-activity">
 		<header class="block-header">
 			<h3>{$aLang.stream_block_config_title}</h3>
 		</header>
-		
+
 		<div class="block-content">
 			<small class="note">{$aLang.stream_settings_note_filter}</small>
-			
+
 			<ul class="activity-settings-filter">
 				{foreach from=$aStreamEventTypes key=sType item=aEventType}
 					{if !(Config::Get('module.stream.disable_vote_events') && substr($sType, 0, 4) == 'vote')}
@@ -39,17 +38,16 @@
 			</ul>
 		</div>
 	</section>
-		
-		
-		
+
+
 	<section class="block block-type-activity">
 		<header class="block-header">
 			<h3>{$aLang.stream_block_users_friends}</h3>
 		</header>
-		
+
 		<div class="block-content">
 			<small class="note">{$aLang.stream_settings_note_follow_friend}</small>
-			
+
 			{if count($aStreamFriends)}
 				<ul class="stream-settings-friends user-list-mini max-height-200">
 					{foreach from=$aStreamFriends item=oUser}
@@ -59,8 +57,8 @@
 									id="strm_u_{$iUserId}"
 									{if isset($aStreamSubscribedUsers.$iUserId)} checked="checked"{/if}
 									onClick="if (jQuery(this).prop('checked')) { ls.stream.subscribe({$iUserId}) } else { ls.stream.unsubscribe({$iUserId}) } " />
-							<a href="{$oUser->getUserWebPath()}" title="{$oUser->getLogin()}"><img src="{$oUser->getAvatarUrl(24)}" alt="avatar" class="avatar" /></a>
-							<a href="{$oUser->getUserWebPath()}">{$oUser->getLogin()}</a>
+							<a href="{$oUser->getProfileUrl()}" title="{$oUser->getDisplayName()}"><img src="{$oUser->getAvatarUrl(24)}" alt="avatar" class="avatar" /></a>
+							<a href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
 						</li>
 					{/foreach}
 				</ul>
@@ -69,14 +67,12 @@
 			{/if}
 		</div>
 	</section>
-		
-		
-		
+
 	<section class="block block-type-activity">
 		<header class="block-header">
 			<h3>{$aLang.stream_block_users_title}</h3>
 		</header>
-		
+
 		<div class="block-content">
 			<div class="search-form-wrapper">
 				<div class="search-input-wrapper">
@@ -84,20 +80,20 @@
 					<div onclick="ls.stream.appendUser();" class="input-submit"></div>
 				</div>
 			</div>
-			
+
 			{if count($aStreamSubscribedUsers)}
 				<ul id="stream_block_users_list" class="user-list-mini max-height-200">
 					{foreach from=$aStreamSubscribedUsers item=oUser}
 						{assign var=iUserId value=$oUser->getId()}
-						
+
 						{if !isset($aStreamFriends.$iUserId)}
 							<li><input class="streamUserCheckbox input-checkbox"
 										type="checkbox"
 										id="strm_u_{$iUserId}"
 										checked="checked"
 										onClick="if (jQuery(this).prop('checked')) { ls.stream.subscribe({$iUserId}) } else { ls.stream.unsubscribe({$iUserId}) } " />
-								<a href="{$oUser->getUserWebPath()}" title="{$oUser->getLogin()}"><img src="{$oUser->getAvatarUrl(24)}" alt="avatar" class="avatar" /></a>
-								<a href="{$oUser->getUserWebPath()}">{$oUser->getLogin()}</a>
+								<a href="{$oUser->getProfileUrl()}" title="{$oUser->getDisplayName()}"><img src="{$oUser->getAvatarUrl(24)}" alt="avatar" class="avatar" /></a>
+								<a href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
 							</li>
 						{/if}
 					{/foreach}

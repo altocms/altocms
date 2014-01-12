@@ -27,7 +27,7 @@
 					{foreach from=$oTalk->getTalkUsers() item=oTalkUser name=users}
 						{if $oTalkUser->getUserId()!=$oUserCurrent->getId()}
 						{assign var="oUser" value=$oTalkUser->getUser()}
-							<a href="{$oUser->getUserWebPath()}" class="user {if $oTalkUser->getUserActive()!=$TALK_USER_ACTIVE}inactive{/if}">{$oUser->getLogin()}</a>
+							<a href="{$oUser->getProfileUrl()}" class="user {if $oTalkUser->getUserActive()!=$TALK_USER_ACTIVE}inactive{/if}">{$oUser->getDisplayName()}</a>
 						{/if}
 					{/foreach}
 

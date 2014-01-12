@@ -69,7 +69,7 @@
 		font-family:'Icons Halflings';src:url('{Config::Get('path.static.skin')}assets/css/fonts/icons-halflings-regular.eot');src:url('{Config::Get('path.static.skin')}assets/css/fonts/icons-halflings-regular.eot?#iefix') format('embedded-opentype'),url('{Config::Get('path.static.skin')}assets/css/fonts/icons-halflings-regular.woff') format('woff'),url('{Config::Get('path.static.skin')}assets/css/fonts/icons-halflings-regular.ttf') format('truetype'),url('{Config::Get('path.static.skin')}assets/css/fonts/icons-halflings-regular.svg#icons-halflingsregular') format('svg');
 	}
 	</style>
-	
+
 {$aHtmlHeadFiles.js}
 
 
@@ -100,9 +100,9 @@
 			<li class="dropdown">
 			<a data-toggle="dropdown" class="dropdown-toggle" href="#">
 			<img src="{$oUserCurrent->getAvatarUrl(24)}" alt="avatar" class="avatar"/>
-			{$oUserCurrent->getLogin()}
+			{$oUserCurrent->getDisplayName()}
 			</a>
-			
+
 			<ul class="dropdown-menu">
 				<li><a href="{$oUserCurrent->getUserUrl()}"><i class="icon icon-user"></i> {$aLang.user_menu_profile}</a></li>
 				<li><a href="/settings/profile/"><i class="icon icon-cog"></i> {$aLang.settings_menu}</a></li>
@@ -137,7 +137,7 @@
                 <i class="icon icon-bell"></i> {$aLang.subscribe_menu} {if $iUserCurrentCountTrack}<span class="badge badge-important">{$iUserCurrentCountTrack}</span>{/if}
               </a>
             </li>
-	
+
         </ul>
 </nav>
 </div>

@@ -1,9 +1,9 @@
 {foreach from=$aReplyWall item=oReplyWall}
 	{assign var="oReplyUser" value=$oReplyWall->getUser()}
 	<div id="wall-reply-item-{$oReplyWall->getId()}" class="js-wall-reply-item wall-item-reply">
-		<a href="{$oReplyUser->getUserWebPath()}"><img src="{$oReplyUser->getAvatarUrl(48)}" alt="avatar" class="avatar" /></a>
+		<a href="{$oReplyUser->getProfileUrl()}"><img src="{$oReplyUser->getAvatarUrl(48)}" alt="avatar" class="avatar" /></a>
 
-		<a href="{$oReplyUser->getUserWebPath()}" class="author">{$oReplyUser->getLogin()}</a> ·
+		<a href="{$oReplyUser->getProfileUrl()}" class="author">{$oReplyUser->getDisplayName()}</a> ·
 		<span class="comment-content text">{$oReplyWall->getText()}</span>
 
 		<ul class="actions">

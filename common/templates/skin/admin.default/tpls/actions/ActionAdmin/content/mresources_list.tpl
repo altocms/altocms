@@ -45,7 +45,7 @@
                             </td>
                             <td class="name">
                                 {if $oUser}
-                                    <a href="{$oUser->getProfileUrl()}">{$oUser->getLogin()}</a>
+                                    <a href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
                                 {/if}
                             </td>
                             <td class="name">

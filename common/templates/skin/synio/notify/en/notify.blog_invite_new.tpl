@@ -1,4 +1,4 @@
-<a href="{$oUserFrom->getUserWebPath()}">{$oUserFrom->getLogin()}</a> invites you
+<a href="{$oUserFrom->getProfileUrl()}">{$oUserFrom->getDisplayName()}</a> invites you
 to join the blog <a href="{$oBlog->getUrlFull()}">"{$oBlog->getTitle()|escape:'html'}"</a>.
 <br />
 <br />

@@ -7,8 +7,8 @@
 		<section class="comment">
 			<ul class="comment-info">
 				<li class="comment-author">
-					<a href="{$oUser->getUserWebPath()}"><img src="{$oUser->getAvatarUrl(24)}" alt="avatar" class="comment-avatar" /></a>
-					<a href="{$oUser->getUserWebPath()}">{$oUser->getLogin()}</a>
+					<a href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl(24)}" alt="avatar" class="comment-avatar" /></a>
+					<a href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
 				</li>
 				<li class="comment-date">
 					<time datetime="{date_format date=$oComment->getDate() format='c'}">{date_format date=$oComment->getDate() hours_back="12" minutes_back="60" now="60" day="day H:i" format="j F Y, H:i"}</time>

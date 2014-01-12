@@ -1,6 +1,6 @@
 <div class="profile">
 	{hook run='profile_top_begin' oUserProfile=$oUserProfile}
-	
+
 	<div class="vote-profile">
 		<div id="vote_area_user_{$oUserProfile->getId()}" class="vote-topic
 																	{if $oUserProfile->getRating() > 0}
@@ -34,7 +34,7 @@
 		</div>
 		<div class="vote-label">{$aLang.user_rating}</div>
 	</div>
-	
+
 	<div class="strength">
 		<div class="count" id="user_skill_{$oUserProfile->getId()}">{$oUserProfile->getSkill()}</div>
 		<div class="vote-label">{$aLang.user_skill}</div>
@@ -44,11 +44,11 @@
 		<a href="{router page='talk'}add/?talk_users={$oUserProfile->getLogin()}"><button type="submit"  class="button button-action button-action-send-message"><i class="icon-synio-send-message"></i><span>{$aLang.user_write_prvmsg}</span></button></a>
 	{/if}
 
-	<h2 class="page-header user-login word-wrap {if !$oUserProfile->getProfileName()}no-user-name{/if}" itemprop="nickname">{$oUserProfile->getLogin()}</h2>
-	
+	<h2 class="page-header user-login word-wrap {if !$oUserProfile->getProfileName()}no-user-name{/if}" itemprop="nickname">{$oUserProfile->getDisplayName()}</h2>
+
 	{if $oUserProfile->getProfileName()}
 		<p class="user-name" itemprop="name">{$oUserProfile->getProfileName()|escape:'html'}</p>
 	{/if}
-	
+
 	{hook run='profile_top_end' oUserProfile=$oUserProfile}
 </div>

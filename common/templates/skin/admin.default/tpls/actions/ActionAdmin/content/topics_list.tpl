@@ -31,7 +31,7 @@
                     <tr>
                         <td class="number">{$oTopic->getId()}</td>
                         <td>
-                            <a href="{router page='admin'}users-list/profile/{$oTopic->getUser()->getId()}/">{$oTopic->getUser()->getLogin()}</a>
+                            <a href="{router page='admin'}users-list/profile/{$oTopic->getUser()->getId()}/">{$oTopic->getUser()->getDisplayName()}</a>
                         </td>
                         <td class="name">
                             <a href="{$oTopic->getUrl()}">{$oTopic->getTitle()}</a>

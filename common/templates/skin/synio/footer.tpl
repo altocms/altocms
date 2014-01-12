@@ -10,8 +10,8 @@
     <footer id="footer">
         {if $oUserCurrent}
             <ul class="footer-list">
-                <li class="footer-list-header word-wrap">{$oUserCurrent->getLogin()}</li>
-                <li><a href="{$oUserCurrent->getUserWebPath()}">{$aLang.footer_menu_user_profile}</a></li>
+                <li class="footer-list-header word-wrap">{$oUserCurrent->getDisplayName()}</li>
+                <li><a href="{$oUserCurrent->getProfileUrl()}">{$aLang.footer_menu_user_profile}</a></li>
                 <li><a href="{router page='settings'}profile/">{$aLang.user_settings}</a></li>
                 <li><a href="{router page='content'}add/" class="js-write-window-show">{$aLang.block_create}</a></li>
                 {hook run='footer_menu_user_item' oUser=$oUserCurrent}

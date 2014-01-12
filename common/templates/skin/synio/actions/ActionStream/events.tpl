@@ -17,12 +17,11 @@
 		{assign var=oUser value=$oStreamEvent->getUser()}
 
 		<li class="stream-item stream-item-type-{$oStreamEvent->getEventType()}">
-			<a href="{$oUser->getUserWebPath()}"><img src="{$oUser->getAvatarUrl(48)}" alt="avatar" class="avatar" /></a>
+			<a href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl(48)}" alt="avatar" class="avatar" /></a>
 			
-			<p class="info"><a href="{$oUser->getUserWebPath()}"><strong>{$oUser->getLogin()}</strong></a> ·
+			<p class="info"><a href="{$oUser->getProfileUrl()}"><strong>{$oUser->getDisplayName()}</strong></a> ·
 			<span class="date" title="{date_format date=$oStreamEvent->getDateAdded()}">{date_format date=$oStreamEvent->getDateAdded() hours_back="12" minutes_back="60" now="60" day="day H:i" format="j F Y, H:i"}</span></p>
 
-		
 			{if $oStreamEvent->getEventType() == 'add_topic'}
 				{if $oUser->getProfileSex() != 'woman'} {$aLang.stream_list_event_add_topic} {else} {$aLang.stream_list_event_add_topic_female} {/if} 
 				<a href="{$oTarget->getUrl()}">{$oTarget->getTitle()|escape:'html'}</a>
@@ -48,8 +47,8 @@
 			{elseif $oStreamEvent->getEventType() == 'vote_user'}
 				{if $oUser->getProfileSex() != 'woman'} {$aLang.stream_list_event_vote_user} {else} {$aLang.stream_list_event_vote_user_female} {/if} 
 				<span class="user-avatar user-avatar-n">
-					<a href="{$oTarget->getUserWebPath()}"><img src="{$oTarget->getAvatarUrl(24)}" alt="avatar" /></a>
-					<a href="{$oTarget->getUserWebPath()}">{$oTarget->getLogin()}</a>
+					<a href="{$oTarget->getProfileUrl()}"><img src="{$oTarget->getAvatarUrl(24)}" alt="avatar" /></a>
+					<a href="{$oTarget->getProfileUrl()}">{$oTarget->getDisplayName()}</a>
 				</span>
 			{elseif $oStreamEvent->getEventType() == 'join_blog'}
 				{if $oUser->getProfileSex() != 'woman'} {$aLang.stream_list_event_join_blog} {else} {$aLang.stream_list_event_join_blog_female} {/if} 
@@ -57,14 +56,14 @@
 			{elseif $oStreamEvent->getEventType() == 'add_friend'}
 				{if $oUser->getProfileSex() != 'woman'} {$aLang.stream_list_event_add_friend} {else} {$aLang.stream_list_event_add_friend_female} {/if}
 				<span class="user-avatar user-avatar-n">
-					<a href="{$oTarget->getUserWebPath()}"><img src="{$oTarget->getAvatarUrl(24)}" alt="avatar" /></a>
-					<a href="{$oTarget->getUserWebPath()}">{$oTarget->getLogin()}</a>
+					<a href="{$oTarget->getProfileUrl()}"><img src="{$oTarget->getAvatarUrl(24)}" alt="avatar" /></a>
+					<a href="{$oTarget->getProfileUrl()}">{$oTarget->getDisplayName()}</a>
 				</span>
 			{elseif $oStreamEvent->getEventType() == 'add_wall'}
 				{if $oUser->getProfileSex() != 'woman'} {$aLang.stream_list_event_add_wall} {else} {$aLang.stream_list_event_add_wall_female} {/if}
 				<span class="user-avatar user-avatar-n">
-					<a href="{$oTarget->getWallUser()->getUserWebPath()}"><img src="{$oTarget->getWallUser()->getAvatarUrl(24)}" alt="avatar" /></a>
-					<a href="{$oTarget->getUrlWall()}">{$oTarget->getWallUser()->getLogin()}</a>
+					<a href="{$oTarget->getWallUser()->getProfileUrl()}"><img src="{$oTarget->getWallUser()->getAvatarUrl(24)}" alt="avatar" /></a>
+					<a href="{$oTarget->getUrlWall()}">{$oTarget->getWallUser()->getDisplayName()}</a>
 				</span>
 				{assign var=sTextEvent value=$oTarget->getText()|strip_tags|truncate:200}
 				{if trim($sTextEvent)}
@@ -75,7 +74,6 @@
 			{/if}
 		</li>
 	{/foreach}
-
 
 	<script type="text/javascript">
 		jQuery(document).ready(function($){

@@ -38,7 +38,7 @@
 								{/foreach}
 								{foreach from=$aTalkUserOther item=oTalkUser name=users}
 									{assign var="oUser" value=$oTalkUser->getUser()}
-									{if !$smarty.foreach.users.first}, {/if}<a href="{$oUser->getUserWebPath()}" class="username {if $oTalkUser->getUserActive()!=$TALK_USER_ACTIVE}inactive{/if}">{$oUser->getLogin()}</a>
+									{if !$smarty.foreach.users.first}, {/if}<a href="{$oUser->getProfileUrl()}" class="username {if $oTalkUser->getUserActive()!=$TALK_USER_ACTIVE}inactive{/if}">{$oUser->getDisplayName()}</a>
 								{/foreach}
 							{/strip}
 						</td>
