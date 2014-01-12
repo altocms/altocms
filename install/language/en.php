@@ -80,7 +80,7 @@ return array(
     'db_params_convert'                => 'Convert DB LiveStreet 0.5.1 to 1.0.3',
     'db_params_convert_from_10'        => 'Convert DB LiveStreet 1.0 to 1.0.3',
     'db_params_convert_to_alto'        => 'Convert DB LiveStreet 1.0.3 to Alto CMS 1.0',
-	'db_params_convert_from_alto_097'  => 'Convert DB Alto CMS 0.9.7 в Alto CMS 1.0',
+    'db_params_convert_from_alto_097'  => 'Convert DB Alto CMS 0.9.7 to Alto CMS 1.0',
     'db_params_user'                   => 'Username',
     'db_params_password'               => 'Password',
     'db_params_prefix'                 => "Table's prefix",
@@ -89,7 +89,7 @@ return array(
     'db_params_engine_notice'          => 'InnoDB is recommended',
 
     'error_table_select'               => 'Query error whilst getting data from %%table%%',
-    'error_database_converted_already' => 'DB structure suits v. 1.0.3 hence conversion aborted',
+    'error_database_converted_already' => 'DB structure suits v. 1.0 hence conversion aborted',
 
     'admin_params'                     => 'Administrator Details Configuration',
     'admin_params_login'               => 'Login',
