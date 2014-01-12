@@ -50,7 +50,7 @@
                             </td>
                             <td class="center">{$oBlog->GetBlogDateAdd()}</td>
                             <td class="center">
-                                {$oBlog->GetBlogType()->GetName()}<br/>
+                                {if $oBlog->GetBlogType()}{$oBlog->GetBlogType()->GetName()}{/if}<br/>
                                 {if $oBlog->GetType()!='personal'}
                                 <b>{/if}{$oBlog->GetType()}{if $oBlog->GetType()!='personal'}</b>{/if}
                             </td>
