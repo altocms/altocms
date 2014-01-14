@@ -29,9 +29,9 @@
             <label class="control-label">{$aLang.action.admin.set_view_img_resize_width}</label>
 
             <div class="controls">
-                <div class="input-append">
+                <div class="input-group">
                     <input type="text" name="view--img_resize_width" value="{Config::Get('view.img_resize_width')}" />
-                    <span class="add-on">px</span>
+                    <span class="input-group-addon">px</span>
                 </div>
             </div>
         </div>
@@ -40,9 +40,9 @@
             <label class="control-label">{$aLang.action.admin.set_view_img_max_width}</label>
 
             <div class="controls">
-                <div class="input-append">
+                <div class="input-group">
                     <input type="text" name="view--img_max_width" value="{Config::Get('view.img_max_width')}" />
-                    <span class="add-on">px</span>
+                    <span class="input-group-addon">px</span>
                 </div>
             </div>
         </div>
@@ -51,9 +51,9 @@
             <label class="control-label">{$aLang.action.admin.set_view_img_max_height}</label>
 
             <div class="controls">
-                <div class="input-append">
+                <div class="input-group">
                     <input type="text" name="view--img_max_height" value="{Config::Get('view.img_max_height')}" />
-                    <span class="add-on">px</span>
+                    <span class="input-group-addon">px</span>
                 </div>
             </div>
         </div>
@@ -62,9 +62,9 @@
             <label class="control-label">{$aLang.action.admin.set_topic_max_height}</label>
 
             <div class="controls">
-                <div class="input-append">
+                <div class="input-group">
                     <input type="text" name="module--topic--max_length" value="{Config::Get('module.topic.max_length')}" />
-                    <span class="add-on"></span>
+                    <span class="input-group-addon"></span>
                 </div>
             </div>
         </div>
@@ -91,9 +91,9 @@
                     <input type="radio" name="edit_comment" value="on" {if $nCommentEditTime}checked{/if}/>
                     {$aLang.action.admin.set_edit_comment_enabled}
 					
-                    <div class="input-append">
+                    <div class="input-group">
                         <input type="text" name="edit_comment_time" value="{$nCommentEditTime}" style="width: 40px;" />
-                    <div class="btn-group dropup">
+                    <div class="btn-group">
                         <a href="#" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="content">{$sCommentEditUnit}</span> <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             {foreach $aTimeUnits as $sUnit}

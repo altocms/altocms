@@ -28,9 +28,9 @@
                     </select>
                 {else}
                     {if $aItem.suffix}
-                        <div class="input-append">
+                        <div class="input-group">
                             <input type="text" name="{$aItem.config}" value="{$aItem.value}" />
-                            <span class="add-on">{$aItem.suffix}</span>
+                            <span class="input-group-addon">{$aItem.suffix}</span>
                         </div>
                     {else}
                         <input type="{$aItem.type}" name="{$aItem.config}" value="{$aItem.value}"/>

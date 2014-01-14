@@ -271,7 +271,7 @@ td.check-row input[type=checkbox] {
 .sidebar .well input[type=radio] {
     margin: 0;
 }
-.sidebar .well .input-prepend .add-on {
+.sidebar .well .input-prepend .input-group-addon {
     font-weight: bold;
 }
 .sidebar .well .input-prepend input.wide {
