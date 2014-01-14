@@ -50,7 +50,7 @@
                             <label for="user_login">{$aLang.action.admin.user_login}</label>
 
                             <div class="input-prepend">
-                                <span class="add-on"><i class="icon icon-user"></i></span><input type="text"
+                                <span class="input-group-addon"><i class="icon icon-user"></i></span><input type="text"
                                                                                             name="user_login"
                                                                                             id="user_login"
                                                                                             value="{$sUserFilterLogin}"

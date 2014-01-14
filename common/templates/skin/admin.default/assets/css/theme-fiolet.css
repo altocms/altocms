@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------
-	FIOLENT
+	FIOLET
 ------------------------------------------------------------------- */
 
 @import url(http://fonts.googleapis.com/css?family=Open+Sans:600italic,700italic,600,700&subset=latin,cyrillic);
@@ -61,18 +61,4 @@ div.dataTables_wrapper .ui-widget-header {
 .b-wbox-header label.checked {
 	color: #E40084;
 	text-shadow: 0 1px 0 #333;
-}
-
-#breadcrumb,
-#breadcrumb a,
-#breadcrumb a:hover,
-#breadcrumb a.current{
-	background-color: #E40084;
-	color: #fff;
-	border-color: #E40084;
-	text-shadow: 0 1px 0 #E40084;
-}
-
-#breadcrumb a {
-	background-image: url(../img/breadcrumb-white.png);
 }

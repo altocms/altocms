@@ -64,23 +64,8 @@ div.dataTables_wrapper .ui-widget-header {
 .b-wbox-header .close,
 .b-wbox-header-title {
 	color: #fff;
-	text-shadow: 0 1px 0 #222;
 }
 
 .b-wbox-header label.checked {
-	color: #1392A5;text-shadow: 0 1px 0 #333;
-}
-
-#breadcrumb,
-#breadcrumb a,
-#breadcrumb a:hover,
-#breadcrumb a.current{
-	background-color: #1392A5;
-	color: #fff;
-	border-color: #137F8F;
-	text-shadow: 0 1px 0 #137F8F;
-}
-
-#breadcrumb a {
-	background-image: url(../img/breadcrumb-white.png);
+	color: #1392A5;
 }

@@ -21,8 +21,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
 
 	{$aHtmlHeadFiles.css}
-
-    <link href="{Config::Get('path.static.skin')}assets/img/favicon.ico?v1" rel="shortcut icon"/>
+	
+    <link href="{Config::Get('path.static.skin')}assets/img/favicon.ico?v0.9" rel="shortcut icon"/>
     <link rel="search" type="application/opensearchdescription+xml" href="{router page='search'}opensearch/"
           title="{Config::Get('view.name')}"/>
 
@@ -72,6 +72,15 @@
 
 {$aHtmlHeadFiles.js}
 
+	<script>  
+	(function($) {  
+	$(function() {  
+	  
+	  $('input, select').styler();  
+	  
+	})  
+	})(jQuery)  
+	</script>  
 
     <script type="text/javascript">
         var tinyMCE = false;
@@ -96,6 +105,7 @@
       </button>
     </div>
 <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+		
         <ul class="nav navbar-nav navbar-right">
 			<li class="dropdown">
 			<a data-toggle="dropdown" class="dropdown-toggle" href="#">
@@ -112,10 +122,6 @@
         </ul>
 
         <ul class="nav navbar-nav navbar-right">
-			<li>
-			<a href="/"><i class="icon icon-home"></i> {$aLang.action.admin.goto_site}</a></li>
-			<li>
-
             <li>
               <a href="#" data-toggle="dropdown">
                 <i class="icon icon-send"></i> Онлайн <span class="badge badge-success">178</span> 
@@ -139,6 +145,12 @@
             </li>
 
         </ul>
+		
+		<ul class="nav navbar-nav navbar-right goto-site">
+			<li>
+			<a href="/"><i class="icon icon-home"></i> {$aLang.action.admin.goto_site}</a></li>
+			<li>
+		</ul>
 </nav>
 </div>
 

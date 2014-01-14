@@ -126,7 +126,7 @@
                         <label for="user_filter_login">{$aLang.action.admin.user_login}</label>
 
                         <div class="input-prepend">
-                            <span class="add-on"><i class="icon icon-user"></i></span><input type="text"
+                            <span class="input-group-addon"><i class="icon icon-user"></i></span><input type="text"
                                                                                         name="user_filter_login"
                                                                                         id="user_filter_login"
                                                                                         value="{$aFilter.login}"
@@ -138,7 +138,7 @@
                         <label for="user_filter_email">{$aLang.action.admin.user_email}</label>
 
                         <div class="input-prepend">
-                            <span class="add-on">@</span><input type="text" name="user_filter_email"
+                            <span class="input-group-addon">@</span><input type="text" name="user_filter_email"
                                                                 id="user_filter_email"
                                                                 value="{$aFilter.email}" maxlength="64"
                                                                 class="span10"/>
@@ -150,7 +150,7 @@
                         <label for="user_filter_regdate">{$aLang.action.admin.users_date_reg}</label>
 
                         <div class="input-prepend">
-                            <span class="add-on"><i class="icon icon-calendar"></i></span><input type="text"
+                            <span class="input-group-addon"><i class="icon icon-calendar"></i></span><input type="text"
                                                                                             name="user_filter_regdate"
                                                                                             id="user_filter_regdate"
                                                                                             value="{$aFilter.regdate}"
@@ -288,7 +288,7 @@
                             <label for="user_login_admin">{$aLang.action.admin.user_login}</label>
 
                             <div class="input-prepend">
-                                <span class="add-on"><i class="icon icon-user"></i></span><input type="text" name="user_login_admin"
+                                <span class="input-group-addon"><i class="icon icon-user"></i></span><input type="text" name="user_login_admin"
                                                                                             id="user_login_admin"
                                                                                             class="wide users_list autocomplete-users-sep"/>
                             </div>

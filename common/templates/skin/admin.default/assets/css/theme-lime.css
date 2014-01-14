@@ -61,18 +61,3 @@ div.dataTables_wrapper .ui-widget-header {
 	color: #72b8a6;
 	text-shadow: 0 1px 0 #333;
 }
-
-#breadcrumb,
-#breadcrumb a,
-#breadcrumb a:hover,
-#breadcrumb a.current{
-	background-color: #72b8a6;
-	color: #fff;
-	border-color: #72b8a6;
-	text-shadow: 0 1px 0 #72b8a6;
-}
-
-#breadcrumb a {
-	background-image: url(../img/breadcrumb-white.png);
-}
-
