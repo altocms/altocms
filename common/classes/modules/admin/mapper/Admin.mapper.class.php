@@ -241,7 +241,7 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         if ($aInsert) {
             $sql = "INSERT INTO ?_storage(?#) VALUES(?a)";
             // multi insert
-            $this->oDb->query($sql, array_keys($aData[0]), array_values($aData));
+            $this->oDb->query($sql, array_keys($aInsert[0]), array_values($aInsert));
         }
         if ($aUpdate) {
             $sql = "UPDATE ?_storage SET storage_val=? WHERE storage_key=?";
