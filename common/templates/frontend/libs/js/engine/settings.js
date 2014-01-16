@@ -69,6 +69,7 @@ ls.settings = (function ($) {
         theme:              'modern',
         content_css: '/common/templates/frontend/libs/js/vendor/tinymce_4.0.5/plugins/altoimage/css/style.css,/common/templates/skin/native/assets/css/tinymce.css',
         menubar: false,
+        relative_urls : false,
         toolbar: "undo redo | styleselect | bold italic strikethrough underline blockquote | alignleft aligncenter alignright | bullist numlist table | link unlink | altoimage media | code | cut ",
         toolbar_items_size: 'small',
         image_advtab: false,

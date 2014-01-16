@@ -1011,7 +1011,7 @@ class Router extends LsObject {
      */
     static public function GetUserUrlMask($bEmptyIfWrong = true) {
 
-        $sUrlMask = Config::Get('module.user.profile_url');
+        $sUrlMask = ''; //Config::Get('module.user.profile_url');
         if ($bEmptyIfWrong && (strpos($sUrlMask, '%user_id%') === false) && (strpos($sUrlMask, '%login%') === false)) {
             // В маске обязательно должны быть либо '%user_id%', либо '%login%'
             $sUrlMask = '';

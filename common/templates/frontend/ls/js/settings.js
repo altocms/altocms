@@ -65,6 +65,8 @@ ls.settings = (function ($) {
                 editor_selector:    'js-editor-wysiwyg',
                 theme:              'modern',
                 //content_css:        'plugins/altoimage/css/style.css',
+                //relative_urls: false,
+                relative_urls : false,
                 menubar: false,
                 toolbar: "styleselect | bold italic strikethrough underline blockquote | alignleft aligncenter alignright | bullist numlist table | link unlink | altoimage media | code | cut ",
                 toolbar_items_size: 'small',

@@ -125,7 +125,7 @@ abstract class Action extends LsObject {
      */
     protected function AddEvent($sEventName, $sEventFunction) {
 
-        $this->AddEventPreg("/^{$sEventName}$/i", $sEventFunction);
+        $this->AddEventPreg('/^' . preg_quote($sEventName) . '$/i', $sEventFunction);
     }
 
     /**
