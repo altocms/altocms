@@ -1450,6 +1450,11 @@ class ActionBlog extends Action {
             return;
         }
 
+        if (!$oComment->getEditTime()) {
+            $this->Message_AddErrorSingle($this->Lang_Get('comment_edit_timeout'), $this->Lang_Get('error'));
+            return;
+        }
+
         // Если все нормально, то обновляем текст
         $oComment->setText($sNewText);
         if ($this->Comment_UpdateComment($oComment)) {

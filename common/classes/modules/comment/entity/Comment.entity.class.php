@@ -477,18 +477,38 @@ class ModuleComment_EntityComment extends Entity {
     /**
      * Сколько секунд осталось до конца редактирования
      *
+     * @param bool $bFormat
+     *
      * @return int
      */
-    public function getEditTime() {
+    public function getEditTime($bFormat = false) {
 
-        if (Config::Get('module.comment.edit.enable') && ($oUser = E::User())
-            && ($oUser->getId() == $this->getUserId())
-        ) {
+        if (Config::Get('module.comment.edit.enable') && ($oUser = E::User()) && ($oUser->getId() == $this->getUserId())) {
             $sDateTime = F::DateTimeAdd($this->GetCommentDate(), Config::Get('module.comment.edit.enable'));
             $sNow = date('Y-m-d H:i:s');
             if ($sNow < $sDateTime) {
                 $nRest = F::DateDiffSeconds($sNow, $sDateTime);
-                return $nRest;
+                if (!$bFormat) {
+                    return $nRest;
+                }
+                if ($nRest < 60) {
+                    return sprintf('%2d sec', $nRest);
+                }
+                $nS = $nRest % 60;
+                $nM = ($nRest - $nS) / 60;
+                if ($nM < 60) {
+                    return sprintf('%2d:%02d', $nM, $nS);
+                }
+                $nRest = $nM;
+                $nM = $nRest % 60;
+                $nH = ($nRest - $nM) / 60;
+                if ($nH < 24) {
+                    return sprintf('%2d:%02d:%02d', $nH, $nM, $nS);
+                }
+                $nRest = $nH;
+                $nH = $nRest % 24;
+                $nD = ($nRest - $nH) / 24;
+                return sprintf('%3d, %2d:%02d:%02d', $nD, $nH, $nM, $nS);
             }
         }
         return 0;

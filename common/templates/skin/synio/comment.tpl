@@ -100,14 +100,14 @@
                     {/if}
                 {/if}
 
-                {if $oComment->isEditable()}
+                {if $oComment->isEditable() AND ($oComment->getEditTime() OR E::IsAdmin())}
                     <li class="comment-edit">
                         <a href="#"
                            class="link-dotted"
                            onclick="ls.comments.editComment('{$oComment->getId()}', '{$oComment->getTargetType()}', '{$oComment->getTargetId()}'); return false;">
                             {$aLang.comment_edit}
                             {if Config::Get('module.comment.edit.rest_time') AND $oComment->getEditTime()}
-                            (<span class="comment-edit-time-rest">{$oComment->getEditTime()}</span>)
+                            (<span class="comment-edit-time-rest">{$oComment->getEditTime(true)}</span>)
                             <span class="comment-edit-time-remainder" style="display: none;">{$oComment->getEditTime()}</span>
                             {/if}
                         </a>

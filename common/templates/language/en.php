@@ -405,6 +405,7 @@ return array(
     'comment_edit_notice'                       => 'Edit comment',
     'comment_updated'                           => 'Comment updated',
     'comment_cannot_edit'                       => 'You cannot edit comment',
+    'comment_edit_timeout'                      => 'Time for comment editing is over',
 
     'comment_unregistered'                      => 'Only registered users can comment.',
     'comment_whatch'                            => 'Track comments',

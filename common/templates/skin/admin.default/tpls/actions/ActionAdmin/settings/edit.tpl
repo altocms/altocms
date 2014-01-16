@@ -90,7 +90,7 @@
                 <label {if $nCommentEditTime}class="checked"{/if}>
                     <input type="radio" name="edit_comment" value="on" {if $nCommentEditTime}checked{/if}/>
                     {$aLang.action.admin.set_edit_comment_enabled}
-					
+
                     <div class="input-group">
                         <input type="text" name="edit_comment_time" value="{$nCommentEditTime}" style="width: 40px;" />
                     <div class="btn-group">
@@ -101,8 +101,8 @@
                             {/foreach}
                         </ul>
                     </div>
-					</div>
-                    <input type="hidden" name="edit_comment_unit">
+                    </div>
+                    <input type="hidden" name="edit_comment_unit" value="{$sCommentEditUnit}">
                 </label>
             </div>
         </div>
