@@ -266,9 +266,12 @@ class Config extends Storage {
             }
         } else {
             if ($bClearLevel) {
-                $this->_clearLevel($nLevel);
-            } else {
-                $this->SetConfig(array(), false, null, $this->nLevel);
+                $aConfig = $this->GetConfig(null, $nLevel-1);
+                if ($aConfig) {
+                    $this->SetConfig($aConfig, true, null, $nLevel);
+                } else {
+                    $this->SetConfig(array(), true, null, $nLevel);
+                }
             }
         }
         $this->nLevel = $nLevel;
