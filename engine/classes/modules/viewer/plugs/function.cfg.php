@@ -36,10 +36,14 @@ function smarty_function_cfg($aParams, $oSmartyTemplate) {
         $aParams['default'] = null;
     }
 
+    if (!isset($aParams['level'])) {
+        $aParams['level'] = null;
+    }
+
     /**
      * Возвращаем значение из конфигурации
      */
-    $xResult = Config::Get($aParams['name'], $aParams['instance']);
+    $xResult = Config::Get($aParams['name'], $aParams['instance'], $aParams['level']);
     return is_null($xResult) ? $aParams['default'] : $xResult;
 }
 
