@@ -81,7 +81,7 @@ class UserLocale {
             // Set locale
             if (isset($aParam['locale']) AND $aParam['locale'])
                 self::$aLocales[$sLang]['locale'] = $aParam['locale'];
-            self::setLocaleSys(LC_ALL, self::$aLocales[$sLang]['locale']);
+            self::setLocaleSys(self::$aLocales[$sLang]['locale']);
             // Set timezone
             if (isset($aParam['timezone']) AND $aParam['timezone'])
                 self::$aLocales[$sLang]['timezone'] = $aParam['timezone'];
