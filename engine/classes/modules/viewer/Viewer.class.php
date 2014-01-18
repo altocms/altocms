@@ -326,6 +326,9 @@ class ModuleViewer extends Module {
             }
         }
 
+        // * Получаем настройки JS-, CSS-файлов
+        $this->InitFileParams();
+
         // * Загружаем локализованные тексты
         $this->Assign('aLang', $this->Lang_GetLangMsg());
         $this->Assign('oLang', $this->Lang_Dictionary());
@@ -336,9 +339,6 @@ class ModuleViewer extends Module {
                 $this->Assign($sKey, $sVal);
             }
         }
-
-        // * Получаем настройки JS-, CSS-файлов
-        $this->InitFileParams();
     }
 
     /**
