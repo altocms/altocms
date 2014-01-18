@@ -1,7 +1,7 @@
 {extends file='_index.tpl'}
 
 {block name="content-bar"}
-    <div class="btn-group span6">
+    <div class="btn-group span6 span12">
         <a href="{router page="admin"}{$sEvent}/all/" class="btn btn-default {if $sMode=='all'}active{/if}">All</a>
         <a href="{router page="admin"}{$sEvent}/adm/" class="btn btn-default {if $sMode=='adm'}active{/if}">Admin</a>
         <a href="{router page="admin"}{$sEvent}/site/" class="btn btn-default {if $sMode=='site'}active{/if}">Site</a>
@@ -9,7 +9,7 @@
 {/block}
 
 {block name="content-body"}
-
+<div class="row-fluid">
     {if $oActiveSkin}
         <div class="span6">
 
@@ -91,6 +91,7 @@
             </div>
         </div>
     {/if}
+</div>
     <div class="span12">
         <div class="b-wbox">
             <div class="b-wbox-header">

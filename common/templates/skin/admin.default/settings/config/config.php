@@ -12,15 +12,16 @@ $config['head']['default']['css'] = array(
     '___path.frontend.dir___/libs/js/vendor/prettify/prettify.css',
     '___path.skin.dir___/assets/css/jquery-ui.css',
     '___path.skin.dir___/assets/css/jquery-notifier.css',
-    '___path.skin.dir___/assets/css/jquery-modals.css',
-    '___path.skin.dir___/assets/css/jquery.formstyler.css',
-
+	
     '___path.skin.dir___/assets/css/bootstrap.min.css',
     '___path.skin.dir___/assets/css/datepicker.css',
     '___path.skin.dir___/assets/css/fullcalendar.css',
-    '___path.skin.dir___/assets/css/modals.css',
-    '___path.skin.dir___/assets/css/base.css',
-    '___path.skin.dir___/assets/css/admin.css',
+    '___path.skin.dir___/assets/css/jquery-modals.css',
+    '___path.skin.dir___/assets/css/main-modals.css',
+    '___path.skin.dir___/assets/css/main-admin.css',
+
+    '___path.skin.dir___/assets/css/main.css',
+    '___path.skin.dir___/assets/css/main-forms.css',
     '___path.skin.dir___/assets/css/theme.css',
 );
 

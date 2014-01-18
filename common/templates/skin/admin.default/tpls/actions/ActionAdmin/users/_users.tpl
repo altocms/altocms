@@ -125,7 +125,7 @@
                     <div class="control-group {if $aFilter.login}success{/if}">
                         <label for="user_filter_login">{$aLang.action.admin.user_login}</label>
 
-                        <div class="input-prepend">
+                        <div class="input-group">
                             <span class="input-group-addon"><i class="icon icon-user"></i></span><input type="text"
                                                                                         name="user_filter_login"
                                                                                         id="user_filter_login"
@@ -137,7 +137,7 @@
                     <div class="control-group {if $aFilter.email}success{/if}">
                         <label for="user_filter_email">{$aLang.action.admin.user_email}</label>
 
-                        <div class="input-prepend">
+                        <div class="input-group">
                             <span class="input-group-addon">@</span><input type="text" name="user_filter_email"
                                                                 id="user_filter_email"
                                                                 value="{$aFilter.email}" maxlength="64"
@@ -149,7 +149,7 @@
                     <div class="control-group {if $aFilter.regdate}success{/if}">
                         <label for="user_filter_regdate">{$aLang.action.admin.users_date_reg}</label>
 
-                        <div class="input-prepend">
+                        <div class="input-group">
                             <span class="input-group-addon"><i class="icon icon-calendar"></i></span><input type="text"
                                                                                             name="user_filter_regdate"
                                                                                             id="user_filter_regdate"
@@ -287,7 +287,7 @@
                         <div class="row control-group">
                             <label for="user_login_admin">{$aLang.action.admin.user_login}</label>
 
-                            <div class="input-prepend">
+                            <div class="input-group">
                                 <span class="input-group-addon"><i class="icon icon-user"></i></span><input type="text" name="user_login_admin"
                                                                                             id="user_login_admin"
                                                                                             class="wide users_list autocomplete-users-sep"/>

@@ -2,7 +2,7 @@
 
 {block name="sysmessage"}
     {if !$noShowSystemMessage AND ($aMsgError OR $aMsgNotice)}
-    <div class="row-fluid" style="height: 1px;">
+    <div class="row-fluid">
         <div class="span12">
             {if $aMsgError}
                 {foreach from=$aMsgError item=aMsg}

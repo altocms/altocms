@@ -4,7 +4,6 @@
     <div class="b-wbox-header">
         <div class="b-wbox-header-title">{$aLang.action.admin.set_section_edit}</div>
     </div>
-    <div class="b-wbox-content">
         <div class="control-group">
             <label class="control-label">{$aLang.action.admin.set_view_wysiwyg}</label>
 
@@ -91,9 +90,10 @@
                     <input type="radio" name="edit_comment" value="on" {if $nCommentEditTime}checked{/if}/>
                     {$aLang.action.admin.set_edit_comment_enabled}
 
+					<div class="input-group-inline">
                     <div class="input-group">
-                        <input type="text" name="edit_comment_time" value="{$nCommentEditTime}" style="width: 40px;" />
-                    <div class="btn-group">
+                    <input type="text" name="edit_comment_time" value="{$nCommentEditTime}" />
+                    <div class="input-group-btn">
                         <a href="#" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="content">{$sCommentEditUnit}</span> <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             {foreach $aTimeUnits as $sUnit}
@@ -101,13 +101,12 @@
                             {/foreach}
                         </ul>
                     </div>
-                    </div>
+					</div>
+					</div>
                     <input type="hidden" name="edit_comment_unit" value="{$sCommentEditUnit}">
                 </label>
             </div>
         </div>
-
-    </div>
 
 <script>
     var admin = admin || { };

@@ -6,17 +6,19 @@
     display: none;
     
     position: fixed;
+    top: 25%;
     left: 50%;
     
     width: 300px;
-	margin-left: -150px;
+    margin-left: -150px;
+	
     color: #333;
-    top: 5%;
-    bottom: auto;
     background-color: #fbfcfc;
+	border-radius: 10px;
 	-webkit-box-shadow: 0 0 15px rgba(0,0,0,.5); box-shadow: 0 0 15px rgba(0,0,0,.5);
 	overflow: hidden;
 }
+.modal .modal-header 		{ padding: 15px 15px 0; }
 .modal .modal-header h3 	{ font-size: 20px; font-weight: bold; margin-right: 20px; }
 .modal .modal-content 		{ padding: 30px 30px; }
 .modal .modal-content input[type=text] { width: 95%; }

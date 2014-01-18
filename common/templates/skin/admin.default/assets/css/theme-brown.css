@@ -1,28 +1,12 @@
 /* -------------------------------------------------------------------
 	BROWN
 ------------------------------------------------------------------- */
-@import url(http://fonts.googleapis.com/css?family=Open+Sans:600italic,700italic,600,700&subset=latin,cyrillic);
-
-body, div,
-h1,h2,h3,h4,h5,h6,
-.h1,.h2,.h3,.h4,.h5,.h6
-{ font-family: "Open Sans"!important; font-weight: 300; }
-.menu-left li a
-{ font-family: "Open Sans"!important; }
-
-.dropdown-menu,
-.btn,
-.menu-left li a 
-{ font-size: 12px!important; }
-
-.container {
-	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgAAAABCAIAAACKQiY8AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAABZJREFUeNpiNDY2ZhgFo2AUUAYAAgwA/BAAm55y2WIAAAAASUVORK5CYII=) 0px 100% repeat-y #F5F5F5;
-}
 
 .logo span {
 	background: url(../img/logo-brown-flat.png);
 }
 
+.container:before,
 .badge, .btn-default .badge,
 .b-page-stats,
 .navbar-inverse .navbar-nav>.open>a,
@@ -34,10 +18,9 @@ body
 { background:#333; }
 
 .site-search input
-{ background: #222; border: 1px solid rgba(0, 0, 0, 0); }
+{ background: #222; }
 
-.b-page-stats,
-.menu-left li
+.b-page-stats, .menu-left li
 { border-top: 1px solid #3D3D3D; }
 
 .menu-left li .active,
@@ -47,18 +30,9 @@ body
 .navbar-inverse
 { background-color:#599C71!important; }
 
+.b-modal-header,
 .b-wbox-header,
 .modal-header,
 .table th,
 div.dataTables_wrapper .ui-widget-header {
-	background-color: #599C71;
-	color: #fff;
-	border-color: #F5F5F5;
-}
-
-.b-wbox-header label.checked {
-	color: #599C71;
-}
-
-.btn-primary 					{ color: #FFF; background-color: #A3ABB1; border-color: #999; }
-.btn-primary:hover  			{ background-color: #929BA1; border-color: #777; }
+background-color: #599C71; color: #fff; border-color: #F5F5F5; }

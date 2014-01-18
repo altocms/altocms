@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------
-	RED
+	Darkgreen
 ------------------------------------------------------------------- */
 
 @import url(http://fonts.googleapis.com/css?family=Ubuntu:300,400,700,300italic,400italic,700italic&subset=latin,cyrillic);
@@ -28,7 +28,7 @@ div.dataTables_wrapper .ui-widget-header,
 .btn,.b-page-stats,
 .b-content-header-title 	 { font-weight: 300; }
 .input-group-btn .btn 		 { padding-bottom: 7px; }
-.navbar-inverse 			 { border-bottom: 2px solid #612424; }
+.navbar-inverse 			 { border-bottom: 2px solid #0B4732; }
 
 .menu-left li 				 { border-top: 1px solid rgba(255, 255, 255, 0.05); border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
 .menu-left ul 						  { position: relative;}
@@ -37,7 +37,7 @@ div.dataTables_wrapper .ui-widget-header,
 
 
 .logo span {
-	background: url(../img/logo-red-flat.png);
+	background: url(../img/logo-square.png);
 }
 
 .container:before,
@@ -48,11 +48,10 @@ div.dataTables_wrapper .ui-widget-header,
 .navbar-inverse .navbar-nav>.open>a:focus,
 .dropdown-menu,
 .b-sidebar,
-body 						{ background:#3A3B40; }
+body 						{ background:#232323; }
+
 .menu-left li .active,
 .menu-left li a:hover,
 .dropdown-menu>li>a:hover,
 .dropdown-menu>li>a:focus,
-.navbar-inverse 			{ background-color:#9C3D3D!important; }
-
-.site-search input 			{ background: #2C2D31; border: 1px solid #2C2D31; }
+.navbar-inverse 			{ background-color:#1B7D5B!important; }
