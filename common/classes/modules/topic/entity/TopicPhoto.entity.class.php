@@ -102,11 +102,20 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
                         } else {
                             $sResizedUrl = $sUrl . '-' . $nSize . 'x' . $nSize . '.' . $aPathInfo['extension'];
                         }
+                        if (Config::Get('module.image.autoresize')) {
+                            $sFile = $this->Uploader_Url2Dir($sResizedUrl);
+                            if (!F::File_Exists($sFile)) {
+                                $this->Img_Duplicate($sFile);
+                            }
+                        }
                     }
+                }
+                if ($sResizedUrl) {
+                    $sUrl = F::File_NormPath($sResizedUrl);
                 }
             }
         }
-        return F::File_NormPath($sResizedUrl ? $sResizedUrl : $sUrl);
+        return $sUrl;
     }
 
     /**
