@@ -36,6 +36,7 @@ class PluginLs extends Plugin {
             'ModuleViewer',
             'ModuleWidget',
             'ModuleSecurity',
+            'ModuleImage',
         ),
         'action' => array(
             'ActionSettings',

@@ -63,6 +63,11 @@ class ModuleMresource_EntityMresource extends Entity {
         return $this->IsType(ModuleMresource::TYPE_IMAGE);
     }
 
+    /**
+     * Checks if resource can be deleted
+     *
+     * @return bool
+     */
     public function CanDelete() {
 
         return (bool)$this->getProp('candelete');
@@ -133,7 +138,7 @@ class ModuleMresource_EntityMresource extends Entity {
     /**
      * Returns ID of media resource
      *
-     * @return mixed|null
+     * @return string|null
      */
     public function GetId() {
 
@@ -143,7 +148,7 @@ class ModuleMresource_EntityMresource extends Entity {
     /**
      * Returns full url to media resource
      *
-     * @return mixed
+     * @return string
      */
     public function GetUrl() {
 
@@ -157,7 +162,7 @@ class ModuleMresource_EntityMresource extends Entity {
     /**
      * Returns full dir path to media resource
      *
-     * @return mixed
+     * @return string
      */
     public function GetFile() {
 
@@ -168,6 +173,11 @@ class ModuleMresource_EntityMresource extends Entity {
         return $sPathFile;
     }
 
+    /**
+     * Returns uniq ID of mresource
+     *
+     * @return string
+     */
     public function GetUuid() {
 
         $sResult = $this->getProp('uuid');
@@ -182,6 +192,11 @@ class ModuleMresource_EntityMresource extends Entity {
         return $sResult;
     }
 
+    /**
+     * Returns storage name and uniq ID of mresource
+     *
+     * @return string
+     */
     public function GetStorageUuid() {
 
         return '[' . $this->getStorage() . ']' . $this->GetUuid();
@@ -206,11 +221,76 @@ class ModuleMresource_EntityMresource extends Entity {
         $this->SetHashFile($sHashFile);
     }
 
+    /**
+     * Returns hash of mresoutce
+     *
+     * @return string
+     */
     public function GetHash() {
 
         return $this->GetHashUrl();
     }
 
+    /**
+     * Checks if mresource local image and its derived from another image
+     *
+     * @return bool
+     */
+    public function isDerivedImage() {
+
+        return $this->GetHash() !== $this->GetOriginalHash();
+    }
+
+    /**
+     * Returns original image path (if mresoutce is local image)
+     *
+     * @return string
+     */
+    public function GetOriginalPathUrl() {
+
+        $sPropKey = '-original-url';
+        if (!$this->isProp($sPropKey)) {
+            $sUrl = $this->GetPathUrl();
+            if (!$this->IsLink() && $this->IsImage() && $sUrl) {
+                $aOptions = array();
+                $sOriginal = $this->Img_OriginalFile($sUrl, $aOptions);
+                if ($sOriginal !== $sUrl) {
+                    $sUrl = $sOriginal;
+                }
+            }
+            $this->setProp($sPropKey, $sUrl);
+        }
+        return $this->getProp($sPropKey);
+    }
+
+    /**
+     * Returns hash of original local image
+     * If mresource isn't a local image then returns ordinary hash
+     *
+     * @return string
+     */
+    public function GetOriginalHash() {
+
+        $sPropKey = '-original-hash';
+        if (!$this->isProp($sPropKey)) {
+            $sHash = $this->GetHash();
+            if (($sPathUrl = $this->GetPathUrl()) && ($sOriginalUrl = $this->GetOriginalPathUrl())) {
+                if ($sOriginalUrl !== $sPathUrl) {
+                    $sHash = $this->Mresource_CalcUrlHash($sOriginalUrl);
+                }
+            }
+            $this->setProp($sPropKey, $sHash);
+        }
+        return $this->getProp($sPropKey);
+    }
+
+    /**
+     * Returns image URL with requested size
+     *
+     * @param $xSize
+     *
+     * @return string
+     */
     public function GetImgUrl($xSize) {
 
         $sPropKey = '-img-url-' . $xSize;
@@ -251,6 +331,11 @@ class ModuleMresource_EntityMresource extends Entity {
         return $sUrl;
     }
 
+    /**
+     * Check if current mresource exists in storage
+     *
+     * @return bool
+     */
     public function Exists() {
 
         if ($this->GetStorage() == 'file') {

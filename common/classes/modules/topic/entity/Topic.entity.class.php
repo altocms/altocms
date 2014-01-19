@@ -736,6 +736,17 @@ class ModuleTopic_EntityTopic extends Entity {
                 $oMresource->setType($aLink['type']);
                 $oMresource->setUserId($this->getUserId());
                 $aResources[] = $oMresource;
+                // if image is derived from another image then add original mresource
+                if ($oMresource->isDerivedImage()) {
+                    // get original path and make one more mresorce
+                    $sOriginal = $oMresource->GetOriginalPathUrl();
+
+                    $oMresource = Engine::GetEntity('Mresource_MresourceRel');
+                    $oMresource->setUrl($this->Mresource_NormalizeUrl($sOriginal));
+                    $oMresource->setType($aLink['type']);
+                    $oMresource->setUserId($this->getUserId());
+                    $aResources[] = $oMresource;
+                }
             }
         }
         return $this->Mresource_BuildMresourceHashList($aResources);

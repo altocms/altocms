@@ -15,8 +15,6 @@
 ---------------------------------------------------------
 */
 
-F::IncludeLib('LiveImage/Image.php');
-
 /**
  * Модуль обработки изображений
  * Использует библиотеку LiveImage
@@ -24,7 +22,7 @@ F::IncludeLib('LiveImage/Image.php');
  * @package engine.modules
  * @since 1.0
  */
-class ModuleImage extends Module {
+class PluginLs_ModuleImage extends Module {
 	/**
 	 * Неопределенный тип ошибки при загрузке изображения
 	 */
@@ -59,6 +57,7 @@ class ModuleImage extends Module {
 	 * Инициализация модуля
 	 */
 	public function Init() {
+        F::IncludeFile(Plugin::GetPath('ls') . 'libs/LiveImage/Image.php');
 		$this->aParamsDefault = array(
 			'watermark_use'=>false,
 			'round_corner' =>false

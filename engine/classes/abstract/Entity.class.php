@@ -370,7 +370,7 @@ abstract class Entity extends LsObject {
      * Returns TRUE if property exists
      *
      * @param   string $sKey
-     * @return  mixed|null
+     * @return  bool
      */
     public function isProp($sKey) {
 

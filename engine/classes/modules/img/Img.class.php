@@ -397,13 +397,14 @@ class ModuleImg extends Module {
     public function Duplicate($sFile) {
 
         $this->nError = 0;
-        if (preg_match('~^(.+)-(\d+x\d+)(\-([a-z]+))?\.[a-z]+$~i', $sFile, $aMatches)) {
-            $sOriginal = $aMatches[1];
+        $sOriginal = $this->OriginalFile($sFile, $aOptions);
+        if ($aOptions) {
             if (!F::File_Exists($sOriginal)) {
                 return false;
             }
-            list($nW, $nH) = explode('x', $aMatches[2]);
-            $sModifier = (isset($aMatches[4]) ? $aMatches[4] : '');
+            $nW = $aOptions['width'];
+            $nH = $aOptions['height'];
+            $sModifier = $aOptions['mod'];
             if ($sModifier == 'fit') {
                 $sResultFile = $this->Copy($sOriginal, $sFile, $nW, $nH, true);
             } elseif ($sModifier == 'pad') {
@@ -561,6 +562,24 @@ class ModuleImg extends Module {
         return F::File_DeleteAs($sFile . '-*.*');
     }
 
+    public function OriginalFile($sFile, &$aOptions) {
+
+        if (preg_match('~^(.+)-(\d+x\d+)(\-([a-z]+))?\.[a-z]+$~i', $sFile, $aMatches)) {
+            $sOriginal = $aMatches[1];
+            list($nW, $nH) = explode('x', $aMatches[2]);
+            $sModifier = (isset($aMatches[4]) ? $aMatches[4] : '');
+            $aOptions = array(
+                'width' => $nW,
+                'height' => $nH,
+                'mod' => $sModifier,
+            );
+        } else {
+            $aOptions = array();
+            $sOriginal = $sFile;
+        }
+        return $sOriginal;
+    }
+
     /**
      * Возвращает валидный Html код тега <img>
      *
@@ -611,6 +630,108 @@ class ModuleImg extends Module {
         if (strpos($sMimeType, 'image/') === 0) {
             return $sMimeType;
         }
+    }
+
+    /**
+     * Makes new avatar or profile photo from skin default image
+     *
+     * @param $sFile
+     * @param $sPrefix
+     * @param $nSize
+     *
+     * @return mixed
+     */
+    public function AutoresizeSkinImage($sFile, $sPrefix, $nSize) {
+
+        $sImageFile = $this->_getDefaultSkinImage($sFile, $sPrefix, $nSize);
+        if ($sImageFile) {
+            $oImg = $this->Img_Resize($sImageFile, $nSize, $nSize);
+        } else {
+            // Файла нет, создаем пустышку, чтоб в дальнейшем не было пустых запросов
+            $oImg = $this->Img_Create($nSize, $nSize);
+        }
+        $oImg->SaveUpload($sFile);
+        return $sFile;
+    }
+
+    /**
+     * Gets default avatar or profile photo for the skin
+     *
+     * @param $sFile
+     * @param $sPrefix
+     * @param $nSize
+     *
+     * @return bool|mixed|string
+     */
+    protected function _getDefaultSkinImage($sFile, $sPrefix, $nSize) {
+
+        $sImageFile = '';
+        $sName = basename($sFile);
+        if (preg_match('/^' . preg_quote($sPrefix) . '([a-z0-9]+)?_([a-z0-9\.]+)(_(male|female))?([\-0-9a-z\.]+)?(\.[a-z]+)$/i', $sName, $aMatches)) {
+            $sName = $aMatches[1];
+            $sSkin = $aMatches[2];
+            $sType = $aMatches[4];
+            $sExtension = $aMatches[6];
+            if ($sExtension && substr($sSkin, -strlen($sExtension)) == $sExtension) {
+                $sSkin = substr($sSkin, 0, strlen($sSkin)-strlen($sExtension));
+            }
+            if ($sSkin) {
+                // Определяем путь до аватар скина
+                $sPath = Config::Get('path.skins.dir') . $sSkin . '/assets/images/avatars/';
+                if (!is_dir($sPath)) {
+                    // старая структура скина
+                    $sPath = Config::Get('path.skins.dir') . $sSkin . '/images/';
+                }
+
+                // Если задан тип male/female, то ищем сначала с ним
+                if ($sType) {
+                    $sImageFile = $this->_seekDefaultSkinImage($sPath, $sPrefix . '_' . $sType, $nSize);
+                }
+                // Если аватар не найден
+                if (!$sImageFile) {
+                    $sImageFile = $this->_seekDefaultSkinImage($sPath, $sPrefix, $nSize);
+                }
+            }
+        }
+        return $sImageFile ? $sImageFile : false;
+    }
+
+    /**
+     * Seeks default avatar or profile photo in the skin's image area
+     *
+     * @param $sPath
+     * @param $sName
+     * @param $nSize
+     *
+     * @return bool|mixed|string
+     */
+    protected function _seekDefaultSkinImage($sPath, $sName, $nSize) {
+
+        $sImageFile = '';
+        if ($aFiles = glob($sPath . $sName . '.*')) {
+            // Найден файл вида image_male.png
+            $sImageFile = array_shift($aFiles);
+        } elseif ($aFiles = glob($sPath . $sName . '_*.*')) {
+            // Найдены файлы вида image_male_100x100.png
+            $aFoundFiles = array();
+            foreach ($aFiles as $sFile) {
+                if (preg_match('/_(\d+)x(\d+)\./', basename($sFile), $aMatches)) {
+                    $nI = intval(max($aMatches[1], $aMatches[2]));
+                    $aFoundFiles[$nI] = $sFile;
+                } else {
+                    $aFoundFiles[0] = $sFile;
+                }
+            }
+            ksort($aFoundFiles);
+            $sImageFile = reset($aFoundFiles);
+            while (list($nImgSize, $sImgFile) = each($aFoundFiles)) {
+                if ($nImgSize >= $nSize) {
+                    $sImageFile = $sImgFile;
+                    break;
+                }
+            }
+        }
+        return $sImageFile ? $sImageFile : false;
     }
 
 }

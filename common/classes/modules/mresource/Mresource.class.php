@@ -81,6 +81,7 @@ class ModuleMresource extends Module {
     public function IsHashList($aMresources) {
 
         if (is_array($aMresources)) {
+            // first element of array
             reset($aMresources);
             $aData = each($aMresources);
             if (($aData['value'] instanceof ModuleMresource_EntityMresource)

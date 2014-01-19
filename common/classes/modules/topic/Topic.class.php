@@ -2734,7 +2734,7 @@ class ModuleTopic extends Module {
         $aDeleteRelId = array();
         foreach ($aMresources as $oMresource) {
             if (isset($aList[$oMresource->GetHash()])) {
-                // Если сохраненный ресурс есть в таблице хеш-таблице, то чистим соответствующий хеш
+                // Если сохраненный ресурс есть в хеш-таблице, то чистим соответствующий хеш
                 unset($aList[$oMresource->GetHash()]);
             } else {
                 // Если ресурса нет в хеш-таблице, то это прентендент на удаление

@@ -5,7 +5,7 @@
     <h2 class="page-header">{$aLang.topic_topic_edit}</h2>
 {/if}
 
-{include file='editor.tpl'}
+{include file='inc.editor.tpl'}
 
 {hook run='add_topic_topic_begin'}
 
@@ -37,9 +37,9 @@
 
     <label for="topic_text">{$aLang.topic_create_text}:</label>
     <textarea name="topic_text" id="topic_text" rows="20"
-              class="mce-editor markitup-editor input-block-level">{$_aRequest.topic_text}</textarea>
+              class="js-editor-wysiwyg js-editor-markitup input-block-level">{$_aRequest.topic_text}</textarea>
 
-    {if !$oConfig->GetValue('view.tinymce')}
+    {if !Config::Get('view.wysiwyg')}
         {include file='tags_help.tpl' sTagsTargetId="topic_text"}
         <br/>
         <br/>
