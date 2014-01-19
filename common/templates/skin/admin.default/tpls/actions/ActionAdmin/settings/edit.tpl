@@ -92,14 +92,16 @@
 
 					<div class="input-group-inline">
                     <div class="input-group">
-                    <input type="text" name="edit_comment_time" value="{$nCommentEditTime}" />
-                    <div class="input-group-btn">
+                    <div class="input-append">
+                    <input type="text" name="edit_comment_time" value="{$nCommentEditTime}" style="width: 40px;" />
+                    <span class="btn-group input-group-btn">
                         <a href="#" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="content">{$sCommentEditUnit}</span> <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             {foreach $aTimeUnits as $sUnit}
                                 <li><a href="#" onclick="admin.selectDropdown(this); return false;">{$sUnit.name}</a></li>
                             {/foreach}
                         </ul>
+                    </span>
                     </div>
 					</div>
 					</div>

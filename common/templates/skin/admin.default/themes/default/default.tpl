@@ -18,10 +18,10 @@
     <meta name="description" content="{$sHtmlDescription}">
     <meta name="keywords" content="{$sHtmlKeywords}">
 
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="viewport" content="width=600"/>
 
-	{$aHtmlHeadFiles.css}
-
+{$aHtmlHeadFiles.css}
+	
 	<link href="{Config::Get('path.static.skin')}assets/img/favicon.ico?v0.9" rel="shortcut icon">
     <link rel="search" type="application/opensearchdescription+xml" href="{router page='search'}opensearch/"
           title="{Config::Get('view.name')}"/>

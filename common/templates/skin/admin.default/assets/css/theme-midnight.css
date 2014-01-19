@@ -54,12 +54,11 @@ body,
 .table th,
 div.dataTables_wrapper .ui-widget-header {
 	background-color: #EFEFEF;
-	border-bottom: 1px solid #DDD;
+	border-bottom: 1px solid #ddd;
 }
 
-.b-wbox-header label.checked {
-	color: #599C71;
-}
+.form-horizontal .control-group
+{ border-bottom: 1px solid #DDD; }
 
 .b-wbox-header-title { color: #333;}
 .b-page-stats {
@@ -91,6 +90,6 @@ div.dataTables_wrapper .ui-widget-header {
 .goto-site   { float: left!important; }
 .goto-site a { padding-left: 100px!important; }
 
-@media (max-width: 800px) {
+@media (max-width: 600px) {
 	.goto-site a 	{ margin-left: -84px!important; }
 }
