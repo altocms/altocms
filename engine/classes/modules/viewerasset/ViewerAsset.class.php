@@ -26,7 +26,17 @@ class ModuleViewerAsset extends Module {
     protected $aAssets = array();
 
     protected $aFiles = array();
-public function getFiles() { return $this->aFiles; }
+
+    /**
+     * Returns set of asset files
+     *
+     * @return array
+     */
+    public function getFiles() {
+
+        return $this->aFiles;
+    }
+
     /**
      * Converts file path into path to asset-resource
      *
@@ -240,7 +250,6 @@ public function getFiles() { return $this->aFiles; }
             }
         }
     }
-
 
 
     /**
@@ -460,9 +469,11 @@ public function getFiles() { return $this->aFiles; }
         $xData = $this->_checkAssets();
         if ($xData) {
             if (is_array($xData)) {
-                // loads assets from cache
-                $this->aAssets = $xData;
-                return;
+                if (F::File_GetContents($this->GetAssetsCheckName())) {
+                    // loads assets from cache
+                    $this->aAssets = $xData;
+                    return;
+                }
             } else {
                 // assets are making right now
                 // may be need to wait?
