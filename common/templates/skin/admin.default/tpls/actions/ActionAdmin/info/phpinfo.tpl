@@ -10,7 +10,7 @@
         <div class="b-wbox phpinfo">
             <div class="b-wbox-header">
                     <div class="buttons">
-                        <button class="btn btn-mini btn-toggle" data-toggle="collapse" data-target="#section_{$section}">
+                        <button class="btn btn-default btn-mini btn-toggle" data-toggle="collapse" data-target="#section_{$section}">
                             <i class="icon icon-plus"></i>
                         </button>
                     </div>

@@ -2,25 +2,39 @@
 	FIOLET
 ------------------------------------------------------------------- */
 
-@import url(http://fonts.googleapis.com/css?family=Open+Sans:600italic,700italic,600,700&subset=latin,cyrillic);
+@import url(http://fonts.googleapis.com/css?family=Ubuntu:300,400,700,300italic,400italic,700italic&subset=latin,cyrillic);
 
 body, div,
 h1,h2,h3,h4,h5,h6,
 .h1,.h2,.h3,.h4,.h5,.h6
-{ font-family: "Open Sans"!important; font-weight: 300; }
-.menu-left li a
-{ font-family: "Open Sans"!important; }
+{ font-family: "Ubuntu"!important; }
 
-.dropdown-menu,
-.btn,
-.menu-left li a  { font-size: 12px!important; }
+div.dataTables_wrapper .ui-widget-header,
+.b-wbox-header,
+.modal-header,
+.table th 					 { background-color: #EFEFEF; border-bottom: 2px solid #DDD; }
 
-.container {
-	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgAAAABCAIAAACKQiY8AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAABZJREFUeNpi9NFJYxgFo2AUUAYAAgwA3igA4N4ekjYAAAAASUVORK5CYII=) 0px 100% repeat-y #F5F5F5;
-}
+.b-wbox-header .close,
+.b-wbox-header-title 		 { color: #333; }
 
-.b-page-stats,
-.menu-left li { border-top: 1px solid rgba(0, 0, 0, 0.09); }
+#breadcrumb 				 { background-color: #EFEFEF; }
+
+#breadcrumb,
+.btn 		 				 { border-bottom-width: 2px; }
+.btn-primary 				 { border-bottom-color: #22537E; }
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary 	   { border-bottom-color: #225079; }
+.btn-danger 				 { border-bottom-color: #AC2F2B; }
+.btn-danger:hover, .btn-danger:focus, .btn-danger:active, .btn-danger.active, .open .dropdown-toggle.btn-danger 			 { border-bottom-color: #6E1613; }
+.btn,.b-page-stats,
+.b-content-header-title 	 { font-weight: 300; }
+.input-group-btn .btn 		 { padding-bottom: 7px; }
+.navbar-inverse 			 { border-bottom: 2px solid #8F0053; }
+
+.menu-left li 				 { border-top: 1px solid rgba(255, 255, 255, 0.05); border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
+.menu-left ul 						  { position: relative;}
+.menu-left li ul li:first-child:after,
+.menu-left li:first-child:after 	  { content: ""; display:block; border-top: 1px solid rgba(0, 0, 0, 0.1); top: 0; position: absolute; width: 100%; }
+
 
 .logo span {
 	background: url(../img/logo-fiolent.png);
@@ -28,6 +42,7 @@ h1,h2,h3,h4,h5,h6,
 
 .site-search input { background: #391E4E; border: 1px solid #391E4E; }
 
+.container:before,
 .badge, .btn-default .badge,
 .b-page-stats,
 .navbar-inverse .navbar-nav>.open>a,
@@ -41,24 +56,3 @@ body 						{ background:#4C2C66; }
 .dropdown-menu>li>a:hover,
 .dropdown-menu>li>a:focus,
 .navbar-inverse 			{ background-color:#E40084!important; }
-
-.b-wbox-header,
-.modal-header,
-.table th,
-div.dataTables_wrapper .ui-widget-header {
-	background-color: #E40084;
-	color: #fff;
-	border-color: #F5F5F5;
-	text-shadow: 0 1px 0 #E40084;
-}
-
-.b-wbox-header .close,
-.b-wbox-header-title {
-	color: #fff;
-	text-shadow: 0 1px 0 #E40084;
-}
-
-.b-wbox-header label.checked {
-	color: #E40084;
-	text-shadow: 0 1px 0 #333;
-}

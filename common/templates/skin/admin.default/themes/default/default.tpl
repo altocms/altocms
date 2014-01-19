@@ -18,11 +18,11 @@
     <meta name="description" content="{$sHtmlDescription}">
     <meta name="keywords" content="{$sHtmlKeywords}">
 
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="viewport" content="width=600"/>
 
-	{$aHtmlHeadFiles.css}
+{$aHtmlHeadFiles.css}
 	
-    <link href="{Config::Get('path.static.skin')}assets/img/favicon.ico?v0.9" rel="shortcut icon"/>
+	<link href="{Config::Get('path.static.skin')}assets/img/favicon.ico?v0.9" rel="shortcut icon">
     <link rel="search" type="application/opensearchdescription+xml" href="{router page='search'}opensearch/"
           title="{Config::Get('view.name')}"/>
 
@@ -159,7 +159,7 @@
 <div id="sidebar" class="b-sidebar">
 {block name="sidebar"}{/block}
     <div class="b-sidebar-top">
-        <!--Action: [{$sAction}], Event: [{$sEvent}]--><br/>
+        <!--Action: [{$sAction}], Event: [{$sEvent}]-->
         <span id="window-width"></span>
     </div>
 </div>
@@ -177,22 +177,13 @@
         <a href="#" class="current">{$sPageTitle}</a>
     </div>
 
-    <div class="container-fluid">
-        {block name="sysmessage"}{/block}
+			{block name="sysmessage"}{/block}
 
-        <div class="row-fluid">
-            <div class="span12">
             {block name="content-bar"}
             {/block}
-            </div>
 
-            <div class="span12">
             {block name="content-body"}
             {/block}
-            </div>
-        </div>
-
-    </div>
 {/block}
 
 </div>

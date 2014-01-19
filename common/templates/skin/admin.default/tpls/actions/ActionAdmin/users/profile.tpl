@@ -57,31 +57,37 @@
     {assign var="oSession" value=$oUserProfile->getSession()}
     {assign var="oVote" value=$oUserProfile->getVote()}
 
-
+<div class="b-wbox">
 <div class="user-profile">
     <div class="name">
         <div class="-box">
             <img src="{$oUserProfile->getAvatarUrl(100)}" alt="avatar"
                  class="avatar img-polaroid userid-{$oUserProfile->GetId()}"/>
 
-            <div class="nickname">ID: {$oUserProfile->getId()}</div>
-
             <div class="nickname">{$oUserProfile->getLogin()}</div>
             {if $oUserProfile->getProfileName()}
                 <div class="realname">{$oUserProfile->getProfileName()|escape:'html'}</div>
             {/if}
+			
+            <div class="nickname">ID: {$oUserProfile->getId()}</div>
+			
         </div>
         <br/>
         <div class="accordion" id="user-profile-photo-{$oUserProfile->GetId()}">
             <div class="accordion-group no-border">
-                <div class="accordion-heading">
-                    <button class="btn-block btn left" data-target="#user-profile-photo-img-{$oUserProfile->GetId()}"
+			
+            <div class="accordion-heading">
+			<div class="b-wbox-header">
+			<div class="buttons">
+			<button class="btn btn-primary btn-mini " data-target="#user-profile-photo-img-{$oUserProfile->GetId()}"
                             data-toggle="collapse"
                             data-parent="#user-profile-photo-{$oUserProfile->GetId()}">
                         <i class="icon icon-picture"></i>
                         {$aLang.action.admin.user_photo}
                     </button>
-                </div>
+			</div>
+			</div>
+			</div>
                 <div class="accordion-body collapse" id="user-profile-photo-img-{$oUserProfile->GetId()}">
                     <img src="{$oUserProfile->getPhotoUrl(250)}" alt="photo"
                          class="photo img-polaroid userid-{$oUserProfile->GetId()}" />
@@ -95,7 +101,7 @@
                 <div class="total" id="user_skill_{$oUserProfile->getId()}">{$oUserProfile->getSkill()}</div>
             </div>
 
-            <div class="voting  span6">
+            <div class="voting span3">
                 {$oLang->user_rating}
 
                 <div style="display: inline-block; margin: auto;">
@@ -111,7 +117,7 @@
                 </div>
             </div>
 
-            <div class="voting  span3">
+            <div class="voting span3">
                 {$oLang->user_vote_count}
                 <div class="count">{$oUserProfile->getCountVote()}</div>
             </div>
@@ -164,7 +170,7 @@
         </tr>
     </table>
 </div>
-
+</div>
     {if $oUserProfile->IsBannedByLogin()}
     <div class="alert alert-block">
         {$aLang.action.admin.ban_upto}

@@ -3,7 +3,7 @@
 {block name="content-body"}
     <form action="" method="post" target="_blank" class="uniform">
         <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
-
+		<div class="span6-container"></div>
         {foreach $aInfoData as $sSectionKey=>$aSection}
             <div class="span6">
                 <div class="b-wbox">
@@ -30,9 +30,8 @@
             </div>
         {/foreach}
 
-        <div class="span12 form-horizontal"
-             style="border-top: 1px solid #FFFFFF; margin-left: 0; box-shadow: 0 -1px 0px rgba(32,32,32,0.5)">
-            <div class="control-group">
+        <div class="span12 form-horizontal" style="border-top: 1px solid #ddd;">
+            <div class="control-group" style="border-color: transparent;">
                 <label class="control-label">{$aLang.action.admin.button_report}</label>
 
                 <div class="controls">

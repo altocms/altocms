@@ -190,7 +190,7 @@
                         </tbody>
                     </table>
                     <div class="control-group">
-                        <a class="btn fl-r" href="{router page="admin"}settings-contenttypes-fieldadd/{$oContentType->getContentId()}/">
+                        <a class="btn btn-default fl-r" href="{router page="admin"}settings-contenttypes-fieldadd/{$oContentType->getContentId()}/">
                             <i class="icon icon-plus-sign"></i> {$aLang.action.admin.contenttypes_add_field}
                         </a>
                     </div>

@@ -75,6 +75,7 @@
                                 <input type="radio" name="widget_display" value="period" {if $oWidget->GetPeriod()}checked="checked"{/if}>
                                 {$aLang.action.admin.widget_display_period}
                                 {$aLang.action.admin.widget_display_from}
+								<div class="input-group-inline">
                                 <span class="input-group">
                                     <input type="text" name="widget_period_from" value="{$oWidget->GetDateFrom()}" class="datepicker" />
                                     <span class="input-group-addon"><i class="icon icon-calendar"></i></span>
@@ -84,6 +85,7 @@
                                     <input type="text" name="widget_period_upto" value="{$oWidget->GetDateUpto()}" class="datepicker" />
                                     <span class="input-group-addon"><i class="icon icon-calendar"></i></span>
                                 </span>
+								</div>
                             </label>
                         </div>
                     </div>

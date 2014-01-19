@@ -100,9 +100,12 @@
     {assign var="oSession" value=$oUserProfile->getSession()}
     {assign var="oVote" value=$oUserProfile->getVote()}
 
-<div class="profile-user -box">
+<div class="b-wbox -box">
 
-<h4 class="title">{$oLang->profile_privat}</h4>
+<div class="b-wbox-header">
+	<div class="b-wbox-header-title">{$oLang->profile_privat}</div>
+</div>
+
 <table class="table">
     {if $oUserProfile->getProfileSex()!='other'}
         <tr>
@@ -138,7 +141,7 @@
     <tr>
         <td class="adm_var" id="user_profile_about_label">{$oLang->profile_about}:</td>
         <td class="adm_field">
-            <button class="btn btn-mini"
+            <button class="btn btn-default btn-mini"
                     onclick="admin.editField('user_profile_about', this, 'text'); return false;">
                 <i class="icon icon-edit"></i>
             </button>
@@ -150,7 +153,7 @@
     <tr>
         <td class="adm_var" id="user_profile_site_label">{$oLang->profile_site}:</td>
         <td class="adm_field">
-            <button class="btn btn-mini"
+            <button class="btn btn-default btn-mini"
                     onclick="admin.editField('user_profile_site', this, 'url'); return false;">
                 <i class="icon icon-edit"></i>
             </button>
@@ -166,7 +169,7 @@
     <tr>
         <td class="adm_var" id="user_profile_email_label">{$oLang->settings_profile_mail}:</td>
         <td class="adm_field">
-            <button class="btn btn-mini"
+            <button class="btn btn-default btn-mini"
                     onclick="admin.editField('user_profile_email', this, 'email'); return false;">
                 <i class="icon icon-edit"></i>
             </button>
@@ -182,6 +185,8 @@
 </table>
 <input type="hidden" id="user_id" value="{$oUserProfile->getId()}"/>
 
+</div>
+
     <div class="navbar navbar-inner fix-on-bottom">
                 <button type="submit" id="edit_submit" name="edit_submit"
                         class="btn btn-primary pull-right" onclick="admin.submitData();" disabled="disabled">
@@ -189,7 +194,12 @@
                 </button>
     </div>
 
-<h4 class="title">{$oLang->profile_activity}</h4>
+<div class="b-wbox -box">
+	
+<div class="b-wbox-header">
+	<div class="b-wbox-header-title">{$oLang->profile_activity}</div>
+</div>
+
 <table class="table">
     <tr>
         <td class="adm_var">{$oLang->profile_date_registration}:</td>

@@ -1,6 +1,7 @@
 {extends file='_index.tpl'}
 
 {block name="content-bar"}
+<div class="span12">
     <div class="btn-group">
         <a href="#" class="btn btn-primary tip-top" onclick="ls.dashboard.showAddForm(); return false;"
            title="{$aLang.action.admin.user_field_add}"><i class="icon icon-plus-sign"></i></a>
@@ -14,6 +15,7 @@
     <div class="btn-group pull-right">
         {hook run='admin_dashboard_right_items'}
     </div>
+</div>
 {/block}
 
 {block name="content-body"}

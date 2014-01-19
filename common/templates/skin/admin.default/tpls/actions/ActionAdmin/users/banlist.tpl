@@ -34,7 +34,7 @@
 
             <div class="accordion-group no-border">
                 <div class="accordion-heading">
-                    <button class="btn-block btn left" data-target="#admin_form_ban" data-toggle="collapse"
+                    <button class="btn-block btn left btn-default" data-target="#admin_form_ban" data-toggle="collapse"
                             data-parent="#user-comands-switch">
                         {if $aFilter}<i class="icon icon-filter icon-green pull-right"></i>{/if}
                         <i class="icon icon-ban-circle"></i>
@@ -49,7 +49,7 @@
                         <div class="row control-group {if $sUserFilterLogin}success{/if}">
                             <label for="user_login">{$aLang.action.admin.user_login}</label>
 
-                            <div class="input-prepend">
+                            <div class="input-group">
                                 <span class="input-group-addon"><i class="icon icon-user"></i></span><input type="text"
                                                                                             name="user_login"
                                                                                             id="user_login"

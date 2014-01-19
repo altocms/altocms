@@ -28,7 +28,7 @@
         </div>
     {/foreach}
 
-    <div class="span12 b-form-actions" style="border-top: 1px solid #FFFFFF; margin-left: 0; box-shadow: 0 -1px 0px rgba(32,32,32,0.5)">
+    <div class="span12 b-form-actions" style="border-top: 1px solid #ddd; margin-left: 0;">
         <div class="control-group">
             <label class="control-label">{$aLang.action.admin.button_report}</label>
 
