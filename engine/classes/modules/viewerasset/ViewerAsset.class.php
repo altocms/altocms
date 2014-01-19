@@ -15,6 +15,8 @@
 class ModuleViewerAsset extends Module {
 
     const TMP_TIME = 60;
+    const SLEEP_TIME = 5;
+    const SLEEP_COUNT = 4;
 
     protected $aAssetTypes
         = array(
@@ -132,6 +134,9 @@ class ModuleViewerAsset extends Module {
         }
     }
 
+    /**
+     * @param $aFiles
+     */
     public function AddAssetFiles($aFiles) {
 
         $this->aAssets = array();
@@ -149,6 +154,12 @@ class ModuleViewerAsset extends Module {
 
     }
 
+    /**
+     * @param        $sType
+     * @param        $aFiles
+     * @param string $sAssetName
+     * @param array  $aOptions
+     */
     public function AddFiles($sType, $aFiles, $sAssetName = null, $aOptions = array()) {
 
         if (!is_array($aFiles)) {
@@ -241,6 +252,12 @@ class ModuleViewerAsset extends Module {
         return $this->_add($sType, $aAssetFiles, $aOptions);
     }
 
+    /**
+     * Add link to current asset pack
+     *
+     * @param $sType
+     * @param $aLinks
+     */
     public function AddLinksToAssets($sType, $aLinks) {
 
         foreach ($aLinks as $sLink => $aParams) {
@@ -367,6 +384,8 @@ class ModuleViewerAsset extends Module {
     }
 
     /**
+     * Clear file set of requested type
+     *
      * @param string $sType
      */
     public function Clear($sType) {
@@ -375,7 +394,7 @@ class ModuleViewerAsset extends Module {
     }
 
     /**
-     *
+     * Clear js-file set
      */
     public function ClearJs() {
 
@@ -383,7 +402,7 @@ class ModuleViewerAsset extends Module {
     }
 
     /**
-     *
+     * Clear css-file set
      */
     public function ClearCss() {
 
@@ -414,26 +433,52 @@ class ModuleViewerAsset extends Module {
         }
     }
 
+    /**
+     * @param       $sType
+     * @param       $sLink
+     * @param array $aParams
+     */
     public function AddLink($sType, $sLink, $aParams = array()) {
 
         $this->aFiles[$sType]['links'][$sLink] = $aParams;
     }
 
+    /**
+     * Returns hash for current asset pack
+     *
+     * @return string
+     */
     public function GetHash() {
 
         return md5(serialize($this->aFiles));
     }
 
+    /**
+     * Returns file name for cache of current asset pack
+     *
+     * @return string
+     */
     public function GetAssetsCacheName() {
 
         return Config::Get('sys.cache.dir') . 'data/' . $this->GetHash() . '.assets';
     }
 
+    /**
+     * Returns name for check-file of current asset pack
+     *
+     * @return string
+     */
     public function GetAssetsCheckName() {
 
         return F::File_GetAssetDir() . '_check/' . $this->GetHash() . '.assets.dat';
     }
 
+    /**
+     * Checks cache for current asset pack
+     * If cache is present then returns one
+     *
+     * @return int|array
+     */
     protected function _checkAssets() {
 
         $xResult = 0;
@@ -456,6 +501,9 @@ class ModuleViewerAsset extends Module {
         return $xResult;
     }
 
+    /**
+     * Save cache and check-file of current asset pack
+     */
     protected function _saveAssets() {
 
         F::File_PutContents($this->GetAssetsCheckName(), time());
@@ -464,6 +512,9 @@ class ModuleViewerAsset extends Module {
         F::File_Delete($sFile . '.tmp', $this->aAssets);
     }
 
+    /**
+     * Prepare current asset pack
+     */
     public function Prepare() {
 
         $xData = $this->_checkAssets();
@@ -477,6 +528,15 @@ class ModuleViewerAsset extends Module {
             } else {
                 // assets are making right now
                 // may be need to wait?
+                for ($i=0; $i<self::SLEEP_COUNT; $i++) {
+                    sleep(self::SLEEP_TIME);
+                    $xData = $this->_checkAssets();
+                    if (is_array($xData)) {
+                        $this->aAssets = $xData;
+                        return;
+                    }
+                }
+                // something wrong
                 return;
             }
         }
@@ -533,6 +593,11 @@ class ModuleViewerAsset extends Module {
         }
     }
 
+    /**
+     * @param string $sType
+     *
+     * @return array
+     */
     public function BuildHtmlLinks($sType = null) {
 
         $aLinks = array();
@@ -548,6 +613,9 @@ class ModuleViewerAsset extends Module {
         return $aLinks;
     }
 
+    /**
+     * @return array
+     */
     public function GetPreparedAssetLinks() {
 
         $aResult = array();
