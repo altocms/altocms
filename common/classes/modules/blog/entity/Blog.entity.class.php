@@ -221,16 +221,26 @@ class ModuleBlog_EntityBlog extends Entity {
      */
     public function getAvatarUrl($nSize = 48) {
 
-        if ($sPath = $this->getAvatar()) {
+        if ($sUrl = $this->getAvatar()) {
             if (!$nSize) {
-                return $sPath;
+                return $sUrl;
             } else {
-                return $sPath . '-' . $nSize . 'x' . $nSize . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
+                $sUrl .= '-' . $nSize . 'x' . $nSize . '.' . pathinfo($sUrl, PATHINFO_EXTENSION);
+                if (Config::Get('module.image.autoresize')) {
+                    $sFile = $this->Uploader_Url2Dir($sUrl);
+                    if (!F::File_Exists($sFile)) {
+                        $this->Img_Duplicate($sFile);
+                    }
+                }
+                return $sUrl;
             }
         } else {
             $sPath = $this->Uploader_GetUserImageDir(0) . 'avatar_blog_' . Config::Get('view.skin') . '.png';
             if ($nSize) {
                 $sPath .= '-' . $nSize . 'x' . $nSize . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
+            }
+            if (Config::Get('module.image.autoresize') && !F::File_Exists($sPath)) {
+                $this->Img_AutoresizeSkinImage($sPath, 'avatar_blog', $nSize ? $nSize : null);
             }
             return $this->Uploader_Dir2Url($sPath);
         }

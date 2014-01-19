@@ -500,18 +500,28 @@ class ModuleUser_EntityUser extends Entity {
                 $xSize = self::DEFAULT_AVATAR_SIZE;
             }
         }
-        if (strpos($xSize, 'x')) {
+        if (is_string($xSize) && strpos($xSize, 'x')) {
             list($nW, $nH) = array_map('intval', explode('x', $xSize));
         } else {
             $nW = $nH = intval($xSize);
         }
-        if ($sPath = $this->getProfileAvatar()) {
-            return $sPath . '-' . $nW . 'x' . $nH . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
+        if ($sUrl = $this->getProfileAvatar()) {
+            $sUrl .= '-' . $nW . 'x' . $nH . '.' . pathinfo($sUrl, PATHINFO_EXTENSION);
+            if (Config::Get('module.image.autoresize')) {
+                $sFile = $this->Uploader_Url2Dir($sUrl);
+                if (!F::File_Exists($sFile)) {
+                    $this->Img_Duplicate($sFile);
+                }
+            }
+            return $sUrl;
         } else {
             $sPath = $this->Uploader_GetUserAvatarDir(0)
                 . 'avatar_' . Config::Get('view.skin') . '_' . ($this->getProfileSex() == 'woman' ? 'female' : 'male')
                 . '.png';
             $sPath .= '-' . $nW . 'x' . $nH . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
+            if (Config::Get('module.image.autoresize') && !F::File_Exists($sPath)) {
+                $this->Img_AutoresizeSkinImage($sPath, 'avatar', max($nH, $nW));
+            }
             return $this->Uploader_Dir2Url($sPath);
         }
     }
@@ -546,11 +556,25 @@ class ModuleUser_EntityUser extends Entity {
             } else {
                 $nW = $nH = intval($xSize);
             }
-            return $sUrl . '-' . $nW . 'x' . $nH . '.' . pathinfo($sUrl, PATHINFO_EXTENSION);
+            $sUrl = $sUrl . '-' . $nW . 'x' . $nH . '.' . pathinfo($sUrl, PATHINFO_EXTENSION);
+            if (Config::Get('module.image.autoresize')) {
+                $sFile = $this->Uploader_Url2Dir($sUrl);
+                if (!F::File_Exists($sFile)) {
+                    $this->Img_Duplicate($sFile);
+                }
+            }
+            return $sUrl;
         }
         return $this->GetDefaultPhotoUrl($xSize);
     }
 
+    /**
+     * Returns URL for default photo of current skin
+     *
+     * @param null $xSize
+     *
+     * @return mixed
+     */
     public function GetDefaultPhotoUrl($xSize = null) {
 
         $sPath = $this->Uploader_GetUserAvatarDir(0)
@@ -563,6 +587,11 @@ class ModuleUser_EntityUser extends Entity {
                 $nW = $nH = intval($xSize);
             }
             $sPath .= '-' . $nW . 'x' . $nH . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
+        } else {
+            $nW = $nH = self::DEFAULT_PHOTO_SIZE;
+        }
+        if (Config::Get('module.image.autoresize') && !F::File_Exists($sPath)) {
+            $this->Img_AutoresizeSkinImage($sPath, 'user_photo', max($nH, $nW));
         }
         return $this->Uploader_Dir2Url($sPath);
     }

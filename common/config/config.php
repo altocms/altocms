@@ -418,6 +418,7 @@ $config['module']['image']['preset']['default'] = array(
         'height' => 700,
     ),
 );
+$config['module']['image']['autoresize'] = true;
 
 // Модуль Security
 $config['module']['security']['hash']  = 'alto_security_key'; // "примесь" к строке, хешируемой в качестве security-кода
@@ -559,7 +560,7 @@ $config['router']['rewrite'] = array();
 
 // Правила реврайта для REQUEST_URI
 $config['router']['uri'] = array(
-    '~^(uploads/images/[\w\/\_\-\.]+\.(png|jpg|jpeg|gif)\/?$)~i' => 'img/$1',
+    //'~^(uploads/images/[\w\/\_\-\.]+\.(png|jpg|jpeg|gif)\/?$)~i' => 'img/$1',
     '~^_run/assets/([\w\-\.]+/.+)$~i' => 'asset/$1',
     // запрет обработки статичных файлов с заданными расширениями
     /* допустимые значения:

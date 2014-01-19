@@ -639,19 +639,25 @@ class ModuleImg extends Module {
      * @param $sPrefix
      * @param $nSize
      *
-     * @return mixed
+     * @return string|bool
      */
     public function AutoresizeSkinImage($sFile, $sPrefix, $nSize) {
 
         $sImageFile = $this->_getDefaultSkinImage($sFile, $sPrefix, $nSize);
         if ($sImageFile) {
-            $oImg = $this->Img_Resize($sImageFile, $nSize, $nSize);
+            if ($nSize) {
+                $oImg = $this->Resize($sImageFile, $nSize, $nSize);
+                $xResult = $oImg->SaveUpload($sFile);
+            } else {
+                $this->Copy($sImageFile, $sFile);
+            }
         } else {
             // Файла нет, создаем пустышку, чтоб в дальнейшем не было пустых запросов
-            $oImg = $this->Img_Create($nSize, $nSize);
+            //$oImg = $this->Create($nSize, $nSize);
+            //$xResult = $oImg->SaveUpload($sFile);
+            $xResult = false;
         }
-        $oImg->SaveUpload($sFile);
-        return $sFile;
+        return $xResult;
     }
 
     /**
@@ -661,7 +667,7 @@ class ModuleImg extends Module {
      * @param $sPrefix
      * @param $nSize
      *
-     * @return bool|mixed|string
+     * @return bool|string
      */
     protected function _getDefaultSkinImage($sFile, $sPrefix, $nSize) {
 
@@ -703,7 +709,7 @@ class ModuleImg extends Module {
      * @param $sName
      * @param $nSize
      *
-     * @return bool|mixed|string
+     * @return bool|string
      */
     protected function _seekDefaultSkinImage($sPath, $sName, $nSize) {
 
