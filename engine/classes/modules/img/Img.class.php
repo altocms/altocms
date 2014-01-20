@@ -416,10 +416,14 @@ class ModuleImg extends Module {
                 }
             } else {
                 $oImg = $this->Resize($sOriginal, $nW, $nH, true);
-                $oBackImg = $this->Create($nW, $nH, 0xffffff, 0);
-                $nX = round(($oBackImg->GetWidth() - $oImg->GetWidth()) / 2);
-                $nY = round(($oBackImg->GetHeight() - $oImg->GetHeight()) / 2);
-                $sResultFile = $oBackImg->Overlay($oImg, $nX, $nY)->Save($sFile);
+                $nDX = $nW - $oImg->GetWidth();
+                $nDY = $nH - $oImg->GetHeight();
+                if ($nDX || $nDY) {
+                    $oImg->CanvasSize($nW, $nH);
+                    $sResultFile = $oImg->Save($sFile);
+                } else {
+                    $sResultFile = $oImg->Save($sFile);
+                }
             }
             return $sResultFile;
         }
@@ -536,9 +540,8 @@ class ModuleImg extends Module {
             $nH = (isset($aParams['size']['height']) ? $aParams['size']['height'] : null);
             if (($nW && $nW < $oImg->GetWidth()) || ($nH && $nH < $oImg->GetHeight())) {
                 $oImg->Resize($nW, $nH, true);
+                $oImg->Save($sFile);
             }
-            $oImg->Save($sFile);
-
             $bResult = true;
         }
         $this->SetConfig($sOldKey);

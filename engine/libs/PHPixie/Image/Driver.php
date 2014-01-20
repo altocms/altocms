@@ -23,6 +23,12 @@ abstract class Driver {
 	public $height;
 	
 	/**
+	 * Image format
+	 * @var int
+	 */
+	public $format;
+	
+	/**
 	 * Resizes the image to either fit specified dimensions or to fill them (based on the $fit parameter).
 	 *
 	 * If only the width or height is provided the image will be resized according to that single dimension.
@@ -227,6 +233,15 @@ abstract class Driver {
 	 * @return  \PHPixie\Image\Driver Initialized Image
 	 */
 	public abstract function read($file);
+	
+	/**
+	 * Loads image data from a bytestring.
+	 *
+	 * @param   string  $bytes  Image data
+	 *
+	 * @return  \PHPixie\Image\Driver Initialized Image
+	 */
+	public abstract function load($bytes);
 	
 	/**
 	 * Gets color of the pixel at specifed coordinates.

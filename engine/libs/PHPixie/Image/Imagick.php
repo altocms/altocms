@@ -37,12 +37,24 @@ class Imagick extends Driver{
 		$this->image = new $this->image_class();
 		$this->image->newImage($width, $height, $this->get_color($color, $opacity));
 		$this->update_size($width, $height);
+		$this->format = 'png';
 		return $this;
 	}
 	
 	public function read($file) {
 		$this->image = new $this->image_class($file);
-		$this->update_size($this->image->getImageWidth(), $this->image->getImageHeight());
+        if ($this->get_extension($file) == 'gif' && ($size = getimagesize($file))) {
+            $this->update_size($size[0], $size[1], true);
+        } else {
+            $this->update_size($this->image->getImageWidth(), $this->image->getImageHeight(), true);
+        }
+		return $this;
+	}
+	
+	public function load($bytes) {
+		$this->image = new $this->image_class();
+		$this->image->readImageBlob($bytes);
+		$this->update_size($this->image->getImageWidth(), $this->image->getImageHeight(), true);
 		return $this;
 	}
 	
@@ -51,10 +63,16 @@ class Imagick extends Driver{
 	 *
 	 * @param int $width  Image width
 	 * @param int $height Image height
+	 * @param bool $format Whether to get image format 
 	 */
-	protected function update_size($width, $height) {
+	protected function update_size($width, $height, $get_format = false) {
 		$this->width = $width;
 		$this->height = $height;
+		if ($get_format) {
+			$this->format = strtolower($this->image->getImageFormat());
+			if ($this->format == 'jpg')
+				$this->format = 'jpeg';
+		}
 	}
 	
 	protected function get_color($color, $opacity) {
@@ -123,10 +141,14 @@ class Imagick extends Driver{
 			default:
 				throw new \Exception("Type must be either png, jpeg or gif");
 		}
-		
-		$image->setImageCompressionQuality($quality); 
-		$image->writeImage($file);
-		
+
+        if ($format == 'gif' && $image->getImageIterations()) {
+            $image->writeImages($file, true);
+        } else {
+            $image->setImageCompressionQuality($quality);
+            $image->writeImage($file);
+        }
+
 		if ($format == 'jpeg')
 			$image->destroy();
 			
@@ -143,8 +165,16 @@ class Imagick extends Driver{
 		
 		if ($height > ($maxheight = $this->height-$y))
 			$height = $maxheight;
-			
-		$this->image->cropImage($width, $height, $x, $y);
+
+        if ($this->image->getImageIterations()) {
+            $this->image = $this->image->coalesceImages();
+            foreach($this->image as $frame) {
+                $frame->cropImage($width, $height, $x, $y);
+                $frame->setImagePage($width, $height, 0, 0);
+            }
+        } else {
+            $this->image->cropImage($width, $height, $x, $y);
+        }
 		$this->update_size($width, $height);
 		
 		return $this;
@@ -153,24 +183,53 @@ class Imagick extends Driver{
 	public function scale($scale){
 		$width = ceil($this->width*$scale);
 		$height = ceil($this->height*$scale);
-		
-		$this->image->scaleImage($width, $height, true);
+
+        if ($this->image->getImageIterations()) {
+            $this->image = $this->image->coalesceImages();
+            foreach($this->image as $frame) {
+                $frame->scaleImage($width, $height, true);
+                $frame->setImagePage($width, $height, 0, 0);
+            }
+        } else {
+            $this->image->scaleImage($width, $height, true);
+        }
 		$this->update_size($width, $height);
 		return $this;
 	}
 	
 	public function rotate($angle, $bg_color = 0xffffff, $bg_opacity = 0) {
-		$this->image->rotateImage($this->get_color($bg_color, $bg_opacity), -$angle);
+        if ($this->image->getImageIterations()) {
+            foreach($this->image as $frame) {
+                $frame->rotateImage($this->get_color($bg_color, $bg_opacity), -$angle);
+                $frame->setImagePage($this->image->width, $this->image->height, 0, 0);
+            }
+        } else {
+            $this->image->rotateImage($this->get_color($bg_color, $bg_opacity), -$angle);
+        }
 		$this->update_size($this->image->getImageWidth(), $this->image->getImageHeight());
 		return $this;
 	}
 	
 	public function flip($flip_x = false, $flip_y = false) {
-		if ($flip_x)
-			$this->image->flopImage();
-		if ($flip_y)
-			$this->image->flipImage();
-			
+		if ($flip_x) {
+            if ($this->image->getImageIterations()) {
+                foreach($this->image as $frame) {
+                    $frame->flopImage();
+                }
+            } else {
+                $this->image->flopImage();
+            }
+        }
+		if ($flip_y) {
+            if ($this->image->getImageIterations()) {
+                foreach($this->image as $frame) {
+                    $frame->flipImage();
+                }
+            } else {
+                $this->image->flipImage();
+            }
+        }
+
 		return $this;
 	}
 	
@@ -189,7 +248,14 @@ class Imagick extends Driver{
 		$draw->setFont($font_file);
 		$draw->setFontSize($size);
 		$draw->setFillColor($this->get_color($color, $opacity));
-		$this->image-> annotateImage($draw, $x, $y, -$angle, $text);
+        if ($this->image->getImageIterations()) {
+            $this->image = $this->image->coalesceImages();
+            foreach($this->image as $frame) {
+                $frame->annotateImage($draw, $x, $y, -$angle, $text);
+            }
+        } else {
+            $this->image->annotateImage($draw, $x, $y, -$angle, $text);
+        }
 		return $this;
 	}
 	

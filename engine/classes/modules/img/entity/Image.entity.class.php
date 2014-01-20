@@ -108,17 +108,24 @@ class ModuleImg_EntityImage extends Entity {
         }
     }
 
+    public function IsMultiframe() {
+
+        if (($oImage = $this->GetImage()) && ($this->Img_GetDriver() != 'GD')) {
+            return $oImage->image->getImageIterations();
+        }
+    }
+
     /**
      * Creates new image
      *
      * @param int        $nWidth
      * @param int        $nHeight
      * @param int|string $xColor
-     * @param int        $nOpacity
+     * @param float      $nOpacity
      *
      * @return ModuleImg_EntityImage
      */
-    public function Create($nWidth, $nHeight, $xColor = 0xffffff, $nOpacity = 0) {
+    public function Create($nWidth, $nHeight, $xColor = 0xffffff, $nOpacity = 0.0) {
 
         $oPxImage = new \PHPixie\Image(new ModuleImgPx());
         $oImage = $oPxImage->create($nWidth, $nHeight, $this->_color($xColor), $nOpacity);
@@ -156,9 +163,9 @@ class ModuleImg_EntityImage extends Entity {
     /**
      * Resize image
      *
-     * @param int  $nWidth
-     * @param int  $nHeight
-     * @param bool $bFit
+     * @param int  $nWidth  - New width
+     * @param int  $nHeight - New size
+     * @param bool $bFit    - Fit image to new sizes
      *
      * @return ModuleImg_EntityImage
      * @throws Exception
@@ -170,11 +177,11 @@ class ModuleImg_EntityImage extends Entity {
                 $fWScale = $nWidth / $oImage->width;
                 $fHScale = $nHeight / $oImage->height;
                 $fScale = ($bFit ? min($fWScale, $fHScale) : max($fWScale, $fHScale));
-            }elseif($nWidth) {
-                $fScale = $nWidth/$oImage->width;
-            }elseif($nHeight) {
-                $fScale = $nHeight/$oImage->height;
-            }else {
+            } elseif ($nWidth) {
+                $fScale = $nWidth / $oImage->width;
+            } elseif ($nHeight) {
+                $fScale = $nHeight / $oImage->height;
+            } else {
                 throw new \Exception('Either width or height must be set');
             }
 
@@ -199,10 +206,10 @@ class ModuleImg_EntityImage extends Entity {
     /**
      * Crop image
      *
-     * @param int $nWidth
-     * @param int $nHeight
-     * @param int $nPosX
-     * @param int $nPosY
+     * @param int $nWidth   - Width to crop to
+     * @param int $nHeight  - Height to crop to
+     * @param int $nPosX    - X coordinate of crop start position
+     * @param int $nPosY    - Y coordinate of crop start position
      *
      * @return ModuleImg_EntityImage
      */
@@ -223,13 +230,13 @@ class ModuleImg_EntityImage extends Entity {
     /**
      * Rotate image
      *
-     * @param int        $nAngle
-     * @param int|string $xColor
-     * @param int        $nOpacity
+     * @param float      $nAngle    - Rotation angle in degrees
+     * @param int|string $xColor    - Background color
+     * @param float      $nOpacity  - Background opacity
      *
      * @return ModuleImg_EntityImage
      */
-    public function Rotate($nAngle, $xColor = 0xffffff, $nOpacity = 0) {
+    public function Rotate($nAngle, $xColor = 0xffffff, $nOpacity = 0.0) {
 
         if ($oImage = $this->GetImage()) {
             $oImage->rotate($nAngle, $this->_color($xColor), $nOpacity);
@@ -240,8 +247,8 @@ class ModuleImg_EntityImage extends Entity {
     /**
      * Flip image
      *
-     * @param bool $bHorizontally
-     * @param bool $bVertically
+     * @param bool $bHorizontally   - Whether to flip image horizontally
+     * @param bool $bVertically     - Whether to flip image vertically
      *
      * @return ModuleImg_EntityImage
      */
@@ -256,13 +263,13 @@ class ModuleImg_EntityImage extends Entity {
     }
 
     /**
-     * @param ModuleImg_EntityImage $oOverlay
-     * @param int                   $nX
-     * @param int                   $nY
+     * @param ModuleImg_EntityImage $oOverlay   - Image to overlay over the current one
+     * @param int                   $nX         - X coordinate of the overlay
+     * @param int                   $nY         - Y coordinate of the overlay
      *
      * @return ModuleImg_EntityImage
      */
-    public function Overlay($oOverlay, $nX = 0, $nY = 0) {
+    public function Overdraw($oOverlay, $nX = 0, $nY = 0) {
 
         if ($oImage = $this->GetImage()) {
             if ($oOverImage = $oOverlay->GetImage()) {
@@ -273,7 +280,110 @@ class ModuleImg_EntityImage extends Entity {
     }
 
     /**
-     * @param string $sFile
+     * Changes canvas size via overdraw method
+     *
+     * @param $nWidth
+     * @param $nHeight
+     * @param $nDX
+     * @param $nDY
+     */
+    protected function _canvasSizeOrdinary($nWidth, $nHeight, $nDX, $nDY) {
+
+        if ($oImage = $this->GetImage()) {
+            $oBackImg = $this->Create($nWidth, $nHeight, 0xffffff, 0);
+            $nX = round($nDX / 2);
+            $nY = round($nDY / 2);
+            $oBackImg->GetImage()->overlay($oImage, $nX, $nY);
+            $this->SetImage($oBackImg->GetImage());
+            $this->SetWidth($nWidth);
+            $this->SetHeight($nHeight);
+        }
+    }
+
+    /**
+     * Changes canvas size with multiframe support
+     *
+     * @param $nWidth
+     * @param $nHeight
+     * @param $nDX
+     * @param $nDY
+     */
+    protected function _canvasSizeMultiframe($nWidth, $nHeight, $nDX, $nDY) {
+
+        if ($oImage = $this->GetImage()) {
+            if ($nDX >= 0 && $nDY >= 0) {
+                $nX = round($nDX / 2);
+                $nY = round($nDY / 2);
+                $oImage->image->setPage($nWidth, $nHeight, $nX, $nY);
+                foreach($oImage->image as $frame) {
+                    $frame->setImagePage($nWidth, $nHeight, $nX, $nY);
+                }
+            } elseif ($nDX < 0 && $nDY >= 0) {
+                $this->Crop($nWidth, $this->GetHeight(), -round($nDX / 2), 0);
+                $this->_canvasSizeMultiframe($nWidth, $nHeight, 0, $nDY);
+            } elseif($nDX >= 0 && $nDY < 0) {
+                $this->Crop($this->GetWidth(), $nHeight, 0, -round($nDY / 2));
+                $this->_canvasSizeMultiframe($nWidth, $nHeight, $nDX, 0);
+            } else {
+                $this->Crop($nWidth, $nHeight, -round($nDX / 2), round($nDY / 2));
+            }
+            $this->SetWidth($nWidth);
+            $this->SetHeight($nHeight);
+        }
+    }
+
+    /**
+     * Changes canvas size
+     *
+     * @param $nWidth
+     * @param $nHeight
+     *
+     * @return $this
+     */
+    public function CanvasSize($nWidth, $nHeight) {
+
+        if ($oImage = $this->GetImage()) {
+            $nDX = $nWidth - $this->GetWidth();
+            $nDY = $nHeight - $this->GetHeight();
+            if ($nDX || $nDY) {
+                if ($this->Img_GetDriver() == 'Imagick' && $this->IsMultiframe()) {
+                    $this->_canvasSizeMultiframe($nWidth, $nHeight, $nDX, $nDY);
+                } else {
+                    $this->_canvasSizeOrdinary($nWidth, $nHeight, $nDX, $nDY);
+                }
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * Write text on image
+     *
+     * @param string     $sText        - Text to write
+     * @param int        $nSize        - Font size
+     * @param string     $sFontFile    - Path to font file
+     * @param int        $nX           - X coordinate of the baseline of the first line of text (from left border)
+     * @param int        $nY           - Y coordinate of the baseline of the first line of text (from top border)
+     * @param int|string $xColor       - Text color (e.g 0xffffff or 32842 or 'ff9933')
+     * @param float      $nOpacity     - Text opacity
+     * @param float      $nAngle       - Counter clockwise text rotation angle
+     * @param int        $nWrapWidth   - Width to wrap text at. Null means no wrapping.
+     * @param int        $nLineSpacing - Line spacing multiplier
+     *
+     * @return ModuleImg_EntityImage
+     */
+    public function Text($sText, $nSize, $sFontFile, $nX, $nY, $xColor = 0x000000, $nOpacity = 1.0, $nAngle = 0.0, $nWrapWidth = null, $nLineSpacing = 1) {
+
+        if ($oImage = $this->GetImage()) {
+            $oImage->text($sText, $nSize, $sFontFile, $nX, $nY, $this->_color($xColor), $nOpacity, $nWrapWidth, $nLineSpacing, $nAngle);
+        }
+        return $this;
+    }
+
+    /**
+     * Save image to file
+     *
+     * @param string $sFile - Filename to save
      *
      * @return string|bool
      */
@@ -307,12 +417,18 @@ class ModuleImg_EntityImage extends Entity {
     }
 
     /**
-     * @param string $sImageFormat
+     * Renders and ouputs the image
+     *
+     * @param string $sImageFormat - Image format (gif, png or jpeg)
      */
     public function Render($sImageFormat = null) {
 
         if ($oImage = $this->GetImage()) {
             if ($sImageFormat) {
+                $sImageFormat = strtolower($sImageFormat);
+                if ($sImageFormat == 'jpg') {
+                    $sImageFormat = 'jpeg';
+                }
                 $oImage->render($sImageFormat);
             } else {
                 $oImage->render();
