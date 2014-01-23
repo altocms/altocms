@@ -256,7 +256,7 @@ class ModuleGeo_MapperGeo extends Mapper {
         );
         if ($aRows) {
             foreach ($aRows as $aRow) {
-                $aResult[] = Engine::GetEntity('ModuleGeo_EntityCountry', $aRow);
+                $aResult[$aRow['id']] = Engine::GetEntity('ModuleGeo_EntityCountry', $aRow);
             }
         }
         return $aResult;
@@ -323,7 +323,7 @@ class ModuleGeo_MapperGeo extends Mapper {
         );
         if ($aRows) {
             foreach ($aRows as $aRow) {
-                $aResult[] = Engine::GetEntity('ModuleGeo_EntityRegion', $aRow);
+                $aResult[$aRow['id']] = Engine::GetEntity('ModuleGeo_EntityRegion', $aRow);
             }
         }
         return $aResult;
@@ -395,7 +395,7 @@ class ModuleGeo_MapperGeo extends Mapper {
         );
         if ($aRows) {
             foreach ($aRows as $aRow) {
-                $aResult[] = Engine::GetEntity('ModuleGeo_EntityCity', $aRow);
+                $aResult[$aRow['id']] = Engine::GetEntity('ModuleGeo_EntityCity', $aRow);
             }
         }
         return $aResult;
