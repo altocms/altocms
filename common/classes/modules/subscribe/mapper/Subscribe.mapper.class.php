@@ -30,15 +30,15 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
      */
     public function AddSubscribe($oSubscribe) {
 
-        $sql = "INSERT INTO ?_subscribe SET ?a ";
-        if ($iId = $this->oDb->query($sql, $oSubscribe->_getData())) {
+        $sql = "INSERT INTO ?_subscribe(?#) VALUES(?a)";
+        if ($iId = $this->oDb->query($sql, $oSubscribe->getKeyProps(), $oSubscribe->getAllProps())) {
             return $iId;
         }
         return false;
     }
 
     /**
-     * Получение подписки по типы и емайлу
+     * Получение подписки по типу и емейлу
      *
      * @param string $sType    Тип
      * @param string $sMail    Емайл

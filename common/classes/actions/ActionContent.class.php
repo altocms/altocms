@@ -96,7 +96,7 @@ class ActionContent extends Action {
 
         $this->AddEventPreg('/^published$/i', '/^(page([1-9]\d{0,5}))?$/i', 'EventShowTopics');
         $this->AddEventPreg('/^saved$/i', '/^(page([1-9]\d{0,5}))?$/i', 'EventShowTopics');
-        $this->AddEvent('edit', 'EventEdit');
+        $this->AddEvent('edit', array('EventEdit', 'edit'));
         $this->AddEvent('delete', 'EventDelete');
 
         //Фото
@@ -484,7 +484,13 @@ class ActionContent extends Action {
          $oTopic->setForbidComment(F::GetRequest('topic_forbid_comment', 0));
 
         // Разрешение/запрет индексации контента топика изначально - как у блога
-        $oTopic->setTopicIndexIngnore($oBlog->GetBlogType()->GetIndexIgnore());
+        if ($oBlogType = $oBlog->GetBlogType()) {
+            // Если тип блога определен, то берем из типа блога...
+            $oTopic->setTopicIndexIngnore($oBlogType->GetIndexIgnore());
+        } else {
+            // ...если нет, то индексацию разрешаем
+            $oTopic->setTopicIndexIngnore(false);
+        }
 
         // * Запускаем выполнение хуков
         $this->Hook_Run('topic_add_before', array('oTopic' => $oTopic, 'oBlog' => $oBlog));
@@ -538,7 +544,7 @@ class ActionContent extends Action {
              */
             $this->Stream_Write(
                 $oTopic->getUserId(), 'add_topic', $oTopic->getId(),
-                $oTopic->getPublish() && !$oBlog->getBlogType()->IsPrivate()
+                $oTopic->getPublish() && (!$oBlog->getBlogType() || !$oBlog->getBlogType()->IsPrivate())
             );
             Router::Location($oTopic->getUrl());
         } else {
@@ -690,8 +696,11 @@ class ActionContent extends Action {
         $oTopic->setForbidComment(F::GetRequest('topic_forbid_comment', 0));
 
         // Если запрет на индексацию не устанавливался вручную, то задаем, как у блога
+        $oBlogType = $oBlog->GetBlogType();
         if (!$oTopic->getIndexIgnoreLock()) {
-            $oTopic->setTopicIndexIngnore($oBlog->GetBlogType()->GetIndexIgnore());
+            $oTopic->setTopicIndexIngnore($oBlogType->GetIndexIgnore());
+        } else {
+            $oTopic->setTopicIndexIngnore(false);
         }
 
         $this->Hook_Run('topic_edit_before', array('oTopic' => $oTopic, 'oBlog' => $oBlog));
@@ -717,7 +726,7 @@ class ActionContent extends Action {
             // * Добавляем событие в ленту
             $this->Stream_Write(
                 $oTopic->getUserId(), 'add_topic', $oTopic->getId(),
-                $oTopic->getPublish() && !$oBlog->getBlogType()->IsPrivate()
+                $oTopic->getPublish() && (!$oBlogType || !$oBlog->getBlogType()->IsPrivate())
             );
 
             // * Рассылаем о новом топике подписчикам блога

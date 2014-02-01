@@ -1439,6 +1439,12 @@ class ModuleBlog extends Module {
         return null;
     }
 
+    public function GetBlogTypeDefault() {
+
+        $oBlogType = $this->GetBlogTypeByCode('open');
+        return $oBlogType;
+    }
+
     /**
      * Добавить тип блога
      *

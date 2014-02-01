@@ -39,18 +39,31 @@ class ModuleMresource_MapperMresource extends Mapper {
         if (!$nId) {
             $sql = "
             INSERT INTO ?_mresource
-            SET
-                date_add = ?:date_add,
-                user_id = ?d:user_id,
-                link = ?d:link,
-                type = ?d:type,
-                path_url = ?:path_url,
-                path_file = ?:path_file,
-                hash_url = ?:hash_url,
-                hash_file = ?:hash_file,
-                storage = ?:storage,
-                uuid = ?:uuid
-        ";
+            (
+                date_add,
+                user_id,
+                link,
+                type,
+                path_url,
+                path_file,
+                hash_url,
+                hash_file,
+                storage,
+                uuid
+            )
+            VALUES (
+                ?:date_add,
+                ?d:user_id,
+                ?d:link,
+                ?d:type,
+                ?:path_url,
+                ?:path_file,
+                ?:hash_url,
+                ?:hash_file,
+                ?:storage,
+                ?:uuid
+            )
+            ";
             $nId = $this->oDb->sqlQuery($sql, $aParams);
         }
         return $nId ? $nId : false;
@@ -58,30 +71,60 @@ class ModuleMresource_MapperMresource extends Mapper {
 
     public function AddTargetRel($oMresource) {
 
-        $nId = $this->oDb->sqlQuery(
-            "INSERT INTO ?_mresource_target
-            SET
-                mresource_id = ?d:id,
+        $aParams = array(
+            ':id' => $oMresource->GetMresourceId(),
+            ':target_type' => $oMresource->GetTargetType(),
+            ':target_id' => $oMresource->GetTargetId(),
+            ':date_add' => F::Now(),
+            ':description' => $oMresource->GetDescription(),
+            ':target_tmp' => $oMresource->GetTargetTmp(),
+            ':incount' => $oMresource->GetIncount() ? $oMresource->GetIncount() : 1,
+        );
+        $sql = "
+            SELECT mresource_id
+            FROM ?_mresource_target
+            WHERE
                 target_type = ?:target_type,
                 target_id = ?d:target_id,
-                date_add = ?:date_add,
-                description = ?:description,
-                target_tmp = ?:target_tmp,
-                incount = ?d:incount
-            ON DUPLICATE KEY UPDATE
-                incount=incount+?d:incount
-            ",
-            array(
-                 ':id' => $oMresource->GetMresourceId(),
-                 ':target_type' => $oMresource->GetTargetType(),
-                 ':target_id' => $oMresource->GetTargetId(),
-                 ':date_add' => F::Now(),
-                 ':description' => $oMresource->GetDescription(),
-                 ':target_tmp' => $oMresource->GetTargetTmp(),
-                 ':incount' => $oMresource->GetIncount() ? $oMresource->GetIncount() : 1,
-            )
-        );
-        return $nId ? $nId : false;
+                mresource_id = ?d:id
+            LIMIT 1
+        ";
+        if ($iId = $this->oDb->sqlSelectCell($sql, $aParams)) {
+            $sql = "
+                UPDATE ?_mresource_target
+                SET incount=incount+?d:incount
+                WHERE mresource_id = ?d:id
+            ";
+            if ($this->oDb->sqlQuery($sql, $aParams)) {
+                return $iId;
+            }
+        } else {
+            $sql = "
+                INSERT INTO ?_mresource_target
+                (
+                    mresource_id = ?d:id,
+                    target_type = ?:target_type,
+                    target_id = ?d:target_id,
+                    date_add = ?:date_add,
+                    description = ?:description,
+                    target_tmp = ?:target_tmp,
+                    incount = ?d:incount
+                )
+                VALUES (
+                    mresource_id = ?d:id,
+                    target_type = ?:target_type,
+                    target_id = ?d:target_id,
+                    date_add = ?:date_add,
+                    description = ?:description,
+                    target_tmp = ?:target_tmp,
+                    incount = ?d:incount
+                )
+            ";
+            if ($iId = $this->oDb->sqlQuery($sql, $aParams)) {
+                return $iId ? $iId : false;
+            }
+        }
+        return false;
     }
 
     protected function _getMresourcesRelByCriteria($aCriteria) {

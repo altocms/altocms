@@ -173,14 +173,23 @@ class ModuleUser_MapperUser extends Mapper {
         } else {
             $sql
                 = "INSERT INTO ?_session
+                    (
+                        session_key,
+                        user_id,
+                        session_ip_create,
+                        session_ip_last,
+                        session_date_create,
+                        session_date_last,
+                        session_agent_hash
+                    )
                     SET
-                        session_key = ?:key ,
-                        user_id = ?d:user_id ,
-                        session_ip_create = ?:ip_create ,
-                        session_ip_last = ?:ip_last ,
-                        session_date_create = ?:date_create ,
-                        session_date_last = ?:date_last ,
-                        session_agent_hash = ?:agent_hash
+                        ?:key ,
+                        ?d:user_id ,
+                        ?:ip_create ,
+                        ?:ip_last ,
+                        ?:date_create ,
+                        ?:date_last ,
+                        ?:agent_hash
             ";
         }
         $bResult = $this->oDb->sqlQuery(
@@ -1151,7 +1160,7 @@ class ModuleUser_MapperUser extends Mapper {
             $aRow = $this->oDb->selectRow($sql, $nUserId, $iId);
             $iCount = isset($aRow['c']) ? $aRow['c'] : 0;
             if ($iCount < $iCountMax) {
-                $sql = "INSERT INTO ?_user_field_value SET value = ?, user_id = ?d, field_id = ?";
+                $sql = "INSERT INTO ?_user_field_value(value, user_id, field_id) VALUES (?, ?d, ?)";
             } elseif ($iCount == $iCountMax && $iCount == 1) {
                 $sql = "UPDATE ?_user_field_value SET value = ? WHERE user_id = ?d AND field_id = ?";
             } else {
@@ -1173,11 +1182,19 @@ class ModuleUser_MapperUser extends Mapper {
         $sql
             = "
             INSERT INTO ?_user_field
-            SET
-                name = ?,
-                title = ?,
-                pattern = ?,
-                type = ?";
+            (
+                name,
+                title,
+                pattern,
+                type
+            )
+            VALUES (
+                ?,
+                ?,
+                ?,
+                ?
+            )
+            ";
         $xResult = $this->oDb->query(
             $sql, $oField->getName(), $oField->getTitle(), $oField->getPattern(), $oField->getType()
         );
@@ -1429,11 +1446,9 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function AddUserNote($oNote) {
 
-        $sql = "INSERT INTO ?_user_note SET ?a ";
-        if ($iId = $this->oDb->query($sql, $oNote->_getData())) {
-            return $iId;
-        }
-        return false;
+        $sql = "INSERT INTO ?_user_note(?#) VALUES(?a)";
+        $iId = $this->oDb->query($sql, $oNote->getKeyProps(), $oNote->getAllProps());
+        return $iId ? $iId : false;
     }
 
     /**

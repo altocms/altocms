@@ -380,8 +380,8 @@ class ModuleGeo extends Module {
     public function GetCountryById($iId) {
 
         $aRes = $this->GetCountries(array('id' => $iId), array(), 1, 1);
-        if (isset($aRes['collection'][0])) {
-            return $aRes['collection'][0];
+        if (isset($aRes['collection'][$iId])) {
+            return $aRes['collection'][$iId];
         }
         return null;
     }
@@ -396,8 +396,8 @@ class ModuleGeo extends Module {
     public function GetRegionById($iId) {
 
         $aRes = $this->GetRegions(array('id' => $iId), array(), 1, 1);
-        if (isset($aRes['collection'][0])) {
-            return $aRes['collection'][0];
+        if (isset($aRes['collection'][$iId])) {
+            return $aRes['collection'][$iId];
         }
         return null;
     }
@@ -412,8 +412,8 @@ class ModuleGeo extends Module {
     public function GetCityById($iId) {
 
         $aRes = $this->GetCities(array('id' => $iId), array(), 1, 1);
-        if (isset($aRes['collection'][0])) {
-            return $aRes['collection'][0];
+        if (isset($aRes['collection'][$iId])) {
+            return $aRes['collection'][$iId];
         }
         return null;
     }

@@ -162,9 +162,14 @@ class ModuleFavourite_MapperFavourite extends Mapper {
     public function AddTag($oTag) {
 
         $sql = "
-			INSERT INTO ?_favourite_tag
-				SET target_id = ?d, target_type = ?, user_id = ?d, is_user = ?d, text =?
-		";
+          INSERT INTO ?_favourite_tag
+          (
+              target_id, target_type, user_id, is_user, text
+          )
+          VALUES (
+              ?d, ?, ?d, ?d, ?
+          )
+        ";
         $bResult = $this->oDb->query(
             $sql,
             $oTag->getTargetId(),

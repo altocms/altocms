@@ -216,7 +216,7 @@ class AltoFunc_Main {
             if (isset($_SERVER[$sParam]) && (!$aNonTrusted || !in_array($sParam, $aNonTrusted))) {
                 // sometimes IPs separated by space
                 $sIp = str_replace(' ', ',', trim($_SERVER[$sParam]));
-                if (strpos($sIp, ',')) {
+                if (strpos($sIp, ',') === false) {
                     // several IPs
                     $aData = explode(',', $sIp);
                     $aIp[$sParam] = '';
@@ -266,6 +266,7 @@ class AltoFunc_Main {
         }
 
         $bSeekBackward = F::_getConfig('sys.ip.backward', true);
+        $bExcludePrivate = F::_getConfig('sys.ip.exclude_private', true);
         // collect all ip
         $aIp = array();
         foreach ($aIpParams as $sIp) {
@@ -280,7 +281,7 @@ class AltoFunc_Main {
             }
         }
         foreach ($aIp as $sIp) {
-            if (!in_array($sIp, $aExcludeIp)) {
+            if (!in_array($sIp, $aExcludeIp) && (!$bExcludePrivate || filter_var($sIp, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE))) {
                 return $sIp;
             }
         }

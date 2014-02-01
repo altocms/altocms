@@ -29,8 +29,8 @@ class ModuleGeo_MapperGeo extends Mapper {
      */
     public function AddTarget($oTarget) {
 
-        $sql = "INSERT INTO ?_geo_target SET ?a ";
-        if ($this->oDb->query($sql, $oTarget->_getData())) {
+        $sql = "INSERT INTO ?_geo_target(?#) VALUES(?a)";
+        if ($this->oDb->query($sql, $oTarget->getKeyProps(), $oTarget->getAllProps())) {
             return true;
         }
         return false;

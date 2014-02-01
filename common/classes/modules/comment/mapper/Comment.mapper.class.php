@@ -567,19 +567,22 @@ class ModuleComment_MapperComment extends Mapper {
     public function AddComment(ModuleComment_EntityComment $oComment) {
 
         $sql = "INSERT INTO ?_comment
-			(comment_pid,
-			target_id,
-			target_type,
-			target_parent_id,
-			user_id,
-			comment_text,
-			comment_date,
-			comment_user_ip,
-			comment_publish,
-			comment_text_hash
-			)
-			VALUES(?, ?d, ?, ?d, ?d, ?, ?, ?, ?d, ?)
-		";
+          (
+              comment_pid,
+              target_id,
+              target_type,
+              target_parent_id,
+              user_id,
+              comment_text,
+              comment_date,
+              comment_user_ip,
+              comment_publish,
+              comment_text_hash
+          )
+          VALUES (
+              ?, ?d, ?, ?d, ?d, ?, ?, ?, ?d, ?
+          )
+        ";
         $iId = $this->oDb->query(
             $sql, $oComment->getPid(), $oComment->getTargetId(), $oComment->getTargetType(),
             $oComment->getTargetParentId(), $oComment->getUserId(), $oComment->getText(), $oComment->getDate(),
@@ -667,8 +670,13 @@ class ModuleComment_MapperComment extends Mapper {
         $this->DeleteCommentOnlineByTargetId($oCommentOnline->getTargetId(), $oCommentOnline->getTargetType());
         $sql
             = "
-                INSERT INTO ?_comment_online (target_id, target_type, target_parent_id, comment_id)
-                VALUES (?d, ?, ?d, ?d)
+                INSERT INTO ?_comment_online
+                (
+                  target_id, target_type, target_parent_id, comment_id
+                )
+                VALUES (
+                  ?d, ?, ?d, ?d
+                )
             ";
         $xResult = $this->oDb->query(
             $sql,

@@ -787,14 +787,23 @@ class ModuleTopic_MapperTopic extends Mapper {
      */
     public function AddTopicRead(ModuleTopic_EntityTopicRead $oTopicRead) {
 
-        $sql = "INSERT INTO ?_topic_read
-			SET 
-				comment_count_last = ? ,
-				comment_id_last = ? ,
-				date_read = ? ,
-				topic_id = ? ,
-				user_id = ? 
-		";
+        $sql = "
+            INSERT INTO ?_topic_read
+            (
+                comment_count_last,
+                comment_id_last,
+                date_read,
+                topic_id,
+                user_id
+            )
+            VALUES (
+                ? ,
+                ? ,
+                ? ,
+                ? ,
+                ?
+            )
+        ";
         return $this->oDb->query(
             $sql, $oTopicRead->getCommentCountLast(), $oTopicRead->getCommentIdLast(), $oTopicRead->getDateRead(),
             $oTopicRead->getTopicId(), $oTopicRead->getUserId()
@@ -1151,14 +1160,23 @@ class ModuleTopic_MapperTopic extends Mapper {
         if (!$oPhoto->getTopicId() && !$oPhoto->getTargetTmp()) {
             return false;
         }
-        $sTargetType = ($oPhoto->getTopicId()) ? 'topic_id' : 'target_tmp';
-        $iTargetId = ($sTargetType == 'topic_id') ? $oPhoto->getTopicId() : $oPhoto->getTargetTmp();
 
-        $sql = '
-                INSERT INTO ?_topic_photo
-                SET
-                    path = ?, description = ?, ?# = ?';
-        $iId = $this->oDb->query($sql, $oPhoto->getPath(), $oPhoto->getDescription(), $sTargetType, $iTargetId);
+        if ($iTargetId = $oPhoto->getTopicId()) {
+            $sTargetTmp = null;
+        } else {
+            $sTargetTmp = $oPhoto->getTargetTmp();
+        }
+
+        $sql = "
+            INSERT INTO ?_topic_photo
+            (
+                path, description, topic_id, target_tmp
+            )
+            VALUES (
+                ?, ?, ?d, ?
+            )
+        ";
+        $iId = $this->oDb->query($sql, $oPhoto->getPath(), $oPhoto->getDescription(), $iTargetId, $sTargetTmp);
         return $iId ? $iId : false;
     }
 

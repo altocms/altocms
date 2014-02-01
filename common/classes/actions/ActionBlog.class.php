@@ -506,7 +506,7 @@ class ActionBlog extends Action {
          * Если блог приватный, получаем приглашенных
          * и добавляем блок-форму для приглашения
          */
-        if ($oBlog->getBlogType()->IsPrivate()) {
+        if ($oBlog->getBlogType() && $oBlog->getBlogType()->IsPrivate()) {
             $aBlogUsersInvited = $this->Blog_GetBlogUsersByBlogId(
                 $oBlog->getId(), ModuleBlog::BLOG_USER_ROLE_INVITE, null
             );
@@ -965,7 +965,7 @@ class ActionBlog extends Action {
         /**
          * Определяем права на отображение закрытого блога
          */
-        if ($oBlog->GetBlogType()->IsPrivate()
+        if ($oBlog->getBlogType() && $oBlog->GetBlogType()->IsPrivate()
             && (!$this->oUserCurrent || !in_array($oBlog->getId(), $this->Blog_GetAccessibleBlogsByUser($this->oUserCurrent)))
         ) {
             $bCloseBlog = true;
@@ -974,7 +974,7 @@ class ActionBlog extends Action {
         }
 
         // В скрытый блог посторонних совсем не пускам
-        if ($bCloseBlog && $oBlog->GetBlogType()->IsHidden()) {
+        if ($bCloseBlog && $oBlog->getBlogType() && $oBlog->GetBlogType()->IsHidden()) {
             return parent::EventNotFound();
         }
 
@@ -1812,7 +1812,7 @@ class ActionBlog extends Action {
          * Получаем указанный блог
          */
         $oBlog = $this->Blog_GetBlogById($sBlogId);
-        if (!$oBlog || !$oBlog->getBlogType()->IsPrivate()) {
+        if (!$oBlog || !$oBlog->getBlogType() || !$oBlog->getBlogType()->IsPrivate()) {
             return $this->EventNotFound();
         }
         /**
@@ -2008,8 +2008,9 @@ class ActionBlog extends Action {
             return;
         }
 
+        $oBlogType = $oBlog->getBlogType();
         // * Проверяем тип блога на возможность свободного вступления
-        if (!$oBlog->getBlogType()->GetMembership(ModuleBlog::BLOG_USER_JOIN_FREE)) {
+        if ($oBlogType && !$oBlogType->GetMembership(ModuleBlog::BLOG_USER_JOIN_FREE)) {
             $this->Message_AddErrorSingle($this->Lang_Get('blog_join_error_invite'), $this->Lang_Get('error'));
             return;
         }
@@ -2018,7 +2019,7 @@ class ActionBlog extends Action {
          */
         $oBlogUser = $this->Blog_GetBlogUserByBlogIdAndUserId($oBlog->getId(), $this->oUserCurrent->getId());
         if (!$oBlogUser
-            || ($oBlogUser->getUserRole() < ModuleBlog::BLOG_USER_ROLE_GUEST && $oBlog->getBlogType()->IsPrivate())
+            || ($oBlogUser->getUserRole() < ModuleBlog::BLOG_USER_ROLE_GUEST && (!$oBlogType || $oBlogType->IsPrivate()))
         ) {
             if ($oBlog->getOwnerId() != $this->oUserCurrent->getId()) {
                 /**
@@ -2055,7 +2056,7 @@ class ActionBlog extends Action {
                         $this->oUserCurrent->getId(), ModuleUserfeed::SUBSCRIBE_TYPE_BLOG, $oBlog->getId()
                     );
                 } else {
-                    $sMsg = ($oBlog->getBlogType()->IsPrivate())
+                    $sMsg = ($oBlogType->IsPrivate())
                         ? $this->Lang_Get('blog_join_error_invite')
                         : $this->Lang_Get('system_error');
                     $this->Message_AddErrorSingle($sMsg, $this->Lang_Get('error'));

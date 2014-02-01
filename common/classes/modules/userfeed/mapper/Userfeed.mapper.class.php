@@ -30,18 +30,25 @@ class ModuleUserfeed_MapperUserfeed extends Mapper {
      *
      * @return bool
      */
-    public function subscribeUser($iUserId, $iSubscribeType, $iTargetId) {
+    public function SubscribeUser($iUserId, $iSubscribeType, $iTargetId) {
 
-        $sql = '
+        $sql = "
             SELECT *
             FROM ?_userfeed_subscribe
             WHERE
-                user_id = ?d AND subscribe_type = ?d AND target_id = ?d';
+                user_id = ?d AND subscribe_type = ?d AND target_id = ?d
+            LIMIT 1
+            ";
         if (!$this->oDb->select($sql, $iUserId, $iSubscribeType, $iTargetId)) {
-            $sql = '
+            $sql = "
                 INSERT INTO ?_userfeed_subscribe
-                SET
-                    user_id = ?d, subscribe_type = ?d, target_id = ?d';
+                (
+                    user_id, subscribe_type, target_id
+                )
+                VALUES (
+                    ?d, ?d, ?d
+                )
+                ";
             $this->oDb->query($sql, $iUserId, $iSubscribeType, $iTargetId);
             return true;
         }
@@ -57,7 +64,7 @@ class ModuleUserfeed_MapperUserfeed extends Mapper {
      *
      * @return bool
      */
-    public function unsubscribeUser($iUserId, $iSubscribeType, $iTargetId) {
+    public function UnsubscribeUser($iUserId, $iSubscribeType, $iTargetId) {
 
         $sql = '
             DELETE FROM ?_userfeed_subscribe
@@ -74,7 +81,7 @@ class ModuleUserfeed_MapperUserfeed extends Mapper {
      *
      * @return array
      */
-    public function getUserSubscribes($iUserId) {
+    public function GetUserSubscribes($iUserId) {
 
         $sql = '
             SELECT subscribe_type, target_id
@@ -107,7 +114,7 @@ class ModuleUserfeed_MapperUserfeed extends Mapper {
      *
      * @return array
      */
-    public function readFeed($aUserSubscribes, $iCount, $iFromId) {
+    public function ReadFeed($aUserSubscribes, $iCount, $iFromId) {
 
         $sql
             = "

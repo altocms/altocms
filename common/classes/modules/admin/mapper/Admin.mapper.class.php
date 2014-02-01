@@ -38,21 +38,23 @@ class ModuleAdmin_MapperAdmin extends Mapper {
     /**
      * Ban users by id
      *
-     * @param      $aUsersId
-     * @param      $sDate
-     * @param      $nUnlim
-     * @param null $sComment
+     * @param array  $aUsersId
+     * @param string $sDate
+     * @param bool   $bUnlim
+     * @param string $sComment
      *
      * @return bool
      */
-    public function BanUsers($aUsersId, $sDate, $nUnlim, $sComment = null) {
+    public function BanUsers($aUsersId, $sDate, $bUnlim, $sComment = null) {
 
         $this->UnbanUsers($aUsersId);
         foreach($aUsersId as $nUserId) {
             $sql = "
                 INSERT INTO ?_adminban
-                SET user_id=?d, bandate=?, banline=?, banunlim=?, bancomment=?, banactive=1";
-            if ($this->oDb->query($sql, $nUserId, F::Now(), $sDate, $nUnlim ? 1 : 0, $sComment) === false)
+                  (user_id, bandate, banline, banunlim, bancomment, banactive)
+                  VALUES (?d, ?, ?, ?, ?, 1)
+                ";
+            if ($this->oDb->query($sql, $nUserId, F::Now(), $sDate, $bUnlim ? 1 : 0, $sComment) === false)
                 return false;
         }
         return true;
@@ -134,34 +136,44 @@ class ModuleAdmin_MapperAdmin extends Mapper {
     /**
      * Ban range of IPs
      *
-     * @param $sIp1
-     * @param $sIp2
-     * @param $dDate
-     * @param $nUnlim
-     * @param $sComment
+     * @param string $sIp1
+     * @param string $sIp2
+     * @param string $sDate
+     * @param bool   $bUnlim
+     * @param string $sComment
      *
      * @return bool
      */
-    public function SetBanIp($sIp1, $sIp2, $dDate, $nUnlim, $sComment) {
+    public function SetBanIp($sIp1, $sIp2, $sDate, $bUnlim, $sComment) {
 
         $sql = "
             INSERT INTO ?_adminips
-                SET
-                    ip1=INET_ATON(?),
-                    ip2=INET_ATON(?),
-                    bandate=?,
-                    banline=?,
-                    banunlim=?d,
-                    bancomment=?,
-                    banactive=1
+                (
+                    ip1,
+                    ip2,
+                    bandate,
+                    banline,
+                    banunlim,
+                    bancomment,
+                    banactive
+                )
+                VALUES (
+                    INET_ATON(?),
+                    INET_ATON(?),
+                    ?,
+                    ?,
+                    ?d,
+                    ?,
+                    1
+                )
                     ";
-        return $this->oDb->query($sql, $sIp1, $sIp2, F::Now(), $dDate, $nUnlim, $sComment) !== false;
+        return $this->oDb->query($sql, $sIp1, $sIp2, F::Now(), $sDate, $bUnlim ? 0 : 1, $sComment) !== false;
     }
 
     /**
      * Unban range of IPs
      *
-     * @param $aIds
+     * @param array $aIds
      *
      * @return bool
      */
@@ -170,7 +182,8 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         if (!is_array($aIds)) $aIds = intval($aIds);
         $sql = "
             UPDATE ?_adminips
-            SET banactive=0, banunlim=0 WHERE id IN (?a)";
+            SET banactive=0, banunlim=0
+            WHERE id IN (?a)";
         return $this->oDb->query($sql, $aIds) !== false;
     }
 

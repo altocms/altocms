@@ -35,15 +35,26 @@ class ModuleBlog_MapperBlog extends Mapper {
         $sql
             = "
             INSERT INTO ?_blog
-            SET
-                user_owner_id = ?d,
-                blog_title = ?,
-                blog_description = ?,
-                blog_type = ?,
-                blog_date_add = ?,
-                blog_limit_rating_topic = ?,
-                blog_url = ?,
-                blog_avatar = ?
+            (
+                user_owner_id,
+                blog_title,
+                blog_description,
+                blog_type,
+                blog_date_add,
+                blog_limit_rating_topic,
+                blog_url,
+                blog_avatar
+            )
+            VALUES (
+                ?d,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?
+            )
         ";
         $nId = $this->oDb->query(
             $sql,
@@ -169,10 +180,16 @@ class ModuleBlog_MapperBlog extends Mapper {
 
         $sql = "
             INSERT INTO ?_blog_user
-            SET
-                blog_id = ?d,
-                user_id = ?d,
-                user_role = ?d
+            (
+                blog_id,
+                user_id,
+                user_role
+            )
+            VALUES (
+                ?d,
+                ?d,
+                ?d
+            )
             ";
         $xResult = $this->oDb->query($sql, $oBlogUser->getBlogId(), $oBlogUser->getUserId(), $oBlogUser->getUserRole());
         return $xResult !== false;
@@ -773,26 +790,48 @@ class ModuleBlog_MapperBlog extends Mapper {
 
         $sql = "
             INSERT INTO ?_blog_type
-            SET
-                type_code = ?:type_code,
-                type_name = ?:type_name,
-                type_description = ?:type_description,
-                allow_add = ?d:allow_add,
-                min_rate_add = ?f:min_rate_add,
-                allow_list = ?d:allow_list,
-                min_rate_list = ?f:min_rate_list,
-                index_ignore = ?d:index_ignore,
-                membership = ?d:membership,
-                acl_write = ?d:acl_write,
-                acl_read = ?d:acl_read,
-                acl_comment = ?d:acl_comment,
-                min_rate_write = ?f:min_rate_write,
-                min_rate_read = ?f:min_rate_read,
-                min_rate_comment = ?f:min_rate_comment,
-                content_type = ?:content_type,
-                active = ?d:active,
-                norder = ?d:norder,
-                candelete = ?d:candelete
+            (
+                type_code,
+                type_name,
+                type_description,
+                allow_add,
+                min_rate_add,
+                allow_list,
+                min_rate_list,
+                index_ignore,
+                membership,
+                acl_write,
+                acl_read,
+                acl_comment,
+                min_rate_write,
+                min_rate_read,
+                min_rate_comment,
+                content_type,
+                active,
+                norder,
+                candelete
+            )
+            VALUES (
+                ?:type_code,
+                ?:type_name,
+                ?:type_description,
+                ?d:allow_add,
+                ?f:min_rate_add,
+                ?d:allow_list,
+                ?f:min_rate_list,
+                ?d:index_ignore,
+                ?d:membership,
+                ?d:acl_write,
+                ?d:acl_read,
+                ?d:acl_comment,
+                ?f:min_rate_write,
+                ?f:min_rate_read,
+                ?f:min_rate_comment,
+                ?:content_type,
+                ?d:active,
+                ?d:norder,
+                ?d:candelete
+            )
         ";
         $nId = $this->oDb->sqlQuery(
             $sql,

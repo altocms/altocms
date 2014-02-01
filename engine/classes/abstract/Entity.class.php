@@ -408,6 +408,8 @@ abstract class Entity extends LsObject {
         if (is_bool($aKeys)) {
             $aKeys = array_keys($this->_aData);
             $bRecursively = (bool)$aKeys;
+        } else {
+            $bRecursively = false;
         }
         $aReturn = array();
         foreach ($aKeys as $sKey) {
@@ -423,6 +425,16 @@ abstract class Entity extends LsObject {
             }
         }
         return $aReturn;
+    }
+
+    /**
+     * Returns all keys of enity properies
+     *
+     * @return array
+     */
+    public function getKeyProps() {
+
+        return array_keys($this->_aData);
     }
 
     /**

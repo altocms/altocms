@@ -29,11 +29,11 @@ class ModuleStream_MapperStream extends Mapper {
      */
     public function AddEvent($oObject) {
 
-        $sql = "INSERT INTO ?_stream_event SET ?a ";
-        if ($iId = $this->oDb->query($sql, $oObject->_getData())) {
-            return $iId;
-        }
-        return false;
+        $sql = "
+            INSERT INTO ?_stream_event(?#)
+            VALUES(?a)";
+        $iId = $this->oDb->query($sql, $oObject->getKeyProps(), $oObject->getAllProps());
+        return $iId ? $iId : false;
     }
 
     /**
@@ -170,11 +170,29 @@ class ModuleStream_MapperStream extends Mapper {
      */
     public function switchUserEventType($iUserId, $sEventType) {
 
-        $sql = 'SELECT * FROM ?_stream_user_type WHERE user_id = ?d AND event_type = ?';
+        $sql = "
+          SELECT *
+          FROM ?_stream_user_type
+          WHERE user_id = ?d AND event_type = ?
+          LIMIT 1
+        ";
         if ($this->oDb->select($sql, $iUserId, $sEventType)) {
-            $sql = 'DELETE FROM ?_stream_user_type WHERE user_id = ?d AND event_type = ?';
+            $sql = "
+              DELETE FROM ?_stream_user_type
+              WHERE user_id = ?d AND event_type = ?
+            ";
         } else {
-            $sql = 'INSERT INTO  ?_stream_user_type SET user_id = ?d , event_type = ?';
+            $sql = "
+                INSERT INTO  ?_stream_user_type
+                (
+                    user_id,
+                    event_type
+                )
+                VALUES (
+                    ?d ,
+                    ?
+                )
+                ";
         }
         $this->oDb->query($sql, $iUserId, $sEventType);
     }
@@ -187,11 +205,23 @@ class ModuleStream_MapperStream extends Mapper {
      */
     public function subscribeUser($iUserId, $iTargetUserId) {
 
-        $sql = 'SELECT * FROM ?_stream_subscribe WHERE
-				user_id = ?d AND target_user_id = ?d';
+        $sql = "
+          SELECT *
+          FROM ?_stream_subscribe
+          WHERE
+            user_id = ?d AND target_user_id = ?d
+          LIMIT 1
+          ";
         if (!$this->oDb->select($sql, $iUserId, $iTargetUserId)) {
-            $sql = 'INSERT INTO ?_stream_subscribe SET
-					user_id = ?d, target_user_id = ?d';
+            $sql = "
+              INSERT INTO ?_stream_subscribe
+              (
+                  user_id, target_user_id
+              )
+              VALUES (
+                  ?d, ?d
+              )
+              ";
             $this->oDb->query($sql, $iUserId, $iTargetUserId);
         }
     }

@@ -234,7 +234,7 @@ class ModuleACL extends Module {
     public function CanVoteBlog(ModuleUser_EntityUser $oUser, ModuleBlog_EntityBlog $oBlog) {
 
         // * Если блог приватный, проверяем является ли пользователь его читателем
-        if ($oBlog->getBlogType()->IsPrivate()) {
+        if ($oBlog->getBlogType() && $oBlog->getBlogType()->IsPrivate()) {
             $oBlogUser = $this->Blog_GetBlogUserByBlogIdAndUserId($oBlog->getId(), $oUser->getId());
             if (!$oBlogUser || $oBlogUser->getUserRole() < ModuleBlog::BLOG_USER_ROLE_GUEST) {
                 return self::CAN_VOTE_BLOG_ERROR_CLOSE;
@@ -326,7 +326,7 @@ class ModuleACL extends Module {
      */
     public function IsAllowShowBlog($oBlog, $oUser) {
 
-        if (!$oBlog->getBlogType()->IsPrivate()) {
+        if (!$oBlog->getBlogType() || !$oBlog->getBlogType()->IsPrivate()) {
             return true;
         }
         if (!$oUser && !$oBlog->getBlogType()->GetAclRead(ModuleBlog::BLOG_USER_ACL_GUEST)) {

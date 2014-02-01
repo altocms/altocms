@@ -145,8 +145,10 @@ class ModuleLogger extends Module {
     /**
      * Записывает лог
      *
-     * @param string $sMsg    Сообщение для записи в лог
-     * @param string $sLevel    Уровень логирования
+     * @param string $sMsg   - Сообщение для записи в лог
+     * @param string $sLevel - Уровень логирования
+     *
+     * @return bool
      */
     protected function Log($sMsg, $sLevel) {
 
@@ -164,7 +166,14 @@ class ModuleLogger extends Module {
         return $this->Dump('default', $sMsg);
     }
 
+    /**
+     * @param string $sLog
+     * @param string $sFileName
+     *
+     * @return ModuleLogger_EntityLog
+     */
     public function Reset($sLog, $sFileName = null) {
+
         if (!isset(self::$aLogs[$sLog])) {
             if (!$sFileName) $sFileName = $sLog;
             $oLog = Engine::getInstance()->GetEntity('Logger_Log', array(
@@ -176,10 +185,19 @@ class ModuleLogger extends Module {
         return self::$aLogs[$sLog];
     }
 
+    /**
+     * @param object|string $oLog
+     * @param string        $sMsg
+     * @param string        $sLevel
+     *
+     * @return bool
+     */
     public function Dump($oLog, $sMsg, $sLevel = null) {
+
         if (!is_object($oLog)) $oLog = $this->Reset((string)$oLog);
         return $oLog->Dump($sMsg, $sLevel);
     }
+
 }
 
 // EOF
