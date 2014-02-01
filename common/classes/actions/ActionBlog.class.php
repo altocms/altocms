@@ -786,7 +786,7 @@ class ActionBlog extends Action {
         // Если запросили не персональный топик с определенной маской, не указаным названием блога,
         // но ссылка на топик и ЧПУ url разные, то перенаправляем на страницу для вывода коллективного топика
         if ($sTopicUrlMask && $sBlogUrl == '' && $oTopic->getBlog()->getType() != 'personal'
-            && $oTopic->getUrl() != Router::GetPathWebCurrent() . (substr($sTopicUrlMask, -1) == '/' ? '/' : '')
+            && $oTopic->getUrl() != Router::GetPathWebCurrent() . (substr($oTopic->getUrl(), -1) == '/' ? '/' : '')
         ) {
             Router::Location($oTopic->getUrl());
         }
