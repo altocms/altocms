@@ -9,7 +9,7 @@
                 time: <strong>{$aStatsPerformance.sql.time}</strong>
             </td>
             <td>
-                <h4>Cache ({$aStatsPerformance.cache.mode})</h4>
+                <h4>Cache - {$aStatsPerformance.cache.mode}</h4>
                 query: <strong>{$aStatsPerformance.cache.count}</strong><br/>
                 &mdash; set: <strong>{$aStatsPerformance.cache.count_set}</strong><br/>
                 &mdash; get: <strong>{$aStatsPerformance.cache.count_get}</strong><br/>
@@ -23,7 +23,7 @@
                 &mdash; render time: <strong>{$aStatsPerformance.viewer.time}</strong><br/>
             </td>
             <td>
-                <h4>PHP {$smarty.const.PHP_VERSION}</h4>
+                <h4>PHP - {$smarty.const.PHP_VERSION}</h4>
                 time load modules: <strong>{$aStatsPerformance.engine.time_load_module}</strong><br/>
                 included files: <br/>
                 &mdash; count: <strong>{$aStatsPerformance.engine.files_count}</strong><br/>

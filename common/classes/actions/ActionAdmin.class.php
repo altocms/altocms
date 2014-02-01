@@ -2411,14 +2411,19 @@ class ActionAdmin extends Action {
         if (!$aAllows) $aAllows = array(Config::Get('lang.default'));
         if (!$aAllows) $aAllows = array('ru');
         $aLangAllow = array();
+        if ($sLang = Config::Get('lang.current')) {
+            $n = array_search($sLang, $aAllows);
+            if ($n !== false && isset($aLanguages[$sLang])) {
+                $aLangAllow[$sLang] = $aLanguages[$sLang];
+                $aLangAllow[$sLang]['current'] = true;
+                unset($aAllows[$n]);
+                unset($aLanguages[$sLang]);
+            }
+        }
         foreach($aAllows as $sLang) {
             if (isset($aLanguages[$sLang])) {
                 $aLangAllow[$sLang] = $aLanguages[$sLang];
-                if ($sLang == Config::Get('lang.current')) {
-                    $aLangAllow[$sLang]['current'] = true;
-                } else {
-                    $aLangAllow[$sLang]['current'] = false;
-                }
+                $aLangAllow[$sLang]['current'] = false;
                 unset($aLanguages[$sLang]);
             }
         }

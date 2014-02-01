@@ -57,6 +57,12 @@
                             </li>
                         {/foreach}
                     </ul>
+                    <div class="form-actions">
+                        <button class="b-set-lang-change btn btn-primary">
+                            <i class="icon icon-ok-circle"></i>
+                            {$aLang.action.admin.save}
+                        </button>
+                    </div>
                 </div>
             </div>
         </form>
@@ -80,6 +86,9 @@
 
             $('.b-set-lang-exclude').click(function(){
                 var lang = $(this).data('lang');
+                if (lang == $('input[name=lang_current]:radio:checked').val()) {
+                    $('.b-set-lang-current').click();
+                }
                 $('.lang-allow-' + lang).hide();
                 $('[name=lang_exclude]').val($('[name=lang_exclude]').val() + ',' + lang);
             });

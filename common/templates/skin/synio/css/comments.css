@@ -8,6 +8,8 @@
 .comments-header .subscribe { position: absolute; top: 15px; right: 0; font-size: 11px; color: #7b848d; }
 .comments-header .subscribe input { top: 2px; }
 
+[dir=rtl] .comments-header .subscribe { left: 0; right: inherit; }
+
 .comments { margin-bottom: 30px; }
 
 .comment-wrapper { position: relative; }
