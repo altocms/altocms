@@ -994,20 +994,39 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function AddReminder(ModuleUser_EntityReminder $oReminder) {
 
-        $sql
-            = "REPLACE ?_reminder
-			SET
-				reminder_code = ? ,
-				user_id = ? ,
-				reminder_date_add = ? ,
-				reminder_date_used = ? ,
-				reminder_date_expire = ? ,
-				reminde_is_used = ?
-		";
-        return $this->oDb->query(
-            $sql, $oReminder->getCode(), $oReminder->getUserId(), $oReminder->getDateAdd(), $oReminder->getDateUsed(),
-            $oReminder->getDateExpire(), $oReminder->getIsUsed()
+        $sql = "
+            DELETE FROM ?_reminder WHERE reminder_code=? OR user_id=?d
+        ";
+        $this->oDb->query($sql, $oReminder->getCode(), $oReminder->getUserId());
+        $sql = "
+            INSERT INTO ?_reminder
+            (
+                reminder_code,
+                user_id,
+                reminder_date_add,
+                reminder_date_used,
+                reminder_date_expire,
+                reminde_is_used
+            )
+            VALUES (
+                ? ,
+                ? ,
+                ? ,
+                ? ,
+                ? ,
+                ?
+            )
+        ";
+        $xResult = $this->oDb->query(
+            $sql,
+            $oReminder->getCode(),
+            $oReminder->getUserId(),
+            $oReminder->getDateAdd(),
+            $oReminder->getDateUsed(),
+            $oReminder->getDateExpire(),
+            $oReminder->getIsUsed()
         );
+        return $xResult !== false;
     }
 
     /**
