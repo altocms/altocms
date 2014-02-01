@@ -96,8 +96,11 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
                 if (!$sResizedUrl) {
                     $nSize = intval($sWidth);
                     $bCrop = strpos($sWidth, 'crop');
+                    $bFit = strpos($sWidth, 'fit');
                     if ($nSize) {
-                        if ($bCrop) {
+                        if ($bFit) {
+                            $sResizedUrl = $sUrl . '-' . $nSize . 'x' . $nSize . '-fit.' . $aPathInfo['extension'];
+                        } else if ($bCrop) {
                             $sResizedUrl = $sUrl . '-' . $nSize . 'x' . $nSize . '-crop.' . $aPathInfo['extension'];
                         } else {
                             $sResizedUrl = $sUrl . '-' . $nSize . 'x' . $nSize . '.' . $aPathInfo['extension'];
