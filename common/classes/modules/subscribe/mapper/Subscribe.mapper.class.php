@@ -173,11 +173,9 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
      */
     public function AddTrack($oTrack) {
 
-        $sql = "INSERT INTO ?_track SET ?a ";
-        if ($iId = $this->oDb->query($sql, $oTrack->_getData())) {
-            return $iId;
-        }
-        return false;
+        $sql = "INSERT INTO ?_track (?#) VALUES (?a) ";
+        $iId = $this->oDb->query($sql, $oTrack->getKeyProps(), $oTrack->getAllProps());
+        return $iId ? $iId : false;
     }
 
     /**

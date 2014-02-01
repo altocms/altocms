@@ -182,7 +182,7 @@ class ModuleUser_MapperUser extends Mapper {
                         session_date_last,
                         session_agent_hash
                     )
-                    SET
+                    VALUES (
                         ?:key ,
                         ?d:user_id ,
                         ?:ip_create ,
@@ -190,6 +190,7 @@ class ModuleUser_MapperUser extends Mapper {
                         ?:date_create ,
                         ?:date_last ,
                         ?:agent_hash
+                    )
             ";
         }
         $bResult = $this->oDb->sqlQuery(
@@ -1498,11 +1499,9 @@ class ModuleUser_MapperUser extends Mapper {
      */
     public function AddUserChangemail($oChangemail) {
 
-        $sql = "INSERT INTO ?_user_changemail SET ?a ";
-        if ($iId = $this->oDb->query($sql, $oChangemail->_getData())) {
-            return $iId;
-        }
-        return false;
+        $sql = "INSERT INTO ?_user_changemail(?#) VALUES (?a)";
+        $iId = $this->oDb->query($sql, $oChangemail->getKeyProps(), $oChangemail->getAllProps());
+        return $iId ? $iId : false;
     }
 
     /**
