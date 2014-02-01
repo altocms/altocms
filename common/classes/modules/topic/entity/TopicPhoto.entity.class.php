@@ -77,7 +77,7 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
      *
      * @return null|string
      */
-    public function getWebPath($sWidth = null) {
+    public function getUrl($sWidth = null) {
 
         if ($sUrl = $this->getPath()) {
             if ($sWidth) {
@@ -119,6 +119,11 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
             }
         }
         return $sUrl;
+    }
+
+    public function getWebPath($sWidth = null) {
+
+        return $this->getUrl($sWidth);
     }
 
     /**

@@ -35,7 +35,7 @@
                             <a href="{router page='admin'}users-list/profile/{$oComment->GetUser()->GetId()}/">{$oComment->GetUser()->getDisplayName()}</a>
                         </td>
                         <td class="name">
-                            <a href="{$oComment->GetCommentUrlFull()}">{$oComment->GetText()}</a>
+                            {$oComment->GetText()}
                         </td>
                         <td>
                             {$oComment->GetTargetType()}
