@@ -322,6 +322,12 @@ class ModuleMresource_EntityMresource extends Entity {
                     $nH = $nW;
                 }
                 $sUrl .= '-' . $nW . 'x' . $nH . '.' . F::File_GetExtension($sUrl);
+                if (Config::Get('module.image.autoresize')) {
+                    $sFile = $this->Uploader_Url2Dir($sUrl);
+                    if (!F::File_Exists($sFile)) {
+                        $this->Img_Duplicate($sFile);
+                    }
+                }
             }
         } else {
             $sUrl = $this->GetUrl();
