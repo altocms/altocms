@@ -32,7 +32,7 @@ class MapperORM extends Mapper {
         $sTableName = self::GetTableName($oEntity);
 
         $sql = "INSERT INTO " . $sTableName . " (?#) VALUES (?a)";
-        return $this->oDb->query($sql, $oEntity->getKeyProps(), $oEntity->getAllProps());
+        return $this->oDb->query($sql, $oEntity->getKeyProps(), $oEntity->getValProps());
     }
 
     /**

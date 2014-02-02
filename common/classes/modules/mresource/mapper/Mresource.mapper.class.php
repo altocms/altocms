@@ -84,9 +84,9 @@ class ModuleMresource_MapperMresource extends Mapper {
             SELECT mresource_id
             FROM ?_mresource_target
             WHERE
-                target_type = ?:target_type,
-                target_id = ?d:target_id,
-                mresource_id = ?d:id
+                target_type = ?:target_type
+                AND target_id = ?d:target_id
+                AND mresource_id = ?d:id
             LIMIT 1
         ";
         if ($iId = $this->oDb->sqlSelectCell($sql, $aParams)) {
@@ -102,22 +102,22 @@ class ModuleMresource_MapperMresource extends Mapper {
             $sql = "
                 INSERT INTO ?_mresource_target
                 (
-                    mresource_id = ?d:id,
-                    target_type = ?:target_type,
-                    target_id = ?d:target_id,
-                    date_add = ?:date_add,
-                    description = ?:description,
-                    target_tmp = ?:target_tmp,
-                    incount = ?d:incount
+                    mresource_id,
+                    target_type,
+                    target_id,
+                    date_add,
+                    description,
+                    target_tmp,
+                    incount
                 )
                 VALUES (
-                    mresource_id = ?d:id,
-                    target_type = ?:target_type,
-                    target_id = ?d:target_id,
-                    date_add = ?:date_add,
-                    description = ?:description,
-                    target_tmp = ?:target_tmp,
-                    incount = ?d:incount
+                    ?d:id,
+                    ?:target_type,
+                    ?d:target_id,
+                    ?:date_add,
+                    ?:description,
+                    ?:target_tmp,
+                    ?d:incount
                 )
             ";
             if ($iId = $this->oDb->sqlQuery($sql, $aParams)) {

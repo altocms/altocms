@@ -30,7 +30,7 @@ class ModuleWall_MapperWall extends Mapper {
     public function AddWall($oWall) {
 
         $sql = "INSERT INTO ?_wall(?#) VALUES(?a)";
-        $iId = $this->oDb->query($sql, $oWall->getKeyProps(), $oWall->getAllProps());
+        $iId = $this->oDb->query($sql, $oWall->getKeyProps(), $oWall->getValProps());
         return $iId ? $iId : false;
     }
 

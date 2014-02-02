@@ -32,7 +32,7 @@ class ModuleStream_MapperStream extends Mapper {
         $sql = "
             INSERT INTO ?_stream_event(?#)
             VALUES(?a)";
-        $iId = $this->oDb->query($sql, $oObject->getKeyProps(), $oObject->getAllProps());
+        $iId = $this->oDb->query($sql, $oObject->getKeyProps(), $oObject->getValProps());
         return $iId ? $iId : false;
     }
 

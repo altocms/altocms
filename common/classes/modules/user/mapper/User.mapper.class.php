@@ -1467,7 +1467,7 @@ class ModuleUser_MapperUser extends Mapper {
     public function AddUserNote($oNote) {
 
         $sql = "INSERT INTO ?_user_note(?#) VALUES(?a)";
-        $iId = $this->oDb->query($sql, $oNote->getKeyProps(), $oNote->getAllProps());
+        $iId = $this->oDb->query($sql, $oNote->getKeyProps(), $oNote->getValProps());
         return $iId ? $iId : false;
     }
 
@@ -1500,7 +1500,7 @@ class ModuleUser_MapperUser extends Mapper {
     public function AddUserChangemail($oChangemail) {
 
         $sql = "INSERT INTO ?_user_changemail(?#) VALUES (?a)";
-        $iId = $this->oDb->query($sql, $oChangemail->getKeyProps(), $oChangemail->getAllProps());
+        $iId = $this->oDb->query($sql, $oChangemail->getKeyProps(), $oChangemail->getValProps());
         return $iId ? $iId : false;
     }
 

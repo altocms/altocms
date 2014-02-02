@@ -30,7 +30,7 @@ class ModuleGeo_MapperGeo extends Mapper {
     public function AddTarget($oTarget) {
 
         $sql = "INSERT INTO ?_geo_target(?#) VALUES(?a)";
-        if ($this->oDb->query($sql, $oTarget->getKeyProps(), $oTarget->getAllProps())) {
+        if ($this->oDb->query($sql, $oTarget->getKeyProps(), $oTarget->getValProps())) {
             return true;
         }
         return false;

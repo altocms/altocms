@@ -438,6 +438,16 @@ abstract class Entity extends LsObject {
     }
 
     /**
+     * Returns all values of enity properies as simple (non-associative) array
+     *
+     * @return array
+     */
+    public function getValProps() {
+
+        return array_values($this->_aData);
+    }
+
+    /**
      * LS-compatible
      */
     public function _getData($aKeys = array()) {
