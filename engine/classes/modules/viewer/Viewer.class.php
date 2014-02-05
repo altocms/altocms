@@ -310,7 +310,7 @@ class ModuleViewer extends Module {
             // * Load skin config
             $aConfig = Config::Get('skin.' . $this->sSkin . '.config');
             if (F::File_Exists($sFile = Config::Get('path.smarty.template') . '/settings/config/config.php')) {
-                $aConfig = F::Array_Merge(F::IncludeFile($sFile, false, true), $aConfig);
+                $aConfig = F::Array_MergeCombo(F::IncludeFile($sFile, false, true), $aConfig);
             }
             Config::ResetLevel(Config::LEVEL_SKIN);
             if ($aConfig) {

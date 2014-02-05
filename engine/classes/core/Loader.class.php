@@ -156,7 +156,7 @@ class Loader {
                             } else {
                                 // Если уже существую привязанные к плагину ключи,
                                 // то сливаем старые и новое значения ассоциативно
-                                Config::Set($sKey, F::Array_Merge(Config::Get($sKey), $aConfig), null, $nConfigLevel);
+                                Config::Set($sKey, F::Array_MergeCombo(Config::Get($sKey), $aConfig), null, $nConfigLevel);
                             }
                         }
                     }

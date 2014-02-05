@@ -122,11 +122,11 @@
         </ul>
 
         <ul class="nav navbar-nav navbar-right">
-            <li>
+            <!-- li>
               <a href="#" data-toggle="dropdown">
                 <i class="icon icon-send"></i> Онлайн <span class="badge badge-success">178</span> 
               </a>
-            </li>
+            </li -->
 
 			<li>
 			<a href="{router page='talk'}">
@@ -145,10 +145,10 @@
             </li>
 
         </ul>
-		
+
 		<ul class="nav navbar-nav navbar-right goto-site">
 			<li>
-			<a href="/"><i class="icon icon-home"></i> {$aLang.action.admin.goto_site}</a></li>
+			<a href="/" target="_blank"><i class="icon icon-home"></i> {$aLang.action.admin.goto_site}</a></li>
 			<li>
 		</ul>
 </nav>

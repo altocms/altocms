@@ -81,7 +81,7 @@ function func_convert_entity_to_array(Entity $oEntity, $aMethods = null, $sPrefi
 }
 
 function func_text_words($sText, $iCountWords) {
-    return F::CatText($sText, $iCountWords);
+    return F::CutText($sText, $iCountWords);
 }
 
 function getRequest($sName, $default = null, $sType = null) {

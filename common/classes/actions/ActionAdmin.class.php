@@ -1420,6 +1420,10 @@ class ActionAdmin extends Action {
     protected function _eventUsersCmdBan($aUsersId, $nDays, $sComment) {
 
         if ($aUsersId) {
+            if (in_array(E::UserId(), $aUsersId)) {
+                $this->Message_AddError($this->Lang_Get('action.admin.cannot_ban_self'), null, true);
+                return false;
+            }
             if ($this->Admin_BanUsers($aUsersId, $nDays, $sComment)) {
                 $this->Message_AddNotice($this->Lang_Get('action.admin.action_ok'), null, true);
                 return true;
@@ -1984,6 +1988,20 @@ class ActionAdmin extends Action {
 
     /**********************************************************************************/
 
+    protected function _getSkinFromConfig($sSkin) {
+
+        $sSkinTheme = null;
+        if (F::File_Exists($sFile = Config::Get('path.skins.dir') . $sSkin . '/settings/config/config.php')) {
+            $aSkinConfig = F::IncludeFile($sFile, false, true);
+            if (isset($aSkinConfig['view']) && isset($aSkinConfig['view']['theme'])) {
+                $sSkinTheme = $aSkinConfig['view']['theme'];
+            } elseif (isset($aSkinConfig['view.theme'])) {
+                $sSkinTheme = $aSkinConfig['view.theme'];
+            }
+        }
+        return $sSkinTheme;
+    }
+
     protected function EventSkins() {
 
         $this->_setTitle($this->Lang_Get('action.admin.skins_title'));
@@ -1993,13 +2011,16 @@ class ActionAdmin extends Action {
         $sSiteSkin = Config::Get('view.skin', Config::LEVEL_CUSTOM);
         $sSiteTheme = Config::Get('skin.' . $sSiteSkin . '.config.view.theme');
 
-        if (!$sSiteTheme && F::File_Exists($sFile = Config::Get('path.skins.dir') . $sSiteSkin . '/settings/config/config.php')) {
-            $aSkinConfig = F::IncludeFile($sFile, false, true);
-            if (isset($aSkinConfig['view']) && isset($aSkinConfig['view']['theme'])) {
-                $sSiteTheme = $aSkinConfig['view']['theme'];
-            } elseif (isset($aSkinConfig['view.theme'])) {
-                $sSiteTheme = $aSkinConfig['view.theme'];
-            }
+        // Определяем скин и тему админки
+        $sAdminSkin = Config::Get('view.skin');
+        $sAdminTheme = Config::Get('skin.' . $sAdminSkin . '.config.view.theme');
+
+        if (!$sSiteTheme && ($sSkinTheme = $this->_getSkinFromConfig($sSiteSkin))) {
+            $sSiteTheme = $sSkinTheme;
+        }
+
+        if (!$sAdminTheme && ($sSkinTheme = $this->_getSkinFromConfig($sAdminSkin))) {
+            $sAdminTheme = $sSkinTheme;
         }
 
         $sMode = $this->GetParam(0);
@@ -2013,42 +2034,54 @@ class ActionAdmin extends Action {
         }
         if ($this->GetPost('submit_skins_del')) {
             // Удаление плагинов
-            $this->_eventSkinsDelete();
+            $this->_eventSkinsDelete($sMode);
         } elseif ($sSkin = $this->GetPost('skin_activate')) {
-            $this->_eventSkinActivate($sSkin);
-        } elseif ($sTheme = $this->GetPost('theme_activate')) {
-            $this->_eventSkinThemeActivate($sSiteSkin, $sTheme);
+            $this->_eventSkinActivate($sMode, $sSkin);
+        } elseif (($sSkin = $this->GetPost('skin')) && ($sTheme = $this->GetPost('theme_activate'))) {
+            $this->_eventSkinThemeActivate($sMode, $sSkin, $sTheme);
         }
 
         $aSkins = $this->Skin_GetSkinsList($aFilter);
         $oActiveSkin = null;
         foreach ($aSkins as $sKey => $oSkin) {
-            if ($sKey == $sSiteSkin) {
-                $oActiveSkin = $oSkin;
-                unset($aSkins[$sKey]);
+            if ($sMode == 'adm') {
+                if ($sKey == $sAdminSkin) {
+                    $oActiveSkin = $oSkin;
+                    unset($aSkins[$sKey]);
+                }
+            } else {
+                if ($sKey == $sSiteSkin) {
+                    $oActiveSkin = $oSkin;
+                    unset($aSkins[$sKey]);
+                }
             }
         }
 
-        $this->Viewer_Assign('sSiteSkin', $sSiteSkin);
-        $this->Viewer_Assign('sSiteTheme', $sSiteTheme);
+        if ($sMode == 'adm') {
+            $this->Viewer_Assign('sSiteSkin', $sAdminSkin);
+            $this->Viewer_Assign('sSiteTheme', $sAdminTheme);
+        } else {
+            $this->Viewer_Assign('sSiteSkin', $sSiteSkin);
+            $this->Viewer_Assign('sSiteTheme', $sSiteTheme);
+        }
 
         $this->Viewer_Assign('oActiveSkin', $oActiveSkin);
         $this->Viewer_Assign('aSkins', $aSkins);
         $this->Viewer_Assign('sMode', $sMode);
     }
 
-    protected function _eventSkinActivate($sSkin) {
+    protected function _eventSkinActivate($sMode, $sSkin) {
 
         $aConfig = array('view.skin' => $sSkin);
         Config::WriteCustomConfig($aConfig);
-        Router::Location('admin/site-skins/');
+        Router::Location('admin/site-skins/' . $sMode . '/');
     }
 
-    protected function _eventSkinThemeActivate($sSkin, $sTheme) {
+    protected function _eventSkinThemeActivate($sMode, $sSkin, $sTheme) {
 
         $aConfig = array('skin.' . $sSkin . '.config.view.theme' => $sTheme);
         Config::WriteCustomConfig($aConfig);
-        Router::Location('admin/site-skins/');
+        Router::Location('admin/site-skins/' . $sMode . '/');
     }
 
     /**********************************************************************************/

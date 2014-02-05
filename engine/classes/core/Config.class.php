@@ -224,8 +224,14 @@ class Config extends Storage {
         if (is_null($nLevel)) {
             $nLevel = $this->nLevel;
         }
-        $StorageKey = $this->_storageKey($sRootKey, $nLevel);
-        return parent::SetStorage($StorageKey, $aConfig, $bReset);
+        $sStorageKey = $this->_storageKey($sRootKey, $nLevel);
+        return parent::SetStorage($sStorageKey, $aConfig, $bReset);
+    }
+
+    public function _isExists($sKey, $sRoot = self::DEFAULT_CONFIG_ROOT) {
+
+        $sStorageKey = $this->_storageKey($sRoot);
+        return parent::IsExists($sStorageKey, $sKey);
     }
 
     /**
@@ -413,7 +419,7 @@ class Config extends Storage {
      */
     static public function isExist($sKey, $sRoot = self::DEFAULT_CONFIG_ROOT) {
 
-        return static::getInstance()->IsExists($sRoot, $sKey);
+        return static::getInstance()->_isExists($sKey, $sRoot);
     }
 
     /**
@@ -437,7 +443,7 @@ class Config extends Storage {
             unset($xValue['$root$']);
             foreach ($aRoot as $sRootKey => $xVal) {
                 if (static::isExist($sRootKey)) {
-                    static::Set($sRootKey, F::Array_Merge(Config::Get($sRootKey, $sRoot), $xVal), $sRoot, $nLevel);
+                    static::Set($sRootKey, F::Array_MergeCombo(Config::Get($sRootKey, $sRoot), $xVal), $sRoot, $nLevel);
                 } else {
                     static::Set($sRootKey, $xVal, $sRoot, $nLevel);
                 }

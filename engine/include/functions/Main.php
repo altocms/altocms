@@ -426,7 +426,7 @@ class AltoFunc_Main {
      *
      * @return  string
      */
-    static public function CatText($sText, $nCountWords) {
+    static public function CutText($sText, $nCountWords) {
 
         $aWords = preg_split('#[\s\r\n]+#um', $sText);
         if ($nCountWords < count($aWords)) {

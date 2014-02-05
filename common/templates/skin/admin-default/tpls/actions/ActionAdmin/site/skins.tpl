@@ -55,6 +55,8 @@
         </div>
         <div class="span6">
             <div class="b-wbox">
+                {$aThemes=$oActiveSkin->GetThemes()}
+                {if $aThemes}
                 <div class="b-wbox-header">
                     <span class="icon"><i class="icon icon-chevron-left"></i></span>
 
@@ -64,7 +66,8 @@
                     <form class="form-horizontal uniform" action="" method="post">
                         <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
                         <input type="hidden" name="return_url" value="{$PATH_WEB_CURRENT|escape:'html'}"/>
-                        {$aThemes=$oActiveSkin->GetThemes()}
+                        <input type="hidden" name="skin" value="{$oActiveSkin->GetId()}"/>
+
                         {if $aThemes}
                             <div class="control-group">
                                 <label class="control-label">{$aLang.action.admin.skin_themes}</label>
@@ -89,6 +92,7 @@
                     </form>
                 </div>
             </div>
+            {/if}
         </div>
     {/if}
 </div>

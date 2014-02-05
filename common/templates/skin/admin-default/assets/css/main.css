@@ -137,11 +137,12 @@ label                                   { display: block }
 .form-horizontal .control-group         { padding-left: 10px; padding-top: 15px; min-height: 65px; border-bottom: 1px solid #eee; }
 .help-block,
 .help-inline                            { color: #999; padding-left: 5px; }
+.input-width-full                       { width: 100%; }
 .input-group                            { width: 300px }
 .input-group input                      { width: 100%!important }
 .input-group-addon                      { font-size: 12px; border-radius: 0; border-color: #ddd; }
 .form-horizontal .form-actions          { margin-top: 0; margin-bottom: 0; padding-left: 210px; }
-.form-actions                           { padding: 19px 20px 20px; margin-top: 20px; margin-bottom: 20px; background-color: #F5F5F5; border-top: 1px solid #E5E5E5; }
+.form-actions                           { padding: 10px 20px 10px 20px; margin-top: 20px; margin-bottom: 20px; background-color: #F5F5F5; border-top: 1px solid #E5E5E5; min-height: 42px; }
 .b-wbox                                 { background: #F9F9F9; border-top: 1px solid #DDD; border-left: 1px solid #DDD; border-right: 1px solid #DDD; border-bottom: 1px solid #DDD; margin-top: 16px; margin-bottom: 16px; }
 .b-wbox-content                         { padding: 12px 15px }
 .b-wbox-header label.checkbox           { padding: 10px 15px; border-left: 1px solid #fff; display: block; float: right; white-space: nowrap; }

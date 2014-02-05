@@ -106,6 +106,36 @@ class AltoFunc_Array {
     }
 
     /**
+     * Рекурсивное сливание двух массивов
+     * Массивы (и их элементы) могут быть как ассоциативными, так и обычными.
+     * Если ключ элемента строковый, то он заменяет соответствующий элемент в результирующем массиве.
+     * Если ключ элемента числовой, то он добавляется в соответствующий элемент результирующего массива.
+     *
+     * @param array $aData1
+     * @param array $aData2
+     *
+     * @return array
+     */
+    static public function MergeCombo($aData1, $aData2) {
+
+        $aData1 = (array)$aData1;
+        if ($aData2) {
+            foreach ($aData2 as $xKey => $xVal) {
+                if (is_integer($xKey)) {
+                    $aData1[] = $xVal;
+                } else {
+                    if (is_array($xVal) && isset($aData1[$xKey])) {
+                        $aData1[$xKey] = self::MergeCombo($aData1[$xKey], $xVal);
+                    } else {
+                        $aData1[$xKey] = $xVal;
+                    }
+                }
+            }
+        }
+        return $aData1;
+    }
+
+    /**
      * Рекурсивный вариант array_keys
      *
      * @param  array $aData     Массив

@@ -26,6 +26,17 @@
             <screenshot preview="yes" file="screenshot.png" />
             <screenshot file="pluginlist.png" />
         </screenshots>
+        <themes>
+            <theme code="default" name="Default" />
+            <theme code="alto" name="Alto" />
+            <theme code="air" name="Air" />
+            <theme code="brown" name="Brown" />
+            <theme code="darkgreen" name="Dark Green" />
+            <theme code="fiolet" name="Violet" />
+            <theme code="lime" name="Lime" />
+            <theme code="midnight" name="Midnight" />
+            <theme code="red" name="Red" />
+        </themes>
         <wgroups>
             <wgroup name="right" />
         </wgroups>

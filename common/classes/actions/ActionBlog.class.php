@@ -851,7 +851,7 @@ class ActionBlog extends Action {
 
         // Выставляем SEO данные
         $sTextSeo = strip_tags($oTopic->getText());
-        $this->Viewer_SetHtmlDescription(F::CatText($sTextSeo, Config::Get('seo.description_words_count')));
+        $this->Viewer_SetHtmlDescription(F::CutText($sTextSeo, Config::Get('seo.description_words_count')));
         $this->Viewer_SetHtmlKeywords($oTopic->getTags());
         $this->Viewer_SetHtmlCanonical($oTopic->getUrl());
 
@@ -1041,7 +1041,7 @@ class ActionBlog extends Action {
          * Выставляем SEO данные
          */
         $sTextSeo = strip_tags($oBlog->getDescription());
-        $this->Viewer_SetHtmlDescription(F::CatText($sTextSeo, Config::Get('seo.description_words_count')));
+        $this->Viewer_SetHtmlDescription(F::CutText($sTextSeo, Config::Get('seo.description_words_count')));
         /**
          * Получаем список юзеров блога
          */

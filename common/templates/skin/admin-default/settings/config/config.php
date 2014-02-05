@@ -1,4 +1,5 @@
 <?php
+$config['view']['theme'] = 'default';
 
 $config['smarty']['dir']['templates'] = array(
     'themes' => '___path.skins.dir___/___view.skin___/themes/',
@@ -22,7 +23,7 @@ $config['head']['default']['css'] = array(
 
     '___path.skin.dir___/assets/css/main.css',
     '___path.skin.dir___/assets/css/main-forms.css',
-    '___path.skin.dir___/assets/css/theme.css',
+    '___path.static.skin___/themes/___view.theme___/theme.css',
 );
 
 $config['head']['default']['js'] = array(
