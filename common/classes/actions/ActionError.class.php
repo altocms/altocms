@@ -53,6 +53,7 @@ class ActionError extends Action {
      */
     protected function RegisterEvent() {
         $this->AddEvent('index', 'EventError');
+        $this->AddEvent('notice', 'EventNotice');
         $this->AddEventPreg('/^\d{3}$/i', 'EventError');
     }
 
@@ -81,6 +82,12 @@ class ActionError extends Action {
         $this->Viewer_AddHtmlTitle($this->Lang_Get('error'));
         $this->SetTemplateAction('index');
     }
+
+    protected function EventNotice() {
+        $this->Viewer_AddHtmlTitle($this->Lang_Get('attention'));
+        $this->SetTemplateAction('index');
+    }
+
 }
 
 // EOF
