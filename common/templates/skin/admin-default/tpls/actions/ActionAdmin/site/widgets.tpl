@@ -18,7 +18,7 @@
                     <thead>
                     <tr>
                         <th>
-                            <input type="checkbox" name="" onclick="admin.selectAllRows(this);"/>
+                            <!-- input type="checkbox" name="" onclick="admin.selectAllRows(this);"/ -->
                         </th>
                         <th>{$aLang.action.admin.widget_name}</th>
                         <th>{$aLang.action.admin.widget_plugin}</th>

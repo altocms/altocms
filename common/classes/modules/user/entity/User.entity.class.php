@@ -279,7 +279,8 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function getProfileSex() {
 
-        return $this->getProp('user_profile_sex');
+        $sSex = $this->getProp('user_profile_sex');
+        return $sSex ? $sSex : 'other';
     }
 
     /**

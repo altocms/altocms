@@ -43,15 +43,15 @@ ls.userfield =( function ($) {
 		var pattern = $('#user_fields_form_pattern').val();
 		var type = $('#user_fields_form_type').val();
 
-		var url = aRouter['admin']+'userfields';
+		var url = aRouter['admin']+'settings-userfields';
 		var params = {'action':'add', 'name':name,  'title':title,  'pattern':pattern,  'type':type};
 		
 		ls.hook.marker('addUserfieldBefore');
 		ls.ajax(url, params, function(data) { 
 			if (!data.bStateError) {
 				liElement = $('<li id="field_'+data.id+'"><span class="userfield_admin_name"></span > / <span class="userfield_admin_title"></span> / <span class="userfield_admin_pattern"></span> / <span class="userfield_admin_type"></span>'
-					+'<div class="userfield-actions"><a class="icon-edit" href="javascript:ls.userfield.showEditForm('+data.id+')"></a> '
-					+'<a class="icon-remove" href="javascript:ls.userfield.deleteUserfield('+data.id+')"></a></div></li>')
+					+'<div class="userfield-actions"><a class="icon icon-edit" href="javascript:ls.userfield.showEditForm('+data.id+')"></a> '
+					+'<a class="icon icon-remove" href="javascript:ls.userfield.deleteUserfield('+data.id+')"></a></div></li>')
 				;
 				$('#user_field_list').append(liElement);
 				$('#field_'+data.id+' .userfield_admin_name').text(name);
@@ -73,7 +73,7 @@ ls.userfield =( function ($) {
 		var pattern = $('#user_fields_form_pattern').val();
 		var type = $('#user_fields_form_type').val();
 
-		var url = aRouter['admin']+'userfields';
+		var url = aRouter['admin']+'settings-userfields';
 		var params = {'action':'update', 'id':id, 'name':name,  'title':title,  'pattern':pattern, 'type':type};
 		
 		ls.hook.marker('updateUserfieldBefore');
@@ -94,7 +94,7 @@ ls.userfield =( function ($) {
 	this.deleteUserfield = function(id) {
 		if (!confirm(ls.lang.get('user_field_delete_confirm'))) {return;}
 		
-		var url = aRouter['admin']+'userfields';
+		var url = aRouter['admin']+'settings-userfields';
 		var params = {'action':'delete', 'id':id};
 		
 		ls.hook.marker('deleteUserfieldBefore');

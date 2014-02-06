@@ -27,7 +27,7 @@ ls.userfield =( function ($) {
 		$('#user_fields_form_name').val(name);
 		$('#user_fields_form_title').val(title);
 		$('#user_fields_form_pattern').val(pattern);
-		$('#user_fields_form_type').val(type);
+		$('#user_fields_form_type').find('[value="' + type + '"]').attr('selected', 'selected').trigger('refresh');
 		$('#user_fields_form_id').val(id);
 		$('#userfield_form').jqmShow(); 
 	};
@@ -47,18 +47,17 @@ ls.userfield =( function ($) {
 		var pattern = $('#user_fields_form_pattern').val();
 		var type = $('#user_fields_form_type').val();
 
-		var url = aRouter['admin']+'userfields';
+		var url = aRouter['admin']+'settings-userfields';
 		var params = {'action':'add', 'name':name,  'title':title,  'pattern':pattern,  'type':type};
 		
-		ls.hook.marker('addUserfieldBefore');
-		ls.ajax(url, params, function(data) { 
+		ls.ajax(url, params, function(data) {
 			if (!data.bStateError) {
 				var newRow = $(
                     '<tr id="field_'+data.id+'">'
                     + '<td class="userfield_admin_name"></td ><td class="userfield_admin_title"></td>'
                     + '<td class="userfield_admin_pattern"></td><td class="userfield_admin_type"></td>'
-					+ '<td class="userfield-actions"><a class="icon-edit" href="javascript:ls.userfield.showEditForm('+data.id+')"></a> '
-					+ '<a class="icon-remove" href="javascript:ls.userfield.deleteUserfield('+data.id+')"></a></td>'
+					+ '<td class="userfield-actions"><a class="icon icon-edit" href="javascript:ls.userfield.showEditForm('+data.id+')"></a> '
+					+ '<a class="icon icon-remove" href="javascript:ls.userfield.deleteUserfield('+data.id+')"></a></td>'
                     + '</tr>'
                 )
 				;
@@ -82,11 +81,10 @@ ls.userfield =( function ($) {
 		var pattern = $('#user_fields_form_pattern').val();
 		var type = $('#user_fields_form_type').val();
 
-		var url = aRouter['admin']+'userfields';
+		var url = aRouter['admin']+'settings-userfields';
 		var params = {'action':'update', 'id':id, 'name':name,  'title':title,  'pattern':pattern, 'type':type};
-		
-		ls.hook.marker('updateUserfieldBefore');
-		ls.ajax(url, params, function(data) { 
+
+		ls.ajax(url, params, function(data) {
 			if (!data.bStateError) {
 				$('#field_'+id+' .userfield_admin_name').text(name);
 				$('#field_'+id+' .userfield_admin_title').text(title);
@@ -101,13 +99,13 @@ ls.userfield =( function ($) {
 	};
 
 	this.deleteUserfield = function(id) {
+        /*
         admin.confirm(ls.lang.get('action.admin.user_field_delete_confirm'), function() {
-            var url = aRouter['admin']+'userfields';
+            var url = aRouter['admin']+'settings-userfields';
             var params = {'action':'delete', 'id':id};
 
             $('.modal').modal('hide');
 
-            ls.hook.marker('deleteUserfieldBefore');
             ls.ajax(url, params, function(data) {
                 if (!data.bStateError) {
                     $('#field_'+id).remove();
@@ -118,6 +116,21 @@ ls.userfield =( function ($) {
                 }
             });
         });
+        */
+        if (confirm(ls.lang.get('action.admin.user_field_delete_confirm'))) {
+            var url = aRouter['admin']+'settings-userfields';
+            var params = {'action':'delete', 'id':id};
+
+            ls.ajax(url, params, function(data) {
+                if (!data.bStateError) {
+                    $('#field_'+id).remove();
+                    ls.msg.notice(data.sMsgTitle,data.sMsg);
+                    ls.hook.run('ls_userfield_update_userfield_after',[params, data]);
+                } else {
+                    ls.msg.error(data.sMsgTitle,data.sMsg);
+                }
+            });
+        }
 	};
 
 	this.addFormField = function() {
