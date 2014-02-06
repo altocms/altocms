@@ -517,13 +517,16 @@ class ModuleViewerAsset extends Module {
      */
     public function Prepare() {
 
+        $bForcePreparation = Config::Get('compress.css.force') || Config::Get('compress.js.force');
         $xData = $this->_checkAssets();
         if ($xData) {
             if (is_array($xData)) {
                 if (F::File_GetContents($this->GetAssetsCheckName())) {
                     // loads assets from cache
                     $this->aAssets = $xData;
-                    return;
+                    if (!$bForcePreparation) {
+                        return;
+                    }
                 }
             } else {
                 // assets are making right now
@@ -540,7 +543,7 @@ class ModuleViewerAsset extends Module {
                 return;
             }
         }
-        if (!F::File_GetContents($this->GetAssetsCheckName())) {
+        if (!F::File_GetContents($this->GetAssetsCheckName()) || $bForcePreparation) {
             // makes assets here
             $sFile = $this->GetAssetsCacheName();
             F::File_PutContents($sFile . '.tmp', time());
@@ -609,6 +612,9 @@ class ModuleViewerAsset extends Module {
             if ($oAssetPackage = $this->_getAssetPackage($sType)) {
                 $aLinks = $oAssetPackage->BuildHtmlLinks();
             }
+        }
+        foreach ($aLinks as $sType => $aTypeLinks) {
+            $aLinks[$sType] = array_unique($aTypeLinks);
         }
         return $aLinks;
     }
