@@ -450,7 +450,8 @@ class ModuleViewerAsset extends Module {
      */
     public function GetHash() {
 
-        return md5(serialize($this->aFiles));
+        $aData = array($this->aFiles, Config::Get('compress'));
+        return md5(serialize($aData));
     }
 
     /**
@@ -509,7 +510,7 @@ class ModuleViewerAsset extends Module {
         F::File_PutContents($this->GetAssetsCheckName(), time());
         $sFile = $this->GetAssetsCacheName();
         F::File_PutContents($sFile, F::Serialize($this->aAssets));
-        F::File_Delete($sFile . '.tmp', $this->aAssets);
+        F::File_Delete($sFile . '.tmp');
     }
 
     /**

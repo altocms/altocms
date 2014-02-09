@@ -13,7 +13,7 @@ $config['head']['default']['css'] = array(
     '___path.frontend.dir___/libs/js/vendor/prettify/prettify.css',
     '___path.skin.dir___/assets/css/jquery-ui.css',
     '___path.skin.dir___/assets/css/jquery-notifier.css',
-	
+
     '___path.skin.dir___/assets/css/bootstrap.min.css',
     '___path.skin.dir___/assets/css/datepicker.css',
     '___path.skin.dir___/assets/css/fullcalendar.css',
@@ -42,7 +42,7 @@ $config['head']['default']['js'] = array(
     '___path.skin.dir___/assets/js/jquery.peity.min.js',
     '___path.skin.dir___/assets/js/fullcalendar.min.js',
     '___path.skin.dir___/assets/js/midnight.js',
-    '___path.skin.dir___/assets/js/midnight.dashboard.js',
+    //'___path.skin.dir___/assets/js/midnight.dashboard.js',
     '___path.frontend.dir___/libs/js/vendor/notifier/jquery.notifier.js',
     '___path.frontend.dir___/libs/js/vendor/jquery.scrollto.js',
     '___path.frontend.dir___/libs/js/vendor/jquery.rich-array.min.js',
@@ -85,8 +85,8 @@ $config['head']['default']['js'] = array(
 $config['path']['skin']['img']['dir'] = '___path.skin.dir___/assets/img/'; // папка с изображениями скина
 $config['path']['skin']['img']['url'] = '___path.skin.url___/assets/img/'; // URL с изображениями скина
 
-$config['compress']['css']['merge'] = false; // указывает на необходимость слияния файлов по указанным блокам.
-$config['compress']['css']['use'] = false; // указывает на необходимость компрессии файлов. Компрессия используется только в активированном
+//$config['compress']['css']['merge'] = false; // указывает на необходимость слияния файлов по указанным блокам.
+//$config['compress']['css']['use'] = false; // указывает на необходимость компрессии файлов. Компрессия используется только в активированном
 
 return $config;
 
