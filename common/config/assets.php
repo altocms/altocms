@@ -7,7 +7,7 @@ $config['ls']['head']['default']['js']  = array(
     '___path.frontend.dir___/libs/js/vendor/jquery-migrate-1.2.1.min.js' => array('asset' => 'mini'),
     '___path.frontend.dir___/libs/js/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js' => array('asset' => 'mini'),
     '___path.frontend.dir___/ls/lib/jquery.notifier.js',
-    '___path.frontend.dir___/ls/lib/jquery.jqmodal.js',
+    '___path.frontend.dir___/ls/lib/jquery.jqmodal.js'=> array('asset' => 'jqmodal'),
     '___path.frontend.dir___/libs/js/vendor/jquery.scrollto.js',
     '___path.frontend.dir___/libs/js/vendor/jquery.rich-array.min.js',
     '___path.frontend.dir___/libs/js/vendor/jquery.form.js',
