@@ -1649,6 +1649,9 @@ class ModuleViewer extends Module {
 
         if ($this->sSkin != Config::Get('view.skin')) {
             $this->InitSkin($this->bLocal);
+        } else {
+            // Level could be changed after skin initialization
+            Config::SetLevel(Config::LEVEL_SKIN);
         }
 
         if (!$this->oSmarty) {
