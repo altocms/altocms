@@ -186,15 +186,7 @@ class Config extends Storage {
         if (is_null($nLevel)) {
             $nLevel = $this->nLevel;
         }
-        /*
-        $aResult = array();
-        for ($n = 0; $n <= $nLevel; $n++) {
-            $sStorageKey = $this->_storageKey($sKey, $n);
-            if ($aConfig = parent::GetStorage($sStorageKey)) {
-                $aResult = F::Array_Merge($aResult, $aConfig);
-            }
-        }
-        */
+
         $sStorageKey = $this->_storageKey($sKey, $nLevel);
         $aResult = parent::GetStorage($sStorageKey);
         if (!$aResult) {
@@ -247,50 +239,83 @@ class Config extends Storage {
     /**
      * Установка нового уровня конфигурации
      *
-     * @param int  $nLevel
-     * @param bool $bClearLevel
-     * @param bool $bClearBetween
+     * @param int       $nLevel
+     * @param null|bool $bSafe
      */
-    public function _setLevel($nLevel = null, $bClearLevel = true, $bClearBetween = false) {
+    public function _setLevel($nLevel = null, $bSafe = null) {
 
         if ($nLevel > $this->nLevel) {
             $aConfig = $this->GetConfig(null, $this->nLevel);
             while ($nLevel > $this->nLevel) {
-                if ($bClearBetween) {
-                    $this->_clearLevel(++$this->nLevel);
+                $this->nLevel += 1;
+                if ($bSafe === false) {
+                    $this->SetConfig($aConfig, false, null, $this->nLevel);
                 } else {
-                    $this->SetConfig($aConfig, false, null, ++$this->nLevel);
+                    // If $bSafe is null then it is "auto" mode
+                    if (is_null($bSafe) && $aConfig && !$this->GetConfig(null, $this->nLevel)) {
+                        $this->SetConfig($aConfig, false, null, $this->nLevel);
+                    } else {
+                        $this->SetConfig(array(), false, null, $this->nLevel);
+                    }
                 }
             }
         } elseif ($nLevel < $this->nLevel) {
             while ($nLevel < $this->nLevel) {
-                if ($bClearBetween) {
-                    $this->_clearLevel($this->nLevel--);
-                } else {
-                    $this->SetConfig(array(), false, null, $this->nLevel--);
+                if (!$bSafe) {
+                    $this->_clearLevel($this->nLevel);
                 }
+                $this->nLevel -= 1;
             }
         } else {
-            if ($bClearLevel) {
+            if (!$bSafe) {
                 $aConfig = $this->GetConfig(null, $nLevel-1);
                 if ($aConfig) {
                     $this->SetConfig($aConfig, true, null, $nLevel);
-                } else {
-                    $this->SetConfig(array(), true, null, $nLevel);
                 }
             }
         }
         $this->nLevel = $nLevel;
     }
 
-    static public function SetLevel($nLevel, $bClearBetween = false) {
+    /**
+     * @return int
+     */
+    public function _getLevel() {
 
-        return static::getInstance()->_setLevel($nLevel, false, $bClearBetween);
+        return $this->nLevel;
     }
 
-    static public function ResetLevel($nLevel, $bClearBetween = false) {
+    /**
+     * Set config level
+     *
+     * @param int       $nLevel
+     * @param null|bool $bSafe (true - safe mode, false - nonsafe mode, null - auto mode)
+     */
+    static public function SetLevel($nLevel, $bSafe = null) {
 
-        return static::getInstance()->_setLevel($nLevel, true, $bClearBetween);
+        static::getInstance()->_setLevel($nLevel, $bSafe);
+    }
+
+    /**
+     * Set config level
+     *
+     * @param $nLevel
+     */
+    static public function ResetLevel($nLevel) {
+
+        $oInstance = static::getInstance();
+        $oInstance->_setLevel($nLevel, null);
+        $oInstance->_setLevel($nLevel, false);
+    }
+
+    /**
+     * Get config level
+     *
+     * @return mixed
+     */
+    static public function GetLevel() {
+
+        return static::getInstance()->_getLevel();
     }
 
     /**
