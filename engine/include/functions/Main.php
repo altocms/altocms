@@ -380,25 +380,31 @@ class AltoFunc_Main {
     }
 
     /**
-     * Даст одинаковый результат на 32-х и 64-х системах
+     * Calculates crc32 for any vartype, returns the same result for 32-bit and 64-bit systems
      *
-     * @param $sData
+     * @param mixed $xData
+     * @param bool  $bHex
      *
-     * @return string
+     * @return int|string
      */
-    static public function Crc32($sData) {
+    static public function Crc32($xData, $bHex = false) {
 
-        $nCrc = abs(crc32((string)$sData));
+        if (is_null($xData)) {
+            return 0;
+        } elseif (!is_scalar($xData)) {
+            $sData = serialize($xData);
+        } else {
+            $sData = (string)$xData;
+        }
+        $nCrc = abs(crc32($sData));
         if( $nCrc & 0x80000000){
             $nCrc ^= 0xffffffff;
             $nCrc += 1;
         }
+        if ($bHex) {
+            return dechex($nCrc);
+        }
         return $nCrc;
-    }
-
-    static public function VarCrc32($xData) {
-
-        return self::Crc32(serialize($xData));
     }
 
     /**
@@ -445,7 +451,7 @@ class AltoFunc_Main {
     static public function Serialize($xData) {
 
         $sData = serialize($xData);
-        $sCrc32 = dechex(crc32($sData));
+        $sCrc32 = static::Crc32($sData, true);
         return $sCrc32 . '|' . $sData;
 
     }
@@ -461,8 +467,8 @@ class AltoFunc_Main {
     static public function Unserialize($sData, $xDefaultOnError = null) {
 
         if (is_string($sData) && strpos($sData, '|')) {
-            list($sCrc32, $sData) = explode('|', $sData);
-            if ($sCrc32 && $sData && $sCrc32 == dechex(crc32($sData))) {
+            list($sCrc32, $sData) = explode('|', $sData, 2);
+            if ($sCrc32 && $sData && ($sCrc32 == static::Crc32($sData, true))) {
                 $xData = @unserialize($sData);
                 return $xData;
             }
@@ -470,6 +476,13 @@ class AltoFunc_Main {
         return $xDefaultOnError;
     }
 
+    /**
+     * Returns IP-rang by mask (e.c '173.194' => array('173.194.0.0', '173.194.255.255')
+     *
+     * @param string $sIp
+     *
+     * @return array
+     */
     static public function IpRange($sIp) {
 
         $aIp = explode('.', $sIp) + array(0, 0, 0, 0);
