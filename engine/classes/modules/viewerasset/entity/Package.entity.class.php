@@ -141,6 +141,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
             $sSubdir .= '/' . $sLocalPath;
         }
         $sDestination = F::File_GetAssetDir() . $sSubdir . '/' . basename($sFile);
+        $aFileParams['asset_file'] = $sDestination;
         if (!$this->CheckDestination($sDestination)) {
             if ($sDestination = $this->PrepareFile($sFile, $sDestination)) {
                 $this->AddLink($aFileParams['info']['extension'], F::File_Dir2Url($sDestination), $aFileParams);
@@ -184,6 +185,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
                 $aParams = array(
                     'file' => $sDestination,
                     'asset' => $sAsset,
+                    'asset_file' => $sDestination,
                     'compress' => $bCompress,
                     'prepare' => is_null($bPrepare) ? false : $bPrepare,
                 );
@@ -258,7 +260,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
                 // Одиночный файл
                 $aFileParams = array_shift($aFiles);
                 if ($aFileParams['throw']) {
-                    // Throws without prepare
+                    // Throws without prepare (e.c. external links)
                     $this->AddLink($aFileParams['info']['extension'], $aFileParams['file'], $aFileParams);
                 } else {
                     // Prepares single file
@@ -273,11 +275,21 @@ class ModuleViewerAsset_EntityPackage extends Entity {
         return $bResult;
     }
 
+    /**
+     * Processing of asset package
+     *
+     * @return bool
+     */
     public function Process() {
 
         return true;
     }
 
+    /**
+     * Postprocessing of asset package
+     *
+     * @return bool
+     */
     public function PostProcess() {
 
         return true;
@@ -311,7 +323,12 @@ class ModuleViewerAsset_EntityPackage extends Entity {
             $aFileParams['merge'] = true;
         }
         if (!isset($aFileParams['compress'])) {
-            $aFileParams['compress'] = $this->bCompress;
+            // Dont need to minify minified files
+            if (substr($aFileParams['info']['filename'], -4) == '.min') {
+                $aFileParams['compress'] = false;
+            } else {
+                $aFileParams['compress'] = $this->bCompress;
+            }
         }
         if ($this->bMerge && $aFileParams['merge']) {
             // Определяем имя набора

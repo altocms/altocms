@@ -190,7 +190,8 @@ class ModuleViewerAsset extends Module {
             if (!is_array($aFileParams)) {
                 $aFileParams = array();
             }
-            $aFileParams['file'] = $sFile;
+            $sName = F::File_NormPath($sName);
+            $aFileParams['file'] = F::File_NormPath($sFile);
             $aFileParams['name'] = $sName;
             if ($sAssetName) {
                 $aFileParams['asset'] = $sAssetName;
@@ -450,7 +451,7 @@ class ModuleViewerAsset extends Module {
      */
     public function GetHash() {
 
-        $aData = array($this->aFiles, Config::Get('compress'));
+        $aData = array($this->aFiles, Config::Get('compress'), Config::Get('assets.version'));
         return md5(serialize($aData));
     }
 
@@ -461,7 +462,7 @@ class ModuleViewerAsset extends Module {
      */
     public function GetAssetsCacheName() {
 
-        return Config::Get('sys.cache.dir') . 'data/' . $this->GetHash() . '.assets';
+        return Config::Get('sys.cache.dir') . 'data/assets/' . $this->GetHash() . '.assets.dat';
     }
 
     /**
@@ -471,7 +472,13 @@ class ModuleViewerAsset extends Module {
      */
     public function GetAssetsCheckName() {
 
-        return F::File_GetAssetDir() . '_check/' . $this->GetHash() . '.assets.dat';
+        return F::File_GetAssetDir() . '_check/' . $this->GetHash() . '.assets.chk';
+    }
+
+    public function ClearAssetsCache() {
+
+        $sDir = Config::Get('sys.cache.dir') . 'data/assets/';
+        F::File_RemoveDir($sDir);
     }
 
     /**
@@ -485,6 +492,7 @@ class ModuleViewerAsset extends Module {
         $xResult = 0;
         $sFile = $this->GetAssetsCacheName();
         $sTmpFile = $sFile . '.tmp';
+
         if (is_file($sTmpFile)) {
             // tmp file cannot live more than 1 minutes
             $nTime = filectime($sTmpFile);
@@ -544,6 +552,11 @@ class ModuleViewerAsset extends Module {
                 return;
             }
         }
+        // May be assets are not complete
+        if (!$this->aAssets && $this->aFiles && !$bForcePreparation) {
+            $bForcePreparation = true;
+        }
+
         if (!F::File_GetContents($this->GetAssetsCheckName()) || $bForcePreparation) {
             // makes assets here
             $sFile = $this->GetAssetsCacheName();

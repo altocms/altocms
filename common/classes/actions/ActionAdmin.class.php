@@ -2248,11 +2248,20 @@ class ActionAdmin extends Action {
         $this->SetTemplateAction('tools/reset');
 
         if ($this->GetPost('adm_reset_submit')) {
+            $aConfig = array();
             if ($this->GetPost('adm_cache_clear_data')) $this->Cache_Clean();
-            if ($this->GetPost('adm_cache_clear_assets')) $this->Viewer_ClearAssetsFiles();
+            if ($this->GetPost('adm_cache_clear_assets')) {
+                $this->Viewer_ClearAssetsFiles();
+                $aConfig['assets.version'] = time();
+            }
             if ($this->GetPost('adm_cache_clear_smarty')) $this->Viewer_ClearSmartyFiles();
             if ($this->GetPost('adm_reset_config_data')) $this->_eventResetCustomConfig();
+
+            if ($aConfig) {
+                Config::WriteCustomConfig($aConfig);
+            }
             $this->Message_AddNotice($this->Lang_Get('action.admin.action_ok'), null, true);
+
             Router::Location('admin/tools-reset');
         }
     }

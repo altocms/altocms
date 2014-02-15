@@ -231,7 +231,7 @@ class ModuleViewer extends Module {
 
         $this->bLocal = (bool)$bLocal;
 
-        $this->InitSkin($this->bLocal);
+        //$this->InitSkin($this->bLocal);
 
         // * Заголовок HTML страницы
         $this->sHtmlTitle = Config::Get('view.name');
@@ -326,19 +326,6 @@ class ModuleViewer extends Module {
             }
         }
 
-        // * Получаем настройки JS-, CSS-файлов
-        $this->InitFileParams();
-
-        // * Загружаем локализованные тексты
-        $this->Assign('aLang', $this->Lang_GetLangMsg());
-        $this->Assign('oLang', $this->Lang_Dictionary());
-
-        // * Загружаем переменные из конфига
-        if (($aVars = Config::Get('view.assign')) && is_array($aVars)) {
-            foreach ($aVars as $sKey => $sVal) {
-                $this->Assign($sKey, $sVal);
-            }
-        }
     }
 
     /**
@@ -1137,13 +1124,20 @@ class ModuleViewer extends Module {
     }
 
     /**
-     * Инициализирует параметры вывода js- и css- файлов
+     * view InitAssetFiles()
      */
     protected function InitFileParams() {
 
-        $this->ViewerAsset_AddAssetFiles(Config::Get('head.default'));
+        $this->InitAssetFiles();
     }
 
+    /**
+     * Инициализирует параметры вывода js- и css- файлов
+     */
+    public function InitAssetFiles() {
+
+        $this->ViewerAsset_AddAssetFiles(Config::Get('head.default'));
+    }
 
     /**
      * Добавляет js-файл в конец списка
@@ -1637,6 +1631,7 @@ class ModuleViewer extends Module {
 
         $sDir = F::File_GetAssetDir();
         F::File_RemoveDir($sDir);
+        $this->ViewerAsset_ClearAssetsCache();
     }
 
     /**
@@ -1652,6 +1647,20 @@ class ModuleViewer extends Module {
         } else {
             // Level could be changed after skin initialization
             Config::SetLevel(Config::LEVEL_SKIN);
+        }
+
+        // * Получаем настройки JS-, CSS-файлов
+        $this->InitAssetFiles();
+
+        // * Загружаем локализованные тексты
+        $this->Assign('aLang', $this->Lang_GetLangMsg());
+        $this->Assign('oLang', $this->Lang_Dictionary());
+
+        // * Загружаем переменные из конфига
+        if (($aVars = Config::Get('view.assign')) && is_array($aVars)) {
+            foreach ($aVars as $sKey => $sVal) {
+                $this->Assign($sKey, $sVal);
+            }
         }
 
         if (!$this->oSmarty) {

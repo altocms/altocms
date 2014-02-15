@@ -89,15 +89,15 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
 
         $bResult = true;
         foreach ($this->aLinks as $nIdx => $aLinkData) {
-            if (isset($aLinkData['compress']) && $aLinkData['compress']) {
-                $sFile = $aLinkData['file'];
-                $sExtension = 'min.' . F::File_GetExtension($sFile);
-                $sCompressedFile = F::File_SetExtension($sFile, $sExtension);
+            if ((!isset($aLinkData['throw']) || !$aLinkData['throw']) && $aLinkData['compress']) {
+                $sAssetFile = $aLinkData['asset_file'];
+                $sExtension = 'min.' . F::File_GetExtension($sAssetFile);
+                $sCompressedFile = F::File_SetExtension($sAssetFile, $sExtension);
                 if (!$this->CheckDestination($sCompressedFile)) {
-                    if (($sContents = F::File_GetContents($sFile))) {
+                    if (($sContents = F::File_GetContents($sAssetFile))) {
                         $sContents = $this->Compress($sContents);
                         if (F::File_PutContents($sCompressedFile, $sContents)) {
-                            F::File_Delete($sFile);
+                            F::File_Delete($sAssetFile);
                             $this->aLinks[$nIdx]['link'] = F::File_SetExtension($this->aLinks[$nIdx]['link'], $sExtension);
                         }
                     }
