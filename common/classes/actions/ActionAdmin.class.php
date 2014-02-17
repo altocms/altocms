@@ -2247,22 +2247,44 @@ class ActionAdmin extends Action {
         $this->_setTitle($this->Lang_Get('action.admin.reset_title'));
         $this->SetTemplateAction('tools/reset');
 
+        $aSettings = array();
         if ($this->GetPost('adm_reset_submit')) {
             $aConfig = array();
-            if ($this->GetPost('adm_cache_clear_data')) $this->Cache_Clean();
+            if ($this->GetPost('adm_cache_clear_data')) {
+                $this->Cache_Clean();
+                $aSettings['adm_cache_clear_data'] = 1;
+            }
             if ($this->GetPost('adm_cache_clear_assets')) {
                 $this->Viewer_ClearAssetsFiles();
                 $aConfig['assets.version'] = time();
+                $aSettings['adm_cache_clear_assets'] = 1;
             }
-            if ($this->GetPost('adm_cache_clear_smarty')) $this->Viewer_ClearSmartyFiles();
-            if ($this->GetPost('adm_reset_config_data')) $this->_eventResetCustomConfig();
+            if ($this->GetPost('adm_cache_clear_smarty')) {
+                $this->Viewer_ClearSmartyFiles();
+                $aSettings['adm_cache_clear_smarty'] = 1;
+            }
+            if ($this->GetPost('adm_reset_config_data')) {
+                $this->_eventResetCustomConfig();
+                $aSettings['adm_reset_config_data'] = 1;
+            }
 
             if ($aConfig) {
                 Config::WriteCustomConfig($aConfig);
             }
             $this->Message_AddNotice($this->Lang_Get('action.admin.action_ok'), null, true);
 
-            Router::Location('admin/tools-reset');
+            if ($aSettings) {
+                $this->Session_SetCookie('adm_tools_reset', serialize($aSettings));
+            } else {
+                $this->Session_DelCookie('adm_tools_reset');
+            }
+            Router::Location('admin/tools-reset/');
+        }
+        if ($sSettings = $this->Session_GetCookie('adm_tools_reset')) {
+            $aSettings = @unserialize($sSettings);
+            if (is_array($aSettings)) {
+                $this->Viewer_Assign('aSettings', $aSettings);
+            }
         }
     }
 

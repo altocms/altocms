@@ -198,6 +198,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
             $aParams = array(
                 'file' => $sDestination,
                 'asset' => $sAsset,
+                'asset_file' => $sDestination,
                 'compress' => $this->bCompress,
                 'prepare' => false,
             );

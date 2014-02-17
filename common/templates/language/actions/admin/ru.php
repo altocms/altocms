@@ -493,7 +493,7 @@ return array(
     'set_csscompress_use' => 'Использовать сжатие CSS',
     'set_csscompress_use_notice' => 'Сжатие используется только в активированном режиме слияния CSS-файлов',
     'set_csscompress_force' => 'Принудительно обрабатывать CSS',
-    'set_csscompress_force_notice' => 'Если заданно слияние CSS-файлов, то оно выполняется, даже если результирующий файл есть',
+    'set_csscompress_force_notice' => 'Проверка и обработка CSS-файлов выполняется, даже если результирующие файлы есть',
 
     'set_section_js' => 'Настройки обработки js-файлов',
     'set_jscompress_merge' => 'Объединять js-файлы',
@@ -501,7 +501,7 @@ return array(
     'set_jscompress_use' => 'Использовать сжатие javascript',
     'set_jscompress_use_notice' => 'Сжатие используется только в активированном режиме слияния js-файлов',
     'set_jscompress_force' => 'Принудительно обрабатывать javascript',
-    'set_jscompress_force_notice' => 'Если заданно слияние js-файлов, то оно выполняется, даже если результирующий файл есть',
+    'set_jscompress_force_notice' => 'Проверка и обработка js-файлов выполняется, даже если результирующие файлы есть',
 
     'set_section_acl' => 'Настройки контроля доступа',
     'set_acl_create_blog_rating' => 'Порог рейтинга, при котором юзер может создать коллективный блог',

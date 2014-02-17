@@ -558,6 +558,8 @@ class ModuleViewerAsset extends Module {
         }
 
         if (!F::File_GetContents($this->GetAssetsCheckName()) || $bForcePreparation) {
+            $this->aAssets = array();
+
             // makes assets here
             $sFile = $this->GetAssetsCacheName();
             F::File_PutContents($sFile . '.tmp', time());
