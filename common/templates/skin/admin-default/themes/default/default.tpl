@@ -20,8 +20,8 @@
 
     <meta name="viewport" content="width=600"/>
 
-{$aHtmlHeadFiles.css}
-	
+	{$aHtmlHeadFiles.css}
+
 	<link href="{Config::Get('path.static.skin')}assets/img/favicon.ico?v0.9" rel="shortcut icon">
     <link rel="search" type="application/opensearchdescription+xml" href="{router page='search'}opensearch/"
           title="{Config::Get('view.name')}"/>
@@ -66,9 +66,27 @@
 
 	<style>
 	@font-face {
-		font-family:'Icons Halflings';src:url('{Config::Get('path.static.skin')}assets/css/fonts/icons-halflings-regular.eot');src:url('{Config::Get('path.static.skin')}assets/css/fonts/icons-halflings-regular.eot?#iefix') format('embedded-opentype'),url('{Config::Get('path.static.skin')}assets/css/fonts/icons-halflings-regular.woff') format('woff'),url('{Config::Get('path.static.skin')}assets/css/fonts/icons-halflings-regular.ttf') format('truetype'),url('{Config::Get('path.static.skin')}assets/css/fonts/icons-halflings-regular.svg#icons-halflingsregular') format('svg');
+		font-family:'Icons Halflings';
+		src:url('{Config::Get('path.static.skin')}assets/css/fonts/icons-halflings-regular.eot');
+		src:url('{Config::Get('path.static.skin')}assets/css/fonts/icons-halflings-regular.eot?#iefix') format('embedded-opentype'),
+		url('{Config::Get('path.static.skin')}assets/css/fonts/icons-halflings-regular.woff') format('woff'),
+		url('{Config::Get('path.static.skin')}assets/css/fonts/icons-halflings-regular.ttf') format('truetype'),
+		url('{Config::Get('path.static.skin')}assets/css/fonts/icons-halflings-regular.svg#icons-halflingsregular') format('svg');
 	}
+	@font-face {
+	font-family: 'Simple-Line-Icons';
+	src:url('{Config::Get('path.static.skin')}assets/css/simpleline/fonts/Simple-Line-Icons.eot');
+	src:url('{Config::Get('path.static.skin')}assets/css/simpleline/fonts/Simple-Line-Icons.eot?#iefix') format('embedded-opentype'),
+		url('{Config::Get('path.static.skin')}assets/css/simpleline/fonts/Simple-Line-Icons.woff') format('woff'),
+		url('{Config::Get('path.static.skin')}assets/css/simpleline/fonts/Simple-Line-Icons.ttf') format('truetype'),
+		url('{Config::Get('path.static.skin')}assets/css/simpleline/fonts/Simple-Line-Icons.svg#Simple-Line-Icons') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
 	</style>
+
+	<link href='http://fonts.googleapis.com/css?family=Cuprum:400,400italic,700,700italic&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Ubuntu:400,700,400italic,700italic&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
 {$aHtmlHeadFiles.js}
 
@@ -115,8 +133,8 @@
 
 			<ul class="dropdown-menu">
 				<li><a href="{$oUserCurrent->getUserUrl()}"><i class="icon icon-user"></i> {$aLang.user_menu_profile}</a></li>
-				<li><a href="/settings/profile/"><i class="icon icon-cog"></i> {$aLang.settings_menu}</a></li>
-				<li><a href="{router page='login'}exit/?security_key={$ALTO_SECURITY_KEY}"><i class="icon icon-off"></i> {$aLang.exit}</a></li>
+				<li><a href="/settings/profile/"><i class="icon icon-settings"></i> {$aLang.settings_menu}</a></li>
+				<li><a href="{router page='login'}exit/?security_key={$ALTO_SECURITY_KEY}"><i class="icon icon-lock"></i> {$aLang.exit}</a></li>
 				</ul>
 			</li>
         </ul>
@@ -148,7 +166,7 @@
 
 		<ul class="nav navbar-nav navbar-right goto-site">
 			<li>
-			<a href="/" target="_blank"><i class="icon icon-home"></i> {$aLang.action.admin.goto_site}</a></li>
+			<a href="/" target="_blank"><i class="icon icon-pointer"></i> {$aLang.action.admin.goto_site}</a></li>
 			<li>
 		</ul>
 </nav>
@@ -173,7 +191,7 @@
         <h1 class="b-content-header-title">{$sPageTitle}</h1>
     </div>
     <div id="breadcrumb" class="b-content-breadcrumb">
-        <a href="#" ><i class="icon icon-asterisk"></i> {$aLang.action.admin.title}</a>
+        <a href="#" ><i class="icon icon-magic-wand"></i> {$aLang.action.admin.title}</a>
         <a href="#" class="current">{$sPageTitle}</a>
     </div>
 

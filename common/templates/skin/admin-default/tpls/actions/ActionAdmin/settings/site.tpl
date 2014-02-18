@@ -2,7 +2,7 @@
 
 {block name="content-bar"}
     <div class="btn-group">
-        <a href="#" class="btn btn-primary disabled"><i class="icon icon-plus-sign"></i></a>
+        <a href="#" class="btn btn-primary disabled"><i class="icon icon-plus"></i></a>
     </div>
     <div class="btn-group">
         <a href="{router page='admin'}settings-site/base/" class="btn {if $sMode=='base'}active{/if}">

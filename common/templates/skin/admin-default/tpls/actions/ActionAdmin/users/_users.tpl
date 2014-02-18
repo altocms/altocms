@@ -2,7 +2,7 @@
 
 {block name="content-bar"}
     <div class="btn-group">
-        <a href="#" class="btn btn-primary disabled"><i class="icon icon-plus-sign"></i></a>
+        <a href="#" class="btn btn-primary disabled"><i class="icon icon-plus"></i></a>
     </div>
     <div class="btn-group">
         <a class="btn btn-default {if $sMode=='list'}active{/if}" href="{router page='admin'}users-list/list/">
@@ -66,7 +66,7 @@
                 <div class="accordion-heading">
                     <button class="btn-block btn btn-default left" data-target="#admin_user_ban" data-toggle="collapse"
                             data-parent="#user-comands-switch">
-                        <i class="icon icon-ban-circle"></i>
+                        <i class="icon icon-ban"></i>
                         {$aLang.action.admin.users_ban}
                     </button>
                 </div>
@@ -113,7 +113,7 @@
                 <button class="btn-block btn btn-default left" data-target="#admin_form_seek" data-toggle="collapse"
                         data-parent="#user-comands-switch">
                     {if $aFilter}<i class="icon icon-filter icon-green pull-right"></i>{/if}
-                    <i class="icon icon-search"></i>
+                    <i class="icon icon-magnifier"></i>
                     {$aLang.action.admin.seek_users}
                 </button>
             </div>
@@ -273,7 +273,7 @@
             <div class="accordion-heading">
                 <button class="btn-block btn btn-default left" data-target="#admin_user_setadmin" data-toggle="collapse"
                         data-parent="#user-comands-switch">
-                    <i class="icon icon-asterisk"></i>
+                    <i class="icon icon-user-follow"></i>
                     {$aLang.action.admin.include_admin}
                 </button>
             </div>

@@ -3,7 +3,7 @@
 {block name="content-bar"}
     <div class="btn-group">
         <a href="{router page='admin'}settings-blogtypes/add/" class="btn btn-primary tip-top"
-           title="{$aLang.action.admin.blogtypes_add}"><i class="icon icon-plus-sign"></i></a>
+           title="{$aLang.action.admin.blogtypes_add}"><i class="icon icon-plus"></i></a>
     </div>
 {/block}
 
@@ -104,7 +104,7 @@
                         </td>
                         <td>
                             <a href="{router page='admin'}settings-blogtypes/edit/{$oBlogType->getId()}/">
-                                <i class="icon icon-edit tip-top" title="{$aLang.action.admin.content_edit}"></i></a>
+                                <i class="icon icon-note tip-top" title="{$aLang.action.admin.content_edit}"></i></a>
                             {if $oBlogType AND $oBlogType->CanDelete()}
                             <a href="{router page='admin'}settings-blogtypes/delete/{$oBlogType->getId()}/">
                                 <i class="icon icon-trash tip-top" title="{$aLang.action.admin.content_delete}"></i></a>

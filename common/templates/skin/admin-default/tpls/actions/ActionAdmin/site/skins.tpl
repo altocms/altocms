@@ -58,7 +58,7 @@
                 {$aThemes=$oActiveSkin->GetThemes()}
                 {if $aThemes}
                 <div class="b-wbox-header">
-                    <span class="icon"><i class="icon icon-chevron-left"></i></span>
+                    <span class="icon"><i class="icon icon-control-rewind"></i></span>
 
                     <div class="b-wbox-header-title">{$aLang.action.admin.skin_settings} {$oActiveSkin->GetName()}</div>
                 </div>
@@ -109,7 +109,7 @@
                 <div class="b-wbox">
                     <div class="b-wbox-header">
                         {if $oSkin->GetType() == 'adminpanel'}
-                            <span class="icon tip-top" title="Skin for Adminpanel"><i class="icon icon-asterisk"></i></span>
+                            <span class="icon tip-top" title="Skin for Adminpanel"><i class="icon icon-user-follow"></i></span>
                         {else}
                             <span class="icon tip-top" title="Skin for Site"><i class="icon icon-globe"></i></span>
                         {/if}

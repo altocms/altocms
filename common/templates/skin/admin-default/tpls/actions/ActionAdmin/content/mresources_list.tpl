@@ -2,7 +2,7 @@
 
 {block name="content-bar"}
     <div class="btn-group">
-        <a href="#" class="btn btn-primary disabled"><i class="icon icon-plus-sign"></i></a>
+        <a href="#" class="btn btn-primary disabled"><i class="icon icon-plus"></i></a>
     </div>
     <div class="btn-group">
         <a class="btn btn-default {if $sMode=='all' || $sMode==''}active{/if}" href="{router page='admin'}content-blogs/list/">
@@ -70,10 +70,10 @@
                                 {if !$oMresource->GetTargetsCount()}
                                     <a href="#" title="{$aLang.action.admin.delete}" class="tip-top i-block"
                                        onclick="return admin.confirmDelete('{$oMresource->getId()}', '{$oMresource->GetImgUrl(100)}'); return false;">
-                                        <i class="icon icon-remove"></i>
+                                        <i class="icon icon-trash"></i>
                                     </a>
                                 {else}
-                                    <!-- i class="icon icon-remove disabled"></i -->
+                                    <!-- i class="icon icon-trash disabled"></i -->
                                 {/if}
                             </td>
                         </tr>

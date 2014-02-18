@@ -40,7 +40,7 @@
 <li class="menu-header">
 
 	<a data-toggle="collapse" href="#MenuInfo">
-		<i class="icon icon-info-sign"></i>{$aLang.action.admin.menu_info}
+		<i class="icon icon-info"></i>{$aLang.action.admin.menu_info}
 	</a>
 							
 <ul id="MenuInfo" style="{if $sEvent=='' OR $sEvent=='info-dashboard' || $sEvent=='info-report' || $sEvent=='info-phpinfo'}height: auto;{else}height: 0px;{/if}">
@@ -61,7 +61,7 @@
 <li class="menu-header">
 
 	<a data-toggle="collapse" href="#MenuContent">
-		<i class="icon icon-file"></i>{$aLang.action.admin.menu_content}
+		<i class="icon icon-docs"></i>{$aLang.action.admin.menu_content}
 	</a>
 		
 <ul id="MenuContent" style="{if $sEvent=='content-pages' || $sEvent=='content-blogs' || $sEvent=='content-topics' || $sEvent=='content-comments' || $sEvent=='content-mresources'}height: auto;{else}height: 0px;{/if}">
@@ -88,7 +88,7 @@
 <li class="menu-header">
 	
 	<a data-toggle="collapse" href="#MenuUsers">
-		<i class="icon icon-user"></i>{$aLang.action.admin.menu_users}
+		<i class="icon icon-users"></i>{$aLang.action.admin.menu_users}
 	</a>
 	
 <ul id="MenuUsers" style="{if $sEvent=='users-list' || $sEvent=='users-banlist'}height: auto;{else}height: 0px;{/if}">
@@ -109,7 +109,7 @@
 <li class="menu-header">
 	
 	<a data-toggle="collapse" href="#MenuSettings">
-		<i class="icon icon-cog"></i>{$aLang.action.admin.menu_settings}
+		<i class="icon icon-settings"></i>{$aLang.action.admin.menu_settings}
 	</a>
 	
 <ul id="MenuSettings" style="{if $sEvent=='settings-site' || $sEvent=='settings-lang' || $sEvent=='settings-blogtypes' || $sEvent=='settings-contenttypes' || $sEvent=='settings-userrights' || $sEvent=='settings-userrights' || $sEvent=='settings-userfields'}height: auto;{else}height: 0px;{/if}">
@@ -139,7 +139,7 @@
 <li class="menu-header">
 	
 	<a data-toggle="collapse" href="#MenuSite">
-		<i class="icon icon-th"></i>{$aLang.action.admin.menu_site}
+		<i class="icon icon-screen-desktop"></i>{$aLang.action.admin.menu_site}
 	</a>
 	
 <ul id="MenuSite" style="{if $sEvent=='site-skins' || $sEvent=='site-widgets' || $sEvent=='site-plugins'}height: auto;{else}height: 0px;{/if}">
@@ -160,7 +160,7 @@
 <li class="menu-header">
 	
 	<a data-toggle="collapse" href="#MenuLogs">
-		<i class="icon icon-list-alt"></i>{$aLang.action.admin.menu_logs}
+		<i class="icon icon-book-open"></i>{$aLang.action.admin.menu_logs}
 	</a>
 	
 <ul id="MenuLogs" style="{if $sEvent=='logs-error' || $sEvent=='logs-sqlerror' || $sEvent=='logs-sqllog'}height: auto;{else}height: 0px;{/if}">
@@ -219,7 +219,7 @@
 <div class="site-search">
 	<form method="get" action="{router page='search'}topics/">
 		<input type="text" name="q" class="search-input" placeholder="{$aLang.search_submit}..." style="">
-		<button type="submit" style=""><i class="icon icon-search"></i></button>
+		<button type="submit" style=""><i class="icon icon-magnifier"></i></button>
 	</form>
 </div>
 

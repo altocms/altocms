@@ -3,7 +3,7 @@
 {block name="content-bar"}
     <div class="btn-group">
         <a href="{router page='admin'}site-plugins/add/" class="btn btn-primary active tip-top"
-           title="{$aLang.action.admin.plugin_load}"><i class="icon icon-plus-sign"></i></a>
+           title="{$aLang.action.admin.plugin_load}"><i class="icon icon-plus"></i></a>
     </div>
 
     <div class="btn-group">

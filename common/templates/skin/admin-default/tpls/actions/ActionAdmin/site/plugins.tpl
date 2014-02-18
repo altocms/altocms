@@ -3,7 +3,7 @@
 {block name="content-bar"}
     <div class="btn-group">
         <a href="{router page='admin'}site-plugins/add/" class="btn btn-primary tip-top"
-           title="{$aLang.action.admin.plugin_load}"><i class="icon icon-plus-sign"></i></a>
+           title="{$aLang.action.admin.plugin_load}"><i class="icon icon-plus"></i></a>
     </div>
     <div class="btn-group">
         <a class="btn btn-default {if $sMode=='all' || $sMode==''}active{/if}" href="{router page='admin'}site-plugins/list/all/">
