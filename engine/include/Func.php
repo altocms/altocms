@@ -16,6 +16,11 @@ class Func {
 
     static protected $aExtsions = array();
 
+    static protected $nErrorTypes = E_ALL;
+
+    /**
+     * Init function
+     */
     static public function init() {
 
         static::_loadExtension('File');
@@ -26,6 +31,9 @@ class Func {
         }
     }
 
+    /**
+     * Shutdown function
+     */
     static public function done() {
 
         if ($aError = error_get_last()) {
@@ -168,7 +176,9 @@ class Func {
                 static::_errorDisplay("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg", static::_errorLogFile());
             }
         }
-        static::_errorLog("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg ($sErrFile on line $nErrLine)");
+        if ($nErrNo & self::$nErrorTypes) {
+            static::_errorLog("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg ($sErrFile on line $nErrLine)");
+        }
 
         /* Don't execute PHP internal error handler */
         return true;
@@ -188,8 +198,8 @@ class Func {
     }
 
     /**
-     * @param $sName
-     * @param $aArguments
+     * @param string $sName
+     * @param array  $aArguments
      *
      * @return mixed
      */
@@ -226,6 +236,8 @@ class Func {
     }
 
     /**
+     * Loads func extension
+     *
      * @param $sExtension
      */
     static protected function _loadExtension($sExtension) {
@@ -257,23 +269,9 @@ class Func {
         exit;
     }
 
-    static protected function _CallerStr($nOffset = 2) {
-
-        $aCaller = static::_Caller($nOffset);
-        $sCallerStr = '';
-        $sPosition = '';
-        if ($aCaller) {
-            if (isset($aCaller['class']) && isset($aCaller['function']) && isset($aCaller['type'])) {
-                $sCallerStr = $aCaller['class'] . $aCaller['type'] . $aCaller['function'] . '()';
-            }
-            if (isset($aCaller['file']) && isset($aCaller['line'])) {
-                $sPosition = ' in ' . $aCaller['file'] . ' on line ' . $aCaller['line'];
-            }
-        }
-        return $sCallerStr . $sPosition;
-    }
-
     /**
+     * Returns caller (class/function) using call stack
+     *
      * @param int  $nOffset
      * @param bool $bString
      *
@@ -301,6 +299,8 @@ class Func {
     }
 
     /**
+     * Returns call stack or part of them
+     *
      * @param int  $nOffset
      * @param null $nLength
      *
@@ -313,8 +313,8 @@ class Func {
     }
 
     /**
-     * @param      $sParam
-     * @param null $xDefault
+     * @param string     $sParam
+     * @param mixed|null $xDefault
      *
      * @return mixed|null
      */
@@ -326,6 +326,51 @@ class Func {
             $xResult = $xDefault;
         }
         return $xResult;
+    }
+
+    /**
+     * Set error types for handler function
+     *
+     * @param int|null  $nErrorTypes
+     * @param bool|null $bSystem
+     *
+     * @return int
+     */
+    static public function ErrorReporting($nErrorTypes = null, $bSystem = false) {
+
+        if (func_num_args() == 1 && is_bool($nErrorTypes)) {
+            $bSystem  = $nErrorTypes;
+            $nErrorTypes = null;
+        }
+        if ($bSystem) {
+            if (is_integer($nErrorTypes)) {
+                $nResult = error_reporting($nErrorTypes);
+                self::$nErrorTypes = $nErrorTypes;
+            } else {
+                $nResult = error_reporting();
+            }
+        } else {
+            $nResult = self::$nErrorTypes;
+            if (is_integer($nErrorTypes)) {
+                self::$nErrorTypes = $nErrorTypes;
+            }
+        }
+        return $nResult;
+    }
+
+    /**
+     * Set ignored error types for handler function
+     *
+     * @param int       $nErrorTypes
+     * @param bool|null $bSystem
+     *
+     * @return int
+     */
+    static public function ErrorIgnored($nErrorTypes, $bSystem = false) {
+
+        $nOldErrorTypes = static::ErrorReporting(null, $bSystem);
+        static::ErrorReporting($nOldErrorTypes & ~$nErrorTypes, $bSystem);
+        return $nOldErrorTypes;
     }
 
     static public function SysWarning($sMessage) {
