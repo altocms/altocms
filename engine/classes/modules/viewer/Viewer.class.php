@@ -252,7 +252,7 @@ class ModuleViewer extends Module {
      * Инициализация шаблонизатора
      *
      */
-    protected function InitTemplator() {
+    protected function _initTemplator() {
 
         // * Создаём объект Smarty
         $this->oSmarty = $this->CreateSmartyObject();
@@ -299,23 +299,23 @@ class ModuleViewer extends Module {
     }
 
     /**
-     * Инициализация скина
+     * Initialization of skin
      *
-     * @param bool $bLocal
      */
-    protected function InitSkin($bLocal = false) {
+    protected function _initSkin() {
 
         $this->sSkin = Config::Get('view.skin');
-        if (!$bLocal) {
-            // * Load skin config
-            $aConfig = Config::Get('skin.' . $this->sSkin . '.config');
-            if (F::File_Exists($sFile = Config::Get('path.smarty.template') . '/settings/config/config.php')) {
-                $aConfig = F::Array_MergeCombo(F::IncludeFile($sFile, false, true), $aConfig);
-            }
-            Config::ResetLevel(Config::LEVEL_SKIN);
-            if ($aConfig) {
-                Config::Load($aConfig, false);
-            }
+        // * Load skin config
+        $aConfig = Config::Get('skin.' . $this->sSkin . '.config');
+        if (F::File_Exists($sFile = Config::Get('path.smarty.template') . '/settings/config/config.php')) {
+            $aConfig = F::Array_MergeCombo(F::IncludeFile($sFile, false, true), $aConfig);
+        }
+        Config::ResetLevel(Config::LEVEL_SKIN);
+        if ($aConfig) {
+            Config::Load($aConfig, false);
+        }
+        // Skip skin widgets for local viewer
+        if (!$this->bLocal) {
             // * Load skin widgets
             if (F::File_Exists($sFile = Config::Get('path.smarty.template') . '/settings/config/widgets.php')) {
                 $aSkinWidgets = F::IncludeFile($sFile, false, true);
@@ -325,7 +325,38 @@ class ModuleViewer extends Module {
                 }
             }
         }
+        // Load template variables from config
+        if (($aVars = Config::Get('view.assign')) && is_array($aVars)) {
+            $this->Assign($aVars);
+        }
+    }
 
+    /**
+     * Initialization of render before Fetch() or Display()
+     */
+    protected function _initRender() {
+
+        // If skin not initialized (or it was changed) then init one
+        if ($this->sSkin != Config::Get('view.skin')) {
+            $this->_initSkin($this->bLocal);
+        } else {
+            // Level could be changed after skin initialization
+            Config::SetLevel(Config::LEVEL_SKIN);
+        }
+
+        // Loads localized texts
+        $this->Assign('aLang', $this->Lang_GetLangMsg());
+        $this->Assign('oLang', $this->Lang_Dictionary());
+
+        if (!$this->bLocal) {
+            // Initialization of assets (JS-, CSS-files)
+            $this->InitAssetFiles();
+        }
+
+        // init templator if not yet
+        if (!$this->oSmarty) {
+            $this->_initTemplator();
+        }
     }
 
     /**
@@ -337,9 +368,10 @@ class ModuleViewer extends Module {
 
         $sClass = $this->Plugin_GetDelegate('module', __CLASS__);
 
+        /** @var ModuleViewer $oViewerLocal */
         $oViewerLocal = new $sClass(Engine::getInstance());
         $oViewerLocal->Init(true);
-        $oViewerLocal->Assign('aLang', $this->Lang_GetLangMsg());
+        $oViewerLocal->_initRender();
         $oViewerLocal->VarAssign();
         return $oViewerLocal;
     }
@@ -364,7 +396,7 @@ class ModuleViewer extends Module {
     public function VarAssign() {
 
         if (!$this->oSmarty) {
-            $this->InitTemplator();
+            $this->_initTemplator();
         }
 
         foreach ($this->aVarsTemplate as $sName => $xValue) {
@@ -471,7 +503,7 @@ class ModuleViewer extends Module {
          */
         if ($sTemplate) {
             if (!$this->oSmarty) {
-                $this->InitTemplator();
+                $this->_initTemplator();
             }
             // Подавляем обработку ошибок
             $this->oSmarty->muteExpectedErrors();
@@ -502,7 +534,7 @@ class ModuleViewer extends Module {
     public function Fetch($sTemplate, $aOptions = array()) {
 
         if (!$this->oSmarty) {
-            $this->InitTemplator();
+            $this->_initTemplator();
         }
 
         // * Проверяем наличие делегата
@@ -750,17 +782,23 @@ class ModuleViewer extends Module {
     }
 
     /**
-     * Присваивает значение переменной шаблона
+     * Sets value(s) to template variable(s)
      *
-     * @param string $sName  - Имя переменной шаблона
-     * @param mixed  $xValue - Значение переменной
+     * @param string|array $xParam - Name of template variable or associate array
+     * @param mixed|null   $xValue - Value of variable if $xParam is string
      */
-    public function Assign($sName, $xValue) {
+    public function Assign($xParam, $xValue = null) {
 
-        if ($this->oSmarty) {
-            $this->_assignTpl($sName, $xValue);
+        if (is_array($xParam) && is_null($xValue)) {
+            foreach($xParam as $sName => $xValue) {
+                $this->Assign($sName, $xValue);
+            }
         } else {
-            $this->aVarsTemplate[$sName] = $xValue;
+            if ($this->oSmarty) {
+                $this->_assignTpl($xParam, $xValue);
+            } else {
+                $this->aVarsTemplate[$xParam] = $xValue;
+            }
         }
     }
 
@@ -775,7 +813,7 @@ class ModuleViewer extends Module {
     public function TemplateExists($sTemplate, $bException = false) {
 
         if (!$this->oSmarty) {
-            $this->InitTemplator();
+            $this->_initTemplator();
         }
         $this->oSmarty->muteExpectedErrors();
         $bResult = $this->oSmarty->templateExists($sTemplate);
@@ -1642,30 +1680,7 @@ class ModuleViewer extends Module {
 
         $timer = microtime(true);
 
-        if ($this->sSkin != Config::Get('view.skin')) {
-            $this->InitSkin($this->bLocal);
-        } else {
-            // Level could be changed after skin initialization
-            Config::SetLevel(Config::LEVEL_SKIN);
-        }
-
-        // * Получаем настройки JS-, CSS-файлов
-        $this->InitAssetFiles();
-
-        // * Загружаем локализованные тексты
-        $this->Assign('aLang', $this->Lang_GetLangMsg());
-        $this->Assign('oLang', $this->Lang_Dictionary());
-
-        // * Загружаем переменные из конфига
-        if (($aVars = Config::Get('view.assign')) && is_array($aVars)) {
-            foreach ($aVars as $sKey => $sVal) {
-                $this->Assign($sKey, $sVal);
-            }
-        }
-
-        if (!$this->oSmarty) {
-            $this->InitTemplator();
-        }
+        $this->_initRender();
 
         // * Создаются списки виджетов для вывода
         $this->MakeWidgetsLists();
