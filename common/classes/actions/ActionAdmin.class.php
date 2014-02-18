@@ -1424,7 +1424,7 @@ class ActionAdmin extends Action {
                 $this->Message_AddError($this->Lang_Get('action.admin.cannot_ban_self'), null, true);
                 return false;
             }
-            if (in_array(E::UserId(), 1)) {
+            if (in_array(1, $aUsersId)) {
                 $this->Message_AddError($this->Lang_Get('action.admin.cannot_ban_admin'), null, true);
                 return false;
             }

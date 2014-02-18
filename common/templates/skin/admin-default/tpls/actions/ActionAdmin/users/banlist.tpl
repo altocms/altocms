@@ -88,7 +88,7 @@
                         </label>
 
                         <label class="radio">
-                            <input type="radio" name="ban_period" value="unlim" checked/>
+                            <input type="radio" name="ban_period" value="unlim" checked />
                             {$aLang.action.admin.ban_unlim}
                         </label>
 

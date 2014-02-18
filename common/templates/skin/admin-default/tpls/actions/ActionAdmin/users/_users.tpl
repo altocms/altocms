@@ -80,14 +80,14 @@
                                value="{if $oUserProfile}{$oUserProfile->getId()}{/if}"/>
 
                         <label class="radio">
-                            <input type="radio" name="ban_period" value="days" checked/>
+                            <input type="radio" name="ban_period" value="days" />
                             {$aLang.action.admin.ban_for}
                             <input type="text" name="ban_days" id="ban_days"
                                    class="num1"/> {$aLang.action.admin.ban_days}
                         </label>
 
                         <label class="radio">
-                            <input type="radio" name="ban_period" value="unlim"/>
+                            <input type="radio" name="ban_period" value="unlim" checked />
                             {$aLang.action.admin.ban_unlim}
                         </label>
 
