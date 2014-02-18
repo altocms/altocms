@@ -38,10 +38,10 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
 
         if (Config::Get('compress.css.use')) {
             F::IncludeLib('CSSTidy-1.3/class.csstidy.php');
-            // * Получаем параметры из конфигурации
             $this->oCompressor = new csstidy();
 
             if ($this->oCompressor) {
+                // * Получаем параметры из конфигурации
                 $aParams = Config::Get('compress.css.csstidy');
                 // * Устанавливаем параметры
                 foreach ($aParams as $sKey => $sVal) {
@@ -59,8 +59,10 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
 
     public function Compress($sContents) {
 
+        $nErrorReporting = F::ErrorIgnored(E_NOTICE, true);
         $this->oCompressor->parse($sContents);
         $sContents = $this->oCompressor->print->plain();
+        F::ErrorReporting($nErrorReporting);
         return $sContents;
     }
 
