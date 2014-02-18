@@ -1,8 +1,14 @@
 /* -------------------------------------------------------------------
     ADMIN
 ------------------------------------------------------------------- */
-
-.-box                                   { overflow: hidden }
+.-box:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+.-box:before { content: none; }
 .b-users-list .link                     { float: left }
 * html.-box                             { height: 1% }
 *:first-child+html.-box                 { min-height: 1px }
@@ -171,7 +177,7 @@ button[name=mblog_category_del_blog]    { width: 140px; margin-bottom: 5px; text
 .userfield-list li .userfield_admin_name
                                         { color: #333333; font-weight: bold; }
 .userfield-list li .userfield-actions   { float: right }
-.b-skin-screenshot                      { width: 240px; height: 180px; border: 1px solid #777; float: left; margin-right: 10px; }
+.b-skin-screenshot                      { width: 240px; height: 180px; border: 1px solid #F9F9F9; float: left; margin-right: 10px; }
 .b-skin-theme-color                     { padding: 0 6px; border: 1px solid #111; margin-right: 4px; }
 .b-log-date                             { font-weight: bold; color: #003; background: #EEE; padding-left: 4px; }
 .b-log-text                             { padding: 0 0 8px 12px; color: #333; }
