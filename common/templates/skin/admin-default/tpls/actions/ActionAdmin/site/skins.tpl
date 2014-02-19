@@ -58,7 +58,7 @@
                 {$aThemes=$oActiveSkin->GetThemes()}
                 {if $aThemes}
                 <div class="b-wbox-header">
-                    <span class="icon"><i class="icon icon-control-rewind"></i></span>
+                    <span class="icon"><i class="icon icon-action-undo"></i></span>
 
                     <div class="b-wbox-header-title">{$aLang.action.admin.skin_settings} {$oActiveSkin->GetName()}</div>
                 </div>

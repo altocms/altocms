@@ -8,7 +8,11 @@
     clear: both;
     visibility: hidden;
 }
-.-box:before { content: none; }
+
+.span12 .b-wbox:before,
+.span12 .b-wbox:after,
+.-box:before { content: none!important; }
+
 .b-users-list .link                     { float: left }
 * html.-box                             { height: 1% }
 *:first-child+html.-box                 { min-height: 1px }

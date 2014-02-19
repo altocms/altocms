@@ -6,15 +6,6 @@ label, input, button, select, textarea { font-size: 12px; font-weight: normal; }
 
 input, textarea { background-color: #FCFCFC; border: 1px solid #ddd;padding: 7px 12px; display: inline-block; font-size: 12px; color: #555; vertical-align: middle; line-height: 1.5; -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px; }
 
-input:focus, textarea:focus {
-	outline: 2px solid #3276B1;
-}
-
-.input-group input,
-.input-group textarea {
-	border-radius: 0;
-}
-
 .jq-checkbox {
 	width: 19px;
 	height: 19px;

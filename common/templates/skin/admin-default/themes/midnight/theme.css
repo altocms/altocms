@@ -6,6 +6,13 @@
 	max-width: 1300px!important;
 }
 
+.jq-radio.checked .jq-radio__div,
+.jq-radio.checked,
+.jq-selectbox li.selected,
+.jq-selectbox li:hover,
+.jq-checkbox.checked
+{background-color: #428BCA;}
+
 .container:before {
 	background:#2d335b;
 }
@@ -23,16 +30,12 @@
 	border-top: 1px solid #24233D;
 }
 
+
 .badge,
 .btn-default .badge {
 	background-color: #B94A48;
 }
 
-.jq-radio.checked .jq-radio__div,
-.jq-radio.checked,
-.jq-selectbox li.selected,
-.jq-selectbox li:hover,
-.jq-checkbox.checked,
 .navbar-inverse .navbar-nav>.open>a,
 .navbar-inverse .navbar-nav>.open>a:hover,
 .navbar-inverse .navbar-nav>.open>a:focus,
@@ -90,11 +93,11 @@ div.dataTables_wrapper .ui-widget-header {
 .menu-left li ul li:first-child:after { content: ""; display:block; border-top: 1px solid #262B49; top: 0; position: absolute; width: 100%; }
 
 .navbar-inverse { margin-left: 0px; }
-.navbar-inverse { background-image: url(../img/logo-midnight.png); background-repeat: no-repeat; background-position: 10px 10px; }
+.navbar-inverse { background-image: url(../midnight/img/logo-midnight.png); background-repeat: no-repeat; background-position: 10px 10px; }
 
 .goto-site   { float: left!important; }
-.goto-site a {}
+.goto-site a { padding-left: 60px!important; }
 
 @media (max-width: 600px) {
-	.goto-site a 	{ margin-left: -84px!important; }
+	.goto-site a 	{ margin-left: -44px!important; }
 }
