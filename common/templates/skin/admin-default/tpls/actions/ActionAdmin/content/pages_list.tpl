@@ -2,7 +2,7 @@
 
 {block name="content-bar"}
     <div class="btn-group">
-        <a href="{router page='admin'}content-pages/add/" class="btn btn-primary"><i class="icon icon-plus-sign"></i></a>
+        <a href="{router page='admin'}content-pages/add/" class="btn btn-primary"><i class="icon icon-plus"></i></a>
     </div>
 {/block}
 
@@ -63,11 +63,11 @@
                         <td class="center">
                             <a href="{router page='admin'}content-pages/edit/{$oPage->getId()}/"
                                title="{$aLang.action.admin.pages_admin_action_edit}" class="tip-top i-block">
-                                <i class="icon icon-edit"></i>
+                                <i class="icon icon-note"></i>
                             </a>
                             <a href="#" title="{$aLang.action.admin.pages_admin_action_delete}" class="tip-top i-block"
                                   onclick="return admin.confirmDelete('{$oPage->getId()}', '{$oPage->getTitle()}'); return false;">
-                                <i class="icon icon-remove"></i>
+                                <i class="icon icon-trash"></i>
                             </a>
                             {if $oPage@first}
                                 <i class="icon icon-arrow-up icon-gray"></i>

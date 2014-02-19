@@ -2,7 +2,7 @@
 
 {block name="content-bar"}
     <div class="btn-group">
-        <a href="#" class="btn btn-primary disabled"><i class="icon icon-plus-sign"></i></a>
+        <a href="#" class="btn btn-primary disabled"><i class="icon icon-plus"></i></a>
     </div>
 {/block}
 
@@ -45,9 +45,9 @@
                         <td class="center">
                             <a href="{$oTopic->getUrlEdit()}"
                                title="{$aLang.action.admin.topic_edit}">
-                                <i class="icon icon-edit"></i></a>
+                                <i class="icon icon-note"></i></a>
                             <a href="{router page='content'}delete/{$oTopic->getId()}/?security_key={$ALTO_SECURITY_KEY}" title="{$aLang.topic_delete}" onclick="return confirm('{$aLang.topic_delete_confirm}');" >
-                                <i class="icon icon-remove"></i></a>
+                                <i class="icon icon-trash"></i></a>
                         </td>
                     </tr>
                     {/foreach}

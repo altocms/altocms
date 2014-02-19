@@ -15,6 +15,7 @@ $config['head']['default']['css'] = array(
     '___path.skin.dir___/assets/css/jquery-notifier.css',
 
     '___path.skin.dir___/assets/css/bootstrap.min.css',
+    '___path.skin.dir___/assets/css/simpleline/simple-line-icons.css',
     '___path.skin.dir___/assets/css/datepicker.css',
     '___path.skin.dir___/assets/css/fullcalendar.css',
     '___path.skin.dir___/assets/css/jquery-modals.css',

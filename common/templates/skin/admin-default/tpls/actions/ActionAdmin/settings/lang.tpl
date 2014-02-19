@@ -17,7 +17,7 @@
                             <li class="b-set-lang-allow-item lang-allow-{$sLang}">
                                 {if !$aLng.current}
                                 <div class="b-set-lang-exclude pull-right" data-lang="{$sLang}">
-                                    <i class="icon icon-remove-sign"></i>
+                                    <i class="icon icon-trash-sign"></i>
                                 </div>
                                 {/if}
                                 <label class="{if $aLng.current}b-set-lang-current{/if} input-radio">
@@ -30,7 +30,7 @@
                     </ul>
                     <div class="form-actions">
                         <button class="b-set-lang-button btn btn-default">
-                            <i class="icon icon-plus-sign"></i>
+                            <i class="icon icon-plus"></i>
                             {$aLang.action.admin.include}
                         </button>
                         <button class="b-set-lang-change btn btn-primary">
@@ -43,7 +43,7 @@
 
             <div class="b-wbox" style="display: none;">
                 <div class="b-wbox-header">
-                    <div class="b-set-lang-close"><i class="icon icon-remove"></i></div>
+                    <div class="b-set-lang-close"><i class="icon icon-trash"></i></div>
                     <div class="b-wbox-header-title">{$aLang.action.admin.set_lang_avail}</div>
                 </div>
                 <div class="b-wbox-content nopadding">

@@ -19,8 +19,8 @@
                     result += '<i class="icon icon-plus icon-green adm_vote_sign"></i>';
                 }
                 result += '<input type="text" name="value" value="' + Math.abs(value) + '" class="adm_vote_value" />';
-                result += '<button class="btn btn-mini btn-danger pull-right cancel"><i class="icon icon-remove icon-white"></i></button>';
-                result += '<button class="btn btn-mini btn-success pull-right confirm"><i class="icon icon-ok icon-white"></i></button>'
+                result += '<button class="btn btn-mini btn-danger pull-right cancel"><i class="icon icon-close"></i></button>';
+                result += '<button class="btn btn-mini btn-success pull-right confirm"><i class="icon icon-check icon-white"></i></button>'
                 return result;
             },
             html: true,

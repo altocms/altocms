@@ -2,7 +2,7 @@
 
 {block name="content-bar"}
     <div class="btn-group">
-        <a href="{router page='admin'}site-widgets/" class="btn btn-default"><i class="icon icon-chevron-left"></i></a>
+        <a href="{router page='admin'}site-widgets/" class="btn btn-default"><i class="icon icon-action-undo"></i></a>
     </div>
 {/block}
 

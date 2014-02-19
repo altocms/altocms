@@ -4,23 +4,33 @@
 
 label, input, button, select, textarea { font-size: 12px; font-weight: normal; }
 
-input, textarea { background-color: #FCFCFC; border: 1px solid #ddd; padding: 7px 12px; -webkit-transition: border linear .2s,box-shadow linear .2s; -moz-transition: border linear .2s,box-shadow linear .2s; -o-transition: border linear .2s,box-shadow linear .2s; transition: border linear .2s,box-shadow linear .2s; display: inline-block; font-size: 12px; color: #555; vertical-align: middle; line-height: 1.5; height: 34px; }
+input, textarea { background-color: #FCFCFC; border: 1px solid #ddd;padding: 7px 12px; display: inline-block; font-size: 12px; color: #555; vertical-align: middle; line-height: 1.5; -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px; }
 
 .jq-checkbox {
-	width: 13px;
-	height: 13px;
+	width: 19px;
+	height: 19px;
 	border: 1px solid #ddd;
 	background: #fff;
 	vertical-align: middle;
 	cursor: pointer;
 	margin-right: 2px;
+	border-radius: 3px;
+	margin-top: -3px;
+    -webkit-transition: background-color 0.25s linear;
+    -moz-transition: background-color 0.25s linear;
+    -o-transition: background-color 0.25s linear;
+    -ms-transition: background-color 0.25s linear;
+    transition: background-color 0.25s linear;
 }
-.jq-checkbox.checked .jq-checkbox__div {
-	width: 7px;
-	height: 7px;
-	margin: 2px 0 0 2px;
-	background: #666;
+
+.jq-checkbox.checked {
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAIVJREFUeNpi/P//PwNJAKSBCBwAxFxgw4lQnPkfApYQoyEaiP8B8R8gjkDWkArEWWiK/YD4F1RDOkwcRAgB8W+oRAxUwhGIv0KdUo5sEIyRiGR1FRB/gCpuR3cmMqf4PyqYDsSM+DQwQE0EgWVAzIwtINAFQCbGAjEbrpBjJDWmSdYAEGAAfrVlTrJ6Ll0AAAAASUVORK5CYII=);
+	background-position: 3px;
+	background-repeat: no-repeat;
+	border-color: transparent;
 }
+
+
 .jq-checkbox.focused {
 	border: 1px solid #08C;
 }
@@ -31,9 +41,8 @@ input, textarea { background-color: #FCFCFC; border: 1px solid #ddd; padding: 7p
 
 
 .jq-radio {
-	top: -1px;
-	width: 13px;
-	height: 13px;
+	width: 20px;
+	height: 20px;
 	border: 1px solid #ddd;
 	border-radius: 50%;
 	background: #fff;
@@ -41,13 +50,22 @@ input, textarea { background-color: #FCFCFC; border: 1px solid #ddd; padding: 7p
 	cursor: pointer;
 	margin-right: 3px;
 	position: relative;
+
+    -webkit-transition: background-color 0.25s linear;
+    -moz-transition: background-color 0.25s linear;
+    -o-transition: background-color 0.25s linear;
+    -ms-transition: background-color 0.25s linear;
+    transition: background-color 0.25s linear;
+}
+.jq-radio.checked {
+	border-color: #F5F5F5;
 }
 .jq-radio.checked .jq-radio__div {
-	width: 7px;
-	height: 7px;
-	margin: 2px 0 0 2px;
+	width: 12px;
+	height: 12px;
+	margin: 3px 0 0 3px;
 	border-radius: 50%;
-	background: #666;
+	border: 3px solid #fff;
 }
 .jq-radio.focused {
 	border: 1px solid #08C;
@@ -59,16 +77,19 @@ input, textarea { background-color: #FCFCFC; border: 1px solid #ddd; padding: 7p
 
 
 .jq-selectbox {
+	/*width: 100%!important;*/
 	vertical-align: middle;
 	cursor: pointer;
-	width: auto!important;
+	font-weight: normal;
+	min-width: 100px;
 }
 .jq-selectbox__select {
 	padding: 0 45px 0 10px;
 	border: 1px solid #ddd;
-	color: #333;
+	color: #32323C;
 	height: 34px;
 	background: #FCFCFC;
+	border-radius: 4px;
 }
 .jq-selectbox__select:hover {
 	background-color: #eee;
@@ -100,7 +121,7 @@ input, textarea { background-color: #FCFCFC; border: 1px solid #ddd; padding: 7p
 	right: 0;
 	width: 34px;
 	height: 100%;
-	border-left: 1px solid #ddd;
+	border-left: 1px solid #eee;
 }
 .jq-selectbox__trigger-arrow {
 	position: absolute;
@@ -109,7 +130,7 @@ input, textarea { background-color: #FCFCFC; border: 1px solid #ddd; padding: 7p
 	width: 0;
 	height: 0;
 	overflow: hidden;
-	border-top: 5px solid #000;
+	border-top: 5px solid #32323C;
 	border-right: 5px solid transparent;
 	border-left: 5px solid transparent;
 	opacity: 0.3;
@@ -148,7 +169,7 @@ input, textarea { background-color: #FCFCFC; border: 1px solid #ddd; padding: 7p
 	border-radius: 3px;
 	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAO1JREFUeNqU078LAXEYx/FzYfNzk5TJaFNKYjFYSQZ/hvwBsvg1UCY2xT9gM8hukQGThWRjkcFw3pdnujhfT736Xn2fPvfc3fd07V0OFDDFAnM0ENYsZRiGLSc9OpqIYIA9fMhhjCrW2h9VlMlcH/aymMGtOqEugX08PwQucUZKdTozMIqdTc9WepQD7wjY9ARx+ydwhfyXfS+S0qMcOEQJGcueB3VccFINdMgal6NzkmPjRwJXxDBB7/2RDdtAp6wb+dpphHDASG5QQ0V6u2aoSqBZD/lDrNWRJynLK2qpBn4rc6K2XB9/Nb8EGABtf1thzY6X2AAAAABJRU5ErkJggg==) no-repeat 100% 50%;
 	box-shadow: inset 1px 1px #F1F1F1;
-	color: #333;
+	color: #32323C;
 	-webkit-appearance: textfield;
 }
 .jq-selectbox__search input::-webkit-search-cancel-button,
@@ -170,11 +191,9 @@ input, textarea { background-color: #FCFCFC; border: 1px solid #ddd; padding: 7p
 	color: #231F20;
 }
 .jq-selectbox li.selected {
-	background-color: #A3ABB1;
 	color: #FFF;
 }
 .jq-selectbox li:hover {
-	background-color: #A3ABB1;
 	color: #FFF;
 }
 .jq-selectbox li.disabled {
@@ -203,7 +222,7 @@ input, textarea { background-color: #FCFCFC; border: 1px solid #ddd; padding: 7p
 	border-radius: 4px;
 	box-shadow: inset 1px 1px #F1F1F1, 0 1px 2px rgba(0,0,0,0.1);
 	background: #FFF;
-	color: #333;
+	color: #32323C;
 	cursor: default;
 }
 .jq-select-multiple.focused {
@@ -254,12 +273,16 @@ input, textarea { background-color: #FCFCFC; border: 1px solid #ddd; padding: 7p
 	height: 60px;
 }
 
+.jq-file:focus {
+	outline:none;
+}
+
 .jq-file__browse {
 	display: inline-block;
 	padding: 5px 12px;
 	text-align: center;
 	color: #999;
-	border-left: 1px solid #ddd;
+	border-left: 1px solid #eee;
 	background: #fff;
 	cursor: pointer;
 }
@@ -278,12 +301,13 @@ input, textarea { background-color: #FCFCFC; border: 1px solid #ddd; padding: 7p
 	padding: 5px 80px 5px 10px;
 	border: none;
 	background: none;
-	color: #333;
+	color: #32323C;
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	overflow: hidden;
-	border: 1px solid #ddd;
+	border: 1px solid #fff;
 	background: #fcfcfc;
+	border-radius: 4px;
 }
 .focused .jq-file__name {
 	border: 1px solid #5794BF;
@@ -294,7 +318,8 @@ input, textarea { background-color: #FCFCFC; border: 1px solid #ddd; padding: 7p
 	right: 1px;
 	padding: 5px 10px;
 	background: #F1F1F1;
-	color: #333;
+	color: #32323C;
+	border-radius: 4px;
 }
 .jq-file:hover .jq-file__browse {
 	background-color: #E6E6E6;
@@ -321,10 +346,21 @@ input, textarea { background-color: #FCFCFC; border: 1px solid #ddd; padding: 7p
 .ui-widget-header {
 	border: 1px solid #ddd;
 	background: #eee;
-	color: #333;
+	color: #32323C;
 	z-index: 99999!important;
 }
 
 .ui-widget-content { 
 	background: #f8f8f8;
+}
+.ui-state-hover,
+.ui-widget-content .ui-state-hover,
+.ui-widget-header .ui-state-hover,
+.ui-state-focus,
+.ui-widget-content .ui-state-focus,
+.ui-widget-header .ui-state-focus {
+	border: 1px solid #ccc;
+	background: #ECECEC;
+	font-weight: normal;
+	color: #212121;
 }

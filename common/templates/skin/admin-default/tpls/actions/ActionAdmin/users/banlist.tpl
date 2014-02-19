@@ -2,7 +2,7 @@
 
 {block name="content-bar"}
     <div class="btn-group">
-        <a href="#" class="btn btn-primary disabled"><i class="icon icon-plus-sign"></i></a>
+        <a href="#" class="btn btn-primary disabled"><i class="icon icon-plus"></i></a>
     </div>
     <div class="btn-group">
         <a class="btn btn-default {if $sMode=='ids'}active{/if}" href="{router page='admin'}users-banlist/ids/">
@@ -37,7 +37,7 @@
                     <button class="btn-block btn left btn-default" data-target="#admin_form_ban" data-toggle="collapse"
                             data-parent="#user-comands-switch">
                         {if $aFilter}<i class="icon icon-filter icon-green pull-right"></i>{/if}
-                        <i class="icon icon-ban-circle"></i>
+                        <i class="icon icon-ban"></i>
                         {$aLang.action.admin.banlist_add}
                     </button>
                 </div>
