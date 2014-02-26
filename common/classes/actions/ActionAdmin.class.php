@@ -2775,32 +2775,17 @@ class ActionAdmin extends Action {
         $oBlogType->SetActive($this->GetPost('blogtypes_active'));
         $oBlogType->SetContentType($this->GetPost('blogtypes_contenttype'));
 
-        $aAclValue = $this->GetPost('blogtypes_acl_write');
-        $nAclMask = 0;
-        if ($aAclValue) {
-            foreach ($aAclValue as $nVal) {
-                $nAclMask = $nAclMask | $nVal;
-            }
-        }
-        $oBlogType->SetAclWrite($nAclMask);
+        // Установка прав на запись
+        $nAclValue = intval($this->GetPost('blogtypes_acl_write'));
+        $oBlogType->SetAclWrite($nAclValue);
 
-        $aAclValue = $this->GetPost('blogtypes_acl_read');
-        $nAclMask = 0;
-        if ($aAclValue) {
-            foreach ($aAclValue as $nVal) {
-                $nAclMask = $nAclMask | $nVal;
-            }
-        }
-        $oBlogType->SetAclWrite($nAclMask);
+        // Установка прав на чтение
+        $nAclValue = intval($this->GetPost('blogtypes_acl_read'));
+        $oBlogType->SetAclRead($nAclValue);
 
-        $aAclValue = $this->GetPost('blogtypes_acl_comment');
-        $nAclMask = 0;
-        if ($aAclValue) {
-            foreach ($aAclValue as $nVal) {
-                $nAclMask = $nAclMask | $nVal;
-            }
-        }
-        $oBlogType->SetAclWrite($nAclMask);
+        // Установка прав на комментирование
+        $nAclValue = intval($this->GetPost('blogtypes_acl_comment'));
+        $oBlogType->SetAclComment($nAclValue);
 
         $this->Hook_Run('blogtype_add_validate_before', array('oBlogType' => $oBlogType));
         if ($oBlogType->_Validate()) {
