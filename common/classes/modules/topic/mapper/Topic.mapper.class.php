@@ -1340,11 +1340,11 @@ class ModuleTopic_MapperTopic extends Mapper {
     /**
      * Добавляет тип контента
      *
-     * @param ModuleTopic_EntityContent $oType    Объект типа контента
+     * @param ModuleTopic_EntityContentType $oType    Объект типа контента
      *
      * @return int|bool
      */
-    public function AddContentType(ModuleTopic_EntityContent $oType) {
+    public function AddContentType($oType) {
 
         $sql = "INSERT INTO ?_content
 			(content_title,
@@ -1379,7 +1379,7 @@ class ModuleTopic_MapperTopic extends Mapper {
      *
      * @return bool
      */
-    public function UpdateContentType(ModuleTopic_EntityContent $oType) {
+    public function UpdateContentType($oType) {
 
         $sql = "UPDATE ?_content
 			SET
@@ -1410,11 +1410,11 @@ class ModuleTopic_MapperTopic extends Mapper {
     }
 
     /**
-     * Получает тип контента по id
+     * Получает тип контента по ID
      *
      * @param  int $nId
      *
-     * @return ModuleTopic_EntityContent|null
+     * @return ModuleTopic_EntityContentType|null
      */
     public function getContentTypeById($nId) {
 
@@ -1433,11 +1433,11 @@ class ModuleTopic_MapperTopic extends Mapper {
     }
 
     /**
-     * Получает тип контента по url
+     * Получает тип контента по URL
      *
-     * @param  int $nId
+     * @param  string $sUrl
      *
-     * @return ModuleTopic_EntityContent|null
+     * @return ModuleTopic_EntityContentType|null
      */
     public function getContentTypeByUrl($sUrl) {
 

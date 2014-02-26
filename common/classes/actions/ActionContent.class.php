@@ -52,7 +52,7 @@ class ActionContent extends Action {
     /**
      * Текущий тип контента
      *
-     * @var ModuleTopic_EntityContent|null
+     * @var ModuleTopic_EntityContentType|null
      */
     protected $oContentType = null;
 

@@ -133,7 +133,7 @@ class ModuleTopic extends Module {
      *
      * @param string $nId
      *
-     * @return ModuleTopic_EntityContent|null
+     * @return ModuleTopic_EntityContentType|null
      */
     public function GetContentTypeById($nId) {
 
@@ -149,7 +149,7 @@ class ModuleTopic extends Module {
      *
      * @param string $sUrl
      *
-     * @return ModuleTopic_EntityContent|null
+     * @return ModuleTopic_EntityContentType|null
      */
     public function GetContentTypeByUrl($sUrl) {
 
@@ -190,9 +190,9 @@ class ModuleTopic extends Module {
     /**
      * Добавляет тип контента
      *
-     * @param ModuleTopic_EntityContent $oType    Объект типа контента
+     * @param ModuleTopic_EntityContentType $oType    Объект типа контента
      *
-     * @return ModuleTopic_EntityContent|bool
+     * @return ModuleTopic_EntityContentType|bool
      */
     public function AddContentType($oType) {
 
@@ -208,7 +208,7 @@ class ModuleTopic extends Module {
     /**
      * Обновляет топик
      *
-     * @param ModuleTopic_EntityContent $oType    Объект типа контента
+     * @param ModuleTopic_EntityContentType $oType    Объект типа контента
      *
      * @return bool
      */
