@@ -246,6 +246,13 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
                     $this->Hook_AddExecFunction('template_form_add_topic_topic_end', array($this, 'TemplateFormAddTopic'));
                 } elseif ((strpos($sName, 'forms/view_field') === 0) || (strpos($sName, 'forms/form_field') === 0)) {
                     $sResult = Plugin::GetTemplateDir('PluginLs') . $sName;
+                } elseif ($sName == 'actions/ActionProfile/info.tpl') {
+                    $sResult = $this->TemplateExists('actions/ActionProfile/whois.tpl');
+                    if ($sResult) {
+                        $sResult = F::File_Exists('actions/ActionProfile/whois.tpl', $this->oSmarty->getTemplateDir());
+                    } else {
+                        $sResult = parent::SmartyDefaultTemplateHandler($sType, 'actions/ActionProfile/whois.tpl', $sContent, $iTimestamp, $oSmarty);
+                    }
                 }
             }
         }
