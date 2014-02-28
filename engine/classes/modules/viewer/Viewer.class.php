@@ -296,6 +296,8 @@ class ModuleViewer extends Module {
             $this->_assignTpl($sName, $xValue);
             unset($this->aVarsTemplate[$sName]);
         }
+        // Settings for Smarty 3.1.16 and more
+        $this->oSmarty->inheritance_merge_compiled_includes = false;
     }
 
     /**
