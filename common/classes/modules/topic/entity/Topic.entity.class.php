@@ -157,7 +157,12 @@ class ModuleTopic_EntityTopic extends Entity {
 
     public function getContentType() {
 
-        return $this->Topic_GetContentType($this->getType());
+        $oContentType = $this->getProp('_content_type');
+        if (is_null($oContentType)) {
+            $oContentType = $this->Topic_GetContentType($this->getType());
+            $this->setProp('_content_type', $oContentType);
+        }
+        return $oContentType;
     }
 
     /**
@@ -1126,6 +1131,18 @@ class ModuleTopic_EntityTopic extends Entity {
     public function getIndexIgnoreLock() {
 
         return intval($this->getTopicIndexIgnore()) == self::INDEX_IGNORE_LOCK;
+    }
+
+    public function getTopicTypeTemplate($sMode) {
+
+        $oContentType = $this->getContentType();
+        return $oContentType->getTemplate($sMode);
+    }
+
+    public function isVoteInfoShow() {
+
+        $bResult = $this->getVote() || E::UserId()==$this->getUserId() || (strtotime($this->getDateAdd())<time()-Config::Get('acl.vote.topic.limit_time'));
+        return $bResult;
     }
 
     //***************************************************************************************************************

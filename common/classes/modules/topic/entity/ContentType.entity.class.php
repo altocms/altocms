@@ -92,6 +92,24 @@ class ModuleTopic_EntityContentType extends Entity {
         return null;
     }
 
+    public function getTemplateName() {
+
+        return $this->getContentUrl();
+    }
+
+    public function getTemplate($sMode = null) {
+
+        $sTemplate = $this->getProp('_template_' . $sMode);
+        if (!$sTemplate) {
+            $sTemplate = 'topic.type_' . $this->getTemplateName() . '.' . $sMode . '.tpl';
+            if (!$this->Viewer_TemplateExists('topics/' . $sTemplate)) {
+                $sTemplate = 'topic.type_default.' . $sMode . '.tpl';
+            }
+            $this->setProp('_template_' . $sMode, $sTemplate);
+        }
+        return $sTemplate;
+    }
+
     /**
      * Устанавливает сериализованную строчку дополнительных данных
      *
