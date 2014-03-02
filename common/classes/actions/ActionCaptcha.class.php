@@ -8,8 +8,6 @@
  *----------------------------------------------------------------------------
  */
 
-F::IncludeLib('kcaptcha/kcaptcha.php');
-
 /**
  * @package actions
  * @since 0.9
@@ -21,7 +19,6 @@ class ActionCaptcha extends Action {
      *
      */
     public function Init() {
-        //$this->Viewer_SetResponseAjax('json');
         $this->SetDefaultEvent('index');
     }
 
@@ -32,6 +29,9 @@ class ActionCaptcha extends Action {
 
     public function EventIndex() {
 
+        if (!class_exists('KCAPTCHA', false)) {
+            F::IncludeLib('kcaptcha/kcaptcha.php');
+        }
         $oCaptcha = new KCAPTCHA();
         $this->Session_Set('captcha_keystring', $oCaptcha->getKeyString());
         exit;
