@@ -25,16 +25,27 @@ class ModuleSkin extends Module {
 
     }
 
+    /**
+     * Load skin manifest from XML
+     *
+     * @param $sSkin
+     *
+     * @return mixed
+     */
     public function GetSkinManifest($sSkin) {
 
-        $sXmlFile = Config::Get('path.skins.dir') . $sSkin . '/settings/' . self::SKIN_XML_FILE;
+        if (F::File_Exists(Config::Get('path.skins.dir') . $sSkin . '/' . self::SKIN_XML_FILE)) {
+            $sXmlFile = Config::Get('path.skins.dir') . $sSkin . '/' . self::SKIN_XML_FILE;
+        } else {
+            $sXmlFile = Config::Get('path.skins.dir') . $sSkin . '/settings/' . self::SKIN_XML_FILE;
+        }
         if ($sXml = F::File_GetContents($sXmlFile)) {
             return $sXml;
         }
     }
 
     /**
-     * Возвращает массив сущностей
+     * Returns array of skin enities
      *
      * @param   array   $aFilter    - array('type' => 'site'|'admin')
      * @return  array(ModuleSkin_EntitySkin)
@@ -64,7 +75,7 @@ class ModuleSkin extends Module {
     }
 
     /**
-     * Возвращает массив названий
+     * Returns array of skin names
      *
      * @param   string|null $sType
      * @return  array(string)
@@ -81,6 +92,8 @@ class ModuleSkin extends Module {
     }
 
     /**
+     * Returns skin entity
+     *
      * @param $sName
      *
      * @return ModuleSkin_EntitySkin
