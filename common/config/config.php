@@ -84,7 +84,7 @@ $config['path']['root']['dir'] = ALTO_DIR . '/';
 $config['path']['static']['url']        = '___path.root.url___';        // Полный URL до static-сервера
 $config['path']['static']['dir']        = '___path.root.dir___';        // Полный путь до static-сервера в файловой системе
 
-$config['path']['root']['engine_lib']   = '___path.root.web___/engine/lib/';  // Путь до библиотек в файловой системе
+$config['path']['root']['engine_lib']   = '___path.root.web___/engine/libs/';  // Путь до библиотек в файловой системе
 
 $config['path']['uploads']['root']      = '/uploads';                          // папка для загрузки файлов
 $config['path']['uploads']['images']    = '___path.uploads.root___/images/';
@@ -499,53 +499,9 @@ $config['db']['table']['prefix'] = 'prefix_';
 /*
  * Можно не объявлять таблицы, если их названия совпадают с именами в SQL-запросах,
  * тогда в запросах достаточно подставлять в качестве имени таблицы ?_table_name
- * Либо можно явно определить имя таблицы и использовать так: Config::Get('db.table.table_name)
+ * Либо можно явно определить имя таблицы и использовать так: Config::Get('db.table.user)
  *
 $config['db']['table']['user']                  = '___db.table.prefix___user';
-$config['db']['table']['blog']                  = '___db.table.prefix___blog';
-$config['db']['table']['topic']                 = '___db.table.prefix___topic';
-$config['db']['table']['topic_tag']             = '___db.table.prefix___topic_tag';
-$config['db']['table']['content']               = '___db.table.prefix___content';
-$config['db']['table']['content_field']         = '___db.table.prefix___content_field';
-$config['db']['table']['content_values']        = '___db.table.prefix___content_values';
-$config['db']['table']['comment']               = '___db.table.prefix___comment';
-$config['db']['table']['vote']                  = '___db.table.prefix___vote';
-$config['db']['table']['topic_read']            = '___db.table.prefix___topic_read';
-$config['db']['table']['blog_user']             = '___db.table.prefix___blog_user';
-$config['db']['table']['favourite']             = '___db.table.prefix___favourite';
-$config['db']['table']['favourite_tag']         = '___db.table.prefix___favourite_tag';
-$config['db']['table']['talk']                  = '___db.table.prefix___talk';
-$config['db']['table']['talk_user']             = '___db.table.prefix___talk_user';
-$config['db']['table']['talk_blacklist']        = '___db.table.prefix___talk_blacklist';
-$config['db']['table']['friend']                = '___db.table.prefix___friend';
-$config['db']['table']['topic_content']         = '___db.table.prefix___topic_content';
-$config['db']['table']['topic_question_vote']   = '___db.table.prefix___topic_question_vote';
-$config['db']['table']['user_administrator']    = '___db.table.prefix___user_administrator';
-$config['db']['table']['comment_online']        = '___db.table.prefix___comment_online';
-$config['db']['table']['invite']                = '___db.table.prefix___invite';
-$config['db']['table']['page']                  = '___db.table.prefix___page';
-$config['db']['table']['reminder']              = '___db.table.prefix___reminder';
-$config['db']['table']['session']               = '___db.table.prefix___session';
-$config['db']['table']['notify_task']           = '___db.table.prefix___notify_task';
-$config['db']['table']['userfeed_subscribe']    = '___db.table.prefix___userfeed_subscribe';
-$config['db']['table']['stream_subscribe']      = '___db.table.prefix___stream_subscribe';
-$config['db']['table']['stream_event']          = '___db.table.prefix___stream_event';
-$config['db']['table']['stream_user_type']      = '___db.table.prefix___stream_user_type';
-$config['db']['table']['user_field']            = '___db.table.prefix___user_field';
-$config['db']['table']['user_field_value']      = '___db.table.prefix___user_field_value';
-$config['db']['table']['topic_photo']           = '___db.table.prefix___topic_photo';
-$config['db']['table']['subscribe']             = '___db.table.prefix___subscribe';
-$config['db']['table']['track']                 = '___db.table.prefix___track';
-$config['db']['table']['wall']                  = '___db.table.prefix___wall';
-$config['db']['table']['user_note']             = '___db.table.prefix___user_note';
-$config['db']['table']['geo_country']           = '___db.table.prefix___geo_country';
-$config['db']['table']['geo_region']            = '___db.table.prefix___geo_region';
-$config['db']['table']['geo_city']              = '___db.table.prefix___geo_city';
-$config['db']['table']['geo_target']            = '___db.table.prefix___geo_target';
-$config['db']['table']['user_changemail']       = '___db.table.prefix___user_changemail';
-$config['db']['table']['adminban']              = '___db.table.prefix___adminban';
-$config['db']['table']['adminips']              = '___db.table.prefix___adminips';
-$config['db']['table']['storage']               = '___db.table.prefix___storage';
 */
 
 $config['db']['tables']['engine'] = 'InnoDB';  // InnoDB или MyISAM
@@ -623,41 +579,41 @@ $config['router']['config']['autodefine'] = true;
  */
 $config['head']['default']['js'] = array(
     /* Vendor libs */
-    '___path.frontend.dir___/libs/js/vendor/html5shiv.min.js' => array('browser' => 'lt IE 9'),
-    '___path.frontend.dir___/libs/js/vendor/jquery-1.10.2.min.js' => array('name' => 'jquery', 'asset' => 'mini'),
-    '___path.frontend.dir___/libs/js/vendor/jquery-migrate-1.2.1.min.js' => array('asset' => 'mini'),
-    '___path.frontend.dir___/libs/js/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js' => array('asset' => 'mini'),
-    '___path.frontend.dir___/libs/js/vendor/jquery-ui/js/localization/jquery-ui-datepicker-ru.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery.browser.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery.scrollto.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery.rich-array.min.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery.form.js',
-    //'___path.frontend.dir___/libs/js/vendor/jquery.jqplugin.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery.cookie.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery.serializejson.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery.file.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery.placeholder.min.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery.charcount.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery.imagesloaded.js',
-    '___path.frontend.dir___/libs/js/vendor/jcrop/jquery.Jcrop.js',
-    '___path.frontend.dir___/libs/js/vendor/markitup/jquery.markitup.js',
-    '___path.frontend.dir___/libs/js/vendor/notifier/jquery.notifier.js',
-    '___path.frontend.dir___/libs/js/vendor/prettify/prettify.js',
-    '___path.frontend.dir___/libs/js/vendor/prettyphoto/js/jquery.prettyphoto.js',
-    '___path.frontend.dir___/libs/js/vendor/parsley/parsley.js',
-    '___path.frontend.dir___/libs/js/vendor/parsley/i18n/messages.ru.js',
-    '___path.frontend.dir___/libs/js/vendor/swfobject/swfobject.js',
+    '___path.frontend.url___/libs/js/vendor/html5shiv.min.js' => array('browser' => 'lt IE 9'),
+    '___path.frontend.url___/libs/js/vendor/jquery-1.10.2.min.js' => array('name' => 'jquery', 'asset' => 'mini'),
+    '___path.frontend.url___/libs/js/vendor/jquery-migrate-1.2.1.min.js' => array('asset' => 'mini'),
+    '___path.frontend.url___/libs/js/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js' => array('asset' => 'mini'),
+    '___path.frontend.url___/libs/js/vendor/jquery-ui/js/localization/jquery-ui-datepicker-ru.js',
+    '___path.frontend.url___/libs/js/vendor/jquery.browser.js',
+    '___path.frontend.url___/libs/js/vendor/jquery.scrollto.js',
+    '___path.frontend.url___/libs/js/vendor/jquery.rich-array.min.js',
+    '___path.frontend.url___/libs/js/vendor/jquery.form.js',
+    //'___path.frontend.url___/libs/js/vendor/jquery.jqplugin.js',
+    '___path.frontend.url___/libs/js/vendor/jquery.cookie.js',
+    '___path.frontend.url___/libs/js/vendor/jquery.serializejson.js',
+    '___path.frontend.url___/libs/js/vendor/jquery.file.js',
+    '___path.frontend.url___/libs/js/vendor/jquery.placeholder.min.js',
+    '___path.frontend.url___/libs/js/vendor/jquery.charcount.js',
+    '___path.frontend.url___/libs/js/vendor/jquery.imagesloaded.js',
+    '___path.frontend.url___/libs/js/vendor/jcrop/jquery.Jcrop.js',
+    '___path.frontend.url___/libs/js/vendor/markitup/jquery.markitup.js',
+    '___path.frontend.url___/libs/js/vendor/notifier/jquery.notifier.js',
+    '___path.frontend.url___/libs/js/vendor/prettify/prettify.js',
+    '___path.frontend.url___/libs/js/vendor/prettyphoto/js/jquery.prettyphoto.js',
+    '___path.frontend.url___/libs/js/vendor/parsley/parsley.js',
+    '___path.frontend.url___/libs/js/vendor/parsley/i18n/messages.ru.js',
+    '___path.frontend.url___/libs/js/vendor/swfobject/swfobject.js',
 
     /* */
-    '___path.frontend.dir___/libs/js/vendor/swfobject/plugin/swfupload.js' => array(
+    '___path.frontend.url___/libs/js/vendor/swfobject/plugin/swfupload.js' => array(
         'name'    => 'swfobject/plugin/swfupload.js',
         'prepare' => true
     ),
-    '___path.frontend.dir___/libs/js/vendor/swfupload/swfupload.js'        => array(
+    '___path.frontend.url___/libs/js/vendor/swfupload/swfupload.js'        => array(
         'name'    => 'swfupload/swfupload.js',
         'prepare' => true
     ),
-    '___path.frontend.dir___/libs/js/vendor/swfupload/swfupload.swf'       => array(
+    '___path.frontend.url___/libs/js/vendor/swfupload/swfupload.swf'       => array(
         'name'     => 'swfupload/swfupload.swf',
         'prepare'  => true,
         'compress' => false,
@@ -665,47 +621,47 @@ $config['head']['default']['js'] = array(
     ),
 
     /* Core */
-    '___path.frontend.dir___/libs/js/core/main.js',
-    '___path.frontend.dir___/libs/js/core/hook.js',
+    '___path.frontend.url___/libs/js/core/main.js',
+    '___path.frontend.url___/libs/js/core/hook.js',
 
     /* User Interface */
     /*
-    '___path.frontend.dir___/libs/js/ui/over.js',
-    '___path.frontend.dir___/libs/js/ui/dropdown.js',
-    '___path.frontend.dir___/libs/js/ui/tooltip.js',
-    '___path.frontend.dir___/libs/js/ui/popover.js',
-    '___path.frontend.dir___/libs/js/ui/tab.js',
-    '___path.frontend.dir___/libs/js/ui/modal.js',
-    '___path.frontend.dir___/libs/js/ui/toolbar.js',
+    '___path.frontend.url___/libs/js/ui/over.js',
+    '___path.frontend.url___/libs/js/ui/dropdown.js',
+    '___path.frontend.url___/libs/js/ui/tooltip.js',
+    '___path.frontend.url___/libs/js/ui/popover.js',
+    '___path.frontend.url___/libs/js/ui/tab.js',
+    '___path.frontend.url___/libs/js/ui/modal.js',
+    '___path.frontend.url___/libs/js/ui/toolbar.js',
     */
-    '___path.frontend.dir___/bootstrap-3.0.0/js/bootstrap.min.js',
+    '___path.frontend.url___/bootstrap-3.0.0/js/bootstrap.min.js' => array('name' => 'bootstrap'),
 
     /* Engine */
-    '___path.frontend.dir___/ls/js/settings.js',
-    '___path.frontend.dir___/libs/js/engine/favourite.js',
-    '___path.frontend.dir___/libs/js/engine/blocks.js',
-    '___path.frontend.dir___/libs/js/engine/pagination.js',
-    '___path.frontend.dir___/libs/js/engine/editor.js',
-    '___path.frontend.dir___/libs/js/engine/talk.js',
-    '___path.frontend.dir___/libs/js/engine/vote.js',
-    '___path.frontend.dir___/libs/js/engine/poll.js',
-    '___path.frontend.dir___/libs/js/engine/subscribe.js',
-    '___path.frontend.dir___/libs/js/engine/geo.js',
-    '___path.frontend.dir___/libs/js/engine/wall.js',
-    '___path.frontend.dir___/libs/js/engine/usernote.js',
-    '___path.frontend.dir___/libs/js/engine/comments.js',
-    '___path.frontend.dir___/libs/js/engine/blog.js',
-    '___path.frontend.dir___/libs/js/engine/user.js',
-    '___path.frontend.dir___/libs/js/engine/userfeed.js',
-    '___path.frontend.dir___/libs/js/engine/stream.js',
-    '___path.frontend.dir___/libs/js/engine/photoset.js',
-    '___path.frontend.dir___/libs/js/engine/toolbar.js',
-    '___path.frontend.dir___/libs/js/engine/settings.js',
-    '___path.frontend.dir___/libs/js/engine/topic.js',
-    '___path.frontend.dir___/libs/js/engine/admin.js',
-    '___path.frontend.dir___/libs/js/engine/admin.userfield.js',
-    '___path.frontend.dir___/libs/js/engine/captcha.js',
-    '___path.frontend.dir___/libs/js/engine/init.js',
+    '___path.frontend.url___/ls/js/settings.js',
+    '___path.frontend.url___/libs/js/engine/favourite.js',
+    '___path.frontend.url___/libs/js/engine/blocks.js',
+    '___path.frontend.url___/libs/js/engine/pagination.js',
+    '___path.frontend.url___/libs/js/engine/editor.js',
+    '___path.frontend.url___/libs/js/engine/talk.js',
+    '___path.frontend.url___/libs/js/engine/vote.js',
+    '___path.frontend.url___/libs/js/engine/poll.js',
+    '___path.frontend.url___/libs/js/engine/subscribe.js',
+    '___path.frontend.url___/libs/js/engine/geo.js',
+    '___path.frontend.url___/libs/js/engine/wall.js',
+    '___path.frontend.url___/libs/js/engine/usernote.js',
+    '___path.frontend.url___/libs/js/engine/comments.js',
+    '___path.frontend.url___/libs/js/engine/blog.js',
+    '___path.frontend.url___/libs/js/engine/user.js',
+    '___path.frontend.url___/libs/js/engine/userfeed.js',
+    '___path.frontend.url___/libs/js/engine/stream.js',
+    '___path.frontend.url___/libs/js/engine/photoset.js',
+    '___path.frontend.url___/libs/js/engine/toolbar.js',
+    '___path.frontend.url___/libs/js/engine/settings.js',
+    '___path.frontend.url___/libs/js/engine/topic.js',
+    '___path.frontend.url___/libs/js/engine/admin.js',
+    '___path.frontend.url___/libs/js/engine/admin.userfield.js',
+    '___path.frontend.url___/libs/js/engine/captcha.js',
+    '___path.frontend.url___/libs/js/engine/init.js',
 );
 
 //потенциально проблемные файлы выводим в футере
@@ -715,18 +671,18 @@ $config['footer']['default']['js'] = array(
 
 $config['head']['default']['css'] = array(
     // Framework styles
-    '___path.frontend.dir___/libs/css/reset.css',
-    '___path.frontend.dir___/libs/css/helpers.css',
-    '___path.frontend.dir___/libs/css/text.css',
-    '___path.frontend.dir___/libs/css/dropdowns.css',
-    '___path.frontend.dir___/libs/css/buttons.css',
-    '___path.frontend.dir___/libs/css/forms.css',
-    '___path.frontend.dir___/libs/css/navs.css',
-    '___path.frontend.dir___/libs/css/modals.css',
-    //'___path.frontend.dir___/libs/css/tooltip.css',
-    '___path.frontend.dir___/libs/css/popover.css',
-    '___path.frontend.dir___/libs/css/alerts.css',
-    '___path.frontend.dir___/libs/css/toolbar.css'
+    '___path.frontend.url___/libs/css/reset.css',
+    '___path.frontend.url___/libs/css/helpers.css',
+    '___path.frontend.url___/libs/css/text.css',
+    '___path.frontend.url___/libs/css/dropdowns.css',
+    '___path.frontend.url___/libs/css/buttons.css',
+    '___path.frontend.url___/libs/css/forms.css',
+    '___path.frontend.url___/libs/css/navs.css',
+    '___path.frontend.url___/libs/css/modals.css',
+    //'___path.frontend.url___/libs/css/tooltip.css',
+    '___path.frontend.url___/libs/css/popover.css',
+    '___path.frontend.url___/libs/css/alerts.css',
+    '___path.frontend.url___/libs/css/toolbar.css'
 );
 
 /**
