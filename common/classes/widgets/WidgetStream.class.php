@@ -25,14 +25,16 @@ class WidgetStream extends Widget {
      */
     public function Exec() {
 
+        /*
         // * Получаем комментарии
         if ($aComments = $this->Comment_GetCommentsOnline('topic', Config::Get('block.stream.row'))) {
             $aVars = array('aComments' => $aComments);
 
             // * Формируем результат в виде шаблона и возвращаем
-            $sTextResult = $this->Viewer_FetchWidget('stream_comment.tpl', $aVars);
+            $sTextResult = $this->Fetch('stream_comments.tpl', $aVars);
             $this->Viewer_Assign('sStreamComments', $sTextResult);
         }
+        */
     }
 }
 

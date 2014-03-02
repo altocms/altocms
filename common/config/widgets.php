@@ -32,7 +32,12 @@ $config['widgets'][] = array(
         'blog' => array('{topics}', '{topic}', '{blog}'),
         'tag',
     ),
-    'title' => 'Прямой эфир',
+    'params' => array(
+        'items' => array(
+            'comments' => array('text' => 'block_stream_comments', 'type'=>'comment'),
+            'topics' => array('text' => 'block_stream_topics', 'type'=>'topic'),
+        ),
+    ),
 );
 
 $config['widgets'][] = array(

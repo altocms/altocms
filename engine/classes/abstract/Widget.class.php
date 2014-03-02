@@ -66,6 +66,20 @@ abstract class Widget extends LsObject {
      * @abstract
      */
     abstract public function Exec();
+
+    /**
+     * Fetch widget template
+     *
+     * @param string $sTemplate
+     * @param array  $aVars
+     *
+     * @return mixed
+     */
+    protected function Fetch($sTemplate, $aVars = array()) {
+
+        $aVars = F::Array_Merge(array('aWidgetParams' => $this->aParams), $aVars);
+        return $this->Viewer_FetchWidget($sTemplate, $aVars);
+    }
 }
 
 // EOF

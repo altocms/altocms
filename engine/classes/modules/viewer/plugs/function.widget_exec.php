@@ -93,6 +93,9 @@ function smarty_function_widget_exec($aParams, $oSmartyTemplate) {
 
     // Если обработчик ничего не вернул, то рендерим шаблон
     if (!$sResult && $sTemplate) {
+        if ($aWidgetParams) {
+            $oSmartyTemplate->assign('aWidgetParams', $aWidgetParams);
+        }
         $sResult = $oSmartyTemplate->fetch($sTemplate);
     }
 

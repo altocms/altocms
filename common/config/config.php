@@ -639,7 +639,7 @@ $config['head']['default']['js'] = array(
     /* Engine */
     '___path.frontend.url___/ls/js/settings.js',
     '___path.frontend.url___/libs/js/engine/favourite.js',
-    '___path.frontend.url___/libs/js/engine/blocks.js',
+    '___path.frontend.url___/libs/js/engine/widgets.js',
     '___path.frontend.url___/libs/js/engine/pagination.js',
     '___path.frontend.url___/libs/js/engine/editor.js',
     '___path.frontend.url___/libs/js/engine/talk.js',
