@@ -67,6 +67,16 @@ class ModuleViewer extends Module {
         'css' => array()
     );
 
+    protected $aFilesPrepend = array(
+        'js' => array(),
+        'css' => array()
+    );
+
+    protected $aFilesAppend = array(
+        'js' => array(),
+        'css' => array()
+    );
+
     /**
      * Правила переопределение массивов js и css
      *
@@ -190,6 +200,8 @@ class ModuleViewer extends Module {
     protected $bLocal = false;
 
     protected $sSkin;
+
+    protected $bAssetInit = false;
 
     /**
      * Константа для компиляции LESS-файлов
@@ -1176,7 +1188,23 @@ class ModuleViewer extends Module {
      */
     public function InitAssetFiles() {
 
+        if ($this->aFilesPrepend['js']) {
+            $this->aFilesPrepend['js'] = array_reverse($this->aFilesPrepend['js'], true);
+        }
+        if ($this->aFilesPrepend['css']) {
+            $this->aFilesPrepend['css'] = array_reverse($this->aFilesPrepend['css'], true);
+        }
+        if ($this->aFilesPrepend['js'] || $this->aFilesPrepend['css']) {
+            $this->ViewerAsset_AddAssetFiles($this->aFilesPrepend);
+            $this->aFilesPrepend = array();
+        }
+
         $this->ViewerAsset_AddAssetFiles(Config::Get('head.default'));
+
+        if ($this->aFilesAppend['js'] || $this->aFilesAppend['css']) {
+            $this->ViewerAsset_AddAssetFiles($this->aFilesAppend);
+        }
+        $this->bAssetInit = true;
     }
 
     /**
@@ -1191,7 +1219,12 @@ class ModuleViewer extends Module {
      */
     public function AppendScript($sFile, $aParams = array(), $bReplace = false) {
 
-        return $this->ViewerAsset_AppendJs($sFile, $aParams, $bReplace);
+        if (!$this->bAssetInit) {
+            $aParams['replace'] = $bReplace;
+            $this->aFilesAppend['js'][$sFile] = $aParams;
+        } else {
+            $this->ViewerAsset_AppendJs($sFile, $aParams, $bReplace);
+        }
     }
 
     /**
@@ -1206,7 +1239,12 @@ class ModuleViewer extends Module {
      */
     public function PrependScript($sFile, $aParams = array(), $bReplace = false) {
 
-        return $this->ViewerAsset_PrependJs($sFile, $aParams, $bReplace);
+        if (!$this->bAssetInit) {
+            $aParams['replace'] = $bReplace;
+            $this->aFilesPrepend['js'][$sFile] = $aParams;
+        } else {
+            $this->ViewerAsset_PrependJs($sFile, $aParams, $bReplace);
+        }
     }
 
     /**
@@ -1221,7 +1259,12 @@ class ModuleViewer extends Module {
      */
     public function AppendStyle($sFile, $aParams = array(), $bReplace = false) {
 
-        return $this->ViewerAsset_AppendCss($sFile, $aParams, $bReplace);
+        if (!$this->bAssetInit) {
+            $aParams['replace'] = $bReplace;
+            $this->aFilesAppend['css'][$sFile] = $aParams;
+        } else {
+            $this->ViewerAsset_AppendCss($sFile, $aParams, $bReplace);
+        }
     }
 
     /**
@@ -1236,7 +1279,12 @@ class ModuleViewer extends Module {
      */
     public function PrependStyle($sFile, $aParams = array(), $bReplace = false) {
 
-        return $this->ViewerAsset_PrependCss($sFile, $aParams, $bReplace);
+        if (!$this->bAssetInit) {
+            $aParams['replace'] = $bReplace;
+            $this->aFilesPrepend['css'][$sFile] = $aParams;
+        } else {
+            $this->ViewerAsset_AppendCss($sFile, $aParams, $bReplace);
+        }
     }
 
     /**
@@ -1281,9 +1329,6 @@ class ModuleViewer extends Module {
     protected function BuildHeadFiles() {
 
         $sPath = Router::GetPathWebCurrent();
-
-        // * По умолчанию имеем дефолтные настройки
-        $aFiles = $this->aFilesDefault;
 
         $this->aFileRules = Config::Get('head.rules');
         foreach ((array)$this->aFileRules as $sName => $aRule) {
