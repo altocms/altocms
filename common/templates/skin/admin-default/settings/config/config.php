@@ -7,10 +7,10 @@ $config['smarty']['dir']['templates'] = array(
 );
 
 $config['head']['default']['css'] = array(
-    '___path.frontend.dir___/libs/js/vendor/markitup/skins/default/style.css',
-    '___path.frontend.dir___/libs/js/vendor/markitup/sets/default/style.css',
-    '___path.frontend.dir___/libs/js/vendor/jcrop/jquery.Jcrop.css',
-    '___path.frontend.dir___/libs/js/vendor/prettify/prettify.css',
+    '___path.frontend.dir___/libs/vendor/markitup/skins/default/style.css',
+    '___path.frontend.dir___/libs/vendor/markitup/sets/default/style.css',
+    '___path.frontend.dir___/libs/vendor/jcrop/jquery.Jcrop.css',
+    '___path.frontend.dir___/libs/vendor/prettify/prettify.css',
     '___path.skin.dir___/assets/css/jquery-ui.css',
     '___path.skin.dir___/assets/css/jquery-notifier.css',
 
@@ -28,12 +28,12 @@ $config['head']['default']['css'] = array(
 );
 
 $config['head']['default']['js'] = array(
-    '___path.frontend.dir___/libs/js/vendor/jquery-1.10.2.min.js' => array('name' => 'jquery', 'asset' => 'mini'),
-    '___path.frontend.dir___/libs/js/vendor/jquery-migrate-1.2.1.min.js' => array('asset' => 'mini'),
-    '___path.frontend.dir___/libs/js/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js' => array('asset' => 'mini'),
-    '___path.frontend.dir___/libs/js/vendor/jquery-ui/js/localization/jquery-ui-datepicker-ru.js',
-    '___path.frontend.dir___/libs/js/vendor/markitup/jquery.markitup.js' => array('name' => 'markitup'),
-    '___path.frontend.dir___/libs/js/vendor/tinymce_4/tinymce.min.js' => array('name' => 'tinymce', 'asset' => 'mini'),
+    '___path.frontend.dir___/libs/vendor/jquery-1.10.2.min.js' => array('name' => 'jquery', 'asset' => 'mini'),
+    '___path.frontend.dir___/libs/vendor/jquery-migrate-1.2.1.min.js' => array('asset' => 'mini'),
+    '___path.frontend.dir___/libs/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js' => array('asset' => 'mini'),
+    '___path.frontend.dir___/libs/vendor/jquery-ui/js/localization/jquery-ui-datepicker-ru.js',
+    '___path.frontend.dir___/libs/vendor/markitup/jquery.markitup.js' => array('name' => 'markitup'),
+    '___path.frontend.dir___/libs/vendor/tinymce_4/tinymce.min.js' => array('name' => 'tinymce', 'asset' => 'mini'),
 
     '___path.frontend.dir___/bootstrap-3.0.0/js/bootstrap.min.js' => array('name' => 'bootstrap'),
 
@@ -44,18 +44,18 @@ $config['head']['default']['js'] = array(
     '___path.skin.dir___/assets/js/fullcalendar.min.js',
     '___path.skin.dir___/assets/js/midnight.js',
     //'___path.skin.dir___/assets/js/midnight.dashboard.js',
-    '___path.frontend.dir___/libs/js/vendor/notifier/jquery.notifier.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery.scrollto.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery.rich-array.min.js',
+    '___path.frontend.dir___/libs/vendor/notifier/jquery.notifier.js',
+    '___path.frontend.dir___/libs/vendor/jquery.scrollto.js',
+    '___path.frontend.dir___/libs/vendor/jquery.rich-array.min.js',
 
-    '___path.frontend.dir___/libs/js/vendor/jquery.form.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery.cookie.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery.serializejson.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery.file.js',
-    '___path.frontend.dir___/libs/js/vendor/jcrop/jquery.Jcrop.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery.placeholder.min.js',
-    '___path.frontend.dir___/libs/js/vendor/jquery.charcount.js',
-    '___path.frontend.dir___/libs/js/vendor/prettify/prettify.js',
+    '___path.frontend.dir___/libs/vendor/jquery.form.js',
+    '___path.frontend.dir___/libs/vendor/jquery.cookie.js',
+    '___path.frontend.dir___/libs/vendor/jquery.serializejson.js',
+    '___path.frontend.dir___/libs/vendor/jquery.file.js',
+    '___path.frontend.dir___/libs/vendor/jcrop/jquery.Jcrop.js',
+    '___path.frontend.dir___/libs/vendor/jquery.placeholder.min.js',
+    '___path.frontend.dir___/libs/vendor/jquery.charcount.js',
+    '___path.frontend.dir___/libs/vendor/prettify/prettify.js',
 
     '___path.frontend.dir___/libs/js/core/main.js',
     '___path.frontend.dir___/libs/js/ui/modal.js',

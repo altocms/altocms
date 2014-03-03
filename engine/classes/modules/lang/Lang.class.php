@@ -269,7 +269,7 @@ class ModuleLang extends Module {
 
         $aFiles = $this->_makeFileList($xPath, static::LANG_PATTERN . '.php', $sLang);
         foreach ($aFiles as $sLangFile) {
-            $this->AddMessages(F::File_IncludeFile($sLangFile), $aParams, $sLangFor);
+            $this->AddMessages(F::File_IncludeFile($sLangFile, true, true), $aParams, $sLangFor);
         }
     }
 
@@ -288,7 +288,7 @@ class ModuleLang extends Module {
         if ($aFiles) {
             foreach ($aFiles as $sLangFile) {
                 $sDirModule = basename(dirname($sLangFile));
-                $aResult = F::File_IncludeFile($sLangFile);
+                $aResult = F::File_IncludeFile($sLangFile, true, true);
                 if ($aResult) {
                     $this->AddMessages($aResult, array('category' => $sPrefix, 'name' => $sDirModule), $sLangFor);
                 }

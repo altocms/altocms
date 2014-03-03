@@ -579,45 +579,86 @@ $config['router']['config']['autodefine'] = true;
  */
 $config['head']['default']['js'] = array(
     /* Vendor libs */
-    '___path.frontend.url___/libs/js/vendor/html5shiv.min.js' => array('browser' => 'lt IE 9'),
-    '___path.frontend.url___/libs/js/vendor/jquery-1.10.2.min.js' => array('name' => 'jquery', 'asset' => 'mini'),
-    '___path.frontend.url___/libs/js/vendor/jquery-migrate-1.2.1.min.js' => array('asset' => 'mini'),
-    '___path.frontend.url___/libs/js/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js' => array('asset' => 'mini'),
-    '___path.frontend.url___/libs/js/vendor/jquery-ui/js/localization/jquery-ui-datepicker-ru.js',
-    '___path.frontend.url___/libs/js/vendor/jquery.browser.js',
-    '___path.frontend.url___/libs/js/vendor/jquery.scrollto.js',
-    '___path.frontend.url___/libs/js/vendor/jquery.rich-array.min.js',
-    '___path.frontend.url___/libs/js/vendor/jquery.form.js',
-    //'___path.frontend.url___/libs/js/vendor/jquery.jqplugin.js',
-    '___path.frontend.url___/libs/js/vendor/jquery.cookie.js',
-    '___path.frontend.url___/libs/js/vendor/jquery.serializejson.js',
-    '___path.frontend.url___/libs/js/vendor/jquery.file.js',
-    '___path.frontend.url___/libs/js/vendor/jquery.placeholder.min.js',
-    '___path.frontend.url___/libs/js/vendor/jquery.charcount.js',
-    '___path.frontend.url___/libs/js/vendor/jquery.imagesloaded.js',
-    '___path.frontend.url___/libs/js/vendor/jcrop/jquery.Jcrop.js',
-    '___path.frontend.url___/libs/js/vendor/markitup/jquery.markitup.js',
-    '___path.frontend.url___/libs/js/vendor/notifier/jquery.notifier.js',
-    '___path.frontend.url___/libs/js/vendor/prettify/prettify.js',
-    '___path.frontend.url___/libs/js/vendor/prettyphoto/js/jquery.prettyphoto.js',
-    '___path.frontend.url___/libs/js/vendor/parsley/parsley.js',
-    '___path.frontend.url___/libs/js/vendor/parsley/i18n/messages.ru.js',
-    '___path.frontend.url___/libs/js/vendor/swfobject/swfobject.js',
+    '___path.frontend.url___/libs/vendor/html5shiv.min.js' => array('browser' => 'lt IE 9'),
+    '___path.frontend.url___/libs/vendor/jquery-1.10.2.min.js' => array('name' => 'jquery', 'asset' => 'mini'),
+    '___path.frontend.url___/libs/vendor/jquery-migrate-1.2.1.min.js' => array('asset' => 'mini'),
+    '___path.frontend.url___/libs/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js' => array('asset' => 'mini'),
+    '___path.frontend.url___/libs/vendor/jquery-ui/js/localization/jquery-ui-datepicker-ru.js',
+    '___path.frontend.url___/libs/vendor/jquery.browser.js',
+    '___path.frontend.url___/libs/vendor/jquery.scrollto.js',
+    '___path.frontend.url___/libs/vendor/jquery.rich-array.min.js',
+    '___path.frontend.url___/libs/vendor/jquery.form.js',
+    //'___path.frontend.url___/libs/vendor/jquery.jqplugin.js',
+    '___path.frontend.url___/libs/vendor/jquery.cookie.js',
+    '___path.frontend.url___/libs/vendor/jquery.serializejson.js',
+    '___path.frontend.url___/libs/vendor/jquery.file.js',
+    '___path.frontend.url___/libs/vendor/jquery.placeholder.min.js',
+    '___path.frontend.url___/libs/vendor/jquery.charcount.js',
+    '___path.frontend.url___/libs/vendor/jquery.imagesloaded.js',
+    '___path.frontend.url___/libs/vendor/jcrop/jquery.Jcrop.js',
+    '___path.frontend.url___/libs/vendor/markitup/jquery.markitup.js',
+    '___path.frontend.url___/libs/vendor/notifier/jquery.notifier.js',
+    '___path.frontend.url___/libs/vendor/prettify/prettify.js',
+    '___path.frontend.url___/libs/vendor/nprogress/nprogress.js',
+    '___path.frontend.url___/libs/vendor/syslabel/syslabel.js',
+    '___path.frontend.url___/libs/vendor/prettyphoto/js/jquery.prettyphoto.js',
+    '___path.frontend.url___/libs/vendor/parsley/parsley.js',
+    '___path.frontend.url___/libs/vendor/parsley/i18n/messages.ru.js',
 
-    /* */
-    '___path.frontend.url___/libs/js/vendor/swfobject/plugin/swfupload.js' => array(
+    '___path.frontend.dir___/libs/vendor/swfobject/swfobject.js',
+
+    /* swfupload */
+    '___path.frontend.dir___/libs/vendor/swfobject/plugin/swfupload.js' => array(
         'name'    => 'swfobject/plugin/swfupload.js',
         'prepare' => true
     ),
-    '___path.frontend.url___/libs/js/vendor/swfupload/swfupload.js'        => array(
+    '___path.frontend.dir___/libs/vendor/swfupload/swfupload.js'        => array(
         'name'    => 'swfupload/swfupload.js',
         'prepare' => true
     ),
-    '___path.frontend.url___/libs/js/vendor/swfupload/swfupload.swf'       => array(
+    '___path.frontend.dir___/libs/vendor/swfupload/swfupload.swf'       => array(
         'name'     => 'swfupload/swfupload.swf',
         'prepare'  => true,
         'compress' => false,
         'merge'    => false
+    ),
+
+    /* markitUp */
+    '___path.frontend.dir___/libs/vendor/markitup/jquery.markitup.js'       => array(
+        'dir_from' => '___path.frontend.dir___/libs/vendor/markitup/',
+        'name'     => 'markitup',
+    ),
+
+    /* tinyMCE */
+    '___path.frontend.dir___/libs/vendor/tinymce_4/tinymce.min.js'       => array(
+        'dir_from' => '___path.frontend.dir___/libs/vendor/tinymce_4/',
+        'name'     => 'tinymce_4',
+        'compress' => false,
+        'merge'    => false,
+    ),
+    '___path.frontend.dir___/libs/vendor/tinymce_4/plugins/*'       => array(
+        'dir_from'  => '___path.frontend.dir___/libs/vendor/tinymce_4/',
+        'prepare'   => true,
+        'compress'  => false,
+        'merge'     => false,
+    ),
+    '___path.frontend.dir___/libs/vendor/tinymce_4/langs/*'       => array(
+        'dir_from' => '___path.frontend.dir___/libs/vendor/tinymce_4/',
+        'prepare'  => true,
+        'compress' => false,
+        'merge'    => false,
+    ),
+    '___path.frontend.dir___/libs/vendor/tinymce_4/skins/*'       => array(
+        'dir_from' => '___path.frontend.dir___/libs/vendor/tinymce_4/',
+        'prepare'  => true,
+        'compress' => false,
+        'merge'    => false,
+    ),
+    '___path.frontend.dir___/libs/vendor/tinymce_4/themes/*'       => array(
+        'dir_from' => '___path.frontend.dir___/libs/vendor/tinymce_4/',
+        'prepare'  => true,
+        'compress' => false,
+        'merge'    => false,
     ),
 
     /* Core */
@@ -637,7 +678,6 @@ $config['head']['default']['js'] = array(
     '___path.frontend.url___/bootstrap-3.0.0/js/bootstrap.min.js' => array('name' => 'bootstrap'),
 
     /* Engine */
-    '___path.frontend.url___/ls/js/settings.js',
     '___path.frontend.url___/libs/js/engine/favourite.js',
     '___path.frontend.url___/libs/js/engine/widgets.js',
     '___path.frontend.url___/libs/js/engine/pagination.js',
@@ -682,7 +722,9 @@ $config['head']['default']['css'] = array(
     //'___path.frontend.url___/libs/css/tooltip.css',
     '___path.frontend.url___/libs/css/popover.css',
     '___path.frontend.url___/libs/css/alerts.css',
-    '___path.frontend.url___/libs/css/toolbar.css'
+    '___path.frontend.url___/libs/css/toolbar.css',
+    '___path.frontend.url___/libs/vendor/nprogress/nprogress.css',
+    '___path.frontend.url___/libs/vendor/syslabel/syslabel.css',
 );
 
 /**
