@@ -37,6 +37,7 @@ class PluginLs extends Plugin {
             'ModuleWidget',
             'ModuleSecurity',
             'ModuleImage',
+            'ModuleLang',
         ),
         'action' => array(
             'ActionSettings',
@@ -64,6 +65,11 @@ class PluginLs extends Plugin {
      */
     public function Init() {
 
+        $aOldJs = Config::Get('assets.ls.head.default.js');
+        $aOldCss = Config::Get('assets.ls.head.default.css');
+        Config::Set('head.default.js', $aOldJs);
+        Config::Set('head.default.css', $aOldCss);
+        $this->Viewer_AppendScript(Plugin::GetTemplateDir(__CLASS__) . 'js/ls.js');
     }
 }
 

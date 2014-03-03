@@ -57,7 +57,7 @@ class PluginLs_ModuleImage extends Module {
 	 * Инициализация модуля
 	 */
 	public function Init() {
-        F::IncludeFile(Plugin::GetPath('ls') . 'libs/LiveImage/Image.php');
+        F::IncludeFile(Plugin::GetPath('ls') . 'libs/external/LiveImage/Image.php');
 		$this->aParamsDefault = array(
 			'watermark_use'=>false,
 			'round_corner' =>false

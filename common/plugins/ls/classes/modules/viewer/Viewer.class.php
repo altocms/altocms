@@ -271,6 +271,22 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
         $this->oSmarty->addPluginsDir($sDir);
     }
 
+    public function InitAssetFiles() {
+
+        $aSet = Config::Get('head.default');
+        if ($aSet['css']) {
+            foreach($aSet['css'] as $nIdx => $sName) {
+                if (is_string($sName)) {
+                    $sName = str_replace('/engine/libs/external/', '/common/plugins/ls/libs/external/', $sName);
+                    $sName = str_replace('/engine/lib/external/', '/common/plugins/ls/libs/external/', $sName);
+                    $aSet['css'][$nIdx] = $sName;
+                }
+            }
+        }
+        Config::Set('head.default', $aSet);
+        parent::InitAssetFiles();
+    }
+
 }
 
 // EOF
