@@ -1,29 +1,29 @@
 /**
  * Widgets
  */
-"use strict";
-
 var ls = ls || {};
 
 ls.widgets = (function ($) {
+    "use strict";
+
     this.options = {
         active: 'active',
         loaderClass: 'loader',
         type: {
             stream_comment: {
-                url: ls.actionUrl('ajax') + 'stream/comment/'
+                url: ls.routerUrl('ajax') + 'stream/comment/'
             },
             stream_topic: {
-                url: ls.actionUrl('ajax') + 'stream/topic/'
+                url: ls.routerUrl('ajax') + 'stream/topic/'
             },
             blogs_top: {
-                url: ls.actionUrl('ajax') + 'blogs/top/'
+                url: ls.routerUrl('ajax') + 'blogs/top/'
             },
             blogs_join: {
-                url: ls.actionUrl('ajax') + 'blogs/join/'
+                url: ls.routerUrl('ajax') + 'blogs/join/'
             },
             blogs_self: {
-                url: ls.actionUrl('ajax') + 'blogs/self/'
+                url: ls.routerUrl('ajax') + 'blogs/self/'
             }
         }
     };

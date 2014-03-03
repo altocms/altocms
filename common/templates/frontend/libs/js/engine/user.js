@@ -14,25 +14,25 @@ ls.user = (function ($) {
         var self = this;
 
         /* Авторизация */
-        ls.ajaxForm(ls.actionUrl('login') + 'ajax-login', '.js-form-login', function (result, status, xhr, form) {
+        ls.ajaxForm(ls.routerUrl('login') + 'ajax-login', '.js-form-login', function (result, status, xhr, form) {
             result.sUrlRedirect && (window.location = result.sUrlRedirect);
             ls.hook.run('ls_user_login_after', [form, result]);
         });
 
         /* Регистрация */
-        ls.ajaxForm(ls.actionUrl('registration') + 'ajax-registration', '.js-form-registration', function (result, status, xhr, form) {
+        ls.ajaxForm(ls.routerUrl('registration') + 'ajax-registration', '.js-form-registration', function (result, status, xhr, form) {
             result.sUrlRedirect && (window.location = result.sUrlRedirect);
             ls.hook.run('ls_user_registration_after', [form, result]);
         });
 
         /* Восстановление пароля */
-        ls.ajaxForm(ls.actionUrl('login') + 'ajax-reminder', '.js-form-recovery', function (result, status, xhr, form) {
+        ls.ajaxForm(ls.routerUrl('login') + 'ajax-reminder', '.js-form-recovery', function (result, status, xhr, form) {
             result.sUrlRedirect && (window.location = result.sUrlRedirect);
             ls.hook.run('ls_user_recovery_after', [form, result]);
         });
 
         /* Повторный запрос на ссылку активации */
-        ls.ajaxForm(ls.actionUrl('login') + 'ajax-reactivation', '.js-form-reactivation', function (result, status, xhr, form) {
+        ls.ajaxForm(ls.routerUrl('login') + 'ajax-reactivation', '.js-form-reactivation', function (result, status, xhr, form) {
             form.find('input').val('');
             ls.hook.run('ls_user_reactivation_after', [form, result]);
         });
@@ -46,10 +46,10 @@ ls.user = (function ($) {
                 aspectRatio: 1
             },
             urls: {
-                upload: ls.actionUrl('settings') + 'profile/upload-avatar/',
-                remove: ls.actionUrl('settings') + 'profile/remove-avatar/',
-                cancel: ls.actionUrl('settings') + 'profile/cancel-avatar/',
-                crop: ls.actionUrl('settings') + 'profile/resize-avatar/'
+                upload: ls.routerUrl('settings') + 'profile/upload-avatar/',
+                remove: ls.routerUrl('settings') + 'profile/remove-avatar/',
+                cancel: ls.routerUrl('settings') + 'profile/cancel-avatar/',
+                crop: ls.routerUrl('settings') + 'profile/resize-avatar/'
             }
         });
 
@@ -58,10 +58,10 @@ ls.user = (function ($) {
                 element: '.js-ajax-photo-upload'
             },
             urls: {
-                upload: ls.actionUrl('settings') + 'profile/upload-photo/',
-                remove: ls.actionUrl('settings') + 'profile/remove-photo/',
-                cancel: ls.actionUrl('settings') + 'profile/cancel-photo/',
-                crop: ls.actionUrl('settings') + 'profile/resize-photo/'
+                upload: ls.routerUrl('settings') + 'profile/upload-photo/',
+                remove: ls.routerUrl('settings') + 'profile/remove-photo/',
+                cancel: ls.routerUrl('settings') + 'profile/cancel-photo/',
+                crop: ls.routerUrl('settings') + 'profile/resize-photo/'
             }
         });
 
@@ -78,7 +78,7 @@ ls.user = (function ($) {
      * Валидация полей формы при регистрации
      */
     this.validateRegistrationFields = function (form, fields) {
-        var url = ls.actionUrl('registration') + 'ajax-validate-fields/';
+        var url = ls.routerUrl('registration') + 'ajax-validate-fields/';
         var params = {fields: fields};
         form = $(form);
 
@@ -123,9 +123,9 @@ ls.user = (function ($) {
         }
 
         if (sAction == 'accept') {
-            var url = ls.actionUrl('profile') + 'ajaxfriendaccept/';
+            var url = ls.routerUrl('profile') + 'ajaxfriendaccept/';
         } else {
-            var url = ls.actionUrl('profile') + 'ajaxfriendadd/';
+            var url = ls.routerUrl('profile') + 'ajaxfriendadd/';
         }
 
         var params = {idUser: idUser, userText: sText};
@@ -154,7 +154,7 @@ ls.user = (function ($) {
      * Удаление из друзей
      */
     this.removeFriend = function (obj, idUser, sAction) {
-        var url = ls.actionUrl('profile') + 'ajaxfrienddelete/';
+        var url = ls.routerUrl('profile') + 'ajaxfrienddelete/';
         var params = {idUser: idUser, sAction: sAction};
 
         ls.ajax(url, params, function (result) {
@@ -175,7 +175,7 @@ ls.user = (function ($) {
      */
     this.searchUsersByPrefix = function (sPrefix, obj) {
         obj = $(obj);
-        var url = ls.actionUrl('people') + 'ajax-search/';
+        var url = ls.routerUrl('people') + 'ajax-search/';
         var params = {user_login: sPrefix, isPrefix: 1};
         $('#search-user-login').addClass('loader');
 
@@ -213,7 +213,7 @@ ls.user = (function ($) {
      * Поиск пользователей
      */
     this.searchUsers = function (form) {
-        var url = ls.actionUrl('people') + 'ajax-search/';
+        var url = ls.routerUrl('people') + 'ajax-search/';
         var inputSearch = $('#' + form).find('input');
         inputSearch.addClass('loader');
 
@@ -248,10 +248,10 @@ ls.user = (function ($) {
                 crop_submit_button: '.js-ajax-image-upload-crop-submit'
             },
             urls: {
-                upload: ls.actionUrl('settings') + 'profile/upload-avatar/',
-                remove: ls.actionUrl('settings') + 'profile/remove-avatar/',
-                cancel: ls.actionUrl('settings') + 'profile/cancel-avatar/',
-                crop: ls.actionUrl('settings') + 'profile/resize-avatar/'
+                upload: ls.routerUrl('settings') + 'profile/upload-avatar/',
+                remove: ls.routerUrl('settings') + 'profile/remove-avatar/',
+                cancel: ls.routerUrl('settings') + 'profile/cancel-avatar/',
+                crop: ls.routerUrl('settings') + 'profile/resize-avatar/'
             }
         };
 

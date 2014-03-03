@@ -680,7 +680,7 @@ ls = (function ($) {
      *
      * @param action
      */
-    this.actionUrl = function(action) {
+    this.routerUrl = function(action) {
         if (aRouter && aRouter[action]) {
             return aRouter[action];
         } else {

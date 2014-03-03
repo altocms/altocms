@@ -187,7 +187,7 @@ ls.img = (function ($) {
                 crop_submit_button: '.js-ajax-image-upload-crop-submit'
             },
             urls: {
-                upload: '', // ls.actionUrl('settings') + 'profile/upload-avatar/',
+                upload: '', // ls.routerUrl('settings') + 'profile/upload-avatar/',
                 remove: '',
                 cancel: '',
                 crop:   ''
@@ -281,7 +281,7 @@ ls.img = (function ($) {
         if ($(options.resizeForm).length)
             $(options.resizeForm).modal('show');
         else {
-            ls.debug('Error [Ajax Image Upload]:\nModal window of image resizing not found');
+            ls.debug('error [Ajax Image Upload]:\nModal window of image resizing not found');
         }
         var imageCrop = $(options.resizeForm).find('.js-image-upload-crop');
         $(imageCrop).attr('src', sImgFile + '?' + Math.random()).css({
@@ -381,15 +381,15 @@ ls.swfupload = (function ($) {
 
         this.swfOptions = {
             // Backend Settings
-            upload_url: ls.actionUrl("content") + "photo/upload",
+            upload_url: ls.routerUrl('content') + 'photo/upload',
             post_params: {'SSID': SESSION_ID, 'security_key': ls.cfg.security_key},
 
             prevent_swf_caching : false,
 
             // File Upload Settings
-            file_types: "*.jpg;*.jpe;*.jpeg;*.png;*.gif;*.JPG;*.JPE;*.JPEG;*.PNG;*.GIF",
-            file_types_description: "Images",
-            file_upload_limit: "0",
+            file_types: '*.jpg;*.jpe;*.jpeg;*.png;*.gif;*.JPG;*.JPE;*.JPEG;*.PNG;*.GIF',
+            file_types_description: 'Images',
+            file_upload_limit: '0',
 
             // Event Handler Settings
             file_queue_error_handler: this.handlerFileQueueError,
@@ -400,7 +400,7 @@ ls.swfupload = (function ($) {
             upload_complete_handler: this.handlerUploadComplete,
 
             // Button Settings
-            button_placeholder_id: "start-upload",
+            button_placeholder_id: 'start-upload',
             button_width: 122,
             button_height: 30,
             button_text: '<span class="swfupload">' + ls.lang.get('topic_photoset_upload_choose') + '</span>',
@@ -431,15 +431,10 @@ ls.swfupload = (function ($) {
             if(window.swfobject && swfobject.swfupload){
                 f.onSwfobjectSwfupload();
             }else{
-                if (ls.cfg.assets['swfobject/plugin/swfupload.js']) {
-                    ls.debug('window.swfobject && swfobject.swfupload is undefined, loading "swfobject/plugin/swfupload.js"...');
-                    $.getScript(ls.cfg.assets['swfobject/plugin/swfupload.js'], function() {
-                        ls.debug('...file "swfobject/plugin/swfupload.js" loaded');
-                        f.onSwfobjectSwfupload();
-                    });
-                } else {
-                    ls.debug('cannot load "swfobject/plugin/swfupload.js"');
-                }
+                ls.debug('window.swfobject && swfobject.swfupload is undefined, loading "swfobject/plugin/swfupload.js"...');
+                ls.loadAssetScript('swfobject/plugin/swfupload.js', function(){
+                    f.onSwfobjectSwfupload();
+                });
             }
         }.bind(this);
 
@@ -447,15 +442,10 @@ ls.swfupload = (function ($) {
             if(window.SWFUpload){
                 f.onSwfupload();
             }else{
-                if (ls.cfg.assets['swfupload/swfupload.js']) {
-                    ls.debug('window.SWFUpload is undefined, loading "swfupload/swfupload.js"');
-                    $.getScript(ls.cfg.assets['swfupload/swfupload.js'], function() {
-                        ls.debug('...file "swfupload/swfupload.js" loaded');
-                        f.onSwfupload();
-                    });
-                } else {
-                    ls.debug('cannot load "swfupload/swfupload.js"');
-                }
+                ls.debug('window.SWFUpload is undefined, loading "swfupload/swfupload.js"');
+                ls.loadAssetScript('swfupload/swfupload.js', function(){
+                    f.onSwfupload();
+                });
             }
         }.bind(this);
 
@@ -481,7 +471,7 @@ ls.swfupload = (function ($) {
             $.extend(true, this.swfOptions, opt);
         }
         var placeholder = $('#' + this.swfOptions.button_placeholder_id);
-        var label = placeholder.parent("label");
+        var label = placeholder.parent('label');
         if (placeholder.length) {
             var color = placeholder.css('color'), re = /^rgb(a)?\((\d+)\s*,\s*(\d+)\s*,\s*(\d+)/ig;
             var r=re.exec(color);
@@ -504,7 +494,7 @@ ls.swfupload = (function ($) {
         }
         this.swfu = new SWFUpload(this.swfOptions);
         if (label.length) {
-            $(label).css("padding", "0").click(function(){ return false; });
+            $(label).css('padding', '0').click(function(){ return false; });
         }
         return this.swfu;
     };
@@ -576,7 +566,7 @@ ls.tools = (function ($) {
      */
     this.textPreview = function (textId, save, divPreview) {
         var text = ls.cfg.wysiwyg ? tinyMCE.activeEditor.getContent() : $('#' + textId).val();
-        var ajaxUrl = ls.actionUrl('ajax') + 'preview/text/';
+        var ajaxUrl = ls.routerUrl('ajax') + 'preview/text/';
         var ajaxOptions = {text: text, save: save};
         ls.hook.marker('textPreviewAjaxBefore');
         ls.ajax(ajaxUrl, ajaxOptions, function (result) {
@@ -660,11 +650,15 @@ ls.tools = (function ($) {
  * Дополнительные функции
  */
 ls = (function ($) {
+    var $that = this;
 
     /**
      * Глобальные опции
      */
     this.options = this.options || {};
+
+    this.options.progressInit = false;
+    this.options.progressType = 'syslabel';
 
     /**
      * Выполнение AJAX запроса, автоматически передает security key
@@ -683,7 +677,7 @@ ls = (function ($) {
         if (url.indexOf('/') == 0) {
             url = ls.cfg.url.root + url;
         } else if (url.indexOf('http://') != 0 && url.indexOf('https://') != 0) {
-            url = ls.actionUrl('ajax') + url ;
+            url = ls.routerUrl('ajax') + url ;
         }
         if (url.substring(url.length-1) != '/') {
             url += '/';
@@ -744,7 +738,7 @@ ls = (function ($) {
         form = $(form);
 
         if (url.indexOf('http://') != 0 && url.indexOf('https://') != 0 && url.indexOf('/') != 0) {
-            url = ls.actionUrl('ajax') + url + '/';
+            url = ls.routerUrl('ajax') + url + '/';
         }
 
         var options = {
@@ -809,22 +803,39 @@ ls = (function ($) {
     };
 
     /**
-     * Загрузка изображения
+     * Uploads image
      */
     this.ajaxUploadImg = function (form, sToLoad) {
-        ls.ajaxSubmit('upload/image/', form, function (data) {
+        form = $(form);
+        var tag = form[0].tagName;
+        if (tag != 'FORM' ) {
+            form = form.parents('form').first();
+        }
+        var modal = form.parents('.modal').first();
+        $that.progressStart();
+        $that.ajaxSubmit('upload/image/', form, function (data) {
+            $that.progressDone();
             if (data.bStateError) {
-                ls.msg.error(data.sMsgTitle, data.sMsg);
+                $that.msg.error(data.sMsgTitle, data.sMsg);
             } else {
-                $.markItUp({replaceWith: data.sText});
-                $('#window_upload_img').find('input[type="text"], input[type="file"]').val('');
-                $('#window_upload_img').jqmHide();
+                $that.insertToEditor(data.sText);
+                modal.find('input[type="text"], input[type="file"]').val('');
+                modal.modal('hide');
             }
         });
     };
 
     /**
-     * Сохранение данных конфигурации
+     * Insert html
+     *
+     * @param html
+     */
+    this.insertToEditor = function(html) {
+        $.markItUp({replaceWith: html});
+    }
+
+    /**
+     * Saves config data
      *
      * @param params
      * @param callback
@@ -832,7 +843,7 @@ ls = (function ($) {
      * @returns {*}
      */
     this.ajaxConfig = function(params, callback, more) {
-        var url = '/admin/ajax/config/';
+        var url = ls.routerUrl('admin') + '/ajax/config/';
         var args = params;
         params = {
             keys: []
@@ -846,41 +857,140 @@ ls = (function ($) {
     };
 
     /**
-     * Определение URL экшена
+     * Returns URL of action
      *
      * @param action
      */
-    this.actionUrl = function(action) {
-        if (aRouter && aRouter[action]) {
-            return aRouter[action];
+    this.routerUrl = function(action) {
+        if (window.aRouter && window.aRouter[action]) {
+            return window.aRouter[action];
         } else {
             return ls.cfg.url.root + action + '/';
         }
     }
 
+    /**
+     * Returns asset url
+     *
+     * @param asset
+     * @returns {*}
+     */
     this.getAssetUrl = function(asset) {
         if (this.cfg && this.cfg.assets && this.cfg.assets[asset]) {
             return this.cfg.assets[asset];
         }
     }
 
+    /**
+     * Returns path of asset
+     *
+     * @param asset
+     * @returns {string}
+     */
     this.getAssetPath = function(asset) {
         var url = this.getAssetUrl(asset);
         if (url) {
             return url.substring(0, url.lastIndexOf('/'));
         }
     }
+
     /**
-     * Дебаг сообщений
+     * Loads asset script
+     *
+     * @param asset
+     * @param success
+     */
+    this.loadAssetScript = function (asset, success) {
+        var url = ls.getAssetUrl(asset);
+        if (!url) {
+            ls.debug('error: [asset "' + asset + '"] not defined');
+        } else {
+            $.ajax({
+                url: url,
+                dataType: 'script'
+            })
+                .done(function () {
+                    ls.debug('success: [asset "' + asset + '"] ajax loaded');
+                    success();
+                })
+                .fail(function () {
+                    ls.debug('error: [asset "' + asset + '"] ajax not loaded');
+                });
+        }
+    }
+
+    /**
+     * Begins to show progress
+     */
+    this.progressStart = function() {
+
+        if (!this.options.progressInit) {
+            this.options.progressInit = true;
+            if (this.options.progressType == 'syslabel') {
+                $.SysLabel.init({
+                    css: {
+                        'z-index': $that.maxZIndex('.modal')
+                    }
+                });
+            }
+        }
+        if (this.options.progressType == 'syslabel') {
+            $.SysLabel.show();
+        } else {
+            NProgress.start();
+        }
+    }
+
+    /**
+     * Ends to show progress
+     */
+    this.progressDone = function() {
+
+        if (this.options.progressType == 'syslabel') {
+            $.SysLabel.hide();
+        } else {
+            NProgress.done();
+        }
+    }
+
+    /**
+     * Create unique ID
+     *
+     * @returns {string}
+     */
+    this.uniqId = function () {
+        return 'id-' + new Date().valueOf() + '-' + Math.floor(Math.random() * 1000000000);
+    };
+
+    /**
+     * Calculate max z-index
+     *
+     * @param selector
+     * @returns {number}
+     */
+    this.maxZIndex = function(selector) {
+        var elements = $.makeArray(selector ? $(selector) : document.getElementsByTagName("*"));
+        var max = 0;
+        $.each(elements, function(index, item){
+            var val = parseFloat($(item).css('z-index')) || 0;
+            if (val > max) {
+                max = val;
+            }
+        });
+        return max;
+    }
+
+    /**
+     * Debug info
      */
     this.debug = function () {
-        if (this.options.debug) {
-            this.log.apply(this, arguments);
+        if ($that.options.debug) {
+            $that.log.apply(this, arguments);
         }
     };
 
     /**
-     * Лог сообщений
+     * Log info
      */
     this.log = function () {
         if (window.console && window.console.log) {
@@ -903,8 +1013,8 @@ ls.autocomplete = (function ($) {
      */
     this.add = function (obj, sPath, multiple) {
         if (multiple) {
-            obj.bind("keydown", function (event) {
-                if (event.keyCode === $.ui.keyCode.TAB && $(this).data("autocomplete").menu.active) {
+            obj.bind('keydown', function (event) {
+                if (event.keyCode === $.ui.keyCode.TAB && $(this).data('autocomplete').menu.active) {
                     event.preventDefault();
                 }
             })

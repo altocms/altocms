@@ -85,7 +85,7 @@ ls.photoset = ( function ($) {
         if (!confirm(ls.lang.get('topic_photoset_photo_delete_confirm'))) {
             return;
         }
-        ls.ajaxPost(ls.actionUrl('content') + 'photo/delete', {'id': id}, function (response) {
+        ls.ajaxPost(ls.routerUrl('content') + 'photo/delete', {'id': id}, function (response) {
             if (!response.bStateError) {
                 $('#photo_' + id).remove();
                 ls.msg.notice(response.sMsgTitle, response.sMsg);
@@ -108,7 +108,7 @@ ls.photoset = ( function ($) {
     }
 
     this.setPreviewDescription = function (id, text) {
-        ls.ajaxPost(ls.actionUrl('content') + 'photo/description', {'id': id, 'text': text}, function (result) {
+        ls.ajaxPost(ls.routerUrl('content') + 'photo/description', {'id': id, 'text': text}, function (result) {
                 if (!result.bStateError) {
 
                 } else {
@@ -122,7 +122,7 @@ ls.photoset = ( function ($) {
         if (this.isLoading) return;
         this.isLoading = true;
 
-        ls.ajaxGet(ls.actionUrl('content') + 'photo/getmore', {'topic_id': topic_id, 'last_id': this.idLast}, function (result) {
+        ls.ajaxGet(ls.routerUrl('content') + 'photo/getmore', {'topic_id': topic_id, 'last_id': this.idLast}, function (result) {
             this.isLoading = false;
             if (!result.bStateError) {
                 if (result.photos) {
@@ -161,7 +161,7 @@ ls.photoset = ( function ($) {
         input.clone(true).insertAfter(input);
         input.appendTo(form);
 
-        ls.ajaxSubmit(ls.actionUrl('content') + 'photo/upload/', form, function (data) {
+        ls.ajaxSubmit(ls.routerUrl('content') + 'photo/upload/', form, function (data) {
             if (data.bStateError) {
                 $('#photoset_photo_empty').remove();
                 ls.msg.error(data.sMsgTitle, data.sMsg);
