@@ -51,7 +51,7 @@ function smarty_function_wgroup_add($aParams, $oSmartyTemplate) {
     if (array_key_exists('priority', $aWidgetParams)) {
         $nPriority = $aWidgetParams['priority'];
     } elseif (array_key_exists('priority', $aParams)) {
-        $nPriority = $aWidgetParams['priority'];
+        $nPriority = $aParams['priority'];
     } else {
         $nPriority = 0;
     }
