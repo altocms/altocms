@@ -837,11 +837,12 @@ class ActionContent extends Action {
                     );
                     return;
                 }
-				$this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+		$this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+		return;
             }
-            $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            $this->Topic_DeleteTopicPhoto($oPhoto);
+            $this->Message_AddNotice($this->Lang_Get('topic_photoset_photo_deleted'), $this->Lang_Get('attention'));
             return;
-            
         }
         $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
         return;
