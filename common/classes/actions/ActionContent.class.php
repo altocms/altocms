@@ -833,24 +833,18 @@ class ActionContent extends Action {
                     $oTopic->setPhotosetCount($oTopic->getPhotosetCount() - 1);
                     $this->Topic_UpdateTopic($oTopic);
                     $this->Message_AddNotice(
-                        $this->Lang_Get('topic_photoset_photo_deleted'), $this->Lang_Get('attention')
+                    $this->Lang_Get('topic_photoset_photo_deleted'), $this->Lang_Get('attention')
                     );
-
                     return;
                 }
-            } else {
-                $this->Topic_DeleteTopicPhoto($oPhoto);
-                $this->Message_AddNotice($this->Lang_Get('topic_photoset_photo_deleted'), $this->Lang_Get('attention'));
-                return;
+				$this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
             }
+            $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            return;
+            
         }
-        $this->Message_AddNotice(
-            $this->Lang_Get('topic_photoset_photo_deleted'), $this->Lang_Get('attention')
-        );
-        /*
         $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
-        F::SysWarning('System Error');
-        */
+        return;
     }
 
     /**
