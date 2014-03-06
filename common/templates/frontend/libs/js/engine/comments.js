@@ -94,10 +94,9 @@ ls.comments = (function ($) {
             $('#comment-button-submit').removeAttr('disabled');
             if (!result) {
                 this.enableFormComment();
-                ls.msg.error('Error', 'Please try again later');
+                ls.msg.error(null, 'System error #1001');
                 return;
-            }
-            if (result.bStateError) {
+            } else if (result.bStateError) {
                 this.enableFormComment();
                 ls.msg.error(null, result.sMsg);
             } else {
@@ -171,9 +170,8 @@ ls.comments = (function ($) {
             objImg.removeClass('active');
 
             if (!result) {
-                ls.msg.error('Error', 'Please try again later');
-            }
-            if (result.bStateError) {
+                ls.msg.error(null, 'System error #1001');
+            } else if (result.bStateError) {
                 ls.msg.error(null, result.sMsg);
             } else {
                 var aCmt = result.aComments;
@@ -235,15 +233,13 @@ ls.comments = (function ($) {
 
     // Удалить/восстановить комментарий
     this.toggle = function (obj, commentId) {
-        var url = aRouter['ajax'] + 'comment/delete/';
+        var url = ls.routerUrl('ajax') + 'comment/delete/';
         var params = { idComment: commentId };
 
-        ls.hook.marker('toggleBefore');
         ls.ajax(url, params, function (result) {
             if (!result) {
-                ls.msg.error('Error', 'Please try again later');
-            }
-            if (result.bStateError) {
+                ls.msg.error(null, 'System error #1001');
+            } else if (result.bStateError) {
                 ls.msg.error(null, result.sMsg);
             } else {
                 ls.msg.notice(null, result.sMsg);

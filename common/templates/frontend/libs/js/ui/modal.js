@@ -207,7 +207,9 @@ var ls = ls || {};
         options = $.extend({}, $.fn.modal.defaults, options);
 
         ls.ajax(url, params, function (result) {
-            if (result.bStateError) {
+            if (!result) {
+                ls.msg.error(null, 'System error #1001');
+            } else if (result.bStateError) {
                 Modal.hideAll();
                 ls.msg.error('Error', result.sMsg);
             } else {

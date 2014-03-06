@@ -52,7 +52,9 @@ var ls = ls || {};
                 ls.ajax(this.options.url, this.options.params, function (result) {
                     self.$pane.removeClass('loading');
 
-                    if (result.bStateError) {
+                    if (!result) {
+                        ls.msg.error(null, 'System error #1001');
+                    } else if (result.bStateError) {
                         ls.msg.error('Error', result.sMsg);
                     } else {
                         self.$pane.html(result[self.options.ajaxVar]);

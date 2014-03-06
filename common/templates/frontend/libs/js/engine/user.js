@@ -8,30 +8,30 @@ ls.user = (function ($) {
     this.jcropImage = null;
 
     /**
-     * Инициализация
+     * Initialization
      */
     this.init = function() {
         var self = this;
 
-        /* Авторизация */
+        // Authorization
         ls.ajaxForm(ls.routerUrl('login') + 'ajax-login', '.js-form-login', function (result, status, xhr, form) {
             result.sUrlRedirect && (window.location = result.sUrlRedirect);
             ls.hook.run('ls_user_login_after', [form, result]);
         });
 
-        /* Регистрация */
+        /* Registration */
         ls.ajaxForm(ls.routerUrl('registration') + 'ajax-registration', '.js-form-registration', function (result, status, xhr, form) {
             result.sUrlRedirect && (window.location = result.sUrlRedirect);
             ls.hook.run('ls_user_registration_after', [form, result]);
         });
 
-        /* Восстановление пароля */
+        /* Password reset */
         ls.ajaxForm(ls.routerUrl('login') + 'ajax-reminder', '.js-form-recovery', function (result, status, xhr, form) {
             result.sUrlRedirect && (window.location = result.sUrlRedirect);
             ls.hook.run('ls_user_recovery_after', [form, result]);
         });
 
-        /* Повторный запрос на ссылку активации */
+        /* Request for activation link */
         ls.ajaxForm(ls.routerUrl('login') + 'ajax-reactivation', '.js-form-reactivation', function (result, status, xhr, form) {
             form.find('input').val('');
             ls.hook.run('ls_user_reactivation_after', [form, result]);
@@ -135,9 +135,8 @@ ls.user = (function ($) {
                 $(item).removeAttr('disabled')
             });
             if (!result) {
-                ls.msg.error('Error', 'Please try again later');
-            }
-            if (result.bStateError) {
+                ls.msg.error(null, 'System error #1001');
+            } else if (result.bStateError) {
                 ls.msg.error(null, result.sMsg);
             } else {
                 ls.msg.notice(null, result.sMsg);
@@ -158,7 +157,9 @@ ls.user = (function ($) {
         var params = {idUser: idUser, sAction: sAction};
 
         ls.ajax(url, params, function (result) {
-            if (result.bStateError) {
+            if (!result) {
+                ls.msg.error(null, 'System error #1001');
+            } else if (result.bStateError) {
                 ls.msg.error(null, result.sMsg);
             } else {
                 ls.msg.notice(null, result.sMsg);
@@ -183,7 +184,9 @@ ls.user = (function ($) {
             $('#search-user-login').removeClass('loader');
             $('#user-prefix-filter').find('.active').removeClass('active');
             obj.parent().addClass('active');
-            if (result.bStateError) {
+            if (!result) {
+                ls.msg.error(null, 'System error #1001');
+            } else if (result.bStateError) {
                 $('#users-list-search').hide();
                 $('#users-list-original').show();
             } else {
@@ -219,7 +222,9 @@ ls.user = (function ($) {
 
         ls.ajaxSubmit(url, form, function (result) {
             inputSearch.removeClass('loader');
-            if (result.bStateError) {
+            if (!result) {
+                ls.msg.error(null, 'System error #1001');
+            } else if (result.bStateError) {
                 $('#users-list-search').hide();
                 $('#users-list-original').show();
             } else {
@@ -295,11 +300,13 @@ ls.user = (function ($) {
             input.appendTo(form);
         }
 
-        ls.ajaxSubmit(options.urls.upload, form, function (data) {
-            if (data.bStateError) {
-                ls.msg.error(data.sMsgTitle, data.sMsg);
+        ls.ajaxSubmit(options.urls.upload, form, function (result) {
+            if (!result) {
+                ls.msg.error(null, 'System error #1001');
+            } else if (result.bStateError) {
+                ls.msg.error(result.sMsgTitle, result.sMsg);
             } else {
-                this.ajaxUploadImageModalCrop(data.sTmpFile, options);
+                this.ajaxUploadImageModalCrop(result.sTmpFile, options);
             }
             form.remove();
         }.bind(this));
@@ -338,7 +345,9 @@ ls.user = (function ($) {
      */
     this.ajaxUploadImageRemove = function (options, elements) {
         ls.ajax(options.urls.remove, {}, function (result) {
-            if (result.bStateError) {
+            if (!result) {
+                ls.msg.error(null, 'System error #1001');
+            } else if (result.bStateError) {
                 ls.msg.error(null, result.sMsg);
             } else {
                 elements.image.attr('src', result.sFile + '?' + Math.random());
@@ -361,7 +370,9 @@ ls.user = (function ($) {
         }
         button.addClass('loading');
         ls.ajax(this.currentOptions.urls.cancel, {}, function (result) {
-            if (result.bStateError) {
+            if (!result) {
+                ls.msg.error(null, 'System error #1001');
+            } else if (result.bStateError) {
                 ls.msg.error(null, result.sMsg);
             } else {
                 $(modal).modal('hide');
@@ -392,7 +403,9 @@ ls.user = (function ($) {
         }
         button.addClass('loading');
         ls.ajax(self.currentOptions.urls.crop, params, function (result) {
-            if (result.bStateError) {
+            if (!result) {
+                ls.msg.error(null, 'System error #1001');
+            } else if (result.bStateError) {
                 ls.msg.error(null, result.sMsg);
             } else {
                 $('<img src="' + result.sFile + '?' + Math.random() + '" />');

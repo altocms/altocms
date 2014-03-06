@@ -235,7 +235,9 @@ var ls = ls || {};
                 this.position();
 
                 ls.ajax(this.options.url, this.options.params, function (result) {
-                    if (result.bStateError) {
+                    if (!result) {
+                        ls.msg.error(null, 'System error #1001');
+                    } else if (result.bStateError) {
                         self.hide();
                         ls.msg.error('Error', result.sMsg);
                     } else {

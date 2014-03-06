@@ -246,13 +246,15 @@ ls.img = (function ($) {
             input.appendTo(form);
         }
 
-        ls.ajaxSubmit(options.urls.upload, form, function (data) {
-            if (data.bStateError) {
-                ls.msg.error(data.sMsgTitle,data.sMsg);
+        ls.ajaxSubmit(options.urls.upload, form, function (result) {
+            if (!result) {
+                ls.msg.error(null, 'System error #1001');
+            } else if (result.bStateError) {
+                ls.msg.error(result.sMsgTitle,result.sMsg);
             } else {
                 if (options.onUploaded) {
-                    if (data.sText && data.sText.match(/^<img\s+/)) {
-                        var img = $(data.sText);
+                    if (result.sText && result.sText.match(/^<img\s+/)) {
+                        var img = $(result.sText);
                         var url = img.attr('src');
                     } else {
                         url = '';
@@ -298,10 +300,12 @@ ls.img = (function ($) {
     /**
      * Removes uploaded image
      */
-    this.ajaxUploadRemove = function(options, elements) {
-        ls.ajax(options.urls.remove, {}, function(result) {
-            if (result.bStateError) {
-                ls.msg.error(null,result.sMsg);
+    this.ajaxUploadRemove = function (options, elements) {
+        ls.ajax(options.urls.remove, {}, function (result) {
+            if (!result) {
+                ls.msg.error(null, 'System error #1001');
+            } else if (result.bStateError) {
+                ls.msg.error(null, result.sMsg);
             } else {
                 elements.image.attr('src', result.sFile + '?' + Math.random());
                 elements.remove_button.hide();
@@ -321,7 +325,9 @@ ls.img = (function ($) {
         }
         button.addClass('loading');
         ls.ajax(this.currentOptions.urls.cancel, {}, function (result) {
-            if (result.bStateError) {
+            if (!result) {
+                ls.msg.error(null, 'System error #1001');
+            } else if (result.bStateError) {
                 ls.msg.error(null, result.sMsg);
             } else {
                 $(modal).modal('hide');
@@ -351,7 +357,9 @@ ls.img = (function ($) {
         }
         button.addClass('loading');
         ls.ajax(self.currentOptions.urls.crop, params, function (result) {
-            if (result.bStateError) {
+            if (!result) {
+                ls.msg.error(null, 'System error #1001');
+            } else if (result.bStateError) {
                 ls.msg.error(null, result.sMsg);
             } else {
                 $('<img src="' + result.sFile + '?' + Math.random() + '" />');
@@ -568,22 +576,19 @@ ls.tools = (function ($) {
         var text = ls.cfg.wysiwyg ? tinyMCE.activeEditor.getContent() : $('#' + textId).val();
         var ajaxUrl = ls.routerUrl('ajax') + 'preview/text/';
         var ajaxOptions = {text: text, save: save};
-        ls.hook.marker('textPreviewAjaxBefore');
+
         ls.ajax(ajaxUrl, ajaxOptions, function (result) {
             if (!result) {
-                ls.msg.error('Error', 'Please try again later');
-            }
-            if (result.bStateError) {
+                ls.msg.error(null, 'System error #1001');
+            } else if (result.bStateError) {
                 ls.msg.error(result.sMsgTitle || 'Error', result.sMsg || 'Please try again later');
             } else {
                 if (!divPreview) {
                     divPreview = 'text_preview';
                 }
                 var elementPreview = $('#' + divPreview);
-                ls.hook.marker('textPreviewDisplayBefore');
                 if (elementPreview.length) {
                     elementPreview.html(result.sText);
-                    ls.hook.marker('textPreviewDisplayAfter');
                 }
             }
         });
@@ -734,7 +739,8 @@ ls = (function ($) {
      * Выполнение AJAX отправки формы, включая загрузку файлов
      */
     this.ajaxSubmit = function (url, form, callback, more) {
-        var more = more || {}
+        var more = more || {},
+            success = null;
         form = $(form);
 
         if (url.indexOf('http://') != 0 && url.indexOf('https://') != 0 && url.indexOf('/') != 0) {
@@ -750,35 +756,37 @@ ls = (function ($) {
             },
             beforeSubmit: function (arr, form, options) {
                 form.find('[type=submit]').prop('disabled', true).addClass('loading');
-            },
-            /*
-            beforeSerialize: function (form, options) {
-                return form.parsley('validate');
-            },
-            */
-            success: typeof callback == 'function' ? function (result, status, xhr, form) {
-                if (result.bStateError) {
-                    form.find('[type=submit]').prop('disabled', false).removeClass('loading');
+            }
+        };
+
+        if (typeof callback == 'function') {
+            options.success = function (result, status, xhr, form) {
+                form.find('[type=submit]').prop('disabled', false).removeClass('loading');
+                if (!result) {
+                    ls.msg.error(null, 'System error #1001');
+                } else if (result.bStateError) {
                     ls.msg.error(null, result.sMsg);
 
                     if (more && more.warning)
                         more.warning(result, status, xhr, form);
                 } else {
                     if (result.sMsg) {
-                        form.find('[type=submit]').prop('disabled', false).removeClass('loading');
                         ls.msg.notice(null, result.sMsg);
                     }
                     callback(result, status, xhr, form);
                 }
-            } : function () {
+            }.bind(this);
+        } else {
+            options.success = function () {
                 ls.debug("ajax success: ");
                 ls.debug.apply(this, arguments);
-            }.bind(this),
-            error: more.error || function () {
-                ls.debug("ajax error: ");
-                ls.debug.apply(this, arguments);
-            }.bind(this)
-        };
+            }.bind(this);
+        }
+
+        options.error = more.error || function () {
+            ls.debug("ajax error: ");
+            ls.debug.apply(this, arguments);
+        }.bind(this);
 
         ls.hook.run('ls_ajaxsubmit_before', [options, form, callback, more], this);
 
@@ -791,7 +799,7 @@ ls = (function ($) {
      * @param  {string}          url      Ссылка
      * @param  {jquery, string}  form     Селектор формы либо объект jquery
      * @param  {Function}        callback Success коллбэк
-     * @param  {[type]}          more     Дополнительные параметры
+     * @param  {type}            [more]     Дополнительные параметры
      */
     this.ajaxForm = function (url, form, callback, more) {
         var form = typeof form == 'string' ? $(form) : form;
@@ -813,12 +821,14 @@ ls = (function ($) {
         }
         var modal = form.parents('.modal').first();
         $that.progressStart();
-        $that.ajaxSubmit('upload/image/', form, function (data) {
+        $that.ajaxSubmit('upload/image/', form, function (result) {
             $that.progressDone();
-            if (data.bStateError) {
-                $that.msg.error(data.sMsgTitle, data.sMsg);
+            if (!result) {
+                ls.msg.error(null, 'System error #1001');
+            } else if (result.bStateError) {
+                $that.msg.error(result.sMsgTitle, result.sMsg);
             } else {
-                $that.insertToEditor(data.sText);
+                $that.insertToEditor(result.sText);
                 modal.find('input[type="text"], input[type="file"]').val('');
                 modal.modal('hide');
             }

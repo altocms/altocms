@@ -71,7 +71,9 @@ ls.widgets = (function ($) {
 
         ls.ajax(this.options.type[type].url, params, function (result) {
             content.empty().removeClass(this.options.loaderClass);
-            if (result.bStateError) {
+            if (!result) {
+                ls.msg.error(null, 'System error #1001');
+            } else if (result.bStateError) {
                 ls.msg.error(null, result.sMsg);
             } else {
                 if (success) {

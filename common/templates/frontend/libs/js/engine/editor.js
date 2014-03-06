@@ -92,19 +92,17 @@ ls.editor = (function ($) {
     this.ajaxUploadImg = function (sFormId) {
         var self = this;
 
-        ls.hook.marker('ajaxUploadImgBefore');
-
-        ls.ajaxSubmit('upload/image/', sFormId, function (data) {
-            if (data.bStateError) {
-                ls.msg.error(data.sMsgTitle, data.sMsg);
+        ls.ajaxSubmit('upload/image/', sFormId, function (result) {
+            if (!result) {
+                ls.msg.error(null, 'System error #1001');
+            } else if (result.bStateError) {
+                ls.msg.error(result.sMsgTitle, result.sMsg);
             } else {
                 $.markItUp({
-                    replaceWith: data.sText
+                    replaceWith: result.sText
                 });
 
                 self.hideUploadImageModal();
-
-                ls.hook.marker('ajaxUploadImgAfter');
             }
         });
     };

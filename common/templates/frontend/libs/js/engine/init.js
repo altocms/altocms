@@ -40,7 +40,7 @@ jQuery(document).ready(function ($) {
     $('.js-tag-search-form').submit(function () {
         var val = $(this).find('.js-tag-search').val();
         if (val) {
-            window.location = aRouter['tag'] + encodeURIComponent(val) + '/';
+            window.location = ls.routerUrl('tag') + encodeURIComponent(val) + '/';
         }
         return false;
     });
