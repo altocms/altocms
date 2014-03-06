@@ -1051,6 +1051,8 @@ class ModuleUser extends Module {
      */
     public function DeleteFriend($oFriend) {
 
+        // устанавливаем статус дружбы "удалено"
+        $oFriend->setStatusByUserId(ModuleUser::USER_FRIEND_DELETE, $oFriend->getUserId());
         $bResult = $this->oMapper->UpdateFriend($oFriend);
         // чистим зависимые кеши
         $this->Cache_CleanByTags(
@@ -1059,8 +1061,6 @@ class ModuleUser extends Module {
         $this->Cache_Delete("user_friend_{$oFriend->getUserFrom()}_{$oFriend->getUserTo()}");
         $this->Cache_Delete("user_friend_{$oFriend->getUserTo()}_{$oFriend->getUserFrom()}");
 
-        // устанавливаем статус дружбы "удалено"
-        $oFriend->setStatusByUserId(ModuleUser::USER_FRIEND_DELETE, $oFriend->getUserId());
         return $bResult;
     }
 
