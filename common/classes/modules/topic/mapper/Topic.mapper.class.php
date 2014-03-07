@@ -1065,20 +1065,30 @@ class ModuleTopic_MapperTopic extends Mapper {
     /**
      * Получить список изображений из фотосета по id топика
      *
-     * @param int $iTopicId - ID топика
-     * @param int $iFromId  - ID с которого начинать выборку
-     * @param int $iCount   - Количество
+     * @param int|array $aTopicId - ID топика или массив ID топиков
+     * @param int       $iFromId  - ID с которого начинать выборку
+     * @param int       $iCount   - Количество
      *
      * @return array
      */
-    public function getPhotosByTopicId($iTopicId, $iFromId, $iCount) {
+    public function getPhotosByTopicId($aTopicId, $iFromId, $iCount) {
 
         $sql = "
             SELECT *
             FROM ?_topic_photo
             WHERE
-                topic_id = ?d {AND id > ?d LIMIT 0, ?d}";
-        $aRows = $this->oDb->select($sql, $iTopicId, ($iFromId !== null) ? $iFromId : DBSIMPLE_SKIP, $iCount);
+                1=1
+                {AND topic_id = ?d}
+                {AND topic_id IN (?a)}
+                {AND id >= ?d}
+            ORDER BY id
+            {LIMIT 0, ?d}
+            ";
+        $aRows = $this->oDb->select($sql,
+            (!is_array($aTopicId)) ? $aTopicId : DBSIMPLE_SKIP,
+            (is_array($aTopicId)) ? $aTopicId : DBSIMPLE_SKIP,
+            ($iFromId !== null) ? $iFromId : DBSIMPLE_SKIP,
+            $iCount ? $iCount : DBSIMPLE_SKIP);
         $aResult = array();
         if ($aRows) {
             $aResult = Engine::GetEntityRows('Topic_TopicPhoto', $aRows);

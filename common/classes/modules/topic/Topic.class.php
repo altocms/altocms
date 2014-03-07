@@ -2436,15 +2436,15 @@ class ModuleTopic extends Module {
     /**
      * Получить список изображений из фотосета по ID топика
      *
-     * @param int $nTopicId - ID топика
-     * @param int $iFromId  - ID с которого начинать выборку
-     * @param int $iCount   - Количество
+     * @param int|array $aTopicId - ID топика
+     * @param int       $iFromId  - ID с которого начинать выборку
+     * @param int       $iCount   - Количество
      *
      * @return array
      */
-    public function getPhotosByTopicId($nTopicId, $iFromId = null, $iCount = null) {
+    public function getPhotosByTopicId($aTopicId, $iFromId = null, $iCount = null) {
 
-        return $this->oMapper->getPhotosByTopicId($nTopicId, $iFromId, $iCount);
+        return $this->oMapper->getPhotosByTopicId($aTopicId, $iFromId, $iCount);
     }
 
     /**
