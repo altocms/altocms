@@ -380,7 +380,7 @@ $config['module']['notify']['delayed']      = false;    // Указывает н
 $config['module']['notify']['insert_single']= false;    // Если опция установлена в true, систему будет собирать записи заданий удаленной публикации, для вставки их в базу единым INSERT
 $config['module']['notify']['per_process']  = 10;       // Количество отложенных заданий, обрабатываемых одним крон-процессом
 $config['module']['notify']['dir']          = 'emails'; // Относительный (относительно папки скина) путь до папки с шаблонами писем
-$config['module']['notify']['prefix']       = 'email';  // Префикс шаблонов емэйлов
+$config['module']['notify']['prefix']       = 'email.'; // Префикс шаблонов емэйлов
 
 // Модуль Image
 $config['module']['image']['default']['watermark_use']        = false;
