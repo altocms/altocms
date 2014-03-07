@@ -720,9 +720,11 @@ class ModuleTopic extends Module {
         /**
          * Удаляем фото у топика фотосета
          */
-        if ($aPhotos = $this->getPhotosByTopicId($aTopicsId)) {
-            foreach ($aPhotos as $oPhoto) {
-                $this->deleteTopicPhoto($oPhoto);
+        foreach ($aTopicsId as $iTopicId) {
+            if ($aPhotos = $this->getPhotosByTopicId($iTopicId)) {
+                foreach ($aPhotos as $oPhoto) {
+                    $this->deleteTopicPhoto($oPhoto);
+                }
             }
         }
         /**
