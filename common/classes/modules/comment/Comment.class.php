@@ -653,14 +653,14 @@ class ModuleComment extends Module {
     /**
      * Устанавливает publish у коммента
      *
-     * @param  int    $sTargetId      ID владельца коммента
+     * @param  int    $iTargetId      ID владельца коммента
      * @param  string $sTargetType    Тип владельца комментария
      * @param  int    $iPublish       Статус отображать комментарии или нет
      *
      * @return bool
      */
-    public function SetCommentsPublish($sTargetId, $sTargetType, $iPublish) {
-        $aComments = $this->GetCommentsByTargetId($sTargetId, $sTargetType);
+    public function SetCommentsPublish($iTargetId, $sTargetType, $iPublish) {
+        $aComments = $this->GetCommentsByTargetId($iTargetId, $sTargetType);
         if (!$aComments || !isset($aComments['comments']) || count($aComments['comments']) == 0) {
             return false;
         }
@@ -670,10 +670,10 @@ class ModuleComment extends Module {
          * Если статус публикации успешно изменен, то меняем статус в отметке "избранное".
          * Если комментарии снимаются с публикации, удаляем их из прямого эфира.
          */
-        if ($this->oMapper->SetCommentsPublish($sTargetId, $sTargetType, $iPublish)) {
+        if ($this->oMapper->SetCommentsPublish($iTargetId, $sTargetType, $iPublish)) {
             $this->Favourite_SetFavouriteTargetPublish(array_keys($aComments['comments']), 'comment', $iPublish);
             if ($iPublish != 1) {
-                $this->DeleteCommentOnlineByTargetId($sTargetId, $sTargetType);
+                $this->DeleteCommentOnlineByTargetId($iTargetId, $sTargetType);
             }
             $bResult = true;
         }
@@ -684,13 +684,13 @@ class ModuleComment extends Module {
     /**
      * Удаляет коммент из прямого эфира
      *
-     * @param  int    $sTargetId      ID владельца коммента
+     * @param  int    $iTargetId      ID владельца коммента
      * @param  string $sTargetType    Тип владельца комментария
      *
      * @return bool
      */
-    public function DeleteCommentOnlineByTargetId($sTargetId, $sTargetType) {
-        $bResult = $this->oMapper->DeleteCommentOnlineByTargetId($sTargetId, $sTargetType);
+    public function DeleteCommentOnlineByTargetId($iTargetId, $sTargetType) {
+        $bResult = $this->oMapper->DeleteCommentOnlineByTargetId($iTargetId, $sTargetType);
         $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("comment_online_update_{$sTargetType}"));
         return $bResult;
     }
@@ -802,57 +802,57 @@ class ModuleComment extends Module {
     /**
      * Получает привязку комментария к ибранному(добавлен ли коммент в избранное у юзера)
      *
-     * @param  int $sCommentId    ID комментария
-     * @param  int $sUserId       ID пользователя
+     * @param  int $iCommentId    ID комментария
+     * @param  int $iUserId       ID пользователя
      *
      * @return ModuleFavourite_EntityFavourite|null
      */
-    public function GetFavouriteComment($sCommentId, $sUserId) {
-        return $this->Favourite_GetFavourite($sCommentId, 'comment', $sUserId);
+    public function GetFavouriteComment($iCommentId, $iUserId) {
+        return $this->Favourite_GetFavourite($iCommentId, 'comment', $iUserId);
     }
 
     /**
      * Получить список избранного по списку айдишников
      *
      * @param array $aCommentId    Список ID комментов
-     * @param int   $sUserId       ID пользователя
+     * @param int   $iUserId       ID пользователя
      *
      * @return array
      */
-    public function GetFavouriteCommentsByArray($aCommentId, $sUserId) {
-        return $this->Favourite_GetFavouritesByArray($aCommentId, 'comment', $sUserId);
+    public function GetFavouriteCommentsByArray($aCommentId, $iUserId) {
+        return $this->Favourite_GetFavouritesByArray($aCommentId, 'comment', $iUserId);
     }
 
     /**
      * Получить список избранного по списку айдишников, но используя единый кеш
      *
      * @param array  $aCommentId    Список ID комментов
-     * @param int    $sUserId       ID пользователя
+     * @param int    $iUserId       ID пользователя
      *
      * @return array
      */
-    public function GetFavouriteCommentsByArraySolid($aCommentId, $sUserId) {
-        return $this->Favourite_GetFavouritesByArraySolid($aCommentId, 'comment', $sUserId);
+    public function GetFavouriteCommentsByArraySolid($aCommentId, $iUserId) {
+        return $this->Favourite_GetFavouritesByArraySolid($aCommentId, 'comment', $iUserId);
     }
 
     /**
      * Получает список комментариев из избранного пользователя
      *
-     * @param  int    $sUserId      ID пользователя
+     * @param  int    $iUserId      ID пользователя
      * @param  int    $iCurrPage    Номер страницы
      * @param  int    $iPerPage     Количество элементов на страницу
      *
      * @return array
      */
-    public function GetCommentsFavouriteByUserId($sUserId, $iCurrPage, $iPerPage) {
+    public function GetCommentsFavouriteByUserId($iUserId, $iCurrPage, $iPerPage) {
 
         $aCloseTopics = array();
         /**
          * Получаем список идентификаторов избранных комментов
          */
-        $data = ($this->oUserCurrent && $sUserId == $this->oUserCurrent->getId())
-            ? $this->Favourite_GetFavouritesByUserId($sUserId, 'comment', $iCurrPage, $iPerPage, $aCloseTopics)
-            : $this->Favourite_GetFavouriteOpenCommentsByUserId($sUserId, $iCurrPage, $iPerPage);
+        $data = ($this->oUserCurrent && $iUserId == $this->oUserCurrent->getId())
+            ? $this->Favourite_GetFavouritesByUserId($iUserId, 'comment', $iCurrPage, $iPerPage, $aCloseTopics)
+            : $this->Favourite_GetFavouriteOpenCommentsByUserId($iUserId, $iCurrPage, $iPerPage);
         /**
          * Получаем комменты по переданому массиву айдишников
          */
@@ -865,15 +865,15 @@ class ModuleComment extends Module {
     /**
      * Возвращает число комментариев в избранном
      *
-     * @param  int $sUserId    ID пользователя
+     * @param  int $iUserId    ID пользователя
      *
      * @return int
      */
-    public function GetCountCommentsFavouriteByUserId($sUserId) {
+    public function GetCountCommentsFavouriteByUserId($iUserId) {
 
-        return ($this->oUserCurrent && $sUserId == $this->oUserCurrent->getId())
-            ? $this->Favourite_GetCountFavouritesByUserId($sUserId, 'comment')
-            : $this->Favourite_GetCountFavouriteOpenCommentsByUserId($sUserId);
+        return ($this->oUserCurrent && $iUserId == $this->oUserCurrent->getId())
+            ? $this->Favourite_GetCountFavouritesByUserId($iUserId, 'comment')
+            : $this->Favourite_GetCountFavouriteOpenCommentsByUserId($iUserId);
     }
 
     /**
@@ -999,17 +999,17 @@ class ModuleComment extends Module {
     /**
      * Меняем target parent по массиву идентификаторов
      *
-     * @param  int       $sParentId      Новый ID родителя владельца
+     * @param  int       $iParentId      Новый ID родителя владельца
      * @param  string    $sTargetType    Тип владельца
      * @param  array|int $aTargetId      Список ID владельцев
      *
      * @return bool
      */
-    public function UpdateTargetParentByTargetId($sParentId, $sTargetType, $aTargetId) {
+    public function UpdateTargetParentByTargetId($iParentId, $sTargetType, $aTargetId) {
         if (!is_array($aTargetId)) {
             $aTargetId = array($aTargetId);
         }
-        $bResult = $this->oMapper->UpdateTargetParentByTargetId($sParentId, $sTargetType, $aTargetId);
+        $bResult = $this->oMapper->UpdateTargetParentByTargetId($iParentId, $sTargetType, $aTargetId);
 
         // чистим зависимые кеши
         $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("comment_new_{$sTargetType}"));
@@ -1019,17 +1019,17 @@ class ModuleComment extends Module {
     /**
      * Меняем target parent по массиву идентификаторов в таблице комментариев online
      *
-     * @param  int       $sParentId      Новый ID родителя владельца
+     * @param  int       $iParentId      Новый ID родителя владельца
      * @param  string    $sTargetType    Тип владельца
      * @param  array|int $aTargetId      Список ID владельцев
      *
      * @return bool
      */
-    public function UpdateTargetParentByTargetIdOnline($sParentId, $sTargetType, $aTargetId) {
+    public function UpdateTargetParentByTargetIdOnline($iParentId, $sTargetType, $aTargetId) {
         if (!is_array($aTargetId)) {
             $aTargetId = array($aTargetId);
         }
-        $bResult = $this->oMapper->UpdateTargetParentByTargetIdOnline($sParentId, $sTargetType, $aTargetId);
+        $bResult = $this->oMapper->UpdateTargetParentByTargetIdOnline($iParentId, $sTargetType, $aTargetId);
 
         // чистим зависимые кеши
         $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("comment_online_update_{$sTargetType}"));
@@ -1039,14 +1039,15 @@ class ModuleComment extends Module {
     /**
      * Меняет target parent на новый
      *
-     * @param int    $sParentId       Прежний ID родителя владельца
+     * @param int    $iParentId       Прежний ID родителя владельца
      * @param string $sTargetType     Тип владельца
-     * @param int    $sParentIdNew    Новый ID родителя владельца
+     * @param int    $iParentIdNew    Новый ID родителя владельца
      *
      * @return bool
      */
-    public function MoveTargetParent($sParentId, $sTargetType, $sParentIdNew) {
-        $bResult = $this->oMapper->MoveTargetParent($sParentId, $sTargetType, $sParentIdNew);
+    public function MoveTargetParent($iParentId, $sTargetType, $iParentIdNew) {
+
+        $bResult = $this->oMapper->MoveTargetParent($iParentId, $sTargetType, $iParentIdNew);
 
         // чистим зависимые кеши
         $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("comment_new_{$sTargetType}"));
@@ -1056,14 +1057,15 @@ class ModuleComment extends Module {
     /**
      * Меняет target parent на новый в прямом эфире
      *
-     * @param int    $sParentId       Прежний ID родителя владельца
+     * @param int    $iParentId       Прежний ID родителя владельца
      * @param string $sTargetType     Тип владельца
-     * @param int    $sParentIdNew    Новый ID родителя владельца
+     * @param int    $iParentIdNew    Новый ID родителя владельца
      *
      * @return bool
      */
-    public function MoveTargetParentOnline($sParentId, $sTargetType, $sParentIdNew) {
-        $bResult = $this->oMapper->MoveTargetParentOnline($sParentId, $sTargetType, $sParentIdNew);
+    public function MoveTargetParentOnline($iParentId, $sTargetType, $iParentIdNew) {
+
+        $bResult = $this->oMapper->MoveTargetParentOnline($iParentId, $sTargetType, $iParentIdNew);
 
         // чистим зависимые кеши
         $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("comment_online_update_{$sTargetType}"));

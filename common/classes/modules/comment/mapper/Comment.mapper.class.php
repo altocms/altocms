@@ -71,15 +71,15 @@ class ModuleComment_MapperComment extends Mapper {
     /**
      * Получает уникальный коммент, это помогает спастись от дублей комментов
      *
-     * @param int    $sTargetId      ID владельца комментария
+     * @param int    $iTargetId      ID владельца комментария
      * @param string $sTargetType    Тип владельца комментария
-     * @param int    $sUserId        ID пользователя
-     * @param int    $sCommentPid    ID родительского комментария
+     * @param int    $iUserId        ID пользователя
+     * @param int    $iCommentPId    ID родительского комментария
      * @param string $sHash          Хеш строка текста комментария
      *
      * @return int|null
      */
-    public function GetCommentUnique($sTargetId, $sTargetType, $sUserId, $sCommentPid, $sHash) {
+    public function GetCommentUnique($iTargetId, $sTargetType, $iUserId, $iCommentPId, $sHash) {
 
         $sql = "
             SELECT comment_id FROM ?_comment
@@ -95,7 +95,7 @@ class ModuleComment_MapperComment extends Mapper {
 				comment_text_hash =?
 			LIMIT 1
 				";
-        if ($aRow = $this->oDb->selectRow($sql, $sTargetId, $sTargetType, $sUserId, $sCommentPid, $sCommentPid, $sHash)
+        if ($aRow = $this->oDb->selectRow($sql, $iTargetId, $sTargetType, $iUserId, $iCommentPId, $iCommentPId, $sHash)
         ) {
             return $aRow['comment_id'];
         }
@@ -809,13 +809,13 @@ class ModuleComment_MapperComment extends Mapper {
     /**
      * Меняем target parent по массиву идентификаторов
      *
-     * @param  int       $sParentId      Новый ID родителя владельца
+     * @param  int       $iParentId      Новый ID родителя владельца
      * @param  string    $sTargetType    Тип владельца
      * @param  array|int $aTargetId      Список ID владельцев
      *
      * @return bool
      */
-    public function UpdateTargetParentByTargetId($sParentId, $sTargetType, $aTargetId) {
+    public function UpdateTargetParentByTargetId($iParentId, $sTargetType, $aTargetId) {
 
         $sql = "
 			UPDATE ?_comment
@@ -826,20 +826,20 @@ class ModuleComment_MapperComment extends Mapper {
 				AND 
 				target_type = ? 
 		";
-        $bResult = $this->oDb->query($sql, $sParentId, $aTargetId, $sTargetType);
+        $bResult = $this->oDb->query($sql, $iParentId, $aTargetId, $sTargetType);
         return $bResult !== false;
     }
 
     /**
      * Меняем target parent по массиву идентификаторов в таблице комментариев online
      *
-     * @param  int       $sParentId      Новый ID родителя владельца
+     * @param  int       $iParentId      Новый ID родителя владельца
      * @param  string    $sTargetType    Тип владельца
      * @param  array|int $aTargetId      Список ID владельцев
      *
      * @return bool
      */
-    public function UpdateTargetParentByTargetIdOnline($sParentId, $sTargetType, $aTargetId) {
+    public function UpdateTargetParentByTargetIdOnline($iParentId, $sTargetType, $aTargetId) {
 
         $sql = "
 			UPDATE ?_comment_online
@@ -850,20 +850,20 @@ class ModuleComment_MapperComment extends Mapper {
 				AND 
 				target_type = ? 
 		";
-        $bResult = $this->oDb->query($sql, $sParentId, $aTargetId, $sTargetType);
+        $bResult = $this->oDb->query($sql, $iParentId, $aTargetId, $sTargetType);
         return $bResult !== false;
     }
 
     /**
      * Меняет target parent на новый
      *
-     * @param int    $sParentId       Прежний ID родителя владельца
+     * @param int    $iParentId       Прежний ID родителя владельца
      * @param string $sTargetType     Тип владельца
-     * @param int    $sParentIdNew    Новый ID родителя владельца
+     * @param int    $iParentIdNew    Новый ID родителя владельца
      *
      * @return bool
      */
-    public function MoveTargetParent($sParentId, $sTargetType, $sParentIdNew) {
+    public function MoveTargetParent($iParentId, $sTargetType, $iParentIdNew) {
 
         $sql = "
 			UPDATE ?_comment
@@ -874,20 +874,20 @@ class ModuleComment_MapperComment extends Mapper {
 				AND 
 				target_type = ? 
 		";
-        $bResult = $this->oDb->query($sql, $sParentIdNew, $sParentId, $sTargetType);
+        $bResult = $this->oDb->query($sql, $iParentIdNew, $iParentId, $sTargetType);
         return $bResult !== false;
     }
 
     /**
      * Меняет target parent на новый в прямом эфире
      *
-     * @param int    $sParentId       Прежний ID родителя владельца
+     * @param int    $iParentId       Прежний ID родителя владельца
      * @param string $sTargetType     Тип владельца
-     * @param int    $sParentIdNew    Новый ID родителя владельца
+     * @param int    $iParentIdNew    Новый ID родителя владельца
      *
      * @return bool
      */
-    public function MoveTargetParentOnline($sParentId, $sTargetType, $sParentIdNew) {
+    public function MoveTargetParentOnline($iParentId, $sTargetType, $iParentIdNew) {
 
         $sql = "
 			UPDATE ?_comment_online
@@ -898,7 +898,7 @@ class ModuleComment_MapperComment extends Mapper {
 				AND 
 				target_type = ? 
 		";
-        $bResult = $this->oDb->query($sql, $sParentIdNew, $sParentId, $sTargetType);
+        $bResult = $this->oDb->query($sql, $iParentIdNew, $iParentId, $sTargetType);
         return $bResult !== false;
     }
 
