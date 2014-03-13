@@ -648,6 +648,60 @@ class ModuleTopic extends Module {
     }
 
     /**
+     * Delete array of topics
+     *
+     * @param $xTopics
+     *
+     * @return bool
+     */
+    public function DeleteTopics($xTopics) {
+
+        if (is_int($xTopics) || is_object($xTopics)) {
+            return $this->DeleteTopic($xTopics);
+        }
+
+        if (is_array($xTopics)) {
+            if (count($xTopics) == 1) {
+                return $this->DeleteTopic(reset($xTopics));
+            }
+            if (!is_object(reset($xTopics))) {
+                // there are IDs in param
+                $aTopics = $this->GetTopicsAdditionalData($xTopics);
+            } else {
+                // there are topic objects in param
+                $aTopics = $xTopics;
+            }
+            if ($aTopics) {
+                $aTopicId = array();
+                $aBlogId = array();
+                $aUserId = array();
+                foreach ($aTopics as $oTopic) {
+                    $aTopicId[] = $oTopic->getId();
+                    $aBlogId[] = $oTopic->getBlogId();
+                    $aUserId[] = $oTopic->getUserId();
+                }
+                if ($bResult = $this->oMapper->DeleteTopic($aTopicId)) {
+                    $bResult = $this->DeleteTopicAdditionalData($aTopicId);
+                    $this->DeleteMresources($aTopics);
+                    $this->Blog_RecalculateCountTopicByBlogId($aBlogId);
+                }
+
+                // * Чистим зависимые кеши
+                $aCacheTags = array('topic_update');
+                foreach($aUserId as $iUserId) {
+                    $aCacheTags[] = 'topic_update_user_' . $iUserId;
+                }
+                $this->Cache_CleanByTags($aCacheTags);
+                foreach($aTopicId as $iTopicId) {
+                    $this->Cache_Delete('topic_' . $iTopicId);
+                }
+
+                return $bResult;
+            }
+        }
+    }
+
+    /**
      * Удаление топиков по массиву ID пользователей
      *
      * @param $aUsersId
@@ -684,43 +738,43 @@ class ModuleTopic extends Module {
     /**
      * Удаляет свзяанные с топиком данные
      *
-     * @param   int|array $aTopicsId   ID топика или массив ID
+     * @param   int|array $aTopicId   ID топика или массив ID
      *
      * @return  bool
      */
-    public function DeleteTopicAdditionalData($aTopicsId) {
+    public function DeleteTopicAdditionalData($aTopicId) {
 
-        if (!is_array($aTopicsId)) {
-            $aTopicsId = array(intval($aTopicsId));
+        if (!is_array($aTopicId)) {
+            $aTopicId = array(intval($aTopicId));
         }
 
         // * Удаляем контент топика
-        $this->DeleteTopicContentByTopicId($aTopicsId);
+        $this->DeleteTopicContentByTopicId($aTopicId);
         /**
          * Удаляем комментарии к топику.
          * При удалении комментариев они удаляются из избранного,прямого эфира и голоса за них
          */
-        $this->Comment_DeleteCommentByTargetId($aTopicsId, 'topic');
+        $this->Comment_DeleteCommentByTargetId($aTopicId, 'topic');
         /**
          * Удаляем топик из избранного
          */
-        $this->DeleteFavouriteTopicByArrayId($aTopicsId);
+        $this->DeleteFavouriteTopicByArrayId($aTopicId);
         /**
          * Удаляем топик из прочитанного
          */
-        $this->DeleteTopicReadByArrayId($aTopicsId);
+        $this->DeleteTopicReadByArrayId($aTopicId);
         /**
          * Удаляем голосование к топику
          */
-        $this->Vote_DeleteVoteByTarget($aTopicsId, 'topic');
+        $this->Vote_DeleteVoteByTarget($aTopicId, 'topic');
         /**
          * Удаляем теги
          */
-        $this->DeleteTopicTagsByTopicId($aTopicsId);
+        $this->DeleteTopicTagsByTopicId($aTopicId);
         /**
          * Удаляем фото у топика фотосета
          */
-        if ($aPhotos = $this->getPhotosByTopicId($aTopicsId)) {
+        if ($aPhotos = $this->getPhotosByTopicId($aTopicId)) {
             foreach ($aPhotos as $oPhoto) {
                 $this->deleteTopicPhoto($oPhoto);
             }
@@ -729,7 +783,7 @@ class ModuleTopic extends Module {
          * Чистим зависимые кеши
          */
         $this->Cache_CleanByTags(array('topic_update'));
-        foreach ($aTopicsId as $nTopicId) {
+        foreach ($aTopicId as $nTopicId) {
             $this->Cache_Delete("topic_{$nTopicId}");
         }
         return true;
@@ -2309,14 +2363,14 @@ class ModuleTopic extends Module {
      */
     public function MoveTopics($nBlogId, $nBlogIdNew) {
 
-        if ($res = $this->oMapper->MoveTopics($nBlogId, $nBlogIdNew)) {
+        if ($bResult = $this->oMapper->MoveTopics($nBlogId, $nBlogIdNew)) {
             // перемещаем теги
             $this->oMapper->MoveTopicsTags($nBlogId, $nBlogIdNew);
             // меняем target parent у комментов
             $this->Comment_MoveTargetParent($nBlogId, 'topic', $nBlogIdNew);
             // меняем target parent у комментов в прямом эфире
             $this->Comment_MoveTargetParentOnline($nBlogId, 'topic', $nBlogIdNew);
-            return $res;
+            return $bResult;
         }
         $this->Cache_CleanByTags(
             array("topic_update", "topic_new_blog_{$nBlogId}", "topic_new_blog_{$nBlogIdNew}")
@@ -2750,9 +2804,19 @@ class ModuleTopic extends Module {
         }
     }
 
-    public function DeleteMresources($oTopic) {
+    /**
+     * Delete MResources associated with topic(s)
+     *
+     * @param $aTopics
+     */
+    public function DeleteMresources($aTopics) {
 
-        $this->Mresource_DeleteMresourcesRelByTarget('topic', $oTopic->GetId());
+        if (!is_array($aTopics)) {
+            $aTopics = array($aTopics);
+        }
+        foreach ($aTopics as $oTopic) {
+            $this->Mresource_DeleteMresourcesRelByTarget('topic', $oTopic->GetId());
+        }
     }
 
 }

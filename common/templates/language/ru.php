@@ -181,7 +181,7 @@ return array(
     'blog_admin_users_submit_error'             => 'Что-то не так',
     'blog_admin_delete_title'                   => 'Удаление блога',
     'blog_admin_delete_confirm'                 => 'Вы уверены, что хотите удалить блог?',
-    'blog_admin_delete_move'                    => 'Переместить статьи в блог',
+    'blog_admin_delete_move'                    => 'Удалить статьи или переместить в другой блог',
     'blog_delete_clear'                         => 'Удалить статьи',
     'blog_admin_delete_success'                 => 'Блог успешно удален',
     'blog_admin_delete_not_empty'               => 'Вы не можете удалить блок с записями. Предварительно удалите из блога все записи.',

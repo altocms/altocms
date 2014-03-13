@@ -1155,10 +1155,7 @@ class ModuleBlog extends Module {
 
         if ($aTopicsId) {
             // * Удаляем топики
-            $this->Topic_DeleteTopic($aTopicsId);
-            foreach ($aTopicsId as $nTopicId) {
-                $this->Cache_Delete("topic_{$nTopicId}");
-            }
+            $this->Topic_DeleteTopics($aTopicsId);
         }
 
         // * Удаляем связи пользователей блога.
@@ -1249,6 +1246,7 @@ class ModuleBlog extends Module {
      */
     public function RecalculateCountTopicByBlogId($aBlogId) {
 
+        $aBlogId = $this->_entitiesId($aBlogId);
         $bResult = $this->oMapper->RecalculateCountTopic($aBlogId);
         if ($bResult) {
             //чистим зависимые кеши

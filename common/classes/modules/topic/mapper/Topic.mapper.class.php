@@ -949,7 +949,7 @@ class ModuleTopic_MapperTopic extends Mapper {
      */
     public function MoveTopicsByFilter($nBlogIdNew, $aFilter) {
 
-        if (!isset($aFilter['blog_id']) || !isset($aFilter['topic_id'])) {
+        if (!isset($aFilter['blog_id']) && !isset($aFilter['topic_id'])) {
             return false;
         }
 
@@ -991,12 +991,12 @@ class ModuleTopic_MapperTopic extends Mapper {
     /**
      * Перемещает теги топиков в другой блог
      *
-     * @param int $sBlogId       ID старого блога
-     * @param int $sBlogIdNew    ID нового блога
+     * @param int $iBlogId       ID старого блога
+     * @param int $iBlogIdNew    ID нового блога
      *
      * @return bool
      */
-    public function MoveTopicsTags($sBlogId, $sBlogIdNew) {
+    public function MoveTopicsTags($iBlogId, $iBlogIdNew) {
 
         $sql = "UPDATE ?_topic_tag
 			SET 
@@ -1004,7 +1004,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 			WHERE
 				blog_id = ?d
 		";
-        $bResult = $this->oDb->query($sql, $sBlogIdNew, $sBlogId);
+        $bResult = $this->oDb->query($sql, $iBlogIdNew, $iBlogId);
         return $bResult !== false;
     }
 
@@ -1012,11 +1012,11 @@ class ModuleTopic_MapperTopic extends Mapper {
      * Перемещает теги топиков в другой блог
      *
      * @param array $aTopics    Список ID топиков
-     * @param int   $sBlogId    ID блога
+     * @param int   $iBlogId    ID блога
      *
      * @return bool
      */
-    public function MoveTopicsTagsByArrayId($aTopics, $sBlogId) {
+    public function MoveTopicsTagsByArrayId($aTopics, $iBlogId) {
 
         if (!is_array($aTopics)) {
             $aTopics = array($aTopics);
@@ -1028,7 +1028,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 			WHERE
 				topic_id IN(?a)
 		";
-        $bResult = $this->oDb->query($sql, $sBlogId, $aTopics);
+        $bResult = $this->oDb->query($sql, $iBlogId, $aTopics);
         return $bResult !== false;
     }
 
@@ -1663,11 +1663,11 @@ class ModuleTopic_MapperTopic extends Mapper {
     /**
      * Удаляет значения полей у топика
      *
-     * @param int $sTopicId    ID топика
+     * @param int $iTopicId    ID топика
      *
      * @return bool
      */
-    public function DeleteTopicValuesByTopicId($sTopicId) {
+    public function DeleteTopicValuesByTopicId($iTopicId) {
 
         $sql = "DELETE FROM ?_content_values
 			WHERE
@@ -1675,7 +1675,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 				AND
 				target_type = 'topic'
 		";
-        return $this->oDb->query($sql, $sTopicId) !== false;
+        return $this->oDb->query($sql, $iTopicId) !== false;
     }
 
     /**

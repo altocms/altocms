@@ -171,7 +171,7 @@ return array(
     'blog_admin_users_submit_error'             => "Hmm... Something's wrong",
     'blog_admin_delete_title'                   => 'Delete blog',
     'blog_admin_delete_confirm'                 => 'Are you sure you want to create blog?',
-    'blog_admin_delete_move'                    => 'Move topics to the blog',
+    'blog_admin_delete_move'                    => 'Remove topics or move to other blog',
     'blog_delete_clear'                         => 'Delete topics',
     'blog_admin_delete_success'                 => 'Blog deleted successfully',
     'blog_admin_delete_not_empty'               => "You can't delete blog containing records. Please delete all records first.",

@@ -1883,7 +1883,7 @@ class ActionBlog extends Action {
             return Router::Action('error');
         }
 
-        // * проверяем есть ли право на удаление топика
+        // * проверяем есть ли право на удаление блога
         if (!$nAccess = $this->ACL_IsAllowDeleteBlog($oBlog, $this->oUserCurrent)) {
             return parent::EventNotFound();
         }
