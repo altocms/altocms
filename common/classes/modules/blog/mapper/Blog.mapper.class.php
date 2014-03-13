@@ -615,11 +615,11 @@ class ModuleBlog_MapperBlog extends Mapper {
     /**
      * Пересчитывает число топиков в блогах
      *
-     * @param int|null $nBlogId ID блога
+     * @param int|array|null $aBlogId - ID of blog | IDs of blogs
      *
      * @return bool
      */
-    public function RecalculateCountTopic($nBlogId = null) {
+    public function RecalculateCountTopic($aBlogId = null) {
 
         $sql = "
                 UPDATE ?_blog b
@@ -633,8 +633,12 @@ class ModuleBlog_MapperBlog extends Mapper {
                 )
                 WHERE 1=1
                     { AND b.blog_id = ?d }
+                    { AND b.blog_id IN (?a) }
             ";
-        $bResult = $this->oDb->query($sql, is_null($nBlogId) ? DBSIMPLE_SKIP : $nBlogId);
+        $bResult = $this->oDb->query($sql,
+            (is_null($aBlogId) || is_array($aBlogId)) ? DBSIMPLE_SKIP : $aBlogId,
+            (is_null($aBlogId) || is_int($aBlogId)) ? DBSIMPLE_SKIP : $aBlogId
+        );
         return $bResult !== false;
     }
 

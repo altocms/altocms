@@ -1243,17 +1243,26 @@ class ModuleBlog extends Module {
     /**
      * Пересчет количества топиков в конкретном блоге
      *
-     * @param int $iBlogId    ID блога
+     * @param int|array $aBlogId - ID of blog | IDs of blogs
      *
      * @return bool
      */
-    public function RecalculateCountTopicByBlogId($iBlogId) {
+    public function RecalculateCountTopicByBlogId($aBlogId) {
 
-        $bResult = $this->oMapper->RecalculateCountTopic($iBlogId);
+        $bResult = $this->oMapper->RecalculateCountTopic($aBlogId);
         if ($bResult) {
             //чистим зависимые кеши
-            $this->Cache_CleanByTags(array('blog_update', "blog_update_{$iBlogId}"));
-            $this->Cache_Delete("blog_{$iBlogId}");
+            if (is_array($aBlogId)) {
+                $aCacheTags = array('blog_update');
+                foreach ($aBlogId as $iBlogId) {
+                    $this->Cache_Delete("blog_{$iBlogId}");
+                    $aCacheTags[] = "blog_update_{$iBlogId}";
+                }
+                $this->Cache_CleanByTags($aCacheTags);
+            } else {
+                $this->Cache_CleanByTags(array('blog_update', "blog_update_{$aBlogId}"));
+                $this->Cache_Delete("blog_{$aBlogId}");
+            }
             return $bResult;
         }
     }
