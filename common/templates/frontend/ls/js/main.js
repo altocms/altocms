@@ -40,22 +40,22 @@ ls.msg = (function ($) {
      * Опции
      */
     this.options = {
-        class_notice: 'n-notice',
-        class_error: 'n-error'
+        classNotice: 'n-notice',
+        classError: 'n-error'
     };
 
     /**
      * Отображение информационного сообщения
      */
     this.notice = function (title, msg) {
-        $.notifier.broadcast(title, msg, this.options.class_notice);
+        $.notifier.broadcast(title, msg, this.options.classNotice);
     };
 
     /**
      * Отображение сообщения об ошибке
      */
     this.error = function (title, msg) {
-        $.notifier.broadcast(title, msg, this.options.class_error);
+        $.notifier.broadcast(title, msg, this.options.classError);
     };
 
     return this;

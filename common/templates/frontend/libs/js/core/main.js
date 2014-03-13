@@ -55,27 +55,87 @@ ls.msg = (function ($) {
      * Опции
      */
     this.options = {
-        class_notice: 'n-notice',
-        class_error: 'n-error'
+        classNotice: 'n-notice',
+        classError: 'n-error'
     };
 
     /**
      * Отображение информационного сообщения
      */
     this.notice = function (title, msg) {
-        $.notifier.broadcast(title, msg, this.options.class_notice);
+        $.notifier.broadcast(title, msg, this.options.classNotice);
     };
 
     /**
      * Отображение сообщения об ошибке
      */
     this.error = function (title, msg) {
-        $.notifier.broadcast(title, msg, this.options.class_error);
+        $.notifier.broadcast(title, msg, this.options.classError);
     };
 
     return this;
 }).call(ls.msg || {}, jQuery);
 
+/* Modal windows */
+ls.modal = (function ($) {
+    "use strict";
+    var emptyWindow;
+
+    /**
+     * Options
+     */
+    this.options = {
+        selectorModalEmpty: '#modal-empty',
+        classButtonConfirm: 'btn btn-success',
+        classButtonCancel: 'btn btn-danger'
+    };
+
+    this.init = function (options) {
+        if (options) {
+            this.options = $.extend(this.options, options);
+        }
+        emptyWindow = $(this.options).first();
+    };
+
+    this.clear = function() {
+        if (emptyWindow.length) {
+            emptyWindow.find('.modal-title').empty();
+            emptyWindow.find('.modal-body').empty();
+            //emptyWindow.find('.modal-footer').empty();
+            emptyWindow.find('.js-confirm, .js-cancel').off('click');
+        }
+    };
+
+    this.confirm = function (title, msg, options) {
+        this.empty();
+        emptyWindow.find('.modal-title').html(title);
+        emptyWindow.find('.modal-body').html(msg);
+
+        emptyWindow.find('.js-confirm').on('click', function(){
+            emptyWindow.modal('hide');
+            if (options.onConfirm) {
+                options.onConfirm();
+            }
+            return false;
+        });
+
+        emptyWindow.find('.js-cancel').on('click', function(){
+            emptyWindow.modal('hide');
+            if (options.onCancel) {
+                options.onCancel();
+            }
+            return false;
+        });
+        emptyWindow.modal('show');
+    };
+
+    this.alert = function () {
+
+    };
+
+    this.init();
+    return this;
+}).call(ls.modal || {}, jQuery);
 
 /**
  * Доступ к языковым текстовкам (предварительно должны быть прогружены в шаблон)
