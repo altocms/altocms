@@ -56,7 +56,7 @@ $config['block']['tags']['personal_tags_count'] = 70;         // сколько 
 /**
  * Настройка пагинации
  */
-$config['pagination']['pages']['count'] = 4;                  // количество ссылок на другие страницы в пагинации
+$config['pagination']['pages']['count'] = 9;                  // количество ссылок на другие страницы в пагинации
 
 
 /**

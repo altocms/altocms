@@ -1552,8 +1552,8 @@ class ModuleViewer extends Module {
     /**
      * Устанавливает альтернативный адрес страницы по RSS
      *
-     * @param string $sUrl    URL
-     * @param string $sTitle    Заголовок
+     * @param string $sUrl   URL
+     * @param string $sTitle Заголовок
      */
     public function SetHtmlRssAlternate($sUrl, $sTitle) {
 
@@ -1564,12 +1564,13 @@ class ModuleViewer extends Module {
     /**
      * Формирует постраничный вывод
      *
-     * @param int $iCount    Общее количество элементов
-     * @param int $iCurrentPage    Текущая страница
-     * @param int $iCountPerPage    Количество элементов на одну страницу
-     * @param int $iCountPageLine    Количество ссылок на другие страницы
-     * @param string $sBaseUrl    Базовый URL, к нему будет добавлять постикс /pageN/  и GET параметры
-     * @param array $aGetParamsList    Список GET параметров, которые необходимо передавать при постраничном переходе
+     * @param int    $iCount         Общее количество элементов
+     * @param int    $iCurrentPage   Текущая страница
+     * @param int    $iCountPerPage  Количество элементов на одну страницу
+     * @param int    $iCountPageLine Количество ссылок на другие страницы
+     * @param string $sBaseUrl       Базовый URL, к нему будет добавлять постикс /pageN/  и GET параметры
+     * @param array  $aGetParamsList Список GET параметров, которые необходимо передавать при постраничном переходе
+     *
      * @return array
      */
     public function MakePaging($iCount, $iCurrentPage, $iCountPerPage, $iCountPageLine, $sBaseUrl, $aGetParamsList = array()) {
@@ -1586,16 +1587,29 @@ class ModuleViewer extends Module {
             $iCurrentPage = $iCountPage;
         }
 
-        $aPagesLeft = array();
-        $iTemp = $iCurrentPage - $iCountPageLine;
-        $iTemp = $iTemp < 1 ? 1 : $iTemp;
-        for ($i = $iTemp; $i < $iCurrentPage; $i++) {
-            $aPagesLeft[] = $i;
+        $iMin = $iCurrentPage - floor($iCountPageLine / 2);
+        if ($iMin < 1) {
+            $iMin = 1;
+        }
+        $iMax = $iMin + $iCountPageLine - 1;
+        if ($iMax > $iCountPage) {
+            $iMax = $iCountPage;
+        }
+        if ($iMax - $iMin < $iCountPageLine) {
+            $iMin = $iMax - $iCountPageLine + 1;
+            if ($iMin < 1) {
+                $iMin = 1;
+            }
         }
 
+        $aPagesLeft = array();
         $aPagesRight = array();
-        for ($i = $iCurrentPage + 1; $i <= $iCurrentPage + $iCountPageLine && $i <= $iCountPage; $i++) {
-            $aPagesRight[] = $i;
+        for ($i = $iMin; $i <= $iMax; $i++) {
+            if ($i < $iCurrentPage) {
+                $aPagesLeft[] = $i;
+            } elseif ($i > $iCurrentPage) {
+                $aPagesRight[] = $i;
+            }
         }
 
         $iNextPage = $iCurrentPage < $iCountPage ? $iCurrentPage + 1 : false;
