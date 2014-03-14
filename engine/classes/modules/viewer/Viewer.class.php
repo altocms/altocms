@@ -310,6 +310,9 @@ class ModuleViewer extends Module {
         }
         // Settings for Smarty 3.1.16 and more
         $this->oSmarty->inheritance_merge_compiled_includes = false;
+
+        F::IncludeFile('./plugs/resource.file.php');
+        $this->oSmarty->registerResource('file', new Smarty_Resource_File());
     }
 
     /**

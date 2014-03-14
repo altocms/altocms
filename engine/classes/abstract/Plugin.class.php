@@ -22,6 +22,12 @@
  */
 abstract class Plugin extends LsObject {
     /**
+     * Список скинов плагинов
+     *
+     * @var array
+     */
+    static protected $aSkins = array();
+    /**
      * Путь к шаблонам с учетом наличия соответствующего skin`a
      *
      * @var array
@@ -152,15 +158,19 @@ abstract class Plugin extends LsObject {
          */
         if ($sObjectName == 'template') {
             if (!$sTo) {
-                $sTo = self::GetTemplateDir(get_class($this)) . $sFrom;
+                $sTo = self::GetTemplateFile(get_class($this), $sFrom);
             } else {
-                $sTo = preg_replace("/^_/", self::GetTemplateDir(get_class($this)), $sTo);
+                if (strpos($sTo, '_') === 0) {
+                    $sTo = self::GetTemplateFile(get_class($this), substr($sTo, 1));
+                }
             }
         } else {
             if (!$sTo) {
                 $sTo = get_class($this) . '_' . $sFrom;
             } else {
-                $sTo = preg_replace("/^_/", get_class($this) . '_', $sTo);
+                if (strpos($sTo, '_') === 0) {
+                    $sTo = get_class($this) . $sTo;
+                }
             }
         }
         return array($sFrom, $sTo);
@@ -273,6 +283,8 @@ abstract class Plugin extends LsObject {
     /**
      * Returns name of plugin
      *
+     * @param bool $bSkipPrefix
+     *
      * @return string
      */
     public function GetName($bSkipPrefix = true) {
@@ -310,21 +322,36 @@ abstract class Plugin extends LsObject {
     }
 
     /**
-     * Возвращает полный серверный путь до плагина
+     * Returns normalized name of plugin
      *
-     * @param string $sName
+     * @param object|string $xPlugin
      *
      * @return string
      */
-    static public function GetDir($sName) {
+    static protected function _pluginName($xPlugin) {
 
-        $sName = preg_match('/^Plugin([\w]+)(_[\w]+)?$/Ui', $sName, $aMatches)
+        if (is_object($xPlugin)) {
+            return get_class($xPlugin);
+        }
+        return preg_match('/^Plugin([\w]+)(_[\w]+)?$/Ui', $xPlugin, $aMatches)
             ? strtolower($aMatches[1])
-            : strtolower($sName);
+            : strtolower($xPlugin);
+    }
+
+    /**
+     * Возвращает полный серверный путь до плагина
+     *
+     * @param string $sPluginName
+     *
+     * @return string
+     */
+    static public function GetDir($sPluginName) {
+
+        $sPluginName = self::_pluginName($sPluginName);
 
         $aDirs = Config::Get('path.root.seek');
         foreach($aDirs as $sDir) {
-            $sPluginDir = $sDir . '/plugins/' . $sName . '/';
+            $sPluginDir = $sDir . '/plugins/' . $sPluginName . '/';
             if (is_file($sPluginDir . 'plugin.xml')) {
                 return F::File_NormPath($sPluginDir);
             }
@@ -334,43 +361,86 @@ abstract class Plugin extends LsObject {
     /**
      * Возвращает полный web-адрес до плагина
      *
-     * @param string $sName
+     * @param string $sPluginName
      *
      * @return string
      */
-    static public function GetUrl($sName) {
+    static public function GetUrl($sPluginName) {
 
-        $sName = preg_match('/^Plugin([\w]+)(_[\w]+)?$/Ui', $sName, $aMatches)
-            ? strtolower($aMatches[1])
-            : strtolower($sName);
+        $sPluginName = self::_pluginName($sPluginName);
 
-        return F::File_Dir2Url(self::GetDir($sName));
+        return F::File_Dir2Url(self::GetDir($sPluginName));
     }
 
     /**
-     * Возвращает правильный серверный путь к директории шаблонов с учетом текущего шаблона
-     * Если пользователь использует шаблон которого нет в плагине, то возвращает путь до шабона плагина 'default'
+     * @param string $sPluginName
      *
-     * @param string $sName    Название плагина или его класс
+     * @return array
+     */
+    static public function GetSkins($sPluginName) {
+
+        $sPluginName = self::_pluginName($sPluginName);
+        if (!isset(self::$aSkins[$sPluginName])) {
+            $sPluginDir = self::GetDir($sPluginName);
+            $aPaths = glob($sPluginDir . '/templates/skin/*', GLOB_ONLYDIR);
+            if ($aPaths) {
+                $aDirs = array_map('basename', $aPaths);
+            } else {
+                $aDirs = array();
+            }
+            self::$aSkins[$sPluginName] = $aDirs;
+        }
+        return self::$aSkins[$sPluginName];
+    }
+
+    /**
+     * Возвращает правильный серверный путь к директории шаблонов с учетом текущего скина
+     * Если используется скин, которого нет в плагине, то возвращается путь до скина плагина 'default'
+     *
+     * @param string $sPluginName    Название плагина или его класс
      *
      * @return string|null
      */
-    static public function GetTemplateDir($sName) {
+    static public function GetTemplateDir($sPluginName) {
 
-        $sName = preg_match('/^Plugin([\w]+)(_[\w]+)?$/Ui', $sName, $aMatches)
-            ? strtolower($aMatches[1])
-            : strtolower($sName);
-        if (!isset(self::$aTemplateDir[$sName])) {
-            $sPluginDir = self::GetDir($sName);
-            $aPaths = glob($sPluginDir . '/templates/skin/*', GLOB_ONLYDIR);
-            $sTemplateName = ($aPaths && in_array(Config::Get('view.skin'), array_map('basename', $aPaths)))
+        $sPluginName = self::_pluginName($sPluginName);
+        if (!isset(self::$aTemplateDir[$sPluginName][''])) {
+            $aSkins = self::GetSkins($sPluginName);
+            $sSkinName = ($aSkins && in_array(Config::Get('view.skin'), $aSkins))
                 ? Config::Get('view.skin')
                 : 'default';
 
-            $sDir = $sPluginDir . '/templates/skin/' . $sTemplateName . '/';
-            self::$aTemplateDir[$sName] = is_dir($sDir) ? F::File_NormPath($sDir) : null;
+            $sDir = self::GetDir($sPluginName) . '/templates/skin/' . $sSkinName . '/';
+            self::$aTemplateDir[$sPluginName][''] = is_dir($sDir) ? F::File_NormPath($sDir) : null;
         }
-        return self::$aTemplateDir[$sName];
+        return self::$aTemplateDir[$sPluginName][''];
+    }
+
+    /**
+     * Seek template for current or default skin
+     *
+     * @param string $sPluginName
+     * @param string $sTemplateName
+     *
+     * @return string
+     */
+    static public function GetTemplateFile($sPluginName, $sTemplateName) {
+
+        $sPluginName = self::_pluginName($sPluginName);
+        if (!isset(self::$aTemplateDir[$sPluginName][$sTemplateName])) {
+            $sPluginDir = self::GetDir($sPluginName);
+            $aDirs = array(
+                $sPluginDir . '/templates/skin/' . Config::Get('view.skin'),
+                $sPluginDir . '/templates/skin/default',
+            );
+            $sFile = F::File_Exists($sTemplateName, $aDirs);
+            if ($sFile) {
+                self::$aTemplateDir[$sPluginName][$sTemplateName] = $sFile;
+            } else {
+                self::$aTemplateDir[$sPluginName][$sTemplateName] = $sPluginDir . '/templates/skin/default/' . $sTemplateName;
+            }
+        }
+        return self::$aTemplateDir[$sPluginName][$sTemplateName];
     }
 
     /**
@@ -385,51 +455,49 @@ abstract class Plugin extends LsObject {
      * Возвращает правильный web-адрес директории шаблонов
      * Если пользователь использует шаблон которого нет в плагине, то возвращает путь до шабона плагина 'default'
      *
-     * @param   string $sName    Название плагина или его класс
+     * @param   string $sPluginName Название плагина или его класс
      *
      * @return  string
      */
-    static public function GetTemplateUrl($sName) {
+    static public function GetTemplateUrl($sPluginName) {
 
-        $sName = preg_match('/^Plugin([\w]+)(_[\w]+)?$/Ui', $sName, $aMatches)
-            ? strtolower($aMatches[1])
-            : strtolower($sName);
-        if (!isset(self::$aTemplateUrl[$sName])) {
-            if ($sTemplateDir = self::GetTemplateDir($sName)) {
-                self::$aTemplateUrl[$sName] = F::File_Dir2Url($sTemplateDir);
+        $sPluginName = self::_pluginName($sPluginName);
+        if (!isset(self::$aTemplateUrl[$sPluginName])) {
+            if ($sTemplateDir = self::GetTemplateDir($sPluginName)) {
+                self::$aTemplateUrl[$sPluginName] = F::File_Dir2Url($sTemplateDir);
             } else {
-                self::$aTemplateUrl[$sName] = null;
+                self::$aTemplateUrl[$sPluginName] = null;
             }
         }
-        return self::$aTemplateUrl[$sName];
+        return self::$aTemplateUrl[$sPluginName];
     }
 
     /**
      * Устанавливает значение серверного пути до шаблонов плагина
      *
-     * @param  string $sName           Имя плагина
-     * @param  string $sTemplateDir    Серверный путь до шаблона
+     * @param  string $sPluginName  Имя плагина
+     * @param  string $sTemplateDir Серверный путь до шаблона
      *
      * @return bool
      */
-    static public function SetTemplateDir($sName, $sTemplateDir) {
+    static public function SetTemplateDir($sPluginName, $sTemplateDir) {
 
         if (!is_dir($sTemplateDir)) {
             return false;
         }
-        self::$aTemplateDir[$sName] = $sTemplateDir;
+        self::$aTemplateDir[$sPluginName][''] = $sTemplateDir;
         return true;
     }
 
     /**
      * Устанавливает значение web-пути до шаблонов плагина
      *
-     * @param  string $sName           Имя плагина
-     * @param  string $sTemplateUrl    Серверный путь до шаблона
+     * @param  string $sPluginName  Имя плагина
+     * @param  string $sTemplateUrl Серверный путь до шаблона
      */
-    static public function SetTemplateUrl($sName, $sTemplateUrl) {
+    static public function SetTemplateUrl($sPluginName, $sTemplateUrl) {
 
-        self::$aTemplateUrl[$sName] = $sTemplateUrl;
+        self::$aTemplateUrl[$sPluginName] = $sTemplateUrl;
     }
 
     /*************************************************************
