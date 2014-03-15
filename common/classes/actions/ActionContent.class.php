@@ -96,6 +96,7 @@ class ActionContent extends Action {
 
         $this->AddEventPreg('/^published$/i', '/^(page([1-9]\d{0,5}))?$/i', 'EventShowTopics');
         $this->AddEventPreg('/^saved$/i', '/^(page([1-9]\d{0,5}))?$/i', 'EventShowTopics');
+        $this->AddEventPreg('/^drafts$/i', '/^(page([1-9]\d{0,5}))?$/i', 'EventShowTopics');
         $this->AddEvent('edit', array('EventEdit', 'edit'));
         $this->AddEvent('delete', 'EventDelete');
 
@@ -138,6 +139,7 @@ class ActionContent extends Action {
         }
 
         $this->Viewer_Assign('oContentType', $this->oContentType);
+        $this->sMenuSubItemSelect = $this->oContentType->getContentUrl();
         /**
          * Если права на редактирование
          */
@@ -166,6 +168,7 @@ class ActionContent extends Action {
          * Устанавливаем шаблон вывода
          */
         $this->SetTemplateAction('add');
+        $this->Viewer_Assign('sMode', 'edit');
         /**
          * Проверяем отправлена ли форма с данными(хотяб одна кнопка)
          */
@@ -277,6 +280,7 @@ class ActionContent extends Action {
 
         // * Устанавливаем шаблон вывода
         $this->SetTemplateAction('add');
+        $this->Viewer_Assign('sMode', 'add');
 
         // * Вызов хуков
         $this->Hook_Run('topic_add_show');
@@ -289,6 +293,7 @@ class ActionContent extends Action {
         }
 
         $this->Viewer_Assign('oContentType', $this->oContentType);
+        $this->sMenuSubItemSelect = $this->oContentType->getContentUrl();
 
         // * Если тип контента не доступен текущему юзеру
         if (!$this->oContentType->isAccessible()) {
