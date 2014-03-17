@@ -602,6 +602,7 @@ $config['head']['default']['js'] = array(
     '___path.frontend.url___/libs/vendor/nprogress/nprogress.js',
     '___path.frontend.url___/libs/vendor/syslabel/syslabel.js',
     '___path.frontend.url___/libs/vendor/prettyphoto/js/jquery.prettyphoto.js',
+    '___path.frontend.url___/libs/vendor/rowgrid/jquery.row-grid.min.js' => array('asset' => 'mini'),
     '___path.frontend.url___/libs/vendor/parsley/parsley.js',
     '___path.frontend.url___/libs/vendor/parsley/i18n/messages.ru.js',
 
@@ -725,6 +726,7 @@ $config['head']['default']['css'] = array(
     '___path.frontend.url___/libs/css/toolbar.css',
     '___path.frontend.url___/libs/vendor/nprogress/nprogress.css',
     '___path.frontend.url___/libs/vendor/syslabel/syslabel.css',
+    '___path.frontend.url___/libs/vendor/prettyphoto/css/prettyphoto.css',
 );
 
 /**
@@ -772,7 +774,14 @@ $config['lang']['in_get'] = true;                                           // �
 
 $config['lang']['default'] = 'ru';                                          // язык, который будет использоваться на сайте по умолчанию, если не наййдены тексты для текущего языка
 $config['lang']['current'] = 'ru';                                          // основной язык сайта
-$config['lang']['load_to_js'] = array();                                    // Массив текстовок, которые необходимо прогружать на страницу в виде JS хеша, позволяет использовать текстовки внутри js
+
+// Массив текстовок, которые необходимо прогружать на страницу в виде JS хеша, позволяет использовать текстовки внутри js
+$config['lang']['load_to_js'] = array(
+    'text_yes',
+    'text_no',
+    'text_confirm',
+    'text_cancel',
+);
 
 // пути до языковых файлов
 $config['lang']['paths']    = array(

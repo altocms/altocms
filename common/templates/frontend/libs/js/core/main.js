@@ -45,7 +45,29 @@ String.prototype.tr = function (a, p) {
 };
 
 
-var ls = ls || {};
+var ls = (function ($) {
+    /**
+     * Log info
+     */
+    this.log = function () {
+        if (window.console && window.console.log) {
+            Function.prototype.bind.call(console.log, console).apply(console, arguments);
+        } else {
+            //alert(msg);
+        }
+    };
+
+    /**
+     * Debug info
+     */
+    this.debug = function () {
+        if (ls.options.debug) {
+            ls.log.apply(this, arguments);
+        }
+    };
+
+    return this;
+}).call(ls || {}, jQuery);
 
 /**
  * Управление всплывающими сообщениями
@@ -94,22 +116,28 @@ ls.modal = (function ($) {
         if (options) {
             this.options = $.extend(this.options, options);
         }
-        emptyWindow = $(this.options).first();
+        emptyWindow = $(this.options.selectorModalEmpty).first();
     };
 
     this.clear = function() {
         if (emptyWindow.length) {
             emptyWindow.find('.modal-title').empty();
             emptyWindow.find('.modal-body').empty();
-            //emptyWindow.find('.modal-footer').empty();
+            emptyWindow.find('.modal-footer').empty();
             emptyWindow.find('.js-confirm, .js-cancel').off('click');
         }
     };
 
     this.confirm = function (title, msg, options) {
-        this.empty();
+        this.clear();
         emptyWindow.find('.modal-title').html(title);
         emptyWindow.find('.modal-body').html(msg);
+        emptyWindow.find('.modal-footer').append(
+            $('<button class="btn btn-default js-cancel">' + ls.lang.get('text_cancel') + '</button>')
+        );
+        emptyWindow.find('.modal-footer').append(
+            $('<button class="btn btn-primary js-confirm">' + ls.lang.get('text_confirm') + '</button>')
+        );
 
         emptyWindow.find('.js-confirm').on('click', function(){
             emptyWindow.modal('hide');
@@ -133,7 +161,10 @@ ls.modal = (function ($) {
 
     };
 
-    this.init();
+    $(function(){
+        ls.modal.init();
+    });
+
     return this;
 }).call(ls.modal || {}, jQuery);
 
@@ -445,7 +476,7 @@ ls.swfupload = (function ($) {
     this.swfu = null;
     this.swfOptions = {};
 
-    this.initOptions = function () {
+    this.initOptions = function (options) {
 
         this.swfOptions = {
             // Backend Settings
@@ -460,6 +491,9 @@ ls.swfupload = (function ($) {
             file_upload_limit: '0',
 
             // Event Handler Settings
+            swfupload_loaded_handler: this.handlerReady,
+            file_dialog_start_handler: this.handlerFileDialogStart,
+            file_queued_handler: this.handlerFileQueued,
             file_queue_error_handler: this.handlerFileQueueError,
             file_dialog_complete_handler: this.handlerFileDialogComplete,
             upload_progress_handler: this.handlerUploadProgress,
@@ -471,8 +505,8 @@ ls.swfupload = (function ($) {
             button_placeholder_id: 'start-upload',
             button_width: 122,
             button_height: 30,
-            button_text: '<span class="swfupload">' + ls.lang.get('topic_photoset_upload_choose') + '</span>',
-            button_text_style: '.swfupload { color: #777777; font-size: 14px; }',
+            //button_text: '<span class="swfupload">' + ls.lang.get('topic_photoset_upload_choose') + '</span>',
+            //button_text_style: '.swfupload { color: #777777; font-size: 14px; }',
             button_text_left_padding: 0,
             button_text_top_padding: 0,
             button_window_mode: SWFUpload.WINDOW_MODE.TRANSPARENT,
@@ -487,12 +521,14 @@ ls.swfupload = (function ($) {
             // Debug Settings
             debug: false
         };
-
+        if (options) {
+            this.initOptions = $.extend(this.initOptions, options);
+        }
         ls.hook.run('ls_swfupload_init_options_after', arguments, this.swfOptions);
 
     };
 
-    this.loadSwf = function () {
+    this.loadSwf = function (options) {
         var f = {};
 
         f.onSwfobject = function(){
@@ -525,7 +561,6 @@ ls.swfupload = (function ($) {
 
         (function () {
             if (window.swfobject) {
-                //f.onSwfobject();
                 f.onSwfobjectSwfupload();
             } else {
                 ls.debug('window.swfobject is undefined, need to load swfobject/swfobject.js');
@@ -554,7 +589,7 @@ ls.swfupload = (function ($) {
                 + 'font-weight:' + placeholder.css('font-weight') + '; '
                 + 'text-align:' + placeholder.css('text-align') + '; '
                 + '}';
-            this.swfOptions.button_text_style = style;
+            //this.swfOptions.button_text_style = style;
             if (label.length) {
                 this.swfOptions.button_width = parseInt(label.outerWidth());
                 this.swfOptions.button_text_top_padding = parseInt(label.css('padding-top'));
@@ -565,6 +600,21 @@ ls.swfupload = (function ($) {
             $(label).css('padding', '0').click(function(){ return false; });
         }
         return this.swfu;
+    };
+
+    this.handlerReady = function () {
+        $(this).trigger('eReady');
+    };
+
+    this.handlerFileDialogStart = function () {
+        $(this).trigger('eFileDialogStart');
+        if (numFilesQueued > 0) {
+            this.startUpload();
+        }
+    };
+
+    this.handlerFileQueued = function (file) {
+        $(this).trigger('eFileQueued', [file]);
     };
 
     this.handlerFileQueueError = function (file, errorCode, message) {
@@ -1049,26 +1099,6 @@ ls = (function ($) {
         });
         return max;
     }
-
-    /**
-     * Debug info
-     */
-    this.debug = function () {
-        if ($that.options.debug) {
-            $that.log.apply(this, arguments);
-        }
-    };
-
-    /**
-     * Log info
-     */
-    this.log = function () {
-        if (window.console && window.console.log) {
-            Function.prototype.bind.call(console.log, console).apply(console, arguments);
-        } else {
-            //alert(msg);
-        }
-    };
 
     return this;
 }).call(ls || {}, jQuery);

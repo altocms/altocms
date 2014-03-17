@@ -12,89 +12,150 @@ ls.photoset = ( function ($) {
     this.init = function () {
         var self = this;
 
-        $('#js-photoset-upload-input').on('change', function (e) {
+        $('#photoset-upload-file').on('change', function (e) {
             self.upload();
         });
     };
 
     this.initSwfUpload = function (opt) {
         opt = opt || {};
-        opt.button_placeholder_id = 'js-photoset-upload-button';
+        opt.button_placeholder_id = 'photoset-upload-place';
         opt.post_params.ls_photoset_target_tmp = $.cookie('ls_photoset_target_tmp') ? $.cookie('ls_photoset_target_tmp') : 0;
+
+        var uploadButton = $('#photoset-upload-button');
+        opt.button_width = uploadButton.outerWidth();
+        opt.button_height = uploadButton.outerHeight();
 
         $(ls.swfupload).unbind('load').bind('load', function () {
             this.swfu = ls.swfupload.init(opt);
 
+            $(this.swfu).bind('eReady', function(e){
+                ls.log('[ready]', $(e.target.movieElement));
+                $(e.target.movieElement).parent().mouseenter(function(e){
+                    e.stopPropagation();
+                    uploadButton.focus();
+                });
+                $(e.target.movieElement).parent().mouseleave(function(e){
+                    e.stopPropagation();
+                    uploadButton.blur();
+                });
+            });
+            $(this.swfu).bind('eFileQueued', this.swfHandlerFileQueued);
+            $(this.swfu).bind('eFileQueueError', this.swfHandlerFileQueueError);
             $(this.swfu).bind('eUploadProgress', this.swfHandlerUploadProgress);
-            $(this.swfu).bind('eFileDialogComplete', this.swfHandlerFileDialogComplete);
             $(this.swfu).bind('eUploadSuccess', this.swfHandlerUploadSuccess);
             $(this.swfu).bind('eUploadComplete', this.swfHandlerUploadComplete);
+            $(this.swfu).bind('eUploadError', this.swfHandlerUploadError);
         }.bind(this));
 
         ls.swfupload.loadSwf();
     }
 
-    this.swfHandlerUploadProgress = function (e, file, bytesLoaded, percent) {
-        $('#photoset_photo_empty_filename').text(file.name);
-        $('#photoset_photo_empty_progress').find('.js-upload-label').text(percent >= 100 ? 'resize..' : percent + '%');
-        $('#photoset_photo_empty_progress').find('.js-upload-percents').css({ 'width': percent + '%' });
+    this.swfHandlerFileQueued = function (e, file) {
+        ls.photoset.updateProgress(file.index, file.name, 0, 0);
     }
 
-    this.swfHandlerFileDialogComplete = function (e, numFilesSelected, numFilesQueued) {
-        if (numFilesQueued > 0) {
-            ls.photoset.addPhotoEmpty();
-        }
+    this.swfHandlerFileQueueError = function (e, file, errorCode, message) {
+        ls.msg.error('Error: ' + errorCode, message);
+        ls.photoset.cancelProgress(file.index);
+    }
+
+    this.swfHandlerUploadProgress = function (e, file, bytesLoaded, percent) {
+        ls.photoset.updateProgress(file.index, file.name, bytesLoaded, percent);
     }
 
     this.swfHandlerUploadSuccess = function (e, file, serverData) {
-        ls.photoset.addPhoto(jQuery.parseJSON(serverData));
+        ls.photoset.addPhoto(file.index, jQuery.parseJSON(serverData));
     }
 
     this.swfHandlerUploadComplete = function (e, file, next) {
         if (next > 0) {
-            ls.photoset.addPhotoEmpty();
         }
     }
 
-    this.addPhotoEmpty = function () {
-        template = '<li id="photoset_photo_empty" class="photoset-upload-progress">' +
-            '<div id="photoset_photo_empty_progress" class="progress-bar">' +
-            '<div id="photoset_photo_empty_filename" class="photoset-upload-progress-filename"></div>' +
-            '<div class="progress-bar-value js-upload-percents"></div>' +
-            '<div class="progress-bar-label js-upload-label">Uploading...</div>' +
-            '</div>' +
-            '</li>';
-        $('#swfu_images').append(template);
+    this.swfHandlerUploadError = function (e, file, errorCode, message) {
+        ls.msg.error('Error: ' + errorCode, message);
     }
 
-    this.addPhoto = function (response) {
-        $('#photoset_photo_empty').remove();
-        if (!result) {
+    this._progressId = function(index) {
+
+        return '#photoset-upload-progress-' + index;
+    }
+
+    this._itemId = function(id) {
+
+        return '#photoset_photo_' + id;
+    }
+
+    this.updateProgress = function(index, filename, bytes, percent) {
+
+        var id = this._progressId(index);
+        var photoProgress = $(id);
+        if (!photoProgress.length) {
+            photoProgress = $('.js-photoset-upload-progress')
+                .clone()
+                .removeClass('js-photoset-upload-progress')
+                .prop('id', id.substr(1))
+                .appendTo('#swfu_images')
+                .show();
+        }
+        if (filename) {
+            photoProgress.find('.js-photoset-upload-filename').text(filename);
+        }
+        if (percent > 100) {
+            percent = 100;
+        }
+        photoProgress
+            .find('.progress-bar')
+            .prop('aria-valuenow', (percent < 0) ? 100 : percent)
+            .css('width', ((percent < 0) ? 100 : percent) + '%')
+            .text((percent < 0) ? '' : (percent + '%'));
+    }
+
+    this.removeProgress = function (index) {
+
+        $(this._progressId(index)).remove();
+    }
+
+    this.cancelProgress = function(index) {
+
+        this.updateProgress(index, null, null, -1);
+        $(this._progressId(index)).find('.progress-bar').addClass('progress-bar-danger');
+    }
+
+    this.addPhoto = function (index, response) {
+        if (!response) {
             ls.msg.error(null, 'System error #1001');
-        } else if (result.bStateError) {
+        } else if (response.bStateError) {
             ls.msg.error(response.sMsgTitle, response.sMsg);
         } else {
-            template = '<li id="photo_' + response.id + '" class="photoset-upload-images-item"><img src="' + response.file + '" alt="image" />'
-                + '<textarea onBlur="ls.photoset.setPreviewDescription(' + response.id + ', this.value)" class="width-full"></textarea><br />'
-                + '<a href="javascript:ls.photoset.deletePhoto(' + response.id + ')" class="link-dotted">' + ls.lang.get('topic_photoset_photo_delete') + '</a>'
-                + '<span id="photo_preview_state_' + response.id + '" class="photo-preview-state"><a href="javascript:ls.photoset.setPreview(' + response.id + ')" class="link-dotted mark-as-preview">' + ls.lang.get('topic_photoset_mark_as_preview') + '</a></span></li>';
-            $('#swfu_images').append(template);
+            var html = $(this._itemId('ID')).get(0).outerHTML;
+            if (html) {
+                html = $(html.replace('ID', response.id)).show();
+                html.find('img').prop('src', response.file);
+                $(this._progressId(index)).replaceWith(html);
+                ls.msg.notice(response.sMsgTitle, response.sMsg);
+            }
         }
-        $('#modal-photoset-upload').modal('hide');
+        $('#modal-photoset_upload').modal('hide');
     }
 
     this.deletePhoto = function (id) {
-        if (!confirm(ls.lang.get('topic_photoset_photo_delete_confirm'))) {
-            return;
-        }
-        ls.ajaxPost(ls.routerUrl('content') + 'photo/delete', {'id': id}, function (result) {
-            if (!result) {
-                ls.msg.error(null, 'System error #1001');
-            } else if (result.bStateError) {
-                ls.msg.error(result.sMsgTitle, result.sMsg);
-            } else {
-                $('#photo_' + id).remove();
-                ls.msg.notice(result.sMsgTitle, result.sMsg);
+        ls.modal.confirm('', ls.lang.get('topic_photoset_photo_delete_confirm'), {
+            onConfirm: function() {
+                $(this._itemId(id)).css('opacity',.5).find('input, textarea').css('disabled', true);
+                ls.progressStart();
+                ls.ajaxPost(ls.routerUrl('content') + 'photo/delete', {'id': id}, function (result) {
+                    ls.progressDone();
+                    if (!result) {
+                        ls.msg.error(null, 'System error #1001');
+                    } else if (result.bStateError) {
+                        ls.msg.error(result.sMsgTitle, result.sMsg);
+                    } else {
+                        $(this._itemId(id)).remove();
+                        ls.msg.notice(result.sMsgTitle, result.sMsg);
+                    }
+                });
             }
         });
     }
@@ -104,14 +165,15 @@ ls.photoset = ( function ($) {
 
         $('.marked-as-preview').each(function (index, el) {
             $(el).removeClass('marked-as-preview');
-            tmpId = $(el).attr('id').slice($(el).attr('id').lastIndexOf('_') + 1);
+            var tmpId = $(el).attr('id').slice($(el).attr('id').lastIndexOf('_') + 1);
             $('#photo_preview_state_' + tmpId).html('<a href="javascript:ls.photoset.setPreview(' + tmpId + ')" class="mark-as-preview link-dotted">' + ls.lang.get('topic_photoset_mark_as_preview') + '</a>');
         });
-        $('#photo_' + id).addClass('marked-as-preview');
+        $(this._itemId(id)).addClass('marked-as-preview');
         $('#photo_preview_state_' + id).html(ls.lang.get('topic_photoset_is_preview'));
     }
 
-    this.setPreviewDescription = function (id, text) {
+    this.setPreviewDescription = function (id) {
+        var text = $(this._itemId(id)).find('text').value();
         ls.ajaxPost(ls.routerUrl('content') + 'photo/description', {'id': id, 'text': text}, function (result) {
                 if (!result) {
                     ls.msg.error(null, 'System error #1001');
@@ -157,9 +219,9 @@ ls.photoset = ( function ($) {
     }
 
     this.upload = function () {
-        ls.photoset.addPhotoEmpty();
+        //ls.photoset.addPhotoEmpty();
 
-        var input = $('#js-photoset-upload-input');
+        var input = $('#photoset-upload-file');
         var form = $('<form method="post" enctype="multipart/form-data">' +
             '<input type="hidden" name="is_iframe" value="true" />' +
             '<input type="hidden" name="ALTO_AJAX" value="1" />' +
@@ -173,13 +235,16 @@ ls.photoset = ( function ($) {
             if (!result) {
                 ls.msg.error(null, 'System error #1001');
             } else if (result.bStateError) {
-                $('#photoset_photo_empty').remove();
                 ls.msg.error(result.sMsgTitle, result.sMsg);
             } else {
                 ls.photoset.addPhoto(result);
             }
             form.remove();
         });
+    }
+
+    this.showForm = function() {
+
     }
 
     return this;
