@@ -416,8 +416,14 @@ class ModuleImg extends Module {
                 }
             } else {
                 $oImg = $this->Resize($sOriginal, $nW, $nH, true);
-                $nDX = $nW - $oImg->GetWidth();
-                $nDY = $nH - $oImg->GetHeight();
+                // real size can differ from request size, so we need change canvas size
+                $nDX = ($nW ? $nW - $oImg->GetWidth() : 0);
+                $nDY = ($nH ? $nH - $oImg->GetHeight() : 0);
+                if ($nDX < 0 || $nDY < 0) {
+                    $oImg = $this->CropCenter($oImg, $oImg->GetWidth() + $nDX, $oImg->GetHeight() + $nDY);
+                    $nDX = ($nW ? $nW - $oImg->GetWidth() : 0);
+                    $nDY = ($nH ? $nH - $oImg->GetHeight() : 0);
+                }
                 if ($nDX || $nDY) {
                     $oImg->CanvasSize($nW, $nH);
                     $sResultFile = $oImg->Save($sFile);
@@ -567,13 +573,13 @@ class ModuleImg extends Module {
 
     public function OriginalFile($sFile, &$aOptions) {
 
-        if (preg_match('~^(.+)-(\d+x\d+)(\-([a-z]+))?\.[a-z]+$~i', $sFile, $aMatches)) {
+        if (preg_match('~^(.+)-(\d*x\d+)(\-([a-z]+))?\.[a-z]+$~i', $sFile, $aMatches)) {
             $sOriginal = $aMatches[1];
             list($nW, $nH) = explode('x', $aMatches[2]);
             $sModifier = (isset($aMatches[4]) ? $aMatches[4] : '');
             $aOptions = array(
-                'width' => $nW,
-                'height' => $nH,
+                'width' => ($nW ? intval($nW) : null),
+                'height' => ($nH ? intval($nH) : null),
                 'mod' => $sModifier,
             );
         } else {
