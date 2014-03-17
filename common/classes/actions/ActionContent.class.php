@@ -916,7 +916,7 @@ class ActionContent extends Action {
             return false;
         }
 
-        $iTopicId = F::GetRequestStr('topic_id');
+        $iTopicId = intval(F::GetRequestStr('topic_id'));
         $sTargetId = null;
 
         // Если от сервера не пришёл ID топика, то пытаемся определить временный код для нового топика.
