@@ -1235,6 +1235,11 @@ return array(
     'date_hours_back_less'                      => 'Less than an hour ago',
     'today'                                     => 'Today',
 
+    'text_confirm'                              => 'Сonfirm',
+    'text_cancel'                               => 'Сancel',
+    'text_yes'                                  => 'Yes',
+    'text_no'                                   => 'No',
+
     'timezone_list'                             => array(
         '-12'   => '[UTC - 12] Baker Island Time',
         '-11'   => '[UTC - 11] Niue Time, Samoa Standard Time',
