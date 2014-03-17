@@ -595,7 +595,7 @@ class ModuleNotify extends Module {
     public function GetTemplatePath($sName, $sPluginName = null) {
 
         $sCacheKey = 'template_path_' . $sName . '-' . $sPluginName;
-        if (false === ($data = $this->Cache_Get($sCacheKey, 'tmp'))) {
+        if (false === ($sResult = $this->Cache_Get($sCacheKey, 'tmp'))) {
             $bFound = false;
             if ($sPluginName) {
                 $sPluginName = preg_match('/^Plugin([\w]+)(_[\w]+)?$/Ui', $sPluginName, $aMatches)
