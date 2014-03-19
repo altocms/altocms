@@ -84,10 +84,11 @@ class ModuleSkin_EntitySkin extends Entity {
 
     public function _getDataProperty($sProp = null) {
 
-        if (is_null($sProp))
+        if (is_null($sProp)) {
             return $this->_aData['property'];
-        else
+        } else {
             return $this->_aData['property']->$sProp;
+        }
     }
 
     public function GetName() {
@@ -144,14 +145,16 @@ class ModuleSkin_EntitySkin extends Entity {
 
     public function GetScreenshots() {
 
-        $aData = $this->_getDataProperty('info')->screenshots->screenshot;
         $aResult = array();
-        if (sizeof($aData)) {
-            foreach ($aData as $oProp) {
-                $aResult[] = array(
-                    'preview' => (strtolower($oProp['preview']) === 'yes'),
-                    'file' => (string)$oProp['file'],
-                );
+        if ($this->_getDataProperty('info')->screenshots) {
+            $aData = $this->_getDataProperty('info')->screenshots->screenshot;
+            if (sizeof($aData)) {
+                foreach ($aData as $oProp) {
+                    $aResult[] = array(
+                        'preview' => (strtolower($oProp['preview']) === 'yes'),
+                        'file' => (string)$oProp['file'],
+                    );
+                }
             }
         }
         return $aResult;
