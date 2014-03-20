@@ -2910,7 +2910,7 @@ class ActionAdmin extends Action {
                     $oField->setType('');
                 }
 
-                $iId = $this->User_addUserField($oField);
+                $iId = $this->User_AddUserField($oField);
                 if (!$iId) {
                     $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
                     return;
@@ -2970,7 +2970,8 @@ class ActionAdmin extends Action {
             default:
                 // * Загружаем в шаблон JS текстовки
                 $this->Lang_AddLangJs(array(
-                    'action.admin.user_field_delete_confirm',
+                    'action.admin.user_field_delete_confirm_title',
+                    'action.admin.user_field_delete_confirm_text',
                     'action.admin.user_field_admin_title_add',
                     'action.admin.user_field_admin_title_edit',
                     'action.admin.user_field_add',

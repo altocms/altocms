@@ -1218,7 +1218,7 @@ class ModuleUser_MapperUser extends Mapper {
         $xResult = $this->oDb->query(
             $sql, $oField->getName(), $oField->getTitle(), $oField->getPattern(), $oField->getType()
         );
-        return $xResult !== false;
+        return $xResult ? $xResult : false;
     }
 
     /**
