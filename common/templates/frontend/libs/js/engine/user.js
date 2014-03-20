@@ -216,8 +216,9 @@ ls.user = (function ($) {
      * Поиск пользователей
      */
     this.searchUsers = function (form) {
+        form = $(form);
         var url = ls.routerUrl('people') + 'ajax-search/';
-        var inputSearch = $('#' + form).find('input');
+        var inputSearch = form.find('input');
         inputSearch.addClass('loader');
 
         ls.ajaxSubmit(url, form, function (result) {

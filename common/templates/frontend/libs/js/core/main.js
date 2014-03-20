@@ -238,22 +238,43 @@ ls.timer = (function ($) {
 
     /**
      * Запуск метода через определенный период, поддерживает пролонгацию
+     *
+     * @param sUniqKey
+     * @param fMethod
+     * @param aParams
+     * @param iSeconds
      */
-    this.run = function (fMethod, sUniqKey, aParams, iTime) {
-        iTime = iTime || 1500;
-        aParams = aParams || [];
-        sUniqKey = sUniqKey || Math.random();
+    this.run = function (sUniqKey, fMethod, aParams, iSeconds) {
+        var timer = {
+            id: ls.uniqId(),
+            callback: null,
+            params: [],
+            timeout: 1500
+        };
 
-        if (this.aTimers[sUniqKey]) {
-            clearTimeout(this.aTimers[sUniqKey]);
-            this.aTimers[sUniqKey] = null;
+        if (typeof sUniqKey == 'function') {
+            // sUniqKey is missed
+            timer.id = ls.uniqId();
+            timer.callback = sUniqKey;
+            timer.params = fMethod ? fMethod : timer.params;
+            timer.timeout = parseFloat(aParams) > 0 ? parseFloat(aParams) * 1000 : timer.timeout;
+        } else {
+            timer.id = sUniqKey;
+            timer.callback = fMethod;
+            timer.params = aParams ? aParams : timer.params;
+            timer.timeout = parseFloat(iSeconds) > 0 ? parseFloat(iSeconds) * 1000 : timer.timeout;
+        }
+
+        if (this.aTimers[timer.id]) {
+            clearTimeout(this.aTimers[timer.id]);
+            this.aTimers[timer.id] = null;
         }
         var timeout = setTimeout(function () {
-            clearTimeout(this.aTimers[sUniqKey]);
-            this.aTimers[sUniqKey] = null;
-            fMethod.apply(this, aParams);
-        }.bind(this), iTime);
-        this.aTimers[sUniqKey] = timeout;
+            clearTimeout(this.aTimers[timer.id]);
+            this.aTimers[timer.id] = null;
+            timer.callback.apply(this, timer.params);
+        }.bind(this), timer.timeout);
+        this.aTimers[timer.id] = timeout;
     };
 
     return this;
