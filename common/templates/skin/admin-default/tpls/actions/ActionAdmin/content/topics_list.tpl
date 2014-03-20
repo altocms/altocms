@@ -43,10 +43,9 @@
                         <td class="number">{$oTopic->getTopicCountVote()}</td>
                         <td class="number">{$oTopic->getTopicRating()}</td>
                         <td class="center">
-                            <a href="{$oTopic->getUrlEdit()}"
-                               title="{$aLang.action.admin.topic_edit}">
+                            <a href="{$oTopic->getUrlEdit()}" title="{$aLang.action.admin.topic_edit}">
                                 <i class="icon icon-note"></i></a>
-                            <a href="{router page='content'}delete/{$oTopic->getId()}/?security_key={$ALTO_SECURITY_KEY}" title="{$aLang.topic_delete}" onclick="return confirm('{$aLang.topic_delete_confirm}');" >
+                            <a href="#" class="js-topic-delete" title="{$aLang.topic_delete}">
                                 <i class="icon icon-trash"></i></a>
                         </td>
                     </tr>
@@ -59,5 +58,16 @@
     {include file="inc.paging.tpl"}
 
 </div>
+
+<script>
+    $(function(){
+        $('.js-topic-delete').click(function(){
+            ls.modal.confirm(ls.lang.get('topic_delete_confirm_title'), ls.lang.get('topic_delete_confirm_text'), function() {
+                document.location = '{router page='content'}delete/{$oTopic->getId()}/?security_key={$ALTO_SECURITY_KEY}';
+            });
+            return false;
+        });
+    });
+</script>
 
 {/block}

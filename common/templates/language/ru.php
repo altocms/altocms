@@ -305,6 +305,8 @@ return array(
     'topic_edit'                                => 'Редактировать',
     'topic_preview'                             => 'Предпросмотр',
     'topic_delete'                              => 'Удалить',
+    'topic_delete_confirm_title'                => 'Удаление статьи',
+    'topic_delete_confirm_text'                 => 'Вы действительно хотите удалить статью?',
     'topic_delete_confirm'                      => 'Вы действительно хотите удалить статью?',
     /**
      * Топик-ссылка

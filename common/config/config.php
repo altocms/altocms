@@ -700,8 +700,8 @@ $config['head']['default']['js'] = array(
     '___path.frontend.url___/libs/js/engine/toolbar.js',
     '___path.frontend.url___/libs/js/engine/settings.js',
     '___path.frontend.url___/libs/js/engine/topic.js',
-    '___path.frontend.url___/libs/js/engine/admin.js',
-    '___path.frontend.url___/libs/js/engine/admin.userfield.js',
+    //'___path.frontend.url___/libs/js/engine/admin.js',
+    //'___path.frontend.url___/libs/js/engine/admin.userfield.js',
     '___path.frontend.url___/libs/js/engine/captcha.js',
     '___path.frontend.url___/libs/js/engine/init.js',
 );

@@ -1270,6 +1270,12 @@ class ActionAdmin extends Action {
 
         $this->Viewer_Assign('aTopics', $aResult['collection']);
         $this->Viewer_Assign('aPaging', $aPaging);
+
+        $this->Lang_AddLangJs(array(
+                'topic_delete_confirm_title',
+                'topic_delete_confirm_text',
+                'topic_delete_confirm',
+            ));
     }
 
     /**********************************************************************************/

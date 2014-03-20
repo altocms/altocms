@@ -67,46 +67,52 @@
             </div>
         </div>
     </div>
-    <div class="modal uniform" id="dashboard_add_form">
-        <header class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h3 class="modal-title">{$aLang.action.admin.widgets_title}</h3>
-        </header>
-
-        <form method="post" action="">
+    <!-- modal -->
+    <div class="modal fade in" id="modal-dashboard_add_widgets">
+        <div class="modal-dialog">
             <div class="modal-content">
-                <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
-                <input type="hidden" name="widgets[]" value=""/>
 
-                {foreach $aDashboardWidgets as $aWidget}
-                    <p>
-                        <label>
-                            <input type="checkbox" name="widgets[]" value="{$aWidget.name}"
-                                   {if $aWidget.status}checked{/if} />
-                            {$aWidget.label}
-                        </label>
-                    </p>
-                {/foreach}
+                <header class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h3 class="modal-title">{$aLang.action.admin.widgets_title}</h3>
+                </header>
+
+                <form method="post" action="">
+                    <div class="modal-body">
+                        <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
+                        <input type="hidden" name="widgets[]" value=""/>
+
+                        {foreach $aDashboardWidgets as $aWidget}
+                            <p>
+                                <label>
+                                    <input type="checkbox" name="widgets[]" value="{$aWidget.name}" {if $aWidget.status}checked{/if} />
+                                    {$aWidget.label}
+                                </label>
+                            </p>
+                        {/foreach}
+                    </div>
+
+                    <footer class="modal-footer">
+                        <input type="submit" class="btn btn-primary" value="{$aLang.action.admin.save}"/>
+                    </footer>
+                </form>
             </div>
-
-            <footer class="modal-footer">
-                <input type="submit" class="btn btn-primary" value="{$aLang.action.admin.save}"/>
-            </footer>
-        </form>
+        </div>
     </div>
+    <!-- /modal -->
     <script>
         var ls = ls || { };
 
         ls.dashboard = {
             widgetOff: function (widgetId, widgetKey, widgetName) {
-                admin.stickNoteOn('wait');
+                ls.progressStart();
                 var params = { };
                 params[widgetKey] = false;console.log(params);
                 ls.ajaxConfig(params, function () {
                     $(widgetId).animate({ height: '1px' }, function () {
                         $(this).animate({ width: 0, opacity: 0 }, function () {
                             $(this).remove();
-                            admin.stickNoteOff();
+                            ls.progressDone();
                         });
                     });
                     $('[value=' + widgetName + ']')
@@ -125,7 +131,7 @@
                 return false;
             },
             showAddForm: function () {
-                $('#dashboard_add_form').modal('show');
+                $('#modal-dashboard_add_widgets').modal('show');
             }
         };
 

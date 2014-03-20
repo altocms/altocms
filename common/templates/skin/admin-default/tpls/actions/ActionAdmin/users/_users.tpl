@@ -92,7 +92,7 @@
                         </label>
 
                         <label for="ban_comment">{$aLang.action.admin.ban_comment}</label>
-                        <input type="text" name="ban_comment" id="ban_comment" maxlength="255" class="input-width-full"/>
+                        <input type="text" name="ban_comment" id="ban_comment" maxlength="255" class="input-wide"/>
 
 
                         <input type="hidden" name="return_url" value="{$sPageRef}"/>

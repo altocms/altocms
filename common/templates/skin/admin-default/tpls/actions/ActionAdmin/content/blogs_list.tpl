@@ -80,53 +80,94 @@
         {include file="inc.paging.tpl"}
 
     </div>
-    <div id="blog_delete_form" class="modal">
-        <header class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h3>{$aLang.blog_admin_delete_title}</h3>
-        </header>
 
-        <form action="" method="POST" class="modal-content uniform">
-            <p>{$aLang.action.admin.blog_del_confirm}<strong id="blog_delete_name"></strong></p>
+    <!-- modal -->
+    <div class="modal fade in" id="modal-blog_delete">
+        <div class="modal-dialog">
+            <div class="modal-content">
 
-            <p>{$aLang.action.admin.blog_del_topics}<strong id="blog_delete_topics"></strong></p>
+                <header class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h3>{$aLang.blog_admin_delete_title}</h3>
+                </header>
 
-            <p>{$aLang.action.admin.blog_del_topics_choose}</p>
+                <form action="" method="POST" class="uniform">
+                    <div class="modal-body">
+                        <p>
+                            {$aLang.action.admin.blog_del_confirm_text}
+                            <strong id="blog_delete_name"></strong>
+                        </p>
 
-            <p>
-                <label>
-                    <input type="radio" name="delete_topics" value="delete" checked>{$aLang.blog_delete_clear}
-                </label>
-                <label>
-                    <input type="radio" name="delete_topics" value="move">{$aLang.blog_admin_delete_move}
-                    <select name="topic_move_to" id="topic_move_to" class="input-width-full">
-                        <option value=""></option>
-                        {foreach $aAllBlogs as $nBlogId=>$sBlogTitle}
-                            <option value="{$nBlogId}">{$sBlogTitle|escape:'html'}</option>
-                        {/foreach}
-                    </select>
-                </label>
-            </p>
+                        <p>
+                            {$aLang.action.admin.blog_del_confirm_topics}
+                            <strong id="blog_delete_topics"></strong>
+                        </p>
 
-            <input type="hidden" name="cmd" value="delete_blog"/>
-            <input type="hidden" name="delete_blog_id" value=""/>
-            <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}" />
-            <input type="hidden" name="return-path" value="{Router::Url('link')}" />
-            <button type="submit" class="btn btn-primary">{$aLang.action.admin.blog_delete}</button>
-        </form>
+                        <div id="blog_delete_choose">
+                            <p>{$aLang.action.admin.blog_del_topics_choose}</p>
+
+                            <p>
+                                <label>
+                                    <input type="radio" name="delete_topics" value="delete" checked>
+                                    {$aLang.blog_delete_clear}
+                                </label>
+                                <label>
+                                    <input type="radio" name="delete_topics" value="move">
+                                    {$aLang.blog_admin_delete_move}
+                                </label>
+                                <select name="topic_move_to" id="topic_move_to" class="input-wide" style="display: none;">
+                                    <option value=""></option>
+                                    {foreach $aAllBlogs as $nBlogId=>$sBlogTitle}
+                                        <option value="{$nBlogId}">{$sBlogTitle|escape:'html'}</option>
+                                    {/foreach}
+                                </select>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <input type="hidden" name="cmd" value="delete_blog"/>
+                        <input type="hidden" name="delete_blog_id" value=""/>
+                        <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
+                        <input type="hidden" name="return-path" value="{Router::Url('link')}"/>
+                        <button type="submit" class="btn" data-dismiss="modal" aria-hidden="true">{$aLang.text_cancel}</button>
+                        <button type="submit" class="btn btn-primary">{$aLang.action.admin.blog_delete}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
+    <!-- /modal -->
+
     <script>
         var admin = admin || { };
-        admin.blog = admin.blog || { };
-        var path = '{router page='blog'}delete/';
-        admin.blog.del = function (blogTitle, blogId, topicsNum) {
-            var form = $('#blog_delete_form');
-            if (form.length) {
-                $('#blog_delete_name').text(blogTitle);
-                $('#blog_delete_topics').text(topicsNum);
-                form.find('[name=delete_blog_id]').val(blogId);
-                form.modal('show');
-            }
-        }
+        (function($) {
+            admin.blog = admin.blog || { };
+            var modal = $('#modal-blog_delete');
+            admin.blog.del = function (blogTitle, blogId, topicsNum) {
+                if (modal.length) {
+                    $('#blog_delete_name').text(blogTitle);
+                    $('#blog_delete_topics').text(topicsNum);
+                    modal.find('[name=delete_blog_id]').val(blogId);
+                    if (topicsNum > 0) {
+                        $('#blog_delete_choose').show();
+                    } else {
+                        $('#blog_delete_choose').hide();
+                    }
+                    modal.modal('show');
+                }
+                return false;
+            };
+            $(function(){
+                modal.find('[name=delete_topics]').on('change', function(){
+                    if ($(this).val() == 'delete') {
+                        modal.find('[id^=topic_move_to]').hide();
+                    } else {
+                        modal.find('[id^=topic_move_to]').show();
+                    }
+                });
+                modal.find('[name=delete_topics]:checked').trigger('change');
+            });
+        })(jQuery);
     </script>
 {/block}

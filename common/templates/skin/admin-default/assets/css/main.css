@@ -229,4 +229,7 @@ div.dataTables_wrapper .ui-widget-header, .b-wbox-header, .modal-header, .table 
 
 .input-group-addon:first-child { border-right: 1px solid #DDD; right: -3px; position: relative; }
 
-.input-wide { width: 100%; }
+texterea.input-wide,
+input[type=text].input-wide,
+input[type=password].input-wide,
+select.input-wide { width: 100%; }

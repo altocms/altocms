@@ -291,6 +291,8 @@ return array(
     'topic_edit'                                => 'Edit',
     'topic_preview'                             => 'Preview',
     'topic_delete'                              => 'Delete',
+    'topic_delete_confirm_title'                => 'Deletion of topic',
+    'topic_delete_confirm_text'                 => 'Do you really want to delete this topic?',
     'topic_delete_confirm'                      => 'Do you really want to delete this topic?',
     /**
      * Link-topic

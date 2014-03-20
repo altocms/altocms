@@ -321,9 +321,10 @@ return array (
     'logs_max_files' => 'Number of log files\' copies',
     'logs_max_files_notice' => 'Number log files\' of archival copies kept on a site',
 
-    'blog_edit' => 'Edit the blog',
-    'blog_delete' => 'Remove the blog',
-    'blog_del_confirm' => 'Blog &quot;%%blog%%&quot; will be removed forever with all its contents. \nContinue? ',
+    'blog_edit' => 'Edit blog',
+    'blog_delete' => 'Remove blog',
+    'blog_del_confirm_text' => 'This blog will be removed forever with all its contents:',
+    'blog_del_confirm_topics' => 'Number of topics in the blog:',
 
     'topic_edit' => 'Edit the article',
     'topic_delete' => 'Remove the article',

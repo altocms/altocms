@@ -15,10 +15,10 @@
     {if !$sImgToLoad}
         {assign var="sImgToLoad" value="topic_text"}
     {/if}
-    {include file="inc.modal_load_img.tpl" sToLoad=$sImgToLoad}
+    {include_once file="modals/modal.upload_img.tpl" sToLoad=$sImgToLoad}
 
     {if !$sSettingsTinymce}
-        {assign var="sSettingsMarkitup" value="ls.settings.getMarkitup()"}
+        {$sSettingsMarkitup="ls.settings.getMarkitup()"}
     {/if}
     <script type="text/javascript">
         jQuery(function ($) {
