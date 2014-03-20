@@ -77,6 +77,7 @@ a.icon:hover                            { color: #999 }
 .btn-group.open .dropdown-toggle,
 .btn.active,
 .well                                   { box-shadow: none }
+.modal-content                          {border-radius: 0;}
 #content .navbar:before,
 #content .navbar:after                  { content: none }
 #content .navbar.navbar-inner           { overflow: hidden }
@@ -227,3 +228,5 @@ div.dataTables_wrapper .ui-widget-header, .b-wbox-header, .modal-header, .table 
 .input-group-addon:last-child { border-left: 1px solid #DDD; left: -3px; position: relative; }
 
 .input-group-addon:first-child { border-right: 1px solid #DDD; right: -3px; position: relative; }
+
+.input-wide { width: 100%; }

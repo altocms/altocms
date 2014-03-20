@@ -1,4 +1,5 @@
 <!doctype html>
+{block name="layout_vars"}{/block}
 <!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="ru"> <![endif]-->
 <!--[if IE 7]>    <html class="no-js ie7 oldie" lang="ru"> <![endif]-->
 <!--[if IE 8]>    <html class="no-js ie8 oldie" lang="ru"> <![endif]-->
@@ -6,7 +7,8 @@
 <html class="no-js" lang="ru"> <!--<![endif]-->
 
 <head>
-{hook run='html_head_begin'}
+{block name="layout_head"}
+{hook run='layout_head_begin'}
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -20,9 +22,9 @@
 
     <meta name="viewport" content="width=600"/>
 
-	{$aHtmlHeadFiles.css}
+    {$aHtmlHeadFiles.css}
 
-	<link href="{Config::Get('path.static.skin')}assets/img/favicon.ico?v1" rel="shortcut icon">
+    <link href="{Config::Get('path.static.skin')}assets/img/favicon.ico?v1" rel="shortcut icon">
     <link rel="search" type="application/opensearchdescription+xml" href="{router page='search'}opensearch/"
           title="{Config::Get('view.name')}"/>
 
@@ -53,10 +55,8 @@
             'week_start': {cfg name="l10n.week_start" default=0}
         };
 
-        var TINYMCE_LANG = 'en';
-        {if Config::Get('lang.current') == 'russian'}
-        TINYMCE_LANG = 'ru';
-        {/if}
+        var tinymce = false;
+        var TINYMCE_LANG = {if Config::Get('lang.current') == 'ru'}'ru'{else}'en'{/if};
 
         var aRouter = new Array();
         {foreach from=$aRouter key=sPage item=sPath}
@@ -89,86 +89,88 @@
 	<link href='http://fonts.googleapis.com/css?family=Ubuntu:400,700,400italic,700italic&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
 {$aHtmlHeadFiles.js}
-
-	<script>  
-	(function($) {  
-	$(function() {  
-	  
-	  $('input, select').styler();  
-	  
-	})  
-	})(jQuery)  
-	</script>  
-
+    <script>
+        (function ($) {
+            $(function () {
+                $('input, select').styler();
+            });
+        })(jQuery);
+    </script>
     <script type="text/javascript">
-        var tinyMCE = false;
         ls.lang.load({json var = $aLangJs});
         //ls.registry.set('comment_max_tree', '{Config::Get("module.comment.max_tree")}');
     </script>
 
-{hook run='html_head_end'}
+{hook run='layout_head_end'}
+{/block}
 </head>
 
 <body class="{$body_classes}">
-{hook run='body_begin'}
+{block name="layout_body"}
+{hook run='layout_body_begin'}
+
+    {include file="modals/modal.empty.tpl"}
 
 <!-- NAVBAR -->
 <div class="navbar navbar-inverse navbar-fixed-top">
-<div class="navbar-header">
-      <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
+    <div class="navbar-header">
+        <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
     </div>
-<nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
-		
-        <ul class="nav navbar-nav navbar-right">
-			<li class="dropdown">
-			<a data-toggle="dropdown" class="dropdown-toggle" href="#">
-			<img src="{$oUserCurrent->getAvatarUrl(24)}" alt="avatar" class="avatar"/>
-			{$oUserCurrent->getDisplayName()}
-			</a>
 
-			<ul class="dropdown-menu">
-				<li><a href="{$oUserCurrent->getUserUrl()}"><i class="icon icon-user"></i> {$aLang.user_menu_profile}</a></li>
-				<li><a href="/settings/profile/"><i class="icon icon-settings"></i> {$aLang.settings_menu}</a></li>
-				<li><a href="{router page='login'}exit/?security_key={$ALTO_SECURITY_KEY}"><i class="icon icon-lock"></i> {$aLang.exit}</a></li>
-				</ul>
-			</li>
-        </ul>
+    <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
 
-        <ul class="nav navbar-nav navbar-right">
-            <!-- li>
-              <a href="#" data-toggle="dropdown">
-                <i class="icon icon-send"></i> Онлайн <span class="badge badge-success">178</span> 
-              </a>
-            </li -->
+    <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+            <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                <img src="{$oUserCurrent->getAvatarUrl(24)}" alt="avatar" class="avatar"/>
+                {$oUserCurrent->getDisplayName()}
+            </a>
 
-			<li>
-			<a href="{router page='talk'}">
-			<i class="icon icon-envelope"></i>
+            <ul class="dropdown-menu">
+                <li><a href="{$oUserCurrent->getUserUrl()}"><i class="icon icon-user"></i> {$aLang.user_menu_profile}
+                    </a></li>
+                <li><a href="/settings/profile/"><i class="icon icon-settings"></i> {$aLang.settings_menu}</a></li>
+                <li><a href="{router page='login'}exit/?security_key={$ALTO_SECURITY_KEY}"><i class="icon icon-lock"></i> {$aLang.exit}</a></li>
+            </ul>
+        </li>
+    </ul>
+
+    <ul class="nav navbar-nav navbar-right">
+        <!-- li>
+          <a href="#" data-toggle="dropdown">
+            <i class="icon icon-send"></i> Онлайн <span class="badge badge-success">178</span>
+          </a>
+        </li -->
+
+        <li>
+            <a href="{router page='talk'}">
+                <i class="icon icon-envelope"></i>
                 {$aLang.user_privat_messages}
                 {if $iUserCurrentCountTalkNew}
-				<span class="badge badge-important">{$iUserCurrentCountTalkNew}</span>
+                    <span class="badge badge-important">{$iUserCurrentCountTalkNew}</span>
                 {/if}
-               </a>
-            </li>
+            </a>
+        </li>
 
-            <li>
-              <a href="{router page='feed'}track/">
-                <i class="icon icon-bell"></i> {$aLang.subscribe_menu} {if $iUserCurrentCountTrack}<span class="badge badge-important">{$iUserCurrentCountTrack}</span>{/if}
-              </a>
-            </li>
+        <li>
+            <a href="{router page='feed'}track/">
+                <i class="icon icon-bell"></i> {$aLang.subscribe_menu} {if $iUserCurrentCountTrack}<span
+                        class="badge badge-important">{$iUserCurrentCountTrack}</span>{/if}
+            </a>
+        </li>
 
-        </ul>
+    </ul>
 
-		<ul class="nav navbar-nav navbar-right goto-site">
-			<li>
-			<a href="/" target="_blank"><i class="icon icon-pointer"></i> {$aLang.action.admin.goto_site}</a></li>
-			<li>
-		</ul>
+    <ul class="nav navbar-nav navbar-right goto-site">
+        <li>
+            <a href="/" target="_blank"><i class="icon icon-pointer"></i> {$aLang.action.admin.goto_site}</a></li>
+        <li>
+    </ul>
 </nav>
 </div>
 
@@ -195,20 +197,20 @@
         <a href="#" class="current">{$sPageTitle}</a>
     </div>
 
-			{block name="sysmessage"}{/block}
+    {block name="sysmessage"}{/block}
 
-            {block name="content-bar"}
-            {/block}
+    {block name="content-bar"}
+    {/block}
 
-            {block name="content-body"}
-            {/block}
+    {block name="content-body"}
+    {/block}
 {/block}
 
 </div>
 
 </div>
 
-{hook run='body_end'}
-
+{hook run='layout_body_end'}
+{/block}
 </body>
 </html>

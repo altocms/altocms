@@ -15,7 +15,7 @@
 	   -moz-box-shadow: 0 0 15px rgba(0,0,0,.5);
 	        box-shadow: 0 0 15px rgba(0,0,0,.5);
 	overflow: hidden;
-	z-index: 1000;
+	z-index: 1100;
 	position: relative;
 }
 
@@ -79,8 +79,8 @@
 	top: 50%; left: 50%;
 	border-radius: 5px;
 	background-color: #000;
-	background: rgba(0,0,0,.8) url(../images/modal-loader.gif) 50% 50% no-repeat;
-	z-index: 1001;
+	background: rgba(0,0,0,.8) url(../img/modal-loader.gif) 50% 50% no-repeat;
+	z-index: 1101;
 }
 .b-modal-loader-text {
 	background-image: none;

@@ -53,10 +53,11 @@
                 </div>
             </div>
         </div>
+
+        {$aThemes=$oActiveSkin->GetThemes()}
+        {if $aThemes}
         <div class="span6">
             <div class="b-wbox">
-                {$aThemes=$oActiveSkin->GetThemes()}
-                {if $aThemes}
                 <div class="b-wbox-header">
                     <span class="icon"><i class="icon icon-action-undo"></i></span>
 
@@ -92,8 +93,9 @@
                     </form>
                 </div>
             </div>
-            {/if}
         </div>
+        {/if}
+
     {/if}
 </div>
     <div class="span12">
