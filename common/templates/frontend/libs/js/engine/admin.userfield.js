@@ -11,7 +11,7 @@ ls.userfield = ( function ($) {
         $('#user_fields_form_pattern').val('');
         $('#user_fields_form_type').val('');
         $('#user_fields_form_action').val('add');
-        $('#userfield_form').jqmShow();
+        $('#userfield_form').modal('show');
     };
 
     this.showEditForm = function (id) {
@@ -25,11 +25,11 @@ ls.userfield = ( function ($) {
         $('#user_fields_form_pattern').val(pattern);
         $('#user_fields_form_type').val(type);
         $('#user_fields_form_id').val(id);
-        $('#userfield_form').jqmShow();
+        $('#userfield_form').modal('show');
     };
 
     this.applyForm = function () {
-        $('#userfield_form').jqmHide();
+        $('#userfield_form').modal('hide');
         if ($('#user_fields_form_action').val() == 'add') {
             this.addUserfield();
         } else if ($('#user_fields_form_action').val() == 'update') {

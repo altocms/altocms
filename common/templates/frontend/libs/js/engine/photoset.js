@@ -1,3 +1,17 @@
+/*---------------------------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *----------------------------------------------------------------------------
+ * Based on
+ *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
+ *   Site: www.livestreet.ru
+ *   E-mail: rus.engine@gmail.com
+ *----------------------------------------------------------------------------
+ */
+;
 var ls = ls || {};
 
 ls.photoset = ( function ($) {
@@ -26,8 +40,8 @@ ls.photoset = ( function ($) {
         opt.button_width = uploadButton.outerWidth();
         opt.button_height = uploadButton.outerHeight();
 
-        $(ls.swfupload).unbind('load').bind('load', function () {
-            this.swfu = ls.swfupload.init(opt);
+        $(ls.swfuploader).unbind('load').bind('load', function () {
+            this.swfu = ls.swfuploader.init(opt);
 
             $(this.swfu).bind('eReady', function(e){
                 ls.log('[ready]', $(e.target.movieElement));
@@ -48,7 +62,7 @@ ls.photoset = ( function ($) {
             $(this.swfu).bind('eUploadError', this.swfHandlerUploadError);
         }.bind(this));
 
-        ls.swfupload.loadSwf();
+        ls.swfuploader.loadSwf();
     }
 
     this.swfHandlerFileQueued = function (e, file) {

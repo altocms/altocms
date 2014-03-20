@@ -695,6 +695,7 @@ $config['head']['default']['js'] = array(
     '___path.frontend.url___/libs/js/engine/user.js',
     '___path.frontend.url___/libs/js/engine/userfeed.js',
     '___path.frontend.url___/libs/js/engine/stream.js',
+    '___path.frontend.dir___/libs/js/engine/swfuploader.js',
     '___path.frontend.url___/libs/js/engine/photoset.js',
     '___path.frontend.url___/libs/js/engine/toolbar.js',
     '___path.frontend.url___/libs/js/engine/settings.js',

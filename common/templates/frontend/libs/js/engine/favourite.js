@@ -82,13 +82,13 @@ ls.favourite = (function ($) {
         });
         $('#favourite-form-tags-tags').val(text);
         //$(obj).parents('.js-favourite-insert-after-form').after(form);
-        form.jqmShow();
+        form.modal('show');
 
         return false;
     };
 
     this.hideEditTags = function () {
-        $('#favourite-form-tags').jqmHide();
+        $('#favourite-form-tags').modal('hide');
         return false;
     };
 
