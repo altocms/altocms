@@ -41,6 +41,7 @@ class PluginLs extends Plugin {
         ),
         'action' => array(
             'ActionSettings',
+            'ActionContent',
         ),
     );
 
