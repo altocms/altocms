@@ -15,10 +15,10 @@
 var ls = ls || {};
 
 ls.photoset = ( function ($) {
-
+    var $that = this;
     this.idLast = 0;
     this.isLoading = false;
-    this.swfu;
+    this.swfu = null;
 
     /**
      * Инициализация
@@ -31,14 +31,20 @@ ls.photoset = ( function ($) {
         });
     };
 
+    /**
+     *
+     * @param opt
+     */
     this.initSwfUpload = function (opt) {
         opt = opt || {};
         opt.button_placeholder_id = 'photoset-upload-place';
         opt.post_params.ls_photoset_target_tmp = $.cookie('ls_photoset_target_tmp') ? $.cookie('ls_photoset_target_tmp') : 0;
 
         var uploadButton = $('#photoset-upload-button');
-        opt.button_width = uploadButton.outerWidth();
-        opt.button_height = uploadButton.outerHeight();
+        var fakeButton = uploadButton.clone().css({position: 'absolute', top: -1000, left:-1000}).appendTo('body').show();
+        opt.button_width = fakeButton.outerWidth();
+        opt.button_height = fakeButton.outerHeight();
+        fakeButton.remove();
 
         $(ls.swfuploader).unbind('load').bind('load', function () {
             this.swfu = ls.swfuploader.init(opt);
@@ -63,47 +69,102 @@ ls.photoset = ( function ($) {
         }.bind(this));
 
         ls.swfuploader.loadSwf();
-    }
+    };
 
+    /**
+     *
+     * @param e
+     * @param file
+     */
     this.swfHandlerFileQueued = function (e, file) {
         ls.photoset.updateProgress(file.index, file.name, 0, 0);
-    }
+    };
 
+    /**
+     *
+     * @param e
+     * @param file
+     * @param errorCode
+     * @param message
+     */
     this.swfHandlerFileQueueError = function (e, file, errorCode, message) {
         ls.msg.error('Error: ' + errorCode, message);
         ls.photoset.cancelProgress(file.index);
-    }
+    };
 
+    /**
+     *
+     * @param e
+     * @param file
+     * @param bytesLoaded
+     * @param percent
+     */
     this.swfHandlerUploadProgress = function (e, file, bytesLoaded, percent) {
         ls.photoset.updateProgress(file.index, file.name, bytesLoaded, percent);
-    }
+    };
 
+    /**
+     *
+     * @param e
+     * @param file
+     * @param serverData
+     */
     this.swfHandlerUploadSuccess = function (e, file, serverData) {
         ls.photoset.addPhoto(file.index, jQuery.parseJSON(serverData));
-    }
+    };
 
+    /**
+     *
+     * @param e
+     * @param file
+     * @param next
+     */
     this.swfHandlerUploadComplete = function (e, file, next) {
         if (next > 0) {
         }
-    }
+    };
 
+    /**
+     *
+     * @param e
+     * @param file
+     * @param errorCode
+     * @param message
+     */
     this.swfHandlerUploadError = function (e, file, errorCode, message) {
         ls.msg.error('Error: ' + errorCode, message);
-    }
+    };
 
+    /**
+     *
+     * @param index
+     * @returns {string}
+     * @private
+     */
     this._progressId = function(index) {
-
         return '#photoset-upload-progress-' + index;
-    }
+    };
 
+    /**
+     *
+     * @param id
+     * @returns {string}
+     * @private
+     */
     this._itemId = function(id) {
-
         return '#photoset_photo_' + id;
-    }
+    };
 
+    /**
+     *
+     * @param index
+     * @param filename
+     * @param bytes
+     * @param percent
+     */
     this.updateProgress = function(index, filename, bytes, percent) {
 
-        var id = this._progressId(index);
+        var id = $that._progressId(index);
         var photoProgress = $(id);
         if (!photoProgress.length) {
             photoProgress = $('.js-photoset-upload-progress')
@@ -124,57 +185,78 @@ ls.photoset = ( function ($) {
             .prop('aria-valuenow', (percent < 0) ? 100 : percent)
             .css('width', ((percent < 0) ? 100 : percent) + '%')
             .text((percent < 0) ? '' : (percent + '%'));
-    }
+    };
 
+    /**
+     *
+     * @param index
+     */
     this.removeProgress = function (index) {
 
-        $(this._progressId(index)).remove();
-    }
+        $($that._progressId(index)).remove();
+    };
 
+    /**
+     *
+     * @param index
+     */
     this.cancelProgress = function(index) {
 
         this.updateProgress(index, null, null, -1);
-        $(this._progressId(index)).find('.progress-bar').addClass('progress-bar-danger');
-    }
+        $($that._progressId(index)).find('.progress-bar').addClass('progress-bar-danger');
+    };
 
+    /**
+     *
+     * @param index
+     * @param response
+     */
     this.addPhoto = function (index, response) {
         if (!response) {
             ls.msg.error(null, 'System error #1001');
         } else if (response.bStateError) {
             ls.msg.error(response.sMsgTitle, response.sMsg);
         } else {
-            var html = $(this._itemId('ID')).get(0).outerHTML;
+            var html = $(ls.photoset._itemId('ID')).get(0).outerHTML;
             if (html) {
-                html = $(html.replace('ID', response.id)).show();
+                html = $(html.replace(/ID/g, response.id)).show();
                 html.find('img').prop('src', response.file);
-                $(this._progressId(index)).replaceWith(html);
+                $($that._progressId(index)).replaceWith(html);
                 ls.msg.notice(response.sMsgTitle, response.sMsg);
             }
         }
         $('#modal-photoset_upload').modal('hide');
-    }
+    };
 
+    /**
+     * @param id
+     */
     this.deletePhoto = function (id) {
+
         ls.modal.confirm('', ls.lang.get('topic_photoset_photo_delete_confirm'), {
             onConfirm: function() {
-                $(this._itemId(id)).css('opacity',.5).find('input, textarea').css('disabled', true);
+                $(ls.photoset._itemId(id)).css('opacity',.5).find('input, textarea').css('disabled', true);
                 ls.progressStart();
-                ls.ajaxPost(ls.routerUrl('content') + 'photo/delete', {'id': id}, function (result) {
+                ls.ajaxPost(ls.routerUrl('content') + 'photo/delete', {'id': id}, function (response) {
                     ls.progressDone();
-                    if (!result) {
+                    if (!response) {
                         ls.msg.error(null, 'System error #1001');
-                    } else if (result.bStateError) {
-                        ls.msg.error(result.sMsgTitle, result.sMsg);
+                    } else if (response.bStateError) {
+                        ls.msg.error(response.sMsgTitle, response.sMsg);
                     } else {
-                        $(this._itemId(id)).remove();
-                        ls.msg.notice(result.sMsgTitle, result.sMsg);
+                        $(ls.photoset._itemId(id)).remove();
+                        ls.msg.notice(response.sMsgTitle, response.sMsg);
                     }
                 });
             }
         });
-    }
+    };
 
+    /**
+     * @param id
+     */
     this.setPreview = function (id) {
+
         $('#topic_main_photo').val(id);
 
         $('.marked-as-preview').each(function (index, el) {
@@ -182,35 +264,45 @@ ls.photoset = ( function ($) {
             var tmpId = $(el).attr('id').slice($(el).attr('id').lastIndexOf('_') + 1);
             $('#photo_preview_state_' + tmpId).html('<a href="javascript:ls.photoset.setPreview(' + tmpId + ')" class="mark-as-preview link-dotted">' + ls.lang.get('topic_photoset_mark_as_preview') + '</a>');
         });
-        $(this._itemId(id)).addClass('marked-as-preview');
+        $(ls.photoset._itemId(id)).addClass('marked-as-preview');
         $('#photo_preview_state_' + id).html(ls.lang.get('topic_photoset_is_preview'));
-    }
+    };
 
+    /**
+     *
+     * @param id
+     */
     this.setPreviewDescription = function (id) {
-        var text = $(this._itemId(id)).find('text').value();
-        ls.ajaxPost(ls.routerUrl('content') + 'photo/description', {'id': id, 'text': text}, function (result) {
-                if (!result) {
+
+        var text = $(ls.photoset._itemId(id)).find('text').value();
+        ls.ajaxPost(ls.routerUrl('content') + 'photo/description', {'id': id, 'text': text}, function (response) {
+                if (!response) {
                     ls.msg.error(null, 'System error #1001');
-                } else if (result.bStateError) {
-                    ls.msg.error(null, result.sMsg);
+                } else if (response.bStateError) {
+                    ls.msg.error(null, response.sMsg);
                 } else {
                     ls.msg.error('Error', 'Please try again later');
                 }
             }
         )
-    }
+    };
 
+    /**
+     *
+     * @param topic_id
+     */
     this.getMore = function (topic_id) {
+
         if (this.isLoading) return;
         this.isLoading = true;
 
-        ls.ajaxGet(ls.routerUrl('content') + 'photo/getmore', {'topic_id': topic_id, 'last_id': this.idLast}, function (result) {
+        ls.ajaxGet(ls.routerUrl('content') + 'photo/getmore', {'topic_id': topic_id, 'last_id': this.idLast}, function (response) {
             this.isLoading = false;
-            if (!result) {
+            if (!response) {
                 ls.msg.error(null, 'System error #1001');
-            } else if (result.bStateError) {
-                if (result.photos) {
-                    $.each(result.photos, function (index, photo) {
+            } else if (response.bStateError) {
+                if (response.photos) {
+                    $.each(response.photos, function (index, photo) {
                         var image = '<li><a class="photoset-image" href="' + photo.path + '" rel="[photoset]" title="' + photo.description + '"><img src="' + photo.path_thumb + '" alt="' + photo.description + '" /></a></li>';
                         $('#topic-photo-images').append(image);
                         this.idLast = photo.id;
@@ -223,15 +315,18 @@ ls.photoset = ( function ($) {
                         });
                     }.bind(this));
                 }
-                if (!result.bHaveNext || !result.photos) {
+                if (!response.bHaveNext || !response.photos) {
                     $('#topic-photo-more').remove();
                 }
             } else {
                 ls.msg.error('Error', 'Please try again later');
             }
         }.bind(this));
-    }
+    };
 
+    /**
+     *
+     */
     this.upload = function () {
         //ls.photoset.addPhotoEmpty();
 
@@ -245,21 +340,24 @@ ls.photoset = ( function ($) {
         input.clone(true).insertAfter(input);
         input.appendTo(form);
 
-        ls.ajaxSubmit(ls.routerUrl('content') + 'photo/upload/', form, function (result) {
-            if (!result) {
+        ls.ajaxSubmit(ls.routerUrl('content') + 'photo/upload/', form, function (response) {
+            if (!response) {
                 ls.msg.error(null, 'System error #1001');
-            } else if (result.bStateError) {
-                ls.msg.error(result.sMsgTitle, result.sMsg);
+            } else if (response.bStateError) {
+                ls.msg.error(response.sMsgTitle, response.sMsg);
             } else {
-                ls.photoset.addPhoto(result);
+                ls.photoset.addPhoto(response);
             }
             form.remove();
         });
-    }
+    };
 
+    /**
+     *
+     */
     this.showForm = function() {
 
-    }
+    };
 
     return this;
 }).call(ls.photoset || {}, jQuery);

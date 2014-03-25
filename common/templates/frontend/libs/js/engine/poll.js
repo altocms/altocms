@@ -37,11 +37,6 @@ ls.poll = (function ($) {
         sPollResultItemSelector: '.js-poll-result-item',
         sPollResultButtonSortSelector: '.js-poll-result-button-sort',
 
-        // Html варианта ответа
-        sAddItemHtml: '<li class="poll-add-item js-poll-add-item">' +
-            '<input type="text" name="answer[]" class="poll-add-item-input js-poll-add-item-input">' +
-            '<i class="icon-remove poll-add-item-remove js-poll-add-item-remove" title="' + ls.lang.get('delete') + '"></i>' +
-            '</li>'
     };
 
     /**
@@ -56,36 +51,37 @@ ls.poll = (function ($) {
 
         // Добавление
         $(this.options.sAddSelector).each(function () {
-            var oPollAdd = $(this);
+            var pollSet = $(this);
 
             // Добавление варианта
-            oPollAdd.find(self.options.sAddButtonSelector).on('click', function () {
-                self.addItem(oPollAdd);
+            pollSet.find(self.options.sAddButtonSelector).on('click', function () {
+                self.addItem(pollSet);
+                return false;
             }.bind(self));
 
             // Добавление варианта по нажатию Ctrl + Enter
-            oPollAdd.on('keyup', self.options.sAddItemInputSelector, function (e) {
+            pollSet.on('keyup', self.options.sAddItemInputSelector, function (e) {
                 var key = e.keyCode || e.which;
 
                 if (e.ctrlKey && key == 13) {
-                    self.addItem(oPollAdd);
+                    self.addItem(pollSet);
                 }
             });
 
             // Удаление
-            oPollAdd.on('click', self.options.sAddItemRemoveSelector, function () {
+            pollSet.on('click', self.options.sAddItemRemoveSelector, function () {
                 self.removeItem(this);
             });
         });
 
         // Голосование
         $(this.options.sPollSelector).each(function () {
-            var oPoll = $(this),
-                iPollId = oPoll.data('poll-id');
+            var pollSet = $(this),
+                iPollId = pollSet.data('poll-id');
 
             // Голосование за вариант
-            oPoll.find(self.options.sPollButtonVoteSelector).on('click', function () {
-                var iCheckedItemId = oPoll.find(self.options.sPollItemOptionSelector + ':checked').val();
+            pollSet.find(self.options.sPollButtonVoteSelector).on('click', function () {
+                var iCheckedItemId = pollSet.find(self.options.sPollItemOptionSelector + ':checked').val();
 
                 if (iCheckedItemId) {
                     self.vote(iPollId, iCheckedItemId);
@@ -95,13 +91,13 @@ ls.poll = (function ($) {
             });
 
             // Воздержаться
-            oPoll.find(self.options.sPollButtonAbstainSelector).on('click', function () {
+            pollSet.find(self.options.sPollButtonAbstainSelector).on('click', function () {
                 self.vote(iPollId, -1);
             });
 
             // Воздержаться
-            oPoll.on('click', self.options.sPollResultButtonSortSelector, function () {
-                self.toggleSort(oPoll);
+            pollSet.on('click', self.options.sPollResultButtonSortSelector, function () {
+                self.toggleSort(pollSet);
             });
         });
     };
@@ -109,19 +105,20 @@ ls.poll = (function ($) {
     /**
      * Добавляет вариант ответа
      *
-     * @param  {Object} oPollAdd Блок добавления опроса
      */
-    this.addItem = function (oPollAdd) {
-        if (oPollAdd.find(this.options.sAddItemSelector).length == this.options.iMaxItems) {
-            ls.msg.error(null, ls.lang.get('topic_question_create_answers_error_max'));
-            return false;
+    this.addItem = function (poll) {
+        var items = poll.find(this.options.sAddItemSelector);
+
+        if (items.length > 1) {
+            if (items.length >= this.options.iMaxItems) {
+                ls.msg.error(null, ls.lang.get('topic_question_create_answers_error_max'));
+                return false;
+            }
+            var newItem = $(items.last().get(0).outerHTML);
+            newItem.appendTo(items.parent());
+            items.find('[value=""]').first().focus();
         }
-
-        var self = this,
-            oNewItem = $(this.options.sAddItemHtml);
-
-        oPollAdd.find(this.options.sAddListSelector).append(oNewItem);
-        oNewItem.find('input[type=text]').focus();
+        return false;
     };
 
     /**
@@ -191,3 +188,7 @@ ls.poll = (function ($) {
 
     return this;
 }).call(ls.poll || {}, jQuery);
+
+$(function(){
+    ls.poll.init();
+});

@@ -845,13 +845,13 @@ class ModuleTopic_EntityTopic extends Entity {
     }
 
     /**
-     * Устанавливает URL для топика-ссылки
+     * Set URL for topic's filed link-source
      *
      * @param string $data
      */
     public function setLinkUrl($data) {
 
-        $this->setExtraValue('url', $data);
+        $this->setExtraValue('url', strip_tags($data));
     }
 
     /*
@@ -944,19 +944,16 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function getQuestionAnswers($bSortVote = false) {
 
-        if ($this->getExtraValue('answers')) {
-            $aAnswers = $this->getExtraValue('answers');
-            if ($bSortVote) {
-                uasort(
-                    $aAnswers, create_function(
-                        '$a,$b',
-                        "if (\$a['count'] == \$b['count']) { return 0; } return (\$a['count'] < \$b['count']) ? 1 : -1;"
-                    )
-                );
-            }
-            return $aAnswers;
+        $aAnswers = $this->getExtraValue('answers');
+        if ($aAnswers && $bSortVote) {
+            uasort(
+                $aAnswers, create_function(
+                    '$a,$b',
+                    "if (\$a['count'] == \$b['count']) { return 0; } return (\$a['count'] < \$b['count']) ? 1 : -1;"
+                )
+            );
         }
-        return array();
+        return $aAnswers ? $aAnswers : array();
     }
 
     /**

@@ -102,8 +102,8 @@ class ActionContent extends Action {
 
         //Фото
         $this->AddEventPreg('/^photo$/i', '/^upload$/i', 'EventPhotoUpload'); // Загрузка изображения в фотосет
-        $this->AddEventPreg('/^photo$/i', '/^delete$/i', 'EventPhotoDelete'); // Удаление изображения
-        $this->AddEventPreg('/^photo$/i', '/^description$/i', 'EventPhotoDescription'); // Установка описания к фото
+        $this->AddEventPreg('/^photo$/i', '/^delete$/i', 'EventPhotoDelete'); // Удаление изображения из фотосета
+        $this->AddEventPreg('/^photo$/i', '/^description$/i', 'EventPhotoDescription'); // Установка описания к фото в фотосете
         $this->AddEventPreg('/^photo$/i', '/^getmore$/i', 'EventPhotoGetMore'); // Подгрузка изображений
 
         //Переход для топика с оригиналом
@@ -184,19 +184,20 @@ class ActionContent extends Action {
              */
             $_REQUEST['topic_title'] = $oTopic->getTitle();
             $_REQUEST['topic_text'] = $oTopic->getTextSource();
-            $_REQUEST['topic_link_url'] = $oTopic->getLinkUrl();
-            $_REQUEST['topic_tags'] = $oTopic->getTags();
             $_REQUEST['blog_id'] = $oTopic->getBlogId();
             $_REQUEST['topic_id'] = $oTopic->getId();
             $_REQUEST['topic_publish_index'] = $oTopic->getPublishIndex();
             $_REQUEST['topic_forbid_comment'] = $oTopic->getForbidComment();
             $_REQUEST['topic_main_photo'] = $oTopic->getPhotosetMainPhotoId();
 
-            $_REQUEST['question_title'] = $oTopic->getQuestionTitle();
-            $_REQUEST['answer'] = array();
+            $_REQUEST['topic_field_link'] = $oTopic->getLinkUrl();
+            $_REQUEST['topic_field_tags'] = $oTopic->getTags();
+
+            $_REQUEST['topic_field_question'] = $oTopic->getQuestionTitle();
+            $_REQUEST['topic_field_answers'] = array();
             $aAnswers = $oTopic->getQuestionAnswers();
             foreach ($aAnswers as $aAnswer) {
-                $_REQUEST['answer'][] = $aAnswer['text'];
+                $_REQUEST['topic_field_answers'][] = $aAnswer['text'];
             }
 
             foreach ($this->oContentType->getFields() as $oField) {
@@ -381,12 +382,14 @@ class ActionContent extends Action {
         $oTopic->setBlogId(F::GetRequestStr('blog_id'));
         $oTopic->setTitle(strip_tags(F::GetRequestStr('topic_title')));
         $oTopic->setTextSource(F::GetRequestStr('topic_text'));
-        $oTopic->setTags(F::GetRequestStr('topic_tags'));
         $oTopic->setUserId($this->oUserCurrent->getId());
         $oTopic->setType($this->oContentType->getContentUrl());
+
         if ($this->oContentType->isAllow('link')) {
-            $oTopic->setLinkUrl(F::GetRequestStr('topic_link_url'));
+            $oTopic->setLinkUrl(F::GetRequestStr('topic_field_link'));
         }
+        $oTopic->setTags(F::GetRequestStr('topic_field_tags'));
+
         $oTopic->setDateAdd(F::Now());
         $oTopic->setUserIp(F::GetUserIp());
 
@@ -438,10 +441,10 @@ class ActionContent extends Action {
         $oTopic->setTextShort($this->Text_Parser($sTextShort));
 
         // * Варианты ответов
-        if ($this->oContentType->isAllow('question') && F::GetRequestStr('question_title') && getRequest('answer', array())) {
-            $oTopic->setQuestionTitle(strip_tags(F::GetRequestStr('question_title')));
+        if ($this->oContentType->isAllow('poll') && F::GetRequestStr('topic_field_question') && getRequest('topic_field_answers', array())) {
+            $oTopic->setQuestionTitle(strip_tags(F::GetRequestStr('topic_field_question')));
             $oTopic->clearQuestionAnswer();
-            foreach (getRequest('answer', array()) as $sAnswer) {
+            foreach (getRequest('topic_field_answers', array()) as $sAnswer) {
                 $oTopic->addQuestionAnswer((string)$sAnswer);
             }
         }
@@ -589,10 +592,12 @@ class ActionContent extends Action {
         $oTopic->setBlogId(F::GetRequestStr('blog_id'));
         $oTopic->setTitle(strip_tags(F::GetRequestStr('topic_title')));
         $oTopic->setTextSource(F::GetRequestStr('topic_text'));
+
         if ($this->oContentType->isAllow('link')) {
-            $oTopic->setLinkUrl(F::GetRequestStr('topic_link_url'));
+            $oTopic->setLinkUrl(F::GetRequestStr('topic_field_link'));
         }
-        $oTopic->setTags(F::GetRequestStr('topic_tags'));
+        $oTopic->setTags(F::GetRequestStr('topic_field_tags'));
+
         $oTopic->setUserIp(F::GetUserIp());
 
         if ($this->oUserCurrent && $this->oUserCurrent->isAdministrator()) {
@@ -647,12 +652,12 @@ class ActionContent extends Action {
         $oTopic->setTextShort($this->Text_Parser($sTextShort));
 
         // * Изменяем вопрос/ответы, только если еще никто не голосовал
-        if ($this->oContentType->isAllow('question') && F::GetRequestStr('question_title')
-            && getRequest('answer', array()) && ($oTopic->getQuestionCountVote() == 0)
+        if ($this->oContentType->isAllow('poll') && F::GetRequestStr('topic_field_question')
+            && getRequest('topic_field_answers', array()) && ($oTopic->getQuestionCountVote() == 0)
         ) {
-            $oTopic->setQuestionTitle(strip_tags(F::GetRequestStr('question_title')));
+            $oTopic->setQuestionTitle(strip_tags(F::GetRequestStr('topic_field_question')));
             $oTopic->clearQuestionAnswer();
-            foreach (getRequest('answer', array()) as $sAnswer) {
+            foreach (F::GetRequest('topic_field_answers', array()) as $sAnswer) {
                 $oTopic->addQuestionAnswer((string)$sAnswer);
             }
         }

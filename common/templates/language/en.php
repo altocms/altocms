@@ -282,6 +282,7 @@ return array(
     'topic_create_publish_index_notice'         => "If you check this option you'll post this topic directly to the main page (option availiable to administrators only)",
     'topic_create_submit_publish'               => 'Publish',
     'topic_create_submit_update'                => 'Update',
+    'topic_create_submit_draft'                 => 'Save to drafts',
     'topic_create_submit_save'                  => 'Save to drafts',
     'topic_create_submit_preview'               => 'Preview',
     'topic_create_submit_preview_close'         => 'Close',
@@ -294,6 +295,17 @@ return array(
     'topic_delete_confirm_title'                => 'Deletion of topic',
     'topic_delete_confirm_text'                 => 'Do you really want to delete this topic?',
     'topic_delete_confirm'                      => 'Do you really want to delete this topic?',
+
+    'topic_field_link_add'                      => 'Add link source',
+    'topic_field_link_label'                    => 'Link source',
+    'topic_field_link_notice'                   => 'E.g., http://altocms.com/218.html',
+    'topic_field_link_error'                    => 'Link should consist of 2 upto 200 chars',
+
+    'topic_field_photoset_add'                  => 'Attach images',
+    'topic_field_photoset_notice'               => 'Download images available in format JPG, PNG, GIF <br/> Image size should not exceed %%SIZE%% Kb <br /> Maximum number of uploaded images: %%COUNT%%',
+
+    'topic_field_poll_add'                      => 'Add poll',
+
     /**
      * Link-topic
      */
@@ -304,7 +316,7 @@ return array(
     'topic_link_create'                         => 'Create link-topic',
     'topic_link_edit'                           => 'Edit link-topic',
     'topic_link_count_jump'                     => 'visitors',
-    'topic_link_create_url'                     => "Source",
+    'topic_link_create_url'                     => 'Source',
     'topic_link_create_url_notice'              => 'E.g., http://altocms.com/218.html',
     'topic_link_create_url_error'               => 'Link should consist of 2 upto 200 chars',
     'topic_link_create_text'                    => 'Short description (500 chars at max.)',

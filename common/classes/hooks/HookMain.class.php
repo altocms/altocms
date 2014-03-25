@@ -40,6 +40,7 @@ class HookMain extends Hook {
          * Упрощенный вывод JS в футере, для проблемных файлов
          */
         $this->AddHook('template_body_end', 'buildfooterJsCss', __CLASS__, -150);
+        $this->AddHook('template_layout_body_end', 'buildfooterJsCss', __CLASS__, -150);
 
         /*
          * Улучшенный share при просмотре топика

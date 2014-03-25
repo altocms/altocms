@@ -296,6 +296,7 @@ return array(
     'topic_create_submit_publish_update'        => 'Обновить публикацию',
     'topic_create_submit_publish_draft'         => 'Перенести в черновики',
     'topic_create_submit_update'                => 'Обновить',
+    'topic_create_submit_draft'                 => 'Сохранить в черновиках',
     'topic_create_submit_save'                  => 'Сохранить в черновиках',
     'topic_create_submit_preview'               => 'Предпросмотр',
     'topic_create_submit_preview_close'         => 'свернуть',
@@ -308,6 +309,17 @@ return array(
     'topic_delete_confirm_title'                => 'Удаление статьи',
     'topic_delete_confirm_text'                 => 'Вы действительно хотите удалить статью?',
     'topic_delete_confirm'                      => 'Вы действительно хотите удалить статью?',
+
+    'topic_field_link_add'                      => 'Добавить ссылку-источник',
+    'topic_field_link_label'                    => 'Cсылка-источник',
+    'topic_field_link_notice'                   => 'Например, http://altocms.com/218.html',
+    'topic_field_link_error'                    => 'Ссылка должна быть от 2 до 200 символов',
+
+    'topic_field_photoset_add'                  => 'Добавить изображения',
+    'topic_field_photoset_notice'               => 'Доступна загрузка изображений в формат JPG, PNG, GIF<br />Размер изображений не должен превышать %%SIZE%% Kб<br />Максимальное число загружаемых изображений: %%COUNT%%',
+
+    'topic_field_poll_add'                      => 'Добавить опрос',
+
     /**
      * Топик-ссылка
      */

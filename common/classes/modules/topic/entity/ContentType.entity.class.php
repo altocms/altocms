@@ -37,10 +37,12 @@ class ModuleTopic_EntityContentType extends Entity {
 
     public function isAllow($sAllow) {
 
-        if ($this->getExtraValue($sAllow)) {
-            return $this->getExtraValue($sAllow);
+        if ($sAllow == 'poll') {
+            $bResult = $this->getExtraValue('poll') || $this->getExtraValue('question');
+        } else {
+            $bResult = $this->getExtraValue($sAllow);
         }
-        return false;
+        return (bool)$bResult;
     }
 
     /**
