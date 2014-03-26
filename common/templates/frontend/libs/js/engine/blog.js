@@ -12,7 +12,7 @@ ls.blog = (function ($) {
      */
     var defaults = {
         // Роутеры
-        oRouters: {
+        routers: {
 
         },
 

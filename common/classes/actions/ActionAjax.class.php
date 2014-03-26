@@ -952,12 +952,14 @@ class ActionAjax extends Action {
         $oTopic = Engine::GetEntity('ModuleTopic_EntityTopic');
         $oTopic->_setValidateScenario($sType); // зависит от типа топика
 
-        $oTopic->setTitle(strip_tags(getRequestStr('topic_title')));
-        $oTopic->setTextSource(getRequestStr('topic_text'));
-        $oTopic->setTags(getRequestStr('topic_tags'));
+        $oTopic->setTitle(strip_tags(F::GetRequestStr('topic_title')));
+        $oTopic->setTextSource(F::GetRequestStr('topic_text'));
+        $oTopic->setTags(F::GetRequestStr('topic_tags'));
         $oTopic->setDateAdd(F::Now());
         $oTopic->setUserId($this->oUserCurrent->getId());
         $oTopic->setType($sType);
+        $oTopic->setBlogId(F::GetRequestStr('blog_id'));
+        $oTopic->setPublish(1);
 
         // * Валидируем необходимые поля топика
         $oTopic->_Validate(array('topic_title', 'topic_text', 'topic_tags', 'topic_type'), false);
@@ -1028,9 +1030,16 @@ class ActionAjax extends Action {
         // * Рендерим шаблон для предпросмотра топика
         $oViewer = $this->Viewer_GetLocalViewer();
         $oViewer->Assign('oTopic', $oTopic);
-        $sTemplate = "topic_preview_{$oTopic->getType()}.tpl";
+        $oViewer->Assign('bPreview', true);
+
+        // Alto-style template
+        $sTemplate = 'topics/topic.show.tpl';
         if (!$this->Viewer_TemplateExists($sTemplate)) {
-            $sTemplate = 'topic_preview_topic.tpl';
+            // LS-style template
+            $sTemplate = "topic_preview_{$oTopic->getType()}.tpl";
+            if (!$this->Viewer_TemplateExists($sTemplate)) {
+                $sTemplate = 'topic_preview_topic.tpl';
+            }
         }
         $sTextResult = $oViewer->Fetch($sTemplate);
 

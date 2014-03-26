@@ -118,7 +118,9 @@ label                                   { display: block }
 .nopadding                              { padding: 0!important }
 .form-horizontal .control-label         { float: left; width: 220px; text-align: right; padding-top: 0px; }
 .form-horizontal .controls              { margin-left: 230px; margin-bottom: 10px; }
-.form-horizontal .controls input        { width: 80% }
+.form-horizontal .controls input,
+.form-horizontal .controls textarea,
+.form-horizontal .controls select       { width: 80% }
 .markItUpContainer                      { width: 80%!important }
 .markItUpEditor                         { width: 100%!important }
 .markItUpHeader ul                      { padding: 0 }

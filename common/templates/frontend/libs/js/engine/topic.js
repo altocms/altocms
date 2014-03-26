@@ -12,12 +12,13 @@ ls.topic = (function ($) {
      */
     var defaults = {
         // Роутеры
-        oRouters: {
+        routers: {
             preview: ls.routerUrl('ajax') + 'preview/topic/'
         },
 
         // Селекторы
         selectors: {
+            previewPlace: '.js-topic-preview-place',
             previewImage: '.js-topic-preview-image',
             previewImageLoader: '.js-topic-preview-loader',
             previewTopicTextButton: '.js-topic-preview-text-button',
@@ -48,7 +49,7 @@ ls.topic = (function ($) {
 
         // Превью текста
         $(this.options.selectors.previewTopicTextButton).on('click', function (e) {
-            self.showPreviewText('form-topic-add', 'topic-text-preview');
+            self.showPreviewText(this, self.options.selectors.previewPlace);
         });
 
         // Закрытие превью текста
@@ -65,24 +66,33 @@ ls.topic = (function ($) {
     /**
      * Превью текста
      *
-     * @param  {String} sFormId ID формы
-     * @param  {String} sPreviewId ID блока превью
+     * @param form
+     * @param previewPlace
      */
-    this.showPreviewText = function (sFormId, sPreviewId) {
-        var oForm = $('#' + sFormId);
-        var oPreview = $('#' + sPreviewId);
+    this.showPreviewText = function (form, previewPlace) {
+        if (form) {
+            form = $(form);
+        }
+        if (!form.is('form')) {
+            form = form.parents('form').first();
+        }
+        previewPlace = $(previewPlace);
 
-        ls.ajaxSubmit(this.options.oRouters.preview, oForm, function (result) {
-            if (!result) {
-                ls.msg.error(null, 'System error #1001');
-            } else if (result.bStateError) {
-                ls.msg.error(null, result.sMsg);
-            } else {
-                oPreview.show().html(result.sText);
+        if (form.length && previewPlace.length) {
+            ls.progressStart();
+            ls.ajaxSubmit(this.options.routers.preview, form, function (result) {
+                ls.progressDone();
+                if (!result) {
+                    ls.msg.error(null, 'System error #1001');
+                } else if (result.bStateError) {
+                    ls.msg.error(null, result.sMsg);
+                } else {
+                    previewPlace.html(result.sText).show();
 
-                ls.hook.run('ls_topic_preview_after', [oForm, oPreview, result]);
-            }
-        });
+                    ls.hook.run('ls_topic_preview_after', [form, previewPlace, result]);
+                }
+            });
+        }
     };
 
     /**
@@ -91,6 +101,10 @@ ls.topic = (function ($) {
     this.hidePreviewText = function () {
         $('#topic-text-preview').hide();
     };
+
+    $(function(){
+        ls.topic.init();
+    });
 
     return this;
 }).call(ls.topic || {}, jQuery);
