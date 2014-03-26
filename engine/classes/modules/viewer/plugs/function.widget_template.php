@@ -45,6 +45,7 @@ function smarty_function_widget_template($aParams, $oSmartyTemplate) {
                 /* LS-compatible */
                 $oSmartyTemplate->assign('params', $aWidgetParams);
             }
+            $oSmartyTemplate->assign('aWidgetParams', $aWidgetParams);
         }
         $sResult = $oSmartyTemplate->fetch($sTemplate);
     }
