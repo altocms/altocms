@@ -488,13 +488,24 @@ class ModuleTopic_EntityTopic extends Entity {
     }
 
     /**
-     * Возвращает объект блого, в котором находится топик
+     * Returns blog object of the topic
      *
      * @return ModuleBlog_EntityBlog|null
      */
     public function getBlog() {
 
-        return $this->getProp('blog');
+        $oBlog = $this->getProp('blog');
+        if (!$oBlog) {
+            $iBlogId = $this->getBlogId();
+            if ($iBlogId) {
+                $oBlog = $this->Blog_GetBlogById($oBlog);
+            } elseif ($iBlogId === 0 || $iBlogId === '0') {
+                $oUser = $this->getUser();
+                $oBlog = $oUser->getBlog();
+            }
+            $this->setProp('blog', $oBlog);
+        }
+        return $oBlog;
     }
 
     /**
@@ -1161,6 +1172,11 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function setBlogId($data) {
 
+        if (is_numeric($data)) {
+            $data = intval($data);
+        } else {
+            $data = null;
+        }
         $this->setProp('blog_id', $data);
     }
 
