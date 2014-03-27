@@ -14,11 +14,12 @@
  */
 
 /**
- * Плагин для Smarty
- * Работа с группой виджетов
+ * Plugin for Smarty
+ * Display widget group
  *
- * @param   array $aParams
+ * @param   array                    $aParams
  * @param   Smarty_Internal_Template $oSmartyTemplate
+ *
  * @return  string
  */
 function smarty_function_wgroup_show($aParams, $oSmartyTemplate) {

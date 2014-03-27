@@ -14,11 +14,12 @@
  */
 
 /**
- * Плагин для Smarty
- * Работа с виджетами
+ * Plugin for Smarty
+ * Eval widgets
  *
- * @param   array $aParams
+ * @param   array                    $aParams
  * @param   Smarty_Internal_Template $oSmartyTemplate
+ *
  * @return  string
  */
 function smarty_function_widget($aParams, $oSmartyTemplate) {
@@ -60,18 +61,21 @@ function smarty_function_widget($aParams, $oSmartyTemplate) {
         if (!function_exists('smarty_function_widget_exec')) {
             F::IncludeFile('function.widget_exec.php');
         }
-        return smarty_function_widget_exec(array('name'=>$sWidgetName, 'params'=>$aWidgetParams), $oSmartyTemplate);
+        return smarty_function_widget_exec(array('name' => $sWidgetName, 'params' => $aWidgetParams), $oSmartyTemplate);
     } elseif ($sWidgetType == 'block') {
         // * LS-compatible * //
         if (!function_exists('smarty_function_widget_exec')) {
             F::IncludeFile('function.widget_exec.php');
         }
-        return smarty_function_widget_exec(array('name'=>$sWidgetName, 'params'=>$aWidgetParams), $oSmartyTemplate);
+        return smarty_function_widget_exec(array('name' => $sWidgetName, 'params' => $aWidgetParams), $oSmartyTemplate);
     } elseif ($sWidgetType == 'template') {
         if (!function_exists('smarty_function_widget_template')) {
             F::IncludeFile('function.widget_template.php');
         }
-        return smarty_function_widget_template(array('name'=>($sWidgetTemplate ? $sWidgetTemplate : $sWidgetName), 'params'=>$aWidgetParams), $oSmartyTemplate);
+        return smarty_function_widget_template(
+            array('name' => ($sWidgetTemplate ? $sWidgetTemplate : $sWidgetName), 'params' => $aWidgetParams),
+            $oSmartyTemplate
+        );
     }
     return '';
 }

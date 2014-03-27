@@ -14,11 +14,11 @@
  */
 
 /**
- * Плагин для Smarty
- * Позволяет получать данные из конфига
+ * Plugin for Smarty
  *
- * @param   array $aParams
+ * @param   array                    $aParams
  * @param   Smarty_Internal_Template $oSmartyTemplate
+ *
  * @return  string
  */
 function smarty_function_widget_template($aParams, $oSmartyTemplate) {
@@ -37,8 +37,7 @@ function smarty_function_widget_template($aParams, $oSmartyTemplate) {
 
     if ($sTemplate) {
         if ($aWidgetParams) {
-            foreach($aWidgetParams as $sKey=>$sVal) {
-                //$oEngine->Viewer_Assign($sKey, $sVal);
+            foreach ($aWidgetParams as $sKey => $sVal) {
                 $oSmartyTemplate->assign($sKey, $sVal);
             }
             if (!isset($aWidgetParams['params'])) {

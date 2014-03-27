@@ -14,11 +14,12 @@
  */
 
 /**
- * Плагин для Smarty
- * Работа с группой виджетов
+ * Plugin for Smarty
+ * Eval widget groups
  *
  * @param   array $aParams
  * @param   Smarty_Internal_Template $oSmartyTemplate
+ *
  * @return  string
  */
 function smarty_function_wgroup($aParams, $oSmartyTemplate) {
@@ -51,8 +52,12 @@ function smarty_function_wgroup($aParams, $oSmartyTemplate) {
             F::IncludeFile('function.wgroup_show.php');
         }
         unset($aWidgetParams['group']);
-        if (isset($aWidgetParams['command'])) unset($aWidgetParams['command']);
-        return smarty_function_wgroup_show(array('group' => $sWidgetGroup, 'params' => $aWidgetParams), $oSmartyTemplate);
+        if (isset($aWidgetParams['command'])) {
+            unset($aWidgetParams['command']);
+        }
+        return smarty_function_wgroup_show(
+            array('group' => $sWidgetGroup, 'params' => $aWidgetParams), $oSmartyTemplate
+        );
     } elseif ($sWidgetCommand == 'add') {
         if (!isset($aWidgetParams['widget'])) {
             trigger_error('Parameter "widget" does not define in {wgroup ...} function', E_USER_WARNING);
@@ -64,8 +69,12 @@ function smarty_function_wgroup($aParams, $oSmartyTemplate) {
         $sWidgetName = $aWidgetParams['widget'];
         unset($aWidgetParams['group']);
         unset($aWidgetParams['widget']);
-        if (isset($aWidgetParams['command'])) unset($aWidgetParams['command']);
-        return smarty_function_wgroup_add(array('group' => $sWidgetGroup, 'widget' => $sWidgetName, 'params' => $aWidgetParams), $oSmartyTemplate);
+        if (isset($aWidgetParams['command'])) {
+            unset($aWidgetParams['command']);
+        }
+        return smarty_function_wgroup_add(
+            array('group' => $sWidgetGroup, 'widget' => $sWidgetName, 'params' => $aWidgetParams), $oSmartyTemplate
+        );
     }
     return '';
 }

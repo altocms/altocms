@@ -14,11 +14,11 @@
  */
 
 /**
- * Плагин для Smarty
- * Позволяет получать данные из конфига
+ * Plugin for Smarty
  *
  * @param   array $aParams
  * @param   Smarty_Internal_Template $oSmartyTemplate
+ *
  * @return  string
  */
 function smarty_function_widget_exec($aParams, $oSmartyTemplate) {
@@ -55,7 +55,10 @@ function smarty_function_widget_exec($aParams, $oSmartyTemplate) {
                 $sTemplate = Plugin::GetTemplatePath($sPlugin) . '/widgets/widget.' . $sWidgetName . '.tpl';
                 if (!F::File_Exists($sTemplate)) {
                     // * LS-compatible * //
-                    $sTemplate = Plugin::GetTemplatePath($aParams['params']['plugin']) . '/blocks/block.' . $sWidgetName . '.tpl';
+                    $sLsTemplate = Plugin::GetTemplatePath($aParams['params']['plugin']) . '/blocks/block.' . $sWidgetName . '.tpl';
+                    if (F::File_Exists($sTemplate, $oSmartyTemplate->getTemplateDir())) {
+                        $sTemplate = $sLsTemplate;
+                    }
                 }
             } else {
                 $sTemplate = E::Plugin_GetDelegate('template', 'widgets/widget.' . $sWidgetName . '.tpl');
