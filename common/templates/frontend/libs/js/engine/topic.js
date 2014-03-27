@@ -102,6 +102,20 @@ ls.topic = (function ($) {
         $('#topic-text-preview').hide();
     };
 
+    this.editUrl = function(button) {
+        var parent = $(button).parents('p').first();
+        if (!parent.length) {
+            parent = $(button).parent();
+        }
+        parent.find('.b-topic_url_demo-edit').hide();
+        parent.find('[name=topic_url]').show().focus();
+    };
+
+    this.shortUrl = function(url) {
+        prompt('URL:', url);
+        return false;
+    };
+
     $(function(){
         ls.topic.init();
     });
