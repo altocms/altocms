@@ -262,7 +262,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
                 $aFileParams = array_shift($aFiles);
                 if ($aFileParams['throw']) {
                     // Throws without prepare (e.c. external links)
-                    $this->AddLink($aFileParams['info']['extension'], $aFileParams['file'], $aFileParams);
+                    $this->AddLink($this->sOutType, $aFileParams['file'], $aFileParams);
                 } else {
                     // Prepares single file
                     $this->MakeSingle($sAsset, $aFileParams);
