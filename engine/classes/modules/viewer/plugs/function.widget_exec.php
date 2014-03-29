@@ -29,6 +29,11 @@ function smarty_function_widget_exec($aParams, $oSmartyTemplate) {
     }
     $sWidgetName = $aParams['name'];
     $aWidgetParams = (isset($aParams['params']) ? $aParams['params'] : array());
+    foreach ($aParams as $sKey=>$xValue) {
+        if ($sKey != 'name' && $sKey != 'params') {
+            $aWidgetParams[$sKey] = $xValue;
+        }
+    }
 
     $sWidget = ucfirst(basename($sWidgetName));
 

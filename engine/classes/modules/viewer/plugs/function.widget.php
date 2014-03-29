@@ -41,8 +41,13 @@ function smarty_function_widget($aParams, $oSmartyTemplate) {
     $oWidget = null;
     if (isset($aParams['name'])) {
         $sWidgetName = $aParams['name'];
-        $aWidgetParams = (isset($aParams['params']) ? $aParams['params'] : array());
         $sWidgetType = 'exec';
+        $aWidgetParams = (isset($aParams['params']) ? $aParams['params'] : array());
+        foreach ($aParams as $sKey=>$xValue) {
+            if ($sKey != 'name' && $sKey != 'params') {
+                $aWidgetParams[$sKey] = $xValue;
+            }
+        }
     } elseif (isset($aParams['id'])) {
         $aWidgets = $oSmartyTemplate->getTemplateVars('aWidgets');
         if (is_array($aWidgets) && isset($aWidgets['_all_'][$aParams['id']])) {
