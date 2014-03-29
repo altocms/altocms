@@ -491,7 +491,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      *
      * @param int    $iUserId        ID пользователя
      * @param string $sTargetType    Тип владельца
-     * @param bool   $bIsUser        Возвращает все теги ли только пользовательские
+     * @param bool   $bIsUser        Возвращает все теги или только пользовательские
      * @param int    $iLimit         Количество элементов
      *
      * @return array
@@ -500,7 +500,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
 
         $sql = "SELECT
 			text,
-			count(text)	as count
+			COUNT(text) AS count
 			FROM
 				?_favourite_tag
 			WHERE
@@ -511,7 +511,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
 			GROUP BY
 				text
 			ORDER BY
-				count desc
+				count DESC
 			LIMIT 0, ?d
 				";
 

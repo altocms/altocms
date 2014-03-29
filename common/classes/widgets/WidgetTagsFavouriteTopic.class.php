@@ -34,7 +34,7 @@ class WidgetTagsFavouriteTopic extends Widget {
             /**
              * Получаем список тегов
              */
-            $aTags = $this->oEngine->Favourite_GetGroupTags($oUser->getId(), 'topic', null, 70);
+            $aTags = $this->oEngine->Favourite_GetGroupTags($oUser->getId(), 'topic', false, 70);
             /**
              * Расчитываем логарифмическое облако тегов
              */
