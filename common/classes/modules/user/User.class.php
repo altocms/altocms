@@ -1355,7 +1355,7 @@ class ModuleUser extends Module {
         if ($sTmpFile = $oImg->Save(F::File_UploadUniqname($sExtension))) {
 
             // Файл, куда будет записан аватар
-            $sAvatar = $this->Uploader_GetUserAvatarDir($oUser->GetId()) . 'avatar' . $sName . '.' . $sExtension;
+            $sAvatar = $this->Uploader_GetUserAvatarDir($oUser->GetId()) . $sName . '.' . $sExtension;
 
             // Окончательная запись файла только через модуль Uploader
             if ($xStoredFile = $this->Uploader_Store($sTmpFile, $sAvatar)) {

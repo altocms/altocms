@@ -21,7 +21,7 @@
  */
 class ActionSettings extends Action {
 
-    const PREVIEW_RESIZE = 200;
+    const PREVIEW_RESIZE = 250;
 
     /**
      * Какое меню активно
@@ -71,6 +71,7 @@ class ActionSettings extends Action {
         $this->AddEventPreg('/^profile$/i', '/^resize-avatar/i', '/^$/i', 'EventResizeAvatar');
         $this->AddEventPreg('/^profile$/i', '/^remove-avatar/i', '/^$/i', 'EventRemoveAvatar');
         $this->AddEventPreg('/^profile$/i', '/^cancel-avatar/i', '/^$/i', 'EventCancelAvatar');
+
         $this->AddEventPreg('/^profile$/i', '/^upload-photo/i', '/^$/i', 'EventUploadPhoto');
         $this->AddEventPreg('/^profile$/i', '/^resize-photo/i', '/^$/i', 'EventResizePhoto');
         $this->AddEventPreg('/^profile$/i', '/^remove-photo/i', '/^$/i', 'EventRemovePhoto');
@@ -312,16 +313,16 @@ class ActionSettings extends Action {
         $aSize = $this->_getImageSize('size');
 
         // * Вырезаем аватару
-        if ($sFileWeb = $this->User_UploadAvatar($sFileAvatar, $this->oUserCurrent, $aSize)) {
+        if ($aSize && ($sFileUrl = $this->User_UploadAvatar($sFileAvatar, $this->oUserCurrent, $aSize))) {
 
             // * Удаляем старые аватарки
-            if ($sFileWeb != $this->oUserCurrent->getProfileAvatar()) {
+            if ($sFileUrl != $this->oUserCurrent->getProfileAvatar()) {
                 $this->User_DeleteAvatar($this->oUserCurrent);
             } else {
                 $this->User_DeleteAvatarSizes($this->oUserCurrent);
             }
 
-            $this->oUserCurrent->setProfileAvatar($sFileWeb);
+            $this->oUserCurrent->setProfileAvatar($sFileUrl);
 
             $this->User_Update($this->oUserCurrent);
             $this->Session_Drop('sAvatarFileTmp');
@@ -755,7 +756,14 @@ class ActionSettings extends Action {
                 $this->Viewer_Assign('aGeoCities', $aCities['collection']);
             }
         }
-
+        $this->Lang_AddLangJs(
+            array(
+                'settings_profile_avatar_resize_title',
+                'settings_profile_avatar_resize_text',
+                'settings_profile_photo_resize_title',
+                'settings_profile_photo_resize_text',
+            )
+        );
     }
 
     /**

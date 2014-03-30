@@ -819,9 +819,12 @@ class ActionTalk extends Action {
                                 'talk_blacklist_add_ok', array('login' => htmlspecialchars($sUser))
                             ),
                             'sUserId'       => $oUser->getId(),
-                            'sUserLogin'    => htmlspecialchars($sUser),
-                            'sUserWebPath'  => $oUser->getUserWebPath(),
-                            'sUserAvatar48' => $oUser->getAvatarUrl(48)
+                            'sUserLogin'    => htmlspecialchars($oUser->getDisplayName()),
+                            'sUserWebPath'  => $oUser->getProfileUrl(),
+                            'sUserAvatar48' => $oUser->getAvatarUrl(48),
+                            'sUserName'     => $oUser->getDisplayName(),
+                            'sUserUrl'      => $oUser->getProfileUrl(),
+                            'sUserAvatar  ' => $oUser->getAvatarUrl(48),
                         );
                     } else {
                         $aResult[] = array(

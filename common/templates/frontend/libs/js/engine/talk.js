@@ -110,29 +110,34 @@ ls.talk = (function ($) {
     /**
      * Добавляет пользователя в черный список
      */
-    this.addToBlackList = function () {
-        var sUsers = $('#talk_blacklist_add').val();
-        if (!sUsers) return false;
-        $('#talk_blacklist_add').val('');
+    this.addToBlackList = function (form, blackList) {
+        form = $(form);
+        var userListInput = form.find('[name=user_list]');
+        var users = userListInput.val();
+
+        if (!users) return false;
 
         var url = ls.routerUrl('talk') + 'ajaxaddtoblacklist/';
-        var params = {users: sUsers};
+        var params = {users: users};
 
+        ls.progressStart();
         ls.ajax(url, params, function (result) {
+            ls.progressDone();
             if (!result) {
                 ls.msg.error(null, 'System error #1001');
             } else if (result.bStateError) {
                 ls.msg.error(null, result.sMsg);
             } else {
+                blackList = $(blackList);
+                userListInput.val('');
+                var html = blackList.find('#user_black_list_item_ID').get(0).outerHTML;
                 $.each(result.aUsers, function (index, item) {
-                    var list = $('#black_list');
-                    if (list.length == 0) {
-                        list = $('<ul class="list" id="black_list"></ul>');
-                        $('#black_list_block').append(list);
-                    }
-                    var listItem = $('<li id="blacklist_item_' + item.sUserId + '_area"><a href="#" class="user">' + item.sUserLogin + '</a> - <a href="#" id="blacklist_item_' + item.sUserId + '" class="delete">' + ls.lang.get('delete') + '</a></li>');
-                    $('#black_list').append(listItem);
-                    ls.hook.run('ls_talk_add_to_black_list_item_after', [item], listItem);
+                    var htmlItem = html.replace(/ID/g, item.sUserId)
+                        .replace(/URL/g, item.sUserUrl)
+                        .replace(/NAME/g, item.sUserName)
+                        .replace(/AVATAR/g, item.sUserAvatar);
+                    var li = $(htmlItem).appendTo(blackList).show();
+                    ls.hook.run('ls_talk_add_to_black_list_item_after', [item, li]);
                 });
                 ls.hook.run('ls_talk_add_to_black_list_after', [result]);
             }
@@ -143,26 +148,26 @@ ls.talk = (function ($) {
     /**
      * Удаляет пользователя из черного списка
      */
-    this.removeFromBlackList = function (link) {
-        link = $(link);
-
-        $('#' + link.attr('id') + '_area').fadeOut(500, function () {
-            $(this).remove();
-        });
-        var idTarget = link.attr('id').replace('blacklist_item_', '');
+    this.removeFromBlackList = function (id) {
+        var item = $('#user_black_list_item_' + id);
 
         var url = ls.routerUrl('talk') + 'ajaxdeletefromblacklist/';
-        var params = {idTarget: idTarget};
+        var params = {idTarget: id};
 
+        ls.progressStart();
         ls.ajax(url, params, function (result) {
+            ls.progressDone();
             if (!result) {
                 ls.msg.error(null, 'System error #1001');
-                link.parent('li').show();
+                return false;
             } else if (result.bStateError) {
                 ls.msg.error(null, result.sMsg);
-                link.parent('li').show();
+                return false;
             }
-            ls.hook.run('ls_talk_remove_from_black_list_after', [idTarget], link);
+            item.fadeOut(500, function () {
+                $(this).remove();
+            });
+            ls.hook.run('ls_talk_remove_from_black_list_after', [id]);
         });
         return false;
     };

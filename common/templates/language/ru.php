@@ -717,6 +717,7 @@ return array(
     'settings_profile_password_new_error'       => 'Неверный пароль, допустим от %%num%% символов',
     'settings_profile_password_confirm'         => 'Еще раз новый пароль',
     'settings_profile_password_confirm_error'   => 'Пароли не совпадают',
+
     'settings_profile_avatar'                   => 'Аватар',
     'settings_profile_avatar_error'             => 'Не удалось загрузить аватар',
     'settings_profile_avatar_delete'            => 'Удалить',
@@ -732,6 +733,9 @@ return array(
     'settings_profile_photo_delete'             => 'Удалить',
     'settings_profile_photo_change'             => 'Изменить фотографию',
     'settings_profile_photo_upload'             => 'Загрузить фотографию',
+    'settings_profile_photo_resize_title'       => 'Создание фото профиля',
+    'settings_profile_photo_resize_text'        => 'Вы можете выбрать область изображения, которая будет использоваться в качестве фото профиля',
+
     'settings_profile_field_error_max'          => 'Нельзя добавить больше %%count%% одинаковых контактов',
     'settings_profile_submit'                   => 'Сохранить',
     'settings_profile_submit_ok'                => 'Профиль успешно сохранён',
