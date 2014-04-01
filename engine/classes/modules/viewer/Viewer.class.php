@@ -278,7 +278,13 @@ class ModuleViewer extends Module {
         $this->oSmarty->error_reporting = error_reporting() & ~E_NOTICE;
 
         // * Папки расположения шаблонов по умолчанию
-        $this->oSmarty->setTemplateDir(F::File_NormPath(F::Str2Array(Config::Get('path.smarty.template'))));
+        $aDirs = F::File_NormPath(F::Str2Array(Config::Get('path.smarty.template')));
+        if (sizeof($aDirs) == 1) {
+            $sDir = $aDirs[0];
+            $aDirs['themes'] = F::File_NormPath($sDir . '/themes');
+            $aDirs['tpls'] = F::File_NormPath($sDir . '/tpls');
+        }
+        $this->oSmarty->setTemplateDir($aDirs);
         if (Config::Get('smarty.dir.templates')) {
             $this->oSmarty->addTemplateDir(F::File_NormPath(F::Str2Array(Config::Get('smarty.dir.templates'))));
         }
@@ -1090,7 +1096,7 @@ class ModuleViewer extends Module {
             $sName = $sTplName;
             return 'template';
         }
-
+$s = $sTplName = $this->TemplateExists(is_null($sDir) ? 'widgets/widget.' . $sName : rtrim($sDir, '/') . '/widgets/widget.' . $sName);
         // Считаем что тип не определен
         F::SysWarning('Can not define type of widget "' . $sName . '"');
         return 'undefined';

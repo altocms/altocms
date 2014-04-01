@@ -85,7 +85,7 @@ $config['widgets'][] = array(
 */
 
 $config['widgets'][] = array(
-    'name' => 'actions/ActionProfile/sidebar.tpl',
+    'name' => 'actions/profile/action.profile.sidebar.tpl',
     'wgroup' => 'right',
     'priority' => 150,
     'on' => 'profile, talk, settings',

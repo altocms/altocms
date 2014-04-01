@@ -189,7 +189,7 @@ class ActionStream extends Action {
         /**
          * Возвращаем данные в ajax ответе
          */
-        $this->Viewer_AssignAjax('result', $oViewer->Fetch('actions/ActionStream/events.tpl'));
+        $this->Viewer_AssignAjax('result', $oViewer->Fetch('actions/stream/action.stream.events.tpl'));
         $this->Viewer_AssignAjax('events_count', count($aEvents));
     }
 
@@ -231,7 +231,7 @@ class ActionStream extends Action {
         /**
          * Возвращаем данные в ajax ответе
          */
-        $this->Viewer_AssignAjax('result', $oViewer->Fetch('actions/ActionStream/events.tpl'));
+        $this->Viewer_AssignAjax('result', $oViewer->Fetch('actions/stream/action.stream.events.tpl'));
         $this->Viewer_AssignAjax('events_count', count($aEvents));
     }
 
@@ -277,7 +277,7 @@ class ActionStream extends Action {
         /**
          * Возвращаем данные в ajax ответе
          */
-        $this->Viewer_AssignAjax('result', $oViewer->Fetch('actions/ActionStream/events.tpl'));
+        $this->Viewer_AssignAjax('result', $oViewer->Fetch('actions/stream/action.stream.events.tpl'));
         $this->Viewer_AssignAjax('events_count', count($aEvents));
     }
 

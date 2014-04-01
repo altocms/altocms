@@ -511,7 +511,12 @@ class ActionBlog extends Action {
                 $oBlog->getId(), ModuleBlog::BLOG_USER_ROLE_INVITE, null
             );
             $this->Viewer_Assign('aBlogUsersInvited', $aBlogUsersInvited['collection']);
-            $this->Viewer_AddWidget('right', 'actions/ActionBlog/invited.tpl');
+            if ($this->Viewer_TemplateExists('widgets/widget.invite_to_blog.tpl')) {
+                $this->Viewer_AddWidget('right', 'widgets/widget.invite_to_blog.tpl');
+            } elseif ($this->Viewer_TemplateExists('actions/ActionBlog/invited.tpl')) {
+                // LS-compatibility
+                $this->Viewer_AddWidget('right', 'actions/ActionBlog/invited.tpl');
+            }
         }
     }
 

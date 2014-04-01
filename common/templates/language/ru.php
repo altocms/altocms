@@ -129,6 +129,10 @@ return array(
     'blog_menu_top_period_30d'                  => 'За 30 дней',
     'blog_menu_top_period_all'                  => 'За все время',
     'blog_menu_create'                          => 'Блог',
+
+    'blog_menu_edit'                            => 'Редактировать',
+    'blog_menu_admin'                           => 'Администрировать',
+    'blog_menu_delete'                          => 'Удалить',
     /**
      * Создание/редактирование блога
      */

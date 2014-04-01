@@ -634,8 +634,8 @@ class ActionProfile extends Action {
         $this->Viewer_Assign(
             'oUserCurrent', $this->oUserCurrent
         ); // хак, т.к. к этому моменту текущий юзер не загружен в шаблон
-        $sText = $this->Viewer_Fetch('actions/ActionProfile/wall_items.tpl');
-        $this->Viewer_AssignAjax('sText', $this->Viewer_Fetch('actions/ActionProfile/wall_items.tpl'));
+
+        $this->Viewer_AssignAjax('sText', $this->Viewer_Fetch('actions/profile/action.profile.wall_items.tpl'));
         $this->Viewer_AssignAjax('iCountWall', $aWallItems['count']);
         $this->Viewer_AssignAjax('iCountWallReturn', count($aWallItems['collection']));
     }
@@ -673,7 +673,7 @@ class ActionProfile extends Action {
         // * Получаем сообщения и формируем ответ. Необходимо вернуть все ответы, но ставим "разумное" ограничение
         $aWall = $this->Wall_GetWall($aFilter, array('id' => 'asc'), 1, 300);
         $this->Viewer_Assign('aReplyWall', $aWall['collection']);
-        $this->Viewer_AssignAjax('sText', $this->Viewer_Fetch('actions/ActionProfile/wall_items_reply.tpl'));
+        $this->Viewer_AssignAjax('sText', $this->Viewer_Fetch('actions/profile/action.profile.wall_items_reply.tpl'));
         $this->Viewer_AssignAjax('iCountWall', $aWall['count']);
         $this->Viewer_AssignAjax('iCountWallReturn', count($aWall['collection']));
     }
@@ -940,7 +940,7 @@ class ActionProfile extends Action {
 
                 $oViewerLocal = $this->GetViewerLocal();
                 $oViewerLocal->Assign('oUserFriend', $oFriend);
-                $this->Viewer_AssignAjax('sToggleText', $oViewerLocal->Fetch("actions/ActionProfile/friend_item.tpl"));
+                $this->Viewer_AssignAjax('sToggleText', $oViewerLocal->Fetch('actions/profile/action.profile.friend_item.tpl'));
 
             } else {
                 $this->Message_AddErrorSingle(
@@ -1096,7 +1096,7 @@ class ActionProfile extends Action {
                     $oViewerLocal = $this->GetViewerLocal();
                     $oViewerLocal->Assign('oUserFriend', $oFriend);
                     $this->Viewer_AssignAjax(
-                        'sToggleText', $oViewerLocal->Fetch("actions/ActionProfile/friend_item.tpl")
+                        'sToggleText', $oViewerLocal->Fetch('actions/profile/action.profile.friend_item.tpl')
                     );
 
                 } else {
@@ -1226,7 +1226,7 @@ class ActionProfile extends Action {
 
         $oViewerLocal = $this->GetViewerLocal();
         $oViewerLocal->Assign('oUserFriend', $oFriendNew);
-        $this->Viewer_AssignAjax('sToggleText', $oViewerLocal->Fetch("actions/ActionProfile/friend_item.tpl"));
+        $this->Viewer_AssignAjax('sToggleText', $oViewerLocal->Fetch('actions/profile/action.profile.friend_item.tpl'));
     }
 
     /**
@@ -1293,7 +1293,7 @@ class ActionProfile extends Action {
 
             $oViewerLocal = $this->GetViewerLocal();
             $oViewerLocal->Assign('oUserFriend', $oFriend);
-            $this->Viewer_AssignAjax('sToggleText', $oViewerLocal->Fetch("actions/ActionProfile/friend_item.tpl"));
+            $this->Viewer_AssignAjax('sToggleText', $oViewerLocal->Fetch('actions/profile/action.profile.friend_item.tpl'));
 
             /**
              * Отправляем пользователю сообщение об удалении дружеской связи

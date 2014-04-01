@@ -35,7 +35,7 @@ class ActionHomepage extends Action {
         $sHomepage = Config::Get('router.config.homepage');
         if ($sHomepage) {
             if ($sHomepage == 'home') {
-                if ($this->Viewer_TemplateExists('actions/ActionHomepage/index.tpl')) {
+                if ($this->Viewer_TemplateExists('actions/homepage/action.homepage.index.tpl')) {
                     $this->SetTemplateAction('index');
                     return;
                 }

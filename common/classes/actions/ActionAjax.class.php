@@ -846,6 +846,8 @@ class ActionAjax extends Action {
         if ($aTopics = $this->Topic_GetTopicsLast(Config::Get('block.stream.row'))) {
             $oViewer = $this->Viewer_GetLocalViewer();
             $oViewer->Assign('aTopics', $aTopics);
+            // LS-compatibility
+            $oViewer->Assign('oTopics', $aTopics);
             $sTextResult = $oViewer->FetchWidget('stream_topic.tpl');
             $this->Viewer_AssignAjax('sText', $sTextResult);
         } else {

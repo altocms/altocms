@@ -119,6 +119,10 @@ return array(
     'blog_menu_top_period_30d'                  => 'For the last 30 daysй',
     'blog_menu_top_period_all'                  => 'All',
     'blog_menu_create'                          => 'Create blog',
+
+    'blog_menu_edit'                            => 'Edit',
+    'blog_menu_admin'                           => 'Administer',
+    'blog_menu_delete'                          => 'Delete',
     /**
      * Create/Edit Blog
      */

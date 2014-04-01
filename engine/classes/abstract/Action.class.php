@@ -346,9 +346,10 @@ abstract class Action extends LsObject {
         $sActionTemplatePath = $sTemplate . '.tpl';
         foreach ($aDelegates as $sAction) {
             if (preg_match('/^(Plugin([\w]+)_)?Action([\w]+)$/i', $sAction, $aMatches)) {
-                $sTemplatePath = $this->Plugin_GetDelegate(
-                    'template', 'actions/Action' . ucfirst($aMatches[3]) . '/' . $sTemplate . '.tpl'
-                );
+                //$sTemplatePath = $this->Plugin_GetDelegate('template', 'actions/Action' . ucfirst($aMatches[3]) . '/' . $sTemplate . '.tpl');
+                // New-style action templates
+                $sActionName = strtolower($aMatches[3]);
+                $sTemplatePath = $this->Plugin_GetDelegate('template', 'actions/' . $sActionName . '/action.' . $sActionName . '.' . $sTemplate . '.tpl');
                 if (empty($aMatches[1])) {
                     $sActionTemplatePath = $sTemplatePath;
                 } else {
