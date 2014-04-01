@@ -65,6 +65,27 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
         return parent::DefineWidgetType($sName, $sDir, $sPlugin);
     }
 
+    /**
+     * Compatibility with LS-styled templates
+     *
+     * @param string $sTemplate
+     * @param bool   $bException
+     *
+     * @return mixed
+     */
+    public function TemplateExists($sTemplate, $bException = false) {
+
+        $sResult = parent::TemplateExists($sTemplate, false);
+        if (!$sResult && preg_match('~^actions/([^/]+)/action\.(\w+)\.(.+)$~', $sTemplate, $aMatches)) {
+            $sLsTemplate = 'actions/Action' . ucfirst($aMatches[1]) . '/' . $aMatches[3];
+            $sResult = parent::TemplateExists($sLsTemplate, false);
+        }
+        if (!$sResult && $bException) {
+            $sResult = parent::TemplateExists($sTemplate, $bException);
+        }
+        return $sResult;
+    }
+
     public function VarAssign() {
 
         parent::VarAssign();
@@ -241,7 +262,7 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
                     if (F::File_Exists($sFile)) {
                         return $sFile;
                     }
-                } elseif ($sName == 'actions/ActionContent/add.tpl') {
+                } elseif ($sName == 'actions/ActionContent/add.tpl' || $sName == 'actions/content/action.content.add.tpl') {
                     $sResult = Config::Get('path.smarty.template') . '/actions/ActionTopic/add.tpl';
                     $this->Hook_AddExecFunction('template_form_add_topic_topic_end', array($this, 'TemplateFormAddTopic'));
                 } elseif ((strpos($sName, 'forms/view_field') === 0) || (strpos($sName, 'forms/form_field') === 0)) {
@@ -254,6 +275,15 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
                         $sResult = parent::SmartyDefaultTemplateHandler($sType, 'actions/ActionProfile/whois.tpl', $sContent, $iTimestamp, $oSmarty);
                     }
                 }
+                if (!$sResult && preg_match('~^actions/([^/]+)/action\.(\w+)\.(.+)$~', $sName, $aMatches)) {
+                    $sLsTemplate = 'actions/Action' . ucfirst($aMatches[1]) . '/' . $aMatches[3];
+                    if ($this->TemplateExists($sLsTemplate, false)) {
+                        $sResult = F::File_Exists($sLsTemplate, $this->oSmarty->getTemplateDir());
+                    } else {
+                        $sResult = $this->SmartyDefaultTemplateHandler($sType, $sLsTemplate, $sContent, $iTimestamp, $oSmarty);
+                    }
+                }
+
             }
         }
         return $sResult;
@@ -267,6 +297,16 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
     protected function _initTemplator() {
 
         parent::_initTemplator();
+        $aDirs = $this->oSmarty->getTemplateDir();
+        foreach($aDirs as $sDir) {
+            if (basename($sDir) == 'tpls') {
+                $sParentDir = dirname($sDir);
+                if (!in_array($sParentDir, $aDirs)) {
+                    $this->oSmarty->addTemplateDir($sParentDir);
+                }
+                break;
+            }
+        }
         $sDir = Plugin::GetDir('PluginLs') . '/classes/modules/viewer/plugs/';
         $this->oSmarty->addPluginsDir($sDir);
     }

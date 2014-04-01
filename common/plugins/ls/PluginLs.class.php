@@ -18,17 +18,6 @@ if (!class_exists('Plugin')) {
 class PluginLs extends Plugin {
 
     protected $aDelegates = array(
-        /*
-        'template' => array(
-            'page_main_menu.tpl' => '_page_main_menu.tpl',
-            'window_write.tpl' => '_window_write.tpl',
-            'sharer.tpl' => '_sharer.tpl',
-            'actions/ActionPage/page.tpl',
-            'topic_list.tpl',
-            'topic.tpl',
-            'actions/ActionProfile/info.tpl' => 'actions/ActionProfile/whois.tpl',
-        ),
-        */
     );
 
     protected $aInherits = array(
@@ -42,6 +31,9 @@ class PluginLs extends Plugin {
         'action' => array(
             'ActionSettings',
             'ActionContent',
+        ),
+        'widget' => array(
+            'WidgetStream',
         ),
     );
 
