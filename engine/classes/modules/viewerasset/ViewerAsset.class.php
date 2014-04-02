@@ -40,25 +40,81 @@ class ModuleViewerAsset extends Module {
     }
 
     /**
+     * Calculate hash of file's dirname
+     *
+     * @param  string $sFile
+     *
+     * @return string
+     */
+    public function AssetFileHashDir($sFile) {
+
+        if (substr($sFile, -1) == '/') {
+            $sDir = $sFile;
+        } else {
+            $sDir = dirname($sFile);
+        }
+        return str_pad(dechex(F::Crc32($sDir)), 8, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Make path of asset file
+     *
+     * @param  string $sLocalFile
+     * @param  string $sParentDir
+     *
+     * @return string
+     */
+    public function AssetFilePath($sLocalFile, $sParentDir = null) {
+
+        $sResult = $this->AssetFileHashDir($sLocalFile) . '/' . basename($sLocalFile);
+        if ($sParentDir) {
+            if (substr($sParentDir, -1) != '/') {
+                $sParentDir .= '/';
+            }
+            $sResult = $sParentDir . $sResult;
+        }
+        return $sResult;
+    }
+
+    /**
      * Converts file path into path to asset-resource
      *
-     * @param   string $sFile
-     * @return  string
+     * @param  string $sLocalFile
+     * @param  string $sParentDir
+     *
+     * @return string
      */
-    public function AssetFileDir($sFile) {
+    public function AssetFileDir($sLocalFile, $sParentDir = null) {
 
-        return F::File_NormPath(F::File_GetAssetDir() . $this->Hash(dirname($sFile)) . '/' . basename($sFile));
+        return F::File_GetAssetDir() . $this->AssetFilePath($sLocalFile, $sParentDir);
     }
 
     /**
      * Convert file path into URL to asset-resource
      *
-     * @param   string $sFile
-     * @return  string
+     * @param  string $sLocalFile
+     * @param  string $sParentDir
+     *
+     * @return string
      */
-    public function AssetFileUrl($sFile) {
+    public function AssetFileUrl($sLocalFile, $sParentDir = null) {
 
-        return F::File_NormPath(F::File_GetAssetUrl() . $this->Hash(dirname($sFile)) . '/' . basename($sFile));
+        return F::File_GetAssetUrl() . $this->AssetFilePath($sLocalFile, $sParentDir);
+    }
+
+    /**
+     * @param  string $sLocalFile
+     * @param  string $sParentDir
+     *
+     * @return bool|string
+     */
+    public function File2Link($sLocalFile, $sParentDir = null) {
+
+        $sAssetFile = $this->AssetFileDir($sLocalFile, $sParentDir);
+        if (F::File_Exists($sAssetFile) || F::File_Copy($sLocalFile, $sAssetFile)) {
+            return $this->AssetFileUrl($sLocalFile, $sParentDir);
+        }
+        return false;
     }
 
     /**

@@ -14,16 +14,29 @@
  *
  * @param   array $aParams
  * @param   Smarty_Internal_Template $oSmartyTemplate
+ *
  * @return  string
  */
 function smarty_function_asset($aParams, $oSmartyTemplate) {
 
-    if (empty($aParams['skin'])) {
-        trigger_error('Config: missing "skin" parametr', E_USER_WARNING);
+    if (empty($aParams['skin']) && empty($aParams['file'])) {
+        trigger_error('Asset: missing "file" parametr', E_USER_WARNING);
         return;
     }
 
-    $sUrl = E::Viewer_GetAssetUrl() . 'skin/' . $aParams['skin'] . '/';
+    if (isset($aParams['file'])) {
+        // Need URL to asset file
+        if (empty($aParams['skin'])) {
+            $sSkin = Config::Get('view.skin');
+        } else {
+            $sSkin = $aParams['skin'];
+        }
+        $sFile = Config::Get('path.skins.dir') . '/' . $sSkin . '/' . $aParams['file'];
+        $sUrl = E::ViewerAsset_File2Link($sFile, 'skin/' . $sSkin . '/');
+    } else {
+        // Need URL to asset dir
+        $sUrl = E::Viewer_GetAssetUrl() . 'skin/' . $aParams['skin'] . '/';
+    }
 
     return $sUrl;
 }
