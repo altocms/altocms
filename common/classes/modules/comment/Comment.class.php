@@ -762,7 +762,7 @@ class ModuleComment extends Module {
      */
     public function GetTemplateCommentByTarget($iTargetId, $sTargetType) {
 
-        return 'comment.tpl';
+        return 'comments/comment.single.tpl';
     }
 
     /**
