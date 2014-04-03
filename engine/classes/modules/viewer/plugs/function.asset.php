@@ -27,13 +27,13 @@ function smarty_function_asset($aParams, $oSmartyTemplate) {
     if (isset($aParams['file'])) {
         // Need URL to asset file
         if (empty($aParams['skin'])) {
-            $sSkin = Config::Get('view.skin');
+            $sSkin = E::Viewer_GetConfigSkin();
         } else {
             $sSkin = $aParams['skin'];
         }
         if (isset($aParams['theme'])) {
             if (is_bool($aParams['theme'])) {
-                $sTheme = Config::Get('view.theme');
+                $sTheme = E::Viewer_GetConfigTheme();
             } else {
                 $sTheme = $aParams['theme'];
             }

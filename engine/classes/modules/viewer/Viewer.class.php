@@ -327,7 +327,7 @@ class ModuleViewer extends Module {
      */
     protected function _initSkin() {
 
-        $this->sSkin = Config::Get('view.skin');
+        $this->sSkin = $this->GetConfigSkin();
         // * Load skin config
         $aConfig = Config::Get('skin.' . $this->sSkin . '.config');
         if (F::File_Exists($sFile = Config::Get('path.smarty.template') . '/settings/config/config.php')) {
@@ -337,6 +337,12 @@ class ModuleViewer extends Module {
         if ($aConfig) {
             Config::Load($aConfig, false);
         }
+
+        // Check skin theme and set one in config if it was changed
+        if ($this->GetConfigTheme() != Config::Get('view.theme')) {
+            Config::Set('view.theme', $this->GetConfigTheme());
+        }
+
         // Skip skin widgets for local viewer
         if (!$this->bLocal) {
             // * Load skin widgets
@@ -359,8 +365,10 @@ class ModuleViewer extends Module {
      */
     protected function _initRender() {
 
+        $this->Hook_Run('render_init_start', array('bLocal' => $this->bLocal));
+
         // If skin not initialized (or it was changed) then init one
-        if ($this->sSkin != Config::Get('view.skin')) {
+        if ($this->sSkin != $this->GetConfigSkin()) {
             $this->_initSkin($this->bLocal);
         } else {
             // Level could be changed after skin initialization
@@ -487,7 +495,7 @@ class ModuleViewer extends Module {
             $this->_assignTpl('aTemplatePathPlugin', $aTemplatePathPlugin);
         }
 
-        $sSkinTheme = Config::Get('view.theme');
+        $sSkinTheme = $this->GetConfigTheme();
         if (!$sSkinTheme) {
             $sSkinTheme = 'default';
         }
@@ -729,12 +737,28 @@ class ModuleViewer extends Module {
      *
      * @return  string
      */
-    public function GetSkin($bSiteSkin = true) {
+    public function GetConfigSkin($bSiteSkin = false) {
 
         if ($bSiteSkin) {
             return Config::Get('view.skin', Config::LEVEL_CUSTOM);
         } else {
             return Config::Get('view.skin');
+        }
+    }
+
+    /**
+     * Returns theme of current skin
+     *
+     * @param  bool $bSiteSkin - if true then returns theme for site (ignore LEVEL_ACTION)
+     *
+     * @return string
+     */
+    public function GetConfigTheme($bSiteSkin = false) {
+
+        if ($bSiteSkin) {
+            return Config::Get('view.theme', Config::LEVEL_CUSTOM);
+        } else {
+            return Config::Get('view.theme');
         }
     }
 
@@ -748,7 +772,7 @@ class ModuleViewer extends Module {
     public function GetTemplateDir($bSiteSkin = true) {
 
         if ($bSiteSkin) {
-            return F::File_NormPath(Config::Get('path.skins.dir') . '/' . $this->GetSkin(true));
+            return F::File_NormPath(Config::Get('path.skins.dir') . '/' . $this->GetConfigSkin($bSiteSkin));
         } else {
             return Config::Get('path.smarty.template');
         }
@@ -842,7 +866,7 @@ class ModuleViewer extends Module {
         $bResult = $this->oSmarty->templateExists($sTemplate);
         $this->oSmarty->unmuteExpectedErrors();
         if (!$bResult && $bException) {
-            $sMessage = 'Can not find the template "' . $sTemplate . '" in skin "' . Config::Get('view.skin') . '"';
+            $sMessage = 'Can not find the template "' . $sTemplate . '" in skin "' . $this->GetConfigSkin() . '"';
             if ($aTpls = $this->GetSmartyObject()->template_objects) {
                 if (is_array($aTpls)) {
                     $sMessage .= ' (from: ';
@@ -874,15 +898,15 @@ class ModuleViewer extends Module {
             // Разделяем сам скин и тему
             list($sSkin, $sTheme) = explode('/', $sSkin, 2);
             if (!$sSkin) {
-                $sSkin = Config::Get('view.skin');
+                $sSkin = $this->GetConfigSkin();
             }
         } else {
             $sTheme = null;
         }
         $sCheckDir = Config::Get('path.skin.dir');
         // Если проверяется не текущий скин, то корректируем путь
-        if ($sSkin != Config::Get('view.skin')) {
-            $sCheckDir = str_replace('/' . Config::Get('view.skin') . '/', '/' . $sSkin . '/', $sCheckDir);
+        if ($sSkin != $this->GetConfigSkin()) {
+            $sCheckDir = str_replace('/' . $this->GetConfigSkin() . '/', '/' . $sSkin . '/', $sCheckDir);
         }
         // Проверяем только скин или тему скина
         if ($sTheme) {
@@ -911,7 +935,7 @@ class ModuleViewer extends Module {
      */
     public function CheckSkin() {
 
-        if (!$this->SkinExists(Config::Get('view.skin'), true)) {
+        if (!$this->SkinExists($this->GetConfigSkin(), true)) {
             die('Please check skin folder');
         }
     }
@@ -925,7 +949,7 @@ class ModuleViewer extends Module {
      */
     public function CheckTheme($sTheme) {
 
-        return $this->SkinExists(Config::Get('view.skin') . '/' . $sTheme, false);
+        return $this->SkinExists($this->GetConfigSkin() . '/' . $sTheme, false);
     }
 
     /**
@@ -1096,7 +1120,7 @@ class ModuleViewer extends Module {
             $sName = $sTplName;
             return 'template';
         }
-$s = $sTplName = $this->TemplateExists(is_null($sDir) ? 'widgets/widget.' . $sName : rtrim($sDir, '/') . '/widgets/widget.' . $sName);
+
         // Считаем что тип не определен
         F::SysWarning('Can not define type of widget "' . $sName . '"');
         return 'undefined';
@@ -1690,8 +1714,8 @@ $s = $sTplName = $this->TemplateExists(is_null($sDir) ? 'widgets/widget.' . $sNa
         /**
          * Задача: если это файл плагина для текущего шаблона, то смотрим этот же файл шаблона плагина в /default/
          */
-        if (Config::Get('view.skin') != 'default') {
-            $sSkin = preg_quote(Config::Get('view.skin'));
+        if ($this->GetConfigSkin() != 'default') {
+            $sSkin = preg_quote($this->GetConfigSkin());
             if (preg_match('@^/plugins/([\w\-_]+)/templates/skin/' . $sSkin . '/(.+)$/@i', $sName, $aMatch)) {
                 // => /root/plugins/[plugin name]/templates/skin/[skin name]/dir/test.tpl
                 $sPluginDir = Plugin::GetDir($aMatch[1]);
