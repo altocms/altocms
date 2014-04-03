@@ -27,6 +27,7 @@ class PluginLs extends Plugin {
             'ModuleSecurity',
             'ModuleImage',
             'ModuleLang',
+            'ModuleComment',
         ),
         'action' => array(
             'ActionSettings',
