@@ -99,13 +99,18 @@ class ModuleTopic_EntityContentType extends Entity {
         return $this->getContentUrl();
     }
 
+    /**
+     * @param  string $sMode
+     *
+     * @return string
+     */
     public function getTemplate($sMode = null) {
 
         $sTemplate = $this->getProp('_template_' . $sMode);
         if (!$sTemplate) {
-            $sTemplate = 'topic.type_' . $this->getTemplateName() . '.' . $sMode . '.tpl';
+            $sTemplate = 'topic.type_' . $this->getTemplateName() . '-' . $sMode . '.tpl';
             if (!$this->Viewer_TemplateExists('topics/' . $sTemplate)) {
-                $sTemplate = 'topic.type_default.' . $sMode . '.tpl';
+                $sTemplate = 'topic.type_default-' . $sMode . '.tpl';
             }
             $this->setProp('_template_' . $sMode, $sTemplate);
         }
