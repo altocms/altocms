@@ -37,8 +37,11 @@ class Func {
     static public function done() {
 
         if ($aError = error_get_last()) {
-            //while (ob_get_level()) ob_end_clean();
-            static::_errorHandler($aError['type'], $aError['message'], $aError['file'], $aError['line']);
+            // Other errors catchs by error handler
+            $nFatalErrors = E_ERROR | E_PARSE | E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_COMPILE_WARNING;
+            if ($aError['type'] & $nFatalErrors) {
+                static::_errorHandler($aError['type'], $aError['message'], $aError['file'], $aError['line']);
+            }
         }
     }
 

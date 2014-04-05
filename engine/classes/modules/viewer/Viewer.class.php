@@ -537,7 +537,7 @@ class ModuleViewer extends Module {
                 $this->_initTemplator();
             }
             // Подавляем обработку ошибок
-            $this->oSmarty->muteExpectedErrors();
+            $this->_muteErrors();
 
             $sTemplate = $this->Plugin_GetDelegate('template', $sTemplate);
             if ($this->TemplateExists($sTemplate, true)) {
@@ -550,7 +550,7 @@ class ModuleViewer extends Module {
                 self::$_renderTime += (microtime(true) - self::$_renderStart);
                 self::$_renderStart = 0;
             }
-            $this->oSmarty->unmuteExpectedErrors();
+            $this->_unmuteErrors();
         }
     }
 
@@ -595,7 +595,7 @@ class ModuleViewer extends Module {
             }
 
             // * Подавляем вывод ошибок
-            $this->oSmarty->muteExpectedErrors();
+            $this->_muteErrors();
 
             self::$_renderCount++;
             self::$_renderStart = microtime(true);
@@ -610,7 +610,7 @@ class ModuleViewer extends Module {
                 $this->oSmarty->cache_lifetime = $nOldCacheLifetime;
             }
 
-            $this->oSmarty->unmuteExpectedErrors();
+            $this->_unmuteErrors();
 
             return $sContent;
         }
@@ -849,6 +849,18 @@ class ModuleViewer extends Module {
         }
     }
 
+    protected function _muteErrors() {
+
+        if (!Smarty::$_previous_error_handler) {
+            $this->oSmarty->muteExpectedErrors();
+        }
+    }
+
+    protected function _unmuteErrors() {
+
+        $this->oSmarty->unmuteExpectedErrors();
+    }
+
     /**
      * Проверяет существование шаблона
      *
@@ -862,9 +874,9 @@ class ModuleViewer extends Module {
         if (!$this->oSmarty) {
             $this->_initTemplator();
         }
-        $this->oSmarty->muteExpectedErrors();
+        $this->_muteErrors();
         $bResult = $this->oSmarty->templateExists($sTemplate);
-        $this->oSmarty->unmuteExpectedErrors();
+        $this->_unmuteErrors();
         if (!$bResult && $bException) {
             $sMessage = 'Can not find the template "' . $sTemplate . '" in skin "' . $this->GetConfigSkin() . '"';
             if ($aTpls = $this->GetSmartyObject()->template_objects) {
