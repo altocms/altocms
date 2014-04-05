@@ -25,7 +25,7 @@ $config['params'] =
         array(
             'label' => 'action.admin.set_general_close',
             'type' => 'checkbox',
-            'config' => 'general.close',
+            'config' => 'general.close.mode',
         ),
         array(
             'label' => 'action.admin.set_general_reg_invite',

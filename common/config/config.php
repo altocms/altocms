@@ -256,7 +256,8 @@ $config['sys']['ip']['default'] = '127.0.0.1';
 /**
  * Общие настройки
  */
-$config['general']['close']             = false; // использовать закрытый режим работы сайта, сайт будет доступен только авторизованным пользователям
+$config['general']['close']['mode']     = false; // использовать закрытый режим работы сайта, сайт будет доступен только авторизованным пользователям
+$config['general']['close']['actions']  = array('login', 'registration', 'captcha'); // enabled actions in closed mode
 $config['general']['rss_editor_mail']   = '___sys.mail.from_email___'; // мыло редактора РСС
 $config['general']['reg']['invite']     = false; // использовать режим регистрации по приглашению или нет. Если использовать, то регистрация будет доступна ТОЛЬКО по приглашениям!
 $config['general']['reg']['activation'] = false; // использовать активацию при регистрации или нет

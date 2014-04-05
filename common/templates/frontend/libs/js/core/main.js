@@ -305,219 +305,6 @@ ls.registry = (function ($) {
 }).call(ls.registry || {}, jQuery);
 
 /**
- * Загрузка изображений
- */
-ls.img = (function ($) {
-
-    this.ajaxUploadInit = function(options) {
-        var self = this;
-
-        var defaults = {
-            cropOptions: {
-                minSize: [32, 32]
-            },
-            selectors: {
-                form: '.js-ajax-image-upload',
-                image: '.js-ajax-image-upload-image',
-                image_crop: '.js-image-upload-crop',
-                remove_button: '.js-ajax-image-upload-remove',
-                choose_button: '.js-ajax-image-upload-choose',
-                input_file: '.js-ajax-image-upload-file',
-                crop_cancel_button: '.js-ajax-image-upload-crop-cancel',
-                crop_submit_button: '.js-ajax-image-upload-crop-submit'
-            },
-            urls: {
-                upload: '', // ls.routerUrl('settings') + 'profile/upload-avatar/',
-                remove: '',
-                cancel: '',
-                crop:   ''
-            },
-            onUploaded: function(imageUrl, options) {
-                self.currentForms.image.attr('src', imageUrl + '?' + Math.random());
-                if (options.resizeForm) {
-                    self.ajaxUploadModalCrop(imageUrl, options);
-                }
-            }
-        };
-
-        var options = $.extend(true, {}, defaults, options);
-
-        $(options.selectors.form).each(function () {
-            var $form = $(this);
-
-            var forms = {
-                form: $form,
-                remove_button:  $form.find(options.selectors.remove_button),
-                choose_button:  $form.find(options.selectors.choose_button),
-                image:  $form.find(options.selectors.image),
-                image_crop:  $form.find(options.selectors.image_crop)
-            };
-
-            $form.find(options.selectors.input_file).on('change', function () {
-                self.currentForms = forms;
-                self.currentOptions = options;
-                if ($(this).data('resize-form')) {
-                    options.resizeForm = $(this).data('resize-form');
-                }
-                self.ajaxUpload(null, $(this), options);
-            });
-
-            forms.remove_button.on('click', function (e) {
-                self.ajaxUploadRemove(options, forms);
-                e.preventDefault();
-            });
-        });
-    };
-
-    /**
-     * Upload temporary image
-     *
-     * @param form
-     * @param input
-     * @param options
-     */
-    this.ajaxUpload = function(form, input, options) {
-        var self = this;
-
-        if ( !form && input ) {
-            var form = $('<form method="post" enctype="multipart/form-data"></form>').hide().appendTo('body');
-
-            input.clone(true).insertAfter(input);
-            input.appendTo(form);
-        }
-
-        ls.ajaxSubmit(options.urls.upload, form, function (result) {
-            if (!result) {
-                ls.msg.error(null, 'System error #1001');
-            } else if (result.bStateError) {
-                ls.msg.error(result.sMsgTitle,result.sMsg);
-            } else {
-                if (options.onUploaded) {
-                    if (result.sText && result.sText.match(/^<img\s+/)) {
-                        var img = $(result.sText);
-                        var url = img.attr('src');
-                    } else {
-                        url = '';
-                    }
-                    options.onUploaded(url, options);
-                }
-            }
-            form.remove();
-        }.bind(this));
-    };
-
-    /**
-     * Resize & crop image before final uploading
-     *
-     * @param sImgFile
-     * @param options
-     */
-    this.ajaxUploadModalCrop = function(sImgFile, options) {
-        var self = this;
-
-        this.jcropImage && this.jcropImage.destroy();
-
-        if (!options.resizeForm) {
-            options.resizeForm = '#modal-image-crop';
-        }
-        if ($(options.resizeForm).length)
-            $(options.resizeForm).modal('show');
-        else {
-            ls.debug('error [Ajax Image Upload]:\nModal window of image resizing not found');
-        }
-        var imageCrop = $(options.resizeForm).find('.js-image-upload-crop');
-        $(imageCrop).attr('src', sImgFile + '?' + Math.random()).css({
-            'width': 'auto',
-            'height': 'auto'
-        });
-
-        $(imageCrop).Jcrop(options.cropOptions, function () {
-            self.jcropImage = this;
-            this.setSelect([0, 0, 500, 500]);
-        });
-    };
-
-    /**
-     * Removes uploaded image
-     */
-    this.ajaxUploadRemove = function (options, elements) {
-        ls.ajax(options.urls.remove, {}, function (result) {
-            if (!result) {
-                ls.msg.error(null, 'System error #1001');
-            } else if (result.bStateError) {
-                ls.msg.error(null, result.sMsg);
-            } else {
-                elements.image.attr('src', result.sFile + '?' + Math.random());
-                elements.remove_button.hide();
-                elements.choose_button.text(result.sTitleUpload);
-            }
-        });
-    };
-
-    /**
-     * Cancels drop/resizing
-     */
-    this.ajaxUploadCropCancel = function (button) {
-        var button = $(button);
-        var modal = button.parents('.modal').first();
-        if (!modal.length) {
-            modal = $('#modal-image-crop');
-        }
-        button.addClass('loading');
-        ls.ajax(this.currentOptions.urls.cancel, {}, function (result) {
-            if (!result) {
-                ls.msg.error(null, 'System error #1001');
-            } else if (result.bStateError) {
-                ls.msg.error(null, result.sMsg);
-            } else {
-                $(modal).modal('hide');
-            }
-            button.removeClass('loading');
-        });
-    };
-
-    /**
-     * Crop/Resize uploaded image
-     */
-    this.ajaxUploadCropSubmit = function (button) {
-        var self = this;
-
-        if (!this.jcropImage) {
-            return false;
-        }
-
-        var params = {
-            size: this.jcropImage.tellSelect()
-        };
-
-        var button = $(button);
-        var modal = button.parents('.modal').first();
-        if (!modal.length) {
-            modal = $('#modal-image-crop');
-        }
-        button.addClass('loading');
-        ls.ajax(self.currentOptions.urls.crop, params, function (result) {
-            if (!result) {
-                ls.msg.error(null, 'System error #1001');
-            } else if (result.bStateError) {
-                ls.msg.error(null, result.sMsg);
-            } else {
-                $('<img src="' + result.sFile + '?' + Math.random() + '" />');
-                self.currentForms.image.attr('src', result.sFile + '?' + Math.random());
-                $(modal).modal('hide');
-                self.currentForms.remove_button.show();
-                self.currentForms.choose_button.text(result.sTitleUpload);
-            }
-            button.removeClass('loading');
-        });
-
-        return false;
-    };
-
-    return this;
-}).call(ls.img || {}, jQuery);
-
-/**
  * Вспомогательные функции
  */
 ls.tools = (function ($) {
@@ -638,6 +425,7 @@ ls = (function ($) {
 
     this.options.progressInit = false;
     this.options.progressType = 'syslabel';
+    this.options.progressCnt  = 0;
 
     /**
      * Выполнение AJAX запроса, автоматически передает security key
@@ -700,22 +488,27 @@ ls = (function ($) {
         params = params || {};
         more.type = 'GET';
         return this.ajax(url, params, callback, more);
-    }
+    };
 
     this.ajaxPost = function (url, params, callback, more) {
         more = more || {};
         params = params || {};
         more.type = 'POST';
         return this.ajax(url, params, callback, more);
-    }
+    };
 
     /**
      * Выполнение AJAX отправки формы, включая загрузку файлов
      */
     this.ajaxSubmit = function (url, form, callback, more) {
-        var more = more || {},
-            success = null;
+        var success = null,
+            progressDone = function() { }; // empty function for progress vizualization
+
         form = $(form);
+        more = more || {};
+        if (more && more.progress) {
+            progressDone = ls.progressDone;
+        }
 
         if (url.indexOf('http://') != 0 && url.indexOf('https://') != 0 && url.indexOf('/') != 0) {
             url = ls.routerUrl('ajax') + url + '/';
@@ -735,6 +528,7 @@ ls = (function ($) {
 
         if (typeof callback == 'function') {
             options.success = function (result, status, xhr, form) {
+                progressDone();
                 form.find('[type=submit]').prop('disabled', false).removeClass('loading');
                 if (!result) {
                     ls.msg.error(null, 'System error #1001');
@@ -752,18 +546,34 @@ ls = (function ($) {
             }.bind(this);
         } else {
             options.success = function () {
+                progressDone();
                 ls.debug("ajax success: ");
                 ls.debug.apply(this, arguments);
             }.bind(this);
         }
+        options.error = function() {
+            if (more.progress) {
+                ls.progressDone();
+            }
+        };
 
-        options.error = more.error || function () {
-            ls.debug("ajax error: ");
-            ls.debug.apply(this, arguments);
-        }.bind(this);
+        if (more.error) {
+            options.error = function() {
+                progressDone();
+            }
+        } else {
+            options.error = more.error || function () {
+                progressDone();
+                ls.debug("ajax error: ");
+                ls.debug.apply(this, arguments);
+            }.bind(this);
+        }
 
         ls.hook.run('ls_ajaxsubmit_before', [options, form, callback, more], this);
 
+        if (more.progress) {
+            ls.progressStart();
+        }
         form.ajaxSubmit(options);
     };
 
@@ -773,10 +583,11 @@ ls = (function ($) {
      * @param  {string}          url      Ссылка
      * @param  {jquery, string}  form     Селектор формы либо объект jquery
      * @param  {Function}        callback Success коллбэк
-     * @param  {type}            [more]     Дополнительные параметры
+     * @param  {type}            [more]   Дополнительные параметры
      */
     this.ajaxForm = function (url, form, callback, more) {
-        var form = typeof form == 'string' ? $(form) : form;
+        form = typeof form == 'string' ? $(form) : form;
+        more = $.extend({ progress: true }, more);
 
         form.on('submit', function (e) {
             ls.ajaxSubmit(url, form, callback, more);
@@ -816,7 +627,7 @@ ls = (function ($) {
      */
     this.insertToEditor = function(html) {
         $.markItUp({replaceWith: html});
-    }
+    };
 
     /**
      * Saves config data
@@ -851,7 +662,7 @@ ls = (function ($) {
         } else {
             return ls.cfg.url.root + action + '/';
         }
-    }
+    };
 
     /**
      * Returns asset url
@@ -863,7 +674,7 @@ ls = (function ($) {
         if (this.cfg && this.cfg.assets && this.cfg.assets[asset]) {
             return this.cfg.assets[asset];
         }
-    }
+    };
 
     /**
      * Returns path of asset
@@ -876,7 +687,7 @@ ls = (function ($) {
         if (url) {
             return url.substring(0, url.lastIndexOf('/'));
         }
-    }
+    };
 
     /**
      * Loads asset script
@@ -901,16 +712,16 @@ ls = (function ($) {
                     ls.debug('error: [asset "' + asset + '"] ajax not loaded');
                 });
         }
-    }
+    };
 
     /**
      * Begins to show progress
      */
     this.progressStart = function() {
 
-        if (!this.options.progressInit) {
-            this.options.progressInit = true;
-            if (this.options.progressType == 'syslabel') {
+        if (!$that.options.progressInit) {
+            $that.options.progressInit = true;
+            if ($that.options.progressType == 'syslabel') {
                 $.SysLabel.init({
                     css: {
                         'z-index': $that.maxZIndex('.modal')
@@ -918,24 +729,29 @@ ls = (function ($) {
                 });
             }
         }
-        if (this.options.progressType == 'syslabel') {
-            $.SysLabel.show();
-        } else {
-            NProgress.start();
+        if (++$that.options.progressCnt == 1) {
+            if ($that.options.progressType == 'syslabel') {
+                $.SysLabel.show();
+            } else {
+                NProgress.start();
+            }
         }
-    }
+    };
 
     /**
      * Ends to show progress
      */
     this.progressDone = function() {
 
-        if (this.options.progressType == 'syslabel') {
-            $.SysLabel.hide();
-        } else {
-            NProgress.done();
+        if (--$that.options.progressCnt <= 0) {
+            if ($that.options.progressType == 'syslabel') {
+                $.SysLabel.hide();
+            } else {
+                NProgress.done();
+            }
+            $that.options.progressCnt = 0;
         }
-    }
+    };
 
     /**
      * Create unique ID
@@ -962,7 +778,7 @@ ls = (function ($) {
             }
         });
         return max;
-    }
+    };
 
     return this;
 }).call(ls || {}, jQuery);
