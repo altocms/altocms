@@ -113,7 +113,7 @@ $config['path']['skin']['assets']['dir']= '___path.runtime.dir___assets/skin/___
 $config['path']['root']['web']          = '___path.root.url___';        // Определяем для совместимости с LS
 $config['path']['root']['server']       = '___path.root.dir___';        // Определяем для совместимости с LS
 $config['path']['static']['root']       = '___path.static.url___';      // Определяем для совместимости с LS
-$config['path']['root']['engine']       = '___path.root.dir___/engine/';// Определяем для совместимости с LS
+$config['path']['root']['engine']       = '___path.dir.engine___/';     // Определяем для совместимости с LS
 $config['path']['static']['skin']       = '___path.skin.url___/';       // Определяем для совместимости с LS
 
 /**
@@ -122,7 +122,7 @@ $config['path']['static']['skin']       = '___path.skin.url___/';       // Оп�
 $config['path']['smarty']['template'] = '___path.skins.dir___/___view.skin___/';
 $config['path']['smarty']['compiled'] = '___path.tmp.dir___/templates/___view.skin___-___view.theme___/compiled/';
 $config['path']['smarty']['cache']    = '___path.tmp.dir___/templates/___view.skin___-___view.theme___/cache/';
-$config['path']['smarty']['plug']     = '___path.root.engine___/classes/modules/viewer/plugs/';
+$config['path']['smarty']['plug']     = '___path.dir.engine___/classes/modules/viewer/plugs/';
 
 $config['smarty']['compile_check']          = true;   // Проверять или нет файлы шаблона на изменения перед компиляцией, false может значительно увеличить быстродействие, но потребует ручного удаления кеша при изменения шаблона
 $config['smarty']['force_compile']          = false;  // Принудительно компилировать шаблоны (отменяет действие 'compile_check')
