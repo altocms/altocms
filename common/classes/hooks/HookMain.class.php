@@ -160,7 +160,7 @@ class HookMain extends Hook {
         $oViewer = $this->Viewer_GetLocalViewer();
         $oViewer->Assign('oTopic', $oTopic);
         $oViewer->Assign('bTopicList', $bList);
-        return $oViewer->Fetch('sharer.tpl');
+        return $oViewer->Fetch('commons/common.sharer.tpl');
     }
 
 }

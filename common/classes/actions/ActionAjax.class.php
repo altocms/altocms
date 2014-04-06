@@ -116,7 +116,7 @@ class ActionAjax extends Action {
         $oViewer->Assign('oUserCurrent', $this->oUserCurrent);
 
         // * Устанавливаем переменные для ajax ответа
-        $this->Viewer_AssignAjax('sText', $oViewer->Fetch('infobox.info.blog.tpl'));
+        $this->Viewer_AssignAjax('sText', $oViewer->Fetch('commons/common.infobox_blog.tpl'));
     }
 
     /**

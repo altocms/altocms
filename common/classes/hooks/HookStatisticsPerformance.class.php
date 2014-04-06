@@ -55,7 +55,7 @@ class HookStatisticsPerformance extends Hook {
         /**
          * В ответ рендерим шаблон статистики
          */
-        return $this->Viewer_Fetch('statistics_performance.tpl');
+        return $this->Viewer_Fetch('commons/common.statistics_performance.tpl');
     }
 }
 

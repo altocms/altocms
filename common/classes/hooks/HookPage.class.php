@@ -25,7 +25,7 @@ class HookPage extends Hook {
     public function Menu() {
         $aPages = $this->Page_GetPages(array('pid' => null, 'main' => 1, 'active' => 1));
         $this->Viewer_Assign('aPagesMain', $aPages);
-        return $this->Viewer_Fetch('page_main_menu.tpl');
+        return $this->Viewer_Fetch('menus/menu.main_pages.tpl');
     }
 }
 
