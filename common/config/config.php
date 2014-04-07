@@ -667,16 +667,6 @@ $config['head']['default']['js'] = array(
     '___path.frontend.url___/libs/js/core/main.js',
     '___path.frontend.url___/libs/js/core/hook.js',
 
-    /* User Interface */
-    /*
-    '___path.frontend.url___/libs/js/ui/over.js',
-    '___path.frontend.url___/libs/js/ui/dropdown.js',
-    '___path.frontend.url___/libs/js/ui/tooltip.js',
-    '___path.frontend.url___/libs/js/ui/popover.js',
-    '___path.frontend.url___/libs/js/ui/tab.js',
-    '___path.frontend.url___/libs/js/ui/modal.js',
-    '___path.frontend.url___/libs/js/ui/toolbar.js',
-    */
     '___path.frontend.url___/bootstrap-3.0.0/js/bootstrap.min.js' => array('name' => 'bootstrap'),
 
     /* Engine */

@@ -843,12 +843,12 @@ class ActionContent extends Action {
                     $oTopic->setPhotosetCount($oTopic->getPhotosetCount() - 1);
                     $this->Topic_UpdateTopic($oTopic);
                     $this->Message_AddNotice(
-                    $this->Lang_Get('topic_photoset_photo_deleted'), $this->Lang_Get('attention')
+                        $this->Lang_Get('topic_photoset_photo_deleted'), $this->Lang_Get('attention')
                     );
                     return;
                 }
-		$this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
-		return;
+                $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+                return;
             }
             $this->Topic_DeleteTopicPhoto($oPhoto);
             $this->Message_AddNotice($this->Lang_Get('topic_photoset_photo_deleted'), $this->Lang_Get('attention'));
@@ -879,16 +879,20 @@ class ActionContent extends Action {
          */
         $oPhoto = $this->Topic_GetTopicPhotoById(F::GetRequestStr('id'));
         if ($oPhoto) {
-            if ($oPhoto->getTopicId()) {
-                // проверяем права на топик
-                $oTopic = $this->Topic_GetTopicById($oPhoto->getTopicId());
-                if ($oTopic && $this->ACL_IsAllowEditTopic($oTopic, $this->oUserCurrent)) {
+            $sDescription = htmlspecialchars(strip_tags(F::GetRequestStr('text')));
+            if ($sDescription != $oPhoto->getDescription()) {
+                if ($oPhoto->getTopicId()) {
+                    // проверяем права на топик
+                    $oTopic = $this->Topic_GetTopicById($oPhoto->getTopicId());
+                    if ($oTopic && $this->ACL_IsAllowEditTopic($oTopic, $this->oUserCurrent)) {
+                        $oPhoto->setDescription(htmlspecialchars(strip_tags(F::GetRequestStr('text'))));
+                        $this->Topic_UpdateTopicPhoto($oPhoto);
+                    }
+                } else {
                     $oPhoto->setDescription(htmlspecialchars(strip_tags(F::GetRequestStr('text'))));
-                    $this->Topic_updateTopicPhoto($oPhoto);
+                    $this->Topic_UpdateTopicPhoto($oPhoto);
                 }
-            } else {
-                $oPhoto->setDescription(htmlspecialchars(strip_tags(F::GetRequestStr('text'))));
-                $this->Topic_updateTopicPhoto($oPhoto);
+                $this->Message_AddNotice($this->Lang_Get('topic_photoset_description_done'));
             }
         }
     }

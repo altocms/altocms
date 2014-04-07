@@ -274,14 +274,16 @@ ls.photoset = ( function ($) {
      */
     this.setPreviewDescription = function (id) {
 
-        var text = $(ls.photoset._itemId(id)).find('text').value();
+        var text = $(ls.photoset._itemId(id)).find('textarea').val();
+        ls.progressStart();
         ls.ajaxPost(ls.routerUrl('content') + 'photo/description', {'id': id, 'text': text}, function (response) {
+                ls.progressDone();
                 if (!response) {
                     ls.msg.error(null, 'System error #1001');
                 } else if (response.bStateError) {
-                    ls.msg.error(null, response.sMsg);
-                } else {
-                    ls.msg.error('Error', 'Please try again later');
+                    ls.msg.error('Error', response.sMsg ? response.sMsg : 'Please try again later');
+                } else if (response.sMsg) {
+                    ls.msg.notice('', response.sMsg);
                 }
             }
         )
