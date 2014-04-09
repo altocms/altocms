@@ -7,7 +7,7 @@ ls.widgets = (function ($) {
     "use strict";
 
     this.options = {
-        active: 'active',
+        activeClass: 'active',
         loaderClass: 'loader',
         type: {
             stream_comment: {
@@ -66,8 +66,8 @@ ls.widgets = (function ($) {
 
         content.empty().addClass(this.options.loaderClass);
 
-        $('.js-widget-' + widgetName + '-item').removeClass(this.options.active);
-        $(but).addClass(this.options.active);
+        $('.js-widget-' + widgetName + '-item').removeClass(this.options.activeClass);
+        $(but).addClass(this.options.activeClass);
 
         ls.ajax(this.options.type[type].url, params, function (result) {
             content.empty().removeClass(this.options.loaderClass);
@@ -77,7 +77,7 @@ ls.widgets = (function ($) {
                 ls.msg.error(null, result.sMsg);
             } else {
                 if (success) {
-                    var result = success(result.sText);
+                    success(result.sText);
                 } else {
                     content.html(result.sText);
                 }
