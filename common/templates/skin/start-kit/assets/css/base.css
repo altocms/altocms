@@ -24,6 +24,9 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 body.i-fixed_navbar {
     padding-top: 60px;
 }
+body.modal-open {
+    overflow: auto;
+}
 
 /* links */
 a.link-dashed { border-bottom: 1px dashed; }
@@ -351,6 +354,7 @@ select, input[type="file"] { height: auto; }
 
 .topic .topic-header .topic-title span { cursor: help; vertical-align: top; }
 
+.topic-header-info { overflow: hidden; }
 .topic-header-info .topic-blog { margin-right: 10px; }
 .topic-header-info time { margin-right: 10px; }
 
