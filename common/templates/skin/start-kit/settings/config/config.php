@@ -6,9 +6,9 @@ $config['smarty']['dir']['templates'] = array(
 );
 
 /* Theme */
-$config['view']['theme'] = 'default';
+//$config['view']['theme'] = 'default';
 $config['view']['theme'] = 'light';
-$config['view']['theme'] = 'green';
+//$config['view']['theme'] = 'green';
 //$config['view']['theme'] = 'red';
 
 /* Top bar fixed or static */

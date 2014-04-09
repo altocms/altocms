@@ -27,7 +27,7 @@
 /**
  * Настройки HTML вида
  */
-$config['view']['skin']             = 'synio';                      // скин
+$config['view']['skin']             = 'start-kit';                  // скин
 $config['view']['theme']            = 'default';                    // тема
 $config['view']['name']             = 'Your Site Name';             // название сайта
 $config['view']['description']      = 'Description your site';      // meta tag description
