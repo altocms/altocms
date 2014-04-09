@@ -1,0 +1,379 @@
+/* THEME experience */
+
+/*
+ * COLORS
+@base-color: #00afd1;
+@base-light: #00c6ec;
+@background: #eaeaea;
+@btn-success-bg: #59a335;
+
+@navbar-inverse-bg: #323a45;
+
+@navpills-bg: #f6f6f6;
+@navpills-color: #2a2a2a;
+@navpills-border: #d6d6d6;
+@navpills-gradient-top: #fbfbfb;
+@navpills-gradient-btm: #e7e7e7;
+
+@action-color: #777777;
+@action-inverse-color: #ededed;
+
+@danger-color: #ff4136;
+
+@title-color: #323a45;
+@stream-color: #5f6061;
+
+@footer-bg: #2a2f36;
+@footer-color: #bebebe;
+@footer-bottom-bg: #1c1f23;
+*/
+/* MIXINS */
+.background-gradient (@top-color, @bottom-color) {
+  background: -moz-linear-gradient(top, @top-color 0%, @bottom-color 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, @top-color), color-stop(100%, @bottom-color));
+  background: -webkit-linear-gradient(top, @top-color 0%, @bottom-color 100%);
+  background: -o-linear-gradient(top, @top-color 0%, @bottom-color 100%);
+  background: -ms-linear-gradient(top, @top-color 0%, @bottom-color 100%);
+  background: linear-gradient(top, @top-color 0%, @bottom-color 100%);
+}
+
+.border-color (@color) when (lightness(@color) >= 50%) {
+  border-color: darken(@color, 15%);
+}
+.border-color (@color) when (lightness(@color) < 50%) {
+  border-color: lighten(@color, 15%);
+}
+
+.background-comment (@color) when (lightness(@color) >= 50%) {
+  @color-bg: darken(@color, 7%);
+  background-color: @color-bg;
+  &.comment-self {
+    background-color: hsl(90, 20, lightness(@color-bg));
+  }
+  &.comment-deleted {
+    background-color: hsl(0, 25, lightness(@color-bg));
+  }
+}
+.background-comment (@color) when (lightness(@color) < 50%) {
+  @color-bg: lighten(@color, 7%);
+  background-color: @color-bg;
+}
+
+
+/* COMMON */
+body {
+  background: @background;
+}
+
+a {
+  color: @base-color;
+}
+
+/* BUTTONS */
+.btn-success {
+  color: #fff;
+  background-color: @btn-success-bg;
+  border-color: @btn-success-bg;
+}
+
+/* NAVIGATIONS */
+.navbar { background-color: @navbar-bg; }
+
+.navbar-inverse .navbar-brand span {
+  color: @base-color;
+}
+
+.navbar-inverse, .b-header-banner {
+  background-color: @navbar-inverse-bg;
+}
+
+.navbar-inverse .navbar-nav > .active > a,
+.navbar-inverse .navbar-nav > .active > a:hover,
+.navbar-inverse .navbar-nav > .active > a:focus {
+  background-color: @base-color;
+}
+
+.nav-pills > li.active > a,
+.nav-pills > li.active > a:hover,
+.nav-pills > li.active > a:focus {
+  color: #fff;
+  background-color: @base-color;
+}
+
+.nav.context-menu > li > a {
+  color: @navpills-color;
+}
+
+.nav.context-menu > li.active > a {
+  color: #fff;
+  background-color: @base-color;
+}
+
+.nav-pills.context-menu > li.bordered {
+  border: 1px solid @nav-bordered-border;
+  box-shadow: 0 2px 4px rgba(64, 64, 64, 0.05);
+  background-color: @nav-bordered-bg;
+  .background-gradient(@nav-bordered-gradient-top, @nav-bordered-gradient-btm);
+}
+
+.nav-pills.context-menu > li.bordered + li.bordered {
+  border-left-color: #fff;
+  margin-left: 0;
+}
+
+.nav-pills.context-menu > li.bordered.active > a {
+  color: @nav-bordered-active;
+  background-color: @nav-bordered-bg;
+}
+
+.nav-pills.context-menu > li.bordered:hover > a,
+.topic-header-info .topic-blog {
+  color: @base-color;
+}
+
+/* PAGINATION */
+.pagination > .active > a,
+.pagination > .active > span,
+.pagination > .active > a:hover,
+.pagination > .active > span:hover,
+.pagination > .active > a:focus,
+.pagination > .active > span:focus {
+  background-color: @base-color;
+  border-color: @base-color;
+}
+
+/* WIDGET NAVIGATIONS */
+.widget-content .nav-pills li {
+  background-color: @navpills-bg;
+  border: 1px solid @navpills-border;
+}
+
+.widget-content .nav-pills > li + li {
+  margin-left: 8px;
+}
+
+.widget-content .nav-pills > li.active {
+  border-color: @base-color;
+}
+
+/* WIDGETS */
+.panel-default.widget {
+  background-color: @content-bg;
+}
+.widget-title a {
+  color: @title-color;
+}
+
+.widget-title a:hover {
+  text-decoration: none;
+  color: @base-color;
+}
+
+.widget-content a.blog-top {
+  color: @stream-color;
+}
+
+.widget-content a.blog-top:hover {
+  text-decoration: none;
+  color: @base-color;
+}
+
+.item-list li .blog-name,
+.widget-type-stream .stream-topic,
+.widget-type-stream .stream-topic:visited {
+  color: @stream-color;
+}
+
+.item-list li .blog-name:hover,
+.widget-type-stream .stream-topic:hover {
+  text-decoration: none;
+  color: @base-color;
+}
+
+.widget-type-stream .stream-topic.text-danger {
+  color: @danger-color;
+}
+
+/* BLOGS & TOPICS */
+.blog-header .actions li,
+.topic-header-info .actions li {
+  padding: 0;
+}
+
+.blog-header .actions a,
+.topic-header-info .actions a {
+  display: inline-block;
+  color: @action-color;
+  background-color: @action-inverse-color;
+  padding: 2px 4px 1px 4px;
+}
+
+.blog-header .actions .actions-tool,
+.topic-header-info .actions .actions-tool {
+  color: @action-inverse-color;
+  background-color: @action-color;
+  padding: 4px 4px;
+}
+
+.blog-header .actions a:hover,
+.topic-header-info .actions a:hover {
+  color: @action-inverse-color;
+  background-color: @action-color;
+  text-decoration: none;
+}
+
+.blog-header .actions .actions-delete:hover,
+.topic-header-info .actions .actions-delete:hover {
+  color: @action-inverse-color;
+  background-color: @danger-color;
+  text-decoration: none;
+}
+
+.topic-header-title, .topic-header-title > a {
+  font-weight: 300;
+  font-size: 22px;
+  color: @title-color;
+}
+
+.topic-header-title:hover > a {
+  color: @base-color;
+  text-decoration: none;
+}
+
+.topic {
+  background-color: @content-bg;
+}
+.topic-content a:hover, .topic-content a:visited, .topic-content a:visited,
+.text a:hover, .text a:visited, .text a:visited {
+  color: @base-light;
+}
+
+.topic a.read-more {
+  color: @title-color !important;
+  background-color: @navpills-bg;
+  border: 1px solid @navpills-border;
+  padding: 2px 15px;
+}
+.topic a.read-more:hover {
+  color: @base-color !important;
+}
+
+.topic-footer-info {
+  border-top-color: @topic-tag;
+}
+.topic-footer .topic-tags li a,
+.topic-footer-info a {
+  color: @topic-tag;
+}
+.topic-footer .topic-tags li a:hover {
+  color: @topic-tag-active;
+}
+.topic-footer-info li.topic-info-comments a.icon-active,
+.topic-footer-info li.topic-info-comments a.new,
+.topic-footer-info .favourite.active,
+.comment-info .favourite.active {
+  color: @base-color;
+}
+
+.topic-info-date, .topic-info-date a { color: @title-color; opacity: .7; }
+
+/* CONTENT */
+.content-inner legend {
+  .border-color(@content-bg);
+}
+/* .content-inner.action-people, */
+/* .content-inner.action-blogs, */
+.content-inner.action-stream,
+.content-inner.action-talk,
+.content-inner.action-settings,
+.content-inner.action-topic,
+.content-inner.action-content,
+.content-inner.action-question,
+.content-inner.action-link,
+.content-inner.action-photoset,
+.content-inner.action-comments,
+.content-inner.action-profile .comment-list,
+.content-inner.action-blog.event-edit,
+.content-inner.action-blog.event-admin,
+.content-inner.action-blog.event-add,
+.content-inner.action-blog.params-users,
+.content-inner-panel,
+.profile-notes,
+.profile-header,
+.profile-content,
+.action-header,
+#comments.comments {
+  background-color: @content-bg;
+}
+
+/* TABLES */
+.table>thead>tr>th,
+.table>tbody>tr>th,
+.table>tfoot>tr>th,
+.table>thead>tr>td,
+.table>tbody>tr>td,
+.table>tfoot>tr>td {
+  .border-color(@content-bg);
+}
+
+/* COMMENTS */
+.comment {
+  background-color: @content-bg;
+}
+.comment .comment-avatar {
+  border-color: @background;
+}
+#comments .comment {
+  .background-comment(@content-bg);
+}
+#comments .comment .comment-avatar { border-color: @content-bg; }
+.comment-info-author a { color: @title-color; }
+.comment-info-author a.comment-topic-author { color: @base-color; }
+.comment-info-date, .comment-info-date a { color: @title-color; opacity: .7; }
+
+/* PROFILE */
+.profile-header, .profile-content {
+  background-color: @content-bg;
+}
+
+/* PAGINATION */
+.paging, .pagination > li > a, .pagination > li > span {
+  background-color: @content-bg;
+  color: @topic-text;
+}
+.pagination > li > a:hover {
+  background-color: @navpills-bg;
+  color: @base-color;
+}
+.pagination>.disabled>span,
+.pagination>.disabled>span:hover,
+.pagination>.disabled>span:focus,
+.pagination>.disabled>a,
+.pagination>.disabled>a:hover,
+.pagination>.disabled>a:focus {
+  background-color: @content-bg;
+  color: @topic-tag;
+}
+
+/* TOOLBAR */
+.toolbar section a:hover { color: @base-color; }
+
+/* FOOTER */
+.footer {
+  background-color: @footer-bg;
+  color: @footer-color;
+}
+
+.footer-bottom {
+  background-color: @footer-bottom-bg;
+}
+
+.footer-list a,
+.footer-list a:visited {
+  color: @footer-color;
+}
+
+.footer-list a:hover {
+  text-decoration: none;
+  color: @base-color;
+}

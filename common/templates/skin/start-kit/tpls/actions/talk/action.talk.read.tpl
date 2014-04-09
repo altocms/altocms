@@ -1,0 +1,1 @@
+{extends file="./action.talk.message.tpl"}

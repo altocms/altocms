@@ -708,6 +708,8 @@ class ActionBlog extends Action {
      */
     protected function EventShowTopic() {
 
+        $this->sMenuHeadItemSelect = 'index';
+
         $sBlogUrl = '';
         $sTopicUrlMask = Router::GetTopicUrlMask();
         if ($this->GetParamEventMatch(0, 1)) {
