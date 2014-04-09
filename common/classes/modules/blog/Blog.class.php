@@ -966,22 +966,24 @@ class ModuleBlog extends Module {
                         $aAllowBlogs[$oBlog->getId()] = $oBlog;
                     } else {
                         $bAllow = false;
-                        if ($sAllow == 'write') {
-                            $bAllow = ($oBlogType->GetAclWrite(self::BLOG_USER_ACL_MEMBER)
-                                    && $oBlogType->GetMinRateWrite() <= $oUser->getRating())
-                                || $this->ACL_CheckBlogEditContent($oBlog, $oUser);
-                        } elseif ($sAllow == 'read') {
-                            $bAllow = $oBlogType->GetAclRead(self::BLOG_USER_ACL_MEMBER)
-                                && $oBlogType->GetMinRateRead() <= $oUser->getRating();
-                        } elseif ($sAllow == 'comment') {
-                            $bAllow = $oBlogType->GetAclComment(self::BLOG_USER_ACL_MEMBER)
-                                && $oBlogType->GetMinRateComment() <= $oUser->getRating();
-                        }
-                        if ($bAllow) {
-                            $aAllowBlogs[$oBlog->getId()] = $oBlog;
-                            // Если задан конкретный блог и он найден, то проверять больше не нужно
-                            if ($iBlog && isset($aAllowBlogs[$iBlog])) {
-                                return $aAllowBlogs[$iBlog];
+                        if ($oBlogType) {
+                            if ($sAllow == 'write') {
+                                $bAllow = ($oBlogType->GetAclWrite(self::BLOG_USER_ACL_MEMBER)
+                                        && $oBlogType->GetMinRateWrite() <= $oUser->getRating())
+                                    || $this->ACL_CheckBlogEditContent($oBlog, $oUser);
+                            } elseif ($sAllow == 'read') {
+                                $bAllow = $oBlogType->GetAclRead(self::BLOG_USER_ACL_MEMBER)
+                                    && $oBlogType->GetMinRateRead() <= $oUser->getRating();
+                            } elseif ($sAllow == 'comment') {
+                                $bAllow = $oBlogType->GetAclComment(self::BLOG_USER_ACL_MEMBER)
+                                    && $oBlogType->GetMinRateComment() <= $oUser->getRating();
+                            }
+                            if ($bAllow) {
+                                $aAllowBlogs[$oBlog->getId()] = $oBlog;
+                                // Если задан конкретный блог и он найден, то проверять больше не нужно
+                                if ($iBlog && isset($aAllowBlogs[$iBlog])) {
+                                    return $aAllowBlogs[$iBlog];
+                                }
                             }
                         }
                     }
