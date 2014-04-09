@@ -116,12 +116,13 @@ ls.user = (function ($) {
     /**
      * Добавление в друзья
      */
-    this.addFriend = function (obj, idUser, sAction) {
+    this.addFriend = function (form, idUser, sAction) {
         var sText ='',
             url = '';
+        form = $(form);
         if (sAction != 'link' && sAction != 'accept') {
             sText = $('#add_friend_text').val();
-            $('#add_friend_form').children().each(function (i, item) {
+            form.children().each(function (i, item) {
                 $(item).attr('disabled', 'disabled')
             });
         }
@@ -134,8 +135,10 @@ ls.user = (function ($) {
 
         var params = {idUser: idUser, userText: sText};
 
+        ls.progressStart();
         ls.ajax(url, params, function (result) {
-            $('#add_friend_form').children().each(function (i, item) {
+            ls.progressDone();
+            form.children().each(function (i, item) {
                 $(item).removeAttr('disabled')
             });
             if (!result) {
@@ -144,10 +147,9 @@ ls.user = (function ($) {
                 ls.msg.error(null, result.sMsg);
             } else {
                 ls.msg.notice(null, result.sMsg);
-                $('#add_friend_form').modal('hide');
-                $('#add_friend_item').remove();
-                $('#profile_actions').prepend($($.trim(result.sToggleText)));
-                ls.hook.run('ls_user_add_friend_after', [idUser, sAction, result], obj);
+                $('#modal-add_friend').modal('hide');
+                $('#profile_actions  li:first').html($.trim(result.sToggleText));
+                ls.hook.run('ls_user_add_friend_after', [idUser, sAction, result], form);
             }
         });
         return false;
@@ -167,8 +169,8 @@ ls.user = (function ($) {
                 ls.msg.error(null, result.sMsg);
             } else {
                 ls.msg.notice(null, result.sMsg);
-                $('#delete_friend_item').remove();
-                $('#profile_actions').prepend($($.trim(result.sToggleText)));
+                //$('#profile_actions').prepend($($.trim(result.sToggleText)));
+                $('#profile_actions li:first').html($.trim(result.sToggleText));
                 ls.hook.run('ls_user_remove_friend_after', [idUser, sAction, result], obj);
             }
         });
