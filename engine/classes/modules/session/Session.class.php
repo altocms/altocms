@@ -265,16 +265,18 @@ class ModuleSession extends Module {
      *
      * @param   string          $sName
      * @param   string          $sValue
-     * @param   int|string|null $xPeriod  - period in seconds or in string like 'P<..>'
+     * @param   int|string|null $xPeriod - period in seconds or in string like 'P<..>'
+     * @param   bool            $bHttpOnly
+     * @param   bool            $bSecure
      */
-    public function SetCookie($sName, $sValue, $xPeriod = null) {
+    public function SetCookie($sName, $sValue, $xPeriod = null, $bHttpOnly = true, $bSecure = false) {
 
         if ($xPeriod) {
             $nTime = time() + F::ToSeconds($xPeriod);
         } else {
             $nTime = 0;
         }
-        setcookie($sName, $sValue, $nTime, Config::Get('sys.cookie.path'), Config::Get('sys.cookie.host'), false, true);
+        setcookie($sName, $sValue, $nTime, Config::Get('sys.cookie.path'), Config::Get('sys.cookie.host'), $bSecure, $bHttpOnly);
     }
 
     /**

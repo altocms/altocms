@@ -84,6 +84,10 @@ jQuery(document).ready(function ($) {
     ls.autocomplete.add($(".autocomplete-users-sep"), ls.routerUrl('ajax') + 'autocompleter/user/', true);
     ls.autocomplete.add($(".autocomplete-users"), ls.routerUrl('ajax') + 'autocompleter/user/', false);
 
+    // Autofocus
+    $('form').each(function(){
+        $(this).find('.js-focus-in:visible').first().focus();
+    });
 
     // Скролл
     $(window)._scrollable();
@@ -165,16 +169,6 @@ jQuery(document).ready(function ($) {
     // ls.ie.bordersizing(inputs);
     // эмуляция placeholder'ов в IE
     inputs.placeholder();
-
-    // инизиализация блоков
-    /*
-    ls.blocks.init('stream', {group_items: true, group_min: 3});
-    ls.blocks.init('blogs');
-    ls.blocks.initSwitch('tags');
-    ls.blocks.initSwitch('upload-img');
-    ls.blocks.initSwitch('favourite-topic-tags');
-    ls.blocks.initSwitch('popup-login');
-    */
 
     // комментарии
     //ls.comments.options.folding = false;

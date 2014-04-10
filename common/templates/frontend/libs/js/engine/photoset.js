@@ -38,7 +38,9 @@ ls.photoset = ( function ($) {
     this.initSwfUpload = function (opt) {
         opt = opt || {};
         opt.button_placeholder_id = 'photoset-upload-place';
-        opt.post_params.ls_photoset_target_tmp = $.cookie('ls_photoset_target_tmp') ? $.cookie('ls_photoset_target_tmp') : 0;
+        if ($.cookie('ls_photoset_target_tmp')) {
+            opt.post_params.ls_photoset_target_tmp = $.cookie('ls_photoset_target_tmp');
+        }
 
         var uploadButton = $('#photoset-upload-button');
         var fakeButton = uploadButton.clone().css({position: 'absolute', top: -1000, left:-1000}).appendTo('body').show();

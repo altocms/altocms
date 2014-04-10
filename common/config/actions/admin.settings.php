@@ -182,17 +182,6 @@ $config['sys'] =
             'valtype' => 'string',
         ),
         array(
-            'label' => 'action.admin.set_sys_logs_profiler',
-            'type' => 'checkbox',
-            'config' => 'sys.logs.profiler',
-        ),
-        array(
-            'label' => 'action.admin.set_sys_logs_profiler_file',
-            'type' => 'text',
-            'config' => 'sys.logs.profiler_file',
-            'valtype' => 'string',
-        ),
-        array(
             'label' => 'action.admin.set_sys_logs_cron_file',
             'type' => 'text',
             'config' => 'sys.logs.cron_file',

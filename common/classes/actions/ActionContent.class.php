@@ -317,10 +317,10 @@ class ActionContent extends Action {
 
         // * Если нет временного ключа для нового топика, то генерируем; если есть, то загружаем фото по этому ключу
         if ($sTargetTmp = $this->Session_GetCookie('ls_photoset_target_tmp')) {
-            $this->Session_SetCookie('ls_photoset_target_tmp', $sTargetTmp, 'P1D');
+            $this->Session_SetCookie('ls_photoset_target_tmp', $sTargetTmp, 'P1D', false);
             $this->Viewer_Assign('aPhotos', $this->Topic_getPhotosByTargetTmp($sTargetTmp));
         } else {
-            $this->Session_SetCookie('ls_photoset_target_tmp', F::RandomStr(), 'P1D');
+            $this->Session_SetCookie('ls_photoset_target_tmp', F::RandomStr(), 'P1D', false);
         }
 
         // Если POST-запрос, то обрабатываем отправку формы

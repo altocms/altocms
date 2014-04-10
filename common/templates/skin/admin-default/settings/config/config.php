@@ -36,7 +36,7 @@ $config['head']['default']['js'] = array(
     '___path.frontend.dir___/libs/vendor/markitup/jquery.markitup.js' => array('name' => 'markitup'),
     '___path.frontend.dir___/libs/vendor/tinymce_4/tinymce.min.js' => array('name' => 'tinymce', 'asset' => 'mini'),
 
-    '___path.frontend.dir___/bootstrap-3.0.0/js/bootstrap.min.js' => array('name' => 'bootstrap'),
+    '___path.frontend.dir___/bootstrap-3/js/bootstrap.min.js' => array('name' => 'bootstrap'),
 
     '___path.skin.dir___/assets/js/excanvas.min.js',
     '___path.skin.dir___/assets/js/jquery.flot.min.js',

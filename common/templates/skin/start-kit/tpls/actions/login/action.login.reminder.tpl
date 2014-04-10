@@ -20,7 +20,7 @@
     <form action="{router page='login'}reminder/" method="POST" id="reminder-form">
         <div class="form-group">
             <label for="reminder-mail">{$aLang.password_reminder_email}</label>
-            <input type="text" name="mail" id="reminder-mail" class="form-control"/>
+            <input type="text" name="mail" id="reminder-mail" class="form-control js-focus-in"/>
 
             <p class="help-block">
                 <small class="text-danger validate-error-hide validate-error-reminder"></small>

@@ -26,7 +26,7 @@
 
         <div class="form-group">
             <label for="login">{$aLang.user_login}</label>
-            <input type="text" id="login" name="login" class="form-control"/>
+            <input type="text" id="login" name="login" class="form-control js-focus-in"/>
         </div>
 
         <div class="form-group">

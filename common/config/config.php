@@ -667,7 +667,7 @@ $config['head']['default']['js'] = array(
     '___path.frontend.url___/libs/js/core/main.js',
     '___path.frontend.url___/libs/js/core/hook.js',
 
-    '___path.frontend.url___/bootstrap-3.0.0/js/bootstrap.min.js' => array('name' => 'bootstrap'),
+    '___path.frontend.url___/bootstrap-3/js/bootstrap.min.js' => array('name' => 'bootstrap'),
 
     /* Engine */
     '___path.frontend.url___/libs/js/engine/favourite.js',

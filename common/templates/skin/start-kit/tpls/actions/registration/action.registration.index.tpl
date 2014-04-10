@@ -42,7 +42,7 @@
                                     <span class="glyphicon glyphicon-ok text-success validate-ok-field-login"
                                           style="display: none"></span>
             <input type="text" name="login" id="input-registration-login"
-                   value="{$_aRequest.login}" class="form-control js-ajax-validate" required/>
+                   value="{$_aRequest.login}" class="form-control js-ajax-validate js-focus-in" required/>
 
             <p class="help-block">
                 <small class="text-danger validate-error-hide validate-error-field-login"></small>
