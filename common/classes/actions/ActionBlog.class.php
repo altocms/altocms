@@ -840,9 +840,9 @@ class ActionBlog extends Action {
         }
 
         if ($this->oUserCurrent) {
-            $bAllowNewComment = $this->Blog_GetBlogsAllowTo('comment', $this->oUserCurrent, $oTopic->getBlog()->GetId(), true);
+            $bAllowToComment = $this->Blog_GetBlogsAllowTo('comment', $this->oUserCurrent, $oTopic->getBlog()->GetId(), true);
         } else {
-            $bAllowNewComment = false;
+            $bAllowToComment = false;
         }
 
         // Отмечаем дату прочтения топика
@@ -869,7 +869,7 @@ class ActionBlog extends Action {
         $this->Viewer_Assign('oTopic', $oTopic);
         $this->Viewer_Assign('aComments', $aComments);
         $this->Viewer_Assign('iMaxIdComment', $iMaxIdComment);
-        $this->Viewer_Assign('bAllowNewComment', $bAllowNewComment);
+        $this->Viewer_Assign('bAllowToComment', $bAllowToComment);
 
         // Устанавливаем title страницы
         $this->Viewer_AddHtmlTitle($oTopic->getBlog()->getTitle());

@@ -15,7 +15,7 @@
     sTargetType="topic"
     iCountComment=$oTopic->getCountComment()
     sDateReadLast=$oTopic->getDateRead()
-    bAllowNewComment=$oTopic->getForbidComment()
+    bAllowToComment=!$oTopic->getForbidComment()
     sNoticeNotAllow=$aLang.topic_comment_notallow
     sNoticeCommentAdd=$aLang.topic_comment_add
     bAllowSubscribe=true

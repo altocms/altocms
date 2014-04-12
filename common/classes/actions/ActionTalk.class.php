@@ -476,7 +476,7 @@ class ActionTalk extends Action {
             }
         }
 
-        $this->Viewer_Assign('bAllowNewComment', true);
+        $this->Viewer_Assign('bAllowToComment', true);
         $this->SetTemplateAction('message');
     }
 

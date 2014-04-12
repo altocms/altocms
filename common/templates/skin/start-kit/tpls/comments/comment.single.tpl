@@ -77,7 +77,7 @@
         </div>
         {if E::IsUser()}
             <ul class="list-unstyled list-inline small comment-actions">
-                {if !$oComment->getDelete() AND !$bAllowNewComment}
+                {if !$oComment->getDelete() AND $bAllowToComment}
                     <li><a href="#" onclick="ls.comments.toggleCommentForm({$oComment->getId()}); return false;"
                            class="reply-link link-dotted">{$aLang.comment_answer}</a></li>
                 {/if}
