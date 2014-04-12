@@ -350,13 +350,25 @@ abstract class Action extends LsObject {
                 // New-style action templates
                 $sActionName = strtolower($aMatches[3]);
                 $sTemplatePath = $this->Plugin_GetDelegate('template', 'actions/' . $sActionName . '/action.' . $sActionName . '.' . $sTemplate . '.tpl');
-                if (empty($aMatches[1])) {
-                    $sActionTemplatePath = $sTemplatePath;
-                } else {
-                    $sTemplatePath = Plugin::GetTemplatePath($sAction) . $sTemplatePath;
-                    if (is_file($sTemplatePath)) {
+                $sActionTemplatePath = $sTemplatePath;
+                if (!empty($aMatches[1])) {
+                    $aPluginTemplateDirs = array(Plugin::GetTemplateDir($sAction));
+                    if (basename($aPluginTemplateDirs[0]) !== 'default') {
+                        $aPluginTemplateDirs[] = dirname($aPluginTemplateDirs[0]) . '/default/';
+                    }
+                    //$sTemplatePath = Plugin::GetTemplateDir($sAction) . $sTemplatePath;
+                    if ($sTemplatePath = F::File_Exists($sTemplatePath, $aPluginTemplateDirs)) {
                         $sActionTemplatePath = $sTemplatePath;
                         break;
+                    }
+                    // LS-compatibility
+                    if ($this->Plugin_IsActivePlugin('ls')) {
+                        $sLsTemplatePath = $this->Plugin_GetDelegate('template', 'actions/Action' . ucfirst($sActionName) . '/' . $sTemplate . '.tpl');
+                        //$sTemplatePath = Plugin::GetTemplateDir($sAction) . $sLsTemplatePath;
+                        if ($sTemplatePath = F::File_Exists($sLsTemplatePath, $aPluginTemplateDirs)) {
+                            $sActionTemplatePath = $sTemplatePath;
+                            break;
+                        }
                     }
                 }
             }
