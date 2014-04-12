@@ -262,12 +262,15 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
                     if (F::File_Exists($sFile)) {
                         return $sFile;
                     }
-                } elseif ($sName == 'actions/ActionContent/add.tpl' || $sName == 'actions/content/action.content.add.tpl') {
-                    $sResult = Config::Get('path.smarty.template') . '/actions/ActionTopic/add.tpl';
+                } elseif (($sName == 'actions/ActionContent/add.tpl') || ($sName == 'actions/content/action.content.add.tpl') || ($sName == 'actions/content/action.content.edit.tpl')) {
+                    $sResult = Config::Get('path.smarty.template') . '/actions/ActionContent/add.tpl';
+                    if (!is_file($sResult)) {
+                        $sResult = Config::Get('path.smarty.template') . '/actions/ActionTopic/add.tpl';
+                    }
                     $this->Hook_AddExecFunction('template_form_add_topic_topic_end', array($this, 'TemplateFormAddTopic'));
                 } elseif ((strpos($sName, 'forms/view_field') === 0) || (strpos($sName, 'forms/form_field') === 0)) {
                     $sResult = Plugin::GetTemplateDir('PluginLs') . $sName;
-                } elseif ($sName == 'actions/ActionProfile/info.tpl') {
+                } elseif (($sName == 'actions/ActionProfile/info.tpl') || ($sName == 'actions/profile/action.profile.info.tpl')) {
                     $sResult = $this->TemplateExists('actions/ActionProfile/whois.tpl');
                     if ($sResult) {
                         $sResult = F::File_Exists('actions/ActionProfile/whois.tpl', $this->oSmarty->getTemplateDir());
