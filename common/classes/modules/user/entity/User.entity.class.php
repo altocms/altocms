@@ -507,10 +507,10 @@ class ModuleUser_EntityUser extends Entity {
             $nW = $nH = intval($xSize);
         }
         if ($sUrl = $this->getProfileAvatar()) {
-            $sUrl .= '-' . $nW . 'x' . $nH . '.' . pathinfo($sUrl, PATHINFO_EXTENSION);
             if (Config::Get('module.image.autoresize')) {
                 $sFile = $this->Uploader_Url2Dir($sUrl);
                 if (!F::File_Exists($sFile)) {
+                    $sFile .= '-' . $nW . 'x' . $nH . '.' . pathinfo($sFile, PATHINFO_EXTENSION);
                     $this->Img_Duplicate($sFile);
                 }
             }
