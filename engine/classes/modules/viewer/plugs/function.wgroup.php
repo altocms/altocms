@@ -42,6 +42,11 @@ function smarty_function_wgroup($aParams, $oSmartyTemplate) {
     $sWidgetGroup = $aParams['group'];
     $aWidgetParams = (isset($aParams['params']) ? $aParams['params'] : $aParams);
 
+    // group parameter required
+    if (!$sWidgetGroup) {
+        return '';
+    }
+
     if (isset($aParams['command'])) {
         $sWidgetCommand = $aParams['command'];
     } else {
