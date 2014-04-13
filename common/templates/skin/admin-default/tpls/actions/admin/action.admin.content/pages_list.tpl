@@ -101,14 +101,13 @@
     var admin = admin || { };
 
     admin.confirmDelete = function(id, title) {
-        admin.confirm({
-            header: '{$aLang.action.admin.pages_admin_action_delete}',
-            content: '{$aLang.action.admin.pages_admin_action_delete_message} "' + title + '"<br/>{$aLang.action.admin.pages_admin_action_delete_confirm}',
-            onConfirm: function() {
-                document.location = "{router page='admin'}content-pages/delete/" + id + "/?security_key={$ALTO_SECURITY_KEY}";
-            }
-        })
-
+        ls.modal.confirm(
+                '{$aLang.action.admin.pages_admin_action_delete}',
+                '{$aLang.action.admin.pages_admin_action_delete_message} "' + title + '"<br/>{$aLang.action.admin.pages_admin_action_delete_confirm}',
+                function() {
+                    document.location = "{router page='admin'}content-pages/delete/" + id + "/?security_key={$ALTO_SECURITY_KEY}";
+                }
+        );
     }
 </script>
 
