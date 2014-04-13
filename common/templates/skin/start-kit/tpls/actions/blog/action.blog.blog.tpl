@@ -17,16 +17,28 @@
 
 <div class="blog">
     <header class="blog-header">
-        <div id="vote_area_blog_{$oBlog->getId()}"
-             class="small vote {if $oBlog->getRating() > 0}vote-count-positive{elseif $oBlog->getRating() < 0}vote-count-negative{/if} {if $oVote} voted {if $oVote->getDirection()>0}voted-up{elseif $oVote->getDirection()<0}voted-down{/if}{/if}">
-            <div class="text-muted vote-label">Рейтинг</div>
-            <a href="#" class="vote-up" onclick="return ls.vote.vote({$oBlog->getId()},this,1,'blog');"><span
-                        class="glyphicon glyphicon-plus-sign"></span></a>
+        {$sClasses = ''}
+        {if $oBlog->getRating() > 0}
+            {$sClasses = "$sClasses vote-count-positive"}
+        {elseif $oBlog->getRating() < 0}
+            {$sClasses = "$sClasses vote-count-negative"}
+        {/if}
+        {if $oVote}
+            {$sClasses = "$sClasses voted"}
+            {if $oVote->getDirection()>0}
+                {$sClasses = "$sClasses voted-up"}
+            {elseif $oVote->getDirection()<0}
+                {$sClasses = "$sClasses voted-down"}
+            {/if}
+        {/if}
+        <div class="small vote js-vote {$sClasses}" data-target-type="user" data-target-id="{$oBlog->getId()}">
+            <div class="text-muted vote-label">{$aLang.blog_rating}</div>
+            <a href="#" class="vote-up js-vote-up"><span class="glyphicon glyphicon-plus-sign"></span></a>
 
-            <div id="vote_total_blog_{$oBlog->getId()}" class="vote-count count"
-                 title="{$aLang.blog_vote_count}: {$oBlog->getCountVote()}">{if $oBlog->getRating() > 0}+{/if}{$oBlog->getRating()}</div>
-            <a href="#" class="vote-down" onclick="return ls.vote.vote({$oBlog->getId()},this,-1,'blog');"><span
-                        class="glyphicon glyphicon-minus-sign"></span></a>
+            <div class="vote-count count js-vote-rating" title="{$aLang.blog_vote_count}: {$oBlog->getCountVote()}">
+                {if $oBlog->getRating() > 0}+{/if}{$oBlog->getRating()}
+            </div>
+            <a href="#" class="vote-down js-vote-down"><span class="glyphicon glyphicon-minus-sign"></span></a>
         </div>
 
         <img src="{$oBlog->getAvatarPath(64)}" class="avatar"/>

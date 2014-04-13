@@ -28,7 +28,7 @@ ls.user = (function ($) {
         });
 
         /* Password reset */
-        ls.ajaxForm(ls.routerUrl('login') + 'ajax-reminder', '.js-form-recovery', function (result, status, xhr, form) {
+        ls.ajaxForm(ls.routerUrl('login') + 'ajax-reminder', '.js-form-reminder', function (result, status, xhr, form) {
             result.sUrlRedirect && (window.location = result.sUrlRedirect);
             ls.hook.run('ls_user_recovery_after', [form, result]);
         });
