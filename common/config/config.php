@@ -228,8 +228,10 @@ $config['sys']['logs']['cron_file']      = 'cron.log';      // файл лога
 $config['sys']['logs']['profiler']       = false;           // логировать или нет профилирование процессов
 $config['sys']['logs']['profiler_file']  = 'profiler.log';  // файл лога профилирования процессов
 
-$config['sys']['logs']['error_file']  = 'error.log';        // файл лога ошибок
-$config['sys']['logs']['error_extinfo']  = false;           // выводить ли дополнительную информацию в лог ошибок
+$config['sys']['logs']['error_file']        = 'error.log';  // файл лога ошибок
+$config['sys']['logs']['error_extinfo']     = false;        // выводить ли дополнительную информацию в лог ошибок
+$config['sys']['logs']['error_callstack']   = false;        // выводить стек вызовов в лог ошибок
+$config['sys']['logs']['error_norepeat']    = true;         // не повторять вывод одинаковых ошибок
 
 $config['sys']['logs']['hacker_console']  = false;          // позволяет удобно выводить логи дебага через функцию dump(), использя "хакерскую" консоль Дмитрия Котерова
 

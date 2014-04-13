@@ -12,17 +12,25 @@
  * Static class of engine functions
  */
 class Func {
-    const ERROR_LOG = 'error.log';
+    const ERROR_LOGFILE = 'error.log';
+
+    const ERROR_LOG_EXTINFO = 1;
+    const ERROR_LOG_CALLSTACK = 2;
+
+    static protected $nFatalErrors;
 
     static protected $aExtsions = array();
 
     static protected $nErrorTypes = E_ALL;
+
+    static protected $aErrorCollection = array();
 
     /**
      * Init function
      */
     static public function init() {
 
+        static::$nFatalErrors = E_ERROR | E_PARSE | E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_COMPILE_WARNING;
         static::_loadExtension('File');
         if (!defined('ALTO_INSTALL')) {
             register_shutdown_function('F::done');
@@ -38,8 +46,7 @@ class Func {
 
         if ($aError = error_get_last()) {
             // Other errors catchs by error handler
-            $nFatalErrors = E_ERROR | E_PARSE | E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_COMPILE_WARNING;
-            if ($aError['type'] & $nFatalErrors) {
+            if ($aError['type'] & static::$nFatalErrors) {
                 static::_errorHandler($aError['type'], $aError['message'], $aError['file'], $aError['line']);
             }
         }
@@ -50,7 +57,7 @@ class Func {
      */
     static public function _errorLogFile() {
 
-        return static::_getConfig('sys.logs.error_file', static::ERROR_LOG);
+        return static::_getConfig('sys.logs.error_file', static::ERROR_LOGFILE);
     }
 
     /**
@@ -58,7 +65,22 @@ class Func {
      */
     static public function _errorLogExtInfo() {
 
-        return (bool)static::_getConfig('sys.logs.error_extinfo', true);
+        $nExtInfo = 0;
+        if ((bool)static::_getConfig('sys.logs.error_extinfo', true)) {
+            $nExtInfo += self::ERROR_LOG_EXTINFO;
+        }
+        if ((bool)static::_getConfig('sys.logs.error_callstack', true)) {
+            $nExtInfo += self::ERROR_LOG_CALLSTACK;
+        }
+        return $nExtInfo;
+    }
+
+    /**
+     * @return bool
+     */
+    static public function _errorLogNoRepeat() {
+
+        return (bool)static::_getConfig('sys.logs.error_norepeat', true);
     }
 
     /**
@@ -67,39 +89,50 @@ class Func {
     static public function _errorLog($sError) {
 
         $sError = mb_convert_encoding($sError, 'UTF-8');
-        $sText = '';
-        if (static::_errorLogExtInfo() && isset($_SERVER) && is_array($_SERVER)) {
-            foreach ($_SERVER as $sKey => $sVal) {
-                if (!in_array($sKey, array('PATH', 'SystemRoot', 'COMSPEC', 'PATHEXT', 'WINDIR'))) {
-                    $sText .= "  _SERVER['$sKey']=";
-                    if (is_scalar($sVal)) {
-                        $sText .= $sVal;
-                    } else {
-                        $sText .= gettype($sVal);
-                        if (is_array($sVal)) {
-                            $sText .= '(';
-                            $nCnt = 0;
-                            foreach ($sVal as $xIdx => $sItem) {
-                                if ($nCnt++) {
-                                    $sText .= ',';
-                                }
-                                if (is_scalar($sItem)) {
-                                    $sText .= $xIdx . '=>' . $sItem;
-                                } else {
-                                    $sText .= $xIdx . '=>' . gettype($sItem) . '()';
-                                }
-                            }
-                            $sText .= ')';
+        $sText = $sError;
+        $nErrorExtInfo = static::_errorLogExtInfo();
+        if ($nErrorExtInfo) {
+            $sText .= "\n";
+            if (($nErrorExtInfo & self::ERROR_LOG_EXTINFO) && isset($_SERVER) && is_array($_SERVER)) {
+                $sText .= "--- server vars ---\n";
+                foreach ($_SERVER as $sKey => $sVal) {
+                    if (!in_array($sKey, array('PATH', 'SystemRoot', 'COMSPEC', 'PATHEXT', 'WINDIR'))) {
+                        $sText .= "  _SERVER['$sKey']=";
+                        if (is_scalar($sVal)) {
+                            $sText .= $sVal;
                         } else {
-                            $sText .= '()';
+                            $sText .= gettype($sVal);
+                            if (is_array($sVal)) {
+                                $sText .= '(';
+                                $nCnt = 0;
+                                foreach ($sVal as $xIdx => $sItem) {
+                                    if ($nCnt++) {
+                                        $sText .= ',';
+                                    }
+                                    if (is_scalar($sItem)) {
+                                        $sText .= $xIdx . '=>' . $sItem;
+                                    } else {
+                                        $sText .= $xIdx . '=>' . gettype($sItem) . '()';
+                                    }
+                                }
+                                $sText .= ')';
+                            } else {
+                                $sText .= '()';
+                            }
                         }
+                        $sText .= "\n";
                     }
-                    $sText .= "\n";
                 }
             }
-            $sText = "$sError\n---\n$sText\n---\n";
-        } else {
-            $sText = $sError;
+
+            if (($nErrorExtInfo & self::ERROR_LOG_CALLSTACK) && ($aCallStack = static::_CallStackError())) {
+                $sText .= "--- call stack ---\n";
+                foreach ($aCallStack as $aCaller) {
+                    $sText .= static::_CallerFormat($aCaller) . "\n";
+                }
+            }
+
+            $sText .= "--- end ---\n";
         }
 
         if (!static::_log($sText, static::_errorLogFile(), 'ERROR')) {
@@ -145,6 +178,45 @@ class Func {
     }
 
     /**
+     * Push error info into internal collection
+     *
+     * @param $nErrNo
+     * @param $sErrMsg
+     * @param $sErrFile
+     * @param $nErrLine
+     *
+     * @return bool
+     */
+    static protected function _pushError($nErrNo, $sErrMsg, $sErrFile, $nErrLine) {
+
+        $aError = array(
+            'err_no' => $nErrNo,
+            'err_msg' => $sErrMsg,
+            'err_file' => $sErrFile,
+            'err_line' => $nErrLine,
+        );
+        $sKey = md5(serialize($aError));
+        if (!isset(self::$aErrorCollection[$sKey])) {
+            self::$aErrorCollection[$sKey] = $aError;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns info of last error
+     *
+     * @return array|null
+     */
+    static protected function _getLastError() {
+
+        if (self::$aErrorCollection) {
+            return end(self::$aErrorCollection);
+        }
+        return null;
+    }
+
+    /**
      * @param int    $nErrNo
      * @param string $sErrMsg
      * @param string $sErrFile
@@ -172,15 +244,17 @@ class Func {
             E_USER_DEPRECATED => 'E_USER_DEPRECATED',
         );
 
-        if ($nErrNo & error_reporting()) {
-            if (F::IsDebug()) {
-                static::_errorDisplay("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg ($sErrFile on line $nErrLine)");
-            } else {
-                static::_errorDisplay("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg", static::_errorLogFile());
+        if (!static::_errorLogNoRepeat() || static::_pushError($nErrNo, $sErrMsg, $sErrFile, $nErrLine)) {
+            if ($nErrNo & error_reporting()) {
+                if (F::IsDebug()) {
+                    static::_errorDisplay("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg ($sErrFile on line $nErrLine)");
+                } else {
+                    static::_errorDisplay("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg", static::_errorLogFile());
+                }
             }
-        }
-        if ($nErrNo & self::$nErrorTypes) {
-            static::_errorLog("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg ($sErrFile on line $nErrLine)");
+            if ($nErrNo & self::$nErrorTypes) {
+                static::_errorLog("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg ($sErrFile on line $nErrLine)");
+            }
         }
 
         /* Don't execute PHP internal error handler */
@@ -285,20 +359,38 @@ class Func {
         $aData = static::_CallStack($nOffset + 1, 1);
         if (sizeof($aData)) {
             if ($bString) {
-                if ($aCaller = $aData[0]) {
-                    $sCallerStr = '';
-                    $sPosition = '';
-                    if (isset($aCaller['class']) && isset($aCaller['function']) && isset($aCaller['type'])) {
-                        $sCallerStr = $aCaller['class'] . $aCaller['type'] . $aCaller['function'] . '()';
-                    }
-                    if (isset($aCaller['file']) && isset($aCaller['line'])) {
-                        $sPosition = ' in ' . $aCaller['file'] . ' on line ' . $aCaller['line'];
-                    }
-                }
-                return $sCallerStr . $sPosition;
+                return static::_CallerFormat(reset($aData));
             }
-            return ($aData[0]);
+            return (reset($aData));
         }
+    }
+
+    /**
+     * Format caller to string
+     *
+     * @param array $aCaller
+     *
+     * @return string
+     */
+    static protected function _CallerFormat($aCaller) {
+
+        $sResult = 'undefined';
+        if ($aCaller && is_array($aCaller)) {
+            $sCallerStr = '';
+            $sPosition = '';
+            if (isset($aCaller['class']) && isset($aCaller['function']) && isset($aCaller['type'])) {
+                $sCallerStr = $aCaller['class'] . $aCaller['type'] . $aCaller['function'] . '()';
+            } elseif (isset($aCaller['function'])) {
+                $sCallerStr = $aCaller['function'] . '()';
+            }
+            if (isset($aCaller['file']) && isset($aCaller['line'])) {
+                $sPosition = ' in ' . $aCaller['file'] . ' on line ' . $aCaller['line'];
+            }
+            $sResult = $sCallerStr . $sPosition;
+        } elseif ($aCaller) {
+            $sResult = (string)$aCaller;
+        }
+        return $sResult;
     }
 
     /**
@@ -311,7 +403,42 @@ class Func {
      */
     static protected function _CallStack($nOffset = 1, $nLength = null) {
 
-        $aStack = array_slice(debug_backtrace(), $nOffset, $nLength);
+        $aStack = array_slice(debug_backtrace(false), $nOffset, $nLength);
+        return $aStack;
+    }
+
+    /**
+     * Returns real call stack in error point
+     *
+     * @return array
+     */
+    static protected function _CallStackError() {
+
+        $aStack = static::_CallStack();
+        $aLastError = static::_getLastError();
+        if ($aLastError && ($aLastError['err_no'] & ~static::$nFatalErrors)) {
+            foreach ($aStack as $nI => $aCaller) {
+                // find point of error
+                if ((isset($aCaller['args'][0]) && $aCaller['args'][0] == $aLastError['err_no'])
+                    && (isset($aCaller['args'][1]) && $aCaller['args'][1] == $aLastError['err_msg'])
+                    && (isset($aCaller['args'][2]) && $aCaller['args'][2] == $aLastError['err_file'])
+                    && (isset($aCaller['args'][3]) && $aCaller['args'][3] == $aLastError['err_line'])
+                ) {
+                    if (sizeof($aStack) > $nI + 1) {
+                        $aStack = array_slice($aStack, $nI + 1);
+                        if (!isset($aStack[0]['file'])) {
+                            $aStack[0]['file'] = $aLastError['err_file'];
+                        }
+                        if (!isset($aStack[0]['line'])) {
+                            $aStack[0]['line'] = $aLastError['err_line'];
+                        }
+                    } else {
+                        $aStack = array();
+                    }
+                    break;
+                }
+            }
+        }
         return $aStack;
     }
 
