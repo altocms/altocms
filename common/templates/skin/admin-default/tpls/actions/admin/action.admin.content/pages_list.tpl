@@ -12,10 +12,10 @@
 
     {if $aParams.0=='add'}
         <h3 class="page-sub-header">{$aLang.action.admin.pages_create}</h3>
-        {include file='actions/ActionAdmin/page/page_add.tpl'}
+        {include file='./page_add.tpl'}
     {elseif $aParams.0=='edit'}
         <h3 class="page-sub-header">{$aLang.action.admin.pages_edit} «{$oPageEdit->getTitle()}»</h3>
-    {include file='actions/ActionAdmin/page/page_add.tpl'}
+    {include file='./page_add.tpl'}
     {/if}
 
     <div class="b-wbox">

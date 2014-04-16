@@ -1,4 +1,4 @@
-{extends file='actions/ActionAdmin/users/banlist.tpl'}
+{extends file='./banlist.tpl'}
 
 {block name="content-body-table"}
 
