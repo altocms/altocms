@@ -1051,6 +1051,7 @@ class AltoFunc_File {
             return $sMimeType;
         }
 
+        // Defines max signature length
         if (!self::$nMimeTypeSignaturesMax) {
             foreach (self::$aMimeTypeSignatures as $sMimeType => $aSignsCollect) {
                 if (isset($aSignsCollect['offset']) || isset($aSignsCollect['offset'])) {
@@ -1062,7 +1063,7 @@ class AltoFunc_File {
                         $sSignature = $aSign;
                     } else {
                         $nOffset = isset($aSign['offset']) ? intval($aSign['offset']) : 0;
-                        $sSignature = isset($aSign['signature']) ? intval($aSign['signature']) : '';
+                        $sSignature = isset($aSign['signature']) ? $aSign['signature'] : '';
                     }
                     $nLen = $nOffset + strlen($sSignature);
                     if ($nLen > self::$nMimeTypeSignaturesMax) {
@@ -1075,6 +1076,7 @@ class AltoFunc_File {
                 }
             }
         }
+        // Reads part of file and compares with signatures
         if ($hFile = fopen($sFile, 'r')) {
             $sBuffer = fgets($hFile, self::$nMimeTypeSignaturesMax);
             fclose($hFile);

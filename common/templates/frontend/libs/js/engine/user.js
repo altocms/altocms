@@ -443,18 +443,16 @@ ls.user = (function ($) {
         input.clone(true).insertAfter(input);
         input.removeAttr('id').appendTo(form);
 
-        ls.progressStart();
         ls.ajaxSubmit(options.url.upload, form, function (result) {
-            ls.progressDone();
             if (!result) {
                 ls.msg.error(null, 'System error #1001');
             } else if (result.bStateError) {
                 ls.msg.error(result.sMsgTitle, result.sMsg);
             } else {
-                this.uploadImageModalCrop(result.sTmpFile, options);
+                $that.uploadImageModalCrop(result.sTmpFile, options);
             }
             form.remove();
-        }.bind(this));
+        }, {progress: true});
     };
 
     return this;

@@ -509,9 +509,11 @@ class ModuleUser_EntityUser extends Entity {
         if ($sUrl = $this->getProfileAvatar()) {
             if (Config::Get('module.image.autoresize')) {
                 $sFile = $this->Uploader_Url2Dir($sUrl);
-                if (!F::File_Exists($sFile)) {
+                if (F::File_Exists($sFile)) {
                     $sFile .= '-' . $nW . 'x' . $nH . '.' . pathinfo($sFile, PATHINFO_EXTENSION);
-                    $this->Img_Duplicate($sFile);
+                    if ($sFile = $this->Img_Duplicate($sFile)) {
+                        $sUrl = $this->Uploader_Dir2Url($sFile);
+                    }
                 }
             }
             return $sUrl;

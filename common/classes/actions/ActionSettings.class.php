@@ -140,7 +140,7 @@ class ActionSettings extends Action {
         $sError = '';
 
         $sTmpFile = $this->Uploader_UploadLocal($aUploadedFile);
-        if ($sTmpFile) {
+        if ($sTmpFile && $this->Img_MimeType($sTmpFile)) {
             /**
              * Ресайзим и сохраняем уменьшенную копию
              * Храним две копии - мелкую для показа пользователю и крупную в качестве исходной для ресайза
@@ -271,7 +271,7 @@ class ActionSettings extends Action {
 
         // Загружаем файл
         $sUploadedFile = $this->Uploader_UploadLocal($aUploadedFile);
-        if ($sUploadedFile) {
+        if ($sUploadedFile && $this->Img_MimeType($sUploadedFile)) {
             if ($this->Img_ResizeFile($sUploadedFile, self::PREVIEW_RESIZE, self::PREVIEW_RESIZE)) {
                 // Сохраняем аватар в оригинале
                 $sAvatarFile = $this->Uploader_GetUserAvatarDir($this->oUserCurrent->getId()) . 'original.' . F::File_GetExtension($sUploadedFile);
