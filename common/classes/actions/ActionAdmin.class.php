@@ -2106,7 +2106,7 @@ class ActionAdmin extends Action {
         } elseif ($this->sCurrentEvent == 'logs-sqllog') {
             $sLogFile = Config::Get('sys.logs.dir') . Config::Get('sys.logs.sql_query_file');
         } else {
-            $sLogFile = Config::Get('sys.logs.dir') . F::ERROR_LOG;
+            $sLogFile = Config::Get('sys.logs.dir') . F::ERROR_LOGFILE;
         }
 
         if (!is_null($this->GetPost('submit_logs_del'))) {
