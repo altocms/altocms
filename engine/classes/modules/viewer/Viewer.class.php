@@ -203,6 +203,8 @@ class ModuleViewer extends Module {
 
     protected $bAssetInit = false;
 
+    //protected $nMuteErrorsCnt = 0;
+
     /**
      * Константа для компиляции LESS-файлов
      */
@@ -319,6 +321,9 @@ class ModuleViewer extends Module {
 
         F::IncludeFile('./plugs/resource.file.php');
         $this->oSmarty->registerResource('file', new Smarty_Resource_File());
+
+        // Mutes expected Smarty minor errors
+        $this->oSmarty->muteExpectedErrors();
     }
 
     /**
@@ -537,7 +542,7 @@ class ModuleViewer extends Module {
                 $this->_initTemplator();
             }
             // Подавляем обработку ошибок
-            $this->_muteErrors();
+            //$this->_muteErrors();
 
             $sTemplate = $this->Plugin_GetDelegate('template', $sTemplate);
             if ($this->TemplateExists($sTemplate, true)) {
@@ -550,7 +555,7 @@ class ModuleViewer extends Module {
                 self::$_renderTime += (microtime(true) - self::$_renderStart);
                 self::$_renderStart = 0;
             }
-            $this->_unmuteErrors();
+            //$this->_unmuteErrors();
         }
     }
 
@@ -595,7 +600,7 @@ class ModuleViewer extends Module {
             }
 
             // * Подавляем вывод ошибок
-            $this->_muteErrors();
+            //$this->_muteErrors();
 
             self::$_renderCount++;
             self::$_renderStart = microtime(true);
@@ -610,7 +615,7 @@ class ModuleViewer extends Module {
                 $this->oSmarty->cache_lifetime = $nOldCacheLifetime;
             }
 
-            $this->_unmuteErrors();
+            //$this->_unmuteErrors();
 
             return $sContent;
         }
@@ -851,14 +856,18 @@ class ModuleViewer extends Module {
 
     protected function _muteErrors() {
 
-        if (!Smarty::$_previous_error_handler) {
+        if ($this->nMuteErrorsCnt <= 0) {
             $this->oSmarty->muteExpectedErrors();
+            $this->nMuteErrorsCnt++;
         }
     }
 
     protected function _unmuteErrors() {
 
-        $this->oSmarty->unmuteExpectedErrors();
+        if ($this->nMuteErrorsCnt > 0) {
+            $this->oSmarty->unmuteExpectedErrors();
+            $this->nMuteErrorsCnt--;
+        }
     }
 
     /**
@@ -874,9 +883,9 @@ class ModuleViewer extends Module {
         if (!$this->oSmarty) {
             $this->_initTemplator();
         }
-        $this->_muteErrors();
+        //$this->_muteErrors();
         $bResult = $this->oSmarty->templateExists($sTemplate);
-        $this->_unmuteErrors();
+        //$this->_unmuteErrors();
         if (!$bResult && $bException) {
             $sMessage = 'Can not find the template "' . $sTemplate . '" in skin "' . $this->GetConfigSkin() . '"';
             if ($aTpls = $this->GetSmartyObject()->template_objects) {
