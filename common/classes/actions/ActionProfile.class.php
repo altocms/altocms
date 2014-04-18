@@ -1341,7 +1341,7 @@ class ActionProfile extends Action {
         $oUser = $this->User_GetUserById($oChangemail->getUserId());
         $this->Notify_Send(
             $oChangemail->getMailTo(),
-            'notify.user_changemail_to.tpl',
+            'user_changemail_to.tpl',
             $this->Lang_Get('notify_subject_user_changemail'),
             array(
                  'oUser'       => $oUser,

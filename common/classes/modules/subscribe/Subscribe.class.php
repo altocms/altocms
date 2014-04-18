@@ -373,15 +373,14 @@ class ModuleSubscribe extends Module {
      *
      * @param int    $sTargetType     Тип объекта подписки
      * @param int    $iTargetId       ID объекта подписки
-     * @param string $sTemplate       Имя шаблона письма, например, notify.mail.tpl
+     * @param string $sTemplate       Имя шаблона письма, например, mail.tpl
      * @param string $sTitle          Заголовок письма
      * @param array  $aParams         Параметра для передачи в шаблон письма
      * @param array  $aExcludeMail    Список емайлов на которые НЕ нужно отправлять
      * @param string $sPluginName     Название или класс плагина для корректной отправки
      */
-    public function Send(
-        $sTargetType, $iTargetId, $sTemplate, $sTitle, $aParams = array(), $aExcludeMail = array(), $sPluginName = null
-    ) {
+    public function Send($sTargetType, $iTargetId, $sTemplate, $sTitle, $aParams = array(), $aExcludeMail = array(), $sPluginName = null) {
+
         $iPage = 1;
         $aSubscribes = $this->Subscribe_GetSubscribes(
             array('target_type'  => $sTargetType, 'target_id' => $iTargetId, 'status' => 1,

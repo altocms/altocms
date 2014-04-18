@@ -1273,7 +1273,7 @@ class ActionBlog extends Action {
              * Отправка уведомления автору топика
              */
             $this->Subscribe_Send(
-                'topic_new_comment', $oTopic->getId(), 'notify.comment_new.tpl',
+                'topic_new_comment', $oTopic->getId(), 'comment_new.tpl',
                 $this->Lang_Get('notify_subject_comment_new'),
                 array('oTopic' => $oTopic, 'oComment' => $oCommentNew, 'oUserComment' => $this->oUserCurrent,),
                 $aExcludeMail

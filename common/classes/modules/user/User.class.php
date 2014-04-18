@@ -1868,18 +1868,15 @@ class ModuleUser extends Module {
         $oChangemail->setCodeFrom(F::RandomStr(32));
         $oChangemail->setCodeTo(F::RandomStr(32));
         if ($this->AddUserChangemail($oChangemail)) {
-            /**
-             * Если у пользователя раньше не было емайла, то сразу шлем подтверждение на новый емайл
-             */
+            // * Если у пользователя раньше не было емайла, то сразу шлем подтверждение на новый емайл
             if (!$oChangemail->getMailFrom()) {
                 $oChangemail->setConfirmFrom(1);
                 $this->User_UpdateUserChangemail($oChangemail);
-                /**
-                 * Отправляем уведомление на новый емайл
-                 */
+
+                // * Отправляем уведомление на новый емайл
                 $this->Notify_Send(
                     $oChangemail->getMailTo(),
-                    'notify.user_changemail_to.tpl',
+                    'user_changemail_to.tpl',
                     $this->Lang_Get('notify_subject_user_changemail'),
                     array(
                          'oUser'       => $oUser,
@@ -1888,12 +1885,10 @@ class ModuleUser extends Module {
                 );
 
             } else {
-                /**
-                 * Отправляем уведомление на старый емайл
-                 */
+                // * Отправляем уведомление на старый емайл
                 $this->Notify_Send(
                     $oUser,
-                    'notify.user_changemail_from.tpl',
+                    'user_changemail_from.tpl',
                     $this->Lang_Get('notify_subject_user_changemail'),
                     array(
                          'oUser'       => $oUser,
