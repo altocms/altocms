@@ -714,18 +714,18 @@ class ModuleComment extends Module {
     /**
      * Получить новые комменты для владельца
      *
-     * @param int    $nId            ID владельца коммента
+     * @param int    $nTargetId            ID владельца коммента
      * @param string $sTargetType    Тип владельца комментария
      * @param int    $nIdCommentLast ID последнего прочитанного комментария
      *
      * @return array('comments'=>array,'iMaxIdComment'=>int)
      */
-    public function GetCommentsNewByTargetId($nId, $sTargetType, $nIdCommentLast) {
+    public function GetCommentsNewByTargetId($nTargetId, $sTargetType, $nIdCommentLast) {
 
-        $sCacheKey = "comment_target_{$nId}_{$sTargetType}_{$nIdCommentLast}";
+        $sCacheKey = "comment_target_{$nTargetId}_{$sTargetType}_{$nIdCommentLast}";
         if (false === ($aComments = $this->Cache_Get($sCacheKey))) {
-            $aComments = $this->oMapper->GetCommentsNewByTargetId($nId, $sTargetType, $nIdCommentLast);
-            $this->Cache_Set($aComments, $sCacheKey, array("comment_new_{$sTargetType}_{$nId}"), 'P1D');
+            $aComments = $this->oMapper->GetCommentsNewByTargetId($nTargetId, $sTargetType, $nIdCommentLast);
+            $this->Cache_Set($aComments, $sCacheKey, array("comment_new_{$sTargetType}_{$nTargetId}"), 'P1D');
         }
         if (count($aComments) == 0) {
             return array('comments' => array(), 'iMaxIdComment' => 0);
@@ -742,7 +742,7 @@ class ModuleComment extends Module {
         $aCmt = array();
         foreach ($aCmts as $oComment) {
             $oViewerLocal->Assign('oComment', $oComment);
-            $sText = $oViewerLocal->Fetch($this->GetTemplateCommentByTarget($nId, $sTargetType));
+            $sText = $oViewerLocal->Fetch($this->GetTemplateCommentByTarget($nTargetId, $sTargetType));
             $aCmt[] = array(
                 'html' => $sText,
                 'obj'  => $oComment,

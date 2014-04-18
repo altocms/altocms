@@ -146,7 +146,9 @@ ls.comments = (function ($) {
 
     // Подгружает новые комментарии
     this.load = function (idTarget, typeTarget, selfIdComment, bNotFlushNew) {
-        var idCommentLast = $("#comment_last_id").val();
+        var button = $('#update-comments'),
+            idCommentLast = $("#comment_last_id").val(),
+            params = { idCommentLast: idCommentLast, idTarget: idTarget, typeTarget: typeTarget };
 
         // Удаляем подсветку у комментариев
         if (!bNotFlushNew) {
@@ -155,10 +157,6 @@ ls.comments = (function ($) {
             }.bind(this));
         }
 
-        objImg = $('#update-comments');
-        objImg.addClass('active');
-
-        var params = { idCommentLast: idCommentLast, idTarget: idTarget, typeTarget: typeTarget };
         if (selfIdComment) {
             params.selfIdComment = selfIdComment;
         }
@@ -166,8 +164,9 @@ ls.comments = (function ($) {
             params.bUsePaging = 1;
         }
 
+        button.addClass('active').find('.glyphicon').addClass('spin');
         ls.ajax(this.options.type[typeTarget].url_response, params, function (result) {
-            objImg.removeClass('active');
+            button.removeClass('active').find('.glyphicon').removeClass('spin');
 
             if (!result) {
                 ls.msg.error(null, 'System error #1001');
