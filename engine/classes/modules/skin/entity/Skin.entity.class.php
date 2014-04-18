@@ -198,9 +198,8 @@ class ModuleSkin_EntitySkin extends Entity {
 
     public function GetThemes() {
 
-        $aData = $this->_getDataProperty('info')->themes->theme;
         $aResult = array();
-        if (sizeof($aData)) {
+        if ($this->_getDataProperty('info')->themes && ($aData = $this->_getDataProperty('info')->themes->theme) && sizeof($aData)) {
             foreach ($aData as $oProp) {
                 $aResult[] = array(
                     'code' => (string)$oProp['code'],
