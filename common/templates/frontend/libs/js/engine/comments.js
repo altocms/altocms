@@ -11,12 +11,12 @@ ls.comments = (function ($) {
     this.defaults = {
         type: {
             topic: {
-                url_add: aRouter.blog + 'ajaxaddcomment/',
-                url_response: aRouter.blog + 'ajaxresponsecomment/'
+                url_add:      ls.routerUrl('blog') + 'ajaxaddcomment/',
+                url_response: ls.routerUrl('blog') + 'ajaxresponsecomment/'
             },
             talk: {
-                url_add: aRouter.talk + 'ajaxaddcomment/',
-                url_response: aRouter.talk + 'ajaxresponsecomment/'
+                url_add:      ls.routerUrl('talk') + 'ajaxaddcomment/',
+                url_response: ls.routerUrl('talk') + 'ajaxresponsecomment/'
             }
         },
         classes: {
@@ -29,6 +29,9 @@ ls.comments = (function ($) {
             comment: 'comment',
             comment_goto_parent: 'comment-goto-parent',
             comment_goto_child: 'comment-goto-child'
+        },
+        selectors: {
+            form: '.js-form-comment'
         },
         wysiwyg: null,
         folding: true
@@ -45,7 +48,7 @@ ls.comments = (function ($) {
     this.init = function (options) {
         this.options = $.extend({}, this.defaults, options);
 
-        this.initEvent();
+        this.initEvent(this.options.selectors.form);
         this.calcNewComments();
         this.checkFolding();
         this.toggleCommentForm(this.iCurrentShowFormComment);
@@ -56,8 +59,9 @@ ls.comments = (function ($) {
         ls.hook.run('ls_comments_init_after', [], this);
     };
 
-    this.initEvent = function () {
-        $('#form_comment_text').bind('keyup', function (e) {
+    this.initEvent = function (formSelector) {
+        var form = $(formSelector);
+        form.find('textarea').bind('keyup', function (e) {
             var key = e.keyCode || e.which;
             if (e.ctrlKey && (key == 13)) {
                 if ($(this).parents('form').find('[name=comment_mode]').val() == 'edit') {
@@ -81,39 +85,44 @@ ls.comments = (function ($) {
     };
 
     // Добавляет комментарий
-    this.add = function (formObj, targetId, targetType) {
-        if (this.options.wysiwyg) {
-            $('#' + formObj + ' textarea').val(tinyMCE.activeEditor.getContent());
+    this.add = function (form, targetId, targetType) {
+        var textarea;
+        form = $(form);
+        if (form.tagName != 'FORM') {
+            form = form.parents('form').first();
         }
-        formObj = $('#' + formObj);
+        textarea = form.find('textarea');
+        if (this.options.wysiwyg) {
+            textarea.val(tinyMCE.activeEditor.getContent());
+        }
 
-        $('#form_comment_text').addClass(this.options.classes.form_loader).attr('readonly', true);
+        textarea.addClass(this.options.classes.form_loader).attr('readonly', true);
         $('#comment-button-submit').attr('disabled', 'disabled');
 
-        ls.ajax(this.options.type[targetType].url_add, formObj.serializeJSON(), function (result) {
+        ls.progressStart();
+        ls.ajax(this.options.type[targetType].url_add, form.serializeJSON(), function (result) {
+            ls.progressDone();
             $('#comment-button-submit').removeAttr('disabled');
+            this.enableFormComment(form);
             if (!result) {
-                this.enableFormComment();
                 ls.msg.error(null, 'System error #1001');
                 return;
             } else if (result.bStateError) {
-                this.enableFormComment();
                 ls.msg.error(null, result.sMsg);
             } else {
-                this.enableFormComment();
-                $('#form_comment_text').val('');
+                textarea.val('');
 
                 // Load new comments
                 this.load(targetId, targetType, result.sCommentId, true);
-                ls.hook.run('ls_comments_add_after', [formObj, targetId, targetType, result]);
+                ls.hook.run('ls_comments_add_after', [form, targetId, targetType, result]);
             }
         }.bind(this));
     };
 
 
     // Активирует форму
-    this.enableFormComment = function () {
-        $('#form_comment_text').removeClass(this.options.classes.form_loader).attr('readonly', false);
+    this.enableFormComment = function (form) {
+        $(form).find('textarea').removeClass(this.options.classes.form_loader).attr('readonly', false);
     };
 
 
@@ -224,7 +233,12 @@ ls.comments = (function ($) {
             }
             $('#comment_wrapper_id_' + idCommentParent).append(newComment);
         } else {
-            $('#comments').append(newComment);
+            var lastComment = $('#comments > .comment-wrapper').last();
+            if (lastComment.length) {
+                $(newComment).insertAfter(lastComment);
+            } else {
+                $(newComment).insertAfter('#comments > .comments-header');
+            }
         }
         ls.hook.run('ls_comment_inject_after', arguments, newComment);
     };

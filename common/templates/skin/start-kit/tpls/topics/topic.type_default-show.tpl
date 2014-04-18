@@ -76,7 +76,7 @@
 
     {if $oContentType}
         {foreach from=$oContentType->getFields() item=oField}
-            {include file="fields/customs/field.customs.`$oField->getFieldType()`-show.tpl" oField=$oField}
+            {include file="fields/customs/field.custom.`$oField->getFieldType()`-show.tpl" oField=$oField}
         {/foreach}
     {/if}
 
