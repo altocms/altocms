@@ -72,7 +72,7 @@
                 </li>
             {/if}
 
-            <li id="comment_updated_id_{$oComment->getId()}" class="text-muted comment-updated"
+            <li class="text-muted comment-updated"
                     {if !$oComment->getCommentDateEdit()}style="display: none;" {/if}>
                 {$aLang.comment_updated}:
                 <time datetime="{date_format date=$oComment->getCommentDateEdit() format='c'}">

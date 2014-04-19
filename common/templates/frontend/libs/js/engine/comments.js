@@ -376,11 +376,10 @@ ls.comments = (function ($) {
                 if (result.sMsg) ls.msg.notice(null,result.sMsg);
                 this.formCommentText('');
                 this.formCommentHide();
-                $('#comment_content_id_' + result.nCommentId).html(result.sText);
-                $('#comment_updated_id_' + result.nCommentId + ' time')
-                    .text(result.sDateEditText)
-                    .prop('datetime', result.sDateEdit)
-                    .show();
+                var comment = $('#comment_id_' + result.nCommentId);
+                comment.find('.comment-content').html(result.sText);
+                comment.find('.comment-updated').show()
+                    .find('time').text(result.sDateEditText).prop('datetime', result.sDateEdit);
             }
         }.bind(this));
     };
