@@ -506,14 +506,14 @@ ls.comments = (function ($) {
 
 
     // Предпросмотр комментария
-    this.preview = function (divPreview) {
-        if (this.options.wysiwyg) {
-            $("#form_comment_text").val(tinyMCE.activeEditor.getContent());
-        }
-        if ($("#form_comment_text").val() == '') return;
-        $("#comment_preview_" + this.iCurrentShowFormComment).remove();
-        $('#reply').before('<div id="comment_preview_' + this.iCurrentShowFormComment + '" class="comment-preview text"></div>');
-        ls.tools.textPreview('form_comment_text', false, 'comment_preview_' + this.iCurrentShowFormComment);
+    this.preview = function () {
+        if (this.formCommentText() == '') return;
+        var replyForm = this.getReplyForm(),
+            id = 'comment_preview_' + this.iCurrentShowFormComment,
+            textarea = replyForm.find('textarea');
+        $('#' + id).remove();
+        replyForm.before('<div id="' + id + '" class="comment-preview text"></div>');
+        ls.tools.textPreview(textarea, false, id);
     };
 
 

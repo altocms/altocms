@@ -333,21 +333,27 @@ ls.tools = (function ($) {
     /**
      * Предпросмотр
      */
-    this.textPreview = function (textId, save, divPreview) {
-        var text = ls.cfg.wysiwyg ? tinyMCE.activeEditor.getContent() : $('#' + textId).val();
-        var ajaxUrl = ls.routerUrl('ajax') + 'preview/text/';
-        var ajaxOptions = {text: text, save: save};
+    this.textPreview = function (textSelector, save, previewArea) {
+        var text = ls.cfg.wysiwyg ? tinyMCE.activeEditor.getContent() : $(textSelector).val(),
+            ajaxUrl = ls.routerUrl('ajax') + 'preview/text/',
+            ajaxOptions = {text: text, save: save};
 
+        ls.progressStart();
         ls.ajax(ajaxUrl, ajaxOptions, function (result) {
+            ls.progressDone();
             if (!result) {
                 ls.msg.error(null, 'System error #1001');
             } else if (result.bStateError) {
                 ls.msg.error(result.sMsgTitle || 'Error', result.sMsg || 'Please try again later');
             } else {
-                if (!divPreview) {
-                    divPreview = 'text_preview';
+                if (!previewArea) {
+                    previewArea = '#text_preview';
+                } else {
+                    if ((typeof previewArea == 'string') && (previewArea.substr(0, 1) != '#')) {
+                        previewArea = '#' + previewArea;
+                    }
                 }
-                var elementPreview = $('#' + divPreview);
+                var elementPreview = $(previewArea);
                 if (elementPreview.length) {
                     elementPreview.html(result.sText);
                 }
