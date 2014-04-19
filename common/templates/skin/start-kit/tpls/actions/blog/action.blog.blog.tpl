@@ -76,9 +76,9 @@
     <div class="blog-mini" id="blog-mini">
         <div class="row">
             <div class="col-sm-6 col-lg-6 small text-muted">
-                <span id="blog_user_count_{$oBlog->getId()}">{$iCountBlogUsers}</span> {$iCountBlogUsers|declension:$aLang.reader_declension:'russian'}
+                <span id="blog_user_count_{$oBlog->getId()}">{$iCountBlogUsers}</span> {$iCountBlogUsers|declension:$aLang.reader_declension:$sLang}
                 ,
-                {$oBlog->getCountTopic()} {$oBlog->getCountTopic()|declension:$aLang.topic_declension:'russian'}
+                {$oBlog->getCountTopic()} {$oBlog->getCountTopic()|declension:$aLang.topic_declension:$sLang}
             </div>
             <div class="col-sm-6 col-lg-6 blog-mini-header">
                 <a href="#" class="small link-dotted"

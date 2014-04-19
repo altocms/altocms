@@ -10,9 +10,9 @@
 
                 <div class="widget-content">
                     <small class="text-muted">
-                        <span id="blog_user_count_{$oBlog->getId()}">{$oBlog->getCountUser()}</span> {$oBlog->getCountUser()|declension:$aLang.reader_declension:'russian'}
+                        <span id="blog_user_count_{$oBlog->getId()}">{$oBlog->getCountUser()}</span> {$oBlog->getCountUser()|declension:$aLang.reader_declension:$sLang}
                         ·
-                        {$oBlog->getCountTopic()} {$oBlog->getCountTopic()|declension:$aLang.topic_declension:'russian'}
+                        {$oBlog->getCountTopic()} {$oBlog->getCountTopic()|declension:$aLang.topic_declension:$sLang}
                         ·
                         <a href="{router page='rss'}blog/{$oBlog->getUrl()}/" class="rss">RSS</a>
                     </small>

@@ -9,7 +9,7 @@
 
 <div class="comments" id="comments">
     <header class="comments-header">
-        <span id="count-comments">{$iCountComment}</span> {$iCountComment|declension:$aLang.comment_declension:'russian'}
+        <span id="count-comments">{$iCountComment}</span> {$iCountComment|declension:$aLang.comment_declension:$sLang}
 
         {if $bAllowSubscribe AND E::IsUser()}
             <div class="hidden-xs text-muted subscribe form-inline">
@@ -66,8 +66,8 @@
             <a href="#" class="link-dotted"
                onclick="ls.comments.toggleCommentForm(0); return false;">{$sNoticeCommentAdd}</a>
         </div>
-        <div id="reply" class="reply">
-            <form method="post" class="js-form_comment" onsubmit="return false;" enctype="multipart/form-data">
+
+            <form method="post" class="comment-reply js-form-comment" onsubmit="return false;" enctype="multipart/form-data">
                 {hook run='form_add_comment_begin'}
 
                 <textarea name="comment_text" id="form_comment_text"
@@ -81,11 +81,19 @@
                         id="comment-button-submit"
                         onclick="ls.comments.add(this,'{$iTargetId}','{$sTargetType}'); return false;"
                         class="btn btn-success">{$aLang.comment_add}</button>
+                <button type="submit" name="edit_comment"
+                        id="comment-button-edit"
+                        onclick="ls.comments.editSubmit(this, '{$iTargetId}', '{$sTargetType}'); return false;"
+                        class="btn btn-primary btn-edit" style="display: none;">
+                    {$aLang.comment_edit_submit}
+                </button>
 
+                <input type="hidden" name="comment_mode" value="reply"/>
+                <input type="hidden" name="comment_id" value=""/>
                 <input type="hidden" name="cmt_target_id" value="{$iTargetId}"/>
                 <input type="hidden" name="reply" value="0" id="form_comment_reply"/>
             </form>
-        </div>
+
     {else}
         {$aLang.comment_unregistered}
     {/if}

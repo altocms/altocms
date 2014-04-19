@@ -294,7 +294,7 @@ class AltoFunc_Main {
         if (!is_scalar($sValue)) {
             return false;
         }
-        switch ($sParam) {
+        switch (strtolower($sParam)) {
             case 'id':
                 if (preg_match('/^\d{' . $nMin . ',' . $nMax . '}$/', $sValue)) {
                     return true;
@@ -310,9 +310,7 @@ class AltoFunc_Main {
                 break;
             case 'url':
                 // ф-ция неверно понимает URL без протокола
-                if ((filter_var($sValue, FILTER_VALIDATE_URL) !== false)
-                    || (filter_var('http:' . $sValue, FILTER_VALIDATE_URL) !== false)
-                ) {
+                if ((filter_var($sValue, FILTER_VALIDATE_URL) !== false) || (filter_var('http:' . $sValue, FILTER_VALIDATE_URL) !== false)) {
                     return true;
                 }
                 break;
@@ -332,7 +330,7 @@ class AltoFunc_Main {
                 }
                 break;
             case 'text':
-                if (mb_strlen($sValue, 'UTF-8') >= $nMin && mb_strlen($sValue, 'UTF-8') <= $nMax) {
+                if ((mb_strlen($sValue, 'UTF-8') >= $nMin) && ($nMax == 0 || mb_strlen($sValue, 'UTF-8') <= $nMax)) {
                     return true;
                 }
                 break;
