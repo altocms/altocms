@@ -576,12 +576,12 @@ select, input[type="file"] { height: auto; }
 .widget.widget-type-profile .status { position: absolute; top: 5px; left: -15px; }
 .widget.widget-type-profile .upload-photo { padding: 7px 10px 10px; margin: 0 auto; max-width: 250px; }
 
-.widget.widget-type-profile-note .actions { margin-bottom: 0; }
-
 .widget.widget-type-profile-actions ul { margin-bottom: 0; }
 .widget.widget-type-profile-actions ul li { margin-bottom: 5px; }
 .widget.widget-type-profile-actions ul li:last-child { margin-bottom: 0; }
 
+.widget-type-profile-note .actions { margin-bottom: 0; }
+.widget-type-profile-note .usernote-header { height: 22px; }
 
 /* Widget type - Foldable */
 .widget.widget-type-foldable .widget-content { display: none; margin-top: 10px; padding-top: 10px; }

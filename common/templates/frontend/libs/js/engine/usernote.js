@@ -1,7 +1,7 @@
 /**
  * Заметки
  */
-
+;
 var ls = ls || {};
 
 ls.usernote = (function ($) {
@@ -19,20 +19,21 @@ ls.usernote = (function ($) {
 
         // Селекторы
         selectors: {
-            note: '.js-user-note',
-            noteContent: '.js-user-note-content',
-            noteText: '.js-user-note-text',
-            noteAddButton: '.js-user-note-add-button',
-            noteActions: '.js-user-note-actions',
-            noteEditButton: '.js-user-note-edit-button',
-            noteRemoveButton: '.js-user-note-remove-button',
+            note: '.js-usernote',
+            noteWrap: '.js-usernote-wrap',
+            noteText: '.js-usernote-text',
+            noteActions: '.js-usernote-actions',
+            noteEditButton: '.js-usernote-button-edit',
+            noteRemoveButton: '.js-usernote-button-remove',
+            noteAddButton: '.js-usernote-button-add',
 
-            noteEdit: '.js-user-note-edit',
-            noteEditText: '.js-user-note-edit-text',
-            noteEditSaveButton: '.js-user-note-edit-save',
-            noteEditCancelButton: '.js-user-note-edit-cancel'
+            noteForm: '.js-usernote-form',
+            noteEditSaveButton: '.js-usernote-form-save',
+            noteEditCancelButton: '.js-usernote-form-cancel'
         }
     };
+
+    this.options = {};
 
     /**
      * Инициализация
@@ -40,51 +41,39 @@ ls.usernote = (function ($) {
      * @param  {Object} options Опции
      */
     this.init = function (options) {
-        var self = this;
+        var $that = this;
 
         this.options = $.extend({}, defaults, options);
 
         // Добавление
         $(this.options.selectors.note).each(function () {
-            var oNote = $(this);
-
-            var oVars = {
-                oNote: oNote,
-                oNoteText: oNote.find(self.options.selectors.noteText),
-                oNoteEditText: oNote.find(self.options.selectors.noteEditText),
-                oNoteContent: oNote.find(self.options.selectors.noteContent),
-                oNoteEdit: oNote.find(self.options.selectors.noteEdit),
-                oNoteAdd: oNote.find(self.options.selectors.noteAddButton),
-                oNoteActions: oNote.find(self.options.selectors.noteActions),
-                iUserId: oNote.data('user-id')
-            };
+            var usernoteWidget = $(this);
 
             // Показывает форму добавления
-            oVars.oNote.find(self.options.selectors.noteAddButton).on('click', function (e) {
-                self.showForm(oVars);
+            usernoteWidget.find($that.options.selectors.noteAddButton).on('click', function (e) {
+                $that.showForm(usernoteWidget);
                 e.preventDefault();
             }.bind(self));
 
             // Отмена
-            oVars.oNote.find(self.options.selectors.noteEditCancelButton).on('click', function (e) {
-                self.hideForm(oVars);
+            usernoteWidget.find($that.options.selectors.noteEditCancelButton).on('click', function (e) {
+                $that.hideForm(usernoteWidget);
             });
 
             // Сохранение заметки
-            oVars.oNote.find(self.options.selectors.noteEditSaveButton).on('click', function (e) {
-                self.save(oVars);
+            usernoteWidget.find($that.options.selectors.noteEditSaveButton).on('click', function (e) {
+                $that.save(usernoteWidget);
             });
 
             // Удаление заметки
-            oVars.oNote.find(self.options.selectors.noteRemoveButton).on('click', function (e) {
-                self.remove(oVars);
+            usernoteWidget.find($that.options.selectors.noteRemoveButton).on('click', function (e) {
+                $that.remove(usernoteWidget);
                 e.preventDefault();
             });
 
             // Редактирование заметки
-            oVars.oNote.find(self.options.selectors.noteEditButton).on('click', function (e) {
-                self.showForm(oVars);
-                oVars.oNoteEditText.val($.trim(oVars.oNoteText.html()));
+            usernoteWidget.find($that.options.selectors.noteEditButton).on('click', function (e) {
+                $that.showForm(usernoteWidget);
                 e.preventDefault();
             });
         });
@@ -95,10 +84,15 @@ ls.usernote = (function ($) {
      *
      * @param  {Object} oVars Общие переменные
      */
-    this.showForm = function (oVars) {
-        oVars.oNoteContent.hide();
-        oVars.oNoteEdit.show();
-        oVars.oNoteEditText.val($.trim(oVars.oNoteText.html())).focus();
+    this.showForm = function (usernoteWidget) {
+        var text = $.trim(usernoteWidget.find(this.options.selectors.noteText).text()),
+            form = usernoteWidget.find(this.options.selectors.noteForm),
+            textarea = form.find('textarea');
+
+        usernoteWidget.find(this.options.selectors.noteAddButton).hide();
+        usernoteWidget.find(this.options.selectors.noteWrap).hide();
+        form.show();
+        textarea.val(text).focus();
     };
 
     /**
@@ -106,9 +100,20 @@ ls.usernote = (function ($) {
      *
      * @param  {Object} oVars Общие переменные
      */
-    this.hideForm = function (oVars) {
-        oVars.oNoteContent.show();
-        oVars.oNoteEdit.hide();
+    this.hideForm = function (usernoteWidget) {
+        var text = usernoteWidget.find(this.options.selectors.noteText),
+            form = usernoteWidget.find(this.options.selectors.noteForm),
+            textarea = form.find('textarea'),
+            html = $.trim(text.html());
+
+        form.hide();
+        if (html) {
+            usernoteWidget.find(this.options.selectors.noteWrap).show();
+            text.show();
+        } else {
+            usernoteWidget.find(this.options.selectors.noteAddButton).show();
+            text.hide();
+        }
     };
 
     /**
@@ -116,22 +121,30 @@ ls.usernote = (function ($) {
      *
      * @param  {Object} oVars Общие переменные
      */
-    this.save = function (oVars) {
-        var params = {
-            iUserId: oVars.iUserId,
-            text: oVars.oNoteEditText.val()
-        };
+    this.save = function (usernoteWidget) {
+        var textarea = usernoteWidget.find(this.options.selectors.noteForm + ' textarea'),
+            params = {
+                iUserId: parseInt(usernoteWidget.data('user-id')),
+                text: textarea.val()
+            };
 
+        ls.progressStart();
+        textarea.prop('disable', true);
         ls.ajax(this.options.routers.save, params, function (result) {
+            textarea.prop('disable', false);
+            ls.progressDone();
             if (!result) {
                 ls.msg.error(null, 'System error #1001');
             } else if (result.bStateError) {
                 ls.msg.error(null, result.sMsg);
             } else {
-                oVars.oNoteText.html(result.sText).show();
-                oVars.oNoteAdd.hide();
-                oVars.oNoteActions.show();
-                this.hideForm(oVars);
+                usernoteWidget.find(this.options.selectors.noteText).html(result.sText).show();
+                if (result.sText) {
+                    usernoteWidget.find(this.options.selectors.noteWrap).show();
+                } else {
+                    usernoteWidget.find(this.options.selectors.noteAddButton).show();
+                }
+                this.hideForm(usernoteWidget);
 
                 ls.hook.run('ls_usernote_save_after', [params, result]);
             }
@@ -143,26 +156,35 @@ ls.usernote = (function ($) {
      *
      * @param  {Object} oVars Общие переменные
      */
-    this.remove = function (oVars) {
-        var params = {
-            iUserId: oVars.iUserId
-        };
+    this.remove = function (usernoteWidget) {
+        var textarea = usernoteWidget.find(this.options.selectors.noteForm + ' textarea'),
+            params = {
+                iUserId: parseInt(usernoteWidget.data('user-id'))
+            };
 
+        ls.progressStart();
+        textarea.prop('disable', true);
         ls.ajax(this.options.routers.remove, params, function (result) {
+            textarea.prop('disable', false);
+            ls.progressDone();
             if (!result) {
                 ls.msg.error(null, 'System error #1001');
             } else if (result.bStateError) {
                 ls.msg.error(null, result.sMsg);
             } else {
-                oVars.oNoteText.empty().hide();
-                oVars.oNoteAdd.show();
-                oVars.oNoteActions.hide();
-                this.hideForm(oVars);
+                usernoteWidget.find(this.options.selectors.noteText).empty();
+                usernoteWidget.find(this.options.selectors.noteWrap).hide();
+                usernoteWidget.find(this.options.selectors.noteAddButton).show();
+                this.hideForm(usernoteWidget);
 
                 ls.hook.run('ls_usernote_remove_after', [params, result]);
             }
         }.bind(this));
     };
+
+    $(function(){
+        ls.usernote.init();
+    });
 
     return this;
 }).call(ls.usernote || {}, jQuery);

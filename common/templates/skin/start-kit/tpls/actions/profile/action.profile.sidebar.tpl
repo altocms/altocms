@@ -98,40 +98,36 @@
 
 {if E::IsUser() AND E::UserId() != $oUserProfile->getId()}
     <section class="panel panel-default widget widget-type-profile-note">
-        <div class="panel-body">
+        <div class="panel-body js-usernote" data-user-id="{$oUserProfile->getId()}">
 
-            {if $oUserNote}
-                <script type="text/javascript">
-                    ls.usernote.sText = {json var = $oUserNote->getText()};
-                </script>
-            {/if}
-
-            <div id="usernote-note" class="profile-note" {if !$oUserNote}style="display: none;"{/if}>
-                <p id="usernote-note-text">
-                    {if $oUserNote}
-                        {$oUserNote->getText()}
-                    {/if}
-                </p>
-
-                <ul class="list-unstyled list-inline actions">
-                    <li><a href="#" onclick="return ls.usernote.showForm();"
-                           class="link-dotted">{$aLang.user_note_form_edit}</a></li>
-                    <li><a href="#" onclick="return ls.usernote.remove({$oUserProfile->getId()});"
-                           class="link-dotted">{$aLang.user_note_form_delete}</a></li>
-                </ul>
-            </div>
-
-            <div id="usernote-form" style="display: none;">
-                <div class="form-group">
-                    <textarea rows="4" cols="20" id="usernote-form-text" class="form-control"></textarea>
+            <div class="profile-note js-usernote-wrap" {if !$oUserNote}style="display: none;"{/if}>
+                <div class="usernote-header">
+                    <ul class="list-unstyled list-inline small pull-right actions js-usernote-actions">
+                        <li><span class="glyphicon glyphicon-cog actions-tool"></span></li>
+                        <li>
+                            <a href="#" class="js-usernote-button-edit">{$aLang.user_note_form_edit}</a>
+                        </li>
+                        <li>
+                            <a href="#" class="js-usernote-button-remove">{$aLang.user_note_form_delete}</a>
+                        </li>
+                    </ul>
                 </div>
-                <button type="submit" onclick="return ls.usernote.save({$oUserProfile->getId()});"
-                        class="btn btn-success">{$aLang.user_note_form_save}</button>
-                <button type="submit" onclick="return ls.usernote.hideForm();"
-                        class="btn btn-default">{$aLang.user_note_form_cancel}</button>
+                <div class="js-usernote-text">
+                    {if $oUserNote}
+                        {$oUserNote->getText()|nl2br}
+                    {/if}
+                </div>
             </div>
 
-            <a href="#" onclick="return ls.usernote.showForm();" id="usernote-button-add" class="link-dotted"
+            <div class="js-usernote-form" style="display: none;">
+                <div class="form-group">
+                    <textarea rows="4" cols="20" class="form-control"></textarea>
+                </div>
+                <button type="submit" class="btn btn-default js-usernote-form-cancel">{$aLang.user_note_form_cancel}</button>
+                <button type="submit" class="btn btn-success js-usernote-form-save">{$aLang.user_note_form_save}</button>
+            </div>
+
+            <a href="#" class="link-dotted js-usernote-button-add"
                {if $oUserNote}style="display:none;"{/if}>{$aLang.user_note_add}</a>
 
         </div>

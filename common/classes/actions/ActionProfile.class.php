@@ -698,7 +698,7 @@ class ActionProfile extends Action {
         $oNote = Engine::GetEntity('ModuleUser_EntityNote');
         $oNote->setTargetUserId(getRequestStr('iUserId'));
         $oNote->setUserId($this->oUserCurrent->getId());
-        $oNote->setText(getRequestStr('text'));
+        $oNote->setText(F::GetRequestStr('text'));
 
         if ($oNote->_Validate()) {
             /**
@@ -706,7 +706,7 @@ class ActionProfile extends Action {
              */
             $oNote->setText(htmlspecialchars(strip_tags($oNote->getText())));
             if ($this->User_SaveNote($oNote)) {
-                $this->Viewer_AssignAjax('sText', $oNote->getText());
+                $this->Viewer_AssignAjax('sText', nl2br($oNote->getText()));
             } else {
                 $this->Message_AddError($this->Lang_Get('user_note_save_error'), $this->Lang_Get('error'));
             }
