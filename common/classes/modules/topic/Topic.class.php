@@ -2712,7 +2712,7 @@ class ModuleTopic extends Module {
                         //поле с файлом
                         if ($oField->getFieldType() == 'file') {
                             //если указано удаление файла
-                            if (getRequest('topic_delete_file_' . $oField->getFieldId())) {
+                            if (F::GetRequest('topic_delete_file_' . $oField->getFieldId())) {
                                 if ($oTopic->getFile($oField->getFieldId())) {
                                     @unlink(Config::Get('path.root.dir') . $oTopic->getFile($oField->getFieldId())->getFileUrl());
                                     //$oTopic->setValueField($oField->getFieldId(),'');

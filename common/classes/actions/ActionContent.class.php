@@ -311,7 +311,7 @@ class ActionContent extends Action {
         $this->Viewer_AddHtmlTitle(
             $this->Lang_Get('topic_topic_create') . ' ' . mb_strtolower($this->oContentType->getContentTitle(), 'UTF-8')
         );
-        if (!is_numeric(getRequest('topic_id'))) {
+        if (!is_numeric(F::GetRequest('topic_id'))) {
             $_REQUEST['topic_id'] = '';
         }
 
@@ -441,10 +441,10 @@ class ActionContent extends Action {
         $oTopic->setTextShort($this->Text_Parser($sTextShort));
 
         // * Варианты ответов
-        if ($this->oContentType->isAllow('poll') && F::GetRequestStr('topic_field_question') && getRequest('topic_field_answers', array())) {
+        if ($this->oContentType->isAllow('poll') && F::GetRequestStr('topic_field_question') && F::GetRequest('topic_field_answers', array())) {
             $oTopic->setQuestionTitle(strip_tags(F::GetRequestStr('topic_field_question')));
             $oTopic->clearQuestionAnswer();
-            foreach (getRequest('topic_field_answers', array()) as $sAnswer) {
+            foreach (F::GetRequest('topic_field_answers', array()) as $sAnswer) {
                 $oTopic->addQuestionAnswer((string)$sAnswer);
             }
         }
@@ -483,7 +483,7 @@ class ActionContent extends Action {
         // * Принудительный вывод на главную
         $oTopic->setPublishIndex(0);
         if ($this->ACL_IsAllowPublishIndex($this->oUserCurrent)) {
-            if (getRequest('topic_publish_index')) {
+            if (F::GetRequest('topic_publish_index')) {
                 $oTopic->setPublishIndex(1);
             }
         }
@@ -653,7 +653,7 @@ class ActionContent extends Action {
 
         // * Изменяем вопрос/ответы, только если еще никто не голосовал
         if ($this->oContentType->isAllow('poll') && F::GetRequestStr('topic_field_question')
-            && getRequest('topic_field_answers', array()) && ($oTopic->getQuestionCountVote() == 0)
+            && F::GetRequest('topic_field_answers', array()) && ($oTopic->getQuestionCountVote() == 0)
         ) {
             $oTopic->setQuestionTitle(strip_tags(F::GetRequestStr('topic_field_question')));
             $oTopic->clearQuestionAnswer();
@@ -695,7 +695,7 @@ class ActionContent extends Action {
 
         // * Принудительный вывод на главную
         if ($this->ACL_IsAllowPublishIndex($this->oUserCurrent)) {
-            if (getRequest('topic_publish_index')) {
+            if (F::GetRequest('topic_publish_index')) {
                 $oTopic->setPublishIndex(1);
             } else {
                 $oTopic->setPublishIndex(0);
@@ -781,7 +781,7 @@ class ActionContent extends Action {
          * Существует ли топик
          */
         $oTopic = $this->Topic_getTopicById(F::GetRequestStr('topic_id'));
-        if (!$oTopic || !getRequest('last_id')) {
+        if (!$oTopic || !F::GetRequest('last_id')) {
             $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
             F::SysWarning('System Error');
             return false;
@@ -905,7 +905,7 @@ class ActionContent extends Action {
     protected function EventPhotoUpload() {
 
         // * Устанавливаем формат Ajax ответа. В зависимости от типа загрузчика устанавливается тип ответа
-        if (getRequest('is_iframe')) {
+        if (F::GetRequest('is_iframe')) {
             $this->Viewer_SetResponseAjax('jsonIframe', false);
         } else {
             $this->Viewer_SetResponseAjax('json');

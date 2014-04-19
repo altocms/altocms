@@ -93,8 +93,8 @@ class ActionIndex extends Action {
      */
     protected function EventTop() {
         $sPeriod = 1; // по дефолту 1 день
-        if (in_array(getRequestStr('period'), array(1, 7, 30, 'all'))) {
-            $sPeriod = getRequestStr('period');
+        if (in_array(F::GetRequestStr('period'), array(1, 7, 30, 'all'))) {
+            $sPeriod = F::GetRequestStr('period');
         }
         /**
          * Меню
@@ -104,7 +104,7 @@ class ActionIndex extends Action {
          * Передан ли номер страницы
          */
         $iPage = $this->GetParamEventMatch(0, 2) ? $this->GetParamEventMatch(0, 2) : 1;
-        if ($iPage == 1 && !getRequest('period')) {
+        if ($iPage == 1 && !F::GetRequest('period')) {
             $this->Viewer_SetHtmlCanonical(Router::GetPath('index') . 'top/');
         }
         /**
@@ -116,7 +116,7 @@ class ActionIndex extends Action {
         /**
          * Если нет топиков за 1 день, то показываем за неделю (7)
          */
-        if (!$aResult['count'] && $iPage == 1 && !getRequest('period')) {
+        if (!$aResult['count'] && $iPage == 1 && !F::GetRequest('period')) {
             $sPeriod = 7;
             $aResult = $this->Topic_GetTopicsTop(
                 $iPage, Config::Get('module.topic.per_page'), $sPeriod == 'all' ? null : $sPeriod * 60 * 60 * 24
@@ -154,8 +154,8 @@ class ActionIndex extends Action {
      */
     protected function EventDiscussed() {
         $sPeriod = 1; // по дефолту 1 день
-        if (in_array(getRequestStr('period'), array(1, 7, 30, 'all'))) {
-            $sPeriod = getRequestStr('period');
+        if (in_array(F::GetRequestStr('period'), array(1, 7, 30, 'all'))) {
+            $sPeriod = F::GetRequestStr('period');
         }
         /**
          * Меню
@@ -165,7 +165,7 @@ class ActionIndex extends Action {
          * Передан ли номер страницы
          */
         $iPage = $this->GetParamEventMatch(0, 2) ? $this->GetParamEventMatch(0, 2) : 1;
-        if ($iPage == 1 && !getRequest('period')) {
+        if ($iPage == 1 && !F::GetRequest('period')) {
             $this->Viewer_SetHtmlCanonical(Router::GetPath('index') . 'discussed/');
         }
         /**
@@ -177,7 +177,7 @@ class ActionIndex extends Action {
         /**
          * Если нет топиков за 1 день, то показываем за неделю (7)
          */
-        if (!$aResult['count'] && $iPage == 1 && !getRequest('period')) {
+        if (!$aResult['count'] && $iPage == 1 && !F::GetRequest('period')) {
             $sPeriod = 7;
             $aResult = $this->Topic_GetTopicsDiscussed(
                 $iPage, Config::Get('module.topic.per_page'), $sPeriod == 'all' ? null : $sPeriod * 60 * 60 * 24

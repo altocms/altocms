@@ -97,15 +97,15 @@ class ActionLogin extends Action {
                     );
                     return;
                 }
-                $bRemember = getRequest('remember', false) ? true : false;
+                $bRemember = F::GetRequest('remember', false) ? true : false;
 
                 // * Авторизуем
                 $this->User_Authorization($oUser, $bRemember);
 
                 // * Определяем редирект
                 $sUrl = Config::Get('module.user.redirect_after_login');
-                if (getRequestStr('return-path')) {
-                    $sUrl = getRequestStr('return-path');
+                if (F::GetRequestStr('return-path')) {
+                    $sUrl = F::GetRequestStr('return-path');
                 }
                 $this->Viewer_AssignAjax('sUrlRedirect', $sUrl ? $sUrl : Config::Get('path.root.url'));
                 return;
@@ -133,7 +133,7 @@ class ActionLogin extends Action {
 
         $this->Viewer_SetResponseAjax('json');
 
-        if ((F::CheckVal(getRequestStr('mail'), 'mail') && $oUser = $this->User_GetUserByMail(getRequestStr('mail')))) {
+        if ((F::CheckVal(F::GetRequestStr('mail'), 'mail') && $oUser = $this->User_GetUserByMail(F::GetRequestStr('mail')))) {
             if ($oUser->getActivate()) {
                 $this->Message_AddErrorSingle($this->Lang_Get('registration_activate_error_reactivate'));
                 return;
@@ -189,7 +189,7 @@ class ActionLogin extends Action {
         $this->Viewer_SetResponseAjax('json');
 
         // * Пользователь с таким емайлом существует?
-        if ((F::CheckVal(getRequestStr('mail'), 'mail') && $oUser = $this->User_GetUserByMail(getRequestStr('mail')))) {
+        if ((F::CheckVal(F::GetRequestStr('mail'), 'mail') && $oUser = $this->User_GetUserByMail(F::GetRequestStr('mail')))) {
 
             // * Формируем и отправляем ссылку на смену пароля
             $oReminder = Engine::GetEntity('User_Reminder');

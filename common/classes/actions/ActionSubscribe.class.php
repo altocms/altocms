@@ -90,7 +90,7 @@ class ActionSubscribe extends Action {
         /**
          * Получаем емайл подписки и проверяем его на валидность
          */
-        $sMail = getRequestStr('mail');
+        $sMail = F::GetRequestStr('mail');
         if ($this->oUserCurrent) {
             $sMail = $this->oUserCurrent->getMail();
         }
@@ -101,13 +101,13 @@ class ActionSubscribe extends Action {
         /**
          * Получаем тип объекта подписки
          */
-        $sTargetType = getRequestStr('target_type');
+        $sTargetType = F::GetRequestStr('target_type');
         if (!$this->Subscribe_IsAllowTargetType($sTargetType)) {
             $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
             return;
         }
-        $sTargetId = getRequestStr('target_id') ? getRequestStr('target_id') : null;
-        $iValue = getRequest('value') ? 1 : 0;
+        $sTargetId = F::GetRequestStr('target_id') ? F::GetRequestStr('target_id') : null;
+        $iValue = F::GetRequest('value') ? 1 : 0;
 
         $oSubscribe = null;
         /**
@@ -156,13 +156,13 @@ class ActionSubscribe extends Action {
         /**
          * Получаем тип объекта подписки
          */
-        $sTargetType = getRequestStr('target_type');
+        $sTargetType = F::GetRequestStr('target_type');
         if (!$this->Subscribe_IsAllowTargetType($sTargetType)) {
             $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
             return;
         }
-        $sTargetId = getRequestStr('target_id') ? getRequestStr('target_id') : null;
-        $iValue = getRequest('value') ? 1 : 0;
+        $sTargetId = F::GetRequestStr('target_id') ? F::GetRequestStr('target_id') : null;
+        $iValue = F::GetRequest('value') ? 1 : 0;
 
         $oTrack = null;
         /**

@@ -17,7 +17,7 @@
  * Модуль безопасности
  * Необходимо использовать перед обработкой отправленной формы:
  * <pre>
- * if (getRequest('submit_add')) {
+ * if (F::GetRequest('submit_add')) {
  *    $this->Security_ValidateSendForm();
  *    // далее код обработки формы
  *  ......
@@ -92,8 +92,8 @@ class ModuleSecurity extends Module {
             if (isset($_SERVER['HTTP_X_ALTO_AJAX_KEY'])) {
                 $sCode = (string)$_SERVER['HTTP_X_ALTO_AJAX_KEY'];
             } else {
-                if (!($sCode = getRequestStr('security_key'))) {
-                    $sCode = getRequestStr('security_ls_key');
+                if (!($sCode = F::GetRequestStr('security_key'))) {
+                    $sCode = F::GetRequestStr('security_ls_key');
                 }
             }
         }

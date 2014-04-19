@@ -190,7 +190,7 @@ class PluginSphinx_ActionSearch extends ActionPlugin {
      */
     protected function PrepareRequest() {
 
-        $aReq['q'] = getRequestStr('q');
+        $aReq['q'] = F::GetRequestStr('q');
         if (!F::CheckVal($aReq['q'], 'text', 2, 255)) {
             /**
              * Если запрос слишком короткий перенаправляем на начальную страницу поиска

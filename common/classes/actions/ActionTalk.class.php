@@ -125,10 +125,10 @@ class ActionTalk extends Action {
         /**
          * Обработка удаления сообщений
          */
-        if (getRequest('submit_talk_del')) {
+        if (F::GetRequest('submit_talk_del')) {
             $this->Security_ValidateSendForm();
 
-            $aTalksIdDel = getRequest('talk_select');
+            $aTalksIdDel = F::GetRequest('talk_select');
             if (is_array($aTalksIdDel)) {
                 $this->Talk_DeleteTalkUserByArray(array_keys($aTalksIdDel), $this->oUserCurrent->getId());
             }
@@ -136,10 +136,10 @@ class ActionTalk extends Action {
         /**
          * Обработка отметки о прочтении
          */
-        if (getRequest('submit_talk_read')) {
+        if (F::GetRequest('submit_talk_read')) {
             $this->Security_ValidateSendForm();
 
-            $aTalksIdDel = getRequest('talk_select');
+            $aTalksIdDel = F::GetRequest('talk_select');
             if (is_array($aTalksIdDel)) {
                 $this->Talk_MarkReadTalkUserByArray(array_keys($aTalksIdDel), $this->oUserCurrent->getId());
             }
@@ -147,10 +147,10 @@ class ActionTalk extends Action {
 		/**
          * Обработка отметки непрочтенных сообщений
          */
-        if (getRequest('submit_talk_unread')) {
+        if (F::GetRequest('submit_talk_unread')) {
             $this->Security_ValidateSendForm();
 
-            $aTalksIdDel = getRequest('talk_select');
+            $aTalksIdDel = F::GetRequest('talk_select');
             if (is_array($aTalksIdDel)) {
                 $this->Talk_MarkUnreadTalkUserByArray(array_keys($aTalksIdDel), $this->oUserCurrent->getId());
             }
@@ -201,7 +201,7 @@ class ActionTalk extends Action {
         /**
          * Показываем сообщение, если происходит поиск по фильтру
          */
-        if (getRequest('submit_talk_filter')) {
+        if (F::GetRequest('submit_talk_filter')) {
             $this->Message_AddNotice(
                 ($aResult['count'])
                     ? $this->Lang_Get('talk_filter_result_count', array('count' => $aResult['count']))
@@ -230,7 +230,7 @@ class ActionTalk extends Action {
         /**
          * Дата старта поиска
          */
-        if ($start = getRequestStr('start')) {
+        if ($start = F::GetRequestStr('start')) {
             if (F::CheckVal($start, 'text', 6, 10) && substr_count($start, '.') == 2) {
                 list($d, $m, $y) = explode('.', $start);
                 if (@checkdate($m, $d, $y)) {
@@ -253,7 +253,7 @@ class ActionTalk extends Action {
         /**
          * Дата окончания поиска
          */
-        if ($end = getRequestStr('end')) {
+        if ($end = F::GetRequestStr('end')) {
             if (F::CheckVal($end, 'text', 6, 10) && substr_count($end, '.') == 2) {
                 list($d, $m, $y) = explode('.', $end);
                 if (@checkdate($m, $d, $y)) {
@@ -276,7 +276,7 @@ class ActionTalk extends Action {
         /**
          * Ключевые слова в теме сообщения
          */
-        if (($sKeyRequest = getRequest('keyword')) && is_string($sKeyRequest)) {
+        if (($sKeyRequest = F::GetRequest('keyword')) && is_string($sKeyRequest)) {
             $sKeyRequest = urldecode($sKeyRequest);
             preg_match_all('~(\S+)~u', $sKeyRequest, $aWords);
 
@@ -289,7 +289,7 @@ class ActionTalk extends Action {
         /**
          * Ключевые слова в тексте сообщения
          */
-        if ($sKeyRequest = getRequest('keyword_text') && is_string($sKeyRequest)) {
+        if ($sKeyRequest = F::GetRequest('keyword_text') && is_string($sKeyRequest)) {
             $sKeyRequest = urldecode($sKeyRequest);
             preg_match_all('~(\S+)~u', $sKeyRequest, $aWords);
 
@@ -302,13 +302,13 @@ class ActionTalk extends Action {
         /**
          * Отправитель
          */
-        if (($sender = getRequest('sender')) && is_string($sender)) {
+        if (($sender = F::GetRequest('sender')) && is_string($sender)) {
             $aFilter['user_login'] = urldecode($sender);
         }
         /**
          * Искать только в избранных письмах
          */
-        if (getRequest('favourite')) {
+        if (F::GetRequest('favourite')) {
             $aTalkIdResult = $this->Favourite_GetFavouritesByUserId(
                 $this->oUserCurrent->getId(), 'talk', 1, 500
             ); // ограничиваем
@@ -397,7 +397,7 @@ class ActionTalk extends Action {
          * Отправляем письмо
          */
         if ($oTalk = $this->Talk_SendTalk(
-            $this->Text_Parser(strip_tags(getRequestStr('talk_title'))), $this->Text_Parser(getRequestStr('talk_text')),
+            $this->Text_Parser(strip_tags(F::GetRequestStr('talk_title'))), $this->Text_Parser(F::GetRequestStr('talk_text')),
             $this->oUserCurrent, $this->aUsersId
         )
         ) {
@@ -492,21 +492,21 @@ class ActionTalk extends Action {
         /**
          * Проверяем есть ли заголовок
          */
-        if (!F::CheckVal(getRequestStr('talk_title'), 'text', 2, 200)) {
+        if (!F::CheckVal(F::GetRequestStr('talk_title'), 'text', 2, 200)) {
             $this->Message_AddError($this->Lang_Get('talk_create_title_error'), $this->Lang_Get('error'));
             $bOk = false;
         }
         /**
          * Проверяем есть ли содержание топика
          */
-        if (!F::CheckVal(getRequestStr('talk_text'), 'text', 2, 3000)) {
+        if (!F::CheckVal(F::GetRequestStr('talk_text'), 'text', 2, 3000)) {
             $this->Message_AddError($this->Lang_Get('talk_create_text_error'), $this->Lang_Get('error'));
             $bOk = false;
         }
         /**
          * Проверяем адресатов
          */
-        $sUsers = getRequest('talk_users');
+        $sUsers = F::GetRequest('talk_users');
         $aUsers = explode(',', (string)$sUsers);
         $aUsersNew = array();
         $aUserInBlacklist = $this->Talk_GetBlacklistByTargetId($this->oUserCurrent->getId());
@@ -572,7 +572,7 @@ class ActionTalk extends Action {
          * Устанавливаем формат Ajax ответа
          */
         $this->Viewer_SetResponseAjax('json');
-        $idCommentLast = getRequestStr('idCommentLast');
+        $idCommentLast = F::GetRequestStr('idCommentLast');
         /**
          * Проверям авторизован ли пользователь
          */
@@ -583,7 +583,7 @@ class ActionTalk extends Action {
         /**
          * Проверяем разговор
          */
-        if (!($oTalk = $this->Talk_GetTalkById(getRequestStr('idTarget')))) {
+        if (!($oTalk = $this->Talk_GetTalkById(F::GetRequestStr('idTarget')))) {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
             return;
         }
@@ -648,7 +648,7 @@ class ActionTalk extends Action {
         /**
          * Проверяем разговор
          */
-        if (!($oTalk = $this->Talk_GetTalkById(getRequestStr('cmt_target_id')))) {
+        if (!($oTalk = $this->Talk_GetTalkById(F::GetRequestStr('cmt_target_id')))) {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
             return;
         }
@@ -666,7 +666,7 @@ class ActionTalk extends Action {
         /**
          * Проверяем текст комментария
          */
-        $sText = $this->Text_Parser(getRequestStr('comment_text'));
+        $sText = $this->Text_Parser(F::GetRequestStr('comment_text'));
         if (!F::CheckVal($sText, 'text', 2, 3000)) {
             $this->Message_AddErrorSingle($this->Lang_Get('talk_comment_add_text_error'), $this->Lang_Get('error'));
             return;
@@ -674,7 +674,7 @@ class ActionTalk extends Action {
         /**
          * Проверям на какой коммент отвечаем
          */
-        $sParentId = (int)getRequest('reply');
+        $sParentId = (int)F::GetRequest('reply');
         if (!F::CheckVal($sParentId, 'id')) {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
             return;
@@ -768,7 +768,7 @@ class ActionTalk extends Action {
          * Устанавливаем формат Ajax ответа
          */
         $this->Viewer_SetResponseAjax('json');
-        $sUsers = getRequestStr('users', null, 'post');
+        $sUsers = F::GetRequestStr('users', null, 'post');
         /**
          * Если пользователь не авторизирован, возвращаем ошибку
          */
@@ -869,7 +869,7 @@ class ActionTalk extends Action {
          * Устанавливаем формат Ajax ответа
          */
         $this->Viewer_SetResponseAjax('json');
-        $idTarget = getRequestStr('idTarget', null, 'post');
+        $idTarget = F::GetRequestStr('idTarget', null, 'post');
         /**
          * Если пользователь не авторизирован, возвращаем ошибку
          */
@@ -935,8 +935,8 @@ class ActionTalk extends Action {
          * Устанавливаем формат Ajax ответа
          */
         $this->Viewer_SetResponseAjax('json');
-        $idTarget = getRequestStr('idTarget', null, 'post');
-        $idTalk = getRequestStr('idTalk', null, 'post');
+        $idTarget = F::GetRequestStr('idTarget', null, 'post');
+        $idTalk = F::GetRequestStr('idTalk', null, 'post');
         /**
          * Если пользователь не авторизирован, возвращаем ошибку
          */
@@ -1016,8 +1016,8 @@ class ActionTalk extends Action {
          * Устанавливаем формат Ajax ответа
          */
         $this->Viewer_SetResponseAjax('json');
-        $sUsers = getRequestStr('users', null, 'post');
-        $idTalk = getRequestStr('idTalk', null, 'post');
+        $sUsers = F::GetRequestStr('users', null, 'post');
+        $idTalk = F::GetRequestStr('idTalk', null, 'post');
         /**
          * Если пользователь не авторизирован, возвращаем ошибку
          */

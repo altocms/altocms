@@ -201,7 +201,7 @@ class ActionAdmin extends Action {
         $this->_setTitle($this->Lang_Get('action.admin.menu_info'));
         $this->SetTemplateAction('info/report');
 
-        if ($sReportMode = getRequest('report', null, 'post')) {
+        if ($sReportMode = F::GetRequest('report', null, 'post')) {
             $this->_EventReportOut($this->_getInfoData(), $sReportMode);
         }
 
@@ -313,7 +313,7 @@ class ActionAdmin extends Action {
         $sText .= "\n";
 
         foreach ($aInfo as $sSectionKey => $aSection) {
-            if (getRequest('adm_report_' . $sSectionKey)) {
+            if (F::GetRequest('adm_report_' . $sSectionKey)) {
                 $sText .= '[' . $sSectionKey . '] ; ' . $aSection['label'] . "\n";
                 foreach ($aSection['data'] as $sItemKey => $aItem) {
                     $sText .= $sItemKey . ' = ' . $aItem['value'] . '; ' . $aItem['label'] . "\n";
@@ -337,7 +337,7 @@ class ActionAdmin extends Action {
         }
         $sText .= ">\n";
         foreach ($aInfo as $sSectionKey => $aSection) {
-            if (getRequest('adm_report_' . $sSectionKey)) {
+            if (F::GetRequest('adm_report_' . $sSectionKey)) {
                 $nLevel = 1;
                 $sText .= str_repeat(' ', $nLevel * 2) . '<' . $sSectionKey . ' label="' . $aSection['label'] . '">' . "\n";
                 $nLevel += 1;
@@ -970,7 +970,7 @@ class ActionAdmin extends Action {
 
         // * Обработка создания новой страницы
         if (isPost('submit_page_save')) {
-            if (!getRequest('page_id')) {
+            if (!F::GetRequest('page_id')) {
                 $this->SubmitAddPage();
             }
         }
@@ -1012,30 +1012,30 @@ class ActionAdmin extends Action {
         if (!$this->CheckPageFields()) {
             return;
         }
-        if ($oPageEdit->getId() == getRequest('page_pid')) {
+        if ($oPageEdit->getId() == F::GetRequest('page_pid')) {
             $this->Message_AddError($this->Lang_Get('system_error'));
             return;
         }
 
         // * Обновляем свойства страницы
-        $oPageEdit->setActive(getRequest('page_active') ? 1 : 0);
-        $oPageEdit->setAutoBr(getRequest('page_auto_br') ? 1 : 0);
-        $oPageEdit->setMain(getRequest('page_main') ? 1 : 0);
+        $oPageEdit->setActive(F::GetRequest('page_active') ? 1 : 0);
+        $oPageEdit->setAutoBr(F::GetRequest('page_auto_br') ? 1 : 0);
+        $oPageEdit->setMain(F::GetRequest('page_main') ? 1 : 0);
         $oPageEdit->setDateEdit(F::Now());
-        if (getRequest('page_pid') == 0) {
-            $oPageEdit->setUrlFull(getRequest('page_url'));
+        if (F::GetRequest('page_pid') == 0) {
+            $oPageEdit->setUrlFull(F::GetRequest('page_url'));
             $oPageEdit->setPid(null);
         } else {
-            $oPageEdit->setPid(getRequest('page_pid'));
-            $oPageParent = $this->Page_GetPageById(getRequest('page_pid'));
-            $oPageEdit->setUrlFull($oPageParent->getUrlFull() . '/' . getRequest('page_url'));
+            $oPageEdit->setPid(F::GetRequest('page_pid'));
+            $oPageParent = $this->Page_GetPageById(F::GetRequest('page_pid'));
+            $oPageEdit->setUrlFull($oPageParent->getUrlFull() . '/' . F::GetRequest('page_url'));
         }
-        $oPageEdit->setSeoDescription(getRequest('page_seo_description'));
-        $oPageEdit->setSeoKeywords(getRequest('page_seo_keywords'));
-        $oPageEdit->setText(getRequest('page_text'));
-        $oPageEdit->setTitle(getRequest('page_title'));
-        $oPageEdit->setUrl(getRequest('page_url'));
-        $oPageEdit->setSort(getRequest('page_sort'));
+        $oPageEdit->setSeoDescription(F::GetRequest('page_seo_description'));
+        $oPageEdit->setSeoKeywords(F::GetRequest('page_seo_keywords'));
+        $oPageEdit->setText(F::GetRequest('page_text'));
+        $oPageEdit->setTitle(F::GetRequest('page_title'));
+        $oPageEdit->setUrl(F::GetRequest('page_url'));
+        $oPageEdit->setSort(F::GetRequest('page_sort'));
 
         // * Обновляем страницу
         if ($this->Page_UpdatePage($oPageEdit)) {
@@ -1061,25 +1061,25 @@ class ActionAdmin extends Action {
         }
         // * Заполняем свойства
         $oPage = Engine::GetEntity('Page');
-        $oPage->setActive(getRequest('page_active') ? 1 : 0);
-        $oPage->setAutoBr(getRequest('page_auto_br') ? 1 : 0);
-        $oPage->setMain(getRequest('page_main') ? 1 : 0);
+        $oPage->setActive(F::GetRequest('page_active') ? 1 : 0);
+        $oPage->setAutoBr(F::GetRequest('page_auto_br') ? 1 : 0);
+        $oPage->setMain(F::GetRequest('page_main') ? 1 : 0);
         $oPage->setDateAdd(F::Now());
-        if (getRequest('page_pid') == 0) {
-            $oPage->setUrlFull(getRequest('page_url'));
+        if (F::GetRequest('page_pid') == 0) {
+            $oPage->setUrlFull(F::GetRequest('page_url'));
             $oPage->setPid(null);
         } else {
-            $oPage->setPid(getRequest('page_pid'));
-            $oPageParent = $this->Page_GetPageById(getRequest('page_pid'));
-            $oPage->setUrlFull($oPageParent->getUrlFull() . '/' . getRequest('page_url'));
+            $oPage->setPid(F::GetRequest('page_pid'));
+            $oPageParent = $this->Page_GetPageById(F::GetRequest('page_pid'));
+            $oPage->setUrlFull($oPageParent->getUrlFull() . '/' . F::GetRequest('page_url'));
         }
-        $oPage->setSeoDescription(getRequest('page_seo_description'));
-        $oPage->setSeoKeywords(getRequest('page_seo_keywords'));
-        $oPage->setText(getRequest('page_text'));
-        $oPage->setTitle(getRequest('page_title'));
-        $oPage->setUrl(getRequest('page_url'));
-        if (getRequest('page_sort')) {
-            $oPage->setSort(getRequest('page_sort'));
+        $oPage->setSeoDescription(F::GetRequest('page_seo_description'));
+        $oPage->setSeoKeywords(F::GetRequest('page_seo_keywords'));
+        $oPage->setText(F::GetRequest('page_text'));
+        $oPage->setTitle(F::GetRequest('page_title'));
+        $oPage->setUrl(F::GetRequest('page_url'));
+        if (F::GetRequest('page_sort')) {
+            $oPage->setSort(F::GetRequest('page_sort'));
         } else {
             $oPage->setSort($this->Page_GetMaxSortByPid($oPage->getPid()) + 1);
         }
@@ -1108,44 +1108,44 @@ class ActionAdmin extends Action {
         /**
          * Проверяем есть ли заголовок топика
          */
-        if (!F::CheckVal(getRequest('page_title', null, 'post'), 'text', 2, 200)) {
+        if (!F::CheckVal(F::GetRequest('page_title', null, 'post'), 'text', 2, 200)) {
             $this->Message_AddError($this->Lang_Get('action.admin.pages_create_title_error'), $this->Lang_Get('error'));
             $bOk = false;
         }
         /**
          * Проверяем есть ли заголовок топика, с заменой всех пробельных символов на "_"
          */
-        $pageUrl = preg_replace("/\s+/", '_', (string)getRequest('page_url', null, 'post'));
+        $pageUrl = preg_replace("/\s+/", '_', (string)F::GetRequest('page_url', null, 'post'));
         $_REQUEST['page_url'] = $pageUrl;
-        if (!F::CheckVal(getRequest('page_url', null, 'post'), 'login', 1, 50)) {
+        if (!F::CheckVal(F::GetRequest('page_url', null, 'post'), 'login', 1, 50)) {
             $this->Message_AddError($this->Lang_Get('action.admin.pages_create_url_error'), $this->Lang_Get('error'));
             $bOk = false;
         }
         /**
          * Проверяем на счет плохих УРЛов
          */
-        /*if (in_array(getRequest('page_url',null,'post'),$this->aBadPageUrl)) {
+        /*if (in_array(F::GetRequest('page_url',null,'post'),$this->aBadPageUrl)) {
             $this->Message_AddError($this->Lang_Get('action.admin.pages_create_url_error_bad').' '.join(',',$this->aBadPageUrl),$this->Lang_Get('error'));
             $bOk=false;
         }*/
         /**
          * Проверяем есть ли содержание страницы
          */
-        if (!F::CheckVal(getRequest('page_text', null, 'post'), 'text', 1, 50000)) {
+        if (!F::CheckVal(F::GetRequest('page_text', null, 'post'), 'text', 1, 50000)) {
             $this->Message_AddError($this->Lang_Get('action.admin.pages_create_text_error'), $this->Lang_Get('error'));
             $bOk = false;
         }
         /**
          * Проверяем страницу в которую хотим вложить
          */
-        if (getRequest('page_pid') != 0 && !($oPageParent = $this->Page_GetPageById(getRequest('page_pid')))) {
+        if (F::GetRequest('page_pid') != 0 && !($oPageParent = $this->Page_GetPageById(F::GetRequest('page_pid')))) {
             $this->Message_AddError($this->Lang_Get('action.admin.pages_create_parent_page_error'), $this->Lang_Get('error'));
             $bOk = false;
         }
         /**
          * Проверяем сортировку
          */
-        if (getRequest('page_sort') && !is_numeric(getRequest('page_sort'))) {
+        if (F::GetRequest('page_sort') && !is_numeric(F::GetRequest('page_sort'))) {
             $this->Message_AddError($this->Lang_Get('action.admin.pages_create_sort_error'), $this->Lang_Get('error'));
             $bOk = false;
         }
@@ -1654,8 +1654,8 @@ class ActionAdmin extends Action {
             $aFilter['ip'] = null;
         }
 
-        if (($s = getRequest('user_filter_regdate'))) {
-            if (preg_match('/(\d{4})(\-(\d{1,2})){0,1}(\-(\d{1,2})){0,1}/', $s, $aMatch)) {
+        if (($sDate = F::GetRequest('user_filter_regdate'))) {
+            if (preg_match('/(\d{4})(\-(\d{1,2})){0,1}(\-(\d{1,2})){0,1}/', $sDate, $aMatch)) {
                 if (isset($aMatch[1])) {
                     $sUserRegDate = $aMatch[1];
                     if (isset($aMatch[3])) {
@@ -1689,7 +1689,7 @@ class ActionAdmin extends Action {
         $bOk = true;
 
         $sTitle = $this->GetPost('talk_title');
-        $sText = $this->Text_Parser(getRequest('talk_text'));
+        $sText = $this->Text_Parser(F::GetRequest('talk_text'));
         $sDate = date(F::Now());
         $sIp = F::GetUserIp();
 
@@ -1727,7 +1727,7 @@ class ActionAdmin extends Action {
                         $this->Talk_AddTalkUser($oTalkUser);
 
                         // Отправляем уведомления
-                        if ($sUserLogin != $this->oUserCurrent->getLogin() || getRequest('send_copy_self')) {
+                        if ($sUserLogin != $this->oUserCurrent->getLogin() || F::GetRequest('send_copy_self')) {
                             $oUserToMail = $this->User_GetUserById($oUserRecipient->GetId());
                             $this->Notify_SendTalkNew($oUserToMail, $this->oUserCurrent, $oTalk);
                         }
@@ -1747,9 +1747,9 @@ class ActionAdmin extends Action {
 
         $bOk = true;
 
-        $sTitle = getRequest('talk_title');
+        $sTitle = F::GetRequest('talk_title');
 
-        $sText = $this->Text_Parser(getRequest('talk_text'));
+        $sText = $this->Text_Parser(F::GetRequest('talk_text'));
         $sDate = date(F::Now());
         $sIp = F::GetUserIp();
 
@@ -1761,7 +1761,7 @@ class ActionAdmin extends Action {
 
         if ($aUsers) {
             // Если указано, то шлем самому себе со списком получателей
-            if (getRequest('send_copy_self')) {
+            if (F::GetRequest('send_copy_self')) {
                 $oSelfTalk = Engine::GetEntity('Talk_Talk');
                 $oSelfTalk->setUserId($this->oUserCurrent->getId());
                 $oSelfTalk->setUserIdLast($this->oUserCurrent->getId());
@@ -1876,7 +1876,7 @@ class ActionAdmin extends Action {
 
     protected function _eventInvitesList() {
 
-        if (getRequest('action', null, 'post') == 'delete') {
+        if (F::GetRequest('action', null, 'post') == 'delete') {
             $this->_eventInvitesDelete();
         }
 
@@ -2440,7 +2440,7 @@ class ActionAdmin extends Action {
     protected function _eventCheckDbBlogs() {
 
         $this->SetTemplateAction('tools/checkdb_blogs');
-        $sDoAction = getRequest('do_action');
+        $sDoAction = F::GetRequest('do_action');
         if ($sDoAction == 'clear_blogs_joined') {
             $aJoinedBlogs = $this->Admin_GetUnlinkedBlogsForUsers();
             if ($aJoinedBlogs) {
@@ -2461,7 +2461,7 @@ class ActionAdmin extends Action {
     protected function _eventCheckDbTopics() {
 
         $this->SetTemplateAction('tools/checkdb_topics');
-        $sDoAction = getRequest('do_action');
+        $sDoAction = F::GetRequest('do_action');
         if ($sDoAction == 'clear_topics_co') {
             $aCommentsOnlineBlogs = $this->Admin_GetUnlinkedTopicsForCommentsOnline();
             if ($aCommentsOnlineBlogs) {
@@ -2898,7 +2898,7 @@ class ActionAdmin extends Action {
      */
     protected function EventUserFields() {
 
-        switch (getRequestStr('action')) {
+        switch (F::GetRequestStr('action')) {
             // * Создание нового поля
             case 'add':
                 // * Обрабатываем как ajax запрос (json)
@@ -2907,11 +2907,11 @@ class ActionAdmin extends Action {
                     return;
                 }
                 $oField = Engine::GetEntity('User_Field');
-                $oField->setName(getRequestStr('name'));
-                $oField->setTitle(getRequestStr('title'));
-                $oField->setPattern(getRequestStr('pattern'));
-                if (in_array(getRequestStr('type'), $this->User_GetUserFieldTypes())) {
-                    $oField->setType(getRequestStr('type'));
+                $oField->setName(F::GetRequestStr('name'));
+                $oField->setTitle(F::GetRequestStr('title'));
+                $oField->setPattern(F::GetRequestStr('pattern'));
+                if (in_array(F::GetRequestStr('type'), $this->User_GetUserFieldTypes())) {
+                    $oField->setType(F::GetRequestStr('type'));
                 } else {
                     $oField->setType('');
                 }
@@ -2932,11 +2932,11 @@ class ActionAdmin extends Action {
             case 'delete':
                 // * Обрабатываем как ajax запрос (json)
                 $this->Viewer_SetResponseAjax('json');
-                if (!getRequestStr('id')) {
+                if (!F::GetRequestStr('id')) {
                     $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
                     return;
                 }
-                $this->User_deleteUserField(getRequestStr('id'));
+                $this->User_deleteUserField(F::GetRequestStr('id'));
                 $this->Message_AddNotice($this->Lang_Get('user_field_deleted'), $this->Lang_Get('attention'));
                 break;
 
@@ -2944,11 +2944,11 @@ class ActionAdmin extends Action {
             case 'update':
                 // * Обрабатываем как ajax запрос (json)
                 $this->Viewer_SetResponseAjax('json');
-                if (!getRequestStr('id')) {
+                if (!F::GetRequestStr('id')) {
                     $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
                     return;
                 }
-                if (!$this->User_userFieldExistsById(getRequestStr('id'))) {
+                if (!$this->User_userFieldExistsById(F::GetRequestStr('id'))) {
                     $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
                     return false;
                 }
@@ -2956,12 +2956,12 @@ class ActionAdmin extends Action {
                     return;
                 }
                 $oField = Engine::GetEntity('User_Field');
-                $oField->setId(getRequestStr('id'));
-                $oField->setName(getRequestStr('name'));
-                $oField->setTitle(getRequestStr('title'));
-                $oField->setPattern(getRequestStr('pattern'));
-                if (in_array(getRequestStr('type'), $this->User_GetUserFieldTypes())) {
-                    $oField->setType(getRequestStr('type'));
+                $oField->setId(F::GetRequestStr('id'));
+                $oField->setName(F::GetRequestStr('name'));
+                $oField->setTitle(F::GetRequestStr('title'));
+                $oField->setPattern(F::GetRequestStr('pattern'));
+                if (in_array(F::GetRequestStr('type'), $this->User_GetUserFieldTypes())) {
+                    $oField->setType(F::GetRequestStr('type'));
                 } else {
                     $oField->setType('');
                 }
@@ -2999,18 +2999,18 @@ class ActionAdmin extends Action {
      */
     public function checkUserField() {
 
-        if (!getRequestStr('title')) {
+        if (!F::GetRequestStr('title')) {
             $this->Message_AddError($this->Lang_Get('user_field_error_add_no_title'), $this->Lang_Get('error'));
             return false;
         }
-        if (!getRequestStr('name')) {
+        if (!F::GetRequestStr('name')) {
             $this->Message_AddError($this->Lang_Get('user_field_error_add_no_name'), $this->Lang_Get('error'));
             return false;
         }
         /**
          * Не допускаем дубликатов по имени
          */
-        if ($this->User_userFieldExistsByName(getRequestStr('name'), getRequestStr('id'))) {
+        if ($this->User_userFieldExistsByName(F::GetRequestStr('name'), F::GetRequestStr('id'))) {
             $this->Message_AddError($this->Lang_Get('user_field_error_name_exists'), $this->Lang_Get('error'));
             return false;
         }
@@ -3030,11 +3030,11 @@ class ActionAdmin extends Action {
         $this->Viewer_Assign('aTypes', $aTypes);
 
         // * Выключатель
-        if (getRequest('toggle') && F::CheckVal(getRequest('content_id'), 'id', 1, 10) && in_array(getRequest('toggle'), array('on', 'off'))) {
+        if (F::GetRequest('toggle') && F::CheckVal(F::GetRequest('content_id'), 'id', 1, 10) && in_array(F::GetRequest('toggle'), array('on', 'off'))) {
             $this->Security_ValidateSendForm();
-            if ($oTypeTog = $this->Topic_GetContentTypeById(getRequest('content_id'))) {
+            if ($oTypeTog = $this->Topic_GetContentTypeById(F::GetRequest('content_id'))) {
                 $iToggle = 1;
-                if (getRequest('toggle') == 'off') {
+                if (F::GetRequest('toggle') == 'off') {
                     $iToggle = 0;
                 }
                 $oTypeTog->setContentActive($iToggle);
@@ -3044,11 +3044,11 @@ class ActionAdmin extends Action {
             }
         }
 
-        if (getRequest('add')) {
+        if (F::GetRequest('add')) {
             $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success'));
         }
 
-        if (getRequest('edit')) {
+        if (F::GetRequest('edit')) {
             $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success_edit'));
         }
 
@@ -3083,12 +3083,12 @@ class ActionAdmin extends Action {
         }
 
         $oContentType = Engine::GetEntity('Topic_ContentType');
-        $oContentType->setContentTitle(getRequest('content_title'));
-        $oContentType->setContentTitleDecl(getRequest('content_title_decl'));
-        $oContentType->setContentUrl(getRequest('content_url'));
+        $oContentType->setContentTitle(F::GetRequest('content_title'));
+        $oContentType->setContentTitleDecl(F::GetRequest('content_title_decl'));
+        $oContentType->setContentUrl(F::GetRequest('content_url'));
         $oContentType->setContentCandelete('1');
-        $oContentType->setContentAccess(getRequest('content_access'));
-        $aConfig = getRequest('config');
+        $oContentType->setContentAccess(F::GetRequest('content_access'));
+        $aConfig = F::GetRequest('config');
         if (is_array($aConfig)) {
             $oContentType->setExtraValue('photoset', isset($aConfig['photoset']) ? 1 : 0);
             $oContentType->setExtraValue('link', isset($aConfig['link']) ? 1 : 0);
@@ -3115,13 +3115,13 @@ class ActionAdmin extends Action {
         $this->_setTitle($this->Lang_Get('action.admin.contenttypes_edit_title'));
         $this->SetTemplateAction('settings/contenttypes_edit');
 
-        if (getRequest('fieldadd')) {
+        if (F::GetRequest('fieldadd')) {
             $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success_fieldadd'));
         }
-        if (getRequest('fieldedit')) {
+        if (F::GetRequest('fieldedit')) {
             $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success_fieldedit'));
         }
-        if (getRequest('fielddelete')) {
+        if (F::GetRequest('fielddelete')) {
             $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success_fielddelete'));
         }
 
@@ -3158,11 +3158,11 @@ class ActionAdmin extends Action {
 
         $sTypeOld = $oContentType->getContentUrl();
 
-        $oContentType->setContentTitle(getRequest('content_title'));
-        $oContentType->setContentTitleDecl(getRequest('content_title_decl'));
-        $oContentType->setContentUrl(getRequest('content_url'));
-        $oContentType->setContentAccess(getRequest('content_access'));
-        $aConfig = getRequest('config');
+        $oContentType->setContentTitle(F::GetRequest('content_title'));
+        $oContentType->setContentTitleDecl(F::GetRequest('content_title_decl'));
+        $oContentType->setContentUrl(F::GetRequest('content_url'));
+        $oContentType->setContentAccess(F::GetRequest('content_access'));
+        $aConfig = F::GetRequest('config');
         if (is_array($aConfig)) {
             $oContentType->setExtraValue('photoset', isset($aConfig['photoset']) ? 1 : 0);
             $oContentType->setExtraValue('link', isset($aConfig['link']) ? 1 : 0);
@@ -3196,15 +3196,15 @@ class ActionAdmin extends Action {
             $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
             return;
         }
-        if (!getRequest('order')) {
+        if (!F::GetRequest('order')) {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
             return;
         }
 
 
-        if (is_array(getRequest('order'))) {
+        if (is_array(F::GetRequest('order'))) {
 
-            foreach (getRequest('order') as $oOrder) {
+            foreach (F::GetRequest('order') as $oOrder) {
                 if (is_numeric($oOrder['order']) && is_numeric($oOrder['id']) && $oContentType = $this->Topic_GetContentTypeById($oOrder['id'])) {
                     $oContentType->setContentSort($oOrder['order']);
                     $this->Topic_UpdateContentType($oContentType);
@@ -3233,15 +3233,15 @@ class ActionAdmin extends Action {
             $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
             return;
         }
-        if (!getRequest('order')) {
+        if (!F::GetRequest('order')) {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
             return;
         }
 
 
-        if (is_array(getRequest('order'))) {
+        if (is_array(F::GetRequest('order'))) {
 
-            foreach (getRequest('order') as $oOrder) {
+            foreach (F::GetRequest('order') as $oOrder) {
                 if (is_numeric($oOrder['order']) && is_numeric($oOrder['id']) && $oField = $this->Topic_GetContentFieldById($oOrder['id'])) {
                     $oField->setFieldSort($oOrder['order']);
                     $this->Topic_UpdateContentField($oField);
@@ -3292,13 +3292,13 @@ class ActionAdmin extends Action {
         }
 
         $oField = Engine::GetEntity('Topic_Field');
-        $oField->setFieldType(getRequest('field_type'));
+        $oField->setFieldType(F::GetRequest('field_type'));
         $oField->setContentId($oContentType->getContentId());
-        $oField->setFieldName(getRequest('field_name'));
-        $oField->setFieldDescription(getRequest('field_description'));
-        $oField->setFieldRequired(getRequest('field_required'));
-        if (getRequest('field_type') == 'select') {
-            $oField->setOptionValue('select', getRequest('field_values'));
+        $oField->setFieldName(F::GetRequest('field_name'));
+        $oField->setFieldDescription(F::GetRequest('field_description'));
+        $oField->setFieldRequired(F::GetRequest('field_required'));
+        if (F::GetRequest('field_type') == 'select') {
+            $oField->setOptionValue('select', F::GetRequest('field_values'));
         }
 
         if ($this->Topic_AddContentField($oField)) {
@@ -3356,11 +3356,11 @@ class ActionAdmin extends Action {
             return false;
         }
 
-        $oField->setFieldName(getRequest('field_name'));
-        $oField->setFieldDescription(getRequest('field_description'));
-        $oField->setFieldRequired(getRequest('field_required'));
+        $oField->setFieldName(F::GetRequest('field_name'));
+        $oField->setFieldDescription(F::GetRequest('field_description'));
+        $oField->setFieldRequired(F::GetRequest('field_required'));
         if ($oField->getFieldType() == 'select') {
-            $oField->setOptionValue('select', getRequest('field_values'));
+            $oField->setOptionValue('select', F::GetRequest('field_values'));
         }
 
         if ($this->Topic_UpdateContentField($oField)) {
@@ -3394,21 +3394,21 @@ class ActionAdmin extends Action {
 
         $bOk = true;
 
-        if (!F::CheckVal(getRequest('content_title', null, 'post'), 'text', 2, 200)) {
+        if (!F::CheckVal(F::GetRequest('content_title', null, 'post'), 'text', 2, 200)) {
             $this->Message_AddError($this->Lang_Get('action.admin.contenttypes_type_title_error'), $this->Lang_Get('error'));
             $bOk = false;
         }
 
-        if (!F::CheckVal(getRequest('content_title_decl', null, 'post'), 'text', 2, 200)) {
+        if (!F::CheckVal(F::GetRequest('content_title_decl', null, 'post'), 'text', 2, 200)) {
             $this->Message_AddError($this->Lang_Get('action.admin.contenttypes_type_title_decl_error'), $this->Lang_Get('error'));
             $bOk = false;
         }
-        if (!F::CheckVal(getRequest('content_url', null, 'post'), 'login', 2, 50) || in_array(getRequest('content_url', null, 'post'), array_keys(Config::Get('router.page')))) {
+        if (!F::CheckVal(F::GetRequest('content_url', null, 'post'), 'login', 2, 50) || in_array(F::GetRequest('content_url', null, 'post'), array_keys(Config::Get('router.page')))) {
             $this->Message_AddError($this->Lang_Get('action.admin.contenttypes_type_url_error'), $this->Lang_Get('error'));
             $bOk = false;
         }
 
-        if (!in_array(getRequest('content_access'), array('1', '2', '4'))) {
+        if (!in_array(F::GetRequest('content_access'), array('1', '2', '4'))) {
             $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
             $bOk = false;
         }
@@ -3422,23 +3422,23 @@ class ActionAdmin extends Action {
 
         $bOk = true;
 
-        if (!F::CheckVal(getRequest('field_name', null, 'post'), 'text', 2, 100)) {
+        if (!F::CheckVal(F::GetRequest('field_name', null, 'post'), 'text', 2, 100)) {
             $this->Message_AddError($this->Lang_Get('field_name_error'), $this->Lang_Get('error'));
             $bOk = false;
         }
 
-        if (!F::CheckVal(getRequest('field_description', null, 'post'), 'text', 2, 200)) {
+        if (!F::CheckVal(F::GetRequest('field_description', null, 'post'), 'text', 2, 200)) {
             $this->Message_AddError($this->Lang_Get('field_description_error'), $this->Lang_Get('error'));
             $bOk = false;
         }
 
         if (Router::GetActionEvent() == 'fieldadd') {
-            if ($oContentType == 'photoset' && (getRequest('field_type', null, 'post') == 'photoset' || $oContentType->isPhotosetEnable())) {
+            if ($oContentType == 'photoset' && (F::GetRequest('field_type', null, 'post') == 'photoset' || $oContentType->isPhotosetEnable())) {
                 $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
                 $bOk = false;
             }
 
-            if (!in_array(getRequest('field_type', null, 'post'), $this->Topic_GetAvailableFieldTypes())) {
+            if (!in_array(F::GetRequest('field_type', null, 'post'), $this->Topic_GetAvailableFieldTypes())) {
                 $this->Message_AddError($this->Lang_Get('field_type_error'), $this->Lang_Get('error'));
                 $bOk = false;
             }

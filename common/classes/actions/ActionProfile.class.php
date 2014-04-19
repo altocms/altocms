@@ -532,8 +532,8 @@ class ActionProfile extends Action {
         $oWall->_setValidateScenario('add');
         $oWall->setWallUserId($this->oUserProfile->getId());
         $oWall->setUserId($this->oUserCurrent->getId());
-        $oWall->setText(getRequestStr('sText'));
-        $oWall->setPid(getRequestStr('iPid'));
+        $oWall->setText(F::GetRequestStr('sText'));
+        $oWall->setPid(F::GetRequestStr('iPid'));
 
         $this->Hook_Run('wall_add_validate_before', array('oWall' => $oWall));
         if ($oWall->_Validate()) {
@@ -587,7 +587,7 @@ class ActionProfile extends Action {
         /**
          * Получаем запись
          */
-        if (!($oWall = $this->Wall_GetWallById(getRequestStr('iId')))) {
+        if (!($oWall = $this->Wall_GetWallById(F::GetRequestStr('iId')))) {
             return parent::EventNotFound();
         }
         /**
@@ -616,10 +616,10 @@ class ActionProfile extends Action {
             'wall_user_id' => $this->oUserProfile->getId(),
             'pid'          => null
         );
-        if (is_numeric(getRequest('iIdLess'))) {
-            $aFilter['id_less'] = getRequest('iIdLess');
-        } elseif (is_numeric(getRequest('iIdMore'))) {
-            $aFilter['id_more'] = getRequest('iIdMore');
+        if (is_numeric(F::GetRequest('iIdLess'))) {
+            $aFilter['id_less'] = F::GetRequest('iIdLess');
+        } elseif (is_numeric(F::GetRequest('iIdMore'))) {
+            $aFilter['id_more'] = F::GetRequest('iIdMore');
         } else {
             $this->Message_AddError($this->Lang_Get('error'));
             return;
@@ -661,10 +661,10 @@ class ActionProfile extends Action {
             'wall_user_id' => $this->oUserProfile->getId(),
             'pid'          => $oWall->getId()
         );
-        if (is_numeric(getRequest('iIdLess'))) {
-            $aFilter['id_less'] = getRequest('iIdLess');
-        } elseif (is_numeric(getRequest('iIdMore'))) {
-            $aFilter['id_more'] = getRequest('iIdMore');
+        if (is_numeric(F::GetRequest('iIdLess'))) {
+            $aFilter['id_less'] = F::GetRequest('iIdLess');
+        } elseif (is_numeric(F::GetRequest('iIdMore'))) {
+            $aFilter['id_more'] = F::GetRequest('iIdMore');
         } else {
             $this->Message_AddError($this->Lang_Get('error'));
             return;
@@ -696,7 +696,7 @@ class ActionProfile extends Action {
          * Создаем заметку и проводим валидацию
          */
         $oNote = Engine::GetEntity('ModuleUser_EntityNote');
-        $oNote->setTargetUserId(getRequestStr('iUserId'));
+        $oNote->setTargetUserId(F::GetRequestStr('iUserId'));
         $oNote->setUserId($this->oUserCurrent->getId());
         $oNote->setText(F::GetRequestStr('text'));
 
@@ -727,7 +727,7 @@ class ActionProfile extends Action {
             return parent::EventNotFound();
         }
 
-        if (!($oUserTarget = $this->User_GetUserById(getRequestStr('iUserId')))) {
+        if (!($oUserTarget = $this->User_GetUserById(F::GetRequestStr('iUserId')))) {
             return parent::EventNotFound();
         }
         if (!($oNote = $this->User_GetUserNote($oUserTarget->getId(), $this->oUserCurrent->getId()))) {
@@ -792,7 +792,7 @@ class ActionProfile extends Action {
          * Из реквеста дешефруем ID польователя
          */
         $sUserId = xxtea_decrypt(
-            base64_decode(rawurldecode(getRequestStr('code'))), Config::Get('module.talk.encrypt')
+            base64_decode(rawurldecode(F::GetRequestStr('code'))), Config::Get('module.talk.encrypt')
         );
         if (!$sUserId) {
             return $this->EventNotFound();
@@ -872,7 +872,7 @@ class ActionProfile extends Action {
          * Устанавливаем формат Ajax ответа
          */
         $this->Viewer_SetResponseAjax('json');
-        $sUserId = getRequestStr('idUser', null, 'post');
+        $sUserId = F::GetRequestStr('idUser', null, 'post');
         /**
          * Если пользователь не авторизирован, возвращаем ошибку
          */
@@ -999,8 +999,8 @@ class ActionProfile extends Action {
          * Устанавливаем формат Ajax ответа
          */
         $this->Viewer_SetResponseAjax('json');
-        $sUserId = getRequestStr('idUser');
-        $sUserText = getRequestStr('userText', '');
+        $sUserId = F::GetRequestStr('idUser');
+        $sUserText = F::GetRequestStr('userText', '');
         /**
          * Если пользователь не авторизирован, возвращаем ошибку
          */
@@ -1237,7 +1237,7 @@ class ActionProfile extends Action {
          * Устанавливаем формат Ajax ответа
          */
         $this->Viewer_SetResponseAjax('json');
-        $sUserId = getRequestStr('idUser', null, 'post');
+        $sUserId = F::GetRequestStr('idUser', null, 'post');
         /**
          * Если пользователь не авторизирован, возвращаем ошибку
          */

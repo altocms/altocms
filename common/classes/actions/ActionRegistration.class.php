@@ -89,7 +89,7 @@ class ActionRegistration extends Action {
         /**
          * Пробегаем по переданным полям/значениям и валидируем их каждое в отдельности
          */
-        $aFields = getRequest('fields');
+        $aFields = F::GetRequest('fields');
         if (is_array($aFields)) {
             foreach ($aFields as $aField) {
                 if (isset($aField['field']) && isset($aField['value'])) {
@@ -211,10 +211,10 @@ class ActionRegistration extends Action {
                     /**
                      * Отправляем на мыло письмо о подтверждении регистрации
                      */
-                    $this->Notify_SendRegistrationActivate($oUser, getRequestStr('password'));
+                    $this->Notify_SendRegistrationActivate($oUser, F::GetRequestStr('password'));
                     $this->Viewer_AssignAjax('sUrlRedirect', Router::GetPath('registration') . 'confirm/');
                 } else {
-                    $this->Notify_SendRegistration($oUser, getRequestStr('password'));
+                    $this->Notify_SendRegistration($oUser, F::GetRequestStr('password'));
                     $oUser = $this->User_GetUserById($oUser->getId());
                     /**
                      * Сразу авторизуем
@@ -225,8 +225,8 @@ class ActionRegistration extends Action {
                      * Определяем URL для редиректа после авторизации
                      */
                     $sUrl = Config::Get('module.user.redirect_after_registration');
-                    if (getRequestStr('return-path')) {
-                        $sUrl = getRequestStr('return-path');
+                    if (F::GetRequestStr('return-path')) {
+                        $sUrl = F::GetRequestStr('return-path');
                     }
                     $this->Viewer_AssignAjax('sUrlRedirect', $sUrl ? $sUrl : Config::Get('path.root.url'));
                     $this->Message_AddNoticeSingle($this->Lang_Get('registration_ok'));
@@ -326,7 +326,7 @@ class ActionRegistration extends Action {
             if ($this->CheckInviteRegister()) {
                 $sInviteId = $this->GetInviteRegister();
             } else {
-                $sInviteId = getRequestStr('invite_code');
+                $sInviteId = F::GetRequestStr('invite_code');
             }
             $oInvate = $this->User_GetInviteByCode($sInviteId);
             if ($oInvate) {

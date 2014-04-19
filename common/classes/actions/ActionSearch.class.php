@@ -576,7 +576,7 @@ class ActionSearch extends Action {
      */
     protected function PrepareRequest($sType = null) {
 
-        $sRequest = trim(getRequest('q'));
+        $sRequest = trim(F::GetRequest('q'));
 
         // * Иногда ломается кодировка, напр., если ввели поиск в адресной строке браузера
         // * Пытаемся восстановить по основной кодировке браузера

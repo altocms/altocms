@@ -704,7 +704,7 @@ class ModuleViewer extends Module {
             if ($this->bResponseSpecificHeader && !headers_sent()) {
                 $aHeaders[] = 'Content-type: application/json';
             }
-            $sOutput = getRequest('jsonpCallback', 'callback') . '(' . F::jsonEncode($this->aVarsAjax) . ');';
+            $sOutput = F::GetRequest('jsonpCallback', 'callback') . '(' . F::jsonEncode($this->aVarsAjax) . ');';
         }
         if ($aHeaders) {
             foreach ($aHeaders as $sHeader) {

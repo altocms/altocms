@@ -92,9 +92,9 @@ class ModuleSession extends Module {
 
                 // * Даем возможность флешу задавать id сессии
                 $sUserAgent = isset($_SERVER['HTTP_USER_AGENT']) ? (string)$_SERVER['HTTP_USER_AGENT'] : null;
-                $sSSID = getRequestStr('SSID');
+                $sSSID = F::GetRequestStr('SSID');
                 if ($sUserAgent && (in_array($sUserAgent, $this->aFlashUserAgent) || strpos($sUserAgent, "Adobe Flash Player") === 0) && $sSSID && preg_match("/^[\w\d]{5,40}$/", $sSSID)) {
-                    session_id(getRequest('SSID'));
+                    session_id(F::GetRequest('SSID'));
                 } else {
                     session_regenerate_id();
                 }

@@ -96,7 +96,7 @@ class ActionSettings extends Action {
 
     protected function _getImageSize($sParam) {
 
-        if ($aSize = getRequest($sParam)) {
+        if ($aSize = F::GetRequest($sParam)) {
             if (isset($aSize['x']) && is_numeric($aSize['x']) && isset($aSize['y']) && is_numeric($aSize['y'])
                 && isset($aSize['x2']) && is_numeric($aSize['x2']) && isset($aSize['y2']) && is_numeric($aSize['y2'])
             ) {
@@ -384,15 +384,15 @@ class ActionSettings extends Action {
         if (isPost('submit_settings_tuning')) {
             $this->Security_ValidateSendForm();
 
-            if (in_array(getRequestStr('settings_general_timezone'), $aTimezoneList)) {
-                $this->oUserCurrent->setSettingsTimezone(getRequestStr('settings_general_timezone'));
+            if (in_array(F::GetRequestStr('settings_general_timezone'), $aTimezoneList)) {
+                $this->oUserCurrent->setSettingsTimezone(F::GetRequestStr('settings_general_timezone'));
             }
 
-            $this->oUserCurrent->setSettingsNoticeNewTopic(getRequest('settings_notice_new_topic') ? 1 : 0);
-            $this->oUserCurrent->setSettingsNoticeNewComment(getRequest('settings_notice_new_comment') ? 1 : 0);
-            $this->oUserCurrent->setSettingsNoticeNewTalk(getRequest('settings_notice_new_talk') ? 1 : 0);
-            $this->oUserCurrent->setSettingsNoticeReplyComment(getRequest('settings_notice_reply_comment') ? 1 : 0);
-            $this->oUserCurrent->setSettingsNoticeNewFriend(getRequest('settings_notice_new_friend') ? 1 : 0);
+            $this->oUserCurrent->setSettingsNoticeNewTopic(F::GetRequest('settings_notice_new_topic') ? 1 : 0);
+            $this->oUserCurrent->setSettingsNoticeNewComment(F::GetRequest('settings_notice_new_comment') ? 1 : 0);
+            $this->oUserCurrent->setSettingsNoticeNewTalk(F::GetRequest('settings_notice_new_talk') ? 1 : 0);
+            $this->oUserCurrent->setSettingsNoticeReplyComment(F::GetRequest('settings_notice_reply_comment') ? 1 : 0);
+            $this->oUserCurrent->setSettingsNoticeNewFriend(F::GetRequest('settings_notice_new_friend') ? 1 : 0);
             $this->oUserCurrent->setProfileDate(F::Now());
 
             // * Запускаем выполнение хуков
@@ -445,7 +445,7 @@ class ActionSettings extends Action {
             /**
              * Емайл корректен?
              */
-            if (!F::CheckVal(getRequestStr('invite_mail'), 'mail')) {
+            if (!F::CheckVal(F::GetRequestStr('invite_mail'), 'mail')) {
                 $this->Message_AddError($this->Lang_Get('settings_invite_mail_error'), $this->Lang_Get('error'));
                 $bError = true;
             }
@@ -458,7 +458,7 @@ class ActionSettings extends Action {
              */
             if (!$bError) {
                 $oInvite = $this->User_GenerateInvite($this->oUserCurrent);
-                $this->Notify_SendInvite($this->oUserCurrent, getRequestStr('invite_mail'), $oInvite);
+                $this->Notify_SendInvite($this->oUserCurrent, F::GetRequestStr('invite_mail'), $oInvite);
                 $this->Message_AddNoticeSingle($this->Lang_Get('settings_invite_submit_ok'));
                 $this->Hook_Run('settings_invate_send_after', array('oUser' => $this->oUserCurrent));
             }
@@ -487,8 +487,8 @@ class ActionSettings extends Action {
             /**
              * Проверка мыла
              */
-            if (F::CheckVal(getRequestStr('mail'), 'mail')) {
-                if (($oUserMail = $this->User_GetUserByMail(getRequestStr('mail')))
+            if (F::CheckVal(F::GetRequestStr('mail'), 'mail')) {
+                if (($oUserMail = $this->User_GetUserByMail(F::GetRequestStr('mail')))
                     && $oUserMail->getId() != $this->oUserCurrent->getId()
                 ) {
                     $this->Message_AddError(
@@ -553,8 +553,8 @@ class ActionSettings extends Action {
                     /**
                      * Подтверждение смены емайла
                      */
-                    if (getRequestStr('mail') && getRequestStr('mail') != $this->oUserCurrent->getMail()) {
-                        if ($oChangemail = $this->User_MakeUserChangemail($this->oUserCurrent, getRequestStr('mail'))) {
+                    if (F::GetRequestStr('mail') && F::GetRequestStr('mail') != $this->oUserCurrent->getMail()) {
+                        if ($oChangemail = $this->User_MakeUserChangemail($this->oUserCurrent, F::GetRequestStr('mail'))) {
                             if ($oChangemail->getMailFrom()) {
                                 $this->Message_AddNotice($this->Lang_Get('settings_profile_mail_change_from_notice'));
                             } else {
@@ -599,52 +599,43 @@ class ActionSettings extends Action {
              */
 
             // * Определяем гео-объект
-            if (getRequest('geo_city')) {
-                $oGeoObject = $this->Geo_GetGeoObject('city', getRequestStr('geo_city'));
-            } elseif (getRequest('geo_region')) {
-                $oGeoObject = $this->Geo_GetGeoObject('region', getRequestStr('geo_region'));
-            } elseif (getRequest('geo_country')) {
-                $oGeoObject = $this->Geo_GetGeoObject('country', getRequestStr('geo_country'));
+            if (F::GetRequest('geo_city')) {
+                $oGeoObject = $this->Geo_GetGeoObject('city', F::GetRequestStr('geo_city'));
+            } elseif (F::GetRequest('geo_region')) {
+                $oGeoObject = $this->Geo_GetGeoObject('region', F::GetRequestStr('geo_region'));
+            } elseif (F::GetRequest('geo_country')) {
+                $oGeoObject = $this->Geo_GetGeoObject('country', F::GetRequestStr('geo_country'));
             } else {
                 $oGeoObject = null;
             }
 
             // * Проверяем имя
-            if (F::CheckVal(getRequestStr('profile_name'), 'text', 2, Config::Get('module.user.name_max'))) {
-                $this->oUserCurrent->setProfileName(getRequestStr('profile_name'));
+            if (F::CheckVal(F::GetRequestStr('profile_name'), 'text', 2, Config::Get('module.user.name_max'))) {
+                $this->oUserCurrent->setProfileName(F::GetRequestStr('profile_name'));
             } else {
                 $this->oUserCurrent->setProfileName(null);
             }
 
             // * Проверяем пол
-            if (in_array(getRequestStr('profile_sex'), array('man', 'woman', 'other'))) {
-                $this->oUserCurrent->setProfileSex(getRequestStr('profile_sex'));
+            if (in_array(F::GetRequestStr('profile_sex'), array('man', 'woman', 'other'))) {
+                $this->oUserCurrent->setProfileSex(F::GetRequestStr('profile_sex'));
             } else {
                 $this->oUserCurrent->setProfileSex('other');
             }
 
             // * Проверяем дату рождения
-            if (F::CheckVal(getRequestStr('profile_birthday_day'), 'id', 1, 2)
-                && F::CheckVal(
-                    getRequestStr('profile_birthday_month'), 'id', 1, 2
-                )
-                && F::CheckVal(getRequestStr('profile_birthday_year'), 'id', 4, 4)
-            ) {
-                $this->oUserCurrent->setProfileBirthday(
-                    date(
-                        'Y-m-d H:i:s', mktime(
-                            0, 0, 0, getRequestStr('profile_birthday_month'), getRequestStr('profile_birthday_day'),
-                            getRequestStr('profile_birthday_year')
-                        )
-                    )
-                );
+            $nDay = intval(F::GetRequestStr('profile_birthday_day'));
+            $nMonth = intval(F::GetRequestStr('profile_birthday_month'));
+            $nYear = intval(F::GetRequestStr('profile_birthday_year'));
+            if (checkdate($nMonth, $nDay, $nYear)) {
+                $this->oUserCurrent->setProfileBirthday(date('Y-m-d H:i:s', mktime(0, 0, 0, $nMonth, $nDay, $nYear)));
             } else {
                 $this->oUserCurrent->setProfileBirthday(null);
             }
 
             // * Проверяем информацию о себе
-            if (F::CheckVal(getRequestStr('profile_about'), 'text', 1, 3000)) {
-                $this->oUserCurrent->setProfileAbout($this->Text_Parser(getRequestStr('profile_about')));
+            if (F::CheckVal(F::GetRequestStr('profile_about'), 'text', 1, 3000)) {
+                $this->oUserCurrent->setProfileAbout($this->Text_Parser(F::GetRequestStr('profile_about')));
             } else {
                 $this->oUserCurrent->setProfileAbout(null);
             }
@@ -653,9 +644,7 @@ class ActionSettings extends Action {
             $this->oUserCurrent->setProfileDate(F::Now());
 
             // * Запускаем выполнение хуков
-            $this->Hook_Run(
-                'settings_profile_save_before', array('oUser' => $this->oUserCurrent, 'bError' => &$bError)
-            );
+            $this->Hook_Run('settings_profile_save_before', array('oUser' => $this->oUserCurrent, 'bError' => &$bError));
 
             // * Сохраняем изменения профиля
             if (!$bError) {
@@ -663,8 +652,8 @@ class ActionSettings extends Action {
 
                     // * Обновляем название личного блога
                     $oBlog = $this->oUserCurrent->getBlog();
-                    if (getRequestStr('blog_title') && $this->checkBlogFields($oBlog)) {
-                        $oBlog->setTitle(strip_tags(getRequestStr('blog_title')));
+                    if (F::GetRequestStr('blog_title') && $this->checkBlogFields($oBlog)) {
+                        $oBlog->setTitle(strip_tags(F::GetRequestStr('blog_title')));
                         $this->Blog_UpdateBlog($oBlog);
                     }
 
@@ -699,7 +688,7 @@ class ActionSettings extends Action {
                     $aData = array();
                     foreach ($aFields as $iId => $aField) {
                         if (isset($_REQUEST['profile_user_field_' . $iId])) {
-                            $aData[$iId] = getRequestStr('profile_user_field_' . $iId);
+                            $aData[$iId] = F::GetRequestStr('profile_user_field_' . $iId);
                         }
                     }
                     $this->User_setUserFieldsValues($this->oUserCurrent->getId(), $aData);
@@ -710,8 +699,8 @@ class ActionSettings extends Action {
 
                     // * Удаляем все поля с этим типом
                     $this->User_DeleteUserFieldValues($this->oUserCurrent->getId(), $aType);
-                    $aFieldsContactType = getRequest('profile_user_field_type');
-                    $aFieldsContactValue = getRequest('profile_user_field_value');
+                    $aFieldsContactType = F::GetRequest('profile_user_field_type');
+                    $aFieldsContactValue = F::GetRequest('profile_user_field_value');
                     if (is_array($aFieldsContactType)) {
                         foreach ($aFieldsContactType as $k => $v) {
                             $v = (string)$v;
@@ -778,13 +767,13 @@ class ActionSettings extends Action {
         $bOk = true;
 
         // * Проверяем есть ли название блога
-        if (!F::CheckVal(getRequestStr('blog_title'), 'text', 2, 200)) {
+        if (!F::CheckVal(F::GetRequestStr('blog_title'), 'text', 2, 200)) {
             $this->Message_AddError($this->Lang_Get('blog_create_title_error'), $this->Lang_Get('error'));
             $bOk = false;
         } else {
 
             // * Проверяем есть ли уже блог с таким названием
-            if ($oBlogExists = $this->Blog_GetBlogByTitle(getRequestStr('blog_title'))) {
+            if ($oBlogExists = $this->Blog_GetBlogByTitle(F::GetRequestStr('blog_title'))) {
                 if (!$oBlog || $oBlog->getId() != $oBlogExists->getId()) {
                     $this->Message_AddError(
                         $this->Lang_Get('blog_create_title_error_unique'), $this->Lang_Get('error')
