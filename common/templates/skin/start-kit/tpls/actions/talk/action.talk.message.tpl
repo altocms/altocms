@@ -11,7 +11,8 @@
             <h1 class="topic-header-title">{$oTalk->getTitle()|escape:'html'}</h1>
 
             <div class="topic-header-info">
-                <ul class="list-unstyled list-inline actions">
+                <ul class="list-unstyled list-inline small pull-right actions">
+                    <li><span class="glyphicon glyphicon-cog actions-tool"></span></li>
                     <li class="delete"><a
                                 href="{router page='talk'}delete/{$oTalk->getId()}/?security_key={$ALTO_SECURITY_KEY}"
                                 onclick="return confirm('{$aLang.talk_inbox_delete_confirm}');"

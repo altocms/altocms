@@ -76,15 +76,15 @@
                 {hook run='form_add_comment_end'}
 
                 <button type="button" onclick="ls.comments.preview();"
-                        class="btn btn-default">{$aLang.comment_preview}</button>
+                        class="btn btn-default js-button-preview">{$aLang.comment_preview}</button>
                 <button type="submit" name="submit_comment"
                         id="comment-button-submit"
                         onclick="ls.comments.add(this,'{$iTargetId}','{$sTargetType}'); return false;"
-                        class="btn btn-success">{$aLang.comment_add}</button>
+                        class="btn btn-success js-button-submit">{$aLang.comment_add}</button>
                 <button type="submit" name="edit_comment"
                         id="comment-button-edit"
                         onclick="ls.comments.editSubmit(this, '{$iTargetId}', '{$sTargetType}'); return false;"
-                        class="btn btn-primary btn-edit" style="display: none;">
+                        class="btn btn-primary btn-edit js-button-edit" style="display: none;">
                     {$aLang.comment_edit_submit}
                 </button>
 

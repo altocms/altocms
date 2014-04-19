@@ -555,19 +555,38 @@ class ModuleTopic_MapperTopic extends Mapper {
     /**
      * Увеличивает у топика число комментов
      *
-     * @param int $sTopicId    ID топика
+     * @param int $iTopicId    ID топика
      *
      * @return bool
      */
-    public function increaseTopicCountComment($sTopicId) {
+    public function increaseTopicCountComment($iTopicId) {
 
         $sql = "UPDATE ?_topic
 			SET 
 				topic_count_comment=topic_count_comment+1
 			WHERE
-				topic_id = ?
+				topic_id = ?d
 		";
-        $bResult = $this->oDb->query($sql, $sTopicId);
+        $bResult = $this->oDb->query($sql, $iTopicId);
+        return $bResult !== false;
+    }
+
+    /**
+     * Recalculate count of comments
+     *
+     * @param $iTopicId
+     *
+     * @return bool
+     */
+    public function RecalcCountOfComments($iTopicId) {
+
+        $sql = "UPDATE ?_topic
+			SET
+				topic_count_comment=(SELECT COUNT(*) FROM ?_comment WHERE target_id=?d)
+			WHERE
+				topic_id = ?d
+		";
+        $bResult = $this->oDb->query($sql, $iTopicId, $iTopicId);
         return $bResult !== false;
     }
 

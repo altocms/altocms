@@ -1812,9 +1812,27 @@ class ModuleTopic extends Module {
      */
     public function increaseTopicCountComment($nTopicId) {
 
-        $this->Cache_Delete("topic_{$nTopicId}");
-        $this->Cache_CleanByTags(array('topic_update'));
-        return $this->oMapper->increaseTopicCountComment($nTopicId);
+        $bResult = $this->oMapper->increaseTopicCountComment($nTopicId);
+        if ($bResult) {
+            $this->Cache_Delete("topic_{$nTopicId}");
+            $this->Cache_CleanByTags(array('topic_update'));
+        }
+        return $bResult;
+    }
+
+    /**
+     * @param $nTopicId
+     *
+     * @return bool
+     */
+    public function RecalcCountOfComments($nTopicId) {
+
+        $bResult = $this->oMapper->RecalcCountOfComments($nTopicId);
+        if ($bResult) {
+            $this->Cache_Delete("topic_{$nTopicId}");
+            $this->Cache_CleanByTags(array('topic_update'));
+        }
+        return $bResult;
     }
 
     /**

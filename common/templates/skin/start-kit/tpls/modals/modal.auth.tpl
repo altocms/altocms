@@ -172,7 +172,7 @@
             $('#modal-auth [data-toggle=tab]').on('shown.bs.tab', selectFirstInput);
 
             // --- //
-            $('.js-form-login-submit').attr('disabled', false);
+            $('.js-form-login-submit').prop('disabled', false);
 
             // --- //
             $('.js-form-registration input.js-ajax-validate').blur(function (e) {
@@ -192,10 +192,10 @@
                 }
                 ls.user.validateRegistrationField(form, fieldName, fieldValue, params);
             });
-            $('.js-form-registration-submit').attr('disabled', false);
+            $('.js-form-registration-submit').prop('disabled', false);
 
             // -- //
-            $('.js-form-reminder-submit').attr('disabled', false);
+            $('.js-form-reminder-submit').prop('disabled', false);
         });
     </script>
 

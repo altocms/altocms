@@ -71,6 +71,15 @@
                           id="fav_count_comment_{$oComment->getId()}">{if $oComment->getCountFavourite() > 0}{$oComment->getCountFavourite()}{/if}</span>
                 </li>
             {/if}
+
+            <li id="comment_updated_id_{$oComment->getId()}" class="text-muted comment-updated"
+                    {if !$oComment->getCommentDateEdit()}style="display: none;" {/if}>
+                {$aLang.comment_updated}:
+                <time datetime="{date_format date=$oComment->getCommentDateEdit() format='c'}">
+                    {date_format date=$oComment->getCommentDateEdit() hours_back="12" minutes_back="60" now="60" day="day H:i" format="j F Y, H:i"}
+                </time>
+            </li>
+
         </ul>
         <div id="comment_content_id_{$oComment->getId()}" class="comment-content text">
             {$oComment->getText()}
@@ -78,19 +87,35 @@
         {if E::IsUser()}
             <ul class="list-unstyled list-inline small comment-actions">
                 {if !$oComment->getDelete() AND $bAllowToComment}
-                    <li><a href="#" onclick="ls.comments.toggleCommentForm({$oComment->getId()}); return false;"
+                    <li><a href="#" onclick="ls.comments.reply({$oComment->getId()}); return false;"
                            class="reply-link link-dotted">{$aLang.comment_answer}</a></li>
                 {/if}
 
-                {if !$oComment->getDelete() AND E::IsAdmin()}
-                    <li><a href="#" class="comment-delete link-dotted"
-                           onclick="ls.comments.toggle(this,{$oComment->getId()}); return false;">{$aLang.comment_delete}</a>
-                    </li>
+                {if $oComment->isDeletable()}
+                    {if !$oComment->getDelete() AND E::IsAdmin()}
+                        <li><a href="#" class="comment-delete link-dotted"
+                               onclick="ls.comments.toggle(this,{$oComment->getId()}); return false;">{$aLang.comment_delete}</a>
+                        </li>
+                    {/if}
+
+                    {if $oComment->getDelete() AND E::IsAdmin()}
+                        <li><a href="#" class="comment-repair link-dotted"
+                               onclick="ls.comments.toggle(this,{$oComment->getId()}); return false;">{$aLang.comment_repair}</a>
+                        </li>
+                    {/if}
                 {/if}
 
-                {if $oComment->getDelete() AND E::IsAdmin()}
-                    <li><a href="#" class="comment-repair link-dotted"
-                           onclick="ls.comments.toggle(this,{$oComment->getId()}); return false;">{$aLang.comment_repair}</a>
+                {if $oComment->isEditable() AND ($oComment->getEditTime() OR E::IsAdmin())}
+                    <li class="comment-edit">
+                        <a href="#"
+                           class="link-dotted"
+                           onclick="ls.comments.editComment('{$oComment->getId()}', '{$oComment->getTargetType()}', '{$oComment->getTargetId()}'); return false;">
+                            {$aLang.comment_edit}
+                            {if Config::Get('module.comment.edit.rest_time') AND $oComment->getEditTime()}
+                                (<span class="comment-edit-time-rest">{$oComment->getEditTime(true)}</span>)
+                                <span class="comment-edit-time-remainder" style="display: none;">{$oComment->getEditTime()}</span>
+                            {/if}
+                        </a>
                     </li>
                 {/if}
 

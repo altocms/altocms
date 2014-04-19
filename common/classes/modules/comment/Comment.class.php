@@ -565,7 +565,7 @@ class ModuleComment extends Module {
         }
         if ($nId) {
             if ($oComment->getTargetType() == 'topic') {
-                $this->Topic_increaseTopicCountComment($oComment->getTargetId());
+                $this->Topic_RecalcCountOfComments($oComment->getTargetId());
             }
             // чистим зависимые кеши
             $this->Cache_Clean(
@@ -723,32 +723,46 @@ class ModuleComment extends Module {
     public function GetCommentsNewByTargetId($nTargetId, $sTargetType, $nIdCommentLast) {
 
         $sCacheKey = "comment_target_{$nTargetId}_{$sTargetType}_{$nIdCommentLast}";
-        if (false === ($aComments = $this->Cache_Get($sCacheKey))) {
-            $aComments = $this->oMapper->GetCommentsNewByTargetId($nTargetId, $sTargetType, $nIdCommentLast);
-            $this->Cache_Set($aComments, $sCacheKey, array("comment_new_{$sTargetType}_{$nTargetId}"), 'P1D');
+        if (false === ($aCommentsId = $this->Cache_Get($sCacheKey))) {
+            $aCommentsId = $this->oMapper->GetCommentsNewByTargetId($nTargetId, $sTargetType, $nIdCommentLast);
+            $this->Cache_Set($aCommentsId, $sCacheKey, array("comment_new_{$sTargetType}_{$nTargetId}"), 'P1D');
         }
-        if (count($aComments) == 0) {
+        $aComments = array();
+        if (count($aCommentsId)) {
+            $aComments = $this->GetCommentsAdditionalData($aCommentsId);
+        }
+        if (!$aComments) {
             return array('comments' => array(), 'iMaxIdComment' => 0);
         }
 
-        $iMaxIdComment = max($aComments);
-        $aCmts = $this->GetCommentsAdditionalData($aComments);
+        $iMaxIdComment = max($aCommentsId);
+
         $oViewerLocal = $this->Viewer_GetLocalViewer();
         $oViewerLocal->Assign('oUserCurrent', $this->User_GetUserCurrent());
         $oViewerLocal->Assign('bOneComment', true);
         if ($sTargetType != 'topic') {
             $oViewerLocal->Assign('bNoCommentFavourites', true);
         }
-        $aCmt = array();
-        foreach ($aCmts as $oComment) {
+        $aCommentsHtml = array();
+
+        $bAllowToComment = false;
+        if ($oUserCurrent = E::User()) {
+            $oComment = reset($aComments);
+            if ($oComment->getTarget() && $oComment->getTarget()->getBlog()) {
+                $iBlogId = $oComment->getTarget()->getBlog()->GetId();
+            }
+            $bAllowToComment = $this->Blog_GetBlogsAllowTo('comment', $oUserCurrent, $iBlogId, true);
+        }
+        foreach ($aComments as $oComment) {
             $oViewerLocal->Assign('oComment', $oComment);
+            $oViewerLocal->Assign('bAllowToComment', $bAllowToComment);
             $sText = $oViewerLocal->Fetch($this->GetTemplateCommentByTarget($nTargetId, $sTargetType));
-            $aCmt[] = array(
+            $aCommentsHtml[] = array(
                 'html' => $sText,
                 'obj'  => $oComment,
             );
         }
-        return array('comments' => $aCmt, 'iMaxIdComment' => $iMaxIdComment);
+        return array('comments' => $aCommentsHtml, 'iMaxIdComment' => $iMaxIdComment);
     }
 
     /**

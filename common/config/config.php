@@ -369,6 +369,8 @@ $config['module']['comment']['nested_page_reverse'] = true;     // Опреде�
 $config['module']['comment']['favourite_target_allow'] = array('topic'); // Список типов комментов, которые разрешено добавлять в избранное
 $config['module']['comment']['edit']['enable'] = '5 minutes';   // В течение какого времени можно редактировать комментарии
 $config['module']['comment']['edit']['rest_time'] = true;       // Показывать ли оставшееся время для редактирования комментария
+$config['module']['comment']['min_length'] = 2;             // Min length of comments
+$config['module']['comment']['max_length'] = 16000;         // Max length of comments (0 - no limit)
 
 // Модуль Talk
 $config['module']['talk']['per_page']   = 30;       // Число приватных сообщений на одну страницу
