@@ -498,7 +498,7 @@ class ModuleTopic_EntityTopic extends Entity {
         if (!$oBlog) {
             $iBlogId = $this->getBlogId();
             if ($iBlogId) {
-                $oBlog = $this->Blog_GetBlogById($oBlog);
+                $oBlog = $this->Blog_GetBlogById($iBlogId);
             } elseif ($iBlogId === 0 || $iBlogId === '0') {
                 $oUser = $this->getUser();
                 $oBlog = $oUser->getBlog();

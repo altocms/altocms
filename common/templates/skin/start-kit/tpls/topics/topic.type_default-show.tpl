@@ -27,6 +27,7 @@
                     {date_format date=$oTopic->getDateAdd() hours_back="12" minutes_back="60" now="60" day="day H:i" format="j F Y, H:i"}
                 </time>
 
+                {if !$bPreview}
                 {if E::IsAdmin() OR E::UserId()==$oTopic->getUserId() OR E::UserId()==$oBlog->getOwnerId() OR $oBlog->getUserIsAdministrator() OR $oBlog->getUserIsModerator()}
                     <ul class="list-unstyled list-inline small pull-right actions">
                         <li><span class="glyphicon glyphicon-cog actions-tool"></span></li>
@@ -47,6 +48,7 @@
                             </li>
                         {/if}
                     </ul>
+                {/if}
                 {/if}
             </div>
         </header>
@@ -84,6 +86,7 @@
         <footer class="topic-footer">
             {include file="fields/field.tags-show.tpl"}
 
+            {if !$bPreview}
             <div class="topic-share" id="topic_share_{$oTopic->getId()}">
                 {hookb run="topic_share" topic=$oTopic bTopicList=false}
                     <div class="yashare-auto-init" data-yashareTitle="{$oTopic->getTitle()|escape:'html'}"
@@ -91,7 +94,9 @@
                          data-yashareQuickServices="yaru,vkontakte,facebook,twitter,odnoklassniki,moimir,lj,gplus"></div>
                 {/hookb}
             </div>
+            {/if}
 
+            {if !$bPreview}
             <ul class="list-unstyled list-inline small topic-footer-info">
                 <li class="topic-info-author">
                     <a href="{$oUser->getProfileUrl()}" class="avatar js-popup-{$oUser->getId()}">
@@ -157,6 +162,7 @@
 
                 {hook run='topic_show_info' topic=$oTopic}
             </ul>
+            {/if}
 
             {hook run='topic_show_end' topic=$oTopic}
         </footer>

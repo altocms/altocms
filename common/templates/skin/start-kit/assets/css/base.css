@@ -482,10 +482,9 @@ select, input[type="file"] { height: auto; }
 
 .talk-search .talk-search-content { display: none; padding-top: 10px; margin-top: 10px; }
 
-
 /* Topic Preview */
-.topic-preview { margin-top: 40px; }
-
+.topic-preview { margin-top: 20px; padding-top: 20px; border-top: 1px dashed #888888; }
+.topic-preview .topic { padding: 0;}
 
 
 /* --------------------------------------------
