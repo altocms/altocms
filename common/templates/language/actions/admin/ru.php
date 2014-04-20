@@ -218,6 +218,9 @@ return array(
 
     /* INVITES */
     'invites_title' => 'Приглашения',
+    'invites_all' => 'Все приглашения',
+    'invites_used' => 'Использованные',
+    'invites_unused' => 'Неиспользованные',
     'invite_code' => 'Код приглашения',
     'invite_user_from' => 'Отправитель',
     'invite_user_to' => 'Получатель',

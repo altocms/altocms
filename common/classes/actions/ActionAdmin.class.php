@@ -1859,11 +1859,8 @@ class ActionAdmin extends Action {
         if ($sMode == 'add') {
             $this->_eventInvitesAdd();
         } else {
-            $sMode = 'list';
-            $this->_eventInvitesList();
+            $this->_eventInvitesList($sMode);
         }
-
-        $this->Viewer_Assign('sMode', $sMode);
 
         if ($this->oUserCurrent->isAdministrator()) {
             $iCountInviteAvailable = -1;
@@ -1874,7 +1871,7 @@ class ActionAdmin extends Action {
         $this->Viewer_Assign('iCountInviteUsed', $this->User_GetCountInviteUsed($this->oUserCurrent->getId()));
     }
 
-    protected function _eventInvitesList() {
+    protected function _eventInvitesList($sMode) {
 
         if (F::GetRequest('action', null, 'post') == 'delete') {
             $this->_eventInvitesDelete();
@@ -1882,15 +1879,29 @@ class ActionAdmin extends Action {
 
         $nPage = $this->_getPageNum();
 
+        if ($sMode == 'used') {
+            $aFilter = array(
+                'used' => true,
+            );
+        } elseif ($sMode == 'unused') {
+            $aFilter = array(
+                'unused' => true,
+            );
+        } else {
+            $sMode = 'all';
+            $aFilter = array();
+        }
         // Получаем список инвайтов
-        $aResult = $this->Admin_GetInvites($nPage, Config::Get('admin.items_per_page'));
+        $aResult = $this->Admin_GetInvites($nPage, Config::Get('admin.items_per_page'), $aFilter);
         $aInvites = $aResult['collection'];
+        $aCounts = $this->Admin_GetInvitesCount();
 
         // Формируем постраничность
-        $aPaging = $this->Viewer_MakePaging($aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4, Router::GetPath('admin') . 'invites');
+        $aPaging = $this->Viewer_MakePaging($aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4, Router::GetPath('admin') . 'users-invites');
         $this->Viewer_Assign('aPaging', $aPaging);
         $this->Viewer_Assign('aInvites', $aInvites);
-        $this->Viewer_Assign('iCount', $aResult['count']);
+        $this->Viewer_Assign('aCounts', $aCounts);
+        $this->Viewer_Assign('sMode', $sMode);
     }
 
     protected function _eventInvitesDelete() {

@@ -190,28 +190,51 @@ class ModuleAdmin_MapperAdmin extends Mapper {
     /**
      * Returns list of invites
      *
-     * @param $iCount
-     * @param $iCurrPage
-     * @param $iPerPage
+     * @param int   $iCount
+     * @param int   $iCurrPage
+     * @param int   $iPerPage
+     * @param array $aFilter
      *
      * @return array
      */
-    public function GetInvites(&$iCount, $iCurrPage, $iPerPage) {
+    public function GetInvites(&$iCount, $iCurrPage, $iPerPage, $aFilter = array()) {
 
         $sql =
-            "SELECT invite_id, invite_code, user_from_id, user_to_id,
+            "SELECT
+                invite_id, invite_code, user_from_id, user_to_id,
                 invite_date_add, invite_date_used, invite_used,
                 u1.user_login AS from_login,
                 u2.user_login AS to_login
-              FROM ?_invite AS i
+            FROM ?_invite AS i
                 LEFT JOIN ?_user AS u1 ON i.user_from_id=u1.user_id
                 LEFT JOIN ?_user AS u2 ON i.user_to_id=u2.user_id
+            WHERE
+                1=1
+                {AND invite_used=?d}
+                {AND invite_used=?d}
             ORDER BY invite_id DESC
             LIMIT ?d, ?d";
-        if (($aRows = $this->oDb->selectPage($iCount, $sql, ($iCurrPage - 1) * $iPerPage, $iPerPage))) {
-            return $aRows;
-        }
-        return array();
+        $aRows = $this->oDb->selectPage($iCount, $sql,
+            isset($aFilter['used']) ? 1 : DBSIMPLE_SKIP,
+            isset($aFilter['unused']) ? 0 : DBSIMPLE_SKIP,
+            ($iCurrPage - 1) * $iPerPage,
+            $iPerPage
+        );
+        return $aRows ? $aRows : array();
+    }
+
+    public function GetInvitesCount() {
+
+        $sql =
+            "SELECT
+                COUNT(invite_id) AS cnt,
+                SUM(invite_used) AS used,
+                SUM(CASE WHEN invite_used=0 THEN 1 ELSE 0 END) AS unused
+            FROM ?_invite
+            ";
+        $aResult = $this->oDb->selectRow($sql);
+        $aResult['all'] = $aResult['cnt'];
+        return $aResult;
     }
 
     /**

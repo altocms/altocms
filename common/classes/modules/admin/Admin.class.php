@@ -129,15 +129,23 @@ class ModuleAdmin extends Module {
     /**
      * Получить все инвайты
      *
-     * @param   integer $nCurrPage
-     * @param   integer $nPerPage
-     * @return  array
+     * @param integer $nCurrPage
+     * @param integer $nPerPage
+     * @param array   $aFilter
+     *
+     * @return array
      */
-    public function GetInvites($nCurrPage, $nPerPage) {
+    public function GetInvites($nCurrPage, $nPerPage, $aFilter = array()) {
 
         // Инвайты не кешируются, поэтому работаем напрямую с БД
-        $data = array('collection' => $this->oMapper->GetInvites($iCount, $nCurrPage, $nPerPage), 'count' => $iCount);
-        return $data;
+        $aResult = array('collection' => $this->oMapper->GetInvites($iCount, $nCurrPage, $nPerPage, $aFilter), 'count' => $iCount);
+
+        return $aResult;
+    }
+
+    public function GetInvitesCount() {
+
+        return $this->oMapper->GetInvitesCount();
     }
 
     /**
