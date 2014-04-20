@@ -60,7 +60,9 @@ ls.stream = ( function ($) {
             url = ls.routerUrl('stream') + 'subscribe/',
             params = { 'id': iUserId };
 
+        ls.progressStart();
         ls.ajax(url, params, function (result) {
+            ls.progressDone();
             if (!result) {
                 ls.msg.error(null, 'System error #1001');
             } else if (result.bStateError) {
@@ -81,7 +83,9 @@ ls.stream = ( function ($) {
             url = ls.routerUrl('stream') + 'unsubscribe/',
             params = { 'id': iUserId };
 
+        ls.progressStart();
         ls.ajax(url, params, function (result) {
+            ls.progressDone();
             if (result && !result.bStateError) {
                 ls.msg.notice(result.sMsgTitle, result.sMsg);
                 ls.hook.run('ls_stream_unsubscribe_after', [params, result]);
@@ -96,9 +100,13 @@ ls.stream = ( function ($) {
         var self = this,
             sLogin = $('#' + self.options.selectors.inputId).val();
 
-        if (!sLogin) return;
+        if (!sLogin) {
+            return;
+        }
 
+        ls.progressStart();
         ls.ajax(ls.routerUrl('stream') + 'subscribeByLogin/', { 'login': sLogin }, function (result) {
+            ls.progressDone();
             if (!result) {
                 ls.msg.error(null, 'System error #1001');
             } else if (result.bStateError) {
@@ -130,7 +138,9 @@ ls.stream = ( function ($) {
         var url = ls.routerUrl('stream') + 'switchEventType/';
         var params = {'type': iType};
 
+        ls.progressStart();
         ls.ajax(url, params, function (result) {
+            ls.progressDone();
             if (result && !result.bStateError) {
                 ls.msg.notice(result.sMsgTitle, result.sMsg);
                 ls.hook.run('ls_stream_switch_event_type_after', [params, result]);

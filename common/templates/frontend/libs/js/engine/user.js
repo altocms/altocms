@@ -161,20 +161,21 @@ ls.user = (function ($) {
     /**
      * Удаление из друзей
      */
-    this.removeFriend = function (obj, idUser, sAction) {
+    this.removeFriend = function (button, idUser, sAction) {
         var url = ls.routerUrl('profile') + 'ajaxfrienddelete/',
             params = {idUser: idUser, sAction: sAction};
 
+        ls.progressStart();
         ls.ajax(url, params, function (result) {
+            ls.progressDone();
             if (!result) {
                 ls.msg.error(null, 'System error #1001');
             } else if (result.bStateError) {
                 ls.msg.error(null, result.sMsg);
             } else {
                 ls.msg.notice(null, result.sMsg);
-                //$('#profile_actions').prepend($($.trim(result.sToggleText)));
                 $('#profile_actions li:first').html($.trim(result.sToggleText));
-                ls.hook.run('ls_user_remove_friend_after', [idUser, sAction, result], obj);
+                ls.hook.run('ls_user_remove_friend_after', [idUser, sAction, result], button);
             }
         });
         return false;
@@ -207,17 +208,17 @@ ls.user = (function ($) {
     /**
      * Поиск пользователей по началу логина
      */
-    this.searchUsersByPrefix = function (sPrefix, obj) {
+    this.searchUsersByPrefix = function (sPrefix, button) {
         var url = ls.routerUrl('people') + 'ajax-search/',
             params = {user_login: sPrefix, isPrefix: 1};
 
-        obj = $(obj);
+        button = $(button);
         $('#search-user-login').addClass('loader');
 
         ls.ajax(url, params, function (result) {
             $('#search-user-login').removeClass('loader');
             $('#user-prefix-filter').find('.active').removeClass('active');
-            obj.parent().addClass('active');
+            button.parent().addClass('active');
             if (!result) {
                 ls.msg.error(null, 'System error #1001');
             } else if (result.bStateError) {
@@ -226,7 +227,7 @@ ls.user = (function ($) {
             } else {
                 $('#users-list-original').hide();
                 $('#users-list-search').html(result.sText).show();
-                ls.hook.run('ls_user_search_users_by_prefix_after', [sPrefix, obj, result]);
+                ls.hook.run('ls_user_search_users_by_prefix_after', [sPrefix, button, result]);
             }
         });
         return false;
@@ -235,13 +236,14 @@ ls.user = (function ($) {
     /**
      * Подписка
      */
-    this.followToggle = function (obj, iUserId) {
-        if ($(obj).hasClass('followed')) {
+    this.followToggle = function (button, iUserId) {
+        button = $(button);
+        if (button.hasClass('followed')) {
             ls.stream.unsubscribe(iUserId);
-            $(obj).toggleClass('followed').text(ls.lang.get('profile_user_follow'));
+            button.toggleClass('followed').text(ls.lang.get('profile_user_follow'));
         } else {
             ls.stream.subscribe(iUserId);
-            $(obj).toggleClass('followed').text(ls.lang.get('profile_user_unfollow'));
+            button.toggleClass('followed').text(ls.lang.get('profile_user_unfollow'));
         }
         return false;
     };
