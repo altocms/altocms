@@ -1,5 +1,9 @@
 {extends file="_index.tpl"}
 
+{block name="layout_vars"}
+    {$menu="topics"}
+{/block}
+
 {block name="layout_content"}
     {$oUserOwner=$oBlog->getOwner()}
     {$oVote=$oBlog->getVote()}

@@ -1,6 +1,6 @@
 <ul class="nav nav-pills context-menu">
     <li class="bordered{if $sMenuSubItemSelect=='good'} active{/if}"><a
-                href="{Config::Get('path.root.url')}/">{$aLang.blog_menu_all_good}</a></li>
+                href="{Config::Get('path.root.url')}">{$aLang.blog_menu_all_good}</a></li>
 
     <li class="bordered{if $sMenuSubItemSelect=='new'} active{/if}">
         {if $iCountTopicsNew>0}

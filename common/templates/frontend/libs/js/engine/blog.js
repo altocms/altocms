@@ -41,17 +41,19 @@ ls.blog = (function ($) {
     /**
      * Вступить или покинуть блог
      */
-    this.toggleJoin = function (obj, idBlog) {
-        var url = ls.routerUrl('blog') + 'ajaxblogjoin/';
-        var params = {idBlog: idBlog};
+    this.toggleJoin = function (button, idBlog) {
+        var url = ls.routerUrl('blog') + 'ajaxblogjoin/',
+            params = {idBlog: idBlog};
+        button = $(button);
 
+        ls.progressStart();
         ls.ajax(url, params, function (result) {
+            ls.progressDone();
             if (!result) {
                 ls.msg.error(null, 'System error #1001');
             } else if (result.bStateError) {
                 ls.msg.error(null, result.sMsg);
             } else {
-                obj = $(obj);
                 ls.msg.notice(null, result.sMsg);
 
                 var text = result.bState
@@ -59,11 +61,11 @@ ls.blog = (function ($) {
                         : ls.lang.get('blog_join')
                     ;
 
-                obj.empty().text(text);
-                obj.toggleClass('active');
+                button.empty().text(text);
+                button.toggleClass('active');
 
                 $('#blog_user_count_' + idBlog).text(result.iCountUser);
-                ls.hook.run('ls_blog_toggle_join_after', [idBlog, result], obj);
+                ls.hook.run('ls_blog_toggle_join_after', [idBlog, result], button);
             }
         });
     };

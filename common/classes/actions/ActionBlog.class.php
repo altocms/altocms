@@ -952,6 +952,8 @@ class ActionBlog extends Action {
      */
     protected function EventShowBlog() {
 
+        $this->sMenuHeadItemSelect = 'index';
+
         $sPeriod = 1; // по дефолту 1 день
         if (in_array( F::GetRequestStr('period'), array(1, 7, 30, 'all'))) {
             $sPeriod =  F::GetRequestStr('period');
