@@ -32,7 +32,7 @@
         <h3>{$aLang.registration}</h3>
     </div>
     {hook run='registration_begin'}
-    <form action="{router page='registration'}" method="post" class="js-registration-login">
+    <form action="{router page='registration'}" method="post" class="js-form-registration">
         {hook run='form_registration_begin' isPopup=false}
 
         <div class="form-group">

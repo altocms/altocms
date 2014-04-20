@@ -38,9 +38,7 @@ class ActionRegistration extends Action {
          * Если включены инвайты то перенаправляем на страницу регистрации по инвайтам
          */
         if (!$this->User_IsAuthorization() && Config::Get('general.reg.invite')
-            && !in_array(
-                Router::GetActionEvent(), array('invite', 'activate', 'confirm')
-            )
+            && !in_array(Router::GetActionEvent(), array('invite', 'activate', 'confirm'))
             && !$this->CheckInviteRegister()
         ) {
             return Router::Action('registration', 'invite');
@@ -324,11 +322,11 @@ class ActionRegistration extends Action {
              * проверяем код приглашения на валидность
              */
             if ($this->CheckInviteRegister()) {
-                $sInviteId = $this->GetInviteRegister();
+                $sInviteCode = $this->GetInviteRegister();
             } else {
-                $sInviteId = F::GetRequestStr('invite_code');
+                $sInviteCode = trim(F::GetRequestStr('invite_code'));
             }
-            $oInvate = $this->User_GetInviteByCode($sInviteId);
+            $oInvate = $this->User_GetInviteByCode($sInviteCode);
             if ($oInvate) {
                 if (!$this->CheckInviteRegister()) {
                     $this->Session_Set('invite_code', $oInvate->getCode());
