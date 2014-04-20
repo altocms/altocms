@@ -75,21 +75,72 @@ class ModuleUserfeed_MapperUserfeed extends Mapper {
     }
 
     /**
-     * Получить список подписок пользователя
+     * Gets list of subscribtion
      *
-     * @param int $iUserId ID пользователя, для которого загружаются подписки
+     * @param int        $iUserId
+     * @param string|int $xTargetType
+     * @param array      $aTargetsId
      *
      * @return array
      */
-    public function GetUserSubscribes($iUserId) {
+    public function GetUserSubscribes($iUserId, $xTargetType = null, $aTargetsId = array()) {
+
+        $aResult = array(
+            'blogs' => array(),
+            'blog' => array(),
+            'users' => array(),
+            'user' => array(),
+        );
+        if (!is_null($xTargetType)) {
+            if (!is_array($xTargetType)) {
+                $xTargetType = array($xTargetType);
+            }
+            if (is_array($xTargetType)) {
+                foreach ($xTargetType as $iKey => $iTargetType) {
+                    if (!is_integer($iTargetType)) {
+                        switch ($iTargetType) {
+                            case 'blog':
+                            case 'blogs':
+                                $xTargetType[$iKey] = ModuleUserfeed::SUBSCRIBE_TYPE_BLOG;
+                                break;
+                            case 'user':
+                            case 'users':
+                                $xTargetType[$iKey] = ModuleUserfeed::SUBSCRIBE_TYPE_USER;
+                                break;
+                            default:
+                                $xTargetType[$iKey] = 0;
+                        }
+                    }
+                }
+            }
+            $xTargetType = array_unique($xTargetType);
+            if (sizeof($xTargetType) == 0) {
+                return $aResult;
+            } elseif (sizeof($xTargetType) == 1) {
+                $xTargetType = reset($xTargetType);
+            }
+        } else {
+            $xTargetType = null;
+        }
 
         $sql = '
             SELECT subscribe_type, target_id
             FROM ?_userfeed_subscribe
             WHERE
-                user_id = ?d';
-        $aSubscribes = $this->oDb->select($sql, $iUserId);
-        $aResult = array('blogs' => array(), 'users' => array());
+                user_id = ?d
+                {AND subscribe_type=?d}
+                {AND subscribe_type IN (?a)}
+                {AND target_id=?d}
+                {AND target_id IN (?a)}
+            ';
+        $aSubscribes = $this->oDb->select(
+            $sql,
+            $iUserId,
+            ($xTargetType && !is_array($xTargetType)) ? $xTargetType : DBSIMPLE_SKIP,
+            ($xTargetType && is_array($xTargetType)) ? $xTargetType : DBSIMPLE_SKIP,
+            ($aTargetsId && !is_array($aTargetsId)) ? $aTargetsId : DBSIMPLE_SKIP,
+            ($aTargetsId && is_array($aTargetsId)) ? $aTargetsId : DBSIMPLE_SKIP
+        );
 
         if (!count($aSubscribes)) {
             return $aResult;
@@ -97,9 +148,11 @@ class ModuleUserfeed_MapperUserfeed extends Mapper {
 
         foreach ($aSubscribes as $aSubscribe) {
             if ($aSubscribe['subscribe_type'] == ModuleUserfeed::SUBSCRIBE_TYPE_BLOG) {
-                $aResult['blogs'][] = $aSubscribe['target_id'];
+                $aResult['blogs'][$aSubscribe['target_id']] = $aSubscribe['target_id'];
+                $aResult['blog'][$aSubscribe['target_id']] = $aSubscribe['target_id'];
             } elseif ($aSubscribe['subscribe_type'] == ModuleUserfeed::SUBSCRIBE_TYPE_USER) {
-                $aResult['users'][] = $aSubscribe['target_id'];
+                $aResult['users'][$aSubscribe['target_id']] = $aSubscribe['target_id'];
+                $aResult['user'][$aSubscribe['target_id']] = $aSubscribe['target_id'];
             }
         }
         return $aResult;

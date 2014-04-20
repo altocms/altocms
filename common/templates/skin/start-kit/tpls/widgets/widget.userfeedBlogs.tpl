@@ -12,14 +12,12 @@
                 </p>
 
                 {if count($aUserfeedBlogs)}
-                    <ul class="list-unstyled stream-settings-blogs">
+                    <ul class="list-unstyled js-userfeed-bloglist">
                         {foreach $aUserfeedBlogs as $oBlog}
                             {$iBlogId=$oBlog->getId()}
-                            <li class="checkbox">
+                            <li class="checkbox js-userfeed-item" data-blog-id="{$iBlogId}">
                                 <label>
-                                    <input class="userfeedBlogCheckbox" type="checkbox"
-                                            {if isset($aUserfeedSubscribedBlogs.$iBlogId)} checked="checked"{/if}
-                                           onClick="if (jQuery(this).prop('checked')) { ls.userfeed.subscribe('blogs',{$iBlogId}) } else { ls.userfeed.unsubscribe('blogs',{$iBlogId}) } "/>
+                                    <input type="checkbox" {if isset($aUserfeedSubscribedBlogs.$iBlogId)} checked="checked"{/if} />
                                     <a href="{$oBlog->getUrlFull()}">{$oBlog->getTitle()|escape:'html'}</a>
                                 </label>
                             </li>

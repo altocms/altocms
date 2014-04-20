@@ -36,9 +36,8 @@ class ActionUserfeed extends Action {
      *
      */
     public function Init() {
-        /**
-         * Доступ только у авторизованных пользователей
-         */
+
+        // * Доступ только у авторизованных пользователей
         $this->oUserCurrent = $this->User_getUserCurrent();
         if (!$this->oUserCurrent) {
             parent::EventNotFound();
@@ -68,13 +67,11 @@ class ActionUserfeed extends Action {
      *
      */
     protected function EventIndex() {
-        /**
-         * Получаем топики
-         */
+
+        // * Получаем топики
         $aTopics = $this->Userfeed_read($this->oUserCurrent->getId());
-        /**
-         * Вызов хуков
-         */
+
+        // * Вызов хуков
         $this->Hook_Run('topics_list_show', array('aTopics' => $aTopics));
         $this->Viewer_Assign('aTopics', $aTopics);
         if (count($aTopics)) {
@@ -95,30 +92,24 @@ class ActionUserfeed extends Action {
     protected function EventTrack() {
 
         $this->sMenuSubItemSelect = 'track';
-        /**
-         * Передан ли номер страницы
-         */
+
+        // * Передан ли номер страницы
         $iPage = $this->GetParamEventMatch(0, 2) ? $this->GetParamEventMatch(0, 2) : 1;
-        /**
-         * Получаем топики
-         */
+
+        // * Получаем топики
         $aResult = $this->Userfeed_trackread(
             $this->oUserCurrent->getId(), $iPage, Config::Get('module.topic.per_page')
         );
 
         $aTopics = $aResult['collection'];
 
-        /**
-         * Формируем постраничность
-         */
+        // * Формируем постраничность
         $aPaging = $this->Viewer_MakePaging(
             $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
             Router::GetPath('feed') . 'track'
         );
 
-        /**
-         * Вызов хуков
-         */
+        // * Вызов хуков
         $this->Hook_Run('topics_list_show', array('aTopics' => $aTopics));
         $this->Viewer_Assign('aTopics', $aTopics);
         $this->Viewer_Assign('aPaging', $aPaging);
@@ -133,30 +124,24 @@ class ActionUserfeed extends Action {
     protected function EventTrackNew() {
 
         $this->sMenuSubItemSelect = 'track_new';
-        /**
-         * Передан ли номер страницы
-         */
+
+        // * Передан ли номер страницы
         $iPage = $this->GetParamEventMatch(1, 2) ? $this->GetParamEventMatch(1, 2) : 1;
-        /**
-         * Получаем топики
-         */
+
+        // * Получаем топики
         $aResult = $this->Userfeed_trackread(
             $this->oUserCurrent->getId(), $iPage, Config::Get('module.topic.per_page'), true
         );
 
         $aTopics = $aResult['collection'];
 
-        /**
-         * Формируем постраничность
-         */
+        // * Формируем постраничность
         $aPaging = $this->Viewer_MakePaging(
             $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
             Router::GetPath('feed') . 'track/new'
         );
 
-        /**
-         * Вызов хуков
-         */
+        // * Вызов хуков
         $this->Hook_Run('topics_list_show', array('aTopics' => $aTopics));
         $this->Viewer_Assign('aTopics', $aTopics);
         $this->Viewer_Assign('aPaging', $aPaging);
@@ -169,32 +154,27 @@ class ActionUserfeed extends Action {
      *
      */
     protected function EventGetMore() {
-        /**
-         * Устанавливаем формат Ajax ответа
-         */
+
+        // * Устанавливаем формат Ajax ответа
         $this->Viewer_SetResponseAjax('json');
-        /**
-         * Проверяем последний просмотренный ID топика
-         */
-        $iFromId = F::GetRequestStr('last_id');
+
+        // * Проверяем последний просмотренный ID топика
+        $iFromId = intval(F::GetRequestStr('last_id'));
         if (!$iFromId) {
             $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
             return;
         }
-        /**
-         * Получаем топики
-         */
-        $aTopics = $this->Userfeed_read($this->oUserCurrent->getId(), null, $iFromId);
-        /**
-         * Вызов хуков
-         */
+
+        // * Получаем топики
+        $aTopics = $this->Userfeed_Read($this->oUserCurrent->getId(), null, $iFromId);
+
+        // * Вызов хуков
         $this->Hook_Run('topics_list_show', array('aTopics' => $aTopics));
-        /**
-         * Загружаем данные в ajax ответ
-         */
+
+        // * Загружаем данные в ajax ответ
         $oViewer = $this->Viewer_GetLocalViewer();
         $oViewer->Assign('aTopics', $aTopics);
-        $this->Viewer_AssignAjax('result', $oViewer->Fetch('topic_list.tpl'));
+        $this->Viewer_AssignAjax('result', $oViewer->Fetch('topics/topic.list.tpl'));
         $this->Viewer_AssignAjax('topics_count', count($aTopics));
 
         if (count($aTopics)) {
@@ -207,37 +187,34 @@ class ActionUserfeed extends Action {
      *
      */
     protected function EventSubscribe() {
-        /**
-         * Устанавливаем формат Ajax ответа
-         */
+
+        // * Устанавливаем формат Ajax ответа
         $this->Viewer_SetResponseAjax('json');
-        /**
-         * Проверяем наличие ID блога или пользователя
-         */
+
+        // * Проверяем наличие ID блога или пользователя
         if (!F::GetRequest('id')) {
             $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
         }
         $sType = F::GetRequestStr('type');
         $iType = null;
-        /**
-         * Определяем тип подписки
-         */
+
+        // * Определяем тип подписки
         switch ($sType) {
+            case 'blog':
             case 'blogs':
                 $iType = ModuleUserfeed::SUBSCRIBE_TYPE_BLOG;
-                /**
-                 * Проверяем существование блога
-                 */
+
+                // * Проверяем существование блога
                 if (!$this->Blog_GetBlogById(F::GetRequestStr('id'))) {
                     $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
                     return;
                 }
                 break;
+            case 'user':
             case 'users':
                 $iType = ModuleUserfeed::SUBSCRIBE_TYPE_USER;
-                /**
-                 * Проверяем существование пользователя
-                 */
+
+                // * Проверяем существование пользователя
                 if (!$this->User_GetUserById(F::GetRequestStr('id'))) {
                     $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
                     return;
@@ -253,10 +230,9 @@ class ActionUserfeed extends Action {
                 $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
                 return;
         }
-        /**
-         * Подписываем
-         */
-        $this->Userfeed_subscribeUser($this->oUserCurrent->getId(), $iType, F::GetRequestStr('id'));
+
+        // * Подписываем
+        $this->Userfeed_SubscribeUser($this->oUserCurrent->getId(), $iType, F::GetRequestStr('id'));
         $this->Message_AddNotice($this->Lang_Get('userfeed_subscribes_updated'), $this->Lang_Get('attention'));
     }
 
@@ -265,21 +241,18 @@ class ActionUserfeed extends Action {
      *
      */
     protected function EventSubscribeByLogin() {
-        /**
-         * Устанавливаем формат Ajax ответа
-         */
+
+        // * Устанавливаем формат Ajax ответа
         $this->Viewer_SetResponseAjax('json');
-        /**
-         * Передан ли логин
-         */
-        $sUserLogin = getRequestPostStr('login');
+
+        // * Передан ли логин
+        $sUserLogin = $this->GetPost('login');
         if (!$sUserLogin) {
             $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
             return;
         }
-        /**
-         * Проверяем существование прользователя
-         */
+
+        // * Проверяем существование прользователя
         $oUser = $this->User_getUserByLogin($sUserLogin);
         if (!$oUser) {
             $this->Message_AddError(
@@ -288,29 +261,34 @@ class ActionUserfeed extends Action {
             );
             return;
         }
-        /**
-         * Не даем подписаться на самого себя
-         */
+
+        // * Не даем подписаться на самого себя
         if ($this->oUserCurrent->getId() == $oUser->getId()) {
             $this->Message_AddError($this->Lang_Get('userfeed_error_subscribe_to_yourself'), $this->Lang_Get('error'));
             return;
         }
-        /**
-         * Подписываем
-         */
-        $this->Userfeed_subscribeUser(
-            $this->oUserCurrent->getId(), ModuleUserfeed::SUBSCRIBE_TYPE_USER, $oUser->getId()
-        );
-        /**
-         * Загружаем данные ajax ответ
-         */
-        $this->Viewer_AssignAjax('uid', $oUser->getId());
-        $this->Viewer_AssignAjax('user_login', $oUser->getLogin());
-        $this->Viewer_AssignAjax('user_web_path', $oUser->getUserWebPath());
-        $this->Viewer_AssignAjax('user_avatar_48', $oUser->getAvatarUrl(48));
-        $this->Viewer_AssignAjax('lang_error_msg', $this->Lang_Get('userfeed_subscribes_already_subscribed'));
-        $this->Viewer_AssignAjax('lang_error_title', $this->Lang_Get('error'));
-        $this->Message_AddNotice($this->Lang_Get('userfeed_subscribes_updated'), $this->Lang_Get('attention'));
+
+        $aData = $this->Userfeed_GetUserSubscribes($this->oUserCurrent->getId(), ModuleUserfeed::SUBSCRIBE_TYPE_USER, $oUser->getId());
+        if (isset($aData['user'][$oUser->getId()])) {
+            // Already subscribed
+            $this->Message_AddError($this->Lang_Get('userfeed_subscribes_already_subscribed'), $this->Lang_Get('error'));
+        } else {
+            // * Подписываем
+            $this->Userfeed_SubscribeUser($this->oUserCurrent->getId(), ModuleUserfeed::SUBSCRIBE_TYPE_USER, $oUser->getId());
+
+            // * Загружаем данные ajax ответ
+            $this->Viewer_AssignAjax('uid', $oUser->getId());
+            $this->Viewer_AssignAjax('user_id', $oUser->getId());
+            $this->Viewer_AssignAjax('user_login', $oUser->getLogin());
+            $this->Viewer_AssignAjax('user_name', $oUser->getDisplayName());
+            $this->Viewer_AssignAjax('user_web_path', $oUser->getUserWebPath());
+            $this->Viewer_AssignAjax('user_profile_url', $oUser->getProfileUrl());
+            $this->Viewer_AssignAjax('user_avatar', $oUser->getAvatarUrl(24));
+            $this->Viewer_AssignAjax('lang_error_msg', $this->Lang_Get('userfeed_subscribes_already_subscribed'));
+            $this->Viewer_AssignAjax('lang_error_title', $this->Lang_Get('error'));
+            $this->Message_AddNotice($this->Lang_Get('userfeed_subscribes_updated'), $this->Lang_Get('attention'));
+        }
+
     }
 
     /**
@@ -318,9 +296,8 @@ class ActionUserfeed extends Action {
      *
      */
     protected function EventUnsubscribe() {
-        /**
-         * Устанавливаем формат Ajax ответа
-         */
+
+        // * Устанавливаем формат Ajax ответа
         $this->Viewer_SetResponseAjax('json');
         if (!F::GetRequest('id')) {
             $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
@@ -328,24 +305,24 @@ class ActionUserfeed extends Action {
         }
         $sType = F::GetRequestStr('type');
         $iType = null;
-        /**
-         * Определяем от чего отписываемся
-         */
+
+        // * Определяем от чего отписываемся
         switch ($sType) {
             case 'blogs':
+            case 'blog':
                 $iType = ModuleUserfeed::SUBSCRIBE_TYPE_BLOG;
                 break;
             case 'users':
+            case 'user':
                 $iType = ModuleUserfeed::SUBSCRIBE_TYPE_USER;
                 break;
             default:
                 $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
                 return;
         }
-        /**
-         * Отписываем пользователя
-         */
-        $this->Userfeed_unsubscribeUser($this->oUserCurrent->getId(), $iType, F::GetRequestStr('id'));
+
+        // * Отписываем пользователя
+        $this->Userfeed_UnsubscribeUser($this->oUserCurrent->getId(), $iType, F::GetRequestStr('id'));
         $this->Message_AddNotice($this->Lang_Get('userfeed_subscribes_updated'), $this->Lang_Get('attention'));
     }
 

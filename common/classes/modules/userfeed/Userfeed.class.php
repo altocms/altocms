@@ -39,6 +39,7 @@ class ModuleUserfeed extends Module {
      * Инициализация модуля
      */
     public function Init() {
+
         $this->oMapper = Engine::GetMapper(__CLASS__);
     }
 
@@ -51,7 +52,8 @@ class ModuleUserfeed extends Module {
      *
      * @return bool
      */
-    public function subscribeUser($iUserId, $iSubscribeType, $iTargetId) {
+    public function SubscribeUser($iUserId, $iSubscribeType, $iTargetId) {
+
         return $this->oMapper->subscribeUser($iUserId, $iSubscribeType, $iTargetId);
     }
 
@@ -64,7 +66,8 @@ class ModuleUserfeed extends Module {
      *
      * @return bool
      */
-    public function unsubscribeUser($iUserId, $iSubscribeType, $iTargetId) {
+    public function UnsubscribeUser($iUserId, $iSubscribeType, $iTargetId) {
+
         return $this->oMapper->unsubscribeUser($iUserId, $iSubscribeType, $iTargetId);
     }
 
@@ -77,7 +80,7 @@ class ModuleUserfeed extends Module {
      *
      * @return array
      */
-    public function read($iUserId, $iCount = null, $iFromId = null) {
+    public function Read($iUserId, $iCount = null, $iFromId = null) {
 
         if (!$iCount) {
             $iCount = Config::Get('module.userfeed.count_default');
@@ -100,7 +103,8 @@ class ModuleUserfeed extends Module {
      *
      * @return mixed
      */
-    public function trackread($iUserId, $iPage = 1, $iPerPage = 10, $iOnlyNew = false) {
+    public function Trackread($iUserId, $iPage = 1, $iPerPage = 10, $iOnlyNew = false) {
+
         $aTopicTracks = $this->Subscribe_GetTracks(
             array('user_id' => $iUserId, 'target_type' => 'topic_new_comment', 'status' => 1, 'only_new' => $iOnlyNew),
             array('date_add' => 'desc'), $iPage, $iPerPage
@@ -121,6 +125,7 @@ class ModuleUserfeed extends Module {
      * @return int
      */
     public function GetCountTrackNew($sUserId) {
+
         if (false === ($data = $this->Cache_Get("track_count_new_user_{$sUserId}"))) {
             $data = $this->oMapper->GetCountTrackNew($sUserId);
             $this->Cache_Set(
@@ -139,24 +144,46 @@ class ModuleUserfeed extends Module {
      *
      * @return array
      */
-    public function getUserSubscribes($iUserId) {
-        $aUserSubscribes = $this->oMapper->getUserSubscribes($iUserId);
-        $aResult = array('blogs' => array(), 'users' => array());
+    /**
+     * @param int        $iUserId
+     * @param string|int $xTargetType
+     * @param array      $aTargetsId
+     * @param bool       $bIdOnly
+     *
+     * @return array
+     */
+    public function GetUserSubscribes($iUserId, $xTargetType = null, $aTargetsId = array(), $bIdOnly = false) {
+
+        $aUserSubscribes = $this->oMapper->getUserSubscribes($iUserId, $xTargetType, $aTargetsId);
+
+        if ($bIdOnly) {
+            return $aUserSubscribes;
+        }
+
+        $aResult = array(
+            'blogs' => array(),
+            'blog' => array(),
+            'users' => array(),
+            'user' => array(),
+        );
         if (count($aUserSubscribes['blogs'])) {
-            $aBlogs = $this->Blog_getBlogsByArrayId($aUserSubscribes['blogs']);
+            $aBlogs = $this->Blog_GetBlogsByArrayId($aUserSubscribes['blogs']);
             foreach ($aBlogs as $oBlog) {
                 $aResult['blogs'][$oBlog->getId()] = $oBlog;
+                $aResult['blog'][$oBlog->getId()] = $oBlog;
             }
         }
         if (count($aUserSubscribes['users'])) {
-            $aUsers = $this->User_getUsersByArrayId($aUserSubscribes['users']);
+            $aUsers = $this->User_GetUsersByArrayId($aUserSubscribes['users']);
             foreach ($aUsers as $oUser) {
                 $aResult['users'][$oUser->getId()] = $oUser;
+                $aResult['user'][$oUser->getId()] = $oUser;
             }
         }
 
         return $aResult;
     }
+
 }
 
 // EOF
