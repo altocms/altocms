@@ -579,8 +579,8 @@ class ActionSettings extends Action {
 
         // * Устанавливаем title страницы
         $this->Viewer_AddHtmlTitle($this->Lang_Get('settings_menu_profile'));
-        $this->Viewer_Assign('aUserFields', $this->User_getUserFields(''));
-        $this->Viewer_Assign('aUserFieldsContact', $this->User_getUserFields(array('contact', 'social')));
+        $this->Viewer_Assign('aUserFields', $this->User_GetUserFields(''));
+        $this->Viewer_Assign('aUserFieldsContact', $this->User_GetUserFields(array('contact', 'social')));
 
         // * Загружаем в шаблон JS текстовки
         $this->Lang_AddLangJs(
@@ -684,18 +684,18 @@ class ActionSettings extends Action {
                     $this->User_Update($this->oUserCurrent);
 
                     // * Обрабатываем дополнительные поля, type = ''
-                    $aFields = $this->User_getUserFields('');
+                    $aFields = $this->User_GetUserFields('');
                     $aData = array();
                     foreach ($aFields as $iId => $aField) {
                         if (isset($_REQUEST['profile_user_field_' . $iId])) {
                             $aData[$iId] = F::GetRequestStr('profile_user_field_' . $iId);
                         }
                     }
-                    $this->User_setUserFieldsValues($this->oUserCurrent->getId(), $aData);
+                    $this->User_SetUserFieldsValues($this->oUserCurrent->getId(), $aData);
 
                     // * Динамические поля контактов, type = array('contact','social')
                     $aType = array('contact', 'social');
-                    $aFields = $this->User_getUserFields($aType);
+                    $aFields = $this->User_GetUserFields($aType);
 
                     // * Удаляем все поля с этим типом
                     $this->User_DeleteUserFieldValues($this->oUserCurrent->getId(), $aType);
@@ -709,7 +709,7 @@ class ActionSettings extends Action {
                                     $aFieldsContactValue[$k]
                                 )
                             ) {
-                                $this->User_setUserFieldsValues(
+                                $this->User_SetUserFieldsValues(
                                     $this->oUserCurrent->getId(), array($v => $aFieldsContactValue[$k]),
                                     Config::Get('module.user.userfield_max_identical')
                                 );

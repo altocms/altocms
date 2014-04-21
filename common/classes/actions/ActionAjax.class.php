@@ -553,7 +553,7 @@ class ActionAjax extends Action {
         $oTopicQuestionVote->setVoterId($this->oUserCurrent->getId());
         $oTopicQuestionVote->setAnswer($idAnswer);
 
-        if ($this->Topic_AddTopicQuestionVote($oTopicQuestionVote) && $this->Topic_updateTopic($oTopic)) {
+        if ($this->Topic_AddTopicQuestionVote($oTopicQuestionVote) && $this->Topic_UpdateTopic($oTopic)) {
             $this->Message_AddNoticeSingle($this->Lang_Get('topic_question_vote_ok'), $this->Lang_Get('attention'));
             $oViewer = $this->Viewer_GetLocalViewer();
             $oViewer->Assign('oTopic', $oTopic);

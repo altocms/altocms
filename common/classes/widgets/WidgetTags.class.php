@@ -41,7 +41,7 @@ class WidgetTags extends Widget {
         /**
          * Теги пользователя
          */
-        if ($oUserCurrent = $this->User_getUserCurrent()) {
+        if ($oUserCurrent = $this->User_GetUserCurrent()) {
             $aTags = $this->oEngine->Topic_GetOpenTopicTags(
                 Config::Get('block.tags.personal_tags_count'), $oUserCurrent->getId()
             );

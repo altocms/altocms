@@ -921,7 +921,7 @@ class ActionAdmin extends Action {
         // * Обработка удаления страницы
         if ($this->GetParam(0) == 'delete') {
             $this->Security_ValidateSendForm();
-            if ($this->Page_deletePageById($this->GetParam(1))) {
+            if ($this->Page_DeletePageById($this->GetParam(1))) {
                 $this->Message_AddNotice($this->Lang_Get('action.admin.pages_admin_action_delete_ok'). null, true);
                 Router::Location('admin/content-pages/');
             } else {
@@ -2633,7 +2633,7 @@ class ActionAdmin extends Action {
         );
         $_REQUEST['blogtypes_contenttypes'] = '';
         $aFilter = array('content_active' => 1);
-        $aContentTypes = $this->Topic_getContentTypes($aFilter, false);
+        $aContentTypes = $this->Topic_GetContentTypes($aFilter, false);
         $this->Viewer_Assign('aContentTypes', $aContentTypes);
     }
 
@@ -2709,7 +2709,7 @@ class ActionAdmin extends Action {
             $this->Viewer_Assign('oBlogType', $oBlogType);
             $this->Viewer_Assign('aLangList', $aLangList);
             $aFilter = array('content_active' => 1);
-            $aContentTypes = $this->Topic_getContentTypes($aFilter, false);
+            $aContentTypes = $this->Topic_GetContentTypes($aFilter, false);
             $this->Viewer_Assign('aContentTypes', $aContentTypes);
         }
     }
@@ -2947,7 +2947,7 @@ class ActionAdmin extends Action {
                     $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
                     return;
                 }
-                $this->User_deleteUserField(F::GetRequestStr('id'));
+                $this->User_DeleteUserField(F::GetRequestStr('id'));
                 $this->Message_AddNotice($this->Lang_Get('user_field_deleted'), $this->Lang_Get('attention'));
                 break;
 
@@ -2959,7 +2959,7 @@ class ActionAdmin extends Action {
                     $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
                     return;
                 }
-                if (!$this->User_userFieldExistsById(F::GetRequestStr('id'))) {
+                if (!$this->User_UserFieldExistsById(F::GetRequestStr('id'))) {
                     $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
                     return false;
                 }
@@ -2996,7 +2996,7 @@ class ActionAdmin extends Action {
                 ));
 
                 // * Получаем список всех полей
-                $this->Viewer_Assign('aUserFields', $this->User_getUserFields());
+                $this->Viewer_Assign('aUserFields', $this->User_GetUserFields());
                 $this->Viewer_Assign('aUserFieldTypes', $this->User_GetUserFieldTypes());
                 $this->_setTitle($this->Lang_Get('action.admin.user_fields_title'));
                 $this->SetTemplateAction('settings/userfields');
@@ -3021,7 +3021,7 @@ class ActionAdmin extends Action {
         /**
          * Не допускаем дубликатов по имени
          */
-        if ($this->User_userFieldExistsByName(F::GetRequestStr('name'), F::GetRequestStr('id'))) {
+        if ($this->User_UserFieldExistsByName(F::GetRequestStr('name'), F::GetRequestStr('id'))) {
             $this->Message_AddError($this->Lang_Get('user_field_error_name_exists'), $this->Lang_Get('error'));
             return false;
         }
@@ -3037,7 +3037,7 @@ class ActionAdmin extends Action {
 
         // * Получаем список
         $aFilter = array();
-        $aTypes = $this->Topic_getContentTypes($aFilter, false);
+        $aTypes = $this->Topic_GetContentTypes($aFilter, false);
         $this->Viewer_Assign('aTypes', $aTypes);
 
         // * Выключатель

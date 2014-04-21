@@ -337,7 +337,7 @@ class ModuleText extends Module {
 
         $sText = '';
         if (isset($aParams['user'])) {
-            if ($oUser = $this->User_getUserByLogin($aParams['user'])) {
+            if ($oUser = $this->User_GetUserByLogin($aParams['user'])) {
                 $sText .= "<a href=\"{$oUser->getUserWebPath()}\" class=\"ls-user\">{$oUser->getLogin()}</a> ";
             }
         }

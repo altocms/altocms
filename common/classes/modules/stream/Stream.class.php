@@ -243,8 +243,8 @@ class ModuleStream extends Module {
     public function Read($iCount = null, $iFromId = null, $iUserId = null) {
 
         if (!$iUserId) {
-            if ($this->User_getUserCurrent()) {
-                $iUserId = $this->User_getUserCurrent()->getId();
+            if ($this->User_GetUserCurrent()) {
+                $iUserId = $this->User_GetUserCurrent()->getId();
             } else {
                 return array();
             }

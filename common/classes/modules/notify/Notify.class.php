@@ -508,7 +508,7 @@ class ModuleNotify extends Module {
             $this->Mail_SetAdress($sMail, $sName);
             $this->Mail_SetSubject($sSubject);
             $this->Mail_SetBody($sBody);
-            $this->Mail_setHTML();
+            $this->Mail_SetHTML();
             $this->Mail_Send();
         }
     }
@@ -550,7 +550,7 @@ class ModuleNotify extends Module {
         $this->Mail_SetAdress($oTask->getUserMail(), $oTask->getUserLogin());
         $this->Mail_SetSubject($oTask->getNotifySubject());
         $this->Mail_SetBody($oTask->getNotifyText());
-        $this->Mail_setHTML();
+        $this->Mail_SetHTML();
         $this->Mail_Send();
     }
 

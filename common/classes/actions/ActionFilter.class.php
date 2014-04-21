@@ -81,7 +81,7 @@ class ActionFilter extends Action {
         /*
          * Получаем тип контента
          */
-        if (!$this->oType = $this->Topic_getContentType($this->sCurrentEvent)) {
+        if (!$this->oType = $this->Topic_GetContentType($this->sCurrentEvent)) {
             return parent::EventNotFound();
         }
 

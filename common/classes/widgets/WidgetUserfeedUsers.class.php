@@ -27,12 +27,12 @@ class WidgetUserfeedUsers extends Widget {
         /**
          * Пользователь авторизован?
          */
-        if ($oUserCurrent = $this->User_getUserCurrent()) {
+        if ($oUserCurrent = $this->User_GetUserCurrent()) {
             /**
              * Получаем необходимые переменные и передаем в шаблон
              */
-            $aUserSubscribes = $this->Userfeed_getUserSubscribes($oUserCurrent->getId());
-            $aFriends = $this->User_getUsersFriend($oUserCurrent->getId());
+            $aUserSubscribes = $this->Userfeed_GetUserSubscribes($oUserCurrent->getId());
+            $aFriends = $this->User_GetUsersFriend($oUserCurrent->getId());
             $this->Viewer_Assign('aUserfeedSubscribedUsers', $aUserSubscribes['users']);
             $this->Viewer_Assign('aUserfeedFriends', $aFriends['collection']);
         }

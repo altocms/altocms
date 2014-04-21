@@ -27,8 +27,8 @@ class WidgetUserfeedBlogs extends Widget {
         /**
          * Пользователь авторизован?
          */
-        if ($oUserCurrent = $this->User_getUserCurrent()) {
-            $aUserSubscribes = $this->Userfeed_getUserSubscribes($oUserCurrent->getId());
+        if ($oUserCurrent = $this->User_GetUserCurrent()) {
+            $aUserSubscribes = $this->Userfeed_GetUserSubscribes($oUserCurrent->getId());
             /**
              * Получаем список ID блогов, в которых состоит пользователь
              */

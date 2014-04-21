@@ -1073,7 +1073,7 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function getPhotosetPhotos($iFromId = null, $iCount = null) {
 
-        return $this->Topic_getPhotosByTopicId($this->getId(), $iFromId, $iCount);
+        return $this->Topic_GetPhotosByTopicId($this->getId(), $iFromId, $iCount);
     }
 
     /**

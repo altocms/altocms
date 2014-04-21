@@ -43,7 +43,7 @@ class ActionDownload extends Action {
             return parent::EventNotFound();
         }
 
-        if (!$this->oType = $this->Topic_getContentType($oTopic->getType())) {
+        if (!$this->oType = $this->Topic_GetContentType($oTopic->getType())) {
             return parent::EventNotFound();
         }
 
@@ -92,7 +92,6 @@ class ActionDownload extends Action {
             */
             header('Content-type: ' . $oFile->getFileExtension());
             header('Content-Disposition: attachment; filename="' . $sFilename . '"');
-            //$this->Topic_readfileChunked($sFullPath);
             F::File_PrintChunked($sFullPath);
 
 

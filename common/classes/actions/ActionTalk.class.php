@@ -753,7 +753,7 @@ class ActionTalk extends Action {
             /**
              * Увеличиваем число новых комментов
              */
-            $this->Talk_increaseCountCommentNew($oTalk->getId(), $oCommentNew->getUserId());
+            $this->Talk_IncreaseCountCommentNew($oTalk->getId(), $oCommentNew->getUserId());
         } else {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
         }

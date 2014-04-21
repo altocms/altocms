@@ -249,7 +249,7 @@ class ActionBlog extends Action {
             $this->Stream_Write($oBlog->getOwnerId(), 'add_blog', $oBlog->getId());
 
             // Подписываем владельца блога на свой блог
-            $this->Userfeed_subscribeUser($oBlog->getOwnerId(), ModuleUserfeed::SUBSCRIBE_TYPE_BLOG, $oBlog->getId());
+            $this->Userfeed_SubscribeUser($oBlog->getOwnerId(), ModuleUserfeed::SUBSCRIBE_TYPE_BLOG, $oBlog->getId());
 
             Router::Location($oBlog->getUrlFull());
         } else {
@@ -2028,7 +2028,7 @@ class ActionBlog extends Action {
                     /**
                      * Добавляем подписку на этот блог в ленту пользователя
                      */
-                    $this->Userfeed_subscribeUser(
+                    $this->Userfeed_SubscribeUser(
                         $this->oUserCurrent->getId(), ModuleUserfeed::SUBSCRIBE_TYPE_BLOG, $oBlog->getId()
                     );
                 } else {
@@ -2059,9 +2059,7 @@ class ActionBlog extends Action {
                 /**
                  * Удаляем подписку на этот блог в ленте пользователя
                  */
-                $this->Userfeed_unsubscribeUser(
-                    $this->oUserCurrent->getId(), ModuleUserfeed::SUBSCRIBE_TYPE_BLOG, $oBlog->getId()
-                );
+                $this->Userfeed_UnsubscribeUser($this->oUserCurrent->getId(), ModuleUserfeed::SUBSCRIBE_TYPE_BLOG, $oBlog->getId());
             } else {
                 $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
                 return;

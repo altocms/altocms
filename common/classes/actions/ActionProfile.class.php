@@ -460,7 +460,7 @@ class ActionProfile extends Action {
         /**
          * Получаем список контактов
          */
-        $aUserFields = $this->User_getUserFieldsValues($this->oUserProfile->getId());
+        $aUserFields = $this->User_GetUserFieldsValues($this->oUserProfile->getId());
         /**
          * Вызов хуков
          */
@@ -935,8 +935,8 @@ class ActionProfile extends Action {
                 /**
                  * Добавляем пользователей к друг другу в ленту активности
                  */
-                $this->Stream_subscribeUser($oFriend->getUserFrom(), $oFriend->getUserTo());
-                $this->Stream_subscribeUser($oFriend->getUserTo(), $oFriend->getUserFrom());
+                $this->Stream_SubscribeUser($oFriend->getUserFrom(), $oFriend->getUserTo());
+                $this->Stream_SubscribeUser($oFriend->getUserTo(), $oFriend->getUserFrom());
 
                 $oViewerLocal = $this->GetViewerLocal();
                 $oViewerLocal->Assign('oUserFriend', $oFriend);
@@ -1222,7 +1222,7 @@ class ActionProfile extends Action {
         /**
          * Подписываем запрашивающего дружбу на
          */
-        $this->Stream_subscribeUser($this->oUserCurrent->getId(), $oUser->getId());
+        $this->Stream_SubscribeUser($this->oUserCurrent->getId(), $oUser->getId());
 
         $oViewerLocal = $this->GetViewerLocal();
         $oViewerLocal->Assign('oUserFriend', $oFriendNew);

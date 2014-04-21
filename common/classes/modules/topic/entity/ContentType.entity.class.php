@@ -25,7 +25,7 @@ class ModuleTopic_EntityContentType extends Entity {
         if (is_null($this->aFields)) {
             $aFilter = array();
             $aFilter['content_id'] = $this->getContentId();
-            $this->aFields = $this->Topic_getContentFields($aFilter);
+            $this->aFields = $this->Topic_GetContentFields($aFilter);
         }
         return $this->aFields;
     }

@@ -448,7 +448,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function getUserFieldValues($bOnlyNoEmpty = true, $sType = '') {
 
-        return $this->User_getUserFieldsValues($this->getId(), $bOnlyNoEmpty, $sType);
+        return $this->User_GetUserFieldsValues($this->getId(), $bOnlyNoEmpty, $sType);
     }
 
     /**

@@ -234,7 +234,7 @@ class ActionContent extends Action {
             $this->Viewer_Assign('aEditTopicUrl', $aEditTopicUrl);
         }
         $this->Viewer_Assign('oTopic', $oTopic);
-        $this->Viewer_Assign('aPhotos', $this->Topic_getPhotosByTopicId($oTopic->getId()));
+        $this->Viewer_Assign('aPhotos', $this->Topic_GetPhotosByTopicId($oTopic->getId()));
     }
 
     /**
@@ -318,7 +318,7 @@ class ActionContent extends Action {
         // * Если нет временного ключа для нового топика, то генерируем; если есть, то загружаем фото по этому ключу
         if ($sTargetTmp = $this->Session_GetCookie('ls_photoset_target_tmp')) {
             $this->Session_SetCookie('ls_photoset_target_tmp', $sTargetTmp, 'P1D', false);
-            $this->Viewer_Assign('aPhotos', $this->Topic_getPhotosByTargetTmp($sTargetTmp));
+            $this->Viewer_Assign('aPhotos', $this->Topic_GetPhotosByTargetTmp($sTargetTmp));
         } else {
             $this->Session_SetCookie('ls_photoset_target_tmp', F::RandomStr(), 'P1D', false);
         }
@@ -452,8 +452,8 @@ class ActionContent extends Action {
         // * Если есть прикрепленные фото
         if ($this->oContentType->isAllow('photoset') && ($sTargetTmp = $this->Session_GetCookie('ls_photoset_target_tmp'))) {
             $oTopic->setTargetTmp($sTargetTmp);
-            if ($aPhotos = $this->Topic_getPhotosByTargetTmp($sTargetTmp)) {
-                $oPhotoMain = $this->Topic_getTopicPhotoById(F::GetRequestStr('topic_main_photo'));
+            if ($aPhotos = $this->Topic_GetPhotosByTargetTmp($sTargetTmp)) {
+                $oPhotoMain = $this->Topic_GetTopicPhotoById(F::GetRequestStr('topic_main_photo'));
                 if (!$oPhotoMain || $oPhotoMain->getTargetTmp() != $sTargetTmp) {
                     $oPhotoMain = $aPhotos[0];
                 }
@@ -664,7 +664,7 @@ class ActionContent extends Action {
 
         // * Если есть прикрепленные фото
         if ($this->oContentType->isAllow('photoset') && $aPhotos = $oTopic->getPhotosetPhotos()) {
-            $oPhotoMain = $this->Topic_getTopicPhotoById(F::GetRequestStr('topic_main_photo'));
+            $oPhotoMain = $this->Topic_GetTopicPhotoById(F::GetRequestStr('topic_main_photo'));
             if (!$oPhotoMain || $oPhotoMain->getTopicId() != $oTopic->getId()) {
                 $oPhotoMain = $aPhotos[0];
             }
@@ -780,7 +780,7 @@ class ActionContent extends Action {
         /**
          * Существует ли топик
          */
-        $oTopic = $this->Topic_getTopicById(F::GetRequestStr('topic_id'));
+        $oTopic = $this->Topic_GetTopicById(F::GetRequestStr('topic_id'));
         if (!$oTopic || !F::GetRequest('last_id')) {
             $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
             F::SysWarning('System Error');
@@ -824,14 +824,14 @@ class ActionContent extends Action {
         }
 
         // * Поиск фото по id
-        $oPhoto = $this->Topic_getTopicPhotoById($this->GetPost('id'));
+        $oPhoto = $this->Topic_GetTopicPhotoById($this->GetPost('id'));
         if ($oPhoto) {
             if ($oPhoto->getTopicId()) {
 
                 // * Проверяем права на топик
                 $oTopic = $this->Topic_GetTopicById($oPhoto->getTopicId());
                 if ($oTopic && $this->ACL_IsAllowEditTopic($oTopic, $this->oUserCurrent)) {
-                    $this->Topic_deleteTopicPhoto($oPhoto);
+                    $this->Topic_DeleteTopicPhoto($oPhoto);
 
                     // * Если удаляем главную фотографию. топика, то её необходимо сменить
                     if ($oPhoto->getId() == $oTopic->getPhotosetMainPhotoId() && $oTopic->getPhotosetCount() > 1) {

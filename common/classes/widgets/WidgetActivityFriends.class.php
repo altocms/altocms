@@ -27,12 +27,12 @@ class WidgetActivityFriends extends Widget {
         /**
          * пользователь авторизован?
          */
-        if ($oUserCurrent = $this->User_getUserCurrent()) {
+        if ($oUserCurrent = $this->User_GetUserCurrent()) {
 
             // * Получаем и прогружаем необходимые переменные в шаблон
-            $aTypesList = $this->Stream_getTypesList($oUserCurrent->getId());
-            $aUserSubscribes = $this->Stream_getUserSubscribes($oUserCurrent->getId());
-            $aFriends = $this->User_getUsersFriend($oUserCurrent->getId());
+            $aTypesList = $this->Stream_GetTypesList($oUserCurrent->getId());
+            $aUserSubscribes = $this->Stream_GetUserSubscribes($oUserCurrent->getId());
+            $aFriends = $this->User_GetUsersFriend($oUserCurrent->getId());
 
             $this->Viewer_Assign('aStreamTypesList', $aTypesList);
             $this->Viewer_Assign('aStreamSubscribedUsers', $aUserSubscribes);

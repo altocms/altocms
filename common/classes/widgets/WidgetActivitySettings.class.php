@@ -27,11 +27,11 @@ class WidgetActivitySettings extends Widget {
         /**
          * пользователь авторизован?
          */
-        if ($oUserCurrent = $this->User_getUserCurrent()) {
+        if ($oUserCurrent = $this->User_GetUserCurrent()) {
             /**
              * Получаем и прогружаем необходимые переменные в шаблон
              */
-            $aTypesList = $this->Stream_getTypesList($oUserCurrent->getId());
+            $aTypesList = $this->Stream_GetTypesList($oUserCurrent->getId());
             $this->Viewer_Assign('aStreamTypesList', $aTypesList);
         }
     }

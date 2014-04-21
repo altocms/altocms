@@ -2677,7 +2677,7 @@ class ModuleTopic extends Module {
             $this->Topic_DeleteTopicValuesByTopicId($oTopic->getId());
         }
 
-        if ($oType = $this->Topic_getContentTypeByUrl($oTopic->getType())) {
+        if ($oType = $this->Topic_GetContentTypeByUrl($oTopic->getType())) {
 
             //получаем поля для данного типа
             if ($aFields = $oType->getFields()) {

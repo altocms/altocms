@@ -41,13 +41,13 @@ class ActionStream extends Action {
         /**
          * Личная лента доступна только для авторизованных, для гостей показываем общую ленту
          */
-        $this->oUserCurrent = $this->User_getUserCurrent();
+        $this->oUserCurrent = $this->User_GetUserCurrent();
         if ($this->oUserCurrent) {
             $this->SetDefaultEvent('user');
         } else {
             $this->SetDefaultEvent('all');
         }
-        $this->Viewer_Assign('aStreamEventTypes', $this->Stream_getEventTypes());
+        $this->Viewer_Assign('aStreamEventTypes', $this->Stream_GetEventTypes());
 
         $this->Viewer_Assign('sMenuHeadItemSelect', 'stream');
         /**
@@ -299,7 +299,7 @@ class ActionStream extends Action {
         /**
          * Проверяем существование пользователя
          */
-        if (!$this->User_getUserById(F::GetRequestStr('id'))) {
+        if (!$this->User_GetUserById(F::GetRequestStr('id'))) {
             $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
         }
         if ($this->oUserCurrent->getId() == F::GetRequestStr('id')) {
@@ -309,7 +309,7 @@ class ActionStream extends Action {
         /**
          * Подписываем на пользователя
          */
-        $this->Stream_subscribeUser($this->oUserCurrent->getId(), F::GetRequestStr('id'));
+        $this->Stream_SubscribeUser($this->oUserCurrent->getId(), F::GetRequestStr('id'));
         $this->Message_AddNotice($this->Lang_Get('stream_subscribes_updated'), $this->Lang_Get('attention'));
     }
 
@@ -336,7 +336,7 @@ class ActionStream extends Action {
         /**
          * Проверяем существование пользователя
          */
-        $oUser = $this->User_getUserByLogin($sUserLogin);
+        $oUser = $this->User_GetUserByLogin($sUserLogin);
         if (!$oUser) {
             $this->Message_AddError(
                 $this->Lang_Get('user_not_found', array('login' => htmlspecialchars(F::GetRequestStr('login')))),
@@ -351,7 +351,7 @@ class ActionStream extends Action {
         /**
          * Подписываем на пользователя
          */
-        $this->Stream_subscribeUser($this->oUserCurrent->getId(), $oUser->getId());
+        $this->Stream_SubscribeUser($this->oUserCurrent->getId(), $oUser->getId());
         $this->Viewer_AssignAjax('uid', $oUser->getId());
         $this->Viewer_AssignAjax('user_login', $oUser->getLogin());
         $this->Viewer_AssignAjax('user_web_path', $oUser->getUserWebPath());
@@ -377,7 +377,7 @@ class ActionStream extends Action {
         /**
          * Пользователь с таким ID существует?
          */
-        if (!$this->User_getUserById(F::GetRequestStr('id'))) {
+        if (!$this->User_GetUserById(F::GetRequestStr('id'))) {
             $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
         }
         /**

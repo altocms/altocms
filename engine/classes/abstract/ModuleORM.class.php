@@ -739,8 +739,8 @@ abstract class ModuleORM extends Module {
      * </pre>
      * И методы модуля ORM, например
      * <pre>
-     *    $this->User_getUserItemsByName('Claus');
-     *    $this->User_getUserItemsAll();
+     *    $this->User_GetUserItemsByName('Claus');
+     *    $this->User_GetUserItemsAll();
      * </pre>
      *
      * @see Engine::_CallModule

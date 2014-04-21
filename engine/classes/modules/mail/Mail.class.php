@@ -21,7 +21,7 @@ F::IncludeLib('phpMailer/class.phpmailer.php');
  * $this->Mail_SetAdress('claus@mail.ru','Claus');
  * $this->Mail_SetSubject('Hi!');
  * $this->Mail_SetBody('How are you?');
- * $this->Mail_setHTML();
+ * $this->Mail_SetHTML();
  * $this->Mail_Send();
  * </pre>
  *

@@ -38,7 +38,7 @@ class ActionUserfeed extends Action {
     public function Init() {
 
         // * Доступ только у авторизованных пользователей
-        $this->oUserCurrent = $this->User_getUserCurrent();
+        $this->oUserCurrent = $this->User_GetUserCurrent();
         if (!$this->oUserCurrent) {
             parent::EventNotFound();
         }
@@ -253,7 +253,7 @@ class ActionUserfeed extends Action {
         }
 
         // * Проверяем существование прользователя
-        $oUser = $this->User_getUserByLogin($sUserLogin);
+        $oUser = $this->User_GetUserByLogin($sUserLogin);
         if (!$oUser) {
             $this->Message_AddError(
                 $this->Lang_Get('user_not_found', array('login' => htmlspecialchars(F::GetRequestStr('login')))),

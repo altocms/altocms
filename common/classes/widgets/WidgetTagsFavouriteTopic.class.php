@@ -27,7 +27,7 @@ class WidgetTagsFavouriteTopic extends Widget {
         /**
          * Пользователь авторизован?
          */
-        if ($oUserCurrent = $this->User_getUserCurrent()) {
+        if ($oUserCurrent = $this->User_GetUserCurrent()) {
             if (!($oUser = $this->getParam('user'))) {
                 $oUser = $oUserCurrent;
             }
