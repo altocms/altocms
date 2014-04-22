@@ -325,6 +325,55 @@ class ModuleAdmin extends Module {
         return true;
     }
 
+    /**
+     * @param   int|object $oUserId
+     *
+     * @return  bool
+     */
+    public function DelUser($oUserId) {
+
+        if (is_object($oUserId)) {
+            $nUserId = $oUserId->getId();
+        } else {
+            $nUserId = intval($oUserId);
+        }
+
+        // Удаляем блоги
+        $aBlogsId = $this->Blog_GetBlogsByOwnerId($nUserId, true);
+        if ($aBlogsId) {
+            foreach ($aBlogsId as $nBlogId) {
+                $this->DelBlog($nBlogId, false);
+            }
+        }
+        $oBlog = $this->Blog_GetPersonalBlogByUserId($nUserId);
+        if ($oBlog) {
+            $this->DelBlog($oBlog->GetId(), false);
+        }
+
+        // Удаляем переписку
+        $iPerPage = 10000;
+        do {
+            $aTalks = $this->Talk_GetTalksByFilter(array('user_id' => $nUserId), 1, $iPerPage);
+            if ($aTalks['count']) {
+                $aTalksId = array();
+                foreach ($aTalks['collection'] as $oTalk) {
+                    $aTalksId[] = $oTalk->getId();
+                }
+                if ($aTalksId) {
+                    $this->Talk_DeleteTalkUserByArray($aTalksId, $nUserId);
+                }
+            }
+        } while ($aTalks['count'] > $iPerPage);
+
+        $bOk = $this->oMapper->DelUser($nUserId);
+
+        // Слишком много взаимосвязей, поэтому просто сбрасываем кеш
+        $this->Cache_Clean();
+
+        return $bOk;
+    }
+
+
 }
 
 // EOF

@@ -1396,7 +1396,10 @@ class ActionAdmin extends Action {
                 $this->_eventUsersCmdUnsetAdministrator();
             } elseif ($sCmd == 'adm_del_user') {
                 if ($this->_eventUsersCmdDelete()) {
-                    Router::Location('admin/users-list/');
+                    $nPage = $this->_getPageNum();
+                    Router::Location('admin/users-list/' . ($nPage ? 'page' . $nPage : ''));
+                } else {
+                    Router::ReturnBack();
                 }
             } elseif ($sCmd == 'adm_user_message') {
                 $this->_eventUsersCmdMessage();
@@ -1673,6 +1676,44 @@ class ActionAdmin extends Action {
             }
         }
         $this->Session_Set('adm_userlist_filter', serialize($aFilter));
+    }
+
+    /**
+     * Deletes user
+     *
+     * @return bool
+     */
+    protected function _eventUsersCmdDelete() {
+
+        $this->Security_ValidateSendForm();
+
+        $aUsersLogin = F::Str2Array(F::GetRequest('adm_user_list'), ',', true);
+        $bResult = true;
+        foreach ($aUsersLogin as $iUserId) {
+            if ($iUserId == $this->oUserCurrent->GetId()) {
+                $this->Message_AddError($this->Lang_Get('action.admin.cannot_del_self'), null, true);
+                $bResult = false;
+                break;
+            } elseif (($oUser = $this->User_GetUserById($iUserId))) {
+                if ($oUser->IsAdministrator()) {
+                    $this->Message_AddError($this->Lang_Get('action.admin.cannot_del_admin'), null, true);
+                    $bResult = false;
+                    break;
+                } elseif (!F::GetRequest('adm_user_del_confirm') && !F::GetRequest('adm_bulk_confirm')) {
+                    $this->Message_AddError($this->Lang_Get('action.admin.cannot_del_confirm'), null, true);
+                    $bResult = false;
+                    break;
+                } else {
+                    $this->Admin_DelUser($oUser->GetId());
+                    $this->Message_AddNotice($this->Lang_Get('action.admin.user_deleted', Array('user' => $oUser->getLogin())), null, true);
+                }
+            } else {
+                $this->Message_AddError($this->Lang_Get('action.admin.user_not_found'), null, true);
+                $bResult = false;
+                break;
+            }
+        }
+        return $bResult;
     }
 
     protected function _eventUsersCmdMessage() {

@@ -474,6 +474,77 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         return $this->oDb->select($sql, $aUrls);
     }
 
+    /**
+     * @param $nUserId
+     *
+     * @return bool
+     */
+    public function DelUser($nUserId) {
+        $bOk = true;
+        // Удаление комментов
+
+        // находим комменты удаляемого юзера и для каждого:
+        // нижележащее дерево комментов подтягиваем к родителю удаляемого
+        $sql
+            = "SELECT comment_id AS ARRAY_KEY, comment_pid, target_type, target_id
+                FROM ?_comment
+                WHERE user_id=?d";
+
+        $aTargets = array();
+        while ($aComments = $this->oDb->select($sql, $nUserId)) {
+            if (is_array($aComments) AND sizeof($aComments)) {
+                foreach ($aComments AS $sId => $aCommentData) {
+                    $this->oDb->transaction();
+                    $sql = "UPDATE ?_comment SET comment_pid=?d WHERE comment_pid=?d";
+                    @$this->oDb->query($sql, $aCommentData['comment_pid'], $sId);
+                    $sql = "DELETE FROM ?_comment WHERE comment_id=?d";
+                    @$this->oDb->query($sql, $sId);
+                    if (!isset($aTargets[$aCommentData['target_type'] . '_' . $aCommentData['target_id']])) {
+                        $aTargets[$aCommentData['target_type'] . '_' . $aCommentData['target_id']] = array(
+                            'target_type' => $aCommentData['target_type'],
+                            'target_id'   => $aCommentData['target_id'],
+                        );
+                    }
+                    $this->oDb->commit();
+                }
+            } else {
+                break;
+            }
+        }
+        // Обновление числа комментариев
+        foreach ($aTargets as $aTarget) {
+            $this->Topic_RecalcCountOfComments($aTarget['target_id']);
+        }
+
+        // удаление остального "хозяйства"
+        //$this->oDb->transaction();
+        $sql = "DELETE FROM ?_topic WHERE user_id=?d";
+        @$this->oDb->query($sql, $nUserId);
+
+        $sql = "DELETE FROM ?_blog WHERE user_owner_id=?d";
+        @$this->oDb->query($sql, $nUserId);
+
+        $sql = "DELETE FROM ?_vote WHERE user_voter_id=?d";
+        @$this->oDb->query($sql, $nUserId);
+
+        $sql = "DELETE FROM ?_blog_user WHERE user_id=?d";
+        @$this->oDb->query($sql, $nUserId);
+
+        $sql = "DELETE FROM ?_adminban WHERE user_id=?d";
+        @$this->oDb->query($sql, $nUserId);
+
+        $sql = "DELETE FROM ?_talk_user WHERE user_id=?d";
+        @$this->oDb->query($sql, $nUserId);
+
+        $sql = "DELETE FROM ?_user WHERE user_id=?d";
+        @$this->oDb->query($sql, $nUserId);
+
+        //$this->oDb->commit();
+
+        $bOk = $this->oDb->selectCell("SELECT user_id FROM ?_user WHERE user_id=?d", $nUserId);
+        return !$bOk;
+    }
+
 }
 
 // EOF

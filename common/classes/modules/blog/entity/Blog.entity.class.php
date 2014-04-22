@@ -235,7 +235,7 @@ class ModuleBlog_EntityBlog extends Entity {
                 return $sUrl;
             }
         } else {
-            $sPath = $this->Uploader_GetUserAvatarDir(0) . 'avatar_blog_' . Config::Get('view.skin') . '.png';
+            $sPath = $this->Uploader_GetUserAvatarDir(0) . 'avatar_blog_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '.png';
             if ($nSize) {
                 $sPath .= '-' . $nSize . 'x' . $nSize . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
             }

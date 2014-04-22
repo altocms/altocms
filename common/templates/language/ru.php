@@ -56,11 +56,11 @@ return array(
     'blogtypes_type_personal_title'             => 'Блог им. %%login%%',
     'blogtypes_type_personal_description'       => 'Это ваш персональный блог.',
     'blogtypes_type_open_name'                  => 'Открытый',
-    'blogtypes_type_open_description'           => 'Открытый — к этому блогу может присоединиться любой желающий, статьи видны всем',
+    'blogtypes_type_open_description'           => 'Открытый — на этот блог может подписаться любой желающий, статьи видны всем',
     'blogtypes_type_close_name'                 => 'Закрытый',
-    'blogtypes_type_close_description'          => 'Закрытый — присоединиться можно только по приглашению администрации блога, статьи видят только подписчики',
+    'blogtypes_type_close_description'          => 'Закрытый — подписаться можно только по приглашению администрации блога, статьи видят только подписчики',
     'blogtypes_type_hidden_name'                => 'Тайный',
-    'blogtypes_type_hidden_description'         => 'Тайный — присоединиться можно только по приглашению администрации блога, статьи и любую информацию о блоге видят только подписчики',
+    'blogtypes_type_hidden_description'         => 'Тайный — подписаться можно только по приглашению администрации блога, статьи и любую информацию о блоге видят только подписчики',
 
     /**
      * Declensions
@@ -98,13 +98,13 @@ return array(
     /**
      * Вступление и выход из блога
      */
-    'blog_join'                                 => 'вступить в блог',
-    'blog_join_ok'                              => 'Вы вступили в блог',
-    'blog_join_error_invite'                    => 'Присоединиться к этому блогу можно только по приглашению!',
-    'blog_join_error_self'                      => 'Зачем вы хотите вступить в этот блог? Вы и так его хозяин!',
-    'blog_leave'                                => 'покинуть блог',
-    'blog_leave_ok'                             => 'Вы покинули блог',
-    'blog_join_leave'                           => 'Вступить/Покинуть',
+    'blog_join'                                 => 'подписаться на блог',
+    'blog_join_ok'                              => 'Вы подписались на блог',
+    'blog_join_error_invite'                    => 'Подписаться на этот блог можно только по приглашению!',
+    'blog_join_error_self'                      => 'Зачем вы хотите подписаться на этот блог? Вы и так его хозяин!',
+    'blog_leave'                                => 'отписаться от блога',
+    'blog_leave_ok'                             => 'Вы отписались от блога',
+    'blog_join_leave'                           => 'Подписаться/Отписаться',
     /**
      * Меню блогов
      */
@@ -155,8 +155,8 @@ return array(
     'blog_create_type'                          => 'Тип блога',
     'blog_create_type_open'                     => 'Открытый',
     'blog_create_type_close'                    => 'Закрытый',
-    'blog_create_type_open_notice'              => 'Открытый — к этому блогу может присоединиться любой желающий, статьи видны всем',
-    'blog_create_type_close_notice'             => 'Закрытый — присоединиться можно только по приглашению администрации блога, статьи видят только подписчики',
+    'blog_create_type_open_notice'              => 'Открытый — на этот блог может подписаться любой желающий, статьи видны всем',
+    'blog_create_type_close_notice'             => 'Закрытый — подписаться можно только по приглашению администрации блога, статьи видят только подписчики',
     'blog_create_type_error'                    => 'Неизвестный тип блога',
     'blog_create_rating'                        => 'Ограничение по рейтингу',
     'blog_create_rating_notice'                 => 'Рейтинг, который необходим пользователю, чтобы написать в этот блог',
@@ -200,11 +200,11 @@ return array(
     'blog_user_invite_add_ok'                   => 'Пользователю %%login%% отправлено приглашение',
     'blog_user_invite_remove_ok'                => 'Приглашение для пользователя %%login%% удалено',
     'blog_user_already_invited'                 => 'Пользователю %%login%% уже отправлен инвайт',
-    'blog_user_already_exists'                  => 'Пользователь %%login%% уже состоит в блоге',
+    'blog_user_already_exists'                  => 'Пользователь %%login%% уже подписан на блог',
     'blog_user_already_reject'                  => 'Пользователь %%login%% отклонил инвайт',
     'blog_user_invite_title'                    => 'Приглашение стать читателем блога "%%blog_title%%"',
-    'blog_user_invite_text'                     => 'Пользователь %%login%% приглашает вас стать читателем закрытого блога "%%blog_title%%".<br/><br/><a href="%%accept_path%%">Принять</a> - <a href="%%reject_path%%">Отклонить</a>',
-    'blog_user_invite_already_done'             => 'Вы уже являетесь пользователем этого блога',
+    'blog_user_invite_text'                     => 'Пользователь %%login%% приглашает вас подписаться на закрытый блог "%%blog_title%%".<br/><br/><a href="%%accept_path%%">Принять</a> - <a href="%%reject_path%%">Отклонить</a>',
+    'blog_user_invite_already_done'             => 'Вы уже подписаны на этот блог',
     'blog_user_invite_accept'                   => 'Приглашение принято',
     'blog_user_invite_reject'                   => 'Приглашение отклонено',
     'blog_user_invite_readd'                    => 'повторить',
@@ -1070,7 +1070,7 @@ return array(
     'notify_subject_talk_new'                   => 'У вас новое письмо',
     'notify_subject_talk_comment_new'           => 'У вас новый комментарий к письму',
     'notify_subject_user_friend_new'            => 'Вас добавили в друзья',
-    'notify_subject_blog_invite_new'            => 'Вас пригласили вступить в блог',
+    'notify_subject_blog_invite_new'            => 'Вас пригласили подписаться на блог',
     'notify_subject_reminder_code'              => 'Восстановление пароля',
     'notify_subject_reminder_password'          => 'Новый пароль',
     'notify_subject_wall_reply'                 => 'Ответ на ваше сообщение на стене',

@@ -519,7 +519,7 @@ class ModuleUser_EntityUser extends Entity {
             return $sUrl;
         } else {
             $sPath = $this->Uploader_GetUserAvatarDir(0)
-                . 'avatar_' . Config::Get('view.skin') . '_' . ($this->getProfileSex() == 'woman' ? 'female' : 'male')
+                . 'avatar_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '_' . ($this->getProfileSex() == 'woman' ? 'female' : 'male')
                 . '.png';
             $sPath .= '-' . $nW . 'x' . $nH . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
             if (Config::Get('module.image.autoresize') && !F::File_Exists($sPath)) {
@@ -581,7 +581,7 @@ class ModuleUser_EntityUser extends Entity {
     public function GetDefaultPhotoUrl($xSize = null) {
 
         $sPath = $this->Uploader_GetUserAvatarDir(0)
-            . 'user_photo_' . Config::Get('view.skin') . '_' . ($this->getProfileSex() == 'woman' ? 'female' : 'male')
+            . 'user_photo_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '_' . ($this->getProfileSex() == 'woman' ? 'female' : 'male')
             . '.png';
         if ($xSize) {
             if (strpos($xSize, 'x')) {

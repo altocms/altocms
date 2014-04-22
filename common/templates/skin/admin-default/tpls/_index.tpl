@@ -6,7 +6,7 @@
         <div class="span12">
             {if $aMsgError}
                 {foreach from=$aMsgError item=aMsg}
-                    <div class="b-sysmessage_alert alert alert-error">
+                    <div class="b-sysmessage_alert alert alert-danger">
                         <button type="button" class="close" data-dismiss="alert">×</button>
                         {if $aMsg.title!=''}
                             <h4 class="alert-heading">{$aMsg.title}:</h4>

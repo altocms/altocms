@@ -73,11 +73,8 @@
 
                 <div class="accordion-body collapse" id="admin_user_ban">
                     <form method="post" action="{$sFormAction}" class="well well-small">
-                        <br/>
                         <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
-
-                        <input type="hidden" name="adm_user_list"
-                               value="{if $oUserProfile}{$oUserProfile->getId()}{/if}"/>
+                        <input type="hidden" name="adm_user_list" value="{if $oUserProfile}{$oUserProfile->getId()}{/if}"/>
 
                         <label class="radio">
                             <input type="radio" name="ban_period" value="days" />
@@ -104,6 +101,35 @@
                     </form>
                 </div>
             </div>
+                <div class="accordion-group no-border">
+                    <div class="accordion-heading">
+                        <button class="btn-block btn btn-danger left" data-target="#admin_user_del" data-toggle="collapse"
+                                data-parent="#user-comands-switch">
+                            <i class="icon icon-trash"></i>
+                            {$aLang.action.admin.user_delete}
+                        </button>
+                    </div>
+
+                    <div class="accordion-body collapse" id="admin_user_del">
+                        <form method="post" action="{$sFormAction}" class="well well-small">
+                            <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
+                            <input type="hidden" name="adm_user_list" value="{$oUserProfile->getId()}"/>
+
+                            <div class="alert alert-danger">{$aLang.action.admin.users_del_warning}</div>
+
+                            <label class="checkbox">
+                                <input type="checkbox" name="adm_user_del_confirm" value="{$oUserProfile->getId()}" />
+                                {$aLang.action.admin.users_del_confirm}
+                            </label>
+
+                            <input type="hidden" name="return_url" value="{$sPageRef}"/>
+                            <input type="hidden" name="adm_user_cmd" value="adm_del_user"/>
+                            <div class="form-actions">
+                                <button type="submit" name="adm_action_submit" class="btn btn-danger">{$aLang.action.admin.user_delete}</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             {/if}
         {/if}
 
