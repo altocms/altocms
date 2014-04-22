@@ -440,7 +440,7 @@ class ModuleViewer extends Module {
             unset($this->aVarsTemplate[$sName]);
         }
 
-        // * Загружаем весь $_REQUEST, предварительно обработав его функцией func_htmlspecialchars()
+        // * Загружаем весь $_REQUEST, предварительно обработав его функцией F::HtmlSpecialChars()
         $aRequest = $_REQUEST;
         F::HtmlSpecialChars($aRequest);
         $this->_assignTpl('_aRequest', $aRequest);

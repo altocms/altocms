@@ -422,7 +422,7 @@ class ActionContent extends Action {
         }
 
         // * Проверяем разрешено ли постить топик по времени
-        if (isPost('submit_topic_publish') && !$this->ACL_CanPostTopicTime($this->oUserCurrent)) {
+        if (F::isPost('submit_topic_publish') && !$this->ACL_CanPostTopicTime($this->oUserCurrent)) {
             $this->Message_AddErrorSingle($this->Lang_Get('topic_time_limit'), $this->Lang_Get('error'));
             return false;
         }

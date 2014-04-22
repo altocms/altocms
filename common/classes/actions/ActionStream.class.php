@@ -328,7 +328,7 @@ class ActionStream extends Action {
         if (!$this->oUserCurrent) {
             parent::EventNotFound();
         }
-        $sUserLogin = getRequestPostStr('login');
+        $sUserLogin = $this->GetPost('login');
         if (!$sUserLogin) {
             $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
             return;

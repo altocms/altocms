@@ -157,11 +157,11 @@ class ActionRegistration extends Action {
         /**
          * Заполняем поля (данные)
          */
-        $oUser->setLogin(getRequestPostStr('login'));
-        $oUser->setMail(getRequestPostStr('mail'));
-        $oUser->setPassword(getRequestPostStr('password'));
-        $oUser->setPasswordConfirm(getRequestPostStr('password_confirm'));
-        $oUser->setCaptcha(getRequestPostStr('captcha'));
+        $oUser->setLogin($this->GetPost('login'));
+        $oUser->setMail($this->GetPost('mail'));
+        $oUser->setPassword($this->GetPost('password'));
+        $oUser->setPasswordConfirm($this->GetPost('password_confirm'));
+        $oUser->setCaptcha($this->GetPost('captcha'));
         $oUser->setDateRegister(F::Now());
         $oUser->setIpRegister(F::GetUserIp());
         /**
@@ -317,7 +317,7 @@ class ActionRegistration extends Action {
         /**
          * Обработка отправки формы с кодом приглашения
          */
-        if (isPost('submit_invite')) {
+        if (F::isPost('submit_invite')) {
             /**
              * проверяем код приглашения на валидность
              */

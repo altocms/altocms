@@ -377,7 +377,7 @@ class ActionTalk extends Action {
         /**
          * Проверяем отправлена ли форма с данными
          */
-        if (!isPost('submit_talk_add')) {
+        if (!F::isPost('submit_talk_add')) {
             return false;
         }
         /**

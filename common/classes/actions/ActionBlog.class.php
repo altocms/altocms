@@ -315,7 +315,7 @@ class ActionBlog extends Action {
         $this->SetTemplateAction('add');
 
         // Если нажали кнопку "Сохранить"
-        if (isPost('submit_blog_add')) {
+        if (F::isPost('submit_blog_add')) {
 
             // Запускаем проверку корректности ввода полей при редактировании блога
             if (!$this->checkBlogFields($oBlog)) {
@@ -419,7 +419,7 @@ class ActionBlog extends Action {
         /**
          * Обрабатываем сохранение формы
          */
-        if (isPost('submit_blog_admin')) {
+        if (F::isPost('submit_blog_admin')) {
             $this->Security_ValidateSendForm();
 
             $aUserRank = F::GetRequest('user_rank', array());
@@ -531,7 +531,7 @@ class ActionBlog extends Action {
         /**
          * Проверяем только если была отправлена форма с данными (методом POST)
          */
-        if (!isPost('submit_blog_add')) {
+        if (!F::isPost('submit_blog_add')) {
             $_REQUEST['blog_limit_rating_topic'] = 0;
             return false;
         }

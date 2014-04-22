@@ -35,7 +35,6 @@ function smarty_function_json($params, &$smarty) {
                 ? $params['methods']
                 : explode(',', $params['methods']);
         }
-        //$var = func_convert_entity_to_array($params['var'], $aMethods);
         $var = $oEntity->ToArray($aMethods);
     } else {
         $var = $params['var'];

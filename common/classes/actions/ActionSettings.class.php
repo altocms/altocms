@@ -381,7 +381,7 @@ class ActionSettings extends Action {
         /**
          * Если отправили форму с настройками - сохраняем
          */
-        if (isPost('submit_settings_tuning')) {
+        if (F::isPost('submit_settings_tuning')) {
             $this->Security_ValidateSendForm();
 
             if (in_array(F::GetRequestStr('settings_general_timezone'), $aTimezoneList)) {

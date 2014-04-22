@@ -969,7 +969,7 @@ class ActionAdmin extends Action {
         $this->Viewer_Assign('sMode', $sMode);
 
         // * Обработка создания новой страницы
-        if (isPost('submit_page_save')) {
+        if (F::isPost('submit_page_save')) {
             if (!F::GetRequest('page_id')) {
                 $this->SubmitAddPage();
             }
@@ -977,7 +977,7 @@ class ActionAdmin extends Action {
         // * Обработка показа страницы для редактирования
         if ($this->GetParam(0) == 'edit') {
             if ($oPageEdit = $this->Page_GetPageById($this->GetParam(1))) {
-                if (!isPost('submit_page_save')) {
+                if (!F::isPost('submit_page_save')) {
                     $_REQUEST['page_title'] = $oPageEdit->getTitle();
                     $_REQUEST['page_pid'] = $oPageEdit->getPid();
                     $_REQUEST['page_url'] = $oPageEdit->getUrl();
@@ -2323,7 +2323,7 @@ class ActionAdmin extends Action {
 
         $this->_setTitle($this->Lang_Get('action.admin.comments_tree_title'));
         $this->SetTemplateAction('tools/comments_tree');
-        if (isPost('comments_tree_submit')) {
+        if (F::isPost('comments_tree_submit')) {
             $this->Security_ValidateSendForm();
             set_time_limit(0);
             $this->Comment_RestoreTree();
@@ -2352,7 +2352,7 @@ class ActionAdmin extends Action {
 
         $this->_setTitle($this->Lang_Get('action.admin.recalcfavourites_title'));
         $this->SetTemplateAction('tools/recalcfavourites');
-        if (isPost('recalcfavourites_submit')) {
+        if (F::isPost('recalcfavourites_submit')) {
             $this->Security_ValidateSendForm();
             set_time_limit(0);
             $this->Comment_RecalculateFavourite();
@@ -2376,7 +2376,7 @@ class ActionAdmin extends Action {
 
         $this->_setTitle($this->Lang_Get('action.admin.recalcvotes_title'));
         $this->SetTemplateAction('tools/recalcvotes');
-        if (isPost('recalcvotes_submit')) {
+        if (F::isPost('recalcvotes_submit')) {
             $this->Security_ValidateSendForm();
             set_time_limit(0);
             $this->Topic_RecalculateVote();
@@ -2398,7 +2398,7 @@ class ActionAdmin extends Action {
 
         $this->_setTitle($this->Lang_Get('action.admin.recalctopics_title'));
         $this->SetTemplateAction('tools/recalctopics');
-        if (isPost('recalctopics_submit')) {
+        if (F::isPost('recalctopics_submit')) {
             $this->Security_ValidateSendForm();
             set_time_limit(0);
             $this->Blog_RecalculateCountTopic();
@@ -2418,7 +2418,7 @@ class ActionAdmin extends Action {
 
         $this->_setTitle($this->Lang_Get('action.admin.recalcblograting_title'));
         $this->SetTemplateAction('tools/recalcblograting');
-        if (isPost('recalcblograting_submit')) {
+        if (F::isPost('recalcblograting_submit')) {
             $this->Security_ValidateSendForm();
             set_time_limit(0);
             $this->Rating_RecalculateBlogRating();
@@ -3084,7 +3084,7 @@ class ActionAdmin extends Action {
     protected function SubmitContentTypesAdd() {
 
         // * Проверяем отправлена ли форма с данными
-        if (!isPost('submit_type_add')) {
+        if (!F::isPost('submit_type_add')) {
             return false;
         }
 
@@ -3158,7 +3158,7 @@ class ActionAdmin extends Action {
     protected function SubmitContentTypesEdit($oContentType) {
 
         // * Проверяем отправлена ли форма с данными
-        if (!isPost('submit_type_add')) {
+        if (!F::isPost('submit_type_add')) {
             return false;
         }
 
@@ -3293,7 +3293,7 @@ class ActionAdmin extends Action {
     protected function SubmitAddField($oContentType) {
 
         // * Проверяем отправлена ли форма с данными
-        if (!isPost('submit_field')) {
+        if (!F::isPost('submit_field')) {
             return false;
         }
 
@@ -3358,7 +3358,7 @@ class ActionAdmin extends Action {
     protected function SubmitEditField($oContentType, $oField) {
 
         // * Проверяем отправлена ли форма с данными
-        if (!isPost('submit_field')) {
+        if (!F::isPost('submit_field')) {
             return false;
         }
 
