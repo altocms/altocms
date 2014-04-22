@@ -1984,23 +1984,20 @@ class ActionBlog extends Action {
             return;
         }
 
+        // Type of the blog
         $oBlogType = $oBlog->getBlogType();
-        // * Проверяем тип блога на возможность свободного вступления
-        if ($oBlogType && !$oBlogType->GetMembership(ModuleBlog::BLOG_USER_JOIN_FREE)) {
-            $this->Message_AddErrorSingle($this->Lang_Get('blog_join_error_invite'), $this->Lang_Get('error'));
-            return;
-        }
-        /**
-         * Получаем текущий статус пользователя в блоге
-         */
+
+        // Current status of user in the blog
         $oBlogUser = $this->Blog_GetBlogUserByBlogIdAndUserId($oBlog->getId(), $this->oUserCurrent->getId());
-        if (!$oBlogUser
-            || ($oBlogUser->getUserRole() < ModuleBlog::BLOG_USER_ROLE_GUEST && (!$oBlogType || $oBlogType->IsPrivate()))
-        ) {
+
+        if (!$oBlogUser || ($oBlogUser->getUserRole() < ModuleBlog::BLOG_USER_ROLE_GUEST && (!$oBlogType || $oBlogType->IsPrivate()))) {
+            // * Проверяем тип блога на возможность свободного вступления
+            if ($oBlogType && !$oBlogType->GetMembership(ModuleBlog::BLOG_USER_JOIN_FREE)) {
+                $this->Message_AddErrorSingle($this->Lang_Get('blog_join_error_invite'), $this->Lang_Get('error'));
+                return;
+            }
             if ($oBlog->getOwnerId() != $this->oUserCurrent->getId()) {
-                /**
-                 * Присоединяем юзера к блогу
-                 */
+                // Subscribe user to the blog
                 $bResult = false;
                 if ($oBlogUser) {
                     $oBlogUser->setUserRole(ModuleBlog::BLOG_USER_ROLE_USER);
@@ -2044,9 +2041,7 @@ class ActionBlog extends Action {
             }
         }
         if ($oBlogUser && ($oBlogUser->getUserRole() > ModuleBlog::BLOG_USER_ROLE_GUEST)) {
-            /**
-             * Покидаем блог
-             */
+            // Unsubscribe user from the blog
             if ($this->Blog_DeleteRelationBlogUser($oBlogUser)) {
                 $this->Message_AddNoticeSingle($this->Lang_Get('blog_leave_ok'), $this->Lang_Get('attention'));
                 $this->Viewer_AssignAjax('bState', false);
