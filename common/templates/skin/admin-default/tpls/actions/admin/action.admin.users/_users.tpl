@@ -254,7 +254,7 @@
 
                     <div class="control-group">
                         <label for="talk_inbox_list">{$aLang.action.admin.talk_menu_inbox_list}</label>
-                        <select name="talk_inbox_list" id="talk_inbox_list" onchange="AdminMessageSelect();">
+                        <select name="talk_inbox_list" id="talk_inbox_list" onchange="AdminMessageSelect();" class="wide">
                             <option value="0">-- {$aLang.talk_menu_inbox_create} --</option>
                             {if $aTalks}
                                 {foreach from=$aTalks item=oTalk}

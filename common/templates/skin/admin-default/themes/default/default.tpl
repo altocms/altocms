@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 {block name="layout_vars"}{/block}
 <!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="ru"> <![endif]-->
 <!--[if IE 7]>    <html class="no-js ie7 oldie" lang="ru"> <![endif]-->
@@ -46,7 +46,6 @@
         var DIR_STATIC_SKIN = '{Config::Get("path.static.skin")}';
         var DIR_ROOT_ENGINE_LIB = '{Config::Get("path.root.engine_lib")}';
         var ALTO_SECURITY_KEY = '{$ALTO_SECURITY_KEY}';
-        var LIVESTREET_SECURITY_KEY = '{$ALTO_SECURITY_KEY}';
         var SESSION_ID = '{$_sPhpSessionId}';
         var WYSIWYG = {if Config::Get("view.wysiwyg")}true{else}false{/if};
 
@@ -67,19 +66,19 @@
 	<style>
 	@font-face {
 		font-family:'Icons Halflings';
-		src:url('{Config::Get('path.static.skin')}assets/css/fonts/icons-halflings-regular.eot');
-		src:url('{Config::Get('path.static.skin')}assets/css/fonts/icons-halflings-regular.eot?#iefix') format('embedded-opentype'),
-		url('{Config::Get('path.static.skin')}assets/css/fonts/icons-halflings-regular.woff') format('woff'),
-		url('{Config::Get('path.static.skin')}assets/css/fonts/icons-halflings-regular.ttf') format('truetype'),
-		url('{Config::Get('path.static.skin')}assets/css/fonts/icons-halflings-regular.svg#icons-halflingsregular') format('svg');
+		src:url('{asset file="assets/css/fonts/icons-halflings-regular.eot"}');
+		src:url('{asset file="assets/css/fonts/icons-halflings-regular.eot?#iefix"}') format('embedded-opentype'),
+		url('{asset file="assets/css/fonts/icons-halflings-regular.woff"}') format('woff'),
+		url('{asset file="assets/css/fonts/icons-halflings-regular.ttf"}') format('truetype'),
+		url('{asset file="assets/css/fonts/icons-halflings-regular.svg#icons-halflingsregular"}') format('svg');
 	}
 	@font-face {
 	font-family: 'Simple-Line-Icons';
-	src:url('{Config::Get('path.static.skin')}assets/css/simpleline/fonts/Simple-Line-Icons.eot');
-	src:url('{Config::Get('path.static.skin')}assets/css/simpleline/fonts/Simple-Line-Icons.eot?#iefix') format('embedded-opentype'),
-		url('{Config::Get('path.static.skin')}assets/css/simpleline/fonts/Simple-Line-Icons.woff') format('woff'),
-		url('{Config::Get('path.static.skin')}assets/css/simpleline/fonts/Simple-Line-Icons.ttf') format('truetype'),
-		url('{Config::Get('path.static.skin')}assets/css/simpleline/fonts/Simple-Line-Icons.svg#Simple-Line-Icons') format('svg');
+	src:url('{asset file="assets/css/simpleline/fonts/Simple-Line-Icons.eot"}');
+	src:url('{asset file="assets/css/simpleline/fonts/Simple-Line-Icons.eot?#iefix"}') format('embedded-opentype'),
+		url('{asset file="assets/css/simpleline/fonts/Simple-Line-Icons.woff"}') format('woff'),
+		url('{asset file="assets/css/simpleline/fonts/Simple-Line-Icons.ttf"}') format('truetype'),
+		url('{asset file="assets/css/simpleline/fonts/Simple-Line-Icons.svg#Simple-Line-Icons"}') format('svg');
 	font-weight: normal;
 	font-style: normal;
 }
