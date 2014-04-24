@@ -39,7 +39,9 @@ ls.favourite = (function ($) {
         params['type'] = !this.objFavourite.hasClass(this.options.active);
         params[this.options.type[type].targetName] = idTarget;
 
+        ls.progressStart();
         ls.ajax(this.options.type[type].url, params, function (result) {
+            ls.progressDone();
             $(this).trigger('toggle', [idTarget, objFavourite, type, params, result]);
             if (!result) {
                 ls.msg.error(null, 'System error #1001');
@@ -95,7 +97,9 @@ ls.favourite = (function ($) {
     this.saveTags = function (form) {
         var url = ls.routerUrl('ajax') + 'favourite/save-tags/';
 
+        ls.progressStart();
         ls.ajaxSubmit(url, $(form), function (result) {
+            ls.progressDone();
             if (!result) {
                 ls.msg.error(null, 'System error #1001');
             } else if (result.bStateError) {
