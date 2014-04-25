@@ -34,7 +34,7 @@
 
             <div class="accordion-group no-border">
                 <div class="accordion-heading">
-                    <button class="btn-block btn left btn-default" data-target="#admin_form_ban" data-toggle="collapse"
+                    <button class="btn-block btn left btn-default" data-target="#admin_user_ban" data-toggle="collapse"
                             data-parent="#user-comands-switch">
                         {if $aFilter}<i class="icon icon-filter icon-green pull-right"></i>{/if}
                         <i class="icon icon-ban"></i>
@@ -42,7 +42,7 @@
                     </button>
                 </div>
 
-                <div class="accordion-body collapse collapse-save" id="admin_form_ban">
+                <div class="accordion-body collapse collapse-save" id="admin_user_ban">
                     <form method="post" action="" class="well well-small">
                         <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
 
@@ -50,11 +50,8 @@
                             <label for="user_login">{$aLang.action.admin.user_login}</label>
 
                             <div class="input-group">
-                                <span class="input-group-addon"><i class="icon icon-user"></i></span><input type="text"
-                                                                                            name="user_login"
-                                                                                            id="user_login"
-                                                                                            value="{$sUserFilterLogin}"
-                                                                                            class="wide"/>
+                                <span class="input-group-addon"><i class="icon icon-user"></i></span>
+                                <input type="text" name="user_login" id="user_login" value="{$sUserFilterLogin}" class="wide js-autocomplete-users"/>
                             </div>
                         </div>
 
@@ -93,15 +90,16 @@
                         </label>
 
                         <label for="ban_comment">{$aLang.action.admin.ban_comment}</label>
-                        <input type="text" name="ban_comment" id="ban_comment" maxlength="255"/>
+                        <input type="text" name="ban_comment" id="ban_comment" maxlength="255" class="wide"/>
 
                         <input type="hidden" name="user_list_sort" id="user_list_sort" value="{$sUserListSort}"/>
                         <input type="hidden" name="user_list_order" id="user_list_order" value="{$sUserListOrder}"/>
-                        <input type="hidden" name="return_url" value="{$sPageRef}"/>
-                        <input type="hidden" name="adm_user_cmd" value="adm_user_ban"/>
+                        <input type="hidden" name="return-path" value="{Router::Url('url')}"/>
+                        <input type="hidden" name="adm_user_cmd" value="adm_ban_user"/>
                         <div class="form-actions">
-                            <button type="submit" name="adm_action_submit"
-                                    class="btn btn-danger">{$aLang.action.admin.users_ban}</button>
+                            <button type="submit" name="adm_action_submit" class="btn btn-danger">
+                                {$aLang.action.admin.users_ban}
+                            </button>
                         </div>
                     </form>
                 </div>

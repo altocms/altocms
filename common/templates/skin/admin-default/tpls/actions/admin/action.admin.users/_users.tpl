@@ -50,7 +50,7 @@
                         <br/>
                         <input type="hidden" name="adm_user_list"
                                value="{if $oUserProfile}{$oUserProfile->getId()}{/if}"/>
-                        <input type="hidden" name="return_url" value="{$sPageRef}"/>
+                        <input type="hidden" name="return-path" value="{Router::Url('url')}"/>
                         <input type="hidden" name="adm_user_cmd" value="adm_unban_user"/>
 
                         <div class="form-actions">
@@ -92,11 +92,12 @@
                         <input type="text" name="ban_comment" id="ban_comment" maxlength="255" class="input-wide"/>
 
 
-                        <input type="hidden" name="return_url" value="{$sPageRef}"/>
+                        <input type="hidden" name="return-path" value="{Router::Url('url')}"/>
                         <input type="hidden" name="adm_user_cmd" value="adm_ban_user"/>
                         <div class="form-actions">
-                            <button type="submit" name="adm_action_submit"
-                                    class="btn btn-danger">{$aLang.action.admin.users_ban}</button>
+                            <button type="submit" name="adm_action_submit" class="btn btn-danger">
+                                {$aLang.action.admin.users_ban}
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -122,7 +123,7 @@
                                 {$aLang.action.admin.users_del_confirm}
                             </label>
 
-                            <input type="hidden" name="return_url" value="{$sPageRef}"/>
+                            <input type="hidden" name="return-path" value="{Router::Url('url')}"/>
                             <input type="hidden" name="adm_user_cmd" value="adm_del_user"/>
                             <div class="form-actions">
                                 <button type="submit" name="adm_action_submit" class="btn btn-danger">{$aLang.action.admin.user_delete}</button>
@@ -152,11 +153,8 @@
                         <label for="user_filter_login">{$aLang.action.admin.user_login}</label>
 
                         <div class="input-group">
-                            <span class="input-group-addon"><i class="icon icon-user"></i></span><input type="text"
-                                                                                        name="user_filter_login"
-                                                                                        id="user_filter_login"
-                                                                                        value="{$aFilter.login}"
-                                                                                        class="span10"/>
+                            <span class="input-group-addon"><i class="icon icon-user"></i></span>
+                            <input type="text" name="user_filter_login" id="user_filter_login" value="{$aFilter.login}" class="wide js-autocomplete-users"/>
                         </div>
                     </div>
 
@@ -164,10 +162,8 @@
                         <label for="user_filter_email">{$aLang.action.admin.user_email}</label>
 
                         <div class="input-group">
-                            <span class="input-group-addon">@</span><input type="text" name="user_filter_email"
-                                                                id="user_filter_email"
-                                                                value="{$aFilter.email}" maxlength="64"
-                                                                class="span10"/>
+                            <span class="input-group-addon">@</span>
+                            <input type="text" name="user_filter_email" id="user_filter_email" value="{$aFilter.email}" class="wide"/>
                         </div>
                         <span class="help-block">{$aLang.action.admin.user_filter_email_notice}</span>
                     </div>
@@ -176,11 +172,8 @@
                         <label for="user_filter_regdate">{$aLang.action.admin.users_date_reg}</label>
 
                         <div class="input-group">
-                            <span class="input-group-addon"><i class="icon icon-calendar"></i></span><input type="text"
-                                                                                            name="user_filter_regdate"
-                                                                                            id="user_filter_regdate"
-                                                                                            value="{$aFilter.regdate}"
-                                                                                            class="span10"/>
+                            <span class="input-group-addon"><i class="icon icon-calendar"></i></span>
+                            <input type="text" name="user_filter_regdate" id="user_filter_regdate" value="{$aFilter.regdate}" class="wide"/>
                         </div>
                         <span class="help-block">{$aLang.action.admin.user_filter_regdate_notice}</span>
                     </div>
@@ -204,7 +197,7 @@
 
                     <input type="hidden" name="user_list_sort" id="user_list_sort" value="{$sUserListSort}"/>
                     <input type="hidden" name="user_list_order" id="user_list_order" value="{$sUserListOrder}"/>
-                    <input type="hidden" name="return_url" value="{$sPageRef}"/>
+                    <input type="hidden" name="return-path" value="{Router::Url('url')}"/>
                     <input type="hidden" name="adm_userlist_filter" value="1"/>
                     <button type="submit" name="adm_action_submit"
                             class="btn btn-primary">{$aLang.action.admin.seek}</button>
@@ -214,7 +207,7 @@
             </div>
         </div>
 
-        <div class="accordion-group no-border">
+        <div class="accordion-group no-border" style="display: none;">
             <div class="accordion-heading">
                 <button class="btn-block btn btn-default left" data-target="#admin_form_send" data-toggle="collapse"
                         data-parent="#user-comands-switch">
@@ -314,14 +307,13 @@
                             <label for="user_login_admin">{$aLang.action.admin.user_login}</label>
 
                             <div class="input-group">
-                                <span class="input-group-addon"><i class="icon icon-user"></i></span><input type="text" name="user_login_admin"
-                                                                                            id="user_login_admin"
-                                                                                            class="wide users_list autocomplete-users-sep"/>
+                                <span class="input-group-addon"><i class="icon icon-user"></i></span>
+                                <input type="text" name="user_login_admin" id="user_login_admin" class="wide users_list js-autocomplete-users"/>
                             </div>
                         </div>
 
                         <div class="form-actions">
-                            <input type="hidden" name="return_url" value="{$sPageRef}"/>
+                            <input type="hidden" name="return-path" value="{Router::Url('url')}"/>
                             <input type="hidden" name="adm_user_cmd" value="adm_user_setadmin"/>
                             <button type="submit" name="adm_action_submit" class="btn btn-primary">
                                 {$aLang.action.admin.include}

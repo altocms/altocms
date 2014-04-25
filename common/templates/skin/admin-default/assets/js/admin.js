@@ -14,14 +14,20 @@ var admin = admin || {};
         store:{'@': 'altocms.ru'},
 
         init:function () {
+            // Autocomplete
+            ls.autocomplete.add($(".js-autocomplete-tags-sep"), ls.routerUrl('ajax') + 'autocompleter/tag/', true);
+            ls.autocomplete.add($(".js-autocomplete-tags"), ls.routerUrl('ajax') + 'autocompleter/tag/', false);
+            ls.autocomplete.add($(".js-autocomplete-users-sep"), ls.routerUrl('ajax') + 'autocompleter/user/', true);
+            ls.autocomplete.add($(".js-autocomplete-users"), ls.routerUrl('ajax') + 'autocompleter/user/', false);
 
+            // Autofocus
+            $('form').each(function(){
+                $(this).find('.js-focus-in:visible').first().focus();
+            });
         }
     };
 
     var $this = admin;
-
-    $this.init = function () {
-    };
 
     $this.uniqId = function () {
         return 'id-' + new Date().valueOf() + '-' + Math.floor(Math.random() * 1000000000);

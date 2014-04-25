@@ -102,9 +102,9 @@ td.check-row input[type=checkbox]       { margin: auto }
 .sidebar .well.well-small .input-prepend input.wide
                                         { width: 80% }
 .sidebar .well .help-block              { margin-bottom: 10px }
-input.ip-part                           { width: 28px; text-align: center; }
+input.ip-part                           { width: 50px; text-align: center; }
 .sidebar .well.widget-info              { height: 44px }
-.sidebar .form-actions                  { padding: 10px 0 0 }
+.sidebar .form-actions                  { padding-top: 10px; height: 30px; }
 .sidebar .form-actions button           { float: right }
 .sidebar form                           { margin-bottom: 0 }
 .switch-form-content                    { display: none }
@@ -161,7 +161,7 @@ i.adm-progress                          { display: inline-block; width: 16px; he
 .opacity50                              { opacity: 0.5 }
 .plus                                   { color: #390 }
 .minus                                  { color: #e00 }
-.num1                                   { width: 20px }
+.num1                                   { width: 60px }
 h1 .badge,
 h2 .badge,
 h3 .badge,
@@ -206,3 +206,8 @@ button[name=mblog_category_del_blog]    { width: 140px; margin-bottom: 5px; text
 .table td .i-title                      { font-weight: bold; font-size: 13px; color: #003; }
 
 .i-img-preview-100x100                  { max-height: 100px; max-width: 100px; border: 1px solid #CCC; }
+
+.icon-red { color: #990000; }
+.icon-green { color: #009900;}
+.icon-gray { color: #555555; }
+.icon-inverse { color: #ffffff; background: #555555; }

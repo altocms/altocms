@@ -33,6 +33,7 @@ class ModuleAdmin extends Module {
     }
 
     public function BanUsers($aUsers, $nDays = null, $sComment = null) {
+
         $aUserIds = $this->_entitiesId($aUsers);
         // для все юзеров, добавляемых в бан, закрываются сессии
         foreach ($aUserIds as $nUserId) {
@@ -95,12 +96,14 @@ class ModuleAdmin extends Module {
      * @return bool
      */
     public function SetBanIp($sIp1, $sIp2, $nDays = null, $sComment = null) {
-        if (!$nDays) {
-            $nUnlim = 1;
-            $dDate = null;
-        } else {
+
+        $nDays = ($nDays ? intval($nDays) : null);
+        if ($nDays) {
             $nUnlim = 0;
             $dDate = date('Y-m-d H:i:s', time() + 3600 * 24 * $nDays);
+        } else {
+            $nUnlim = 1;
+            $dDate = null;
         }
 
         //чистим зависимые кеши

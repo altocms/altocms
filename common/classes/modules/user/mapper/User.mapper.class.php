@@ -339,7 +339,7 @@ class ModuleUser_MapperUser extends Mapper {
             SELECT
 				u.*,
 				IF(ua.user_id IS NULL,0,1) as user_is_administrator,
-				ab.banline, ab.banunlim, ab.banactive
+				ab.banline, ab.banunlim, ab.banactive, ab.bancomment
 			FROM
 				?_user as u
 				LEFT JOIN ?_user_administrator AS ua ON u.user_id=ua.user_id

@@ -754,11 +754,9 @@ class Func {
      */
     static public function AjaxRequest() {
 
-        return (isset($_SERVER['HTTP_X_REQUESTED_WITH'])
-            && strtolower(
-                $_SERVER['HTTP_X_REQUESTED_WITH'] === 'xmlhttprequest'
-            ))
-        || (isset($_REQUEST['ALTO_AJAX']) && $_REQUEST['ALTO_AJAX']);
+        return (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')
+                || (isset($_SERVER['HTTP_X_ALTO_AJAX_KEY']) && $_REQUEST['HTTP_X_ALTO_AJAX_KEY'])
+                || (isset($_REQUEST['ALTO_AJAX']) && $_REQUEST['ALTO_AJAX']);
     }
 
     /**

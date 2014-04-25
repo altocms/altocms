@@ -351,6 +351,10 @@ input.wide, textarea.wide, select.wide, .jq-selectbox.wide { width: 100%; }
 
 .ui-widget-content { 
 	background: #f8f8f8;
+    padding: 0;
+}
+.ui-menu-item a {
+    border: 1px solid transparent;
 }
 .ui-state-hover,
 .ui-widget-content .ui-state-hover,

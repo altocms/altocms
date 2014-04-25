@@ -1194,30 +1194,26 @@ class ModuleViewer extends Module {
         $aWidgets = $this->Widget_GetWidgets();
         if ($aWidgets) {
             foreach ($aWidgets as $oWidget) {
-                if ($sGroup = $oWidget->getGroup()) {
-                    // Свойство "order" потребуется для сортировки по поядку добавления, если не задан приоритет
-                    if (!$oWidget->getOrder()) {
-                        $oWidget->setOrder(isset($this->aWidgets[$sGroup]) ? sizeof($this->aWidgets[$sGroup]) : 0);
-                    }
-                    if (is_null($oWidget->getType())) {
-                        $sName = $oWidget->getName();
-                        $sType = $this->DefineWidgetType($sName, $oWidget->getDir(), $oWidget->getPluginId());
+                $sGroup = $oWidget->getGroup();
+                if (!$sGroup) {
+                    // group not defined
+                    $sGroup = '-';
+                }
+                // Свойство "order" потребуется для сортировки по поядку добавления, если не задан приоритет
+                if (!$oWidget->getOrder()) {
+                    $oWidget->setOrder(isset($this->aWidgets[$sGroup]) ? sizeof($this->aWidgets[$sGroup]) : 0);
+                }
+                if (is_null($oWidget->getType())) {
+                    $sName = $oWidget->getName();
+                    $sType = $this->DefineWidgetType($sName, $oWidget->getDir(), $oWidget->getPluginId());
 
-                        $oWidget->setType($sType);
-                        if ($sType == 'template') {
-                            $oWidget->setName($sName);
-                            /*
-                            $aParams = $oWidget->getParams();
-                            if (!isset($aParams['dir'])) {
-                                $aParams['dir'] = $oWidget->getDir();
-                                $oWidget->setParams($aParams);
-                            }
-                            */
-                        }
-                        /* LS-compatible */
-                        if (!$oWidget->getParam('plugin') && $oWidget->getPluginId()) {
-                            $oWidget->setParam('plugin', $oWidget->getPluginId());
-                        }
+                    $oWidget->setType($sType);
+                    if ($sType == 'template') {
+                        $oWidget->setName($sName);
+                    }
+                    /* LS-compatible */
+                    if (!$oWidget->getParam('plugin') && $oWidget->getPluginId()) {
+                        $oWidget->setParam('plugin', $oWidget->getPluginId());
                     }
                 }
                 // Список всех виджетов, в т.ч. и без группы

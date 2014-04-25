@@ -109,7 +109,7 @@
                         <td class="center">
                             {if $oUser->GetLogin()!='admin'}
                                 <a href="#" onclick="admin.user.unsetAdmin('{$oUser->GetLogin()}')"
-                                   class="link tip-top" title="{$aLang.action.admin.exclude}"><i class="icon icon-trash-sign"></i></a>&nbsp;
+                                   class="link tip-top" title="{$aLang.action.admin.exclude}"><i class="icon icon-close"></i></a>&nbsp;
                             {/if}
                         </td>
                     {else}

@@ -1437,6 +1437,13 @@ class ActionAdmin extends Action {
                 $this->Message_AddError($this->Lang_Get('action.admin.cannot_ban_admin'), null, true);
                 return false;
             }
+            $aUsers = $this->User_GetUsersByArrayId($aUsersId);
+            foreach ($aUsers as $oUser) {
+                if ($oUser->isAdministrator()) {
+                    $this->Message_AddError($this->Lang_Get('action.admin.cannot_ban_admin'), null, true);
+                    return false;
+                }
+            }
             if ($this->Admin_BanUsers($aUsersId, $nDays, $sComment)) {
                 $this->Message_AddNotice($this->Lang_Get('action.admin.action_ok'), null, true);
                 return true;
@@ -1984,7 +1991,7 @@ class ActionAdmin extends Action {
 
     protected function _eventBanListCmd($sCmd) {
 
-        if ($sCmd == 'adm_user_ban') {
+        if ($sCmd == 'adm_ban_user') {
             $sUsersList = $this->GetPost('user_login');
             $nBanDays = $this->GetPost('ban_days');
             $sBanComment = $this->GetPost('ban_comment');
@@ -2003,7 +2010,7 @@ class ActionAdmin extends Action {
                 $aUsers = $this->User_GetUsersByFilter(array('login' => $aUsersLogin), '', 1, 100, array());
                 if ($aUsers) {
                     // и их баним
-                    $this->_eventUsersCmdBan($aUsers['collection'], $nBanDays, $sBanComment);
+                    $this->_eventUsersCmdBan(array_keys($aUsers['collection']), $nBanDays, $sBanComment);
                 }
             } elseif ($sIp) {
                 $this->_eventIpsCmdBan($sIp, $nBanDays, $sBanComment);

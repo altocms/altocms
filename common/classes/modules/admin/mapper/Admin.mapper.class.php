@@ -146,7 +146,8 @@ class ModuleAdmin_MapperAdmin extends Mapper {
      */
     public function SetBanIp($sIp1, $sIp2, $sDate, $bUnlim, $sComment) {
 
-        $sql = "
+        $sql
+            = "
             INSERT INTO ?_adminips
                 (
                     ip1,
@@ -158,16 +159,28 @@ class ModuleAdmin_MapperAdmin extends Mapper {
                     banactive
                 )
                 VALUES (
-                    INET_ATON(?),
-                    INET_ATON(?),
-                    ?,
-                    ?,
-                    ?d,
-                    ?,
-                    1
+                    INET_ATON(?:ip1),
+                    INET_ATON(?:ip2),
+                    ?:bandate,
+                    ?:banline,
+                    ?:banunlim,
+                    ?:bancomment,
+                    ?:banactive
                 )
                     ";
-        return $this->oDb->query($sql, $sIp1, $sIp2, F::Now(), $sDate, $bUnlim ? 0 : 1, $sComment) !== false;
+        $nId = $this->oDb->sqlQuery(
+            $sql,
+            array(
+                ':ip1'        => $sIp1,
+                ':ip2'        => $sIp2,
+                ':bandate'    => F::Now(),
+                ':banline'    => $sDate,
+                ':banunlim'   => $bUnlim ? 1 : 0,
+                ':bancomment' => $sComment,
+                ':banactive'  => 1,
+            )
+        );
+        return $nId ? $nId : false;
     }
 
     /**
