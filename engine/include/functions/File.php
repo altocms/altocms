@@ -762,13 +762,14 @@ class AltoFunc_File {
      * Возвращает расширение файла из переданного полного пути
      *
      * @param string $sPath
+     * @param bool   $bToLower
      *
      * @return string
      */
-    static public function GetExtension($sPath) {
+    static public function GetExtension($sPath, $bToLower = false) {
 
         $aInfo = self::PathInfo($sPath);
-        return $aInfo['extension'];
+        return $bToLower ? strtolower($aInfo['extension']) : $aInfo['extension'];
     }
 
     /**
