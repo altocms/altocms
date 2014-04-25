@@ -2401,7 +2401,7 @@ class ModuleTopic extends Module {
         $sFileTmp = $this->Img_TransformFile($sImageFile, 'topic');
         if ($sFileTmp) {
             $sDirUpload = $this->Uploader_GetUserImageDir($oUser->getId());
-            $sFileImage = $this->Uploader_Uniqname($sDirUpload, strtolower(F::File_GetExtension($sFileTmp)));
+            $sFileImage = $this->Uploader_Uniqname($sDirUpload, F::File_GetExtension($sFileTmp, true));
             if ($xStoredFile = $this->Uploader_Store($sFileTmp, $sFileImage)) {
                 if (is_object($xStoredFile)) {
                     return $xStoredFile->GetUrl();
@@ -2594,7 +2594,7 @@ class ModuleTopic extends Module {
             $sFileTmp = $this->Img_TransformFile($sFileTmp, 'photoset');
             if ($sFileTmp) {
                 $sDirUpload = $this->Uploader_GetUserImageDir($this->oUserCurrent->getId());
-                $sFileImage = $this->Uploader_Uniqname($sDirUpload, F::File_GetExtension($sFileTmp));
+                $sFileImage = $this->Uploader_Uniqname($sDirUpload, F::File_GetExtension($sFileTmp, true));
                 if ($xStoredFile = $this->Uploader_Store($sFileTmp, $sFileImage)) {
                     if (is_object($xStoredFile)) {
                         return $xStoredFile->GetUrl();
