@@ -2396,9 +2396,18 @@ class ModuleTopic extends Module {
         return false;
     }
 
-    protected function _saveTopicImage($sImageFile, $oUser) {
+    /**
+     * Save uploaded image into store
+     *
+     * @param string                $sImageFile
+     * @param ModuleUser_EntityUser $oUser
+     * @param string                $sType
+     *
+     * @return bool
+     */
+    protected function _saveTopicImage($sImageFile, $oUser, $sType) {
 
-        $sFileTmp = $this->Img_TransformFile($sImageFile, 'topic');
+        $sFileTmp = $this->Img_TransformFile($sImageFile, $sType);
         if ($sFileTmp) {
             $sDirUpload = $this->Uploader_GetUserImageDir($oUser->getId());
             $sFileImage = $this->Uploader_Uniqname($sDirUpload, F::File_GetExtension($sFileTmp, true));
@@ -2414,7 +2423,7 @@ class ModuleTopic extends Module {
     }
 
     /**
-     * @param array $aFile
+     * @param array                 $aFile
      * @param ModuleUser_EntityUser $oUser
      *
      * @return string|bool
@@ -2422,7 +2431,7 @@ class ModuleTopic extends Module {
     public function UploadTopicImageFile($aFile, $oUser) {
 
         if ($sFileTmp = $this->Uploader_UploadLocal($aFile)) {
-            return $this->_saveTopicImage($sFileTmp, $oUser);
+            return $this->_saveTopicImage($sFileTmp, $oUser, 'topic');
         }
         return false;
     }
@@ -2438,7 +2447,7 @@ class ModuleTopic extends Module {
     public function UploadTopicImageUrl($sUrl, $oUser) {
 
         if ($sFileTmp = $this->Uploader_UploadRemote($sUrl)) {
-            return $this->_saveTopicImage($sFileTmp, $oUser);
+            return $this->_saveTopicImage($sFileTmp, $oUser, 'topic');
         }
         return false;
     }
@@ -2589,25 +2598,17 @@ class ModuleTopic extends Module {
      */
     public function UploadTopicPhoto($aFile) {
 
-        $sFileTmp = $this->Uploader_UploadLocal($aFile);
-        if ($sFileTmp) {
-            $sFileTmp = $this->Img_TransformFile($sFileTmp, 'photoset');
-            if ($sFileTmp) {
-                $sDirUpload = $this->Uploader_GetUserImageDir($this->oUserCurrent->getId());
-                $sFileImage = $this->Uploader_Uniqname($sDirUpload, F::File_GetExtension($sFileTmp, true));
-                if ($xStoredFile = $this->Uploader_Store($sFileTmp, $sFileImage)) {
-                    if (is_object($xStoredFile)) {
-                        return $xStoredFile->GetUrl();
-                    } else {
-                        return $this->Uploader_Dir2Url($xStoredFile);
-                    }
-                }
-            }
+        if ($sFileTmp = $this->Uploader_UploadLocal($aFile)) {
+            return $this->_saveTopicImage($sFileTmp, $this->oUserCurrent, 'photoset');
         }
-
         return false;
     }
 
+    /**
+     * Returns upload error
+     *
+     * @return mixed
+     */
     public function UploadPhotoError() {
 
         return $this->Uploader_GetErrorMsg();
