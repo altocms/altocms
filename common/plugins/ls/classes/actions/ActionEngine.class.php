@@ -18,6 +18,7 @@ class PluginLs_ActionEngine extends ActionPlugin {
     protected function RegisterEvent() {
 
         $this->AddEventPreg('/^lib$/i', '/^external$/i', '/^kcaptcha$/i', 'EventLibCaptcha');
+        $this->AddEventPreg('/^libs$/i', '/^external$/i', '/^kcaptcha$/i', 'EventLibCaptcha');
     }
 
     /**
@@ -32,8 +33,12 @@ class PluginLs_ActionEngine extends ActionPlugin {
 
     protected function EventLibCaptcha() {
 
+        if (!class_exists('KCAPTCHA', false)) {
+            F::IncludeLib('kcaptcha/kcaptcha.php');
+        }
         $captcha = new KCAPTCHA();
         $_SESSION['captcha_keystring'] = $captcha->getKeyString();
+        exit;
     }
 
 }
