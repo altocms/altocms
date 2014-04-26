@@ -162,7 +162,7 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
                 $sFileParam = '';
             }
             $sRealPath = realpath($sSourceDir . $sPath);
-            $sDestination = F::File_GetAssetDir() . $this->_crc(dirname($sRealPath)) . '/' . basename($sRealPath);
+            $sDestination = F::File_GetAssetDir() . F::Crc32(dirname($sRealPath), true) . '/' . basename($sRealPath);
             $aUrls[$sPath] = array(
                 'source'      => $sRealPath,
                 'destination' => $sDestination,
