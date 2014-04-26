@@ -112,7 +112,7 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
 
     public function AddBlocks($sGroup, $aBlocks, $ClearWidgets = true) {
 
-        return AddWidgets($sGroup, $aBlocks, $ClearWidgets);
+        return $this->AddWidgets($sGroup, $aBlocks, $ClearWidgets);
     }
 
     public function ClearBlocks($sGroup) {
