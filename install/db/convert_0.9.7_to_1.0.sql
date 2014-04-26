@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS `prefix_mresource_target` (
   `mresource_id` int(11) NOT NULL,
   `target_type` varchar(32) NOT NULL,
   `target_id` int(11) NOT NULL,
-  `date_add` int(11) NOT NULL,
+  `date_add` datetime NOT NULL,
   `target_tmp` varchar(32) DEFAULT NULL,
   `description` text,
   `incount` int(11) DEFAULT '1',

@@ -29,14 +29,22 @@ class ModuleUploader_EntityDriverFile extends Entity {
             if ($oUser) {
                 return false;
             }
-            $sDirUpload = $this->GetUserFileDir($oUser->getId());
-            $sDestination = $this->Uniqname($sDirUpload, strtolower(F::File_GetExtension($sFile)));
+            $sDestination = $this->GetUserFileDir($oUser->getId());
         }
         if ($sDestination) {
             $sMimeType = ModuleImg::MimeType($sFile);
             $bIsImage = (strpos($sMimeType, 'image/') === 0);
-            $nUserId = E::UserId();
-            $sUuid = str_pad($nUserId, 8, '0', STR_PAD_LEFT) . '-' . md5_file($sFile);
+            $iUserId = E::UserId();
+            $sExtension = F::File_GetExtension($sFile, true);
+            if (substr($sDestination, -1) == '/') {
+                $sDestinationDir = $sDestination;
+            } else {
+                $sDestinationDir = dirname($sDestination) . '/';
+            }
+
+            $sUuid = ModuleMresource::CreateUuid('file', $sFile, md5_file($sFile), $iUserId);
+            $sDestination = $sDestinationDir . $sUuid . '.' . $sExtension;
+
             if ($sStoredFile = $this->Uploader_Move($sFile, $sDestination, true)) {
                 $oStoredItem = Engine::GetEntity(
                     'Uploader_Item',
@@ -46,7 +54,7 @@ class ModuleUploader_EntityDriverFile extends Entity {
                          'original_filename' => basename($sFile),
                          'url'               => $this->Dir2Url($sStoredFile),
                          'file'              => $sStoredFile,
-                         'user_id'           => $nUserId,
+                         'user_id'           => $iUserId,
                          'mime_type'         => $sMimeType,
                          'is_image'          => $bIsImage,
                     )

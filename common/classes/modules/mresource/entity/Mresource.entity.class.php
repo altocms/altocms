@@ -183,7 +183,7 @@ class ModuleMresource_EntityMresource extends Entity {
         $sResult = $this->getProp('uuid');
         if (!$sResult) {
             if ($this->GetStorage() == 'file') {
-                $sResult = str_pad($this->GetUserId(), 8, '0', STR_PAD_LEFT) . '-' . $this->GetHashFile();
+                $sResult = ModuleMresource::CreateUuid($this->GetStorage(), $this->GetPathFile(), $this->GetHashFile(), $this->GetUserId());
             } elseif (!$this->GetStorage()) {
                 $sResult = $this->GetHashUrl();
             }

@@ -152,9 +152,9 @@ class ModuleMresource extends Module {
     /**
      * Add relations between mresources and target
      *
-     * @param $aMresourcesRel
-     * @param $sTargetType
-     * @param $nTargetId
+     * @param array  $aMresourcesRel
+     * @param string $sTargetType
+     * @param int    $nTargetId
      *
      * @return bool
      */
@@ -344,7 +344,9 @@ class ModuleMresource extends Module {
         }
         $bResult = $this->oMapper->DeleteMresourcesRel(array_keys($aMresourceRel));
         if ($bResult && $aMresId) {
-            $this->DeleteMresources($aMresId);
+            // TODO: Delete files or not - need to add config options
+            //  $this->DeleteMresources($aMresId);
+            $this->DeleteMresources($aMresId, false);
         }
         return true;
     }
@@ -410,6 +412,13 @@ class ModuleMresource extends Module {
         return md5($sUrl);
     }
 
+    static public function CreateUuid($sStorage, $sFileName, $sFileHash, $iUserId) {
+
+        $sUuid = '0u' . F::Crc32($iUserId . ':' . $sFileHash, true)
+            . '-' . F::Crc32($sStorage . ':' . $sFileName . ':' . $iUserId, true)
+            . '-' . F::Crc32($sStorage . ':' . $sFileHash . ':' . $sFileName, true);
+        return $sUuid;
+    }
 }
 
 // EOF
