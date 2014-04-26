@@ -50,11 +50,6 @@ class ModuleViewerAsset_EntityPackage extends Entity {
         $this->aHtmlLinkParams = array();
     }
 
-    protected function _crc($sPath) {
-
-        return str_pad(dechex(F::Crc32($sPath)), 8, '0', STR_PAD_LEFT);
-    }
-
     public function GetHash() {
 
         return $this->sAssetType . '-' . md5(serialize($this->aFiles));
@@ -133,9 +128,9 @@ class ModuleViewerAsset_EntityPackage extends Entity {
             $sDir = dirname($sFile);
         }
         if ($aFileParams['merge']) {
-            $sSubdir = $this->_crc($sAsset . $sDir);
+            $sSubdir = F::Crc32($sAsset . $sDir, true);
         } else {
-            $sSubdir = $this->_crc($sDir);
+            $sSubdir = F::Crc32($sDir, true);
         }
         if ($sLocalPath) {
             $sSubdir .= '/' . $sLocalPath;

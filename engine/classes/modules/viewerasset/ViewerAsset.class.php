@@ -53,7 +53,7 @@ class ModuleViewerAsset extends Module {
         } else {
             $sDir = dirname($sFile);
         }
-        return str_pad(dechex(F::Crc32($sDir)), 8, '0', STR_PAD_LEFT);
+        return F::Crc32($sDir, true);
     }
 
     /**

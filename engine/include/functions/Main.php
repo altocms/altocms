@@ -388,19 +388,21 @@ class AltoFunc_Main {
     static public function Crc32($xData, $bHex = false) {
 
         if (is_null($xData)) {
-            return 0;
-        } elseif (!is_scalar($xData)) {
-            $sData = serialize($xData);
+            $nCrc = 0;
         } else {
-            $sData = (string)$xData;
-        }
-        $nCrc = abs(crc32($sData));
-        if( $nCrc & 0x80000000){
-            $nCrc ^= 0xffffffff;
-            $nCrc += 1;
+            if (!is_scalar($xData)) {
+                $sData = serialize($xData);
+            } else {
+                $sData = (string)$xData;
+            }
+            $nCrc = abs(crc32($sData));
+            if( $nCrc & 0x80000000){
+                $nCrc ^= 0xffffffff;
+                $nCrc += 1;
+            }
         }
         if ($bHex) {
-            return dechex($nCrc);
+            return str_pad(dechex($nCrc), 8, STR_PAD_LEFT);
         }
         return $nCrc;
     }
