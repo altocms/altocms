@@ -25,7 +25,7 @@
                     <th>{$aLang.action.admin.blogtypes_contenttypes}</th>
                     <th class="center">{$aLang.action.admin.content_status}</th>
                     <th class="center">{$aLang.action.admin.content_actions}</th>
-					<th class="center"></th>
+                    <th class="center"></th>
                 </tr>
                 </thead>
 

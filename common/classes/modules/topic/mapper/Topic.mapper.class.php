@@ -1257,7 +1257,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 
         if ($sTargetTmp = $oTopic->getTargetTmp()) {
             $sql = "
-                UPDATE ?_topic_photo SET topic_id=?d, trget_tmp=NULL WHERE target_tmp=?
+                UPDATE ?_topic_photo SET topic_id=?d, target_tmp=NULL WHERE target_tmp=?
             ";
             return $this->oDb->query($sql, $oTopic->getId(), $sTargetTmp) !== false;
         }
