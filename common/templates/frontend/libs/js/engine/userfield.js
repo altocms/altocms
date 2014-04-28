@@ -11,8 +11,8 @@
  *   E-mail: rus.engine@gmail.com
  *----------------------------------------------------------------------------
  */
-;
-var ls = ls || {};
+
+;var ls = ls || {};
 
 ls.userfield = ( function ($) {
     "use strict";

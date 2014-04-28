@@ -2,7 +2,7 @@
  * Различные настройки
  */
 
-var ls = ls || {};
+;var ls = ls || {};
 
 ls.settings = (function ($) {
 

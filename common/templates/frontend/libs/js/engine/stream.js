@@ -2,7 +2,7 @@
  * Активность
  */
 
-var ls = ls || {};
+;var ls = ls || {};
 
 ls.stream = ( function ($) {
     this.isBusy = false;

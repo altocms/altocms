@@ -2,7 +2,7 @@
  * Топик
  */
 
-var ls = ls || {};
+;var ls = ls || {};
 
 ls.topic = (function ($) {
     "use strict";

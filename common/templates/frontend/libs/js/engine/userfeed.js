@@ -1,8 +1,8 @@
 /**
  * Лента
  */
-;
-var ls = ls || {};
+
+;var ls = ls || {};
 
 ls.userfeed = (function ($) {
     var $that = this;

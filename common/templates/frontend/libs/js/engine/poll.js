@@ -2,7 +2,7 @@
  * Опросы
  */
 
-var ls = ls || {};
+;var ls = ls || {};
 
 
 ls.poll = (function ($) {

@@ -1,7 +1,7 @@
 /**
  * Widgets
  */
-var ls = ls || {};
+;var ls = ls || {};
 
 ls.widgets = (function ($) {
     "use strict";

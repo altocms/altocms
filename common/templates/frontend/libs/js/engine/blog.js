@@ -2,7 +2,7 @@
  * Блоги
  */
 
-var ls = ls || {};
+;var ls = ls || {};
 
 ls.blog = (function ($) {
     "use strict";
