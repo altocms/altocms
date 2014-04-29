@@ -36,7 +36,7 @@ class AltoFunc_Xxtea {
     static public function Encrypt($sData, $sKey = null) {
 
         if (!$sKey) {
-            $sKey = self::_defaultKey();
+            $sKey = static::_defaultKey();
         }
         return xxtea_encrypt($sData, $sKey);
     }
@@ -52,7 +52,7 @@ class AltoFunc_Xxtea {
     static public function Decrypt($sData, $sKey = null) {
 
         if (!$sKey) {
-            $sKey = self::_defaultKey();
+            $sKey = static::_defaultKey();
         }
         return xxtea_decrypt($sData, $sKey);
     }
@@ -67,7 +67,7 @@ class AltoFunc_Xxtea {
      */
     static public function Encode($sData, $sKey = null) {
 
-        return rawurlencode(base64_encode(self::Encrypt($sData, $sKey)));
+        return rawurlencode(base64_encode(static::Encrypt($sData, $sKey)));
     }
 
     /**
@@ -80,7 +80,7 @@ class AltoFunc_Xxtea {
      */
     static public function Decode($sData, $sKey = null) {
 
-        return self::Decrypt(base64_decode(rawurldecode($sData)), $sKey);
+        return static::Decrypt(base64_decode(rawurldecode($sData)), $sKey);
     }
 
 }

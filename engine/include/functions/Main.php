@@ -539,7 +539,7 @@ class AltoFunc_Main {
     static public function DateTimeAdd($sDate, $sInterval) {
 
         $date = new DateTime($sDate);
-        $date->add(new DateInterval('PT' . self::ToSeconds($sInterval) . 'S'));
+        $date->add(new DateInterval('PT' . static::ToSeconds($sInterval) . 'S'));
         return $date->format('Y-m-d H:i:s');
     }
 
@@ -599,7 +599,7 @@ class AltoFunc_Main {
             "_" => "-", "'" => "", "`" => "", "^" => "", " " => "-", '.' => '', ',' => '', ':' => '', '"' => '',
             "'" => '', '<' => '', '>' => '', '«' => '', '»' => '', ' ' => '-', '(' => '-', ')' => '-'
         );
-        $sText = mb_strtolower(self::Translit($sText, $xLang), 'utf-8');
+        $sText = mb_strtolower(static::Translit($sText, $xLang), 'utf-8');
         $sText = str_replace(array_keys($aSymbols), array_values($aSymbols), $sText);
         $sText = preg_replace('/[^a-z0-9\-]/i', '-', $sText);
         $sText = preg_replace('/\s/', '-', $sText);

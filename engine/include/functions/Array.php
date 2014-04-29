@@ -25,7 +25,7 @@ class AltoFunc_Array {
 
         foreach ($aData as $xKey => $xValue) {
             if (is_array($xValue)) {
-                $array[$xKey] = self::ChangeValue($xValue, $sBefore, $sAfter);
+                $array[$xKey] = static::ChangeValue($xValue, $sBefore, $sAfter);
             } elseif (!is_object($xValue)) {
                 $aData[$xKey] = $sBefore . $aData[$xKey] . $sAfter;
             }
@@ -96,7 +96,7 @@ class AltoFunc_Array {
                     }
                 }
                 if (is_array($xVal) && !$bIsKeyInt && isset($aData1[$sKey])) {
-                    $aData1[$sKey] = self::Merge($aData1[$sKey], $xVal);
+                    $aData1[$sKey] = static::Merge($aData1[$sKey], $xVal);
                 } else {
                     $aData1[$sKey] = $xVal;
                 }
@@ -125,7 +125,7 @@ class AltoFunc_Array {
                     $aData1[] = $xVal;
                 } else {
                     if (is_array($xVal) && isset($aData1[$xKey])) {
-                        $aData1[$xKey] = self::MergeCombo($aData1[$xKey], $xVal);
+                        $aData1[$xKey] = static::MergeCombo($aData1[$xKey], $xVal);
                     } else {
                         $aData1[$xKey] = $xVal;
                     }
@@ -149,7 +149,7 @@ class AltoFunc_Array {
         } else {
             $aKeys = array_keys($aData);
             foreach ($aKeys as $k => $v) {
-                if ($aAppend = F::Array_KeysRecursive($aData[$v])) {
+                if ($aAppend = static::KeysRecursive($aData[$v])) {
                     unset($aKeys[$k]);
                     foreach ($aAppend as $sNewKey) {
                         $aKeys[] = $v . '.' . $sNewKey;

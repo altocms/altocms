@@ -107,7 +107,7 @@ class AltoFunc_File {
                     $sLang = Router::GetLang();
                 }
                 if ($sLang) {
-                    $sUrl = self::NormPath($sUrl . '/' . $sLang . '/');
+                    $sUrl = static::NormPath($sUrl . '/' . $sLang . '/');
                 }
             }
         } elseif (isset($_SERVER['HTTP_HOST'])) {
@@ -121,9 +121,30 @@ class AltoFunc_File {
         return $sUrl;
     }
 
+    static function RootUrlAliases() {
+
+        $aResult = array(static::RootUrl());
+        if (class_exists('Config', false)) {
+            if ($aAliases = Config::Get('path.root.aliases')) {
+                if (!is_array($aAliases)) {
+                    $aAliases = array((string)$aAliases);
+                    if ($sScheme = parse_url($aResult[0], PHP_URL_SCHEME)) {
+                        foreach($aAliases as $n => $sAliasUrl) {
+                            if (!parse_url($sAliasUrl, PHP_URL_SCHEME)) {
+                                $aAliases[$n] = $sScheme . '://' . $sAliasUrl;
+                            }
+                        }
+                    }
+                }
+                $aResult = array_unique(array_merge($aResult, $aAliases));
+            }
+        }
+        return $aResult;
+    }
+
     /**
      * Нормализует путь к файлу, приводя все слеши (прямой и обратный) к одному виду,
-     * по умолчанию - у прямому слешу
+     * по умолчанию - к прямому слешу
      *
      * @param string|array $sPath
      * @param string|null  $sSeparator
@@ -145,7 +166,7 @@ class AltoFunc_File {
         if (is_array($sPath)) {
             $aResult = array();
             foreach ($sPath as $sKey => $s) {
-                $aResult[$sKey] = self::NormPath($s, $sSeparator);
+                $aResult[$sKey] = static::NormPath($s, $sSeparator);
             }
             return $aResult;
         }
@@ -220,12 +241,12 @@ class AltoFunc_File {
     static public function RemoveDir($sDir) {
 
         if (is_dir($sDir)) {
-            $sPath = rtrim(self::NormPath($sDir), '/') . '/';
+            $sPath = rtrim(static::NormPath($sDir), '/') . '/';
 
-            if (($aFiles = self::ReadDir($sPath, GLOB_MARK))) {
+            if (($aFiles = static::ReadDir($sPath, GLOB_MARK))) {
                 foreach ($aFiles as $sFile) {
                     if (is_dir($sFile)) {
-                        self::RemoveDir($sFile);
+                        static::RemoveDir($sFile);
                     } else {
                         @unlink($sFile);
                     }
@@ -251,25 +272,25 @@ class AltoFunc_File {
         $bResult = true;
         if (is_array($xDir)) {
             foreach($xDir as $sDir) {
-                $bResult = $bResult && self::ClearDir($sDir, $bSafe);
+                $bResult = $bResult && static::ClearDir($sDir, $bSafe);
             }
             return $bResult;
         } else {
             $sDir = (string)$xDir;
         }
-        $sDir = self::NormPath($sDir);
+        $sDir = static::NormPath($sDir);
         if (substr($sDir, -1) != '/') {
             $sDir .= '/';
         }
-        if (is_dir($sDir) && ($aFiles = self::ReadDir($sDir))) {
+        if (is_dir($sDir) && ($aFiles = static::ReadDir($sDir))) {
             foreach ($aFiles as $sFile) {
                 // delete all files except started with 'dot'
                 if (substr(basename($sFile), 0, 1) != '.') {
                     if (is_dir($sFile)) {
                         if ($bSafe) {
-                            $bResult = $bResult && self::ClearDir($sFile, $bSafe);
+                            $bResult = $bResult && static::ClearDir($sFile, $bSafe);
                         } else {
-                            $bResult = $bResult && self::RemoveDir($sFile);
+                            $bResult = $bResult && static::RemoveDir($sFile);
                         }
                     } else {
                         $bResult = ($bResult && @unlink($sFile));
@@ -281,13 +302,15 @@ class AltoFunc_File {
     }
 
     /**
-     * @param $aDirs
+     * Excludes special names "." and ".." from files/dirs array
+     *
+     * @param array $aDirs
      *
      * @return mixed
      */
     static protected function _excludeDotted($aDirs) {
 
-        if (!$aDirs) {
+        if (!$aDirs || !is_array($aDirs)) {
             return $aDirs;
         }
 
@@ -328,7 +351,7 @@ class AltoFunc_File {
         if ($bRecursively) {
             $aSubDirs = glob($sDir . '/{,.}*', $nFlag | GLOB_BRACE | GLOB_ONLYDIR);
             // исключаем из выдачи '.' и '..'
-            $aSubDirs = self::_excludeDotted($aSubDirs);
+            $aSubDirs = static::_excludeDotted($aSubDirs);
         } else {
             $aSubDirs = array();
         }
@@ -345,11 +368,11 @@ class AltoFunc_File {
         } else {
             $aResult = glob($sDir . $sMask, $nFlag | GLOB_BRACE);
         }
-        $aResult = self::_excludeDotted($aResult);
+        $aResult = static::_excludeDotted($aResult);
 
         if ($bRecursively && $aSubDirs) {
             foreach ($aSubDirs as $sSubDir) {
-                if ($aSubResult = self::ReadDir($sSubDir . '/' . $sMask, $nFlag, $bRecursively)) {
+                if ($aSubResult = static::ReadDir($sSubDir . '/' . $sMask, $nFlag, $bRecursively)) {
                     $aResult = array_merge($aResult, $aSubResult);
                 }
             }
@@ -357,6 +380,15 @@ class AltoFunc_File {
         return $aResult;
     }
 
+    /**
+     * Returns files only (exludes directories)
+     *
+     * @param      $sDir
+     * @param int  $nFlag
+     * @param bool $bRecursively
+     *
+     * @return array
+     */
     static public function ReadFileList($sDir, $nFlag = 0, $bRecursively = false) {
 
         if ($nFlag & GLOB_ONLYDIR) {
@@ -366,7 +398,7 @@ class AltoFunc_File {
         if (substr($sDir, -1) == '/') {
             $sDir .= '*';
         }
-        $aFileList = self::ReadDir($sDir, $nFlag, $bRecursively);
+        $aFileList = static::ReadDir($sDir, $nFlag, $bRecursively);
         foreach ($aFileList as $nKey => $sFile) {
             if (is_dir($sFile)) {
                 unset($aFileList[$nKey]);
@@ -385,17 +417,17 @@ class AltoFunc_File {
      */
     static function CopyDir($sDirSrc, $sDirTrg) {
 
-        $aSource = self::ReadDir($sDirSrc, 0, true);
+        $aSource = static::ReadDir($sDirSrc, 0, true);
         foreach ($aSource as $sSource) {
-            $sTarget = self::LocalPath($sSource, $sDirSrc);
+            $sTarget = static::LocalPath($sSource, $sDirSrc);
             if ($sTarget) {
                 if (is_file($sSource)) {
-                    $bResult = self::Copy($sSource, $sDirTrg . $sTarget);
+                    $bResult = static::Copy($sSource, $sDirTrg . $sTarget);
                     if (!$bResult) {
                         return false;
                     }
                 } elseif (is_dir($sSource)) {
-                    $bResult = self::CheckDir($sDirTrg . $sTarget);
+                    $bResult = static::CheckDir($sDirTrg . $sTarget);
                     if (!$bResult) {
                         return false;
                     }
@@ -423,7 +455,7 @@ class AltoFunc_File {
         $sPathWeb = str_replace('//www.', '//', F::File_RootUrl());
         // * do replace
         $sDir = str_replace($sPathWeb, F::File_RootDir(), $sUrl);
-        return F::File_NormPath($sDir, $sSeparator);
+        return static::NormPath($sDir, $sSeparator);
     }
 
     /**
@@ -435,7 +467,7 @@ class AltoFunc_File {
      */
     static public function Dir2Url($sDir) {
 
-        return F::File_NormPath(
+        return static::NormPath(
             str_replace(
                 str_replace(DIRECTORY_SEPARATOR, '/', F::File_RootDir()),
                 F::File_RootUrl(),
@@ -448,20 +480,32 @@ class AltoFunc_File {
      * Из абсолютного пути выделяет относительный (локальный) относительно рута
      *
      * @param string $sPath
-     * @param string $sRoot
+     * @param string $xRoot
      *
-     * @return string
+     * @return string|bool
      */
-    static public function LocalPath($sPath, $sRoot) {
+    static public function LocalPath($sPath, $xRoot) {
 
+        $xResult = false;
+        if (is_array($xRoot)) {
+            foreach ($xRoot as $sRoot) {
+                $xResult = static::LocalPath($sPath, $sRoot);
+                if ($xResult) {
+                    return $xResult;
+                }
+            }
+            return $xResult;
+        } else {
+            $sRoot = (string)$xRoot;
+        }
         if ($sPath && $sRoot) {
-            $sPath = F::File_NormPath($sPath);
-            $sRoot = F::File_NormPath($sRoot);
+            $sPath = static::NormPath($sPath . '/');
+            $sRoot = static::NormPath($sRoot . '/');
             if (strpos($sPath, $sRoot) === 0) {
                 return substr($sPath, strlen($sRoot));
             }
         }
-        return false;
+        return $xResult;
     }
 
     /**
@@ -469,23 +513,27 @@ class AltoFunc_File {
      *
      * @param string $sPath
      *
-     * @return string
+     * @return string|bool
      */
     static public function LocalDir($sPath) {
 
-        return self::LocalPath($sPath, self::RootDir());
+        return static::LocalPath($sPath, static::RootDir());
     }
 
     /**
      * Из абсолютного URL выделяет локальный относительно корневого URL проекта
      *
      * @param string $sPath
+     * @param bool   $bCheckAliases
      *
-     * @return string
+     * @return string|bool
      */
-    static public function LocalUrl($sPath) {
+    static public function LocalUrl($sPath, $bCheckAliases = true) {
 
-        return self::LocalPath($sPath, self::RootUrl());
+        if ($bCheckAliases) {
+            return static::LocalPath($sPath, static::RootUrlAliases());
+        }
+        return static::LocalPath($sPath, static::RootUrl());
     }
 
     /**
@@ -497,7 +545,7 @@ class AltoFunc_File {
      */
     static public function IsLocalDir($sPath) {
 
-        return (bool)self::LocalDir($sPath);
+        return (bool)static::LocalDir($sPath);
     }
 
     /**
@@ -509,7 +557,7 @@ class AltoFunc_File {
      */
     static public function IsLocalUrl($sPath) {
 
-        return (bool)self::LocalUrl($sPath);
+        return (bool)static::LocalUrl($sPath);
     }
 
     /**
@@ -532,7 +580,7 @@ class AltoFunc_File {
         $xResult = false;
         if (!$aDirs) {
             if (is_file($sFile)) {
-                $xResult = self::NormPath($sFile);
+                $xResult = static::NormPath($sFile);
             }
         } elseif (!is_array($aDirs)) {
             return F::File_Exists((string)$aDirs . '/' . $sFile);
@@ -716,7 +764,7 @@ class AltoFunc_File {
                  'extension' => '',
                  'params'    => '',
             ),
-            pathinfo(F::File_NormPath($sPath))
+            pathinfo(static::NormPath($sPath))
         );
         $n = strpos($aResult['extension'], '?');
         if ($n !== false) {
@@ -768,7 +816,7 @@ class AltoFunc_File {
      */
     static public function GetExtension($sPath, $bToLower = false) {
 
-        $aInfo = self::PathInfo($sPath);
+        $aInfo = static::PathInfo($sPath);
         return $bToLower ? strtolower($aInfo['extension']) : $aInfo['extension'];
     }
 
@@ -782,7 +830,7 @@ class AltoFunc_File {
      */
     static public function SetExtension($sPath, $sExtension) {
 
-        $aInfo = self::PathInfo($sPath);
+        $aInfo = static::PathInfo($sPath);
         return $aInfo['dirname'] . '/' . $aInfo['filename'] . '.' . $sExtension;
     }
 
@@ -801,8 +849,8 @@ class AltoFunc_File {
         if (!is_array($aPaths)) {
             $aPaths = array((string)$aPaths);
         }
-        $sNeedle = F::File_NormPath($sNeedle, '/');
-        $aCheckPaths = F::File_NormPath($aPaths, '/');
+        $sNeedle = static::NormPath($sNeedle, '/');
+        $aCheckPaths = static::NormPath($aPaths, '/');
         foreach ($aCheckPaths as $n => $sPath) {
             if ($sPath == '*') {
                 return $aPaths[$n];
@@ -832,10 +880,10 @@ class AltoFunc_File {
      */
     static public function FullDir($sFile) {
 
-        if (self::IsLocalDir($sFile)) {
-            return self::NormPath($sFile);
+        if (static::IsLocalDir($sFile)) {
+            return static::NormPath($sFile);
         }
-        return self::NormPath(self::_calledFilePath() . $sFile);
+        return static::NormPath(static::_calledFilePath() . $sFile);
     }
 
     /**
@@ -895,7 +943,7 @@ class AltoFunc_File {
      */
     static public function IncludeLib($sFile, $bOnce = true) {
 
-        return self::IncludeFile(Config::Get('path.dir.libs') . '/' . $sFile, $bOnce);
+        return static::IncludeFile(Config::Get('path.dir.libs') . '/' . $sFile, $bOnce);
     }
 
     /**
@@ -911,7 +959,7 @@ class AltoFunc_File {
 
         $xResult = null;
         if (F::File_Exists($sFile)) {
-            $xResult = self::IncludeFile($sFile, $bOnce, $bConfig);
+            $xResult = static::IncludeFile($sFile, $bOnce, $bConfig);
         }
         return $xResult;
     }
