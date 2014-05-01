@@ -1,3 +1,4 @@
+;var ls = ls || {};
 /**
  * JavaScript-hooks
  *

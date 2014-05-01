@@ -211,6 +211,16 @@ class ModuleSkin_EntitySkin extends Entity {
         return $aResult;
     }
 
+    public function GetCompatible() {
+
+        $sResult = '';
+        $aProps = $this->getProp('property');
+        if ($aProps) {
+            $sResult = (string)$aProps['compatible'];
+        }
+        return $sResult;
+    }
+
     public function RequiredAltoVersion() {
 
         $oRequires = $this->Requires();

@@ -708,7 +708,8 @@ class Func {
      */
     static public function GetRequestStr($sName, $xDefault = null, $sType = null) {
 
-        return (string)static::GetRequest($sName, $xDefault, $sType);
+        $sResult = static::GetRequest($sName, $xDefault, $sType);
+        return (is_array($sResult) ? '' : (string)$sResult);
     }
 
     /**
@@ -732,7 +733,11 @@ class Func {
      */
     static function GetPostStr($sName, $sDefault = null) {
 
-        if (!is_null($sDefault)) $sDefault = (string)$sDefault;
+        if (is_array($sDefault)) {
+            $sDefault = '';
+        } elseif (!is_null($sDefault)) {
+            $sDefault = (string)$sDefault;
+        }
         return static::GetRequestStr($sName, $sDefault, 'post');
     }
 

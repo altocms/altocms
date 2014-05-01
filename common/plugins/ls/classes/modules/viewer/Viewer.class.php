@@ -278,12 +278,28 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
                         $sResult = parent::SmartyDefaultTemplateHandler($sType, 'actions/ActionProfile/whois.tpl', $sContent, $iTimestamp, $oSmarty);
                     }
                 }
-                if (!$sResult && preg_match('~^actions/([^/]+)/action\.(\w+)\.(.+)$~', $sName, $aMatches)) {
-                    $sLsTemplate = 'actions/Action' . ucfirst($aMatches[1]) . '/' . $aMatches[3];
-                    if ($this->TemplateExists($sLsTemplate, false)) {
-                        $sResult = F::File_Exists($sLsTemplate, $this->oSmarty->getTemplateDir());
-                    } else {
-                        $sResult = $this->SmartyDefaultTemplateHandler($sType, $sLsTemplate, $sContent, $iTimestamp, $oSmarty);
+                if (!$sResult) {
+                    if (preg_match('~^actions/([^/]+)/action\.(\w+)\.(.+)$~', $sName, $aMatches)) {
+                        $sLsTemplate = 'actions/Action' . ucfirst($aMatches[1]) . '/' . $aMatches[3];
+                        if ($this->TemplateExists($sLsTemplate, false)) {
+                            $sResult = F::File_Exists($sLsTemplate, $this->oSmarty->getTemplateDir());
+                        } else {
+                            $sResult = $this->SmartyDefaultTemplateHandler($sType, $sLsTemplate, $sContent, $iTimestamp, $oSmarty);
+                        }
+                    } elseif (preg_match('~^topic_(\w+)\.tpl$~', $sName)) {
+                        $sLsTemplate = 'topic_topic.tpl';
+                        if ($this->TemplateExists($sLsTemplate, false)) {
+                            $sResult = F::File_Exists($sLsTemplate, $this->oSmarty->getTemplateDir());
+                        } else {
+                            $sResult = $this->SmartyDefaultTemplateHandler($sType, $sLsTemplate, $sContent, $iTimestamp, $oSmarty);
+                        }
+                    } elseif (strpos($sName, '/emails/ru/email.')) {
+                        $sLsTemplate = str_replace('/emails/ru/email.', '/notify/russian/notify.', $sName);
+                        if (F::File_Exists($sLsTemplate)) {
+                            $sResult = $sLsTemplate;
+                        } else {
+                            $sResult = $this->SmartyDefaultTemplateHandler($sType, $sLsTemplate, $sContent, $iTimestamp, $oSmarty);
+                        }
                     }
                 }
 
@@ -312,6 +328,20 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
         }
         $sDir = Plugin::GetDir('PluginLs') . '/classes/modules/viewer/plugs/';
         $this->oSmarty->addPluginsDir($sDir);
+    }
+
+    protected function _initSkin() {
+
+        $oSkin = $this->Skin_GetSkin($this->GetConfigSkin());
+
+        if (!$oSkin->GetCompatible()) {
+            // It's old LS skin
+            $aOldJs = Config::Get('assets.ls.head.default.js');
+            $aOldCss = Config::Get('assets.ls.head.default.css');
+            Config::Set('head.default.js', $aOldJs);
+            Config::Set('head.default.css', $aOldCss);
+        }
+        parent::_initSkin();
     }
 
     public function InitAssetFiles() {

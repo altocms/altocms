@@ -1,3 +1,5 @@
+;var ls = ls || {};
+
 /* ****************************************************
  * Frontend for LS-compatibility
  */
@@ -29,8 +31,6 @@ String.prototype.tr = function (a, p) {
     });
     return $that;
 };
-
-var ls = ls || {};
 
 /**
  * Управление всплывающими сообщениями

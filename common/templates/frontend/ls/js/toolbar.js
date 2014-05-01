@@ -1,4 +1,4 @@
-var ls = ls || {};
+;var ls = ls || {};
 ls.toolbar = ls.toolbar || {};
 
 /**
