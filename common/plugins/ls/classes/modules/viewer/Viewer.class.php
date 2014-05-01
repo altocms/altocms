@@ -333,13 +333,17 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
     protected function _initSkin() {
 
         $oSkin = $this->Skin_GetSkin($this->GetConfigSkin());
+        $sCompatible = $oSkin->GetCompatible();
 
-        if (!$oSkin->GetCompatible()) {
+        if (!$sCompatible || $sCompatible == 'ls') {
             // It's old LS skin
             $aOldJs = Config::Get('assets.ls.head.default.js');
             $aOldCss = Config::Get('assets.ls.head.default.css');
             Config::Set('head.default.js', $aOldJs);
             Config::Set('head.default.css', $aOldCss);
+            Config::Set('view.compatible', 'ls');
+        } else {
+            Config::Set('view.compatible', $sCompatible ? $sCompatible : 'alto');
         }
         parent::_initSkin();
     }
