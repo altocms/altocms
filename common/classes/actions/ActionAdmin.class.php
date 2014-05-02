@@ -1187,12 +1187,16 @@ class ActionAdmin extends Action {
             Router::GetPath('admin') . 'content-blogs/list/' . $sMode);
 
         $aBlogTypes = $this->Blog_GetBlogTypes();
+        $nBlogsTotal = 0;
+        foreach ($aBlogTypes as $oBlogType) {
+            $nBlogsTotal += $oBlogType->GetBlogsCount();
+        }
         $aAllBlogs = $this->Blog_GetBlogs();
         foreach($aAllBlogs as $nBlogId=>$oBlog) {
             $aAllBlogs[$nBlogId] = $oBlog->GetTitle();
         }
 
-        $this->Viewer_Assign('nBlogsTotal', $aResult['count']);
+        $this->Viewer_Assign('nBlogsTotal', $nBlogsTotal);
         $this->Viewer_Assign('aBlogTypes', $aBlogTypes);
         $this->Viewer_Assign('aBlogs', $aResult['collection']);
         $this->Viewer_Assign('aAllBlogs', $aAllBlogs);
