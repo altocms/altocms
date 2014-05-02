@@ -823,15 +823,12 @@ class ActionAjax extends Action {
      */
     protected function EventStreamComment() {
 
+        $oViewer = $this->Viewer_GetLocalViewer();
         if ($aComments = $this->Comment_GetCommentsOnline('topic', Config::Get('block.stream.row'))) {
-            $oViewer = $this->Viewer_GetLocalViewer();
             $oViewer->Assign('aComments', $aComments);
-            $sTextResult = $oViewer->FetchWidget('stream_comment.tpl');
-            $this->Viewer_AssignAjax('sText', $sTextResult);
-        } else {
-            $this->Message_AddErrorSingle($this->Lang_Get('block_stream_comments_no'), $this->Lang_Get('attention'));
-            return;
         }
+        $sTextResult = $oViewer->FetchWidget('stream_comment.tpl');
+        $this->Viewer_AssignAjax('sText', $sTextResult);
     }
 
     /**
@@ -841,17 +838,14 @@ class ActionAjax extends Action {
      */
     protected function EventStreamTopic() {
 
+        $oViewer = $this->Viewer_GetLocalViewer();
         if ($aTopics = $this->Topic_GetTopicsLast(Config::Get('block.stream.row'))) {
-            $oViewer = $this->Viewer_GetLocalViewer();
             $oViewer->Assign('aTopics', $aTopics);
             // LS-compatibility
             $oViewer->Assign('oTopics', $aTopics);
-            $sTextResult = $oViewer->FetchWidget('stream_topic.tpl');
-            $this->Viewer_AssignAjax('sText', $sTextResult);
-        } else {
-            $this->Message_AddErrorSingle($this->Lang_Get('block_stream_topics_no'), $this->Lang_Get('attention'));
-            return;
         }
+        $sTextResult = $oViewer->FetchWidget('stream_topic.tpl');
+        $this->Viewer_AssignAjax('sText', $sTextResult);
     }
 
     /**
