@@ -153,7 +153,8 @@ a {
   color: #599a00;
   text-decoration: none;
 }
-.topic {
+.topic,
+.content-menu {
   background-color: #ecebe9;
 }
 .topic-content a:hover,

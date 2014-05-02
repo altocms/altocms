@@ -128,6 +128,9 @@ a.read-more:hover { color: #ff4136; }
 .action-header { margin-bottom: 30px; }
 .action-header .nav-filter-wrapper { margin-bottom: 0 !important; }
 
+.content-menu {
+    box-shadow: inset 0 -2px 1px rgba(64, 64, 64, .05);
+}
 
 /* FOOTER */
 .footer { background-color: #111; color: #919191; }
