@@ -571,16 +571,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      */
     public function GetCloseBlogs($oUser = null) {
 
-        if ($oUser) {
-            $aFilter = array(
-                'acl_read' => ModuleBlog::BLOG_USER_ACL_MEMBER,
-            );
-        } else {
-            $aFilter = array(
-                'acl_read' => ModuleBlog::BLOG_USER_ACL_USER | ModuleBlog::BLOG_USER_ACL_MEMBER,
-            );
-        }
-        $aTypes = $this->Blog_GetBlogTypes($aFilter, true);
+        $aTypes = $this->Blog_GetCloseBlogTypes($oUser);
         $aCriteria = array(
             'filter' => array(
                 //'blog_type' => 'close',

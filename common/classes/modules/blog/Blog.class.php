@@ -942,6 +942,7 @@ class ModuleBlog extends Module {
             if ($iBlog) {
                 return isset($aAllowBlogs[$iBlog]) ? $aAllowBlogs[$iBlog] : array();
             }
+            $this->_sortByTitle($aAllowBlogs);
             return $aAllowBlogs;
         }
 
@@ -1098,27 +1099,25 @@ class ModuleBlog extends Module {
             $aCloseBlogs = $this->oMapper->GetCloseBlogs($oUser);
 
             if ($oUser) {
-                /**
-                 * Получаем массив идентификаторов блогов,
-                 * которые являются откытыми для данного пользователя
-                 */
+                // * Получаем массив идентификаторов блогов, которые являются откытыми для данного пользователя
                 $aOpenBlogs = $this->GetBlogUsersByUserId($nUserId, null, true);
-                /**
-                 * Получаем закрытые блоги, где пользователь является автором
-                 */
-                $aOwnerBlogs = $this->GetBlogsByFilter(
-                    array(
-                         'type' => 'close',
-                         'user_owner_id' => $nUserId,
-                    ),
-                    array(), 1, 1000, array()
-                );
-                $aOwnerBlogs = array_keys($aOwnerBlogs['collection']);
-                $aCloseBlogs = array_diff($aCloseBlogs, $aOpenBlogs, $aOwnerBlogs);
+
+                // * Получаем закрытые блоги, где пользователь является автором
+                $aCloseBlogTypes = $this->GetCloseBlogTypes($oUser);
+                if ($aCloseBlogTypes) {
+                    $aOwnerBlogs = $this->GetBlogsByFilter(
+                        array(
+                            'type' => $aCloseBlogTypes,
+                            'user_owner_id' => $nUserId,
+                        ),
+                        array(), 1, 1000, array()
+                    );
+                    $aOwnerBlogs = array_keys($aOwnerBlogs['collection']);
+                    $aCloseBlogs = array_diff($aCloseBlogs, $aOpenBlogs, $aOwnerBlogs);
+                }
             }
-            /**
-             * Сохраняем в кеш
-             */
+
+            // * Сохраняем в кеш
             if ($oUser) {
                 $this->Cache_Set(
                     $aCloseBlogs, $sCacheKey,
@@ -1326,12 +1325,18 @@ class ModuleBlog extends Module {
     /**
      * Returns types of blogs which user can read (without personal subscriptions/membership)
      *
+     * @param $oUser
+     *
      * @return array
      */
-    public function GetOpenBlogTypes() {
+    public function GetOpenBlogTypes($oUser = null) {
 
-        $iUserId = E::UserId();
-        $sCacheKey = 'blog_types_open_' . $iUserId;
+        if (is_null($oUser)) {
+            $iUserId = E::UserId();
+        } else {
+            $iUserId = (is_object($oUser) ? $oUser->getId() : intval($oUser));
+        }
+        $sCacheKey = 'blog_types_open_' . ($iUserId ? 'user' : 'guest');
         if (false === ($aBlogTypes = $this->Cache_Get($sCacheKey, 'tmp'))) {
             if ($this->oUserCurrent) {
                 $aFilter = array(
@@ -1340,6 +1345,38 @@ class ModuleBlog extends Module {
             } else {
                 $aFilter = array(
                     'acl_read' => ModuleBlog::BLOG_USER_ACL_GUEST,
+                );
+            }
+            // Blog types for guest and all users
+            $aBlogTypes = $this->GetBlogTypes($aFilter, true);
+            $this->Cache_Set($aBlogTypes, $sCacheKey, array('blog_update', 'blog_new'), 'P30D', 'tmp');
+        }
+        return $aBlogTypes;
+    }
+
+    /**
+     * Returns types of blogs which user cannot read (without personal subscriptions/membership)
+     *
+     * @param $oUser
+     *
+     * @return array
+     */
+    public function GetCloseBlogTypes($oUser = null) {
+
+        if (is_null($oUser)) {
+            $iUserId = E::UserId();
+        } else {
+            $iUserId = (is_object($oUser) ? $oUser->getId() : intval($oUser));
+        }
+        $sCacheKey = 'blog_types_close_' . ($iUserId ? 'user' : 'guest');
+        if (false === ($aBlogTypes = $this->Cache_Get($sCacheKey, 'tmp'))) {
+            if ($this->oUserCurrent) {
+                $aFilter = array(
+                    'acl_read' => ModuleBlog::BLOG_USER_ACL_MEMBER,
+                );
+            } else {
+                $aFilter = array(
+                    'acl_read' => ModuleBlog::BLOG_USER_ACL_USER | ModuleBlog::BLOG_USER_ACL_MEMBER,
                 );
             }
             // Blog types for guest and all users

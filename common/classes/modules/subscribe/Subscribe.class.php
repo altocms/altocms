@@ -420,8 +420,9 @@ class ModuleSubscribe extends Module {
              * Топик может быть в закрытом блоге, поэтому необходимо разрешить подписку только если пользователь в нем состоит
              * Отписываться разрешаем с любого топика
              */
-            if ($iStatus == 1 && $oTopic->getBlog()->getType() == 'close') {
-                if (!$this->oUserCurrent || !($oTopic->getBlog()->getOwnerId() == $this->oUserCurrent->getId()
+            if ($iStatus == 1 && $oTopic->getBlog()->IsPrivate()) {
+                if (!$this->oUserCurrent
+                    || !($oTopic->getBlog()->getOwnerId() == $this->oUserCurrent->getId()
                         || $this->Blog_GetBlogUserByBlogIdAndUserId($oTopic->getBlogId(), $this->oUserCurrent->getId()))
                 ) {
                     return false;

@@ -187,34 +187,28 @@ class ActionRss extends Action {
     protected function RssTopicComments() {
 
         $sTopicId = $this->GetParam(0);
-        /**
-         * Топик существует?
-         */
-        if (!($oTopic = $this->Topic_GetTopicById($sTopicId)) || !$oTopic->getPublish()
-            || $oTopic->getBlog()->getType() == 'close'
-        ) {
+
+        // * Топик существует?
+        if (!($oTopic = $this->Topic_GetTopicById($sTopicId)) || !$oTopic->getPublish() || $oTopic->getBlog()->IsPrivate()) {
             return parent::EventNotFound();
         }
-        /**
-         * Получаем комментарии
-         */
+
+        // * Получаем комментарии
         $aResult = $this->Comment_GetCommentsByFilter(
             array('target_id' => $oTopic->getId(), 'target_type' => 'topic', 'delete' => 0),
             array('comment_id' => 'desc'), 1, 100
         );
         $aComments = $aResult['collection'];
-        /**
-         * Формируем данные канала RSS
-         */
+
+        // * Формируем данные канала RSS
         $aChannel['title'] = Config::Get('view.name');
         $aChannel['link'] = Config::Get('path.root.url');
         $aChannel['description'] = Config::Get('path.root.url') . ' / RSS channel';
         $aChannel['language'] = 'ru';
         $aChannel['managingEditor'] = Config::Get('general.rss_editor_mail');
         $aChannel['generator'] = Config::Get('path.root.url');
-        /**
-         * Формируем записи RSS
-         */
+
+        // * Формируем записи RSS
         $comments = array();
         foreach ($aComments as $oComment) {
             $item['title'] = 'Comments: ' . $oTopic->getTitle();
@@ -226,9 +220,8 @@ class ActionRss extends Action {
             $item['category'] = 'comments';
             $comments[] = $item;
         }
-        /**
-         * Формируем ответ
-         */
+
+        // * Формируем ответ
         $this->InitRss();
         $this->Viewer_Assign('aChannel', $aChannel);
         $this->Viewer_Assign('aItems', $comments);

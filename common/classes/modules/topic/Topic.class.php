@@ -1142,10 +1142,7 @@ class ModuleTopic extends Module {
     public function GetTopicsGood($iPage, $iPerPage, $bAddAccessible = true) {
 
         $aFilter = array(
-            'blog_type'     => array(
-                'personal',
-                'open'
-            ),
+            'blog_type'     => $this->Blog_GetOpenBlogTypes(),
             'topic_publish' => 1,
             'topic_rating'  => array(
                 'value'         => Config::Get('module.blog.index_good'),
@@ -1182,10 +1179,7 @@ class ModuleTopic extends Module {
 
         $sDate = date('Y-m-d H:00:00', time() - Config::Get('module.topic.new_time'));
         $aFilter = array(
-            'blog_type'     => array(
-                'personal',
-                'open',
-            ),
+            'blog_type'     => $this->Blog_GetOpenBlogTypes(),
             'topic_publish' => 1,
             'topic_new'     => $sDate,
         );
@@ -1216,10 +1210,7 @@ class ModuleTopic extends Module {
     public function GetTopicsNewAll($iPage, $iPerPage, $bAddAccessible = true) {
 
         $aFilter = array(
-            'blog_type'     => array(
-                'personal',
-                'open',
-            ),
+            'blog_type'     => $this->Blog_GetOpenBlogTypes(),
             'topic_publish' => 1,
         );
         /**
@@ -1255,10 +1246,7 @@ class ModuleTopic extends Module {
         }
 
         $aFilter = array(
-            'blog_type'     => array(
-                'personal',
-                'open',
-            ),
+            'blog_type'     => $this->Blog_GetOpenBlogTypes(),
             'topic_publish' => 1
         );
         if ($sPeriod) {
@@ -1298,10 +1286,7 @@ class ModuleTopic extends Module {
         }
 
         $aFilter = array(
-            'blog_type'     => array(
-                'personal',
-                'open',
-            ),
+            'blog_type'     => $this->Blog_GetOpenBlogTypes(),
             'topic_publish' => 1
         );
         if ($sPeriod) {
@@ -1464,7 +1449,7 @@ class ModuleTopic extends Module {
         $aFilter = array(
             'topic_publish' => $iPublish,
             'user_id'       => $nUserId,
-            'blog_type'     => array('open', 'personal'),
+            'blog_type'     => $this->Blog_GetOpenBlogTypes(),
         );
         /**
          * Если пользователь смотрит свой профиль, то добавляем в выдачу
@@ -1489,7 +1474,7 @@ class ModuleTopic extends Module {
         $aFilter = array(
             'topic_publish' => $bPublish ? 1 : 0,
             'user_id'       => $nUserId,
-            'blog_type'     => array('open', 'personal'),
+            'blog_type'     => $this->Blog_GetOpenBlogTypes(),
         );
         /**
          * Если пользователь смотрит свой профиль, то добавляем в выдачу
@@ -1547,10 +1532,12 @@ class ModuleTopic extends Module {
             // количество последних секунд
             $sPeriod = date('Y-m-d H:00:00', time() - $sPeriod);
         }
+        $aOpenBlogTypes = $this->Blog_GetOpenBlogTypes();
+        if (false !== ($nKey = array_search('personal', $aOpenBlogTypes))) {
+            unset($aOpenBlogTypes[$nKey]);
+        }
         $aFilter = array(
-            'blog_type'     => array(
-                'open',
-            ),
+            'blog_type'     => $aOpenBlogTypes,
             'topic_publish' => 1,
         );
         if ($sPeriod) {
@@ -1605,10 +1592,12 @@ class ModuleTopic extends Module {
     public function GetCountTopicsCollectiveNew() {
 
         $sDate = date('Y-m-d H:00:00', time() - Config::Get('module.topic.new_time'));
+        $aOpenBlogTypes = $this->Blog_GetOpenBlogTypes();
+        if (false !== ($nKey = array_search('personal', $aOpenBlogTypes))) {
+            unset($aOpenBlogTypes[$nKey]);
+        }
         $aFilter = array(
-            'blog_type'     => array(
-                'open',
-            ),
+            'blog_type'     => $aOpenBlogTypes,
             'topic_publish' => 1,
             'topic_new'     => $sDate,
         );

@@ -1273,7 +1273,7 @@ class ActionBlog extends Action {
             // * Добавляем событие в ленту
             $this->Stream_Write(
                 $oCommentNew->getUserId(), 'add_comment', $oCommentNew->getId(),
-                $oTopic->getPublish() && ($oTopic->getBlog()->getType() != 'close')
+                $oTopic->getPublish() && !$oTopic->getBlog()->IsPrivate()
             );
         } else {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));

@@ -498,6 +498,33 @@ class ModuleBlog_EntityBlog extends Entity {
         $this->setProp('vote', $data);
     }
 
+    /* *** Properties of blog type *** */
+    public function IsPrivate() {
+
+        $oBlogType = $this->getBlogType();
+        if ($oBlogType) {
+            return $oBlogType->IsPrivate();
+        }
+        return null;
+    }
+
+    public function IsReadOnly() {
+
+        $oBlogType = $this->getBlogType();
+        if ($oBlogType) {
+            return $oBlogType->IsReadOnly();
+        }
+        return null;
+    }
+
+    public function IsHidden() {
+
+        $oBlogType = $this->getBlogType();
+        if ($oBlogType) {
+            return $oBlogType->IsHidden();
+        }
+        return null;
+    }
 }
 
 // EOF
