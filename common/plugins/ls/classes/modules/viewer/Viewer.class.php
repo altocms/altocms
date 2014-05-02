@@ -277,6 +277,13 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
                     } else {
                         $sResult = parent::SmartyDefaultTemplateHandler($sType, 'actions/ActionProfile/whois.tpl', $sContent, $iTimestamp, $oSmarty);
                     }
+                } elseif (($sName == 'actions/ActionTalk/message.tpl') || ($sName == 'actions/talk/action.talk.message.tpl')) {
+                    $sResult = $this->TemplateExists('actions/ActionTalk/read.tpl');
+                    if ($sResult) {
+                        $sResult = F::File_Exists('actions/ActionTalk/read.tpl', $this->oSmarty->getTemplateDir());
+                    } else {
+                        $sResult = parent::SmartyDefaultTemplateHandler($sType, 'actions/ActionTalk/read.tpl', $sContent, $iTimestamp, $oSmarty);
+                    }
                 }
                 if (!$sResult) {
                     if (preg_match('~^actions/([^/]+)/action\.(\w+)\.(.+)$~', $sName, $aMatches)) {

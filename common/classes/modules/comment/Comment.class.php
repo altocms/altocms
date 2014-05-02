@@ -750,8 +750,8 @@ class ModuleComment extends Module {
             $oComment = reset($aComments);
             if ($oComment->getTarget() && $oComment->getTarget()->getBlog()) {
                 $iBlogId = $oComment->getTarget()->getBlog()->GetId();
+                $bAllowToComment = $this->Blog_GetBlogsAllowTo('comment', $oUserCurrent, $iBlogId, true);
             }
-            $bAllowToComment = $this->Blog_GetBlogsAllowTo('comment', $oUserCurrent, $iBlogId, true);
         }
         foreach ($aComments as $oComment) {
             $oViewerLocal->Assign('oComment', $oComment);

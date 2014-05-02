@@ -191,10 +191,13 @@ return array(
     'blog_admin_delete_not_empty'               => 'Вы не можете удалить блок с записями. Предварительно удалите из блога все записи.',
     'blog_admin_delete_move_error'              => 'Не удалось переместить статьи из удаляемого блога',
     'blog_admin_delete_move_personal'           => 'Нельзя перемещать статьи в персональный блог',
-    'blog_admin_user_add_label'                 => 'Добавить пользователей',
+
+    'blog_admin_user_add_label'                 => 'Добавьте пользователей, которых Вы хотите пригласить',
     'blog_admin_user_invited'                   => 'Список приглашенных',
     'blog_admin_user_add_header'                => 'Пригласить пользователей',
     'blog_admin_user_add_empty'                 => 'Нет приглашенных пользователей',
+    'blog_admin_user_invite'                    => 'Пригласить',
+
     'blog_close_show'                           => 'Это закрытый блог, у вас нет прав на просмотр контента',
     'blog_user_invite_add_self'                 => 'Нельзя отправить инвайт самому себе',
     'blog_user_invite_add_ok'                   => 'Пользователю %%login%% отправлено приглашение',

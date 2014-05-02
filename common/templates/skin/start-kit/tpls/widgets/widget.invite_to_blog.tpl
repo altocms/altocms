@@ -7,9 +7,14 @@
 
         <div class="widget-content">
             <form onsubmit="return ls.blog.addInvite({$oBlogEdit->getId()});">
-                <div class="form-group">
-                    <label for="blog_admin_user_add">{$aLang.blog_admin_user_add_label}</label>
+                <p class="text-muted">
+                    <small>{$aLang.blog_admin_user_add_label}</small>
+                </p>
+                <div class="input-group">
                     <input type="text" id="blog_admin_user_add" name="add" class="form-control autocomplete-users-sep"/>
+                        <span class="input-group-btn">
+                            <button class="btn btn-default">{$aLang.blog_admin_user_invite}</button>
+                        </span>
                 </div>
             </form>
 
