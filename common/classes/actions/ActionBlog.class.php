@@ -2002,7 +2002,8 @@ class ActionBlog extends Action {
                 if ($oBlogUser) {
                     $oBlogUser->setUserRole(ModuleBlog::BLOG_USER_ROLE_USER);
                     $bResult = $this->Blog_UpdateRelationBlogUser($oBlogUser);
-                } elseif ($oBlog->getType() == 'open') {
+                } elseif ($oBlogType->GetMembership(ModuleBlog::BLOG_USER_JOIN_FREE)) {
+                    // User can free subsribe to blog
                     $oBlogUserNew = Engine::GetEntity('Blog_BlogUser');
                     $oBlogUserNew->setBlogId($oBlog->getId());
                     $oBlogUserNew->setUserId($this->oUserCurrent->getId());

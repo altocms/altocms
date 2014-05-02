@@ -35,7 +35,7 @@
                 {$sClasses = "$sClasses voted-down"}
             {/if}
         {/if}
-        <div class="small vote js-vote {$sClasses}" data-target-type="user" data-target-id="{$oBlog->getId()}">
+        <div class="small vote js-vote {$sClasses}" data-target-type="blog" data-target-id="{$oBlog->getId()}">
             <div class="text-muted vote-label">{$aLang.blog_rating}</div>
             <a href="#" class="vote-up js-vote-up"><span class="glyphicon glyphicon-plus-sign"></span></a>
 

@@ -164,10 +164,11 @@ class ModuleUserfeed_MapperUserfeed extends Mapper {
      * @param array $aUserSubscribes Список подписок пользователя
      * @param int   $iCount          Число получаемых записей (если null, из конфига)
      * @param int   $iFromId         Получить записи, начиная с указанной
+     * @param array $aFilter         Дополнительные фильтры
      *
      * @return array
      */
-    public function ReadFeed($aUserSubscribes, $iCount, $iFromId) {
+    public function ReadFeed($aUserSubscribes, $iCount, $iFromId, $aFilter) {
 
         $sql
             = "
@@ -179,7 +180,10 @@ class ModuleUserfeed_MapperUserfeed extends Mapper {
 				WHERE
 					t.topic_publish = 1
 					AND t.blog_id=b.blog_id
-					AND b.blog_type!='close'
+					{ AND b.blog_type=? }
+					{ AND b.blog_type IN (?a) }
+					{ AND b.blog_type!=? }
+					{ AND b.blog_type NOT IN (?a) }
 					{ AND t.topic_id < ?d }
 					AND ( 1=0 { OR t.blog_id IN (?a) } { OR t.user_id IN (?a) } )
                 ORDER BY t.topic_id DESC
@@ -187,6 +191,10 @@ class ModuleUserfeed_MapperUserfeed extends Mapper {
 
         $aTopics = $aTopics = $this->oDb->selectCol(
             $sql,
+            (isset($aFilter['include_types']) && !is_array($aFilter['include_types'])) ? $aFilter['include_types'] : DBSIMPLE_SKIP,
+            (isset($aFilter['include_types']) && is_array($aFilter['include_types'])) ? $aFilter['include_types'] : DBSIMPLE_SKIP,
+            (isset($aFilter['exclude_types']) && !is_array($aFilter['exclude_types'])) ? $aFilter['exclude_types'] : DBSIMPLE_SKIP,
+            (isset($aFilter['exclude_types']) && is_array($aFilter['exclude_types'])) ? $aFilter['exclude_types'] : DBSIMPLE_SKIP,
             $iFromId ? $iFromId : DBSIMPLE_SKIP,
             count($aUserSubscribes['blogs']) ? $aUserSubscribes['blogs'] : DBSIMPLE_SKIP,
             count($aUserSubscribes['users']) ? $aUserSubscribes['users'] : DBSIMPLE_SKIP,

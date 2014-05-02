@@ -677,10 +677,12 @@ class ModuleTopic_MapperTopic extends Mapper {
 
         $sWhere = '';
         if (isset($aFilter['topic_date_more'])) {
-            $sWhere .= " AND t.topic_date_add >  " . $this->oDb->escape($aFilter['topic_date_more']);
+            $sWhere .= " AND ((t.topic_date_show IS NOT NULL AND t.topic_date_show >  " . $this->oDb->escape($aFilter['topic_date_more']) . ")";
+            $sWhere .= " OR (t.topic_date_show IS NULL AND t.topic_date_add >  " . $this->oDb->escape($aFilter['topic_date_more']) . "))";
         }
         if (isset($aFilter['topic_publish'])) {
-            $sWhere .= " AND t.topic_publish =  " . (int)$aFilter['topic_publish'];
+            $sWhere .= " AND (t.topic_publish =  " . ($aFilter['topic_publish'] ? 1 : 0) . ")";
+            $sWhere .= " AND (t.topic_date_show IS NULL OR t.topic_date_show <= NOW())";
         }
         if (isset($aFilter['topic_rating']) && is_array($aFilter['topic_rating'])) {
             $sPublishIndex = '';

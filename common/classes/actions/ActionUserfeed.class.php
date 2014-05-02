@@ -69,7 +69,7 @@ class ActionUserfeed extends Action {
     protected function EventIndex() {
 
         // * Получаем топики
-        $aTopics = $this->Userfeed_read($this->oUserCurrent->getId());
+        $aTopics = $this->Userfeed_Read($this->oUserCurrent->getId());
 
         // * Вызов хуков
         $this->Hook_Run('topics_list_show', array('aTopics' => $aTopics));

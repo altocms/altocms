@@ -54,6 +54,7 @@
     {if $aBlogs}
         {foreach $aBlogs as $oBlog}
             {$oUserOwner=$oBlog->getOwner()}
+            {$oBlogType=$oBlog->getBlogType()}
             <tr>
                 <td class="cell-name">
                     <a href="{$oBlog->getUrlFull()}">
@@ -73,7 +74,7 @@
 
                 {if E::IsUser()}
                     <td class="small cell-join">
-                        {if E::UserId() != $oBlog->getOwnerId() AND $oBlog->getType() == 'open'}
+                        {if (E::UserId() != $oBlog->getOwnerId()) && $oBlogType->GetMembership(ModuleBlog::BLOG_USER_JOIN_FREE)}
                             <a href="#" onclick="ls.blog.toggleJoin(this, {$oBlog->getId()}); return false;"
                                class="link-dotted">
                                 {if $oBlog->getUserIsJoin()}

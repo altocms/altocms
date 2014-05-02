@@ -286,6 +286,15 @@ class ModuleTopic_EntityTopic extends Entity {
         return $this->getProp('topic_date_edit');
     }
 
+    public function getDateShow() {
+
+        $sDate = $this->getProp('topic_date_show');
+        if (is_null($sDate)) {
+            return $this->getDateAdd();
+        }
+        return $sDate;
+    }
+
     /**
      * Возвращает IP пользователя
      *

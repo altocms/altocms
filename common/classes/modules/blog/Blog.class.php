@@ -1095,7 +1095,7 @@ class ModuleBlog extends Module {
         $nUserId = $oUser ? $oUser->getId() : 0;
         $sCacheKey = 'blog_inaccessible_user_' . $nUserId;
         if (false === ($aCloseBlogs = $this->Cache_Get($sCacheKey))) {
-            $aCloseBlogs = $this->oMapper->GetCloseBlogs();
+            $aCloseBlogs = $this->oMapper->GetCloseBlogs($oUser);
 
             if ($oUser) {
                 /**
@@ -1111,7 +1111,7 @@ class ModuleBlog extends Module {
                          'type' => 'close',
                          'user_owner_id' => $nUserId,
                     ),
-                    array(), 1, 100, array()
+                    array(), 1, 1000, array()
                 );
                 $aOwnerBlogs = array_keys($aOwnerBlogs['collection']);
                 $aCloseBlogs = array_diff($aCloseBlogs, $aOpenBlogs, $aOwnerBlogs);

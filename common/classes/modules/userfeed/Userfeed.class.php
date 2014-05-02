@@ -86,7 +86,25 @@ class ModuleUserfeed extends Module {
             $iCount = Config::Get('module.userfeed.count_default');
         }
         $aUserSubscribes = $this->oMapper->getUserSubscribes($iUserId);
-        $aTopicsIds = $this->oMapper->readFeed($aUserSubscribes, $iCount, $iFromId);
+        if (E::IsAdmin()) {
+            $aFilter = array();
+        } else {
+            if (E::User()) {
+                $aFilter = array(
+                    'acl_read' => ModuleBlog::BLOG_USER_ACL_GUEST | ModuleBlog::BLOG_USER_ACL_USER,
+                );
+            } else {
+                $aFilter = array(
+                    'acl_read' => ModuleBlog::BLOG_USER_ACL_GUEST,
+                );
+            }
+            // Blog types for guest and all users
+            $aBlogTypes = $this->Blog_GetBlogTypes($aFilter, true);
+            $aFilter = array(
+                'include_types' => $aBlogTypes,
+            );
+        }
+        $aTopicsIds = $this->oMapper->readFeed($aUserSubscribes, $iCount, $iFromId, $aFilter);
         if ($aTopicsIds) {
             return $this->Topic_GetTopicsAdditionalData($aTopicsIds);
         }

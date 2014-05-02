@@ -565,13 +565,26 @@ class ModuleBlog_MapperBlog extends Mapper {
     /**
      * Возвращает полный список закрытых блогов
      *
+     * @param $oUser
+     *
      * @return array
      */
-    public function GetCloseBlogs() {
+    public function GetCloseBlogs($oUser = null) {
 
+        if ($oUser) {
+            $aFilter = array(
+                'acl_read' => ModuleBlog::BLOG_USER_ACL_MEMBER,
+            );
+        } else {
+            $aFilter = array(
+                'acl_read' => ModuleBlog::BLOG_USER_ACL_USER | ModuleBlog::BLOG_USER_ACL_MEMBER,
+            );
+        }
+        $aTypes = $this->Blog_GetBlogTypes($aFilter, true);
         $aCriteria = array(
             'filter' => array(
-                'blog_type' => 'close',
+                //'blog_type' => 'close',
+                'blog_type' => $aTypes,
             ),
         );
         $aResult = $this->GetBlogsIdByCriteria($aCriteria);
@@ -1058,7 +1071,7 @@ class ModuleBlog_MapperBlog extends Mapper {
             }
         }
 
-        // Необходимость JOIN'а
+        // Необходимость JOIN'ов
         $aBlogTypeFields = array(
             'allow_add', 'min_rate_add', 'allow_list', 'min_rate_list', 'acl_read', 'min_rate_read', 'acl_write',
             'min_rate_write', 'acl_comment', 'min_rate_comment', 'index_ignore', 'membership',
@@ -1068,11 +1081,20 @@ class ModuleBlog_MapperBlog extends Mapper {
         } else {
             $bBlogTypeJoin = false;
         }
+        $aBlogUserFields = array(
+            'user_role',
+        );
+        if ($aFilter && array_intersect(array_keys($aFilter), $aBlogUserFields)) {
+            $bBlogUserJoin = true;
+        } else {
+            $bBlogUserJoin = false;
+        }
 
         $sql = "
             SELECT b.blog_id
             FROM ?_blog AS b
                 { INNER JOIN ?_blog_type AS bt ON bt.type_code=b.blog_type AND 1=?d }
+                { INNER JOIN ?_blog_user AS bu ON bu.blog_id=b.blog_id AND 1=?d }
             WHERE
                 1 = 1
                 { AND (b.blog_id = ?d) }
@@ -1099,9 +1121,11 @@ class ModuleBlog_MapperBlog extends Mapper {
                 { AND (bt.min_rate_comment >= ?d) }
                 { AND (bt.index_ignore = ?d) }
                 { AND (bt.membership = ?d) }
+                { AND (bu.user_role = ?d) }
         " . $sSqlOrder . ' ' . $sSqlLimit;
         $aData = $this->oDb->selectCol($sql,
             $bBlogTypeJoin ? 1 : DBSIMPLE_SKIP,
+            $bBlogUserJoin ? 1 : DBSIMPLE_SKIP,
             (isset($aFilter['blog_id']) && !is_array($aFilter['blog_id'])) ? $aFilter['blog_id'] : DBSIMPLE_SKIP,
             (isset($aFilter['blog_id']) && is_array($aFilter['blog_id'])) ? $aFilter['blog_id'] : DBSIMPLE_SKIP,
             isset($aFilter['not_blog_id']) ? $aFilter['not_blog_id'] : DBSIMPLE_SKIP,
@@ -1125,7 +1149,8 @@ class ModuleBlog_MapperBlog extends Mapper {
             isset($aFilter['acl_comment']) ? $aFilter['acl_comment'] : DBSIMPLE_SKIP,
             isset($aFilter['min_rate_comment']) ? $aFilter['min_rate_comment'] : DBSIMPLE_SKIP,
             isset($aFilter['index_ignore']) ? ($aFilter['index_ignore'] ? 1 : 0) : DBSIMPLE_SKIP,
-            isset($aFilter['membership']) ? ($aFilter['membership'] ? 1 : 0) : DBSIMPLE_SKIP
+            isset($aFilter['membership']) ? ($aFilter['membership'] ? 1 : 0) : DBSIMPLE_SKIP,
+            isset($aFilter['user_role']) ? $aFilter['user_role'] : DBSIMPLE_SKIP
         );
         $aResult = array(
             'data' => $aData ? $aData : array(),

@@ -197,12 +197,11 @@ class ModuleComment_MapperComment extends Mapper {
 				LIMIT 0, ?d ;";
 
         $aComments = array();
-        if ($aRows = $this->oDb->select(
-            $sql, $sTargetType,
+        $aRows = $this->oDb->select($sql,
+            $sTargetType,
             (count($aExcludeTargets) ? $aExcludeTargets : DBSIMPLE_SKIP),
-            $iLimit
-        )
-        ) {
+            $iLimit);
+        if ($aRows) {
             foreach ($aRows as $aRow) {
                 $aComments[] = $aRow['comment_id'];
             }

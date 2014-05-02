@@ -1330,25 +1330,59 @@ class ModuleTopic extends Module {
      */
     public function GetTopicsLast($nCount) {
 
+        if ($this->oUserCurrent) {
+            $aFilter = array(
+                'acl_read' => ModuleBlog::BLOG_USER_ACL_GUEST | ModuleBlog::BLOG_USER_ACL_USER,
+            );
+        } else {
+            $aFilter = array(
+                'acl_read' => ModuleBlog::BLOG_USER_ACL_GUEST,
+            );
+        }
+        // Blog types for guest and all users
+        $aBlogTypes = $this->Blog_GetBlogTypes($aFilter, true);
         $aFilter = array(
-            'blog_type'     => array(
-                'personal',
-                'open',
-            ),
+            'blog_type'     => $aBlogTypes,
             'topic_publish' => 1,
         );
+        $aOpenTopics = $this->GetTopicsByFilter($aFilter, 1, $nCount);
         /**
          * Если пользователь авторизирован, то добавляем в выдачу
          * закрытые блоги в которых он состоит
          */
+        $aCloseTopics = array();
         if ($this->oUserCurrent) {
-            $aOpenBlogs = $this->Blog_GetAccessibleBlogsByUser($this->oUserCurrent);
-            if (count($aOpenBlogs)) {
-                $aFilter['blog_type']['close'] = $aOpenBlogs;
+            $aBlogsId = $this->Blog_GetAccessibleBlogsByUser($this->oUserCurrent);
+            if (count($aBlogsId)) {
+                $aFilter = array(
+                    'blog_id'     => $aBlogsId,
+                    'topic_publish' => 1,
+                );
+                $aCloseTopics = $this->GetTopicsByFilter($aFilter, 1, $nCount);
             }
         }
-        $aResult = $this->GetTopicsByFilter($aFilter, 1, $nCount);
-        return isset($aResult['collection']) ? $aResult['collection'] : false;
+        $aResult = array();
+        if (isset($aOpenTopics['collection'])) {
+            $aResult = $aOpenTopics['collection'];
+        }
+        if (isset($aCloseTopics['collection'])) {
+            $aResult = F::Array_Merge($aResult, $aCloseTopics['collection']);
+        }
+        if ($aResult) {
+            uasort($aResult, array($this, '_compareByDate'));
+            if (sizeof($aResult) > $nCount) {
+                $aResult = array_slice($aResult, 0, $nCount, true);
+            }
+        }
+        return $aResult;
+    }
+
+    public function _compareByDate($oTopics1, $oTopic2) {
+
+        if ($oTopics1->getDateShow() == $oTopic2->getDateShow()) {
+            return ($oTopics1->getId() > $oTopic2->getId()) ? -1 : 1;
+        }
+        return ($oTopics1->getDateShow() > $oTopic2->getDateShow()) ? -1 : 1;
     }
 
     /**
