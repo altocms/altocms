@@ -105,3 +105,5 @@ ADD INDEX ( `topic_index_ignore` );
 
 ALTER TABLE `prefix_topic_photo` ADD `date_add` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ,
 ADD INDEX ( `date_add` );
+
+ALTER TABLE  `prefix_blog_user` ADD `blog_user_id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;

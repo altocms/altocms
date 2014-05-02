@@ -597,7 +597,7 @@ class ModuleBlog extends Module {
     }
 
     /**
-     * Получает отношения юзера к блогам(состоит в блоге или нет)
+     * Получает отношения юзера к блогам (состоит в блоге или нет)
      *
      * @param int      $iUserId          ID пользователя
      * @param int|null $iRole            Роль пользователя в блоге
@@ -1320,6 +1320,32 @@ class ModuleBlog extends Module {
         }
         $aBlogTypes = $this->GetBlogTypes($aFilter, $bTypeCodesOnly);
 
+        return $aBlogTypes;
+    }
+
+    /**
+     * Returns types of blogs which user can read (without personal subscriptions/membership)
+     *
+     * @return array
+     */
+    public function GetOpenBlogTypes() {
+
+        $iUserId = E::UserId();
+        $sCacheKey = 'blog_types_open_' . $iUserId;
+        if (false === ($aBlogTypes = $this->Cache_Get($sCacheKey, 'tmp'))) {
+            if ($this->oUserCurrent) {
+                $aFilter = array(
+                    'acl_read' => ModuleBlog::BLOG_USER_ACL_GUEST | ModuleBlog::BLOG_USER_ACL_USER,
+                );
+            } else {
+                $aFilter = array(
+                    'acl_read' => ModuleBlog::BLOG_USER_ACL_GUEST,
+                );
+            }
+            // Blog types for guest and all users
+            $aBlogTypes = $this->GetBlogTypes($aFilter, true);
+            $this->Cache_Set($aBlogTypes, $sCacheKey, array('blog_update', 'blog_new'), 'P30D', 'tmp');
+        }
         return $aBlogTypes;
     }
 

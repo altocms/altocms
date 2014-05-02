@@ -88,9 +88,11 @@ INSERT INTO `prefix_blog_type` (`id`, `type_code`, `type_name`, `type_descriptio
 --
 
 CREATE TABLE IF NOT EXISTS `prefix_blog_user` (
+  `blog_user_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `blog_id` int(11) unsigned NOT NULL,
   `user_id` int(11) unsigned NOT NULL,
   `user_role` int(3) DEFAULT '1',
+  PRIMARY KEY (`blog_user_id`),
   UNIQUE KEY `blog_id_user_id_uniq` (`blog_id`,`user_id`),
   KEY `blog_id` (`blog_id`),
   KEY `user_id` (`user_id`)

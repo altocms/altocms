@@ -412,6 +412,38 @@ class ActionProfile extends Action {
         $this->SetTemplateAction('favourite_comments');
     }
 
+    protected function _filterBlogs($aBlogs) {
+
+        if (!$aBlogs || E::IsAdmin() || E::UserId() == $this->oUserProfile->getId()) {
+            return $aBlogs;
+        } else {
+            // Blog types for guest and all users
+            $aBlogTypes = $this->Blog_GetOpenBlogTypes();
+            foreach ($aBlogs as $iBlogId => $oBlog) {
+                if (!in_array($oBlog->getType(), $aBlogTypes)) {
+                    unset($aBlogs[$iBlogId]);
+                }
+            }
+        }
+        return $aBlogs;
+    }
+
+    protected function _filterBlogUsers($aBlogUsers) {
+
+        if (!$aBlogUsers || E::IsAdmin() || E::UserId() == $this->oUserProfile->getId()) {
+            return $aBlogUsers;
+        } else {
+            // Blog types for guest and all users
+            $aBlogTypes = $this->Blog_GetOpenBlogTypes();
+            foreach ($aBlogUsers as $n => $oBlogUser) {
+                if (!in_array($oBlogUser->getBlog()->getType(), $aBlogTypes)) {
+                    unset($aBlogUsers[$n]);
+                }
+            }
+        }
+        return $aBlogUsers;
+    }
+
     /**
      * Показывает инфу профиля
      *
@@ -422,52 +454,42 @@ class ActionProfile extends Action {
             return parent::EventNotFound();
         }
         $this->sMenuSubItemSelect = 'main';
-        /**
-         * Получаем список друзей
-         */
-        $aUsersFriend = $this->User_GetUsersFriend(
-            $this->oUserProfile->getId(), 1, Config::Get('module.user.friend_on_profile')
-        );
-        /**
-         * Если активен режим инвайтов, то прогружаем дополнительную информацию
-         */
+
+        // * Получаем список друзей
+        $aUsersFriend = $this->User_GetUsersFriend($this->oUserProfile->getId(), 1, Config::Get('module.user.friend_on_profile'));
+
+        // * Если активен режим инвайтов, то загружаем дополнительную информацию
         if (Config::Get('general.reg.invite')) {
-            /**
-             * Получаем список тех кого пригласил юзер
-             */
+            // * Получаем список тех кого пригласил юзер
             $aUsersInvite = $this->User_GetUsersInvite($this->oUserProfile->getId());
             $this->Viewer_Assign('aUsersInvite', $aUsersInvite);
-            /**
-             * Получаем того юзера, кто пригласил текущего
-             */
+
+            // * Получаем того юзера, кто пригласил текущего
             $oUserInviteFrom = $this->User_GetUserInviteFrom($this->oUserProfile->getId());
             $this->Viewer_Assign('oUserInviteFrom', $oUserInviteFrom);
         }
-        /**
-         * Получаем список юзеров блога
-         */
-        $aBlogUsers = $this->Blog_GetBlogUsersByUserId($this->oUserProfile->getId(), ModuleBlog::BLOG_USER_ROLE_USER);
-        $aBlogModerators = $this->Blog_GetBlogUsersByUserId(
-            $this->oUserProfile->getId(), ModuleBlog::BLOG_USER_ROLE_MODERATOR
+        // * Получаем список юзеров блога
+        $aBlogUsers = $this->_filterBlogUsers(
+            $this->Blog_GetBlogUsersByUserId($this->oUserProfile->getId(), ModuleBlog::BLOG_USER_ROLE_USER)
         );
-        $aBlogAdministrators = $this->Blog_GetBlogUsersByUserId(
-            $this->oUserProfile->getId(), ModuleBlog::BLOG_USER_ROLE_ADMINISTRATOR
+        $aBlogModerators = $this->_filterBlogUsers(
+            $this->Blog_GetBlogUsersByUserId($this->oUserProfile->getId(), ModuleBlog::BLOG_USER_ROLE_MODERATOR)
         );
-        /**
-         * Получаем список блогов которые создал юзер
-         */
+        $aBlogAdministrators = $this->_filterBlogUsers(
+            $this->Blog_GetBlogUsersByUserId($this->oUserProfile->getId(), ModuleBlog::BLOG_USER_ROLE_ADMINISTRATOR)
+        );
+
+        // * Получаем список блогов которые создал юзер
         $aBlogsOwner = $this->Blog_GetBlogsByOwnerId($this->oUserProfile->getId());
-        /**
-         * Получаем список контактов
-         */
+        $aBlogsOwner = $this->_filterBlogs($aBlogsOwner);
+
+        // * Получаем список контактов
         $aUserFields = $this->User_GetUserFieldsValues($this->oUserProfile->getId());
-        /**
-         * Вызов хуков
-         */
+
+        // * Вызов хуков
         $this->Hook_Run('profile_whois_show', array("oUserProfile" => $this->oUserProfile));
-        /**
-         * Загружаем переменные в шаблон
-         */
+
+        // * Загружаем переменные в шаблон
         $this->Viewer_Assign('aBlogUsers', $aBlogUsers);
         $this->Viewer_Assign('aBlogModerators', $aBlogModerators);
         $this->Viewer_Assign('aBlogAdministrators', $aBlogAdministrators);
@@ -476,12 +498,16 @@ class ActionProfile extends Action {
         $this->Viewer_Assign('aUserFields', $aUserFields);
         $this->Viewer_AddHtmlTitle($this->Lang_Get('user_menu_profile') . ' ' . $this->oUserProfile->getLogin());
         $this->Viewer_AddHtmlTitle($this->Lang_Get('user_menu_profile_whois'));
-        /**
-         * Устанавливаем шаблон вывода
-         */
+
+        // * Устанавливаем шаблон вывода
         $this->SetTemplateAction('info');
     }
 
+    /**
+     * LS-comatibility
+     *
+     * @return string
+     */
     protected function EventWhois() {
 
         return $this->EventInfo();

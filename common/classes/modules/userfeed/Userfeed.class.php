@@ -89,19 +89,9 @@ class ModuleUserfeed extends Module {
         if (E::IsAdmin()) {
             $aFilter = array();
         } else {
-            if (E::User()) {
-                $aFilter = array(
-                    'acl_read' => ModuleBlog::BLOG_USER_ACL_GUEST | ModuleBlog::BLOG_USER_ACL_USER,
-                );
-            } else {
-                $aFilter = array(
-                    'acl_read' => ModuleBlog::BLOG_USER_ACL_GUEST,
-                );
-            }
-            // Blog types for guest and all users
-            $aBlogTypes = $this->Blog_GetBlogTypes($aFilter, true);
+            $aOpenBlogTypes = $this->Blog_GetOpenBlogTypes();
             $aFilter = array(
-                'include_types' => $aBlogTypes,
+                'include_types' => $aOpenBlogTypes,
             );
         }
         $aTopicsIds = $this->oMapper->readFeed($aUserSubscribes, $iCount, $iFromId, $aFilter);

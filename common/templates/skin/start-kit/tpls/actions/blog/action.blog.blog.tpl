@@ -21,6 +21,7 @@
 
 <div class="blog">
     <header class="blog-header">
+        {$oBlogType=$oBlog->getBlogType()}
         {$sClasses = ''}
         {if $oBlog->getRating() > 0}
             {$sClasses = "$sClasses vote-count-positive"}
@@ -47,8 +48,15 @@
 
         <img src="{$oBlog->getAvatarPath(64)}" class="avatar"/>
 
-        <h1>{$oBlog->getTitle()|escape:'html'}{if $oBlog->getType()=='close'} <span title="{$aLang.blog_closed}"
-                                                                                    class="glyphicon glyphicon-lock"></span>{/if}
+        <h1>
+            {$oBlog->getTitle()|escape:'html'}
+            {if $oBlogType}
+                {if $oBlogType->IsHidden()}
+                    <span title="{$aLang.blog_closed}" class="glyphicon glyphicon-eye-close"></span>
+                {elseif $oBlogType->IsPrivate()}
+                    <span title="{$aLang.blog_closed}" class="glyphicon glyphicon-lock"></span>
+                {/if}
+            {/if}
         </h1>
 
         {if E::IsUser() AND (E::UserId()==$oBlog->getOwnerId() OR E::IsAdmin() OR $oBlog->getUserIsAdministrator() )}
@@ -58,11 +66,11 @@
                     <a href="{router page='blog'}edit/{$oBlog->getId()}/" title="{$aLang.blog_menu_edit}"
                        class="actions-edit">{$aLang.blog_menu_edit}</a>
                 </li>
+                <li>
+                    <a href="{router page='blog'}admin/{$oBlog->getId()}/" title="{$aLang.blog_menu_admin}"
+                       class="actions-edit">{$aLang.blog_menu_admin}</a>
+                </li>
                 {if E::IsAdmin()}
-                    <li>
-                        <a href="{router page='blog'}admin/{$oBlog->getId()}/" title="{$aLang.blog_menu_admin}"
-                           class="actions-edit">{$aLang.blog_menu_admin}</a>
-                    </li>
                     <li>
                         <a href="#" title="{$aLang.blog_menu_delete}" class="actions-delete js-modal-blog_delete">{$aLang.blog_menu_delete}</a>
                     </li>

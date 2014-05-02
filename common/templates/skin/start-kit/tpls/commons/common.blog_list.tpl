@@ -63,9 +63,12 @@
 
                     <h4>
                         <a href="{$oBlog->getUrlFull()}" class="blog-name">{$oBlog->getTitle()|escape:'html'}</a>
-
-                        {if $oBlog->getType() == 'close'}
-                            <span title="{$aLang.blog_closed}" class="glyphicon glyphicon-lock text-muted"></span>
+                        {if $oBlogType}
+                            {if $oBlogType->IsHidden()}
+                                <span title="{$aLang.blog_closed}" class="glyphicon glyphicon-eye-close"></span>
+                            {elseif $oBlogType->IsPrivate()}
+                                <span title="{$aLang.blog_closed}" class="glyphicon glyphicon-lock"></span>
+                            {/if}
                         {/if}
                     </h4>
 

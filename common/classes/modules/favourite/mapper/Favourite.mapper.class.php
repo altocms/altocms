@@ -294,6 +294,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      */
     public function GetFavouriteOpenCommentsByUserId($iUserId, &$iCount, $iCurrPage, $iPerPage) {
 
+        $aOpenBlogTypes = $this->Blog_GetOpenBlogTypes();
         $sql = "
 			SELECT f.target_id
 			FROM 
@@ -314,14 +315,16 @@ class ModuleFavourite_MapperFavourite extends Mapper {
 				AND 
 					t.blog_id = b.blog_id
 				AND 
-					b.blog_type IN ('open', 'personal')	
-            ORDER BY target_id DESC	
+					b.blog_type IN (?a)
+            ORDER BY target_id DESC
             LIMIT ?d, ?d ";
 
         $aFavourites = array();
-        $aRows = $this->oDb->selectPage(
-            $iCount, $sql, $iUserId,
-            ($iCurrPage - 1) * $iPerPage, $iPerPage
+        $aRows = $this->oDb->selectPage($iCount, $sql,
+            $iUserId,
+            $aOpenBlogTypes,
+            ($iCurrPage - 1) * $iPerPage,
+            $iPerPage
         );
         if ($aRows) {
             foreach ($aRows as $aFavourite) {
@@ -340,6 +343,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      */
     public function GetCountFavouriteOpenCommentsByUserId($sUserId) {
 
+        $aOpenBlogTypes = $this->Blog_GetOpenBlogTypes();
         $sql = "SELECT
 					COUNT(f.target_id) as cnt
 				FROM 
@@ -360,9 +364,12 @@ class ModuleFavourite_MapperFavourite extends Mapper {
 					AND 
 						t.blog_id = b.blog_id
 					AND 
-						b.blog_type IN ('open', 'personal')
+						b.blog_type IN (?a)
 					;";
-        $aRow = $this->oDb->selectRow($sql, $sUserId);
+        $aRow = $this->oDb->selectRow($sql,
+            $sUserId,
+            $aOpenBlogTypes
+        );
         return $aRow ? $aRow['cnt'] : false;
     }
 
@@ -379,6 +386,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      */
     public function GetFavouriteOpenTopicsByUserId($iUserId, &$iCount, $iCurrPage, $iPerPage) {
 
+        $aOpenBlogTypes = $this->Blog_GetOpenBlogTypes();
         $sql = "
 			SELECT f.target_id
 			FROM 
@@ -396,14 +404,16 @@ class ModuleFavourite_MapperFavourite extends Mapper {
 				AND 
 					t.blog_id = b.blog_id
 				AND 
-					b.blog_type IN ('open', 'personal')
+					b.blog_type IN (?a)
             ORDER BY target_id DESC
             LIMIT ?d, ?d ";
 
         $aFavourites = array();
-        $aRows = $this->oDb->selectPage(
-            $iCount, $sql, $iUserId,
-            ($iCurrPage - 1) * $iPerPage, $iPerPage
+        $aRows = $this->oDb->selectPage($iCount, $sql,
+            $iUserId,
+            $aOpenBlogTypes,
+            ($iCurrPage - 1) * $iPerPage,
+            $iPerPage
         );
         if ($aRows) {
             foreach ($aRows as $aFavourite) {
@@ -422,6 +432,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      */
     public function GetCountFavouriteOpenTopicsByUserId($iUserId) {
 
+        $aOpenBlogTypes = $this->Blog_GetOpenBlogTypes();
         $sql = "SELECT
 					COUNT(f.target_id) as cnt
 				FROM 
@@ -439,9 +450,12 @@ class ModuleFavourite_MapperFavourite extends Mapper {
 					AND 
 						t.blog_id = b.blog_id
 					AND 
-						b.blog_type IN ('open', 'personal')
+						b.blog_type IN (?a)
 					;";
-        $aRow = $this->oDb->selectRow($sql, $iUserId);
+        $aRow = $this->oDb->selectRow($sql,
+            $iUserId,
+            $aOpenBlogTypes
+        );
         return ($aRow ? $aRow['cnt'] : false);
     }
 

@@ -1330,19 +1330,9 @@ class ModuleTopic extends Module {
      */
     public function GetTopicsLast($nCount) {
 
-        if ($this->oUserCurrent) {
-            $aFilter = array(
-                'acl_read' => ModuleBlog::BLOG_USER_ACL_GUEST | ModuleBlog::BLOG_USER_ACL_USER,
-            );
-        } else {
-            $aFilter = array(
-                'acl_read' => ModuleBlog::BLOG_USER_ACL_GUEST,
-            );
-        }
-        // Blog types for guest and all users
-        $aBlogTypes = $this->Blog_GetBlogTypes($aFilter, true);
+        $aOpenBlogTypes = $this->Blog_GetOpenBlogTypes();
         $aFilter = array(
-            'blog_type'     => $aBlogTypes,
+            'blog_type'     => $aOpenBlogTypes,
             'topic_publish' => 1,
         );
         $aOpenTopics = $this->GetTopicsByFilter($aFilter, 1, $nCount);

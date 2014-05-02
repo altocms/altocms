@@ -81,7 +81,9 @@ ls.blog = (function ($) {
         var url = ls.routerUrl('blog') + 'ajaxaddbloginvite/';
         var params = {users: sUsers, idBlog: idBlog};
 
+        ls.progressStart();
         ls.ajax(url, params, function (result) {
+            ls.progressDone();
             if (!result) {
                 ls.msg.error(null, 'System error #1001');
             } else if (result.bStateError) {
