@@ -527,7 +527,7 @@ select, input[type="file"] { height: auto; }
 
 
 /* Reply form */
-.comment-reply { padding: 15px; }
+.comment-reply { padding: 15px 0 15px 10px; }
 .comment-reply textarea { height: 100px; margin-bottom: 3px; }
 .comment-reply textarea.loader { background: #f5f5f5 url(../images/loader.gif) no-repeat center; }
 

@@ -56,7 +56,7 @@
         <div class="form-group">
             <label for="topic_text">{$aLang.topic_create_text}</label>
             <textarea name="topic_text" id="topic_text" rows="20"
-                      class="mce-editor markitup-editor form-control">{$_aRequest.topic_text}</textarea>
+                      class="form-control js-editor-wysiwyg js-editor-markitup">{$_aRequest.topic_text}</textarea>
 
             {if !Config::Get('view.tinymce')}
                 {include file='tags_help.tpl' sTagsTargetId="topic_text"}

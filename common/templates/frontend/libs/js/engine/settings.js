@@ -149,9 +149,8 @@ ls.settings = (function ($) {
             strikethrough:  {inline: 's', exact: true}
         },
         setup: function (ed) {
-            // Display an alert onclick
-            ed.onKeyPress.add(function (ed, e) {
-                key = e.keyCode || e.which;
+            ed.on('click', function (e) {
+                var key = e.keyCode || e.which;
                 if (e.ctrlKey && (key == 13)) {
                     $('#comment-button-submit').click();
                     return false;
@@ -162,19 +161,19 @@ ls.settings = (function ($) {
 
     this.getMarkitup = function() {
         return this.get('markitup');
-    }
+    };
 
     this.getMarkitupComment = function() {
         return this.get('markitup', 'comment');
-    }
+    };
 
     this.getTinymce = function() {
         return this.get('tinymce');
-    }
+    };
 
     this.getTinymceComment = function() {
         return this.get('tinymce', 'comment');
-    }
+    };
 
     return this;
 }).call(ls.settings || {},jQuery);

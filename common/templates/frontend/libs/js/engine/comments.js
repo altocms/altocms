@@ -52,7 +52,7 @@ ls.comments = (function ($) {
     this.getReplyForm = function(form) {
         if (form) {
             form = $(form);
-            if (form.tagName != 'FORM') {
+            if (!form.is('form')) {
                 form = form.parents('form').first();
             }
             if (form.length) {
@@ -101,11 +101,11 @@ ls.comments = (function ($) {
 
         if (arguments.length) {
             textarea.val(arguments[0]);
-            if (this.options.wysiwyg) {
+            if (this.options.wysiwyg && tinyMCE.activeEditor) {
                 tinyMCE.activeEditor.setContent(arguments[0]);
             }
         } else {
-            if (this.options.wysiwyg) {
+            if (this.options.wysiwyg && tinyMCE.activeEditor) {
                 return tinyMCE.activeEditor.getContent();
             } else {
                 return textarea.val();
@@ -144,7 +144,7 @@ ls.comments = (function ($) {
         form = this.getReplyForm(form);
         textarea = form.find('textarea');
 
-        if (this.options.wysiwyg) {
+        if (this.options.wysiwyg && tinyMCE.activeEditor) {
             textarea.val(tinyMCE.activeEditor.getContent());
         }
 
@@ -175,7 +175,7 @@ ls.comments = (function ($) {
         var replyForm = this.getReplyForm(),
             textarea = replyForm.find('textarea');
 
-        if (this.options.wysiwyg) {
+        if (this.options.wysiwyg && tinyMCE.activeEditor) {
             tinyMCE.activeEditor.setProgressState(1);
         } else {
             textarea.addClass(this.options.classes.formLoading).prop('readonly',true);
@@ -192,7 +192,7 @@ ls.comments = (function ($) {
         var replyForm = this.getReplyForm(),
             textarea = replyForm.find('textarea');
 
-        if (this.options.wysiwyg) {
+        if (this.options.wysiwyg && tinyMCE.activeEditor) {
             tinyMCE.activeEditor.setProgressState(0);
         } else {
             textarea.removeClass(this.options.classes.formLoading).prop('readonly',false);
@@ -245,7 +245,7 @@ ls.comments = (function ($) {
         replyForm.insertAfter('#comment_id_' + idComment).show();
         if (this.options.wysiwyg) {
             tinyMCE.execCommand('mceAddControl', true, 'form_comment_text');
-            if (!bNoFocus) {
+            if (!bNoFocus && tinyMCE.activeEditor) {
                 tinyMCE.activeEditor.focus();
             }
         } else {

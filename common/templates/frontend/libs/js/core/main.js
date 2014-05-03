@@ -781,25 +781,41 @@ ls = (function ($) {
      */
     this.ajaxUploadImg = function (form, sToLoad) {
         form = $(form);
-        var tag = form[0].tagName;
-        if (tag != 'FORM' ) {
+        if (!form.is('form')) {
             form = form.parents('form').first();
         }
-        var modal = form.parents('.modal').first();
-        $that.progressStart();
+        var modalWin = form.parents('.modal').first();
+        ls.progressStart();
         $that.ajaxSubmit('upload/image/', form, function (result) {
-            $that.progressDone();
+            ls.progressDone();
             if (!result) {
                 ls.msg.error(null, 'System error #1001');
             } else if (result.bStateError) {
                 $that.msg.error(result.sMsgTitle, result.sMsg);
             } else {
                 $that.insertToEditor(result.sText);
-                modal.find('input[type="text"], input[type="file"]').val('');
-                modal.modal('hide');
+                modalWin.find('input[type="text"], input[type="file"]').val('');
+                modalWin.modal('hide');
             }
         });
     };
+
+    this.insertImageToEditor = function(button) {
+        var form = $(button).is('form') ? $(button) : $(button).parents('form').first(),
+            url = form.find('[name=img_url]').val(),
+            align = form.find('[name=align]').val(),
+            title = form.find('[name=title]').val(),
+            html = '';
+
+        align = (align == 'center') ? 'class="image-center"' : 'align="' + align + '"';
+        html = '<img src="' + url + '" title="' + title + '" ' + align + ' />';
+        form.find('[name=img_url]').val('');
+        title = form.find('[name=title]').val('');
+
+        ls.insertToEditor(html);
+        form.parents('.modal').first().modal('hide');
+        return false;
+    }
 
     /**
      * Insert html

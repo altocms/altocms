@@ -70,10 +70,17 @@
             <form method="post" class="comment-reply js-form-comment" onsubmit="return false;" enctype="multipart/form-data">
                 {hook run='form_add_comment_begin'}
 
-                <textarea name="comment_text" id="form_comment_text"
-                          class="mce-editor markitup-editor form-control"></textarea>
+                <div class="form-group">
+                    <textarea name="comment_text" id="form_comment_text"
+                              class="form-control js-editor-wysiwyg js-editor-markitup"></textarea>
+                </div>
 
                 {hook run='form_add_comment_end'}
+
+                <input type="hidden" name="comment_mode" value="reply"/>
+                <input type="hidden" name="comment_id" value=""/>
+                <input type="hidden" name="cmt_target_id" value="{$iTargetId}"/>
+                <input type="hidden" name="reply" value="0" id="form_comment_reply"/>
 
                 <button type="button" onclick="ls.comments.preview();"
                         class="btn btn-default js-button-preview">{$aLang.comment_preview}</button>
@@ -87,11 +94,6 @@
                         class="btn btn-primary btn-edit js-button-edit" style="display: none;">
                     {$aLang.comment_edit_submit}
                 </button>
-
-                <input type="hidden" name="comment_mode" value="reply"/>
-                <input type="hidden" name="comment_id" value=""/>
-                <input type="hidden" name="cmt_target_id" value="{$iTargetId}"/>
-                <input type="hidden" name="reply" value="0" id="form_comment_reply"/>
             </form>
 
     {else}

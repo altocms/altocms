@@ -34,7 +34,7 @@
         <div class="form-group">
             <label for="talk_text">{$aLang.talk_create_text}</label>
             <textarea name="talk_text" id="talk_text" rows="12"
-                      class="form-control mce-editor markitup-editor">{$_aRequest.talk_text}</textarea>
+                      class="form-control js-editor-wysiwyg js-editor-markitup">{$_aRequest.talk_text}</textarea>
         </div>
 
         {hook run='form_add_talk_end'}

@@ -44,8 +44,9 @@
 
                             {hook run="uploadimg_additional"}
 
-                            <button type="submit" class="btn btn-success"
-                                    onclick="ls.ajaxUploadImg(this,'{$sToLoad}');">{$aLang.uploadimg_submit}</button>
+                            <button type="submit" class="btn btn-success" onclick="ls.ajaxUploadImg(this,'{$sToLoad}');">
+                                {$aLang.uploadimg_submit}
+                            </button>
                             <button type="submit" class="btn btn-default">{$aLang.uploadimg_cancel}</button>
                         </form>
                     </div>
@@ -75,11 +76,13 @@
 
                             {hook run="uploadimg_link_additional"}
 
-                            <button type="submit" class="btn btn-success"
-                                    onclick="ls.topic.insertImageToEditor(jQuery('#img_url').val(),jQuery('#form-image-url-align').val(),jQuery('#form-image-url-title').val());">{$aLang.uploadimg_link_submit_paste}</button>
+                            <button type="submit" class="btn btn-success" onclick="ls.insertImageToEditor(this);">
+                                {$aLang.uploadimg_link_submit_paste}
+                            </button>
                             {$aLang._or}
-                            <button type="submit" class="btn btn-success"
-                                    onclick="ls.ajaxUploadImg('block_upload_img_content_link','{$sToLoad}');">{$aLang.uploadimg_link_submit_load}</button>
+                            <button type="submit" class="btn btn-success" onclick="ls.ajaxUploadImg(this,'{$sToLoad}');">
+                                {$aLang.uploadimg_link_submit_load}
+                            </button>
                             <button type="submit" class="btn btn-default">{$aLang.uploadimg_cancel}</button>
                         </form>
                     </div>
