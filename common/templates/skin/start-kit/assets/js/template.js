@@ -1,4 +1,4 @@
-jQuery(document).ready(function ($) {
+;jQuery(document).ready(function ($) {
     // Хук начала инициализации javascript-составляющих шаблона
     ls.hook.run('ls_template_init_start', [], window);
 
@@ -164,13 +164,11 @@ jQuery(document).ready(function ($) {
     // подсветка кода
     prettyPrint();
 
-    $(function(){
-        var inputs = $('input.input-text, textarea');
-        // эмуляция border-sizing в IE 7-
-        // ls.ie.bordersizing(inputs);
-        // эмуляция placeholder'ов в IE
-        inputs.placeholder();
-    });
+    var inputs = $('input.input-text, textarea');
+    // эмуляция border-sizing в IE 7-
+    // ls.ie.bordersizing(inputs);
+    // эмуляция placeholder'ов в IE
+    inputs.placeholder();
 
     // комментарии
     //ls.comments.options.folding = false;
@@ -281,6 +279,12 @@ jQuery(document).ready(function ($) {
         document.getElementsByTagName("head")[0].appendChild(msViewportStyle)
     }
 
+    if (tinyMCE && ls.settings && ls.settings.presets.tinymce) {
+        var cssUrl = ls.getAssetUrl('template-tinymce.css');
+        if (cssUrl) {
+            ls.settings.presets.tinymce.default['content_css'] = cssUrl;
+        }
+    }
 
     // Хук конца инициализации javascript-составляющих шаблона
     ls.hook.run('ls_template_init_end', [], window);

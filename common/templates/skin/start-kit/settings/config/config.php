@@ -72,6 +72,13 @@ $config['head']['default']['css'] = array(
     '___path.skin.dir___/themes/___view.theme___/style.css',
     /* Themer Icons */
     '___path.skin.dir___/assets/icons/css/fontello.css',
+
+    /* tinyMCE */
+    '___path.skin.dir___/assets/css/tinymce.css'       => array(
+        'name'      => 'template-tinymce.css',
+        'prepare'   => true,
+        'merge'     => false,
+    ),
 );
 
 return $config;
