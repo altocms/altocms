@@ -26,6 +26,7 @@ class ModuleTopic_EntityTopicQuestionVote extends Entity {
      * @return int|null
      */
     public function getTopicId() {
+
         return $this->getProp('topic_id');
     }
 
@@ -35,6 +36,7 @@ class ModuleTopic_EntityTopicQuestionVote extends Entity {
      * @return int|null
      */
     public function getQuestionId() {
+
         return $this->getProp('question_id');
     }
 
@@ -44,6 +46,7 @@ class ModuleTopic_EntityTopicQuestionVote extends Entity {
      * @return int|null
      */
     public function getVoterId() {
+
         return $this->getProp('user_voter_id');
     }
 
@@ -53,6 +56,7 @@ class ModuleTopic_EntityTopicQuestionVote extends Entity {
      * @return int|null
      */
     public function getAnswer() {
+
         return $this->getProp('answer');
     }
 
@@ -62,7 +66,8 @@ class ModuleTopic_EntityTopicQuestionVote extends Entity {
      * @param int $data
      */
     public function setTopicId($data) {
-        $this->_aData['topic_id'] = $data;
+
+        $this->setProp('topic_id', $data);
     }
 
     /**
@@ -71,7 +76,8 @@ class ModuleTopic_EntityTopicQuestionVote extends Entity {
      * @param int $data
      */
     public function setQuestionId($data) {
-        $this->_aData['question_id'] = $data;
+
+        $this->setProp('question_id', $data);
     }
 
     /**
@@ -80,7 +86,8 @@ class ModuleTopic_EntityTopicQuestionVote extends Entity {
      * @param int $data
      */
     public function setVoterId($data) {
-        $this->_aData['user_voter_id'] = $data;
+
+        $this->setProp('user_voter_id', $data);
     }
 
     /**
@@ -89,7 +96,8 @@ class ModuleTopic_EntityTopicQuestionVote extends Entity {
      * @param int $data
      */
     public function setAnswer($data) {
-        $this->_aData['answer'] = $data;
+
+        $this->setProp('answer', $data);
     }
 }
 

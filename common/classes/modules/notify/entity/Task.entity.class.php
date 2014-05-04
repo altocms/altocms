@@ -98,7 +98,7 @@ class ModuleNotify_EntityTask extends Entity {
      */
     public function setTaskId($data) {
 
-        $this->_aData['notify_task_id'] = $data;
+        $this->setProp('notify_task_id', $data);
     }
 
     /**
@@ -108,7 +108,7 @@ class ModuleNotify_EntityTask extends Entity {
      */
     public function setUserMail($data) {
 
-        $this->_aData['user_mail'] = $data;
+        $this->setProp('user_mail', $data);
     }
 
     /**
@@ -118,7 +118,7 @@ class ModuleNotify_EntityTask extends Entity {
      */
     public function setUserLogin($data) {
 
-        $this->_aData['user_login'] = $data;
+        $this->setProp('user_login', $data);
     }
 
     /**
@@ -128,7 +128,7 @@ class ModuleNotify_EntityTask extends Entity {
      */
     public function setNotifyText($data) {
 
-        $this->_aData['notify_text'] = $data;
+        $this->setProp('notify_text', $data);
     }
 
     /**
@@ -138,7 +138,7 @@ class ModuleNotify_EntityTask extends Entity {
      */
     public function setDateCreated($data) {
 
-        $this->_aData['date_created'] = $data;
+        $this->setProp('date_created', $data);
     }
 
     /**
@@ -148,7 +148,7 @@ class ModuleNotify_EntityTask extends Entity {
      */
     public function setTaskStatus($data) {
 
-        $this->_aData['notify_task_status'] = $data;
+        $this->setProp('notify_task_status', $data);
     }
 
     /**
@@ -158,7 +158,7 @@ class ModuleNotify_EntityTask extends Entity {
      */
     public function setNotifySubject($data) {
 
-        $this->_aData['notify_subject'] = $data;
+        $this->setProp('notify_subject', $data);
     }
 
 }

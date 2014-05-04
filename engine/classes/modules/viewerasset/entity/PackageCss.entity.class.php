@@ -161,14 +161,17 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
             } else {
                 $sFileParam = '';
             }
-            $sRealPath = realpath($sSourceDir . $sPath);
-            $sDestination = F::File_GetAssetDir() . F::Crc32(dirname($sRealPath), true) . '/' . basename($sRealPath);
-            $aUrls[$sPath] = array(
-                'source'      => $sRealPath,
-                'destination' => $sDestination,
-                'url'         => F::File_Dir2Url($sDestination) . $sFileParam,
-            );
-            F::File_Copy($sRealPath, $sDestination);
+            if (!isset($aUrls[$sPath])) {
+                // if url didn't prepare...
+                $sRealPath = realpath($sSourceDir . $sPath);
+                $sDestination = F::File_GetAssetDir() . F::Crc32(dirname($sRealPath), true) . '/' . basename($sRealPath);
+                $aUrls[$sPath] = array(
+                    'source'      => $sRealPath,
+                    'destination' => $sDestination,
+                    'url'         => F::File_Dir2Url($sDestination) . $sFileParam,
+                );
+                F::File_Copy($sRealPath, $sDestination);
+            }
         }
         if ($aUrls) {
             $sContent = str_replace(array_keys($aUrls), F::Array_Column($aUrls, 'url'), $sContent);

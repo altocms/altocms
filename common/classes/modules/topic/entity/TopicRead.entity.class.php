@@ -26,6 +26,7 @@ class ModuleTopic_EntityTopicRead extends Entity {
      * @return int|null
      */
     public function getTopicId() {
+
         return $this->getProp('topic_id');
     }
 
@@ -35,6 +36,7 @@ class ModuleTopic_EntityTopicRead extends Entity {
      * @return int|null
      */
     public function getUserId() {
+
         return $this->getProp('user_id');
     }
 
@@ -44,6 +46,7 @@ class ModuleTopic_EntityTopicRead extends Entity {
      * @return string|null
      */
     public function getDateRead() {
+
         return $this->getProp('date_read');
     }
 
@@ -53,6 +56,7 @@ class ModuleTopic_EntityTopicRead extends Entity {
      * @return int|null
      */
     public function getCommentCountLast() {
+
         return $this->getProp('comment_count_last');
     }
 
@@ -62,6 +66,7 @@ class ModuleTopic_EntityTopicRead extends Entity {
      * @return int|null
      */
     public function getCommentIdLast() {
+
         return $this->getProp('comment_id_last');
     }
 
@@ -72,7 +77,8 @@ class ModuleTopic_EntityTopicRead extends Entity {
      * @param int $data
      */
     public function setTopicId($data) {
-        $this->_aData['topic_id'] = $data;
+
+        $this->setProp('topic_id', $data);
     }
 
     /**
@@ -81,7 +87,8 @@ class ModuleTopic_EntityTopicRead extends Entity {
      * @param int $data
      */
     public function setUserId($data) {
-        $this->_aData['user_id'] = $data;
+
+        $this->setProp('user_id', $data);
     }
 
     /**
@@ -90,7 +97,8 @@ class ModuleTopic_EntityTopicRead extends Entity {
      * @param string $data
      */
     public function setDateRead($data) {
-        $this->_aData['date_read'] = $data;
+
+        $this->setProp('date_read', $data);
     }
 
     /**
@@ -99,7 +107,8 @@ class ModuleTopic_EntityTopicRead extends Entity {
      * @param int $data
      */
     public function setCommentCountLast($data) {
-        $this->_aData['comment_count_last'] = $data;
+
+        $this->setProp('comment_count_last', $data);
     }
 
     /**
@@ -108,7 +117,8 @@ class ModuleTopic_EntityTopicRead extends Entity {
      * @param int $data
      */
     public function setCommentIdLast($data) {
-        $this->_aData['comment_id_last'] = $data;
+
+        $this->setProp('comment_id_last', $data);
     }
 }
 

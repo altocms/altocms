@@ -93,72 +93,72 @@ class ModulePage_EntityPage extends Entity {
 
     public function setId($data) {
 
-        $this->_aData['page_id'] = $data;
+        $this->setProp('page_id', $data);
     }
 
     public function setPid($data) {
 
-        $this->_aData['page_pid'] = $data;
+        $this->setProp('page_pid', $data);
     }
 
     public function setUrl($data) {
 
-        $this->_aData['page_url'] = $data;
+        $this->setProp('page_url', $data);
     }
 
     public function setUrlFull($data) {
 
-        $this->_aData['page_url_full'] = $data;
+        $this->setProp('page_url_full', $data);
     }
 
     public function setTitle($data) {
 
-        $this->_aData['page_title'] = $data;
+        $this->setProp('page_title', $data);
     }
 
     public function setText($data) {
 
-        $this->_aData['page_text'] = $data;
+        $this->setProp('page_text', $data);
     }
 
     public function setDateAdd($data) {
 
-        $this->_aData['page_date_add'] = $data;
+        $this->setProp('page_date_add', $data);
     }
 
     public function setDateEdit($data) {
 
-        $this->_aData['page_date_edit'] = $data;
+        $this->setProp('page_date_edit', $data);
     }
 
     public function setSeoKeywords($data) {
 
-        $this->_aData['page_seo_keywords'] = $data;
+        $this->setProp('page_seo_keywords', $data);
     }
 
     public function setSeoDescription($data) {
 
-        $this->_aData['page_seo_description'] = $data;
+        $this->setProp('page_seo_description', $data);
     }
 
     public function setActive($data) {
 
-        $this->_aData['page_active'] = $data;
+        $this->setProp('page_active', $data);
     }
 
     public function setMain($data) {
 
-        $this->_aData['page_main'] = $data;
+        $this->setProp('page_main', $data);
     }
 
     public function setSort($data) {
 
-        $this->_aData['page_sort'] = $data;
+        $this->setProp('page_sort', $data);
     }
 
     public function setAutoBr($data) {
 
-        $this->_aData['page_auto_br'] = $data;
+        $this->setProp('page_auto_br', $data);
     }
 }
 

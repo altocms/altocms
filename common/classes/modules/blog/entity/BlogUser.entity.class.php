@@ -98,7 +98,7 @@ class ModuleBlog_EntityBlogUser extends Entity {
      */
     public function setBlogId($data) {
 
-        $this->_aData['blog_id'] = $data;
+        $this->setProp('blog_id', $data);
     }
 
     /**
@@ -108,7 +108,7 @@ class ModuleBlog_EntityBlogUser extends Entity {
      */
     public function setUserId($data) {
 
-        $this->_aData['user_id'] = $data;
+        $this->setProp('user_id', $data);
     }
 
     /**
@@ -148,7 +148,7 @@ class ModuleBlog_EntityBlogUser extends Entity {
      */
     public function setUserRole($data) {
 
-        $this->_aData['user_role'] = $data;
+        $this->setProp('user_role', $data);
     }
 
     /**
@@ -158,7 +158,7 @@ class ModuleBlog_EntityBlogUser extends Entity {
      */
     public function setBlog($data) {
 
-        $this->_aData['blog'] = $data;
+        $this->setProp('blog', $data);
     }
 
     /**
@@ -168,7 +168,7 @@ class ModuleBlog_EntityBlogUser extends Entity {
      */
     public function setUser($data) {
 
-        $this->_aData['user'] = $data;
+        $this->setProp('user', $data);
     }
 
 }
