@@ -87,12 +87,10 @@ ls.settings = (function ($) {
     // *** tinimce *** //
     this.presets.tinymce = {};
     this.presets.tinymce.default = {
-        mode:               'specific_textareas',
-        editor_selector:    'js-editor-wysiwyg',
+        selector:           '.js-editor-wysiwyg',
         theme:              'modern',
         relative_urls:      false,
         menubar:            false,
-        relative_urls:  false,
         toolbar: "undo redo | styleselect | bold italic strikethrough underline blockquote | alignleft aligncenter alignright | bullist numlist table | link unlink | altoimage media | code | cut ",
         toolbar_items_size: 'small',
         image_advtab: false,
@@ -119,12 +117,10 @@ ls.settings = (function ($) {
     };
 
     this.presets.tinymce.comment = {
-        mode:               'specific_textareas',
-        editor_selector:    'js-editor-wysiwyg',
+        selector:           '.js-editor-wysiwyg',
         theme:              'modern',
         relative_urls:      false,
         menubar:            false,
-        relative_urls:  false,
         toolbar: "undo redo | styleselect | bold italic strikethrough underline blockquote | alignleft aligncenter alignright | bullist numlist table | link unlink | altoimage media | code | cut ",
         toolbar_items_size: 'small',
         image_advtab: false,
@@ -138,7 +134,6 @@ ls.settings = (function ($) {
         forced_root_block:  '', // Needed for 3.x
         force_p_newlines:   false,
         plugins: "advlist autolink autosave link lists media pagebreak autoresize table code altoimage",
-        //convert_urls: false,
         extended_valid_elements: "embed[src|type|allowscriptaccess|allowfullscreen|width|height]",
         pagebreak_separator: "<cut>",
         media_strict: false,
@@ -148,8 +143,9 @@ ls.settings = (function ($) {
             underline:      {inline: 'u', exact: true},
             strikethrough:  {inline: 's', exact: true}
         },
-        setup: function (ed) {
-            ed.on('click', function (e) {
+        autoresize_min_height: '80px',
+        setup: function (editor) {
+            editor.on('click', function (e) {
                 var key = e.keyCode || e.which;
                 if (e.ctrlKey && (key == 13)) {
                     $('#comment-button-submit').click();

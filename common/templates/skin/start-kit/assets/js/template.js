@@ -164,15 +164,17 @@ jQuery(document).ready(function ($) {
     // подсветка кода
     prettyPrint();
 
-    var inputs = $('input.input-text, textarea');
-    // эмуляция border-sizing в IE 7-
-    // ls.ie.bordersizing(inputs);
-    // эмуляция placeholder'ов в IE
-    inputs.placeholder();
+    $(function(){
+        var inputs = $('input.input-text, textarea');
+        // эмуляция border-sizing в IE 7-
+        // ls.ie.bordersizing(inputs);
+        // эмуляция placeholder'ов в IE
+        inputs.placeholder();
+    });
 
     // комментарии
     //ls.comments.options.folding = false;
-    ls.comments.init();
+    //ls.comments.init();
 
     // избранное
     ls.hook.add('ls_favourite_toggle_after', function (idTarget, objFavourite, type, params, result) {

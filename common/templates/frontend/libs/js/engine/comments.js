@@ -240,11 +240,11 @@ ls.comments = (function ($) {
         }
 
         if (this.options.wysiwyg) {
-            tinyMCE.execCommand('mceRemoveControl', true, textareaId);
+            tinyMCE.execCommand('mceRemoveEditor', true, textareaId);
         }
         replyForm.insertAfter('#comment_id_' + idComment).show();
         if (this.options.wysiwyg) {
-            tinyMCE.execCommand('mceAddControl', true, 'form_comment_text');
+            tinyMCE.execCommand('mceAddEditor', true, textareaId);
             if (!bNoFocus && tinyMCE.activeEditor) {
                 tinyMCE.activeEditor.focus();
             }
@@ -646,6 +646,10 @@ ls.comments = (function ($) {
             this.collapseComment(v);
         }.bind(this));
     };
+
+    $(function(){
+        ls.comments.init();
+    });
 
     return this;
 }).call(ls.comments || {}, jQuery);
