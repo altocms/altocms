@@ -84,7 +84,7 @@ class ActionBlogs extends Action {
         $oViewer->Assign('aBlogs', $aResult['collection']);
         $oViewer->Assign('oUserCurrent', $this->User_GetUserCurrent());
         $oViewer->Assign('sBlogsEmptyList', $this->Lang_Get('blogs_search_empty'));
-        $this->Viewer_AssignAjax('sText', $oViewer->Fetch("blog_list.tpl"));
+        $this->Viewer_AssignAjax('sText', $oViewer->Fetch('commons/common.blog_list.tpl'));
     }
 
     /**
