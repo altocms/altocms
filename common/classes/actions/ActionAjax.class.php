@@ -978,6 +978,8 @@ class ActionAjax extends Action {
                 foreach ($aFields as $oField) {
                     if (isset($_REQUEST['fields'][$oField->getFieldId()])) {
 
+                        $sText = null;
+
                         //текстовые поля
                         if (in_array($oField->getFieldType(), array('input', 'textarea', 'select'))) {
                             $sText = $this->Text_Parser($_REQUEST['fields'][$oField->getFieldId()]);
@@ -1005,7 +1007,6 @@ class ActionAjax extends Action {
                         }
 
                         if ($sText) {
-
                             $oValue = Engine::GetEntity('Topic_ContentValues');
                             $oValue->setFieldId($oField->getFieldId());
                             $oValue->setFieldType($oField->getFieldType());
@@ -1013,7 +1014,6 @@ class ActionAjax extends Action {
                             $oValue->setValueSource($_REQUEST['fields'][$oField->getFieldId()]);
 
                             $aValues[$oField->getFieldId()] = $oValue;
-
                         }
                     }
                 }
