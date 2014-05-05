@@ -1098,7 +1098,7 @@ class ActionAdmin extends Action {
     /**
      * Проверка полей на корректность
      *
-     * @return unknown
+     * @return bool
      */
     protected function CheckPageFields() {
 

@@ -49,6 +49,7 @@ class ActionAjax extends Action {
         $this->AddEventPreg('/^vote$/i', '/^topic$/', 'EventVoteTopic');
         $this->AddEventPreg('/^vote$/i', '/^blog$/', 'EventVoteBlog');
         $this->AddEventPreg('/^vote$/i', '/^user$/', 'EventVoteUser');
+        $this->AddEventPreg('/^vote$/i', '/^poll$/', 'EventVotePoll');
         $this->AddEventPreg('/^vote$/i', '/^question$/', 'EventVoteQuestion');
 
         $this->AddEventPreg('/^favourite$/i', '/^save-tags/', 'EventFavouriteSaveTags');
@@ -496,32 +497,36 @@ class ActionAjax extends Action {
     }
 
     /**
+     * LS-compatibility
+     */
+    protected function EventVoteQuestion() {
+
+        return $this->EventVotePoll();
+    }
+
+    /**
      * Голосование за вариант ответа в опросе
      *
      */
-    protected function EventVoteQuestion() {
-        /**
-         * Пользователь авторизован?
-         */
+    protected function EventVotePoll() {
+
+        // * Пользователь авторизован?
         if (!$this->oUserCurrent) {
             $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
             return;
         }
-        /**
-         * Параметры голосования
-         */
+
+        // * Параметры голосования
         $idAnswer = F::GetRequestStr('idAnswer', null, 'post');
         $idTopic = F::GetRequestStr('idTopic', null, 'post');
-        /**
-         * Топик существует?
-         */
+
+        // * Топик существует?
         if (!($oTopic = $this->Topic_GetTopicById($idTopic))) {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
             return;
         }
-        /**
-         *  У топика существует опрос?
-         */
+
+        // *  У топика существует опрос?
         if (!$oTopic->getQuestionAnswers()) {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
             return;
@@ -546,6 +551,7 @@ class ActionAjax extends Action {
             $oTopic->increaseQuestionAnswerVote($idAnswer);
         }
         $oTopic->setQuestionCountVote($oTopic->getQuestionCountVote() + 1);
+        $oTopic->setUserQuestionIsVote(true);
 
         // * Голосуем(отвечаем на опрос)
         $oTopicQuestionVote = Engine::GetEntity('Topic_TopicQuestionVote');
@@ -557,7 +563,7 @@ class ActionAjax extends Action {
             $this->Message_AddNoticeSingle($this->Lang_Get('topic_question_vote_ok'), $this->Lang_Get('attention'));
             $oViewer = $this->Viewer_GetLocalViewer();
             $oViewer->Assign('oTopic', $oTopic);
-            $this->Viewer_AssignAjax('sText', $oViewer->Fetch('question_result.tpl'));
+            $this->Viewer_AssignAjax('sText', $oViewer->Fetch('fields/field.poll-show.tpl'));
         } else {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
             return;

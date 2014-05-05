@@ -284,9 +284,10 @@ a.user-friends:hover { color: #ff4136; text-decoration: none; }
 .form-profile .icon-remove:hover,
 .form-profile .glyphicon-remove,
 .form-profile .glyphicon-remove:hover,
-.topic-poll-add .icon-remove { color: #adadad; text-decoration: none; }
-.topic-poll-add .icon-remove:hover { color: #777; }
+.topic-poll-add .btn-remove { color: #adadad; text-decoration: none; }
+.topic-poll-add .btn-remove:hover { color: #ff4136; }
 
+.topic-poll-add .btn-remove { position: absolute; right: 0; padding: 9px 6px; }
 
 /* TABLE BLOGS */
 .table-blogs .cell-name h4 { font-weight: 700; margin-bottom: 7px; margin-top: 0; }

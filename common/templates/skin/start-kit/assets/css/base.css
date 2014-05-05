@@ -278,9 +278,9 @@ select, input[type="file"] { height: auto; }
 
 
 .form-profile .icon-remove,
-.topic-poll-create .icon-remove { margin-left: 3px; position: relative; }
+.topic-poll-create .btn-remove { margin-left: 3px; position: relative; }
 .form-profile .icon-remove:hover,
-.topic-poll-create .icon-remove:hover { text-decoration: none; }
+.topic-poll-create .btn-remove:hover { text-decoration: none; }
 
 .spin {
     -webkit-animation: spin 2s infinite linear;
@@ -426,8 +426,8 @@ select, input[type="file"] { height: auto; }
 
 .topic-poll-add { padding: 15px 20px; margin-bottom: 20px; }
 .topic-poll-add-item { position: relative; margin-bottom: 15px; }
-.topic-poll-add-list { padding-right: 30px; }
-.topic-poll-add-list .icon-remove { position: absolute; right: -30px; top: 9px; z-index: 10; }
+/* .topic-poll-add-list { margin-right: 30px; } */
+.topic-poll-add-list .b-remove { position: absolute; right: 0; padding: 9px 6px; z-index: 10; }
 
 
 /* Topic Photo */

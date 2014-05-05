@@ -107,3 +107,7 @@ ALTER TABLE `prefix_topic_photo` ADD `date_add` TIMESTAMP NULL DEFAULT CURRENT_T
 ADD INDEX ( `date_add` );
 
 ALTER TABLE  `prefix_blog_user` ADD `blog_user_id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+
+ALTER TABLE  `prefix_vote` DROP PRIMARY KEY;
+ALTER TABLE  `prefix_vote` ADD  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+ALTER TABLE  `prefix_vote` ADD INDEX  `target_id_type` (  `target_id` ,  `target_type` );

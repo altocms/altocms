@@ -40,7 +40,7 @@ class ActionPage extends Action {
     /**
      * Отображение страницы
      *
-     * @return unknown
+     * @return mixed
      */
     protected function EventShowPage() {
 

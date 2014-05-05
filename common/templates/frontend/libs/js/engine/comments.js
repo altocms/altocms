@@ -5,6 +5,8 @@
 ;var ls = ls || {};
 
 ls.comments = (function ($) {
+    var $that = this;
+
     /**
      * Опции
      */
@@ -51,10 +53,7 @@ ls.comments = (function ($) {
 
     this.getReplyForm = function(form) {
         if (form) {
-            form = $(form);
-            if (!form.is('form')) {
-                form = form.parents('form').first();
-            }
+            form = $(form).closest('form');
             if (form.length) {
                 return form;
             }
@@ -115,6 +114,7 @@ ls.comments = (function ($) {
 
     this.initEvent = function () {
         var form = this.getReplyForm();
+
         form.find('textarea').bind('keyup', function (e) {
             var key = e.keyCode || e.which;
             if (e.ctrlKey && (key == 13)) {
@@ -141,6 +141,7 @@ ls.comments = (function ($) {
     // Добавляет комментарий
     this.add = function (form, targetId, targetType) {
         var textarea;
+
         form = this.getReplyForm(form);
         textarea = form.find('textarea');
 
@@ -207,6 +208,7 @@ ls.comments = (function ($) {
      */
     this.formCommentHide = function() {
         var replyForm = this.getReplyForm();
+
         if(replyForm){
             $('.comment-actions [class|=comment]').removeClass('active');
             replyForm.hide();
@@ -226,6 +228,7 @@ ls.comments = (function ($) {
         var replyForm = this.getReplyForm(),
             textarea = replyForm.find('textarea'),
             textareaId = textarea.attr('id');
+
         if (!replyForm.length) {
             return false;
         }
@@ -300,7 +303,6 @@ ls.comments = (function ($) {
      * @param options
      */
     this.loadComment = function(idComment, targetType, targetId, options) {
-        var $that = this;
         if (!options.context) {
             options.context = this;
         }
@@ -335,7 +337,7 @@ ls.comments = (function ($) {
      * @param targetId
      */
     this.editComment = function(idComment, targetType, targetId) {
-        var $that = this;
+
         this.options.replyForm.find('[name=comment_id]').val(idComment);
         if (this.toggleCommentForm(idComment, false, 'edit')) {
             var options = {
@@ -562,7 +564,7 @@ ls.comments = (function ($) {
 
     // Прокрутка к родительскому комментарию
     this.goToParentComment = function (id, pid) {
-        var $that = this;
+
         $('.' + this.options.classes.gotoChild).hide().find('a').unbind();
 
         $("#comment_id_" + pid).find('.' + this.options.classes.gotoChild).show().find("a").bind("click", function () {
@@ -591,7 +593,7 @@ ls.comments = (function ($) {
     };
 
     this.checkEditTimers = function() {
-        var $that = this;
+
         $('.comment-edit-time-remainder').each(function(){
             var id = '';
             var el = $(this);

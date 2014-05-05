@@ -69,7 +69,7 @@ class ModuleVote_MapperVote extends Mapper {
 				WHERE
 					target_id IN(?a)
 					AND
-					target_type = ? 
+					target_type = ?
 					AND
 					user_voter_id = ?d ";
         $aVotes = array();

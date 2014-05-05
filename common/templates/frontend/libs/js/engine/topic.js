@@ -71,10 +71,7 @@ ls.topic = (function ($) {
      */
     this.showPreviewText = function (form, previewPlace) {
         if (form) {
-            form = $(form);
-        }
-        if (!form.is('form')) {
-            form = form.parents('form').first();
+            form = $(form).closest('form');
         }
         previewPlace = $(previewPlace);
 

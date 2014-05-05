@@ -1307,27 +1307,27 @@ class ModuleTopic_MapperTopic extends Mapper {
                     WHERE
                         v.target_id = t.topic_id
                     AND
-                        v.vote_direction = 1
-                    AND
                         v.target_type = 'topic'
+                    AND
+                        v.vote_direction = 1
                 ), t.topic_count_vote_down = (
                     SELECT count(*)
                     FROM ?_vote v
                     WHERE
                         v.target_id = t.topic_id
                     AND
-                        v.vote_direction = -1
-                    AND
                         v.target_type = 'topic'
+                    AND
+                        v.vote_direction = -1
                 ), t.topic_count_vote_abstain = (
                     SELECT count(*)
                     FROM ?_vote v
                     WHERE
                         v.target_id = t.topic_id
                     AND
-                        v.vote_direction = 0
-                    AND
                         v.target_type = 'topic'
+                    AND
+                        v.vote_direction = 0
                 )
             ";
         $bResult = $this->oDb->query($sql);

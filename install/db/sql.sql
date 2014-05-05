@@ -905,17 +905,19 @@ CREATE TABLE IF NOT EXISTS `prefix_user_note` (
 --
 
 CREATE TABLE IF NOT EXISTS `prefix_vote` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `target_id` int(11) unsigned NOT NULL DEFAULT '0',
   `target_type` varchar(30) NOT NULL DEFAULT 'topic',
   `user_voter_id` int(11) unsigned NOT NULL,
   `vote_direction` tinyint(2) DEFAULT '0',
   `vote_value` float(9,3) NOT NULL DEFAULT '0.000',
   `vote_date` datetime NOT NULL,
-  `vote_ip` varchar(40) NOT NULL DEFAULT '',
-  PRIMARY KEY (`target_id`,`target_type`,`user_voter_id`),
+  `vote_ip` varchar(15) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`),
+  KEY `target_id_type` (`target_id`,`target_type`),
   KEY `user_voter_id` (`user_voter_id`),
   KEY `vote_ip` (`vote_ip`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 ;
 
 --
 -- Дамп данных таблицы `prefix_vote`
