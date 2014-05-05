@@ -534,7 +534,7 @@ class ModuleUser extends Module {
      */
     public function GetUserByLogin($sLogin) {
 
-        $sLogin = strtolower($sLogin);
+        $sLogin = mb_strtolower($sLogin, 'UTF-8');
         $sCacheKey = "user_login_{$sLogin}";
         if (false === ($nUserId = $this->Cache_Get($sCacheKey))) {
             if ($nUserId = $this->oMapper->GetUserByLogin($sLogin)) {
