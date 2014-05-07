@@ -345,6 +345,10 @@ abstract class Plugin extends LsObject {
         return $sResult;
     }
 
+    static public function GetPluginName($sPluginName) {
+        return self::_pluginName($sPluginName);
+    }
+
     /**
      * Возвращает полный серверный путь до плагина
      *

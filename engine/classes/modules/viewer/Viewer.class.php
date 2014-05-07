@@ -999,7 +999,7 @@ class ModuleViewer extends Module {
      * @param   int $iPriority    Приоритет, согласно которому сортируются виджеты
      * @return  bool
      */
-    public function AddWidget($sGroup, $sName, $aParams = array(), $iPriority = 0) {
+    public function AddWidget($sGroup, $sName, $aParams = array(), $iPriority = null) {
         /**
          * Если не указана директория шаблона, но указана приналежность к плагину,
          * то "вычисляем" правильную директорию
@@ -1008,6 +1008,9 @@ class ModuleViewer extends Module {
             $aParams['dir'] = Plugin::GetTemplatePath($aParams['plugin']);
         }
 
+        if (is_null($iPriority)) {
+            $iPriority = (isset($aParams['priority']) ? $aParams['priority'] : 0);
+        }
         $aWidgetData = array(
             'name' => $sName,
             'params' => $aParams,
@@ -1160,7 +1163,7 @@ class ModuleViewer extends Module {
      */
     protected function _SortWidgetsCompare($a, $b) {
 
-        if ($a->getPriority() == $b->getPriority()) {
+        if ($a->getPriority() === $b->getPriority()) {
             return $a->getOrder() - $b->getOrder();
         } elseif ($a->isTop()) {
             return 1;

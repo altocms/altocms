@@ -117,6 +117,30 @@ class ModuleWidget_EntityWidget extends Entity {
     }
 
     /**
+     * Returns priority of widget
+     *
+     * @return int|string
+     */
+    public function GetPriority() {
+
+        $xResult = $this->getProp('priority');
+        if (is_numeric($xResult) || is_null($xResult)) {
+            return intval($xResult);
+        }
+        return strtolower($xResult);
+    }
+
+    /**
+     * Returns order of widget
+     *
+     * @return int
+     */
+    public function GetOrder() {
+
+        return intval($this->getProp('order'));
+    }
+
+    /**
      * Returns widget's ID. If ID does not exist it will be created
      *
      * @return string
@@ -242,7 +266,7 @@ class ModuleWidget_EntityWidget extends Entity {
      */
     public function isTop() {
 
-        return ($sVal = $this->GetPriority()) && strtolower($sVal) == 'top';
+        return $this->GetPriority() === 'top';
     }
 
     /**

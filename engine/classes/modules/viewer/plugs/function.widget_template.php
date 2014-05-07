@@ -19,13 +19,13 @@
  * @param   array                    $aParams
  * @param   Smarty_Internal_Template $oSmartyTemplate
  *
- * @return  string
+ * @return  string|null
  */
 function smarty_function_widget_template($aParams, $oSmartyTemplate) {
 
     if (!isset($aParams['name'])) {
         trigger_error('Parameter "name" does not define in {widget ...} function', E_USER_WARNING);
-        return;
+        return null;
     }
     $sWidgetName = $aParams['name'];
     $aWidgetParams = (isset($aParams['params']) ? $aParams['params'] : array());
@@ -47,6 +47,8 @@ function smarty_function_widget_template($aParams, $oSmartyTemplate) {
             $oSmartyTemplate->assign('aWidgetParams', $aWidgetParams);
         }
         $sResult = $oSmartyTemplate->fetch($sTemplate);
+    } else {
+        $sResult = null;
     }
 
     return $sResult;
