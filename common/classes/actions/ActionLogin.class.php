@@ -232,8 +232,14 @@ class ActionLogin extends Action {
                         $oReminder->setIsUsed(1);
                         $this->User_UpdateReminder($oReminder);
                         $this->Notify_SendReminderPassword($oUser, $sNewPassword);
-                        $this->SetTemplateAction('reminder_confirm');
-                        return;
+                        //$this->SetTemplateAction('reminder_confirm');
+                        //return;
+                        $this->Message_AddNoticeSingle($this->Lang_Get('password_reminder_send_password'), '', true);
+                        if (($sUrl = F::GetPost('return_url')) || ($sUrl = F::GetPost('return-path'))) {
+                            Router::Location($sUrl);
+                        } else {
+                            Router::Location('/');
+                        }
                     }
                 }
             }

@@ -184,6 +184,11 @@ body.light .site-info { margin-bottom: 40px; }
 .item-list li p { margin-bottom: 4px; }
 .item-list li .author { font-weight: bold; }
 
+/* Alert messages */
+.alert-message { box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.02);}
+.alert-message-sign { font-size: 24px; float: left; display: block; position: relative; top: -2px; }
+.alert-message-list { margin-left: 32px; }
+
 /* Others */
 .loader, .loading { background: url(../images/loader.gif) 50% 50% no-repeat; }
 .widget-content .loader { min-height: 20px; }
