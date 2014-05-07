@@ -85,6 +85,32 @@ body.light .site-info { margin-bottom: 40px; }
 .light-form { margin: 0 auto; max-width: 480px; padding: 20px; }
 .light-form .page-header h2, .light-form .page-header h3 { margin-top: 0; }
 
+/* Form */
+/** Styling input[type=file] **/
+.btn-file {
+    position: relative;
+    overflow: hidden;
+    margin-right: 4px;
+}
+
+.btn-file input {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    opacity: 0;
+    filter: alpha(opacity=0);
+    transform: translate(-300px, 0) scale(4);
+    font-size: 23px;
+    direction: ltr;
+    cursor: pointer;
+}
+
+/* Fix for IE 7: */
+* + html .btn-file {
+    padding: 2px 15px;
+    margin: 1px 0 0 0;
+}
 
 /* Misc */
 .help { display: none; position: relative; padding: 0 0 20px; margin: 13px 0 0; }

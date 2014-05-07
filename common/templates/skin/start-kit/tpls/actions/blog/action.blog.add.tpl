@@ -62,8 +62,8 @@
 
         <div class="form-group">
             <label for="blog_description">{$aLang.blog_create_description}</label>
-            <textarea name="blog_description" id="blog_description" rows="15"
-                      class="form-control js-editor-wysiwyg js-editor-markitup">{$_aRequest.blog_description}</textarea>
+            <textarea name="blog_description" id="blog_description" rows="3"
+                      class="form-control">{$_aRequest.blog_description}</textarea>
 
             <p class="help-block">
                 <small>{$aLang.blog_create_description_notice}</small>

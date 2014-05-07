@@ -154,9 +154,10 @@
             <div id="content" role="main" class="{if $noSidebar}col-md-12 col-lg-12{else}col-md-8 col-lg-8{/if} content{if $sidebarPosition == 'left'} content-right{/if}"
                  {if $sMenuItemSelect=='profile'}itemscope itemtype="http://data-vocabulary.org/Person"{/if}>
 
+                {include file='commons/common.messages.tpl'}
+
                 <div class="content-inner action-{$sAction}{if $sEvent} event-{$sEvent}{/if}{if $aParams[0]} params-{$aParams[0]}{/if}">
                     {include file='menus/menu.content.tpl'}
-                    {include file='commons/common.messages.tpl'}
 
                     {block name="layout_content"}
                     {hook run='content_begin'}

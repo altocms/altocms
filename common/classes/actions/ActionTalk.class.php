@@ -63,7 +63,8 @@ class ActionTalk extends Action {
          */
         $this->Lang_AddLangJs(
             array(
-                 'delete'
+                 'delete',
+                 'talk_inbox_delete_confirm'
             )
         );
     }

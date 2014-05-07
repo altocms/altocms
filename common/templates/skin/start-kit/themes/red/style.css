@@ -4,6 +4,9 @@ body {
 a {
   color: #b82223;
 }
+.btn-default {
+  background-color: #f6f6f6;
+}
 .btn-success {
   color: #fff;
   background-color: #323a45;

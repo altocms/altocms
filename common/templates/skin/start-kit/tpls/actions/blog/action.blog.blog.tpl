@@ -14,9 +14,7 @@
     });
 </script>
 
-{if E::IsAdmin()}
-    {include file='modals/modal.blog_delete.tpl'}
-{/if}
+{include_once file='modals/modal.blog_delete.tpl'}
 
 
 <div class="blog">
@@ -70,17 +68,9 @@
                     <a href="{router page='blog'}admin/{$oBlog->getId()}/" title="{$aLang.blog_menu_admin}"
                        class="actions-edit">{$aLang.blog_menu_admin}</a>
                 </li>
-                {if E::IsAdmin()}
-                    <li>
-                        <a href="#" title="{$aLang.blog_menu_delete}" class="actions-delete js-modal-blog_delete">{$aLang.blog_menu_delete}</a>
-                    </li>
-                {else}
-                    <li>
-                        <a href="{router page='blog'}delete/{$oBlog->getId()}/?security_key={$ALTO_SECURITY_KEY}"
-                           title="{$aLang.blog_menu_delete}" onclick="return confirm('{$aLang.blog_admin_delete_confirm}');"
-                           class="actions-delete">{$aLang.blog_menu_delete}</a>
-                    </li>
-                {/if}
+                <li>
+                    <a href="#" title="{$aLang.blog_menu_delete}" class="actions-delete js-modal-blog_delete">{$aLang.blog_menu_delete}</a>
+                </li>
             </ul>
         {/if}
     </header>
