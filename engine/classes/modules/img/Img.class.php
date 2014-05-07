@@ -527,18 +527,31 @@ class ModuleImg extends Module {
     }
 
     /**
-     * Transform image from file using config preset
+     * Transform image from file using config preset and/or options
      *
-     * @param $sFile
-     * @param $sPreset
+     * @param string $sFile
+     * @param string $sPreset
+     * @param array  $aOptions
      *
      * @return bool
      */
-    public function TransformFile($sFile, $sPreset) {
+    public function TransformFile($sFile, $sPreset, $aOptions = array()) {
 
-        $sOldKey = $this->GetConfigKey();
-        $this->SetConfig($sPreset);
-        $aParams = $this->GetParams();
+        if (is_array($sPreset)) {
+            $aOptions = $sPreset;
+            $sPreset = null;
+        }
+        if ($sPreset) {
+            $sOldKey = $this->GetConfigKey();
+            $this->SetConfig($sPreset);
+            $aParams = $this->GetParams();
+        } else {
+            $sOldKey = null;
+            $aParams = array();
+        }
+        if ($aOptions) {
+            $aParams = F::Array_Merge($aParams, $aOptions);
+        }
         $bResult = false;
 
         if ($oImg = $this->Read($sFile)) {
@@ -550,7 +563,10 @@ class ModuleImg extends Module {
             }
             $bResult = true;
         }
-        $this->SetConfig($sOldKey);
+        if ($sOldKey) {
+            $this->SetConfig($sOldKey);
+        }
+
         return $bResult ? $sFile : false;
     }
 

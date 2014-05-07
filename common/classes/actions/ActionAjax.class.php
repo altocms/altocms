@@ -1087,7 +1087,18 @@ class ActionAjax extends Action {
         $sFile = null;
         // * Был выбран файл с компьютера и он успешно загрузился?
         if ($aUploadedFile = $this->GetUploadedFile('img_file')) {
-            $sFile = $this->Topic_UploadTopicImageFile($aUploadedFile, $this->oUserCurrent);
+            $aOptions = array();
+            // Check options of uploaded image
+            if ($nWidth = $this->GetPost('img_width')) {
+                if ($this->GetPost('img_width_unit') == 'percent') {
+                    // Max width according width of text area
+                    if ($this->GetPost('img_width_ref') == 'text' && ($nWidthText = intval($this->GetPost('img_width_text')))) {
+                        $nWidth = round($nWidthText * $nWidth / 100);
+                        $aOptions['size']['width'] = $nWidth;
+                    }
+                }
+            }
+            $sFile = $this->Topic_UploadTopicImageFile($aUploadedFile, $this->oUserCurrent, $aOptions);
             if (!$sFile) {
                 $sMessage = $this->Lang_Get('uploadimg_file_error');
                 if ($this->Uploader_GetError()) {

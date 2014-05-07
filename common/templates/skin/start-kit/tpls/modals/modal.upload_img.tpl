@@ -21,20 +21,38 @@
                         <form method="POST" action="" enctype="multipart/form-data" id="block_upload_img_content_pc"
                               onsubmit="return false;" class="js-block-upload-img-content">
                             <div class="form-group">
-                                <label for="img_file">{$aLang.uploadimg_file}</label>
-                                <input type="file" name="img_file" id="img_file" value=""/>
+                                <label>{$aLang.uploadimg_file}</label>
+                                <br/>
+                                <div class="btn btn-default btn-file">
+                                    <span>{$aLang.uploadimg_choose_file}</span>
+                                    <input type="file" name="img_file" id="img_file" />
+                                </div>
                             </div>
 
                             {hook run="uploadimg_source"}
 
-                            <div class="form-group">
-                                <label for="form-image-align">{$aLang.uploadimg_align}</label>
-                                <select name="align" id="form-image-align" class="form-control">
-                                    <option value="">{$aLang.uploadimg_align_no}</option>
-                                    <option value="left">{$aLang.uploadimg_align_left}</option>
-                                    <option value="right">{$aLang.uploadimg_align_right}</option>
-                                    <option value="center">{$aLang.uploadimg_align_center}</option>
-                                </select>
+                            <div class="row">
+                                <div class="form-group col-xs-6">
+                                    <label for="form-image-align">{$aLang.uploadimg_align}</label>
+                                    <select name="align" id="form-image-align" class="form-control">
+                                        <option value="">{$aLang.uploadimg_align_no}</option>
+                                        <option value="left">{$aLang.uploadimg_align_left}</option>
+                                        <option value="right">{$aLang.uploadimg_align_right}</option>
+                                        <option value="center">{$aLang.uploadimg_align_center}</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group col-xs-6 js-img_width">
+                                    <label>{$aLang.uploadimg_size_width_max}</label>
+                                    <div class="input-group">
+                                        <input type="text" name="img_width" value="100" class="form-control"/>
+                                        <span class="input-group-addon">%</span>
+                                    </div>
+                                    <input type="hidden" name="img_width_unit" value="percent" />
+                                    <input type="hidden" name="img_width_ref" value="text" />
+                                    <input type="hidden" name="img_width_text" value="" />
+                                    <p class="help-block">{$aLang.uploadimg_size_width_max_text}</p>
+                                </div>
                             </div>
 
                             <div class="form-group">
@@ -44,10 +62,10 @@
 
                             {hook run="uploadimg_additional"}
 
+                            <button type="submit" class="btn btn-default">{$aLang.uploadimg_cancel}</button>
                             <button type="submit" class="btn btn-success" onclick="ls.ajaxUploadImg(this,'{$sToLoad}');">
                                 {$aLang.uploadimg_submit}
                             </button>
-                            <button type="submit" class="btn btn-default">{$aLang.uploadimg_cancel}</button>
                         </form>
                     </div>
 
@@ -93,3 +111,14 @@
         </div>
     </div>
 </div>
+
+<script>
+$(function(){
+    $('.js-img_width').each(function(){
+        var imgWidthGroup = $('.js-img_width'),
+            textWidth = imgWidthGroup.closest('.content-inner').width();
+
+        imgWidthGroup.find('[name=img_width_text]').val(textWidth);
+    });
+});
+</script>

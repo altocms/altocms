@@ -2415,12 +2415,13 @@ class ModuleTopic extends Module {
      * @param string                $sImageFile
      * @param ModuleUser_EntityUser $oUser
      * @param string                $sType
+     * @param array                 $aOptions
      *
      * @return bool
      */
-    protected function _saveTopicImage($sImageFile, $oUser, $sType) {
+    protected function _saveTopicImage($sImageFile, $oUser, $sType, $aOptions = array()) {
 
-        $sFileTmp = $this->Img_TransformFile($sImageFile, $sType);
+        $sFileTmp = $this->Img_TransformFile($sImageFile, $sType, $aOptions);
         if ($sFileTmp) {
             $sDirUpload = $this->Uploader_GetUserImageDir($oUser->getId());
             $sFileImage = $this->Uploader_Uniqname($sDirUpload, F::File_GetExtension($sFileTmp, true));
@@ -2438,13 +2439,14 @@ class ModuleTopic extends Module {
     /**
      * @param array                 $aFile
      * @param ModuleUser_EntityUser $oUser
+     * @param array                 $aOptions
      *
      * @return string|bool
      */
-    public function UploadTopicImageFile($aFile, $oUser) {
+    public function UploadTopicImageFile($aFile, $oUser, $aOptions = array()) {
 
         if ($sFileTmp = $this->Uploader_UploadLocal($aFile)) {
-            return $this->_saveTopicImage($sFileTmp, $oUser, 'topic');
+            return $this->_saveTopicImage($sFileTmp, $oUser, 'topic', $aOptions);
         }
         return false;
     }
@@ -2454,13 +2456,14 @@ class ModuleTopic extends Module {
      *
      * @param  string                $sUrl    URL изображения
      * @param  ModuleUser_EntityUser $oUser
+     * @param array                 $aOptions
      *
      * @return string|int
      */
-    public function UploadTopicImageUrl($sUrl, $oUser) {
+    public function UploadTopicImageUrl($sUrl, $oUser, $aOptions = array()) {
 
         if ($sFileTmp = $this->Uploader_UploadRemote($sUrl)) {
-            return $this->_saveTopicImage($sFileTmp, $oUser, 'topic');
+            return $this->_saveTopicImage($sFileTmp, $oUser, 'topic', $aOptions);
         }
         return false;
     }
