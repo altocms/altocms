@@ -17,7 +17,7 @@
 
             <button type="submit" onclick="ls.talk.makeReadTalks()"
                     class="btn btn-default">{$aLang.talk_inbox_make_read}</button>
-            <button type="submit" onclick="if (confirm('{$aLang.talk_inbox_delete_confirm}')){ ls.talk.removeTalks() };"
+            <button type="submit" onclick="return ls.talk.removeTalks();"
                     class="btn btn-default">{$aLang.talk_inbox_delete}</button>
             <br/><br/>
 

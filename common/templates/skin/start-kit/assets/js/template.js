@@ -36,7 +36,7 @@
     });
 
     $('.js-modal-blog_delete').click(function () {
-        $('#modal-blog_delete').modal();
+        ls.modal.show('#modal-blog_delete');
         return false;
     });
 
@@ -87,6 +87,20 @@
     // Autofocus
     $('form').each(function(){
         $(this).find('.js-focus-in:visible').first().focus();
+    });
+
+    // Stylization of [type=button]
+    $('.btn-file').each(function (){
+        $('input[type=file]', this).change(function (){
+            var input = $(this),
+                value = input.val(), // get value
+                pos = value.lastIndexOf('/') > value.lastIndexOf('\\') ? value.lastIndexOf('/') : value.lastIndexOf('\\'),
+                fileName = value.substring(pos + 1); // get file name
+            // remove existing file info
+            input.next().remove();
+            // append file info
+            $('<span>: ' + fileName + '</span>').insertAfter(input);
+        });
     });
 
     // Скролл

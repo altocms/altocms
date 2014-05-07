@@ -113,6 +113,31 @@ ls.topic = (function ($) {
         return false;
     };
 
+    /**
+     * Remove topic with id
+     *
+     * @param id
+     * @param title
+     */
+    this.remove = function(id, title) {
+        var text = ls.lang.get('topic_delete_confirm_text', {title: title});
+
+        if (title) {
+            text = ls.lang.get('topic_delete_confirm_text', {title: '"' + title + '"'});
+        } else {
+            text = ls.lang.get('topic_delete_confirm_text', {title: null})
+        }
+        ls.modal.confirm({
+            title: ls.lang.get('topic_delete_confirm_title'),
+            message: text
+        }, function(confirm) {
+                if (confirm) {
+                    location.href = ls.routerUrl('content') + 'delete/' + id + '/?security_key=' + ALTO_SECURITY_KEY;
+                }
+            }
+        );
+    }
+
     $(function(){
         ls.topic.init();
     });

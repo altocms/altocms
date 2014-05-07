@@ -188,7 +188,7 @@ return array(
     'blog_admin_delete_move'                    => 'Удалить статьи или переместить в другой блог',
     'blog_delete_clear'                         => 'Удалить статьи',
     'blog_admin_delete_success'                 => 'Блог успешно удален',
-    'blog_admin_delete_not_empty'               => 'Вы не можете удалить блок с записями. Предварительно удалите из блога все записи.',
+    'blog_admin_delete_not_empty'               => 'Вы не можете удалить блог с записями. Предварительно удалите из блога все записи.',
     'blog_admin_delete_move_error'              => 'Не удалось переместить статьи из удаляемого блога',
     'blog_admin_delete_move_personal'           => 'Нельзя перемещать статьи в персональный блог',
 
@@ -314,7 +314,7 @@ return array(
     'topic_preview'                             => 'Предпросмотр',
     'topic_delete'                              => 'Удалить',
     'topic_delete_confirm_title'                => 'Удаление статьи',
-    'topic_delete_confirm_text'                 => 'Вы действительно хотите удалить статью?',
+    'topic_delete_confirm_text'                 => 'Вы действительно хотите удалить статью %%title%%?',
     'topic_delete_confirm'                      => 'Вы действительно хотите удалить статью?',
 
     'topic_field_link_add'                      => 'Добавить ссылку-источник',
@@ -1060,6 +1060,8 @@ return array(
     'uploadimg_link_submit_paste'               => 'Вставить как ссылку',
     'uploadimg_cancel'                          => 'Отмена',
     'uploadimg_size'                            => 'Размер изображения',
+    'uploadimg_size_width_max'                  => 'Макс. размер изображения',
+    'uploadimg_size_width_max_text'             => 'Макс. размер изображения в процентах относительно ширины текста',
     'uploadimg_title'                           => 'Описание',
     /**
      * Уведомления

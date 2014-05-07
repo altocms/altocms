@@ -13,10 +13,9 @@
             <div class="topic-header-info">
                 <ul class="list-unstyled list-inline small pull-right actions">
                     <li><span class="glyphicon glyphicon-cog actions-tool"></span></li>
-                    <li class="delete"><a
-                                href="{router page='talk'}delete/{$oTalk->getId()}/?security_key={$ALTO_SECURITY_KEY}"
-                                onclick="return confirm('{$aLang.talk_inbox_delete_confirm}');"
-                                class="actions-delete">{$aLang.delete}</a></li>
+                    <li class="delete"><a href="#"
+                                          onclick="return ls.talk.removeMessage('{$oTalk->getId()}');"
+                                          class="actions-delete">{$aLang.delete}</a></li>
                 </ul>
             </div>
         </header>

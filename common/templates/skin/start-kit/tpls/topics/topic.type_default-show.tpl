@@ -39,10 +39,8 @@
 
                         {if E::IsAdmin() OR $oBlog->getUserIsAdministrator() OR $oBlog->getOwnerId()==E::UserId()}
                             <li>
-                                <a href="{router page='content'}delete/{$oTopic->getId()}/?security_key={$ALTO_SECURITY_KEY}"
-                                   class="actions-delete"
-                                   title="{$aLang.topic_delete}"
-                                   onclick="return confirm('{$aLang.topic_delete_confirm}');">
+                                <a href="#" class="actions-delete" title="{$aLang.topic_delete}"
+                                   onclick="ls.topic.remove('{$oTopic->getId()}', '{$oTopic->getTitle()}'); return false;">
                                     {$aLang.topic_delete}
                                 </a>
                             </li>

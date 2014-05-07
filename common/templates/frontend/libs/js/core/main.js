@@ -120,82 +120,6 @@ ls.msg = (function ($) {
     return this;
 }).call(ls.msg || {}, jQuery);
 
-/* Modal windows */
-ls.modal = (function ($) {
-    "use strict";
-    var emptyWindow;
-
-    /**
-     * Options
-     */
-    this.options = {
-        selectorModalEmpty: '#modal-empty',
-        classButtonConfirm: 'btn btn-success',
-        classButtonCancel: 'btn btn-danger'
-    };
-
-    this.init = function (options) {
-        if (options) {
-            this.options = $.extend(this.options, options);
-        }
-        emptyWindow = $(this.options.selectorModalEmpty).first();
-    };
-
-    this.clear = function() {
-        if (emptyWindow.length) {
-            emptyWindow.find('.modal-title').empty();
-            emptyWindow.find('.modal-body').empty();
-            emptyWindow.find('.modal-footer').empty();
-            emptyWindow.find('.js-confirm, .js-cancel').off('click');
-        }
-    };
-
-    this.confirm = function (title, msg, options) {
-        if (!title) {
-            title = ' ';
-        }
-        if (typeof options == 'function') {
-            options = {onConfirm: options};
-        }
-        this.clear();
-        emptyWindow.find('.modal-title').html(title);
-        emptyWindow.find('.modal-body').html(msg);
-        emptyWindow.find('.modal-footer').append(
-            $('<button class="btn btn-default js-cancel">' + ls.lang.get('text_cancel') + '</button>')
-        );
-        emptyWindow.find('.modal-footer').append(
-            $('<button class="btn btn-primary js-confirm">' + ls.lang.get('text_confirm') + '</button>')
-        );
-
-        emptyWindow.find('.js-confirm').on('click', function(){
-            emptyWindow.modal('hide');
-            if (options.onConfirm) {
-                options.onConfirm();
-            }
-            return false;
-        });
-
-        emptyWindow.find('.js-cancel').on('click', function(){
-            emptyWindow.modal('hide');
-            if (options.onCancel) {
-                options.onCancel();
-            }
-            return false;
-        });
-        emptyWindow.modal('show');
-    };
-
-    this.alert = function () {
-
-    };
-
-    $(function(){
-        ls.modal.init();
-    });
-
-    return this;
-}).call(ls.modal || {}, jQuery);
-
 /**
  * Доступ к языковым текстовкам (предварительно должны быть прогружены в шаблон)
  */
@@ -707,10 +631,17 @@ ls = (function ($) {
             }
         };
 
-        if (typeof callback == 'function') {
-            options.success = function (result, status, xhr, form) {
-                progressDone();
-                form.find('[type=submit]').prop('disabled', false).removeClass('loading');
+        if (typeof callback !== 'function') {
+            callback = null;
+        }
+        options.success = function (result, status, xhr, form) {
+            progressDone();
+            form.find('[type=submit]').prop('disabled', false).removeClass('loading');
+            if (callback) {
+                callback(result, status, xhr, form);
+            } else {
+                ls.debug("ajax success: ");
+                ls.debug.apply(this, arguments);
                 if (!result) {
                     ls.msg.error(null, 'System error #1001');
                 } else if (result.bStateError) {
@@ -722,16 +653,10 @@ ls = (function ($) {
                     if (result.sMsg) {
                         ls.msg.notice(null, result.sMsg);
                     }
-                    callback(result, status, xhr, form);
                 }
-            }.bind(this);
-        } else {
-            options.success = function () {
-                progressDone();
-                ls.debug("ajax success: ");
-                ls.debug.apply(this, arguments);
-            }.bind(this);
-        }
+            }
+        }.bind(this);
+
         options.error = function() {
             if (more.progress) {
                 ls.progressDone();
@@ -780,10 +705,7 @@ ls = (function ($) {
      * Uploads image
      */
     this.ajaxUploadImg = function (form, sToLoad) {
-        form = $(form);
-        if (!form.is('form')) {
-            form = form.parents('form').first();
-        }
+        form = $(form).closest('form');
         var modalWin = form.parents('.modal').first();
         ls.progressStart();
         $that.ajaxSubmit('upload/image/', form, function (result) {
@@ -938,9 +860,9 @@ ls = (function ($) {
     /**
      * Ends to show progress
      */
-    this.progressDone = function() {
+    this.progressDone = function(final) {
 
-        if (--$that.options.progressCnt <= 0) {
+        if ((--$that.options.progressCnt <= 0) || final) {
             if ($that.options.progressType == 'syslabel') {
                 $.SysLabel.hide();
             } else {

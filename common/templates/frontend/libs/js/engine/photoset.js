@@ -234,8 +234,18 @@ ls.photoset = ( function ($) {
      * @param id
      */
     this.deletePhoto = function (id) {
+        var photo = $(this._itemId(id)),
+            img = photo.length ? photo.find('img') : null,
+            html = ls.lang.get('topic_photoset_photo_delete_confirm');
 
-        ls.modal.confirm('', ls.lang.get('topic_photoset_photo_delete_confirm'), {
+        if (!photo.length) {
+            return false;
+        }
+        if (img.length) {
+            html = '<img src="' + img.prop('src') + '" align="left" />' + html + '<div class="clearfix"></div> ';
+        }
+
+        ls.modal.confirm(html, {
             onConfirm: function() {
                 $(ls.photoset._itemId(id)).css('opacity',.5).find('input, textarea').css('disabled', true);
                 ls.progressStart();

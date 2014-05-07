@@ -107,9 +107,10 @@ ls.userfield = ( function ($) {
     };
 
     this.deleteUserfield = function (id) {
-        var title = ls.lang.get('action.admin.user_field_delete_confirm_title');
-        var text = ls.lang.get('action.admin.user_field_delete_confirm_text', {field: $(this.fieldIdPrefix + id).find('.userfield_admin_name').text()});
-        ls.modal.confirm(title, text, function () {
+        var title = ls.lang.get('action.admin.user_field_delete_confirm_title'),
+            text = ls.lang.get('action.admin.user_field_delete_confirm_text', {field: $(this.fieldIdPrefix + id).find('.userfield_admin_name').text()});
+
+        ls.modal.confirm({title: title, text: text}, function () {
             var url = ls.routerUrl('admin') + 'settings-userfields';
             var params = {'action': 'delete', 'id': id};
 

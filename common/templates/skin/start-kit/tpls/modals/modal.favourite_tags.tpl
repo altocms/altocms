@@ -9,8 +9,8 @@
                     <h4 class="modal-title">{$aLang.add_favourite_tags}</h4>
                 </header>
 
-                <div class="modal-body">
-                    <form onsubmit="return ls.favourite.saveTags(this);">
+                <form onsubmit="return ls.favourite.saveTags(this);">
+                    <div class="modal-body">
                         <input type="hidden" name="target_type" value="" id="favourite-form-tags-target-type">
                         <input type="hidden" name="target_id" value="" id="favourite-form-tags-target-id">
 
@@ -19,12 +19,15 @@
                                    class="form-control autocomplete-tags-sep">
                         </div>
 
+                    </div>
+
+                    <div class="modal-footer">
                         <button type="submit" name="" class="btn btn-success"/>
                         {$aLang.favourite_form_tags_button_save}</button>
                         <button type="submit" name="" class="btn btn-default"/>
                         {$aLang.favourite_form_tags_button_cancel}</button>
-                    </form>
-                </div>
+                    </div>
+                </form>
 
             </div>
         </div>

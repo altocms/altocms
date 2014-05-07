@@ -610,6 +610,8 @@ $config['head']['default']['js'] = array(
     '___path.frontend.dir___/libs/vendor/rowgrid/jquery.row-grid.min.js' => array('asset' => 'mini'),
     '___path.frontend.dir___/libs/vendor/parsley/parsley.js',
     '___path.frontend.dir___/libs/vendor/parsley/i18n/messages.ru.js',
+    //'___path.frontend.dir___/libs/vendor/bootbox/bootbox.min.js' => array('asset' => 'mini'),
+    '___path.frontend.dir___/libs/vendor/bootbox/bootbox.js',
 
     '___path.frontend.dir___/libs/vendor/swfobject/swfobject.js',
 
@@ -669,6 +671,7 @@ $config['head']['default']['js'] = array(
 
     /* Core */
     '___path.frontend.dir___/libs/js/core/main.js',
+    '___path.frontend.dir___/libs/js/core/modal.js',
     '___path.frontend.dir___/libs/js/core/hook.js',
 
     '___path.frontend.dir___/bootstrap-3/js/bootstrap.min.js' => array('name' => 'bootstrap'),
@@ -776,6 +779,8 @@ $config['lang']['load_to_js'] = array(
     'text_no',
     'text_confirm',
     'text_cancel',
+    'topic_delete_confirm_title',
+    'topic_delete_confirm_text',
 );
 
 // пути до языковых файлов

@@ -37,11 +37,11 @@ $config['head']['default']['js'] = array(
 
     '___path.frontend.dir___/bootstrap-3/js/bootstrap.min.js' => array('name' => 'bootstrap'),
 
-    '___path.skin.dir___/assets/js/excanvas.min.js',
-    '___path.skin.dir___/assets/js/jquery.flot.min.js',
-    '___path.skin.dir___/assets/js/jquery.flot.resize.min.js',
-    '___path.skin.dir___/assets/js/jquery.peity.min.js',
-    '___path.skin.dir___/assets/js/fullcalendar.min.js',
+    '___path.skin.dir___/assets/js/excanvas.min.js' => array('asset' => 'mini'),
+    '___path.skin.dir___/assets/js/jquery.flot.min.js' => array('asset' => 'mini'),
+    '___path.skin.dir___/assets/js/jquery.flot.resize.min.js' => array('asset' => 'mini'),
+    '___path.skin.dir___/assets/js/jquery.peity.min.js' => array('asset' => 'mini'),
+    '___path.skin.dir___/assets/js/fullcalendar.min.js' => array('asset' => 'mini'),
     '___path.skin.dir___/assets/js/midnight.js',
     //'___path.skin.dir___/assets/js/midnight.dashboard.js',
     '___path.frontend.dir___/libs/vendor/notifier/jquery.notifier.js',
@@ -57,9 +57,11 @@ $config['head']['default']['js'] = array(
     '___path.frontend.dir___/libs/vendor/jquery.charcount.js',
     '___path.frontend.dir___/libs/vendor/prettify/prettify.js',
     '___path.frontend.dir___/libs/vendor/syslabel/syslabel.js',
+    '___path.frontend.dir___/libs/vendor/bootbox/bootbox.min.js' => array('asset' => 'mini'),
 
     '___path.frontend.dir___/libs/js/core/main.js',
     '___path.frontend.dir___/libs/js/core/hook.js',
+    '___path.frontend.dir___/libs/js/core/modal.js',
     '___path.frontend.dir___/libs/js/engine/favourite.js',
     '___path.frontend.dir___/libs/js/engine/vote.js',
     '___path.frontend.dir___/libs/js/engine/poll.js',

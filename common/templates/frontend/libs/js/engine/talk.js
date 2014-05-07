@@ -202,13 +202,32 @@ ls.talk = (function ($) {
      * Удаление списка писем
      */
     this.removeTalks = function () {
+
         if ($('.form_talks_checkbox:checked').length == 0) {
             return false;
         }
-        $('#form_talks_list_submit_unread').val(0);
-        $('#form_talks_list_submit_del').val(1);
-        $('#form_talks_list_submit_read').val(0);
-        $('#form_talks_list').submit();
+        ls.modal.confirm({
+            text: ls.lang.get('talk_inbox_delete_confirm')
+        }, {
+            onConfirm: function() {
+                $('#form_talks_list_submit_unread').val(0);
+                $('#form_talks_list_submit_del').val(1);
+                $('#form_talks_list_submit_read').val(0);
+                $('#form_talks_list').submit();
+            }
+        });
+        return false;
+    };
+
+    this.removeMessage = function (id) {
+
+        ls.modal.confirm({
+            text: ls.lang.get('talk_inbox_delete_confirm')
+        }, {
+            onConfirm: function() {
+                location.href = ls.routerUrl('talk') + 'delete/' + id + '/?security_key=' + ALTO_SECURITY_KEY;
+            }
+        });
         return false;
     };
 

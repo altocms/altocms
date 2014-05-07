@@ -97,16 +97,16 @@
 
         admin.confirmDelete = function () {
             if ($('.form_plugins_checkbox:checked').length) {
-                admin.confirm({
-                    header: '{$aLang.action.admin.plugin_submit_delete}',
-                    content: '{$aLang.action.admin.plugin_delete_confirm}',
+                ls.modal.confirm({
+                    title: '{$aLang.action.admin.plugin_submit_delete}',
+                    message: '{$aLang.action.admin.plugin_delete_confirm}',
                     onConfirm: function () {
                         $('#form_plugins_list [name=plugin_action]').val('delete');
                         $('#form_plugins_list').submit();
                     }
                 });
             } else {
-                admin.alert({
+                ls.modal.alert({
                     content: '{$aLang.action.admin.plugin_need_select_for_delete}'
                 });
             }
