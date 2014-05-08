@@ -112,7 +112,7 @@ ls.modal = (function ($) {
                     options.onCancel();
                 }
             }
-        } else {
+        } else if (options.callback) {
             callback = options.callback;
         }
 
