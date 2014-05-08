@@ -21,7 +21,7 @@
     </description>
     <info type="site">
         <screenshots>
-            <screenshot preview="yes" file="screenshot.png" />
+            <screenshot preview="yes" file="screenshot.jpg" />
         </screenshots>
         <themes>
             <theme code="light" name="Light" />
