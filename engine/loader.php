@@ -11,7 +11,7 @@
 /**
  * Versions
  */
-define('ALTO_VERSION', '1.0-rc');
+define('ALTO_VERSION', '1.0-rc4');
 define('LS_VERSION', '1.0.3'); // LS-compatible
 define('ALTO_PHP_REQUIRED', '5.3'); // required version of PHP
 define('ALTO_MYSQL_REQUIRED', '5.0'); // required version of PHP
