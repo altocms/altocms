@@ -885,8 +885,24 @@ class ModuleTopic extends Module {
      */
     public function GetTopicByUrl($sUrl) {
 
+        $nTopicId = $this->GetTopicIdByUrl($sUrl);
+        if ($nTopicId) {
+            return $this->GetTopicById($nTopicId);
+        }
+        return null;
+    }
+
+    /**
+     * Returns topic ID of it exists
+     *
+     * @param string $sUrl
+     *
+     * @return int
+     */
+    public function GetTopicIdByUrl($sUrl) {
+
         $nTopicId = $this->oMapper->GetTopicIdByUrl($sUrl);
-        return $this->GetTopicById($nTopicId);
+        return $nTopicId;
     }
 
     /**

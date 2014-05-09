@@ -695,11 +695,11 @@ class ActionBlog extends Action {
         $sTopicUrl = $this->GetEventMatch(1);
 
         // Проверяем есть ли такой топик
-        if (!($oTopic = $this->Topic_GetTopicByUrl($sTopicUrl))) {
+        if (!($nTopicId = $this->Topic_GetTopicIdByUrl($sTopicUrl))) {
             return parent::EventNotFound();
         }
 
-        return Router::Action('blog/' . $oTopic->getId() . '.html');
+        return Router::Action('blog/' . $nTopicId . '.html');
     }
 
     /**
