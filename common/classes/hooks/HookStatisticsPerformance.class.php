@@ -20,6 +20,9 @@
  * @since   1.0
  */
 class HookStatisticsPerformance extends Hook {
+
+    protected $bShown = false;
+
     /**
      * Регистрируем хуки
      */
@@ -37,10 +40,14 @@ class HookStatisticsPerformance extends Hook {
      */
     public function Statistics() {
 
+        if ($this->bShown) {
+            return '';
+        }
+        $sTemplate = 'commons/common.statistics_performance.tpl';
+
         $oEngine = Engine::getInstance();
-        /**
-         * Получаем статистику по БД, кешу и проч.
-         */
+
+        // * Получаем статистику по БД, кешу и проч.
         $aStats = $oEngine->getStats();
         $aStats['cache']['mode'] = (Config::Get('sys.cache.use') ? Config::Get('sys.cache.type') : 'off');
         $aStats['cache']['time'] = round($aStats['cache']['time'], 5);
@@ -54,10 +61,18 @@ class HookStatisticsPerformance extends Hook {
 
         $this->Viewer_Assign('aStatsPerformance', $aStats);
         $this->Viewer_Assign('bIsShowStatsPerformance', Router::GetIsShowStats());
-        /**
-         * В ответ рендерим шаблон статистики
-         */
-        return $this->Viewer_Fetch('commons/common.statistics_performance.tpl');
+
+        // * В ответ рендерим шаблон статистики
+        if (!$this->Viewer_TemplateExists($sTemplate)) {
+            $sSkin = Config::Get('view.skin', Config::LEVEL_CUSTOM);
+            $sTemplate = Config::Get('path.skins.dir') . $sSkin . '/tpls/' . $sTemplate;
+        }
+        if ($this->Viewer_TemplateExists($sTemplate)) {
+            $this->bShown = true;
+
+            return $this->Viewer_Fetch($sTemplate);
+        }
+        return '';
     }
 }
 
