@@ -523,16 +523,15 @@ class ModuleComment_MapperComment extends Mapper {
     /**
      * Получает количество комментариев одного пользователя
      *
-     * @param  id     $iTargetid            ID пользователя
-     * @param  string $sTargetType          Тип владельца комментария
-     * @param array   $aExcludeTarget       Список ID владельцев, которые необходимо исключить из выдачи
-     * @param array   $aExcludeParentTarget Список ID родителей владельцев, которые необходимо исключить из выдачи
+     * @param int    $iUserId              ID пользователя
+     * @param string $sTargetType          Тип владельца комментария
+     * @param array  $aExcludeTarget       Список ID владельцев, которые необходимо исключить из выдачи
+     * @param array  $aExcludeParentTarget Список ID родителей владельцев, которые необходимо исключить из выдачи
      *
      * @return int
      */
-    public function GetCountCommentsByUserId(
-        $iTargetid, $sTargetType, $aExcludeTarget = array(), $aExcludeParentTarget = array()
-    ) {
+    public function GetCountCommentsByUserId($iUserId, $sTargetType, $aExcludeTarget = array(), $aExcludeParentTarget = array()) {
+
         $sql = "SELECT
 					COUNT(comment_id) as cnt
 				FROM 
@@ -548,8 +547,9 @@ class ModuleComment_MapperComment extends Mapper {
 					{ AND target_id NOT IN (?a) }
 					{ AND target_parent_id NOT IN (?a) }
 					";
-        $nCnt = $this->oDb->selectCell(
-            $sql, $iTargetid, $sTargetType,
+        $nCnt = $this->oDb->selectCell($sql,
+            $iUserId,
+            $sTargetType,
             (count($aExcludeTarget) ? $aExcludeTarget : DBSIMPLE_SKIP),
             (count($aExcludeParentTarget) ? $aExcludeParentTarget : DBSIMPLE_SKIP)
         );

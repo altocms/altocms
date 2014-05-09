@@ -474,6 +474,14 @@ class ModuleComment_EntityComment extends Entity {
         $this->setProp('comment_count_favourite', $data);
     }
 
+    public function getTargetBlog() {
+
+        if (($oTopic = $this->getTarget()) && ($oBlog = $oTopic->getBlog())) {
+            return $oBlog;
+        }
+        return null;
+    }
+
     /**
      * Сколько секунд осталось до конца редактирования
      *
@@ -517,15 +525,29 @@ class ModuleComment_EntityComment extends Entity {
     /**
      * Может ли комментарий редактироваться
      *
+     * @param bool|null $bByAuthor - Check for author of comments or for other users only
+     *
      * @return bool
      */
-    public function isEditable() {
+    public function isEditable($bByAuthor = false) {
 
         if ($this->getTargetType() != 'talk' && ($oUser = $this->User_GetUserCurrent())) {
-            if ($oUser->isAdministrator() || $this->ACL_CheckBlogEditComment($this->getTarget(), $oUser)) {
-                return true;
+            if ($bByAuthor === false || is_null($bByAuthor)) {
+                // Administrator or user who have rights to edit
+                if ($oUser->isAdministrator()) {
+                    return true;
+                }
+                // User who has rights to edit in this blog
+                if (($oBlog = $this->getTargetBlog()) && $this->ACL_CheckBlogEditComment($oBlog, $oUser)) {
+                    return true;
+                }
             }
-            return ($oUser->GetId() == $this->getUserId()) && Config::Get('module.comment.edit.enable') && !$this->getDelete();
+            if ($bByAuthor === true || is_null($bByAuthor)) {
+                // author of comment can edit comment in time limit
+                if (($oUser->GetId() == $this->getUserId()) && Config::Get('module.comment.edit.enable') && !$this->getDelete()) {
+                    return $this->getEditTime() ? true : false;
+                }
+            }
         }
         return false;
     }
@@ -538,7 +560,10 @@ class ModuleComment_EntityComment extends Entity {
     public function isDeletable() {
 
         if ($this->getTargetType() != 'talk' && ($oUser = $this->User_GetUserCurrent())) {
-            if ($oUser->isAdministrator() || $this->ACL_CheckBlogDeleteComment($this->getTarget(), $oUser)) {
+            if ($oUser->isAdministrator()) {
+                return true;
+            }
+            if (($oBlog = $this->getTargetBlog()) && $this->ACL_CheckBlogDeleteComment($oBlog, $oUser)) {
                 return true;
             }
         }

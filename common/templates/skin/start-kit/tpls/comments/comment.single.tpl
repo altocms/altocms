@@ -13,7 +13,7 @@
     {$sCommentClass = "$sCommentClass comment-new"}
 {/if}
 <section id="comment_id_{$oComment->getId()}" class="comment {$sCommentClass}">
-    {if !$oComment->getDelete() OR $bOneComment OR (E::IsAdmin())}
+    {if !$oComment->getDelete() OR $bOneComment OR E::IsAdmin() OR $oComment->isDeletable()}
         <a name="comment{$oComment->getId()}"></a>
         <a href="{$oUser->getProfileUrl()}" class="comment-avatar js-popup-user-{$oUser->getId()}">
             <img src="{$oUser->getAvatarUrl(64)}" alt="{$oUser->getDisplayName()}"/>
@@ -92,20 +92,20 @@
                 {/if}
 
                 {if $oComment->isDeletable()}
-                    {if !$oComment->getDelete() AND E::IsAdmin()}
+                    {if !$oComment->getDelete()}
                         <li><a href="#" class="comment-delete link-dotted"
                                onclick="ls.comments.toggle(this,{$oComment->getId()}); return false;">{$aLang.comment_delete}</a>
                         </li>
                     {/if}
 
-                    {if $oComment->getDelete() AND E::IsAdmin()}
+                    {if $oComment->getDelete()}
                         <li><a href="#" class="comment-repair link-dotted"
                                onclick="ls.comments.toggle(this,{$oComment->getId()}); return false;">{$aLang.comment_repair}</a>
                         </li>
                     {/if}
                 {/if}
 
-                {if $oComment->isEditable() AND ($oComment->getEditTime() OR E::IsAdmin())}
+                {if $oComment->isEditable()}
                     <li class="comment-edit">
                         <a href="#"
                            class="link-dotted"
@@ -123,6 +123,6 @@
             </ul>
         {/if}
     {else}
-        <span class="text-muted">{$aLang.comment_was_delete}</span>
+        <span class="text-muted">{$aLang.comment_was_deleted}</span>
     {/if}
 </section>

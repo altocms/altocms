@@ -442,7 +442,7 @@ class ActionTalk extends Action {
         /**
          * Достаём комменты к сообщению
          */
-        $aReturn = $this->Comment_GetCommentsByTargetId($oTalk->getId(), 'talk');
+        $aReturn = $this->Comment_GetCommentsByTargetId($oTalk, 'talk');
         $iMaxIdComment = $aReturn['iMaxIdComment'];
         $aComments = $aReturn['comments'];
         /**

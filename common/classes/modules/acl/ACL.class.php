@@ -598,6 +598,10 @@ class ModuleACL extends Module {
         $bCurrentUser = false;
         $bResult = false;
 
+        if (!$oBlog) {
+            return false;
+        }
+
         // Если пользователь не передан, то берется текущий
         if (!$oUser) {
             if ($oUser = $this->User_GetUserCurrent()) {

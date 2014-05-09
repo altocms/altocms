@@ -298,7 +298,8 @@ class ActionBlog extends Action {
 
         // Проверка на право редактировать блог
         if (!$this->ACL_IsAllowEditBlog($oBlog, $this->oUserCurrent)) {
-            return parent::EventNotFound();
+            $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('not_access'));
+            return Router::Action('error');
         }
 
         $this->Hook_Run('blog_edit_show', array('oBlog' => $oBlog));
@@ -309,6 +310,9 @@ class ActionBlog extends Action {
 
         $this->Viewer_Assign('oBlogEdit', $oBlog);
 
+        if (!isset($this->aBlogTypes[$oBlog->getType()])) {
+            $this->aBlogTypes[$oBlog->getType()] = $oBlog->getBlogType();
+        }
         $this->Viewer_Assign('aBlogTypes', $this->aBlogTypes);
 
         // Устанавливаем шаблон для вывода
@@ -414,7 +418,8 @@ class ActionBlog extends Action {
          * Проверка на право управлением пользователями блога
          */
         if (!$this->ACL_IsAllowAdminBlog($oBlog, $this->oUserCurrent)) {
-            return parent::EventNotFound();
+            $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('not_access'));
+            return Router::Action('error');
         }
         /**
          * Обрабатываем сохранение формы
@@ -819,9 +824,7 @@ class ActionBlog extends Action {
             $iPage = $iPageDef;
         }
 
-        $aReturn = $this->Comment_GetCommentsByTargetId(
-            $oTopic->getId(), 'topic', $iPage, Config::Get('module.comment.nested_per_page')
-        );
+        $aReturn = $this->Comment_GetCommentsByTargetId($oTopic, 'topic', $iPage, Config::Get('module.comment.nested_per_page'));
         $iMaxIdComment = $aReturn['iMaxIdComment'];
         $aComments = $aReturn['comments'];
 
@@ -1434,7 +1437,7 @@ class ActionBlog extends Action {
             return;
         }
 
-        if (!$oComment->getEditTime() && !E::IsAdmin()) {
+        if (!$oComment->getEditTime() && !$oComment->isEditable(false)) {
             $this->Message_AddErrorSingle($this->Lang_Get('comment_edit_timeout'), $this->Lang_Get('error'));
             return;
         }

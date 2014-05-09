@@ -1171,15 +1171,15 @@ class ActionAjax extends Action {
      */
     protected function EventCommentDelete() {
 
-        // * Есть права на удаление комментария?
-        if (!$this->ACL_CanDeleteComment($this->oUserCurrent)) {
-            $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
-            return;
-        }
         // * Комментарий существует?
         $idComment = F::GetRequestStr('idComment', null, 'post');
         if (!($oComment = $this->Comment_GetCommentById($idComment))) {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            return;
+        }
+        // * Есть права на удаление комментария?
+        if (!$oComment->isDeletable()) {
+            $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
             return;
         }
         // * Устанавливаем пометку о том, что комментарий удален

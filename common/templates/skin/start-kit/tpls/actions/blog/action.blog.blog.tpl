@@ -57,7 +57,7 @@
             {/if}
         </h1>
 
-        {if E::IsUser() AND (E::UserId()==$oBlog->getOwnerId() OR E::IsAdmin() OR $oBlog->getUserIsAdministrator() )}
+        {if E::IsUser() AND (E::UserId()==$oBlog->getOwnerId() OR E::IsAdmin() OR $oBlog->getUserIsAdministrator() OR $oBlog->getUserIsModerator())}
             <ul class="small list-unstyled list-inline pull-right actions">
                 <li><span class="glyphicon glyphicon-cog actions-tool"></span></li>
                 <li>

@@ -32,21 +32,31 @@
                             </p>
                         </td>
 
-                        {if $oUser->getId()==E::UserId()}
-                            <td colspan="3">{$aLang.blog_admin_users_current_administrator}</td>
-                        {else}
-                            <td class="ta-c"><input type="radio" name="user_rank[{$oUser->getId()}]"
+                            <td class="ta-c">
+                                {if ($oUser->getId()==E::UserId() AND $oBlogUser->getIsAdministrator()) OR $oUser->getId()!=E::UserId()}
+                                <input type="radio" name="user_rank[{$oUser->getId()}]"
                                                     value="administrator"
-                                                    {if $oBlogUser->getIsAdministrator()}checked{/if} /></td>
-                            <td class="ta-c"><input type="radio" name="user_rank[{$oUser->getId()}]" value="moderator"
-                                                    {if $oBlogUser->getIsModerator()}checked{/if} /></td>
-                            <td class="ta-c"><input type="radio" name="user_rank[{$oUser->getId()}]" value="reader"
+                                                    {if $oBlogUser->getIsAdministrator()}checked{/if} />
+                                {/if}
+                            </td>
+                            <td class="ta-c">
+                                {if ($oUser->getId()==E::UserId() AND $oBlogUser->getIsModerator()) OR $oUser->getId()!=E::UserId()}
+                                <input type="radio" name="user_rank[{$oUser->getId()}]" value="moderator"
+                                                    {if $oBlogUser->getIsModerator()}checked{/if} />
+                                {/if}
+                            </td>
+                            <td class="ta-c">
+                                {if $oUser->getId() != E::UserId()}
+                                <input type="radio" name="user_rank[{$oUser->getId()}]" value="reader"
                                                     {if $oBlogUser->getUserRole()==$BLOG_USER_ROLE_USER}checked{/if} />
+                                {/if}
                             </td>
-                            <td class="ta-c"><input type="radio" name="user_rank[{$oUser->getId()}]" value="ban"
+                            <td class="ta-c">
+                                {if $oUser->getId() != E::UserId()}
+                                <input type="radio" name="user_rank[{$oUser->getId()}]" value="ban"
                                                     {if $oBlogUser->getUserRole()==$BLOG_USER_ROLE_BAN}checked{/if} />
+                                {/if}
                             </td>
-                        {/if}
                     </tr>
                 {/foreach}
                 </tbody>

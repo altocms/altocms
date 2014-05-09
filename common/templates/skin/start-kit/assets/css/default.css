@@ -404,7 +404,12 @@ a.user-friends:hover { color: #ff4136; text-decoration: none; }
 .comment.comment-new { background-color: #edf2f7; }
 .comment.comment-current { background-color: #e1e9f2; }
 
-.ls-user-role-not-admin .comment.comment-deleted { padding: 10px 15px; background-color: #f4f3ec; border-top: none; }
+.ls-user-role-not-admin .comment.comment-deleted {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background-color: #f4f3ec;
+    border-top: none;
+}
 
 /* Info Block */
 .comment-info-author a { font-weight: bold; color: #252525; }
