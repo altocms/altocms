@@ -25,6 +25,8 @@ class HookStatisticsPerformance extends Hook {
      */
     public function RegisterHook() {
 
+        $this->AddHook('template_layout_body_end', 'Statistics', __CLASS__, -1000);
+        // LS-compatibility
         $this->AddHook('template_body_end', 'Statistics', __CLASS__, -1000);
     }
 
