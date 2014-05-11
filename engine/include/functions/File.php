@@ -207,7 +207,7 @@ class AltoFunc_File {
      */
     static public function CheckLocalDir($sLocalDir, $bAutoMake = true, $nMask = 0755) {
 
-        return F::File_CheckDir(F::File_RootDir() . '/' . $sLocalDir, $bAutoMake, $nMask);
+        return static::CheckDir(static::RootDir() . '/' . $sLocalDir, $bAutoMake, $nMask);
     }
 
     /**
@@ -452,9 +452,9 @@ class AltoFunc_File {
         if ($nPos = strpos($sUrl, '?')) {
             $sUrl = substr($sUrl, 0, $nPos);
         }
-        $sPathWeb = str_replace('//www.', '//', F::File_RootUrl());
+        $sPathWeb = str_replace('//www.', '//', static::RootUrl());
         // * do replace
-        $sDir = str_replace($sPathWeb, F::File_RootDir(), $sUrl);
+        $sDir = str_replace($sPathWeb, static::RootDir(), $sUrl);
         return static::NormPath($sDir, $sSeparator);
     }
 
@@ -469,8 +469,8 @@ class AltoFunc_File {
 
         return static::NormPath(
             str_replace(
-                str_replace(DIRECTORY_SEPARATOR, '/', F::File_RootDir()),
-                F::File_RootUrl(),
+                str_replace(DIRECTORY_SEPARATOR, '/', static::RootDir()),
+                static::RootUrl(),
                 str_replace(DIRECTORY_SEPARATOR, '/', $sDir)
             ), '/'
         );
@@ -583,10 +583,10 @@ class AltoFunc_File {
                 $xResult = static::NormPath($sFile);
             }
         } elseif (!is_array($aDirs)) {
-            return F::File_Exists((string)$aDirs . '/' . $sFile);
+            return static::Exists((string)$aDirs . '/' . $sFile);
         } else {
             foreach ($aDirs as $sDir) {
-                $sResult = F::File_Exists($sFile, (string)$sDir);
+                $sResult = static::Exists($sFile, (string)$sDir);
                 if ($sResult) {
                     $xResult = $sResult;
                     break;
@@ -607,10 +607,10 @@ class AltoFunc_File {
      */
     static public function Copy($sSource, $sTarget, $bRewrite = false) {
 
-        if (F::File_Exists($sTarget) && !$bRewrite) {
+        if (static::Exists($sTarget) && !$bRewrite) {
             return false;
         }
-        if (F::File_Exists($sSource) && F::File_CheckDir(dirname($sTarget))) {
+        if (static::Exists($sSource) && static::CheckDir(dirname($sTarget))) {
             $bResult = @copy($sSource, $sTarget);
             if (!$bResult) {
                 F::SysWarning('Can not copy file from "' . $sSource . '" to "' . $sTarget . '"');
@@ -632,7 +632,7 @@ class AltoFunc_File {
      */
     static public function Delete($sFile, $bRecursively = false, $bNoCheck = false) {
 
-        if (F::File_Exists($sFile) || $bNoCheck) {
+        if (static::Exists($sFile) || $bNoCheck) {
             $bResult = @unlink($sFile);
         } else {
             $bResult = true;
@@ -693,7 +693,7 @@ class AltoFunc_File {
      */
     static public function GetContents($sFile) {
 
-        if (F::File_Exists($sFile)) {
+        if (static::Exists($sFile)) {
             return file_get_contents($sFile);
         }
         return false;
@@ -710,7 +710,7 @@ class AltoFunc_File {
      */
     static public function PutContents($sFile, $sData, $nFlags = 0) {
 
-        if (F::File_CheckDir(dirname($sFile))) {
+        if (static::CheckDir(dirname($sFile))) {
             return file_put_contents($sFile, $sData, $nFlags);
         }
         return false;
@@ -883,7 +883,11 @@ class AltoFunc_File {
         if (static::IsLocalDir($sFile)) {
             return static::NormPath($sFile);
         }
-        return static::NormPath(static::_calledFilePath() . $sFile);
+        /**
+         * TODO: _calledFilePath()
+         */
+        //return static::NormPath(static::_calledFilePath() . $sFile);
+        return $sFile;
     }
 
     /**
@@ -958,7 +962,7 @@ class AltoFunc_File {
     static public function IncludeIfExists($sFile, $bOnce = true, $bConfig = false) {
 
         $xResult = null;
-        if (F::File_Exists($sFile)) {
+        if (static::Exists($sFile)) {
             $xResult = static::IncludeFile($sFile, $bOnce, $bConfig);
         }
         return $xResult;

@@ -212,7 +212,7 @@ class ModuleDatabase extends Module {
 
         // * Если нужно логировать SQL ошибке то пишем их в лог
         if (Config::Get('sys.logs.sql_error')) {
-            Engine::getInstance()->Logger_Dump(Config::Get('sys.logs.sql_error_file'), $sMsg);
+            Engine::getInstance()->Logger_Dump(Config::Get('sys.logs.sql_error_file'), $sMsg, 'ERROR');
         }
 
         // * Если стоит вывод ошибок то выводим ошибку на экран(браузер)

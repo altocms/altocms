@@ -194,7 +194,9 @@ class ModuleLogger extends Module {
      */
     public function Dump($oLog, $sMsg, $sLevel = null) {
 
-        if (!is_object($oLog)) $oLog = $this->Reset((string)$oLog);
+        if (!is_object($oLog)) {
+            $oLog = $this->Reset((string)$oLog);
+        }
         return $oLog->Dump($sMsg, $sLevel);
     }
 

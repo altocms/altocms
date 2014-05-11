@@ -374,7 +374,7 @@ class Loader {
         if (!isset(self::$_aFailedClasses[$sCheckKey])) {
             if (strpos($sClassName, '\\')) {
                 // Namespaces
-                $sClassPath = str_replace('\\', DIRECTORY_SEPARATOR, $sClassName);
+                $sClassName = str_replace('\\', DIRECTORY_SEPARATOR, $sClassName);
             } elseif (strpos($sClassName, '_')) {
                 // Old style with '_'
                 $sClassName = str_replace('_', DIRECTORY_SEPARATOR, $sClassName);
