@@ -348,7 +348,7 @@ class AltoFunc_File {
             $sMask = '*';
         }
 
-        if ($bRecursively) {
+        if ($bRecursively || ($nFlag & GLOB_ONLYDIR)) {
             $aSubDirs = glob($sDir . '/{,.}*', $nFlag | GLOB_BRACE | GLOB_ONLYDIR);
             // исключаем из выдачи '.' и '..'
             $aSubDirs = static::_excludeDotted($aSubDirs);
@@ -417,6 +417,7 @@ class AltoFunc_File {
      */
     static function CopyDir($sDirSrc, $sDirTrg) {
 
+        $sDirTrg = static::NormPath($sDirTrg . '/');
         $aSource = static::ReadDir($sDirSrc, 0, true);
         foreach ($aSource as $sSource) {
             $sTarget = static::LocalPath($sSource, $sDirSrc);
@@ -499,9 +500,9 @@ class AltoFunc_File {
             $sRoot = (string)$xRoot;
         }
         if ($sPath && $sRoot) {
-            $sPath = static::NormPath($sPath . '/');
+            $sPath = static::NormPath($sPath);
             $sRoot = static::NormPath($sRoot . '/');
-            if (strpos($sPath, $sRoot) === 0) {
+            if (strpos($sPath, $sRoot) === 0 || strpos($sPath . '/', $sRoot) === 0) {
                 return substr($sPath, strlen($sRoot));
             }
         }
