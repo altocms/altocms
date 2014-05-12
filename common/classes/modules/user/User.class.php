@@ -749,8 +749,10 @@ class ModuleUser extends Module {
         if (!$oUser) {
             $oUser = $this->oUserCurrent;
         }
-        $this->oMapper->CloseUserSessions($oUser);
-        $this->Cache_CleanByTags(array('user_session_update'));
+        if ($oUser) {
+            $this->oMapper->CloseUserSessions($oUser);
+            $this->Cache_CleanByTags(array('user_session_update'));
+        }
     }
 
     /**

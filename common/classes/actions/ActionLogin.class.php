@@ -228,6 +228,11 @@ class ActionLogin extends Action {
                     $sNewPassword = F::RandomStr(7);
                     $oUser->setPassword($sNewPassword, true);
                     if ($this->User_Update($oUser)) {
+                        // Do logout of current user
+                        $this->User_Logout();
+                        // Close all sessions of this user
+                        $this->User_CloseAllSessions($oUser);
+
                         $oReminder->setDateUsed(F::Now());
                         $oReminder->setIsUsed(1);
                         $this->User_UpdateReminder($oReminder);
