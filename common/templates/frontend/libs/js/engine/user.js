@@ -17,23 +17,26 @@ ls.user = (function ($) {
 
         // Authorization
         ls.ajaxForm(ls.routerUrl('login') + 'ajax-login', '.js-form-login', function (result, status, xhr, form) {
-            ls.progressStart();
-            result.sUrlRedirect && (window.location = result.sUrlRedirect);
-            ls.hook.run('ls_user_login_after', [form, result]);
+            if (result && result.sUrlRedirect) {
+                ls.progressStart();
+                window.location.href = result.sUrlRedirect
+            }
         });
 
         /* Registration */
         ls.ajaxForm(ls.routerUrl('registration') + 'ajax-registration', '.js-form-registration', function (result, status, xhr, form) {
-            ls.progressStart();
-            result.sUrlRedirect && (window.location = result.sUrlRedirect);
-            ls.hook.run('ls_user_registration_after', [form, result]);
+            if (result && result.sUrlRedirect) {
+                ls.progressStart();
+                window.location.href = result.sUrlRedirect
+            }
         });
 
         /* Password reset */
         ls.ajaxForm(ls.routerUrl('login') + 'ajax-reminder', '.js-form-reminder', function (result, status, xhr, form) {
-            ls.progressStart();
-            result.sUrlRedirect && (window.location = result.sUrlRedirect);
-            ls.hook.run('ls_user_recovery_after', [form, result]);
+            if (result && result.sUrlRedirect) {
+                ls.progressStart();
+                window.location.href = result.sUrlRedirect
+            }
         });
 
         /* Request for activation link */
