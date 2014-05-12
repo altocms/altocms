@@ -635,20 +635,21 @@ ls = (function ($) {
             callback = null;
         }
         options.success = function (result, status, xhr, form) {
+            ls.debug("ajax success: ");
+            ls.debug.apply(this, arguments);
             progressDone();
             form.find('[type=submit]').prop('disabled', false).removeClass('loading');
             if (callback) {
                 callback(result, status, xhr, form);
             } else {
-                ls.debug("ajax success: ");
-                ls.debug.apply(this, arguments);
                 if (!result) {
                     ls.msg.error(null, 'System error #1001');
                 } else if (result.bStateError) {
                     ls.msg.error(null, result.sMsg);
 
-                    if (more && more.warning)
+                    if (more && more.warning) {
                         more.warning(result, status, xhr, form);
+                    }
                 } else {
                     if (result.sMsg) {
                         ls.msg.notice(null, result.sMsg);
@@ -688,7 +689,7 @@ ls = (function ($) {
      *
      * @param  {string}          url      Ссылка
      * @param  {jquery, string}  form     Селектор формы либо объект jquery
-     * @param  {Function}        callback Success коллбэк
+     * @param  {Function}        callback Success callback (if result and not result.bStateError)
      * @param  {type}            [more]   Дополнительные параметры
      */
     this.ajaxForm = function (url, form, callback, more) {
@@ -696,7 +697,24 @@ ls = (function ($) {
         more = $.extend({ progress: true }, more);
 
         form.on('submit', function (e) {
-            ls.ajaxSubmit(url, form, callback, more);
+            ls.ajaxSubmit(url, form, function(result, status, xhr, form){
+                if (!result) {
+                    ls.msg.error(null, 'System error #1001');
+                } else if (result.bStateError) {
+                    ls.msg.error(null, result.sMsg);
+
+                    if (more && more.warning) {
+                        more.warning(result, status, xhr, form);
+                    }
+                } else {
+                    if (result.sMsg) {
+                        ls.msg.notice(null, result.sMsg);
+                    }
+                    if ($.type(callback) === 'function') {
+                        callback(result, status, xhr, form);
+                    }
+                }
+            }, more);
             e.preventDefault();
         });
     };
