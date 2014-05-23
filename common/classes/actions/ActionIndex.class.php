@@ -65,9 +65,9 @@ class ActionIndex extends Action {
         /**
          * Подсчитываем новые топики
          */
-        //$this->iCountTopicsCollectiveNew=$this->Topic_GetCountTopicsCollectiveNew();
-        //$this->iCountTopicsPersonalNew=$this->Topic_GetCountTopicsPersonalNew();
-        //$this->iCountTopicsNew=$this->iCountTopicsCollectiveNew+$this->iCountTopicsPersonalNew;
+        $this->iCountTopicsCollectiveNew=$this->Topic_GetCountTopicsCollectiveNew();
+        $this->iCountTopicsPersonalNew=$this->Topic_GetCountTopicsPersonalNew();
+        $this->iCountTopicsNew=$this->iCountTopicsCollectiveNew+$this->iCountTopicsPersonalNew;
     }
 
     /**

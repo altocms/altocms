@@ -37,6 +37,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 			topic_title,
 			topic_tags,
 			topic_date_add,
+			topic_date_show,
 			topic_user_ip,
 			topic_publish,
 			topic_publish_draft,
@@ -50,7 +51,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 		";
         $nId = $this->oDb->query(
             $sql, $oTopic->getBlogId(), $oTopic->getUserId(), $oTopic->getType(), $oTopic->getTitle(),
-            $oTopic->getTags(), $oTopic->getDateAdd(), $oTopic->getUserIp(), $oTopic->getPublish(),
+            $oTopic->getTags(), $oTopic->getDateAdd(), $oTopic->getDateShow(), $oTopic->getUserIp(), $oTopic->getPublish(),
             $oTopic->getPublishDraft(), $oTopic->getPublishIndex(), $oTopic->getCutText(), $oTopic->getForbidComment(),
             $oTopic->getTextHash(), $oTopic->getTopicUrl()
         );
@@ -271,7 +272,7 @@ class ModuleTopic_MapperTopic extends Mapper {
         $sWhere = $this->buildFilter($aFilter);
 
         if (!isset($aFilter['order'])) {
-            $aFilter['order'] = 't.topic_date_add desc';
+            $aFilter['order'] = 't.topic_date_show DESC, t.topic_date_add DESC';
         }
         if (!is_array($aFilter['order'])) {
             $aFilter['order'] = array($aFilter['order']);
@@ -606,6 +607,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 				topic_tags = ?,
 				topic_date_add = ?,
 				topic_date_edit = ?,
+				topic_date_show = ?,
 				topic_user_ip = ?,
 				topic_publish = ?d ,
 				topic_publish_draft = ?d ,
@@ -626,8 +628,9 @@ class ModuleTopic_MapperTopic extends Mapper {
 				topic_id = ?d
 		";
         $bResult = $this->oDb->query(
-            $sql, $oTopic->getBlogId(), $oTopic->getTitle(), $oTopic->getTags(), $oTopic->getDateAdd(),
-            $oTopic->getDateEdit(), $oTopic->getUserIp(), $oTopic->getPublish(), $oTopic->getPublishDraft(),
+            $sql, $oTopic->getBlogId(), $oTopic->getTitle(), $oTopic->getTags(),
+            $oTopic->getDateAdd(), $oTopic->getDateEdit(), $oTopic->getDateShow(),
+            $oTopic->getUserIp(), $oTopic->getPublish(), $oTopic->getPublishDraft(),
             $oTopic->getPublishIndex(), $oTopic->getRating(), $oTopic->getCountVote(), $oTopic->getCountVoteUp(),
             $oTopic->getCountVoteDown(), $oTopic->getCountVoteAbstain(), $oTopic->getCountRead(),
             $oTopic->getCountComment(), $oTopic->getCountFavourite(), $oTopic->getCutText(),
@@ -697,7 +700,10 @@ class ModuleTopic_MapperTopic extends Mapper {
             }
         }
         if (isset($aFilter['topic_new'])) {
-            $sWhere .= " AND t.topic_date_add >=  '" . $aFilter['topic_new'] . "'";
+            $sWhere .= " AND (";
+            $sWhere .= "(t.topic_date_show IS NOT NULL AND t.topic_date_show >=  '" . $aFilter['topic_new'] . "' AND t.topic_date_show < NOW())";
+            $sWhere .= " OR (t.topic_date_show IS NULL AND t.topic_date_add >=  '" . $aFilter['topic_new'] . "')";
+            $sWhere .= ")";
         }
         if (isset($aFilter['user_id'])) {
             $sWhere .= is_array($aFilter['user_id'])

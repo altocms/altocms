@@ -172,7 +172,7 @@ class ActionContent extends Action {
         /**
          * Проверяем отправлена ли форма с данными(хотяб одна кнопка)
          */
-        if (isset($_REQUEST['submit_topic_publish']) || isset($_REQUEST['submit_topic_save'])) {
+        if (isset($_REQUEST['submit_topic_publish']) || isset($_REQUEST['submit_topic_draft']) || isset($_REQUEST['submit_topic_save'])) {
             /**
              * Обрабатываем отправку формы
              */
@@ -372,7 +372,7 @@ class ActionContent extends Action {
     protected function SubmitAdd() {
 
         // * Проверяем отправлена ли форма с данными (хотяб одна кнопка)
-        if (!F::isPost('submit_topic_publish') && !F::isPost('submit_topic_save')) {
+        if (!F::isPost('submit_topic_publish') && !F::isPost('submit_topic_draft') && !F::isPost('submit_topic_save')) {
             return false;
         }
         $oTopic = Engine::GetEntity('Topic');
@@ -475,6 +475,7 @@ class ActionContent extends Action {
         if (isset($_REQUEST['submit_topic_publish'])) {
             $oTopic->setPublish(1);
             $oTopic->setPublishDraft(1);
+            $oTopic->setDateShow(F::Now());
         } else {
             $oTopic->setPublish(0);
             $oTopic->setPublishDraft(0);
@@ -688,6 +689,9 @@ class ActionContent extends Action {
                 $oTopic->setPublishDraft(1);
                 $oTopic->setDateAdd(F::Now());
                 $bSendNotify = true;
+            }
+            if (!$oTopic->getDateShow()) {
+                $oTopic->setDateShow(F::Now());
             }
         } else {
             $oTopic->setPublish(0);

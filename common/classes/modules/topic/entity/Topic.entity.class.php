@@ -288,9 +288,23 @@ class ModuleTopic_EntityTopic extends Entity {
 
     public function getDateShow() {
 
-        $sDate = $this->getProp('topic_date_show');
+        return $this->getProp('topic_date_show');
+    }
+
+    /**
+     * Gets topic date publication
+     *
+     * @return null|string
+     */
+    public function getDate() {
+
+        $sDate = $this->getProp('_date');
         if (is_null($sDate)) {
-            return $this->getDateAdd();
+            $sDate = $this->getDateShow();
+            if (is_null($sDate)) {
+                $sDate = $this->getDateAdd();
+            }
+            $this->setProp('_date', $sDate);
         }
         return $sDate;
     }
@@ -1287,6 +1301,11 @@ class ModuleTopic_EntityTopic extends Entity {
     public function setDateEdit($data) {
 
         $this->setProp('topic_date_edit', $data);
+    }
+
+    public function setDateShow($data) {
+
+        $this->setProp('topic_date_show', $data);
     }
 
     /**
