@@ -3,7 +3,7 @@
 {block name="layout_content"}
 
     <div class="action-header">
-        {include file='menus/menu.create.content.tpl'}
+        {include file='menus/menu.content-create.tpl'}
     </div>
     {include file='topics/topic.list.tpl'}
 

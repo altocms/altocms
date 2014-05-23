@@ -306,7 +306,7 @@ a.user-friends:hover { color: #ff4136; text-decoration: none; }
 
 /* Header */
 .topic-header-title a { color: #252525; }
-.topic-header-title span { font-size: 14px; color: #16b76f; left: -5px; top: 5px; }
+.topic-header-title span { font-size: 14px; color: #16b76f; }
 .topic-header-info .topic-blog { color: #ff4136; font-family: 'Roboto', sans-serif; font-weight: bold; }
 
 /* Topic Link */

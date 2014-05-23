@@ -12,8 +12,8 @@
                     <ul class="list-unstyled list-inline modal-write-list">
                         {if $iUserCurrentCountTopicDraft}
                             <li class="write-item-type-draft">
-                                <a href="{router page='content'}saved/" class="write-item-image"></a>
-                                <a href="{router page='content'}saved/" class="write-item-link">{$iUserCurrentCountTopicDraft} {$iUserCurrentCountTopicDraft|declension:$aLang.draft_declension:$sLang}</a>
+                                <a href="{router page='content'}drafts/" class="write-item-image"></a>
+                                <a href="{router page='content'}drafts/" class="write-item-link">{$iUserCurrentCountTopicDraft} {$iUserCurrentCountTopicDraft|declension:$aLang.draft_declension:$sLang}</a>
                             </li>
                         {/if}
                         {foreach from=$aContentTypes item=oContentType}
