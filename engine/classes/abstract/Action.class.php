@@ -357,6 +357,10 @@ abstract class Action extends LsObject {
                         $aPluginTemplateDirs[] = dirname($aPluginTemplateDirs[0]) . '/default/';
                     }
                     //$sTemplatePath = Plugin::GetTemplateDir($sAction) . $sTemplatePath;
+                    if ($sTemplatePath = F::File_Exists('tpls/' . $sTemplatePath, $aPluginTemplateDirs)) {
+                        $sActionTemplatePath = $sTemplatePath;
+                        break;
+                    }
                     if ($sTemplatePath = F::File_Exists($sTemplatePath, $aPluginTemplateDirs)) {
                         $sActionTemplatePath = $sTemplatePath;
                         break;
