@@ -466,7 +466,7 @@ class Install {
          * то меняем значение.
          */
         if (substr_count($sConfig, $sName)) {
-            $sConfig = preg_replace('~' . preg_quote($sName) . '.+;~Ui', $sName . ' = ' . $sVar . ';', $sConfig);
+            $sConfig = preg_replace('~' . preg_quote($sName) . '.+;~Ui', $sName . ' = ' . $sVar . ';', $sConfig, 1);
         } else {
             $sConfig = str_replace(
                 'return $config;',
