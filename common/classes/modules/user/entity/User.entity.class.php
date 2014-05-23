@@ -507,6 +507,10 @@ class ModuleUser_EntityUser extends Entity {
             $nW = $nH = intval($xSize);
         }
         if ($sUrl = $this->getProfileAvatar()) {
+            if ($sUrl[0] == '@') {
+                $sUrl = F::File_RootUrl() . substr($sUrl, 1);
+            }
+
             if (Config::Get('module.image.autoresize')) {
                 $sFile = $this->Uploader_Url2Dir($sUrl);
                 if (F::File_Exists($sFile)) {
