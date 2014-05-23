@@ -22,9 +22,9 @@
             <div class="topic-header-info">
                 <a href="{$oBlog->getUrlFull()}" class="topic-blog">{$oBlog->getTitle()|escape:'html'}</a>
 
-                <time datetime="{date_format date=$oTopic->getDateAdd() format='c'}"
-                      title="{date_format date=$oTopic->getDateAdd() format='j F Y, H:i'}" class="topic-info-date">
-                    {date_format date=$oTopic->getDateAdd() hours_back="12" minutes_back="60" now="60" day="day H:i" format="j F Y, H:i"}
+                <time datetime="{date_format date=$oTopic->getDate() format='c'}"
+                      title="{date_format date=$oTopic->getDate() format='j F Y, H:i'}" class="topic-info-date">
+                    {date_format date=$oTopic->getDate() hours_back="12" minutes_back="60" now="60" day="day H:i" format="j F Y, H:i"}
                 </time>
 
                 {if !$bPreview}
