@@ -30,30 +30,60 @@ class ModuleTopic_MapperTopic extends Mapper {
      */
     public function AddTopic(ModuleTopic_EntityTopic $oTopic) {
 
-        $sql = "INSERT INTO ?_topic
-			(blog_id,
-			user_id,
-			topic_type,
-			topic_title,
-			topic_tags,
-			topic_date_add,
-			topic_date_show,
-			topic_user_ip,
-			topic_publish,
-			topic_publish_draft,
-			topic_publish_index,
-			topic_cut_text,
-			topic_forbid_comment,
-			topic_text_hash,
-			topic_url
+        $sql = "INSERT INTO ?_topic (
+                blog_id,
+                user_id,
+                topic_type,
+                topic_title,
+                topic_tags,
+                topic_date_add,
+                topic_date_show,
+                topic_user_ip,
+                topic_publish,
+                topic_publish_draft,
+                topic_publish_index,
+                topic_cut_text,
+                topic_forbid_comment,
+                topic_text_hash,
+                topic_url
 			)
-			VALUES(?d, ?d, ?, ?, ?, ?, ?, ?d, ?d, ?d, ?, ?, ?, ?)
+			VALUES (
+                ?d:blog_id,
+                ?d:user_id,
+                ?:topic_type,
+                ?:topic_title,
+                ?:topic_tags,
+                ?:topic_date_add,
+                ?:topic_date_show,
+                ?:topic_user_ip,
+                ?d:topic_publish,
+                ?d:topic_publish_draft,
+                ?d:topic_publish_index,
+                ?:topic_cut_text,
+                ?d:topic_forbid_comment,
+                ?:topic_text_hash,
+                ?:topic_url
+			)
 		";
-        $nId = $this->oDb->query(
-            $sql, $oTopic->getBlogId(), $oTopic->getUserId(), $oTopic->getType(), $oTopic->getTitle(),
-            $oTopic->getTags(), $oTopic->getDateAdd(), $oTopic->getDateShow(), $oTopic->getUserIp(), $oTopic->getPublish(),
-            $oTopic->getPublishDraft(), $oTopic->getPublishIndex(), $oTopic->getCutText(), $oTopic->getForbidComment(),
-            $oTopic->getTextHash(), $oTopic->getTopicUrl()
+        $nId = $this->oDb->sqlQuery(
+            $sql,
+            array(
+                ':blog_id'              => $oTopic->getBlogId(),
+                ':user_id'              => $oTopic->getUserId(),
+                ':topic_type'           => $oTopic->getType(),
+                ':topic_title'          => $oTopic->getTitle(),
+                ':topic_tags'           => $oTopic->getTags(),
+                ':topic_date_add'       => $oTopic->getDateAdd(),
+                ':topic_date_show'      => $oTopic->getDateShow(),
+                ':topic_user_ip'        => $oTopic->getUserIp(),
+                ':topic_publish'        => $oTopic->getPublish(),
+                ':topic_publish_draft'  => $oTopic->getPublishDraft(),
+                ':topic_publish_index'  => $oTopic->getPublishIndex(),
+                ':topic_cut_text'       => $oTopic->getCutText(),
+                ':topic_forbid_comment' => $oTopic->getForbidComment(),
+                ':topic_text_hash'      => $oTopic->getTextHash(),
+                ':topic_url'            => $oTopic->getTopicUrl()
+            )
         );
         if ($nId) {
             $oTopic->setId($nId);
@@ -628,13 +658,29 @@ class ModuleTopic_MapperTopic extends Mapper {
 				topic_id = ?d
 		";
         $bResult = $this->oDb->query(
-            $sql, $oTopic->getBlogId(), $oTopic->getTitle(), $oTopic->getTags(),
-            $oTopic->getDateAdd(), $oTopic->getDateEdit(), $oTopic->getDateShow(),
-            $oTopic->getUserIp(), $oTopic->getPublish(), $oTopic->getPublishDraft(),
-            $oTopic->getPublishIndex(), $oTopic->getRating(), $oTopic->getCountVote(), $oTopic->getCountVoteUp(),
-            $oTopic->getCountVoteDown(), $oTopic->getCountVoteAbstain(), $oTopic->getCountRead(),
-            $oTopic->getCountComment(), $oTopic->getCountFavourite(), $oTopic->getCutText(),
-            $oTopic->getForbidComment(), $oTopic->getTextHash(), $oTopic->getTopicUrl(),
+            $sql,
+            $oTopic->getBlogId(),
+            $oTopic->getTitle(),
+            $oTopic->getTags(),
+            $oTopic->getDateAdd(),
+            $oTopic->getDateEdit(),
+            $oTopic->getDateShow(),
+            $oTopic->getUserIp(),
+            $oTopic->getPublish(),
+            $oTopic->getPublishDraft(),
+            $oTopic->getPublishIndex(),
+            $oTopic->getRating(),
+            $oTopic->getCountVote(),
+            $oTopic->getCountVoteUp(),
+            $oTopic->getCountVoteDown(),
+            $oTopic->getCountVoteAbstain(),
+            $oTopic->getCountRead(),
+            $oTopic->getCountComment(),
+            $oTopic->getCountFavourite(),
+            $oTopic->getCutText(),
+            $oTopic->getForbidComment(),
+            $oTopic->getTextHash(),
+            $oTopic->getTopicUrl(),
             $oTopic->getId()
         );
         if ($bResult !== false) {
