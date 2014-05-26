@@ -69,9 +69,13 @@ class HookStatisticsPerformance extends Hook {
         }
         if ($this->Viewer_TemplateExists($sTemplate)) {
             $this->bShown = true;
-
             return $this->Viewer_Fetch($sTemplate);
+        } elseif ($this->Viewer_TemplateExists('statistics_performance.tpl')) {
+            // LS-compatibility
+            $this->bShown = true;
+            return $this->Viewer_Fetch('statistics_performance.tpl');
         }
+
         return '';
     }
 }

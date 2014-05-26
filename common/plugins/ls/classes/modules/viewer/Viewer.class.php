@@ -12,6 +12,16 @@
  * Добавляет старые LS-методы для совместимости
  */
 class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
+
+    protected $aTemplatesLsMap = array(
+        'commons/common.sharer.tpl' => 'sharer.tpl',
+        'menus/menu.main_pages.tpl' => 'page_main_menu.tpl',
+        'actions/ActionTalk/message.tpl' => 'actions/ActionTalk/read.tpl',
+        'actions/talk/action.talk.message.tpl' => 'actions/ActionTalk/read.tpl',
+        'actions/ActionProfile/info.tpl' => 'actions/ActionProfile/whois.tpl',
+        'actions/profile/action.profile.info.tpl' => 'actions/ActionProfile/whois.tpl',
+    );
+
     /**
      * DEPRECATED
      */
@@ -270,20 +280,6 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
                     $this->Hook_AddExecFunction('template_form_add_topic_topic_end', array($this, 'TemplateFormAddTopic'));
                 } elseif ((strpos($sName, 'forms/view_field') === 0) || (strpos($sName, 'forms/form_field') === 0)) {
                     $sResult = Plugin::GetTemplateDir('PluginLs') . $sName;
-                } elseif (($sName == 'actions/ActionProfile/info.tpl') || ($sName == 'actions/profile/action.profile.info.tpl')) {
-                    $sResult = $this->TemplateExists('actions/ActionProfile/whois.tpl');
-                    if ($sResult) {
-                        $sResult = F::File_Exists('actions/ActionProfile/whois.tpl', $this->oSmarty->getTemplateDir());
-                    } else {
-                        $sResult = parent::SmartyDefaultTemplateHandler($sType, 'actions/ActionProfile/whois.tpl', $sContent, $iTimestamp, $oSmarty);
-                    }
-                } elseif (($sName == 'actions/ActionTalk/message.tpl') || ($sName == 'actions/talk/action.talk.message.tpl')) {
-                    $sResult = $this->TemplateExists('actions/ActionTalk/read.tpl');
-                    if ($sResult) {
-                        $sResult = F::File_Exists('actions/ActionTalk/read.tpl', $this->oSmarty->getTemplateDir());
-                    } else {
-                        $sResult = parent::SmartyDefaultTemplateHandler($sType, 'actions/ActionTalk/read.tpl', $sContent, $iTimestamp, $oSmarty);
-                    }
                 } elseif ($sName == 'actions/page/action.page.show.tpl') {
                     if ($this->TemplateExists('actions/page/action.page.page.tpl')) {
                         $sResult = F::File_Exists('actions/page/action.page.page.tpl', $this->oSmarty->getTemplateDir());
@@ -294,6 +290,17 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
                         $sResult = parent::SmartyDefaultTemplateHandler($sType, 'actions/ActionPage/page.tpl', $sContent, $iTimestamp, $oSmarty);
                     }
                 }
+
+                if (!$sResult && isset($this->aTemplatesLsMap[$sName])) {
+                    $sLsTemplate = $this->aTemplatesLsMap[$sName];
+                    $sResult = $this->TemplateExists($sLsTemplate);
+                    if ($sResult) {
+                        $sResult = F::File_Exists($sLsTemplate, $this->oSmarty->getTemplateDir());
+                    } else {
+                        $sResult = parent::SmartyDefaultTemplateHandler($sType, $sLsTemplate, $sContent, $iTimestamp, $oSmarty);
+                    }
+                }
+
                 if (!$sResult) {
                     if (preg_match('~^actions/([^/]+)/action\.(\w+)\.(.+)$~', $sName, $aMatches)) {
                         $sLsTemplate = 'actions/Action' . ucfirst($aMatches[1]) . '/' . $aMatches[3];
