@@ -536,10 +536,45 @@ class AltoFunc_Main {
         return $oInterval->Seconds();
     }
 
-    static public function DateTimeAdd($sDate, $sInterval) {
+    /**
+     * Add interval to defined (or current) datetime
+     *
+     * @param string $sDate
+     * @param string $sInterval
+     *
+     * @return string
+     */
+    static public function DateTimeAdd($sDate, $sInterval = null) {
 
+        if (is_null($sDate)) {
+            $sDate = 'now';
+        } elseif (func_num_args() == 1) {
+            $sInterval = $sDate;
+            $sDate = 'now';
+        }
         $date = new DateTime($sDate);
         $date->add(new DateInterval('PT' . static::ToSeconds($sInterval) . 'S'));
+        return $date->format('Y-m-d H:i:s');
+    }
+
+    /**
+     * Sub interval from defined (or current) datetime
+     *
+     * @param string $sDate
+     * @param string $sInterval
+     *
+     * @return string
+     */
+    static public function DateTimeSub($sDate, $sInterval = null) {
+
+        if (is_null($sDate)) {
+            $sDate = 'now';
+        } elseif (func_num_args() == 1) {
+            $sInterval = $sDate;
+            $sDate = 'now';
+        }
+        $date = new DateTime($sDate);
+        $date->sub(new DateInterval('PT' . static::ToSeconds($sInterval) . 'S'));
         return $date->format('Y-m-d H:i:s');
     }
 
