@@ -428,7 +428,7 @@ abstract class Entity extends LsObject {
     }
 
     /**
-     * Returns all keys of enity properies
+     * Returns all keys of entity properies
      *
      * @return array
      */
@@ -438,7 +438,7 @@ abstract class Entity extends LsObject {
     }
 
     /**
-     * Returns all values of enity properies as simple (non-associative) array
+     * Returns all values of entity properies as simple (non-associative) array
      *
      * @return array
      */

@@ -259,18 +259,19 @@ class ModuleTopic_MapperTopic extends Mapper {
     /**
      * Получить список топиков по списку айдишников
      *
-     * @param array $aTopicId    Список ID топиков
+     * @param array $aTopicsId    Список ID топиков
      *
      * @return array
      */
-    public function GetTopicsByArrayId($aTopicId) {
+    public function GetTopicsByArrayId($aTopicsId) {
 
-        if (!is_array($aTopicId) || count($aTopicId) == 0) {
+        if (!is_array($aTopicsId) || count($aTopicsId) == 0) {
             return array();
         }
-        $nLimit = sizeof($aTopicId);
+        $nLimit = sizeof($aTopicsId);
         $sql
             = "SELECT
+                    t.topic_id AS ARRAY_KEY,
 					t.*,
 					tc.*
 				FROM 
@@ -278,11 +279,10 @@ class ModuleTopic_MapperTopic extends Mapper {
 					JOIN  ?_topic_content AS tc ON t.topic_id=tc.topic_id
 				WHERE 
 					t.topic_id IN(?a)
-				ORDER BY FIELD(t.topic_id,?a)
 				LIMIT $nLimit";
         $aTopics = array();
-        if ($aRows = $this->oDb->select($sql, $aTopicId, $aTopicId)) {
-            $aTopics = Engine::GetEntityRows('Topic', $aRows);
+        if ($aRows = $this->oDb->select($sql, $aTopicsId)) {
+            $aTopics = Engine::GetEntityRows('Topic', $aRows, $aTopicsId);
         }
         return $aTopics;
     }
@@ -1108,29 +1108,29 @@ class ModuleTopic_MapperTopic extends Mapper {
     /**
      * Возвращает список фотографий к топику-фотосет по списку id фоток
      *
-     * @param array $aPhotoId    Список ID фото
+     * @param array $aPhotosId    Список ID фото
      *
      * @return array
      */
-    public function GetTopicPhotosByArrayId($aPhotoId) {
+    public function GetTopicPhotosByArrayId($aPhotosId) {
 
-        if (!is_array($aPhotoId) || count($aPhotoId) == 0) {
+        if (!is_array($aPhotosId) || count($aPhotosId) == 0) {
             return array();
         }
-        $nLimit = sizeof($aPhotoId);
+        $nLimit = sizeof($aPhotosId);
         $sql
             = "SELECT
+                    id AS ARRAY_KEY,
 					*
 				FROM 
 					?_topic_photo
 				WHERE 
 					id IN(?a)
-				ORDER BY FIELD(id,?a)
 				LIMIT $nLimit
 				";
         $aResult = array();
-        if ($aRows = $this->oDb->select($sql, $aPhotoId, $aPhotoId)) {
-            $aResult = Engine::GetEntityRows('Topic_TopicPhoto', $aRows);
+        if ($aRows = $this->oDb->select($sql, $aPhotosId)) {
+            $aResult = Engine::GetEntityRows('Topic_TopicPhoto', $aRows, $aPhotosId);
         }
         return $aResult;
     }

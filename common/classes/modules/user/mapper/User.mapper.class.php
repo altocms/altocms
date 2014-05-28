@@ -324,19 +324,20 @@ class ModuleUser_MapperUser extends Mapper {
     /**
      * Список юзеров по ID
      *
-     * @param array $aUserId Список ID пользователей
+     * @param array $aUsersId Список ID пользователей
      *
      * @return array
      */
-    public function GetUsersByArrayId($aUserId) {
+    public function GetUsersByArrayId($aUsersId) {
 
-        if (!is_array($aUserId) || count($aUserId) == 0) {
+        if (!is_array($aUsersId) || count($aUsersId) == 0) {
             return array();
         }
 
         $sql
             = "
             SELECT
+                u.user_id AS ARRAY_KEY,
 				u.*,
 				IF(ua.user_id IS NULL,0,1) as user_is_administrator,
 				ab.banline, ab.banunlim, ab.banactive, ab.bancomment
@@ -346,12 +347,11 @@ class ModuleUser_MapperUser extends Mapper {
 				LEFT JOIN ?_adminban AS ab ON u.user_id=ab.user_id AND ab.banactive=1
 			WHERE
 				u.user_id IN(?a)
-			ORDER BY FIELD(u.user_id,?a)
-			LIMIT " . count($aUserId) . "
+			LIMIT ?d
 			";
         $aUsers = array();
-        if ($aRows = $this->oDb->select($sql, $aUserId, $aUserId)) {
-            $aUsers = Engine::GetEntityRows('User', $aRows);
+        if ($aRows = $this->oDb->select($sql, $aUsersId, count($aUsersId))) {
+            $aUsers = Engine::GetEntityRows('User', $aRows, $aUsersId);
         }
         return $aUsers;
     }

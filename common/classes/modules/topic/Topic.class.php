@@ -415,27 +415,29 @@ class ModuleTopic extends Module {
     /**
      * Получает дополнительные данные(объекты) для топиков по их ID
      *
-     * @param array      $aTopicId    Список ID топиков
+     * @param array|int  $aTopicId    Список ID топиков
      * @param array|null $aAllowData  Список типов дополнительных данных, которые нужно подключать к топикам
      *
      * @return array
      */
     public function GetTopicsAdditionalData($aTopicId, $aAllowData = null) {
 
+        if (!is_array($aTopicId)) {
+            $aTopicId = array($aTopicId);
+        }
+
+        // * Получаем "голые" топики
+        $aTopics = $this->GetTopicsByArrayId($aTopicId);
+        if (!$aTopics) {
+            return array();
+        }
+
         if (is_null($aAllowData)) {
             $aAllowData = $this->aAdditionalData;
         }
         $aAllowData = F::Array_FlipIntKeys($aAllowData);
-        if (!is_array($aTopicId)) {
-            $aTopicId = array($aTopicId);
-        }
-        /**
-         * Получаем "голые" топики
-         */
-        $aTopics = $this->GetTopicsByArrayId($aTopicId);
-        /**
-         * Формируем ID дополнительных данных, которые нужно получить
-         */
+
+        // * Формируем ID дополнительных данных, которые нужно получить
         $aUserId = array();
         $aBlogId = array();
         $aTopicId = array();

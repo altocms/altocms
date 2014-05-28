@@ -189,27 +189,28 @@ class ModuleWall_MapperWall extends Mapper {
     /**
      * Получение записей по ID, без дополнительных данных
      *
-     * @param array $aMessageId    Список ID сообщений
+     * @param array $aMessagesId    Список ID сообщений
      *
      * @return array
      */
-    public function GetWallsByArrayId($aMessageId) {
+    public function GetWallsByArrayId($aMessagesId) {
 
-        if (!is_array($aMessageId) || count($aMessageId) == 0) {
+        if (!is_array($aMessagesId) || count($aMessagesId) == 0) {
             return array();
         }
-        $nLimit = sizeof($aMessageId);
+        $nLimit = sizeof($aMessagesId);
         $sql
             = "
-            SELECT *
+            SELECT
+                id AS ARRAY_KEY,
+                *
             FROM ?_wall
             WHERE
                 id IN(?a)
-            ORDER BY FIELD(id,?a)
             LIMIT $nLimit";
         $aResult = array();
-        if ($aRows = $this->oDb->select($sql, $aMessageId, $aMessageId)) {
-            $aResult = Engine::GetEntityRows('Wall', $aRows);
+        if ($aRows = $this->oDb->select($sql, $aMessagesId)) {
+            $aResult = Engine::GetEntityRows('Wall', $aRows, $aMessagesId);
         }
         return $aResult;
     }

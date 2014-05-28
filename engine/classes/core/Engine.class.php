@@ -920,19 +920,30 @@ class Engine extends LsObject {
     /**
      * Returns array of entity objects
      *
-     * @param string $sName - Entity name
-     * @param array  $aRows
+     * @param string     $sName - Entity name
+     * @param array      $aRows
+     * @param array|null $aOrderIdx
      *
      * @return array
      */
-    public static function GetEntityRows($sName, $aRows = array()) {
+    public static function GetEntityRows($sName, $aRows = array(), $aOrderIdx = null) {
 
         $aResult = array();
         $sClass = self::GetEntityClass($sName);
-        foreach ($aRows as $nI => $aRow) {
-            $oEntity = new $sClass($aRow);
-            $oEntity->Init();
-            $aResult[$nI] = $oEntity;
+        if (is_array($aOrderIdx)) {
+            foreach ($aOrderIdx as $iIndex) {
+                if (isset($aRows[$iIndex])) {
+                    $oEntity = new $sClass($aRows[$iIndex]);
+                    $oEntity->Init();
+                    $aResult[$iIndex] = $oEntity;
+                }
+            }
+        } else {
+            foreach ($aRows as $nI => $aRow) {
+                $oEntity = new $sClass($aRow);
+                $oEntity->Init();
+                $aResult[$nI] = $oEntity;
+            }
         }
         return $aResult;
     }
