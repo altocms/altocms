@@ -296,7 +296,10 @@ class ModuleMresource_MapperMresource extends Mapper {
         if ($aRows && $bTargetsCount) {
             $aId = array_keys($aRows);
             $sql = "
-                SELECT mresource_id AS ARRAY_KEY, COUNT(*) AS cnt1, SUM(incount) AS cnt2
+                SELECT
+                  mresource_id AS ARRAY_KEY,
+                  COUNT(*) AS cnt1,
+                  SUM(incount) AS cnt2
                 FROM ?_mresource_target
                 WHERE mresource_id IN (?a)
                 GROUP BY mresource_id

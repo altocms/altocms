@@ -202,11 +202,11 @@ class ModuleWall_MapperWall extends Mapper {
         $sql
             = "
             SELECT
-                id AS ARRAY_KEY,
-                *
-            FROM ?_wall
+                w.id AS ARRAY_KEY,
+                w.*
+            FROM ?_wall AS w
             WHERE
-                id IN(?a)
+                w.id IN(?a)
             LIMIT $nLimit";
         $aResult = array();
         if ($aRows = $this->oDb->select($sql, $aMessagesId)) {

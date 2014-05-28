@@ -755,7 +755,9 @@ class ModuleBlog_MapperBlog extends Mapper {
         }
         $sql
             = "
-            SELECT DISTINCT blog_type AS ARRAY_KEY, Count( blog_id ) AS blogs_count
+            SELECT
+              DISTINCT blog_type AS ARRAY_KEY,
+              Count(blog_id) AS blogs_count
             FROM ?_blog
             GROUP BY blog_type
             {WHERE blog_type IN (?a)}

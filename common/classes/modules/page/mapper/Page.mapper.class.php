@@ -120,11 +120,11 @@ class ModulePage_MapperPage extends Mapper {
             $sPidNULL = 'AND page_pid IS NULL';
         }
         $sql = "SELECT
-					*,
 					page_id as ARRAY_KEY,
-					page_pid as PARENT_KEY
-				FROM 
-					?_page
+					page_pid as PARENT_KEY,
+					p.*
+				FROM
+					?_page AS p
 				WHERE 
 					1=1
 					{ AND page_active = ?d }

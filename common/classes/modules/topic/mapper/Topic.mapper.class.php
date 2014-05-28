@@ -1120,12 +1120,12 @@ class ModuleTopic_MapperTopic extends Mapper {
         $nLimit = sizeof($aPhotosId);
         $sql
             = "SELECT
-                    id AS ARRAY_KEY,
-					*
+                    tp.id AS ARRAY_KEY,
+					tp.*
 				FROM 
-					?_topic_photo
+					?_topic_photo AS tp
 				WHERE 
-					id IN(?a)
+					tp.id IN(?a)
 				LIMIT $nLimit
 				";
         $aResult = array();
