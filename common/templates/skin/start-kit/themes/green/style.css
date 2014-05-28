@@ -72,7 +72,8 @@ a {
   background-color: #599a00;
   border-color: #599a00;
 }
-.widget-content .nav-pills li {
+.widget .nav-pills li,
+.widget .nav-accordion .panel-default>.panel-heading {
   background-color: #f6f6f6;
   border: 1px solid #d9d9d9;
 }
@@ -92,7 +93,8 @@ a {
   text-decoration: none;
   color: #599a00;
 }
-.widget-content a.blog-top {
+.widget-content a.blog-top,
+[class*=category-blogs] li a {
   color: #5f6061;
 }
 .widget-content a.blog-top:hover {

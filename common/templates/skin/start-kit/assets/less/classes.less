@@ -147,7 +147,9 @@ a {
 }
 
 /* WIDGET NAVIGATIONS */
-.widget-content .nav-pills li {
+.widget .nav-pills li,
+.widget .nav-accordion .panel-default>.panel-heading
+{
   background-color: @navpills-bg;
   border: 1px solid @navpills-border;
 }
@@ -173,7 +175,9 @@ a {
   color: @base-color;
 }
 
-.widget-content a.blog-top {
+.widget-content a.blog-top,
+[class*=category-blogs] li a
+{
   color: @stream-color;
 }
 

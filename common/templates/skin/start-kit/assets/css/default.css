@@ -259,8 +259,8 @@ a.user-friends:hover { color: #ff4136; text-decoration: none; }
 .item-list li .author { color: #868686; }
 .item-list li .blog-name { color: #ff4136; }
 
-#block_blogs .item-list li { padding: 10px 0; margin: 0; }
-#block_blogs .item-list li .avatar { height: 36px; width: 36px; }
+#widget_blogs .item-list li { padding: 10px 0; margin: 0; }
+#widget_blogs .item-list li .avatar { height: 36px; width: 36px; }
 
 
 /* OTHERS */
@@ -485,7 +485,7 @@ a.user-friends:hover { color: #ff4136; text-decoration: none; }
 #profile-photo-file, #profile-avatar-file { position: absolute; }
 
 /* BLOG */
-.blog { background-color: #fff; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.02); padding: 25px 25px 0; }
+.blog { background-color: #fff; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.02); padding: 5px 25px 0; }
 
 /* Header */
 .blog .blog-header h1 span { font-size: 14px; color: #ff4136; }

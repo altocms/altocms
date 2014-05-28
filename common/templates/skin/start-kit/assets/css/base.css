@@ -18,7 +18,7 @@ textarea {
 }
 h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
     font-family: 'Roboto', sans-serif;
-    font-weight: 400;
+    font-weight: 300;
 }
 
 body.i-fixed_navbar {
@@ -225,7 +225,8 @@ body.light .site-info { margin-bottom: 40px; }
 
 .wrapper-content { padding: 20px 0; }
 
-
+.panel .panel { box-shadow: none; }
+.panel-body .panel-body { padding: 0; }
 
 /* -------------------------------------------------------------------
     FORMATTED TEXT
@@ -601,6 +602,12 @@ select, input[type="file"] { height: auto; }
     font-size: 12px;
 }
 
+/* Widget type - Category */
+.widget-type-categories [class*=category-blogs] li {
+    padding-top: 5px;
+    list-style-type: square;
+}
+
 /* Widget type - Profile */
 .widget.widget-type-profile .profile-photo-wrapper { position: relative; min-height: 50px; margin: 0 auto 10px; max-width: 250px; }
 .widget.widget-type-profile .profile-photo { max-width: 100%; vertical-align: top; border: 1px solid #EEE; }
@@ -660,13 +667,13 @@ select, input[type="file"] { height: auto; }
 
 
 /* Header */
-.blog-header { position: relative; padding: 0 100px 0 79px; margin-bottom: 20px; min-height: 64px; }
-.blog-header h1 { margin-bottom: 5px; margin-top: 0; }
+.blog-header { position: relative; top: 0; left: 0; padding: 0 100px 0 79px; margin-bottom: 20px; min-height: 64px; }
+.blog-header h1 { margin-bottom: 5px; margin-top: 15px; padding-top: 10px; }
 .blog-header h1 span { cursor: help; vertical-align: text-top; }
 .blog-header .avatar { position: absolute; top: 0; left: 0; }
-.blog-header .actions { position: absolute; bottom: 0; right: 0; margin-bottom: 0; }
+.blog-header .actions { position: absolute; top: -5px; right: 0; }
 
-.blog-header .vote { position: absolute; top: 0; right: 0; }
+.blog-header .vote { position: absolute; bottom: 0; right: 0; }
 .blog-header .vote-label { text-align: center; }
 
 
