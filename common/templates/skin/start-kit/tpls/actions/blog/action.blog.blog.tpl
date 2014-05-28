@@ -16,10 +16,22 @@
 
 {include_once file='modals/modal.blog_delete.tpl'}
 
-
 <div class="blog">
     <header class="blog-header">
         {$oBlogType=$oBlog->getBlogType()}
+        <img src="{$oBlog->getAvatarPath(64)}" class="avatar"/>
+
+        <h1>
+            {$oBlog->getTitle()|escape:'html'}
+            {if $oBlogType}
+                {if $oBlogType->IsHidden()}
+                    <span title="{$aLang.blog_closed}" class="glyphicon glyphicon-eye-close"></span>
+                {elseif $oBlogType->IsPrivate()}
+                    <span title="{$aLang.blog_closed}" class="glyphicon glyphicon-lock"></span>
+                {/if}
+            {/if}
+        </h1>
+
         {$sClasses = ''}
         {if $oBlog->getRating() > 0}
             {$sClasses = "$sClasses vote-count-positive"}
@@ -43,19 +55,6 @@
             </div>
             <a href="#" class="vote-down js-vote-down"><span class="glyphicon glyphicon-minus-sign"></span></a>
         </div>
-
-        <img src="{$oBlog->getAvatarPath(64)}" class="avatar"/>
-
-        <h1>
-            {$oBlog->getTitle()|escape:'html'}
-            {if $oBlogType}
-                {if $oBlogType->IsHidden()}
-                    <span title="{$aLang.blog_closed}" class="glyphicon glyphicon-eye-close"></span>
-                {elseif $oBlogType->IsPrivate()}
-                    <span title="{$aLang.blog_closed}" class="glyphicon glyphicon-lock"></span>
-                {/if}
-            {/if}
-        </h1>
 
         {if E::IsUser() AND (E::UserId()==$oBlog->getOwnerId() OR E::IsAdmin() OR $oBlog->getUserIsAdministrator() OR $oBlog->getUserIsModerator())}
             <ul class="small list-unstyled list-inline pull-right actions">

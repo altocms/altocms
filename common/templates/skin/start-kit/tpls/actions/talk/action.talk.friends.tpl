@@ -3,10 +3,10 @@
 
         <header class="widget-header">
             <a href="#" class="link-dotted"
-               onclick="jQuery('#block_talk_friends_content').toggle(); return false;">{$aLang.block_friends}</a>
+               onclick="jQuery('#widget_talk_friends_content').toggle(); return false;">{$aLang.widget_friends}</a>
         </header>
 
-        <div class="widget-content" id="block_talk_friends_content">
+        <div class="widget-content" id="widget_talk_friends_content">
             {if $aUsersFriend}
                 <ul id="friends" class="list-unstyled friend-list">
                     {foreach $aUsersFriend as $oFriend}
@@ -21,11 +21,11 @@
                     {/foreach}
                 </ul>
                 <footer class="small text-muted">
-                    <a href="#" id="friend_check_all" class="link-dotted">{$aLang.block_friends_check}</a> |
-                    <a href="#" id="friend_uncheck_all" class="link-dotted">{$aLang.block_friends_uncheck}</a>
+                    <a href="#" id="friend_check_all" class="link-dotted">{$aLang.widget_friends_check}</a> |
+                    <a href="#" id="friend_uncheck_all" class="link-dotted">{$aLang.widget_friends_uncheck}</a>
                 </footer>
             {else}
-                <div class="notice-empty">{$aLang.block_friends_empty}</div>
+                <div class="notice-empty">{$aLang.widget_friends_empty}</div>
             {/if}
         </div>
 

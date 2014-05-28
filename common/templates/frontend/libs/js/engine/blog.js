@@ -155,7 +155,7 @@ ls.blog = (function ($) {
     this.loadInfo = function (idBlog) {
         var url = ls.routerUrl('blog') + 'ajaxbloginfo/';
         var params = {idBlog: idBlog};
-        var block = $('#block_blog_info');
+        var block = $('#widget_blog_info');
 
         block.empty().addClass('loading');
 

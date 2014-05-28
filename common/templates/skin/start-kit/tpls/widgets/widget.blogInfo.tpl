@@ -2,11 +2,11 @@
     <div class="panel-body">
 
         <header class="widget-header">
-            <h3 class="widget-title">{$aLang.block_blog_info}</h3>
+            <h3 class="widget-title">{$aLang.widget_blog_info}</h3>
         </header>
 
         <div class="widget-content">
-            <p id="block_blog_info"></p>
+            <p id="widget_blog_info"></p>
         </div>
 
     </div>
@@ -17,11 +17,11 @@
     <div class="panel-body">
 
         <header class="widget-header">
-            <h3 class="widget-title">{$aLang.block_blog_info_note}</h3>
+            <h3 class="widget-title">{$aLang.widget_blog_info_note}</h3>
         </header>
 
         <div class="widget-content">
-            <p>{$aLang.block_blog_info_note_text}</p>
+            <p>{$aLang.widget_blog_info_note_text}</p>
         </div>
 
     </div>

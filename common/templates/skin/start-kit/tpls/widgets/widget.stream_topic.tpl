@@ -18,10 +18,10 @@
         {/foreach}
     </ul>
 {else}
-    {$aLang.block_stream_topics_no}
+    {$aLang.widget_stream_topics_no}
 {/if}
 
 <footer class="small text-muted">
-    <a href="{router page='index'}newall/">{$aLang.block_stream_topics_all}</a> ·
+    <a href="{router page='index'}newall/">{$aLang.widget_stream_topics_all}</a> ·
     <a href="{router page='rss'}new/">RSS</a>
 </footer>

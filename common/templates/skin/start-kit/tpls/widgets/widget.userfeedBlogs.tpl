@@ -3,7 +3,7 @@
         <div class="panel-body">
 
             <header class="widget-header">
-                <h3 class="widget-title">{$aLang.userfeed_block_blogs_title}</h3>
+                <h3 class="widget-title">{$aLang.userfeed_widget_blogs_title}</h3>
             </header>
 
             <div class="widget-content">

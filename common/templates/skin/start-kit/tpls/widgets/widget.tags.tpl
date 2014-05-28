@@ -2,7 +2,7 @@
     <div class="panel-body">
 
         <header class="widget-header">
-            <h3 class="widget-title">{$aLang.block_tags}</h3>
+            <h3 class="widget-title">{$aLang.widget_tags}</h3>
         </header>
 
         <div class="widget-content">
@@ -30,7 +30,7 @@
                             {/foreach}
                         </ul>
                     {else}
-                        <div class="notice-empty">{$aLang.block_tags_empty}</div>
+                        <div class="notice-empty">{$aLang.widget_tags_empty}</div>
                     {/if}
                 </div>
 
@@ -47,7 +47,7 @@
                                 {/foreach}
                             </ul>
                         {else}
-                            <p class="text-muted">{$aLang.block_tags_empty}</p>
+                            <p class="text-muted">{$aLang.widget_tags_empty}</p>
                         {/if}
                     </div>
                 {/if}

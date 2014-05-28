@@ -21,7 +21,7 @@
 		<meta property="og:title" content="{$oTopic->getTitle()|escape:'html'}"/>
 		<meta property="og:url" content="{$oTopic->getUrl()}"/>
 		{if $oTopic->getPreviewImageWebPath()}
-			<meta property="og:image" content="{$oTopic->getPreviewImageWebPath(700crop)}"/>
+			<meta property="og:image" content="{$oTopic->getPreviewImageWebPath('700crop')}"/>
 		{/if}
 		<meta property="og:description" content="{$sHtmlDescription}"/>
 		<meta property="og:site_name" content="{Config::Get('view.name')}"/>

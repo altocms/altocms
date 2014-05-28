@@ -821,9 +821,44 @@ return array(
     'panel_clear_tags'                          => 'очистить от тегов',
     'panel_user'                                => 'вставить пользователя',
     'panel_user_promt'                          => 'Введите логин пользователя',
+
     /**
-     * Блоки
+     * Виджеты
      */
+    'widget_blogs'                              => 'Блоги',
+    'widget_blogs_top'                          => 'Топ',
+    'widget_blogs_join'                         => 'Подключенные',
+    'widget_blogs_join_error'                   => 'Вы не подписаны на блоги',
+    'widget_blogs_self'                         => 'Мои',
+    'widget_blogs_self_error'                   => 'У вас нет своих блогов',
+    'widget_blogs_all'                          => 'Все блоги',
+
+    'widget_tags'                               => 'Теги',
+    'widget_tags_empty'                         => 'Нет тегов',
+    'widget_tags_search'                        => 'Поиск тегов',
+    'widget_city_tags'                          => 'Города',
+    'widget_country_tags'                       => 'Страны',
+    'widget_blog_info'                          => 'Описание блога',
+    'widget_blog_info_note'                     => 'Совет',
+    'widget_blog_info_note_text'                => '<strong>Тег &lt;cut&gt; сокращает длинные записи</strong>, скрывая их целиком или частично под ссылкой («читать дальше»). Скрытая часть не видна в блоге, но доступна в полной записи на странице статьи.',
+
+    'widget_stream'                             => 'Прямой эфир',
+    'widget_stream_topics'                      => 'Публикации',
+    'widget_stream_topics_no'                   => 'Нет статей.',
+    'widget_stream_comments'                    => 'Комментарии',
+    'widget_stream_comments_no'                 => 'Нет комментариев.',
+    'widget_stream_comments_all'                => 'Весь эфир',
+    'widget_stream_topics_all'                  => 'Весь эфир',
+
+    'widget_friends'                            => 'Выбрать получателей из списка друзей',
+    'widget_friends_check'                      => 'Отметить всех',
+    'widget_friends_uncheck'                    => 'Снять отметку',
+    'widget_friends_empty'                      => 'Список ваших друзей пуст',
+
+    'site_history_back'                         => 'Вернуться назад',
+    'site_go_main'                              => 'перейти на главную',
+
+    /* LS-compatibility - Blocks*/
     'block_tags'                                => 'Теги',
     'block_tags_empty'                          => 'Нет тегов',
     'block_tags_search'                         => 'Поиск тегов',
@@ -832,13 +867,15 @@ return array(
     'block_blog_info'                           => 'Описание блога',
     'block_blog_info_note'                      => 'Совет',
     'block_blog_info_note_text'                 => '<strong>Тег &lt;cut&gt; сокращает длинные записи</strong>, скрывая их целиком или частично под ссылкой («читать дальше»). Скрытая часть не видна в блоге, но доступна в полной записи на странице статьи.',
+
     'block_blogs'                               => 'Блоги',
     'block_blogs_top'                           => 'Топ',
     'block_blogs_join'                          => 'Подключенные',
-    'block_blogs_join_error'                    => 'Вы не состоите в коллективных блогах',
+    'block_blogs_join_error'                    => 'Вы не подписаны на блоги',
     'block_blogs_self'                          => 'Мои',
-    'block_blogs_self_error'                    => 'У вас нет своих коллективных блогов',
+    'block_blogs_self_error'                    => 'У вас нет своих блогов',
     'block_blogs_all'                           => 'Все блоги',
+
     'block_stream'                              => 'Прямой эфир',
     'block_stream_topics'                       => 'Публикации',
     'block_stream_topics_no'                    => 'Нет статей.',
@@ -846,12 +883,12 @@ return array(
     'block_stream_comments_no'                  => 'Нет комментариев.',
     'block_stream_comments_all'                 => 'Весь эфир',
     'block_stream_topics_all'                   => 'Весь эфир',
+
     'block_friends'                             => 'Выбрать получателей из списка друзей',
     'block_friends_check'                       => 'Отметить всех',
     'block_friends_uncheck'                     => 'Снять отметку',
     'block_friends_empty'                       => 'Список ваших друзей пуст',
-    'site_history_back'                         => 'Вернуться назад',
-    'site_go_main'                              => 'перейти на главную',
+
     /**
      * Поиск
      */
@@ -951,6 +988,7 @@ return array(
      * Userfeed
      */
     'userfeed_block_blogs_title'                => 'Блоги',
+    'userfeed_widget_blogs_title'               => 'Блоги',
     'userfeed_block_users_title'                => 'Люди',
     'userfeed_block_users_append'               => 'Добавить',
     'userfeed_block_users_friends'              => 'Друзья',

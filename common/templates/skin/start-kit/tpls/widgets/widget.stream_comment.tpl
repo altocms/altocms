@@ -18,10 +18,10 @@
         {/foreach}
     </ul>
 {else}
-    {$aLang.block_stream_comments_no}
+    {$aLang.widget_stream_comments_no}
 {/if}
 
 <footer class="small text-muted">
-    <a href="{router page='comments'}">{$aLang.block_stream_comments_all}</a> ·
+    <a href="{router page='comments'}">{$aLang.widget_stream_comments_all}</a> ·
     <a href="{router page='rss'}allcomments/">RSS</a>
 </footer>

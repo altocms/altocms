@@ -895,7 +895,7 @@ class ActionAjax extends Action {
             $sTextResult = $oViewer->FetchWidget('blogs_top.tpl');
             $this->Viewer_AssignAjax('sText', $sTextResult);
         } else {
-            $this->Message_AddErrorSingle($this->Lang_Get('block_blogs_self_error'), $this->Lang_Get('attention'));
+            $this->Message_AddErrorSingle($this->Lang_Get('widget_blogs_self_error'), $this->Lang_Get('attention'));
             return;
         }
     }
@@ -921,7 +921,7 @@ class ActionAjax extends Action {
             $sTextResult = $oViewer->FetchWidget('blogs_top.tpl');
             $this->Viewer_AssignAjax('sText', $sTextResult);
         } else {
-            $this->Message_AddErrorSingle($this->Lang_Get('block_blogs_join_error'), $this->Lang_Get('attention'));
+            $this->Message_AddErrorSingle($this->Lang_Get('widget_blogs_join_error'), $this->Lang_Get('attention'));
             return;
         }
     }

@@ -3,7 +3,7 @@
         <div class="panel-body">
 
             <header class="widget-header">
-                <h3 class="widget-title">{$aLang.block_country_tags}</h3>
+                <h3 class="widget-title">{$aLang.widget_country_tags}</h3>
             </header>
 
             <div class="widget-content">

@@ -787,9 +787,42 @@ return array(
     'panel_clear_tags'                          => 'clean up the tags',
     'panel_user'                                => 'user inserted',
     'panel_user_promt'                          => 'Enter the user login',
-    /**
-     * Blocks
+    /*
+     * WIDGETS
      */
+    'widget_tags'                                => 'Tags',
+    'widget_tags_empty'                          => 'Tags empty',
+    'widget_tags_search'                         => 'Search tags',
+    'widget_city_tags'                           => 'Cities',
+    'widget_country_tags'                        => 'Countries',
+    'widget_blog_info'                           => 'Blog description',
+    'widget_blog_info_note'                      => 'Tip',
+    'widget_blog_info_note_text'                 => '<strong>Tag &lt;cut&gt; shortens long articles</strong>, hiding them totally or partially under the link («read more»). Hidden part is not visible in the blog but will be available on the full Topic\'s page.',
+
+    'widget_blogs'                               => 'Blogs',
+    'widget_blogs_top'                           => 'Top',
+    'widget_blogs_join'                          => 'Blogs I\'ve joined',
+    'widget_blogs_join_error'                    => 'You\'re not a member of any group blogs',
+    'widget_blogs_self'                          => 'My blogs',
+    'widget_blogs_self_error'                    => 'You don\'t have group blogs',
+    'widget_blogs_all'                           => 'All blogs',
+
+    'widget_stream'                              => 'Live',
+    'widget_stream_topics'                       => 'Publications',
+    'widget_stream_topics_no'                    => 'No topics.',
+    'widget_stream_comments'                     => 'Comments',
+    'widget_stream_comments_no'                  => 'No comments.',
+    'widget_stream_comments_all'                 => 'All comments',
+
+    'widget_friends'                             => 'Friends',
+    'widget_friends_check'                       => 'Check all',
+    'widget_friends_uncheck'                     => 'Uncheck',
+    'widget_friends_empty'                       => 'Empty friends list',
+
+    'site_history_back'                         => 'Go back',
+    'site_go_main'                              => 'Go to the main page',
+
+    /* LS-compatibility - Blocks*/
     'block_tags'                                => 'Tags',
     'block_tags_empty'                          => 'Tags empty',
     'block_tags_search'                         => 'Search tags',
@@ -798,6 +831,7 @@ return array(
     'block_blog_info'                           => 'Blog description',
     'block_blog_info_note'                      => 'Tip',
     'block_blog_info_note_text'                 => '<strong>Tag &lt;cut&gt; shortens long articles</strong>, hiding them totally or partially under the link («read more»). Hidden part is not visible in the blog but will be available on the full Topic\'s page.',
+
     'block_blogs'                               => 'Blogs',
     'block_blogs_top'                           => 'Top',
     'block_blogs_join'                          => 'Blogs I\'ve joined',
@@ -805,6 +839,7 @@ return array(
     'block_blogs_self'                          => 'My blogs',
     'block_blogs_self_error'                    => 'You don\'t have group blogs',
     'block_blogs_all'                           => 'All blogs',
+
     'block_stream'                              => 'Live',
     'block_stream_topics'                       => 'Publications',
     'block_stream_topics_no'                    => 'No topics.',
@@ -815,8 +850,6 @@ return array(
     'block_friends_check'                       => 'Check all',
     'block_friends_uncheck'                     => 'Uncheck',
     'block_friends_empty'                       => 'Empty friends list',
-    'site_history_back'                         => 'Go back',
-    'site_go_main'                              => 'Go to the main page',
     /**
      * Search
      */
@@ -907,6 +940,8 @@ return array(
      * Userfeed
      */
     'userfeed_block_blogs_title'                => 'Blogs',
+    'userfeed_widget_blogs_title'               => 'Blogs',
+
     'userfeed_block_users_title'                => 'Users',
     'userfeed_block_users_append'               => 'Add',
     'userfeed_block_users_friends'              => 'Friends',
