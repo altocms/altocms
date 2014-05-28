@@ -34,8 +34,8 @@ $config['widgets'][] = array(
     ),
     'params' => array(
         'items' => array(
-            'comments' => array('text' => 'block_stream_comments', 'type'=>'comment'),
-            'topics' => array('text' => 'block_stream_topics', 'type'=>'topic'),
+            'comments' => array('text' => 'widget_stream_comments', 'type'=>'comment'),
+            'topics' => array('text' => 'widget_stream_topics', 'type'=>'topic'),
         ),
     ),
 );
