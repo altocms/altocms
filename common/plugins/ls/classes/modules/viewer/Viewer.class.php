@@ -15,6 +15,7 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
 
     protected $aTemplatesLsMap = array(
         'commons/common.sharer.tpl' => 'sharer.tpl',
+        'commons/common.user_list.tpl' => 'user_list.tpl',
         'menus/menu.main_pages.tpl' => 'page_main_menu.tpl',
         'actions/ActionTalk/message.tpl' => 'actions/ActionTalk/read.tpl',
         'actions/talk/action.talk.message.tpl' => 'actions/ActionTalk/read.tpl',
@@ -277,7 +278,9 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
                     if (!is_file($sResult)) {
                         $sResult = Config::Get('path.smarty.template') . '/actions/ActionTopic/add.tpl';
                     }
-                    $this->Hook_AddExecFunction('template_form_add_topic_topic_end', array($this, 'TemplateFormAddTopic'));
+                    if (Config::Get('view.skin') !== 'fortune') {
+                        $this->Hook_AddExecFunction('template_form_add_topic_topic_end', array($this, 'TemplateFormAddTopic'));
+                    }
                 } elseif ((strpos($sName, 'forms/view_field') === 0) || (strpos($sName, 'forms/form_field') === 0)) {
                     $sResult = Plugin::GetTemplateDir('PluginLs') . $sName;
                 } elseif ($sName == 'actions/page/action.page.show.tpl') {

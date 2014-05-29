@@ -830,6 +830,17 @@ ls.autocomplete = (function ($) {
     return this;
 }).call(ls.autocomplete || {}, jQuery);
 
+/*
+ * Костыль для исправления модаьного окна
+ */
+jQuery(function(){
+    var modal_write = jQuery('#modal_write');
+    if (modal_write.length) {
+        modal_write.find('.write-item-type-poll, .write-item-type-link, .write-item-type-photoset').each(function(){
+            jQuery(this.remove());
+        });
+    }
+});
 
 /**
  * Костыли для ИЕ
