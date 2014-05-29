@@ -225,7 +225,7 @@ body.light .site-info { margin-bottom: 40px; }
 
 .wrapper-content { padding: 20px 0; }
 
-.panel .panel { box-shadow: none; }
+.panel .panel { box-shadow: none; border: none; }
 .panel-body .panel-body { padding: 0; }
 
 /* -------------------------------------------------------------------
