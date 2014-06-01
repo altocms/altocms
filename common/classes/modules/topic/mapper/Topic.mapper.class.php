@@ -733,6 +733,14 @@ class ModuleTopic_MapperTopic extends Mapper {
             $sWhere .= " AND (t.topic_publish =  " . ($aFilter['topic_publish'] ? 1 : 0) . ")";
             $sWhere .= " AND (t.topic_date_show IS NULL OR t.topic_date_show <= NOW())";
         }
+        if (isset($aFilter['topic_index_ignore'])) {
+            $sWhere .= " AND (";
+            $sWhere .= "t.topic_index_ignore=" . ($aFilter['topic_index_ignore'] ? 1 : 0);
+            if (!$aFilter['topic_index_ignore']) {
+                $sWhere .= " OR t.topic_index_ignore IS NULL";
+            }
+            $sWhere .= ") ";
+        }
         if (isset($aFilter['topic_rating']) && is_array($aFilter['topic_rating'])) {
             $sPublishIndex = '';
             if (isset($aFilter['topic_rating']['publish_index']) && $aFilter['topic_rating']['publish_index'] == 1) {
