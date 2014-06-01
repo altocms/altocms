@@ -188,24 +188,35 @@ class ModuleTalk_MapperTalk extends Mapper {
      */
     public function AddTalkUser(ModuleTalk_EntityTalkUser $oTalkUser) {
 
-        $sql = "INSERT INTO ?_talk_user
-			(talk_id,
-			user_id,
-			date_last,
-			talk_user_active
-			)
+        $sql = "
+            SELECT user_id
+            FROM ?_talk_user
+            WHERE talk_id=?d AND user_id=?d
+            LIMIT 1
+        ";
+        if ($this->oDb->query($sql, $oTalkUser->getTalkId(), $oTalkUser->getUserId())) {
+            $sql = "
+                UPDATE SET talk_user_active = ?d
+            ";
+            $xResult = $this->oDb->query($sql, $oTalkUser->getUserActive());
+        } else {
+            $sql = "
+                INSERT INTO ?_talk_user (
+                  talk_id,
+                    user_id,
+                    date_last,
+                    talk_user_active
+                )
 			VALUES(?d, ?d, ?, ?d)
-			ON DUPLICATE KEY 
-				UPDATE talk_user_active = ?d 
 		";
-        $xResult = $this->oDb->query(
+            $xResult = $this->oDb->query(
                 $sql,
                 $oTalkUser->getTalkId(),
                 $oTalkUser->getUserId(),
                 $oTalkUser->getDateLast(),
-                $oTalkUser->getUserActive(),
                 $oTalkUser->getUserActive()
             );
+        }
         return $xResult !== false;
     }
 
