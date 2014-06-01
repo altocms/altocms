@@ -43,7 +43,11 @@ function smarty_function_asset($aParams, $oSmartyTemplate) {
         if ($sTheme) {
             $sTheme = 'themes/' . $sTheme . '/';
         }
-        $sFile = Config::Get('path.skins.dir') . '/' . $sSkin . '/' . $sTheme . $aParams['file'];
+        if (isset($aParams['plugin'])) {
+            $sFile = Plugin::GetTemplateFile($aParams['plugin'], $aParams['file']);
+        } else {
+            $sFile = Config::Get('path.skins.dir') . '/' . $sSkin . '/' . $sTheme . $aParams['file'];
+        }
         $sUrl = E::ViewerAsset_File2Link($sFile, 'skin/' . $sSkin . '/');
     } else {
         // Need URL to asset dir
