@@ -6,3 +6,6 @@ body {
     font-size: 12px;
     line-height: 20pt;
 }
+.mce-pagebreak {
+    width: 99%;
+}
