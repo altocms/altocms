@@ -1,4 +1,4 @@
-{if $bIsShowStatsPerformance AND E::IsAdmin()}
+{if $bIsShowStatsPerformance}
     <div id="stat-performance">
         <div class="container">
 

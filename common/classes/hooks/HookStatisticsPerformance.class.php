@@ -28,9 +28,19 @@ class HookStatisticsPerformance extends Hook {
      */
     public function RegisterHook() {
 
-        $this->AddHook('template_layout_body_end', 'Statistics', __CLASS__, -1000);
-        // LS-compatibility
-        $this->AddHook('template_body_end', 'Statistics', __CLASS__, -1000);
+        $xShowStats = Config::Get('general.show.stats');
+
+        // if is null then show to admins only
+        if ((is_null($xShowStats) && E::IsAdmin()) || ($xShowStats === true) || (is_array($xShowStats) && in_array(E::UserId(), $xShowStats)))  {
+            $xShowStats = Router::GetIsShowStats();
+        } else {
+            $xShowStats = false;
+        }
+        if ($xShowStats) {
+            $this->AddHook('template_layout_body_end', 'Statistics', __CLASS__, -1000);
+            // LS-compatibility
+            $this->AddHook('template_body_end', 'Statistics', __CLASS__, -1000);
+        }
     }
 
     /**
@@ -59,21 +69,24 @@ class HookStatisticsPerformance extends Hook {
         $aStats['viewer']['preproc'] = round(ModuleViewer::GetPreprocessingTime(), 3);
         $aStats['viewer']['total'] = round(ModuleViewer::GetTotalTime(), 3);
 
-        $this->Viewer_Assign('aStatsPerformance', $aStats);
-        $this->Viewer_Assign('bIsShowStatsPerformance', Router::GetIsShowStats());
+        $bIsShowStatsPerformance = Router::GetIsShowStats();
+        if ($bIsShowStatsPerformance) {
+            $this->Viewer_Assign('aStatsPerformance', $aStats);
+            $this->Viewer_Assign('bIsShowStatsPerformance', $bIsShowStatsPerformance);
 
-        // * В ответ рендерим шаблон статистики
-        if (!$this->Viewer_TemplateExists($sTemplate)) {
-            $sSkin = Config::Get('view.skin', Config::LEVEL_CUSTOM);
-            $sTemplate = Config::Get('path.skins.dir') . $sSkin . '/tpls/' . $sTemplate;
-        }
-        if ($this->Viewer_TemplateExists($sTemplate)) {
-            $this->bShown = true;
-            return $this->Viewer_Fetch($sTemplate);
-        } elseif ($this->Viewer_TemplateExists('statistics_performance.tpl')) {
-            // LS-compatibility
-            $this->bShown = true;
-            return $this->Viewer_Fetch('statistics_performance.tpl');
+            // * В ответ рендерим шаблон статистики
+            if (!$this->Viewer_TemplateExists($sTemplate)) {
+                $sSkin = Config::Get('view.skin', Config::LEVEL_CUSTOM);
+                $sTemplate = Config::Get('path.skins.dir') . $sSkin . '/tpls/' . $sTemplate;
+            }
+            if ($this->Viewer_TemplateExists($sTemplate)) {
+                $this->bShown = true;
+                return $this->Viewer_Fetch($sTemplate);
+            } elseif ($this->Viewer_TemplateExists('statistics_performance.tpl')) {
+                // LS-compatibility
+                $this->bShown = true;
+                return $this->Viewer_Fetch('statistics_performance.tpl');
+            }
         }
 
         return '';
