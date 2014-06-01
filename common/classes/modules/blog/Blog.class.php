@@ -1325,16 +1325,21 @@ class ModuleBlog extends Module {
     /**
      * Returns types of blogs which user can read (without personal subscriptions/membership)
      *
-     * @param $oUser
+     * @param object|null|int $xUser - If 0 then types for guest
      *
      * @return array
      */
-    public function GetOpenBlogTypes($oUser = null) {
+    public function GetOpenBlogTypes($xUser = null) {
 
-        if (is_null($oUser)) {
+        if (is_null($xUser)) {
             $iUserId = E::UserId();
+            if (!$iUserId) {
+                $iUserId = 0;
+            }
+        } elseif (is_numeric($xUser) && intval($xUser) === 0) {
+            $iUserId = 0;
         } else {
-            $iUserId = (is_object($oUser) ? $oUser->getId() : intval($oUser));
+            $iUserId = (is_object($xUser) ? $xUser->getId() : intval($xUser));
         }
         $sCacheKey = 'blog_types_open_' . ($iUserId ? 'user' : 'guest');
         if (false === ($aBlogTypes = $this->Cache_Get($sCacheKey, 'tmp'))) {
