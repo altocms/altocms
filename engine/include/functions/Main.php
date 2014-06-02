@@ -612,13 +612,13 @@ class AltoFunc_Main {
             }
         }
 
-        $sText = strtolower($sText);
+        $sText = mb_strtolower($sText, 'UTF-8');
         if ($xLang !== false) {
             $aChars = UserLocale::getLocale($xLang, 'translit');
             if ($aChars) {
                 $sText = str_replace(array_keys($aChars), array_values($aChars), $sText);
             }
-            $sText = preg_replace('/[\-]{2,}/', '-', $sText);
+            $sText = preg_replace('/[\-]{2,}/u', '-', $sText);
         }
         $sResult = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $sText);
         // В некоторых случаях может возвращаться пустая строка
