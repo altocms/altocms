@@ -162,6 +162,15 @@
             </ul>
             {/if}
 
+            {if (Config::Get('module.topic.draft_link')) AND !$bPreview}
+                <div class="topic-link">
+                    {$aLang.topic_draft_link}:<br/>
+                    <a href="{$oTopic->getDraftUrl()}">
+                        {$oTopic->getDraftUrl()}
+                    </a>
+                </div>
+            {/if}
+
             {hook run='topic_show_end' topic=$oTopic}
         </footer>
     {/block}

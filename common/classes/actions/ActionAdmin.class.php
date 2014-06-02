@@ -518,8 +518,8 @@ class ActionAdmin extends Action {
                 } elseif ($sTopicLink == 'month_name') {
                     $aConfig['module.topic.url'] = '%year%/%month%/%topic_url%/';
                 } else {
-                    if ($sTopicUrl = $this->GetPost('topic_link_url')) {
-                        $aConfig['module.topic.url'] = $sTopicUrl;
+                    if ($sTopicUrl = trim($this->GetPost('topic_link_url'))) {
+                        $aConfig['module.topic.url'] = strtolower($sTopicUrl);
                     } else {
                         $aConfig['module.topic.url'] = '';
                     }

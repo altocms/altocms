@@ -49,14 +49,16 @@
 
     {if $sMode != 'add' AND E::IsAdmin()}
         <div class="form-group">
+            {strip}
             <label for="topic_url">{$aLang.topic_create_url}:</label>
-            <span class="b-topic-url-demo">{$aEditTopicUrl.before}</span><span
-                    class="b-topic_url_demo-edit">{$aEditTopicUrl.input}</span>
+            <span class="b-topic-url-demo">{$aEditTopicUrl.before}</span>
+            <span class="b-topic_url_demo-edit">{$aEditTopicUrl.input}</span>
             {if $_aRequest.topic_url_input AND E::IsAdmin()}
                 <input type="text" id="topic_url" name="topic_url" value="{$_aRequest.topic_url_input}"
                        class="input-text input-width-300" style="display: none;"/>
             {/if}
             <span class="b-topic_url_demo">{$aEditTopicUrl.after}</span>
+            {/strip}
             {if $sMode != 'add' AND E::IsAdmin()}
                 <button class="btn btn-default js-tip-help" title="{$aLang.topic_create_url_edit}"
                         onclick="ls.topic.editUrl(this); return false;"><i class="glyphicon glyphicon-edit"></i></button>
