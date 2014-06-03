@@ -121,7 +121,7 @@ ls.settings = (function ($) {
         theme:              'modern',
         relative_urls:      false,
         menubar:            false,
-        toolbar: "undo redo | styleselect | bold italic strikethrough underline blockquote | alignleft aligncenter alignright | bullist numlist table | link unlink | altoimage media | code | cut ",
+        toolbar: "undo redo | styleselect | bold italic strikethrough underline blockquote | alignleft aligncenter alignright | bullist numlist table | link unlink | altoimage media | code ",
         toolbar_items_size: 'small',
         image_advtab: false,
         style_formats: [

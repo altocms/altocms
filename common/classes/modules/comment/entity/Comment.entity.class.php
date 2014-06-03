@@ -529,7 +529,7 @@ class ModuleComment_EntityComment extends Entity {
      *
      * @return bool
      */
-    public function isEditable($bByAuthor = false) {
+    public function isEditable($bByAuthor = null) {
 
         if ($this->getTargetType() != 'talk' && ($oUser = $this->User_GetUserCurrent())) {
             if ($bByAuthor === false || is_null($bByAuthor)) {
