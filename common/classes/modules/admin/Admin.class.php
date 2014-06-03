@@ -344,13 +344,11 @@ class ModuleAdmin extends Module {
         // Удаляем блоги
         $aBlogsId = $this->Blog_GetBlogsByOwnerId($nUserId, true);
         if ($aBlogsId) {
-            foreach ($aBlogsId as $nBlogId) {
-                $this->DelBlog($nBlogId, false);
-            }
+            $this->Blog_DeleteBlog($aBlogsId);
         }
         $oBlog = $this->Blog_GetPersonalBlogByUserId($nUserId);
         if ($oBlog) {
-            $this->DelBlog($oBlog->GetId(), false);
+            $this->Blog_DeleteBlog($oBlog->getId());
         }
 
         // Удаляем переписку
