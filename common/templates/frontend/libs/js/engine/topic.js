@@ -50,11 +50,13 @@ ls.topic = (function ($) {
         // Превью текста
         $(this.options.selectors.previewTopicTextButton).on('click', function (e) {
             self.showPreviewText(this, self.options.selectors.previewPlace);
+            return false;
         });
 
         // Закрытие превью текста
         $(document).on('click', this.options.selectors.previewTopicTextHideButton, function (e) {
             self.hidePreviewText();
+            return false;
         });
 
         // Подгрузка информации о выбранном блоге при создании топика
