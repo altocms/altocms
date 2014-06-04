@@ -162,7 +162,7 @@
             </ul>
             {/if}
 
-            {if (Config::Get('module.topic.draft_link')) AND !$bPreview}
+            {if Config::Get('module.topic.draft_link') AND !$bPreview AND !$oTopic->getPublish()}
                 <div class="topic-link">
                     {$aLang.topic_draft_link}:<br/>
                     <a href="{$oTopic->getDraftUrl()}">
