@@ -44,6 +44,7 @@ ls.stream = ( function ($) {
 
         $('#' + this.options.selectors.getMoreButton).on('click', function () {
             self.getMore(this);
+            return false;
         });
 
         $('#' + this.options.selectors.inputId).keydown(function (event) {

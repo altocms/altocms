@@ -58,11 +58,13 @@ ls.usernote = (function ($) {
             // Отмена
             usernoteWidget.find($that.options.selectors.noteEditCancelButton).on('click', function (e) {
                 $that.hideForm(usernoteWidget);
+                return false;
             });
 
             // Сохранение заметки
             usernoteWidget.find($that.options.selectors.noteEditSaveButton).on('click', function (e) {
                 $that.save(usernoteWidget);
+                return false;
             });
 
             // Удаление заметки
@@ -82,7 +84,7 @@ ls.usernote = (function ($) {
     /**
      * Показывает форму редактирования
      *
-     * @param  {Object} oVars Общие переменные
+     * @param  {Object} usernoteWidget
      */
     this.showForm = function (usernoteWidget) {
         var text = $.trim(usernoteWidget.find(this.options.selectors.noteText).text()),

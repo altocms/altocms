@@ -43,6 +43,7 @@ ls.editor = (function ($) {
             var sFormId = $(this).data('form-id');
 
             self.ajaxUploadImg(sFormId);
+            return false;
         });
 
         // Справка по разметке редактора

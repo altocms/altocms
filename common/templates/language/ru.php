@@ -276,7 +276,7 @@ return array(
     'topic_create_blog_error_nojoin'            => 'Вы не состоите в этом блоге!',
     'topic_create_blog_error_noacl'             => 'Вы еще недостаточно окрепли, чтобы постить в этот блог',
     'topic_create_blog_error_noallow'           => 'Вы не можете писать в этот блог',
-    'topic_create_blog_notice'                  => 'Для того чтобы написать в определенный блог, вы должны, для начала, вступить в него.',
+    'topic_create_blog_notice'                  => 'Выберите блог, в который будете писать',
     'topic_create_title'                        => 'Заголовок',
     'topic_create_title_notice'                 => 'Заголовок должен быть наполнен смыслом, чтобы можно было понять, о чем будет статья.',
     'topic_create_title_error'                  => 'Название статьи должно быть от 2 до 200 символов',

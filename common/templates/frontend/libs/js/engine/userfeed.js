@@ -48,6 +48,7 @@ ls.userfeed = (function ($) {
 
         $(this.options.selectors.getMore).on('click', function () {
             $that.getMore(this);
+            return false;
         });
     };
 
