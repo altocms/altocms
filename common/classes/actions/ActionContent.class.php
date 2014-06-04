@@ -56,6 +56,10 @@ class ActionContent extends Action {
      */
     protected $oContentType = null;
 
+    protected $aBlogTypes = array();
+
+    protected $bPersonalBlogEnabled = false;
+
     /**
      * Инициализация
      *
@@ -86,6 +90,7 @@ class ActionContent extends Action {
                   'topic_photoset_is_preview', 'topic_photoset_upload_choose'
             )
         );
+        $this->aBlogTypes = $this->_getAllowBlogTypes();
     }
 
     /**
@@ -119,14 +124,32 @@ class ActionContent extends Action {
      **********************************************************************************
      */
 
+    protected function _getAllowBlogs() {
+
+        $aBlogs = $this->Blog_GetBlogsAllowByUser($this->oUserCurrent);
+        $aAllowBlogs = array();
+        foreach($aBlogs as $oBlog) {
+            if ($this->ACL_CanAddTopic($this->oUserCurrent, $oBlog)) {
+                $aAllowBlogs[$oBlog->getId()] = $oBlog;
+            }
+        }
+        return $aAllowBlogs;
+    }
+
+    protected function _getAllowBlogTypes() {
+
+        $aBlogTypes = $this->Blog_GetAllowBlogTypes($this->oUserCurrent, 'write', true);
+        $this->bPersonalBlogEnabled = in_array('personal', $aBlogTypes);
+        return $aBlogTypes;
+    }
+
     /**
      * Редактирование топика
      *
      */
     protected function EventEdit() {
-        /**
-         * Получаем номер топика из УРЛ и проверяем существует ли он
-         */
+
+        // * Получаем номер топика из URL и проверяем существует ли он
         $sTopicId = $this->GetParam(0);
         if (!($oTopic = $this->Topic_GetTopicById($sTopicId))) {
             return parent::EventNotFound();
@@ -151,17 +174,9 @@ class ActionContent extends Action {
          */
         $this->Hook_Run('topic_edit_show', array('oTopic' => $oTopic));
 
-        $aBlogTypes = $this->Blog_GetAllowBlogTypes($this->oUserCurrent, 'write', true);
-        $bPersonalBlog = in_array('personal', $aBlogTypes);
-
-        /**
-         * Загружаем переменные в шаблон
-         */
-        $this->Viewer_Assign('bPersonalBlog', $bPersonalBlog);
-        /**
-         * Загружаем переменные в шаблон
-         */
-        $this->Viewer_Assign('aBlogsAllow', $this->Blog_GetBlogsAllowByUser($this->oUserCurrent));
+        // * Загружаем переменные в шаблон
+        $this->Viewer_Assign('bPersonalBlog', $this->bPersonalBlogEnabled);
+        $this->Viewer_Assign('aBlogsAllow', $this->_getAllowBlogs());
         $this->Viewer_Assign('bEditDisabled', $oTopic->getQuestionCountVote() == 0 ? false : true);
         $this->Viewer_AddHtmlTitle($this->Lang_Get('topic_topic_edit'));
         /**
@@ -301,12 +316,9 @@ class ActionContent extends Action {
             return parent::EventNotFound();
         }
 
-        $aBlogTypes = $this->Blog_GetAllowBlogTypes($this->oUserCurrent, 'write', true);
-        $bPersonalBlog = in_array('personal', $aBlogTypes);
-
         // * Загружаем переменные в шаблон
-        $this->Viewer_Assign('bPersonalBlog', $bPersonalBlog);
-        $this->Viewer_Assign('aBlogsAllow', $this->Blog_GetBlogsAllowByUser($this->oUserCurrent));
+        $this->Viewer_Assign('bPersonalBlog', $this->bPersonalBlogEnabled);
+        $this->Viewer_Assign('aBlogsAllow', $this->_getAllowBlogs());
         $this->Viewer_Assign('bEditDisabled', false);
         $this->Viewer_AddHtmlTitle(
             $this->Lang_Get('topic_topic_create') . ' ' . mb_strtolower($this->oContentType->getContentTitle(), 'UTF-8')

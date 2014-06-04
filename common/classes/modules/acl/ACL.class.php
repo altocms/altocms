@@ -313,7 +313,7 @@ class ModuleACL extends Module {
             return true;
         }
 
-        return (bool)$this->Blog_GetBlogsAllowTo('write', $oUser, $oBlog->getId(), true);
+        return (bool)$this->Blog_GetBlogsAllowTo('write', $oUser, $oBlog->getId(), true) && $this->CanAddTopic($oUser, $oBlog);
     }
 
     /**
