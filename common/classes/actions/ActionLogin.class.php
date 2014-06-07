@@ -211,6 +211,7 @@ class ActionLogin extends Action {
     /**
      * Обработка напоминания пароля, подтверждение смены пароля
      *
+     * @return string|null
      */
     protected function EventReminder() {
 
@@ -237,18 +238,16 @@ class ActionLogin extends Action {
                         $oReminder->setIsUsed(1);
                         $this->User_UpdateReminder($oReminder);
                         $this->Notify_SendReminderPassword($oUser, $sNewPassword);
-                        //$this->SetTemplateAction('reminder_confirm');
-                        //return;
-                        $this->Message_AddNoticeSingle($this->Lang_Get('password_reminder_send_password'), '', true);
+                        $this->SetTemplateAction('reminder_confirm');
+
                         if (($sUrl = F::GetPost('return_url')) || ($sUrl = F::GetPost('return-path'))) {
-                            Router::Location($sUrl);
-                        } else {
-                            Router::Location('/');
+                            $this->Viewer_Assign('return-path', $sUrl);
                         }
+                        return null;
                     }
                 }
             }
-            $this->Message_AddErrorSingle($this->Lang_Get('password_reminder_bad_code'), $this->Lang_Get('error'));
+            $this->Message_AddErrorSingle($this->Lang_Get('password_reminder_bad_code_txt'), $this->Lang_Get('password_reminder_bad_code'));
             return Router::Action('error');
         }
     }

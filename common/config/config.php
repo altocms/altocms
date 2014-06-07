@@ -30,7 +30,7 @@
 $config['view']['skin']             = 'start-kit';                  // скин
 $config['view']['theme']            = 'default';                    // тема
 $config['view']['name']             = 'Your Site Name';             // название сайта
-$config['view']['description']      = 'Description your site';      // meta tag description
+$config['view']['description']      = 'Description of your site';   // meta tag description
 $config['view']['keywords']         = 'site, google, internet';     // meta tag keywords
 $config['view']['wysiwyg']          = false;    // использовать или нет визуальный редактор
 $config['view']['noindex']          = true;     // "прятать" или нет ссылки от поисковиков, оборачивая их в тег <noindex> и добавляя rel="nofollow"

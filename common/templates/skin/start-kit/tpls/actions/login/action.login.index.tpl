@@ -23,6 +23,7 @@
 
     <form action="{router page='login'}" method="post" class="js-form-login">
         {hook run='form_login_begin'}
+        <input type="hidden" name="return-path" class="{$_aRequest['return-path']}"/>
 
         <div class="form-group">
             <label for="login">{$aLang.user_login}</label>

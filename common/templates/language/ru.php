@@ -790,9 +790,11 @@ return array(
     'password_reminder'                         => 'Восстановление пароля',
     'password_reminder_email'                   => 'Ваш e-mail',
     'password_reminder_submit'                  => 'Получить ссылку на изменение пароля',
-    'password_reminder_send_password'           => 'Новый пароль отправлен на ваш адрес электронной почты.',
-    'password_reminder_send_link'               => 'Ссылка для восстановления пароля отправлена на ваш адрес электронной почты.',
-    'password_reminder_bad_code'                => 'Неверный код на восстановление пароля.',
+    'password_reminder_send_password'           => 'Новый пароль отправлен на ваш адрес электронной почты',
+    'password_reminder_send_password_txt'       => 'Важно: если вы несколько раз запрашивали пароль, то использовать надо самый последний полученный пароль',
+    'password_reminder_send_link'               => 'Ссылка для восстановления пароля отправлена на ваш адрес электронной почты',
+    'password_reminder_bad_code'                => 'Неверный код на восстановление пароля',
+    'password_reminder_bad_code_txt'            => 'Возможно, вы уже использовали этот код, и вам нужно повторить процедуру восстановления пароля',
     'password_reminder_bad_email'               => 'Пользователь с таким e-mail не найден',
     /**
      * Панель
