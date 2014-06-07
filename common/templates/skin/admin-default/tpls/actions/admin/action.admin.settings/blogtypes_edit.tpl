@@ -338,8 +338,8 @@
         ls.admin = ls.admin || { };
         ls.admin.blogTypeAclSelect = function (element) {
             var elRate = $('#' + $(element).attr('name') + '_rate');
-            console.log(elRate);
-            if ($(element).val() <= 1) {
+            //console.log(elRate);
+            if ($(element).val() == 1) {
                 elRate.css('visibility', 'hidden');
             } else {
                 elRate.css('visibility', '');

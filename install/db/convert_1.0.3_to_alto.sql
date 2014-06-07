@@ -209,7 +209,7 @@ CREATE TABLE IF NOT EXISTS `prefix_blog_type` (
 --
 
 INSERT INTO `prefix_blog_type` (`id`, `type_code`, `type_name`, `type_description`, `allow_add`, `min_rate_add`, `allow_list`, `min_rate_list`, `index_ignore`, `membership`, `acl_write`, `min_rate_write`, `acl_read`, `min_rate_read`, `acl_comment`, `min_rate_comment`, `content_type`, `active`, `norder`, `candelete`) VALUES
-(1, 'personal', '{{blogtypes_type_personal_name}}', '{{blogtypes_type_personal_description}}', 0, 0, 1, NULL, 0, 0, 0, 0, 1, 0, 2, -10, '', 1, 0, 0),
+(1, 'personal', '{{blogtypes_type_personal_name}}', '{{blogtypes_type_personal_description}}', 0, 0, 1, NULL, 0, 0, 0, -100, 1, 0, 2, -10, '', 1, 0, 0),
 (2, 'open', '{{blogtypes_type_open_name}}', '{{blogtypes_type_open_description}}', 1, 1, 1, NULL, 0, 1, 2, -10, 1, 0, 2, -10, NULL, 1, 0, 0),
 (3, 'close', '{{blogtypes_type_close_name}}', '{{blogtypes_type_close_description}}', 1, 1, 1, NULL, 1, 2, 4, 0, 4, 0, 4, -10, NULL, 1, 0, 0),
 (4, 'hidden', '{{blogtypes_type_hidden_name}}', '{{blogtypes_type_hidden_description}}', 0, 10, 0, NULL, 1, 4, 4, 0, 4, 0, 4, -10, NULL, 1, 0, 0);
