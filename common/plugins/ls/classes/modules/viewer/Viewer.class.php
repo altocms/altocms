@@ -281,6 +281,11 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
                     if (Config::Get('view.skin') !== 'fortune') {
                         $this->Hook_AddExecFunction('template_form_add_topic_topic_end', array($this, 'TemplateFormAddTopic'));
                     }
+                    $oContentType = $oSmarty->getTemplateVars('oContentType');
+                    $oType = $oSmarty->getTemplateVars('oType');
+                    if (!$oType && $oContentType) {
+                        $oSmarty->assign('oType', $oContentType);
+                    }
                 } elseif ((strpos($sName, 'forms/view_field') === 0) || (strpos($sName, 'forms/form_field') === 0)) {
                     $sResult = Plugin::GetTemplateDir('PluginLs') . $sName;
                 } elseif ($sName == 'actions/page/action.page.show.tpl') {
