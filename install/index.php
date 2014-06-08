@@ -74,7 +74,7 @@ class Install {
      *
      * @var array
      */
-    protected $aSteps = array(0 => 'Start', 1 => 'Db', 2 => 'Admin', 3 => 'End', 4 => 'Extend', 5 => 'Finish');
+    protected $aSteps = array(0 => 'Start', 1 => 'Db', 2 => 'Admin', 3 => 'End', 4 => 'Finish');
 
     /**
      * Шаги в обычном режиме инсталляции
@@ -193,6 +193,8 @@ class Install {
      * @var array
      */
     protected $aLang = array();
+
+    protected $bSkipAdmin = false;
 
     /**
      * Инициализация основных настроек
@@ -794,7 +796,7 @@ class Install {
                      * Если указана конвертация AltoCMS 0.9.7 в Alto CMS 1.0
                      */
                     list($bResult, $aErrors) = array_values(
-                        $this->ConvertDatabaseToAlto10('convert_from_097.sql', $aParams)
+                        $this->ConvertDatabaseToAlto10('convert_0.9.7_to_1.0.sql', $aParams)
                     );
                     if (!$bResult) {
                         foreach ($aErrors as $sError) {
@@ -827,11 +829,11 @@ class Install {
      *
      */
     protected function StepAdmin() {
+
         $this->SetSessionVar(self::SESSION_KEY_STEP_NAME, 'Admin');
         $this->SetStep('Admin');
-        /**
-         * Передаем данные из запроса во вьювер, сохраняя значение в сессии
-         */
+
+        // * Передаем данные из запроса во вьювер, сохраняя значение в сессии
         $this->Assign(
             'install_admin_login', $this->GetRequest('install_admin_login', 'admin', self::GET_VAR_FROM_SESSION),
             self::SET_VAR_IN_SESSION
@@ -841,15 +843,13 @@ class Install {
             $this->GetRequest('install_admin_mail', 'admin@admin.adm', self::GET_VAR_FROM_SESSION),
             self::SET_VAR_IN_SESSION
         );
-        /**
-         * Если данные формы не были отправлены, передаем значения по умолчанию
-         */
+
+        // * Если данные формы не были отправлены, передаем значения по умолчанию
         if (!$this->GetRequest('install_admin_params', false)) {
             return $this->Layout('steps/admin.tpl');
         }
-        /**
-         * Проверяем валидность введенных данных
-         */
+
+        // * Проверяем валидность введенных данных
         list($bResult, $aErrors) = $this->ValidateAdminFields();
         if (!$bResult) {
             foreach ($aErrors as $sError) {
@@ -858,16 +858,8 @@ class Install {
             $this->Layout('steps/admin.tpl');
             return false;
         }
-        $sLocalConfigFile = $this->sConfigDir . '/' . self::LOCAL_CONFIG_FILE_NAME;
 
-        // make and save "salt"
-        $aSalt = array();
-        $this->SaveConfig('security.salt_sess', $aSalt['sess'] = F::RandomStr(64, false), $sLocalConfigFile);
-        $this->SaveConfig('security.salt_pass', $aSalt['pass'] = F::RandomStr(64, false), $sLocalConfigFile);
-        $this->SaveConfig('security.salt_auth', $aSalt['auth'] = F::RandomStr(64, false), $sLocalConfigFile);
-        /**
-         * Подключаемся к базе данных и сохраняем новые данные администратора
-         */
+        // * Подключаемся к базе данных и сохраняем новые данные администратора
         $aParams = $this->GetSessionVar('INSTALL_DATABASE_PARAMS');
         if (!$this->ValidateDBConnection($aParams)) {
             $this->aMessages[] = array('type' => 'error', 'text' => $this->Lang('error_db_connection_invalid'));
@@ -876,31 +868,38 @@ class Install {
         }
         $this->SelectDatabase($aParams['name']);
 
-        // make salted password
-        $sPass = F::DoSalt($this->GetRequest('install_admin_pass'), $aSalt['pass']);
+        $sLocalConfigFile = $this->sConfigDir . '/' . self::LOCAL_CONFIG_FILE_NAME;
 
-        $bUpdated = $this->UpdateDBUser(
-            $this->GetRequest('install_admin_login'),
-            $sPass,
-            $this->GetRequest('install_admin_mail'),
-            $aParams['prefix']
-        );
-        if (!$bUpdated) {
-            $this->aMessages[] = array(
-                'type' => 'error',
-                'text' => $this->Lang('error_db_saved') . '<br />' . mysql_error()
+        // make and save "salt"
+        $aSalt = array();
+        $this->SaveConfig('security.salt_sess', $aSalt['sess'] = F::RandomStr(64, false), $sLocalConfigFile);
+        $this->SaveConfig('security.salt_pass', $aSalt['pass'] = F::RandomStr(64, false), $sLocalConfigFile);
+        $this->SaveConfig('security.salt_auth', $aSalt['auth'] = F::RandomStr(64, false), $sLocalConfigFile);
+
+        if (!$this->bSkipAdmin) {
+            // make salted password
+            $sPass = F::DoSalt($this->GetRequest('install_admin_pass'), $aSalt['pass']);
+
+            $bUpdated = $this->UpdateDBUser(
+                $this->GetRequest('install_admin_login'),
+                $sPass,
+                $this->GetRequest('install_admin_mail'),
+                $aParams['prefix']
             );
-            $this->Layout('steps/admin.tpl');
-            return false;
-        }
-        /**
-         * Обновляем данные о пользовательском блоге
-         */
-        $this->UpdateUserBlog('Blog by ' . $this->GetRequest('install_admin_login'), $aParams['prefix']);
+            if (!$bUpdated) {
+                $this->aMessages[] = array(
+                    'type' => 'error',
+                    'text' => $this->Lang('error_db_saved') . '<br />' . mysql_error()
+                );
+                $this->Layout('steps/admin.tpl');
+                return false;
+            }
 
-        /**
-         * Передаем управление на следующий шаг
-         */
+            // * Обновляем данные о пользовательском блоге
+            $this->UpdateUserBlog('Blog by ' . $this->GetRequest('install_admin_login'), $aParams['prefix']);
+        }
+
+        // * Передаем управление на следующий шаг
         return $this->StepEnd();
     }
 
@@ -912,258 +911,8 @@ class Install {
         $this->SetStep('End');
         $this->Assign('next_step_display', 'none');
         $this->SetSessionVar(self::SESSION_KEY_STEP_NAME, 'End');
-        /**
-         * Если пользователь выбрал расширенный режим, переводим на новый шаг
-         */
-        return ($this->GetRequest('install_step_extend'))
-            ? $this->StepExtend()
-            : $this->Layout('steps/end.tpl');
-    }
 
-    /**
-     * Расширенный режим ввода дополнительных настроек.
-     */
-    protected function StepExtend() {
-        /**
-         * Выводим на экран кнопку @Next
-         */
-        $this->Assign('next_step_display', 'inline-block');
-        /**
-         * Сохраняем в сессию название текущего шага
-         */
-        $this->SetSessionVar(self::SESSION_KEY_STEP_NAME, 'Extend');
-        $this->SetStep('Extend');
-        /**
-         * Получаем значения запрашиваемых данных либо устанавливаем принятые по умолчанию
-         */
-        $aParams['install_view_name'] = $this->GetRequest('install_view_name', 'Your Site', self::GET_VAR_FROM_SESSION);
-        $aParams['install_view_description'] = $this->GetRequest(
-            'install_view_description', 'Description your site', self::GET_VAR_FROM_SESSION
-        );
-        $aParams['install_view_keywords'] = $this->GetRequest(
-            'install_view_keywords', 'site, google, internet', self::GET_VAR_FROM_SESSION
-        );
-        $aParams['install_view_skin'] = $this->GetRequest('install_view_skin', 'synio', self::GET_VAR_FROM_SESSION);
-
-        $aParams['install_mail_sender'] = $this->GetRequest(
-            'install_mail_sender', $this->GetSessionVar('install_admin_mail', 'rus.engine@gmail.com'),
-            self::GET_VAR_FROM_SESSION
-        );
-        $aParams['install_mail_name'] = $this->GetRequest(
-            'install_mail_name', 'Почтовик Your Site', self::GET_VAR_FROM_SESSION
-        );
-
-        $aParams['install_general_close'] = (bool)$this->GetRequest(
-            'install_general_close', false, self::GET_VAR_FROM_SESSION
-        );
-        $aParams['install_general_invite'] = (bool)$this->GetRequest(
-            'install_general_invite', false, self::GET_VAR_FROM_SESSION
-        );
-        $aParams['install_general_active'] = (bool)$this->GetRequest(
-            'install_general_active', false, self::GET_VAR_FROM_SESSION
-        );
-
-        $aParams['install_lang_current'] = $this->GetRequest(
-            'install_lang_current', 'russian', self::GET_VAR_FROM_SESSION
-        );
-        $aParams['install_lang_default'] = $this->GetRequest(
-            'install_lang_default', 'russian', self::GET_VAR_FROM_SESSION
-        );
-
-        /**
-         * Передаем параметры во Viewer
-         */
-        foreach ($aParams as $sName => $sParam) {
-            /**
-             * Если передано булево значение, значит это чек-бокс
-             */
-            if (!is_bool($sParam)) {
-                $this->Assign($sName, trim($sParam));
-            } else {
-                $this->Assign($sName . '_check', ($sParam) ? 'checked' : '');
-            }
-        }
-        /**
-         * Передаем во вьевер список доступных языков
-         */
-        $aLangs = $this->GetLangList();
-        $sLangOptions = '';
-        foreach ($aLangs as $sLang) {
-            $this->Assign('language_array_item', $sLang);
-            $this->Assign(
-                'language_array_item_selected',
-                ($aParams['install_lang_current'] == $sLang) ? 'selected="selected"' : ''
-            );
-            $sLangOptions .= $this->FetchString(
-                "<option value='___LANGUAGE_ARRAY_ITEM___' ___LANGUAGE_ARRAY_ITEM_SELECTED___>___LANGUAGE_ARRAY_ITEM___</option>"
-            );
-        }
-        $this->Assign('install_lang_options', $sLangOptions);
-        /**
-         * Передаем во вьевер список доступных языков для дефолтного определения
-         */
-        $sLangOptions = '';
-        foreach ($aLangs as $sLang) {
-            $this->Assign('language_array_item', $sLang);
-            $this->Assign(
-                'language_array_item_selected',
-                ($aParams['install_lang_default'] == $sLang) ? 'selected="selected"' : ''
-            );
-            $sLangOptions .= $this->FetchString(
-                "<option value='___LANGUAGE_ARRAY_ITEM___' ___LANGUAGE_ARRAY_ITEM_SELECTED___>___LANGUAGE_ARRAY_ITEM___</option>"
-            );
-        }
-        $this->Assign('install_lang_default_options', $sLangOptions);
-        /**
-         * Передаем во вьевер список доступных скинов
-         */
-        $aSkins = $this->GetSkinList();
-        $sSkinOptions = '';
-        foreach ($aSkins as $sSkin) {
-            $this->Assign('skin_array_item', $sSkin);
-            $this->Assign(
-                'skin_array_item_selected', ($aParams['install_view_skin'] == $sSkin) ? 'selected="selected"' : ''
-            );
-            $sSkinOptions .= $this->FetchString(
-                "<option value='___SKIN_ARRAY_ITEM___' ___SKIN_ARRAY_ITEM_SELECTED___>___SKIN_ARRAY_ITEM___</option>"
-            );
-        }
-        $this->Assign('install_view_skin_options', $sSkinOptions);
-
-        /**
-         * Если были переданные данные формы, то обрабатываем добавление
-         */
-        if ($this->GetRequest('install_extend_params')) {
-            $bOk = true;
-            $sLocalConfigFile = $this->sConfigDir . '/' . self::LOCAL_CONFIG_FILE_NAME;
-
-            /**
-             * Название сайта
-             */
-            if ($aParams['install_view_name'] && strlen($aParams['install_view_name']) > 2) {
-                if ($this->SaveConfig('view.name', $aParams['install_view_name'], $sLocalConfigFile)) {
-                    $this->SetSessionVar('install_view_name', $aParams['install_view_name']);
-                }
-            } else {
-                $bOk = false;
-                $this->aMessages[] = array('type' => 'error', 'text' => $this->Lang('site_name_invalid'));
-            }
-            /**
-             * Описание сайта
-             */
-            if ($aParams['install_view_description']) {
-                if ($this->SaveConfig('view.description', $aParams['install_view_description'], $sLocalConfigFile)) {
-                    $this->SetSessionVar('install_view_description', $aParams['install_view_description']);
-                }
-            } else {
-                $bOk = false;
-                $this->aMessages[] = array('type' => 'error', 'text' => $this->Lang('site_description_invalid'));
-            }
-            /**
-             * Ключевые слова
-             */
-            if ($aParams['install_view_keywords'] && strlen($aParams['install_view_keywords']) > 2) {
-                if ($this->SaveConfig('view.keywords', $aParams['install_view_keywords'], $sLocalConfigFile)) {
-                    $this->SetSessionVar('install_view_keywords', $aParams['install_view_keywords']);
-                }
-            } else {
-                $bOk = false;
-                $this->aMessages[] = array('type' => 'error', 'text' => $this->Lang('site_keywords_invalid'));
-            }
-            /**
-             * Название шаблона оформления
-             */
-            if ($aParams['install_view_skin'] && strlen($aParams['install_view_skin']) > 1) {
-                if ($this->SaveConfig('view.skin', $aParams['install_view_skin'], $sLocalConfigFile)) {
-                    $this->SetSessionVar('install_view_skin', $aParams['install_view_skin']);
-                }
-            } else {
-                $bOk = false;
-                $this->aMessages[] = array('type' => 'error', 'text' => 'skin_name_invalid');
-            }
-
-            /**
-             * E-mail, с которого отправляются уведомления
-             */
-            if ($aParams['install_mail_sender'] && strlen($aParams['install_mail_sender']) > 5) {
-                if ($this->SaveConfig('sys.mail.from_email', $aParams['install_mail_sender'], $sLocalConfigFile)) {
-                    $this->SetSessionVar('install_mail_sender', $aParams['install_mail_sender']);
-                }
-            } else {
-                $bOk = false;
-                $this->aMessages[] = array('type' => 'error', 'text' => $this->Lang('mail_sender_invalid'));
-            }
-            /**
-             * Имя, от которого отправляются уведомления
-             */
-            if ($aParams['install_mail_name'] && strlen($aParams['install_mail_name']) > 1) {
-                if ($this->SaveConfig('sys.mail.from_name', $aParams['install_mail_name'], $sLocalConfigFile)) {
-                    $this->SetSessionVar('install_mail_name', $aParams['install_mail_name']);
-                }
-            } else {
-                $bOk = false;
-                $this->aMessages[] = array('type' => 'error', 'text' => $this->Lang('mail_name_invalid'));
-            }
-
-            /**
-             * Использовать закрытый режим работы сайта
-             */
-            if ($this->SaveConfig('general.close', $aParams['install_general_close'], $sLocalConfigFile)) {
-                $this->SetSessionVar('install_general_close', $aParams['install_general_close']);
-            }
-            /**
-             * Использовать активацию при регистрации
-             */
-            if ($this->SaveConfig('general.reg.activation', $aParams['install_general_active'], $sLocalConfigFile)) {
-                $this->SetSessionVar('install_general_active', $aParams['install_general_active']);
-            }
-            /**
-             * Использоватьт режим регистрации по приглашению
-             */
-            if ($this->SaveConfig('general.reg.invite', $aParams['install_general_invite'], $sLocalConfigFile)) {
-                $this->SetSessionVar('install_general_invite', $aParams['install_general_invite']);
-            }
-
-            /**
-             * Текущий язык
-             */
-            if ($aParams['install_lang_current'] && strlen($aParams['install_lang_current']) > 1) {
-                if ($this->SaveConfig('lang.current', $aParams['install_lang_current'], $sLocalConfigFile)) {
-                    $this->SetSessionVar('install_lang_current', $aParams['install_lang_current']);
-                    /**
-                     * Если выбран русский язык, то перезаписываем название блога
-                     */
-                    if ($aParams['install_lang_current'] == 'russian') {
-                        $aDbParams = $this->GetSessionVar('INSTALL_DATABASE_PARAMS');
-                        $oDb = $this->ValidateDBConnection($aDbParams);
-
-                        if ($oDb && $this->SelectDatabase($aDbParams['name'])) {
-                            $this->UpdateUserBlog(
-                                'Блог им. ' . $this->GetSessionVar('install_admin_login'), $aDbParams['prefix']
-                            );
-                        }
-                    }
-                }
-            } else {
-                $bOk = false;
-                $this->aMessages[] = array('type' => 'error', 'text' => $this->Lang('lang_current_invalid'));
-            }
-            /**
-             * Язык, который будет использоваться по умолчанию
-             */
-            if ($aParams['install_lang_default'] && strlen($aParams['install_lang_default']) > 1) {
-                if ($this->SaveConfig('lang.default', $aParams['install_lang_default'], $sLocalConfigFile)) {
-                    $this->SetSessionVar('install_lang_default', $aParams['install_lang_default']);
-                }
-            } else {
-                $bOk = false;
-                $this->aMessages[] = array('type' => 'error', 'text' => $this->Lang('lang_default_invalid'));
-            }
-        }
-
-        return ($this->GetRequest('install_step_next'))
-            ? $this->StepFinish()
-            : $this->Layout('steps/extend.tpl');
+        return $this->Layout('steps/end.tpl');
     }
 
     /**
@@ -1634,26 +1383,30 @@ class Install {
         $bOk = true;
         $aErrors = array();
 
-        if (!($sLogin = $this->GetRequest('install_admin_login', false))
-            || !preg_match('/^[\da-z\_\-]{3,30}$/i', $sLogin)
-        ) {
-            $bOk = false;
-            $aErrors[] = $this->Lang('admin_login_invalid');
-        }
+        if ($this->GetRequest('install_admin_skip', false)) {
+            $this->bSkipAdmin = true;
+        } else {
+            if (!($sLogin = $this->GetRequest('install_admin_login', false))
+                || !preg_match('/^[\da-z\_\-]{3,30}$/i', $sLogin)
+            ) {
+                $bOk = false;
+                $aErrors[] = $this->Lang('admin_login_invalid');
+            }
 
-        if (!($sMail = $this->GetRequest('install_admin_mail', false))
-            || !preg_match('/^[\da-z\_\-\.\+]+@[\da-z_\-\.]+\.[a-z]{2,5}$/i', $sMail)
-        ) {
-            $bOk = false;
-            $aErrors[] = $this->Lang('admin_mail_invalid');
-        }
-        if (!($sPass = $this->GetRequest('install_admin_pass', false)) || strlen($sPass) < 3) {
-            $bOk = false;
-            $aErrors[] = $this->Lang('admin_password_invalid');
-        }
-        if ($this->GetRequest('install_admin_repass', '') != $this->GetRequest('install_admin_pass', '')) {
-            $bOk = false;
-            $aErrors[] = $this->Lang('admin_repassword_invalid');
+            if (!($sMail = $this->GetRequest('install_admin_mail', false))
+                || !preg_match('/^[\da-z\_\-\.\+]+@[\da-z_\-\.]+\.[a-z]{2,5}$/i', $sMail)
+            ) {
+                $bOk = false;
+                $aErrors[] = $this->Lang('admin_mail_invalid');
+            }
+            if (!($sPass = $this->GetRequest('install_admin_pass', false)) || strlen($sPass) < 3) {
+                $bOk = false;
+                $aErrors[] = $this->Lang('admin_password_invalid');
+            }
+            if ($this->GetRequest('install_admin_repass', '') != $this->GetRequest('install_admin_pass', '')) {
+                $bOk = false;
+                $aErrors[] = $this->Lang('admin_repassword_invalid');
+            }
         }
 
         return array($bOk, $aErrors);

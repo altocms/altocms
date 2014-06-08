@@ -97,6 +97,8 @@ return array(
     'admin_params_mail'                => 'E-mail',
     'admin_params_pass'                => 'Пароль',
     'admin_params_repass'              => 'Еще раз',
+    'admin_params_skip'                => 'Пропустить установку администратора',
+    'admin_params_skip_txt'            => 'Если Вы конвертировали базу данных, где администратор уже задан, Вы можете пропустить этот шаг',
 
     'end_paragraph'                    => 'Поздравляем! Alto CMS успешно установлена.<br /><br />
 	                    Для обеспечения безопасности работы Вашего сайта удалите папку <strong>install</strong>.<br /><br />

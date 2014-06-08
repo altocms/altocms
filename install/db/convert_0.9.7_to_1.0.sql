@@ -103,6 +103,8 @@ CREATE TABLE IF NOT EXISTS `prefix_mresource_target` (
 ALTER TABLE `prefix_topic` ADD `topic_index_ignore` TINYINT( 2 ) NULL DEFAULT '0',
 ADD INDEX ( `topic_index_ignore` );
 
+ALTER TABLE `prefix_topic` ADD `topic_date_show` datetime DEFAULT NULL AFTER `topic_date_edit`;
+
 ALTER TABLE `prefix_topic_photo` ADD `date_add` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ,
 ADD INDEX ( `date_add` );
 

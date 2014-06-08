@@ -96,6 +96,8 @@ return array(
     'admin_params_mail'                => 'E-mail',
     'admin_params_pass'                => 'Password',
     'admin_params_repass'              => 'Confirm password',
+    'admin_params_skip'                => 'Skip administrator configuration',
+    'admin_params_skip_txt'            => 'If you converted the database where the administrator has already set, you can skip this step',
 
     'end_paragraph'                    => 'Congratulations! Alto CMS successfully installed.<br />
 	                    To ensure the safety of your site, delete <strong>install</strong> folder.<br /><br />
