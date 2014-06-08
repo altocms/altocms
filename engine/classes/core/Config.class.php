@@ -338,7 +338,13 @@ class Config extends Storage {
             return static::getInstance()->GetConfig($sRootKey, $nLevel);
         }
 
-        return static::getInstance()->GetValue($sKey, $sRootKey, $nLevel);
+        $xResult = static::getInstance()->GetValue($sKey, $sRootKey, $nLevel);
+
+        // LS-compatibility
+        if (is_null($xResult) && strpos($sKey, 'db.table.') === 0) {
+            $xResult = str_replace('db.table.', static::Get('db.table.prefix'), $sKey);
+        }
+        return $xResult;
     }
 
     /**
