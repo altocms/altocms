@@ -52,6 +52,16 @@ if (isset($_SERVER['SCRIPT_NAME']) && isset($_SERVER['REQUEST_URI']) && $_SERVER
 if (is_file('./install/index.php') && !defined('ALTO_INSTALL')
     && (!isset($_SERVER['HTTP_APP_ENV']) || $_SERVER['HTTP_APP_ENV'] != 'test')
 ) {
+    if (isset($_SERVER['REDIRECT_URL'])) {
+        $sUrl = trim($_SERVER['REDIRECT_URL'], '/');
+    } else {
+        $sUrl = '';
+    }
+    if ($sUrl && $sUrl != 'install' && substr($sUrl, -7) == 'install') {
+        // Cyclic redirection to .../install/
+        die('URL /' . $sUrl . '/ doesn\'t work on your site. Alto CMS v.' . ALTO_VERSION . ' not installed yet');
+    }
+    // Try to redirect to .../install/
     F::HttpLocation('install/', true);
     exit;
 }
