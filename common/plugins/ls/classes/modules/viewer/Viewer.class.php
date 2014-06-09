@@ -97,6 +97,14 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
         return $sResult;
     }
 
+    public function GetSmartyObject() {
+
+        if (!$this->oSmarty) {
+            $this->_initTemplator();
+        }
+        return $this->oSmarty;
+    }
+
     public function VarAssign() {
 
         parent::VarAssign();

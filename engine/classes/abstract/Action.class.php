@@ -342,41 +342,48 @@ abstract class Action extends LsObject {
      */
     protected function SetTemplateAction($sTemplate) {
 
-        $aDelegates = $this->Plugin_GetDelegationChain('action', $this->GetActionClass());
-        $sActionTemplatePath = $sTemplate . '.tpl';
-        foreach ($aDelegates as $sAction) {
-            if (preg_match('/^(Plugin([\w]+)_)?Action([\w]+)$/i', $sAction, $aMatches)) {
-                //$sTemplatePath = $this->Plugin_GetDelegate('template', 'actions/Action' . ucfirst($aMatches[3]) . '/' . $sTemplate . '.tpl');
-                // New-style action templates
-                $sActionName = strtolower($aMatches[3]);
-                $sTemplatePath = $this->Plugin_GetDelegate('template', 'actions/' . $sActionName . '/action.' . $sActionName . '.' . $sTemplate . '.tpl');
-                $sActionTemplatePath = $sTemplatePath;
-                if (!empty($aMatches[1])) {
-                    $aPluginTemplateDirs = array(Plugin::GetTemplateDir($sAction));
-                    if (basename($aPluginTemplateDirs[0]) !== 'default') {
-                        $aPluginTemplateDirs[] = dirname($aPluginTemplateDirs[0]) . '/default/';
-                    }
-                    //$sTemplatePath = Plugin::GetTemplateDir($sAction) . $sTemplatePath;
-                    if ($sTemplatePath = F::File_Exists('tpls/' . $sTemplatePath, $aPluginTemplateDirs)) {
-                        $sActionTemplatePath = $sTemplatePath;
-                        break;
-                    }
-                    if ($sTemplatePath = F::File_Exists($sTemplatePath, $aPluginTemplateDirs)) {
-                        $sActionTemplatePath = $sTemplatePath;
-                        break;
-                    }
-                    // LS-compatibility
-                    if ($this->Plugin_IsActivePlugin('ls')) {
-                        $sLsTemplatePath = $this->Plugin_GetDelegate('template', 'actions/Action' . ucfirst($sActionName) . '/' . $sTemplate . '.tpl');
-                        //$sTemplatePath = Plugin::GetTemplateDir($sAction) . $sLsTemplatePath;
-                        if ($sTemplatePath = F::File_Exists($sLsTemplatePath, $aPluginTemplateDirs)) {
+        if (substr($sTemplate, -4) != '.tpl') {
+            $sTemplate = $sTemplate . '.tpl';
+        }
+        $sActionTemplatePath = $sTemplate;
+
+        if (!F::File_IsLocalDir($sActionTemplatePath)) {
+            // If not absolute path then defines real path of template
+            $aDelegates = $this->Plugin_GetDelegationChain('action', $this->GetActionClass());
+            foreach ($aDelegates as $sAction) {
+                if (preg_match('/^(Plugin([\w]+)_)?Action([\w]+)$/i', $sAction, $aMatches)) {
+                    // New-style action templates
+                    $sActionName = strtolower($aMatches[3]);
+                    $sTemplatePath = $this->Plugin_GetDelegate('template', 'actions/' . $sActionName . '/action.' . $sActionName . '.' . $sTemplate);
+                    $sActionTemplatePath = $sTemplatePath;
+                    if (!empty($aMatches[1])) {
+                        $aPluginTemplateDirs = array(Plugin::GetTemplateDir($sAction));
+                        if (basename($aPluginTemplateDirs[0]) !== 'default') {
+                            $aPluginTemplateDirs[] = dirname($aPluginTemplateDirs[0]) . '/default/';
+                        }
+
+                        if ($sTemplatePath = F::File_Exists('tpls/' . $sTemplatePath, $aPluginTemplateDirs)) {
                             $sActionTemplatePath = $sTemplatePath;
                             break;
+                        }
+                        if ($sTemplatePath = F::File_Exists($sTemplatePath, $aPluginTemplateDirs)) {
+                            $sActionTemplatePath = $sTemplatePath;
+                            break;
+                        }
+
+                        // LS-compatibility
+                        if ($this->Plugin_IsActivePlugin('ls')) {
+                            $sLsTemplatePath = $this->Plugin_GetDelegate('template', 'actions/Action' . ucfirst($sActionName) . '/' . $sTemplate);
+                            if ($sTemplatePath = F::File_Exists($sLsTemplatePath, $aPluginTemplateDirs)) {
+                                $sActionTemplatePath = $sTemplatePath;
+                                break;
+                            }
                         }
                     }
                 }
             }
         }
+
         $this->sActionTemplate = $sActionTemplatePath;
     }
 

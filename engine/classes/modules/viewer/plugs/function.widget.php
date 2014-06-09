@@ -39,6 +39,8 @@ function smarty_function_widget($aParams, $oSmartyTemplate) {
         return smarty_function_wgroup($aParams, $oSmartyTemplate);
     }
     $oWidget = null;
+    $sWidgetType = '';
+
     if (isset($aParams['name'])) {
         $sWidgetName = $aParams['name'];
         $sWidgetType = 'exec';

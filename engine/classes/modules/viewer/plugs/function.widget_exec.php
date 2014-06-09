@@ -58,14 +58,14 @@ function smarty_function_widget_exec($aParams, $oSmartyTemplate) {
             // Проверяем делегирование найденного класса
             $sWidgetClass = E::Plugin_GetDelegate('widget', $sWidgetClass);
             if ($sPlugin) {
-                $sPluginTplDir = Plugin::GetTemplatePath($sPlugin);
+                $sPluginTplDir = Plugin::GetTemplateDir($sPlugin);
                 $sTemplate = $sPluginTplDir . 'tpls/widgets/widget.' . $sWidgetName . '.tpl';
                 if ($sFound = F::File_Exists('/widgets/widget.' . $sWidgetName . '.tpl', array($sPluginTplDir . 'tpls/', $sPluginTplDir))) {
                     $sTemplate = $sFound;
                 } else {
                     // * LS-compatible * //
-                    $sLsTemplate = Plugin::GetTemplatePath($aParams['params']['plugin']) . '/blocks/block.' . $sWidgetName . '.tpl';
-                    if (F::File_Exists($sTemplate, $oSmartyTemplate->getTemplateDir())) {
+                    $sLsTemplate = Plugin::GetTemplateDir($aParams['params']['plugin']) . '/blocks/block.' . $sWidgetName . '.tpl';
+                    if (F::File_Exists($sLsTemplate)) {
                         $sTemplate = $sLsTemplate;
                     }
                 }
@@ -75,7 +75,7 @@ function smarty_function_widget_exec($aParams, $oSmartyTemplate) {
                 if (!$sTemplate) {
                     // * LS-compatible * //
                     $sLsTemplate = E::Plugin_GetDelegate('template', 'blocks/block.' . $sWidgetName . '.tpl');
-                    if (F::File_Exists($sTemplate, $oSmartyTemplate->getTemplateDir())) {
+                    if (F::File_Exists($sLsTemplate, $oSmartyTemplate->getTemplateDir())) {
                         $sTemplate = $sLsTemplate;
                     }
                 }
