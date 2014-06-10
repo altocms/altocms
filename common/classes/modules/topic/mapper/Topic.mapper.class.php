@@ -613,7 +613,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 
         $sql = "UPDATE ?_topic
 			SET
-				topic_count_comment=(SELECT COUNT(*) FROM ?_comment WHERE target_id=?d)
+				topic_count_comment=(SELECT COUNT(*) FROM ?_comment WHERE target_id=?d AND target_type='topic')
 			WHERE
 				topic_id = ?d
 		";
