@@ -870,13 +870,13 @@ class Install {
 
         $sLocalConfigFile = $this->sConfigDir . '/' . self::LOCAL_CONFIG_FILE_NAME;
 
-        // make and save "salt"
-        $aSalt = array();
-        $this->SaveConfig('security.salt_sess', $aSalt['sess'] = F::RandomStr(64, false), $sLocalConfigFile);
-        $this->SaveConfig('security.salt_pass', $aSalt['pass'] = F::RandomStr(64, false), $sLocalConfigFile);
-        $this->SaveConfig('security.salt_auth', $aSalt['auth'] = F::RandomStr(64, false), $sLocalConfigFile);
-
         if (!$this->bSkipAdmin) {
+            // make and save "salt"
+            $aSalt = array();
+            $this->SaveConfig('security.salt_sess', $aSalt['sess'] = F::RandomStr(64, false), $sLocalConfigFile);
+            $this->SaveConfig('security.salt_pass', $aSalt['pass'] = F::RandomStr(64, false), $sLocalConfigFile);
+            $this->SaveConfig('security.salt_auth', $aSalt['auth'] = F::RandomStr(64, false), $sLocalConfigFile);
+
             // make salted password
             $sPass = F::DoSalt($this->GetRequest('install_admin_pass'), $aSalt['pass']);
 
