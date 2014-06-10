@@ -1392,7 +1392,13 @@ class ActionBlog extends Action {
             return;
         }
         if (!$this->GetPost('submit')) {
-            $this->Viewer_AssignAjax('sText', $oComment->getText());
+            $sText = $oComment->getText();
+            // restore <code></code>
+            // see ModuleText::CodeSourceParser()
+            $sText = str_replace('<pre class="prettyprint"><code>', '<code>', $sText);
+            $sText = str_replace('</code></pre>', '</code>', $sText);
+
+            $this->Viewer_AssignAjax('sText', $sText);
             $this->Viewer_AssignAjax('sDateEdit', $oComment->getCommentDateEdit());
         }
     }
