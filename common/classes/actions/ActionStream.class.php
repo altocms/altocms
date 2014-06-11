@@ -147,7 +147,7 @@ class ActionStream extends Action {
         /**
          * Активируем/деактивируем тип
          */
-        $this->Stream_switchUserEventType($this->oUserCurrent->getId(), F::GetRequestStr('type'));
+        $this->Stream_SwitchUserEventType($this->oUserCurrent->getId(), F::GetRequestStr('type'));
         $this->Message_AddNotice($this->Lang_Get('stream_subscribes_updated'), $this->Lang_Get('attention'));
     }
 
@@ -383,7 +383,7 @@ class ActionStream extends Action {
         /**
          * Отписываем
          */
-        $this->Stream_unsubscribeUser($this->oUserCurrent->getId(), F::GetRequestStr('id'));
+        $this->Stream_UnsubscribeUser($this->oUserCurrent->getId(), F::GetRequestStr('id'));
         $this->Message_AddNotice($this->Lang_Get('stream_subscribes_updated'), $this->Lang_Get('attention'));
     }
 

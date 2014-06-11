@@ -97,7 +97,7 @@ class ActionUserfeed extends Action {
         $iPage = $this->GetParamEventMatch(0, 2) ? $this->GetParamEventMatch(0, 2) : 1;
 
         // * Получаем топики
-        $aResult = $this->Userfeed_trackread(
+        $aResult = $this->Userfeed_Trackread(
             $this->oUserCurrent->getId(), $iPage, Config::Get('module.topic.per_page')
         );
 
@@ -129,7 +129,7 @@ class ActionUserfeed extends Action {
         $iPage = $this->GetParamEventMatch(1, 2) ? $this->GetParamEventMatch(1, 2) : 1;
 
         // * Получаем топики
-        $aResult = $this->Userfeed_trackread(
+        $aResult = $this->Userfeed_Trackread(
             $this->oUserCurrent->getId(), $iPage, Config::Get('module.topic.per_page'), true
         );
 

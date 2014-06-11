@@ -247,7 +247,7 @@ abstract class Plugin extends LsObject {
      */
     protected function isTableExists($sTableName) {
 
-        return $this->Database_isTableExists($sTableName);
+        return $this->Database_IsTableExists($sTableName);
     }
 
     /**
@@ -262,7 +262,7 @@ abstract class Plugin extends LsObject {
      */
     protected function isFieldExists($sTableName, $sFieldName) {
 
-        return $this->Database_isFieldExists($sTableName, $sFieldName);
+        return $this->Database_IsFieldExists($sTableName, $sFieldName);
     }
 
     /**
@@ -277,7 +277,7 @@ abstract class Plugin extends LsObject {
      */
     protected function addEnumType($sTableName, $sFieldName, $sType) {
 
-        $this->Database_addEnumType($sTableName, $sFieldName, $sType);
+        $this->Database_AddEnumType($sTableName, $sFieldName, $sType);
     }
 
     /**
