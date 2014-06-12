@@ -88,11 +88,11 @@ class ModuleAdmin_MapperAdmin extends Mapper {
             SELECT DISTINCT ab.user_id
             FROM
                 ?_adminban AS ab
-            WHERE (ab.user_id>0) AND (ab.banunlim>0 OR (Now()<ab.banline AND ab.banactive=1))
+            WHERE (ab.user_id>0) AND (ab.banunlim>0 OR (ab.banline>? AND ab.banactive=1))
             ORDER BY ab.bandate DESC
             LIMIT ?d, ?d
             ";
-        $aRows = $this->oDb->selectPage($nCount, $sql, ($nCurrPage - 1) * $nPerPage, $nPerPage);
+        $aRows = $this->oDb->selectPage($nCount, $sql, F::Now(), ($nCurrPage - 1) * $nPerPage, $nPerPage);
         $aResult = array();
         if ($aRows)
             foreach($aRows as $aRow) {

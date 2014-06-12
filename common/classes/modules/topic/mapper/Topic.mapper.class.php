@@ -731,7 +731,7 @@ class ModuleTopic_MapperTopic extends Mapper {
         }
         if (isset($aFilter['topic_publish'])) {
             $sWhere .= " AND (t.topic_publish =  " . ($aFilter['topic_publish'] ? 1 : 0) . ")";
-            $sWhere .= " AND (t.topic_date_show IS NULL OR t.topic_date_show <= NOW())";
+            $sWhere .= " AND (t.topic_date_show IS NULL OR t.topic_date_show <= '" . F::Now() . "')";
         }
         if (isset($aFilter['topic_index_ignore'])) {
             $sWhere .= " AND (";
@@ -755,7 +755,7 @@ class ModuleTopic_MapperTopic extends Mapper {
         }
         if (isset($aFilter['topic_new'])) {
             $sWhere .= " AND (";
-            $sWhere .= "(t.topic_date_show IS NOT NULL AND t.topic_date_show >=  '" . $aFilter['topic_new'] . "' AND t.topic_date_show < NOW())";
+            $sWhere .= "(t.topic_date_show IS NOT NULL AND t.topic_date_show >=  '" . $aFilter['topic_new'] . "' AND t.topic_date_show <='" . F::Now() . "')";
             $sWhere .= " OR (t.topic_date_show IS NULL AND t.topic_date_add >=  '" . $aFilter['topic_new'] . "')";
             $sWhere .= ")";
         }

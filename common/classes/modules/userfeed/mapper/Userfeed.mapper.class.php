@@ -179,6 +179,7 @@ class ModuleUserfeed_MapperUserfeed extends Mapper {
 					?_blog as b
 				WHERE
 					t.topic_publish = 1
+					AND (t.topic_date_show IS NULL OR t.topic_date_show <= ?)
 					AND t.blog_id=b.blog_id
 					{ AND b.blog_type=? }
 					{ AND b.blog_type IN (?a) }
@@ -191,6 +192,7 @@ class ModuleUserfeed_MapperUserfeed extends Mapper {
 
         $aTopics = $aTopics = $this->oDb->selectCol(
             $sql,
+            F::Now(),
             (isset($aFilter['include_types']) && !is_array($aFilter['include_types'])) ? $aFilter['include_types'] : DBSIMPLE_SKIP,
             (isset($aFilter['include_types']) && is_array($aFilter['include_types'])) ? $aFilter['include_types'] : DBSIMPLE_SKIP,
             (isset($aFilter['exclude_types']) && !is_array($aFilter['exclude_types'])) ? $aFilter['exclude_types'] : DBSIMPLE_SKIP,
