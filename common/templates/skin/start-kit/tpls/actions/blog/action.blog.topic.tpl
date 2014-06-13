@@ -20,6 +20,7 @@
     sNoticeCommentAdd=$aLang.topic_comment_add
     bAllowSubscribe=true
     oSubscribeComment=$oTopic->getSubscribeNewComment()
+    oTrackComment=$oTopic->getTrackNewComment()
     aPagingCmt=$aPagingCmt
 }
 

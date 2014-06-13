@@ -86,6 +86,16 @@ body.light .site-info { margin-bottom: 30px; }
 .light-form .page-header h2, .light-form .page-header h3 { margin-top: 0; }
 
 /* Form */
+.form-inline .radio label,
+.form-inline .checkbox label,
+.form-inline label.radio,
+.form-inline label.checkbox {
+    display: inline;
+    font-weight: normal;
+    cursor: pointer;
+    vertical-align: top;
+}
+
 /** Styling input[type=file] **/
 .btn-file {
     position: relative;

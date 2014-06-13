@@ -15,12 +15,20 @@
             <div class="hidden-xs text-muted subscribe form-inline">
                 {$aLang.comment_whatch}:
                 <div class="checkbox">
-                    <label>
-                        <input {if $oSubscribeComment AND $oSubscribeComment->getStatus()}checked="checked"{/if}
-                               type="checkbox" id="comment_subscribe" class="input-checkbox"
-                               onchange="ls.subscribe.toggle('{$sTargetType}_new_comment','{$iTargetId}','',this.checked);">
-                        {$aLang.comment_subscribe}
-                    </label>
+                <label>
+                    <input {if $oTrackComment AND $oTrackComment->getStatus()}checked="checked"{/if}
+                           type="checkbox" id="comment_track" class="input-checkbox"
+                           onchange="ls.subscribe.tracktoggle('{$sTargetType}_new_comment','{$iTargetId}',this.checked);">
+                    {$aLang.comment_track}
+                </label>
+                </div>
+                <div class="checkbox">
+                <label>
+                    <input {if $oSubscribeComment AND $oSubscribeComment->getStatus()}checked="checked"{/if}
+                           type="checkbox" id="comment_subscribe" class="input-checkbox"
+                           onchange="ls.subscribe.toggle('{$sTargetType}_new_comment','{$iTargetId}','',this.checked);">
+                    {$aLang.comment_subscribe}
+                </label>
                 </div>
             </div>
         {/if}
