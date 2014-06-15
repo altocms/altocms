@@ -14,25 +14,28 @@
  */
 
 /**
- * Виджет настройки ленты активности (друзья)
+ * Блок настройки ленты активности (LS compatibility)
  *
- * @package widgets
+ * @package blocks
  * @since   1.0
  */
-class WidgetActivityFriends extends Widget {
+class WidgetStreamConfig extends Widget {
     /**
      * Запуск обработки
      */
     public function Exec() {
-        /**
-         * пользователь авторизован?
-         */
+
+        // * пользователь авторизован?
         if ($oUserCurrent = $this->User_GetUserCurrent()) {
+
             // * Получаем и прогружаем необходимые переменные в шаблон
+            $aTypesList = $this->Stream_GetTypesList($oUserCurrent->getId());
+            $aUserSubscribes = $this->Stream_GetUserSubscribes($oUserCurrent->getId());
             $aFriends = $this->User_GetUsersFriend($oUserCurrent->getId());
-            if ($aFriends) {
-                $this->Viewer_Assign('aStreamFriends', $aFriends['collection']);
-            }
+
+            $this->Viewer_Assign('aStreamTypesList', $aTypesList);
+            $this->Viewer_Assign('aStreamSubscribedUsers', $aUserSubscribes);
+            $this->Viewer_Assign('aStreamFriends', $aFriends['collection']);
         }
     }
 }

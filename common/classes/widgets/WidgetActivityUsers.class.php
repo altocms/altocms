@@ -14,7 +14,7 @@
  */
 
 /**
- * Блок выбора пользователей для чтения в ленте активности
+ * Виджет выбора пользователей для чтения в ленте активности
  *
  * @package blocks
  * @since   1.0
@@ -24,17 +24,12 @@ class WidgetActivityUsers extends Widget {
      * Запуск обработки
      */
     public function Exec() {
-        /**
-         * пользователь авторизован?
-         */
+
+        // * пользователь авторизован?
         if ($oUserCurrent = $this->User_GetUserCurrent()) {
-            /**
-             * Получаем и прогружаем необходимые переменные в шаблон
-             */
-            $aFriends = $this->User_GetUsersFriend($oUserCurrent->getId());
+            // * Получаем и прогружаем необходимые переменные в шаблон
             $aUserSubscribes = $this->Stream_GetUserSubscribes($oUserCurrent->getId());
-            $this->Viewer_Assign('aStreamSubscribedUsers', $aUserSubscribes);
-            $this->Viewer_Assign('aStreamFriends', $aFriends['collection']);
+            $this->Viewer_Assign('aStreamSubscribedUsers', $aUserSubscribes ? $aUserSubscribes : array());
         }
     }
 }

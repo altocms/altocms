@@ -1023,7 +1023,7 @@ return array(
     'stream_event_type_vote_blog'               => 'Голосование за блог',
     'stream_event_type_vote_user'               => 'Голосование за пользователя',
     'stream_event_type_add_friend'              => 'Добавление в друзья',
-    'stream_event_type_join_blog'               => 'Вступление в блог',
+    'stream_event_type_join_blog'               => 'Подписка на блог',
     'stream_no_subscribed_users'                => 'Вы ещё не подписались на пользователей, чью активность хотите видеть',
     'stream_no_events'                          => 'Лента активности пуста',
     'stream_error_subscribe_to_yourself'        => 'Вы не можете подписаться на себя',
@@ -1036,7 +1036,7 @@ return array(
     'stream_list_event_vote_blog'               => 'оценил блог',
     'stream_list_event_vote_user'               => 'оценил пользователя',
     'stream_list_event_vote_comment'            => 'оценил комментарий к статье',
-    'stream_list_event_join_blog'               => 'вступил в блог',
+    'stream_list_event_join_blog'               => 'подписался на блог',
     'stream_list_event_add_friend'              => 'добавил в друзья пользователя',
 
     'stream_list_event_add_wall_female'         => 'добавила запись на стену',

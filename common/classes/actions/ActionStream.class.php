@@ -87,9 +87,15 @@ class ActionStream extends Action {
         if (!$this->oUserCurrent) {
             return parent::EventNotFound();
         }
-        $this->Viewer_AddWidget('right', 'activitySettings');
-        $this->Viewer_AddWidget('right', 'activityFriends');
-        $this->Viewer_AddWidget('right', 'activityUsers');
+        $oSkin = $this->Skin_GetSkin($this->Viewer_GetConfigSkin());
+        if ($oSkin && $oSkin->GetCompatible() == 'alto') {
+            $this->Viewer_AddWidget('right', 'activitySettings');
+            $this->Viewer_AddWidget('right', 'activityFriends');
+            $this->Viewer_AddWidget('right', 'activityUsers');
+        } else {
+            $this->Viewer_AddWidget('right', 'streamConfig');
+        }
+
         /**
          * Читаем события
          */

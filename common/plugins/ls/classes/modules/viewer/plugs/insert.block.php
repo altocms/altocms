@@ -71,7 +71,7 @@ function smarty_insert_block($aParams, &$oSmarty) {
 
     $sTemplate = $oEngine->Plugin_GetDelegate('template', 'widgets/widget.' . $aParams['block'] . '.tpl');
     if (!F::File_Exists($sTemplate)) {
-        $sTemplate = '';
+        //$sTemplate = '';
         // * LS-compatible * //
         $sLsTemplate = $oEngine->Plugin_GetDelegate('template', 'blocks/block.' . $aParams['block'] . '.tpl');
         if (F::File_Exists($sLsTemplate)) {
