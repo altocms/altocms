@@ -93,9 +93,13 @@ class ModuleLogger_EntityLog extends Entity {
             $nLevelIndex = 0;
         }
         if ($nLevelIndex >= $this->GetLogLevel()) {
+            if (!is_scalar($sMsg)) {
+                $sMsg = print_r($sMsg, true);
+            }
             $this->DumpBegin($sMsg, $sLevel);
             return $this->DumpEnd();
         }
+        return false;
     }
 
     protected function _checkLogLevel($sLevel) {
