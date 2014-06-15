@@ -59,6 +59,7 @@ class PluginLs extends Plugin {
      */
     public function Init() {
 
+        Config::Set('view.tinymce', Config::Get('view.wysiwyg'));
     }
 }
 
