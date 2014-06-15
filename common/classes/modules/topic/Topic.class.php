@@ -630,6 +630,9 @@ class ModuleTopic extends Module {
         } else {
             $nTopicId = intval($oTopicId);
             $oTopic = $this->GetTopicById($nTopicId);
+            if (!$oTopic) {
+                return false;
+            }
             $nUserId = $oTopic->getUserId();
         }
         $oTopicId = null;
@@ -701,6 +704,7 @@ class ModuleTopic extends Module {
                 return $bResult;
             }
         }
+        return false;
     }
 
     /**
