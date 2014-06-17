@@ -24,7 +24,7 @@
     <meta name="description" content="{$sHtmlDescription}">
     <meta name="keywords" content="{$sHtmlKeywords}">
 
-    {if $oTopic}
+    {if $oTopic AND Router::GetActionEvent()!=='edit'}
         <meta property="og:title" content="{$oTopic->getTitle()|escape:'html'}"/>
         <meta property="og:url" content="{$oTopic->getUrl()}"/>
         {if $oTopic->getPreviewImageUrl()}

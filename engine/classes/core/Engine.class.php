@@ -172,6 +172,13 @@ class Engine extends LsObject {
     static protected $aClasses = array();
 
     /**
+     * Internal cache for info of used classes
+     *
+     * @var array
+     */
+    static protected $aClassesInfo = array();
+
+    /**
      * Список загруженных модулей
      *
      * @var array
@@ -1029,83 +1036,136 @@ class Engine extends LsObject {
 
         $sClassName = is_string($oObject) ? $oObject : get_class($oObject);
         $aResult = array();
+        $aInfo = (!empty(self::$aClassesInfo[$sClassName]) ? self::$aClassesInfo[$sClassName] : array());
         if ($iFlag & self::CI_PLUGIN) {
-            $aResult[self::CI_PLUGIN] = preg_match('/^Plugin([^_]+)/', $sClassName, $aMatches)
-                ? $aMatches[1]
-                : null;
+            if (!isset($aInfo[self::CI_PLUGIN])) {
+                $aInfo[self::CI_PLUGIN] = preg_match('/^Plugin([^_]+)/', $sClassName, $aMatches)
+                    ? $aMatches[1]
+                    : false;
+                self::$aClassesInfo[$sClassName][self::CI_PLUGIN] = $aInfo[self::CI_PLUGIN];
+            }
+            $aResult[self::CI_PLUGIN] = $aInfo[self::CI_PLUGIN];
         }
         if ($iFlag & self::CI_ACTION) {
-            $aResult[self::CI_ACTION] = preg_match('/^(?:Plugin[^_]+_|)Action([^_]+)/', $sClassName, $aMatches)
-                ? $aMatches[1]
-                : null;
+            if (!isset($aInfo[self::CI_ACTION])) {
+                $aInfo[self::CI_ACTION] = preg_match('/^(?:Plugin[^_]+_|)Action([^_]+)/', $sClassName, $aMatches)
+                    ? $aMatches[1]
+                    : false;
+                self::$aClassesInfo[$sClassName][self::CI_ACTION] = $aInfo[self::CI_ACTION];
+            }
+            $aResult[self::CI_ACTION] = $aInfo[self::CI_ACTION];
         }
         if ($iFlag & self::CI_MODULE) {
-            $aResult[self::CI_MODULE] = preg_match('/^(?:Plugin[^_]+_|)Module(?:ORM|)([^_]+)/', $sClassName, $aMatches)
-                ? $aMatches[1]
-                : null;
+            if (!isset($aInfo[self::CI_MODULE])) {
+                $aInfo[self::CI_MODULE] = preg_match('/^(?:Plugin[^_]+_|)Module(?:ORM|)([^_]+)/', $sClassName, $aMatches)
+                    ? $aMatches[1]
+                    : false;
+                self::$aClassesInfo[$sClassName][self::CI_MODULE] = $aInfo[self::CI_MODULE];
+            }
+            $aResult[self::CI_MODULE] = $aInfo[self::CI_MODULE];
         }
         if ($iFlag & self::CI_ENTITY) {
-            $aResult[self::CI_ENTITY] = preg_match('/_Entity(?:ORM|)([^_]+)/', $sClassName, $aMatches)
-                ? $aMatches[1]
-                : null;
+            if (!isset($aInfo[self::CI_ENTITY])) {
+                $aInfo[self::CI_ENTITY] = preg_match('/_Entity(?:ORM|)([^_]+)/', $sClassName, $aMatches)
+                    ? $aMatches[1]
+                    : false;
+                self::$aClassesInfo[$sClassName][self::CI_ENTITY] = $aInfo[self::CI_ENTITY];
+            }
+            $aResult[self::CI_ENTITY] = $aInfo[self::CI_ENTITY];
         }
         if ($iFlag & self::CI_MAPPER) {
-            $aResult[self::CI_MAPPER] = preg_match('/_Mapper(?:ORM|)([^_]+)/', $sClassName, $aMatches)
-                ? $aMatches[1]
-                : null;
+            if (!isset($aInfo[self::CI_MAPPER])) {
+                $aInfo[self::CI_MAPPER] = preg_match('/_Mapper(?:ORM|)([^_]+)/', $sClassName, $aMatches)
+                    ? $aMatches[1]
+                    : false;
+                self::$aClassesInfo[$sClassName][self::CI_MAPPER] = $aInfo[self::CI_MAPPER];
+            }
+            $aResult[self::CI_MAPPER] = $aInfo[self::CI_MAPPER];
         }
         if ($iFlag & self::CI_HOOK) {
-            $aResult[self::CI_HOOK] = preg_match('/^(?:Plugin[^_]+_|)Hook([^_]+)$/', $sClassName, $aMatches)
-                ? $aMatches[1]
-                : null;
+            if (!isset($aInfo[self::CI_HOOK])) {
+                $aInfo[self::CI_HOOK] = preg_match('/^(?:Plugin[^_]+_|)Hook([^_]+)$/', $sClassName, $aMatches)
+                    ? $aMatches[1]
+                    : false;
+                self::$aClassesInfo[$sClassName][self::CI_HOOK] = $aInfo[self::CI_HOOK];
+            }
+            $aResult[self::CI_HOOK] = $aInfo[self::CI_HOOK];
         }
         if ($iFlag & self::CI_BLOCK) {
-            $aResult[self::CI_BLOCK] = preg_match('/^(?:Plugin[^_]+_|)Block([^_]+)$/', $sClassName, $aMatches)
-                ? $aMatches[1]
-                : null;
+            if (!isset($aInfo[self::CI_BLOCK])) {
+                $aInfo[self::CI_BLOCK] = preg_match('/^(?:Plugin[^_]+_|)Block([^_]+)$/', $sClassName, $aMatches)
+                    ? $aMatches[1]
+                    : false;
+                self::$aClassesInfo[$sClassName][self::CI_BLOCK] = $aInfo[self::CI_BLOCK];
+            }
+            $aResult[self::CI_BLOCK] = $aInfo[self::CI_BLOCK];
         }
         if ($iFlag & self::CI_WIDGET) {
-            $aResult[self::CI_WIDGET] = preg_match('/^(?:Plugin[^_]+_|)Widget([^_]+)$/', $sClassName, $aMatches)
-                ? $aMatches[1]
-                : null;
+            if (!isset($aInfo[self::CI_WIDGET])) {
+                $aInfo[self::CI_WIDGET] = preg_match('/^(?:Plugin[^_]+_|)Widget([^_]+)$/', $sClassName, $aMatches)
+                    ? $aMatches[1]
+                    : false;
+                self::$aClassesInfo[$sClassName][self::CI_WIDGET] = $aInfo[self::CI_WIDGET];
+            }
+            $aResult[self::CI_WIDGET] = $aInfo[self::CI_WIDGET];
         }
         if ($iFlag & self::CI_METHOD) {
-            $sModuleName = isset($aResult[self::CI_MODULE])
-                ? $aResult[self::CI_MODULE]
-                : self::GetClassInfo($sClassName, self::CI_MODULE, true);
-            $aResult[self::CI_METHOD] = preg_match('/_([^_]+)$/', $sClassName, $aMatches)
-                ? ($sModuleName && strtolower($aMatches[1]) == strtolower('module' . $sModuleName)
-                    ? null
-                    : $aMatches[1]
-                )
-                : null;
+            if (!isset($aInfo[self::CI_METHOD])) {
+                $sModuleName = isset($aInfo[self::CI_MODULE])
+                    ? $aInfo[self::CI_MODULE]
+                    : self::GetClassInfo($sClassName, self::CI_MODULE, true);
+                $aInfo[self::CI_METHOD] = preg_match('/_([^_]+)$/', $sClassName, $aMatches)
+                    ? ($sModuleName && strtolower($aMatches[1]) == strtolower('module' . $sModuleName)
+                        ? null
+                        : $aMatches[1]
+                    )
+                    : false;
+                self::$aClassesInfo[$sClassName][self::CI_METHOD] = $aInfo[self::CI_METHOD];
+            }
+            $aResult[self::CI_METHOD] = $aInfo[self::CI_METHOD];
         }
         if ($iFlag & self::CI_PPREFIX) {
-            $sPluginName = isset($aResult[self::CI_PLUGIN])
-                ? $aResult[self::CI_PLUGIN]
-                : self::GetClassInfo($sClassName, self::CI_PLUGIN, true);
-            $aResult[self::CI_PPREFIX] = $sPluginName
-                ? "Plugin{$sPluginName}_"
-                : '';
+            if (!isset($aInfo[self::CI_PPREFIX])) {
+                $sPluginName = isset($aInfo[self::CI_PLUGIN])
+                    ? $aInfo[self::CI_PLUGIN]
+                    : self::GetClassInfo($sClassName, self::CI_PLUGIN, true);
+                $aInfo[self::CI_PPREFIX] = $sPluginName
+                    ? "Plugin{$sPluginName}_"
+                    : '';
+                self::$aClassesInfo[$sClassName][self::CI_PPREFIX] = $aInfo[self::CI_PPREFIX];
+            }
+            $aResult[self::CI_PPREFIX] = $aInfo[self::CI_PPREFIX];
         }
         if ($iFlag & self::CI_INHERIT) {
-            $aResult[self::CI_INHERIT] = preg_match('/_Inherits?_(\w+)$/', $sClassName, $aMatches)
-                ? $aMatches[1]
-                : null;
+            if (!isset($aInfo[self::CI_INHERIT])) {
+                $aInfo[self::CI_INHERIT] = preg_match('/_Inherits?_(\w+)$/', $sClassName, $aMatches)
+                    ? $aMatches[1]
+                    : false;
+                self::$aClassesInfo[$sClassName][self::CI_INHERIT] = $aInfo[self::CI_INHERIT];
+            }
+            $aResult[self::CI_INHERIT] = $aInfo[self::CI_INHERIT];
         }
         if ($iFlag & self::CI_INHERITS) {
-            $sInherit = isset($aResult[self::CI_INHERIT])
-                ? $aResult[self::CI_INHERIT]
-                : self::GetClassInfo($sClassName, self::CI_INHERIT, true);
-            $aResult[self::CI_INHERITS] = $sInherit
-                ? self::GetClassInfo(
-                    $sInherit,
-                    self::CI_OBJECT,
-                    false)
-                : null;
+            if (!isset($aInfo[self::CI_INHERITS])) {
+                $sInherit = isset($aInfo[self::CI_INHERIT])
+                    ? $aInfo[self::CI_INHERIT]
+                    : self::GetClassInfo($sClassName, self::CI_INHERIT, true);
+                $aInfo[self::CI_INHERITS] = $sInherit
+                    ? self::GetClassInfo(
+                        $sInherit,
+                        self::CI_OBJECT,
+                        false)
+                    : false;
+                self::$aClassesInfo[$sClassName][self::CI_INHERITS] = $aInfo[self::CI_INHERITS];
+            }
+            $aResult[self::CI_INHERITS] = $aInfo[self::CI_INHERITS];
         }
         if ($iFlag & self::CI_CLASSPATH) {
-            $aResult[self::CI_CLASSPATH] = self::GetClassPath($sClassName);
+            if (!isset($aInfo[self::CI_CLASSPATH])) {
+                $aInfo[self::CI_CLASSPATH] = self::GetClassPath($sClassName);
+                self::$aClassesInfo[$sClassName][self::CI_CLASSPATH] = $aInfo[self::CI_CLASSPATH];
+            }
+            $aResult[self::CI_CLASSPATH] = $aInfo[self::CI_CLASSPATH];
         }
 
         return $bSingle ? array_pop($aResult) : $aResult;

@@ -73,15 +73,15 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
     /**
      * Возвращает полный веб путь до фото определенного размера
      *
-     * @param string|null $sSize    Размер фото, например, '100' или '150crop' или '150x100' или 'x100'
+     * @param string|null $xSize    Размер фото, например, '100' или '150crop' или '150x100' или 'x100'
      *
      * @return null|string
      */
-    public function getUrl($sSize = null) {
+    public function getUrl($xSize = null) {
 
         if ($sUrl = $this->getPath()) {
-            if ($sSize) {
-                $sResizedUrl = $this->getProp('_size-' . $sSize . '-url');
+            if ($xSize) {
+                $sResizedUrl = $this->getProp('_size-' . $xSize . '-url');
                 if ($sResizedUrl) {
                     return $sResizedUrl;
                 }
@@ -89,7 +89,7 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
 
                 if (E::ActivePlugin('ls')) {
                     // Включена совместимость с LS
-                    $sResizedUrl = $aPathInfo['dirname'] . '/' . $aPathInfo['filename'] . '_' . $sSize . '.'
+                    $sResizedUrl = $aPathInfo['dirname'] . '/' . $aPathInfo['filename'] . '_' . $xSize . '.'
                         . $aPathInfo['extension'];
                     if (F::File_LocalUrl($sResizedUrl) && !F::File_Exists(F::File_Url2Dir($sResizedUrl))) {
                         $sResizedUrl = '';
@@ -97,29 +97,12 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
                 }
 
                 if (!$sResizedUrl) {
-                    $nPos = strpos($sSize, 'x');
-                    if ($nPos === false) {
-                        $nHeight = $nWidth = intval($sSize);
-                    } elseif ($nPos === 0) {
-                        $nWidth = 0;
-                        $nHeight = intval(substr($sSize, 1));
-                    } else {
-                        $nWidth = intval(substr($sSize, 0, $nPos));
-                        $nHeight = intval(substr($sSize, $nPos));
-                    }
-                    if ($nWidth || $nHeight) {
-                        $sResizedUrl = $sUrl . '-' . ($nWidth ? $nWidth : '') . 'x' . $nHeight;;
-                        if (strpos($sSize, 'fit')) {
-                            $sResizedUrl .= '-fit';
-                        } else if (strpos($sSize, 'crop')) {
-                            $sResizedUrl .= '-crop';
-                        } else if (strpos($sSize, 'pad')) {
-                            $sResizedUrl .= '-pad';
-                        }
-                        $sResizedUrl .= '.' . $aPathInfo['extension'];
+                    $sModSuffix = F::File_ImgModSuffix($xSize, $aPathInfo['extension']);
+                    if ($sModSuffix) {
+                        $sResizedUrl = $sUrl . $sModSuffix;
                         if (Config::Get('module.image.autoresize')) {
                             $sFile = $this->Uploader_Url2Dir($sResizedUrl);
-                            $this->setProp('_size-' . $sSize . '-file', $sFile);
+                            $this->setProp('_size-' . $xSize . '-file', $sFile);
                             if (!F::File_Exists($sFile)) {
                                 $this->Img_Duplicate($sFile);
                             }
@@ -129,7 +112,7 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
                 if ($sResizedUrl) {
                     $sUrl = F::File_NormPath($sResizedUrl);
                 }
-                $this->setProp('_size-' . $sSize . '-url', $sUrl);
+                $this->setProp('_size-' . $xSize . '-url', $sUrl);
             }
         }
         return $sUrl;

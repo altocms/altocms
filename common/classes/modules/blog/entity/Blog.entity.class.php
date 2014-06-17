@@ -215,17 +215,18 @@ class ModuleBlog_EntityBlog extends Entity {
     /**
      * Возвращает полный серверный путь до аватара блога определенного размера
      *
-     * @param int $nSize    Размер аватара
+     * @param int $xSize    Размер аватара
      *
      * @return string
      */
-    public function getAvatarUrl($nSize = 48) {
+    public function getAvatarUrl($xSize = 48) {
 
         if ($sUrl = $this->getAvatar()) {
-            if (!$nSize) {
+            if (!$xSize) {
                 return $sUrl;
             } else {
-                $sUrl .= '-' . $nSize . 'x' . $nSize . '.' . pathinfo($sUrl, PATHINFO_EXTENSION);
+                $sModSuffix = F::File_ImgModSuffix($xSize, pathinfo($sUrl, PATHINFO_EXTENSION));
+                $sUrl = $sUrl . $sModSuffix;
                 if (Config::Get('module.image.autoresize')) {
                     $sFile = $this->Uploader_Url2Dir($sUrl);
                     if (!F::File_Exists($sFile)) {
@@ -236,11 +237,16 @@ class ModuleBlog_EntityBlog extends Entity {
             }
         } else {
             $sPath = $this->Uploader_GetUserAvatarDir(0) . 'avatar_blog_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '.png';
-            if ($nSize) {
-                $sPath .= '-' . $nSize . 'x' . $nSize . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
+            if ($xSize) {
+                if (is_string($xSize) && $xSize[0] == 'x') {
+                    $xSize = substr($xSize, 1);
+                }
+                if ($nSize = intval($xSize)) {
+                    $sPath .= '-' . $nSize . 'x' . $nSize . '.' . strtolower(pathinfo($sPath, PATHINFO_EXTENSION));
+                }
             }
             if (Config::Get('module.image.autoresize') && !F::File_Exists($sPath)) {
-                $this->Img_AutoresizeSkinImage($sPath, 'avatar_blog', $nSize ? $nSize : null);
+                $this->Img_AutoresizeSkinImage($sPath, 'avatar_blog', $xSize ? $xSize : null);
             }
             return $this->Uploader_Dir2Url($sPath);
         }

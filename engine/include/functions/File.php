@@ -1056,6 +1056,11 @@ class AltoFunc_File {
         return static::Uniqname(static::GetUploadDir(), $sExtension, $nLength);
     }
 
+    /**
+     * Signatures to define MIME types
+     *
+     * @var array
+     */
     static protected $aMimeTypeSignatures
         = array(
             'image/gif'  => array(
@@ -1075,6 +1080,11 @@ class AltoFunc_File {
                 array('offset' => 0, 'signature' => "\x4D\x4D\x00\x2B"),
             ),
         );
+    /**
+     * Helper variable
+     *
+     * @var int
+     */
     static protected $nMimeTypeSignaturesMax = 0;
 
     /**
@@ -1142,8 +1152,43 @@ class AltoFunc_File {
                 }
             }
         }
+        return null;
     }
 
+    /**
+     * @param null $xSize
+     * @param null $sExtension
+     *
+     * @return string
+     */
+    static public function ImgModSuffix($xSize = null, $sExtension = null) {
+
+        $sResult = '';
+        $nPos = strpos($xSize, 'x');
+        if ($nPos === false) {
+            $nHeight = $nWidth = intval($xSize);
+        } elseif ($nPos === 0) {
+            $nWidth = 0;
+            $nHeight = intval(substr($xSize, 1));
+        } else {
+            $nWidth = intval(substr($xSize, 0, $nPos));
+            $nHeight = intval(substr($xSize, $nPos));
+        }
+        if ($nWidth || $nHeight) {
+            $sResult .= '-' . ($nWidth ? $nWidth : '') . 'x' . $nHeight;
+            if (strpos($xSize, 'fit')) {
+                $sResult .= '-fit';
+            } else if (strpos($xSize, 'crop')) {
+                $sResult .= '-crop';
+            } else if (strpos($xSize, 'pad')) {
+                $sResult .= '-pad';
+            }
+            if ($sExtension) {
+                $sResult .= '.' . strtolower($sExtension);
+            }
+        }
+        return $sResult;
+    }
 }
 
 // EOF

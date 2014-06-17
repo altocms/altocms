@@ -506,6 +506,7 @@ class ModuleUser_EntityUser extends Entity {
         } else {
             $nW = $nH = intval($xSize);
         }
+
         if ($sUrl = $this->getProfileAvatar()) {
             if ($sUrl[0] == '@') {
                 $sUrl = F::File_RootUrl() . substr($sUrl, 1);
@@ -514,7 +515,8 @@ class ModuleUser_EntityUser extends Entity {
             if (Config::Get('module.image.autoresize')) {
                 $sFile = $this->Uploader_Url2Dir($sUrl);
                 if (F::File_Exists($sFile)) {
-                    $sFile .= '-' . $nW . 'x' . $nH . '.' . pathinfo($sFile, PATHINFO_EXTENSION);
+                    $sModSuffix = F::File_ImgModSuffix($xSize, pathinfo($sFile, PATHINFO_EXTENSION));
+                    $sFile .= $sModSuffix;
                     if ($sFile = $this->Img_Duplicate($sFile)) {
                         $sUrl = $this->Uploader_Dir2Url($sFile);
                     }
@@ -558,12 +560,8 @@ class ModuleUser_EntityUser extends Entity {
                     $xSize = self::DEFAULT_PHOTO_SIZE;
                 }
             }
-            if (strpos($xSize, 'x')) {
-                list($nW, $nH) = array_map('intval', explode('x', $xSize));
-            } else {
-                $nW = $nH = intval($xSize);
-            }
-            $sUrl = $sUrl . '-' . $nW . 'x' . $nH . '.' . pathinfo($sUrl, PATHINFO_EXTENSION);
+            $sModSuffix = F::File_ImgModSuffix($xSize, pathinfo($sUrl, PATHINFO_EXTENSION));
+            $sUrl = $sUrl . $sModSuffix;
             if (Config::Get('module.image.autoresize')) {
                 $sFile = $this->Uploader_Url2Dir($sUrl);
                 if (!F::File_Exists($sFile)) {

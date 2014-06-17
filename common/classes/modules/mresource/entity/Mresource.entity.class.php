@@ -300,28 +300,10 @@ class ModuleMresource_EntityMresource extends Entity {
         }
 
         if (!$this->IsLink() && $this->IsType(ModuleMresource::TYPE_IMAGE)) {
-            if (is_string($xSize)) {
-                $xSize = strtolower($xSize);
-                $aSize = explode('x', $xSize);
-                if (count($aSize) > 1) {
-                    $nW = array_shift($aSize);
-                    $nH = array_shift($aSize);
-                } else {
-                    $nW = array_shift($aSize);
-                    $nH = $nW;
-                }
-            } else {
-                $nW = $nH = intval($xSize);
-            }
             $sUrl = $this->GetUrl();
-            if ($nW || $nH) {
-                if ($nW) {
-                    $nW = $nH;
-                }
-                if ($nH) {
-                    $nH = $nW;
-                }
-                $sUrl .= '-' . $nW . 'x' . $nH . '.' . F::File_GetExtension($sUrl);
+            $sModSuffix = F::File_ImgModSuffix($xSize, pathinfo($sUrl, PATHINFO_EXTENSION));
+            if ($sModSuffix) {
+                $sUrl = $sUrl . $sModSuffix;
                 if (Config::Get('module.image.autoresize')) {
                     $sFile = $this->Uploader_Url2Dir($sUrl);
                     if (!F::File_Exists($sFile)) {
