@@ -218,7 +218,13 @@ class ModuleUserfeed_MapperUserfeed extends Mapper {
         $sql
             = "
 				SELECT
-					SUM(t.topic_count_comment - tr.comment_count_last) as count_new
+					SUM (
+					    CASE
+					      WHEN t.topic_count_comment > tr.comment_count_last
+					      THEN t.topic_count_comment - tr.comment_count_last
+					      ELSE 0
+					    END
+					) as count_new
 				FROM
  						?_topic_read as tr,
 					?_topic as t
