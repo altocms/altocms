@@ -693,17 +693,18 @@ class ActionContent extends Action {
             $oTopic->setPhotosetCount(0);
         }
 
-        // * Публикуем или сохраняем в черновиках
+        // * Publish or save as a draft
         $bSendNotify = false;
         if (isset($_REQUEST['submit_topic_publish'])) {
+            // If the topic has not been published then sets date of show (publication date)
+            if (!$oTopic->getPublish() && !$oTopic->getDateShow()) {
+                $oTopic->setDateShow(F::Now());
+            }
             $oTopic->setPublish(1);
             if ($oTopic->getPublishDraft() == 0) {
                 $oTopic->setPublishDraft(1);
                 $oTopic->setDateAdd(F::Now());
                 $bSendNotify = true;
-            }
-            if (!$oTopic->getDateShow()) {
-                $oTopic->setDateShow(F::Now());
             }
         } else {
             $oTopic->setPublish(0);

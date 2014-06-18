@@ -275,3 +275,5 @@ ADD INDEX ( `topic_index_ignore` );
 
 ALTER TABLE `prefix_topic_photo` ADD `date_add` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ,
 ADD INDEX ( `date_add` );
+
+UPDATE `prefix_topic` SET topic_date_show=topic_date_add WHERE topic_publish=1 AND topic_date_show IS NULL;
