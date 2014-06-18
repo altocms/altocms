@@ -218,7 +218,7 @@ class ModuleUserfeed_MapperUserfeed extends Mapper {
         $sql
             = "
 				SELECT
-					SUM (
+					SUM(
 					    CASE
 					      WHEN t.topic_count_comment > tr.comment_count_last
 					      THEN t.topic_count_comment - tr.comment_count_last
@@ -226,7 +226,7 @@ class ModuleUserfeed_MapperUserfeed extends Mapper {
 					    END
 					) as count_new
 				FROM
- 						?_topic_read as tr,
+ 					?_topic_read as tr,
 					?_topic as t
 				WHERE
 					t.topic_id=tr.topic_id

@@ -672,7 +672,7 @@ CREATE TABLE IF NOT EXISTS `prefix_topic_read` (
   `topic_id` int(11) unsigned NOT NULL,
   `user_id` int(11) unsigned NOT NULL,
   `date_read` datetime NOT NULL,
-  `comment_count_last` int(10) unsigned NOT NULL DEFAULT '0',
+  `comment_count_last` int(11) unsigned NOT NULL DEFAULT '0',
   `comment_id_last` int(11) unsigned NOT NULL DEFAULT '0',
   UNIQUE KEY `topic_id_user_id` (`topic_id`,`user_id`),
   KEY `user_id` (`user_id`)
