@@ -941,6 +941,24 @@ class ModuleComment extends Module {
         if ($data['collection']) {
             $data['collection'] = $this->GetCommentsAdditionalData($data['collection']);
         }
+        //if ($data['collection'] && !E::IsAdmin()) {
+        if ($data['collection']) {
+            $aAllowBlogTypes = $this->Blog_GetOpenBlogTypes();
+            if ($this->oUserCurrent) {
+                $aClosedBlogs = $this->Blog_GetAccessibleBlogsByUser($this->oUserCurrent);
+            } else {
+                $aClosedBlogs = array();
+            }
+            foreach ($data['collection'] as $oComment) {
+                $oTopic = $oComment->getTarget();
+                if ($oTopic && ($oBlog = $oTopic->getBlog())) {
+                    if (!in_array($oBlog->getType(), $aAllowBlogTypes) && !in_array($oBlog->getId(), $aClosedBlogs)) {
+                        $oTopic->setTitle('...');
+                        $oComment->setText($this->Lang_Get('acl_cannot_show_content'));
+                    }
+                }
+            }
+        }
         return $data;
     }
 

@@ -1068,6 +1068,26 @@ class ModuleTopic extends Module {
         if ($data['collection']) {
             $data['collection'] = $this->GetTopicsAdditionalData($data['collection']);
         }
+
+        if ($data['collection'] && !E::IsAdmin()) {
+            $aAllowBlogTypes = $this->Blog_GetOpenBlogTypes();
+            if ($this->oUserCurrent) {
+                $aClosedBlogs = $this->Blog_GetAccessibleBlogsByUser($this->oUserCurrent);
+            } else {
+                $aClosedBlogs = array();
+            }
+            foreach ($data['collection'] as $iId=>$oTopic) {
+                $oBlog = $oTopic->getBlog();
+                if ($oBlog) {
+                    if (!in_array($oBlog->getType(), $aAllowBlogTypes) && !in_array($oBlog->getId(), $aClosedBlogs)) {
+                        $oTopic->setTitle('...');
+                        $oTopic->setText($this->Lang_Get('acl_cannot_show_content'));
+                        $oTopic->setTextShort($this->Lang_Get('acl_cannot_show_content'));
+                    }
+                }
+            }
+        }
+
         return $data;
     }
 

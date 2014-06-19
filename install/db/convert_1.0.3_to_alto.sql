@@ -277,3 +277,9 @@ ALTER TABLE `prefix_topic_photo` ADD `date_add` TIMESTAMP NULL DEFAULT CURRENT_T
 ADD INDEX ( `date_add` );
 
 UPDATE `prefix_topic` SET topic_date_show=topic_date_add WHERE topic_publish=1 AND topic_date_show IS NULL;
+
+UPDATE `prefix_topic` AS t,
+  `prefix_blog` AS b,
+  `prefix_blog_type` AS bt
+SET t.topic_index_ignore=bt.index_ignore
+WHERE t.blog_id=b.blog_id AND bt.type_code=b.blog_type AND (t.topic_index_ignore=0 OR t.topic_index_ignore IS NULL);

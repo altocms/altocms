@@ -229,7 +229,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
 				AND
 					target_type = ? 
 				{ AND target_id NOT IN (?a) }
-            ORDER BY target_id DESC	
+            ORDER BY target_id DESC
             LIMIT ?d, ?d ";
 
         $aFavourites = array();

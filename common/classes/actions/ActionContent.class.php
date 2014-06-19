@@ -507,10 +507,10 @@ class ActionContent extends Action {
         // Разрешение/запрет индексации контента топика изначально - как у блога
         if ($oBlogType = $oBlog->GetBlogType()) {
             // Если тип блога определен, то берем из типа блога...
-            $oTopic->setTopicIndexIngnore($oBlogType->GetIndexIgnore());
+            $oTopic->setTopicIndexIgnore($oBlogType->GetIndexIgnore());
         } else {
             // ...если нет, то индексацию разрешаем
-            $oTopic->setTopicIndexIngnore(false);
+            $oTopic->setTopicIndexIgnore(false);
         }
 
         // * Запускаем выполнение хуков
@@ -725,9 +725,9 @@ class ActionContent extends Action {
         // Если запрет на индексацию не устанавливался вручную, то задаем, как у блога
         $oBlogType = $oBlog->GetBlogType();
         if (!$oTopic->getIndexIgnoreLock()) {
-            $oTopic->setTopicIndexIngnore($oBlogType->GetIndexIgnore());
+            $oTopic->setTopicIndexIgnore($oBlogType->GetIndexIgnore());
         } else {
-            $oTopic->setTopicIndexIngnore(false);
+            $oTopic->setTopicIndexIgnore(false);
         }
 
         $this->Hook_Run('topic_edit_before', array('oTopic' => $oTopic, 'oBlog' => $oBlog));

@@ -45,7 +45,8 @@ class ModuleTopic_MapperTopic extends Mapper {
                 topic_cut_text,
                 topic_forbid_comment,
                 topic_text_hash,
-                topic_url
+                topic_url,
+                topic_index_ignore
 			)
 			VALUES (
                 ?d:blog_id,
@@ -62,7 +63,8 @@ class ModuleTopic_MapperTopic extends Mapper {
                 ?:topic_cut_text,
                 ?d:topic_forbid_comment,
                 ?:topic_text_hash,
-                ?:topic_url
+                ?:topic_url,
+                ?d:topic_index_ignore
 			)
 		";
         $nId = $this->oDb->sqlQuery(
@@ -76,13 +78,14 @@ class ModuleTopic_MapperTopic extends Mapper {
                 ':topic_date_add'       => $oTopic->getDateAdd(),
                 ':topic_date_show'      => $oTopic->getDateShow(),
                 ':topic_user_ip'        => $oTopic->getUserIp(),
-                ':topic_publish'        => $oTopic->getPublish(),
-                ':topic_publish_draft'  => $oTopic->getPublishDraft(),
-                ':topic_publish_index'  => $oTopic->getPublishIndex(),
+                ':topic_publish'        => ($oTopic->getPublish() ? 1 : 0),
+                ':topic_publish_draft'  => ($oTopic->getPublishDraft() ? 1 : 0),
+                ':topic_publish_index'  => ($oTopic->getPublishIndex() ? 1 : 0),
                 ':topic_cut_text'       => $oTopic->getCutText(),
                 ':topic_forbid_comment' => $oTopic->getForbidComment(),
                 ':topic_text_hash'      => $oTopic->getTextHash(),
-                ':topic_url'            => $oTopic->getTopicUrl()
+                ':topic_url'            => $oTopic->getTopicUrl(),
+                ':topic_index_ignore'   => $oTopic->getTopicIndexIgnore()
             )
         );
         if ($nId) {
@@ -653,7 +656,8 @@ class ModuleTopic_MapperTopic extends Mapper {
 				topic_cut_text = ? ,
 				topic_forbid_comment = ? ,
 				topic_text_hash = ?,
-				topic_url = ?
+				topic_url = ?,
+				topic_index_ignore = ?d
 			WHERE
 				topic_id = ?d
 		";
@@ -666,9 +670,9 @@ class ModuleTopic_MapperTopic extends Mapper {
             $oTopic->getDateEdit(),
             $oTopic->getDateShow(),
             $oTopic->getUserIp(),
-            $oTopic->getPublish(),
-            $oTopic->getPublishDraft(),
-            $oTopic->getPublishIndex(),
+            $oTopic->getPublish() ? 1 : 0,
+            $oTopic->getPublishDraft() ? 1 : 0,
+            $oTopic->getPublishIndex() ? 1 : 0,
             $oTopic->getRating(),
             $oTopic->getCountVote(),
             $oTopic->getCountVoteUp(),
@@ -681,6 +685,7 @@ class ModuleTopic_MapperTopic extends Mapper {
             $oTopic->getForbidComment(),
             $oTopic->getTextHash(),
             $oTopic->getTopicUrl(),
+            $oTopic->getTopicIndexIgnore(),
             $oTopic->getId()
         );
         if ($bResult !== false) {
