@@ -234,19 +234,20 @@ class ModuleGeo_MapperGeo extends Mapper {
 				WHERE
 					1 = 1
 					{ AND id = ?d }
+					{ AND id IN (?a) }
 					{ AND name_ru = ? }
 					{ AND name_ru LIKE ? }
 					{ AND name_en = ? }
 					{ AND name_en LIKE ? }
 					{ AND code = ? }
-
-				ORDER by {$sOrder}
+				ORDER BY {$sOrder}
 				LIMIT ?d, ?d ;
 					";
         $aResult = array();
         $aRows = $this->oDb->selectPage(
             $iCount, $sql,
-            isset($aFilter['id']) ? $aFilter['id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['id']) && !is_array($aFilter['id'])) ? $aFilter['id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['id']) && is_array($aFilter['id'])) ? $aFilter['id'] : DBSIMPLE_SKIP,
             isset($aFilter['name_ru']) ? $aFilter['name_ru'] : DBSIMPLE_SKIP,
             isset($aFilter['name_ru_like']) ? $aFilter['name_ru_like'] : DBSIMPLE_SKIP,
             isset($aFilter['name_en']) ? $aFilter['name_en'] : DBSIMPLE_SKIP,
@@ -301,19 +302,20 @@ class ModuleGeo_MapperGeo extends Mapper {
 				WHERE
 					1 = 1
 					{ AND id = ?d }
+					{ AND id IN (?a) }
 					{ AND name_ru = ? }
 					{ AND name_ru LIKE ? }
 					{ AND name_en = ? }
 					{ AND name_en LIKE ? }
 					{ AND country_id IN ( ?a ) }
-
-				ORDER by {$sOrder}
+				ORDER BY {$sOrder}
 				LIMIT ?d, ?d ;
 					";
         $aResult = array();
         $aRows = $this->oDb->selectPage(
             $iCount, $sql,
-            isset($aFilter['id']) ? $aFilter['id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['id']) && !is_array($aFilter['id'])) ? $aFilter['id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['id']) && is_array($aFilter['id'])) ? $aFilter['id'] : DBSIMPLE_SKIP,
             isset($aFilter['name_ru']) ? $aFilter['name_ru'] : DBSIMPLE_SKIP,
             isset($aFilter['name_ru_like']) ? $aFilter['name_ru_like'] : DBSIMPLE_SKIP,
             isset($aFilter['name_en']) ? $aFilter['name_en'] : DBSIMPLE_SKIP,
@@ -371,20 +373,21 @@ class ModuleGeo_MapperGeo extends Mapper {
 				WHERE
 					1 = 1
 					{ AND id = ?d }
+					{ AND id IN (?a) }
 					{ AND name_ru = ? }
 					{ AND name_ru LIKE ? }
 					{ AND name_en = ? }
 					{ AND name_en LIKE ? }
 					{ AND country_id IN ( ?a ) }
 					{ AND region_id IN ( ?a ) }
-
-				ORDER by {$sOrder}
+				ORDER BY {$sOrder}
 				LIMIT ?d, ?d ;
 					";
         $aResult = array();
         $aRows = $this->oDb->selectPage(
             $iCount, $sql,
-            isset($aFilter['id']) ? $aFilter['id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['id']) && !is_array($aFilter['id'])) ? $aFilter['id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['id']) && is_array($aFilter['id'])) ? $aFilter['id'] : DBSIMPLE_SKIP,
             isset($aFilter['name_ru']) ? $aFilter['name_ru'] : DBSIMPLE_SKIP,
             isset($aFilter['name_ru_like']) ? $aFilter['name_ru_like'] : DBSIMPLE_SKIP,
             isset($aFilter['name_en']) ? $aFilter['name_en'] : DBSIMPLE_SKIP,

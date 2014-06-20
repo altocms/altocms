@@ -983,7 +983,7 @@ CREATE TABLE IF NOT EXISTS `prefix_page` (
 
 
 INSERT INTO `prefix_page` (`page_id`, `page_pid`, `page_url`, `page_url_full`, `page_title`, `page_text`, `page_date_add`, `page_date_edit`, `page_seo_keywords`, `page_seo_description`, `page_active`, `page_main`, `page_sort`, `page_auto_br`) VALUES
-(1, NULL, 'about', 'about', 'about', 'edit this page http://yousite/page/admin/', '2010-06-06 02:29:28', NULL, '', '', 1, 1, 1, 1);
+(1, NULL, 'about', 'about', 'about', 'This is a test page', NOW(), NULL, '', '', 1, 1, 1, 1);
 
 -- --------------------------------------------------------
 

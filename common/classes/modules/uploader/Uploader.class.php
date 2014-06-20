@@ -43,7 +43,7 @@ class ModuleUploader extends Module {
             self::ERR_REMOTE_FILE_OPEN      => 'Cannot open remote file',
             self::ERR_REMOTE_FILE_MAXSIZE   => 'Remote file is too large',
             self::ERR_REMOTE_FILE_READ      => 'Cannot read remote file',
-            self::ERR_REMOTE_FILE_WRITE     => 'Cannot write remote file',
+            self::ERR_REMOTE_FILE_WRITE     => 'Cannot write remote file in tmp dir',
             self::ERR_NOT_ALLOWED_EXTENSION => 'Not allowed file extension',
             self::ERR_FILE_TOO_LARGE        => 'File is too large',
             self::ERR_IMG_NO_INFO           => 'Cannot get info about image (may be file is corrupted)',
@@ -339,8 +339,8 @@ class ModuleUploader extends Module {
         }
         if ($sContent) {
             $sTmpFile = F::File_UploadUniqname(F::File_GetExtension($sUrl));
-            if (!file_put_contents($sTmpFile, $sContent)) {
-                $this->nLastError = self::ERR_REMOTE_FILE_READ;
+            if (!F::File_PutContents($sTmpFile, $sContent)) {
+                $this->nLastError = self::ERR_REMOTE_FILE_WRITE;
                 return false;
             }
         }
@@ -414,11 +414,23 @@ class ModuleUploader extends Module {
         return $sResult;
     }
 
+    /**
+     * @param int  $nUserId
+     * @param bool $bAutoMake
+     *
+     * @return string
+     */
     public function GetUserImagesUploadDir($nUserId, $bAutoMake = true) {
 
         return $this->_getUserUploadDir($nUserId, Config::Get('path.uploads.images'), $bAutoMake);
     }
 
+    /**
+     * @param int  $nUserId
+     * @param bool $bAutoMake
+     *
+     * @return string
+     */
     public function GetUserFilesUploadDir($nUserId, $bAutoMake = true) {
 
         return $this->_getUserUploadDir($nUserId, Config::Get('path.uploads.files'), $bAutoMake);
