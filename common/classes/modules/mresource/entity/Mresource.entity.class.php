@@ -301,8 +301,7 @@ class ModuleMresource_EntityMresource extends Entity {
 
         if (!$this->IsLink() && $this->IsType(ModuleMresource::TYPE_IMAGE)) {
             $sUrl = $this->GetUrl();
-            $sModSuffix = F::File_ImgModSuffix($xSize, pathinfo($sUrl, PATHINFO_EXTENSION));
-            if ($sModSuffix) {
+            if (F::File_IsLocalUrl($sUrl) && ($sModSuffix = F::File_ImgModSuffix($xSize, pathinfo($sUrl, PATHINFO_EXTENSION)))) {
                 $sUrl = $sUrl . $sModSuffix;
                 if (Config::Get('module.image.autoresize')) {
                     $sFile = $this->Uploader_Url2Dir($sUrl);
