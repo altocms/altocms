@@ -1032,7 +1032,15 @@ class ActionAdmin extends Action {
             $this->Message_AddError($this->Lang_Get('system_error'));
             return;
         }
-
+        
+        // * Проверяем если страница с указанным УРЛ существует       
+		if($oPageEdit->getUrlFull() != getRequest('page_url')){
+			if ($this->Page_GetPageByUrlFull(getRequest('page_url'))){
+				$this->Message_AddError($this->Lang_Get('action.admin.page_url_exist'), $this->Lang_Get('error'));
+				return;
+			}
+		}
+		
         // * Обновляем свойства страницы
         $oPageEdit->setActive(F::GetRequest('page_active') ? 1 : 0);
         $oPageEdit->setAutoBr(F::GetRequest('page_auto_br') ? 1 : 0);
@@ -1099,6 +1107,13 @@ class ActionAdmin extends Action {
         } else {
             $oPage->setSort($this->Page_GetMaxSortByPid($oPage->getPid()) + 1);
         }
+        
+        // * Проверяем если страница с указанным УРЛ существует        
+		if ($this->Page_GetPageByUrlFull($oPage->getUrlFull())){
+			$this->Message_AddError($this->Lang_Get('action.admin.page_url_exist'), $this->Lang_Get('error'));
+			return;
+		}
+		
         /**
          * Добавляем страницу
          */
