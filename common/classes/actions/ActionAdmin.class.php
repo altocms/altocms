@@ -1033,14 +1033,14 @@ class ActionAdmin extends Action {
             return;
         }
         
-        // * Проверяем если страница с указанным УРЛ существует       
-		if($oPageEdit->getUrlFull() != getRequest('page_url')){
-			if ($this->Page_GetPageByUrlFull(getRequest('page_url'))){
-				$this->Message_AddError($this->Lang_Get('action.admin.page_url_exist'), $this->Lang_Get('error'));
-				return;
-			}
-		}
-		
+        // * Проверяем есть ли страница с указанным URL
+        if ($oPageEdit->getUrlFull() != F::GetRequest('page_url')) {
+            if ($this->Page_GetPageByUrlFull(F::GetRequest('page_url'))) {
+                $this->Message_AddError($this->Lang_Get('action.admin.page_url_exist'), $this->Lang_Get('error'));
+                return;
+            }
+        }
+
         // * Обновляем свойства страницы
         $oPageEdit->setActive(F::GetRequest('page_active') ? 1 : 0);
         $oPageEdit->setAutoBr(F::GetRequest('page_auto_br') ? 1 : 0);
@@ -1108,12 +1108,12 @@ class ActionAdmin extends Action {
             $oPage->setSort($this->Page_GetMaxSortByPid($oPage->getPid()) + 1);
         }
         
-        // * Проверяем если страница с указанным УРЛ существует        
-		if ($this->Page_GetPageByUrlFull($oPage->getUrlFull())){
-			$this->Message_AddError($this->Lang_Get('action.admin.page_url_exist'), $this->Lang_Get('error'));
-			return;
-		}
-		
+        // * Проверяем есть ли страница с таким URL
+        if ($this->Page_GetPageByUrlFull($oPage->getUrlFull())) {
+            $this->Message_AddError($this->Lang_Get('action.admin.page_url_exist'), $this->Lang_Get('error'));
+            return;
+        }
+
         /**
          * Добавляем страницу
          */
