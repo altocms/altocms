@@ -24,6 +24,8 @@ class ActionAdmin extends Action {
      *
      * @var string
      */
+    protected $sMainMenuItem = '';
+
     protected $sMenuItem = '';
 
     /**
@@ -71,7 +73,7 @@ class ActionAdmin extends Action {
         $this->AddEvent('settings-lang', 'EventLang');
         $this->AddEvent('settings-blogtypes', 'EventBlogTypes');
         $this->AddEvent('settings-userrights', 'EventUserRights');
-        $this->AddEvent('settings-userfields', 'EventUserfields');
+        $this->AddEvent('settings-userfields', 'EventUserFields');
 
         $this->AddEvent('site-skins', 'EventSkins');
         $this->AddEvent('site-widgets', 'EventWidgets');
@@ -148,6 +150,8 @@ class ActionAdmin extends Action {
 
     public function EventDashboard() {
 
+        $this->sMainMenuItem = 'info';
+
         $aDashboardWidgets = array(
             'admin_dashboard_updates' => array(
                 'name' => 'admin_dashboard_updates',
@@ -197,6 +201,8 @@ class ActionAdmin extends Action {
     }
 
     public function EventReport() {
+
+        $this->sMainMenuItem = 'info';
 
         $this->_setTitle($this->Lang_Get('action.admin.menu_info'));
         $this->SetTemplateAction('info/report');
@@ -366,6 +372,8 @@ class ActionAdmin extends Action {
 
     public function EventPhpinfo() {
 
+        $this->sMainMenuItem = 'info';
+
         $this->_setTitle($this->Lang_Get('action.admin.menu_info_phpinfo'));
         $this->SetTemplateAction('info/phpinfo');
 
@@ -429,6 +437,8 @@ class ActionAdmin extends Action {
      * Site settings
      */
     public function EventConfig() {
+
+        $this->sMainMenuItem = 'settings';
 
         $this->_setTitle($this->Lang_Get('action.admin.config_title'));
 
@@ -697,6 +707,8 @@ class ActionAdmin extends Action {
 
     public function EventWidgets() {
 
+        $this->sMainMenuItem = 'site';
+
         $this->_setTitle($this->Lang_Get('action.admin.widgets_title'));
         $this->SetTemplateAction('site/widgets');
 
@@ -782,6 +794,8 @@ class ActionAdmin extends Action {
     /**********************************************************************************/
 
     public function EventPlugins() {
+
+        $this->sMainMenuItem = 'site';
 
         $this->_setTitle($this->Lang_Get('action.admin.plugins_title'));
         $this->SetTemplateAction('site/plugins');
@@ -898,6 +912,8 @@ class ActionAdmin extends Action {
     /**********************************************************************************/
 
     protected function EventPages() {
+
+        $this->sMainMenuItem = 'content';
 
         $this->_setTitle($this->Lang_Get('action.admin.pages_title'));
         // * Получаем и загружаем список всех страниц
@@ -1162,6 +1178,8 @@ class ActionAdmin extends Action {
 
     protected function EventBlogs() {
 
+        $this->sMainMenuItem = 'content';
+
         $this->_setTitle($this->Lang_Get('action.admin.blogs_title'));
         $this->SetTemplateAction('content/blogs_list');
 
@@ -1257,6 +1275,8 @@ class ActionAdmin extends Action {
 
     protected function EventTopics() {
 
+        $this->sMainMenuItem = 'content';
+
         $this->_setTitle($this->Lang_Get('action.admin.topics_title'));
         $this->SetTemplateAction('content/topics_list');
 
@@ -1286,6 +1306,8 @@ class ActionAdmin extends Action {
 
     protected function EventComments() {
 
+        $this->sMainMenuItem = 'content';
+
         $this->_setTitle($this->Lang_Get('action.admin.comments_title'));
         $this->SetTemplateAction('content/comments_list');
 
@@ -1311,6 +1333,8 @@ class ActionAdmin extends Action {
      * View and managment of Mresources
      */
     protected function EventMresources() {
+
+        $this->sMainMenuItem = 'content';
 
         $this->_setTitle($this->Lang_Get('action.admin.mresources_title'));
         $this->SetTemplateAction('content/mresources_list');
@@ -1366,6 +1390,8 @@ class ActionAdmin extends Action {
     /**********************************************************************************/
 
     protected function EventUsers() {
+
+        $this->sMainMenuItem = 'users';
 
         $this->_setTitle($this->Lang_Get('action.admin.users_title'));
         $this->SetTemplateAction('users/users');
@@ -1904,6 +1930,8 @@ class ActionAdmin extends Action {
 
     protected function EventInvites() {
 
+        $this->sMainMenuItem = 'users';
+
         $this->_setTitle($this->Lang_Get('action.admin.invites_title'));
         $this->SetTemplateAction('users/invites_list');
 
@@ -1976,6 +2004,8 @@ class ActionAdmin extends Action {
     /**********************************************************************************/
 
     protected function EventBanlist() {
+
+        $this->sMainMenuItem = 'users';
 
         $this->_setTitle($this->Lang_Get('action.admin.banlist_title'));
         $sMode = $this->_getMode(0, 'ids');
@@ -2077,6 +2107,8 @@ class ActionAdmin extends Action {
 
     protected function EventSkins() {
 
+        $this->sMainMenuItem = 'site';
+
         $this->_setTitle($this->Lang_Get('action.admin.skins_title'));
         $this->SetTemplateAction('site/skins');
 
@@ -2163,6 +2195,8 @@ class ActionAdmin extends Action {
      * View logs
      */
     protected function EventLogs() {
+
+        $this->sMainMenuItem = 'logs';
 
         if ($this->sCurrentEvent == 'logs-sqlerror') {
             $sLogFile = Config::Get('sys.logs.dir') . Config::Get('sys.logs.sql_error_file');
@@ -2313,6 +2347,8 @@ class ActionAdmin extends Action {
 
     protected function EventReset() {
 
+        $this->sMainMenuItem = 'tools';
+
         $this->_setTitle($this->Lang_Get('action.admin.reset_title'));
         $this->SetTemplateAction('tools/reset');
 
@@ -2373,6 +2409,8 @@ class ActionAdmin extends Action {
      */
     protected function EventCommentsTree() {
 
+        $this->sMainMenuItem = 'tools';
+
         $this->_setTitle($this->Lang_Get('action.admin.comments_tree_title'));
         $this->SetTemplateAction('tools/comments_tree');
         if (F::isPost('comments_tree_submit')) {
@@ -2402,6 +2440,8 @@ class ActionAdmin extends Action {
      */
     protected function EventRecalculateFavourites() {
 
+        $this->sMainMenuItem = 'tools';
+
         $this->_setTitle($this->Lang_Get('action.admin.recalcfavourites_title'));
         $this->SetTemplateAction('tools/recalcfavourites');
         if (F::isPost('recalcfavourites_submit')) {
@@ -2426,6 +2466,8 @@ class ActionAdmin extends Action {
      */
     protected function EventRecalculateVotes() {
 
+        $this->sMainMenuItem = 'tools';
+
         $this->_setTitle($this->Lang_Get('action.admin.recalcvotes_title'));
         $this->SetTemplateAction('tools/recalcvotes');
         if (F::isPost('recalcvotes_submit')) {
@@ -2448,6 +2490,8 @@ class ActionAdmin extends Action {
      */
     protected function EventRecalculateTopics() {
 
+        $this->sMainMenuItem = 'tools';
+
         $this->_setTitle($this->Lang_Get('action.admin.recalctopics_title'));
         $this->SetTemplateAction('tools/recalctopics');
         if (F::isPost('recalctopics_submit')) {
@@ -2468,6 +2512,8 @@ class ActionAdmin extends Action {
      */
     protected function EventRecalculateBlogRating() {
 
+        $this->sMainMenuItem = 'tools';
+
         $this->_setTitle($this->Lang_Get('action.admin.recalcblograting_title'));
         $this->SetTemplateAction('tools/recalcblograting');
         if (F::isPost('recalcblograting_submit')) {
@@ -2487,6 +2533,8 @@ class ActionAdmin extends Action {
      * Контроль БД
      */
     protected function EventCheckDb() {
+
+        $this->sMainMenuItem = 'tools';
 
         $this->_setTitle($this->Lang_Get('action.admin.checkdb_title'));
         $this->SetTemplateAction('tools/checkdb');
@@ -2541,6 +2589,8 @@ class ActionAdmin extends Action {
      *
      */
     protected function EventLang() {
+
+        $this->sMainMenuItem = 'settings';
 
         $aLanguages = $this->Lang_GetAvailableLanguages();
         $aAllows = (array)Config::Get('lang.allow');
@@ -2623,6 +2673,8 @@ class ActionAdmin extends Action {
      * Типы блогов
      */
     protected function EventBlogTypes() {
+
+        $this->sMainMenuItem = 'settings';
 
         $sMode = $this->getParam(0);
         $this->Viewer_Assign('sMode', $sMode);
@@ -2913,6 +2965,8 @@ class ActionAdmin extends Action {
      */
     protected function EventUserRights() {
 
+        $this->sMainMenuItem = 'settings';
+
         $this->_setTitle($this->Lang_Get('action.admin.userrights_menu'));
         $this->SetTemplateAction('settings/userrights');
 
@@ -2960,6 +3014,8 @@ class ActionAdmin extends Action {
      *
      */
     protected function EventUserFields() {
+
+        $this->sMainMenuItem = 'settings';
 
         switch (F::GetRequestStr('action')) {
             // * Создание нового поля
@@ -3084,6 +3140,8 @@ class ActionAdmin extends Action {
 
     protected function EventContentTypes() {
 
+        $this->sMainMenuItem = 'settings';
+
         $this->_setTitle($this->Lang_Get('action.admin.contenttypes_menu'));
         $this->SetTemplateAction('settings/contenttypes');
 
@@ -3118,6 +3176,8 @@ class ActionAdmin extends Action {
     }
 
     protected function EventContentTypesAdd() {
+
+        $this->sMainMenuItem = 'settings';
 
         $this->_setTitle($this->Lang_Get('action.admin.contenttypes_add_title'));
         $this->SetTemplateAction('settings/contenttypes_edit');
@@ -3167,6 +3227,8 @@ class ActionAdmin extends Action {
     }
 
     protected function EventContentTypesEdit() {
+
+        $this->sMainMenuItem = 'settings';
 
         // * Получаем тип
         if (!$oContentType = $this->Topic_GetContentTypeById($this->GetParam(0))) {
@@ -3325,6 +3387,8 @@ class ActionAdmin extends Action {
      **********************/
     protected function EventAddField() {
 
+        $this->sMainMenuItem = 'settings';
+
         $this->_setTitle($this->Lang_Get('action.admin.contenttypes_add_field_title'));
 
         // * Получаем тип
@@ -3371,6 +3435,8 @@ class ActionAdmin extends Action {
     }
 
     protected function EventEditField() {
+
+        $this->sMainMenuItem = 'settings';
 
         $this->Viewer_AddHtmlTitle($this->Lang_Get('action.admin.contenttypes_edit_field_title'));
 
@@ -3434,6 +3500,8 @@ class ActionAdmin extends Action {
     }
 
     protected function EventDeleteField() {
+
+        $this->sMainMenuItem = 'settings';
 
         $this->Security_ValidateSendForm();
         if (!$oField = $this->Topic_GetContentFieldById($this->GetParam(0))) {
@@ -3636,6 +3704,7 @@ class ActionAdmin extends Action {
     public function EventShutdown() {
 
         // * Загружаем в шаблон необходимые переменные
+        $this->Viewer_Assign('sMainMenuItem', $this->sMainMenuItem);
         $this->Viewer_Assign('sMenuItem', $this->sMenuItem);
         $this->Lang_AddLangJs(array('action.admin.form_choose_file', 'action.admin.form_no_file_selected'));
     }
