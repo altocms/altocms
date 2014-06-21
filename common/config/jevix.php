@@ -40,7 +40,7 @@ return array(
 			),
 			array(
 				'object',
-				array('width' => '#int', 'height' => '#int', 'data' => array('#domain'=>array('youtube.com','rutube.ru','vimeo.com')), 'type' => '#text')
+				array('width' => '#int', 'height' => '#int', 'data' => array('#domain'=>array('youtube.com','rutube.ru','vimeo.com','player.vimeo.com')), 'type' => '#text')
 			),
 			array(
 				'param',
@@ -48,7 +48,7 @@ return array(
 			),
 			array(
 				'embed',
-				array('src' => array('#domain'=>array('youtube.com','rutube.ru','vimeo.com','static.googleusercontent.com')), 'type' => '#text','allowscriptaccess' => '#text', 'allowfullscreen' => '#text','width' => '#int', 'height' => '#int', 'flashvars'=> '#text', 'wmode'=> '#text')
+				array('src' => array('#domain'=>array('youtube.com','rutube.ru','vimeo.com','player.vimeo.com','static.googleusercontent.com')), 'type' => '#text','allowscriptaccess' => '#text', 'allowfullscreen' => '#text','width' => '#int', 'height' => '#int', 'flashvars'=> '#text', 'wmode'=> '#text')
 			),
 			array(
 				'acronym',
@@ -60,7 +60,7 @@ return array(
 			),
 			array(
 				'iframe',
-				array('width' => '#int', 'height' => '#int', 'src' => array('#domain'=>array('youtube.com','rutube.ru','vimeo.com','vk.com','vkontakte.ru','slideshare.net','mixcloud.com','soundcloud.com','maps.google.ru','issuu.com')))
+				array('width' => '#int', 'height' => '#int', 'src' => array('#domain'=>array('youtube.com','rutube.ru','vimeo.com','player.vimeo.com','vk.com','vkontakte.ru','slideshare.net','mixcloud.com','soundcloud.com','maps.google.ru','issuu.com')))
 			),
 			array(
 				'ls',
@@ -89,7 +89,7 @@ return array(
 						'value'=>array('sameDomain'),
 					),
 					'movie' => array(
-						'value'=>array('#domain'=>array('youtube.com','rutube.ru','vimeo.com')),
+						'value'=>array('#domain'=>array('youtube.com','rutube.ru','vimeo.com','player.vimeo.com')),
 					),
 					'align' => array(
 						'value'=>array('bottom','middle','top','left','right'),
