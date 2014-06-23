@@ -597,7 +597,7 @@ class ModuleBlog extends Module {
     }
 
     /**
-     * Получает отношения юзера к блогам (состоит в блоге или нет)
+     * Получает отношения юзера к блогам (подписан на блог или нет)
      *
      * @param int      $iUserId          ID пользователя
      * @param int|null $iRole            Роль пользователя в блоге
@@ -614,18 +614,19 @@ class ModuleBlog extends Module {
             $aFilter['user_role'] = $iRole;
         }
         $sCacheKey = 'blog_relation_user_by_filter_' . serialize($aFilter);
-        if (false === ($data = $this->Cache_Get($sCacheKey))) {
-            $data = $this->oMapper->GetBlogUsers($aFilter);
+        if (false === ($aBlogUserRels = $this->Cache_Get($sCacheKey))) {
+            $aBlogUserRels = $this->oMapper->GetBlogUsers($aFilter);
             $this->Cache_Set(
-                $data, $sCacheKey, array('blog_update', "blog_relation_change_{$iUserId}"), 60 * 60 * 24 * 3
+                $aBlogUserRels, $sCacheKey, array('blog_update', "blog_relation_change_{$iUserId}"), 60 * 60 * 24 * 3
             );
         }
         /**
          * Достаем дополнительные данные, для этого формируем список блогов и делаем мульти-запрос
          */
         $aBlogId = array();
-        if ($data) {
-            foreach ($data as $oBlogUser) {
+        $aResult = array();
+        if ($aBlogUserRels) {
+            foreach ($aBlogUserRels as $oBlogUser) {
                 $aBlogId[] = $oBlogUser->getBlogId();
             }
             /**
@@ -634,7 +635,7 @@ class ModuleBlog extends Module {
             if (!$bReturnIdOnly) {
                 $aUsers = $this->User_GetUsersAdditionalData($iUserId);
                 $aBlogs = $this->Blog_GetBlogsAdditionalData($aBlogId);
-                foreach ($data as $oBlogUser) {
+                foreach ($aBlogUserRels as $oBlogUser) {
                     if (isset($aUsers[$oBlogUser->getUserId()])) {
                         $oBlogUser->setUser($aUsers[$oBlogUser->getUserId()]);
                     } else {
@@ -645,10 +646,11 @@ class ModuleBlog extends Module {
                     } else {
                         $oBlogUser->setBlog(null);
                     }
+                    $aResult[$oBlogUser->getBlogId()] = $oBlogUser;
                 }
             }
         }
-        return ($bReturnIdOnly) ? $aBlogId : $data;
+        return ($bReturnIdOnly) ? $aBlogId : $aResult;
     }
 
     /**
@@ -920,12 +922,12 @@ class ModuleBlog extends Module {
     public function GetBlogsAllowTo($sAllow, $oUser, $xBlog = null, $bCheckOnly = false) {
 
         if (is_object($xBlog)) {
-            $iBlog = $xBlog->GetId();
+            $iBlog = intval($xBlog->GetId());
         } else {
             $iBlog = intval($xBlog);
         }
 
-        $sCacheKey = 'blogs_allow_to_' . serialize(array($sAllow, $oUser ? $oUser->GetId() : 0, intval($iBlog), (bool)$bCheckOnly));
+        $sCacheKey = 'blogs_allow_to_' . serialize(array($sAllow, $oUser ? $oUser->GetId() : 0, $iBlog, (bool)$bCheckOnly));
         if ($iBlog && $bCheckOnly) {
             // Если только проверка прав, то проверяем временный кеш
             if (is_int($xCacheResult = $this->Cache_Get($sCacheKey, 'tmp'))) {
@@ -981,12 +983,12 @@ class ModuleBlog extends Module {
                             }
                             if ($bAllow) {
                                 $aAllowBlogs[$oBlog->getId()] = $oBlog;
-                                // Если задан конкретный блог и он найден, то проверять больше не нужно
-                                if ($iBlog && isset($aAllowBlogs[$iBlog])) {
-                                    return $aAllowBlogs[$iBlog];
-                                }
                             }
                         }
+                    }
+                    // Если задан конкретный блог и он найден, то проверять больше не нужно
+                    if ($iBlog && isset($aAllowBlogs[$iBlog])) {
+                        return $aAllowBlogs[$iBlog];
                     }
                 }
             }
@@ -1095,12 +1097,12 @@ class ModuleBlog extends Module {
         }
         $nUserId = $oUser ? $oUser->getId() : 0;
         $sCacheKey = 'blog_inaccessible_user_' . $nUserId;
-        if (false === ($aCloseBlogs = $this->Cache_Get($sCacheKey))) {
-            $aCloseBlogs = $this->oMapper->GetCloseBlogs($oUser);
+        if (false === ($aCloseBlogsId = $this->Cache_Get($sCacheKey))) {
+            $aCloseBlogsId = $this->oMapper->GetCloseBlogs($oUser);
 
             if ($oUser) {
                 // * Получаем массив идентификаторов блогов, которые являются откытыми для данного пользователя
-                $aOpenBlogs = $this->GetBlogUsersByUserId($nUserId, null, true);
+                $aOpenBlogsId = $this->GetBlogUsersByUserId($nUserId, null, true);
 
                 // * Получаем закрытые блоги, где пользователь является автором
                 $aCloseBlogTypes = $this->GetCloseBlogTypes($oUser);
@@ -1112,25 +1114,25 @@ class ModuleBlog extends Module {
                         ),
                         array(), 1, 1000, array()
                     );
-                    $aOwnerBlogs = array_keys($aOwnerBlogs['collection']);
-                    $aCloseBlogs = array_diff($aCloseBlogs, $aOpenBlogs, $aOwnerBlogs);
+                    $aOwnerBlogsId = array_keys($aOwnerBlogs['collection']);
+                    $aCloseBlogsId = array_diff($aCloseBlogsId, $aOpenBlogsId, $aOwnerBlogsId);
                 }
             }
 
             // * Сохраняем в кеш
             if ($oUser) {
                 $this->Cache_Set(
-                    $aCloseBlogs, $sCacheKey,
+                    $aCloseBlogsId, $sCacheKey,
                     array('blog_new', 'blog_update', "blog_relation_change_{$nUserId}"), 60 * 60 * 24
                 );
             } else {
                 $this->Cache_Set(
-                    $aCloseBlogs, $sCacheKey, array('blog_new', 'blog_update'),
+                    $aCloseBlogsId, $sCacheKey, array('blog_new', 'blog_update'),
                     60 * 60 * 24 * 3
                 );
             }
         }
-        return $aCloseBlogs;
+        return $aCloseBlogsId;
     }
 
     /**

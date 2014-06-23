@@ -303,14 +303,11 @@ class ModuleACL extends Module {
      */
     public function IsAllowBlog($oBlog, $oUser) {
 
-        if ($oUser->isAdministrator()) {
+        if ($oUser && ($oUser->isAdministrator() || $oBlog->getOwnerId() == $oUser->getId())) {
             return true;
         }
         if ($oUser->getRating() <= Config::Get('acl.create.topic.limit_rating')) {
             return false;
-        }
-        if ($oBlog->getOwnerId() == $oUser->getId()) {
-            return true;
         }
 
         return (bool)$this->Blog_GetBlogsAllowTo('write', $oUser, $oBlog->getId(), true) && $this->CanAddTopic($oUser, $oBlog);
@@ -332,10 +329,7 @@ class ModuleACL extends Module {
         if (!$oUser && !$oBlog->getBlogType()->GetAclRead(ModuleBlog::BLOG_USER_ACL_GUEST)) {
             return false;
         }
-        if ($oUser->isAdministrator()) {
-            return true;
-        }
-        if ($oBlog->getOwnerId() == $oUser->getId()) {
+        if ($oUser && ($oUser->isAdministrator() || $oBlog->getOwnerId() == $oUser->getId())) {
             return true;
         }
 

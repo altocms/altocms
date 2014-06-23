@@ -1095,6 +1095,8 @@ class ModuleBlog_MapperBlog extends Mapper {
                 { AND (b.blog_id NOT IN (?a)) }
                 { AND (b.user_owner_id = ?d) }
                 { AND (b.user_owner_id IN (?a)) }
+                { AND (b.user_owner_id = ?d) }
+                { AND (b.user_owner_id IN (?a)) }
                 { AND (b.blog_type = ?) }
                 { AND (b.blog_type IN (?a)) }
                 { AND (b.blog_type != ?) }
@@ -1124,6 +1126,8 @@ class ModuleBlog_MapperBlog extends Mapper {
             isset($aFilter['not_blog_id']) ? $aFilter['not_blog_id'] : DBSIMPLE_SKIP,
             (isset($aFilter['user_id']) && !is_array($aFilter['user_id'])) ? $aFilter['user_id'] : DBSIMPLE_SKIP,
             (isset($aFilter['user_id']) && is_array($aFilter['user_id'])) ? $aFilter['user_id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['user_owner_id']) && !is_array($aFilter['user_owner_id'])) ? $aFilter['user_owner_id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['user_owner_id']) && is_array($aFilter['user_owner_id'])) ? $aFilter['user_owner_id'] : DBSIMPLE_SKIP,
             (isset($aFilter['blog_type']) && !is_array($aFilter['blog_type'])) ? $aFilter['blog_type'] : DBSIMPLE_SKIP,
             (isset($aFilter['blog_type']) && is_array($aFilter['blog_type'])) ? $aFilter['blog_type'] : DBSIMPLE_SKIP,
             (isset($aFilter['not_blog_type']) && !is_array($aFilter['not_blog_type'])) ? $aFilter['not_blog_type'] : DBSIMPLE_SKIP,
