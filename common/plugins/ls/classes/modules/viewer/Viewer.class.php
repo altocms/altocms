@@ -24,6 +24,8 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
         'topics/topic.list.tpl' => 'topic_list.tpl',
     );
 
+    protected $aAdaptedSkins = array('fortune', 'crisp');
+
     /**
      * DEPRECATED
      */
@@ -287,7 +289,7 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
                     if (!is_file($sResult)) {
                         $sResult = Config::Get('path.smarty.template') . '/actions/ActionTopic/add.tpl';
                     }
-                    if (Config::Get('view.skin') !== 'fortune') {
+                    if (!in_array(Config::Get('view.skin'), $this->aAdaptedSkins)) {
                         $this->Hook_AddExecFunction('template_form_add_topic_topic_end', array($this, 'TemplateFormAddTopic'));
                     }
                     $oContentType = $oSmarty->getTemplateVars('oContentType');
