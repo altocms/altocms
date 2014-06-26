@@ -149,7 +149,7 @@ class ActionBlog extends Action {
 
         $this->AddEventPreg('/^(\d+)\.html$/i', array('EventShowTopic', 'topic'));
         $this->AddEventPreg('/^[\w\-\_]+$/i', '/^(\d+)\.html$/i', array('EventShowTopic', 'topic'));
-        $this->AddEventPreg('/^([a-z][\w\-\_]+)\.html$/i', array('EventShowTopicByUrl', 'topic'));
+        $this->AddEventPreg('/^([\da-z][\w\-\_]+)\.html$/i', array('EventShowTopicByUrl', 'topic'));
 
         $this->AddEventPreg('/^[\w\-\_]+$/i', '/^(page([1-9]\d{0,5}))?$/i', array('EventShowBlog', 'blog'));
         $this->AddEventPreg('/^[\w\-\_]+$/i', '/^bad$/i', '/^(page([1-9]\d{0,5}))?$/i', array('EventShowBlog', 'blog'));
