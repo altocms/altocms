@@ -899,7 +899,7 @@ class Router extends LsObject {
                 '%login%' => '[\w_\-]+',
                 '%blog_url%' => '[\w_\-]+',
                 '%topic_id%' => '(\d+)',
-                '%topic_url%' => '([\w\-]+)',
+                '%topic_url%' => '([\d\w\-]+)',
             );
             // Если последним символом в шаблоне идет слеш, то надо его сделать опциональным
             if (substr($sUrlPattern, -1) == '/') {
