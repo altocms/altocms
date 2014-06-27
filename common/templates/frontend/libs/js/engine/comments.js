@@ -82,7 +82,7 @@ ls.comments = (function ($) {
             this.checkEditTimers();
             this.toggleCommentForm(this.iCurrentShowFormComment);
 
-            if (typeof(this.options.wysiwyg) != 'number') {
+            if (this.options.wysiwyg !== null) {
                 this.options.wysiwyg = Boolean(ls.cfg.wysiwyg && tinymce);
             }
             ls.hook.run('ls_comments_init_after', [], this);
@@ -241,7 +241,7 @@ ls.comments = (function ($) {
             this.formCommentHide();
             return false;
         }
-
+ls.log('===', this.options.wysiwyg);
         if (this.options.wysiwyg) {
             tinyMCE.execCommand('mceRemoveEditor', true, textareaId);
         }
