@@ -19,11 +19,21 @@ class ModuleAdmin extends Module {
     /** @var ModuleAdmin_MapperAdmin */
     protected $oMapper;
 
+    /**
+     * Initialization
+     */
     public function Init() {
+
         $this->oMapper = Engine::GetMapper(__CLASS__);
     }
 
+    /**
+     * Grt stats of the site
+     *
+     * @return array
+     */
     public function GetSiteStat() {
+
         $sCacheKey = 'adm_site_stat';
         if (false === ($data = $this->Cache_Get($sCacheKey))) {
             $data = $this->oMapper->GetSiteStat();
@@ -32,6 +42,13 @@ class ModuleAdmin extends Module {
         return $data;
     }
 
+    /**
+     * @param array  $aUsers
+     * @param int    $nDays
+     * @param string $sComment
+     *
+     * @return bool
+     */
     public function BanUsers($aUsers, $nDays = null, $sComment = null) {
 
         $aUserIds = $this->_entitiesId($aUsers);
@@ -54,17 +71,30 @@ class ModuleAdmin extends Module {
         return $bOk;
     }
 
+    /**
+     * @param array $aUsers
+     *
+     * @return bool
+     */
     public function UnbanUsers($aUsers) {
+
         $aUserIds = $this->_entitiesId($aUsers);
         $bOk = $this->oMapper->UnbanUsers($aUserIds);
         $this->Cache_CleanByTags(array('user_update'));
         return $bOk;
     }
 
-    public function GetUsersBanList($nCurrPage, $nPerPage) {
-        $sCacheKey = 'adm_banlist_' . $nCurrPage . '_' . $nPerPage;
+    /**
+     * @param int $iCurrPage
+     * @param int $iPerPage
+     *
+     * @return array
+     */
+    public function GetUsersBanList($iCurrPage, $iPerPage) {
+
+        $sCacheKey = 'adm_banlist_' . $iCurrPage . '_' . $iPerPage;
         if (false === ($data = $this->Cache_Get($sCacheKey))) {
-            $aUsersId = $this->oMapper->GetBannedUsersId($iCount, $nCurrPage, $nPerPage);
+            $aUsersId = $this->oMapper->GetBannedUsersId($iCount, $iCurrPage, $iPerPage);
             if ($aUsersId) {
                 $aUsers = $this->User_GetUsersByArrayId($aUsersId);
                 $data = array('collection' => $aUsers, 'count' => $iCount);
@@ -76,7 +106,14 @@ class ModuleAdmin extends Module {
         return $data;
     }
 
+    /**
+     * @param int $iCurrPage
+     * @param int $iPerPage
+     *
+     * @return array
+     */
     public function GetIpsBanList($iCurrPage, $iPerPage) {
+
         $sCacheKey = 'adm_banlist_ips_' . $iCurrPage . '_' . $iPerPage;
         if (false === ($data = $this->Cache_Get($sCacheKey))) {
             $data = array('collection' => $this->oMapper->GetIpsBanList($iCount, $iCurrPage, $iPerPage), 'count' => $iCount);
@@ -88,10 +125,10 @@ class ModuleAdmin extends Module {
     /**
      * Бан диапазона IP-адресов
      *
-     * @param      $sIp1
-     * @param      $sIp2
-     * @param null $nDays
-     * @param null $sComment
+     * @param string $sIp1
+     * @param string $sIp2
+     * @param int    $nDays
+     * @param string $sComment
      *
      * @return bool
      */
@@ -115,7 +152,7 @@ class ModuleAdmin extends Module {
     /**
      * Снятие бана с диапазона IP-адресов
      *
-     * @param $aIds
+     * @param array $aIds
      *
      * @return bool
      */
@@ -146,6 +183,9 @@ class ModuleAdmin extends Module {
         return $aResult;
     }
 
+    /**
+     * @return array
+     */
     public function GetInvitesCount() {
 
         return $this->oMapper->GetInvitesCount();
@@ -154,7 +194,7 @@ class ModuleAdmin extends Module {
     /**
      * Удаляет инвайты по списку ID
      *
-     * @param $aIds
+     * @param array $aIds
      *
      * @return mixed
      */
@@ -170,6 +210,7 @@ class ModuleAdmin extends Module {
      * @return  bool
      */
     public function UpdateCustomConfig($aConfig) {
+
         $bResult = $this->oMapper->UpdateCustomConfig($aConfig);
         $this->Cache_CleanByTags(array('config_update'));
         return $bResult;
@@ -208,37 +249,73 @@ class ModuleAdmin extends Module {
         return $bResult;
     }
 
+    /**
+     * @return array
+     */
     public function GetUnlinkedBlogsForUsers() {
+
         return $this->oMapper->GetUnlinkedBlogsForUsers();
     }
 
+    /**
+     * @param array $aBlogIds
+     *
+     * @return mixed
+     */
     public function DelUnlinkedBlogsForUsers($aBlogIds) {
+
         $bResult = $this->oMapper->DelUnlinkedBlogsForUsers($aBlogIds);
         $this->Cache_Clean();
         return $bResult;
     }
 
+    /**
+     * @return array
+     */
     public function GetUnlinkedBlogsForCommentsOnline() {
+
         return $this->oMapper->GetUnlinkedBlogsForCommentsOnline();
     }
 
+    /**
+     * @param array $aBlogIds
+     *
+     * @return mixed
+     */
     public function DelUnlinkedBlogsForCommentsOnline($aBlogIds) {
+
         $bResult = $this->oMapper->DelUnlinkedBlogsForCommentsOnline($aBlogIds);
         $this->Cache_Clean();
         return $bResult;
     }
 
+    /**
+     * @return array
+     */
     public function GetUnlinkedTopicsForCommentsOnline() {
+
         return $this->oMapper->GetUnlinkedTopicsForCommentsOnline();
     }
 
+    /**
+     * @param array $aTopicIds
+     *
+     * @return mixed
+     */
     public function DelUnlinkedTopicsForCommentsOnline($aTopicIds) {
+
         $bResult = $this->oMapper->DelUnlinkedTopicsForCommentsOnline($aTopicIds);
         $this->Cache_Clean();
         return $bResult;
     }
 
+    /**
+     * @param int $nUserId
+     *
+     * @return bool
+     */
     public function SetAdministrator($nUserId) {
+
         $bOk = $this->oMapper->SetAdministrator($nUserId);
         if ($bOk) {
             $oUser = $this->User_GetUserById($nUserId);
@@ -247,7 +324,13 @@ class ModuleAdmin extends Module {
         return $bOk;
     }
 
+    /**
+     * @param int $nUserId
+     *
+     * @return bool
+     */
     public function UnsetAdministrator($nUserId) {
+
         $bOk = $this->oMapper->UnsetAdministrator($nUserId);
         if ($bOk) {
             $oUser = $this->User_GetUserById($nUserId);
@@ -260,6 +343,7 @@ class ModuleAdmin extends Module {
      * Число топиков без URL
      */
     public function GetNumTopicsWithoutUrl() {
+
         return $this->oMapper->GetNumTopicsWithoutUrl();
     }
 
@@ -291,7 +375,11 @@ class ModuleAdmin extends Module {
             }
         }
         if ($nResult == 0) {
-            $this->CheckDuplicateTopicsUrl();
+            // нужно ли проверять ссылки на дубликаты
+            $iOnDuplicateUrl = Config::Val('module.topic.on_duplicate_url', 1);
+            if ($iOnDuplicateUrl) {
+                $this->CheckDuplicateTopicsUrl();
+            }
         } else {
             $nResult = $this->GetNumTopicsWithoutUrl();
         }
@@ -304,6 +392,7 @@ class ModuleAdmin extends Module {
      * @return bool
      */
     public function CheckDuplicateTopicsUrl() {
+
         $aData = $this->oMapper->GetDuplicateTopicsUrl();
         if ($aData) {
             $aUrls = array();

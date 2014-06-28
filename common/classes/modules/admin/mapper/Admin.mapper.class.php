@@ -63,7 +63,7 @@ class ModuleAdmin_MapperAdmin extends Mapper {
     /**
      * Unban users by id
      *
-     * @param $aUsersId
+     * @param array $aUsersId
      *
      * @return bool
      */
@@ -76,13 +76,13 @@ class ModuleAdmin_MapperAdmin extends Mapper {
     /**
      * Return list of banned users
      *
-     * @param $nCount
-     * @param $nCurrPage
-     * @param $nPerPage
+     * @param int $iCount
+     * @param int $iCurrPage
+     * @param int $iPerPage
      *
      * @return array
      */
-    public function GetBannedUsersId(&$nCount, $nCurrPage, $nPerPage) {
+    public function GetBannedUsersId(&$iCount, $iCurrPage, $iPerPage) {
 
         $sql = "
             SELECT DISTINCT ab.user_id
@@ -92,7 +92,7 @@ class ModuleAdmin_MapperAdmin extends Mapper {
             ORDER BY ab.bandate DESC
             LIMIT ?d, ?d
             ";
-        $aRows = $this->oDb->selectPage($nCount, $sql, F::Now(), ($nCurrPage - 1) * $nPerPage, $nPerPage);
+        $aRows = $this->oDb->selectPage($iCount, $sql, F::Now(), ($iCurrPage - 1) * $iPerPage, $iPerPage);
         $aResult = array();
         if ($aRows)
             foreach($aRows as $aRow) {
@@ -104,9 +104,9 @@ class ModuleAdmin_MapperAdmin extends Mapper {
     /**
      * Returns list of banned IPs
      *
-     * @param $iCount
-     * @param $iCurrPage
-     * @param $iPerPage
+     * @param int $iCount
+     * @param int $iCurrPage
+     * @param int $iPerPage
      *
      * @return array
      */
@@ -236,6 +236,9 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         return $aRows ? $aRows : array();
     }
 
+    /**
+     * @return mixed
+     */
     public function GetInvitesCount() {
 
         $sql =
@@ -253,7 +256,7 @@ class ModuleAdmin_MapperAdmin extends Mapper {
     /**
      * Deletes unused invites
      *
-     * @param $aIds
+     * @param array $aIds
      *
      * @return bool
      */
@@ -302,6 +305,11 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         return true;
     }
 
+    /**
+     * @param string $sPrefix
+     *
+     * @return mixed
+     */
     public function GetCustomConfig($sPrefix = '') {
 
         if ($sPrefix) {
@@ -318,6 +326,11 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         return $this->oDb->select($sql);
     }
 
+    /**
+     * @param string $sPrefix
+     *
+     * @return bool
+     */
     public function DeleteCustomConfig($sPrefix = '') {
 
         if ($sPrefix) {
@@ -334,6 +347,9 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         return $this->oDb->query($sql) !== false;
     }
 
+    /**
+     * @return array
+     */
     public function GetUnlinkedBlogsForUsers() {
 
         $sql = "
@@ -351,6 +367,11 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         return $aResult;
     }
 
+    /**
+     * @param array $aBlogIds
+     *
+     * @return mixed
+     */
     public function DelUnlinkedBlogsForUsers($aBlogIds) {
 
         $sql = "
@@ -361,6 +382,9 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         return $aResult;
     }
 
+    /**
+     * @return array
+     */
     public function GetUnlinkedBlogsForCommentsOnline() {
 
         $sql = "
@@ -378,6 +402,11 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         return $aResult;
     }
 
+    /**
+     * @param array $aBlogIds
+     *
+     * @return mixed
+     */
     public function DelUnlinkedBlogsForCommentsOnline($aBlogIds) {
 
         $sql = "
@@ -388,6 +417,9 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         return $aResult;
     }
 
+    /**
+     * @return array
+     */
     public function GetUnlinkedTopicsForCommentsOnline() {
 
         $sql = "
@@ -404,6 +436,11 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         return $aResult;
     }
 
+    /**
+     * @param array $aTopicsId
+     *
+     * @return mixed
+     */
     public function DelUnlinkedTopicsForCommentsOnline($aTopicsId) {
 
         $sql = "
@@ -414,6 +451,11 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         return $aResult;
     }
 
+    /**
+     * @param int $nUserId
+     *
+     * @return bool
+     */
     public function SetAdministrator($nUserId) {
 
         $sql = "SELECT user_id FROM ?_user_administrator WHERE user_id=?";
@@ -423,12 +465,20 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         return false;
     }
 
+    /**
+     * @param int $nUserId
+     *
+     * @return bool
+     */
     public function UnsetAdministrator($nUserId) {
 
         $sql = "DELETE FROM ?_user_administrator WHERE user_id=?";
         return $this->oDb->query($sql, $nUserId) !== false;
     }
 
+    /**
+     * @return int
+     */
     public function GetNumTopicsWithoutUrl() {
 
         $sql = "
@@ -438,6 +488,11 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         return intval($this->oDb->selectCell($sql));
     }
 
+    /**
+     * @param int $nLimit
+     *
+     * @return mixed
+     */
     public function GetTitleTopicsWithoutUrl($nLimit) {
 
         $sql = "
@@ -451,6 +506,11 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         return $this->oDb->select($sql, $nLimit);
     }
 
+    /**
+     * @param array $aData
+     *
+     * @return bool
+     */
     public function SaveTopicsUrl($aData) {
 
         $sql = '';
@@ -464,6 +524,9 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         return $this->oDb->query($sql, array_keys($aData)) !== false;
     }
 
+    /**
+     * @return mixed
+     */
     public function GetDuplicateTopicsUrl() {
 
         $sql = "
@@ -476,6 +539,11 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         return $this->oDb->select($sql);
     }
 
+    /**
+     * @param array $aUrls
+     *
+     * @return mixed
+     */
     public function GetTopicsDataByUrl($aUrls) {
 
         $sql = "
