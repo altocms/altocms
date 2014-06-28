@@ -994,6 +994,11 @@ class Router extends LsObject {
                 '%topic_id%'   => '(\d+)',
                 '%topic_url%'  => '([\w\-]+)',
             );
+            // brackets in the pattern may be only once
+            if (strpos($sUrlPattern, '%topic_id%') !== false && strpos($sUrlPattern, '%topic_url%') !== false) {
+                // if both of masks are present then %topic_id% is main
+                $aReplace['%topic_url%'] = '[\w\-]+';
+            }
             // Если последним символом в шаблоне идет слеш, то надо его сделать опциональным
             if (substr($sUrlPattern, -1) == '/') {
                 $sUrlPattern .= '?';

@@ -916,12 +916,15 @@ class ModuleTopic extends Module {
      *
      * @param string $sUrl
      *
-     * @return ModuleTopic_EntityTopic|null
+     * @return array
      */
     public function GetTopicsLikeUrl($sUrl) {
 
         $aTopicsId = $this->oMapper->GetTopicsIdLikeUrl($sUrl);
-        return $this->GetTopicsByArrayId($aTopicsId);
+        if ($aTopicsId) {
+            return $this->GetTopicsByArrayId($aTopicsId);
+        }
+        return array();
     }
 
     /**
@@ -933,19 +936,22 @@ class ModuleTopic extends Module {
      */
     public function CorrectTopicUrl($sUrl) {
 
-        // Получаем список топиков с похожим URL
-        $aTopics = $this->GetTopicsLikeUrl($sUrl);
-        if ($aTopics) {
-            $aExistUrls = array();
-            foreach ($aTopics as $oTopic) {
-                $aExistUrls[] = $oTopic->GetTopicUrl();
+        $iOnDuplicateUrl = Config::Val('module.topic.on_duplicate_url', 1);
+        if ($iOnDuplicateUrl) {
+            // Получаем список топиков с похожим URL
+            $aTopics = $this->GetTopicsLikeUrl($sUrl);
+            if ($aTopics) {
+                $aExistUrls = array();
+                foreach ($aTopics as $oTopic) {
+                    $aExistUrls[] = $oTopic->GetTopicUrl();
+                }
+                $nNum = count($aTopics) + 1;
+                $sNewUrl = $sUrl . '-' . $nNum;
+                while (in_array($sNewUrl, $aExistUrls)) {
+                    $sNewUrl = $sUrl . '-' . (++$nNum);
+                }
+                $sUrl = $sNewUrl;
             }
-            $nNum = count($aTopics) + 1;
-            $sNewUrl = $sUrl . '-' . $nNum;
-            while (in_array($sNewUrl, $aExistUrls)) {
-                $sNewUrl = $sUrl . '-' . (++$nNum);
-            }
-            $sUrl = $sNewUrl;
         }
         return $sUrl;
     }

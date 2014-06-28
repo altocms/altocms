@@ -244,13 +244,14 @@ class ModuleTopic_MapperTopic extends Mapper {
      *
      * @param $sUrl
      *
-     * @return int
+     * @return array|bool
      */
     public function GetTopicsIdLikeUrl($sUrl) {
 
         $sql
             = "
-            SELECT topic_id FROM ?_topic
+            SELECT topic_id
+            FROM ?_topic
             WHERE
                 topic_url = '" . $sUrl . "'
                 OR topic_url RLIKE '^" . $sUrl . "-[0-9]+$'
