@@ -423,7 +423,7 @@ class AltoFunc_Main {
             if (!$bWordWrap) {
                 $sText = mb_substr($sText, 0, $nLen - mb_strlen($sPostfix, 'UTF-8'), 'UTF-8') . $sPostfix;
             } else {
-                $sText = mb_substr($sText, 0, $nLen - mb_strlen($sPostfix, 'UTF-8') + 1, 'UTF-8');
+                $sText = mb_substr($sText, 0, $nLen - mb_strlen($sPostfix, 'UTF-8'), 'UTF-8');
                 $nLength = mb_strlen($sText, 'UTF-8');
                 if (preg_match('/[^\s\.\!\?\,\:\;\]\)\}]+$/siU', $sText, $aM)) {
                     $sText = trim(mb_substr($sText, 0, $nLength - mb_strlen($aM[0], 'UTF-8'), 'UTF-8'));
