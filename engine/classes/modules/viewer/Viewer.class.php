@@ -37,11 +37,18 @@ class ModuleViewer extends Module {
     protected $oSmarty;
 
     /**
-     * Коллекция(массив) виджетов
+     * Коллекция (массив) виджетов
      *
      * @var array
      */
     protected $aWidgets = array();
+
+    /**
+     * Массив дополнительных (добавленных) виджетов
+     *
+     * @var array
+     */
+    protected $aWidgetsAppend = array();
 
     /**
      * Признак сортировки виджетов
@@ -49,13 +56,6 @@ class ModuleViewer extends Module {
      * @var bool
      */
     protected $bWidgetsSorted = false;
-
-    /**
-     * Массив правил организации виджетов
-     *
-     * @var array
-     */
-    protected $aBlockRules = array();
 
     /**
      * Стандартные настройки вывода js, css файлов
@@ -1000,48 +1000,35 @@ class ModuleViewer extends Module {
      * @return  bool
      */
     public function AddWidget($sGroup, $sName, $aParams = array(), $iPriority = null) {
-        /**
-         * Если не указана директория шаблона, но указана приналежность к плагину,
-         * то "вычисляем" правильную директорию
-         */
-        if (!isset($aParams['dir']) && isset($aParams['plugin'])) {
-            $aParams['dir'] = Plugin::GetTemplatePath($aParams['plugin']);
-        }
 
         if (is_null($iPriority)) {
             $iPriority = (isset($aParams['priority']) ? $aParams['priority'] : 0);
         }
+
         $aWidgetData = array(
-            'name' => $sName,
-            'params' => $aParams,
+            'wgroup'   => $sGroup,
+            'name'     => $sName,
             'priority' => $iPriority,
+            'params'   => $aParams,
         );
+        if (isset($aWidgetData['params']['id'])) {
+            $aWidgetData['id'] = $aWidgetData['params']['id'];
+            unset($aWidgetData['params']['id']);
+        }
 
-        // Создавать виджет нужно до определения его типа, чтоб ID виджета сформировался правильно
-        $oWidget = Engine::GetEntity('Widget', $aWidgetData);
+        $oWidget = $this->Widget_MakeWidget($aWidgetData);
 
-        $sDir = isset($aParams['dir']) ? $aParams['dir'] : null;
-        $sPlugin = isset($aParams['plugin']) ? $aParams['plugin'] : null;
-        // Если смогли определить тип виджета то добавляем его
-        $sType = $this->DefineWidgetType($sName, $sDir, $sPlugin);
-        if ($sType == 'undefined') {
+        // Если тип виджета определен, то добавляем его
+        if (!$oWidget->getType()) {
             return false;
         }
 
-        $oWidget->setType($sType);
-        if ($sType == 'template') {
-            // в $sName возвращается найденный шаблон
-            $oWidget->setTemplate($sName);
-            if ($sName != $aWidgetData['name']) {
-                $oWidget->setName($sName);
-            }
-        }
-
-        // Добавляем виджет в группу
-        $this->aWidgets[$sGroup][] = $oWidget;
+        // Добавляем виджет в массив дополнительных
+        $this->aWidgetsAppend[$oWidget->getId()] = $oWidget;
 
         // Сбрасываем флаг сортировки
         $this->bWidgetsSorted = false;
+
         return true;
     }
 
@@ -1067,7 +1054,7 @@ class ModuleViewer extends Module {
                     $sGroup,
                     $sWidget['widget'],
                     isset($sWidget['params']) ? $sWidget['params'] : array(),
-                    isset($sWidget['priority']) ? $sWidget['priority'] : 5
+                    isset($sWidget['priority']) ? $sWidget['priority'] : 0
                 );
             } else {
                 $this->AddWidget($sGroup, $sWidget);
@@ -1091,9 +1078,7 @@ class ModuleViewer extends Module {
      */
     public function ClearAllWidgets() {
 
-        foreach ($this->aWidgets as $sGroup => $aWidget) {
-            $this->aWidgets[$sGroup] = array();
-        }
+        $this->aWidgets = array();
     }
 
     /**
@@ -1119,35 +1104,42 @@ class ModuleViewer extends Module {
      *                            если передать параметр 'plugin'=>'myplugin'
      * @param   string $sPlugin - Имя плагина виджета, берется из параметра 'plugin'=>'myplugin'
      *
-     * @return  string ('exec', 'block', 'template', 'undefined')
+     * @return  string ('exec', 'block', 'template', '')
      */
-    protected function DefineWidgetType(&$sName, $sDir = null, $sPlugin = null) {
+    public function DefineWidgetType($sName, $sDir = null, $sPlugin = null) {
 
         // Добавляем проверку на рсширение, чтобы не делать лишних телодвижений
         $bTpl = (substr($sName, -4) == '.tpl');
         if (!$bTpl) {
             if ($this->Widget_FileClassExists($sName, $sPlugin)) {
                 // Если найден файл класса виджета, то это исполняемый виджет
-                return 'exec';
+                return array('type' => 'exec');
             }
         }
         if (strpos($sName, 'block.') && ($sTplName = $this->TemplateExists(is_null($sDir) ? $sName : rtrim($sDir, '/') . '/' . ltrim($sName, '/')))) {
             // * LS-compatible * //
-            $sName = $sTplName;
-            return 'template';
-        } elseif ($sTplName = $this->TemplateExists(is_null($sDir) ? $sName : rtrim($sDir, '/') . '/' . ltrim($sName, '/'))) {
-            // Если найден шаблон, то считаем, что это шаблонный виджет
-            $sName = $sTplName;
-            return 'template';
-        } elseif ($sTplName = $this->TemplateExists(is_null($sDir) ? 'widgets/widget.' . $sName : rtrim($sDir, '/') . '/widgets/widget.' . $sName)) {
-            // Если найден шаблон вида widget.name.tpl то считаем что тип 'template'
-            $sName = $sTplName;
-            return 'template';
+            return array('type' => 'template', 'name' => $sTplName);
+        }
+
+        if (!is_null($sDir)) {
+            $sDir = rtrim($sDir, '/') . '/';
+        }
+        $aCheckNames = array(
+            $sDir . 'tpls/widgets/widget.' . $sName,
+            $sDir . ltrim($sName, '/'),
+            $sDir . 'widgets/widget.' . $sName,
+        );
+        foreach ($aCheckNames as $sCheckName) {
+            if ($sTplName = $this->TemplateExists($sCheckName)) {
+                // Если найден шаблон, то считаем, что это шаблонный виджет
+                return array('type' => 'template', 'name' => $sTplName);
+            }
         }
 
         // Считаем что тип не определен
         F::SysWarning('Can not define type of widget "' . $sName . '"');
-        return 'undefined';
+
+        return array('type' => 'exec');
     }
 
 
@@ -1195,6 +1187,12 @@ class ModuleViewer extends Module {
     protected function MakeWidgetsLists() {
 
         $aWidgets = $this->Widget_GetWidgets();
+        if ($this->aWidgetsAppend) {
+            foreach($this->aWidgetsAppend as $sWidgetId => $oWidget) {
+                $aWidgets[$sWidgetId] = $oWidget;
+            }
+            $this->aWidgetsAppend = array();
+        }
         if ($aWidgets) {
             foreach ($aWidgets as $oWidget) {
                 $sGroup = $oWidget->getGroup();
@@ -1202,27 +1200,18 @@ class ModuleViewer extends Module {
                     // group not defined
                     $sGroup = '-';
                 }
-                // Свойство "order" потребуется для сортировки по поядку добавления, если не задан приоритет
+                // Свойство "order" потребуется для сортировки по порядку добавления, если не задан приоритет
                 if (!$oWidget->getOrder()) {
                     $oWidget->setOrder(isset($this->aWidgets[$sGroup]) ? sizeof($this->aWidgets[$sGroup]) : 0);
                 }
-                if (is_null($oWidget->getType())) {
-                    $sName = $oWidget->getName();
-                    $sType = $this->DefineWidgetType($sName, $oWidget->getDir(), $oWidget->getPluginId());
 
-                    $oWidget->setType($sType);
-                    if ($sType == 'template') {
-                        $oWidget->setName($sName);
-                    }
-                    /* LS-compatible */
-                    if (!$oWidget->getParam('plugin') && $oWidget->getPluginId()) {
-                        $oWidget->setParam('plugin', $oWidget->getPluginId());
-                    }
+                // if widget must be displayed then we add it to arrays
+                if ($oWidget->isDisplay()) {
+                    // Список всех виджетов, в т.ч. и без группы
+                    $this->aWidgets['_all_'][$oWidget->GetId()] = $oWidget;
+                    // Список виджетов с разбивкой по круппам (чтоб не дублировать, сохраняем ссылку на элемент в общем списке)
+                    $this->aWidgets[$sGroup][$oWidget->GetId()] = & $this->aWidgets['_all_'][$oWidget->GetId()];
                 }
-                // Список всех виджетов, в т.ч. и без группы
-                $this->aWidgets['_all_'][$oWidget->GetId()] = $oWidget;
-                // Список виджетов с разбивкой по круппам (чтоб не дублировать, сохраняем ссылку на элемент в общем списке)
-                $this->aWidgets[$sGroup][$oWidget->GetId()] = & $this->aWidgets['_all_'][$oWidget->GetId()];
             }
             $this->SortWidgets();
         }

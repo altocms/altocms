@@ -13,6 +13,13 @@
  */
 class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
 
+    /**
+     * Массив правил организации LS-блоков
+     *
+     * @var array
+     */
+    protected $aBlockRules = array();
+
     protected $aTemplatesLsMap = array(
         'commons/common.sharer.tpl' => 'sharer.tpl',
         'commons/common.user_list.tpl' => 'user_list.tpl',
@@ -55,7 +62,8 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
      */
     protected function DefineTypeBlock($sName, $sDir = null) {
 
-        return $this->DefineWidgetType($sName, $sDir);
+        $aResult = $this->DefineWidgetType($sName, $sDir);
+        return isset($aResult['type']) ? $aResult['type'] : '';
     }
 
     /**
@@ -66,14 +74,13 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
         return $this->SortWidgets();
     }
 
-    protected function DefineWidgetType(&$sName, $sDir = null, $sPlugin = null) {
+    public function DefineWidgetType($sName, $sDir = null, $sPlugin = null) {
 
         if (strpos($sName, 'widgets/widget.') === 0) {
             $sLsBlockName = str_replace('widgets/widget.', 'blocks/block.', $sName);
             if ($sLsBlockName = $this->TemplateExists(is_null($sDir) ? $sLsBlockName : rtrim($sDir, '/') . '/' . ltrim($sLsBlockName, '/'))) {
                 // Если найден шаблон, то считаем, что это шаблонный LS-block
-                $sName = $sLsBlockName;
-                return 'template';
+                return array('type' => 'template', 'template' => $sLsBlockName);
             }
         }
         return parent::DefineWidgetType($sName, $sDir, $sPlugin);

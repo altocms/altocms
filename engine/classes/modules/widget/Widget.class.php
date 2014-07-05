@@ -85,14 +85,7 @@ class ModuleWidget extends Module {
     public function MakeWidget($aWidgetData) {
 
         $oWidget = Engine::GetEntity('Widget', $aWidgetData);
-        /*
-         * Перенесено в конструктор
-        $aCfgData = Config::Get('widget.' . $oWidget->GetId() . '.config');
-        if ($aCfgData) {
-            $aCfgData = F::Array_Merge($oWidget->_getData(), $aCfgData);
-            $oWidget->_setData($aCfgData);
-        }
-         */
+
         return $oWidget;
     }
 
