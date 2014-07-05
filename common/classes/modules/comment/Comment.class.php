@@ -137,13 +137,13 @@ class ModuleComment extends Module {
 
         // * Формируем ID дополнительных данных, которые нужно получить
         $aUserId = array();
-        $aTargetId = array();
+        $aTargetTypeId = array();
         foreach ($aComments as $oComment) {
             if (isset($aAllowData['user'])) {
                 $aUserId[] = $oComment->getUserId();
             }
             if (isset($aAllowData['target'])) {
-                $aTargetId[$oComment->getTargetType()][] = $oComment->getTargetId();
+                $aTargetTypeId[$oComment->getTargetType()][] = $oComment->getTargetId();
             }
         }
 
@@ -156,15 +156,20 @@ class ModuleComment extends Module {
 
         // * В зависимости от типа target_type достаем данные
         $aTargets = array();
-        if (isset($aAdditionalData['target'][$oComment->getTargetType()])) {
-            $aTargets[$oComment->getTargetType()] = $aAdditionalData['target'][$oComment->getTargetType()];
-        } else {
-            if (isset($aTargetId['topic']) && $aTargetId['topic']) {
-                $aTargets['topic'] = $this->Topic_GetTopicsAdditionalData(
-                    $aTargetId['topic'], array('blog' => array('owner' => array(), 'relation_user'), 'user' => array())
-                );
+        foreach ($aTargetTypeId as $sTargetType => $aTargetId) {
+            if (isset($aAdditionalData['target'][$sTargetType])) {
+                // predefined targets' data
+                $aTargets[$sTargetType] = $aAdditionalData['target'][$sTargetType];
             } else {
-                $aTargets['topic'] = array();
+                if (isset($aTargetTypeId['topic']) && $aTargetTypeId['topic']) {
+                    // load targets' data
+                    $aTargets['topic'] = $this->Topic_GetTopicsAdditionalData(
+                        $aTargetTypeId['topic'], array('blog' => array('owner' => array(), 'relation_user'), 'user' => array())
+                    );
+                } else {
+                    // we don't know how to get targets' data
+                    $aTargets['topic'] = array();
+                }
             }
         }
 
