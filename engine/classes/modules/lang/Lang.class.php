@@ -156,6 +156,8 @@ class ModuleLang extends Module {
         if (Config::Get('sys.cache.type') == 'memory' && Config::Get('sys.cache.use')) {
             $sCacheKey = 'lang_' . $sLang . '_' . Config::Get('view.skin');
             if (false === ($this->aLangMsg[$sLang] = $this->Cache_Get($sCacheKey))) {
+                // if false then empty array
+                $this->aLangMsg[$sLang] = array();
                 $this->LoadLangFiles($this->sDefaultLang, $sLang);
                 if ($sLang != $this->sDefaultLang) {
                     $this->LoadLangFiles($sLang, $sLang);
@@ -499,6 +501,9 @@ class ModuleLang extends Module {
 
         if (!$sLang) {
             $sLang = $this->sCurrentLang;
+        }
+        if (!isset($this->aLangMsg[$sLang]) || !is_array($this->aLangMsg[$sLang])) {
+            $this->aLangMsg[$sLang] = array();
         }
         if (is_array($aMessages)) {
             if (isset($aParams['name'])) {
