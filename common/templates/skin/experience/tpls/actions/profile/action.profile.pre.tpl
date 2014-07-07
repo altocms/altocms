@@ -11,7 +11,7 @@
             <img src="{$oUserProfile->getAvatarUrl(85)}" alt="{$oUserProfile->getDisplayName()}" class="user-logo" itemprop="photo"/>
             <div class="user-name">
                 <div class="user-login-block">
-                    <span class="user-login {if !$oUserProfile->getProfileName()}no-user-name{/if}" >{$oUserProfile->getLogin()}</span>
+                    <span class="user-login {if !$oUserProfile->getProfileName()}no-user-name{/if}" >{$oUserProfile->getLogin()}</span><br/>
                     <span class="user-visit">{$aLang.user_date_last} {if $oSession}{$oSession->getDateLast()|date_format:'d.m.Y'} {$oSession->getDateLast()|date_format:'H:i'}{/if}</span>
                 </div>
                 <div class="user-full-name {if !$oUserProfile->getProfileName()}no-user-name{/if}">

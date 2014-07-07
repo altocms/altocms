@@ -53,8 +53,9 @@
                     </td>
                     <td class="cell-favourite">
                         <a href="#" onclick="return ls.favourite.toggle({$oTalk->getId()},this,'talk');"
-                           class="muted favourite {if $oTalk->getIsFavourite()}active{/if}"><span
-                                    class="fa fa-star"></span></a>
+                           class="muted favourite {if $oTalk->getIsFavourite()}active{/if}">
+                            {if $oTalk->getIsFavourite()}<i class="fa fa-star"></i>{else}<i class="fa fa-star-o"></i>{/if}
+                        </a>
                     </td>
                     <td>
                         {if $oTalkUserAuthor->getCommentCountNew() OR !$oTalkUserAuthor->getDateLast()}

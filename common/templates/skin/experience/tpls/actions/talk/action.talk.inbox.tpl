@@ -16,12 +16,14 @@
 
         <form action="{router page='talk'}" method="post" id="form_talks_list">
             <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
+            <input type="hidden" name="submit_talk_unread" id="form_talks_list_submit_unread" value=""/>
             <input type="hidden" name="submit_talk_read" id="form_talks_list_submit_read" value=""/>
             <input type="hidden" name="submit_talk_del" id="form_talks_list_submit_del" value=""/>
 
             <div class="row">
-                <div class="col-lg-12 user-toggle-publication-block">
+                <div class="col-lg-24 user-toggle-publication-block">
                     <a class="btn btn-light-gray " href="#" onclick="return ls.talk.makeReadTalks();">{$aLang.talk_inbox_make_read}</a>
+                    <a class="btn btn-light-gray " href="#" onclick="return ls.talk.makeUnreadTalks();">{$aLang.talk_inbox_make_un_read}</a>
                     <a class="btn btn-light-gray " href="#" onclick="return ls.talk.removeTalks();">{$aLang.talk_inbox_delete}</a>
                 </div>
             </div>
@@ -87,15 +89,17 @@
                         </td>
                         <td class="cell-favourite">
                             <a href="#" onclick="return ls.favourite.toggle({$oTalk->getId()},this,'talk');"
-                               class="muted favourite {if $oTalk->getIsFavourite()}active{/if}"><span
-                                        class="fa fa-star"></span></a>
+                               class="muted favourite {if $oTalk->getIsFavourite()}active{/if}">
+                                {if $oTalk->getIsFavourite()}<i class="fa fa-star"></i>{else}<i class="fa fa-star-o"></i>{/if}
+                            </a>
                         </td>
                         <td>
+
                             {strip}
                                 <a href="{router page='talk'}read/{$oTalk->getId()}/" class="js-title-talk link link-lead link-clear"
                                    title="{$oTalk->getTextLast()|strip_tags|truncate:100:'...'|escape:'html'}">
                                     {if $oTalkUserAuthor->getCommentCountNew() OR !$oTalkUserAuthor->getDateLast()}
-                                        {$oTalk->getTitle()|escape:'html'}
+                                        <strong>{$oTalk->getTitle()|escape:'html'}</strong>
                                     {else}
                                         {$oTalk->getTitle()|escape:'html'}
                                     {/if}

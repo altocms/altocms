@@ -21,6 +21,12 @@ $config['widgets'][] = array(
 );
 
 $config['widgets'][] = array(
+    'name'     => 'toolbar_login.tpl',
+    'wgroup'   => 'toolbar',
+    'priority' => 1000,
+);
+
+$config['widgets'][] = array(
     'name'     => 'toolbar_menu.tpl',
     'wgroup'   => 'toolbar',
     'priority' => 100,

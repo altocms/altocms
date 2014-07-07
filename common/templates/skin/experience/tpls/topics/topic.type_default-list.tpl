@@ -108,7 +108,7 @@
                     <a class="link link-dark link-lead link-clear {if E::IsUser() AND $oTopic->getIsFavourite()}active{/if}"
                        onclick="return ls.favourite.toggle({$oTopic->getId()},this,'topic');"
                        href="#">
-                        <i class="fa fa-star"></i>
+                        {if $oTopic->getIsFavourite()}<i class="fa fa-star"></i>{else}<i class="fa fa-star-o"></i>{/if}
                         <span class="favourite-count" id="fav_count_topic_{$oTopic->getId()}">{$oTopic->getCountFavourite()}</span>
                     </a>
                 </li>

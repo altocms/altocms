@@ -42,8 +42,9 @@
                  </li>
                  <li class="topic-info-favourite"><a href="#"
                                                      onclick="return ls.favourite.toggle({$oTalk->getId()},this,'talk');"
-                                                     class="link link-light-gray link-lead link-clear  {if $oTalk->getIsFavourite()}active{/if}"><span
-                                 class="fa fa-star"></span></a></li>
+                                                     class="link link-light-gray link-lead link-clear  {if $oTalk->getIsFavourite()}active{/if}">
+                         {if $oTalk->getIsFavourite()}<i class="fa fa-star"></i>{else}<i class="fa fa-star-o"></i>{/if}
+                 </li>
 
                  <li class="delete pull-right marr0 hidden-xs visible-sm visible-lg visible-sm">
                      <a href="#"

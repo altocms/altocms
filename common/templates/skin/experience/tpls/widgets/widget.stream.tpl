@@ -12,9 +12,10 @@
                title="{$aLang.widget_stream_comments_all}">{$aLang.widget_stream}</a>
             <a href="#"
                onclick="
-               			var $t = $(this).find('i').addClass('fa-spin');
+                        var b = $(this).parents('.widget-type-stream')
+                        b.height(b.height());
 			            ls.widgets.load($('.js-widget-stream-navs a.active'), 'stream', null, function(html){
-                            $t.removeClass('fa-spin');
+                            b.css('height', 'auto');
                             $('.js-widget-stream-content').html(html);
                             $('.widget-type-stream').css('height', 'auto');
                         });

@@ -114,13 +114,18 @@
                     </div>
 
                     {if (E::UserId() != $oBlog->getOwnerId()) && $oBlogType->GetMembership(ModuleBlog::BLOG_USER_JOIN_FREE)}
+                        <script>
+                            $(function(){
+                                ls.lang.load({lang_load name="ex_blog_leave,ex_blog_join"});
+                            })
+                        </script>
                         <div class="visible-xxs pal0 hif last-div rating-value" style="display: none;">
                             <a href="#"  onclick="ls.blog.toggleJoin(this, {$oBlog->getId()}); return false;"
                                class="link link-dark link-lead">
                                 {if $oBlog->getUserIsJoin()}
-                                    {$aLang.blog_leave}
+                                    {$aLang.ex_blog_leave}
                                 {else}
-                                    {$aLang.blog_join}
+                                    {$aLang.ex_blog_join}
                                 {/if}
                             </a>
                         </div>
@@ -141,11 +146,11 @@
                 <td class="blog-options hidden-xxs last-td">
                     {if (E::UserId() != $oBlog->getOwnerId()) && $oBlogType->GetMembership(ModuleBlog::BLOG_USER_JOIN_FREE)}
                         <a href="#"  onclick="ls.blog.toggleJoin(this, {$oBlog->getId()}); return false;"
-                           class="link link-dark link-lead">
+                           class="link {if $oBlog->getUserIsJoin()}link-dark{else}link-blue{/if} link-lead link-clear">
                             {if $oBlog->getUserIsJoin()}
-                                {$aLang.blog_leave}
+                                {$aLang.ex_blog_leave}
                             {else}
-                                {$aLang.blog_join}
+                                {$aLang.ex_blog_join}
                             {/if}
                         </a>
                     {else}

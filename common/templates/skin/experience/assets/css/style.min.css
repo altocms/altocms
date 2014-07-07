@@ -7946,6 +7946,12 @@ button.close {
 /**-------------------------------------------------------------------------------------------------------*/
 /** РАЧЕТНЫЕ ДАННЫЕ. НЕ МЕНЯТЬ!
 ----------------------------------------------------------------------------------------------------------*/
+.label {
+  border-radius: 0 !important;
+}
+.dropdown-menu > li > a {
+  font-size: 12px !important;
+}
 .topic-text img,
 .comment-text img {
   cursor: pointer;
@@ -8526,6 +8532,14 @@ small,
 .list-no-border {
   margin: 0;
   padding: 0;
+}
+.inh {
+  position: relative !important;
+  top: -2px !important;
+  margin-left: 12px;
+}
+.inh * {
+  font-size: 12px !important;
 }
 .uppercase {
   text-transform: uppercase;
@@ -9658,7 +9672,7 @@ ul.menu-level-1 > li.menu-hidden-container ul.menu-hidden li.open > a.userlogo {
 .footer-2-container .left-copyright img {
   float: left;
   position: relative;
-  max-height: 16px;
+  max-height: 18px;
   top: 11px;
   margin-right: 8px;
 }
@@ -10250,6 +10264,9 @@ ul.menu-level-1 > li.menu-hidden-container ul.menu-hidden li.open > a.userlogo {
 .comment-self *,
 .comment-new * {
   background-color: #fefde5;
+}
+.comment-current * {
+  background-color: #f2feea !important;
 }
 .comment-level-2 {
   margin-left: 38px;
@@ -10860,7 +10877,6 @@ ul.menu-level-1 > li.menu-hidden-container ul.menu-hidden li.open > a.userlogo {
   margin-left: 115px;
 }
 .user-info .user-name .user-login-block {
-  line-height: 47.5px;
   border-bottom: 1px solid #d9d9d9;
 }
 .user-info .user-name .user-login {
@@ -10875,9 +10891,12 @@ ul.menu-level-1 > li.menu-hidden-container ul.menu-hidden li.open > a.userlogo {
 }
 .user-info .user-name .user-visit {
   font-size: 11px;
+  display: inline-block;
   color: #808080;
   font-weight: 300;
   height: 50%;
+  position: relative;
+  top: -4px;
 }
 .user-info .user-rating-header,
 .user-info .user-power-header {
@@ -11237,6 +11256,7 @@ ul.menu-level-1 > li.menu-hidden-container ul.menu-hidden li.open > a.userlogo {
 }
 .blogs-table .blog-options {
   text-align: center;
+  white-space: nowrap;
   vertical-align: top;
   line-height: 14px;
   padding: 0 12px;
@@ -12572,12 +12592,14 @@ span.ui-helper-hidden-accessible {
 #notifier .glyphicon {
   margin-right: 12px;
 }
+/** Цвет, который будет на темном фоне шапки
+______________________________________________*/
 /* Make clicks pass-through */
 #nprogress {
   pointer-events: none;
 }
 #nprogress .bar {
-  background: white;
+  background: #2299dd;
   position: fixed;
   z-index: 1060;
   top: 0;
@@ -12595,7 +12617,7 @@ span.ui-helper-hidden-accessible {
   right: 0px;
   width: 100px;
   height: 100%;
-  box-shadow: 0 0 10px white, 0 0 5px white;
+  box-shadow: 0 0 10px #2299dd, 0 0 5px #2299dd;
   /*#29d;*/
   opacity: 1.0;
   -webkit-transform: rotate(3deg) translate(0px, -4px);
@@ -12618,8 +12640,8 @@ span.ui-helper-hidden-accessible {
   height: 18px;
   box-sizing: border-box;
   border: solid 2px transparent;
-  border-top-color: white;
-  border-left-color: white;
+  border-top-color: #2299dd;
+  border-left-color: #2299dd;
   border-radius: 50%;
   -webkit-animation: nprogress-spinner 400ms linear infinite;
   animation: nprogress-spinner 400ms linear infinite;

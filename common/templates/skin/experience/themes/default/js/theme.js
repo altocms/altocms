@@ -455,7 +455,53 @@ $(function () {
         social_tools: '',
         show_title: true,
         deeplinking: false
-    })
+    });
 
+    ls.hook.add('ls_favourite_toggle_after', function(idTarget, objFavourite, type, params, result){
+        if (params.type == 1) {
+            $(objFavourite).find('i').removeClass('fa-star-o').addClass('fa fa-star');
+        } else {
+            $(objFavourite).find('i').removeClass('fa fa-star').addClass('fa fa-star-o');
+        }
+    });
+
+
+    /**
+     * Вступить или покинуть блог
+     */
+    ls.blog.toggleJoin = function (button, idBlog) {
+        var url = ls.routerUrl('blog') + 'ajaxblogjoin/',
+            params = {idBlog: idBlog};
+        button = $(button);
+
+        ls.progressStart();
+        ls.ajax(url, params, function (result) {
+            ls.progressDone();
+            if (!result) {
+                ls.msg.error(null, 'System error #1001');
+            } else if (result.bStateError) {
+                ls.msg.error(null, result.sMsg);
+            } else {
+                ls.msg.notice(null, result.sMsg);
+
+                var text = result.bState
+                        ? ls.lang.get('ex_blog_leave')
+                        : ls.lang.get('ex_blog_join')
+                    ;
+
+                button.empty().html(text);
+                button.toggleClass('active');
+
+                if (!result.bState) {
+                    button.addClass('link-blue').removeClass('link-dark');
+                } else {
+                    button.removeClass('link-blue').addClass('link-dark');
+                }
+
+                $('#blog_user_count_' + idBlog).text(result.iCountUser);
+                ls.hook.run('ls_blog_toggle_join_after', [idBlog, result], button);
+            }
+        });
+    };
 
 });
