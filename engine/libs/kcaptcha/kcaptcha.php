@@ -104,7 +104,7 @@ class KCAPTCHA{
 									$left=$sx-$m['start']+$x;
 									$py=$sy+$y;
 									if($py>$height) break;
-									for($px=min($left,$width-1);$px>$left-200 && $px>=0;$px-=1){
+									for($px=min($left,$width-1);$px>$left-200 && $px>0;$px-=1){
 						        		$color=imagecolorat($img, $px, $py) & 0xff;
 										if($color+$opacity<170){ // 170 - threshold
 											if($shift>$left-$px){
