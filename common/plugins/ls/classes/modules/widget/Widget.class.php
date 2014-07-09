@@ -160,6 +160,7 @@ class PluginLs_ModuleWidget extends PluginLs_Inherit_ModuleWidget {
         if (!$xResult) {
             $aPathSeek = F::GetPluginsDir();
             if ($sPlugin && $aPathSeek) {
+                $sName = ucfirst($sName);
                 $sFile = $sPlugin . '/classes/blocks/Block' . $sName . '.class.php';
                 $sClass = 'Plugin' . ucfirst($sPlugin) . '_Block' . $sName;
                 if (F::File_Exists($sFile, $aPathSeek)) {

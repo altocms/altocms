@@ -19,16 +19,25 @@
  * Плагин для Smarty
  * Подключает обработчик блоков шаблона (LS-compatible)
  *
- * @param array $aParams
- * @param Smarty $oSmarty
+ * @param array                    $aParams
+ * @param Smarty_Internal_Template $oSmarty
+ *
  * @return string
  */
 function smarty_insert_block($aParams, &$oSmarty) {
 
     if (!isset($aParams['block'])) {
         trigger_error('Parameter "block" not define in {insert name="block" ...}', E_USER_WARNING);
-        return;
+        return null;
     }
+    $aParams['name'] = $aParams['block'];
+
+    if (!function_exists('smarty_function_widget')) {
+        F::IncludeFile(Config::Get('path.smarty.plug') . 'function.widget.php');
+    }
+    return smarty_function_widget($aParams, $oSmarty);
+
+    /*
     $oEngine = Engine::getInstance();
 
     $sWidget = ucfirst(basename($aParams['block']));
@@ -96,6 +105,7 @@ function smarty_insert_block($aParams, &$oSmarty) {
         $sResult = $oSmarty->fetch($sTemplate);
 
     return $sResult;
+    */
 }
 
 // EOF
