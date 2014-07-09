@@ -29,6 +29,7 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
         'actions/ActionProfile/info.tpl' => 'actions/ActionProfile/whois.tpl',
         'actions/profile/action.profile.info.tpl' => 'actions/ActionProfile/whois.tpl',
         'topics/topic.list.tpl' => 'topic_list.tpl',
+        'comments/comment.single.tpl' => 'comment.tpl',
     );
 
     protected $aAdaptedSkins = array('fortune', 'crisp');
@@ -80,7 +81,7 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
             $sLsBlockName = str_replace('widgets/widget.', 'blocks/block.', $sName);
             if ($sLsBlockName = $this->TemplateExists(is_null($sDir) ? $sLsBlockName : rtrim($sDir, '/') . '/' . ltrim($sLsBlockName, '/'))) {
                 // Если найден шаблон, то считаем, что это шаблонный LS-block
-                return array('type' => 'template', 'template' => $sLsBlockName);
+                return array('type' => 'template', 'name' => $sLsBlockName);
             }
         }
         return parent::DefineWidgetType($sName, $sDir, $sPlugin);

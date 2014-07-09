@@ -34,7 +34,7 @@ class ModuleWidget_EntityWidget extends Entity {
             if (isset($aTypeData['type'])) {
                 $this->setType($aTypeData['type']);
 
-                if ($aTypeData['type'] == 'template' && $aTypeData['name']) {
+                if ($aTypeData['type'] == 'template' && !empty($aTypeData['name'])) {
                     $this->setTemplate($aTypeData['name']);
                     $this->setName($aTypeData['name']);
                 }
