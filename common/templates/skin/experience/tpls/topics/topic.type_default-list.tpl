@@ -158,55 +158,28 @@
 
                 <li class="pull-right topic-rating js-vote end" data-target-type="topic" data-target-id="{$oTopic->getId()}">
                     <a href="#" onclick="return false;" class="{$sVoteClass} vote-down link link-gray link-clear js-vote-down"><i class="fa fa-thumbs-o-down"></i></a>
-                    {if $bVoteInfoShow}
-                        <span class="vote-tooltip vote-total js-vote-rating {$sVoteClass}"
-                              data-placement="top"
-                              data-original-title='
-
-                        <div id="vote-info-topic-{$oTopic->getId()}">
-							<ul class="vote-topic-info list-unstyled mal0">
-								<li><i class="fa fa-thumbs-o-up"></i><span>{$oTopic->getCountVoteUp()}</span>
-								<li><i class="fa fa-thumbs-o-down"></i><span>{$oTopic->getCountVoteDown()}</span>
-								<li><i class="fa fa-eye"></i><span>{$oTopic->getCountVoteAbstain()}</span>
-								{hook run='topic_show_vote_stats' topic=$oTopic}
-							</ul>
-						</div>
-
-                           '
-                              data-html="true"
-                                >{if $oTopic->getRating() > 0}+{/if}{$oTopic->getRating()}</span>
-                    {else}
-                        &nbsp;<a href="#"
-                           data-placement="top"
-                           data-original-title='
-
-                        <div id="vote-info-topic-{$oTopic->getId()}">
-							<ul class="vote-topic-info list-unstyled mal0">
-								<li><i class="fa fa-thumbs-o-up"></i><span>{$oTopic->getCountVoteUp()}</span>
-								<li><i class="fa fa-thumbs-o-down"></i><span>{$oTopic->getCountVoteDown()}</span>
-								<li><i class="fa fa-eye"></i><span>{$oTopic->getCountVoteAbstain()}</span>
-								{hook run='topic_show_vote_stats' topic=$oTopic}
-							</ul>
-						</div>
-
-                           '
-                           data-html="true"
-                           class="vote-tooltip vote-down link js-vote-rating link-gray link-clear" onclick="return ls.vote.vote({$oTopic->getId()},this,0,'topic');">?</a>&nbsp;
-                    {/if}
+                        <span class="vote-tooltip vote-total js-vote-rating {$sVoteClass} {if $oTopic->getRating() >= 0}green{else}red{/if}"
+                                {if Config::Get('view.show_rating') || $bVoteInfoShow}
+                            data-placement="top"
+                            data-original-title='
+                                    <div id="vote-info-topic-{$oTopic->getId()}">
+                                        <ul class="vote-topic-info list-unstyled mal0">
+                                            <li><i class="fa fa-thumbs-o-up"></i><span>{$oTopic->getCountVoteUp()}</span>
+                                            <li><i class="fa fa-thumbs-o-down"></i><span>{$oTopic->getCountVoteDown()}</span>
+                                            <li><i class="fa fa-eye"></i><span>{$oTopic->getCountVoteAbstain()}</span>
+                                            {hook run='topic_show_vote_stats' topic=$oTopic}
+                                        </ul>
+                                    </div>'
+                            data-html="true"
+                                {/if}>
+                            {if $bVoteInfoShow}
+                                {if $oTopic->getRating() > 0}+{/if}{$oTopic->getRating()}
+                            {else}
+                                <i class="vote-tooltip vote-down link link-gray js-vote-rating link-clear"
+                                   onclick="return ls.vote.vote({$oTopic->getId()},this,0,'topic');">&nbsp;?&nbsp;</i>
+                            {/if}
+                            </span>
                     <a href="#" onclick="return false;" class="{$sVoteClass} vote-up link link link-gray link-clear js-vote-up"><i class="fa fa-thumbs-o-up"></i></a>
-
-                    {if $bVoteInfoShow}
-                        <div id="vote-info-topic-{$oTopic->getId()}" style="display: none;">
-                            <ul class="list-unstyled vote-topic-info">
-                                <li><span class="glyphicon glyphicon-thumbs-up"></span>{$oTopic->getCountVoteUp()}</li>
-                                <li><span class="glyphicon glyphicon-thumbs-down"></span>{$oTopic->getCountVoteDown()}
-                                </li>
-                                <li><span class="glyphicon glyphicon-eye-open"></span>{$oTopic->getCountVoteAbstain()}
-                                </li>
-                                {hook run='topic_show_vote_stats' topic=$oTopic}
-                            </ul>
-                        </div>
-                    {/if}
                 </li>
 
                 {hook run='topic_show_info' topic=$oTopic}

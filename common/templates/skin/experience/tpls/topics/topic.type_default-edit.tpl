@@ -48,15 +48,44 @@
 
             {* ПОЛУЧЕНИЕ КОРОТКОЙ ССЫЛКИ НА ТОПИК *}
             {if $sMode != 'add' AND E::IsAdmin()}
-                <div class="form-group has-feedback">
-                    <div class="input-group">
-                        <span class="input-group-addon">{$aLang.topic_create_url}</span>
-                        <input type="text" id="topic_url" name="topic_url" value="{$aEditTopicUrl.before}{$aEditTopicUrl.input}{$aEditTopicUrl.after}" class="form-control" readonly/>
-                        <a href="#" class="link link-lead link-dark form-control-feedback"
-                           title="{$aLang.topic_create_url_short}" onclick="ls.topic.shortUrl('{$_aRequest.topic_url_short}'); return false;"><i class="fa fa-share"></i></a>
+                {if $aEditTopicUrl.input == ''}
+                    <div class="form-group has-feedback"">
+                        <div class="input-group">
+                            <span class="input-group-addon">{$aLang.topic_create_url}</span>
+                            <input type="text" id="topic_url" name="topic_url" value="{$aEditTopicUrl.before}{$aEditTopicUrl.input}{$aEditTopicUrl.after}" class="form-control" readonly/>
+                            <a href="#" class="link link-lead link-dark form-control-feedback"
+                               title="{$aLang.topic_create_url_short}" onclick="ls.topic.shortUrl('{$_aRequest.topic_url_short}'); return false;"><i class="fa fa-share"></i></a>
+                        </div>
                     </div>
+                {else}
+    <script>
+        $(function(){
+            function resizeInput() {
+                $(this).attr('size', $(this).val().length-2);
+            }
 
-                </div>
+            $('.auto-input')
+                    .keyup(resizeInput)
+                    .each(resizeInput);
+        })
+    </script>
+                    <div class="form-group has-feedback"">
+                        <div class="input-group">
+                            <span class="input-group-addon">{$aLang.topic_create_url}</span>
+                            <table class="form-control">
+                                <tr>
+                                    <td>{$aEditTopicUrl.before}</td>
+                                    <td><input class="auto-input" type="text" id="topic_url" name="topic_url" value="{$aEditTopicUrl.input}"  /></td>
+                                    <td>{$aEditTopicUrl.after}</td>
+                                </tr>
+                            </table>
+
+                            <a href="#" class="link link-lead link-dark form-control-feedback"
+                               title="{$aLang.topic_create_url_short}" onclick="ls.topic.shortUrl('{$_aRequest.topic_url_short}'); return false;"><i class="fa fa-share"></i></a>
+                        </div>
+
+                    </div>
+                {/if}
             {/if}
 
             {* РЕДАКТОР *}

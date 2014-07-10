@@ -7,16 +7,16 @@
 
         <ul class="menu-level-2 main">
 
-            <!-- Логотип -->
-            <li class="menu-level-2-logo">
-                <a class="logo" href="{Config::Get('path.root.url')}">
-                    <img src="{asset file="images/logo.png" theme=true}" alt="{Config::Get('view.name')}"/>
-                    {Config::Get('view.name')}
-                </a>
-                <a href="#" onclick="return false;" class="bars">
-                    <i class="fa fa-bars"></i>
-                </a>
-            </li>
+<!-- Логотип -->
+<li class="menu-level-2-logo">
+    <a class="logo" href="{Config::Get('path.root.url')}">
+        <img src="{asset file="images/logo.png" theme=true}" alt="{Config::Get('view.name')}"/>
+        {Config::Get('view.name')} {* <-- Это название сайта, его можно удалить *}
+    </a>
+    <a href="#" onclick="return false;" class="bars">
+        <i class="fa fa-bars"></i>
+    </a>
+</li>
 
             {hook run='header_top_begin'}
 

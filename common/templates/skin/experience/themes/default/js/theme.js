@@ -451,10 +451,15 @@ $(function () {
     };
 
 
-    $('.topic-text img, .comment-text img').attr('rel', "prettyPhoto[topic]").prettyPhoto({
-        social_tools: '',
-        show_title: true,
-        deeplinking: false
+    $('.topic-text img, .comment-text img').each(function(){
+        var a = $('<a href="'+$(this).attr('src')+'" rel="prettyPhoto[pp]" ></a>');
+        a.insertAfter($(this));
+        $(this).appendTo(a);
+        a.attr('rel', "prettyPhoto[topic]").prettyPhoto({
+            social_tools: '',
+            show_title: true,
+            deeplinking: false
+        })
     });
 
     ls.hook.add('ls_favourite_toggle_after', function(idTarget, objFavourite, type, params, result){

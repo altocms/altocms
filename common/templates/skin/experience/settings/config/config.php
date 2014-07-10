@@ -1,8 +1,8 @@
 <?php
- /**
-  * Тема оформления Experience v.1.0  для Alto CMS
-  * @licence     CC Attribution-ShareAlike
-  */
+/**
+ * Тема оформления Experience v.1.0  для Alto CMS
+ * @licence     CC Attribution-ShareAlike
+ */
 
 /**
  * config.php
@@ -14,23 +14,31 @@
  * @version     0.0.1 от 29.05.2014 1:20
  */
 
-
+/**
+ * Цветовая схема оформления
+ *      - 'default' - дефолтная, в серых тонах
+ */
 $aConfig['view']['theme'] = 'default';
 
+/**
+ * Использовать ли плавующее меню
+ *      - false (не использовать)
+ *      - true (использовать)
+ */
 $aConfig['view']['fix_menu'] = true;
 
-// Включаем плитку или нет
-//$aConfig['view']['masonry'] = false;
-//
-//// Отображать ли сайдбар на указанных страницах
-//$aConfig['view']['masonry_sidebar'] = true;
-//$aConfig['view']['masonry_sidebar_pages'] = array('search', 'index');
 
-
+/**
+ * Показывать рейтинг топика всем
+ *      - false (рейтинг видят только прогосовавшие - первый вариант);
+ *      - true(рейтинг видят все - второй вариант)
+ */
+$aConfig['view']['show_rating'] = false;
 
 
 $aConfig['head']['default']['js'] = Config::Get('head.default.js');
 $aConfig['head']['default']['js']["___path.skin.dir___/assets/js/experience/dropdown.min.js"] = array('name' => 'bootstrap');
+//$aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/dropdown.min.js";
 $aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/menu.min.js";
 $aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/menu-l2.min.js";
 $aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/script.min.js";
@@ -43,8 +51,8 @@ $aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/
 $aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/ch-datepicker.min.js";
 $aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/bootstrap/transition.min.js";
 $aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/bootstrap/modal.min.js";
-$aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/bootstrap/tab.min.js";
 $aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/bootstrap/tooltip.min.js";
+$aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/bootstrap/tab.min.js";
 $aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/bootstrap/popover.min.js";
 $aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/bootstrap/carousel.min.js";
 $aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/bootstrap/collapse.min.js";
@@ -54,7 +62,7 @@ $aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/moment/mome
 $aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/moment/moment.lang.ru.min.js";
 $aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/jasny/fileinput.min.js";
 
-$aConfig['module']['user']['profile_photo_size']='222x';
+$aConfig['module']['user']['profile_photo_size'] = '222x';
 
 $aConfig['head']['default']['css'] = array(
     '___path.skin.dir___/assets/css/style.min.css',
