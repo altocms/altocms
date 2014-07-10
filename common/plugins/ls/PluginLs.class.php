@@ -37,10 +37,6 @@ class PluginLs extends Plugin {
         ),
     );
 
-    public function __construct() {
-
-    }
-
     /**
      * Активация плагина
      */
