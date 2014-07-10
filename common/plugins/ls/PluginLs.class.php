@@ -39,10 +39,6 @@ class PluginLs extends Plugin {
 
     public function __construct() {
 
-        if (F::File_Exists(Config::Get('path.smarty.template') . 'page_main_menu.tpl')) {
-            // считаем, что скин адаптирован и делегаты шаблонов не нужны
-            $this->aDelegates = null;
-        }
     }
 
     /**
