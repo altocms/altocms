@@ -37,14 +37,14 @@ function smarty_function_wgroup($aParams, $oSmartyTemplate) {
             $sError .= ' (template: ' . $oSmartyTemplate->template_resource . ')';
         }
         trigger_error($sError, E_USER_WARNING);
-        return;
+        return null;
     }
     $sWidgetGroup = $aParams['group'];
     $aWidgetParams = (isset($aParams['params']) ? $aParams['params'] : $aParams);
 
     // group parameter required
     if (!$sWidgetGroup) {
-        return '';
+        return null;
     }
 
     if (isset($aParams['command'])) {
@@ -66,7 +66,7 @@ function smarty_function_wgroup($aParams, $oSmartyTemplate) {
     } elseif ($sWidgetCommand == 'add') {
         if (!isset($aWidgetParams['widget'])) {
             trigger_error('Parameter "widget" does not define in {wgroup ...} function', E_USER_WARNING);
-            return;
+            return null;
         }
         if (!function_exists('smarty_function_wgroup_add')) {
             F::IncludeFile('function.wgroup_add.php');

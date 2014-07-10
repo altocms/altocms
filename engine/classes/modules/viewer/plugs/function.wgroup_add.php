@@ -37,7 +37,7 @@ function smarty_function_wgroup_add($aParams, $oSmartyTemplate) {
             $sError .= ' (template: ' . $oSmartyTemplate->template_resource . ')';
         }
         trigger_error($sError, E_USER_WARNING);
-        return;
+        return null;
     }
     if (!isset($aParams['widget'])) {
         $sError = 'Parameter "widget" does not define in {wgroup_add ...} function';
@@ -45,7 +45,7 @@ function smarty_function_wgroup_add($aParams, $oSmartyTemplate) {
             $sError .= ' (template: ' . $oSmartyTemplate->template_resource . ')';
         }
         trigger_error($sError, E_USER_WARNING);
-        return;
+        return null;
     }
 
     $aWidgetParams = (isset($aParams['params']) ? (array)$aParams['params'] : array());

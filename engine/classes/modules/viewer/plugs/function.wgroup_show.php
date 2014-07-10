@@ -37,7 +37,7 @@ function smarty_function_wgroup_show($aParams, $oSmartyTemplate) {
             $sError .= ' (template: ' . $oSmartyTemplate->template_resource . ')';
         }
         trigger_error($sError, E_USER_WARNING);
-        return;
+        return null;
     }
     $sWidgetGroup = $aParams['group'];
     $aWidgets = Engine::getInstance()->Viewer_GetWidgets();

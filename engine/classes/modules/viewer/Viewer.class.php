@@ -1090,9 +1090,15 @@ class ModuleViewer extends Module {
      */
     public function GetWidgets($bSort = true) {
 
+        if ($this->aWidgetsAppend) {
+            $this->AddWidgetsToList($this->aWidgetsAppend);
+            $this->aWidgetsAppend = array();
+        }
+
         if ($bSort && !$this->bWidgetsSorted) {
             $this->SortWidgets();
         }
+
         return $this->aWidgets;
     }
 
@@ -1184,37 +1190,57 @@ class ModuleViewer extends Module {
         $this->bWidgetsSorted = true;
     }
 
+    /**
+     * Make lists of widgets (separated by groups)
+     */
     protected function MakeWidgetsLists() {
 
+        // Load widgets from config files
         $aWidgets = $this->Widget_GetWidgets();
+        $iCount = $this->AddWidgetsToList($aWidgets);
+
+        // Check widgets added from actions
         if ($this->aWidgetsAppend) {
-            foreach($this->aWidgetsAppend as $sWidgetId => $oWidget) {
-                $aWidgets[$sWidgetId] = $oWidget;
-            }
+            $iCount += $this->AddWidgetsToList($this->aWidgetsAppend);
             $this->aWidgetsAppend = array();
         }
-        if ($aWidgets) {
-            foreach ($aWidgets as $oWidget) {
-                $sGroup = $oWidget->getGroup();
-                if (!$sGroup) {
-                    // group not defined
-                    $sGroup = '-';
-                }
-                // Свойство "order" потребуется для сортировки по порядку добавления, если не задан приоритет
-                if (!$oWidget->getOrder()) {
-                    $oWidget->setOrder(isset($this->aWidgets[$sGroup]) ? sizeof($this->aWidgets[$sGroup]) : 0);
-                }
 
-                // if widget must be displayed then we add it to arrays
-                if ($oWidget->isDisplay()) {
-                    // Список всех виджетов, в т.ч. и без группы
-                    $this->aWidgets['_all_'][$oWidget->GetId()] = $oWidget;
-                    // Список виджетов с разбивкой по круппам (чтоб не дублировать, сохраняем ссылку на элемент в общем списке)
-                    $this->aWidgets[$sGroup][$oWidget->GetId()] = & $this->aWidgets['_all_'][$oWidget->GetId()];
-                }
-            }
+        if ($iCount) {
             $this->SortWidgets();
         }
+    }
+
+    /**
+     * Adds widgets from array to current lists
+     *
+     * @param array $aWidgets
+     *
+     * @return int
+     */
+    protected function AddWidgetsToList($aWidgets) {
+
+        $iCount = 0;
+        foreach ($aWidgets as $oWidget) {
+            $sGroup = $oWidget->getGroup();
+            if (!$sGroup) {
+                // group not defined
+                $sGroup = '-';
+            }
+            // Свойство "order" потребуется для сортировки по порядку добавления, если не задан приоритет
+            if (!$oWidget->getOrder()) {
+                $oWidget->setOrder(isset($this->aWidgets[$sGroup]) ? sizeof($this->aWidgets[$sGroup]) : 0);
+            }
+
+            // if widget must be displayed then we add it to arrays
+            if ($oWidget->isDisplay()) {
+                // Список всех виджетов, в т.ч. и без группы
+                $this->aWidgets['_all_'][$oWidget->GetId()] = $oWidget;
+                // Список виджетов с разбивкой по круппам (чтоб не дублировать, сохраняем ссылку на элемент в общем списке)
+                $this->aWidgets[$sGroup][$oWidget->GetId()] = & $this->aWidgets['_all_'][$oWidget->GetId()];
+                $iCount += 1;
+            }
+        }
+        return $iCount;
     }
 
     /**
