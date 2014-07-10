@@ -1143,9 +1143,9 @@ class ModuleViewer extends Module {
         }
 
         // Считаем что тип не определен
-        F::SysWarning('Can not define type of widget "' . $sName . '"');
+        //F::SysWarning('Can not define type of widget "' . $sName . '"');
 
-        return array('type' => 'exec');
+        return array('type' => null);
     }
 
 
