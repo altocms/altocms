@@ -45,7 +45,7 @@ class HookMain extends Hook {
         /*
          * Улучшенный share при просмотре топика
          */
-        $this->AddHook('template_block_topic_share', 'addSharer');
+        //$this->AddHook('template_block_topic_share', 'addSharer');
     }
 
     public function SessionInitAfter() {

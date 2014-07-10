@@ -92,8 +92,14 @@
     {if !$bPreview}
         <div class="bg-warning topic-share" id="topic_share_{$oTopic->getId()}">
             {hookb run="topic_share" topic=$oTopic bTopicList=false}
-                <div class="yashare-auto-init" data-yashareTitle="{$oTopic->getTitle()|escape:'html'}"
-                     data-yashareLink="{$oTopic->getUrl()}" data-yashareL10n="ru" data-yashareType="none"
+                <div class="yashare-auto-init"
+                     data-yashareTitle="{$oTopic->getTitle()|escape:'html'}"
+                     data-yashareDescription=""
+                     data-yashareLink="{$oTopic->getUrl()}"
+                     data-yashareL10n="{Config::Get('lang.current')}"
+                     data-yashareTheme="counter"
+                     data-yashareType="small"
+                     {if $oTopic->getPreviewImageUrl()}data-yashareImage="{$oTopic->getPreviewImageUrl()}"{/if}
                      data-yashareQuickServices="yaru,vkontakte,facebook,twitter,odnoklassniki,moimir,lj,gplus"></div>
             {/hookb}
         </div>
