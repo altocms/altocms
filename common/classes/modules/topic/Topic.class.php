@@ -2859,7 +2859,7 @@ class ModuleTopic extends Module {
      */
     public function UpdateMresources($oTopic) {
 
-        $this->oMapper->attachTmpPhotoToTopic($oTopic);
+        $this->AttachTmpPhotoToTopic($oTopic);
 
         // Получаем список ресурсов (хеш-таблицу)
         $aList = $oTopic->BuildMresourcesList();
@@ -2900,6 +2900,14 @@ class ModuleTopic extends Module {
         foreach ($aTopics as $oTopic) {
             $this->Mresource_DeleteMresourcesRelByTarget('topic', $oTopic->GetId());
         }
+    }
+
+    public function AttachTmpPhotoToTopic($oTopic, $sTargetTmp = null) {
+
+        if (is_null($sTargetTmp)) {
+            $sTargetTmp = $oTopic->getTargetTmp();
+        }
+        return $this->oMapper->attachTmpPhotoToTopic($oTopic, $sTargetTmp);
     }
 
 }

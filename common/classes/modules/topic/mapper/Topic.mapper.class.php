@@ -1318,14 +1318,17 @@ class ModuleTopic_MapperTopic extends Mapper {
      * Присоединение фотографий к фотосету топика
      *
      * @param ModuleTopic_EntityTopic $oTopic
+     * @param string                  $sTargetTmp
      *
      * @return bool
      */
-    public function attachTmpPhotoToTopic($oTopic) {
+    public function attachTmpPhotoToTopic($oTopic, $sTargetTmp) {
 
-        if ($sTargetTmp = $oTopic->getTargetTmp()) {
+        if ($sTargetTmp) {
             $sql = "
-                UPDATE ?_topic_photo SET topic_id=?d, target_tmp=NULL WHERE target_tmp=?
+                UPDATE ?_topic_photo
+                SET topic_id=?d, target_tmp=NULL
+                WHERE target_tmp=?
             ";
             return $this->oDb->query($sql, $oTopic->getId(), $sTargetTmp) !== false;
         }
