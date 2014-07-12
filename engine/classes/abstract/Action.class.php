@@ -507,19 +507,27 @@ abstract class Action extends LsObject {
     }
 
     /**
-     * Возвращает информацию о загруженном файле с валидацией формы
+     * Returns information about the uploaded file with form validation
+     * If a field name is omitted it returns the first of uploaded files
      *
-     * @param   string $sName
+     * @param   string|null $sName
      *
      * @return  bool
      */
-    protected function GetUploadedFile($sName) {
+    protected function GetUploadedFile($sName = null) {
 
-        if ($this->Security_ValidateSendForm(false) && isset($_FILES[$sName])) {
-            if (isset($_FILES[$sName]['tmp_name']) && is_uploaded_file($_FILES[$sName]['tmp_name'])) {
-                return $_FILES[$sName];
+        $aFileData = false;
+        if ($this->Security_ValidateSendForm(false) && isset($_FILES)) {
+            if (is_null($sName) && is_array($_FILES) && sizeof($_FILES)) {
+                $aFileData = reset($_FILES);
+            } elseif (isset($_FILES[$sName])) {
+                $aFileData = $_FILES[$sName];
+            }
+            if ($aFileData && isset($aFileData['tmp_name']) && is_uploaded_file($aFileData['tmp_name'])) {
+                return $aFileData;
             }
         }
+
         return false;
     }
 
