@@ -467,7 +467,16 @@ abstract class Plugin extends LsObject {
                 $sPluginDir . '/templates/skin/' . Config::Get('view.skin'),
                 $sPluginDir . '/templates/skin/' . self::GetDefaultSkin($sPluginName),
             );
-            $sFile = F::File_Exists($sTemplateName, $aDirs);
+            if (substr($sTemplateName, -4) == '.tpl') {
+                $aSeekDirs = array();
+                foreach ($aDirs as $sDir) {
+                    $aSeekDirs[] = $sDir . '/tpls/';
+                }
+                $aSeekDirs = array_merge($aSeekDirs, $aDirs);
+            } else {
+                $aSeekDirs = $aDirs;
+            }
+            $sFile = F::File_Exists($sTemplateName, $aSeekDirs);
             if ($sFile) {
                 self::$aTemplateDir[$sPluginName][$sTemplateName] = $sFile;
             } else {
