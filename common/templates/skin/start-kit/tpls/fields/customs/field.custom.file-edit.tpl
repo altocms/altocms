@@ -11,8 +11,11 @@
         {/if}
         <label for="topic_upload_file">
             {$oField->getFieldName()}{if $_aRequest.fields.$iFieldId} ({$aLang.content_file_replace}){/if}
-        </label>
-        <input class="form-control" type="file" name="fields_{$iFieldId}" id="fields-{$iFieldId}">
+        </label><br/>
+        <span class="btn btn-default btn-file">
+            {$aLang.uploadimg_file}
+            <input type="file" name="fields_{$iFieldId}" id="fields-{$iFieldId}">
+        </span>
 
         <p class="help-block">
             <small class="note">{$oField->getFieldDescription()}</small>
