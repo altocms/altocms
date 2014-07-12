@@ -16,7 +16,7 @@ class PluginLs_ModuleSecurity extends PluginLs_Inherit_ModuleSecurity {
      */
     public function SetSessionKey() {
 
-        $sCode = parent::SetSessionKey();
+        $sCode = parent::SetSecurityKey();
 
         // LS-compatible
         $this->Viewer_Assign('LIVESTREET_SECURITY_KEY', $sCode);
@@ -24,6 +24,20 @@ class PluginLs_ModuleSecurity extends PluginLs_Inherit_ModuleSecurity {
         return $sCode;
     }
 
+    /**
+     * LS-compatibility
+     *
+     * @return string
+     */
+    public function GetSessionKey() {
+
+        return parent::GetSecurityKey();
+    }
+
+    public function ValidateSessionKey($sCode = null) {
+
+        return parent::ValidateSecurityKey($sCode);
+    }
 }
 
 // EOF

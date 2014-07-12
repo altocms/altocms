@@ -547,7 +547,7 @@ class ModuleViewer extends Module {
             $sTemplate = $this->Plugin_GetDelegate('template', $sTemplate);
             if ($this->TemplateExists($sTemplate, true)) {
                 // Установка нового secret key непосредственно перед рендерингом
-                $this->Security_SetSessionKey();
+                $this->Security_SetSecurityKey();
 
                 self::$_renderCount++;
                 self::$_renderStart = microtime(true);
