@@ -19,6 +19,9 @@ class PluginLs_ActionContent extends PluginLs_Inherits_ActionContent {
         if (isset($_REQUEST['topic_link_url'])) {
             $_REQUEST['topic_field_link'] = strip_tags($_REQUEST['topic_link_url']);
         }
+        if (isset($_REQUEST['topic_tags'])) {
+            $_REQUEST['topic_field_tags'] = strip_tags($_REQUEST['topic_tags']);
+        }
         if (isset($_REQUEST['question_title'])) {
             $_REQUEST['topic_field_question'] = $_REQUEST['question_title'];
         }
