@@ -6,11 +6,6 @@
  * @Copyright: Alto CMS Team
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
- * Based on
- *   LiveStreet Engine Social Networking by Mzhelskiy Maxim
- *   Site: www.livestreet.ru
- *   E-mail: rus.engine@gmail.com
- *----------------------------------------------------------------------------
  */
 
 /**
@@ -65,29 +60,23 @@ class ActionContent extends Action {
      *
      */
     public function Init() {
-        /**
-         * Проверяем авторизован ли юзер
-         */
+
+        // * Проверяем авторизован ли юзер
         if (!$this->User_IsAuthorization()) {
             return parent::EventNotFound();
         }
         $this->oUserCurrent = $this->User_GetUserCurrent();
-        /**
-         * Устанавливаем дефолтный эвент
-         */
-        $this->SetDefaultEvent('add');
-        /**
-         * Устанавливаем title страницы
-         */
-        //$this->Viewer_AddHtmlTitle($this->Lang_Get('topic_title'));
 
-        /**
-         * Загружаем в шаблон JS текстовки
-         */
+        // * Устанавливаем дефолтный эвент
+        $this->SetDefaultEvent('add');
+
+        // * Загружаем в шаблон JS текстовки
         $this->Lang_AddLangJs(
-            array('topic_photoset_photo_delete', 'topic_photoset_mark_as_preview',
+            array('topic_photoset_photo_delete',
+                  'topic_photoset_mark_as_preview',
                   'topic_photoset_photo_delete_confirm',
-                  'topic_photoset_is_preview', 'topic_photoset_upload_choose'
+                  'topic_photoset_is_preview',
+                  'topic_photoset_upload_choose',
             )
         );
         $this->aBlogTypes = $this->_getAllowBlogTypes();
@@ -105,13 +94,13 @@ class ActionContent extends Action {
         $this->AddEvent('edit', array('EventEdit', 'edit'));
         $this->AddEvent('delete', 'EventDelete');
 
-        //Фото
-        $this->AddEventPreg('/^photo$/i', '/^upload$/i', 'EventPhotoUpload'); // Загрузка изображения в фотосет
-        $this->AddEventPreg('/^photo$/i', '/^delete$/i', 'EventPhotoDelete'); // Удаление изображения из фотосета
-        $this->AddEventPreg('/^photo$/i', '/^description$/i', 'EventPhotoDescription'); // Установка описания к фото в фотосете
-        $this->AddEventPreg('/^photo$/i', '/^getmore$/i', 'EventPhotoGetMore'); // Подгрузка изображений
+        // Photosets
+        $this->AddEventPreg('/^photo$/i', '/^upload$/i', 'EventAjaxPhotoUpload'); // Uploads image to photoset
+        $this->AddEventPreg('/^photo$/i', '/^description$/i', 'EventAjaxPhotoDescription'); // Sets description to image of photoset
+        $this->AddEventPreg('/^photo$/i', '/^getmore$/i', 'EventAjaxPhotoGetMore'); // Gets more images from photosets to showed topic
+        $this->AddEventPreg('/^photo$/i', '/^delete$/i', 'EventPhotoDelete'); // Deletes image from photoset
 
-        //Переход для топика с оригиналом
+        // Переход для топика с оригиналом
         $this->AddEvent('go', 'EventGo');
 
         $this->AddEventPreg('/^add$/i', array('EventAdd', 'add'));
@@ -124,6 +113,11 @@ class ActionContent extends Action {
      **********************************************************************************
      */
 
+    /**
+     * Returns array of allowed blogs
+     *
+     * @return array
+     */
     protected function _getAllowBlogs() {
 
         $aBlogs = $this->Blog_GetBlogsAllowByUser($this->oUserCurrent);
@@ -136,6 +130,11 @@ class ActionContent extends Action {
         return $aAllowBlogs;
     }
 
+    /**
+     * Returns of allowed blog types
+     *
+     * @return array
+     */
     protected function _getAllowBlogTypes() {
 
         $aBlogTypes = $this->Blog_GetAllowBlogTypes($this->oUserCurrent, 'write', true);
@@ -144,153 +143,9 @@ class ActionContent extends Action {
     }
 
     /**
-     * Редактирование топика
-     *
-     */
-    protected function EventEdit() {
-
-        // * Получаем номер топика из URL и проверяем существует ли он
-        $sTopicId = $this->GetParam(0);
-        if (!($oTopic = $this->Topic_GetTopicById($sTopicId))) {
-            return parent::EventNotFound();
-        }
-        /*
-         * Получаем тип контента
-         */
-        if (!$this->oContentType = $this->Topic_GetContentTypeByUrl($oTopic->getType())) {
-            return parent::EventNotFound();
-        }
-
-        $this->Viewer_Assign('oContentType', $this->oContentType);
-        $this->sMenuSubItemSelect = $this->oContentType->getContentUrl();
-        /**
-         * Если права на редактирование
-         */
-        if (!$this->ACL_IsAllowEditTopic($oTopic, $this->oUserCurrent)) {
-            return parent::EventNotFound();
-        }
-        /**
-         * Вызов хуков
-         */
-        $this->Hook_Run('topic_edit_show', array('oTopic' => $oTopic));
-
-        // * Загружаем переменные в шаблон
-        $this->Viewer_Assign('bPersonalBlog', $this->bPersonalBlogEnabled);
-        $this->Viewer_Assign('aBlogsAllow', $this->_getAllowBlogs());
-        $this->Viewer_Assign('bEditDisabled', $oTopic->getQuestionCountVote() == 0 ? false : true);
-        $this->Viewer_AddHtmlTitle($this->Lang_Get('topic_topic_edit'));
-        /**
-         * Устанавливаем шаблон вывода
-         */
-        $this->SetTemplateAction('add');
-        $this->Viewer_Assign('sMode', 'edit');
-        /**
-         * Проверяем отправлена ли форма с данными(хотяб одна кнопка)
-         */
-        if (isset($_REQUEST['submit_topic_publish']) || isset($_REQUEST['submit_topic_draft']) || isset($_REQUEST['submit_topic_save'])) {
-            /**
-             * Обрабатываем отправку формы
-             */
-            return $this->SubmitEdit($oTopic);
-        } else {
-            /**
-             * Заполняем поля формы для редактирования
-             * Только перед отправкой формы!
-             */
-            $_REQUEST['topic_title'] = $oTopic->getTitle();
-            $_REQUEST['topic_text'] = $oTopic->getTextSource();
-            $_REQUEST['blog_id'] = $oTopic->getBlogId();
-            $_REQUEST['topic_id'] = $oTopic->getId();
-            $_REQUEST['topic_publish_index'] = $oTopic->getPublishIndex();
-            $_REQUEST['topic_forbid_comment'] = $oTopic->getForbidComment();
-            $_REQUEST['topic_main_photo'] = $oTopic->getPhotosetMainPhotoId();
-
-            $_REQUEST['topic_field_link'] = $oTopic->getLinkUrl();
-            $_REQUEST['topic_field_tags'] = $oTopic->getTags();
-
-            $_REQUEST['topic_field_question'] = $oTopic->getQuestionTitle();
-            $_REQUEST['topic_field_answers'] = array();
-            $aAnswers = $oTopic->getQuestionAnswers();
-            foreach ($aAnswers as $aAnswer) {
-                $_REQUEST['topic_field_answers'][] = $aAnswer['text'];
-            }
-
-            foreach ($this->oContentType->getFields() as $oField) {
-                if ($oTopic->getField($oField->getFieldId())) {
-                    $sValue = $oTopic->getField($oField->getFieldId())->getValueSource();
-                    if ($oField->getFieldType() == 'file') {
-                        $sValue = unserialize($sValue);
-                    }
-                    $_REQUEST['fields'][$oField->getFieldId()] = $sValue;
-                }
-            }
-            $sUrlMask = Router::GetTopicUrlMask();
-            if (strpos($sUrlMask, '%topic_url%') === false) {
-                // Нет в маске URL
-                $_REQUEST['topic_url_before'] = $oTopic->getUrl($sUrlMask);
-                $_REQUEST['topic_url'] = '';
-                $_REQUEST['topic_url_after'] = '';
-                $aEditTopicUrl = array(
-                    'before' => $oTopic->getUrl($sUrlMask),
-                    'input' => '',
-                    'after' => '',
-                );
-            } else {
-                // В маске есть URL, вместо него нужно вставить <input>
-                $aUrlMaskParts = explode('%topic_url%', $sUrlMask);
-                $aEditTopicUrl = array(
-                    'before' => $aUrlMaskParts[0] ? $oTopic->getUrl($aUrlMaskParts[0]) : F::File_RootUrl(),
-                    'input' => $oTopic->getTopicUrl() ? $oTopic->getTopicUrl() : $oTopic->MakeTopicUrl(),
-                    'after' => (isset($aUrlMaskParts[1]) && $aUrlMaskParts[1]) ? $oTopic->getUrl($aUrlMaskParts[1], false) : '',
-                );
-            }
-            $_REQUEST['topic_url_input'] = $aEditTopicUrl['input'];
-            $_REQUEST['topic_url_short'] = $oTopic->getUrlShort();
-            $this->Viewer_Assign('aEditTopicUrl', $aEditTopicUrl);
-        }
-        $this->Viewer_Assign('oTopic', $oTopic);
-        $this->Viewer_Assign('aPhotos', $this->Topic_GetPhotosByTopicId($oTopic->getId()));
-    }
-
-    /**
-     * Удаление топика
-     *
-     */
-    protected function EventDelete() {
-
-        $this->Security_ValidateSendForm();
-
-        // * Получаем номер топика из УРЛ и проверяем существует ли он
-        $sTopicId = $this->GetParam(0);
-        if (!($oTopic = $this->Topic_GetTopicById($sTopicId))) {
-            return parent::EventNotFound();
-        }
-
-        // * проверяем есть ли право на удаление топика
-        if (!$this->ACL_IsAllowDeleteTopic($oTopic, $this->oUserCurrent)) {
-            return parent::EventNotFound();
-        }
-
-        // * Удаляем топик
-        $this->Hook_Run('topic_delete_before', array('oTopic' => $oTopic));
-        if ($this->_deleteTopic($oTopic)) {
-            $this->Hook_Run('topic_delete_after', array('oTopic' => $oTopic));
-
-            // * Перенаправляем на страницу со списком топиков из блога этого топика
-            Router::Location($oTopic->getBlog()->getUrlFull());
-        } else {
-            Router::Location($oTopic->getUrl());
-        }
-    }
-
-    protected function _deleteTopic($oTopic) {
-
-        return $this->Topic_DeleteTopic($oTopic);
-    }
-
-    /**
      * Добавление топика
      *
+     * @return mixed
      */
     protected function EventAdd() {
 
@@ -339,47 +194,14 @@ class ActionContent extends Action {
         if ($this->IsPost()) {
             return $this->SubmitAdd();
         }
-    }
 
-    /**
-     * Выводит список топиков
-     *
-     */
-    protected function EventShowTopics() {
-        /**
-         * Меню
-         */
-        $this->sMenuSubItemSelect = $this->sCurrentEvent;
-        /**
-         * Передан ли номер страницы
-         */
-        $iPage = $this->GetParamEventMatch(0, 2) ? $this->GetParamEventMatch(0, 2) : 1;
-        /**
-         * Получаем список топиков
-         */
-        $aResult = $this->Topic_GetTopicsPersonalByUser(
-            $this->oUserCurrent->getId(), $this->sCurrentEvent == 'published' ? 1 : 0, $iPage,
-            Config::Get('module.topic.per_page')
-        );
-        $aTopics = $aResult['collection'];
-        /**
-         * Формируем постраничность
-         */
-        $aPaging = $this->Viewer_MakePaging(
-            $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
-            Router::GetPath('content') . $this->sCurrentEvent
-        );
-        /**
-         * Загружаем переменные в шаблон
-         */
-        $this->Viewer_Assign('aPaging', $aPaging);
-        $this->Viewer_Assign('aTopics', $aTopics);
-        $this->Viewer_AddHtmlTitle($this->Lang_Get('topic_menu_' . $this->sCurrentEvent));
+        return null;
     }
 
     /**
      * Обработка добавления топика
      *
+     * @return bool|string
      */
     protected function SubmitAdd() {
 
@@ -502,7 +324,7 @@ class ActionContent extends Action {
         }
 
         // * Запрет на комментарии к топику
-         $oTopic->setForbidComment(F::GetRequest('topic_forbid_comment', 0));
+        $oTopic->setForbidComment(F::GetRequest('topic_forbid_comment', 0));
 
         // Разрешение/запрет индексации контента топика изначально - как у блога
         if ($oBlogType = $oBlog->GetBlogType()) {
@@ -547,22 +369,15 @@ class ActionContent extends Action {
             }
             /**
              * Привязываем фото к ID топика
-             * TODO: здесь нужно это делать одним запросом, а не перебором сущностей
              */
             if (isset($aPhotos) && count($aPhotos)) {
-                foreach ($aPhotos as $oPhoto) {
-                    $oPhoto->setTargetTmp(null);
-                    $oPhoto->setTopicId($oTopic->getId());
-                    $this->Topic_UpdateTopicPhoto($oPhoto);
-                }
+                $this->Topic_AttachTmpPhotoToTopic($oTopic);
             }
-            /**
-             * Удаляем временную куку
-             */
+
+            // * Удаляем временную куку
             $this->Session_DelCookie('ls_photoset_target_tmp');
-            /**
-             * Добавляем событие в ленту
-             */
+
+            // * Добавляем событие в ленту
             $this->Stream_Write(
                 $oTopic->getUserId(), 'add_topic', $oTopic->getId(),
                 $oTopic->getPublish() && (!$oBlog->getBlogType() || !$oBlog->getBlogType()->IsPrivate())
@@ -576,7 +391,7 @@ class ActionContent extends Action {
     }
 
     /**
-     * Add new topic
+     * Adds new topic
      *
      * @param $oTopic
      *
@@ -585,6 +400,121 @@ class ActionContent extends Action {
     protected function _addTopic($oTopic) {
 
         return $this->Topic_AddTopic($oTopic);
+    }
+
+    /**
+     * Редактирование топика
+     *
+     */
+    protected function EventEdit() {
+
+        // * Получаем номер топика из URL и проверяем существует ли он
+        $sTopicId = $this->GetParam(0);
+        if (!($oTopic = $this->Topic_GetTopicById($sTopicId))) {
+            return parent::EventNotFound();
+        }
+
+        // * Получаем тип контента
+        if (!$this->oContentType = $this->Topic_GetContentTypeByUrl($oTopic->getType())) {
+            return parent::EventNotFound();
+        }
+
+        $this->Viewer_Assign('oContentType', $this->oContentType);
+        $this->sMenuSubItemSelect = $this->oContentType->getContentUrl();
+
+        // * Есть права на редактирование
+        if (!$this->ACL_IsAllowEditTopic($oTopic, $this->oUserCurrent)) {
+            return parent::EventNotFound();
+        }
+
+        // * Вызов хука
+        $this->Hook_Run('topic_edit_show', array('oTopic' => $oTopic));
+
+        // * Загружаем переменные в шаблон
+        $this->Viewer_Assign('bPersonalBlog', $this->bPersonalBlogEnabled);
+        $this->Viewer_Assign('aBlogsAllow', $this->_getAllowBlogs());
+        $this->Viewer_Assign('bEditDisabled', $oTopic->getQuestionCountVote() == 0 ? false : true);
+        $this->Viewer_AddHtmlTitle($this->Lang_Get('topic_topic_edit'));
+
+        // * Устанавливаем шаблон вывода
+        $this->SetTemplateAction('add');
+        $this->Viewer_Assign('sMode', 'edit');
+
+        // * Проверяем, отправлена ли форма с данными
+        if ($this->IsPost()) {
+            // * Обрабатываем отправку формы
+            $xResult = $this->SubmitEdit($oTopic);
+            if ($xResult !== false) {
+                return $xResult;
+            }
+        } else {
+            /**
+             * Заполняем поля формы для редактирования
+             * Только перед отправкой формы!
+             */
+            $_REQUEST['topic_title'] = $oTopic->getTitle();
+            $_REQUEST['topic_text'] = $oTopic->getTextSource();
+            $_REQUEST['blog_id'] = $oTopic->getBlogId();
+            $_REQUEST['topic_id'] = $oTopic->getId();
+            $_REQUEST['topic_publish_index'] = $oTopic->getPublishIndex();
+            $_REQUEST['topic_forbid_comment'] = $oTopic->getForbidComment();
+            $_REQUEST['topic_main_photo'] = $oTopic->getPhotosetMainPhotoId();
+
+            $_REQUEST['topic_field_link'] = $oTopic->getLinkUrl();
+            $_REQUEST['topic_field_tags'] = $oTopic->getTags();
+
+            $_REQUEST['topic_field_question'] = $oTopic->getQuestionTitle();
+            $_REQUEST['topic_field_answers'] = array();
+            $aAnswers = $oTopic->getQuestionAnswers();
+            foreach ($aAnswers as $aAnswer) {
+                $_REQUEST['topic_field_answers'][] = $aAnswer['text'];
+            }
+
+            foreach ($this->oContentType->getFields() as $oField) {
+                if ($oTopic->getField($oField->getFieldId())) {
+                    $sValue = $oTopic->getField($oField->getFieldId())->getValueSource();
+                    if ($oField->getFieldType() == 'file') {
+                        $sValue = unserialize($sValue);
+                    }
+                    $_REQUEST['fields'][$oField->getFieldId()] = $sValue;
+                }
+            }
+        }
+
+        $sUrlMask = Router::GetTopicUrlMask();
+        if (strpos($sUrlMask, '%topic_url%') === false) {
+            // Нет в маске URL
+            $aEditTopicUrl = array(
+                'before' => $oTopic->getUrl($sUrlMask),
+                'input' => '',
+                'after' => '',
+            );
+        } else {
+            // В маске есть URL, вместо него нужно вставить <input>
+            $aUrlMaskParts = explode('%topic_url%', $sUrlMask);
+            $aEditTopicUrl = array(
+                'before' => $aUrlMaskParts[0] ? $oTopic->getUrl($aUrlMaskParts[0]) : F::File_RootUrl(),
+                'input' => $oTopic->getTopicUrl() ? $oTopic->getTopicUrl() : $oTopic->MakeTopicUrl(),
+                'after' => (isset($aUrlMaskParts[1]) && $aUrlMaskParts[1]) ? $oTopic->getUrl($aUrlMaskParts[1], false) : '',
+            );
+        }
+        if (!isset($_REQUEST['topic_url_input'])) {
+            $_REQUEST['topic_url_input'] = $aEditTopicUrl['input'];
+        } else {
+            $aEditTopicUrl['input'] = $_REQUEST['topic_url_input'];
+        }
+        if (!isset($_REQUEST['topic_url_short'])) {
+            $_REQUEST['topic_url_short'] = $oTopic->getUrlShort();
+        }
+        $this->Viewer_Assign('aEditTopicUrl', $aEditTopicUrl);
+
+        // Old style templates compatibility
+        $_REQUEST['topic_url_before'] = $aEditTopicUrl['before'];
+        $_REQUEST['topic_url'] = $aEditTopicUrl['input'];
+        $_REQUEST['topic_url_after'] = $aEditTopicUrl['after'];
+
+        $this->Viewer_Assign('oTopic', $oTopic);
+        $this->Viewer_Assign('aPhotos', $this->Topic_GetPhotosByTopicId($oTopic->getId()));
     }
 
     /**
@@ -774,7 +704,7 @@ class ActionContent extends Action {
     }
 
     /**
-     * Update topic
+     * Updates topic
      *
      * @param $oTopic
      *
@@ -786,140 +716,90 @@ class ActionContent extends Action {
     }
 
     /**
-     * AJAX подгрузка следующих фото
+     * Удаление топика
      *
      */
-    protected function EventPhotoGetMore() {
-        /**
-         * Устанавливаем формат Ajax ответа
-         */
-        $this->Viewer_SetResponseAjax('json');
-        /**
-         * Существует ли топик
-         */
-        $oTopic = $this->Topic_GetTopicById(F::GetRequestStr('topic_id'));
-        if (!$oTopic || !F::GetRequest('last_id')) {
-            $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
-            F::SysWarning('System Error');
-            return false;
-        }
-        /**
-         * Получаем список фото
-         */
-        $aPhotos = $oTopic->getPhotosetPhotos(F::GetRequestStr('last_id'), Config::Get('module.topic.photoset.per_page'));
-        $aResult = array();
-        if (count($aPhotos)) {
-            /**
-             * Формируем данные для ajax ответа
-             */
-            foreach ($aPhotos as $oPhoto) {
-                $aResult[] = array(
-                    'id'          => $oPhoto->getId(),
-                    'path_thumb'  => $oPhoto->getWebPath('50crop'),
-                    'path'        => $oPhoto->getWebPath(),
-                    'description' => $oPhoto->getDescription(),
-                );
-            }
-            $this->Viewer_AssignAjax('photos', $aResult);
-        }
-        $this->Viewer_AssignAjax('bHaveNext', count($aPhotos) == Config::Get('module.topic.photoset.per_page'));
-    }
+    protected function EventDelete() {
 
-    /**
-     * AJAX удаление фото
-     *
-     */
-    protected function EventPhotoDelete() {
+        $this->Security_ValidateSendForm();
 
-        // * Устанавливаем формат Ajax ответа
-        $this->Viewer_SetResponseAjax('json');
-
-        // * Проверяем авторизован ли юзер
-        if (!$this->User_IsAuthorization()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
-            return false;
+        // * Получаем номер топика из УРЛ и проверяем существует ли он
+        $sTopicId = $this->GetParam(0);
+        if (!($oTopic = $this->Topic_GetTopicById($sTopicId))) {
+            return parent::EventNotFound();
         }
 
-        // * Поиск фото по id
-        $oPhoto = $this->Topic_GetTopicPhotoById($this->GetPost('id'));
-        if ($oPhoto) {
-            if ($oPhoto->getTopicId()) {
-
-                // * Проверяем права на топик
-                $oTopic = $this->Topic_GetTopicById($oPhoto->getTopicId());
-                if ($oTopic && $this->ACL_IsAllowEditTopic($oTopic, $this->oUserCurrent)) {
-                    $this->Topic_DeleteTopicPhoto($oPhoto);
-
-                    // * Если удаляем главную фотографию. топика, то её необходимо сменить
-                    if ($oPhoto->getId() == $oTopic->getPhotosetMainPhotoId() && $oTopic->getPhotosetCount() > 1) {
-                        $aPhotos = $oTopic->getPhotosetPhotos(0, 1);
-                        $oTopic->setPhotosetMainPhotoId($aPhotos[0]->getId());
-                    } elseif ($oTopic->getPhotosetCount() == 1) {
-                        $oTopic->setPhotosetMainPhotoId(null);
-                    }
-                    $oTopic->setPhotosetCount($oTopic->getPhotosetCount() - 1);
-                    $this->Topic_UpdateTopic($oTopic);
-                    $this->Message_AddNotice(
-                        $this->Lang_Get('topic_photoset_photo_deleted'), $this->Lang_Get('attention')
-                    );
-                    return;
-                }
-                $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
-                return;
-            }
-            $this->Topic_DeleteTopicPhoto($oPhoto);
-            $this->Message_AddNotice($this->Lang_Get('topic_photoset_photo_deleted'), $this->Lang_Get('attention'));
-            return;
+        // * проверяем есть ли право на удаление топика
+        if (!$this->ACL_IsAllowDeleteTopic($oTopic, $this->oUserCurrent)) {
+            return parent::EventNotFound();
         }
-        $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
-        return;
-    }
 
-    /**
-     * AJAX установка описания фото
-     *
-     */
-    protected function EventPhotoDescription() {
-        /**
-         * Устанавливаем формат Ajax ответа
-         */
-        $this->Viewer_SetResponseAjax('json');
-        /**
-         * Проверяем авторизован ли юзер
-         */
-        if (!$this->User_IsAuthorization()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
-            return Router::Action('error');
-        }
-        /**
-         * Поиск фото по id
-         */
-        $oPhoto = $this->Topic_GetTopicPhotoById(F::GetRequestStr('id'));
-        if ($oPhoto) {
-            $sDescription = htmlspecialchars(strip_tags(F::GetRequestStr('text')));
-            if ($sDescription != $oPhoto->getDescription()) {
-                if ($oPhoto->getTopicId()) {
-                    // проверяем права на топик
-                    $oTopic = $this->Topic_GetTopicById($oPhoto->getTopicId());
-                    if ($oTopic && $this->ACL_IsAllowEditTopic($oTopic, $this->oUserCurrent)) {
-                        $oPhoto->setDescription(htmlspecialchars(strip_tags(F::GetRequestStr('text'))));
-                        $this->Topic_UpdateTopicPhoto($oPhoto);
-                    }
-                } else {
-                    $oPhoto->setDescription(htmlspecialchars(strip_tags(F::GetRequestStr('text'))));
-                    $this->Topic_UpdateTopicPhoto($oPhoto);
-                }
-                $this->Message_AddNotice($this->Lang_Get('topic_photoset_description_done'));
-            }
+        // * Удаляем топик
+        $this->Hook_Run('topic_delete_before', array('oTopic' => $oTopic));
+        if ($this->_deleteTopic($oTopic)) {
+            $this->Hook_Run('topic_delete_after', array('oTopic' => $oTopic));
+
+            // * Перенаправляем на страницу со списком топиков из блога этого топика
+            Router::Location($oTopic->getBlog()->getUrlFull());
+        } else {
+            Router::Location($oTopic->getUrl());
         }
     }
 
     /**
-     * AJAX загрузка фоток
+     * Deletes the topic
+     *
+     * @param $oTopic
      *
      * @return bool
      */
-    protected function EventPhotoUpload() {
+    protected function _deleteTopic($oTopic) {
+
+        return $this->Topic_DeleteTopic($oTopic);
+    }
+
+    /**
+     * Выводит список топиков
+     *
+     */
+    protected function EventShowTopics() {
+        /**
+         * Меню
+         */
+        $this->sMenuSubItemSelect = $this->sCurrentEvent;
+        /**
+         * Передан ли номер страницы
+         */
+        $iPage = $this->GetParamEventMatch(0, 2) ? $this->GetParamEventMatch(0, 2) : 1;
+        /**
+         * Получаем список топиков
+         */
+        $aResult = $this->Topic_GetTopicsPersonalByUser(
+            $this->oUserCurrent->getId(), $this->sCurrentEvent == 'published' ? 1 : 0, $iPage,
+            Config::Get('module.topic.per_page')
+        );
+        $aTopics = $aResult['collection'];
+        /**
+         * Формируем постраничность
+         */
+        $aPaging = $this->Viewer_MakePaging(
+            $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
+            Router::GetPath('content') . $this->sCurrentEvent
+        );
+        /**
+         * Загружаем переменные в шаблон
+         */
+        $this->Viewer_Assign('aPaging', $aPaging);
+        $this->Viewer_Assign('aTopics', $aTopics);
+        $this->Viewer_AddHtmlTitle($this->Lang_Get('topic_menu_' . $this->sCurrentEvent));
+    }
+
+    /**
+     * AJAX загрузка изображения в фотосет
+     *
+     * @return bool
+     */
+    protected function EventAjaxPhotoUpload() {
 
         // * Устанавливаем формат Ajax ответа. В зависимости от типа загрузчика устанавливается тип ответа
         if (F::GetRequest('is_iframe')) {
@@ -1012,6 +892,8 @@ class ActionContent extends Action {
                 $this->Viewer_AssignAjax('file', $oPhoto->getWebPath('100crop'));
                 $this->Viewer_AssignAjax('id', $oPhoto->getId());
                 $this->Message_AddNotice($this->Lang_Get('topic_photoset_photo_added'), $this->Lang_Get('attention'));
+
+                return true;
             } else {
                 $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
                 F::SysWarning('System Error');
@@ -1023,6 +905,156 @@ class ActionContent extends Action {
             }
             $this->Message_AddError($sMsg, $this->Lang_Get('error'));
         }
+        return false;
+    }
+
+    protected function EventPhotoUpload() {
+
+        return $this->EventAjaxPhotoUpload();
+    }
+
+    /**
+     * AJAX установка описания фото
+     *
+     */
+    protected function EventAjaxPhotoDescription() {
+        /**
+         * Устанавливаем формат Ajax ответа
+         */
+        $this->Viewer_SetResponseAjax('json');
+        /**
+         * Проверяем авторизован ли юзер
+         */
+        if (!$this->User_IsAuthorization()) {
+            $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+            return Router::Action('error');
+        }
+        /**
+         * Поиск фото по id
+         */
+        $oPhoto = $this->Topic_GetTopicPhotoById(F::GetRequestStr('id'));
+        if ($oPhoto) {
+            $sDescription = htmlspecialchars(strip_tags(F::GetRequestStr('text')));
+            if ($sDescription != $oPhoto->getDescription()) {
+                if ($oPhoto->getTopicId()) {
+                    // проверяем права на топик
+                    $oTopic = $this->Topic_GetTopicById($oPhoto->getTopicId());
+                    if ($oTopic && $this->ACL_IsAllowEditTopic($oTopic, $this->oUserCurrent)) {
+                        $oPhoto->setDescription(htmlspecialchars(strip_tags(F::GetRequestStr('text'))));
+                        $this->Topic_UpdateTopicPhoto($oPhoto);
+                    }
+                } else {
+                    $oPhoto->setDescription(htmlspecialchars(strip_tags(F::GetRequestStr('text'))));
+                    $this->Topic_UpdateTopicPhoto($oPhoto);
+                }
+                $this->Message_AddNotice($this->Lang_Get('topic_photoset_description_done'));
+            }
+        }
+    }
+
+    protected function EventPhotoDescription() {
+
+        return $this->EventAjaxPhotoDescription();
+    }
+
+    /**
+     * AJAX подгрузка следующих фото
+     *
+     */
+    protected function EventAjaxPhotoGetMore() {
+        /**
+         * Устанавливаем формат Ajax ответа
+         */
+        $this->Viewer_SetResponseAjax('json');
+        /**
+         * Существует ли топик
+         */
+        $oTopic = $this->Topic_GetTopicById(F::GetRequestStr('topic_id'));
+        if (!$oTopic || !F::GetRequest('last_id')) {
+            $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            F::SysWarning('System Error');
+            return false;
+        }
+        /**
+         * Получаем список фото
+         */
+        $aPhotos = $oTopic->getPhotosetPhotos(F::GetRequestStr('last_id'), Config::Get('module.topic.photoset.per_page'));
+        $aResult = array();
+        if (count($aPhotos)) {
+            /**
+             * Формируем данные для ajax ответа
+             */
+            foreach ($aPhotos as $oPhoto) {
+                $aResult[] = array(
+                    'id'          => $oPhoto->getId(),
+                    'path_thumb'  => $oPhoto->getUrl('50crop'),
+                    'path'        => $oPhoto->getUrl(),
+                    'description' => $oPhoto->getDescription(),
+                );
+            }
+            $this->Viewer_AssignAjax('photos', $aResult);
+        }
+        $this->Viewer_AssignAjax('bHaveNext', count($aPhotos) == Config::Get('module.topic.photoset.per_page'));
+    }
+
+    protected function EventPhotoGetMore() {
+
+        return $this->EventAjaxPhotoGetMore();
+    }
+
+    /**
+     * AJAX удаление фото
+     *
+     */
+    protected function EventAjaxPhotoDelete() {
+
+        // * Устанавливаем формат Ajax ответа
+        $this->Viewer_SetResponseAjax('json');
+
+        // * Проверяем авторизован ли юзер
+        if (!$this->User_IsAuthorization()) {
+            $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+            return false;
+        }
+
+        // * Поиск фото по id
+        $oPhoto = $this->Topic_GetTopicPhotoById($this->GetPost('id'));
+        if ($oPhoto) {
+            if ($oPhoto->getTopicId()) {
+
+                // * Проверяем права на топик
+                $oTopic = $this->Topic_GetTopicById($oPhoto->getTopicId());
+                if ($oTopic && $this->ACL_IsAllowEditTopic($oTopic, $this->oUserCurrent)) {
+                    $this->Topic_DeleteTopicPhoto($oPhoto);
+
+                    // * Если удаляем главную фотографию. топика, то её необходимо сменить
+                    if ($oPhoto->getId() == $oTopic->getPhotosetMainPhotoId() && $oTopic->getPhotosetCount() > 1) {
+                        $aPhotos = $oTopic->getPhotosetPhotos(0, 1);
+                        $oTopic->setPhotosetMainPhotoId($aPhotos[0]->getId());
+                    } elseif ($oTopic->getPhotosetCount() == 1) {
+                        $oTopic->setPhotosetMainPhotoId(null);
+                    }
+                    $oTopic->setPhotosetCount($oTopic->getPhotosetCount() - 1);
+                    $this->Topic_UpdateTopic($oTopic);
+                    $this->Message_AddNotice(
+                        $this->Lang_Get('topic_photoset_photo_deleted'), $this->Lang_Get('attention')
+                    );
+                    return;
+                }
+                $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+                return;
+            }
+            $this->Topic_DeleteTopicPhoto($oPhoto);
+            $this->Message_AddNotice($this->Lang_Get('topic_photoset_photo_deleted'), $this->Lang_Get('attention'));
+            return;
+        }
+        $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        return;
+    }
+
+    protected function EventPhotoDelete() {
+
+        return $this->EventAjaxPhotoDelete();
     }
 
     /**
