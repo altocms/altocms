@@ -92,18 +92,32 @@ class ModuleViewer extends Module {
     protected $sCacheDir = '';
 
     /**
-     * Заголовок HTML страницы
+     * Заголовки HTML страницы (объединяются через сепаратор перед выдачей)
+     *
+     * @var array
+     */
+    protected $aHtmlTitles = '';
+
+    /**
+     * Максимальное число заголовков, из которых строится общий заголовок HTML страницы (тег title)
+     *
+     * @var int
+     */
+    protected $iHtmlTitlesMax = 0;
+
+    /**
+     * Разделитель заголовка HTML страницы
      *
      * @var string
      */
-    protected $sHtmlTitle;
+    protected $sHtmlTitleSeparator = ' / ';
 
     /**
      * SEO ключевые слова страницы
      *
-     * @var string
+     * @var array
      */
-    protected $sHtmlKeywords;
+    protected $aHtmlKeywords;
 
     /**
      * SEO описание страницы
@@ -111,13 +125,6 @@ class ModuleViewer extends Module {
      * @var string
      */
     protected $sHtmlDescription;
-
-    /**
-     * Разделитель заголовка HTML страницы
-     *
-     * @var string
-     */
-    protected $sHtmlTitleSeparation = ' / ';
 
     /**
      * Альтернативный адрес страницы по RSS
@@ -247,14 +254,21 @@ class ModuleViewer extends Module {
 
         //$this->InitSkin($this->bLocal);
 
+        if (($iTitleMax = Config::Get('view.html.title_max')) && ($iTitleMax > 0)) {
+            $this->iHtmlTitlesMax = Config::Get('view.html.title_max');
+        }
+        $this->sHtmlTitleSeparator = Config::Get('view.html.title_sep');
+
         // * Заголовок HTML страницы
-        $this->sHtmlTitle = Config::Get('view.name');
+        $this->SetHtmlTitle(Config::Get('view.name'));
 
         // * SEO ключевые слова страницы
-        $this->sHtmlKeywords = Config::Get('view.keywords');
+        $sValue = (Config::Get('view.keywords') ? Config::Get('view.keywords') : Config::Get('view.html.keywords'));
+        $this->SetHtmlKeywords($sValue);
 
         // * SEO описание страницы
-        $this->sHtmlDescription = Config::Get('view.description');
+        $sValue = (Config::Get('view.description') ? Config::Get('view.description') : Config::Get('view.html.description'));
+        $this->SetHtmlDescription($sValue);
 
         // * Пустой вызов только для того, чтоб модуль Message инициализировался, если еще не
         $this->Message_IsInit();
@@ -471,9 +485,10 @@ class ModuleViewer extends Module {
         $this->_assignTpl('aWidgets', $this->GetWidgets());
 
         // * Загружаем HTML заголовки
-        $this->_assignTpl('sHtmlTitle', htmlspecialchars($this->sHtmlTitle));
-        $this->_assignTpl('sHtmlKeywords', htmlspecialchars($this->sHtmlKeywords));
-        $this->_assignTpl('sHtmlDescription', htmlspecialchars($this->sHtmlDescription));
+        $this->_assignTpl('sHtmlTitle', $this->GetHtmlTitle());
+        $this->_assignTpl('sHtmlKeywords', $this->GetHtmlKeywords());
+        $this->_assignTpl('sHtmlDescription', $this->GetHtmlDescription());
+
         $this->_assignTpl('aHtmlHeadFiles', $this->aHtmlHeadFiles);
         $this->_assignTpl('aHtmlRssAlternate', $this->aHtmlRssAlternate);
         $this->_assignTpl('sHtmlCanonical', $this->sHtmlCanonical);
@@ -486,18 +501,19 @@ class ModuleViewer extends Module {
         $this->_assignTpl('aPluginActive', array_fill_keys(array_keys($aPlugins), true));
 
         // * Загружаем пути до шаблонов плагинов
-        $aTemplateWebPathPlugin = array();
-        $aTemplatePathPlugin = array();
+        $aPluginsTemplateUrl = array();
+        $aPluginsTemplateDir = array();
+
         foreach ($aPlugins as $sPlugin => $oPlugin) {
             $sDir = Plugin::GetTemplateDir(get_class($oPlugin));
             $this->oSmarty->addTemplateDir($sDir, $oPlugin->GetName(false));
-            $aTemplatePathPlugin[$sPlugin] = $sDir;
-            $aTemplateWebPathPlugin[$sPlugin] = Plugin::GetTemplateUrl(get_class($oPlugin));
+            $aPluginsTemplateDir[$sPlugin] = $sDir;
+            $aPluginsTemplateUrl[$sPlugin] = Plugin::GetTemplateUrl(get_class($oPlugin));
         }
         if (E::ActivePlugin('ls')) {
             // LS-compatible //
-            $this->_assignTpl('aTemplateWebPathPlugin', $aTemplateWebPathPlugin);
-            $this->_assignTpl('aTemplatePathPlugin', $aTemplatePathPlugin);
+            $this->_assignTpl('aTemplateWebPathPlugin', $aPluginsTemplateUrl);
+            $this->_assignTpl('aTemplatePathPlugin', $aPluginsTemplateDir);
         }
 
         $sSkinTheme = $this->GetConfigTheme();
@@ -1561,7 +1577,7 @@ class ModuleViewer extends Module {
      */
     public function SetHtmlTitle($sText) {
 
-        $this->sHtmlTitle = $sText;
+        $this->aHtmlTitles = array($sText);
     }
 
     /**
@@ -1571,37 +1587,80 @@ class ModuleViewer extends Module {
      */
     public function AddHtmlTitle($sText) {
 
-        $this->sHtmlTitle = $sText . $this->sHtmlTitleSeparation . $this->sHtmlTitle;
+        $this->aHtmlTitles[] = $sText;
     }
 
     /**
      * Возвращает текущий заголовок страницы
      *
+     * @param bool $bHtmlEncode    Convert special characters of title to HTML entities
+     *
      * @return string
      */
-    public function GetHtmlTitle() {
+    public function GetHtmlTitle($bHtmlEncode = true) {
 
-        return $this->sHtmlTitle;
+        $aTitles = array_reverse($this->aHtmlTitles);
+        if ($this->iHtmlTitlesMax && sizeof($aTitles) > $this->iHtmlTitlesMax) {
+            $aTitles = array_splice($aTitles, 0, $this->iHtmlTitlesMax);
+        }
+        $sHtmlTitle = join($this->sHtmlTitleSeparator, $aTitles);
+        if ($bHtmlEncode) {
+            $sHtmlTitle = htmlspecialchars($sHtmlTitle);
+        }
+        return $sHtmlTitle;
     }
 
     /**
-     * Устанавливает ключевые слова keywords
+     * Устанавливает ключевые слова для мета-тега keywords
      *
-     * @param string $sText    Кейворды
+     * @param string $sText    ключевые слова
      */
     public function SetHtmlKeywords($sText) {
 
-        $this->sHtmlKeywords = $sText;
+        $aKeywords = array_map('trim', explode(',', $sText));
+        $this->aHtmlKeywords = $aKeywords;
     }
 
     /**
-     * Устанавливает описание страницы desciption
+     * Returns string with keywirds
+     *
+     * @param bool $bHtmlEncode
+     *
+     * @return string
+     */
+    public function GetHtmlKeywords($bHtmlEncode = true) {
+
+        $aKeywords = $this->aHtmlKeywords;
+        if ($bHtmlEncode) {
+            $aKeywords = array_map('htmlspecialchars', $aKeywords);
+        }
+        return join(', ', $aKeywords);
+    }
+
+    /**
+     * Устанавливает описание страницы для мета-тега desciption
      *
      * @param string $sText    Описание
      */
     public function SetHtmlDescription($sText) {
 
         $this->sHtmlDescription = $sText;
+    }
+
+    /**
+     * Returns description for HTML
+     *
+     * @param bool $bHtmlEncode
+     *
+     * @return string
+     */
+    public function GetHtmlDescription($bHtmlEncode = true) {
+
+        if ($bHtmlEncode) {
+            return htmlspecialchars($this->sHtmlDescription);
+        } else {
+            return $this->sHtmlDescription;
+        }
     }
 
     /**

@@ -30,14 +30,17 @@
 $config['view']['skin']             = 'start-kit';                  // скин
 $config['view']['theme']            = 'default';                    // тема
 $config['view']['name']             = 'Your Site Name';             // название сайта
-$config['view']['description']      = 'Description of your site';   // meta tag description
-$config['view']['keywords']         = 'site, google, internet';     // meta tag keywords
 $config['view']['wysiwyg']          = false;    // использовать или нет визуальный редактор
 $config['view']['noindex']          = true;     // "прятать" или нет ссылки от поисковиков, оборачивая их в тег <noindex> и добавляя rel="nofollow"
 $config['view']['img_resize_width'] = 570;      // до какого размера в пикселях ужимать картинку по ширине при загрузки её в топики и комменты
 $config['view']['img_max_width']    = 5000;     // максимальная ширина загружаемых изображений в пикселях
 $config['view']['img_max_height']   = 5000;     // максимальная высота загружаемых изображений в пикселях
 $config['view']['img_max_size_url'] = 500;      // максимальный размер картинки в kB для загрузки по URL
+
+$config['view']['html']['description']      = 'Description of your site';   // meta tag description
+$config['view']['html']['keywords']         = 'site, google, internet';     // meta tag keywords
+$config['view']['html']['title_max']        = 0;       // максимальное число частей, из которых состоит тег <title>
+$config['view']['html']['title_sep']        = ' / ';   // разделитель для формирования тега <title>
 
 /**
  * Настройки СЕО для вывода топиков
