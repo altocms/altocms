@@ -1605,7 +1605,9 @@ class ModuleViewer extends Module {
         }
         if (Config::Get('view.html.title')) {
             // required part of the tag <title>
-            $aTitles[] = Config::Get('view.html.title');
+            if (sizeof($aTitles) && (end($aTitles) != Config::Get('view.html.title'))) {
+                $aTitles[] = Config::Get('view.html.title');
+            }
         }
         $sHtmlTitle = join($this->sHtmlTitleSeparator, $aTitles);
         if ($bHtmlEncode) {
