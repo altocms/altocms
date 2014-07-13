@@ -2809,8 +2809,8 @@ class ModuleTopic extends Module {
                                             if (copy($sFileTmp, $sFileFullPath)) {
                                                 //удаляем старый файл
                                                 if ($oTopic->getFile($oField->getFieldId())) {
-                                                    @unlink(
-                                                        Config::Get('path.root.dir') . $oTopic->getFile($oField->getFieldId())->getFileUrl());
+                                                    $sOldFile = Config::Get('path.root.dir') . $oTopic->getFile($oField->getFieldId())->getFileUrl();
+                                                    F::File_Delete($sOldFile);
                                                 }
 
                                                 $aFileObj = array();
@@ -2822,13 +2822,13 @@ class ModuleTopic extends Module {
                                                 $aFileObj['file_downloads'] = 0;
                                                 $sData = serialize($aFileObj);
 
-                                                @unlink($sFileTmp);
+                                                F::File_Delete($sFileTmp);
                                             }
                                         }
                                     }
                                 }
                             }
-                            @unlink($_FILES['fields_' . $oField->getFieldId()]['tmp_name']);
+                            F::File_Delete($_FILES['fields_' . $oField->getFieldId()]['tmp_name']);
                         }
 
                         $this->Hook_Run('content_field_proccess', array('sData' => &$sData, 'oField' => $oField, 'oTopic' => $oTopic, 'aValues' => $aValues, 'sType' => &$sType));
