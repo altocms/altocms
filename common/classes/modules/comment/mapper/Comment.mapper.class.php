@@ -155,22 +155,27 @@ class ModuleComment_MapperComment extends Mapper {
      */
     public function GetCommentsByArrayId($aCommentId) {
 
-        if (!is_array($aCommentId) || count($aCommentId) == 0) {
+        if (!$aCommentId) {
             return array();
         }
+        if (!is_array($aCommentId)) {
+            $aCommentId = array(intval($aCommentId));
+        }
+
         $nLimit = sizeof($aCommentId);
-        $sql = "SELECT
-					*
-				FROM 
-					?_comment
-				WHERE
-					comment_id IN(?a)
-				ORDER by FIELD(comment_id,?a)
-				LIMIT $nLimit
-				";
+        $sql = "
+            SELECT
+                c.comment_id AS ARRAY_KEYS,
+                c.*
+            FROM
+                ?_comment AS c
+            WHERE
+                c.comment_id IN(?a)
+            LIMIT $nLimit
+            ";
         $aComments = array();
-        if ($aRows = $this->oDb->select($sql, $aCommentId, $aCommentId)) {
-            $aComments = Engine::GetEntityRows('Comment', $aRows);
+        if ($aRows = $this->oDb->select($sql, $aCommentId)) {
+            $aComments = Engine::GetEntityRows('Comment', $aRows, $aCommentId);
         }
         return $aComments;
     }

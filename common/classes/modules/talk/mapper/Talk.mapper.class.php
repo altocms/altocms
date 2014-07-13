@@ -100,22 +100,26 @@ class ModuleTalk_MapperTalk extends Mapper {
      */
     public function GetTalksByArrayId($aTalkId) {
 
-        if (!is_array($aTalkId) || count($aTalkId) == 0) {
+        if (!$aTalkId) {
             return array();
         }
+        if (!is_array($aTalkId)) {
+            $aTalkId = array(intval($aTalkId));
+        }
+
         $nLimit = sizeof($aTalkId);
         $sql
             = "SELECT
-					t.*
-				FROM 
-					?_talk as t
-				WHERE 
-					t.talk_id IN(?a)
-				ORDER BY FIELD(t.talk_id,?a)
-				LIMIT $nLimit";
+                    t.talk_id AS ARRAY_KEYS,
+                    t.*
+                FROM
+                    ?_talk AS t
+                WHERE
+                    t.talk_id IN(?a)
+                LIMIT $nLimit";
         $aTalks = array();
-        if ($aRows = $this->oDb->select($sql, $aTalkId, $aTalkId)) {
-            $aTalks = Engine::GetEntityRows('Talk', $aRows);
+        if ($aRows = $this->oDb->select($sql, $aTalkId)) {
+            $aTalks = Engine::GetEntityRows('Talk', $aRows, $aTalkId);
         }
         return $aTalks;
     }

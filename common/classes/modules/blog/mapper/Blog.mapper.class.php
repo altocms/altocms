@@ -149,22 +149,21 @@ class ModuleBlog_MapperBlog extends Mapper {
 
         $sql
             = "SELECT
-                    *
+                    b.blog_id AS ARRAY_KEYS,
+                    b.*
                 FROM 
-                    ?_blog
+                    ?_blog AS b
                 WHERE 
                     blog_id IN(?a)
-                ORDER BY
-                    { FIELD(blog_id,?a) }
             ";
         if ($sOrder != '') {
-            $sql .= $sOrder;
+            $sql .= 'ORDER BY ' . $sOrder;
         }
         $sql .= ' LIMIT ' . $nLimit;
 
         $aBlogs = array();
-        if ($aRows = $this->oDb->select($sql, $aBlogId, !$sOrder ? $aBlogId : DBSIMPLE_SKIP)) {
-            $aBlogs = Engine::GetEntityRows('Blog', $aRows);
+        if ($aRows = $this->oDb->select($sql, $aBlogId)) {
+            $aBlogs = Engine::GetEntityRows('Blog', $aRows, !$sOrder ? $aBlogId : null);
         }
         return $aBlogs;
     }
