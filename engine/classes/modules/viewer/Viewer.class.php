@@ -1603,6 +1603,10 @@ class ModuleViewer extends Module {
         if ($this->iHtmlTitlesMax && sizeof($aTitles) > $this->iHtmlTitlesMax) {
             $aTitles = array_splice($aTitles, 0, $this->iHtmlTitlesMax);
         }
+        if (Config::Get('view.html.title')) {
+            // required part of the tag <title>
+            $aTitles[] = Config::Get('view.html.title');
+        }
         $sHtmlTitle = join($this->sHtmlTitleSeparator, $aTitles);
         if ($bHtmlEncode) {
             $sHtmlTitle = htmlspecialchars($sHtmlTitle);

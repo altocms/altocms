@@ -39,6 +39,7 @@ $config['view']['img_max_size_url'] = 500;      // максимальный ра
 
 $config['view']['html']['description']      = 'Description of your site';   // meta tag description
 $config['view']['html']['keywords']         = 'site, google, internet';     // meta tag keywords
+//$config['view']['html']['title']            = '___view.name___';  // строка, которая всегда добавляется в конец тега <title>
 $config['view']['html']['title_max']        = 0;       // максимальное число частей, из которых состоит тег <title>
 $config['view']['html']['title_sep']        = ' / ';   // разделитель для формирования тега <title>
 
