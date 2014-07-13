@@ -78,6 +78,7 @@ class HookMain extends Hook {
                 return Router::Action('login');
             }
         }
+        return null;
     }
 
     public function insertFields() {
@@ -87,27 +88,29 @@ class HookMain extends Hook {
 
     public function showFields($aVars) {
 
-        $oTopic = $aVars['topic'];
-        $bTopicList = $aVars['bTopicList'];
         $sReturn = '';
-        if (!$bTopicList) {
-            //получаем данные о типе топика
-            if ($oType = $oTopic->getContentType()) {
-                //получаем поля для данного типа
-                if ($aFields = $oType->getFields()) {
-                    //вставляем поля, если они прописаны для топика
-                    foreach ($aFields as $oField) {
-                        if ($oTopic->getField($oField->getFieldId()) || $oField->getFieldType() == 'photoset') {
-                            $this->Viewer_Assign('oField', $oField);
-                            $this->Viewer_Assign('oTopic', $oTopic);
-                            if ($this->Viewer_TemplateExists('forms/view_field_' . $oField->getFieldType() . '.tpl')) {
-                                $sReturn .= $this->Viewer_Fetch('forms/view_field_' . $oField->getFieldType() . '.tpl');
+        if (isset($aVars['topic']) && isset($aVars['bTopicList'])) {
+            $oTopic = $aVars['topic'];
+            $bTopicList = $aVars['bTopicList'];
+            if (!$bTopicList) {
+                //получаем данные о типе топика
+                if ($oType = $oTopic->getContentType()) {
+                    //получаем поля для данного типа
+                    if ($aFields = $oType->getFields()) {
+                        //вставляем поля, если они прописаны для топика
+                        foreach ($aFields as $oField) {
+                            if ($oTopic->getField($oField->getFieldId()) || $oField->getFieldType() == 'photoset') {
+                                $this->Viewer_Assign('oField', $oField);
+                                $this->Viewer_Assign('oTopic', $oTopic);
+                                if ($this->Viewer_TemplateExists('forms/view_field_' . $oField->getFieldType() . '.tpl')) {
+                                    $sReturn .= $this->Viewer_Fetch('forms/view_field_' . $oField->getFieldType() . '.tpl');
+                                }
                             }
                         }
                     }
                 }
-            }
 
+            }
         }
         return $sReturn;
     }
@@ -139,28 +142,33 @@ class HookMain extends Hook {
 
     public function addSharer($aParams) {
 
-        $oTopic = $aParams['topic'];
-        $bList = $aParams['bTopicList'];
+        $sReturn = '';
+        if (isset($aVars['topic']) && isset($aVars['bTopicList'])) {
+            $oTopic = $aParams['topic'];
+            $bList = $aParams['bTopicList'];
 
-        if (!$bList) {
-            //заменяем скрипт шарера на продвинутый со счетчиками
-            $aFooterJs = Config::Get('footer.default.js');
-            if (is_array($aFooterJs)) {
-                if (($key = array_search('http://yandex.st/share/share.js', $aFooterJs)) !== false) {
-                    unset($aFooterJs[$key]);
+            if (!$bList) {
+                //заменяем скрипт шарера на продвинутый со счетчиками
+                $aFooterJs = Config::Get('footer.default.js');
+                if (is_array($aFooterJs)) {
+                    if (($key = array_search('http://yandex.st/share/share.js', $aFooterJs)) !== false) {
+                        unset($aFooterJs[$key]);
+                    }
+                } else {
+                    $aFooterJs = array();
                 }
-            } else {
-                $aFooterJs = array();
+
+                $aFooterJs[] = '//yandex.st/share/cnt.share.js';
+                Config::Set('footer.default.js', $aFooterJs);
             }
 
-            $aFooterJs[] = '//yandex.st/share/cnt.share.js';
-            Config::Set('footer.default.js', $aFooterJs);
-        }
+            $oViewer = $this->Viewer_GetLocalViewer();
+            $oViewer->Assign('oTopic', $oTopic);
+            $oViewer->Assign('bTopicList', $bList);
 
-        $oViewer = $this->Viewer_GetLocalViewer();
-        $oViewer->Assign('oTopic', $oTopic);
-        $oViewer->Assign('bTopicList', $bList);
-        return $oViewer->Fetch('commons/common.sharer.tpl');
+            $sReturn = $oViewer->Fetch('commons/common.sharer.tpl');
+        }
+        return $sReturn;
     }
 
 }
