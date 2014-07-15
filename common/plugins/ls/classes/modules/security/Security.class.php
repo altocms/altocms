@@ -16,6 +16,11 @@ class PluginLs_ModuleSecurity extends PluginLs_Inherit_ModuleSecurity {
      */
     public function SetSessionKey() {
 
+        return $this->SetSecurityKey();
+    }
+
+    public function SetSecurityKey() {
+
         $sCode = parent::SetSecurityKey();
 
         // LS-compatible
