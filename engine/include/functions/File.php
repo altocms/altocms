@@ -1172,7 +1172,7 @@ class AltoFunc_File {
             $nHeight = intval(substr($xSize, 1));
         } else {
             $nWidth = intval(substr($xSize, 0, $nPos));
-            $nHeight = intval(substr($xSize, $nPos));
+            $nHeight = intval(substr($xSize, $nPos+1));
         }
         if ($nWidth || $nHeight) {
             $sResult .= '-' . ($nWidth ? $nWidth : '') . 'x' . $nHeight;
