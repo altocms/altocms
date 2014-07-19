@@ -100,15 +100,18 @@ class ModuleUploader_EntityDriverFile extends Entity {
     /**
      * @param string $sUrl
      *
-     * @return bool
+     * @return string
      */
     public function Url2Dir($sUrl) {
 
         if (F::File_LocalUrl($sUrl)) {
-            return F::File_Url2Dir($sUrl);
+            $sDir = F::File_Url2Dir($sUrl);
+            if (strpos($sDir, Config::Get('path.uploads.root')) === 0) {
+                $sDir = Config::Get('path.static.dir') . $sDir;
+            }
+            return $sDir;
         }
     }
-
 
 }
 

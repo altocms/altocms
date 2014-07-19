@@ -446,7 +446,7 @@ class AltoFunc_File {
      *
      * @return string
      */
-    static public function Url2Dir($sUrl, $sSeparator = null) {
+    static public function Url2Dir($sUrl, $sSeparator = '/') {
 
         // * Delete www from path
         $sUrl = str_replace('//www.', '//', $sUrl);
@@ -531,6 +531,11 @@ class AltoFunc_File {
      */
     static public function LocalUrl($sPath, $bCheckAliases = true) {
 
+        if (!$sPath) {
+            return null;
+        } elseif (strlen($sPath) > 1 && $sPath[0] == '/' && $sPath[1] != '/') {
+            return $sPath;
+        }
         if ($bCheckAliases) {
             return static::LocalPath($sPath, static::RootUrlAliases());
         }
