@@ -234,7 +234,7 @@ class Loader {
      * @param   string|null $sEvent
      * @param   bool        $bFullPath
      *
-     * @return  string
+     * @return  string|null
      */
     static public function SeekActionClass($sAction, $sEvent = null, $bFullPath = false) {
 
@@ -252,7 +252,7 @@ class Loader {
             foreach ($aPlugins as $sPlugin) {
                 if ($sActionFile = F::File_Exists('plugins/' . $sPlugin . '/classes/actions/' . $sFileName, $aSeekDirs)
                 ) {
-                    $sActionClass = 'Plugin' . ucfirst($sPlugin) . '_Action' . ucfirst($sAction);
+                    $sActionClass = 'Plugin' . F::StrCamelize($sPlugin) . '_Action' . ucfirst($sAction);
                     $bOk = true;
                     break;
                 }
@@ -261,6 +261,7 @@ class Loader {
         if ($bOk) {
             return $bFullPath ? $sActionFile : $sActionClass;
         }
+        return null;
     }
 
     static protected function _includeFile($sFile, $sCheckClassname = null) {
