@@ -47,7 +47,17 @@ class ModulePlugin_EntityPlugin extends Entity {
             if ($sId = (string)$this->oXml->id) {
                 $aData['id'] = $sId;
             }
-            $aData['priority'] = intval($this->oXml->priority);
+            $sPriority = trim($this->oXml->priority);
+            if ($sPriority) {
+                if (is_numeric($sPriority)) {
+                    $sPriority = intval($sPriority);
+                } else {
+                    $sPriority = strtolower($sPriority);
+                }
+            } else {
+                $sPriority = 0;
+            }
+            $aData['priority'] = $sPriority;
             $aData['property'] = $this->oXml;
 
             $this->_setData($aData);

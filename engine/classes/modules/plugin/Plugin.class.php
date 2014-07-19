@@ -195,28 +195,27 @@ class ModulePlugin extends Module {
     public function _PluginCompareByPriority($aPlugin1, $aPlugin2) {
 
         if (is_object($aPlugin1)) {
-            $aPlugin1 = $aPlugin1->_getData();
+            $aPlugin1 = $aPlugin1->getAllProps();
         }
         if (is_object($aPlugin2)) {
-            $aPlugin2 = $aPlugin2->_getData();
+            $aPlugin2 = $aPlugin2->getAllProps();
         }
+        $aPlugin1['is_active'] = (isset($aPlugin1['is_active']) ? $aPlugin1['is_active'] : false);
+        $aPlugin2['is_active'] = (isset($aPlugin2['is_active']) ? $aPlugin2['is_active'] : false);
+
         if ($aPlugin1['priority'] == $aPlugin2['priority']) {
-            if (($aPlugin1['num'] == $aPlugin2['num'])) {
+            if (!$aPlugin1['is_active'] && !$aPlugin2['is_active']) {
                 // оба плагина не активированы - сортировка по имени
-                if ($aPlugin1['num'] == -1) {
-                    if (($aPlugin1['id'] == $aPlugin2['id'])) {
-                        return 0;
-                    } else {
-                        return ($aPlugin1['id'] < $aPlugin2['id']) ? -1 : 1;
-                    }
-                } else {
+                if (($aPlugin1['id'] == $aPlugin2['id'])) {
                     return 0;
+                } else {
+                    return ($aPlugin1['id'] < $aPlugin2['id']) ? -1 : 1;
                 }
-            } else {
+            } elseif (!$aPlugin1['is_active'] || !$aPlugin2['is_active']) {
                 // неактивированные плагины идут ниже
-                if ($aPlugin1['num'] == -1) {
+                if (!$aPlugin1['is_active'] == -1) {
                     return 1;
-                } elseif ($aPlugin2['num'] == -1) {
+                } elseif (!$aPlugin2['is_active'] == -1) {
                     return -1;
                 }
                 return ($aPlugin1['num'] < $aPlugin2['num']) ? -1 : 1;
@@ -439,6 +438,7 @@ class ModulePlugin extends Module {
     protected function _addActivePlugins($oPluginEntity) {
 
         $aPluginsList = $this->GetPluginsList(true);
+        $oPluginEntity->setIsActive(true);
         $aPluginsList[$oPluginEntity->GetId()] = $oPluginEntity;
         if (sizeof($aPluginsList)) {
             uasort($aPluginsList, array($this, '_PluginCompareByPriority'));

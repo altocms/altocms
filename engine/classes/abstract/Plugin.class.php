@@ -312,13 +312,18 @@ abstract class Plugin extends LsObject {
         if ($oPluginEntity = $this->GetPluginEntity()) {
             return $oPluginEntity->GetVersion();
         }
+        return null;
     }
 
+    /**
+     * @return string|null
+     */
     public function EngineCompatible() {
 
         if ($oPluginEntity = $this->GetPluginEntity()) {
             return $oPluginEntity->EngineCompatible();
         }
+        return null;
     }
 
     /**
@@ -331,66 +336,105 @@ abstract class Plugin extends LsObject {
     static protected function _pluginName($xPlugin) {
 
         if (is_object($xPlugin)) {
-            return get_class($xPlugin);
+            $sPlugin = get_class($xPlugin);
+        } else {
+            $sPlugin = (string)$xPlugin;
         }
-        if (substr($xPlugin, 0, 6) == 'Plugin') {
-            if ($nUnderPos = strpos($xPlugin, '_')) {
-                $sResult = strtolower(substr($xPlugin, 6, $nUnderPos - 6));
+        if (substr($sPlugin, 0, 6) == 'Plugin') {
+            if ($nUnderPos = strpos($sPlugin, '_')) {
+                $sPluginName = substr($sPlugin, 6, $nUnderPos - 6);
             } else {
-                $sResult = strtolower(substr($xPlugin, 6));
+                $sPluginName = substr($sPlugin, 6);
             }
         } else {
-            $sResult = strtolower($xPlugin);
+            $sPluginName = $sPlugin;
         }
-        return $sResult;
-    }
 
-    static public function GetPluginName($sPluginName) {
-        return self::_pluginName($sPluginName);
+        return $sPluginName;
     }
 
     /**
-     * Возвращает полный серверный путь до плагина
+     * Returns normalized dirname of plugin
      *
-     * @param string $sPluginName
+     * @param object|string $xPlugin
      *
      * @return string
      */
-    static public function GetDir($sPluginName) {
+    static protected function _pluginDirName($xPlugin) {
 
-        $sPluginName = self::_pluginName($sPluginName);
+        $sPluginName = self::_pluginName($xPlugin);
+        if (strpbrk($sPluginName, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')) {
+            return F::StrUnderscore($sPluginName);
+        }
+        return $sPluginName;
+    }
+
+    /**
+     * Returns normalized name of plugin
+     *
+     * @param object|string $xPlugin
+     *
+     * @return string
+     */
+    static public function GetPluginName($xPlugin) {
+
+        return self::_pluginName($xPlugin);
+    }
+
+    /**
+     * Returns decamelized name of plugin
+     *
+     * @param object|string $xPlugin
+     *
+     * @return string
+     */
+    static public function GetPluginDirName($xPlugin) {
+
+        return self::_pluginDirName($xPlugin);
+    }
+    /**
+     * Returns full dir path of plugin
+     *
+     * @param object|string $xPlugin
+     *
+     * @return string
+     */
+    static public function GetDir($xPlugin) {
+
+        $sPluginDirName = self::_pluginDirName($xPlugin);
 
         $aDirs = Config::Get('path.root.seek');
         foreach($aDirs as $sDir) {
-            $sPluginDir = $sDir . '/plugins/' . $sPluginName . '/';
+            $sPluginDir = $sDir . '/plugins/' . $sPluginDirName . '/';
             if (is_file($sPluginDir . 'plugin.xml')) {
                 return F::File_NormPath($sPluginDir);
             }
         }
+        return null;
     }
 
     /**
-     * Возвращает полный web-адрес до плагина
+     * Returns full URL path to plugin
      *
-     * @param string $sPluginName
+     * @param object|string $xPlugin
      *
      * @return string
      */
-    static public function GetUrl($sPluginName) {
+    static public function GetUrl($xPlugin) {
 
-        $sPluginName = self::_pluginName($sPluginName);
+        $sPluginName = self::_pluginName($xPlugin);
 
         return F::File_Dir2Url(self::GetDir($sPluginName));
     }
 
     /**
-     * @param string $sPluginName
+     * @param object|string $xPlugin
      *
      * @return array
      */
-    static public function GetSkins($sPluginName) {
+    static public function GetSkins($xPlugin) {
 
-        $sPluginName = self::_pluginName($sPluginName);
+        $sPluginName = self::_pluginName($xPlugin);
         if (!isset(self::$aSkins[$sPluginName])) {
             $sPluginDir = self::GetDir($sPluginName);
             $aPaths = glob($sPluginDir . '/templates/skin/*', GLOB_ONLYDIR);
@@ -414,11 +458,11 @@ abstract class Plugin extends LsObject {
      */
     static public function GetDefaultSkin($sPluginName, $sCompatibility = null) {
 
-        $sPluginName = self::_pluginName($sPluginName);
+        $sPluginDirName = self::_pluginDirName($sPluginName);
         if (!$sCompatibility) {
             $sCompatibility = Config::Val('view.compatible', 'alto');
         }
-        $sResult = Config::Get('plugin.' . $sPluginName . '.default.skin.' . $sCompatibility);
+        $sResult = Config::Get('plugin.' . $sPluginDirName . '.default.skin.' . $sCompatibility);
         if (!$sResult) {
             $sResult = 'default';
         }
@@ -439,9 +483,11 @@ abstract class Plugin extends LsObject {
         $sPluginName = self::_pluginName($sPluginName);
         if (!isset(self::$aTemplateDir[$sPluginName][''])) {
             $aSkins = self::GetSkins($sPluginName);
-            $sSkinName = ($aSkins && in_array(Config::Get('view.skin'), $aSkins))
-                ? Config::Get('view.skin')
-                : self::GetDefaultSkin($sPluginName, $sCompatibility);
+            if ($aSkins && in_array(Config::Get('view.skin'), $aSkins)) {
+                $sSkinName = Config::Get('view.skin');
+            } else {
+                $sSkinName = self::GetDefaultSkin($sPluginName, $sCompatibility);
+            }
 
             $sDir = self::GetDir($sPluginName) . '/templates/skin/' . $sSkinName . '/';
             self::$aTemplateDir[$sPluginName][''] = is_dir($sDir) ? F::File_NormPath($sDir) : null;
