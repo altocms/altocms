@@ -354,6 +354,13 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
                         } else {
                             $sResult = $this->SmartyDefaultTemplateHandler($sType, $sLsTemplate, $sContent, $iTimestamp, $oSmarty);
                         }
+                    } elseif ($nPos = strpos($sName, '/email.')) {
+                        $sLsTemplate = substr($sName, 0, $nPos) . '/notify.' . substr($sName, $nPos + 7);
+                        if (F::File_Exists($sLsTemplate)) {
+                            $sResult = $sLsTemplate;
+                        } else {
+                            $sResult = $this->SmartyDefaultTemplateHandler($sType, $sLsTemplate, $sContent, $iTimestamp, $oSmarty);
+                        }
                     }
                 }
 
