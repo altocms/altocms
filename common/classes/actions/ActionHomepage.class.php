@@ -19,6 +19,7 @@ class ActionHomepage extends Action {
      *
      */
     public function Init() {
+
         $this->SetDefaultEvent('default');
     }
 
@@ -27,10 +28,17 @@ class ActionHomepage extends Action {
      *
      */
     protected function RegisterEvent() {
+
         $this->AddEvent('default', 'EventDefault');
     }
 
+    /**
+     * Default homepage
+     *
+     * @return string
+     */
     public function EventDefault() {
+
         $this->Viewer_Assign('sMenuHeadItemSelect', 'homepage');
         $sHomepage = Config::Get('router.config.homepage');
         if ($sHomepage) {
@@ -40,7 +48,7 @@ class ActionHomepage extends Action {
                     return;
                 }
             } else {
-                return Router::Action(Config::Get('router.config.homepage'));
+                return Router::Action($sHomepage);
             }
         }
         return Router::Action('index');

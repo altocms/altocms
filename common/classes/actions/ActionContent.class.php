@@ -654,7 +654,7 @@ class ActionContent extends Action {
 
         // Если запрет на индексацию не устанавливался вручную, то задаем, как у блога
         $oBlogType = $oBlog->GetBlogType();
-        if (!$oTopic->getIndexIgnoreLock()) {
+        if ($oBlogType && !$oTopic->getIndexIgnoreLock()) {
             $oTopic->setTopicIndexIgnore($oBlogType->GetIndexIgnore());
         } else {
             $oTopic->setTopicIndexIgnore(false);
