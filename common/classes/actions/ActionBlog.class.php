@@ -508,10 +508,10 @@ class ActionBlog extends Action {
          */
         $this->SetTemplateAction('admin');
         /**
-         * Если блог приватный, получаем приглашенных
+         * Если блог приватный или только для чтения, получаем приглашенных
          * и добавляем блок-форму для приглашения
          */
-        if ($oBlog->getBlogType() && $oBlog->getBlogType()->IsPrivate()) {
+        if ($oBlog->getBlogType() && ($oBlog->getBlogType()->IsPrivate() || $oBlog->getBlogType()->IsReadOnly())) {
             $aBlogUsersInvited = $this->Blog_GetBlogUsersByBlogId(
                 $oBlog->getId(), ModuleBlog::BLOG_USER_ROLE_INVITE, null
             );
@@ -1765,14 +1765,15 @@ class ActionBlog extends Action {
     }
 
     /**
-     * Обработка отправленого пользователю приглашения вступить в блог
+     * Обработка отправленого пользователю приглашения подписаться на блог
+     *
+     * @return string|null
      */
     protected function EventInviteBlog() {
 
         F::IncludeLib('XXTEA/encrypt.php');
-        /**
-         * Получаем код подтверждения из ревеста и дешефруем его
-         */
+
+        // * Получаем код подтверждения из ревеста и дешефруем его
         $sCode = xxtea_decrypt(base64_decode(rawurldecode(F::GetRequestStr('code'))), Config::Get('module.blog.encrypt'));
         if (!$sCode) {
             return $this->EventNotFound();
@@ -1780,30 +1781,25 @@ class ActionBlog extends Action {
         list($sBlogId, $sUserId) = explode('_', $sCode, 2);
 
         $sAction = $this->GetParam(0);
-        /**
-         * Получаем текущего пользователя
-         */
+
+        // * Получаем текущего пользователя
         if (!$this->User_IsAuthorization()) {
             return $this->EventNotFound();
         }
         $this->oUserCurrent = $this->User_GetUserCurrent();
-        /**
-         * Если приглашенный пользователь не является авторизированным
-         */
+
+        // * Если приглашенный пользователь не является авторизированным
         if ($this->oUserCurrent->getId() != $sUserId) {
             return $this->EventNotFound();
         }
-        /**
-         * Получаем указанный блог
-         */
+
+        // * Получаем указанный блог
         $oBlog = $this->Blog_GetBlogById($sBlogId);
-        if (!$oBlog || !$oBlog->getBlogType() || !$oBlog->getBlogType()->IsPrivate()) {
+        if (!$oBlog || !$oBlog->getBlogType() || !($oBlog->getBlogType()->IsPrivate()||$oBlog->getBlogType()->IsReadOnly())) {
             return $this->EventNotFound();
         }
-        /**
-         * Получаем связь "блог-пользователь" и проверяем,
-         * чтобы ее тип был INVITE или REJECT
-         */
+
+        // * Получаем связь "блог-пользователь" и проверяем, чтобы ее тип был INVITE или REJECT
         if (!$oBlogUser = $this->Blog_GetBlogUserByBlogIdAndUserId($oBlog->getId(), $this->oUserCurrent->getId())) {
             return $this->EventNotFound();
         }
@@ -1818,9 +1814,8 @@ class ActionBlog extends Action {
             Router::Location(Router::GetPath('talk'));
             return;
         }
-        /**
-         * Обновляем роль пользователя до читателя
-         */
+
+        // * Обновляем роль пользователя до читателя
         $oBlogUser->setUserRole(($sAction == 'accept') ? ModuleBlog::BLOG_USER_ROLE_USER : ModuleBlog::BLOG_USER_ROLE_REJECT);
         if (!$this->Blog_UpdateRelationBlogUser($oBlogUser)) {
             $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'), true);
@@ -1828,23 +1823,20 @@ class ActionBlog extends Action {
             return;
         }
         if ($sAction == 'accept') {
-            /**
-             * Увеличиваем число читателей блога
-             */
+
+            // * Увеличиваем число читателей блога
             $oBlog->setCountUser($oBlog->getCountUser() + 1);
             $this->Blog_UpdateBlog($oBlog);
             $sMessage = $this->Lang_Get('blog_user_invite_accept');
-            /**
-             * Добавляем событие в ленту
-             */
+
+            // * Добавляем событие в ленту
             $this->Stream_Write($oBlogUser->getUserId(), 'join_blog', $oBlog->getId());
         } else {
             $sMessage = $this->Lang_Get('blog_user_invite_reject');
         }
         $this->Message_AddNotice($sMessage, $this->Lang_Get('attention'), true);
-        /**
-         * Перенаправляем на страницу личной почты
-         */
+
+        // * Перенаправляем на страницу личной почты
         Router::Location(Router::GetPath('talk'));
     }
 
