@@ -60,9 +60,9 @@ class ActionLogin extends Action {
         $this->Viewer_SetResponseAjax('json');
 
         // * Проверяем передачу логина пароля через POST
-        $sUserLogin = $this->GetPost('login');
+        $sUserLogin = trim($this->GetPost('login'));
         $sUserPassword = $this->GetPost('password');
-        if (!$sUserLogin || !$sUserPassword) {
+        if (!$sUserLogin || !trim($sUserPassword)) {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
             return;
         }
@@ -87,7 +87,7 @@ class ActionLogin extends Action {
                 }
             }
             // * Сверяем хеши паролей и проверяем активен ли юзер
-            if ($this->Security_CheckSalted($oUser->getPassword(), $sUserPassword, 'pass')) {
+            if ($this->Security_CheckSalted($oUser->getPassword(), $sUserPassword, 'pass') || $this->Security_CheckSalted($oUser->getPassword(), trim($sUserPassword), 'pass')) {
                 if (!$oUser->getActivate()) {
                     $this->Message_AddErrorSingle(
                         $this->Lang_Get(
