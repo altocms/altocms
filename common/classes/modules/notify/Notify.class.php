@@ -581,21 +581,22 @@ class ModuleNotify extends Module {
     /**
      * Returns full path to email templates by name and plugin
      *
-     * @param  string $sName          Template name
-     * @param  string $sPluginName    Name or class for plugin
+     * @param  string        $sName   Template name
+     * @param  string|object $xPlugin Name or class of plugin
      *
      * @return string
      */
-    public function GetTemplatePath($sName, $sPluginName = null) {
+    public function GetTemplatePath($sName, $xPlugin = null) {
 
+        if ($xPlugin) {
+            $sPluginName = Plugin::GetPluginName($xPlugin);
+        } else {
+            $sPluginName = '';
+        }
         $sCacheKey = 'template_path_' . $sName . '-' . $sPluginName;
         if (false === ($sResult = $this->Cache_Get($sCacheKey, 'tmp'))) {
             $bFound = false;
             if ($sPluginName) {
-                $sPluginName = preg_match('/^Plugin([\w]+)(_[\w]+)?$/Ui', $sPluginName, $aMatches)
-                    ? strtolower($aMatches[1])
-                    : strtolower($sPluginName);
-
                 $sDir = Plugin::GetTemplateDir($sPluginName) . $this->sDir . '/';
             } else {
                 $sDir = F::File_NormPath($this->Viewer_GetTemplateDir() . '/' . $this->sDir . '/');
@@ -647,7 +648,9 @@ class ModuleNotify extends Module {
                 $sResult = $sDir . $this->Lang_GetLangDefault() . '/' . $sName;
             }
 
-            $this->Cache_Set($sResult, $sCacheKey, array(), 'P30D', 'tmp');
+            if (is_dir($sResult)) {
+                $this->Cache_Set($sResult, $sCacheKey, array(), 'P30D', 'tmp');
+            }
         }
 
         return $sResult;
