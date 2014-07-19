@@ -7946,6 +7946,9 @@ button.close {
 /**-------------------------------------------------------------------------------------------------------*/
 /** РАЧЕТНЫЕ ДАННЫЕ. НЕ МЕНЯТЬ!
 ----------------------------------------------------------------------------------------------------------*/
+.topic-content-preview-img {
+  display: block !important;
+}
 .label {
   border-radius: 0 !important;
 }
@@ -9484,25 +9487,26 @@ ul.menu-level-1 > li.menu-hidden-container ul.menu-hidden li.open > a.userlogo {
 .content .topic .topic-text {
   font-family: Verdana, Helvetica, Arial, sans-serif;
   margin-bottom: 20px;
+  font-size: 12px;
 }
 .content .topic .topic-text iframe {
   width: 100%;
 }
 .content .topic .topic-text h4 {
   font-family: Roboto, sans-serif;
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 500;
   margin-top: 18px;
 }
 .content .topic .topic-text h5 {
   font-family: Roboto, sans-serif;
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 500;
   margin-top: 18px;
 }
 .content .topic .topic-text h6 {
   font-family: Roboto, sans-serif;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   margin-top: 18px;
 }
@@ -10367,6 +10371,10 @@ ul.menu-level-1 > li.menu-hidden-container ul.menu-hidden li.open > a.userlogo {
 .panel.comment .collapse-block a {
   color: #a6a6a6;
 }
+.panel.comment .answer_inject img {
+  max-width: 100%;
+  width: 100%;
+}
 .panel.comment .comment-content {
   margin-left: 0;
 }
@@ -10460,6 +10468,7 @@ ul.menu-level-1 > li.menu-hidden-container ul.menu-hidden li.open > a.userlogo {
 }
 .panel.comment .comment-content .comment-text img {
   max-width: 100%;
+  width: 100%;
   margin: 0 0 12px 0;
 }
 .panel.comment .comment-content .comment-text img[align="left"] {
@@ -12606,7 +12615,7 @@ ______________________________________________*/
   pointer-events: none;
 }
 #nprogress .bar {
-  background: #2299dd;
+  background: 29d;
   position: fixed;
   z-index: 1060;
   top: 0;
@@ -12624,7 +12633,7 @@ ______________________________________________*/
   right: 0px;
   width: 100px;
   height: 100%;
-  box-shadow: 0 0 10px #2299dd, 0 0 5px #2299dd;
+  box-shadow: 0 0 10px 29d, 0 0 5px 29d;
   /*#29d;*/
   opacity: 1.0;
   -webkit-transform: rotate(3deg) translate(0px, -4px);
@@ -12647,8 +12656,8 @@ ______________________________________________*/
   height: 18px;
   box-sizing: border-box;
   border: solid 2px transparent;
-  border-top-color: #2299dd;
-  border-left-color: #2299dd;
+  border-top-color: 29d;
+  border-left-color: 29d;
   border-radius: 50%;
   -webkit-animation: nprogress-spinner 400ms linear infinite;
   animation: nprogress-spinner 400ms linear infinite;
