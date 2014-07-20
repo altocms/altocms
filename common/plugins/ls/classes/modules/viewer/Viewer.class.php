@@ -23,6 +23,7 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
     protected $aTemplatesLsMap = array(
         'commons/common.sharer.tpl' => 'sharer.tpl',
         'commons/common.user_list.tpl' => 'user_list.tpl',
+        'commons/common.infobox_blog.tpl' => 'infobox.info.blog.tpl',
         'menus/menu.main_pages.tpl' => 'page_main_menu.tpl',
         'actions/ActionTalk/message.tpl' => 'actions/ActionTalk/read.tpl',
         'actions/talk/action.talk.message.tpl' => 'actions/ActionTalk/read.tpl',
