@@ -56,6 +56,7 @@ ls.userfeed = (function ($) {
      * Change user's checkbox
      *
      * @param checkbox
+     * @param type
      */
     this.changeItemCheckbox = function(checkbox, type) {
         var item,

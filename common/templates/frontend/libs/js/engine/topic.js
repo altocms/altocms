@@ -138,7 +138,7 @@ ls.topic = (function ($) {
                 }
             }
         );
-    }
+    };
 
     $(function(){
         ls.topic.init();

@@ -24,7 +24,7 @@ ls.userfield = ( function ($) {
     this.init = function() {
         this.fieldsConainer = $('#user-field-contact-container');
         this.iCountMax = 2;
-    }
+    };
 
     /**
      *

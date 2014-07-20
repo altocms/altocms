@@ -327,7 +327,7 @@ ls.user = (function ($) {
         $(cropImage).Jcrop(options, function () {
             $that.jcropImage = this;
         });
-    }
+    };
 
     /**
      * Destroy crop API
@@ -337,7 +337,7 @@ ls.user = (function ($) {
             $that.jcropImage.release();
             $that.jcropImage.destroy();
         }
-    }
+    };
 
     /**
      * Отмена ресайза аватарки, подчищаем временный данные

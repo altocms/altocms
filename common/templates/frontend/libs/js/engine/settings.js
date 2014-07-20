@@ -145,12 +145,12 @@ ls.settings = (function ($) {
         },
         autoresize_min_height: '80px',
         setup: function (editor) {
-            editor.on('click', function (e) {
+            editor.on('keyup', function (e) {
                 var key = e.keyCode || e.which;
                 if (e.ctrlKey && (key == 13)) {
                     $('#comment-button-submit').click();
-                    return false;
                 }
+                return false;
             });
         }
     };

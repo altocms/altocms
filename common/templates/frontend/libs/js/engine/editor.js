@@ -2,7 +2,7 @@
  * Вспомгательные функции для текстового редактора
  */
 
-var ls = ls || {};
+;var ls = ls || {};
 
 ls.editor = (function ($) {
     "use strict";

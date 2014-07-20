@@ -184,10 +184,10 @@ ls.vote = (function ($) {
     /**
      * Голосование за топик
      *
-     * @param  {String} targetType     Тип голосования
-     * @param  {Number} targetId ID объекта
-     * @param  {Number} voteValue    Значение
-     * @param  {Object} voteOptions     Переменные текущего голосования
+     * @param  {String} targetType  Тип голосования
+     * @param  {Number} targetId    ID объекта
+     * @param  {Number} voteValue   Значение
+     * @param  {Object} voteOptions Переменные текущего голосования
      * @param  {Object} response    Объект возвращемый сервером
      */
     this.onVoteTopic = function (targetType, targetId, voteValue, voteOptions, response) {

@@ -14,10 +14,10 @@ ls.wall = (function ($) {
      * Добавление записи
      */
     this.add = function (sText, iPid) {
-        $('.js-button-wall-submit').attr('disabled', true);
         var url = ls.routerUrl('profile') + this.options.login + '/wall/add/';
         var params = {sText: sText, iPid: iPid};
 
+        $('.js-button-wall-submit').attr('disabled', true);
         $('#wall-text').addClass('loader');
         ls.ajax(url, params, function (result) {
             $('.js-button-wall-submit').attr('disabled', false);
@@ -37,10 +37,10 @@ ls.wall = (function ($) {
     };
 
     this.addReply = function (sText, iPid) {
-        $('.js-button-wall-submit').attr('disabled', true);
         var url = ls.routerUrl('profile') + this.options.login + '/wall/add/';
         var params = {sText: sText, iPid: iPid};
 
+        $('.js-button-wall-submit').attr('disabled', true);
         $('#wall-reply-text-' + iPid).addClass('loader');
         ls.ajax(url, params, function (result) {
             $('.js-button-wall-submit').attr('disabled', false);
@@ -105,11 +105,11 @@ ls.wall = (function ($) {
     };
 
     this.loadNew = function () {
-        var divFirst = $('#wall-container').find('.js-wall-item:first-child');
+        var divFirst = $('#wall-container').find('.js-wall-item:first-child'),
+            idMore = -1;
+
         if (divFirst.length) {
-            var idMore = divFirst.attr('id').replace('wall-item-', '');
-        } else {
-            var idMore = -1;
+            idMore = divFirst.attr('id').replace('wall-item-', '');
         }
         this.load('', idMore, function (result) {
             if (!result) {

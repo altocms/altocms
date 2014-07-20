@@ -100,7 +100,7 @@ ls.usernote = (function ($) {
     /**
      * Скрывает форму редактирования
      *
-     * @param  {Object} oVars Общие переменные
+     * @param  usernoteWidget
      */
     this.hideForm = function (usernoteWidget) {
         var text = usernoteWidget.find(this.options.selectors.noteText),
@@ -121,7 +121,7 @@ ls.usernote = (function ($) {
     /**
      * Сохраняет заметку
      *
-     * @param  {Object} oVars Общие переменные
+     * @param  usernoteWidget
      */
     this.save = function (usernoteWidget) {
         var textarea = usernoteWidget.find(this.options.selectors.noteForm + ' textarea'),
@@ -156,7 +156,7 @@ ls.usernote = (function ($) {
     /**
      * Удаление заметки
      *
-     * @param  {Object} oVars Общие переменные
+     * @param  usernoteWidget
      */
     this.remove = function (usernoteWidget) {
         var textarea = usernoteWidget.find(this.options.selectors.noteForm + ' textarea'),

@@ -28,7 +28,7 @@ ls.stream = ( function ($) {
                     '</li>');
             }
         }
-    }
+    };
 
     /**
      * Init
