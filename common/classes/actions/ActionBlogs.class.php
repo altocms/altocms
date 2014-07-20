@@ -151,7 +151,7 @@ class ActionBlogs extends Action {
         );
 
         // * Передан ли номер страницы
-        $iPage = preg_match('/^\d+$/i', $this->GetEventMatch(2)) ? $this->GetEventMatch(2) : 1;
+        $iPage = preg_match("/^\d+$/i", $this->GetParamEventMatch(0, 2)) ? $this->GetParamEventMatch(0, 2) : 1;
 
         // * Получаем список блогов
         $aResult = $this->Blog_GetBlogsByFilter(
