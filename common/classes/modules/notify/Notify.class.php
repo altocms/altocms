@@ -457,6 +457,8 @@ class ModuleNotify extends Module {
      * @param array                        $aAssign     Ассоциативный массив для загрузки переменных в шаблон письма
      * @param string|null                  $sPluginName Плагин из которого происходит отправка
      * @param bool                         $bForceSend  Отправлять сразу, даже при опции module.notify.delayed = true
+     *
+     * @return bool
      */
     public function Send($xUserTo, $sTemplate, $sSubject, $aAssign = array(), $sPluginName = null, $bForceSend = false) {
 
@@ -498,19 +500,19 @@ class ModuleNotify extends Module {
             );
             if (Config::Get('module.notify.insert_single')) {
                 $this->aTask[] = $oNotifyTask;
+                $bResult = true;
             } else {
-                $this->oMapper->AddTask($oNotifyTask);
+                $bResult = $this->oMapper->AddTask($oNotifyTask);
             }
         } else {
-            /**
-             * Отправляем мыло
-             */
+            // * Отправляем e-mail
             $this->Mail_SetAdress($sMail, $sName);
             $this->Mail_SetSubject($sSubject);
             $this->Mail_SetBody($sBody);
             $this->Mail_SetHTML();
-            $this->Mail_Send();
+            $bResult = $this->Mail_Send();
         }
+        return $bResult;
     }
 
     /**
