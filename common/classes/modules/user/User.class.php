@@ -26,12 +26,15 @@ class ModuleUser extends Module {
     /**
      * Статусы дружбы между пользователями
      */
-    const USER_FRIEND_OFFER = 1;
-    const USER_FRIEND_ACCEPT = 2;
-    const USER_FRIEND_DELETE = 4;
-    const USER_FRIEND_REJECT = 8;
-    const USER_FRIEND_NULL = 16;
+    const USER_FRIEND_OFFER     = 1;
+    const USER_FRIEND_ACCEPT    = 2;
+    const USER_FRIEND_DELETE    = 4;
+    const USER_FRIEND_REJECT    = 8;
+    const USER_FRIEND_NULL      = 16;
 
+    const USER_LOGIN_ERR_MIN    = 1;
+    const USER_LOGIN_ERR_LEN    = 2;
+    const USER_LOGIN_ERR_CHARS  = 4;
     /**
      * Объект маппера
      *
@@ -1468,10 +1471,11 @@ class ModuleUser extends Module {
      * Проверяет логин на корректность
      *
      * @param string $sLogin    Логин пользователя
+     * @param int    $nError    Ошибка (если есть)
      *
      * @return bool
      */
-    public function CheckLogin($sLogin) {
+    public function CheckLogin($sLogin, &$nError) {
 
         // проверка на допустимость логина
         $aDisabledLogins = F::Array_Str2Array(Config::Get('module.user.login.disabled'));
@@ -1486,26 +1490,43 @@ class ModuleUser extends Module {
         $nMax = intval(Config::Get('module.user.login.max_size'));
 
         // Логин не может быть меньше 1
-        if (!$nMin) {
-            $nMin =1;
+        if ($nMin < 1) {
+            $nMin = 1;
         }
 
-        if (!$sCharset) {
-            // поверка на длину логина
-            if (!$nMax) {
-                return strlen($sLogin) >= $nMin;
-            } else {
-                return strlen($sLogin) >= $nMin && strlen($sLogin) <= $nMax;
+        $nError = 0;
+        // поверка на длину логина
+        if (!$nMax) {
+            $bOk = mb_strlen($sLogin, 'UTF-8') >= $nMin;
+            if (!$bOk) {
+                $nError = self::USER_LOGIN_ERR_MIN;
             }
         } else {
-            // поверка на набор символов и длину логина
-            if (!$nMax) {
-                return strlen($sLogin) >= $nMin && preg_match('/^[' . $sCharset . ']$/i', $sLogin);
-            } else {
-                return preg_match('/^[' . $sCharset . ']{' . $nMin . ',' . $nMax . '}$/i', $sLogin);
+            $bOk = mb_strlen($sLogin, 'UTF-8') >= $nMin && mb_strlen($sLogin, 'UTF-8') <= $nMax;
+            if (!$bOk) {
+                $nError = self::USER_LOGIN_ERR_LEN;
             }
         }
-        return false;
+        if ($bOk && $sCharset) {
+            // поверка на набор символов
+            if (!preg_match('/^([' . $sCharset . ']+)$/iu', $sLogin)) {
+                $nError = self::USER_LOGIN_ERR_CHARS;
+                $bOk = false;
+            }
+        }
+        return $bOk;
+    }
+
+    /**
+     * @param string $sLogin
+     *
+     * @return int
+     */
+    public function InvalidLogin($sLogin) {
+
+        $this->CheckLogin($sLogin, $nError);
+
+        return $nError;
     }
 
     /**

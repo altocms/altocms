@@ -94,10 +94,24 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function ValidateLogin($sValue, $aParams) {
 
-        if ($sValue && $this->User_CheckLogin($sValue)) {
+        if ($sValue && !($nError = $this->User_InvalidLogin($sValue))) {
             return true;
         }
-        return $this->Lang_Get('registration_login_error');
+        if ($nError == ModuleUser::USER_LOGIN_ERR_MIN) {
+            $sMsg = $this->Lang_Get('registration_login_error_min', array(
+                    'min' => intval(Config::Get('module.user.login.min_size')),
+                ));
+        } elseif ($nError == ModuleUser::USER_LOGIN_ERR_LEN) {
+            $sMsg = $this->Lang_Get('registration_login_error_len', array(
+                    'min' => intval(Config::Get('module.user.login.min_size')),
+                    'max' => intval(Config::Get('module.user.login.max_size')),
+                ));
+        } elseif ($nError == ModuleUser::USER_LOGIN_ERR_CHARS) {
+            $sMsg = $this->Lang_Get('registration_login_error_chars');
+        } else {
+            $sMsg = $this->Lang_Get('registration_login_error');
+        }
+        return $sMsg;
     }
 
     /**
