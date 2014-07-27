@@ -288,17 +288,27 @@ class ModuleBlog_EntityBlog extends Entity {
     }
 
     /**
-     * Возвращает полный URL блога
+     * Returns link to the blog
      *
      * @return string
      */
-    public function getUrlFull() {
+    public function getLink() {
 
         if ($this->getType() == 'personal') {
             return $this->getOwner()->getUserUrl() . 'created/topics/';
         } else {
             return Router::GetPath('blog') . $this->getUrl() . '/';
         }
+    }
+
+    /**
+     * Возвращает полный URL блога
+     *
+     * @return string
+     */
+    public function getUrlFull() {
+
+        return $this->getLink();
     }
 
     /**
