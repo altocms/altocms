@@ -78,7 +78,7 @@ class HookMain extends Hook {
         $bChanged = false;
         if ($aMenus && is_array($aMenus)) {
             foreach($aMenus as $sMenuId => $aMenu) {
-                if (isset($aMenu['config']['fill'])) {
+                if (isset($aMenu['config']['fill_from'])) {
                     $aMenus[$sMenuId] = $this->Menu_Prepare($aMenu);
                     $bChanged = true;
                 }
