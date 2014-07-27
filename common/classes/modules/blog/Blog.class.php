@@ -376,15 +376,24 @@ class ModuleBlog extends Module {
     public function GetBlogsByUrl($aBlogsUrl) {
 
         $sCacheKey = 'blogs_by_url_' . serialize($aBlogsUrl);
-        if (false === ($aBlogsId = $this->Cache_Get($sCacheKey))) {
+        if (false === ($aBlogs = $this->Cache_Get($sCacheKey))) {
             if ($aBlogsId = $this->oMapper->GetBlogsIdByUrl($aBlogsUrl)) {
-                $aCacheKeys = F::Array_ChangeValues($aBlogsUrl, 'blog_update_');
-                $this->Cache_Set($aBlogsId, $sCacheKey, $aCacheKeys, 'P30D');
+                $aBlogs = $this->GetBlogsAdditionalData($aBlogsId);
+                $aOrders = array_flip($aBlogsUrl);
+                foreach($aBlogs as $oBlog) {
+                    $oBlog->setProp('_order', $aOrders[$oBlog->getUrl()]);
+                }
+                $aBlogs = F::Array_SortEntities($aBlogs, '_order');
+                $aAdditionalCacheKeys = F::Array_ChangeValues($aBlogsUrl, 'blog_update_');
             } else {
-                $this->Cache_Set(null, $sCacheKey, array('blog_update', 'blog_new'), 'P30D');
+                $aBlogs = array();
+                $aAdditionalCacheKeys = array();
             }
+            $aAdditionalCacheKeys[] = 'blog_update';
+            $aAdditionalCacheKeys[] = 'blog_new';
+            $this->Cache_Set(array(), $sCacheKey, $aAdditionalCacheKeys, 'P30D');
         }
-        return $this->GetBlogsAdditionalData($aBlogsId);
+        return $aBlogs;
     }
 
     /**
