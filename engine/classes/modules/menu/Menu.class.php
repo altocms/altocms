@@ -28,13 +28,12 @@ class ModuleMenu extends Module {
     public function Prepare($aMenu) {
 
         $iLimit = (isset($aMenu['config']['limit']) ? intval($aMenu['config']['limit']) : 0);
-        $aParams = (isset($aMenu['config']['params']) ? $aMenu['config']['params'] : array());
-        if (isset($aMenu['config']['fill'])) {
-            $aFillMode = $aMenu['config']['fill'];
+        if (isset($aMenu['config']['fill_from'])) {
+            $aFillMode = $aMenu['config']['fill_from'];
             $aFillMode = F::Array_FlipIntKeys($aFillMode);
             $aItems = array();
             foreach($aFillMode as $sFillFrom => $aFillSet) {
-                $aItems = array_merge($aItems, $this->_fillItems($sFillFrom, $aFillSet, $iLimit, $aParams));
+                $aItems = array_merge($aItems, $this->_fillItems($sFillFrom, $aFillSet, $iLimit, $aMenu));
             }
             if (sizeof($aItems) > $iLimit) {
                 $aItems = array_slice($aItems, 0, $iLimit);
@@ -50,15 +49,17 @@ class ModuleMenu extends Module {
      * @param string $sFillFrom
      * @param array  $aFillSet
      * @param int    $iLimit
-     * @param array  $aParams
+     * @param array  $aMenu
      *
      * @return array
      */
-    protected function _fillItems($sFillFrom, $aFillSet, $iLimit, $aParams = array()) {
+    protected function _fillItems($sFillFrom, $aFillSet, $iLimit, $aMenu) {
 
         $aItems = array();
         if ($sFillFrom == 'blogs') {
-            $aItems = $this->_fillItemsByBlogs($aFillSet, $iLimit, $aParams);
+            $aItems = $this->_fillItemsFromBlogs($aFillSet, $iLimit, $aMenu);
+        } elseif ($sFillFrom == 'list') {
+            $aItems = $this->_fillItemsFromList($aFillSet, $iLimit, $aMenu);
         }
         return $aItems;
     }
@@ -66,11 +67,11 @@ class ModuleMenu extends Module {
     /**
      * @param array  $aFillSet
      * @param int    $iLimit
-     * @param array  $aParams
+     * @param array  $aMenu
      *
      * @return array
      */
-    protected function _fillItemsByBlogs($aFillSet, $iLimit, $aParams = array()) {
+    protected function _fillItemsFromBlogs($aFillSet, $iLimit, $aMenu) {
 
         $aItems = array();
         $aBlogs = array();
@@ -87,6 +88,28 @@ class ModuleMenu extends Module {
                     'text' => $oBlog->getTitle(),
                     'url' => $oBlog->getLink(),
                 );
+            }
+        }
+
+        return $aItems;
+    }
+
+    /**
+     * @param array  $aFillSet
+     * @param int    $iLimit
+     * @param array  $aMenu
+     *
+     * @return array
+     */
+    protected function _fillItemsFromList($aFillSet, $iLimit, $aMenu) {
+
+        $aItems = array();
+        if (isset($aMenu['items']) && is_array($aMenu['items'])) {
+            $aFillSet = array_flip($aFillSet);
+            foreach($aMenu['items'] as $sKey => $aItem) {
+                if (isset($aFillSet[$sKey])) {
+                    $aItems[$sKey] = $aItem;
+                }
             }
         }
 
