@@ -383,6 +383,8 @@ $config['module']['comment']['max_length'] = 16000;         // Max length of com
 $config['module']['talk']['per_page']   = 30;       // Число приватных сообщений на одну страницу
 $config['module']['talk']['encrypt']    = 'alto';   // Ключ XXTEA шифрования идентификаторов в ссылках
 $config['module']['talk']['max_users']  = 15;       // Максимальное число адресатов в одном личном сообщении
+$config['module']['talk']['min_length']  = 2;       // Min length of message
+$config['module']['talk']['max_length']  = 4000;    // Max length of message (0 - no limit)
 
 // Модуль Lang
 $config['module']['lang']['delete_undefined'] = true;   // Если установлена true, то модуль будет автоматически удалять из языковых конструкций переменные вида %%var%%, по которым не была произведена замена

@@ -500,8 +500,14 @@ class ActionTalk extends Action {
         /**
          * Проверяем есть ли содержание топика
          */
-        if (!F::CheckVal(F::GetRequestStr('talk_text'), 'text', 2, 3000)) {
-            $this->Message_AddError($this->Lang_Get('talk_create_text_error'), $this->Lang_Get('error'));
+        $iMin = intval(Config::Get('module.talk.min_length'));
+        $iMax = intval(Config::Get('module.talk.max_length'));
+        if (!F::CheckVal(F::GetRequestStr('talk_text'), 'text', $iMin, $iMax)) {
+            if ($iMax) {
+                $this->Message_AddError($this->Lang_Get('talk_create_text_error_min', array('min'=>$iMin)), $this->Lang_Get('error'));
+            } else {
+                $this->Message_AddError($this->Lang_Get('talk_create_text_error_len', array('min'=>$iMin, 'max'=>$iMax)), $this->Lang_Get('error'));
+            }
             $bOk = false;
         }
         /**
