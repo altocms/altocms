@@ -27,25 +27,18 @@ class HookMain extends Hook {
 
         $this->AddHook('module_Session_init_after', 'SessionInitAfter', __CLASS__, PHP_INT_MAX);
         $this->AddHook('init_action', 'InitAction', __CLASS__, PHP_INT_MAX);
+        $this->AddHook('render_init_done', 'RenderInitDone', __CLASS__, PHP_INT_MAX);
 
         $this->AddHook('template_form_add_content', 'insertFields', __CLASS__, -1);
 
-        /*
-         * Показывавем поля при просмотре топика
-         */
+        // * Показывавем поля при просмотре топика
         $this->AddHook('template_topic_content_end', 'showFields', __CLASS__, 150);
         $this->AddHook('template_topic_preview_content_end', 'showFields', __CLASS__, 150);
 
-        /*
-         * Упрощенный вывод JS в футере, для проблемных файлов
-         */
-        $this->AddHook('template_body_end', 'buildfooterJsCss', __CLASS__, -150);
-        $this->AddHook('template_layout_body_end', 'buildfooterJsCss', __CLASS__, -150);
+        // * Упрощенный вывод JS в футере, для проблемных файлов
+        $this->AddHook('template_body_end', 'BuildFooterJsCss', __CLASS__, -150);
+        $this->AddHook('template_layout_body_end', 'BuildFooterJsCss', __CLASS__, -150);
 
-        /*
-         * Улучшенный share при просмотре топика
-         */
-        //$this->AddHook('template_block_topic_share', 'addSharer');
     }
 
     public function SessionInitAfter() {
@@ -59,18 +52,16 @@ class HookMain extends Hook {
      * Обработка хука инициализации экшенов
      */
     public function InitAction() {
-        /**
-         * Проверяем наличие директории install
-         */
+
+        // * Проверяем наличие директории install
         if (is_dir(rtrim(Config::Get('path.root.dir'), '/') . '/install')
             && (!isset($_SERVER['HTTP_APP_ENV']) || $_SERVER['HTTP_APP_ENV'] != 'test')
         ) {
             $this->Message_AddErrorSingle($this->Lang_Get('install_directory_exists'));
             Router::Action('error');
         }
-        /**
-         * Проверка на закрытый режим
-         */
+
+        // * Проверка на закрытый режим
         $oUserCurrent = $this->User_GetUserCurrent();
         if (!$oUserCurrent && Config::Get('general.close.mode')){
             $aEnabledActions = F::Str2Array(Config::Get('general.close.actions'));
@@ -79,6 +70,24 @@ class HookMain extends Hook {
             }
         }
         return null;
+    }
+
+    public function RenderInitDone() {
+
+        $aMenus = Config::Get('view.menu');
+        $bChanged = false;
+        if ($aMenus && is_array($aMenus)) {
+            foreach($aMenus as $sMenuId => $aMenu) {
+                if (isset($aMenu['config']['fill'])) {
+                    $aMenus[$sMenuId] = $this->Menu_Prepare($aMenu);
+                    $bChanged = true;
+                }
+            }
+            if ($bChanged) {
+                Config::Set('view.menu', null);
+                Config::Set('view.menu', $aMenus);
+            }
+        }
     }
 
     public function insertFields() {
@@ -115,7 +124,7 @@ class HookMain extends Hook {
         return $sReturn;
     }
 
-    public function buildfooterJsCss() {
+    public function BuildFooterJsCss() {
 
         $sCssFooter = '';
         $sJsFooter = '';
@@ -138,37 +147,6 @@ class HookMain extends Hook {
 
         return $sCssFooter . $sJsFooter;
 
-    }
-
-    public function addSharer($aParams) {
-
-        $sReturn = '';
-        if (isset($aVars['topic']) && isset($aVars['bTopicList'])) {
-            $oTopic = $aParams['topic'];
-            $bList = $aParams['bTopicList'];
-
-            if (!$bList) {
-                //заменяем скрипт шарера на продвинутый со счетчиками
-                $aFooterJs = Config::Get('footer.default.js');
-                if (is_array($aFooterJs)) {
-                    if (($key = array_search('http://yandex.st/share/share.js', $aFooterJs)) !== false) {
-                        unset($aFooterJs[$key]);
-                    }
-                } else {
-                    $aFooterJs = array();
-                }
-
-                $aFooterJs[] = '//yandex.st/share/cnt.share.js';
-                Config::Set('footer.default.js', $aFooterJs);
-            }
-
-            $oViewer = $this->Viewer_GetLocalViewer();
-            $oViewer->Assign('oTopic', $oTopic);
-            $oViewer->Assign('bTopicList', $bList);
-
-            $sReturn = $oViewer->Fetch('commons/common.sharer.tpl');
-        }
-        return $sReturn;
     }
 
 }
