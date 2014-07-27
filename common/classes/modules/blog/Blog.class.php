@@ -150,27 +150,27 @@ class ModuleBlog extends Module {
     /**
      * Получает дополнительные данные(объекты) для блогов по их ID
      *
-     * @param array|int $aBlogId    - Список ID блогов
+     * @param array|int $aBlogsId   - Список ID блогов
      * @param array     $aAllowData - Список типов дополнительных данных, которые нужно получить для блогов
      * @param array     $aOrder     - Порядок сортировки
      *
      * @return array
      */
-    public function GetBlogsAdditionalData($aBlogId, $aAllowData = null, $aOrder = null) {
+    public function GetBlogsAdditionalData($aBlogsId, $aAllowData = null, $aOrder = null) {
 
-        if (!$aBlogId) {
+        if (!$aBlogsId) {
             return array();
         }
         if (is_null($aAllowData)) {
             $aAllowData = $this->aAdditionalData;
         }
         $aAllowData = F::Array_FlipIntKeys($aAllowData);
-        if (!is_array($aBlogId)) {
-            $aBlogId = array($aBlogId);
+        if (!is_array($aBlogsId)) {
+            $aBlogsId = array($aBlogsId);
         }
 
         // * Получаем блоги
-        $aBlogs = $this->GetBlogsByArrayId($aBlogId, $aOrder);
+        $aBlogs = $this->GetBlogsByArrayId($aBlogsId, $aOrder);
 
         // * Формируем ID дополнительных данных, которые нужно получить
         $aUserId = array();
@@ -187,10 +187,10 @@ class ModuleBlog extends Module {
             ? $this->User_GetUsersAdditionalData($aUserId, $aAllowData['owner'])
             : $this->User_GetUsersAdditionalData($aUserId);
         if (isset($aAllowData['relation_user']) && $this->oUserCurrent) {
-            $aBlogUsers = $this->GetBlogUsersByArrayBlog($aBlogId, $this->oUserCurrent->getId());
+            $aBlogUsers = $this->GetBlogUsersByArrayBlog($aBlogsId, $this->oUserCurrent->getId());
         }
         if (isset($aAllowData['vote']) && $this->oUserCurrent) {
-            $aBlogsVote = $this->Vote_GetVoteByArray($aBlogId, 'blog', $this->oUserCurrent->getId());
+            $aBlogsVote = $this->Vote_GetVoteByArray($aBlogsId, 'blog', $this->oUserCurrent->getId());
         }
 
         // * Добавляем данные к результату - списку блогов
@@ -355,14 +355,36 @@ class ModuleBlog extends Module {
      */
     public function GetBlogByUrl($sBlogUrl) {
 
-        if (false === ($id = $this->Cache_Get("blog_url_{$sBlogUrl}"))) {
-            if ($id = $this->oMapper->GetBlogByUrl($sBlogUrl)) {
-                $this->Cache_Set($id, "blog_url_{$sBlogUrl}", array("blog_update_{$id}"), 'P2D');
+        $sCacheKey = 'blog_url_' . $sBlogUrl;
+        if (false === ($iBlogId = $this->Cache_Get($sCacheKey))) {
+            if ($iBlogId = $this->oMapper->GetBlogsIdByUrl($sBlogUrl)) {
+                $this->Cache_Set($iBlogId, $sCacheKey, array("blog_update_{$iBlogId}"), 'P30D');
             } else {
-                $this->Cache_Set(null, "blog_url_{$sBlogUrl}", array('blog_update', 'blog_new'), 60 * 60);
+                $this->Cache_Set(null, $sCacheKey, array('blog_update', 'blog_new'), 'P30D');
             }
         }
-        return $this->GetBlogById($id);
+        return $this->GetBlogById($iBlogId);
+    }
+
+    /**
+     * Returns array of blogs by URLs
+     *
+     * @param array $aBlogsUrl
+     *
+     * @return array
+     */
+    public function GetBlogsByUrl($aBlogsUrl) {
+
+        $sCacheKey = 'blogs_by_url_' . serialize($aBlogsUrl);
+        if (false === ($aBlogsId = $this->Cache_Get($sCacheKey))) {
+            if ($aBlogsId = $this->oMapper->GetBlogsIdByUrl($aBlogsUrl)) {
+                $aCacheKeys = F::Array_ChangeValues($aBlogsUrl, 'blog_update_');
+                $this->Cache_Set($aBlogsId, $sCacheKey, $aCacheKeys, 'P30D');
+            } else {
+                $this->Cache_Set(null, $sCacheKey, array('blog_update', 'blog_new'), 'P30D');
+            }
+        }
+        return $this->GetBlogsAdditionalData($aBlogsId);
     }
 
     /**

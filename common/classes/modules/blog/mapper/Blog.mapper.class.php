@@ -395,20 +395,42 @@ class ModuleBlog_MapperBlog extends Mapper {
     /**
      * Получает блог по URL
      *
-     * @param   string $sUrl   - URL блога
+     * @param   string $xUrl   - URL блога
      *
      * @return ModuleBlog_EntityBlog|null
      */
-    public function GetBlogByUrl($sUrl) {
+    public function GetBlogByUrl($xUrl) {
+
+        return $this->GetBlogsIdByUrl($xUrl);
+    }
+
+    /**
+     * Returns ID of blog or array of IDs
+     *
+     * @param string|array $xUrl
+     *
+     * @return int|array
+     */
+    public function GetBlogsIdByUrl($xUrl) {
 
         $aCriteria = array(
             'filter' => array(
-                'blog_url' => $sUrl,
+                'blog_url' => $xUrl,
             ),
-            'limit'  => 1,
         );
+        if (is_array($xUrl)) {
+            $aCriteria['limit'] = sizeof($xUrl);
+            $bSingle = false;
+        } else {
+            $aCriteria['limit'] = 1;
+            $bSingle = true;
+        }
         $aResult = $this->GetBlogsIdByCriteria($aCriteria);
-        return $aResult['data'] ? $aResult['data'][0] : null;
+        if ($bSingle) {
+            return $aResult['data'] ? $aResult['data'][0] : null;
+        } else {
+            return $aResult['data'] ? $aResult['data'] : array();
+        }
     }
 
     /**
@@ -1101,6 +1123,7 @@ class ModuleBlog_MapperBlog extends Mapper {
                 { AND (b.blog_type != ?) }
                 { AND (b.blog_type NOT IN (?a)) }
                 { AND blog_url = ? }
+                { AND blog_url IN(?a) }
                 { AND blog_title = ? }
                 { AND blog_title LIKE ? }
                 { AND (bt.allow_add = ?d) }
@@ -1131,7 +1154,8 @@ class ModuleBlog_MapperBlog extends Mapper {
             (isset($aFilter['blog_type']) && is_array($aFilter['blog_type'])) ? $aFilter['blog_type'] : DBSIMPLE_SKIP,
             (isset($aFilter['not_blog_type']) && !is_array($aFilter['not_blog_type'])) ? $aFilter['not_blog_type'] : DBSIMPLE_SKIP,
             (isset($aFilter['not_blog_type']) && is_array($aFilter['not_blog_type'])) ? $aFilter['not_blog_type'] : DBSIMPLE_SKIP,
-            isset($aFilter['blog_url']) ? $aFilter['blog_url'] : DBSIMPLE_SKIP,
+            (isset($aFilter['blog_url']) && !is_array($aFilter['blog_url'])) ? $aFilter['blog_url'] : DBSIMPLE_SKIP,
+            (isset($aFilter['blog_url']) && is_array($aFilter['blog_url'])) ? $aFilter['blog_url'] : DBSIMPLE_SKIP,
             isset($aFilter['blog_title']) ? $aFilter['blog_title'] : DBSIMPLE_SKIP,
             isset($aFilter['blog_title_like']) ? $aFilter['blog_title_like'] : DBSIMPLE_SKIP,
             isset($aFilter['allow_add']) ? ($aFilter['allow_add'] ? 1 : 0) : DBSIMPLE_SKIP,
