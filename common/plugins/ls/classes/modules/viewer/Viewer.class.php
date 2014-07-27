@@ -395,7 +395,7 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
     protected function _initSkin() {
 
         $oSkin = $this->Skin_GetSkin($this->GetConfigSkin());
-        $sCompatible = $oSkin->GetCompatible();
+        $sCompatible = ($oSkin ? $oSkin->GetCompatible() : '');
 
         if (!$sCompatible || $sCompatible == 'ls') {
             // It's old LS skin

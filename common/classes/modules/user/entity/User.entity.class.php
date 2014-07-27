@@ -90,28 +90,35 @@ class ModuleUser_EntityUser extends Entity {
      * @param string $sValue     Валидируемое значение
      * @param array  $aParams    Параметры
      *
-     * @return bool
+     * @return bool|string
      */
     public function ValidateLogin($sValue, $aParams) {
 
-        if ($sValue && !($nError = $this->User_InvalidLogin($sValue))) {
-            return true;
-        }
-        if ($nError == ModuleUser::USER_LOGIN_ERR_MIN) {
-            $sMsg = $this->Lang_Get('registration_login_error_min', array(
-                    'min' => intval(Config::Get('module.user.login.min_size')),
-                ));
-        } elseif ($nError == ModuleUser::USER_LOGIN_ERR_LEN) {
-            $sMsg = $this->Lang_Get('registration_login_error_len', array(
-                    'min' => intval(Config::Get('module.user.login.min_size')),
-                    'max' => intval(Config::Get('module.user.login.max_size')),
-                ));
-        } elseif ($nError == ModuleUser::USER_LOGIN_ERR_CHARS) {
-            $sMsg = $this->Lang_Get('registration_login_error_chars');
+        $xResult = true;
+        if ($sValue) {
+            $nError = $this->User_InvalidLogin($sValue);
+            if (!$nError) {
+                return $xResult;
+            } else {
+                if ($nError == ModuleUser::USER_LOGIN_ERR_MIN) {
+                    $xResult = $this->Lang_Get('registration_login_error_min', array(
+                            'min' => intval(Config::Get('module.user.login.min_size')),
+                        ));
+                } elseif ($nError == ModuleUser::USER_LOGIN_ERR_LEN) {
+                    $xResult = $this->Lang_Get('registration_login_error_len', array(
+                            'min' => intval(Config::Get('module.user.login.min_size')),
+                            'max' => intval(Config::Get('module.user.login.max_size')),
+                        ));
+                } elseif ($nError == ModuleUser::USER_LOGIN_ERR_CHARS) {
+                    $xResult = $this->Lang_Get('registration_login_error_chars');
+                } else {
+                    $xResult = $this->Lang_Get('registration_login_error');
+                }
+            }
         } else {
-            $sMsg = $this->Lang_Get('registration_login_error');
+            $xResult = $this->Lang_Get('registration_login_error');
         }
-        return $sMsg;
+        return $xResult;
     }
 
     /**
