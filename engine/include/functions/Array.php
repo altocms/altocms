@@ -334,6 +334,58 @@ class AltoFunc_Array {
         return $aArray;
     }
 
+    /**
+     * Property key for entities array sorting
+     *
+     * @var string
+     */
+    static $sSortProp = '';
+    /**
+     * Direction for entities array sorting
+     *
+     * @var string
+     */
+    static $iSortDirect = 1;
+
+    /**
+     * Sort an array of enityes with maintain index association
+     *
+     * @param array  $aEntities
+     * @param string $sProp
+     * @param bool   $bReverse
+     *
+     * @return array
+     */
+    static public function SortEntities($aEntities, $sProp, $bReverse = false) {
+
+        if (is_array($aEntities) && sizeof($aEntities) && $sProp) {
+            self::$sSortProp = $sProp;
+            if ($bReverse) {
+                self::$iSortDirect = -1;
+            } else {
+                self::$iSortDirect = 1;
+            }
+            usort($aEntities, array(__CLASS__, '_sortByProp'));
+        }
+        return $aEntities;
+    }
+
+    /**
+     * Callback function for entities array sorting
+     *
+     * @param $oEntity1
+     * @param $oEntity2
+     *
+     * @return int
+     */
+    static public function _sortByProp($oEntity1, $oEntity2) {
+
+        if ($oEntity1->getProp(self::$sSortProp) == $oEntity2->getProp(self::$sSortProp)) {
+            return 0;
+        }
+        return ($oEntity1->getProp(self::$sSortProp) < $oEntity2->getProp(self::$sSortProp)) ? -1 * self::$iSortDirect : 1 * self::$iSortDirect;
+    }
+
 }
 
 // EOF
