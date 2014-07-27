@@ -21,7 +21,7 @@ function smarty_function_asset($aParams, $oSmartyTemplate) {
 
     if (empty($aParams['skin']) && empty($aParams['file'])) {
         trigger_error('Asset: missing "file" parametr', E_USER_WARNING);
-        return;
+        return '';
     }
 
     if (isset($aParams['file'])) {

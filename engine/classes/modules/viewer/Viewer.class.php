@@ -407,6 +407,9 @@ class ModuleViewer extends Module {
         if (!$this->oSmarty) {
             $this->_initTemplator();
         }
+
+        $this->Hook_Run('render_init_done', array('bLocal' => $this->bLocal));
+
     }
 
     /**
