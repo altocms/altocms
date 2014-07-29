@@ -454,31 +454,49 @@ class AltoFunc_Main {
     /**
      * Аналог serialize() с контролем CRC32
      *
-     * @param $xData
+     * @param mixed $xData
+     * @param bool  $bSafeMode
      *
      * @return string
      */
-    static public function Serialize($xData) {
+    static public function Serialize($xData, $bSafeMode = false) {
 
         $sData = serialize($xData);
-        $sCrc32 = static::Crc32($sData, true);
-        return $sCrc32 . '|' . $sData;
+        if ($bSafeMode) {
+            $sData = base64_encode($sData);
+        }
+        $sResult = static::Crc32($sData, true) . '|' . $sData;
+        return $bSafeMode ? 'x' . $sResult : $sResult;
 
     }
 
     /**
      * Аналог unserialize() с контролем CRC32
      *
-     * @param $sData
-     * @param $xDefaultOnError
+     * @param string $sData
+     * @param mixed  $xDefaultOnError
      *
-     * @return mixed|null
+     * @return mixed
      */
     static public function Unserialize($sData, $xDefaultOnError = null) {
 
-        if (is_string($sData) && strpos($sData, '|')) {
-            list($sCrc32, $sData) = explode('|', $sData, 2);
-            if ($sCrc32 && $sData && ($sCrc32 == static::Crc32($sData, true))) {
+        if (is_string($sData) && $sData) {
+            if (strpos($sData, '|')) {
+                if ($sData[0] == 'x') {
+                    $bBase64 = true;
+                    list($sCrc32, $sData) = explode('|', substr($sData, 1), 2);
+                } else {
+                    $bBase64 = false;
+                    list($sCrc32, $sData) = explode('|', $sData, 2);
+                }
+                if ($sCrc32 && $sData && ($sCrc32 == static::Crc32($sData, true))) {
+                    if ($bBase64) {
+                        $sData = base64_decode($sData);
+                    }
+                    $xData = @unserialize($sData);
+                    return $xData;
+                }
+            } else {
                 $xData = @unserialize($sData);
                 return $xData;
             }

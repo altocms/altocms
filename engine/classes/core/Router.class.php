@@ -174,14 +174,14 @@ class Router extends LsObject {
         // Подгружаем предыдущий URL, если он был
         $sData = $this->Session_GetCookie(self::BACKWARD_COOKIE);
         if ($sData) {
-            $aData = @unserialize($sData);
+            $aData = F::Unserialize($sData);
             if (is_array($aData)) {
                 $this->aBackwardUrl = $aData;
             }
         }
         // И сохраняем текущий, если это не ajax-запрос
         if (!F::AjaxRequest()) {
-            $this->Session_SetCookie(self::BACKWARD_COOKIE, serialize($this->aCurrentUrl));
+            $this->Session_SetCookie(self::BACKWARD_COOKIE, F::Serialize($this->aCurrentUrl, true));
         }
 
         $this->ExecAction();
