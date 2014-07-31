@@ -1,6 +1,6 @@
 <ul class="nav navbar-nav">
     <!-- li {if $sMenuHeadItemSelect=='blog'}class="active"{/if}><a href="{Config::Get('path.root.url')}">{$aLang.topic_title}</a></li -->
-    {foreach Config::Get('view.header.menu.items') as $sKey=>$aMenuItem}
+    {foreach Config::Get('view.menu.main.items') as $sKey=>$aMenuItem}
         {strip}
             <li {if $sMenuHeadItemSelect==$sKey}class="active"{/if}><a href="{$aMenuItem.url}">
                     {if $aMenuItem.text}

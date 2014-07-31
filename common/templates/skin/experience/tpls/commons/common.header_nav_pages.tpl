@@ -10,8 +10,15 @@
 <!-- Логотип -->
 <li class="menu-level-2-logo">
     <a class="logo" href="{Config::Get('path.root.url')}">
-        <img src="{asset file="images/logo.png" theme=true}" alt="{Config::Get('view.name')}"/>
-        {Config::Get('view.name')} {* <-- Это название сайта, его можно удалить *}
+        {if Config::Get('view.header.logo.file')}
+            {$sFile = Config::Get('view.header.logo.file')}
+            <img src="{asset file="images/$sFile" theme=true}" alt="{Config::Get('view.name')}" class="logo-img" />
+        {elseif Config::Get('view.header.logo.url')}
+            <img src="{Config::Get('view.header.logo.url')}" alt="{Config::Get('view.name')}" class="logo-img" />
+        {/if}
+        {if Config::Get('view.header.logo.name')}
+            <span class="logo-name" >{Config::Get('view.header.logo.name')}</span>
+        {/if}
     </a>
     <a href="#" onclick="return false;" class="bars">
         <i class="fa fa-bars"></i>

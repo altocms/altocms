@@ -63,16 +63,16 @@
             </div>
         {/block}
 
-        {if $oContentType->isAllow('photoset') AND $oTopic->getPhotosetCount()}
+        {if $oContentType AND $oContentType->isAllow('photoset') AND $oTopic->getPhotosetCount()}
             {include file="fields/field.photoset-show.tpl"}
         {/if}
 
-        {if $oContentType->isAllow('poll') AND $oTopic->getQuestionAnswers()}
+        {if $oContentType AND $oContentType->isAllow('poll') AND $oTopic->getQuestionAnswers()}
             {include file="fields/field.poll-show.tpl"}
         {/if}
 
 
-        {if $oContentType->isAllow('link') AND $oTopic->getLinkUrl()}
+        {if $oContentType AND $oContentType->isAllow('link') AND $oTopic->getLinkUrl()}
             {include file="fields/field.link-show.tpl"}
         {/if}
 
@@ -180,7 +180,7 @@
                                             <li><i class="fa fa-thumbs-o-up"></i><span>{$oTopic->getCountVoteUp()}</span>
                                             <li><i class="fa fa-thumbs-o-down"></i><span>{$oTopic->getCountVoteDown()}</span>
                                             <li><i class="fa fa-eye"></i><span>{$oTopic->getCountVoteAbstain()}</span>
-                                            {hook run='topic_show_vote_stats' topic=$oTopic}
+                                            {hook run='topic_show_vote_stats' topic=$oTopic bTopicList=false}
                                         </ul>
                                     </div>'
                                   data-html="true"
@@ -196,11 +196,11 @@
 
                 </li>
 
-                {hook run='topic_show_info' topic=$oTopic}
+                {hook run='topic_show_info' topic=$oTopic bTopicList=false}
             </ul>
             {/if}
 
-            {hook run='topic_show_end' topic=$oTopic}
+            {hook run='topic_show_end' topic=$oTopic bTopicList=false}
         </div>
     {/block}
 </div> <!-- /.topic -->

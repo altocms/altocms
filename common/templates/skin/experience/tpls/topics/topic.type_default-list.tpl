@@ -86,7 +86,7 @@
 
     {if !$bPreview}
         <div class="bg-warning topic-share" id="topic_share_{$oTopic->getId()}">
-            {hookb run="topic_share" topic=$oTopic bTopicList=false}
+            {hookb run="topic_share" topic=$oTopic bTopicList=true}
                 <div class="yashare-auto-init"
                      data-yashareTitle="{$oTopic->getTitle()|escape:'html'}"
                      data-yashareDescription=""
@@ -172,7 +172,7 @@
                                             <li><i class="fa fa-thumbs-o-up"></i><span>{$oTopic->getCountVoteUp()}</span>
                                             <li><i class="fa fa-thumbs-o-down"></i><span>{$oTopic->getCountVoteDown()}</span>
                                             <li><i class="fa fa-eye"></i><span>{$oTopic->getCountVoteAbstain()}</span>
-                                            {hook run='topic_show_vote_stats' topic=$oTopic}
+                                            {hook run='topic_show_vote_stats' topic=$oTopic bTopicList=true}
                                         </ul>
                                     </div>'
                             data-html="true"
@@ -187,11 +187,11 @@
                     <a href="#" onclick="return false;" class="{$sVoteClass} vote-up link link link-gray link-clear js-vote-up"><i class="fa fa-thumbs-o-up"></i></a>
                 </li>
 
-                {hook run='topic_show_info' topic=$oTopic}
+                {hook run='topic_show_info' topic=$oTopic bTopicList=true}
             </ul>
         {/if}
 
-        {hook run='topic_show_end' topic=$oTopic}
+        {hook run='topic_show_end' topic=$oTopic bTopicList=true}
         </div>
     {/block}
 </div> <!-- /.topic -->

@@ -1,7 +1,7 @@
  {* Тема оформления Experience v.1.0  для Alto CMS      *}
  {* @licence     CC Attribution-ShareAlike   *}
 
-    {foreach Config::Get('view.header.menu.items') as $sKey=>$aMenuItem}
+    {foreach Config::Get('view.menu.main.items') as $sKey=>$aMenuItem}
         {strip}
             <li {if $sMenuHeadItemSelect==$sKey}class="active"{/if}>
                 <a href="{$aMenuItem.url}">

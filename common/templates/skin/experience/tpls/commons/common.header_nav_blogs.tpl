@@ -6,9 +6,10 @@
     <div class="container">
 
         <ul class="menu-level-3">
-            {foreach Config::Get('view.header.blogs.items') as $sKey=>$aMenuItem}
+            {$sItemSelect=Config::Get('view.menu.blogs.select')}
+            {foreach Config::Get('view.menu.blogs.items') as $sKey=>$aMenuItem}
                 {strip}
-                    <li {if $sMenuHeadItemSelect==$sKey}class="active"{/if}>
+                    <li {if $sItemSelect==$sKey}class="active"{/if}>
                         <a href="{$aMenuItem.url}">
                             {$aMenuItem.text}
                         </a>

@@ -7,10 +7,10 @@
         <lang name="default">Команда разрабюотчиков Alto CMS</lang>
     </author>
     <homepage>http://altocms.ru</homepage>
-    <version>1.0</version>
+    <version>1.0.1</version>
     <requires>
         <alto>
-            <version>1.0</version>
+            <version>1.0.2</version>
         </alto>
         <system>
             <php>5.3.0</php>

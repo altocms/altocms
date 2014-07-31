@@ -22,7 +22,7 @@ $config['view']['header']['logo'] = Config::Get('path.skin.url') . 'themes/___vi
 $config['view']['header']['name'] = 'START<span>KIT</span>';
 
 /* Main menu in top bar */
-$config['view']['header']['menu'] = array(
+$config['view']['menu']['main'] = array(
     'options' => array(),
     'items' => array(
             'index' => array(

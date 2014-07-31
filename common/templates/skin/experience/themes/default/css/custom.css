@@ -1,0 +1,32 @@
+/*
+ * CUSTOM.CSS
+ *
+ */
+
+/* Classes for customization of logo image and text
+ * See tpls/commons/common.header_nav_pages.tpl
+ */
+.logo-img {
+    max-height: 64px;
+}
+.logo-name {
+
+}
+
+@media (min-width: 768px) {
+    .container {
+        width: 750px;
+    }
+}
+
+@media (min-width: 992px) {
+    .container {
+        width: 870px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .container {
+        width: 1030px; /* 1000px - container + 30px */
+    }
+}

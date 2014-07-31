@@ -3,5 +3,7 @@
 
 {if E::Topic_IsAllowTopicType($oTopic->getType())}
     {$sTopicTemplateName=$oTopic->getTopicTypeTemplate('show')}
-    {include file="topics/$sTopicTemplateName" bTopicList=true}
+{else}
+    {$sTopicTemplateName='topic.type_default-show.tpl'}
 {/if}
+{include file="topics/$sTopicTemplateName" bTopicList=true}

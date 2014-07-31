@@ -18,14 +18,14 @@
  * Цветовая схема оформления
  *      - 'default' - дефолтная, в серых тонах
  */
-$aConfig['view']['theme'] = 'default';
+$config['view']['theme'] = 'default';
 
 /**
  * Использовать ли плавующее меню
  *      - false (не использовать)
  *      - true (использовать)
  */
-$aConfig['view']['fix_menu'] = true;
+$config['view']['fix_menu'] = true;
 
 
 /**
@@ -33,44 +33,30 @@ $aConfig['view']['fix_menu'] = true;
  *      - false (рейтинг видят только прогосовавшие - первый вариант);
  *      - true(рейтинг видят все - второй вариант)
  */
-$aConfig['view']['show_rating'] = false;
+$config['view']['show_rating'] = false;
 
+/*
+ * Настройка логотипа, который будет показываться в "шапке" сайта
+ *
+ * Если указан $config['view']['header']['logo']['file'], то в качестве логотипа берется файл с указанным именем
+ * из папки /common/templates/skin/experience/assets/images/
+ *
+ * Если указан $config['view']['header']['logo']['url'], то в качестве лого подставляется изображение по указанному URL
+ *
+ * Если ни один из этих параметров не указан (закомментирован), то графический логотип не выводится
+ *
+ * Если указан $config['view']['header']['logo']['name'], то на месте лого выводится заданный текст
+ * (если задан графический логотип, то текстовый будет выводиться после него). Можно указать любой текст в кавычках,
+ * например, так:
+ *    $config['view']['header']['logo']['name'] = 'Это мой сайт';
+ */
+$config['view']['header']['logo']['file'] = 'logo.png';
+//$config['view']['header']['logo']['url'] = 'http://site.com/logo.png';
+$config['view']['header']['logo']['name'] = Config::Get('view.name');
 
-$aConfig['head']['default']['js'] = Config::Get('head.default.js');
-$aConfig['head']['default']['js']["___path.skin.dir___/assets/js/experience/dropdown.min.js"] = array('name' => 'bootstrap');
-$aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/menu.min.js";
-$aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/menu-l2.min.js";
-$aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/script.min.js";
-$aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/toolbar.min.js";
-if ($aConfig['view']['fix_menu']) {
-    $aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/fix-menu.min.js";
-}
-
-$aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/userinfo.min.js";
-$aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/ch-datepicker.min.js";
-$aConfig['head']['default']['js'][] = "___path.frontend.dir___/bootstrap-3/js/transition.min.js";
-$aConfig['head']['default']['js'][] = "___path.frontend.dir___/bootstrap-3/js/tab.min.js";
-$aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/bootstrap/tooltip.min.js";
-$aConfig['head']['default']['js'][] = "___path.frontend.dir___/bootstrap-3/js/popover.min.js";
-$aConfig['head']['default']['js'][] = "___path.frontend.dir___/bootstrap-3/js/carousel.min.js";
-$aConfig['head']['default']['js'][] = "___path.frontend.dir___/bootstrap-3/js/collapse.min.js";
-$aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/bootstrap/modal.min.js";
-$aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/icheck/icheck.min.js";
-$aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/selecter/jquery.fs.selecter.min.js";
-$aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/moment/moment.min.js";
-$aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/moment/moment.lang.ru.min.js";
-$aConfig['head']['default']['js'][] = "___path.skin.dir___/assets/js/jasny/fileinput.min.js";
-
-$aConfig['module']['user']['profile_photo_size'] = '222x';
-
-$aConfig['head']['default']['css'] = array(
-    '___path.skin.dir___/assets/css/style.min.css',
-    '___path.frontend.dir___/libs/vendor/prettyphoto/css/prettyphoto.css',
-    '___path.frontend.dir___/libs/vendor/jcrop/jquery.Jcrop.css',
-);
 
 // Пункты меню второго уровня
-$aConfig['view']['header']['menu'] = array(
+$config['view']['menu']['main'] = array(
     'items' => array(
         'index' => array(
             'lang' => 'topic_title',
@@ -96,7 +82,14 @@ $aConfig['view']['header']['menu'] = array(
 );
 
 // Пункты меню третьего уровня
-$aConfig['view']['header']['blogs'] = array(
+$config['view']['menu']['blogs'] = array(
+    'config' => array(
+        //'fill_from' => 'blogs',
+        //'fill_from' => array('blogs' => array('dev', 'special', 'trips', 'albums')),
+        //'fill_from' => 'categories',
+        //'fill_from' => array('blogs' => array('trips', 'albums'), 'categories' => array('events', 'news'), 'list' => array('blog_1', 'blog_2')),
+        'limit' => 7,
+    ),
     'items' => array(
         'blog_1' => array(
             'text' => 'Дизайн',
@@ -129,4 +122,9 @@ $aConfig['view']['header']['blogs'] = array(
     ),
 );
 
-return $aConfig;
+$config['module']['user']['profile_photo_size'] = '222x';
+
+// Настройка css- и js-наборов
+require 'assets.php';
+
+return $config;
