@@ -21,7 +21,19 @@ class Func {
 
     static protected $aExtsions = array();
 
+    /**
+     * Errors for logging
+     *
+     * @var int
+     */
     static protected $nErrorTypes = E_ALL;
+
+    /**
+     * Errors for display
+     *
+     * @var int
+     */
+    static protected $nErrorDisplay = E_ALL;
 
     static protected $aErrorCollection = array();
 
@@ -36,6 +48,12 @@ class Func {
             register_shutdown_function('F::done');
             set_error_handler('F::_errorHandler');
             set_exception_handler('F::_exceptionHandler');
+
+            if (ini_get('display_errors')) {
+                self::$nErrorDisplay = error_reporting();
+            } else {
+                self::$nErrorDisplay = 0;
+            }
         }
     }
 
@@ -245,7 +263,7 @@ class Func {
         );
 
         if (!static::_errorLogNoRepeat() || static::_pushError($nErrNo, $sErrMsg, $sErrFile, $nErrLine)) {
-            if ($nErrNo & error_reporting()) {
+            if (($nErrNo & error_reporting()) && ($nErrNo & self::$nErrorDisplay)) {
                 if (F::IsDebug()) {
                     static::_errorDisplay("{$aErrors[$nErrNo]} [$nErrNo] $sErrMsg ($sErrFile on line $nErrLine)");
                 } else {
@@ -503,15 +521,49 @@ class Func {
         return $nOldErrorTypes;
     }
 
+    /**
+     * Sets error types for display
+     *
+     * @param $nErrorTypes
+     *
+     * @return int
+     */
+    static public function SetErrorDisplay($nErrorTypes) {
+
+        $nOldErrorTypes = static::$nErrorDisplay;
+        static::$nErrorDisplay = $nErrorTypes;
+        return $nOldErrorTypes;
+    }
+
+    /**
+     * Sets error types which can not be displayed
+     *
+     * @param $nErrorTypes
+     *
+     * @return int
+     */
+    static public function SetErrorNoDisplay($nErrorTypes) {
+
+        $nOldErrorTypes = static::$nErrorDisplay;
+        static::$nErrorDisplay = static::$nErrorDisplay & ~$nErrorTypes;
+        return $nOldErrorTypes;
+    }
+    /**
+     * System warning message
+     *
+     * @param $sMessage
+     */
     static public function SysWarning($sMessage) {
 
         $aCaller = self::_Caller();
+        $nErrorReporting = F::SetErrorNoDisplay(E_USER_WARNING);
         self::_errorHandler(
             E_USER_WARNING,
             $sMessage,
             isset($aCaller['file']) ? $aCaller['file'] : 'Unknown',
             isset($aCaller['line']) ? $aCaller['line'] : 0
         );
+        F::ErrorReporting($nErrorReporting);
     }
 
     static public function IsDebug() {
