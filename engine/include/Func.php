@@ -333,7 +333,7 @@ class Func {
     /**
      * Loads func extension
      *
-     * @param $sExtension
+     * @param string $sExtension
      */
     static protected function _loadExtension($sExtension) {
 
@@ -354,7 +354,7 @@ class Func {
     /**
      * TODO: Не выводить полностью текст ошибки на экран, а логгировать
      *
-     * @param $sMessage
+     * @param string $sMessage
      * @throws Exception
      */
     static protected function _FatalError($sMessage) {
@@ -461,10 +461,10 @@ class Func {
     }
 
     /**
-     * @param string     $sParam
-     * @param mixed|null $xDefault
+     * @param string $sParam
+     * @param mixed  $xDefault
      *
-     * @return mixed|null
+     * @return mixed
      */
     static public function _getConfig($sParam, $xDefault = null) {
 
@@ -479,8 +479,8 @@ class Func {
     /**
      * Set error types for handler function
      *
-     * @param int|null  $nErrorTypes
-     * @param bool|null $bSystem
+     * @param int|null $nErrorTypes
+     * @param bool     $bSystem
      *
      * @return int
      */
@@ -524,7 +524,7 @@ class Func {
     /**
      * Sets error types for display
      *
-     * @param $nErrorTypes
+     * @param int $nErrorTypes
      *
      * @return int
      */
@@ -538,7 +538,7 @@ class Func {
     /**
      * Sets error types which can not be displayed
      *
-     * @param $nErrorTypes
+     * @param int $nErrorTypes
      *
      * @return int
      */
@@ -551,7 +551,7 @@ class Func {
     /**
      * System warning message
      *
-     * @param $sMessage
+     * @param string $sMessage
      */
     static public function SysWarning($sMessage) {
 
@@ -566,13 +566,16 @@ class Func {
         F::ErrorReporting($nErrorReporting);
     }
 
+    /**
+     * @return bool
+     */
     static public function IsDebug() {
 
         return defined('DEBUG') && DEBUG;
     }
 
     /**
-     * @param $sMsg
+     * @param string $sMsg
      *
      * @return bool
      */
@@ -824,7 +827,7 @@ class Func {
     static public function StripSlashes(&$xData) {
 
         if (is_array($xData)) {
-            array_walk($xData, 'static::StripSlashes');
+            array_walk($xData, array(__CLASS__, 'StripSlashes'));
         } else {
             $xData = stripslashes($xData);
         }
@@ -839,7 +842,7 @@ class Func {
     static public function HtmlSpecialChars(&$xData) {
 
         if (is_array($xData)) {
-            array_walk($xData, 'static::HtmlSpecialChars');
+            array_walk($xData, array(__CLASS__, 'HtmlSpecialChars'));
         } else {
             $xData = htmlspecialchars($xData);
         }
@@ -913,9 +916,9 @@ class Func {
     /**
      * Получает или устанавливает код ответа HTTP
      *
-     * @param null $nResponseCode
+     * @param int|null $nResponseCode
      *
-     * @return int|null
+     * @return int
      */
     static public function HttpResponseCode($nResponseCode = null) {
 
@@ -982,14 +985,12 @@ class Func {
     }
 
     /**
-     * @param      $sLocation
-     * @param bool $bRealHost
-     *
-     * @return mixed
+     * @param string $sLocation
+     * @param bool   $bRealHost
      */
     static public function HeaderLocation($sLocation, $bRealHost = false) {
 
-        return HttpLocation($sLocation, $bRealHost);
+        static::HttpLocation($sLocation, $bRealHost);
     }
 
     /**
@@ -1025,8 +1026,8 @@ class Func {
     /**
      * Постоянный редирект (с кодом 301)
      *
-     * @param      $sLocation
-     * @param bool $bRealHost
+     * @param string $sLocation
+     * @param bool   $bRealHost
      */
     static public function HttpRedirect($sLocation, $bRealHost = false) {
 
@@ -1039,9 +1040,9 @@ class Func {
     /**
      * Отправляет HTTP-заголовки и (опционально) адрес для редиректа
      *
-     * @param   int         $nHttpStatusCode
-     * @param   array|null  $aHeaders
-     * @param   string|null $sUrl
+     * @param int         $nHttpStatusCode
+     * @param array|null  $aHeaders
+     * @param string|null $sUrl
      */
     static public function HttpHeader($nHttpStatusCode, $aHeaders = array(), $sUrl = null) {
 
