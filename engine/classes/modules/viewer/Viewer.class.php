@@ -347,11 +347,27 @@ class ModuleViewer extends Module {
     protected function _initSkin() {
 
         $this->sSkin = $this->GetConfigSkin();
-        // * Load skin config
-        $aConfig = Config::Get('skin.' . $this->sSkin . '.config');
+
+        // Load skin's config
+        $aConfig = array();
         if (F::File_Exists($sFile = Config::Get('path.smarty.template') . '/settings/config/config.php')) {
-            $aConfig = F::Array_MergeCombo(F::IncludeFile($sFile, false, true), $aConfig);
+            $aConfig = F::IncludeFile($sFile, false, true);
         }
+        // Checks skin's config in app dir
+        $sFile = Config::Get('path.dir.app') . F::File_LocalPath($sFile, Config::Get('path.dir.common'));
+        if (F::File_Exists($sFile)) {
+            $aConfig = F::Array_MergeCombo($aConfig, F::IncludeFile($sFile, false, true));
+        }
+        // Checks skin's config from users settings
+        $aUserConfig = Config::Get('skin.' . $this->sSkin . '.config');
+        if ($aUserConfig) {
+            if (!$aConfig) {
+                $aConfig = $aUserConfig;
+            } else {
+                $aConfig = F::Array_MergeCombo($aConfig, $aUserConfig);
+            }
+        }
+
         Config::ResetLevel(Config::LEVEL_SKIN);
         if ($aConfig) {
             Config::Load($aConfig, false);
