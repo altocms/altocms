@@ -63,7 +63,7 @@ class ActionLogin extends Action {
         $sUserLogin = trim($this->GetPost('login'));
         $sUserPassword = $this->GetPost('password');
         if (!$sUserLogin || !trim($sUserPassword)) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
+            $this->Message_AddErrorSingle($this->Lang_Get('user_login_bad'));
             return;
         }
 

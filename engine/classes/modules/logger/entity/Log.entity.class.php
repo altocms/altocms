@@ -33,6 +33,8 @@ class ModuleLogger_EntityLog extends Entity {
         // Max file size for rotation
         $this->SetSizeForRotate(Config::Get('sys.logs.size_for_rotate'));
 
+        $this->SetCountForRotate(Config::Get('sys.logs.count_for_rotate'));
+
         // Текущий уровень логирования
         $this->SetLogLevel(0);
 
@@ -76,6 +78,16 @@ class ModuleLogger_EntityLog extends Entity {
             // Set rotation to off
             $this->SetUseRotate(false);
         }
+    }
+
+    /**
+     * Sets max files number in rotation
+     *
+     * @param int $iCount
+     */
+    public function SetCountForRotate($iCount) {
+
+        $this->setProp('count_for_rotate', intval($iCount));
     }
 
     /**
@@ -269,10 +281,11 @@ class ModuleLogger_EntityLog extends Entity {
         if (filesize($sFileName) >= $this->GetSizeForRotate()) {
             $aPathInfo = pathinfo($sFileName);
             $i = 1;
+            $sPathFile = $aPathInfo['dirname'] . '/' . $aPathInfo['filename'];
             while (true) {
-                $sNewFullName = $aPathInfo['dirname'] . '/' . $aPathInfo['filename'] . ".$i." . $aPathInfo['extension'];
+                $sNewFullName = $sPathFile . ".$i." . $aPathInfo['extension'];
                 if (!F::File_Exists($sNewFullName)) {
-                    $this->_rotateRename($i - 1);
+                    $this->_rotateRename($sFileName, $i - 1);
                     break;
                 }
                 $i++;
@@ -283,18 +296,24 @@ class ModuleLogger_EntityLog extends Entity {
     /**
      * Переименовывает все файлы логов согласно их последовательности
      *
-     * @param int $iNumberLast
+     * @param string $sFileName
+     * @param int    $iNumberLast
      */
-    protected function _rotateRename($iNumberLast) {
+    protected function _rotateRename($sFileName, $iNumberLast) {
 
-        $aPathInfo = pathinfo($this->GetFileDir() . $this->GetFileName());
-        $aName = explode('.', $aPathInfo['basename']);
+        $aPathInfo = pathinfo($sFileName);
+        $iMaxCount = $this->GetCountForRotate();
+        $sPathFile = $aPathInfo['dirname'] . '/' . $aPathInfo['filename'];
         for ($i = $iNumberLast; $i > 0; $i--) {
-            $sFullNameCur = $aPathInfo['dirname'] . '/' . $aName[0] . ".$i." . $aName[1];
-            $sFullNameNew = $aPathInfo['dirname'] . '/' . $aName[0] . '.' . ($i + 1) . '.' . $aName[1];
-            rename($sFullNameCur, $sFullNameNew);
+            $sFullNameCur = $sPathFile . ".$i." . $aPathInfo['extension'];
+            if ($iMaxCount && $iMaxCount <= $i) {
+                F::File_Delete($sFullNameCur);
+            } else {
+                $sFullNameNew = $sPathFile . '.' . ($i + 1) . '.' . $aPathInfo['extension'];
+                rename($sFullNameCur, $sFullNameNew);
+            }
         }
-        rename($this->GetFileDir() . $this->GetFileName(), $aPathInfo['dirname'] . '/' . $aName[0] . '.1.' . $aName[1]);
+        rename($sFileName, $sPathFile . '.1.' . $aPathInfo['extension']);
     }
 
     /**
