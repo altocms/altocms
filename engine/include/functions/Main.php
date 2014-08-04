@@ -179,6 +179,8 @@ class AltoFunc_Main {
 
     }
 
+    static protected $_aUserIp = array();
+
     /**
      * Returns all IP of current user
      *
@@ -259,33 +261,39 @@ class AltoFunc_Main {
      */
     static public function GetUserIp($aTrusted = null, $aNonTrusted = null) {
 
-        $aIpParams = self::GetAllUserIp($aTrusted, $aNonTrusted);
-        $aExcludeIp = (array)F::_getConfig('sys.ip.exclude', array('127.0.0.1', 'fe80::1', '::1'));
-        if (F::_getConfig('sys.ip.exclude_server', true) && isset($_SERVER['SERVER_ADDR'])) {
-            $aExcludeIp[] = $_SERVER['SERVER_ADDR'];
-        }
+        $sKey = md5(serialize(array($aTrusted, $aNonTrusted)));
+        if (isset(self::$_aUserIp[$sKey])) {
+            $sIp = self::$_aUserIp[$sKey];
+        } else {
+            $aIpParams = self::GetAllUserIp($aTrusted, $aNonTrusted);
+            $aExcludeIp = (array)F::_getConfig('sys.ip.exclude', array('127.0.0.1', 'fe80::1', '::1'));
+            if (F::_getConfig('sys.ip.exclude_server', true) && isset($_SERVER['SERVER_ADDR'])) {
+                $aExcludeIp[] = $_SERVER['SERVER_ADDR'];
+            }
 
-        $bSeekBackward = F::_getConfig('sys.ip.backward', true);
-        $bExcludePrivate = F::_getConfig('sys.ip.exclude_private', true);
-        // collect all ip
-        $aIp = array();
-        foreach ($aIpParams as $sIp) {
-            if (strpos($sIp, ',')) {
-                $aSeveralIps = explode(',', $sIp);
-                if ($bSeekBackward) {
-                    $aSeveralIps = array_reverse($aSeveralIps);
+            $bSeekBackward = F::_getConfig('sys.ip.backward', true);
+            $bExcludePrivate = F::_getConfig('sys.ip.exclude_private', true);
+            // collect all ip
+            $aIp = array();
+            foreach ($aIpParams as $sIp) {
+                if (strpos($sIp, ',')) {
+                    $aSeveralIps = explode(',', $sIp);
+                    if ($bSeekBackward) {
+                        $aSeveralIps = array_reverse($aSeveralIps);
+                    }
+                    $aIp = array_merge($aIp, $aSeveralIps);
+                } else {
+                    $aIp[] = $sIp;
                 }
-                $aIp = array_merge($aIp, $aSeveralIps);
-            } else {
-                $aIp[] = $sIp;
             }
-        }
-        foreach ($aIp as $sIp) {
-            if (!in_array($sIp, $aExcludeIp) && (!$bExcludePrivate || filter_var($sIp, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE))) {
-                return $sIp;
+            foreach ($aIp as $sIp) {
+                if (!in_array($sIp, $aExcludeIp) && (!$bExcludePrivate || filter_var($sIp, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE))) {
+                    return $sIp;
+                }
             }
+            $sIp = array_shift($aIp);
+            self::$_aUserIp[$sKey] = $sIp;
         }
-        $sIp = array_shift($aIp);
         return $sIp;
     }
 
@@ -574,10 +582,10 @@ class AltoFunc_Main {
      */
     static public function DateTimeAdd($sDate, $sInterval = null) {
 
-        if (is_null($sDate)) {
-            $sDate = 'now';
-        } elseif (func_num_args() == 1) {
+        if (func_num_args() == 1) {
             $sInterval = $sDate;
+            $sDate = 'now';
+        } elseif (is_null($sDate)) {
             $sDate = 'now';
         }
         $date = new DateTime($sDate);

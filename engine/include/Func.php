@@ -685,6 +685,8 @@ class Func {
         }
     }
 
+    static protected $_aPluginList = array();
+
     /**
      * Получить список плагинов
      *
@@ -693,29 +695,35 @@ class Func {
      */
     static public function GetPluginsList($bAll = false) {
 
-        $sPluginsDir = static::GetPluginsDir();
-        $sPluginsDatFile = static::GetPluginsDatFile();
-        $aPlugins = array();
-        $aPluginsRaw = array();
-        if ($bAll) {
-            $aPaths = glob($sPluginsDir . '*', GLOB_ONLYDIR);
-            if ($aPaths)
-                foreach ($aPaths as $sPath) {
-                    $aPluginsRaw[] = basename($sPath);
-                }
+        if (isset(self::$_aPluginList[$bAll])) {
+            $aPlugins = self::$_aPluginList[$bAll];
         } else {
-            if (is_file($sPluginsDatFile) && ($aPluginsRaw = @file($sPluginsDatFile))) {
-                $aPluginsRaw = array_map('trim', $aPluginsRaw);
-                $aPluginsRaw = array_unique($aPluginsRaw);
-            }
-        }
-        if ($aPluginsRaw)
-            foreach ($aPluginsRaw as $sPlugin) {
-                $sPluginXML = "$sPluginsDir/$sPlugin/plugin.xml";
-                if (is_file($sPluginXML)) {
-                    $aPlugins[] = $sPlugin;
+            $sPluginsDir = static::GetPluginsDir();
+            $sPluginsDatFile = static::GetPluginsDatFile();
+            $aPlugins = array();
+            $aPluginsRaw = array();
+            if ($bAll) {
+                $aPaths = glob($sPluginsDir . '*', GLOB_ONLYDIR);
+                if ($aPaths)
+                    foreach ($aPaths as $sPath) {
+                        $aPluginsRaw[] = basename($sPath);
+                    }
+            } else {
+                if (is_file($sPluginsDatFile) && ($aPluginsRaw = @file($sPluginsDatFile))) {
+                    $aPluginsRaw = array_map('trim', $aPluginsRaw);
+                    $aPluginsRaw = array_unique($aPluginsRaw);
                 }
             }
+            if ($aPluginsRaw) {
+                foreach ($aPluginsRaw as $sPlugin) {
+                    $sPluginXML = "$sPluginsDir/$sPlugin/plugin.xml";
+                    if (is_file($sPluginXML)) {
+                        $aPlugins[] = $sPlugin;
+                    }
+                }
+            }
+            self::$_aPluginList[$bAll] = $aPlugins;
+        }
         return $aPlugins;
     }
 
