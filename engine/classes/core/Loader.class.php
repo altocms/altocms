@@ -12,6 +12,9 @@ set_include_path(get_include_path() . PATH_SEPARATOR . __DIR__);
 
 class Loader {
 
+    /**
+     * @param array $aConfig
+     */
     static public function Init($aConfig) {
 
         // Регистрация автозагрузчика классов
@@ -29,22 +32,30 @@ class Loader {
             self::_loadConfigSections($sConfigDir, $aConfigLoad);
         }
 
-        /*
-         * Инклудим все *.php файлы из каталога {path.root.engine}/include/ - это файлы ядра
-         */
-        $sDirInclude = Config::Get('path.dir.engine') . '/include/';
-        self::_includeAllFiles($sDirInclude);
+        // Includes all *.php files from {path.root.engine}/include/
+        $sIncludeDir = Config::Get('path.dir.engine') . '/include/';
+        self::_includeAllFiles($sIncludeDir);
 
-        // Load main config level
+        // Load main config level (modules, local & plugins)
         self::_loadConfigFiles($sConfigDir, Config::LEVEL_MAIN);
 
-        // Load application config level
+        // Define app config dir
         $sAppConfigDir = Config::Get('path.dir.app') . '/config/';
+        // Ups config level
         Config::ResetLevel(Config::LEVEL_APP);
+        // Load application config level (modules, local & plugins)
+        self::_loadConfigFiles($sAppConfigDir, Config::LEVEL_APP);
+
+        // Load additional config files (the set could be changed in this point)
+        $aConfigLoad = F::Str2Array(Config::Get('config_load'));
         if ($aConfigLoad) {
             self::_loadConfigSections($sAppConfigDir, $aConfigLoad, Config::LEVEL_APP);
         }
-        self::_loadConfigFiles($sAppConfigDir, Config::LEVEL_APP);
+
+        // Load include files of plugins
+        self::_loadIncludeFiles(Config::LEVEL_MAIN);
+        self::_loadIncludeFiles(Config::LEVEL_APP);
+
 
         self::_checkRequiredDirs();
 
@@ -81,6 +92,9 @@ class Loader {
         F::IncludeFile((Config::Get('path.dir.engine') . '/classes/core/Engine.class.php'));
     }
 
+    /**
+     * @param string $sDirInclude
+     */
     static protected function _includeAllFiles($sDirInclude) {
 
         $aIncludeFiles = glob($sDirInclude . '*.php');
@@ -91,6 +105,10 @@ class Loader {
         }
     }
 
+    /**
+     * @param string $sConfigDir
+     * @param int    $nConfigLevel
+     */
     static protected function _loadConfigFiles($sConfigDir, $nConfigLevel) {
 
         // * Загружаем конфиги модулей вида /config/modules/[module_name]/config.php
@@ -102,23 +120,6 @@ class Loader {
                 $aConfig = F::IncludeFile($sFileConfig, true, true);
                 if (!empty($aConfig) && is_array($aConfig)) {
                     $sKey = 'module.' . $sDirModule;
-                    Config::Load(array($sKey => $aConfig), false, null, $nConfigLevel);
-                }
-            }
-        }
-
-        /**
-         * Ищет routes-конфиги модулей вида /config/modules/[module_name]/config.route.php и объединяет их с текущим
-         *
-         * @see Router.class.php
-         */
-        $sDirConfig = $sConfigDir . '/modules/';
-        $aFiles = glob($sDirConfig . '*/config.route.php');
-        if ($aFiles) {
-            foreach ($aFiles as $sFileConfig) {
-                $aConfig = F::IncludeFile($sFileConfig, true, true);
-                if (!empty($aConfig) && is_array($aConfig)) {
-                    $sKey = 'router.' . $sDirModule;
                     Config::Load(array($sKey => $aConfig), false, null, $nConfigLevel);
                 }
             }
@@ -161,7 +162,21 @@ class Loader {
                         }
                     }
                 }
+            }
+        }
+    }
 
+    /**
+     * Загружает include-файлы вида /plugins/[plugin_name]/include/*.php
+     *
+     * @param int $nConfigLevel
+     */
+    static protected function _loadIncludeFiles($nConfigLevel) {
+
+        $sPluginsDir = F::GetPluginsDir($nConfigLevel == Config::LEVEL_APP);
+        if ($aPluginsList = F::GetPluginsList()) {
+            $aPluginsList = array_map('trim', $aPluginsList);
+            foreach ($aPluginsList as $sPlugin) {
                 // Подключаем include-файлы плагина
                 $aIncludeFiles = glob($sPluginsDir . '/' . $sPlugin . '/include/*.php');
                 if ($aIncludeFiles) {
@@ -174,9 +189,9 @@ class Loader {
     }
 
     /**
-     * @param $sConfigDir
-     * @param $aConfigSections
-     * @param $nConfigLevel
+     * @param string $sConfigDir
+     * @param array  $aConfigSections
+     * @param int    $nConfigLevel
      */
     protected static function _loadConfigSections($sConfigDir, $aConfigSections, $nConfigLevel = 0) {
 
@@ -194,9 +209,9 @@ class Loader {
     /**
      * Load subconfig file
      *
-     * @param $sFile
-     * @param $sName
-     * @param $nConfigLevel
+     * @param string $sFile
+     * @param string $sName
+     * @param int    $nConfigLevel
      */
     static protected function _loadSectionFile($sFile, $sName, $nConfigLevel = 0) {
 
@@ -214,6 +229,9 @@ class Loader {
         Config::Load(array($sName => $aConfig), false, null, $nConfigLevel);
     }
 
+    /**
+     * Check required dirs
+     */
     static protected function _checkRequiredDirs() {
 
         if (!F::File_CheckDir(Config::Get('path.dir.app'), false)) {
@@ -230,9 +248,9 @@ class Loader {
     /**
      * Автоопределение класса или файла экшена
      *
-     * @param   string      $sAction
-     * @param   string|null $sEvent
-     * @param   bool        $bFullPath
+     * @param   string $sAction
+     * @param   string $sEvent
+     * @param   bool   $bFullPath
      *
      * @return  string|null
      */
@@ -264,6 +282,12 @@ class Loader {
         return null;
     }
 
+    /**
+     * @param string $sFile
+     * @param string $sCheckClassname
+     *
+     * @return bool|mixed
+     */
     static protected function _includeFile($sFile, $sCheckClassname = null) {
 
         if (class_exists('F', false)) {
@@ -361,17 +385,17 @@ class Loader {
      * Try to load class using PRS-0 naming standard
      *
      * @param string       $sClassName
-     * @param string|array $sPath
+     * @param string|array $xPath
      *
      * @return bool
      */
-    static protected function _autoloadPSR0($sClassName, $sPath = null) {
+    static protected function _autoloadPSR0($sClassName, $xPath = null) {
 
-        if (!$sPath) {
-            $sPath = Config::Get('path.dir.libs');
+        if (!$xPath) {
+            $xPath = Config::Get('path.dir.libs');
         }
 
-        $sCheckKey = serialize(array($sClassName, $sPath));
+        $sCheckKey = serialize(array($sClassName, $xPath));
         if (!isset(self::$_aFailedClasses[$sCheckKey])) {
             if (strpos($sClassName, '\\')) {
                 // Namespaces
@@ -382,9 +406,9 @@ class Loader {
             } else {
                 return false;
             }
-            if ($sFile = F::File_Exists($sClassName . '.php', $sPath)) {
+            if ($sFile = F::File_Exists($sClassName . '.php', $xPath)) {
                 return self::_includeFile($sFile, $sClassName);
-            } elseif ($sFile = F::File_Exists($sClassName . '.class.php', $sPath)) {
+            } elseif ($sFile = F::File_Exists($sClassName . '.class.php', $xPath)) {
                 return self::_includeFile($sFile, $sClassName);
             }
         }
