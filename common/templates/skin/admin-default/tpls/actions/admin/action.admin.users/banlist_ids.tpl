@@ -2,7 +2,7 @@
 
 {block name="content-body-table"}
 
-<table class="table table-condensed ban-ips-list">
+<div class="table table-striped-responsive"><table class="table table-striped table-condensed ban-ips-list">
     <thead>
     <tr>
         <th>ID</th>
@@ -21,8 +21,8 @@
             {assign var="oSession" value=$oUser->getSession()}
         <tr>
             <td class="number"> {$oUser->getId()} &nbsp;</td>
-            <td {if $oUserCurrent->GetId()==$oUser->getId()}style="font-weight:bold;"{/if}>
-                <i class="icon icon-user icon-red"></i>
+            <td {if $oUserCurrent->GetId()==$oUser->getId()}style="color:violet;"{/if}>
+                <i class="ion-android-contact icon-red"></i>
                 <a href="{router page='admin'}users-list/profile/{$oUser->getId()}/" class="link">{$oUser->getDisplayName()}</a></td>
             <td class="center ip-split">
                 {$oUser->getIpRegister()}
@@ -34,7 +34,7 @@
             <td>{$oUser->getBanComment()}</td>
             <td class="center">
                 <a href="#" onclick="admin.user.unsetBan('{$oUser->getId()}', 'user'); return false;"
-                   class="btn btn-mini tip-top" title="{$aLang.action.admin.exclude}"><i class="icon icon-thumbs-up"></i></a>
+                   class="btn btn-xs" title="{$aLang.action.admin.exclude}"><i class="icon icon-thumbs-up"></i></a>
             </td>
         </tr>
         {/foreach}
@@ -44,6 +44,6 @@
         </tr>
         {/if}
     </tbody>
-</table>
+</table></div>
 
 {/block}
