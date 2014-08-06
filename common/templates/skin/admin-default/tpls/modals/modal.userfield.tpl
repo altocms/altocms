@@ -3,11 +3,11 @@
         <div class="modal-content">
 
             <header class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
                 <h3 class="modal-title">{$aLang.action.admin.user_field_admin_title_add}</h3>
             </header>
 
-            <form class="modal-body uniform">
+            <form class="modal-body">
                 <p><label for="user_fields_form_type">{$aLang.action.admin.userfield_form_type}:</label>
                     <select id="user_fields_form_type" class="input-text input-wide">
                         <option value=""></option>

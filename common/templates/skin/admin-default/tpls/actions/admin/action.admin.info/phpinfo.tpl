@@ -2,29 +2,29 @@
 
 {block name="content-body"}
 
-<div class="span12">
+<div class="col-md-12">
 
     {if $aPhpInfo.count}
         {foreach from=$aPhpInfo.collection key=sSectionKey item=aSectionVal name=sec}
         {$section=$smarty.foreach.sec.iteration}
-        <div class="b-wbox phpinfo">
-            <div class="b-wbox-header">
-                    <div class="buttons">
-                        <button class="btn btn-default btn-mini btn-toggle" data-toggle="collapse" data-target="#section_{$section}">
-                            <i class="icon icon-plus"></i>
+        <div class="panel phpinfo">
+            <div class="panel-heading">
+                    <div class="tools pull-right">
+                        <button class="btn btn-primary btn-xs btn-toggle" data-toggle="collapse" data-target="#section_{$section}">
+                            <i class="ion-plus-round"></i>
                         </button>
                     </div>
-                <h3 class="b-wbox-header-title">{$sSectionKey}</h3>
+                <h3 class="panel-title">{$sSectionKey}</h3>
             </div>
-            <div class="b-wbox-content nopadding collapse" id="section_{$section}">
-                <table class="table">
+            <div class="panel-body collapse no-padding" id="section_{$section}">
+                <div class="table table-striped-responsive"><table class="table table-striped">
                     {foreach from=$aSectionVal key=sKey item=sVal}
                         <tr>
                             <td class="span4 td-label">{$sKey}</td>
-                            <td>{$sVal}</td>
+                            <td style="word-break: break-word;">{$sVal}</td>
                         </tr>
                     {/foreach}
-                </table>
+                </table></div>
             </div>
         </div>
         {/foreach}

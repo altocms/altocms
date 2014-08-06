@@ -1,23 +1,21 @@
 {extends file='_index.tpl'}
 
 {block name="content-bar"}
-    <div class="btn-group">
-        <a href="{router page='admin'}settings-blogtypes/add/" class="btn btn-primary tip-top"
-           title="{$aLang.action.admin.blogtypes_add}"><i class="icon icon-plus"></i></a>
-    </div>
+<div class="col-md-12 mb15">
+<a href="{router page='admin'}settings-blogtypes/add/" class="btn btn-primary" title="{$aLang.action.admin.blogtypes_add}"><i class="ion-plus-round"></i></a>
+</div>
 {/block}
 
 {block name="content-body"}
+<div class="col-md-12">
 <form action="{router page='admin'}settings-blogtypes/" method="post" id="form_blogtype_list" class="uniform">
     <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
     <input type="hidden" name="blogtype_action" value="">
-    <div class="b-wbox">
-        <div class="b-wbox-content nopadding">
-
-            <table class="table table-striped table-condensed blogtypes-list">
+    <div class="panel panel-default">
+        <div class="panel-body no-padding">
+            <div class="table table-striped-responsive"><table class="table table-striped">
                 <thead>
                 <tr>
-                    <th></th>
                     <th class="span1">ID</th>
                     <th class="span2">{$aLang.action.admin.blogtypes_typecode}</th>
                     <th>{$aLang.action.admin.blogtypes_name}</th>
@@ -104,16 +102,16 @@
                         </td>
                         <td>
                             <a href="{router page='admin'}settings-blogtypes/edit/{$oBlogType->getId()}/">
-                                <i class="icon icon-note tip-top" title="{$aLang.action.admin.content_edit}"></i></a>
+                                <i class="ion-edit" title="{$aLang.action.admin.content_edit}"></i></a>
                             {if $oBlogType AND $oBlogType->CanDelete()}
                             <a href="{router page='admin'}settings-blogtypes/delete/{$oBlogType->getId()}/">
-                                <i class="icon icon-trash tip-top" title="{$aLang.action.admin.content_delete}"></i></a>
+                                <i class="ion-android-trash" title="{$aLang.action.admin.content_delete}"></i></a>
                             {/if}
                         </td>
                     </tr>
                 {/foreach}
                 </tbody>
-            </table>
+            </table></div>
         </div>
     </div>
 
@@ -134,5 +132,5 @@
         };
 
     </script>
-
+</div>
 {/block}

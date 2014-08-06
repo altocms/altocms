@@ -1,20 +1,21 @@
 {extends file='_index.tpl'}
 
 {block name="content-bar"}
-    <div class="btn-group">
-        <a href="#" class="btn btn-primary disabled"><i class="icon icon-plus"></i></a>
+<div class="col-md-12 mb15">
+        <a href="#" class="btn btn-primary disabled"><i class="ion-plus-round"></i></a>
     </div>
 {/block}
 
 {block name="content-body"}
+<div class="col-md-12">
     <form action="{router page='admin'}site-widgets/" method="post" id="form_widgets_list" class="uniform">
         <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
         <input type="hidden" name="widget_action" value="">
 
-        <div class="b-wbox">
-            <div class="b-wbox-content nopadding">
+        <div class="panel panel-default">
+            <div class="panel-body no-padding">
 
-                <table class="table table-inbordered widgets-list">
+                <div class="table table-striped-responsive"><table class="table table-striped widgets-list">
                     <thead>
                     <tr>
                         <th>
@@ -77,7 +78,7 @@
                             </td>
                             <td class="center">
                                 <div class="b-switch"
-                                     onclick="admin.turnWidget('{$oWidget->GetId()}', '{!$oWidget->isActive()}'); return false;">
+                                     onchange="admin.turnWidget('{$oWidget->GetId()}', '{!$oWidget->isActive()}'); return false;">
                                     <input type="checkbox" {if $oWidget->isActive()}checked{/if}
                                            name="b-switch-{$oWidget->GetId()}">
                                     <label><i></i></label>
@@ -85,15 +86,15 @@
                             </td>
                             <td class="center">
                                 <a href="{router page="admin"}site-widgets/edit/{$oWidget->GetId()}"><i
-                                            class="icon icon-note"></i></a>
+                                            class="ion-ios7-compose"></i></a>
                             </td>
                         </tr>
                     {/foreach}
                     </tbody>
-                </table>
+                </table></div>
             </div>
         </div>
-
+       </div>
     </form>
 
     <script>

@@ -1,45 +1,51 @@
 {extends file='_index.tpl'}
-
 {block name="content-bar"}
-    <div class="btn-group">
-        <a href="#" class="btn btn-primary disabled"><i class="icon icon-plus"></i></a>
-    </div>
-    <div class="btn-group">
-        <a href="{router page='admin'}settings-site/params/" class="btn btn-default {if $sMode=='params'}active{/if}">
-            {$aLang.action.admin.settings_base}
+<div class="col-md-12">
+    <ul class="nav nav-tabs atlass">
+      <li class="{if $sMode=='params'}active{/if}">
+        <a href="{router page='admin'}settings-site/params/">
+        {$aLang.action.admin.settings_base}
         </a>
-        <a href="{router page='admin'}settings-site/edit/" class="btn btn-default {if $sMode=='edit'}active{/if}">
-            {$aLang.action.admin.settings_edit}
+      </li>
+      <li class="{if $sMode=='edit'}active{/if}">
+        <a href="{router page='admin'}settings-site/edit/">
+        {$aLang.action.admin.settings_edit}
         </a>
-        <a href="{router page='admin'}settings-site/links/" class="btn btn-default {if $sMode=='links'}active{/if}">
-            {$aLang.action.admin.settings_links}
+      </li>
+      <li class="{if $sMode=='links'}active{/if}">
+        <a href="{router page='admin'}settings-site/links/">
+        {$aLang.action.admin.settings_links}
         </a>
-        <a href="{router page='admin'}settings-site/sys/" class="btn btn-default {if $sMode=='sys'}active{/if}">
-            {$aLang.action.admin.settings_sys}
+      </li>
+      <li class="{if $sMode=='sys'}active{/if}">
+        <a href="{router page='admin'}settings-site/sys/">
+        {$aLang.action.admin.settings_sys}
         </a>
-        <a href="{router page='admin'}settings-site/cssjs/" class="btn btn-default {if $sMode=='cssjs'}active{/if}">
-            {$aLang.action.admin.settings_cssjs}
+      </li>
+      <li class="{if $sMode=='cssjs'}active{/if}">
+        <a href="{router page='admin'}settings-site/cssjs/">
+        {$aLang.action.admin.settings_cssjs}
         </a>
-        <!-- a href="{router page='admin'}settings-site/acl/" class="btn btn-default {if $sMode=='acl'}active{/if}">
-                {$aLang.action.admin.settings_acl}
-            </a -->
-    </div>
+      </li>
+      <!-- a href="{router page='admin'}settings-site/acl/" class="btn btn-primary {if $sMode=='acl'}active{/if}">
+        {$aLang.action.admin.settings_acl}
+        </a -->
+    </ul>
+</div>
 {/block}
 
 {block name="content-body"}
-    <form action="" method="POST" class="form-horizontal uniform" enctype="multipart/form-data">
-        <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
-
-        <div class="b-wbox">
-            <div class="b-wbox-content nopadding">
-                {block name="content-body-formcontent"}
-                {/block}
-            </div>
-        </div>
-
-        <div class="navbar navbar-inner">
+    <div class="col-md-12">
+        <form action="" method="POST" class="form-horizontal" enctype="multipart/form-data">
+          <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
+          <div class="panel panel-default">
+              {block name="content-body-formcontent"}
+              {/block}
+            <div class="panel-footer clearfix">
             <input type="submit" name="submit_data_save" value="{$aLang.action.admin.save}"
-                   class="btn btn-primary pull-right"/>
-        </div>
-    </form>
+              class="btn btn-primary pull-right"/>
+            </div>
+          </div>
+        </form>
+    </div>
 {/block}
