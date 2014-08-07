@@ -1,45 +1,55 @@
 {extends file='_index.tpl'}
 
 {block name="content-bar"}
-    <div class="btn-group">
-        <a href="#" class="btn btn-primary disabled"><i class="icon icon-plus"></i></a>
-    </div>
-    <div class="btn-group">
-        <a href="{router page='admin'}settings-site/base/" class="btn {if $sMode=='base'}active{/if}">
+<div class="col-md-12">
+    <a href="#" class="btn btn-primary pull-right disabled"><i class="ion-plus-round"></i></a>
+<ul class="nav nav-tabs atlass">
+    <li class="{if $sMode=='base'}active{/if}">
+        <a href="{router page='admin'}settings-site/base/">
             {$aLang.action.admin.settings_base}
         </a>
-        <a href="{router page='admin'}settings-site/edit/" class="btn {if $sMode=='edit'}active{/if}">
+	</li>
+    <li class="{if $sMode=='edit'}active{/if}">
+        <a href="{router page='admin'}settings-site/edit/">
             {$aLang.action.admin.settings_edit}
         </a>
-        <a href="{router page='admin'}settings-site/links/" class="btn {if $sMode=='links'}active{/if}">
+	</li>
+    <li class="{if $sMode=='links'}active{/if}">
+        <a href="{router page='admin'}settings-site/links/">
             {$aLang.action.admin.settings_links}
         </a>
-        <a href="{router page='admin'}settings-site/sys/" class="btn {if $sMode=='sys'}active{/if}">
+	</li>
+	<li class="{if $sMode=='sys'}active{/if}">
+        <a href="{router page='admin'}settings-site/sys/">
             {$aLang.action.admin.settings_sys}
         </a>
-        <a href="{router page='admin'}settings-site/cssjs/" class="btn {if $sMode=='cssjs'}active{/if}">
+	</li>
+	<li class="{if $sMode=='cssjs'}active{/if}">
+        <a href="{router page='admin'}settings-site/cssjs/">
             {$aLang.action.admin.settings_cssjs}
         </a>
+	</li>
         <!-- a href="{router page='admin'}settings-site/acl/" class="btn {if $sMode=='acl'}active{/if}">
                 {$aLang.action.admin.settings_acl}
             </a -->
-    </div>
+  </ul>
+</div>
 {/block}
 
 {block name="content-body"}
-    <form action="" method="POST" class="form-horizontal uniform" enctype="multipart/form-data">
+    <form action="" method="POST" class="form-horizontal" enctype="multipart/form-data">
         <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
 
-        <div class="b-wbox">
-            <div class="b-wbox-content nopadding">
+        <div class="panel panel-default">
+            <div class="panel-body">
                 {block name="content-body-formcontent"}
                 {/block}
             </div>
+            <div class="panel-footer clearfix">
+                <input type="submit" name="submit_data_save" value="{$aLang.action.admin.save}"
+                       class="btn btn-primary pull-right"/>
+            </div>
         </div>
 
-        <div class="navbar navbar-inner">
-            <input type="submit" name="submit_data_save" value="{$aLang.action.admin.save}"
-                   class="btn btn-primary pull-right"/>
-        </div>
     </form>
 {/block}

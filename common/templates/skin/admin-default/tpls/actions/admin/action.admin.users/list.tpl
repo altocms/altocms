@@ -2,9 +2,9 @@
 
 {block name="content-body-main"}
 {$bShowIpColumns=false}
-<div class="b-wbox">
-    <div class="b-wbox-content nopadding">
-        <table class="table table-condensed b-users-list uniform">
+<div class="panel panel-default">
+    <div class="panel-body no-padding">
+        <div class="table table-striped-responsive"><table class="table table-striped table-condensed b-users-list">
             <thead>
             <tr>
                 <th>
@@ -68,9 +68,9 @@
                     <td class="number"> {$oUser->getId()} &nbsp;</td>
                     <td>
                         <a href="{router page='admin'}users-list/profile/{$oUser->getId()}/"
-                           {if $oUserCurrent->GetId()==$oUser->getId()}style="font-weight:bold;"{/if}
+                           {if $oUserCurrent->GetId()==$oUser->getId()}style="color:violet"{/if}
                            class="link">
-                            <i class="icon icon-user {$classIcon}"></i>
+                            <i class="ion-android-contact {$classIcon}"></i>
                             {$oUser->getDisplayName()}
                         </a>
                         <div class="pull-right">
@@ -109,7 +109,7 @@
                         <td class="center">
                             {if $oUser->GetLogin()!='admin'}
                                 <a href="#" onclick="admin.user.unsetAdmin('{$oUser->GetLogin()}')"
-                                   class="link tip-top" title="{$aLang.action.admin.exclude}"><i class="icon icon-close"></i></a>&nbsp;
+                                   class="link" title="{$aLang.action.admin.exclude}"><i class="ion-close"></i></a>&nbsp;
                             {/if}
                         </td>
                     {else}
@@ -122,7 +122,7 @@
                 </tr>
                 {/foreach}
             </tbody>
-        </table>
+        </table></div>
     </div>
 </div>
 
@@ -131,14 +131,14 @@
 <div id="user-win-iplist" class="popover right out">
     <div class="arrow"></div>
     <div class="popover-title">
-        <a href="#" class="close" data-dismiss="popover">&times;</a>
+        <a href="#" class="close" data-dismiss="popover"><i class="ion-android-close"></i></a>
         {$aLang.action.admin.user_ip_addresses}
     </div>
     <div class="popover-content">
-        <table class="table-condensed no-border">
+        <div class="table table-striped-responsive"><table class="table table-striped-condensed no-border">
             <tr><td>{$aLang.action.admin.users_ip_reg}:</td><td class="ip-split-reg"> </td></tr>
             <tr><td>{$aLang.action.admin.users_ip_last}:</td><td class="ip-split-last"> </td></tr>
-        </table>
+        </table></div>
     </div>
 </div>
 

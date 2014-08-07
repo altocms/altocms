@@ -1,18 +1,18 @@
 {extends file='./topics.tpl'}
 
 {block name="content-bar"}
-    <div class="btn-group">
-        <a href="#" class="btn btn-primary disabled"><i class="icon icon-plus"></i></a>
-    </div>
+<div class="col-md-12">
+    <a href="#" class="btn btn-primary mb15 disabled"><i class="ion-plus-round"></i></a>
+</div>
 {/block}
 
 {block name="content-body"}
 
-<div class="span12">
+<div class="col-md-12">
 
-    <div class="b-wbox">
-        <div class="b-wbox-content nopadding">
-            <table class="table table-striped table-condensed topics-list">
+    <div class="panel panel-default">
+        <div class="panel-body no-padding">
+            <div class="table table-striped-responsive"><table class="table table-striped topics-list">
                 <thead>
                 <tr>
                     <th class="span1">ID</th>
@@ -44,14 +44,14 @@
                         <td class="number">{$oTopic->getTopicRating()}</td>
                         <td class="center">
                             <a href="{$oTopic->getUrlEdit()}" title="{$aLang.action.admin.topic_edit}">
-                                <i class="icon icon-note"></i></a>
+                                <i class="ion-ios7-compose"></i></a>
                             <a href="#" class="js-topic-delete" title="{$aLang.topic_delete}">
-                                <i class="icon icon-trash"></i></a>
+                                <i class="ion-ios7-trash"></i></a>
                         </td>
                     </tr>
                     {/foreach}
                 </tbody>
-            </table>
+            </table></div>
         </div>
     </div>
 

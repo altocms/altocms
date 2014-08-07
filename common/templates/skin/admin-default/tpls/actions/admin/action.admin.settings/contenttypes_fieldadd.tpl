@@ -2,7 +2,7 @@
 
 {block name="content-body"}
 
-<div class="span12">
+<div class="col-md-12">
 
 {literal}
 <script>
@@ -24,32 +24,32 @@ function selectfield(f){
 {/literal}
 
 
-<form action="" method="post" id="popup-login-form" class="form-horizontal uniform">
+<form action="" method="post" id="popup-login-form" class="form-horizontal">
 	<input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}" />
 		{*<input type="hidden" name="topic_type" value="{$oContentType->getContentId()}"/>*}
 
-    <div class="b-wbox">
-        <div class="b-wbox-header">
+    <div class="panel panel-default">
+        <div class="panel-heading">
             {if $sEvent=='settings-contenttypes-fieldadd'}
-                <div class="b-wbox-header-title">
+                <div class="panel-title">
                     {$aLang.action.admin.contenttypes_add_field_title}
                     ({$aLang.action.admin.contenttypes_for} "{$oContentType->getContentTitle()|escape:'html'}")
                 </div>
             {elseif $sEvent=='settings-contenttypes-fieldedit'}
-                <div class="b-wbox-header-title">
+                <div class="panel-title">
                     {$aLang.action.admin.contenttypes_edit_field_title}: {$oField->getFieldName()|escape:'html'}
                     ({$aLang.action.admin.contenttypes_for} "{$oContentType->getContentTitle()|escape:'html'}")
                 </div>
             {/if}
         </div>
-        <div class="b-wbox-content nopadding">
-            <div class="control-group">
-                <label for="field_type" class="control-label">
+        <div class="panel-body">
+            <div class="form-group">
+                <label for="field_type" class="col-sm-2 control-label">
                     {$aLang.action.admin.contenttypes_type}:
                 </label>
 
-                <div class="controls">
-                    <select name="field_type" id="field_type" onChange="selectfield(jQuery(this).val());" class="input-text input-width-300" {if $sEvent=='fieldedit'}disabled{/if}>
+                <div class="col-sm-10">
+                    <select name="field_type" id="field_type" onChange="selectfield(jQuery(this).val());" class="input-text form-control input-width-300" {if $sEvent=='fieldedit'}disabled{/if}>
                         <option value="input" {if $_aRequest.field_type=='input'}selected{/if} title="{$aLang.action.admin.contenttypes_field_input_notice}">
                             {$aLang.action.admin.contenttypes_field_input}</option>
                         <option value="textarea" {if $_aRequest.field_type=='textarea'}selected{/if} title="{$aLang.action.admin.contenttypes_field_textarea_notice}">
@@ -67,33 +67,33 @@ function selectfield(f){
                 </div>
             </div>
 
-            <div class="control-group">
-                <label for="field_name" class="control-label">
+            <div class="form-group">
+                <label for="field_name" class="col-sm-2 control-label">
                     {$aLang.action.admin.contenttypes_name}:
                 </label>
 
-                <div class="controls">
-                    <input type="text" name="field_name" value="{$_aRequest.field_name}" class="input-text">
+                <div class="col-sm-10">
+                    <input type="text" name="field_name" value="{$_aRequest.field_name}" class="input-text form-control">
                 </div>
             </div>
 
-            <div class="control-group">
-                <label for="field_description" class="control-label">
+            <div class="form-group">
+                <label for="field_description" class="col-sm-2 control-label">
                     {$aLang.action.admin.contenttypes_description}:
                 </label>
 
-                <div class="controls">
-                    <input type="text" name="field_description" value="{$_aRequest.field_description}" class="input-text">
+                <div class="col-sm-10">
+                    <input type="text" name="field_description" value="{$_aRequest.field_description}" class="input-text form-control">
                 </div>
             </div>
 
-            <div class="control-group" {if !$_aRequest.field_type || $_aRequest.field_type!='select'}style="display:none;"{/if} id="select_inputval">
-                <label for="field_description" class="control-label">
+            <div class="form-group" {if !$_aRequest.field_type || $_aRequest.field_type!='select'}style="display:none;"{/if} id="select_inputval">
+                <label for="field_description" class="col-sm-2 control-label">
                     {$aLang.action.admin.contenttypes_values}:
                 </label>
 
-                <div class="controls">
-                    <textarea name="field_values" id="field_values" class="input-text" rows="5">{$_aRequest.field_values}</textarea>
+                <div class="col-sm-10">
+                    <textarea name="field_values" id="field_values" class="input-text form-control" rows="5">{$_aRequest.field_values}</textarea>
                 </div>
             </div>
 
@@ -105,8 +105,8 @@ function selectfield(f){
                 {/if}
             </div>
 
-            <div class="form-actions">
-                <button type="submit"  name="submit_field" class="btn btn-primary" id="popup-field-submit">
+            <div class="panel-footer clearfix">
+                <button type="submit"  name="submit_field" class="btn btn-primary pull-right" id="popup-field-submit">
                     {$aLang.action.admin.contenttypes_submit}
                 </button>
             </div>

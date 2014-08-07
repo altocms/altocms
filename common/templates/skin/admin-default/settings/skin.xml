@@ -1,44 +1,33 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <skin compatible="alto">
-    <name>
-        <lang name="default">Adminpanel Default</lang>
-    </name>
-    <author>
-        <lang name="default">Alto CMS Team</lang>
-    </author>
-    <homepage>http://altocms.com</homepage>
-    <version>1.1</version>
-    <requires>
-        <alto>
-            <version>1.0</version>
-        </alto>
-        <plugins></plugins>
-        <system>
-            <php>5.3.0</php>
-        </system>
-    </requires>
-    <description>
-        <lang name="default">Skin of adminpanel</lang>
-        <lang name="russian">Скин админпанели</lang>
-    </description>
-    <info type="adminpanel">
-        <screenshots>
-            <screenshot preview="yes" file="screenshot.png" />
-            <screenshot file="pluginlist.png" />
-        </screenshots>
-        <themes>
-            <theme code="default" name="Default" />
-            <theme code="alto" name="Alto" />
-            <theme code="air" name="Air" />
-            <theme code="brown" name="Brown" />
-            <theme code="darkgreen" name="Dark Green" />
-            <theme code="fiolet" name="Violet" />
-            <theme code="lime" name="Lime" />
-            <theme code="midnight" name="Midnight" />
-            <theme code="red" name="Red" />
-        </themes>
-        <wgroups>
-            <wgroup name="right" />
-        </wgroups>
-    </info>
+  <name>
+    <lang name="default">Adminpanel Default</lang>
+  </name>
+  <author>
+    <lang name="default">Alto CMS Team</lang>
+  </author>
+  <homepage>http://altocms.com</homepage>
+  <version>1.2</version>
+  <requires>
+    <alto>
+      <version>1.0</version>
+    </alto>
+    <plugins></plugins>
+    <system>
+      <php>5.3.0</php>
+    </system>
+  </requires>
+  <description>
+    <lang name="default">Skin of adminpanel</lang>
+    <lang name="russian">Скин админпанели</lang>
+  </description>
+  <info type="adminpanel">
+    <screenshots>
+      <screenshot preview="yes" file="screenshot.png" />
+      <screenshot file="pluginlist.png" />
+    </screenshots>
+    <wgroups>
+      <wgroup name="right" />
+    </wgroups>
+  </info>
 </skin>
