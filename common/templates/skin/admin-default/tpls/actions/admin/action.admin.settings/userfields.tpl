@@ -1,9 +1,10 @@
 {extends file='_index.tpl'}
 
 {block name="content-bar"}
-<div class="col-md-12 mb15">
-    <a href="#" class="btn btn-primary" onclick="ls.userfield.addUserfieldDialog(); return false;" title="{$aLang.action.admin.user_field_add}"><i class="ion-plus-round"></i></a>
-</div>
+    <div class="btn-group">
+        <a href="#" class="btn btn-primary tip-top" onclick="ls.userfield.addUserfieldDialog(); return false;"
+           title="{$aLang.action.admin.user_field_add}"><i class="icon icon-plus"></i></a>
+    </div>
 {/block}
 
 {block name="layout_body" prepend}
@@ -12,11 +13,11 @@
 
 {block name="content-body"}
 
-<div class="col-md-12">
+<div class="span12">
 
-    <div class="panel panel-default">
-        <div class="panel-body no-padding">
-            <div class="table table-striped-responsive"><table class="table table-striped">
+    <div class="b-wbox">
+        <div class="b-wbox-content nopadding">
+            <table class="table userfields-list">
                 <thead>
                 <tr>
                     <th>{$aLang.action.admin.userfield_form_name}</th>
@@ -37,9 +38,9 @@
                         <td class="userfield-actions">
                             <a href="#" onclick="return ls.userfield.updateUserfieldDialog('{$oField->getId()}')"
                                title="{$aLang.action.admin.user_field_update}"
-                               class="ion-ios7-compose"></a>
+                               class="icon icon-note"></a>
                             <a href="#" onclick="return ls.userfield.deleteUserfield('{$oField->getId()}')"
-                               title="{$aLang.action.admin.user_field_delete}" class="ion-ios7-trash"></a>
+                               title="{$aLang.action.admin.user_field_delete}" class="icon icon-trash"></a>
                         </td>
                     </tr>
                 {/foreach}
@@ -52,13 +53,13 @@
                     <td class="userfield-actions">
                         <a href="#" onclick="return ls.userfield.updateUserfieldDialog('ID')"
                            title="{$aLang.action.admin.user_field_update}"
-                           class="ion-ios7-compose"></a>
+                           class="icon icon-note"></a>
                         <a href="#" onclick="return ls.userfield.deleteUserfield('ID')"
-                           title="{$aLang.action.admin.user_field_delete}" class="ion-ios7-trash"></a>
+                           title="{$aLang.action.admin.user_field_delete}" class="icon icon-trash"></a>
                     </td>
                 </tr>
                 </tbody>
-            </table></div>
+            </table>
         </div>
     </div>
 </div>

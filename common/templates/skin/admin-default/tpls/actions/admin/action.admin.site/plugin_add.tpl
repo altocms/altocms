@@ -1,33 +1,33 @@
 {extends file='_index.tpl'}
+
 {block name="content-body"}
-<div class="col-md-12">
-  <a href="{router page='admin'}site-plugins/add/" class="btn btn-primary pull right"
-    title="{$aLang.action.admin.plugin_load}"><i class="ion-plus-round"></i></a>
-  <ul class="nav nav-tabs atlass">
-    <li class="{if $sMode=='all' || $sMode==''}active{/if}">
-      <a href="{router page='admin'}site-plugins/list/all/">
-      {$aLang.action.admin.all_plugins}
-      </a>
-    </li>
-    <li class="{if $sMode=='active'}active{/if}">
-      <a href="{router page='admin'}site-plugins/list/active/">
-      {$aLang.action.admin.active_plugins}
-      </a>
-    </li>
-    <li class="{if $sMode=='inactive'}active{/if}">
-      <a href="{router page='admin'}site-plugins/list/inactive/">
-      {$aLang.action.admin.inactive_plugins}
-      </a>
-    </li>
-  </ul>
-</div>
-<div class="col-md-12">
-  <form action="{router page='admin'}plugins/" method="post" id="form_plugins_list">
-    <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
-    <div class="panel panel-default">
-      <div class="panel-body">
-      </div>
+
+<div class="span12">
+    <div class="btn-group">
+        <a href="{router page='admin'}site-plugins/add/" class="btn btn-primary tip-top"
+           title="{$aLang.action.admin.plugin_load}"><i class="icon icon-plus"></i></a>
     </div>
-  </form>
+
+    <div class="btn-group">
+        <a class="btn {if $sMode=='all' || $sMode==''}active{/if}" href="{router page='admin'}site-plugins/list/all/">
+            {$aLang.action.admin.all_plugins}
+        </a>
+        <a class="btn {if $sMode=='active'}active{/if}" href="{router page='admin'}site-plugins/list/active/">
+            {$aLang.action.admin.active_plugins}
+        </a>
+        <a class="btn {if $sMode=='inactive'}active{/if}" href="{router page='admin'}site-plugins/list/inactive/">
+            {$aLang.action.admin.inactive_plugins}
+        </a>
+    </div>
+
+    <form action="{router page='admin'}plugins/" method="post" id="form_plugins_list">
+        <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
+
+        <div class="b-wbox">
+            <div class="b-wbox-content nopadding">
+            </div>
+        </div>
+    </form>
 </div>
+
 {/block}

@@ -2,12 +2,12 @@
 
 {block name="content-body"}
 
-<div class="col-md-12">
+<div class="span12">
 
-    <div class="panel panel-default">
-        <div class="panel-heading">
+    <div class="b-wbox">
+        <div class="b-wbox-header">
         </div>
-        <div class="panel-body">
+        <div class="b-wbox-content nopadding">
         </div>
     </div>
 

@@ -2,7 +2,7 @@
 
 {block name="content-body-table"}
 
-<div class="table table-striped-responsive"><table class="table table-striped table-condensed ban-ips-list">
+<table class="table table-condensed ban-ips-list">
     <thead>
     <tr>
         <th>&nbsp;</th>
@@ -25,7 +25,7 @@
         <td class="center">{$aIp.bancomment}</td>
         <td class="center">
             <a href="#" onclick="admin.user.unsetBan('{$aIp.id}', 'ip'); return false;"
-               class="btn btn-xs" title="{$aLang.action.admin.exclude}"><i class="icon icon-thumbs-up"></i></a>
+               class="btn btn-mini tip-top" title="{$aLang.action.admin.exclude}"><i class="icon icon-thumbs-up"></i></a>
         </td>
     </tr>
     {/foreach}
@@ -35,6 +35,6 @@
         </tr>
     {/if}
     </tbody>
-</table></div>
+</table>
 
 {/block}

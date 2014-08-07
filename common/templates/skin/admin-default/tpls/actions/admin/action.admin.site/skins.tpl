@@ -1,168 +1,171 @@
 {extends file='_index.tpl'}
+
 {block name="content-bar"}
-<div class="col-md-12">
-  <ul class="nav nav-tabs atlass">
-    <li class="{if $sMode=='all'}active{/if}">
-      <a href="{router page="admin"}{$sEvent}/all/">All</a>
-    </li>
-    <li class="{if $sMode=='adm'}active{/if}">
-      <a href="{router page="admin"}{$sEvent}/adm/">Admin</a>
-    </li>
-    <li class="{if $sMode=='site'}active{/if}">
-      <a href="{router page="admin"}{$sEvent}/site/">Site</a>
-    </li>
-  </ul>
-</div>
+    <div class="btn-group span6 span12">
+        <a href="{router page="admin"}{$sEvent}/all/" class="btn btn-default {if $sMode=='all'}active{/if}">All</a>
+        <a href="{router page="admin"}{$sEvent}/adm/" class="btn btn-default {if $sMode=='adm'}active{/if}">Admin</a>
+        <a href="{router page="admin"}{$sEvent}/site/" class="btn btn-default {if $sMode=='site'}active{/if}">Site</a>
+    </div>
 {/block}
+
 {block name="content-body"}
-  {if $oActiveSkin}
-<div class="col-md-6">
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <div class="tools pull-right">
-        <button class="btn btn-primary btn-xs" title data-original-title="Skin for Site"><i class="ion-android-checkmark"></i></button>
-      </div>
-      <h3 class="panel-title">
-        {$oActiveSkin->GetName()}
-        {if $oActiveSkin->GetVersion()}v.{$oActiveSkin->GetVersion()}{/if}
-        - {$aLang.action.admin.active_skin}
-      </h3>
-    </div>
-    <div class="panel-body clearfix">
-      <div class="col-xs-7">
-        {if $oActiveSkin->GetPreviewUrl()}
-        <img src="{$oActiveSkin->GetPreviewUrl()}" class="img-responsive b-skin-screenshot" alt=""/>
-        {else}
-        <div class="b-skin-screenshot"></div>
+<div class="row-fluid">
+    {if $oActiveSkin}
+        <div class="span6">
+
+            <div class="b-wbox">
+                <div class="b-wbox-header">
+                    <span class="icon tip-top" title="Skin for Site"><i class="icon icon-globe"></i></span>
+
+                    <h3 class="b-wbox-header-title">
+                        {$oActiveSkin->GetName()}
+                        {if $oActiveSkin->GetVersion()}v.{$oActiveSkin->GetVersion()}{/if}
+                        - {$aLang.action.admin.active_skin}
+                    </h3>
+                </div>
+                <div class="b-wbox-content -box">
+                    {if $oActiveSkin->GetPreviewUrl()}
+                        <img src="{$oActiveSkin->GetPreviewUrl()}" class="b-skin-screenshot" alt=""/>
+                    {else}
+                        <div class="b-skin-screenshot"></div>
+                    {/if}
+                    <dl>
+                        <dt>Author:</dt>
+                        <dd>{$oActiveSkin->GetAuthor()|escape:'html'}</dd>
+                        <dt>Description:</dt>
+                        <dd>{$oActiveSkin->GetDescription()|escape:'html'}</dd>
+                        {if $oActiveSkin->GetHomePage()}
+                            <dt>Homepage:</dt>
+                            <dd>{$oActiveSkin->GetHomepage()}</dd>
+                        {/if}
+                        {$aThemes=$oActiveSkin->GetThemes()}
+                        {if $aThemes}
+                            <dt>{$aLang.action.admin.skin_themes}:</dt>
+                            <dd>
+                                {foreach $aThemes as $aTheme}
+                                    {if $aTheme.color}<span class="b-skin-theme-color"
+                                                            style="background: {$aTheme.color};">
+                                            &nbsp;</span>{/if}{$aTheme.name}{if !$aTheme@last},{/if}
+                                {/foreach}
+                            </dd>
+                        {/if}
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        {$aThemes=$oActiveSkin->GetThemes()}
+        {if $aThemes}
+        <div class="span6">
+            <div class="b-wbox">
+                <div class="b-wbox-header">
+                    <span class="icon"><i class="icon icon-action-undo"></i></span>
+
+                    <div class="b-wbox-header-title">{$aLang.action.admin.skin_settings} {$oActiveSkin->GetName()}</div>
+                </div>
+                <div class="b-wbox-content-box">
+                    <form class="form-horizontal uniform" action="" method="post">
+                        <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
+                        <input type="hidden" name="return_url" value="{$PATH_WEB_CURRENT|escape:'html'}"/>
+                        <input type="hidden" name="skin" value="{$oActiveSkin->GetId()}"/>
+
+                        {if $aThemes}
+                            <div class="control-group">
+                                <label class="control-label">{$aLang.action.admin.skin_themes}</label>
+
+                                <div class="controls">
+                                    {foreach $aThemes as $aTheme}
+                                        <label>
+                                            <input type="radio" class="input-checkbox"
+                                                   name="theme_activate" value="{$aTheme.code}"
+                                                   {if $sSiteTheme==$aTheme.code}checked{/if} >
+                                            {if $aTheme.color}<span class="b-skin-theme-color"
+                                                                    style="background: {$aTheme.color};">
+                                                    &nbsp;</span>{/if}{$aTheme.name}
+                                        </label>
+                                    {/foreach}
+                                </div>
+                            </div>
+                        {/if}
+                        <div class="form-actions">
+                            <button class="btn btn-primary pull-right">{$aLang.action.admin.save}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
         {/if}
-      </div>
-      <div class="col-xs-5">
-        <dl>
-          <dt>Author:</dt>
-          <dd>{$oActiveSkin->GetAuthor()|escape:'html'}</dd>
-          <dt>Description:</dt>
-          <dd>{$oActiveSkin->GetDescription()|escape:'html'}</dd>
-          {if $oActiveSkin->GetHomePage()}
-          <dt>Homepage:</dt>
-          <dd>{$oActiveSkin->GetHomepage()}</dd>
-          {/if}
-          {$aThemes=$oActiveSkin->GetThemes()}
-          {if $aThemes}
-          <dt>{$aLang.action.admin.skin_themes}:</dt>
-          <dd>
-            {foreach $aThemes as $aTheme}
-            {if $aTheme.color}<span class="b-skin-theme-color"
-              style="background: {$aTheme.color};">
-            &nbsp;</span>{/if}{$aTheme.name}{if !$aTheme@last},{/if}
-            {/foreach}
-          </dd>
-          {/if}
-        </dl>
-      </div>
-    </div>
-  </div>
+
+    {/if}
 </div>
-{$aThemes=$oActiveSkin->GetThemes()}
-{if $aThemes}
-<div class="col-md-6">
-  <div class="panel panel-default">
-    <div class="panel-heading">
-    <div class="pull-right tools">
-      <button class="btn btn-primary btn-xs" data-widget="collapse" data-toggle="tooltip" title="Collapse"><i class="fa fa-minus"></i></button>
-      <button class="btn btn-primary btn-xs" data-widget="remove" data-toggle="tooltip" title="Remove"><i class="fa fa-times"></i></button>
+    <div class="span12">
+        <div class="b-wbox">
+            <div class="b-wbox-header">
+                <div class="b-wbox-header-title">{$aLang.action.admin.available_skins}</div>
+            </div>
+        </div>
     </div>
-      <h3 class="panel-title">{$aLang.action.admin.skin_settings} {$oActiveSkin->GetName()}</h3>
+    <div class="row-fluid">
+        {foreach $aSkins as $oSkin}
+            <div class="span6">
+                <div class="b-wbox">
+                    <div class="b-wbox-header">
+                        {if $oSkin->GetType() == 'adminpanel'}
+                            <span class="icon tip-top" title="Skin for Adminpanel"><i class="icon icon-user-follow"></i></span>
+                        {else}
+                            <span class="icon tip-top" title="Skin for Site"><i class="icon icon-globe"></i></span>
+                        {/if}
+
+                        <h3 class="b-wbox-header-title">
+                            {$oSkin->GetName()}
+                            {if $oSkin->GetVersion()}v.{$oSkin->GetVersion()}{/if}
+                        </h3>
+
+                        <div class="buttons">
+                            {if $oSkin->GetType() == 'adminpanel'}
+                                <button class="btn btn-primary btn-mini disabled"><i class="icon icon-ok"></i></button>
+                            {else}
+                                <button class="btn btn-primary btn-mini tip-top skin_select"
+                                        title="{$aLang.action.admin.activate}" id="skin-{$oSkin->GetId()}">
+                                    <i class="icon icon-ok"></i></button>
+                            {/if}
+                        </div>
+                    </div>
+                    <div class="b-wbox-content -box">
+                        {if $oSkin->GetPreviewUrl()}
+                            <img src="{$oSkin->GetPreviewUrl()}" class="b-skin-screenshot" alt=""/>
+                        {else}
+                            <div class="b-skin-screenshot"></div>
+                        {/if}
+                        <dl>
+                            <dt>Author:</dt>
+                            <dd>{$oSkin->GetAuthor()|escape:'html'}
+                            <dd>
+                            <dt>Description:</dt>
+                            <dd>{$oSkin->GetDescription()|escape:'html'}</dd>
+                            {if $oSkin->GetHomePage()}
+                                <dt>Homepage:</dt>
+                                <dd>{$oSkin->GetHomepage()}</dd>
+                            {/if}
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        {/foreach}
     </div>
-    <div class="panel-body">
-      <form class="form-horizontal" action="" method="post">
+    <form action="" method="post" id="form-skin-select">
         <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
         <input type="hidden" name="return_url" value="{$PATH_WEB_CURRENT|escape:'html'}"/>
-        <input type="hidden" name="skin" value="{$oActiveSkin->GetId()}"/>
-        {if $aThemes}
-        <div class="form-group">
-          <label class="col-sm-2 control-label">{$aLang.action.admin.skin_themes}</label>
-          <div class="col-sm-10">
-            {foreach $aThemes as $aTheme}
-            <label class="col-sm-12">
-            <input type="radio" class="input-checkbox"
-              name="theme_activate" value="{$aTheme.code}"
-              {if $sSiteTheme==$aTheme.code}checked{/if} >
-            {if $aTheme.color}<span class="b-skin-theme-color"
-              style="background: {$aTheme.color};">
-            &nbsp;</span>{/if}{$aTheme.name}
-            </label>
-            {/foreach}
-          </div>
-        </div>
-        {/if}
-      </form>
-    </div>
-        <div class="panel-footer clearfix">
-          <button class="btn btn-primary pull-right">{$aLang.action.admin.save}</button>
-        </div>
-  </div>
-</div>
-<div class="col-md-12"></div>
-{/if}
-{/if}
-{foreach $aSkins as $oSkin}
-<div class="col-md-6">
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <div class="tools pull-right">
-        {if $oSkin->GetType() == 'adminpanel'}
-        <button class="btn btn-primary btn-xs disabled"><i class="ion-gear-b"></i></button>
-        {else}
-        <button class="btn btn-primary btn-xs skin_select"
-          title data-original-title="{$aLang.action.admin.activate}" id="skin-{$oSkin->GetId()}">
-        <i class="ion-android-checkmark"></i></button>
-        {/if}
-        {if $oSkin->GetType() == 'adminpanel'}
-        {/if}
-      </div>
-      <h3 class="panel-title">
-        {$oSkin->GetName()}
-        {if $oSkin->GetVersion()}v.{$oSkin->GetVersion()}{/if}
-      </h3>
-    </div>
-    <div class="panel-body clearfix">
-      <div class="col-xs-7">
-        {if $oSkin->GetPreviewUrl()}
-        <img src="{$oSkin->GetPreviewUrl()}" class="img-responsive b-skin-screenshot" alt=""/>
-        {else}
-        <div class="b-skin-screenshot"></div>
-        {/if}
-      </div>
-      <div class="col-xs-5">
-        <dl>
-          <dt>Author:</dt>
-          <dd>{$oSkin->GetAuthor()|escape:'html'}
-          <dd>
-          <dt>Description:</dt>
-          <dd>{$oSkin->GetDescription()|escape:'html'}</dd>
-          {if $oSkin->GetHomePage()}
-          <dt>Homepage:</dt>
-          <dd>{$oSkin->GetHomepage()}</dd>
-          {/if}
-        </dl>
-      </div>
-    </div>
-  </div>
-</div>
-{/foreach}
-<form action="" method="post" id="form-skin-select">
-  <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
-  <input type="hidden" name="return_url" value="{$PATH_WEB_CURRENT|escape:'html'}"/>
-  <input type="hidden" name="skin_activate" value=""/>
-</form>
-<script>
-  $(function () {
-      $('button[class*=skin_select]').click(function () {
-          var f = $('#form-skin-select');
-          var skin = $(this).prop('id').substr(5);
-          f.find('[name=skin_activate]').val(skin);
-          f.submit();
-      });
-  })
-</script>
+        <input type="hidden" name="skin_activate" value=""/>
+    </form>
+    <script>
+        $(function () {
+            $('button[class*=skin_select]').click(function () {
+                var f = $('#form-skin-select');
+                var skin = $(this).prop('id').substr(5);
+                f.find('[name=skin_activate]').val(skin);
+                f.submit();
+            });
+        })
+    </script>
 {/block}

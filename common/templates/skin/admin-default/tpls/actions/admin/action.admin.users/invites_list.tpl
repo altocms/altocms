@@ -1,39 +1,33 @@
 {extends file='_index.tpl'}
 
 {block name="content-bar"}
-<div class="col-md-12">
-    <a href="{router page='admin'}users-invites/new/" class="btn btn-primary disabled pull-right"><i class="ion-plus-round"></i></a>
-  <ul class="nav nav-tabs atlass">
-    <li class="{if $sMode=='all'}active{/if}">
-        <a href="{router page='admin'}users-invites/all/">
-            {$aLang.action.admin.invites_all} <span class="label label-primary">{$aCounts.all}</span>
+    <div class="btn-group">
+        <a href="{router page='admin'}users-invites/new/" class="btn btn-primary disabled"><i class="icon icon-plus"></i></a>
+    </div>
+    <div class="btn-group">
+        <a class="btn btn-default {if $sMode=='all'}active{/if}" href="{router page='admin'}users-invites/all/">
+            {$aLang.action.admin.invites_all} <span class="badge badge-up">{$aCounts.all}</span>
         </a>
-    </li>
-    <li class="{if $sMode=='used'}active{/if}">
-        <a href="{router page='admin'}users-invites/used/">
-            {$aLang.action.admin.invites_used} <span class="label label-primary">{$aCounts.used}</span>
+        <a class="btn btn-default {if $sMode=='used'}active{/if}" href="{router page='admin'}users-invites/used/">
+            {$aLang.action.admin.invites_used} <span class="badge badge-up">{$aCounts.used}</span>
         </a>
-	</li>
-    <li class="{if $sMode=='unused'}active{/if}">
-        <a href="{router page='admin'}users-invites/unused/">
-            {$aLang.action.admin.invites_unused} <span class="label label-primary">{$aCounts.unused}</span>
+        <a class="btn btn-default {if $sMode=='unused'}active{/if}" href="{router page='admin'}users-invites/unused/">
+            {$aLang.action.admin.invites_unused} <span class="badge badge-up">{$aCounts.unused}</span>
         </a>
-	</li>
-  </ul>
-</div>
+    </div>
 {/block}
 
 {block name="content-body"}
-<div class="col-md-12">
+<div class="span12">
 
-    <div class="panel panel-default">
-        <div class="panel-body no-padding">
+    <div class="b-wbox">
+        <div class="b-wbox-content nopadding">
 <form method="post" action="" id="admin_form_invite_list">
     <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}" />
 
 {if $aInvites}
 
-<div class="table table-striped-responsive"><table class="table table-striped table-condensed invites-list">
+<table class="table table-striped table-bordered table-condensed invites-list">
     <tr>
         <th>&nbsp;</th>
         <th>
@@ -83,7 +77,7 @@
         </td>
     </tr>
     {/foreach}
-</table></div>
+</table>
 <div style="display:none;">
         <input type="hidden" name="invite_sort" id="invite_sort" />
         <input type="hidden" name="invite_order" id="invite_order" />

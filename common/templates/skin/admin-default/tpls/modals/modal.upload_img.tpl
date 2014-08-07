@@ -3,7 +3,7 @@
         <div class="modal-content">
 
             <header class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                 <h4 class="modal-title">{$aLang.uploadimg}</h4>
             </header>
 
@@ -46,7 +46,7 @@
 
                             <button type="submit" class="btn btn-success"
                                     onclick="ls.ajaxUploadImg(this,'{$sToLoad}');">{$aLang.uploadimg_submit}</button>
-                            <button type="submit" class="btn btn-primary">{$aLang.uploadimg_cancel}</button>
+                            <button type="submit" class="btn btn-default">{$aLang.uploadimg_cancel}</button>
                         </form>
                     </div>
 
@@ -80,7 +80,7 @@
                             {$aLang._or}
                             <button type="submit" class="btn btn-success"
                                     onclick="ls.ajaxUploadImg('block_upload_img_content_link','{$sToLoad}');">{$aLang.uploadimg_link_submit_load}</button>
-                            <button type="submit" class="btn btn-primary">{$aLang.uploadimg_cancel}</button>
+                            <button type="submit" class="btn btn-default">{$aLang.uploadimg_cancel}</button>
                         </form>
                     </div>
                 </div>

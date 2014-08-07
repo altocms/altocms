@@ -1,14 +1,14 @@
 {extends file='./pages.tpl'}
 
 {block name="content-bar"}
-<div class="col-md-12">
-    <a href="{router page='admin'}content-pages/add/" class="btn btn-primary mb15"><i class="ion-plus-round"></i></a>
-</div>
+    <div class="btn-group">
+        <a href="{router page='admin'}content-pages/add/" class="btn btn-primary"><i class="icon icon-plus"></i></a>
+    </div>
 {/block}
 
 {block name="content-body"}
 
-<div class="col-md-12">
+<div class="span12">
 
     {if $aParams.0=='add'}
         <h3 class="page-sub-header">{$aLang.action.admin.pages_create}</h3>
@@ -18,10 +18,10 @@
     {include file='./page_add.tpl'}
     {/if}
 
-    <div class="panel panel-default">
-        <div class="panel-body no-padding">
+    <div class="b-wbox">
+        <div class="b-wbox-content nopadding">
 
-            <div class="table table-striped-responsive"><table class="table table-striped pages-list">
+            <table class="table table-striped table-condensed pages-list">
                 <thead>
                 <tr>
                     <th class="span1">ID</th>
@@ -62,18 +62,18 @@
                         </td>
                         <td class="center">
                             <a href="{router page='admin'}content-pages/edit/{$oPage->getId()}/"
-                               title="{$aLang.action.admin.pages_admin_action_edit}" class=" i-block">
-                                <i class="ion-ios7-compose"></i>
+                               title="{$aLang.action.admin.pages_admin_action_edit}" class="tip-top i-block">
+                                <i class="icon icon-note"></i>
                             </a>
-                            <a href="#" title="{$aLang.action.admin.pages_admin_action_delete}" class=" i-block"
+                            <a href="#" title="{$aLang.action.admin.pages_admin_action_delete}" class="tip-top i-block"
                                   onclick="return admin.confirmDelete('{$oPage->getId()}', '{$oPage->getTitle()}'); return false;">
-                                <i class="ion-ios7-trash"></i>
+                                <i class="icon icon-trash"></i>
                             </a>
                             {if $oPage@first}
                                 <i class="icon icon-arrow-up icon-gray"></i>
                             {else}
                                 <a href="{router page='admin'}content-pages/sort/{$oPage->getId()}/up/?security_key={$ALTO_SECURITY_KEY}"
-                                   title="{$aLang.action.admin.pages_admin_sort_up} ({$oPage->getSort()})" class=" i-block">
+                                   title="{$aLang.action.admin.pages_admin_sort_up} ({$oPage->getSort()})" class="tip-top i-block">
                                     <i class="icon icon-arrow-up"></i>
                                 </a>
                             {/if}
@@ -81,7 +81,7 @@
                                 <i class="icon icon-arrow-down icon-gray"></i>
                             {else}
                                 <a href="{router page='admin'}content-pages/sort/{$oPage->getId()}/down/?security_key={$ALTO_SECURITY_KEY}"
-                                   title="{$aLang.action.admin.pages_admin_sort_down} ({$oPage->getSort()})" class=" i-block">
+                                   title="{$aLang.action.admin.pages_admin_sort_down} ({$oPage->getSort()})" class="tip-top i-block">
                                     <i class="icon icon-arrow-down"></i>
                                 </a>
                             {/if}
@@ -89,7 +89,7 @@
                     </tr>
                     {/foreach}
                 </tbody>
-            </table></div>
+            </table>
         </div>
     </div>
 

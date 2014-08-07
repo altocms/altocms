@@ -3,7 +3,7 @@
         <div class="modal-content">
 
             <header class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                 <h3>{$aLang.blog_admin_delete_title}</h3>
             </header>
 
