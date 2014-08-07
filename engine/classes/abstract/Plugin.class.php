@@ -481,7 +481,8 @@ abstract class Plugin extends LsObject {
     static public function GetTemplateDir($sPluginName, $sCompatibility = null) {
 
         $sPluginName = self::_pluginName($sPluginName);
-        if (!isset(self::$aTemplateDir[$sPluginName][''])) {
+        $sViewSkin = Config::Get('view.skin');
+        if (!isset(self::$aTemplateDir[$sViewSkin][$sPluginName][''])) {
             $aSkins = self::GetSkins($sPluginName);
             if ($aSkins && in_array(Config::Get('view.skin'), $aSkins)) {
                 $sSkinName = Config::Get('view.skin');
@@ -490,9 +491,9 @@ abstract class Plugin extends LsObject {
             }
 
             $sDir = self::GetDir($sPluginName) . '/templates/skin/' . $sSkinName . '/';
-            self::$aTemplateDir[$sPluginName][''] = is_dir($sDir) ? F::File_NormPath($sDir) : null;
+            self::$aTemplateDir[$sViewSkin][$sPluginName][''] = is_dir($sDir) ? F::File_NormPath($sDir) : null;
         }
-        return self::$aTemplateDir[$sPluginName][''];
+        return self::$aTemplateDir[$sViewSkin][$sPluginName][''];
     }
 
     /**
@@ -506,7 +507,8 @@ abstract class Plugin extends LsObject {
     static public function GetTemplateFile($sPluginName, $sTemplateName) {
 
         $sPluginName = self::_pluginName($sPluginName);
-        if (!isset(self::$aTemplateDir[$sPluginName][$sTemplateName])) {
+        $sViewSkin = Config::Get('view.skin');
+        if (!isset(self::$aTemplateDir[$sViewSkin][$sPluginName][$sTemplateName])) {
             $sPluginDir = self::GetDir($sPluginName);
             $aDirs = array(
                 self::GetTemplateDir($sPluginName),
@@ -524,12 +526,12 @@ abstract class Plugin extends LsObject {
             }
             $sFile = F::File_Exists($sTemplateName, $aSeekDirs);
             if ($sFile) {
-                self::$aTemplateDir[$sPluginName][$sTemplateName] = $sFile;
+                self::$aTemplateDir[$sViewSkin][$sPluginName][$sTemplateName] = $sFile;
             } else {
-                self::$aTemplateDir[$sPluginName][$sTemplateName] = $sPluginDir . '/templates/skin/' . self::GetDefaultSkin($sPluginName) . '/' . $sTemplateName;
+                self::$aTemplateDir[$sViewSkin][$sPluginName][$sTemplateName] = $sPluginDir . '/templates/skin/' . self::GetDefaultSkin($sPluginName) . '/' . $sTemplateName;
             }
         }
-        return self::$aTemplateDir[$sPluginName][$sTemplateName];
+        return self::$aTemplateDir[$sViewSkin][$sPluginName][$sTemplateName];
     }
 
     /**
@@ -575,7 +577,8 @@ abstract class Plugin extends LsObject {
         if (!is_dir($sTemplateDir)) {
             return false;
         }
-        self::$aTemplateDir[$sPluginName][''] = $sTemplateDir;
+        $sViewSkin = Config::Get('view.skin');
+        self::$aTemplateDir[$sViewSkin][$sPluginName][''] = $sTemplateDir;
         return true;
     }
 
