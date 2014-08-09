@@ -1161,39 +1161,72 @@ class AltoFunc_File {
     }
 
     /**
-     * @param null $xSize
-     * @param null $sExtension
+     * @param string $sSize
+     *
+     * @return array()
+     */
+    static public function ImgModAttr($sSize) {
+
+        $aResult = array(
+            'width' => null,
+            'height' => null,
+            'mod' => null,
+        );
+        if ($sSize) {
+            $nPos = strpos($sSize, 'x');
+            if ($nPos === false) {
+                $nHeight = $nWidth = intval($sSize);
+            } elseif ($nPos === 0) {
+                $nWidth = 0;
+                $nHeight = intval(substr($sSize, 1));
+            } else {
+                $nWidth = intval(substr($sSize, 0, $nPos));
+                $nHeight = intval(substr($sSize, $nPos+1));
+            }
+
+            if ($nWidth || $nHeight) {
+                if ($nWidth) {
+                    $aResult['width'] = $nWidth;
+                }
+                if ($nHeight) {
+                    $aResult['height'] = $nHeight;
+                }
+                if (strpos($sSize, 'fit')) {
+                    $aResult['mod'] = 'fit';
+                } else if (strpos($sSize, 'crop')) {
+                    $aResult['mod'] = 'crop';
+                } else if (strpos($sSize, 'pad')) {
+                    $aResult['mod'] = 'pad';
+                }
+            }
+        }
+        return $aResult;
+    }
+
+    /**
+     * @param string      $sSize
+     * @param string|null $sExtension
      *
      * @return string
      */
-    static public function ImgModSuffix($xSize = null, $sExtension = null) {
+    static public function ImgModSuffix($sSize, $sExtension = null) {
 
         $sResult = '';
-        $nPos = strpos($xSize, 'x');
-        if ($nPos === false) {
-            $nHeight = $nWidth = intval($xSize);
-        } elseif ($nPos === 0) {
-            $nWidth = 0;
-            $nHeight = intval(substr($xSize, 1));
-        } else {
-            $nWidth = intval(substr($xSize, 0, $nPos));
-            $nHeight = intval(substr($xSize, $nPos+1));
-        }
-        if ($nWidth || $nHeight) {
-            $sResult .= '-' . ($nWidth ? $nWidth : '') . 'x' . $nHeight;
-            if (strpos($xSize, 'fit')) {
-                $sResult .= '-fit';
-            } else if (strpos($xSize, 'crop')) {
-                $sResult .= '-crop';
-            } else if (strpos($xSize, 'pad')) {
-                $sResult .= '-pad';
-            }
-            if ($sExtension) {
-                $sResult .= '.' . strtolower($sExtension);
+        if ($sSize) {
+            $aAttr = static::ImgModAttr($sSize);
+            if ($aAttr['width'] || $aAttr['height']) {
+                $sResult .= '-' . ($aAttr['width'] ? $aAttr['width'] : '') . 'x' . $aAttr['height'];
+                if ($aAttr['mod']) {
+                    $sResult .= '-' . $aAttr['mod'];
+                }
+                if ($sExtension) {
+                    $sResult .= '.' . strtolower($sExtension);
+                }
             }
         }
         return $sResult;
     }
+
 }
 
 // EOF
