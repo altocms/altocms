@@ -368,11 +368,17 @@ class ModuleLang extends Module {
     /**
      * Получить алиасы текущего языка
      *
+     * @param bool $bIncludeCurrentLang
+     *
      * @return array
      */
-    public function GetLangAliases() {
+    public function GetLangAliases($bIncludeCurrentLang = false) {
 
-        return F::Str2Array(Config::Get('lang.aliases.' . $this->GetLang()));
+        $aResult = F::Str2Array(Config::Get('lang.aliases.' . $this->GetLang()));
+        if ($bIncludeCurrentLang) {
+            array_unshift($aResult, $this->GetLang());
+        }
+        return $aResult;
     }
 
     /**
