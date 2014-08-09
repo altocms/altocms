@@ -398,6 +398,83 @@ class ModuleText extends Module {
             return $this->aLinks;
         }
     }
+
+    /**
+     * Truncates text with word wrapping
+     *
+     * @param string $sText
+     * @param int    $iMaxLen
+     *
+     * @return string
+     */
+    public function TruncateText($sText, $iMaxLen) {
+
+        $sResult = $sText;
+        if (strpos($sText, '<') === false) {
+            // no tags
+            $sResult = F::TruncateText($sText, $iMaxLen, '', true);
+        } else {
+            $iLen = mb_strlen(strip_tags($sText), 'UTF-8');
+            if ($iLen > $iMaxLen) {
+                if (preg_match_all('/\<\/?\w+[^>]*>/siu', $sResult, $aM, PREG_OFFSET_CAPTURE)) {
+                    $aTags = $aM[0];
+                    $iOffset = 0;
+                    foreach($aTags as $iTagIdx => $aTag) {
+                        $iLen = strlen($aTag[0]);
+                        $sResult = substr($sResult, 0, $aTag[1] + $iOffset) . substr($sResult, $aTag[1] + $iOffset + $iLen);
+                        $iOffset -= $iLen;
+                        $aTag['tag'] = $aTag[0];
+                        $aTag['pos'] = $aTag[1];
+                        $aTag['pair'] = null;
+                        if ($aTag['tag'][1] !== '/') {
+                            $aTag['open'] = true;
+                        } else {
+                            $aTag['open'] = false;
+                            $sTagName = '<' . substr($aTag['tag'], 2, strlen($aTag['tag']) - 3);
+                            // seek open tag
+                            foreach($aTags as $iOpenIdx => $aOpenTag) {
+                                if (strpos($aOpenTag['tag'], $sTagName) === 0 && !isset($aOpenTag['pair'])) {
+                                    // link from open tag to closing
+                                    $aTags[$iOpenIdx]['pair'] = $iTagIdx;
+                                    // link from close tag to openning
+                                    $aTag['pair'] = $iOpenIdx;
+                                    break;
+                                }
+                            }
+                        }
+                        $aTags[$iTagIdx] = $aTag;
+                    }
+                    $sResult = F::TruncateText($sResult, $iMaxLen, '', true);
+                    $aClosingTags = array();
+                    foreach ($aTags as $iIdx => $aTag) {
+                        if (strlen($sResult) < $aTag['pos']) {
+                            break;
+                        }
+                        $sResult = substr($sResult, 0, $aTag['pos']) . $aTag['tag'] . substr($sResult, $aTag['pos']);
+                        if ($aTag['open']) {
+                            // open tag
+                            if ($aTag['pair']) {
+                                $aClosingTags[$aTag['pair']] = $aTags[$aTag['pair']];
+                            }
+                        } else {
+                            // close tag
+                            if (!is_null($aTag['pair']) && isset($aClosingTags[$iIdx])) {
+                                unset($aClosingTags[$iIdx]);
+                            }
+                        }
+                    }
+                    if ($aClosingTags) {
+                        // need to close openned tags
+                        ksort($aClosingTags);
+                        foreach ($aClosingTags as $aTag) {
+                            $sResult .= $aTag['tag'];
+                        }
+                    }
+                }
+            }
+        }
+        return $sResult;
+    }
 }
 
 // EOF

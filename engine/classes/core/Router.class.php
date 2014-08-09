@@ -501,6 +501,11 @@ class Router extends LsObject {
     protected function DetermineClass($sAction, $sEvent = null) {
 
         $sActionClass = null;
+
+        if ($sAction && !$sEvent && strpos($sAction, '/')) {
+            list($sAction, $sEvent, $sParams) = explode('/', $sAction, 3);
+        }
+
         // Сначала ищем экшен по таблице роутинга
         if ($sAction && isset($this->aConfigRoute['page'][$sAction])) {
             $sActionClass = $this->aConfigRoute['page'][$sAction];
@@ -749,15 +754,16 @@ class Router extends LsObject {
     /**
      * Возвращает правильную адресацию по переданому названию страницы (экшену)
      *
-     * @param  string $action    Экшен
+     * @param  string $sAction Экшен
+     *
      * @return string
      */
-    static public function GetPath($action) {
+    static public function GetPath($sAction) {
 
         // Если пользователь запросил action по умолчанию
-        $sPage = ($action == 'default')
+        $sPage = ($sAction == 'default')
             ? self::getInstance()->aConfigRoute['config']['action_default']
-            : $action;
+            : $sAction;
 
         // Смотрим, есть ли правило rewrite
         $sPage = self::getInstance()->Rewrite($sPage);
