@@ -1,32 +1,16 @@
 {extends file='[themes]default/default.tpl'}
 {block name="sidebar"}
-<aside id="sidebar">
+<aside class="sidebar" id="sidebar">
+<div class="panel panel-default">
+<div class="panel-body no-padding">
 
-<!-- Sidebar user panel -->
-<div class="user-panel clearfix">
-   <div class="pull-left image">
-      <img src="{$oUserCurrent->getAvatarUrl(48)}" class="img-circle" alt="User Image" />
-   </div>
-   <div class="pull-left info">
-      <p>Привет,</p>
-      <span>{$oUserCurrent->getDisplayName()}</span><a href="#"><i class="fa fa-circle text-danger"></i></a>
-   </div>
-</div>
-<form action="#" method="get" class="sidebar-form">
-                        <div class="input-group">
-                            <input type="text" name="q" class="form-control" placeholder="Search...">
-                            <span class="input-group-btn">
-                                <button type="submit" name="seach" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i></button>
-                            </span>
-                        </div>
-                    </form>
 <!-- /.search form -->
 <!-- sidebar menu: : style can be found in sidebar.less -->
 <ul class="sidebar-menu" id="nav-accordion">
    {hook run='admin_menu_top'}
    <li class="dcjq-parent-li {if $sEvent=='' OR $sEvent=='info-dashboard' || $sEvent=='info-report' || $sEvent=='info-phpinfo'}active{/if}">
       <a href="#">
-      <i class="ion ion-ios7-pie"></i><span>{$aLang.action.admin.menu_info}</span><i class="ion-ios7-arrow-right pull-right"></i>
+      <i class="glyphicon glyphicon-th-large"></i><span>{$aLang.action.admin.menu_info}</span><i class="glyphicon glyphicon-chevron-right pull-right"></i>
       </a>
       <ul class="sub">
          <li class="{if $sEvent=='' OR $sEvent=='info-dashboard'}active{/if}">
@@ -43,7 +27,7 @@
    </li>
    <li class="dcjq-parent-li {if $sEvent=='content-pages' || $sEvent=='content-blogs' || $sEvent=='content-topics' || $sEvent=='content-comments' || $sEvent=='content-mresources'}active{/if}">
       <a href="#">
-      <i class="ion ion-ios7-briefcase"></i><span>{$aLang.action.admin.menu_content}</span><i class="ion-ios7-arrow-right pull-right"></i>
+      <i class="glyphicon glyphicon-briefcase"></i><span>{$aLang.action.admin.menu_content}</span><i class="glyphicon glyphicon-chevron-right pull-right"></i>
       </a>
       <ul class="sub">
          <li class="{if $sEvent=='content-pages'}active{/if}">
@@ -66,7 +50,7 @@
    </li>
    <li class="dcjq-parent-li {if $sEvent=='users-list' || $sEvent=='users-banlist' || $sEvent=='users-invites'}active{/if}">
       <a href="#">
-      <i class="ion ion-person-stalker"></i><span>{$aLang.action.admin.menu_users}</span><i class="ion-ios7-arrow-right pull-right"></i>
+      <i class="glyphicon glyphicon-user"></i><span>{$aLang.action.admin.menu_users}</span><i class="glyphicon glyphicon-chevron-right pull-right"></i>
       </a>
       <ul class="sub">
          <li class="{if $sEvent=='users-list'}active{/if}">
@@ -83,7 +67,7 @@
    </li>
    <li class="dcjq-parent-li {if $sEvent=='settings-site' || $sEvent=='settings-lang' || $sEvent=='settings-blogtypes' || $sEvent=='settings-contenttypes' || $sEvent=='settings-userrights' || $sEvent=='settings-userrights' || $sEvent=='settings-userfields'}active{/if}">
       <a href="#">
-      <i class="ion ion-gear-b"></i><span>{$aLang.action.admin.menu_settings}</span><i class="ion-ios7-arrow-right pull-right"></i>
+      <i class="glyphicon glyphicon-cog"></i><span>{$aLang.action.admin.menu_settings}</span><i class="glyphicon glyphicon-chevron-right pull-right"></i>
       </a>
       <ul class="sub">
          <li class="{if $sEvent=='settings-site'}active{/if}">
@@ -109,7 +93,7 @@
    </li>
    <li class="dcjq-parent-li {if $sEvent=='site-skins' || $sEvent=='site-widgets' || $sEvent=='site-plugins'}active{/if}">
       <a href="#">
-      <i class="ion ion-home"></i><span>{$aLang.action.admin.menu_site}</span><i class="ion-ios7-arrow-right pull-right"></i>
+      <i class="glyphicon glyphicon-globe"></i><span>{$aLang.action.admin.menu_site}</span><i class="glyphicon glyphicon-chevron-right pull-right"></i>
       </a>
       <ul class="sub">
          <li class="{if $sEvent=='site-skins'}active{/if}">
@@ -126,7 +110,7 @@
    </li>
    <li class="dcjq-parent-li {if $sEvent=='logs-error' || $sEvent=='logs-sqlerror' || $sEvent=='logs-sqllog'}active{/if}">
       <a href="#">
-      <i class="ion ion-ios7-paper"></i><span>{$aLang.action.admin.menu_logs}</span><i class="ion-ios7-arrow-right pull-right"></i>
+      <i class="glyphicon glyphicon-book"></i><span>{$aLang.action.admin.menu_logs}</span><i class="glyphicon glyphicon-chevron-right pull-right"></i>
       </a>
       <ul class="sub">
          <li class="{if $sEvent=='logs-error'}active{/if}">
@@ -143,7 +127,7 @@
    </li>
    <li class="dcjq-parent-li {if $sEvent=='tools-reset' || $sEvent=='tools-commentstree' || $sEvent=='tools-recalcfavourites' || $sEvent=='tools-recalcvotes' || $sEvent=='tools-recalctopics' || $sEvent=='tools-recalcblograting' || $sEvent=='tools-checkdb'}active{/if}">
       <a href="#">
-      <i class="ion ion-hammer"></i><span>{$aLang.action.admin.menu_tools}</span><i class="ion-ios7-arrow-right pull-right"></i>
+      <i class="glyphicon glyphicon-wrench"></i><span>{$aLang.action.admin.menu_tools}</span><i class="glyphicon glyphicon-chevron-right pull-right"></i>
       </a>
       <ul class="sub">
          <li class="{if $sEvent=='tools-reset'}active{/if}">
@@ -173,5 +157,8 @@
       </ul>
    </li>
 </ul>
+
+</div>
+</div>
 </aside> <!-- /sidebar -->
 {/block}

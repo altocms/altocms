@@ -2,14 +2,14 @@
 {block name="content-body-formcontent"}
 {foreach $aFields as $aItem}
 {if $aItem.type=='section'}
-<div class="panel-heading" style="margin-bottom:15px;">
+<div class="panel-heading" style="margin-bottom:40px;">
   <h3 class="panel-title">{$aItem.text}</h3>
 </div>
 {elseif $aItem.config}
 <div class="panel-body" style="padding-top:0px;padding-bottom:0px;">
 <div class="form-group">
-  <label for="{$aItem.label}" class="col-sm-3 control-label">{$aItem.text}</label>
-  <div class="col-sm-9">
+  <label for="{$aItem.label}" class="col-sm-4 control-label">{$aItem.text}</label>
+  <div class="col-sm-8">
     {if $aItem.type=='checkbox'}
     <label>
     <input class="form-control" type="{$aItem.type}" name="{$aItem.config}" value="1"

@@ -2,7 +2,7 @@
 
 {block name="content-bar"}
 <div class="col-md-12">
-    <a href="#" class="btn btn-primary mb15 disabled"><i class="ion-plus-round"></i></a>
+    <a href="#" class="btn btn-primary mb15 disabled"><i class="glyphicon glyphicon-plus"></i></a>
 </div>
 {/block}
 

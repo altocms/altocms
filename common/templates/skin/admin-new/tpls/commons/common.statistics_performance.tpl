@@ -1,7 +1,10 @@
 {if E::IsAdmin()}
+<div class="panel panel-default">
+<div class="panel-body">
+
 <div class="b-page-stats">
     {hook run='statistics_performance_begin'}
-    <div class="table table-striped-responsive"><table>
+    <table>
         <tr>
             <td>
                 <h4 class="b-page-stats-head">Database</h4>
@@ -37,7 +40,10 @@
             </td>
             {hook run='statistics_performance_item'}
         </tr>
-    </table></div>
+    </table>
     {hook run='statistics_performance_end'}
+</div>
+
+</div>
 </div>
 {/if}

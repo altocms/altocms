@@ -9,10 +9,8 @@ $config['smarty']['dir']['templates'] = array(
 $config['head']['default']['css'] = array(
     '___path.skin.url___/assets/css/jquery-ui.css',
     '___path.skin.url___/assets/css/bootstrap.min.css',
-    '___path.skin.url___/assets/css/font-awesome.min.css',
-    '___path.skin.url___/assets/css/fonts/ionicons/css/ionicons.min.css',
+    '___path.skin.url___/assets/fonts/ionicons/css/ionicons.min.css',
     '___path.skin.url___/assets/css/bootstrap3-wysihtml5.min.css',
-
     '___path.skin.url___/assets/css/formstyler.css',
     '___path.skin.url___/assets/css/main.css',
 
@@ -30,6 +28,7 @@ $config['head']['default']['js'] = array(
     '___path.skin.url___/assets/js/menu-left/jquery.cookie.js',
     '___path.skin.url___/assets/js/menu-left/jquery.hoverIntent.minified.js',
     '___path.skin.url___/assets/js/menu-left/jquery.dcjqaccordion.2.6.min.js',
+    '___path.skin.url___/assets/js/sidebar.js',
 
     '___path.frontend.dir___/libs/js/engine/admin-userfield.js',
     '___path.skin.url___/assets/js/main.js',

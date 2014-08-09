@@ -2,7 +2,7 @@
 
 {block name="content-bar"}
 <div class="col-md-12">
-    <a href="{router page='admin'}content-pages/add/" class="btn btn-primary mb15"><i class="ion-plus-round"></i></a>
+    <a href="{router page='admin'}content-pages/add/" class="btn btn-primary mb15"><i class="glyphicon glyphicon-plus"></i></a>
 </div>
 {/block}
 

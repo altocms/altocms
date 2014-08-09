@@ -5,8 +5,8 @@
 </div>
 <div class="panel-body">
   <div class="form-group">
-    <label class="col-sm-3 control-label">{$aLang.action.admin.set_links_homepage_label}</label>
-    <div class="col-sm-9">
+    <label class="col-sm-4 control-label">{$aLang.action.admin.set_links_homepage_label}</label>
+    <div class="col-sm-8">
       <label class="col-sm-12 {if $sHomePageSelect == 'home'}checked{/if}">
       <input type="radio" name="homepage" value="home" {if $sHomePageSelect == 'home'}checked{/if}/>
       {$aLang.action.admin.set_links_homepage_home}
@@ -43,8 +43,8 @@
 </div>
 <div class="panel-body">
   <div class="form-group">
-    <label class="col-sm-3 control-label">{$aLang.action.admin.set_links_topics_mode}</label>
-    <div class="col-sm-9">
+    <label class="col-sm-4 control-label">{$aLang.action.admin.set_links_topics_mode}</label>
+    <div class="col-sm-8">
       <div class="-box">
         <label {if $sPermalinkMode == 'alto'}class="checked"{/if}>
         <span class="col-sm-12">
@@ -111,10 +111,10 @@
     </div>
   </div>
   <div class="form-group">
-    <label class="col-sm-3 control-label">
+    <label class="col-sm-4 control-label">
     <span class="link-dotted" onclick="$('#topic_link_help').slideToggle();">{$aLang.action.admin.set_links_topics_mode_help_title}</span>
     </label>
-    <div class="col-sm-9">
+    <div class="col-sm-8">
       <div class="well" style="display: none;" id="topic_link_help">{$aLang.action.admin.set_links_topics_mode_help_text|nl2br}</div>
     </div>
   </div>
@@ -124,8 +124,8 @@
 </div>
 <div class="panel-body">
   <div class="form-group">
-    <label class="col-sm-3 control-label">{$aLang.action.admin.set_links_drafts_enable}</label>
-    <div class="col-sm-9">
+    <label class="col-sm-4 control-label">{$aLang.action.admin.set_links_drafts_enable}</label>
+    <div class="col-sm-8">
       <label class="col-sm-12 {if Config::Get('module.topic.draft_link')}checked{/if}">
       <input type="radio" name="draft_link" value="on" {if Config::Get('module.topic.draft_link')}checked{/if}/>
       {$aLang.action.admin.word_yes}

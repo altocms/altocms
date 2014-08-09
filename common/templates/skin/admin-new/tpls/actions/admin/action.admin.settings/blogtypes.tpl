@@ -2,7 +2,7 @@
 
 {block name="content-bar"}
 <div class="col-md-12 mb15">
-<a href="{router page='admin'}settings-blogtypes/add/" class="btn btn-primary" title="{$aLang.action.admin.blogtypes_add}"><i class="ion-plus-round"></i></a>
+<a href="{router page='admin'}settings-blogtypes/add/" class="btn btn-primary" title="{$aLang.action.admin.blogtypes_add}"><i class="glyphicon glyphicon-plus"></i></a>
 </div>
 {/block}
 

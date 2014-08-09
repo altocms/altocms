@@ -2,7 +2,7 @@
 
 {block name="content-bar"}
 <div class="col-md-12 mb15">
-    <a href="#" class="btn btn-primary" onclick="ls.userfield.addUserfieldDialog(); return false;" title="{$aLang.action.admin.user_field_add}"><i class="ion-plus-round"></i></a>
+    <a href="#" class="btn btn-primary" onclick="ls.userfield.addUserfieldDialog(); return false;" title="{$aLang.action.admin.user_field_add}"><i class="glyphicon glyphicon-plus"></i></a>
 </div>
 {/block}
 

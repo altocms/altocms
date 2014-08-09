@@ -1,7 +1,7 @@
 {extends file='_index.tpl'}
 {block name="content-bar"}
 <div class="col-md-12 mb15">
-    <a href="#" class="btn btn-primary disabled"><i class="ion-plus-round"></i></a>
+    <a href="#" class="btn btn-primary disabled"><i class="glyphicon glyphicon-plus"></i></a>
 </div>
 {/block}
 {block name="content-body"}
