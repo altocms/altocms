@@ -72,6 +72,9 @@ a {
   background-color: #599a00;
   border-color: #599a00;
 }
+.panel-default {
+  background-color: #ecebe9;
+}
 .widget .nav-pills li,
 .widget .nav-accordion .panel-default>.panel-heading {
   background-color: #f6f6f6;
