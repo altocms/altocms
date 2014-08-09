@@ -69,16 +69,28 @@ class ModulePlugin_EntityPlugin extends Entity {
      *
      * @param SimpleXMLElement $oXml         - XML узел
      * @param string           $sProperty    - Свойство, которое нужно вернуть
-     * @param string           $sLang        - Название языка
+     * @param string|array     $xLang        - Название языка
      * @param bool             $bHtml        - HTML или текст
      */
-    protected function _xlang($oXml, $sProperty, $sLang, $bHtml = false) {
+    protected function _xlang($oXml, $sProperty, $xLang, $bHtml = false) {
 
         $sProperty = trim($sProperty);
 
-        if (!count($data = $oXml->xpath("{$sProperty}/lang[@name='{$sLang}']"))) {
-            $data = $oXml->xpath("{$sProperty}/lang[@name='default']");
+        if (is_array($xLang)) {
+            foreach($xLang as $sLang) {
+                if (count($data = $oXml->xpath("{$sProperty}/lang[@name='{$sLang}']"))) {
+                    break;
+                }
+                if (!count($data)) {
+                    $data = $oXml->xpath("{$sProperty}/lang[@name='default']");
+                }
+            }
+        } else {
+            if (!count($data = $oXml->xpath("{$sProperty}/lang[@name='{$xLang}']"))) {
+                $data = $oXml->xpath("{$sProperty}/lang[@name='default']");
+            }
         }
+
         $sText = trim((string)array_shift($data));
         if ($sText) {
             $oXml->$sProperty->data = ($bHtml ? $this->Text_Parser($sText) : strip_tags($sText));
@@ -100,8 +112,8 @@ class ModulePlugin_EntityPlugin extends Entity {
 
         $sResult = $this->getProp($sName);
         if (is_null($sResult)) {
-            $sLang = $this->Lang_GetLang();
-            $this->_xlang($this->oXml, $sName, $sLang);
+            $aLangs = $this->Lang_GetLangAliases(true);
+            $this->_xlang($this->oXml, $sName, $aLangs);
             $xProp = $this->_getXmlProperty($sName);
             if ($xProp->data) {
                 $sResult = (string)$xProp->data;
