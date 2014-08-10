@@ -151,6 +151,15 @@ a {
   background-color: #ff4136;
   text-decoration: none;
 }
+.blog,
+.blog-nav {
+  background-color: #ecebe9;
+}
+.blog-mini {
+  border-color: #d0cdc8;
+  border-style: solid;
+  border-width: 1px 0 1px 0;
+}
 .topic-header-title,
 .topic-header-title > a {
   font-weight: 300;
