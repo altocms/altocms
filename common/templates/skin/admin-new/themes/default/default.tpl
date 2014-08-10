@@ -57,7 +57,6 @@
     aRouter['{$sPage}'] = '{$sPath}';
     {/foreach}
   </script>
-
   <script type="text/javascript">
     ls.lang.load({json var = $aLangJs});
     //ls.registry.set('comment_max_tree', '{Config::Get("module.comment.max_tree")}');
@@ -65,8 +64,7 @@
   {hook run='layout_head_end'}
   {/block}
 
-  <link rel='stylesheet' type='text/css' href='{cfg name='path.static.skin'}/assets/css/fonts/ionicons/css/ionicons.min.css' />
-  <link href='http://fonts.googleapis.com/css?family=Exo+2:500,500italic,600,600italic,700,700italic&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+  <link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700,400italic,700italic&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 </head>
 
 <body class="{$body_classes}">
@@ -74,52 +72,65 @@
 {block name="layout_body"}
 {hook run='layout_body_begin'}
 
-  <header class="navbar navbar-static-top" role="banner">
-  <div class="container">
-    <div class="navbar-header">
-      <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a href="../" class="navbar-brand"></a>
-    </div>
-    <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
-      <form class="navbar-form navbar-left">
-               <input type="text" class="form-control col-lg-8" placeholder="Найти" value="Найти">
-            </form>
-      <ul class="nav navbar-nav">
-        <li>
-          <a href="http://altocms.ru/community/"><i class="ion ion-android-social"></i> Сообщество</a>
-        </li>
-        <li>
-          <a href="http://altocms.ru/addons/"><i class="ion ion-android-developer"></i> Модули</a>
-        </li>
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
-        <li>
+<header class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#"><span class="glyphicon glyphicon-heart-empty"></span> AltoCMS</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <form class="navbar-form navbar-left" role="search">
+            <div class="form-group">
+              <input type="text" class="form-control" placeholder="Найти">
+            </div>
+          </form>
+          <ul class="nav navbar-nav navbar-right">
+            <li class="active"><a href="#">Админ-панель</a></li>
+            <li><a href="#">Сообщество</a></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Дополнения <span class="caret"></span></a>
+              <ul class="dropdown-menu" role="menu">
+                <li><a href="#">Все</a></li>
+                <li><a href="#">Плагины</a></li>
+                <li><a href="#">Шаблоны</a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <span class="caret"></span></a>
+              <ul class="dropdown-menu" role="menu">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li>
             <a href="{router page='talk'}">
                 <i class="ion ion-android-mail"></i>
                 {$aLang.user_privat_messages}
                 {if $iUserCurrentCountTalkNew}
                     <span class="badge badge-important">{$iUserCurrentCountTalkNew}</span>
                 {/if}
-            </a>
-        </li>
-        <li>
-            <a href="/" target="_blank"><i class="ion ion-android-location"></i> {$aLang.action.admin.goto_site}</a></li>
-        <li>
-    </ul>
-    </nav>
-  </div>
-  <div class="line"></div>
-</header>
-<div id="wrapper">
+            </a></li>
+                <li class="divider"></li>
+                <li><a href="/" target="_blank"><i class="ion ion-android-location"></i> {$aLang.action.admin.goto_site}</a></li></li>
+              </ul>
+            </li>
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </div><!-- /.container-fluid -->
+    </header>
+
+<div class="container">
    {include file="modals/modal.empty.tpl"}
    {block name="sidebar"}{/block}
    <!-- Mobile Header -->
-   <div id="content">
+   <div class="content">
+
     <div class="breadcrumbs">
         <ul class="breadcrumb">
             <li>
@@ -129,11 +140,10 @@
                 <a href="#">{$sPageTitle}</a>
             </li>
         </ul>
-        <h1 class="page-title"><i class="ion ion-ios7-redo"></i> {$sPageTitle}</h1>
+        <h1 class="page-title">{$sPageTitle}</h1>
     </div>
+
       {block name="content"}
-      <section class="content-header">
-      </section>
       <div class="row">
          {include file="sysmessage.tpl"}
          {block name="sysmessage"}{/block}
@@ -144,10 +154,11 @@
       </div>
       {/block}
       {/block}
-   </div>
-</div>
 
-<div id="footer">{hook run='layout_body_end'}</div>
+      {hook run='layout_body_end'}
+
+    </div>
+ </div>
 
 </body>
 </html>

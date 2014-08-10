@@ -2,7 +2,7 @@
 
 {block name="content-bar"}
 <div class="col-md-12 mb15">
-    <a href="{router page='admin'}settings-contenttypes/" class="btn btn-primary"><i class="ion-plus-round"></i></a>
+    <a href="{router page='admin'}settings-contenttypes/" class="btn btn-primary"><i class="glyphicon glyphicon-plus"></i></a>
  </div>
 {/block}
 
@@ -188,7 +188,7 @@
                         </tbody>
                     </table></div>
                         <a class="btn btn-primary pull-right" href="{router page="admin"}settings-contenttypes-fieldadd/{$oContentType->getContentId()}/">
-                            <i class="ion-plus-round"></i> {$aLang.action.admin.contenttypes_add_field}
+                            <i class="glyphicon glyphicon-plus"></i> {$aLang.action.admin.contenttypes_add_field}
                         </a>
                 </div>
             {/if}

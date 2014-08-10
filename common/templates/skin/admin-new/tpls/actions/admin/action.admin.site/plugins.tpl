@@ -2,8 +2,8 @@
 {block name="content-bar"}
 <div class="col-md-12">
   <a href="{router page='admin'}site-plugins/add/" class="btn btn-primary pull-right"
-    title="{$aLang.action.admin.plugin_load}"><i class="ion-plus-round"></i></a>
-  <ul class="nav nav-tabs atlass">
+    title="{$aLang.action.admin.plugin_load}"><i class="glyphicon glyphicon-plus"></i></a>
+  <ul class="nav nav-pills atlass">
     <li class="{if $sMode=='all' || $sMode==''}active{/if}">
       <a href="{router page='admin'}site-plugins/list/all/">
       {$aLang.action.admin.all_plugins}

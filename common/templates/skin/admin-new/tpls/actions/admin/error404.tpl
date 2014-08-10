@@ -3,7 +3,7 @@
 <div class="error-page">
   <h2 class="headline text-info"> 404</h2>
   <div class="error-content">
-    <h3><i class="fa fa-warning text-yellow"></i>Event <b>'{$sEvent}'</b> not defined</h3>
+    <h3><i class="glyphicon glyphicon-warning-sign text-yellow"></i>Event <b>'{$sEvent}'</b> not defined</h3>
     <p>
       We could not find the page you were looking for. 
       Meanwhile, you may <a href='/admin/'>return to dashboard</a> or try using the search form.

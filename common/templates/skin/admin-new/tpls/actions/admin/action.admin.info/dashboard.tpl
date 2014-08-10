@@ -2,8 +2,8 @@
 {block name="content-bar"}
 <div class="col-md-12">
   <a href="#" class="btn btn-primary pull-right" onclick="ls.dashboard.showAddForm(); return false;"
-    title="{$aLang.action.admin.user_field_add}"><i class="ion-plus-round"></i></a>
-  <ul class="nav nav-tabs atlass">
+    title="{$aLang.action.admin.user_field_add}"><i class="glyphicon glyphicon-plus"></i></a>
+  <ul class="nav nav-pills atlass">
     <li class=" {if $sMenuItem=='index'}active{/if}">
       <a href="{router page='admin'}info-dashboard/">
       {$aLang.action.admin.dashboard_main}
@@ -20,8 +20,8 @@
   <div class="panel panel-default">
     <div class="panel-heading">
       <div class="tools pull-right">
-        <button type="button" class="btn btn-primary btn-sm pull-right" data-toggle="tooltip" title data-original-title="{$aLang.action.admin.delete}" onclick="return ls.dashboard.updatesOff();"><i class="ion-android-close"></i></button>
-        <button style="margin-right: 5px;" class="btn btn-primary btn-sm pull-right" data-widget="collapse" data-toggle="tooltip" title data-original-title="{$aLang.action.admin.collapse}"><i class="ion-minus"></i></button>
+        <button type="button" class="btn btn-primary btn-sm pull-right" data-toggle="tooltip" title data-original-title="{$aLang.action.admin.delete}" onclick="return ls.dashboard.updatesOff();"><i class="glyphicon glyphicon-remove"></i></button>
+        <button style="margin-right: 5px;" class="btn btn-primary btn-sm pull-right" data-widget="collapse" data-toggle="tooltip" title data-original-title="{$aLang.action.admin.collapse}"><i class="glyphicon glyphicon-minus"></i></button>
       </div>
       <h3 class="panel-title">{$aLang.action.admin.dashboard_updates_title}</h3>
     </div>
@@ -35,8 +35,8 @@
   <div class="panel panel-default">
     <div class="panel-heading">
       <div class="tools pull-right">
-        <button type="button" class="btn btn-primary btn-sm pull-right" data-toggle="tooltip" title data-original-title="{$aLang.action.admin.delete}" onclick="return ls.dashboard.newsOff();"><i class="ion-android-close"></i></button>
-        <button style="margin-right: 5px;" class="btn btn-primary btn-sm pull-right" data-widget="collapse" data-toggle="tooltip" title data-original-title="{$aLang.action.admin.collapse}"><i class="ion-minus"></i></button>
+        <button type="button" class="btn btn-primary btn-sm pull-right" data-toggle="tooltip" title data-original-title="{$aLang.action.admin.delete}" onclick="return ls.dashboard.newsOff();"><i class="glyphicon glyphicon-remove"></i></button>
+        <button style="margin-right: 5px;" class="btn btn-primary btn-sm pull-right" data-widget="collapse" data-toggle="tooltip" title data-original-title="{$aLang.action.admin.collapse}"><i class="glyphicon glyphicon-minus"></i></button>
       </div>
       <h3 class="panel-title">{$aLang.action.admin.dashboard_news_title}</h3>
     </div>

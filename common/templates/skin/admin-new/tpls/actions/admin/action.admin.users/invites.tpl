@@ -3,7 +3,7 @@
 <div class="col-md-12">
   <ul class="nav nav-tabs">
     <li class="nav-tabs-add">
-      <a href="{router page='admin'}users-invites/new/"><i class="ion-plus-round"></i></a>
+      <a href="{router page='admin'}users-invites/new/"><i class="glyphicon glyphicon-plus"></i></a>
     </li>
     <li {if $sMode=='list' || $sMode==''}class="active"{/if}>
     <a href="{router page='admin'}users-invites/list/">All invites <span class="badge">{$iCount}</span></a>

@@ -1,8 +1,8 @@
 {extends file='_index.tpl'}
 {block name="content-bar"}
 <div class="col-md-12">
-  <a href="#" class="btn btn-primary pull-right disabled"><i class="ion-plus-round"></i></a>
-  <ul class="nav nav-tabs atlass">
+  <a href="#" class="btn btn-primary pull-right disabled"><i class="glyphicon glyphicon-plus"></i></a>
+  <ul class="nav nav-pills atlass">
     <li class="{if $sMode=='ids'}active{/if}">
       <a href="{router page='admin'}users-banlist/ids/">
       {$aLang.action.admin.banlist_ids}
@@ -30,7 +30,7 @@
 <div class="col-md-3">
   {block name="content-body-sidebar"}
   <div class="panel panel-default">
-    <div class="panel-body">
+    <div class="panel-heading">
       <button class="btn-block btn left btn-primary" data-target="#admin_user_ban" data-toggle="collapse"
         data-parent="#user-comands-switch">
       {if $aFilter}<i class="icon icon-filter icon-green pull-right"></i>{/if}
@@ -38,7 +38,7 @@
       {$aLang.action.admin.banlist_add}
       </button>
     </div>
-    <div class="panel-body">
+    <div class="panel-heading no-padding noborder">
     <div class="collapse collapse-save" id="admin_user_ban">
       <form method="post" action="" class="well-well-small">
         <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>

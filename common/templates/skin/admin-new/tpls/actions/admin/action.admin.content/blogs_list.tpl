@@ -1,8 +1,8 @@
 {extends file='./blogs.tpl'}
 {block name="content-bar"}
 <div class="col-md-12">
-  <a href="#" class="btn btn-primary pull-right"><i class="ion-plus-round"></i></a>
-  <ul class="nav nav-tabs atlass">
+  <a href="#" class="btn btn-primary pull-right"><i class="glyphicon glyphicon-plus"></i></a>
+  <ul class="nav nav-pills atlass">
     <li class="{if $sMode=='all' || $sMode==''}active{/if}">
       <a href="{router page='admin'}content-blogs/list/">
       {$aLang.action.admin.blogs_all_types} <span class="label label-primary">{$nBlogsTotal}</span>

@@ -7,11 +7,11 @@
     {if $aPhpInfo.count}
         {foreach from=$aPhpInfo.collection key=sSectionKey item=aSectionVal name=sec}
         {$section=$smarty.foreach.sec.iteration}
-        <div class="panel phpinfo">
-            <div class="panel-heading">
+        <div class="panel panel-default">
+            <div class="panel-heading noborder">
                     <div class="tools pull-right">
                         <button class="btn btn-primary btn-xs btn-toggle" data-toggle="collapse" data-target="#section_{$section}">
-                            <i class="ion-plus-round"></i>
+                            <i class="glyphicon glyphicon-plus"></i>
                         </button>
                     </div>
                 <h3 class="panel-title">{$sSectionKey}</h3>
