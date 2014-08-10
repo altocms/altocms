@@ -33,6 +33,11 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
         'comments/comment.single.tpl' => 'comment.tpl',
     );
 
+    protected $aTemplatesAutocreate = array(
+        'header.tpl',
+        'footer.tpl',
+    );
+
     protected $aAdaptedSkins = array('fortune', 'crisp');
 
     /**
@@ -283,11 +288,24 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
         }
     }
 
+    /**
+     * @param string $sType
+     * @param string $sName
+     * @param string $sContent
+     * @param int    $iTimestamp
+     * @param object $oSmarty
+     *
+     * @return string|void
+     */
     public function SmartyDefaultTemplateHandler($sType, $sName, &$sContent, &$iTimestamp, $oSmarty) {
 
         $sResult = parent::SmartyDefaultTemplateHandler($sType, $sName, $sContent, $iTimestamp, $oSmarty);
         if (!$sResult) {
             if ($sType == 'file') {
+                if (in_array($sName, $this->aTemplatesAutocreate)) {
+                    return $this->_autocreateOldTemplate($sName);
+                }
+
                 if ((strpos($sName, 'widgets/widget.') === 0)) {
                     $sFile = Config::Get('path.smarty.template') . str_replace('widgets/widget.', 'blocks/block.', $sName);
                     if (F::File_Exists($sFile)) {
@@ -368,6 +386,84 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
             }
         }
         return $sResult;
+    }
+
+    /**
+     * @param string $sTplName
+     *
+     * @return string|bool
+     */
+    protected function _autocreateOldTemplate($sTplName) {
+
+        $sOldTemplatesDir = $this->_getAutocreateOldTemplatesDir();
+        if ($sFile = F::File_Exists($sTplName, $sOldTemplatesDir)) {
+            return $sFile;
+        }
+
+        $aSourceTemplatesDir = array(Config::Get('path.skin.dir') . '/themes/default/layouts');
+        if ($sTplName == 'header.tpl' || $sTplName == 'footer.tpl') {
+            if ($sSourceFile = F::File_Exists('default.tpl', $aSourceTemplatesDir)) {
+                $sSource = F::File_GetContents($sSourceFile);
+                $sStr1 = "{hook run='content_begin'}";
+                $sStr2 = "{hook run='content_end'}";
+                if (stripos($sSource, '<!DOCTYPE') !== false) {
+                    $iPos1 = stripos($sSource, $sStr1);
+                    $iPos2 = stripos($sSource, $sStr2);
+                    $sHeaderSrc = $this->_clearUnclosedBlocks(substr($sSource, 0, $iPos1 + strlen($sStr1)));
+                    $sFooterSrc = $this->_clearUnclosedBlocks(substr($sSource, $iPos2));
+                    F::File_PutContents($sOldTemplatesDir . 'header.tpl', $sHeaderSrc);
+                    F::File_PutContents($sOldTemplatesDir . 'footer.tpl', $sFooterSrc);
+                }
+
+            }
+        }
+        if ($sFile = F::File_Exists($sTplName, $sOldTemplatesDir)) {
+            return $sFile;
+        }
+        return false;
+    }
+
+    protected function _clearUnclosedBlocks($sSource) {
+
+        if (preg_match_all('/{block\s+[^}]+}|{\/block}/siu', $sSource, $aM, PREG_OFFSET_CAPTURE)) {
+            $iOffset = 0;
+            $aOpenBlocks = array();
+            $aCloseBlocks = array();
+            foreach($aM[0] as $aBlockTag) {
+                if (strpos($aBlockTag[0], '/block')) {
+                    // close tag
+                    if (count($aOpenBlocks)) {
+                        array_pop($aOpenBlocks);
+                    } else {
+                        $aBlockTag['len'] = strlen($aBlockTag[0]);
+                        $aCloseBlocks[] = $aBlockTag;
+                    }
+                } else {
+                    // open tag
+                    $aBlockTag['len'] = strlen($aBlockTag[0]);
+                    $aOpenBlocks[] = $aBlockTag;
+                }
+            }
+            foreach ($aOpenBlocks as $aBlockTag) {
+                $sSource = substr_replace($sSource, '', $aBlockTag[1] + $iOffset, $aBlockTag['len']);
+                $iOffset -= strlen($aBlockTag[0]);
+            }
+            foreach ($aCloseBlocks as $aBlockTag) {
+                $sSource = substr_replace($sSource, '', $aBlockTag[1] + $iOffset, $aBlockTag['len']);
+                $iOffset -= strlen($aBlockTag[0]);
+            }
+        }
+        return $sSource;
+    }
+
+    protected function _getAutocreateOldTemplatesDir() {
+
+        $sSubdir = '/ls-src/';
+        $sDir = str_replace('/compiled/', $sSubdir, $this->oSmarty->getCompileDir());
+        if (!strpos($sDir, $sSubdir)) {
+            $sDir .= $sSubdir;
+        }
+        return $sDir;
     }
 
     public function TemplateFormAddTopic() {
