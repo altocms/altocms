@@ -50,7 +50,7 @@ class ModuleImg extends Module {
     /**
      * Info about driver's version
      *
-     * @param $sDriver
+     * @param string $sDriver
      *
      * @return bool
      */
@@ -92,7 +92,7 @@ class ModuleImg extends Module {
     /**
      * Returns driver name by key
      *
-     * @param null $sConfigKey
+     * @param string $sConfigKey
      *
      * @return string
      */
@@ -116,6 +116,9 @@ class ModuleImg extends Module {
         return $this->sDefaultDriver;
     }
 
+    /**
+     * @param string $sConfigKey
+     */
     public function SetConfig($sConfigKey) {
 
         if (Config::Get('module.image.preset.' . $sConfigKey)) {
@@ -123,20 +126,33 @@ class ModuleImg extends Module {
         }
     }
 
+    /**
+     * @return string
+     */
     public function GetConfigKey() {
 
         return $this->sConfig;
     }
 
+    /**
+     * @param string $sConfigKey
+     *
+     * @return array
+     */
     public function LoadParams($sConfigKey) {
 
         $aParams = Config::Get('module.image.preset.default');
         if ($sConfigKey != 'default') {
             $aParams = F::Array_Merge($aParams, Config::Get('module.image.preset.' . $sConfigKey));
         }
-        return $aParams;
+        return new DataArray($aParams);
     }
 
+    /**
+     * @param string $sConfigKey
+     *
+     * @return array
+     */
     public function GetParams($sConfigKey = null) {
 
         if (!$sConfigKey) {
@@ -156,23 +172,25 @@ class ModuleImg extends Module {
     /**
      * Creates image
      *
-     * @param int        $nWidth
-     * @param int        $nHeight
+     * @param int        $iWidth
+     * @param int        $iHeight
      * @param int|string $sColor
-     * @param int        $nOpacity
+     * @param float      $fOpacity
      *
      * @return ModuleImg_EntityImage
      */
-    public function Create($nWidth, $nHeight, $sColor = 0xffffff, $nOpacity = 0) {
+    public function Create($iWidth, $iHeight, $sColor = 0xffffff, $fOpacity = 0.0) {
 
         $aParams = array(
-            'width' => $nWidth,
-            'height' => $nHeight,
+            'width' => $iWidth,
+            'height' => $iHeight,
             'color' => $sColor,
-            'opacity' => $nOpacity,
+            'opacity' => $fOpacity,
         );
+
+        /** @var ModuleImg_EntityImage $oImage */
         $oImage  = Engine::GetEntity('Img_Image', $aParams);
-        return $oImage->Create($nWidth, $nHeight, $sColor, $nOpacity);
+        return $oImage->Create($iWidth, $iHeight, $sColor, $fOpacity);
     }
 
     /**
@@ -189,6 +207,8 @@ class ModuleImg extends Module {
             $sConfigKey = $this->GetConfigKey();
         }
         $aParams = $this->GetParams($sConfigKey);
+
+        /** @var ModuleImg_EntityImage $oImage */
         $oImage  = Engine::GetEntity('Img_Image', $aParams);
         $oImage->Read($sFile, $sConfigKey);
         return $oImage;
@@ -196,15 +216,15 @@ class ModuleImg extends Module {
 
     /**
      * @param string|object $xImage
-     * @param null          $nWidth
-     * @param null          $nHeight
-     * @param bool          $bFit     - вписывать новое изображение в заданные рамки
+     * @param int           $iWidth
+     * @param int           $iHeight
+     * @param bool          $bFit - вписывать новое изображение в заданные рамки
      *
      * @return ModuleImg_EntityImage
      */
-    public function Resize($xImage, $nWidth = null, $nHeight = null, $bFit = true) {
+    public function Resize($xImage, $iWidth = null, $iHeight = null, $bFit = true) {
 
-        if (!$xImage || (!$nWidth && !$nHeight)) {
+        if (!$xImage || (!$iWidth && !$iHeight)) {
             return false;
         }
         if (!is_object($xImage)) {
@@ -212,21 +232,21 @@ class ModuleImg extends Module {
         } else {
             $oImg = $xImage;
         }
-        return $oImg->Resize($nWidth, $nHeight, $bFit);
+        return $oImg->Resize($iWidth, $iHeight, $bFit);
     }
 
     /**
      * Crop image
      *
      * @param string|object $xImage
-     * @param int           $nWidth
-     * @param int           $nHeight
-     * @param int           $nPosX
-     * @param int           $nPosY
+     * @param int           $iWidth
+     * @param int           $iHeight
+     * @param int           $iPosX
+     * @param int           $iPosY
      *
      * @return bool|ModuleImg_EntityImage|object
      */
-    public function Crop($xImage, $nWidth, $nHeight = null, $nPosX = null, $nPosY = null) {
+    public function Crop($xImage, $iWidth, $iHeight = null, $iPosX = null, $iPosY = null) {
 
         if (!$xImage) {
             return false;
@@ -239,23 +259,23 @@ class ModuleImg extends Module {
         $nW = $oImg->getWidth();
         $nH = $oImg->getHeight();
 
-        if (!$nHeight) {
-            $nHeight = $nWidth;
+        if (!$iHeight) {
+            $iHeight = $iWidth;
         }
 
-        if ($nW < $nWidth) {
-            $nWidth = $nW;
+        if ($nW < $iWidth) {
+            $iWidth = $nW;
         }
 
-        if ($nH < $nHeight) {
-            $nHeight = $nH;
+        if ($nH < $iHeight) {
+            $iHeight = $nH;
         }
 
-        if ($nHeight == $nH && $nWidth == $nW) {
+        if ($iHeight == $nH && $iWidth == $nW) {
             return $oImg;
         }
 
-        $oImg->Crop($nWidth, $nHeight, $nPosX, $nPosY);
+        $oImg->Crop($iWidth, $iHeight, $iPosX, $iPosY);
 
         return $oImg;
     }
@@ -264,12 +284,12 @@ class ModuleImg extends Module {
      * Crop image from center
      *
      * @param string|object $xImage
-     * @param int           $nWidth
-     * @param int           $nHeight
+     * @param int           $iWidth
+     * @param int           $iHeight
      *
-     * @return bool|ModuleImg_EntityImage|object
+     * @return bool|ModuleImg_EntityImage
      */
-    public function CropCenter($xImage, $nWidth, $nHeight = null) {
+    public function CropCenter($xImage, $iWidth, $iHeight = null) {
 
         if (!$xImage) {
             return false;
@@ -282,23 +302,23 @@ class ModuleImg extends Module {
         $nW = $oImg->getWidth();
         $nH = $oImg->getHeight();
 
-        if (!$nHeight) {
-            $nHeight = $nWidth;
+        if (!$iHeight) {
+            $iHeight = $iWidth;
         }
 
-        if ($nW < $nWidth) {
-            $nWidth = $nW;
+        if ($nW < $iWidth) {
+            $iWidth = $nW;
         }
 
-        if ($nH < $nHeight) {
-            $nHeight = $nH;
+        if ($nH < $iHeight) {
+            $iHeight = $nH;
         }
 
-        if ($nHeight == $nH && $nWidth == $nW) {
+        if ($iHeight == $nH && $iWidth == $nW) {
             return $oImg;
         }
 
-        $oImg->Crop($nWidth, $nHeight, round(($nW - $nWidth) / 2), round(($nH - $nHeight) / 2));
+        $oImg->Crop($iWidth, $iHeight, round(($nW - $iWidth) / 2), round(($nH - $iHeight) / 2));
 
         return $oImg;
     }
@@ -343,13 +363,13 @@ class ModuleImg extends Module {
      * Вырезает максимально возможный прямоугольный в нужной пропорции
      *
      * @param string|object $xImage    - Объект изображения
-     * @param int           $nW        - Ширина для определения пропорции
-     * @param int           $nH        - Высота для определения пропорции
+     * @param int           $iW        - Ширина для определения пропорции
+     * @param int           $iH        - Высота для определения пропорции
      * @param bool          $bCenter   - Вырезать из центра
      *
      * @return object
      */
-    public function CropProportion($xImage, $nW, $nH, $bCenter = true) {
+    public function CropProportion($xImage, $iW, $iH, $bCenter = true) {
 
         if (!$xImage ) {
             return false;
@@ -363,7 +383,7 @@ class ModuleImg extends Module {
         $nHeight = $oImg->getHeight();
 
         // * Если высота и ширина уже в нужных пропорциях, то возвращаем изначальный вариант
-        $nProp = round($nW / $nH, 2);
+        $nProp = round($iW / $iH, 2);
         if (round($nWidth / $nHeight, 2) == $nProp) {
             return $oImg;
         }
@@ -388,6 +408,39 @@ class ModuleImg extends Module {
     }
 
     /**
+     * @param string|object $xImage
+     * @param int           $iCoordX
+     * @param int           $iCoordY
+     * @param string|object $xWatermark
+     * @param bool          $bTopLeft
+     *
+     * @return object
+     */
+    public function WatermarkImg($xImage, $iCoordX, $iCoordY, $xWatermark, $bTopLeft = true) {
+
+        if (!$xImage ) {
+            return false;
+        }
+        if (!is_object($xImage)) {
+            $oImg = $this->Read($xImage);
+        } else {
+            $oImg = $xImage;
+        }
+        if (!is_object($xWatermark)) {
+            $oImgMark = $this->Read($xWatermark);
+        } else {
+            $oImgMark = $xWatermark;
+        }
+        if (!$bTopLeft) {
+            $iCoordX = $oImg->GetWidth() - $oImgMark->GetWidth() - $iCoordX;
+            $iCoordY = $oImg->GetHeight() - $oImgMark->GetHeight() - $iCoordY;
+        }
+        $oImg->Overdraw($oImgMark, $iCoordX, $iCoordY);
+
+        return $oImg;
+    }
+
+    /**
      * Duplicates image file with other sizes
      *
      * @param $sFile
@@ -399,46 +452,44 @@ class ModuleImg extends Module {
         $this->nError = 0;
         $sOriginal = $this->OriginalFile($sFile, $aOptions);
         if ($aOptions) {
-            if (!F::File_Exists($sOriginal)) {
-                return false;
-            }
-            $nW = $aOptions['width'];
-            $nH = $aOptions['height'];
-            $sModifier = $aOptions['mod'];
-            if ($sModifier == 'fit') {
-                $sResultFile = $this->Copy($sOriginal, $sFile, $nW, $nH, true);
-            } elseif ($sModifier == 'pad') {
-                $sResultFile = $this->Copy($sOriginal, $sFile, $nW, $nH, false);
-            } elseif ($sModifier == 'crop') {
-                if ($oImg = $this->Resize($sOriginal, $nW, $nH, false)) {
-                    $oImg = $this->CropCenter($oImg, $nW, $nH);
-                    $sResultFile = $oImg->Save($sFile);
-                }
-            } else {
-                $oImg = $this->Resize($sOriginal, $nW, $nH, true);
-                // real size can differ from request size, so we need change canvas size
-                $nDX = ($nW ? $nW - $oImg->GetWidth() : 0);
-                $nDY = ($nH ? $nH - $oImg->GetHeight() : 0);
-                if ($nDX < 0 || $nDY < 0) {
-                    $oImg = $this->CropCenter($oImg, $oImg->GetWidth() + $nDX, $oImg->GetHeight() + $nDY);
+            $sResultFile = false;
+            if (F::File_Exists($sOriginal)) {
+                $nW = $aOptions['width'];
+                $nH = $aOptions['height'];
+                $sModifier = $aOptions['mod'];
+                if ($sModifier == 'fit') {
+                    $sResultFile = $this->Copy($sOriginal, $sFile, $nW, $nH, true);
+                } elseif ($sModifier == 'pad') {
+                    $sResultFile = $this->Copy($sOriginal, $sFile, $nW, $nH, false);
+                } elseif ($sModifier == 'crop') {
+                    if ($oImg = $this->Resize($sOriginal, $nW, $nH, false)) {
+                        $oImg = $this->CropCenter($oImg, $nW, $nH);
+                        $sResultFile = $oImg->Save($sFile);
+                    }
+                } else {
+                    $oImg = $this->Resize($sOriginal, $nW, $nH, true);
+                    // real size can differ from request size, so we need change canvas size
                     $nDX = ($nW ? $nW - $oImg->GetWidth() : 0);
                     $nDY = ($nH ? $nH - $oImg->GetHeight() : 0);
-                }
-                if ($nDX || $nDY) {
-                    $oImg->CanvasSize($nW, $nH);
-                    $sResultFile = $oImg->Save($sFile);
-                } else {
-                    $sResultFile = $oImg->Save($sFile);
+                    if ($nDX < 0 || $nDY < 0) {
+                        $oImg = $this->CropCenter($oImg, $oImg->GetWidth() + $nDX, $oImg->GetHeight() + $nDY);
+                        $nDX = ($nW ? $nW - $oImg->GetWidth() : 0);
+                        $nDY = ($nH ? $nH - $oImg->GetHeight() : 0);
+                    }
+                    if ($nDX || $nDY) {
+                        $oImg->CanvasSize($nW, $nH);
+                        $sResultFile = $oImg->Save($sFile);
+                    } else {
+                        $sResultFile = $oImg->Save($sFile);
+                    }
                 }
             }
             return $sResultFile;
         }
-        if (!F::File_Exists($sFile)) {
-            return false;
-        }
-        if (!$this->nError) {
+        if (F::File_Exists($sFile) && !$this->nError) {
             return $sFile;
         }
+        return false;
     }
 
     /**
@@ -446,26 +497,27 @@ class ModuleImg extends Module {
      *
      * @param string $sFile        - full path of source image file
      * @param string $sDestination - full path or newname only
-     * @param int    $nWidth       - new width
-     * @param int    $nHeight      - new height
+     * @param int    $iWidth       - new width
+     * @param int    $iHeight      - new height
      * @param bool   $bFit         - to fit image's sizes into new sizes
      *
      * @return string|bool
      */
-    public function Copy($sFile, $sDestination, $nWidth = null, $nHeight = null, $bFit = true) {
+    public function Copy($sFile, $sDestination, $iWidth = null, $iHeight = null, $bFit = true) {
 
         if (basename($sDestination) == $sDestination) {
             $sDestination = dirname($sFile) . '/' . $sDestination;
         }
         try {
             if (F::File_Exists($sFile) && ($oImg = $this->Read($sFile))) {
-                $oImg->Resize($nWidth, $nHeight, $bFit);
+                $oImg->Resize($iWidth, $iHeight, $bFit);
                 $oImg->Save($sDestination);
                 return $sDestination;
             }
         } catch(ErrorException $oE) {
             $this->nError = -1;
         }
+        return false;
     }
 
     /**
@@ -473,42 +525,44 @@ class ModuleImg extends Module {
      *
      * @param string $sFile        - full path of source image file
      * @param string $sDestination - full path or newname only
-     * @param int    $nWidth       - new width
-     * @param int    $nHeight      - new height
+     * @param int    $iWidth       - new width
+     * @param int    $iHeight      - new height
      * @param bool   $bFit         - to fit image's sizes into new sizes
      *
      * @return string|bool
      */
-    public function Rename($sFile, $sDestination, $nWidth = null, $nHeight = null, $bFit = true) {
+    public function Rename($sFile, $sDestination, $iWidth = null, $iHeight = null, $bFit = true) {
 
-        if ($sDestination = $this->Copy($sFile, $sDestination, $nWidth, $nHeight, $bFit)) {
+        if ($sDestination = $this->Copy($sFile, $sDestination, $iWidth, $iHeight, $bFit)) {
             F::File_Delete($sFile);
             return $sDestination;
         }
+        return false;
     }
 
     /**
      * Set new image's sises and save to source file
      *
      * @param string $sFile        - full path of source image file
-     * @param int    $nWidth       - new width
-     * @param int    $nHeight      - new height
+     * @param int    $iWidth       - new width
+     * @param int    $iHeight      - new height
      * @param bool   $bFit         - to fit image's sizes into new sizes
      *
      * @return string|bool
      */
-    public function ResizeFile($sFile, $nWidth = null, $nHeight = null, $bFit = true) {
+    public function ResizeFile($sFile, $iWidth = null, $iHeight = null, $bFit = true) {
 
-        if ($sDestination = $this->Copy($sFile, basename($sFile), $nWidth, $nHeight, $bFit)) {
+        if ($sDestination = $this->Copy($sFile, basename($sFile), $iWidth, $iHeight, $bFit)) {
             return $sDestination;
         }
+        return false;
     }
 
     /**
      * Renders image from file to browser
      *
-     * @param $sFile
-     * @param $sImageFormat
+     * @param string $sFile
+     * @param string $sImageFormat
      *
      * @return bool
      */
@@ -524,6 +578,7 @@ class ModuleImg extends Module {
             $oImg->Render($sImageFormat);
             return true;
         }
+        return false;
     }
 
     /**
@@ -535,7 +590,7 @@ class ModuleImg extends Module {
      *
      * @return bool
      */
-    public function TransformFile($sFile, $sPreset, $aOptions = array()) {
+    public function TransformFile($sFile, $sPreset = 'default', $aOptions = array()) {
 
         if (is_array($sPreset)) {
             $aOptions = $sPreset;
@@ -555,10 +610,25 @@ class ModuleImg extends Module {
         $bResult = false;
 
         if ($oImg = $this->Read($sFile)) {
-            $nW = (isset($aParams['size']['width']) ? $aParams['size']['width'] : null);
-            $nH = (isset($aParams['size']['height']) ? $aParams['size']['height'] : null);
-            if (($nW && $nW < $oImg->GetWidth()) || ($nH && $nH < $oImg->GetHeight())) {
-                $oImg->Resize($nW, $nH, true);
+            $bChanged = false;
+            $iW = $aParams['size.width'];
+            $iH = $aParams['size.height'];
+            if (($iW && $iW < $oImg->GetWidth()) || ($iH && $iH < $oImg->GetHeight())) {
+                $oImg->Resize($iW, $iH, true);
+                $bChanged = true;
+            }
+            if ($aParams['watermark.enable'] && $aParams['watermark.image']) {
+                $sMarkImg = F::File_Exists($aParams['watermark.image.file'], $aParams['watermark.image.path']);
+                $bTopLeft = (bool)$aParams['watermark.image.topleft'];
+                if ($aParams['watermark.image.position']) {
+                    list($iCoordX, $iCoordY) = explode(',', $aParams['watermark.image.position']);
+                } else {
+                    $iCoordX = $iCoordY = 0;
+                }
+                $oImg = $this->WatermarkImg($oImg, $iCoordX, $iCoordY, $sMarkImg, $bTopLeft);
+                $bChanged = true;
+            }
+            if ($bChanged) {
                 $oImg->Save($sFile);
             }
             $bResult = true;
@@ -573,7 +643,7 @@ class ModuleImg extends Module {
     /**
      * Delete image file and its duplicates
      *
-     * @param $sFile
+     * @param string $sFile
      *
      * @return bool
      */
@@ -582,11 +652,22 @@ class ModuleImg extends Module {
         return F::File_Delete($sFile) && $this->DeleteDuplicates($sFile);
     }
 
+    /**
+     * @param string $sFile
+     *
+     * @return bool
+     */
     public function DeleteDuplicates($sFile) {
 
         return F::File_DeleteAs($sFile . '-*.*');
     }
 
+    /**
+     * @param string $sFile
+     * @param array  $aOptions
+     *
+     * @return string
+     */
     public function OriginalFile($sFile, &$aOptions) {
 
         if (preg_match('~^(.+)-(\d*x\d+)(\-([a-z]+))?\.[a-z]+$~i', $sFile, $aMatches)) {
@@ -608,8 +689,8 @@ class ModuleImg extends Module {
     /**
      * Возвращает валидный Html код тега <img>
      *
-     * @param $sUrl
-     * @param $aParams
+     * @param string $sUrl
+     * @param array  $aParams
      *
      * @return string
      */
@@ -645,9 +726,9 @@ class ModuleImg extends Module {
     /**
      * Returns mime type for images only
      *
-     * @param $sFile
+     * @param string $sFile
      *
-     * @return mixed
+     * @return string|null
      */
     static public function MimeType($sFile) {
 
@@ -655,26 +736,27 @@ class ModuleImg extends Module {
         if (strpos($sMimeType, 'image/') === 0) {
             return $sMimeType;
         }
+        return null;
     }
 
     /**
      * Makes new avatar or profile photo from skin default image
      *
-     * @param $sFile
-     * @param $sPrefix
-     * @param $nSize
+     * @param string $sFile
+     * @param string $sPrefix
+     * @param int    $iSize
      *
      * @return string|bool
      */
-    public function AutoresizeSkinImage($sFile, $sPrefix, $nSize) {
+    public function AutoresizeSkinImage($sFile, $sPrefix, $iSize) {
 
-        $sImageFile = $this->_getDefaultSkinImage($sFile, $sPrefix, $nSize);
+        $sImageFile = $this->_getDefaultSkinImage($sFile, $sPrefix, $iSize);
         if ($sImageFile) {
-            if ($nSize) {
-                $oImg = $this->Resize($sImageFile, $nSize, $nSize);
+            if ($iSize) {
+                $oImg = $this->Resize($sImageFile, $iSize, $iSize);
                 $xResult = $oImg->SaveUpload($sFile);
             } else {
-                $this->Copy($sImageFile, $sFile);
+                $xResult = $this->Copy($sImageFile, $sFile);
             }
         } else {
             // Файла нет, создаем пустышку, чтоб в дальнейшем не было пустых запросов
@@ -688,13 +770,13 @@ class ModuleImg extends Module {
     /**
      * Gets default avatar or profile photo for the skin
      *
-     * @param $sFile
-     * @param $sPrefix
-     * @param $nSize
+     * @param string $sFile
+     * @param string $sPrefix
+     * @param int    $iSize
      *
      * @return bool|string
      */
-    protected function _getDefaultSkinImage($sFile, $sPrefix, $nSize) {
+    protected function _getDefaultSkinImage($sFile, $sPrefix, $iSize) {
 
         $sImageFile = '';
         $sName = basename($sFile);
@@ -716,11 +798,11 @@ class ModuleImg extends Module {
 
                 // Если задан тип male/female, то ищем сначала с ним
                 if ($sType) {
-                    $sImageFile = $this->_seekDefaultSkinImage($sPath, $sPrefix . '_' . $sType, $nSize);
+                    $sImageFile = $this->_seekDefaultSkinImage($sPath, $sPrefix . '_' . $sType, $iSize);
                 }
                 // Если аватар не найден
                 if (!$sImageFile) {
-                    $sImageFile = $this->_seekDefaultSkinImage($sPath, $sPrefix, $nSize);
+                    $sImageFile = $this->_seekDefaultSkinImage($sPath, $sPrefix, $iSize);
                 }
             }
         }
@@ -730,13 +812,13 @@ class ModuleImg extends Module {
     /**
      * Seeks default avatar or profile photo in the skin's image area
      *
-     * @param $sPath
-     * @param $sName
-     * @param $nSize
+     * @param string $sPath
+     * @param string $sName
+     * @param int    $iSize
      *
      * @return bool|string
      */
-    protected function _seekDefaultSkinImage($sPath, $sName, $nSize) {
+    protected function _seekDefaultSkinImage($sPath, $sName, $iSize) {
 
         $sImageFile = '';
         if ($aFiles = glob($sPath . $sName . '.*')) {
@@ -755,8 +837,8 @@ class ModuleImg extends Module {
             }
             ksort($aFoundFiles);
             $sImageFile = reset($aFoundFiles);
-            while (list($nImgSize, $sImgFile) = each($aFoundFiles)) {
-                if ($nImgSize >= $nSize) {
+            while (list($iImgSize, $sImgFile) = each($aFoundFiles)) {
+                if ($iImgSize >= $iSize) {
                     $sImageFile = $sImgFile;
                     break;
                 }
