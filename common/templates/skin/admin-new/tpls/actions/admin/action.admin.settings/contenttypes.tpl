@@ -3,7 +3,7 @@
 {if count($aTypes)>0}
 <div class="col-md-12 mb15">
 <a href="{router page='admin'}settings-contenttypesadd/" class="btn btn-primary"
-      title="{$aLang.action.admin.contenttypes_add}"><i class="ion-plus-round"></i></a>
+      title="{$aLang.action.admin.contenttypes_add}"><i class="glyphicon glyphicon-plus"></i></a>
 </div>
 {/if}
 {/block}

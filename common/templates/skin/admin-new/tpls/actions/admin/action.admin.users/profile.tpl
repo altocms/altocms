@@ -15,11 +15,11 @@
                   result += '<i class="icon icon-minus icon-red adm_vote_sign"></i>';
               } else {
                   result += '<input type="hidden" name="sign" value="1" />';
-                  result += '<i class="ion-plus-round icon-green adm_vote_sign"></i>';
+                  result += '<i class="glyphicon glyphicon-plus icon-green adm_vote_sign"></i>';
               }
               result += '<input type="text" name="value" value="' + Math.abs(value) + '" class="adm_vote_value" />';
               result += '<button class="btn btn-xs btn-danger pull-right cancel"><i class="ion-close"></i></button>';
-              result += '<button class="btn btn-xs btn-success pull-right confirm"><i class="ion-android-checkmark"></i></button>'
+              result += '<button class="btn btn-xs btn-success pull-right confirm"><i class="glyphicon glyphicon-ok"></i></button>'
               return result;
           },
           html: true,
@@ -55,7 +55,7 @@
 {assign var="oSession" value=$oUserProfile->getSession()}
 {assign var="oVote" value=$oUserProfile->getVote()}
 <div class="panel panel-default">
-  <div class="panel-body">
+  <div class="panel-body no-padding">
 
     <div class="col-md-6">
       <img src="{$oUserProfile->getAvatarUrl(100)}" alt="avatar"

@@ -2,8 +2,8 @@
 
 {block name="content-bar"}
 <div class="col-md-12">
-    <a href="{router page='admin'}users-invites/new/" class="btn btn-primary disabled pull-right"><i class="ion-plus-round"></i></a>
-  <ul class="nav nav-tabs atlass">
+    <a href="{router page='admin'}users-invites/new/" class="btn btn-primary disabled pull-right"><i class="glyphicon glyphicon-plus"></i></a>
+  <ul class="nav nav-pills atlass">
     <li class="{if $sMode=='all'}active{/if}">
         <a href="{router page='admin'}users-invites/all/">
             {$aLang.action.admin.invites_all} <span class="label label-primary">{$aCounts.all}</span>

@@ -2,8 +2,8 @@
 
 {block name="content-bar"}
 <div class="col-md-12">
-    <a href="#" class="btn btn-primary pull-right disabled"><i class="ion-plus-round"></i></a>
-<ul class="nav nav-tabs atlass">
+    <a href="#" class="btn btn-primary pull-right disabled"><i class="glyphicon glyphicon-plus"></i></a>
+<ul class="nav nav-pills atlass">
     <li class="{if $sMode=='base'}active{/if}">
         <a href="{router page='admin'}settings-site/base/">
             {$aLang.action.admin.settings_base}

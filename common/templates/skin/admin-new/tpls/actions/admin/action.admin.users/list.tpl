@@ -131,7 +131,7 @@
 <div id="user-win-iplist" class="popover right out">
     <div class="arrow"></div>
     <div class="popover-title">
-        <a href="#" class="close" data-dismiss="popover"><i class="ion-android-close"></i></a>
+        <a href="#" class="close" data-dismiss="popover"><i class="glyphicon glyphicon-remove"></i></a>
         {$aLang.action.admin.user_ip_addresses}
     </div>
     <div class="popover-content">

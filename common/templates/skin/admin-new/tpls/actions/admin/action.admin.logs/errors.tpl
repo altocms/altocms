@@ -6,7 +6,7 @@
       {if $aLogs}
       {foreach $aLogs as $aRec}
       <div class="alert alert-warning alert-dismissable">
-          <i class="fa fa-warning"></i>
+          <i class="glyphicon glyphicon-warning-sign"></i>
           <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
           <b>{$aRec.date}:</b>{$aRec.text}
       </div>

@@ -26,7 +26,7 @@
                   var label = $('#' + name + '_label');
                   return ''
                           + '<button class="btn btn-xs btn-danger pull-right popover-close"><i class="ion-close"></i></button>'
-                          + '<button class="btn btn-xs btn-success pull-right popover-save"><i class="ion-android-checkmark"></i></button>'
+                          + '<button class="btn btn-xs btn-success pull-right popover-save"><i class="glyphicon glyphicon-ok"></i></button>'
                           + (label.length ? label.text() : '');
               }
           });
@@ -98,7 +98,7 @@
 {assign var="oSession" value=$oUserProfile->getSession()}
 {assign var="oVote" value=$oUserProfile->getVote()}
 <div class="panel panel-default">
-  <div class="panel-heading">
+  <div class="panel-heading noborder">
     <div class="panel-title">{$oLang->profile_privat}</div>
   </div>
   <div class="panel-body no-padding">
@@ -181,7 +181,7 @@
   </div>
 </div>
 <div class="panel panel-default">
-  <div class="panel-heading">
+  <div class="panel-heading noborder">
     <div class="panel-title">{$oLang->profile_activity}</div>
   </div>
 <div class="panel-body no-padding">

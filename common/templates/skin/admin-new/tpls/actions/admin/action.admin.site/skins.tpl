@@ -1,7 +1,7 @@
 {extends file='_index.tpl'}
 {block name="content-bar"}
 <div class="col-md-12">
-  <ul class="nav nav-tabs atlass">
+  <ul class="nav nav-pills atlass">
     <li class="{if $sMode=='all'}active{/if}">
       <a href="{router page="admin"}{$sEvent}/all/">All</a>
     </li>
@@ -20,7 +20,7 @@
   <div class="panel panel-default">
     <div class="panel-heading">
       <div class="tools pull-right">
-        <button class="btn btn-primary btn-xs" title data-original-title="Skin for Site"><i class="ion-android-checkmark"></i></button>
+        <button class="btn btn-primary btn-xs" title data-original-title="Skin for Site"><i class="glyphicon glyphicon-ok"></i></button>
       </div>
       <h3 class="panel-title">
         {$oActiveSkin->GetName()}
@@ -68,8 +68,8 @@
   <div class="panel panel-default">
     <div class="panel-heading">
     <div class="pull-right tools">
-      <button class="btn btn-primary btn-xs" data-widget="collapse" data-toggle="tooltip" title="Collapse"><i class="fa fa-minus"></i></button>
-      <button class="btn btn-primary btn-xs" data-widget="remove" data-toggle="tooltip" title="Remove"><i class="fa fa-times"></i></button>
+      <button class="btn btn-primary btn-xs" data-widget="collapse" data-toggle="tooltip" title="Collapse"><i class="glyphicon glyphicon-minus"></i></button>
+      <button class="btn btn-primary btn-xs" data-widget="remove" data-toggle="tooltip" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
     </div>
       <h3 class="panel-title">{$aLang.action.admin.skin_settings} {$oActiveSkin->GetName()}</h3>
     </div>
@@ -111,11 +111,11 @@
     <div class="panel-heading">
       <div class="tools pull-right">
         {if $oSkin->GetType() == 'adminpanel'}
-        <button class="btn btn-primary btn-xs disabled"><i class="ion-gear-b"></i></button>
+        <button class="btn btn-primary btn-xs disabled"><i class="glyphicon glyphicon-cog"></i></button>
         {else}
         <button class="btn btn-primary btn-xs skin_select"
           title data-original-title="{$aLang.action.admin.activate}" id="skin-{$oSkin->GetId()}">
-        <i class="ion-android-checkmark"></i></button>
+        <i class="glyphicon glyphicon-ok"></i></button>
         {/if}
         {if $oSkin->GetType() == 'adminpanel'}
         {/if}
