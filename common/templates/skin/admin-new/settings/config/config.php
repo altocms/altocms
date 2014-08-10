@@ -19,16 +19,14 @@ $config['head']['default']['css'] = array(
 $config['head']['default']['js'] = array(
     '___path.skin.url___/assets/js/jquery-1.10.2.js',
     '___path.skin.url___/assets/js/jquery-ui.js',
-
     '___path.skin.url___/assets/js/bootstrap.min.js',
+    '___path.skin.url___/assets/js/menu-left/jquery.dcjqaccordion.2.6.min.js',
+    '___path.skin.url___/assets/js/plugins/formstyler/formstyler.js',
 
     '___path.skin.url___/assets/js/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js',
-    '___path.skin.url___/assets/js/plugins/formstyler/formstyler.js',
 
     '___path.skin.url___/assets/js/menu-left/jquery.cookie.js',
     '___path.skin.url___/assets/js/menu-left/jquery.hoverIntent.minified.js',
-    '___path.skin.url___/assets/js/menu-left/jquery.dcjqaccordion.2.6.min.js',
-    '___path.skin.url___/assets/js/sidebar.js',
 
     '___path.frontend.dir___/libs/js/engine/admin-userfield.js',
     '___path.skin.url___/assets/js/main.js',
