@@ -954,7 +954,7 @@ class ActionAjax extends Action {
 
         $oTopic->setTitle(strip_tags(F::GetRequestStr('topic_title')));
         $oTopic->setTextSource(F::GetRequestStr('topic_text'));
-        $oTopic->setTags(F::GetRequestStr('topic_tags'));
+        $oTopic->setTags(F::GetRequestStr('topic_field_tags'));
         $oTopic->setDateAdd(F::Now());
         $oTopic->setUserId($this->oUserCurrent->getId());
         $oTopic->setType($sType);
