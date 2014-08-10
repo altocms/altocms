@@ -398,46 +398,32 @@ $config['module']['notify']['dir']          = 'emails'; // Относитель�
 $config['module']['notify']['prefix']       = 'email.'; // Префикс шаблонов емэйлов
 
 // Модуль Image
-$config['module']['image']['default']['watermark_use']        = false;
-$config['module']['image']['default']['watermark_type']       = 'text';
-$config['module']['image']['default']['watermark_position']   = '0,24';
-$config['module']['image']['default']['watermark_text']       = '(c) Alto CMS';
-$config['module']['image']['default']['watermark_font']       = 'arial';
-$config['module']['image']['default']['watermark_font_color'] = '255,255,255';
-$config['module']['image']['default']['watermark_font_size']  = '10';
-$config['module']['image']['default']['watermark_font_alfa']  = '0';
-$config['module']['image']['default']['watermark_back_color'] = '0,0,0';
-$config['module']['image']['default']['watermark_back_alfa']  = '40';
-$config['module']['image']['default']['watermark_image']      = false;
-$config['module']['image']['default']['watermark_min_width']  = 200;
-$config['module']['image']['default']['watermark_min_height'] = 130;
-$config['module']['image']['default']['round_corner']         = false;
-$config['module']['image']['default']['round_corner_radius']  = '18';
-$config['module']['image']['default']['round_corner_rate']    = '40';
-$config['module']['image']['default']['path']['watermarks']   = '___path.dir.libs___/LiveImage/watermarks/';
-$config['module']['image']['default']['path']['fonts']        = '___path.dir.libs___/LiveImage/fonts/';
-$config['module']['image']['default']['jpg_quality']          = 95;  // Число от 0 до 100
-
-$config['module']['image']['foto']['watermark_use']  = false;
-$config['module']['image']['foto']['round_corner']   = false;
-
-$config['module']['image']['topic']['watermark_use']  = false;
-$config['module']['image']['topic']['round_corner']   = false;
 
 // Параметры для загружаемых изображений по умолчанию
 $config['module']['image']['preset']['default'] = array(
-    'driver' => 'Gmagick,Imagick,GD', // 'GD', 'Imagick' or 'Gmagick', or several libs separated by comma
-    'jpg_quality' => 70,
+    'driver' => 'Imagick,GD', // 'GD', 'Imagick' or 'Gmagick', or several libs separated by comma
+    'jpg_quality' => 80,
     'watermark' => array(
-        'use' => false,
-        'type' => 'text',
+        'enable' => false,
+        'image' => array(
+            'path' => '___path.static.dir___/___path.uploads.root___',
+            'file' => 'altocms.png',
+            'topleft' => false,
+            'position' => '0,0',
+        ),
     ),
     'size' => array(
-        'width' => 1200,
+        'width' => 700,
         'height' => 700,
     ),
 );
 $config['module']['image']['autoresize'] = true;
+
+// Нужно ли использовать водяной знак для изображений в топике
+$config['module']['image']['preset']['topic']['watermark']['enable']  = false;
+
+// Нужно ли использовать водяной знак для изображений в фотосете
+$config['module']['image']['preset']['photoset']['watermark']['enable']  = false;
 
 // Модуль Security
 $config['module']['security']['hash']  = 'alto_security_key'; // "примесь" к строке, хешируемой в качестве security-кода
@@ -468,28 +454,6 @@ $config['module']['topic']['photoset']['photo_max_size'] = 6*1024;  // макс�
 $config['module']['topic']['photoset']['count_photos_min'] = 2;     // минимальное количество фоток
 $config['module']['topic']['photoset']['count_photos_max'] = 30;    // максимальное количество фоток
 $config['module']['topic']['photoset']['per_page'] = 20;            // число фоток для одновременной загрузки
-$config['module']['topic']['photoset']['size'] = array(             // список размеров превью, которые необходимо делать при загрузке фото
-    array(
-        'w'    => 1000,
-        'h'    => null,
-        'crop' => false,
-    ),
-    array(
-        'w'    => 500,
-        'h'    => null,
-        'crop' => false,
-    ),
-    array(
-        'w'    => 100,
-        'h'    => 65,
-        'crop' => true,
-    ),
-    array(
-        'w'    => 50,
-        'h'    => 50,
-        'crop' => true,
-    )
-);
 
 // Какие модули должны быть загружены на старте
 $config['module']['_autoLoad_'] = array('Hook','Cache','Security','Session','User');
