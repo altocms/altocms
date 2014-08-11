@@ -12,12 +12,12 @@
 
 {literal}
 <script>
-    function select class="form-control"field(f) {
-        $('#select class="form-control"_inputval').hide();
-        $('#daoobj_select class="form-control"').hide();
+    function selectfield(f) {
+        $('#select_inputval').hide();
+        $('#daoobj_select').hide();
         //для типа выпадающий список
-        if (f == 'select class="form-control"') {
-            $('#select class="form-control"_inputval').show();
+        if (f == 'select') {
+            $('#select_inputval').show();
         }
     }
 

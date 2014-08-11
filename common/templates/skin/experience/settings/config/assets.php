@@ -38,12 +38,20 @@ $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/selecter/jqu
 $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/moment/moment.min.js";
 $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/moment/moment.lang.ru.min.js";
 $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/jasny/fileinput.min.js";
+$config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/editor.js";
 
 $config['head']['default']['css'] = array(
     '___path.skin.dir___/assets/css/style.min.css',
     '___path.frontend.dir___/libs/vendor/prettyphoto/css/prettyphoto.css',
     '___path.frontend.dir___/libs/vendor/jcrop/jquery.Jcrop.css',
     '___path.skin.dir___/themes/___view.theme___/css/custom.css',
+
+    /* tinyMCE */
+    '___path.skin.dir___/assets/css/tinymce.css'       => array(
+        'name'      => 'template-tinymce.css',
+        'prepare'   => true,
+        'merge'     => false,
+    ),
 );
 
 // EOF

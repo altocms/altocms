@@ -2,9 +2,10 @@
 ---------------------------------------------------- */
 
 body {
-    font-family: Verdana, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: Verdana, Helvetica, Arial, sans-serif;
     font-size: 12px;
-    line-height: 20pt;
+    line-height: 18px;
+    color: #333333;
 }
 img {
     max-width: 100%;

@@ -51,10 +51,11 @@
       <div class="table table-striped-responsive"><table class="table table-striped" id="sortable">
         <thead>
           <tr>
-            <th class="span4">{$aLang.action.admin.contenttypes_title}</th>
-            <th>{$aLang.action.admin.contenttypes_url}</th>
-            <th>{$aLang.action.admin.contenttypes_status}</th>
-            <th class="span2">{$aLang.action.admin.contenttypes_actions}</th>
+              <th class="span4">{$aLang.action.admin.contenttypes_title}</th>
+              <th>{$aLang.action.admin.contenttypes_url}</th>
+              <th>{$aLang.action.admin.contenttypes_fields_added}</th>
+              <th>{$aLang.action.admin.contenttypes_status}</th>
+              <th class="span2">{$aLang.action.admin.contenttypes_actions}</th>
           </tr>
         </thead>
         <tbody class="content">
@@ -67,6 +68,11 @@
             <td class="center">
               {$oContentType->getContentUrl()|escape:'html'}
             </td>
+              <td>
+              {foreach $oContentType->getFields() as $oField}
+                  {$oField->getFieldName()} ({$oField->getFieldType()}){if !$oField@last}<br/>{/if}
+              {/foreach}
+              </td>
             <td class="center">
               <span>
               {if $oContentType->getContentActive()}

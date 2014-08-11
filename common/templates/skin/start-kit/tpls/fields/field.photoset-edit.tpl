@@ -14,6 +14,7 @@
     <div class="panel-heading">
         <h5 class="panel-title">
             <a data-toggle="collapse" href="##topic-field-photoset">
+                <span class="glyphicon glyphicon-plus-sign"></span>
                 {$aLang.topic_toggle_images}
             </a>
         </h5>
