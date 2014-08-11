@@ -2,6 +2,7 @@
     <div class="panel-heading">
         <h5 class="panel-title">
             <a data-toggle="collapse" href="#topic-field-poll">
+                <span class="glyphicon glyphicon-plus-sign"></span>
                 {$aLang.topic_field_poll_add}
             </a>
         </h5>
