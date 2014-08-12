@@ -89,18 +89,16 @@
         $(this).find('.js-focus-in:visible').first().focus();
     });
 
-    // Stylization of [type=button]
-    $('.btn-file').each(function (){
-        $('input[type=file]', this).change(function (){
-            var input = $(this),
-                value = input.val(), // get value
-                pos = value.lastIndexOf('/') > value.lastIndexOf('\\') ? value.lastIndexOf('/') : value.lastIndexOf('\\'),
-                fileName = value.substring(pos + 1); // get file name
-            // remove existing file info
-            input.next().remove();
-            // append file info
-            $('<span>: ' + fileName + '</span>').insertAfter(input);
-        });
+    // Stylization of [type=file]
+    $('body').on('change', '.btn-file input[type=file]', function(){
+        var input = $(this),
+            value = input.val(), // get value
+            pos = value.lastIndexOf('/') > value.lastIndexOf('\\') ? value.lastIndexOf('/') : value.lastIndexOf('\\'),
+            fileName = value.substring(pos + 1); // get file name
+        // remove existing file info
+        input.next().remove();
+        // append file info
+        $('<span>: ' + fileName + '</span>').insertAfter(input);
     });
 
     // Скролл
