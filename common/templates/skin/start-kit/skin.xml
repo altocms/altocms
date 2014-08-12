@@ -7,7 +7,7 @@
         <lang name="default">Alto CMS Team</lang>
     </author>
     <homepage>http://altocms.com</homepage>
-    <version>1.0</version>
+    <version>1.0.1</version>
     <requires>
         <alto>
             <version>1.0</version>
