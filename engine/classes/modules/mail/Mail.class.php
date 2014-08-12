@@ -303,7 +303,7 @@ class ModuleMail extends Module {
      */
     public function Shutdown() {
 
-        while ($sError = $this->GetError()) {
+        while ($sError = $this->GetError(true)) {
             F::SysWarning($sError);
         }
     }
