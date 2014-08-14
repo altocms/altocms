@@ -544,7 +544,7 @@ class ModuleCache extends Module {
             if ($data && is_array($data)) {
                 $aData = array();
                 foreach ($data as $key => $value) {
-                    $aData[$aTmpKeys[$key]] = $value;
+                    $aData[$aTmpKeys[$key]] = $value['data'];
                 }
                 if (count($aData) > 0) {
                     return $aData;
