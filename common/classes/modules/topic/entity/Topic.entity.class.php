@@ -505,7 +505,7 @@ class ModuleTopic_EntityTopic extends Entity {
     public function getUser() {
 
         if (!$this->getProp('user')) {
-            $this->_aData['user'] = $this->User_GetUserById($this->getUserId());
+            $this->setProp('user', $this->User_GetUserById($this->getUserId()));
         }
         return $this->getProp('user');
     }
@@ -1250,7 +1250,7 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function setExtra($data) {
 
-        $this->_aData['topic_extra'] = serialize($data);
+        $this->setProp('topic_extra', serialize($data));
     }
 
     /**
