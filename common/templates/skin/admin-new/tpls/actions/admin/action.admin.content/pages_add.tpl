@@ -1,7 +1,7 @@
 {extends file='_index.tpl'}
 {block name="content-bar"}
 <div class="col-md-12">
-  <a href="{router page='admin'}content-pages/" class="btn btn-primary mb15"><i class="glyphicon glyphicon-plus"></i></a>
+  <a href="{router page='admin'}content-pages/" class="btn btn-primary mb15"><i class="glyphicon glyphicon-chevron-left"></i></a>
 </div>
 {/block}
 {block name="content-body"}

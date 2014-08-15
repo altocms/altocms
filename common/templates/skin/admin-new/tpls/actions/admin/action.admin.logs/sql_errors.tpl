@@ -5,11 +5,10 @@
     <div class="panel-body">
       {if $aLogs}
       {foreach $aLogs as $aRec}
-      <div class="b-log-date">{$aRec.date} </div>
-      <div class="b-log-text">{$aRec.text}</div>
-      <div class="b-log-result">
-        <div class="b-log-result-time">{$aRec.time}</div>
-        <div class="b-log-result-text">{$aRec.sql|escape:'html'}</div>
+      <div class="alert alert-warning alert-dismissable">
+          <i class="glyphicon glyphicon-warning-sign"></i>
+          <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+          <b>{$aRec.date} - {$aRec.time}:</b> {$aRec.text} | {$aRec.sql|escape:'html'}
       </div>
       {/foreach}
       {else}
