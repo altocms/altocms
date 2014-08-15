@@ -21,7 +21,7 @@
       <title>{$sHtmlTitle}</title>
       <meta name="description" content="{$sHtmlDescription}">
       <meta name="keywords" content="{$sHtmlKeywords}">
-      <link href="{Config::Get('path.static.skin')}assets/img/favicon.png?v1.3" rel="shortcut icon">
+      <link href="{Config::Get('path.static.skin')}assets/img/favicon.png?v1.6" rel="shortcut icon">
       <link rel="search" type="application/opensearchdescription+xml" href="{router page='search'}opensearch/"
          title="{Config::Get('view.name')}"/>
       {if $aHtmlRssAlternate}
@@ -81,12 +81,14 @@
             </div>
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="navbar-collapse">
-               <ul class="nav navbar-nav navbar-right">
+               <div class="nav navbar-nav navbar-left">
                   <form method="get" action="{router page='search'}topics/" class="navbar-form navbar-left" role="search">
                       <div class="form-group">
                         <input type="text" name="q" class="form-control" placeholder="{$aLang.search_submit}..." value="{$aLang.search_submit}...">
                       </div>
                   </form>
+               </div>
+               <ul class="nav navbar-nav navbar-right">
                   <li><a href="{router page='index'}" target="_blank">{$aLang.action.admin.goto_site}</a></li>
                   <li>
                   <li class="active"><a href="#">Админ-панель</a></li>
