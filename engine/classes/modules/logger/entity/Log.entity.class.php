@@ -10,6 +10,10 @@
 
 class ModuleLogger_EntityLog extends Entity {
 
+    const MAX_LOCK_CNT    = 10;
+    const MAX_LOCK_PERIOD = 50000;
+    const MAX_LOCK_TIME   = 1000000;
+
     protected $aLogs = array();
 
     /**
@@ -249,21 +253,49 @@ class ModuleLogger_EntityLog extends Entity {
     protected function _write($sMsg) {
 
         $xResult = false;
-        // * Если имя файла не задано то ничего не делаем
+        // if no filename then nothing to do
         if (!($sFileName = $this->GetFileName())) {
             //throw new Exception("Empty file name for log!");
             return false;
         }
-        // * Если имя файла равно '-' то выводим сообщение лога в браузер
+        // if filename equal '-' then wtites message to browser
         if ($sFileName == '-') {
             echo($sMsg . "<br/>\n");
         } else {
-            // * Запись в файл
-            if ($xResult = F::File_PutContents($this->GetFileDir() . $sFileName, $sMsg . "\n", FILE_APPEND | LOCK_EX)) {
-                // * Если нужно, то делаем ротацию
-                if ($this->GetUseRotate() && $this->GetSizeForRotate()) {
-                    $this->_rotate();
+            // writes to file
+            $sFile = $this->GetFileDir() . $sFileName;
+
+            // file for locking
+            $sCheckFileName = $sFileName . '.lock';
+            if (!is_file($sCheckFileName)) {
+                F::File_PutContents($sCheckFileName, '', LOCK_EX);
+            }
+            $fp = @fopen($sCheckFileName, 'r+');
+            if (!$fp) {
+                // It is not clear what to do here
+            } else {
+                // Tries to lock
+                $iTotal = 0;
+                // Check the count of attempts at competitive lock requests
+                for ($iCnt = 0; $iCnt < self::MAX_LOCK_CNT; $iCnt++) {
+                    if (flock($fp, LOCK_EX)) {
+                        if ($xResult = F::File_PutContents($sFile, $sMsg . "\n", FILE_APPEND | LOCK_EX)) {
+                            // Do rotation if need
+                            if ($this->GetUseRotate() && $this->GetSizeForRotate()) {
+                                $this->_rotate();
+                            }
+                        }
+                        flock($fp, LOCK_UN);
+                        break;
+                    } else {
+                        $iTotal += self::MAX_LOCK_PERIOD;
+                        if ($iTotal >= self::MAX_LOCK_TIME) {
+                            break;
+                        }
+                        usleep(self::MAX_LOCK_PERIOD);
+                    }
                 }
+                fclose($fp);
             }
         }
         return $xResult;
