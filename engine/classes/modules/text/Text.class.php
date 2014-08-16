@@ -156,7 +156,7 @@ class ModuleText extends Module {
          * youtube.com
          */
         $sText = preg_replace(
-            '/<video>http(?:s|):\/\/(?:www\.|)youtube\.com\/watch\?v=([a-zA-Z0-9_\-]+)(&.+)?<\/video>/Ui',
+            '/<video>http(?:s|):\/\/(?:www\.|m.|)youtube\.com\/watch\?v=([a-zA-Z0-9_\-]+)(&.+)?<\/video>/Ui',
             '<iframe width="560" height="315" src="http://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>',
             $sText
         );
@@ -164,7 +164,7 @@ class ModuleText extends Module {
          * youtu.be
          */
         $sText = preg_replace(
-            '/<video>http(?:s|):\/\/(?:www\.|)youtu\.be\/([a-zA-Z0-9_\-]+)(&.+)?<\/video>/Ui',
+            '/<video>http(?:s|):\/\/(?:www\.|m.|)youtu\.be\/([a-zA-Z0-9_\-]+)(&.+)?<\/video>/Ui',
             '<iframe width="560" height="315" src="http://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>',
             $sText
         );
