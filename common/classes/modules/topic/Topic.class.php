@@ -1198,14 +1198,12 @@ class ModuleTopic extends Module {
                 'publish_index' => 1,
             )
         );
-        /**
-         * Если пользователь авторизирован, то добавляем в выдачу
-         * закрытые блоги в которых он состоит
-         */
+
+        // If a user is authorized then adds blogs on which it is subscribed
         if ($this->oUserCurrent && $bAddAccessible) {
             $aOpenBlogs = $this->Blog_GetAccessibleBlogsByUser($this->oUserCurrent);
             if (count($aOpenBlogs)) {
-                $aFilter['blog_type']['close'] = $aOpenBlogs;
+                $aFilter['blog_type']['*'] = $aOpenBlogs;
             }
         }
 
@@ -1231,14 +1229,12 @@ class ModuleTopic extends Module {
             'topic_publish' => 1,
             'topic_new'     => $sDate,
         );
-        /**
-         * Если пользователь авторизирован, то добавляем в выдачу
-         * закрытые блоги в которых он состоит
-         */
+
+        // If a user is authorized then adds blogs on which it is subscribed
         if ($this->oUserCurrent && $bAddAccessible) {
             $aOpenBlogs = $this->Blog_GetAccessibleBlogsByUser($this->oUserCurrent);
             if (count($aOpenBlogs)) {
-                $aFilter['blog_type']['close'] = $aOpenBlogs;
+                $aFilter['blog_type']['*'] = $aOpenBlogs;
             }
         }
         return $this->GetTopicsByFilter($aFilter, $iPage, $iPerPage);
@@ -1261,14 +1257,12 @@ class ModuleTopic extends Module {
             'blog_type'     => $this->Blog_GetOpenBlogTypes(),
             'topic_publish' => 1,
         );
-        /**
-         * Если пользователь авторизирован, то добавляем в выдачу
-         * закрытые блоги в которых он состоит
-         */
+
+        // If a user is authorized then adds blogs on which it is subscribed
         if ($this->oUserCurrent && $bAddAccessible) {
-            $aOpenBlogs = $this->Blog_GetAccessibleBlogsByUser($this->oUserCurrent);
-            if (count($aOpenBlogs)) {
-                $aFilter['blog_type']['close'] = $aOpenBlogs;
+            $aSubscribedBlogs = $this->Blog_GetAccessibleBlogsByUser($this->oUserCurrent);
+            if (count($aSubscribedBlogs)) {
+                $aFilter['blog_type']['*'] = $aSubscribedBlogs;
             }
         }
         return $this->GetTopicsByFilter($aFilter, $iPage, $iPerPage);
@@ -1301,14 +1295,12 @@ class ModuleTopic extends Module {
             $aFilter['topic_date_more'] = $sPeriod;
         }
         $aFilter['order'] = ' t.topic_count_comment desc, t.topic_id desc ';
-        /**
-         * Если пользователь авторизирован, то добавляем в выдачу
-         * закрытые блоги в которых он состоит
-         */
+
+        // If a user is authorized then adds blogs on which it is subscribed
         if ($this->oUserCurrent && $bAddAccessible) {
             $aOpenBlogs = $this->Blog_GetAccessibleBlogsByUser($this->oUserCurrent);
             if (count($aOpenBlogs)) {
-                $aFilter['blog_type']['close'] = $aOpenBlogs;
+                $aFilter['blog_type']['*'] = $aOpenBlogs;
             }
         }
         return $this->GetTopicsByFilter($aFilter, $iPage, $iPerPage);
@@ -1341,14 +1333,12 @@ class ModuleTopic extends Module {
             $aFilter['topic_date_more'] = $sPeriod;
         }
         $aFilter['order'] = array('t.topic_rating desc', 't.topic_id desc');
-        /**
-         * Если пользователь авторизирован, то добавляем в выдачу
-         * закрытые блоги в которых он состоит
-         */
+
+        // If a user is authorized then adds blogs on which it is subscribed
         if ($this->oUserCurrent && $bAddAccessible) {
             $aOpenBlogs = $this->Blog_GetAccessibleBlogsByUser($this->oUserCurrent);
             if (count($aOpenBlogs)) {
-                $aFilter['blog_type']['close'] = $aOpenBlogs;
+                $aFilter['blog_type']['*'] = $aOpenBlogs;
             }
         }
         return $this->GetTopicsByFilter($aFilter, $iPage, $iPerPage);
@@ -1626,7 +1616,7 @@ class ModuleTopic extends Module {
         if ($this->oUserCurrent) {
             $aOpenBlogs = $this->Blog_GetAccessibleBlogsByUser($this->oUserCurrent);
             if (count($aOpenBlogs)) {
-                $aFilter['blog_type']['close'] = $aOpenBlogs;
+                $aFilter['blog_type']['*'] = $aOpenBlogs;
             }
         }
         return $this->GetTopicsByFilter($aFilter, $iPage, $iPerPage);
@@ -1656,7 +1646,7 @@ class ModuleTopic extends Module {
         if ($this->oUserCurrent) {
             $aOpenBlogs = $this->Blog_GetAccessibleBlogsByUser($this->oUserCurrent);
             if (count($aOpenBlogs)) {
-                $aFilter['blog_type']['close'] = $aOpenBlogs;
+                $aFilter['blog_type']['*'] = $aOpenBlogs;
             }
         }
         return $this->GetCountTopicsByFilter($aFilter);
@@ -1815,14 +1805,12 @@ class ModuleTopic extends Module {
             'topic_publish' => 1,
             'topic_type'    => $sType
         );
-        /**
-         * Если пользователь авторизирован, то добавляем в выдачу
-         * закрытые блоги в которых он состоит
-         */
+
+        // If a user is authorized then adds blogs on which it is subscribed
         if ($this->oUserCurrent && $bAddAccessible) {
             $aOpenBlogs = $this->Blog_GetAccessibleBlogsByUser($this->oUserCurrent);
             if (count($aOpenBlogs)) {
-                $aFilter['blog_type']['close'] = $aOpenBlogs;
+                $aFilter['blog_type']['*'] = $aOpenBlogs;
             }
         }
         return $this->GetTopicsByFilter($aFilter, $iPage, $iPerPage);

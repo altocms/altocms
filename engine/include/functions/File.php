@@ -994,10 +994,16 @@ class AltoFunc_File {
         } elseif (substr($sFileName, -1) == '/') {
             $sFileName .= basename($sUploadedFile);
         }
-        $sTmpFile = static::GetUploadDir() . $sFileName;
-        if (static::CheckDir(dirname($sTmpFile)) && move_uploaded_file($sUploadedFile, $sTmpFile)) {
-            return $sTmpFile;
+        $sDir = dirname($sFileName);
+        if (!$sDir || !static::IsLocalDir($sDir)) {
+            $sTargetFile = static::GetUploadDir() . $sFileName;
+        } else {
+            $sTargetFile = $sFileName;
         }
+        if (static::CheckDir(dirname($sTargetFile)) && move_uploaded_file($sUploadedFile, $sTargetFile)) {
+            return $sTargetFile;
+        }
+        return false;
     }
 
     /**

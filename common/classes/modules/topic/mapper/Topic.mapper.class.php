@@ -778,26 +778,27 @@ class ModuleTopic_MapperTopic extends Mapper {
         }
         if (isset($aFilter['blog_type']) && is_array($aFilter['blog_type'])) {
             $aBlogTypes = array();
-            foreach ($aFilter['blog_type'] as $sType => $aBlogId) {
-                /**
-                 * Позиция вида 'type'=>array('id1', 'id2')
-                 */
-                if (!is_array($aBlogId) && is_string($sType)) {
-                    $aBlogId = array($aBlogId);
+            $aOrClauses = array();
+            $aFilter['blog_type'] = F::Array_FlipIntKeys($aFilter['blog_type'], 0);
+            foreach ($aFilter['blog_type'] as $sType => $aBlogsId) {
+                if ($aBlogsId) {
+                    // 'type'=>array('id1', 'id2') - blog type & blogs id
+                    if ($sType == '*') {
+                        $aOrClauses[] = "(t.blog_id IN ('" . join("','", $aBlogsId) . "'))";
+                    } else {
+                        $aOrClauses[] = "b.blog_type='" . $sType . "' AND t.blog_id IN ('" . join("','", $aBlogsId) . "'))";
+                    }
+                } else {
+                    // blog type only
+                    $aBlogTypes[] = "'" . $sType . "'";
                 }
-                /**
-                 * Позиция вида 'type'
-                 */
-                if (is_string($aBlogId) && is_int($sType)) {
-                    $sType = $aBlogId;
-                    $aBlogId = array();
-                }
-
-                $aBlogTypes[] = (count($aBlogId) == 0)
-                    ? "(b.blog_type='" . $sType . "')"
-                    : "(b.blog_type='" . $sType . "' AND t.blog_id IN ('" . join("','", $aBlogId) . "'))";
             }
-            $sWhere .= " AND (" . join(" OR ", (array)$aBlogTypes) . ")";
+            if ($aBlogTypes) {
+                $aOrClauses[] = '(b.blog_type IN (' . join(',', $aBlogTypes) . '))';
+            }
+            if ($aOrClauses) {
+                $sWhere .= ' AND (' . join(' OR ', $aOrClauses ) . ')';
+            }
         }
         if (isset($aFilter['topic_type'])) {
             if (!is_array($aFilter['topic_type'])) {
