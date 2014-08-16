@@ -832,7 +832,7 @@ return array(
      */
     'widget_blogs'                              => 'Блоги',
     'widget_blogs_top'                          => 'Топ',
-    'widget_blogs_join'                         => 'Подключенные',
+    'widget_blogs_join'                         => 'Подписка',
     'widget_blogs_join_error'                   => 'Вы не подписаны на блоги',
     'widget_blogs_self'                         => 'Мои',
     'widget_blogs_self_error'                   => 'У вас нет своих блогов',

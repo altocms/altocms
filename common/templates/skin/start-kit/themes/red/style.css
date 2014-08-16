@@ -4,6 +4,9 @@ body {
 a {
   color: #b82223;
 }
+.content-inner fieldset {
+  border-color: #b9c2d0;
+}
 .btn-default {
   background-color: #f6f6f6;
 }
