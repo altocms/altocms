@@ -91,6 +91,7 @@ return array(
     'err_read' => 'Ошибка чтения',
     'err_read_dir' => 'Ошибка чтения папки',
     'err_read_file' => 'Ошибка чтения файла',
+    'err_read_xml'  => 'Ошибка чтения XML-файла %%file%%',
     'err_copy_file' => 'Ошибка копирования файла %%file%%',
     'err_open_zip_file' => 'Ошибка чтения ZIP-файла',
     'err_extract_zip_file' => 'Ошибка распаковки ZIP-файла',

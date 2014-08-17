@@ -951,7 +951,24 @@ class ModulePlugin extends Module {
                     return false;
                 }
                 $sPluginSrc = dirname($sXmlFile);
-                $sPluginDir = basename($sPluginSrc);
+
+                // try to define plugin's dirname
+                $oXml = @simplexml_load_file($sXmlFile);
+                if (!$oXml) {
+                    $this->Message_AddError(
+                        $this->Lang_Get('action.admin.err_read_xml', array('file' => $sXmlFile)),
+                        $this->Lang_Get('error')
+                    );
+                    return false;
+                }
+                $sPluginDir = (string)$oXml->dirname;
+                if (!$sPluginDir) {
+                    $sPluginDir = (string)$oXml->id;
+                }
+                if (!$sPluginDir) {
+                    $sPluginDir = basename($sPluginSrc);
+                }
+
                 $sPluginPath = $this->GetPluginsDir() . '/' . $sPluginDir . '/';
                 if (F::File_CopyDir($sPluginSrc, $sPluginPath)) {
                     $this->Message_AddNotice($this->Lang_Get('action.admin.plugin_added_ok'));

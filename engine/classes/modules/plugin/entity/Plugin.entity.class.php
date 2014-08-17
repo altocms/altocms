@@ -12,17 +12,30 @@ class ModulePlugin_EntityPlugin extends Entity {
 
     protected $oXml = null;
 
+    /**
+     * Constractor of entity
+     *
+     * @param bool $aParams
+     */
     public function __construct($aParams = false) {
 
         if (is_array($aParams)) {
-            $this->_setData($aParams);
+            $this->setProps($aParams);
         } elseif($aParams) {
             $this->LoadFromXmlFile((string)$aParams);
         }
         $this->Init();
-        if (!$this->GetNum()) $this->SetNum(-1);
+        if (!$this->GetNum()) {
+            $this->SetNum(-1);
+        }
     }
 
+    /**
+     * Load data from file
+     *
+     * @param string $sPluginId
+     * @param array  $aData
+     */
     public function LoadFromXmlFile($sPluginId, $aData = null) {
 
         $sPluginXML = $this->Plugin_GetPluginManifest($sPluginId);
@@ -35,6 +48,12 @@ class ModulePlugin_EntityPlugin extends Entity {
         $this->LoadFromXml($sPluginXML, $aData);
     }
 
+    /**
+     * Load data from XML
+     *
+     * @param string $sPluginXML
+     * @param array  $aData
+     */
     public function LoadFromXml($sPluginXML, $aData = null) {
 
         if ($this->oXml = @simplexml_load_string($sPluginXML)) {
@@ -60,7 +79,7 @@ class ModulePlugin_EntityPlugin extends Entity {
             $aData['priority'] = $sPriority;
             $aData['property'] = $this->oXml;
 
-            $this->_setData($aData);
+            $this->setProps($aData);
         }
     }
 
@@ -125,26 +144,41 @@ class ModulePlugin_EntityPlugin extends Entity {
         return $sResult;
     }
 
+    /**
+     * @return string
+     */
     public function GetName() {
 
         return $this->_getXmlLangProperty('name');
     }
 
+    /**
+     * @return string
+     */
     public function GetDescription() {
 
         return $this->_getXmlLangProperty('description');
     }
 
+    /**
+     * @return string
+     */
     public function GetAuthor() {
 
         return $this->_getXmlLangProperty('author');
     }
 
+    /**
+     * @return string
+     */
     public function GetPluginClass() {
 
         return 'Plugin' . ucfirst($this->GetCode());
     }
 
+    /**
+     * @return string
+     */
     public function GetAdminClass() {
 
         $aAdminPanel = $this->getProp('adminpanel');
@@ -155,6 +189,9 @@ class ModulePlugin_EntityPlugin extends Entity {
         }
     }
 
+    /**
+     * @return bool
+     */
     public function HasAdminpanel() {
 
         $sClass = $this->GetAdminClass();
@@ -168,6 +205,9 @@ class ModulePlugin_EntityPlugin extends Entity {
         return false;
     }
 
+    /**
+     * @return array|bool
+     */
     public function GetAdminMenuEvents() {
 
         if ($this->IsActive()) {
@@ -190,11 +230,17 @@ class ModulePlugin_EntityPlugin extends Entity {
         return false;
     }
 
+    /**
+     * @return string
+     */
     public function GetVersion() {
 
         return (string)$this->_getXmlProperty('version');
     }
 
+    /**
+     * @return string
+     */
     public function GetHomepage() {
 
         $sResult = $this->getProp('homepage');
@@ -205,6 +251,9 @@ class ModulePlugin_EntityPlugin extends Entity {
         return $sResult;
     }
 
+    /**
+     * @return string
+     */
     public function GetSettings() {
 
         $sResult = $this->getProp('settings');
@@ -215,51 +264,78 @@ class ModulePlugin_EntityPlugin extends Entity {
         return $sResult;
     }
 
+    /**
+     * @return string
+     */
     public function GetEmail() {
 
         return (string)$this->_getXmlProperty('author')->email;
     }
 
+    /**
+     * @return bool
+     */
     public function IsActive() {
 
         return (bool)$this->getProp('is_active');
     }
 
+    /**
+     * @return bool
+     */
     public function isTop() {
 
         return ($sVal = $this->GetPriority()) && strtolower($sVal) == 'top';
     }
 
+    /**
+     * @return array
+     */
     public function Requires() {
 
         return $this->_getXmlProperty('requires');
     }
 
+    /**
+     * @return string
+     */
     public function RequiredAltoVersion() {
 
         $oRequires = $this->Requires();
         $sAltoVersion = (string)$oRequires->alto->version;
-        if (!$sAltoVersion)
+        if (!$sAltoVersion) {
             $sAltoVersion = (string)$oRequires->alto;
+        }
         return $sAltoVersion;
     }
 
+    /**
+     * @return string
+     */
     public function RequiredPhpVersion() {
 
         $oRequires = $this->Requires();
         if ($oRequires->system && $oRequires->system->php) {
             return (string)$oRequires->system->php;
         }
+        return '';
     }
 
+    /**
+     * @return array
+     */
     public function RequiredPlugins() {
 
         $oRequires = $this->Requires();
         if ($oRequires->plugins) {
             return $oRequires->plugins->children();
         }
+        return array();
     }
 
+    /**
+     * @return bool
+     */
     public function EngineCompatible() {
 
         $oRequires = $this->Requires();
@@ -274,7 +350,6 @@ class ModulePlugin_EntityPlugin extends Entity {
         } else {
             return version_compare($sLsVersion, LS_VERSION, '<=');
         }
-        return false;
     }
 }
 
