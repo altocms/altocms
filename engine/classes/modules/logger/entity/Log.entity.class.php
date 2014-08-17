@@ -267,12 +267,15 @@ class ModuleLogger_EntityLog extends Entity {
 
             // file for locking
             $sCheckFileName = $sFileName . '.lock';
-            if (!is_file($sCheckFileName)) {
-                F::File_PutContents($sCheckFileName, '', LOCK_EX);
-            }
-            $fp = @fopen($sCheckFileName, 'r+');
+            $fp = @fopen($sCheckFileName, 'c');
             if (!$fp) {
                 // It is not clear what to do here
+                if ($xResult = F::File_PutContents($sFile, $sMsg . "\n", FILE_APPEND | LOCK_EX)) {
+                    // Do rotation if need
+                    if ($this->GetUseRotate() && $this->GetSizeForRotate()) {
+                        $this->_rotate();
+                    }
+                }
             } else {
                 // Tries to lock
                 $iTotal = 0;

@@ -134,7 +134,7 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
     protected function _convertUrlsInCss($sContent, $sSourceDir) {
 
         // Есть ли в файле URLs
-        if (!preg_match_all('/(?<src>src:)?url\((?<url>.*?)\)/is', $sContent, $aMatchedUrl, PREG_OFFSET_CAPTURE)) {
+        if (!preg_match_all('/(?P<src>src:)?url\((?P<url>.*?)\)/is', $sContent, $aMatchedUrl, PREG_OFFSET_CAPTURE)) {
             return $sContent;
         }
 

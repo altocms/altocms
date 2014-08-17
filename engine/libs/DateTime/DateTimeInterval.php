@@ -49,7 +49,7 @@ class DateTimeInterval
     static public function Normalize($sInterval)
     {
         $sResult = '';
-        if (preg_match('/P(?<y>\d+Y)?(?<m>\d+M)?(?<w>\d+W)?(?<d>\d+D)?(T)?(?<th>\d+H)?(?<tm>\d+M)?(?<ti>\d+I)?(?<ts>\d+S)?/', $sInterval, $aM)) {
+        if (preg_match('/P(?P<y>\d+Y)?(?P<m>\d+M)?(?P<w>\d+W)?(?P<d>\d+D)?(T)?(?P<th>\d+H)?(?P<tm>\d+M)?(?P<ti>\d+I)?(?P<ts>\d+S)?/', $sInterval, $aM)) {
             $sP = '';
             $sT = '';
             if (isset($aM['y'])) $sP .= $aM['y'];
