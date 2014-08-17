@@ -86,7 +86,7 @@ abstract class Entity extends LsObject {
      */
     public function __construct($aParam = null) {
 
-        $this->_setData($aParam);
+        $this->setProps($aParam);
         $this->Init();
     }
 
@@ -378,11 +378,19 @@ abstract class Entity extends LsObject {
     }
 
     /**
+     * LS-compatible
+     */
+    public function _setData($aData) {
+
+        return $this->setProps($aData);
+    }
+
+    /**
      * Устанавливает данные сущности
      *
      * @param array $aData    Ассоциативный массив данных сущности
      */
-    public function _setData($aData) {
+    public function setProps($aData) {
 
         if (is_array($aData) && sizeof($aData)) {
             foreach ($aData as $sKey => $val) {

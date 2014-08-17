@@ -25,7 +25,7 @@ class ModuleWidget_EntityWidget extends Entity {
             $aCfgData = Config::Get('widget.' . $this->GetId() . '.config');
             if ($aCfgData) {
                 $aCfgData = F::Array_Merge($this->_getData(), $aCfgData);
-                $this->_setData($aCfgData);
+                $this->setProps($aCfgData);
             }
         }
 

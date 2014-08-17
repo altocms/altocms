@@ -13,7 +13,7 @@ class ModuleSkin_EntitySkin extends Entity {
     public function __construct($aParams = false) {
 
         if (is_array($aParams)) {
-            $this->_setData($aParams);
+            $this->setProps($aParams);
         } elseif($aParams) {
             $this->LoadFromXmlFile((string)$aParams);
         }
@@ -54,7 +54,7 @@ class ModuleSkin_EntitySkin extends Entity {
             $aData['id'] = $sId;
         }
         $aData['property'] = $oXml;
-        $this->_setData($aData);
+        $this->setProps($aData);
     }
 
     /**
