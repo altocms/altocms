@@ -1582,15 +1582,97 @@ class ModuleViewer extends Module {
     /**
      * Добавляет тег для вывода в хидере страницы
      *
-     * @param   string  $sTag
+     * @param string $sTag
      */
     public function AddHtmlHeadTag($sTag) {
 
-        $this->aHtmlHeadTags[] = $sTag;
+        $sTag = substr($sTag, strlen($sTag) - 2);
+        if (strpos($sTag, ' ')) {
+            list($sTagName, $sAttributes) = explode(' ', $sTag, 2);
+        } else {
+            $sTagName = $sTag;
+            $sAttributes = array();
+        }
+        $this->SetHtmlHeadTag($sTagName, $sAttributes);
     }
 
     /**
-     * Устанавливаем заголовок страницы(тег title)
+     * @param string       $sTagName
+     * @param array|string $xAttributes
+     * @param string|bool  $xContent
+     */
+    public function SetHtmlHeadTag($sTagName, $xAttributes, $xContent = false) {
+
+        $sTagName = strtolower($sTagName);
+
+        $aParams = array();
+        $sKey = '';
+        $aAttributes = (array)$xAttributes;
+        if ($aAttributes) {
+            foreach($aAttributes as $sName => $sValue) {
+                if (is_string($sName)) {
+                    $aParams[strtolower($sName)] = $sValue;
+                }
+            }
+            $aKeyAttr = array('http-equiv', 'name', 'property', 'itemprop');
+            if ($sTagName == 'meta') {
+                foreach($aKeyAttr as $sName) {
+                    if (isset($aParams[$sName])) {
+                        $sKey = $sTagName . ' ' . $sName . '=' . $aParams[$sName];
+                    }
+                }
+            }
+        }
+
+        $sTag = '<' . $sTagName;
+        if ($aParams) {
+            $sAttr = '';
+            foreach($aParams as $sName => $sValue) {
+                if (is_string($sName)) {
+                    $sAttr .= ' ' . $sName . '="' . $sValue . '"';
+                } else {
+                    $sAttr .= ' ' . $sValue;
+                }
+            }
+            if ($sAttr) {
+                $sTag .= htmlspecialchars($sAttr, ENT_NOQUOTES | ENT_HTML5, 'UTF-8');
+            }
+        }
+        $sTag .= '>';
+        // adds content and closing tag
+        if ($xContent !== false) {
+            $sTag .= $xContent;
+            $sTag .= '</' . $sTagName . '>';
+        }
+        // prevents duplication
+        if ($sKey) {
+            $this->aHtmlHeadTags[$sKey] = $sTag;
+        } else {
+            $this->aHtmlHeadTags[$sTag] = $sTag;
+        }
+    }
+
+    /**
+     * Returns all additional tags for <head>
+     *
+     * @return array
+     */
+    public function GetHtmlHeadTags() {
+
+        return $this->aHtmlHeadTags;
+    }
+
+    /**
+     * Clears all additional tags for <head>
+     *
+     */
+    public function ClearHtmlHeadTags() {
+
+        $this->aHtmlHeadTags = array();
+    }
+
+    /**
+     * Устанавливаем заголовок страницы (тег title)
      *
      * @param string $sText    Заголовок
      */
