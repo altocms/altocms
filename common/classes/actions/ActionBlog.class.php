@@ -884,15 +884,90 @@ class ActionBlog extends Action {
         // Устанавливаем шаблон вывода
         $this->SetTemplateAction('topic');
 
-        // Запрещаем индексирование черновиков
-        if (!$oTopic->getPublish()) {
-            $sFunc = create_function(
-                '', 'return "<meta name=\"robots\" content=\"noindex\"/>'
-                . '<meta name=\"robots\" content=\"nofollow\"/>'
-                . '<meta name=\"robots\" content=\"none\"/>";'
-            );
-            $this->Hook_AddExecFunction('template_html_head_begin', $sFunc);
+        // Additional tags for <head>
+        $aHeadTags = $this->_getHeadTags($oTopic);
+        if ($aHeadTags) {
+            $this->Viewer_SetHtmlHeadTags($aHeadTags);
         }
+
+        return null;
+    }
+
+    /**
+     * Additional tags for <head>
+     *
+     * @param object $oTopic
+     *
+     * @return array
+     */
+    protected function _getHeadTags($oTopic) {
+
+        $aHeadTags = array();
+        if (!$oTopic->getPublish()) {
+            // Disable indexing of drafts
+            $aHeadTags[] = array(
+                'meta',
+                array(
+                    'name' => 'robots',
+                    'content' => 'noindex,nofollow',
+                ),
+            );
+        } else {
+            // Tags for social networks
+            $aHeadTags[] = array(
+                'meta',
+                array(
+                    'property' => 'og:title',
+                    'content' => $oTopic->getTitle(),
+                ),
+            );
+            $aHeadTags[] = array(
+                'meta',
+                array(
+                    'property' => 'og:url',
+                    'content' => $oTopic->getUrl(),
+                ),
+            );
+            $aHeadTags[] = array(
+                'meta',
+                array(
+                    'property' => 'og:description',
+                    'content' => $this->Viewer_GetHtmlDescription(),
+                ),
+            );
+            $aHeadTags[] = array(
+                'meta',
+                array(
+                    'property' => 'og:site_name',
+                    'content' => Config::Get('view.name'),
+                ),
+            );
+            $aHeadTags[] = array(
+                'meta',
+                array(
+                    'property' => 'og:type',
+                    'content' => 'article',
+                ),
+            );
+            $aHeadTags[] = array(
+                'meta',
+                array(
+                    'name' => 'twitter:card',
+                    'content' => 'summary',
+                ),
+            );
+            if ($oTopic->getPreviewImageUrl()) {
+                $aHeadTags[] = array(
+                    'meta',
+                    array(
+                        'name' => 'og:image',
+                        'content' => $oTopic->getPreviewImageUrl('700crop'),
+                    ),
+                );
+            }
+
+        }
+        return $aHeadTags;
     }
 
     /**

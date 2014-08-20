@@ -39,6 +39,7 @@ class HookMain extends Hook {
         $this->AddHook('template_body_end', 'BuildFooterJsCss', __CLASS__, -150);
         $this->AddHook('template_layout_body_end', 'BuildFooterJsCss', __CLASS__, -150);
 
+        $this->AddHook('template_html_head_tags', 'InsertHtmlHeadTags', __CLASS__);
     }
 
     public function SessionInitAfter() {
@@ -147,6 +148,16 @@ class HookMain extends Hook {
 
         return $sCssFooter . $sJsFooter;
 
+    }
+
+    public function InsertHtmlHeadTags() {
+
+        $aTags = $this->Viewer_GetHtmlHeadTags();
+        $sResult = '';
+        foreach($aTags as $sTag) {
+            $sResult .= $sTag . "\n";
+        }
+        return $sResult;
     }
 
 }

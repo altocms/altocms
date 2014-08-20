@@ -1586,7 +1586,7 @@ class ModuleViewer extends Module {
      */
     public function AddHtmlHeadTag($sTag) {
 
-        $sTag = substr($sTag, strlen($sTag) - 2);
+        $sTag = substr($sTag, 1, strlen($sTag) - 2);
         if (strpos($sTag, ' ')) {
             list($sTagName, $sAttributes) = explode(' ', $sTag, 2);
         } else {
@@ -1605,43 +1605,46 @@ class ModuleViewer extends Module {
 
         $sTagName = strtolower($sTagName);
 
-        $aParams = array();
         $sKey = '';
-        $aAttributes = (array)$xAttributes;
-        if ($aAttributes) {
-            foreach($aAttributes as $sName => $sValue) {
+        $sTag = '<' . $sTagName;
+        if (is_string($xAttributes)) {
+            $sTag .= ' ' . $xAttributes;
+        } elseif (is_array($xAttributes) && sizeof($xAttributes)) {
+            $aAttrs = array();
+            foreach ($xAttributes as $sName => $sValue) {
                 if (is_string($sName)) {
-                    $aParams[strtolower($sName)] = $sValue;
+                    $aAttrs[strtolower($sName)] = $sValue;
+                } else {
+                    $aAttrs[] = $sValue;
                 }
             }
             $aKeyAttr = array('http-equiv', 'name', 'property', 'itemprop');
             if ($sTagName == 'meta') {
-                foreach($aKeyAttr as $sName) {
-                    if (isset($aParams[$sName])) {
-                        $sKey = $sTagName . ' ' . $sName . '=' . $aParams[$sName];
+                foreach ($aKeyAttr as $sName) {
+                    if (isset($aAttrs[$sName])) {
+                        $sKey = $sTagName . ' ' . $sName . '=' . $aAttrs[$sName];
                     }
                 }
             }
-        }
 
-        $sTag = '<' . $sTagName;
-        if ($aParams) {
-            $sAttr = '';
-            foreach($aParams as $sName => $sValue) {
-                if (is_string($sName)) {
-                    $sAttr .= ' ' . $sName . '="' . $sValue . '"';
-                } else {
-                    $sAttr .= ' ' . $sValue;
+            if ($aAttrs) {
+                $sAttr = '';
+                foreach ($aAttrs as $sName => $sValue) {
+                    if (is_string($sName)) {
+                        $sAttr .= ' ' . $sName . '="' . str_replace('"', '&quot;', $sValue) . '"';
+                    } else {
+                        $sAttr .= ' ' . htmlspecialchars($sValue, ENT_NOQUOTES | ENT_HTML5, 'UTF-8');
+                    }
                 }
-            }
-            if ($sAttr) {
-                $sTag .= htmlspecialchars($sAttr, ENT_NOQUOTES | ENT_HTML5, 'UTF-8');
+                if ($sAttr) {
+                    $sTag .= $sAttr;
+                }
             }
         }
         $sTag .= '>';
         // adds content and closing tag
         if ($xContent !== false) {
-            $sTag .= $xContent;
+            $sTag .= htmlspecialchars($xContent);
             $sTag .= '</' . $sTagName . '>';
         }
         // prevents duplication
@@ -1649,6 +1652,22 @@ class ModuleViewer extends Module {
             $this->aHtmlHeadTags[$sKey] = $sTag;
         } else {
             $this->aHtmlHeadTags[$sTag] = $sTag;
+        }
+    }
+
+    /**
+     * Additional tags for <head>
+     *
+     * @param $aParams
+     */
+    public function SetHtmlHeadTags($aParams) {
+
+        foreach($aParams as $aTag) {
+            if (is_string($aTag)) {
+                $this->AddHtmlHeadTag($aTag);
+            } elseif (is_array($aTag)) {
+                $this->SetHtmlHeadTag($aTag[0], isset($aTag[1]) ? $aTag[1] : null, isset($aTag[2]) ? $aTag[2] : false);
+            }
         }
     }
 

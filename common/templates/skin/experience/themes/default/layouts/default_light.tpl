@@ -27,18 +27,6 @@
         <meta name="description" content="{$sHtmlDescription}">
         <meta name="keywords" content="{$sHtmlKeywords}">
 
-    {if $oTopic}
-    <meta property="og:title" content="{$oTopic->getTitle()|escape:'html'}"/>
-    <meta property="og:url" content="{$oTopic->getUrl()}"/>
-    {if $oTopic->getPreviewImageUrl()}
-    <meta property="og:image" content="{$oTopic->getPreviewImageUrl('700crop')}"/>
-    {/if}
-    <meta property="og:description" content="{$sHtmlDescription}"/>
-    <meta property="og:site_name" content="{Config::Get('view.name')}"/>
-    <meta property="og:type" content="article"/>
-    <meta name="twitter:card" content="summary">
-    {/if}
-
         {$aHtmlHeadFiles.css}
 
         {*<link href='http://fonts.googleapis.com/css?family=Roboto:300,400,500,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>*}
@@ -59,6 +47,8 @@
     {if $bRefreshToHome}
     <meta HTTP-EQUIV="Refresh" CONTENT="3; URL={Config::Get('path.root.url')}">
     {/if}
+
+        {hook run="html_head_tags"}
 
         <script type="text/javascript">
             var DIR_WEB_ROOT        = '{Config::Get('path.root.url')}';

@@ -36,6 +36,8 @@
         <meta HTTP-EQUIV="Refresh" CONTENT="3; URL={Config::Get('path.root.url')}/">
     {/if}
 
+    {hook run="html_head_tags"}
+
     <script type="text/javascript">
         var DIR_WEB_ROOT = '{Config::Get('path.root.url')}';
         var DIR_STATIC_SKIN = '{Config::Get('path.static.skin')}';
