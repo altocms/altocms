@@ -100,9 +100,9 @@ ls.settings = (function ($) {
             {title: 'Head 3', block: 'h6'}
         ],
         object_resizing:    true,
-        force_br_newlines:  true,
         forced_root_block:  '', // Needed for 3.x
-        force_p_newlines:   false,
+        force_p_newlines:   true,
+        force_br_newlines:  false,
         plugins: "advlist autolink autosave link lists media pagebreak autoresize table code altoimage",
         //convert_urls: false,
         extended_valid_elements: "embed[src|type|allowscriptaccess|allowfullscreen|width|height]",
@@ -130,9 +130,9 @@ ls.settings = (function ($) {
             {title: 'Head 3', block: 'h6'}
         ],
         object_resizing:    true,
-        force_br_newlines:  true,
         forced_root_block:  '', // Needed for 3.x
-        force_p_newlines:   false,
+        force_p_newlines:   true,
+        force_br_newlines:  false,
         plugins: "advlist autolink autosave link lists media pagebreak autoresize table code altoimage",
         extended_valid_elements: "embed[src|type|allowscriptaccess|allowfullscreen|width|height]",
         pagebreak_separator: "<cut>",
