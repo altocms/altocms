@@ -1739,9 +1739,9 @@ class ActionAdmin extends Action {
 
         $this->Security_ValidateSendForm();
 
-        $aUsersLogin = F::Str2Array(F::GetRequest('adm_user_list'), ',', true);
+        $aUsersId = F::Str2Array(F::GetRequest('adm_user_list'), ',', true);
         $bResult = true;
-        foreach ($aUsersLogin as $iUserId) {
+        foreach ($aUsersId as $iUserId) {
             if ($iUserId == $this->oUserCurrent->GetId()) {
                 $this->Message_AddError($this->Lang_Get('action.admin.cannot_del_self'), null, true);
                 $bResult = false;

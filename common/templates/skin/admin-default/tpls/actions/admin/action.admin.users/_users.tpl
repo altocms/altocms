@@ -26,115 +26,9 @@
     {block name="content-body-sidebar"}
     <div class="accordion" id="user-comands-switch">
         {hook run='admin_users_commands_switch_top'}
-        {if $oUserProfile}
-            {if $oUserProfile->IsBannedByLogin()}
-            <div class="accordion-group no-border">
-                <div class="accordion-heading">
-                    <button class="btn-block btn btn-default left" data-target="#admin_user_unban" data-toggle="collapse"
-                            data-parent="#user-comands-switch">
-                        <i class="icon icon-thumbs-up"></i>
-                        {$aLang.action.admin.users_unban}
-                    </button>
-                </div>
-
-                <div class="accordion-body collapse" id="admin_user_unban">
-                    <form method="post" action="{$sFormAction}" class="well well-small">
-                        <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
-
-                        {if $oUserProfile->getBanLine()}
-                            {$aLang.action.admin.ban_upto} {$oUserProfile->getBanLine()} <br/>
-                            {else}
-                            {$aLang.action.admin.ban_unlim} <br/>
-                        {/if}
-                        {$aLang.action.admin.ban_comment}: {$oUserProfile->getBanComment()}<br/>
-                        <br/>
-                        <input type="hidden" name="adm_user_list"
-                               value="{if $oUserProfile}{$oUserProfile->getId()}{/if}"/>
-                        <input type="hidden" name="return-path" value="{Router::Url('url')}"/>
-                        <input type="hidden" name="adm_user_cmd" value="adm_unban_user"/>
-
-                        <div class="form-actions">
-                            <button type="submit" name="adm_action_submit" class="btn btn-primary">
-                                {$aLang.action.admin.users_unban}
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-                {else}
-            <div class="accordion-group no-border">
-                <div class="accordion-heading">
-                    <button class="btn-block btn btn-default left" data-target="#admin_user_ban" data-toggle="collapse"
-                            data-parent="#user-comands-switch">
-                        <i class="icon icon-ban"></i>
-                        {$aLang.action.admin.users_ban}
-                    </button>
-                </div>
-
-                <div class="accordion-body collapse" id="admin_user_ban">
-                    <form method="post" action="{$sFormAction}" class="well well-small">
-                        <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
-                        <input type="hidden" name="adm_user_list" value="{if $oUserProfile}{$oUserProfile->getId()}{/if}"/>
-
-                        <label class="radio">
-                            <input type="radio" name="ban_period" value="days" />
-                            {$aLang.action.admin.ban_for}
-                            <input type="text" name="ban_days" id="ban_days"
-                                   class="num1"/> {$aLang.action.admin.ban_days}
-                        </label>
-
-                        <label class="radio">
-                            <input type="radio" name="ban_period" value="unlim" checked />
-                            {$aLang.action.admin.ban_unlim}
-                        </label>
-
-                        <label for="ban_comment">{$aLang.action.admin.ban_comment}</label>
-                        <input type="text" name="ban_comment" id="ban_comment" maxlength="255" class="input-wide"/>
-
-
-                        <input type="hidden" name="return-path" value="{Router::Url('url')}"/>
-                        <input type="hidden" name="adm_user_cmd" value="adm_ban_user"/>
-                        <div class="form-actions">
-                            <button type="submit" name="adm_action_submit" class="btn btn-danger">
-                                {$aLang.action.admin.users_ban}
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-                <div class="accordion-group no-border">
-                    <div class="accordion-heading">
-                        <button class="btn-block btn btn-danger left" data-target="#admin_user_del" data-toggle="collapse"
-                                data-parent="#user-comands-switch">
-                            <i class="icon icon-trash"></i>
-                            {$aLang.action.admin.user_delete}
-                        </button>
-                    </div>
-
-                    <div class="accordion-body collapse" id="admin_user_del">
-                        <form method="post" action="{$sFormAction}" class="well well-small">
-                            <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
-                            <input type="hidden" name="adm_user_list" value="{$oUserProfile->getId()}"/>
-
-                            <div class="alert alert-danger">{$aLang.action.admin.users_del_warning}</div>
-
-                            <label class="checkbox">
-                                <input type="checkbox" name="adm_user_del_confirm" value="{$oUserProfile->getId()}" />
-                                {$aLang.action.admin.users_del_confirm}
-                            </label>
-
-                            <input type="hidden" name="return-path" value="{Router::Url('url')}"/>
-                            <input type="hidden" name="adm_user_cmd" value="adm_del_user"/>
-                            <div class="form-actions">
-                                <button type="submit" name="adm_action_submit" class="btn btn-danger">{$aLang.action.admin.user_delete}</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            {/if}
-        {/if}
 
         {if !$oUserProfile}
+        {* search users *}
         <div class="accordion-group no-border">
             <div class="accordion-heading">
                 <button class="btn-block btn btn-default left" data-target="#admin_form_seek" data-toggle="collapse"
@@ -206,7 +100,10 @@
                 </form>
             </div>
         </div>
+        {/if}
 
+        {if !$oUserProfile}
+        {* send message *}
         <div class="accordion-group no-border" style="display: none;">
             <div class="accordion-heading">
                 <button class="btn-block btn btn-default left" data-target="#admin_form_send" data-toggle="collapse"
@@ -239,8 +136,8 @@
                                    onclick="AdminMessageSeparate(!this.checked)"/>
                             {$aLang.action.admin.send_separate_messages}
                         </label>
-            <span id="send_common_notice" class="help-block"
-                  style="display:none;">{$aLang.action.admin.send_common_notice}</span>
+                        <span id="send_common_notice" class="help-block"
+                              style="display:none;">{$aLang.action.admin.send_common_notice}</span>
                         <span id="send_separate_notice"
                               class="help-block">{$aLang.action.admin.send_separate_notice}</span>
                     </div>
@@ -267,7 +164,6 @@
                         <textarea name="talk_text" id="talk_text" cols="80" rows="12" class="wide"></textarea>
                     </div>
 
-
                     <div class="control-group">
                         <label for="send_copy_self" class="checkbox">
                             <input type="checkbox" name="send_copy_self" id="send_copy_self" checked/>
@@ -288,6 +184,8 @@
         </div>
         {/if}
 
+        {if !$oUserProfile  || ($oUserProfile && !$oUserProfile->IsBannedByLogin())}
+        {* add admins *}
         <div class="accordion-group no-border">
             <div class="accordion-heading">
                 <button class="btn-block btn btn-default left" data-target="#admin_user_setadmin" data-toggle="collapse"
@@ -308,7 +206,7 @@
 
                             <div class="input-group">
                                 <span class="input-group-addon"><i class="icon icon-user"></i></span>
-                                <input type="text" name="user_login_admin" id="user_login_admin" class="wide users_list js-autocomplete-users"/>
+                                <input type="text" name="user_login_admin" id="user_login_admin" class="wide users_list_login js-autocomplete-users"/>
                             </div>
                         </div>
 
@@ -319,6 +217,126 @@
                                 {$aLang.action.admin.include}
                             </button>
                         </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {/if}
+
+        {if $oUserProfile && $oUserProfile->IsBannedByLogin()}
+            <div class="accordion-group no-border">
+                <div class="accordion-heading">
+                    <button class="btn-block btn btn-default left" data-target="#admin_user_unban" data-toggle="collapse"
+                            data-parent="#user-comands-switch">
+                        <i class="icon icon-thumbs-up"></i>
+                        {$aLang.action.admin.users_unban}
+                    </button>
+                </div>
+
+                <div class="accordion-body collapse" id="admin_user_unban">
+                    <form method="post" action="{$sFormAction}" class="well well-small">
+                        <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
+
+                        {if $oUserProfile->getBanLine()}
+                            {$aLang.action.admin.ban_upto} {$oUserProfile->getBanLine()} <br/>
+                        {else}
+                            {$aLang.action.admin.ban_unlim} <br/>
+                        {/if}
+                        {$aLang.action.admin.ban_comment}: {$oUserProfile->getBanComment()}<br/>
+                        <br/>
+                        <input type="hidden" name="adm_user_list"
+                               value="{if $oUserProfile}{$oUserProfile->getId()}{/if}"/>
+                        <input type="hidden" name="return-path" value="{Router::Url('url')}"/>
+                        <input type="hidden" name="adm_user_cmd" value="adm_unban_user"/>
+
+                        <div class="form-actions">
+                            <button type="submit" name="adm_action_submit" class="btn btn-primary">
+                                {$aLang.action.admin.users_unban}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        {/if}
+
+        {if !$oUserProfile  || ($oUserProfile && !$oUserProfile->IsBannedByLogin())}
+        {* ban user(s) *}
+        <div class="accordion-group no-border">
+            <div class="accordion-heading">
+                <button class="btn-block btn btn-default left" data-target="#admin_user_ban" data-toggle="collapse"
+                        data-parent="#user-comands-switch">
+                    <i class="icon icon-ban"></i>
+                    {$aLang.action.admin.users_ban}
+                </button>
+            </div>
+
+            <div class="accordion-body collapse" id="admin_user_ban">
+                <form method="post" action="{$sFormAction}" class="well well-small">
+                    <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
+                    <input type="hidden" name="adm_user_list" class="users_list" value="{if $oUserProfile}{$oUserProfile->getId()}{/if}"/>
+
+                    <label class="radio">
+                        <input type="radio" name="ban_period" value="days" />
+                        {$aLang.action.admin.ban_for}
+                        <input type="text" name="ban_days" id="ban_days"
+                               class="num1"/> {$aLang.action.admin.ban_days}
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="ban_period" value="unlim" checked />
+                        {$aLang.action.admin.ban_unlim}
+                    </label>
+
+                    <label for="ban_comment">{$aLang.action.admin.ban_comment}</label>
+                    <input type="text" name="ban_comment" id="ban_comment" maxlength="255" class="input-wide"/>
+
+                    <input type="hidden" name="return-path" value="{Router::Url('url')}"/>
+                    <input type="hidden" name="adm_user_cmd" value="adm_ban_user"/>
+                    <div class="form-actions">
+                        <button type="submit" name="adm_action_submit" class="btn btn-danger">
+                            {$aLang.action.admin.users_ban}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {/if}
+
+        {* delete user(s) *}
+        <div class="accordion-group no-border">
+            <div class="accordion-heading">
+                <button class="btn-block btn btn-danger left" data-target="#admin_user_del" data-toggle="collapse"
+                        data-parent="#user-comands-switch">
+                    <i class="icon icon-trash"></i>
+                    {if $oUserProfile}
+                        {$aLang.action.admin.user_delete}
+                    {else}
+                        {$aLang.action.admin.users_delete}
+                    {/if}
+                </button>
+            </div>
+
+            <div class="accordion-body collapse" id="admin_user_del">
+                <form method="post" action="{$sFormAction}" class="well well-small">
+                    <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
+                    <input type="hidden" name="adm_user_list" class="users_list" value="{if $oUserProfile}{$oUserProfile->getId()}{/if}"/>
+
+                     <div class="alert alert-danger">{$aLang.action.admin.users_del_warning}</div>
+
+                    <label class="checkbox">
+                        <input type="checkbox" name="adm_user_del_confirm" value="1" />
+                        {$aLang.action.admin.users_del_confirm}
+                    </label>
+
+                    <input type="hidden" name="return-path" value="{Router::Url('url')}"/>
+                    <input type="hidden" name="adm_user_cmd" value="adm_del_user"/>
+                    <div class="form-actions">
+                        <button type="submit" name="adm_action_submit" class="btn btn-danger">
+                            {if $oUserProfile}
+                                {$aLang.action.admin.user_delete}
+                            {else}
+                                {$aLang.action.admin.users_delete}
+                            {/if}
+                        </button>
                     </div>
                 </form>
             </div>

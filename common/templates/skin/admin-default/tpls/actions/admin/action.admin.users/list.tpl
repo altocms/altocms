@@ -8,7 +8,7 @@
             <thead>
             <tr>
                 <th>
-                    <input type="checkbox" id="id_0" onclick="admin.selectAllUsers(this);"/>
+                    <input type="checkbox" id="id_0" onchange="admin.selectAllUsers(this);"/>
                 </th>
                 <th>
                     ID
@@ -59,8 +59,11 @@
                     {if $oSession}{$sLastIp=$oSession->getIpLast()}{else}{$sLastIp=""}{/if}
                 <tr class="selectable">
                     <td class="check-row">
-                        {if $oUserCurrent->GetId()!=$oUser->getId()}
-                            <input type="checkbox" id="login_{$oUser->GetLogin()}" onclick="admin.user.select()"/>
+                        {if E::UserId()!=$oUser->getId()}
+                            <input type="checkbox" id="id_{$oUser->getId()}"
+                                   data-user-id="{$oUser->getId()}"
+                                   data-user-login="{$oUser->getLogin()}"
+                                   {if E::UserId()!=$oUser->getId()}onchange="admin.user.select()"{/if}/>
                         {else}
                             &nbsp;
                         {/if}
@@ -166,29 +169,37 @@
             $('tr.selectable').removeClass('info');
         }
         admin.user.select();
-    }
+    };
 
-    admin.user.select = function (list) {
-        //console.log(list);
-        if (admin.isEmpty(list)) list = [];
-        else if (typeof list == 'string') list = [list];
+    admin.user.select = function () {
+        var list_id = [], list_login = [];
 
         $('tr.selectable td.check-row input[type=checkbox]:checked').each(function () {
-            var id = $(this).prop('id');
-            if (id.indexOf('login_') === 0) {
-                list.push(id.substr(6, 255));
+            var id = parseInt($(this).data('user-id')), login = $(this).data('user-login');
+            if (id && login) {
+                list_id.push(id);
+                list_login.push(login);
             }
             $(this).parents('tr.selectable').addClass('info');
         });
 
-        var view = '';
-        $.each(list, function (index, item) {
-            if (view) view += ', ';
-            view += '<span class="popup-user">' + item + '</span>';
+        var users_view = '', users_list_id = list_id.join(', '), users_list_login = list_login.join(', ');
+        $.each(list_login, function (index, item) {
+            if (users_view) {
+                users_view += ', ';
+            }
+            users_view += '<span class="popup-user">' + item + '</span>';
         });
-        $('form .users_list').val(list.join(', '));
-        $('form .users_list_view').html(view);
-    }
+        $('form input.users_list').each(function () {
+            $(this).val(users_list_id);
+        });
+        $('form input.users_list_login').each(function () {
+            $(this).val(users_list_login);
+        });
+        $('form .users_list_view').each(function () {
+            $(this).html(users_view);
+        });
+    };
 
     admin.user.unsetAdmin = function(login) {
         var form = $('#user-do-command');
@@ -197,7 +208,7 @@
             form.find('[name=users_list]').val(login);
             form.submit();
         }
-    }
+    };
 
     admin.user.activate = function(login) {
         var form = $('#user-do-command');
@@ -206,7 +217,7 @@
             form.find('[name=users_list]').val(login);
             form.submit();
         }
-    }
+    };
 
 </script>
 
