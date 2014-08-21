@@ -75,7 +75,7 @@
     </script>
 
     <!--[if lt IE 9]>
-    <script src="{asset file='js/respond.min.js'}"></script>
+    <script src="{asset file='assets/js/respond.min.js'}"></script>
     <![endif]-->
 
     <!--[if IE 7]>

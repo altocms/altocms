@@ -273,7 +273,15 @@ body.light .site-info { margin-bottom: 30px; }
 
 form .icon-question-sign { cursor: help; }
 
-.captcha-image { vertical-align: top; margin-left: 0; margin-right: 16px; min-height: 60px; min-width: 80px; }
+.captcha-image {
+    vertical-align: top;
+    margin-left: 0;
+    margin-right: 16px;
+    height: 60px;
+    width: 90px;
+    padding: 0;
+    display: inline-block;
+}
 
 .form-profile { position: relative; }
 .form-profile .form-actions { margin-top: 0; margin-bottom: 0; }

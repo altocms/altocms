@@ -112,8 +112,8 @@
                                 {hookb run="form_registration_captcha"}
                                     <div class="form-group">
                                         <label for="input-registration-captcha" class="captcha">{$aLang.registration_captcha}</label>
-                                        <img src="" onclick="this.src='{router page='captcha'}?n='+Math.random();"
-                                             class="captcha-image"/>
+                                        <img src="{asset file="assets/images/loader.gif"}" onclick="this.src='{router page='captcha'}?n='+Math.random();"
+                                             class="form-control captcha-image"/>
                                         <input type="text" name="captcha" id="input-registration-captcha" value=""
                                                maxlength="3" class="form-control captcha-input js-ajax-validate" required/>
 
