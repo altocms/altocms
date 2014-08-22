@@ -1162,14 +1162,14 @@ class ModuleTopic_MapperTopic extends Mapper {
     public function getPhotosByTopicId($aTopicId, $iFromId, $iCount) {
 
         $sql = "
-            SELECT *
-            FROM ?_topic_photo
+            SELECT tp.id AS ARRAY_KEY, tp.*
+            FROM ?_topic_photo AS tp
             WHERE
                 1=1
-                {AND topic_id = ?d}
-                {AND topic_id IN (?a)}
-                {AND id >= ?d}
-            ORDER BY id
+                {AND tp.topic_id = ?d}
+                {AND tp.topic_id IN (?a)}
+                {AND tp.id >= ?d}
+            ORDER BY tp.id
             {LIMIT 0, ?d}
             ";
         $aRows = $this->oDb->select($sql,

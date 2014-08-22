@@ -142,10 +142,36 @@ class ModuleTopic_EntityTopic extends Entity {
         return $this->Lang_Get('topic_create_blog_error_unknown');
     }
 
-    public function getField($id) {
+    /**
+     * @param int $iFieldId
+     *
+     * @return mixed
+     */
+    public function getField($iFieldId) {
 
-        if (isset($this->aValues[$id])) {
-            return $this->aValues[$id];
+        if (isset($this->aValues[$iFieldId])) {
+            return $this->aValues[$iFieldId];
+        }
+        return null;
+    }
+
+    /*
+     * Обрабатывает поле ссылки
+     *
+     * @param int $id
+     * @param bool $bHtml
+     *
+     * @return null|string
+     */
+    public function getFieldLink($iFieldId, $bHtml = false) {
+
+        if ($this->getField($iFieldId)) {
+            if ($bHtml) {
+                if (strpos($this->getField($iFieldId)->getValue(), 'http://') !== 0) {
+                    return 'http://' . $this->getField($iFieldId)->getValue();
+                }
+            }
+            return $this->getField($iFieldId)->getValue();
         }
         return null;
     }
@@ -804,9 +830,9 @@ class ModuleTopic_EntityTopic extends Entity {
         return (array)$this->getExtraValue('intext_links');
     }
 
-    /***************************************************************************************************************************************************
+    /* ****************************************************************************************************************
      * методы расширения типов топика
-     ***************************************************************************************************************************************************
+     * ****************************************************************************************************************
      */
 
     /**
@@ -848,6 +874,9 @@ class ModuleTopic_EntityTopic extends Entity {
         return null;
     }
 
+    /* *** ******************** *** */
+    /* *** SOURCE LINK OF TOPIC *** */
+
     /**
      * Returns URL of topic's source link
      *
@@ -888,24 +917,6 @@ class ModuleTopic_EntityTopic extends Entity {
         $this->setExtraValue('url', strip_tags($data));
     }
 
-    /*
-     * Обрабатывает поле ссылки
-     *
-     * @param string $data
-     */
-    public function getFieldLink($id, $bHtml = false) {
-
-        if ($this->getField($id)) {
-            if ($bHtml) {
-                if (strpos($this->getField($id)->getValue(), 'http://') !== 0) {
-                    return 'http://' . $this->getField($id)->getValue();
-                }
-            }
-            return $this->getField($id)->getValue();
-        }
-        return null;
-    }
-
     /**
      * Возвращает количество переходов по ссылке в топике-ссылке
      *
@@ -925,6 +936,9 @@ class ModuleTopic_EntityTopic extends Entity {
 
         $this->setExtraValue('count_jump', $data);
     }
+
+    /* *** ********************** *** */
+    /* *** QUESTIONNAIRE OF TOPIC *** */
 
     /**
      * Устанавливает вопрос
@@ -946,7 +960,7 @@ class ModuleTopic_EntityTopic extends Entity {
         if ($this->getExtraValue('question_title')) {
             return $this->getExtraValue('question_title');
         }
-        $this->getTitle();
+        return $this->getTitle();
     }
 
     /**
@@ -1085,8 +1099,11 @@ class ModuleTopic_EntityTopic extends Entity {
         $this->setExtraValue('count_vote_abstain', $data);
     }
 
+    /* *** ********************** *** */
+    /* *** PHOTOSET OF TOPIC      *** */
+
     /**
-     * Возвращает фотографии из топика-фотосета
+     * Возвращает фотографии из фотосета топика
      *
      * @param int|null $iFromId    ID с которого начинать  выборку
      * @param int|null $iCount     Количество
@@ -1095,27 +1112,68 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function getPhotosetPhotos($iFromId = null, $iCount = null) {
 
-        return $this->Topic_GetPhotosByTopicId($this->getId(), $iFromId, $iCount);
+        $iPhotosCount = $this->getPhotosetCount();
+        if (!$iPhotosCount) {
+            return array();
+        }
+
+        $aPhotos = $this->getProp('_photoset_photos');
+        if (is_null($aPhotos)) {
+            $aPhotos = $this->Topic_GetPhotosByTopicId($this->getId(), null, $iPhotosCount);
+            $this->setProp('_photoset_photos', $aPhotos);
+        }
+        $aResult = array();
+        if ($aPhotos && ($iFromId || $iCount)) {
+            $iCntSet = -1;
+            foreach($aPhotos as $iPhotoId => $oPhoto) {
+                if (++$iCntSet >= $iCount) {
+                    break;
+                }
+                if ($iPhotoId >= $iFromId) {
+                    $aResult[$iPhotoId] = $oPhoto;
+                }
+            }
+        } else {
+            $aResult = $aPhotos;
+        }
+        return $aResult;
     }
 
     /**
      * Возвращает количество фотографий в фотосете топика
      *
-     * @return int|null
+     * @return int
      */
     public function getPhotosetCount() {
 
-        return $this->getExtraValue('count_photo');
+        return (int)$this->getExtraValue('count_photo');
     }
 
     /**
-     * Возвращает ID главной фото в топике-фотосете
+     * Returns ID of main photo in photoset
      *
      * @return int|null
      */
     public function getPhotosetMainPhotoId() {
 
         return $this->getExtraValue('main_photo_id');
+    }
+
+    /**
+     * Returns main photo in photoset
+     *
+     * @return ModuleTopic_EntityTopicPhoto|null
+     */
+    public function getPhotosetMainPhoto() {
+
+        $iPhotoId = $this->getPhotosetMainPhotoId();
+        if ($iPhotoId) {
+            $aPhotos = $this->getPhotosetPhotos($iPhotoId, 1);
+            if (isset($aPhotos[$iPhotoId])) {
+                return $aPhotos[$iPhotoId];
+            }
+        }
+        return null;
     }
 
     /**
@@ -1136,6 +1194,7 @@ class ModuleTopic_EntityTopic extends Entity {
     public function setPhotosetMainPhotoId($data) {
 
         $this->setExtraValue('main_photo_id', $data);
+        $this->setProp('_photoset_photos', null);
     }
 
     /**
@@ -1146,12 +1205,20 @@ class ModuleTopic_EntityTopic extends Entity {
     public function setPhotosetCount($data) {
 
         $this->setExtraValue('count_photo', $data);
+        $this->setProp('_photoset_photos', null);
     }
 
+    /**
+     * @param $data
+     */
     public function setPhotosId($data) {
 
         $this->setExtraValue('photos_id', $data);
+        $this->setProp('_photoset_photos', null);
     }
+
+    /* *** ********************** *** */
+    /* *** OTHERS                 *** */
 
     /**
      * Флаг игнорирования индексации установлен вручную
