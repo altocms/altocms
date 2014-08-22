@@ -266,7 +266,7 @@ class ModuleLogger_EntityLog extends Entity {
             $sFile = $this->GetFileDir() . $sFileName;
 
             // file for locking
-            $sCheckFileName = $sFileName . '.lock';
+            $sCheckFileName = $sFile . '.lock';
             $fp = @fopen($sCheckFileName, 'c');
             if (!$fp) {
                 // It is not clear what to do here
