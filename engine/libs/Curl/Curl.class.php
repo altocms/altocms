@@ -23,7 +23,7 @@
  */
 class Curl {
 
-    const VERSION = '1.2';
+    const VERSION = '1.2.1';
 
     const CACHE_ENABLE = 1;
     const CACHE_TIME = 2;
@@ -35,6 +35,7 @@ class Curl {
         = array(
             CURLOPT_VERBOSE        => true,
             CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_SSL_VERIFYPEER => 0,
         );
     protected $_sUrl = '';
 
@@ -115,6 +116,7 @@ class Curl {
             $sUrl = $this->_sUrl;
         }
         $aUrlInfo = parse_url($sUrl);
+        $aOptions = $this->_aOptions;
         if ($aUrlInfo['scheme'] == 'http' || $aUrlInfo['scheme'] == 'https') {
             // this eval for HTTP-requests only
             if (!$sHttpMethod) {
@@ -133,7 +135,6 @@ class Curl {
                     $this->addHttpHeader('Keep-Alive', intval($this->_bKeepAlive));
                 }
             }
-            $aOptions = $this->_aOptions;
             if (!isset($aOptions[CURLOPT_HEADER])) {
                 $aOptions[CURLOPT_HEADER] = 1;
             }
@@ -162,6 +163,8 @@ class Curl {
 
         if ($bCache = $this->cacheEnable()) {
             $aData = $this->_getCache($aOptions);
+        } else {
+            $aData = null;
         }
         if ($aData && isset($aData['version']) && $aData['version'] == self::VERSION) {
             $sResponse = $aData['response'];
@@ -173,9 +176,15 @@ class Curl {
                 $this->_hPointer = curl_init();
             }
 
-            curl_setopt_array($this->_hPointer, $aOptions);var_dump($aOptions);
+            curl_setopt_array($this->_hPointer, $aOptions);
             $sResponse = curl_exec($this->_hPointer);
-            $this->_nError = curl_errno($this->_hPointer);
+            if ($sResponse === false) {
+                $this->_nError = curl_errno($this->_hPointer);
+                $this->_sError = curl_error($this->_hPointer);
+            } else {
+                $this->_nError = 0;
+                $this->_sError = null;
+            }
             $this->_aInfo = curl_getinfo($this->_hPointer);
             $this->_aResponseHeader = null;
             if (isset($aOptions[CURLOPT_HEADER]) && $aOptions[CURLOPT_HEADER]) {
@@ -287,6 +296,7 @@ class Curl {
             $sData = file_get_contents($sFileName);
             return unserialize($sData);
         }
+        return null;
     }
 
     /**
@@ -540,6 +550,7 @@ class Curl {
      * @return mixed
      */
     public function requestPost($sUrl = null, $aParams = array()) {
+
         $this->_sHttpMethod = 'POST';
         return $this->request($sUrl, $aParams);
     }
@@ -553,6 +564,7 @@ class Curl {
      * @return mixed
      */
     public function requestGet($sUrl = null, $aParams = array()) {
+
         $this->_sHttpMethod = 'GET';
         return $this->request($sUrl, $aParams);
     }
@@ -577,6 +589,7 @@ class Curl {
      * @return int
      */
     public function getErrNo() {
+
         return $this->_nError;
     }
 
@@ -586,10 +599,8 @@ class Curl {
      * @return string
      */
     public function getError() {
-        if ($this->_nError) {
-            return curl_strerror($this->_nError);
-        }
-        return '';
+
+        return $this->_sError;
     }
 
     /**

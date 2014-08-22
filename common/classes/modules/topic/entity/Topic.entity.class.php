@@ -1189,31 +1189,31 @@ class ModuleTopic_EntityTopic extends Entity {
     /**
      * Устанавливает ID главной фото в топике-фотосете
      *
-     * @param int $data
+     * @param int $iPhotoId
      */
-    public function setPhotosetMainPhotoId($data) {
+    public function setPhotosetMainPhotoId($iPhotoId) {
 
-        $this->setExtraValue('main_photo_id', $data);
+        $this->setExtraValue('main_photo_id', $iPhotoId);
         $this->setProp('_photoset_photos', null);
     }
 
     /**
      * Устанавливает количество фотографий в топике-фотосете
      *
-     * @param int $data
+     * @param int $iCount
      */
-    public function setPhotosetCount($data) {
+    public function setPhotosetCount($iCount) {
 
-        $this->setExtraValue('count_photo', $data);
+        $this->setExtraValue('count_photo', $iCount);
         $this->setProp('_photoset_photos', null);
     }
 
     /**
-     * @param $data
+     * @param $aPhotosId
      */
-    public function setPhotosId($data) {
+    public function setPhotosId($aPhotosId) {
 
-        $this->setExtraValue('photos_id', $data);
+        $this->setExtraValue('photos_id', $aPhotosId);
         $this->setProp('_photoset_photos', null);
     }
 
