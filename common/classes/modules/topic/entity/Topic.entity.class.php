@@ -849,17 +849,17 @@ class ModuleTopic_EntityTopic extends Entity {
     }
 
     /**
-     * Возвращает URL для топика-ссылки
+     * Returns URL of topic's source link
      *
-     * @param bool $bShort    Укарачивать урл или нет
+     * @param bool $bShort    Shorten URL
      *
      * @return null|string
      */
-    public function getLinkUrl($bShort = false) {
+    public function getSourceLink($bShort = false) {
 
-        if ($this->getExtraValue('url')) {
+        if ($sUrl = $this->getExtraValue('url')) {
             if ($bShort) {
-                $sUrl = htmlspecialchars($this->getExtraValue('url'));
+                $sUrl = htmlspecialchars($sUrl);
                 if (preg_match('/^https?:\/\/(.*)$/i', $sUrl, $aMatch)) {
                     $sUrl = $aMatch[1];
                 }
@@ -868,10 +868,10 @@ class ModuleTopic_EntityTopic extends Entity {
                     return $sUrlShort . '...';
                 }
                 return $sUrl;
-            }
-            $sUrl = $this->getExtraValue('url');
-            if (!preg_match('/^https?:\/\/(.*)$/i', $sUrl, $aMatch)) {
-                $sUrl = 'http://' . $sUrl;
+            } else {
+                if (!preg_match('/^https?:\/\/(.*)$/i', $sUrl, $aMatch)) {
+                    $sUrl = 'http://' . $sUrl;
+                }
             }
             return $sUrl;
         }
@@ -879,11 +879,11 @@ class ModuleTopic_EntityTopic extends Entity {
     }
 
     /**
-     * Set URL for topic's filed link-source
+     * Set URL of topic's source link
      *
      * @param string $data
      */
-    public function setLinkUrl($data) {
+    public function setSourceLink($data) {
 
         $this->setExtraValue('url', strip_tags($data));
     }
@@ -893,7 +893,7 @@ class ModuleTopic_EntityTopic extends Entity {
      *
      * @param string $data
      */
-    public function getLink($id, $bHtml = false) {
+    public function getFieldLink($id, $bHtml = false) {
 
         if ($this->getField($id)) {
             if ($bHtml) {
@@ -909,9 +909,9 @@ class ModuleTopic_EntityTopic extends Entity {
     /**
      * Возвращает количество переходов по ссылке в топике-ссылке
      *
-     * @return int|null
+     * @return int
      */
-    public function getLinkCountJump() {
+    public function getSourceLinkCountJump() {
 
         return (int)$this->getExtraValue('count_jump');
     }
@@ -921,7 +921,7 @@ class ModuleTopic_EntityTopic extends Entity {
      *
      * @param string $data
      */
-    public function setLinkCountJump($data) {
+    public function setSourceLinkCountJump($data) {
 
         $this->setExtraValue('count_jump', $data);
     }
@@ -950,7 +950,7 @@ class ModuleTopic_EntityTopic extends Entity {
     }
 
     /**
-     * Добавляет вариант ответа в топик-опрос
+     * Добавляет вариант ответа в опросе топика
      *
      * @param string $data
      */
@@ -962,7 +962,7 @@ class ModuleTopic_EntityTopic extends Entity {
     }
 
     /**
-     * Очищает варианты ответа в топике-опрос
+     * Очищает варианты ответа в опросе топика
      */
     public function clearQuestionAnswer() {
 
@@ -970,7 +970,7 @@ class ModuleTopic_EntityTopic extends Entity {
     }
 
     /**
-     * Возвращает варианты ответа в топике-опрос
+     * Возвращает варианты ответа в опросе топика
      *
      * @param bool $bSortVote
      *
@@ -991,7 +991,7 @@ class ModuleTopic_EntityTopic extends Entity {
     }
 
     /**
-     * Увеличивает количество ответов на данный вариант в топике-опросе
+     * Увеличивает количество ответов на данный вариант в опросе топика
      *
      * @param int $sIdAnswer  ID варианта ответа
      */
@@ -1007,7 +1007,7 @@ class ModuleTopic_EntityTopic extends Entity {
     }
 
     /**
-     * Возвращает максимально количество ответов на вариант в топике-опросе
+     * Возвращает максимально количество ответов на вариант в опросе топика
      *
      * @return int
      */
@@ -1035,19 +1035,18 @@ class ModuleTopic_EntityTopic extends Entity {
         if ($aAnswers = $this->getQuestionAnswers()) {
             if (isset($aAnswers[$sIdAnswer])) {
                 $iCountAll = $this->getQuestionCountVote() - $this->getQuestionCountVoteAbstain();
-                if ($iCountAll == 0) {
-                    return 0;
-                } else {
+                if (!$iCountAll == 0) {
                     return number_format(round($aAnswers[$sIdAnswer]['count'] * 100 / $iCountAll, 1), 1, '.', '');
                 }
             }
         }
+        return 0;
     }
 
     /**
-     * Возвращает общее число принявших участие в опросе в топике-опросе
+     * Возвращает общее число принявших участие в опросе в опросе топика
      *
-     * @return int|null
+     * @return int
      */
     public function getQuestionCountVote() {
 
@@ -1055,7 +1054,7 @@ class ModuleTopic_EntityTopic extends Entity {
     }
 
     /**
-     * Устанавливает общее число принявших участие в опросе в топике-опросе
+     * Устанавливает общее число принявших участие в опросе в опросе топика
      *
      * @param int $data
      */
@@ -1065,9 +1064,9 @@ class ModuleTopic_EntityTopic extends Entity {
     }
 
     /**
-     * Возвращает число воздержавшихся от участия в опросе в топике-опросе
+     * Возвращает число воздержавшихся от участия в опросе
      *
-     * @return int|null
+     * @return int
      */
     public function getQuestionCountVoteAbstain() {
 
@@ -1075,7 +1074,7 @@ class ModuleTopic_EntityTopic extends Entity {
     }
 
     /**
-     * Устанавливает число воздержавшихся от участия в опросе в топике-опросе
+     * Устанавливает число воздержавшихся от участия в опросе
      *
      * @param int $data
      *

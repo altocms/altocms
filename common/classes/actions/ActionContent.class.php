@@ -220,7 +220,7 @@ class ActionContent extends Action {
         $oTopic->setType($this->oContentType->getContentUrl());
 
         if ($this->oContentType->isAllow('link')) {
-            $oTopic->setLinkUrl(F::GetRequestStr('topic_field_link'));
+            $oTopic->setSourceLink(F::GetRequestStr('topic_field_link'));
         }
         $oTopic->setTags(F::GetRequestStr('topic_field_tags'));
 
@@ -460,7 +460,7 @@ class ActionContent extends Action {
             $_REQUEST['topic_forbid_comment'] = $oTopic->getForbidComment();
             $_REQUEST['topic_main_photo'] = $oTopic->getPhotosetMainPhotoId();
 
-            $_REQUEST['topic_field_link'] = $oTopic->getLinkUrl();
+            $_REQUEST['topic_field_link'] = $oTopic->getSourceLink();
             $_REQUEST['topic_field_tags'] = $oTopic->getTags();
 
             $_REQUEST['topic_field_question'] = $oTopic->getQuestionTitle();
@@ -537,7 +537,7 @@ class ActionContent extends Action {
         $oTopic->setTextSource(F::GetRequestStr('topic_text'));
 
         if ($this->oContentType->isAllow('link')) {
-            $oTopic->setLinkUrl(F::GetRequestStr('topic_field_link'));
+            $oTopic->setSourceLink(F::GetRequestStr('topic_field_link'));
         }
         $oTopic->setTags(F::GetRequestStr('topic_field_tags'));
 
@@ -1062,28 +1062,24 @@ class ActionContent extends Action {
      *
      */
     protected function EventGo() {
-        /**
-         * Получаем номер топика из УРЛ и проверяем существует ли он
-         */
-        $sTopicId = $this->GetParam(0);
-        if (!($oTopic = $this->Topic_GetTopicById($sTopicId)) || !$oTopic->getPublish()) {
+
+        // * Получаем номер топика из УРЛ и проверяем существует ли он
+        $iTopicId = intval($this->GetParam(0));
+        if (!$iTopicId || !($oTopic = $this->Topic_GetTopicById($iTopicId)) || !$oTopic->getPublish()) {
             return parent::EventNotFound();
         }
-        /**
-         * проверяем есть ли ссылка на оригинал
-         */
-        if (!$oTopic->getLinkUrl()) {
+
+        // * проверяем есть ли ссылка на источник
+        if (!$oTopic->getSourceLink()) {
             return parent::EventNotFound();
         }
-        /**
-         * увелививаем число переходов по ссылке
-         */
-        $oTopic->setLinkCountJump($oTopic->getLinkCountJump() + 1);
+
+        // * увелививаем число переходов по ссылке
+        $oTopic->setSourceLinkCountJump($oTopic->getSourceLinkCountJump() + 1);
         $this->Topic_UpdateTopic($oTopic);
-        /**
-         * собственно сам переход по ссылке
-         */
-        Router::Location($oTopic->getLinkUrl());
+
+        // * собственно сам переход по ссылке
+        Router::Location($oTopic->getSourceLink());
     }
 
     /*
