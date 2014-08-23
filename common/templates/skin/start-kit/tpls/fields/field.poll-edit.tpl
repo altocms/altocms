@@ -21,20 +21,20 @@
                             <input type="text" value="{$sAnswer}" name="topic_field_answers[]"
                                    class="form-control" {if $bEditDisabled}disabled{/if} />
                             {if !$bEditDisabled AND $i>1}
-                                <a href="#" class="glyphicon glyphicon-remove btn-remove" title="{$aLang.delete}" onclick="return ls.poll.removeItem(this);"></a>
+                                <a href="#" class="glyphicon glyphicon-remove btn-remove js-poll-item-remove" title="{$aLang.delete}" onclick="return ls.poll.removeItem(this);"></a>
                             {/if}
                         </li>
                     {/foreach}
                 {else}
-                    <li class="topic-poll-add-item js-poll-edit-item">
+                    <li class="topic-poll-add-item js-poll-item">
                         <input type="text" value="" name="topic_field_answers[]"
                                class="form-control" {if $bEditDisabled}disabled{/if} />
-                        <a href="#" class="glyphicon glyphicon-remove" title="{$aLang.delete}"></a>
+                        <a href="#" class="glyphicon glyphicon-remove js-poll-item-remove" title="{$aLang.delete}"></a>
                     </li>
-                    <li class="topic-poll-add-item js-poll-edit-item">
+                    <li class="topic-poll-add-item js-poll-item">
                         <input type="text" value="" name="topic_field_answers[]"
                                class="form-control" {if $bEditDisabled}disabled{/if} />
-                        <a href="#" class="glyphicon glyphicon-remove" title="{$aLang.delete}"></a>
+                        <a href="#" class="glyphicon glyphicon-remove js-poll-item-remove" title="{$aLang.delete}"></a>
                     </li>
                 {/if}
             </ul>

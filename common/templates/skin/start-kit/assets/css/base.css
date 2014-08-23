@@ -479,6 +479,7 @@ select, input[type="file"] { height: auto; }
 
 .topic-poll-add { padding: 15px 20px; margin-bottom: 20px; }
 .topic-poll-add-item { position: relative; margin-bottom: 15px; }
+.topic-poll-add-item input { width: 95%; display: inline-block; }
 /* .topic-poll-add-list { margin-right: 30px; } */
 .topic-poll-add-list .b-remove { position: absolute; right: 0; padding: 9px 6px; z-index: 10; }
 

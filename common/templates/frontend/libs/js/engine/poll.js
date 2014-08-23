@@ -26,6 +26,7 @@ ls.poll = (function ($) {
             poll:                   '.js-poll',
             pollList:               '.js-poll-list',
             pollItem:               '.js-poll-item',
+            pollItemRemove:         '.js-poll-item-remove',
 
             // Селекторы результата опроса
             result:                 '.js-poll-result',
@@ -41,9 +42,10 @@ ls.poll = (function ($) {
      */
     this.init = function (options) {
         this.options = $.extend({}, defaults, options);
+        var pollEdit = $(this.options.selectors.pollEdit);
 
         // Добавление
-        $(this.options.selectors.pollEdit).each(function () {
+        pollEdit.each(function () {
             var pollSet = $(this);
 
             // Добавление варианта
@@ -62,6 +64,12 @@ ls.poll = (function ($) {
             });
 
         });
+
+        pollEdit.on('click', this.options.selectors.pollItemRemove, function(event){ ls.log('===', event.target);
+            $that.removeItem(event.target);
+            return false;
+        }.bind($that));
+        pollEdit.find(this.options.selectors.pollItemRemove + ':lt(2)').hide();
     };
 
     /**
@@ -77,6 +85,7 @@ ls.poll = (function ($) {
                 return false;
             }
             var newItem = $(items.last().get(0).outerHTML);
+            newItem.find(this.options.selectors.pollItemRemove).css('display', 'inline-block');
             newItem.appendTo(items.parent()).find('input[type=text],textarea').val('');
             items.find('[value=""]').first().focus();
         }
@@ -141,6 +150,7 @@ ls.poll = (function ($) {
                 ls.hook.run('ls_pool_vote_after', [pollId, value, result], poll);
             }
         });
+        return false;
     };
 
     /**
