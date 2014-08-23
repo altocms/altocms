@@ -595,12 +595,14 @@ class Func {
     static public function IncludeFile($sFile, $bOnce = true, $bConfig = false) {
 
         $sDir = dirname($sFile);
+        $sRealPath = null;
         if ($sDir == '.' || $sDir == '..' || substr($sDir, 0, 2) == './' || substr($sDir, 0, 3) == '../') {
             $aCaller = static::_Caller();
             if (isset($aCaller['file'])) {
                 $sRealPath = realpath(dirname($aCaller['file']) . '/' . $sFile);
             }
-        } else {
+        }
+        if (!$sRealPath) {
             $sRealPath = realpath($sFile);
         }
         if ($sRealPath) {
