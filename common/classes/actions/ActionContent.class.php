@@ -278,8 +278,12 @@ class ActionContent extends Action {
         if ($this->oContentType->isAllow('poll') && F::GetRequestStr('topic_field_question') && F::GetRequest('topic_field_answers', array())) {
             $oTopic->setQuestionTitle(strip_tags(F::GetRequestStr('topic_field_question')));
             $oTopic->clearQuestionAnswer();
-            foreach (F::GetRequest('topic_field_answers', array()) as $sAnswer) {
-                $oTopic->addQuestionAnswer((string)$sAnswer);
+            $aAnswers = F::GetRequest('topic_field_answers', array());
+            foreach ($aAnswers as $sAnswer) {
+                $sAnswer = trim((string)$sAnswer);
+                if ($sAnswer) {
+                    $oTopic->addQuestionAnswer($sAnswer);
+                }
             }
         }
 
@@ -600,8 +604,12 @@ class ActionContent extends Action {
         ) {
             $oTopic->setQuestionTitle(strip_tags(F::GetRequestStr('topic_field_question')));
             $oTopic->clearQuestionAnswer();
-            foreach (F::GetRequest('topic_field_answers', array()) as $sAnswer) {
-                $oTopic->addQuestionAnswer((string)$sAnswer);
+            $aAnswers = F::GetRequest('topic_field_answers', array());
+            foreach ($aAnswers as $sAnswer) {
+                $sAnswer = trim((string)$sAnswer);
+                if ($sAnswer) {
+                    $oTopic->addQuestionAnswer($sAnswer);
+                }
             }
         }
 
@@ -609,7 +617,7 @@ class ActionContent extends Action {
         if ($this->oContentType->isAllow('photoset') && $aPhotos = $oTopic->getPhotosetPhotos()) {
             $oPhotoMain = $this->Topic_GetTopicPhotoById(F::GetRequestStr('topic_main_photo'));
             if (!$oPhotoMain || $oPhotoMain->getTopicId() != $oTopic->getId()) {
-                $oPhotoMain = $aPhotos[0];
+                $oPhotoMain = reset($aPhotos);
             }
             $oTopic->setPhotosetMainPhotoId($oPhotoMain->getId());
             $oTopic->setPhotosetCount(count($aPhotos));
