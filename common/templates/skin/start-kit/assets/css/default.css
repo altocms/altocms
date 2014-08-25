@@ -8,7 +8,12 @@ a:focus { text-decoration: none; }
 .text-danger { color: #ff4136; }
 .nav > li > a { color: #363535; }
 .pagination { display: block; overflow: hidden; }
-.pagination > li > a, .pagination > li > span { padding: 9px 15px; }
+.pagination > li > a, .pagination > li > span, .pagination > li > em {
+    padding: 9px 15px; position: relative; float: left;
+}
+.pagination > li > em {
+    border-color: transparent;
+}
 
 .pagination > .disabled > span,
 .pagination > .disabled > span:hover,
@@ -565,5 +570,6 @@ a.user-friends:hover { color: #ff4136; text-decoration: none; }
 .paging { background-color: #fff; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.02); }
 .paging .pagination { margin-top: 0; margin-bottom: 0; }
 .pagination, .pagination * { border-radius: 0 !important; }
+.pagination-comments { margin-bottom: 30px; }
 
 #users-list-original .paging { border: 1px solid #e6e6e6; }
