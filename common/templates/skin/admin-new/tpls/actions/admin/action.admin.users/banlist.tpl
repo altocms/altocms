@@ -2,7 +2,7 @@
 {block name="content-bar"}
 <div class="col-md-12">
   <a href="#" class="btn btn-primary pull-right disabled"><i class="glyphicon glyphicon-plus"></i></a>
-  <ul class="nav nav-pills atlass">
+  <ul class="nav nav-pills">
     <li class="{if $sMode=='ids'}active{/if}">
       <a href="{router page='admin'}users-banlist/ids/">
       {$aLang.action.admin.banlist_ids}

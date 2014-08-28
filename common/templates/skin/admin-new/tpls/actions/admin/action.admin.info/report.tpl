@@ -17,9 +17,9 @@
       <div class="panel-body">
         {foreach $aSection.data as $sKey=>$aItem}
         {if ($aItem.label)}
-        {$aItem.label}:
+        <span class="col-md-4">{$aItem.label}:</span>
         {/if}
-        <strong class="adm_info_value">{$aItem.value}</strong>
+        <span class="col-md-8">{$aItem.value}</span>
         {if ($aItem['.html'])}{$aItem['.html']}{/if}
         <br/>
         {/foreach}

@@ -28,6 +28,7 @@ $config['head']['default']['js'] = array(
     '___path.skin.url___/assets/js/menu-left/jquery.cookie.js',
     '___path.skin.url___/assets/js/menu-left/jquery.hoverIntent.minified.js',
 
+    '___path.frontend.dir___/libs/js/core/main.js',
     '___path.frontend.dir___/libs/js/engine/admin-userfield.js',
     '___path.skin.url___/assets/js/main.js',
     '___path.skin.dir___/assets/js/admin.js',
