@@ -1177,33 +1177,35 @@ class ModuleBlog extends Module {
 
         // Получаем массив ID, если передан объект или массив объектов
         $aBlogsId = $this->_entitiesId($aBlogsId);
+        if ($aBlogsId) {
+            // * Получаем идентификаторы топиков блога. Удаляем топики блога.
+            // * При удалении топиков удаляются комментарии к ним и голоса.
+            $aTopicsId = $this->Topic_GetTopicsByBlogId($aBlogsId);
 
-        // * Получаем идентификаторы топиков блога. Удаляем топики блога.
-        // * При удалении топиков удаляются комментарии к ним и голоса.
-        $aTopicsId = $this->Topic_GetTopicsByBlogId($aBlogsId);
+            // * Если блог не удален, возвращаем false
+            if (!$this->oMapper->DeleteBlog($aBlogsId)) {
+                return false;
+            }
 
-        // * Если блог не удален, возвращаем false
-        if (!$this->oMapper->DeleteBlog($aBlogsId)) {
-            return false;
+            if ($aTopicsId) {
+                // * Удаляем топики
+                $this->Topic_DeleteTopics($aTopicsId);
+            }
+
+            // * Удаляем связи пользователей блога.
+            $this->oMapper->DeleteBlogUsersByBlogId($aBlogsId);
+
+            // * Удаляем голосование за блог
+            $this->Vote_DeleteVoteByTarget($aBlogsId, 'blog');
+
+            // * Чистим кеш
+            $this->Cache_CleanByTags(array('blog_update', 'topic_update', 'comment_online_update_topic', 'comment_update'));
+            foreach ($aBlogsId as $nBlogId) {
+                $this->Cache_CleanByTags(array("blog_relation_change_blog_{$nBlogId}"));
+                $this->Cache_Delete("blog_{$nBlogId}");
+            }
         }
 
-        if ($aTopicsId) {
-            // * Удаляем топики
-            $this->Topic_DeleteTopics($aTopicsId);
-        }
-
-        // * Удаляем связи пользователей блога.
-        $this->oMapper->DeleteBlogUsersByBlogId($aBlogsId);
-
-        // * Удаляем голосование за блог
-        $this->Vote_DeleteVoteByTarget($aBlogsId, 'blog');
-
-        // * Чистим кеш
-        $this->Cache_CleanByTags(array('blog_update', 'topic_update', 'comment_online_update_topic', 'comment_update'));
-        foreach ($aBlogsId as $nBlogId) {
-            $this->Cache_CleanByTags(array("blog_relation_change_blog_{$nBlogId}"));
-            $this->Cache_Delete("blog_{$nBlogId}");
-        }
         return true;
     }
 
@@ -1274,29 +1276,32 @@ class ModuleBlog extends Module {
     /**
      * Пересчет количества топиков в конкретном блоге
      *
-     * @param int|array $aBlogId - ID of blog | IDs of blogs
+     * @param int|array $aBlogsId - ID of blog | IDs of blogs
      *
      * @return bool
      */
-    public function RecalculateCountTopicByBlogId($aBlogId) {
+    public function RecalculateCountTopicByBlogId($aBlogsId) {
 
-        $aBlogId = $this->_entitiesId($aBlogId);
-        $bResult = $this->oMapper->RecalculateCountTopic($aBlogId);
-        if ($bResult) {
-            //чистим зависимые кеши
-            if (is_array($aBlogId)) {
-                $aCacheTags = array('blog_update');
-                foreach ($aBlogId as $iBlogId) {
-                    $this->Cache_Delete("blog_{$iBlogId}");
-                    $aCacheTags[] = "blog_update_{$iBlogId}";
+        $aBlogsId = $this->_entitiesId($aBlogsId);
+        if ($aBlogsId) {
+            $bResult = $this->oMapper->RecalculateCountTopic($aBlogsId);
+            if ($bResult) {
+                //чистим зависимые кеши
+                if (is_array($aBlogsId)) {
+                    $aCacheTags = array('blog_update');
+                    foreach ($aBlogsId as $iBlogId) {
+                        $this->Cache_Delete("blog_{$iBlogId}");
+                        $aCacheTags[] = "blog_update_{$iBlogId}";
+                    }
+                    $this->Cache_CleanByTags($aCacheTags);
+                } else {
+                    $this->Cache_CleanByTags(array('blog_update', "blog_update_{$aBlogsId}"));
+                    $this->Cache_Delete("blog_{$aBlogsId}");
                 }
-                $this->Cache_CleanByTags($aCacheTags);
-            } else {
-                $this->Cache_CleanByTags(array('blog_update', "blog_update_{$aBlogId}"));
-                $this->Cache_Delete("blog_{$aBlogId}");
+                return $bResult;
             }
-            return $bResult;
         }
+        return true;
     }
 
     /**

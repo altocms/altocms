@@ -52,22 +52,25 @@ class ModuleAdmin extends Module {
     public function BanUsers($aUsers, $nDays = null, $sComment = null) {
 
         $aUserIds = $this->_entitiesId($aUsers);
-        // для все юзеров, добавляемых в бан, закрываются сессии
-        foreach ($aUserIds as $nUserId) {
-            if ($nUserId) {
-                $this->Session_Drop($nUserId);
-                $this->User_CloseAllSessions($nUserId);
+        $bOk = true;
+        if ($aUserIds) {
+            // для все юзеров, добавляемых в бан, закрываются сессии
+            foreach ($aUserIds as $nUserId) {
+                if ($nUserId) {
+                    $this->Session_Drop($nUserId);
+                    $this->User_CloseAllSessions($nUserId);
+                }
             }
+            if (!$nDays) {
+                $nUnlim = 1;
+                $dDate = null;
+            } else {
+                $nUnlim = 0;
+                $dDate = date('Y-m-d H:i:s', time() + 3600 * 24 * $nDays);
+            }
+            $bOk = $this->oMapper->BanUsers($aUserIds, $dDate, $nUnlim, $sComment);
+            $this->Cache_CleanByTags(array('user_update'));
         }
-        if (!$nDays) {
-            $nUnlim = 1;
-            $dDate = null;
-        } else {
-            $nUnlim = 0;
-            $dDate = date('Y-m-d H:i:s', time() + 3600 * 24 * $nDays);
-        }
-        $bOk = $this->oMapper->BanUsers($aUserIds, $dDate, $nUnlim, $sComment);
-        $this->Cache_CleanByTags(array('user_update'));
         return $bOk;
     }
 
@@ -79,8 +82,11 @@ class ModuleAdmin extends Module {
     public function UnbanUsers($aUsers) {
 
         $aUserIds = $this->_entitiesId($aUsers);
-        $bOk = $this->oMapper->UnbanUsers($aUserIds);
-        $this->Cache_CleanByTags(array('user_update'));
+        $bOk = true;
+        if ($aUserIds) {
+            $bOk = $this->oMapper->UnbanUsers($aUserIds);
+            $this->Cache_CleanByTags(array('user_update'));
+        }
         return $bOk;
     }
 

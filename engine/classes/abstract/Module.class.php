@@ -102,7 +102,7 @@ abstract class Module extends LsObject {
         } else {
             $aIds = $this->_entitiesId($oEntityId);
             if ($aIds) {
-                return intval(array_shift($aIds));
+                return intval(reset($aIds));
             }
         }
         return null;

@@ -298,38 +298,42 @@ class ModuleMresource extends Module {
     public function DeleteMresources($aMresources, $bDeleteFiles = true, $bNoCheckTargets = false) {
 
         $aId = $this->_entitiesId($aMresources);
+        $bResult = true;
 
-        if ($bDeleteFiles) {
-            $aMresources = $this->oMapper->GetMresourcesById($aId);
-            if (!$bNoCheckTargets && $aMresources) {
-                foreach ($aMresources as $oMresource) {
-                    // Если число ссылок > 0, то не удаляем
-                    if ($oMresource->getTargetsCount() > 0) {
-                        $iIdx = array_search($oMresource->getId(), $aId);
-                        if ($iIdx !== false) {
-                            unset($aId[$iIdx]);
+        if ($aId) {
+            if ($bDeleteFiles) {
+                $aMresources = $this->oMapper->GetMresourcesById($aId);
+                if (!$bNoCheckTargets && $aMresources) {
+                    foreach ($aMresources as $oMresource) {
+                        // Если число ссылок > 0, то не удаляем
+                        if ($oMresource->getTargetsCount() > 0) {
+                            $iIdx = array_search($oMresource->getId(), $aId);
+                            if ($iIdx !== false) {
+                                unset($aId[$iIdx]);
+                            }
+                        }
+                    }
+                }
+            }
+
+            $bResult = $this->oMapper->DeleteMresources($aId);
+
+            if ($bDeleteFiles) {
+                if ($bResult && $aMresources && $aId) {
+                    // Удаляем файлы
+                    foreach ($aId as $nId) {
+                        if (isset($aMresources[$nId]) && $aMresources[$nId]->IsFile() && $aMresources[$nId]->CanDelete()) {
+                            if ($aMresources[$nId]->IsImage()) {
+                                $this->Img_Delete($aMresources[$nId]->GetFile());
+                            } else {
+                                F::File_Delete($aMresources[$nId]->GetFile());
+                            }
                         }
                     }
                 }
             }
         }
 
-        $bResult = $this->oMapper->DeleteMresources($aId);
-
-        if ($bDeleteFiles) {
-            if ($bResult && $aMresources && $aId) {
-                // Удаляем файлы
-                foreach ($aId as $nId) {
-                    if (isset($aMresources[$nId]) && $aMresources[$nId]->IsFile() && $aMresources[$nId]->CanDelete()) {
-                        if ($aMresources[$nId]->IsImage()) {
-                            $this->Img_Delete($aMresources[$nId]->GetFile());
-                        } else {
-                            F::File_Delete($aMresources[$nId]->GetFile());
-                        }
-                    }
-                }
-            }
-        }
         return $bResult;
     }
 
