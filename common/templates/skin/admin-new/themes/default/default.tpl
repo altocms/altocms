@@ -21,7 +21,7 @@
       <title>{$sHtmlTitle}</title>
       <meta name="description" content="{$sHtmlDescription}">
       <meta name="keywords" content="{$sHtmlKeywords}">
-      <link href="{Config::Get('path.static.skin')}assets/img/favicon.png?v1.3" rel="shortcut icon">
+      <link href="{Config::Get('path.static.skin')}assets/img/favicon.png?v1.6" rel="shortcut icon">
       <link rel="search" type="application/opensearchdescription+xml" href="{router page='search'}opensearch/"
          title="{Config::Get('view.name')}"/>
       {if $aHtmlRssAlternate}
@@ -34,40 +34,40 @@
       <meta HTTP-EQUIV="Refresh" CONTENT="3; URL={Config::Get('path.root.url')}">
       {/if}
       {$aHtmlHeadFiles.css}
+      <script type="text/javascript">
+        var DIR_WEB_ROOT = '{Config::Get("path.root.web")}';
+        var DIR_STATIC_SKIN = '{Config::Get("path.static.skin")}';
+        var DIR_ROOT_ENGINE_LIB = '{Config::Get("path.root.engine_lib")}';
+        var ALTO_SECURITY_KEY = '{$ALTO_SECURITY_KEY}';
+        var SESSION_ID = '{$_sPhpSessionId}';
+        var WYSIWYG = {if Config::Get("view.wysiwyg")}true{else}false{/if};
+
+        var l10n = {
+            'date_format': '{Config::Get("l10n.date_format")}',
+            'week_start': {cfg name="l10n.week_start" default=0}
+        };
+
+        var tinymce = false;
+        var TINYMCE_LANG = {if Config::Get('lang.current') == 'ru'}'ru'{else}'en'{/if};
+
+        var aRouter = new Array();
+        {foreach from=$aRouter key=sPage item=sPath}
+        aRouter['{$sPage}'] = '{$sPath}';
+        {/foreach}
+      </script>
       {$aHtmlHeadFiles.js}
       <script type="text/javascript">
-         var DIR_WEB_ROOT = '{Config::Get("path.root.web")}';
-         var DIR_STATIC_SKIN = '{Config::Get("path.static.skin")}';
-         var DIR_ROOT_ENGINE_LIB = '{Config::Get("path.root.engine_lib")}';
-         var ALTO_SECURITY_KEY = '{$ALTO_SECURITY_KEY}';
-         var SESSION_ID = '{$_sPhpSessionId}';
-         var WYSIWYG = {if Config::Get("view.wysiwyg")}true{else}false{/if};
-         
-         var l10n = {
-             'date_format': '{Config::Get("l10n.date_format")}',
-             'week_start': {cfg name="l10n.week_start" default=0}
-         };
-         
-         var tinymce = false;
-         var TINYMCE_LANG = {if Config::Get('lang.current') == 'ru'}'ru'{else}'en'{/if};
-         
-         var aRouter = new Array();
-         {foreach from=$aRouter key=sPage item=sPath}
-         aRouter['{$sPage}'] = '{$sPath}';
-         {/foreach}
-      </script>
-      <script type="text/javascript">
-         ls.lang.load({json var = $aLangJs});
-         //ls.registry.set('comment_max_tree', '{Config::Get("module.comment.max_tree")}');
+        ls.lang.load({json var = $aLangJs});
+        //ls.registry.set('comment_max_tree', '{Config::Get("module.comment.max_tree")}');
       </script>
       {hook run='layout_head_end'}
       {/block}
-      <link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700,400italic,700italic&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+      <link href='http://fonts.googleapis.com/css?family=Roboto:400,300italic,300,400italic,500,500italic,700,700italic,900,900italic&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
    </head>
    <body class="{$body_classes}">
       {block name="layout_body"}
       {hook run='layout_body_begin'}
-      <header class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <header class="navbar navbar-inverse navbar-static-top" role="navigation">
          <div class="container">
             <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
@@ -77,16 +77,18 @@
                <span class="icon-bar"></span>
                <span class="icon-bar"></span>
                </button>
-               <a class="navbar-brand" href="#"><span class="glyphicon glyphicon-heart-empty"></span> AltoCMS</a>
+               <a class="navbar-brand" href="{router page='admin'}"><span class="glyphicon glyphicon-heart-empty"></span> AltoCMS</a>
             </div>
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="navbar-collapse">
-               <ul class="nav navbar-nav navbar-right">
+               <div class="nav navbar-nav navbar-left">
                   <form method="get" action="{router page='search'}topics/" class="navbar-form navbar-left" role="search">
                       <div class="form-group">
                         <input type="text" name="q" class="form-control" placeholder="{$aLang.search_submit}..." value="{$aLang.search_submit}...">
                       </div>
                   </form>
+               </div>
+               <ul class="nav navbar-nav navbar-right">
                   <li><a href="{router page='index'}" target="_blank">{$aLang.action.admin.goto_site}</a></li>
                   <li>
                   <li class="active"><a href="#">Админ-панель</a></li>
@@ -131,16 +133,10 @@
          {block name="sidebar"}{/block}
          <!-- Mobile Header -->
          <div class="content">
-            <div class="breadcrumbs">
-               <ul class="breadcrumb">
-                  <li>
-                     <a href="#">{$aLang.action.admin.title}</a>
-                  </li>
-                  <li>
-                     <a href="#">{$sPageTitle}</a>
-                  </li>
-               </ul>
-               <h1 class="page-title">{$sPageTitle}</h1>
+            <div class="panel panel-default">
+               <div class="panel-body">
+                  <h1 class="page-title">{$sPageTitle}</h1>
+               </div>
             </div>
             {block name="content"}
             <div class="row">

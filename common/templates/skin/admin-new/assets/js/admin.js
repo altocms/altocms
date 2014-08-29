@@ -352,22 +352,6 @@ $(function(){
         }
     });
 
-    if ($.uniform) {
-        $(function() {
-            $(".uniform select, .uniform :file, .uniform :radio, .uniform :checkbox:not([name|=b-switch])").uniform({
-                fileDefaultText: ls.lang.get("action.admin.form_no_file_selected"),
-                fileBtnText:  ls.lang.get("action.admin.form_choose_file")
-            });
-            $(".uniform label.checkbox :checkbox").change(function(event){
-                if ($(this).prop('checked')) {
-                    $(this).parents('label').first().addClass('checked');
-                } else {
-                    $(this).parents('label').first().removeClass('checked');
-                }
-            });
-        });
-    }
-
     l10n = l10n || {date_format: 'dd.mm.yyy', week_start: 1};
 
     $('.datepicker').datepicker({

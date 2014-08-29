@@ -3,7 +3,7 @@
 <div class="col-md-12">
   <a href="#" class="btn btn-primary pull-right" onclick="ls.dashboard.showAddForm(); return false;"
     title="{$aLang.action.admin.user_field_add}"><i class="glyphicon glyphicon-plus"></i></a>
-  <ul class="nav nav-pills atlass">
+  <ul class="nav nav-pills">
     <li class=" {if $sMenuItem=='index'}active{/if}">
       <a href="{router page='admin'}info-dashboard/">
       {$aLang.action.admin.dashboard_main}

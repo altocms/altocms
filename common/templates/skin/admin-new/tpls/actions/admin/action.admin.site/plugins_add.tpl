@@ -3,7 +3,7 @@
 <div class="col-md-12">
   <a href="{router page='admin'}site-plugins/add/" class="btn btn-primary active pull-right"
     title="{$aLang.action.admin.plugin_load}"><i class="glyphicon glyphicon-plus"></i></a>
-  <ul class="nav nav-pills atlass">
+  <ul class="nav nav-pills">
     </li>
     <li class="{if $sMode=='all' || $sMode==''}active{/if}">
       <a href="{router page='admin'}site-plugins/list/all/">

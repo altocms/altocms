@@ -1,7 +1,7 @@
 {extends file='_index.tpl'}
 {block name="content-bar"}
 <div class="col-md-12">
-    <ul class="nav nav-pills atlass">
+    <ul class="nav nav-pills">
       <li class="{if $sMode=='params'}active{/if}">
         <a href="{router page='admin'}settings-site/params/">
         {$aLang.action.admin.settings_base}
