@@ -78,7 +78,7 @@ abstract class Module extends LsObject {
         }
         foreach ($aEntities as $oEntity) {
             if ($nId = is_object($oEntity) ? intval($oEntity->GetId()) : intval($oEntity)) {
-                if (!$nId || !$bSkipZero) {
+                if ($nId || !$bSkipZero) {
                     $aIds[] = $nId;
                 }
             }
