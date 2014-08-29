@@ -619,7 +619,7 @@ class Engine extends LsObject {
         $sModuleName = strtolower($sModuleName);
         $aResultHook = array();
         if (!in_array($sModuleName, array('plugin', 'hook'))) {
-            $aArgsHook = array('module_' . $sModuleName . '_' . strtolower($sMethod) . '_before', $aArgs);
+            $aArgsHook = array('module_' . $sModuleName . '_' . strtolower($sMethod) . '_before', &$aArgs);
             $aResultHook = $this->_CallModule('Hook_Run', $aArgsHook);
         }
         /**
@@ -637,7 +637,7 @@ class Engine extends LsObject {
         }
 
         if (!in_array($sModuleName, array('plugin', 'hook'))) {
-            $this->Hook_Run('module_' . $sModuleName . '_' . strtolower($sMethod) . '_after', array('result' => &$result, 'params' => $aArgs));
+            $this->Hook_Run('module_' . $sModuleName . '_' . strtolower($sMethod) . '_after', array('result' => &$result, 'params' => &$aArgs));
         }
 
         return $result;
