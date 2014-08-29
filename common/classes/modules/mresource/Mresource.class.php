@@ -289,15 +289,15 @@ class ModuleMresource extends Module {
     /**
      * Deletes media resources by ID
      *
-     * @param $aId
+     * @param $aMresources
      * @param $bDeleteFiles
      * @param $bNoCheckTargets
      *
      * @return bool
      */
-    public function DeleteMresources($aId, $bDeleteFiles = true, $bNoCheckTargets = false) {
+    public function DeleteMresources($aMresources, $bDeleteFiles = true, $bNoCheckTargets = false) {
 
-        $aId = $this->_entitiesId($aId);
+        $aId = $this->_entitiesId($aMresources);
 
         if ($bDeleteFiles) {
             $aMresources = $this->oMapper->GetMresourcesById($aId);

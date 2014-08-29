@@ -62,12 +62,15 @@ abstract class Module extends LsObject {
     abstract public function Init();
 
     /**
-     * Возвращает массив ID сущностей, если передан массив объектов, либо просто массив ID
+     * Returns array if entity IDs
      *
-     * @param $aEntities
+     * @param mixed $aEntities
+     * @param bool  $bUnuque
+     * @param bool  $bSkipZero
+     *
      * @return array
      */
-    protected function _entitiesId($aEntities) {
+    protected function _entitiesId($aEntities, $bUnuque = true, $bSkipZero = true) {
 
         $aIds = array();
         if (!is_array($aEntities)) {
@@ -75,8 +78,13 @@ abstract class Module extends LsObject {
         }
         foreach ($aEntities as $oEntity) {
             if ($nId = is_object($oEntity) ? intval($oEntity->GetId()) : intval($oEntity)) {
-                $aIds[] = $nId;
+                if (!$nId || !$bSkipZero) {
+                    $aIds[] = $nId;
+                }
             }
+        }
+        if ($aIds && $bUnuque) {
+            $aIds = array_unique($aIds);
         }
         return $aIds;
     }
@@ -97,6 +105,7 @@ abstract class Module extends LsObject {
                 return intval(array_shift($aIds));
             }
         }
+        return null;
     }
 
     /**
