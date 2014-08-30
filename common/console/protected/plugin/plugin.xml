@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin>
+	<id>example</id>
     <name>
         <lang name="default">Example</lang>
         <lang name="russian">Example</lang>
@@ -10,10 +11,14 @@
     </author>
     <homepage>http://livestreet.ru</homepage>
     <version>1.0.0</version>
+    <dirname>example</dirname>
     <requires>
-        <livestreet>0.5.1</livestreet>
-        <plugins>
-        </plugins>
+        <alto>
+             <version>1.0.0</version>
+        </alto>
+		<system>
+            <php>5.3.0</php>
+        </system>
     </requires>
     <description>
         <lang name="default">Description of plugin Example</lang>
