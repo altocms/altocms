@@ -1,5 +1,5 @@
 --
--- SQL, которые надо выполнить движку при активации плагина админом. Вызывается на исполнение ВРУЧНУЮ в /plugins/PluginAbcplugin.class.php в методе Activate()
+-- SQL, которые надо выполнить движку при активации плагина админом. Вызывается на исполнение ВРУЧНУЮ в /common/plugins/PluginAbcplugin.class.php в методе Activate()
 -- Например:
 
 -- CREATE TABLE IF NOT EXISTS `prefix_tablename` (
