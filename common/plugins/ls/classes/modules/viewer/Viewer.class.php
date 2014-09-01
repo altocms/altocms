@@ -24,6 +24,7 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
         'commons/common.sharer.tpl' => 'sharer.tpl',
         'commons/common.user_list.tpl' => 'user_list.tpl',
         'commons/common.infobox_blog.tpl' => 'infobox.info.blog.tpl',
+        'commons/common.pagination.tpl' => 'paging.tpl',
         'menus/menu.main_pages.tpl' => 'page_main_menu.tpl',
         'actions/ActionTalk/message.tpl' => 'actions/ActionTalk/read.tpl',
         'actions/talk/action.talk.message.tpl' => 'actions/ActionTalk/read.tpl',
@@ -380,9 +381,28 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
                         } else {
                             $sResult = $this->SmartyDefaultTemplateHandler($sType, $sLsTemplate, $sContent, $iTimestamp, $oSmarty);
                         }
+                    } elseif (preg_match('#^menus\/menu\.((content)?\-)?([\w\-\.]+)\.tpl$#i', $sName, $aMatches)) {
+                        if (!$aMatches[2]) {
+                            $sLsTemplate = 'menu.' . $aMatches[3] . '.tpl';
+                        } else {
+                            $sLsTemplate = 'menu.' . $aMatches[3] . '.content.tpl';
+                        }
+                        if ($this->TemplateExists($sLsTemplate, false)) {
+                            $sResult = F::File_Exists($sLsTemplate, $this->oSmarty->getTemplateDir());
+                        } else {
+                            $sResult = $this->SmartyDefaultTemplateHandler($sType, $sLsTemplate, $sContent, $iTimestamp, $oSmarty);
+                        }
                     }
                 }
 
+                if (!$sResult && ($sNewTemplate = array_search($sName, $this->aTemplatesLsMap))) {
+                    $sResult = $this->TemplateExists($sNewTemplate);
+                    if ($sResult) {
+                        $sResult = F::File_Exists($sNewTemplate, $this->oSmarty->getTemplateDir());
+                    } else {
+                        $sResult = parent::SmartyDefaultTemplateHandler($sType, $sNewTemplate, $sContent, $iTimestamp, $oSmarty);
+                    }
+                }
             }
         }
         return $sResult;
