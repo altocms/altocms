@@ -32,6 +32,9 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
         'actions/profile/action.profile.info.tpl' => 'actions/ActionProfile/whois.tpl',
         'topics/topic.list.tpl' => 'topic_list.tpl',
         'comments/comment.single.tpl' => 'comment.tpl',
+        'comments/comment.list.tpl' => 'comment_list.tpl',
+        'comments/comment.tree.tpl' => 'comment_tree.tpl',
+        'comments/comment.pagination.tpl' => 'comment_paging.tpl',
     );
 
     protected $aTemplatesAutocreate = array(

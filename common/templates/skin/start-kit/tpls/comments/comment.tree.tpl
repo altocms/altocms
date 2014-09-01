@@ -61,7 +61,7 @@
     {/if}
     {/foreach}
 
-{include file='comments/comment.paging.tpl' aPagingCmt=$aPagingCmt}
+{include file='comments/comment.pagination.tpl' aPagingCmt=$aPagingCmt}
 
 {hook run='comment_tree_end' iTargetId=$iTargetId sTargetType=$sTargetType}
 
