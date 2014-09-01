@@ -12,6 +12,7 @@
  * Static class of engine functions
  */
 class Func {
+
     const ERROR_LOGFILE = 'error.log';
 
     const ERROR_LOG_EXTINFO = 1;
@@ -143,10 +144,10 @@ class Func {
                 }
             }
 
-            if (($nErrorExtInfo & self::ERROR_LOG_CALLSTACK) && ($aCallStack = static::_CallStackError())) {
+            if (($nErrorExtInfo & self::ERROR_LOG_CALLSTACK) && ($aCallStack = static::_callStackError())) {
                 $sText .= "--- call stack ---\n";
                 foreach ($aCallStack as $aCaller) {
-                    $sText .= static::_CallerFormat($aCaller) . "\n";
+                    $sText .= static::_callerToString($aCaller) . "\n";
                 }
             }
 
@@ -167,7 +168,6 @@ class Func {
      * @return bool
      */
     static public function _log($sText, $sLogFile, $sLevel = null) {
-
 
         if (class_exists('ModuleLogger', false) || (class_exists('Loader', false) && Loader::Autoload('ModuleLogger'))) {
             // Если загружен модуль Logger, то логгируем ошибку с его помощью
@@ -288,8 +288,43 @@ class Func {
         $sLogMsg = 'Exception: ' . $oException->getMessage();
         if (property_exists($oException, 'sAdditionalInfo')) {
             $sLogMsg .= "\n" . $oException->sAdditionalInfo;
+        } elseif ($oException instanceof SmartyException) {
+            $aTrace = $oException->getTrace();
+            $aTemplateStack = array();
+            foreach ($aTrace as $aCaller) {
+                if (isset($aCaller['args']) && count($aCaller['args'])) {
+                    foreach($aCaller['args'] as $oTpl) {
+                        if(is_object($oTpl) && $oTpl instanceof Smarty_Internal_Template) {
+                            $aTemplateStack = self::_getSmartyTemplateStack($oTpl);
+                            break(2);
+                        }
+                    }
+                }
+            }
+            $sLogMsg .= "\nTemplates stack:\n" . join("\n", $aTemplateStack);
         }
         static::_errorLog($sLogMsg);
+    }
+
+    /**
+     * @param Smarty_Internal_Template $oTpl
+     *
+     * @return array
+     */
+    static protected function _getSmartyTemplateStack($oTpl) {
+
+        $aTemplateStack = array();
+        while ($oTpl) {
+            if (!isset($oTpl->template_resource) || !($sTemplate = $oTpl->template_resource)) {
+                break;
+            }
+            if (isset($oTpl->source) && $oTpl->source->filepath && $oTpl->source->filepath != $sTemplate) {
+                $sTemplate .= ' (' . $oTpl->source->filepath . ')';
+            }
+            $aTemplateStack[] = $sTemplate;
+            $oTpl = $oTpl->parent;
+        }
+        return $aTemplateStack;
     }
 
     /**
@@ -315,7 +350,7 @@ class Func {
         }
 
         // Function not found
-        $aCaller = static::_Caller(2);
+        $aCaller = static::_getCaller(2);
         $sCallerStr = 'Func::' . $sName . '()';
         $sPosition = '';
         if ($aCaller) {
@@ -372,15 +407,16 @@ class Func {
      *
      * @return string
      */
-    static protected function _Caller($nOffset = 1, $bString = false) {
+    static protected function _getCaller($nOffset = 1, $bString = false) {
 
-        $aData = static::_CallStack($nOffset + 1, 1);
+        $aData = static::_callStack($nOffset + 1, 1);
         if (sizeof($aData)) {
             if ($bString) {
-                return static::_CallerFormat(reset($aData));
+                return static::_callerToString(reset($aData));
             }
             return (reset($aData));
         }
+        return null;
     }
 
     /**
@@ -390,7 +426,7 @@ class Func {
      *
      * @return string
      */
-    static protected function _CallerFormat($aCaller) {
+    static protected function _callerToString($aCaller) {
 
         $sResult = 'undefined';
         if ($aCaller && is_array($aCaller)) {
@@ -419,7 +455,7 @@ class Func {
      *
      * @return array
      */
-    static protected function _CallStack($nOffset = 1, $nLength = null) {
+    static protected function _callStack($nOffset = 1, $nLength = null) {
 
         $aStack = array_slice(debug_backtrace(false), $nOffset, $nLength);
         return $aStack;
@@ -430,9 +466,9 @@ class Func {
      *
      * @return array
      */
-    static protected function _CallStackError() {
+    static protected function _callStackError() {
 
-        $aStack = static::_CallStack();
+        $aStack = static::_callStack();
         $aLastError = static::_getLastError();
         if ($aLastError && ($aLastError['err_no'] & ~static::$nFatalErrors)) {
             foreach ($aStack as $nI => $aCaller) {
@@ -555,7 +591,7 @@ class Func {
      */
     static public function SysWarning($sMessage) {
 
-        $aCaller = self::_Caller();
+        $aCaller = static::_getCaller();
         $nErrorReporting = F::SetErrorNoDisplay(E_USER_WARNING);
         self::_errorHandler(
             E_USER_WARNING,
@@ -597,7 +633,7 @@ class Func {
         $sDir = dirname($sFile);
         $sRealPath = null;
         if ($sDir == '.' || $sDir == '..' || substr($sDir, 0, 2) == './' || substr($sDir, 0, 3) == '../') {
-            $aCaller = static::_Caller();
+            $aCaller = static::_getCaller();
             if (isset($aCaller['file'])) {
                 $sRealPath = realpath(dirname($aCaller['file']) . '/' . $sFile);
             }
