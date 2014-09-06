@@ -394,8 +394,11 @@ class ModuleViewerAsset_EntityPackage extends Entity {
      *
      * @return int
      */
-    protected function _add($sFileName, $aFileParams, $sAssetName = null, $bPrepend = false, $bReplace = false) {
+    protected function _add($sFileName, $aFileParams, $sAssetName = null, $bPrepend = false, $bReplace = null) {
 
+        if (is_null($bReplace)) {
+            $bReplace = (isset($aFileParams['replace']) ? (bool)$aFileParams['replace'] : false);
+        }
         $aFileParams = $this->_prepareParams($sFileName, $aFileParams, $sAssetName);
         $sName = $aFileParams['name'];
         $sAssetName = $aFileParams['asset'];
@@ -431,7 +434,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
      * @param bool   $bPrepend
      * @param bool   $bReplace
      */
-    public function AddFiles($aFiles, $sAssetName = null, $bPrepend = false, $bReplace = false) {
+    public function AddFiles($aFiles, $sAssetName = null, $bPrepend = false, $bReplace = null) {
 
         foreach ($aFiles as $sName => $aFileParams) {
             $this->_add($sName, $aFileParams, $sAssetName, $bPrepend, $bReplace);

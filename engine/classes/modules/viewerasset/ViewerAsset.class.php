@@ -184,7 +184,7 @@ class ModuleViewerAsset extends Module {
                 $oAssetPackage->AddFiles(
                     $aAddFiles, null,
                     isset($aOptions['prepend']) ? $aOptions['prepend'] : false,
-                    isset($aOptions['replace']) ? $aOptions['replace'] : false
+                    isset($aOptions['replace']) ? $aOptions['replace'] : null
                 );
             }
         }
@@ -274,24 +274,31 @@ class ModuleViewerAsset extends Module {
             );
         }
         $aAssetFiles = array();
+        $aFileList = array();
+
+        // seek wildcards - if name hase '*' then add files by pattern
         foreach ($aFiles as $sFileName => $aFileParams) {
-            // if name hase '*' then add files by pattern
             if (strpos($sFileName, '*')) {
-                $aFiles = F::File_ReadFileList($sFileName, 0, true);
-                if ($aFiles) {
-                    $aAddFiles = array();
-                    foreach($aFiles as $sAddFile) {
-                        $sAddType = F::File_GetExtension($sAddFile);
+                unset($aFiles[$sFileName]);
+                $aFoundFiles = F::File_ReadFileList($sFileName, 0, true);
+                if ($aFoundFiles) {
+                    foreach($aFoundFiles as $sAddFile) {
+                        $sAddType = F::File_GetExtension($sAddFile, true);
                         $aFileParams['name'] = $sAddFile;
                         $aFileParams['file'] = $sAddFile;
-                        $aAddFiles[$sAddType][$sAddFile] = $aFileParams;
-                    }
-                    foreach ($aAddFiles as $sAddType=>$aAdditionalFiles) {
-                        $this->AddFilesToAssets($sAddType, $aAdditionalFiles, $aOptions);
+                        if ($sAddType == $sType) {
+                            $aFileList[$sAddFile] = $aFileParams;
+                        } else {
+                            $this->AddFilesToAssets($sAddType, array($sAddFile => $aFileParams), $aOptions);
+                        }
                     }
                 }
-                continue;
+            } else {
+                $aFileList[$sFileName] = $aFileParams;
             }
+        }
+
+        foreach ($aFileList as $sFileName => $aFileParams) {
             // extract & normalize full file path
             if (isset($aFileParams['file'])) {
                 $sFile = F::File_NormPath($aFileParams['file']);
