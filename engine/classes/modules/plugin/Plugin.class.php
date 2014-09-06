@@ -308,7 +308,7 @@ class ModulePlugin extends Module {
                         $iError++;
                         $this->Message_AddError(
                             $this->Lang_Get(
-                                'action.admin.plugins_activation_requires_error',
+                                'action.admin.plugin_activation_requires_error',
                                 array(
                                      'plugin' => ucfirst($sReqPlugin),
                                 )
