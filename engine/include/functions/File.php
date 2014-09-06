@@ -338,9 +338,9 @@ class AltoFunc_File {
      */
     static function ReadDir($sDir, $nFlag = 0, $bRecursively = false) {
 
-        if (substr($sDir, -1) == '*') {
+        if (substr($sDir, -2) == '/*') {
             $sMask = '*';
-            $sDir = substr($sDir, 0, strlen($sDir) - 1);
+            $sDir = substr($sDir, 0, strlen($sDir) - 2);
         } elseif ((substr($sDir, -1) != '/') && (substr(basename($sDir), 0, 2) == '*.')) {
             $sMask = basename($sDir);
             $sDir = dirname($sDir);
