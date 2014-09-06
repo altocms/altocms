@@ -1320,8 +1320,16 @@ class ModuleViewer extends Module {
      *
      * @return bool
      */
-    public function AppendScript($sFile, $aParams = array(), $bReplace = false) {
+    public function AppendScript($sFile, $aParams = array(), $bReplace = null) {
 
+        if (is_null($bReplace)) {
+            if (!isset($aParams['replace'])) {
+                // default
+                $bReplace = false;
+            } else {
+                $bReplace = (bool)$aParams['replace'];
+            }
+        }
         if (!$this->bAssetInit) {
             $aParams['replace'] = $bReplace;
             $this->aFilesAppend['js'][$sFile] = $aParams;
@@ -1340,8 +1348,16 @@ class ModuleViewer extends Module {
      *
      * @return bool
      */
-    public function PrependScript($sFile, $aParams = array(), $bReplace = false) {
+    public function PrependScript($sFile, $aParams = array(), $bReplace = null) {
 
+        if (is_null($bReplace)) {
+            if (!isset($aParams['replace'])) {
+                // default
+                $bReplace = false;
+            } else {
+                $bReplace = (bool)$aParams['replace'];
+            }
+        }
         if (!$this->bAssetInit) {
             $aParams['replace'] = $bReplace;
             $this->aFilesPrepend['js'][$sFile] = $aParams;
@@ -1360,8 +1376,16 @@ class ModuleViewer extends Module {
      *
      * @return bool
      */
-    public function AppendStyle($sFile, $aParams = array(), $bReplace = false) {
+    public function AppendStyle($sFile, $aParams = array(), $bReplace = null) {
 
+        if (is_null($bReplace)) {
+            if (!isset($aParams['replace'])) {
+                // default
+                $bReplace = false;
+            } else {
+                $bReplace = (bool)$aParams['replace'];
+            }
+        }
         if (!$this->bAssetInit) {
             $aParams['replace'] = $bReplace;
             $this->aFilesAppend['css'][$sFile] = $aParams;
@@ -1380,13 +1404,21 @@ class ModuleViewer extends Module {
      *
      * @return bool
      */
-    public function PrependStyle($sFile, $aParams = array(), $bReplace = false) {
+    public function PrependStyle($sFile, $aParams = array(), $bReplace = null) {
 
+        if (is_null($bReplace)) {
+            if (!isset($aParams['replace'])) {
+                // default
+                $bReplace = false;
+            } else {
+                $bReplace = (bool)$aParams['replace'];
+            }
+        }
         if (!$this->bAssetInit) {
             $aParams['replace'] = $bReplace;
             $this->aFilesPrepend['css'][$sFile] = $aParams;
         } else {
-            $this->ViewerAsset_AppendCss($sFile, $aParams, $bReplace);
+            $this->ViewerAsset_PrependCss($sFile, $aParams, $bReplace);
         }
     }
 
@@ -1397,9 +1429,18 @@ class ModuleViewer extends Module {
      * @param array  $aParams
      * @param bool   $bReplace
      */
-    public function PrepareScript($sFile, $aParams = array(), $bReplace = false) {
+    public function PrepareScript($sFile, $aParams = array(), $bReplace = null) {
 
+        if (is_null($bReplace)) {
+            if (!isset($aParams['replace'])) {
+                // default
+                $bReplace = false;
+            } else {
+                $bReplace = (bool)$aParams['replace'];
+            }
+        }
         if (is_array($aParams)) {
+            $aParams['replace'] = $bReplace;
             $aParams['prepare'] = true;
         } else {
             $aParams = array('prepare' => true);
@@ -1414,9 +1455,18 @@ class ModuleViewer extends Module {
      * @param array  $aParams
      * @param bool   $bReplace
      */
-    public function PrepareStyle($sFile, $aParams = array(), $bReplace = false) {
+    public function PrepareStyle($sFile, $aParams = array(), $bReplace = null) {
 
+        if (is_null($bReplace)) {
+            if (!isset($aParams['replace'])) {
+                // default
+                $bReplace = false;
+            } else {
+                $bReplace = (bool)$aParams['replace'];
+            }
+        }
         if (is_array($aParams)) {
+            $aParams['replace'] = $bReplace;
             $aParams['prepare'] = true;
         } else {
             $aParams = array('prepare' => true);
