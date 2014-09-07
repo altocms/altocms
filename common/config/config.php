@@ -535,6 +535,7 @@ $config['router']['page']['feed']          = 'ActionUserfeed';
 $config['router']['page']['stream']        = 'ActionStream';
 $config['router']['page']['subscribe']     = 'ActionSubscribe';
 $config['router']['page']['img']           = 'ActionImg';
+$config['router']['page']['homepage']      = 'ActionHomepage';
 
 // Глобальные настройки роутинга
 $config['router']['config']['action_default']   = 'homepage';
