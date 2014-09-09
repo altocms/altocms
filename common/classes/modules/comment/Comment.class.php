@@ -800,7 +800,7 @@ class ModuleComment extends Module {
             $aComments = $this->GetCommentsAdditionalData($aCommentsId);
         }
         if (!$aComments) {
-            return array('comments' => array(), 'iMaxIdComment' => 0);
+            return array('comments' => array(), 'iMaxIdComment' => $nIdCommentLast);
         }
 
         $iMaxIdComment = max($aCommentsId);
