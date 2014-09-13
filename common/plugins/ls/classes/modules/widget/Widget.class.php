@@ -135,8 +135,8 @@ class PluginLs_ModuleWidget extends PluginLs_Inherit_ModuleWidget {
                                 $aParams = array();
                                 $nPriority = isset($aParams['priority']) ? $aParams['priority'] : 5;
                             } else {
-                                $aParams = isset($aParams['params']) ? $aParams['params'] : array();
                                 $nPriority = isset($aParams['priority']) ? $aParams['priority'] : 5;
+                                $aParams = isset($aParams['params']) ? $aParams['params'] : array();
                             }
                             $aWidgetData = array(
                                 'name' => $sName,
