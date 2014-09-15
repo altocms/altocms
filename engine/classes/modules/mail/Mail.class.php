@@ -87,6 +87,12 @@ class ModuleMail extends Module {
      * @var string
      */
     protected $sCharSet;
+	/**
+     * Кодирование писем
+     *
+     * @var string
+     */
+    protected $Encoding;
     /**
      * Делать или нет перенос строк в письме
      *
@@ -146,7 +152,10 @@ class ModuleMail extends Module {
 
         // * Кодировка писем
         $this->sCharSet = Config::Get('sys.mail.charset');
-
+		
+		// * Кодирование писем
+        $this->Encoding = Config::Get('sys.mail.encoding');
+		
         // * Мыло от кого отправляется вся почта
         $this->sFrom = Config::Get('sys.mail.from_email');
 
@@ -164,6 +173,7 @@ class ModuleMail extends Module {
         $this->oMailer->Mailer = $this->sMailerType;
         $this->oMailer->WordWrap = $this->iWordWrap;
         $this->oMailer->CharSet = $this->sCharSet;
+		$this->oMailer->Encoding = $this->Encoding;
 
         $this->oMailer->From = $this->sFrom;
         $this->oMailer->FromName = $this->sFromName;
