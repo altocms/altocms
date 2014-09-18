@@ -607,7 +607,7 @@ class ModuleComment_MapperComment extends Mapper {
         $this->oDb->transaction();
 
         if ($oComment->getPid() && $oCommentParent = $this->GetCommentsByArrayId(array($oComment->getPid()))) {
-            $oCommentParent = $oCommentParent[0];
+            $oCommentParent = $oCommentParent[$oComment->getPid()];
             $iLeft = $oCommentParent->getRight();
             $iLevel = $oCommentParent->getLevel() + 1;
 
