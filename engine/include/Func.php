@@ -451,13 +451,21 @@ class Func {
      * Returns call stack or part of them
      *
      * @param int  $nOffset
-     * @param null $nLength
+     * @param int  $nLength
+     * @param bool $bCheckException
      *
      * @return array
      */
-    static protected function _callStack($nOffset = 1, $nLength = null) {
+    static protected function _callStack($nOffset = 1, $nLength = null, $bCheckException = true) {
 
         $aStack = array_slice(debug_backtrace(false), $nOffset, $nLength);
+        // if exception then gets trace from it
+        if ($bCheckException) {
+            $aLastCaller = end($aStack);
+            if (isset($aLastCaller['args'][0]) && is_object($aLastCaller['args'][0]) && $aLastCaller['args'][0] instanceof Exception) {
+                $aStack = $aLastCaller['args'][0]->getTrace();
+            }
+        }
         return $aStack;
     }
 
