@@ -352,8 +352,10 @@ abstract class Action extends LsObject {
             $aDelegates = $this->Plugin_GetDelegationChain('action', $this->GetActionClass());
             foreach ($aDelegates as $sAction) {
                 if (preg_match('/^(Plugin([\w]+)_)?Action([\w]+)$/i', $sAction, $aMatches)) {
+                    // for LS-compatibility
+                    $sActionNameOriginal = $aMatches[3];
                     // New-style action templates
-                    $sActionName = strtolower($aMatches[3]);
+                    $sActionName = strtolower($sActionNameOriginal);
                     $sTemplatePath = $this->Plugin_GetDelegate('template', 'actions/' . $sActionName . '/action.' . $sActionName . '.' . $sTemplate);
                     $sActionTemplatePath = $sTemplatePath;
                     if (!empty($aMatches[1])) {
@@ -374,6 +376,11 @@ abstract class Action extends LsObject {
                         // LS-compatibility
                         if ($this->Plugin_IsActivePlugin('ls')) {
                             $sLsTemplatePath = $this->Plugin_GetDelegate('template', 'actions/Action' . ucfirst($sActionName) . '/' . $sTemplate);
+                            if ($sTemplatePath = F::File_Exists($sLsTemplatePath, $aPluginTemplateDirs)) {
+                                $sActionTemplatePath = $sTemplatePath;
+                                break;
+                            }
+                            $sLsTemplatePath = $this->Plugin_GetDelegate('template', 'actions/Action' . ucfirst($sActionNameOriginal) . '/' . $sTemplate);
                             if ($sTemplatePath = F::File_Exists($sLsTemplatePath, $aPluginTemplateDirs)) {
                                 $sActionTemplatePath = $sTemplatePath;
                                 break;
