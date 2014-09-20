@@ -218,6 +218,7 @@ return array(
     'topic_comment_add_title'                   => 'Add comment',
     'topic_comment_add_text_error'              => 'Comments should consist of 2 upto 3000 chars of decent content',
     'topic_comment_acl'                         => "Your rating is too low, you can't add comments yet",
+    'topic_comment_banned'                      => "You are banned and can't comment topics",
     'topic_comment_limit'                       => "Can't create comments in such a frequent rate",
     'topic_comment_notallow'                    => 'Topic\'s owner forbade adding comments',
     'topic_comment_spam'                        => 'Stop! Spam!',

@@ -44,6 +44,13 @@ class ModuleACL extends Module {
     const CAN_VOTE_COMMENT_TRUE = 1;
     const CAN_VOTE_COMMENT_ERROR_BAN = 2;
     /**
+     * Коды ответов на запрос о возможности
+     * пользователя оставлять комментарий
+     */
+    const CAN_TOPIC_COMMENT_FALSE = 0;
+    const CAN_TOPIC_COMMENT_TRUE = 1;
+    const CAN_TOPIC_COMMENT_ERROR_BAN = 2;
+    /**
      * Коды механизма удаления блога
      */
     const CAN_DELETE_BLOG_EMPTY_ONLY = 1;
@@ -100,15 +107,21 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CanPostComment(ModuleUser_EntityUser $oUser, $oTopic = null) {
-
+        $oBlog = $oTopic->getBlog();
+        if ($oBlog && $oBlog->getBlogType()) {
+            $oBlogUser = $this->Blog_GetBlogUserByBlogIdAndUserId($oBlog->getId(), $oUser->getId());
+            if ($oBlogUser && $oBlogUser->getUserRole() == ModuleBlog::BLOG_USER_ROLE_BAN) {
+                return self::CAN_TOPIC_COMMENT_ERROR_BAN;
+            }
+        }
         // * Проверяем на закрытый блог
         if ($oTopic && !$this->IsAllowShowBlog($oTopic->getBlog(), $oUser)) {
-            return false;
+            return self::CAN_TOPIC_COMMENT_FALSE;
         }
         if ($oUser->getRating() >= Config::Get('acl.create.comment.rating')) {
-            return true;
+            return self::CAN_TOPIC_COMMENT_TRUE;
         }
-        return false;
+        return self::CAN_TOPIC_COMMENT_FALSE;
     }
 
     /**
