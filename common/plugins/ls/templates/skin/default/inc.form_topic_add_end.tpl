@@ -8,7 +8,9 @@
 			<h4>{$aLang.topic_photoset_upload_title}</h4>
 
 			<div class="topic-photo-upload-rules">
-				{$aLang.topic_photoset_upload_rules|ls_lang:"SIZE%%`Config::Get('module.topic.photoset.photo_max_size')`":"COUNT%%`Config::Get('module.topic.photoset.count_photos_max')`"}
+				{$nMaxSixe=Config::Get('module.topic.photoset.photo_max_size')}
+				{$nMaxCount=Config::Get('module.topic.photoset.count_photos_max')}
+				{$aLang.topic_photoset_upload_rules|ls_lang:"SIZE%%$nMaxSixe":"COUNT%%$nMaxCount"}
 			</div>
 
 			<input type="hidden" name="topic_main_photo" id="topic_main_photo" value="{$_aRequest.topic_main_photo}" />
