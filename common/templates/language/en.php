@@ -94,6 +94,7 @@ return array(
     'blog_join_error_self'                      => "Why would you join this blog? You're already it's owner!",
     'blog_leave'                                => 'Unjoin this blog',
     'blog_leave_ok'                             => "You're unjoined this blog",
+    'blog_leave_error_banned'                   => "You can't unjoin, because you are banned in this blog",
     'blog_join_leave'                           => 'Join/Unjoin',
     /**
      * Blog menu

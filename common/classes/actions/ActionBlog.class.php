@@ -2137,6 +2137,10 @@ class ActionBlog extends Action {
                 return;
             }
         }
+        if ($oBlogUser && ($oBlogUser->getUserRole() == ModuleBlog::BLOG_USER_ROLE_BAN)) {
+            $this->Message_AddErrorSingle($this->Lang_Get('blog_leave_error_banned'), $this->Lang_Get('error'));
+            return;
+        }
     }
 
     /**
