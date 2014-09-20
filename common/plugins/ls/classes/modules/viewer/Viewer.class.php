@@ -21,16 +21,29 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
     protected $aBlockRules = array();
 
     protected $aTemplatesLsMap = array(
-        'commons/common.sharer.tpl' => 'sharer.tpl',
-        'commons/common.user_list.tpl' => 'user_list.tpl',
+
+        'commons/common.blog_list.tpl' => 'blog_list.tpl',
+        'commons/common.editor.tpl' => 'editor.tpl',
+        'commons/common.header_top.tpl' => 'header_top.tpl',
         'commons/common.infobox_blog.tpl' => 'infobox.info.blog.tpl',
+        'commons/common.messages.tpl' => 'system_message.tpl',
         'commons/common.pagination.tpl' => 'paging.tpl',
+        'commons/common.sharer.tpl' => 'sharer.tpl',
+        'commons/common.sidebar.tpl' => 'sidebar.tpl',
+        'commons/common.statistics_performance.tpl' => 'statistics_performance.tpl',
+        'commons/common.toolbar.tpl' => 'toolbar.tpl',
+        'commons/common.user_list.tpl' => 'user_list.tpl',
+        'commons/common.user_list_avatar.tpl' => 'user_list_avatar.tpl',
+
         'menus/menu.main_pages.tpl' => 'page_main_menu.tpl',
+
         'actions/ActionTalk/message.tpl' => 'actions/ActionTalk/read.tpl',
         'actions/talk/action.talk.message.tpl' => 'actions/ActionTalk/read.tpl',
         'actions/ActionProfile/info.tpl' => 'actions/ActionProfile/whois.tpl',
         'actions/profile/action.profile.info.tpl' => 'actions/ActionProfile/whois.tpl',
+
         'topics/topic.list.tpl' => 'topic_list.tpl',
+
         'comments/comment.single.tpl' => 'comment.tpl',
         'comments/comment.list.tpl' => 'comment_list.tpl',
         'comments/comment.tree.tpl' => 'comment_tree.tpl',
