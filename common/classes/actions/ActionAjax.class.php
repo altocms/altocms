@@ -219,9 +219,17 @@ class ActionAjax extends Action {
         }
 
         // * Пользователь имеет право голоса?
-        if (!$this->ACL_CanVoteComment($this->oUserCurrent, $oComment)) {
-            $this->Message_AddErrorSingle($this->Lang_Get('comment_vote_error_acl'), $this->Lang_Get('attention'));
-            return;
+        switch ($this->ACL_CanVoteComment($this->oUserCurrent, $oComment)) {
+            case ModuleACL::CAN_VOTE_COMMENT_ERROR_BAN:
+                $this->Message_AddErrorSingle($this->Lang_Get('comment_vote_error_banned'), $this->Lang_Get('attention'));
+                return;
+                break;
+
+            default:
+            case ModuleACL::CAN_VOTE_COMMENT_FALSE:
+                $this->Message_AddErrorSingle($this->Lang_Get('comment_vote_error_acl'), $this->Lang_Get('attention'));
+                return;
+                break;
         }
 
         // * Как именно голосует пользователь
@@ -299,9 +307,17 @@ class ActionAjax extends Action {
         }
 
         // * Права на голосование
-        if (!$this->ACL_CanVoteTopic($this->oUserCurrent, $oTopic) && $iValue) {
-            $this->Message_AddErrorSingle($this->Lang_Get('topic_vote_error_acl'), $this->Lang_Get('attention'));
-            return;
+        switch ($this->ACL_CanVoteTopic($this->oUserCurrent, $oTopic)) {
+            case ModuleACL::CAN_VOTE_TOPIC_ERROR_BAN:
+                $this->Message_AddErrorSingle($this->Lang_Get('topic_vote_error_banned'), $this->Lang_Get('attention'));
+                return;
+                break;
+
+            default:
+            case ModuleACL::CAN_VOTE_TOPIC_FALSE:
+                $this->Message_AddErrorSingle($this->Lang_Get('topic_vote_error_acl'), $this->Lang_Get('attention'));
+                return;
+                break;
         }
 
         // * Голосуем
@@ -409,6 +425,10 @@ class ActionAjax extends Action {
                 break;
             case ModuleACL::CAN_VOTE_BLOG_ERROR_CLOSE:
                 $this->Message_AddErrorSingle($this->Lang_Get('blog_vote_error_close'), $this->Lang_Get('attention'));
+                return;
+                break;
+            case ModuleACL::CAN_VOTE_BLOG_ERROR_BAN:
+                $this->Message_AddErrorSingle($this->Lang_Get('blog_vote_error_banned'), $this->Lang_Get('attention'));
                 return;
                 break;
 

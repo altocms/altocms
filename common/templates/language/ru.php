@@ -93,6 +93,7 @@ return array(
     'blog_vote_error_already'                   => 'Вы уже голосовали за этот блог!',
     'blog_vote_error_self'                      => 'Вы не можете голосовать за свой блог!',
     'blog_vote_error_acl'                       => 'У вас не хватает рейтинга и силы для голосования!',
+    'blog_vote_error_banned'                    => 'Извините, вы забанены и не можете голосовать',
     'blog_vote_error_close'                     => 'Вы не можете голосовать за закрытый блог',
     'blog_vote_ok'                              => 'Ваш голос учтен',
     /**
@@ -382,6 +383,7 @@ return array(
     'topic_vote_error_guest'                    => 'для голосования необходимо авторизоваться',
     'topic_vote_error_time'                     => 'Срок голосования за статью истёк!',
     'topic_vote_error_acl'                      => 'У вас не хватает рейтинга и силы для голосования!',
+    'topic_vote_error_banned'                   => 'Извините, вы забанены и не можете голосовать',
     'topic_vote_no'                             => 'пока никто не голосовал',
     'topic_vote_ok'                             => 'Ваш голос учтен',
     'topic_vote_ok_abstain'                     => 'Вы воздержались для просмотра рейтинга статьи',
@@ -455,6 +457,7 @@ return array(
     'comment_vote_error'                        => 'Попробуйте проголосовать позже',
     'comment_vote_error_value'                  => 'Голосовать можно только +1 либо -1!',
     'comment_vote_error_acl'                    => 'У вас не хватает рейтинга и силы для голосования!',
+    'comment_vote_error_banned'                 => 'Извините, вы забанены и не можете голосовать',
     'comment_vote_error_already'                => 'Вы уже голосовали за этот комментарий!',
     'comment_vote_error_time'                   => 'Срок голосования за комментарий истёк!',
     'comment_vote_error_self'                   => 'Вы не можете голосовать за свой комментарий!',
