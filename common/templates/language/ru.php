@@ -1056,7 +1056,7 @@ return array(
 
     'stream_menu'                               => 'Активность',
     'stream_menu_all'                           => 'Вся',
-    'stream_menu_user'                          => 'Я слежу',
+    'stream_menu_follow'                        => 'Я слежу',
     'stream_settings_note_filter'               => 'Выберите действия которые будут отслеживаться',
     'stream_settings_note_follow_user'          => 'Добавьте людей за активностью которых вы хотели бы следить',
     'stream_settings_note_follow_friend'        => 'Выберите друзей за активностью которых вы хотели бы следить',

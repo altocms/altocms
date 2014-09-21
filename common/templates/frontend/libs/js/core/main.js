@@ -323,11 +323,11 @@ ls.tools = (function ($) {
     };
 
     this.getDataOptions = function (element, prefix) {
-        var prefix = prefix || 'option',
-            resultOptions = {},
+        var resultOptions = {},
             dataOptions = typeof element === 'string' ? $(element).data() : element.data();
 
-        for (option in dataOptions) {
+        prefix = prefix || 'option';
+        for (var option in dataOptions) {
             // Remove 'option' prefix
             if (option.substring(0, prefix.length) == prefix) {
                 var str = option.substring(prefix.length);

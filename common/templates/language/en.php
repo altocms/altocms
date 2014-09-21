@@ -1008,7 +1008,7 @@ return array(
 
     'stream_menu'                               => 'Stream',
     'stream_menu_all'                           => 'All',
-    'stream_menu_user'                          => 'I watch',
+    'stream_menu_follow'                        => 'I follow',
     'stream_settings_note_filter'               => 'Select the actions that will be tracked',
     'stream_settings_note_follow_user'          => 'Add people to the activity that you would like to watch',
     'stream_settings_note_follow_friend'        => 'Choose your friends for the activity that you would like to watch',

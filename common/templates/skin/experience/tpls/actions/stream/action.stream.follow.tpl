@@ -44,11 +44,12 @@
 
             <div class="panel-footer">
                 {if !$bDisableGetMoreButton}
-                    <input type="hidden" id="activity-last-id" value="{$iStreamLastId}"/>
-                    <a class="small link link-gray link-clear link-lead activity-get-more" id="stream_get_more"
-                       {*data-param="user"*}
-                       href="javascript:ls.stream.getMore('#stream_get_more')">
-                        <i class="fa fa-eject fa-rotate-180"></i>&nbsp;&nbsp;{$aLang.stream_get_more}</a>
+                    <a class="small link link-gray link-clear link-lead activity-get-more"
+                       id="stream_get_more"
+                       data-param-type="follow" data-param-last_id="{$iStreamLastId}"
+                       href="#" onclick="ls.stream.getMore(this); return false;">
+                        <i class="fa fa-eject fa-rotate-180"></i>&nbsp;&nbsp;{$aLang.stream_get_more}
+                    </a>
                 {/if}
             </div>
         </div>

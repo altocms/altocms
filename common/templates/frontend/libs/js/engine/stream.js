@@ -5,6 +5,8 @@
 ;var ls = ls || {};
 
 ls.stream = ( function ($) {
+    "use strict";
+
     this.isBusy = false;
     this.sDateLast = null;
 
@@ -154,25 +156,30 @@ ls.stream = ( function ($) {
      * @param  {Object} oGetMoreButton Кнопка
      */
     this.getMore = function (oGetMoreButton) {
-        if (this.isBusy) return;
 
-        var $oGetMoreButton = $(oGetMoreButton),
-            $oLastId = $('#activity-last-id');
-        iLastId = $oLastId.val();
+        if (this.isBusy) {
+            return;
+        }
 
-        if (!iLastId) return;
+        var $oGetMoreButton = $(oGetMoreButton);
 
-        $oGetMoreButton.addClass('loading');
         this.isBusy = true;
 
         var params = $.extend({}, {
-            'iLastId': iLastId,
             'sDateLast': this.sDateLast
         }, ls.tools.getDataOptions($oGetMoreButton, 'param'));
 
+        params.iLastId = params.last_id ? params.last_id : 0;
+        if (!params.iLastId) {
+            return;
+        }
+
         var url = ls.routerUrl('stream') + 'get_more' + (params.type ? '_' + params.type : '') + '/';
 
+        $oGetMoreButton.addClass('loading');
+        ls.progressStart();
         ls.ajax(url, params, function (result) {
+            ls.progressDone();
             if (!result) {
                 ls.msg.error(null, 'System error #1001');
             } else if (result.bStateError) {
@@ -180,7 +187,7 @@ ls.stream = ( function ($) {
             } else {
                 if (result.events_count) {
                     $('#activity-event-list').append(result.result);
-                    $oLastId.attr('value', result.iStreamLastId);
+                    $oGetMoreButton.data('param-last_id', result.iStreamLastId);
                 }
 
                 if (!result.events_count) {
@@ -190,10 +197,10 @@ ls.stream = ( function ($) {
 
             $oGetMoreButton.removeClass('loading');
 
-            ls.hook.run('ls_stream_get_more_after', [iLastId, result]);
-
             this.isBusy = false;
         }.bind(this));
+
+        return false;
     };
 
     return this;

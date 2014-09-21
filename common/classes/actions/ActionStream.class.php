@@ -31,7 +31,7 @@ class ActionStream extends Action {
      *
      * @var string
      */
-    protected $sMenuItemSelect = 'user';
+    protected $sMenuItemSelect = 'follow';
 
     /**
      * Инициализация
@@ -43,7 +43,7 @@ class ActionStream extends Action {
          */
         $this->oUserCurrent = $this->User_GetUserCurrent();
         if ($this->oUserCurrent) {
-            $this->SetDefaultEvent('user');
+            $this->SetDefaultEvent('follow');
         } else {
             $this->SetDefaultEvent('all');
         }
@@ -65,13 +65,16 @@ class ActionStream extends Action {
      *
      */
     protected function RegisterEvent() {
-        $this->AddEvent('user', 'EventUser');
+
+        $this->AddEvent('follow', 'EventFollow');
         $this->AddEvent('all', 'EventAll');
         $this->AddEvent('subscribe', 'EventSubscribe');
         $this->AddEvent('subscribeByLogin', 'EventSubscribeByLogin');
         $this->AddEvent('unsubscribe', 'EventUnSubscribe');
         $this->AddEvent('switchEventType', 'EventSwitchEventType');
-        $this->AddEvent('get_more', 'EventGetMore');
+
+        $this->AddEvent('get_more', 'EventGetMoreFollow');
+        $this->AddEvent('get_more_follow', 'EventGetMoreFollow');
         $this->AddEvent('get_more_user', 'EventGetMoreUser');
         $this->AddEvent('get_more_all', 'EventGetMoreAll');
     }
@@ -80,13 +83,15 @@ class ActionStream extends Action {
      * Список событий в ленте активности пользователя
      *
      */
-    protected function EventUser() {
+    protected function EventFollow() {
         /**
          * Пользователь авторизован?
          */
         if (!$this->oUserCurrent) {
             return parent::EventNotFound();
         }
+        $this->sMenuItemSelect = 'follow';
+
         $oSkin = $this->Skin_GetSkin($this->Viewer_GetConfigSkin());
         if ($oSkin && $oSkin->GetCompatible() == 'alto') {
             $this->Viewer_AddWidget('right', 'activitySettings');
@@ -157,11 +162,19 @@ class ActionStream extends Action {
         $this->Message_AddNotice($this->Lang_Get('stream_subscribes_updated'), $this->Lang_Get('attention'));
     }
 
+    /*
+     * LS-compatibility
+     */
+    protected function EventGetMore() {
+
+        return $this->EventGetMoreFollow();
+    }
+
     /**
      * Погрузка событий (замена постраничности)
      *
      */
-    protected function EventGetMore() {
+    protected function EventGetMoreFollow() {
         /**
          * Устанавливаем формат Ajax ответа
          */
