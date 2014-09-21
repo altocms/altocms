@@ -28,6 +28,28 @@ class ModuleACL extends Module {
     const CAN_VOTE_BLOG_FALSE = 0;
     const CAN_VOTE_BLOG_TRUE = 1;
     const CAN_VOTE_BLOG_ERROR_CLOSE = 2;
+    const CAN_VOTE_BLOG_ERROR_BAN = 3;
+    /**
+     * Коды ответов на запрос о возможности
+     * пользователя голосовать за топик
+     */
+    const CAN_VOTE_TOPIC_FALSE = 0;
+    const CAN_VOTE_TOPIC_TRUE = 1;
+    const CAN_VOTE_TOPIC_ERROR_BAN = 2;
+    /**
+     * Коды ответов на запрос о возможности
+     * пользователя голосовать за комментарий
+     */
+    const CAN_VOTE_COMMENT_FALSE = 0;
+    const CAN_VOTE_COMMENT_TRUE = 1;
+    const CAN_VOTE_COMMENT_ERROR_BAN = 2;
+    /**
+     * Коды ответов на запрос о возможности
+     * пользователя оставлять комментарий
+     */
+    const CAN_TOPIC_COMMENT_FALSE = 0;
+    const CAN_TOPIC_COMMENT_TRUE = 1;
+    const CAN_TOPIC_COMMENT_ERROR_BAN = 2;
     /**
      * Коды механизма удаления блога
      */
@@ -85,15 +107,21 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CanPostComment(ModuleUser_EntityUser $oUser, $oTopic = null) {
-
+        $oBlog = $oTopic->getBlog();
+        if ($oBlog && $oBlog->getBlogType()) {
+            $oBlogUser = $this->Blog_GetBlogUserByBlogIdAndUserId($oBlog->getId(), $oUser->getId());
+            if ($oBlogUser && $oBlogUser->getUserRole() == ModuleBlog::BLOG_USER_ROLE_BAN) {
+                return self::CAN_TOPIC_COMMENT_ERROR_BAN;
+            }
+        }
         // * Проверяем на закрытый блог
         if ($oTopic && !$this->IsAllowShowBlog($oTopic->getBlog(), $oUser)) {
-            return false;
+            return self::CAN_TOPIC_COMMENT_FALSE;
         }
         if ($oUser->getRating() >= Config::Get('acl.create.comment.rating')) {
-            return true;
+            return self::CAN_TOPIC_COMMENT_TRUE;
         }
-        return false;
+        return self::CAN_TOPIC_COMMENT_FALSE;
     }
 
     /**
@@ -217,10 +245,17 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CanVoteComment(ModuleUser_EntityUser $oUser, ModuleComment_EntityComment $oComment) {
-        if ($oUser->getRating() >= Config::Get('acl.vote.comment.rating')) {
-            return true;
+        $oBlog = $oComment->getTargetBlog();
+        if ($oBlog && $oBlog->getBlogType()) {
+            $oBlogUser = $this->Blog_GetBlogUserByBlogIdAndUserId($oBlog->getId(), $oUser->getId());
+            if ($oBlogUser && $oBlogUser->getUserRole() == ModuleBlog::BLOG_USER_ROLE_BAN) {
+                return self::CAN_VOTE_COMMENT_ERROR_BAN;
+            }
         }
-        return false;
+        if ($oUser->getRating() >= Config::Get('acl.vote.comment.rating')) {
+            return self::CAN_VOTE_COMMENT_TRUE;
+        }
+        return self::CAN_VOTE_COMMENT_FALSE;
     }
 
     /**
@@ -232,10 +267,12 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CanVoteBlog(ModuleUser_EntityUser $oUser, ModuleBlog_EntityBlog $oBlog) {
-
+        $oBlogUser = $this->Blog_GetBlogUserByBlogIdAndUserId($oBlog->getId(), $oUser->getId());
+        if ($oBlogUser && $oBlogUser->getUserRole() == ModuleBlog::BLOG_USER_ROLE_BAN) {
+            return self::CAN_VOTE_BLOG_ERROR_BAN;
+        }
         // * Если блог приватный, проверяем является ли пользователь его читателем
         if ($oBlog->getBlogType() && $oBlog->getBlogType()->IsPrivate()) {
-            $oBlogUser = $this->Blog_GetBlogUserByBlogIdAndUserId($oBlog->getId(), $oUser->getId());
             if (!$oBlogUser || $oBlogUser->getUserRole() < ModuleBlog::BLOG_USER_ROLE_GUEST) {
                 return self::CAN_VOTE_BLOG_ERROR_CLOSE;
             }
@@ -255,11 +292,17 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CanVoteTopic(ModuleUser_EntityUser $oUser, ModuleTopic_EntityTopic $oTopic) {
-
-        if ($oUser->getRating() >= Config::Get('acl.vote.topic.rating')) {
-            return true;
+        $oBlog = $oTopic->getBlog();
+        if ($oBlog && $oBlog->getBlogType()) {
+            $oBlogUser = $this->Blog_GetBlogUserByBlogIdAndUserId($oBlog->getId(), $oUser->getId());
+            if ($oBlogUser && $oBlogUser->getUserRole() == ModuleBlog::BLOG_USER_ROLE_BAN) {
+                return self::CAN_VOTE_TOPIC_ERROR_BAN;
+            }
         }
-        return false;
+        if ($oUser->getRating() >= Config::Get('acl.vote.topic.rating')) {
+            return self::CAN_VOTE_TOPIC_TRUE;
+        }
+        return self::CAN_VOTE_TOPIC_FALSE;
     }
 
     /**

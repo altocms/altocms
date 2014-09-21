@@ -1219,9 +1219,19 @@ class ActionBlog extends Action {
         }
 
         // * Проверяем разрешено ли постить комменты
-        if (!$this->ACL_CanPostComment($this->oUserCurrent, $oTopic) && !$this->oUserCurrent->isAdministrator()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('topic_comment_acl'), $this->Lang_Get('error'));
-            return;
+        if(!$this->oUserCurrent->isAdministrator()){
+            switch ($this->ACL_CanPostComment($this->oUserCurrent, $oTopic)) {
+                case ModuleACL::CAN_TOPIC_COMMENT_ERROR_BAN:
+                    $this->Message_AddErrorSingle($this->Lang_Get('topic_comment_banned'), $this->Lang_Get('attention'));
+                    return;
+                    break;
+
+                default:
+                case ModuleACL::CAN_TOPIC_COMMENT_FALSE:
+                    $this->Message_AddErrorSingle($this->Lang_Get('topic_comment_acl'), $this->Lang_Get('error'));
+                    return;
+                    break;
+            }
         }
 
         // * Проверяем разрешено ли постить комменты по времени
@@ -2136,6 +2146,10 @@ class ActionBlog extends Action {
                 $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
                 return;
             }
+        }
+        if ($oBlogUser && ($oBlogUser->getUserRole() == ModuleBlog::BLOG_USER_ROLE_BAN)) {
+            $this->Message_AddErrorSingle($this->Lang_Get('blog_leave_error_banned'), $this->Lang_Get('error'));
+            return;
         }
     }
 

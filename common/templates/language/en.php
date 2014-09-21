@@ -83,6 +83,7 @@ return array(
     'blog_vote_error_already'                   => "You've already voted for this blog!",
     'blog_vote_error_self'                      => "You can't vote for your own blog!",
     'blog_vote_error_acl'                       => "You don't have enough rating or power to vote!",
+    'blog_vote_error_banned'                    => "Sorry you are banned, you can't vote!",
     'blog_vote_error_close'                     => "You can't vote for a private blog",
     'blog_vote_ok'                              => 'Your vote counted',
     /**
@@ -94,6 +95,7 @@ return array(
     'blog_join_error_self'                      => "Why would you join this blog? You're already it's owner!",
     'blog_leave'                                => 'Unjoin this blog',
     'blog_leave_ok'                             => "You're unjoined this blog",
+    'blog_leave_error_banned'                   => "You can't unjoin, because you are banned in this blog",
     'blog_join_leave'                           => 'Join/Unjoin',
     /**
      * Blog menu
@@ -216,6 +218,7 @@ return array(
     'topic_comment_add_title'                   => 'Add comment',
     'topic_comment_add_text_error'              => 'Comments should consist of 2 upto 3000 chars of decent content',
     'topic_comment_acl'                         => "Your rating is too low, you can't add comments yet",
+    'topic_comment_banned'                      => "You are banned and can't comment topics",
     'topic_comment_limit'                       => "Can't create comments in such a frequent rate",
     'topic_comment_notallow'                    => 'Topic\'s owner forbade adding comments',
     'topic_comment_spam'                        => 'Stop! Spam!',
@@ -364,6 +367,7 @@ return array(
     'topic_vote_error_guest'                    => 'In order to vote you need to login',
     'topic_vote_error_time'                     => 'Voting period for this topic is expired!',
     'topic_vote_error_acl'                      => "You don't have enough rating or power to vote!",
+    'topic_vote_error_banned'                   => "Sorry you are banned, you can't vote!",
     'topic_vote_no'                             => 'No one voted yet',
     'topic_vote_ok'                             => 'Your vote counted',
     'topic_vote_ok_abstain'                     => 'You\'ve abstained in order to view topic raiting',
@@ -436,6 +440,7 @@ return array(
     'comment_vote_error'                        => 'Please try to vote later',
     'comment_vote_error_value'                  => 'You can only vote with +1 or -1!',
     'comment_vote_error_acl'                    => "You don't have enough rating and power to vote!",
+    'comment_vote_error_banned'                 => "Sorry you are banned, you can't vote!",
     'comment_vote_error_already'                => "You've already voted for this comment!",
     'comment_vote_error_time'                   => "Voting period for this comment has been expired!",
     'comment_vote_error_self'                   => "You can't vote for your own comment!",
