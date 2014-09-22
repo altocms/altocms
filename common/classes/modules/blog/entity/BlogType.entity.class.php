@@ -203,6 +203,36 @@ class ModuleBlog_EntityBlogType extends Entity {
 
         return $this->IsPrivate() && !$this->IsShowTitle();
     }
+
+    /**
+     * Checks if allows requires content type in this blog type
+     *
+     * @param $xContentType
+     *
+     * @return bool
+     */
+    public function IsContentTypeAllow($xContentType) {
+
+        if (!$xContentType) {
+            return true;
+        }
+
+        if (is_object($xContentType)) {
+            $sContentTypeName = $xContentType->getContentUrl();
+        } else {
+            $sContentTypeName = (string)$xContentType;
+        }
+        $xAllowContentTypes = $this->getContentType();
+        if ($xAllowContentTypes) {
+            if (is_array($xAllowContentTypes)) {
+                return in_array($sContentTypeName, $xAllowContentTypes);
+            } else {
+                return $xAllowContentTypes == $sContentTypeName;
+            }
+        }
+        return true;
+    }
+
 }
 
 // EOF

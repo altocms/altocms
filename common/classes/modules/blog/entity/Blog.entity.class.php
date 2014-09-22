@@ -368,7 +368,7 @@ class ModuleBlog_EntityBlog extends Entity {
      */
     public function setBlogType($data) {
 
-        $this->setProp('blog_type', $data);
+        $this->setProp('blog_type_obj', $data);
         if (is_object($data) && $data instanceof ModuleBlog_EntityBlogType && $data->getTypeCode()) {
             $this->setType($data->getTypeCode());
         }
@@ -540,6 +540,25 @@ class ModuleBlog_EntityBlog extends Entity {
             return $oBlogType->IsHidden();
         }
         return null;
+    }
+
+    /**
+     * Checks if allows requires content type in this blog
+     *
+     * @param $xContentType
+     *
+     * @return bool
+     */
+    public function IsContentTypeAllow($xContentType) {
+
+        if (!$xContentType) {
+            return true;
+        }
+
+        if ($this->getBlogType()) {
+            return $this->getBlogType()->IsContentTypeAllow($xContentType);
+        }
+        return false;
     }
 }
 

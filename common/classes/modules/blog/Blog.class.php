@@ -171,6 +171,9 @@ class ModuleBlog extends Module {
 
         // * Получаем блоги
         $aBlogs = $this->GetBlogsByArrayId($aBlogsId, $aOrder);
+        if (!$aBlogs) {
+            return $aBlogs;
+        }
 
         // * Формируем ID дополнительных данных, которые нужно получить
         $aUserId = array();
@@ -193,6 +196,8 @@ class ModuleBlog extends Module {
             $aBlogsVote = $this->Vote_GetVoteByArray($aBlogsId, 'blog', $this->oUserCurrent->getId());
         }
 
+        $aBlogTypes = $this->GetBlogTypes();
+
         // * Добавляем данные к результату - списку блогов
         foreach ($aBlogs as $oBlog) {
             if (isset($aUsers[$oBlog->getOwnerId()])) {
@@ -213,6 +218,9 @@ class ModuleBlog extends Module {
                 $oBlog->setVote($aBlogsVote[$oBlog->getId()]);
             } else {
                 $oBlog->setVote(null);
+            }
+            if (isset($aBlogTypes[$oBlog->getType()])) {
+                $oBlog->setBlogType($aBlogTypes[$oBlog->getType()]);
             }
         }
         return $aBlogs;

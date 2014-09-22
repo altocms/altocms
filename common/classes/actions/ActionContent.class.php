@@ -116,14 +116,21 @@ class ActionContent extends Action {
     /**
      * Returns array of allowed blogs
      *
+     * @param array $aFilter
+     *
      * @return array
      */
-    protected function _getAllowBlogs() {
+    protected function _getAllowBlogs($aFilter = array()) {
 
-        $aBlogs = $this->Blog_GetBlogsAllowByUser($this->oUserCurrent);
+        $oUser = (isset($aFilter['user']) ? $aFilter['user'] : null);
+        $sContentTypeName = (isset($aFilter['content_type']) ? $aFilter['content_type'] : null);
+
+        $aBlogs = $this->Blog_GetBlogsAllowByUser($oUser);
         $aAllowBlogs = array();
+
+        /** @var ModuleBlog_EntityBlog $oBlog */
         foreach($aBlogs as $oBlog) {
-            if ($this->ACL_CanAddTopic($this->oUserCurrent, $oBlog)) {
+            if ($this->ACL_CanAddTopic($oUser, $oBlog) && $oBlog->IsContentTypeAllow($sContentTypeName)) {
                 $aAllowBlogs[$oBlog->getId()] = $oBlog;
             }
         }
@@ -171,9 +178,15 @@ class ActionContent extends Action {
             return parent::EventNotFound();
         }
 
+        $aBlogFilter = array(
+            'user' => $this->oUserCurrent,
+            'content_type' => $this->oContentType,
+        );
+        $aBlogsAllow = $this->_getAllowBlogs($aBlogFilter);
+
         // * Загружаем переменные в шаблон
         $this->Viewer_Assign('bPersonalBlog', $this->bPersonalBlogEnabled);
-        $this->Viewer_Assign('aBlogsAllow', $this->_getAllowBlogs());
+        $this->Viewer_Assign('aBlogsAllow', $aBlogsAllow);
         $this->Viewer_Assign('bEditDisabled', false);
         $this->Viewer_AddHtmlTitle(
             $this->Lang_Get('topic_topic_create') . ' ' . mb_strtolower($this->oContentType->getContentTitle(), 'UTF-8')
@@ -431,12 +444,18 @@ class ActionContent extends Action {
             return parent::EventNotFound();
         }
 
+        $aBlogFilter = array(
+            'user' => $this->oUserCurrent,
+            'content_type' => $this->oContentType,
+        );
+        $aBlogsAllow = $this->_getAllowBlogs($aBlogFilter);
+
         // * Вызов хука
         $this->Hook_Run('topic_edit_show', array('oTopic' => $oTopic));
 
         // * Загружаем переменные в шаблон
         $this->Viewer_Assign('bPersonalBlog', $this->bPersonalBlogEnabled);
-        $this->Viewer_Assign('aBlogsAllow', $this->_getAllowBlogs());
+        $this->Viewer_Assign('aBlogsAllow', $aBlogsAllow);
         $this->Viewer_Assign('bEditDisabled', $oTopic->getQuestionCountVote() == 0 ? false : true);
         $this->Viewer_AddHtmlTitle($this->Lang_Get('topic_topic_edit'));
 
