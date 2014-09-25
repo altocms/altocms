@@ -225,7 +225,6 @@ class ActionAjax extends Action {
                 return;
                 break;
 
-            default:
             case ModuleACL::CAN_VOTE_COMMENT_FALSE:
                 $this->Message_AddErrorSingle($this->Lang_Get('comment_vote_error_acl'), $this->Lang_Get('attention'));
                 return;
@@ -313,7 +312,6 @@ class ActionAjax extends Action {
                 return;
                 break;
 
-            default:
             case ModuleACL::CAN_VOTE_TOPIC_FALSE:
                 $this->Message_AddErrorSingle($this->Lang_Get('topic_vote_error_acl'), $this->Lang_Get('attention'));
                 return;
