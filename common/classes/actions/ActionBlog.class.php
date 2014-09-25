@@ -1226,7 +1226,6 @@ class ActionBlog extends Action {
                     return;
                     break;
 
-                default:
                 case ModuleACL::CAN_TOPIC_COMMENT_FALSE:
                     $this->Message_AddErrorSingle($this->Lang_Get('topic_comment_acl'), $this->Lang_Get('error'));
                     return;
