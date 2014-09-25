@@ -670,7 +670,7 @@ class ModuleImg extends Module {
      */
     public function OriginalFile($sFile, &$aOptions) {
 
-        if (preg_match('~^(.+)-(\d*x\d+)(\-([a-z]+))?\.[a-z]+$~i', $sFile, $aMatches)) {
+        if (preg_match('~^(.+)-(\d*x\d*)(\-([a-z]+))?\.[a-z]+$~i', $sFile, $aMatches)) {
             $sOriginal = $aMatches[1];
             list($nW, $nH) = explode('x', $aMatches[2]);
             $sModifier = (isset($aMatches[4]) ? $aMatches[4] : '');
