@@ -19,7 +19,7 @@
         <ul>
         <li><a class="link link-light-gray link-lead link-clear {if $sMenuSubItemSelect=='inbox'}active{/if}" href="{router page='talk'}">{$aLang.talk_menu_inbox}</a></li>
         {if $iUserCurrentCountTalkNew}
-            <a class="link link-light-gray link-lead link-clear{if $sMenuSubItemSelect=='new'}active{/if}" href="{router page='talk'}inbox/new/">{$aLang.talk_menu_inbox_new}</a></li>
+            <li><a class="link link-light-gray link-lead link-clear{if $sMenuSubItemSelect=='new'}active{/if}" href="{router page='talk'}inbox/new/">{$aLang.talk_menu_inbox_new}</a></li>
         {/if}
         <li><a class="link link-light-gray link-lead link-clear {if $sMenuSubItemSelect=='add'}active{/if}" href="{router page='talk'}add/">{$aLang.talk_menu_inbox_create}</a></li>
         <li><a class="link link-light-gray link-lead link-clear {if $sMenuSubItemSelect=='favourites'}active{/if}" href="{router page='talk'}favourites/">{$aLang.talk_menu_inbox_favourites}{if $iCountTalkFavourite} ({$iCountTalkFavourite}){/if}</a></li>
