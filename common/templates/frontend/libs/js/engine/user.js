@@ -334,7 +334,7 @@ ls.user = (function ($) {
      */
     this.uploadImageCropDone = function() {
         if ($that.jcropImage) {
-            $that.jcropImage.release();
+            //$that.jcropImage.release();
             $that.jcropImage.destroy();
         }
     };
@@ -363,6 +363,7 @@ ls.user = (function ($) {
                 ls.hook.run('ls_user_cancel_avatar_after', [result]);
             }
             button.removeClass('loading');
+            $that.uploadImageCropDone();
         });
     };
 
