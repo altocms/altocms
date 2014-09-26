@@ -10,6 +10,7 @@
 var admin = admin || {};
 
 (function ($) {
+    "use strict"; // jshint ;_;
     admin = {
         store:{'@': 'altocms.ru'},
 
@@ -163,7 +164,7 @@ var admin = admin || {};
             var content = $('<iframe/>').prop('src', source);
         }
         $(element).append(content);
-    }
+    };
 
     $this.dashboardNews = function (params) {
         if ($('.b-dashboard-news.refresh').length) {
@@ -269,7 +270,23 @@ var admin = admin || {};
             }
         }, more);
 
-    }
+    };
+
+    $this.blogtypeDelete = function(id, type, name) {
+        var title = ls.lang.get('action.admin.blogtypes_del_confirm_title'),
+            text = ls.lang.get('action.admin.blogtypes_del_confirm_text', {name: type + ' - ' + name});
+
+        ls.modal.confirm({
+            title: title,
+            text: text
+        }, {
+            onConfirm: function() {
+                ls.progressStart();
+                location.href = ls.routerUrl('admin') + 'settings-blogtypes/delete/' + id + '/?security_key=' + ALTO_SECURITY_KEY;
+            }
+        });
+        return false;
+    };
 
 })(jQuery);
 
@@ -278,11 +295,11 @@ var admin = admin || {};
 
     $.fn.progressOn = function () {
         return admin.progressOn(this);
-    }
+    };
 
     $.fn.progressOff = function () {
         return admin.progressOff(this);
-    }
+    };
 
 }(window.jQuery);
 
@@ -291,6 +308,7 @@ $(function () {
 });
 
 $(function(){
+    "use strict"; // jshint ;_;
     $('[data-toggle="popover"]').each(function(){
         var selector = $(this).data('popover');
         if (selector) {
@@ -368,7 +386,7 @@ $(function(){
         });
     }
 
-    l10n = l10n || {date_format: 'dd.mm.yyy', week_start: 1};
+    var l10n = l10n || {date_format: 'dd.mm.yyy', week_start: 1};
 
     $('.datepicker').datepicker({
         format: l10n.date_format,

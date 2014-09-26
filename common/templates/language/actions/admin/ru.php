@@ -773,6 +773,13 @@ return array(
     'blogtypes_min_rate_read'        => 'Минимальный рейтинг для чтения',
     'blogtypes_min_rate_comment'     => 'Минимальный рейтинг для комментирования',
 
+    'blogtypes_del_confirm_title'    => 'Удалить тип блога?',
+    'blogtypes_del_confirm_text'     => 'Вы действительно хотите удалить тип блога %%name%%?',
+    'blogtypes_del_success'          => 'Тип блога <strong>%%name%%</strong> удален',
+    'blogtypes_del_err'              => 'Ошибка удаления типа блога',
+    'blogtypes_del_err_text'         => 'Ошибка удаления типа блога <strong>%%name%%</strong>',
+    'blogtypes_del_err_notempty'     => 'Есть <strong>%%count%%</strong> блогов этого типа',
+
     'blog_user_role_administrator'   => 'Администратор',
     'blog_user_role_moderator'       => 'Модератор',
     'blog_user_role_member'          => 'Участник',

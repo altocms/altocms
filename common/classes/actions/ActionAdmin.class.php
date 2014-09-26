@@ -2698,6 +2698,8 @@ class ActionAdmin extends Action {
             return $this->_eventBlogTypesAdd();
         } elseif ($sMode == 'edit') {
             return $this->_eventBlogTypesEdit();
+        } elseif ($sMode == 'delete') {
+            return $this->_eventBlogTypesDelete();
         } elseif ($this->GetPost('blogtype_action') == 'activate') {
             return $this->_eventBlogTypeSetActive(1);
         } elseif ($this->GetPost('blogtype_action') == 'deactivate') {
@@ -2719,41 +2721,11 @@ class ActionAdmin extends Action {
 
         $this->Viewer_Assign('aBlogTypes', $aBlogTypes);
         $this->Viewer_Assign('aLangList', $aLangList);
-    }
 
-    /**
-     *
-     */
-    protected function _eventBlogTypesAdd() {
-
-        $this->_setTitle($this->Lang_Get('action.admin.blogtypes_menu'));
-        $this->SetTemplateAction('settings/blogtypes_edit');
-
-        $aLangList = $this->Lang_GetLangList();
-        $this->Viewer_Assign('aLangList', $aLangList);
-
-        if ($this->IsPost('submit_type_add')) {
-            return $this->_eventBlogTypesAddSubmit();
-        }
-        $_REQUEST['blogtypes_show_title'] = true;
-        $_REQUEST['blogtypes_index_content'] = true;
-        $_REQUEST['blogtypes_allow_add'] = true;
-        $_REQUEST['blogtypes_min_rating'] = Config::Get('acl.create.blog.rating');
-        $_REQUEST['blogtypes_min_rate_comment'] = Config::Get('acl.create.comment.rating');
-
-        $_REQUEST['blogtypes_acl_write'] = array(
-            'notmember' => ModuleBlog::BLOG_USER_ROLE_NOTMEMBER,
-        );
-        $_REQUEST['blogtypes_acl_read'] = array(
-            'notmember' => ModuleBlog::BLOG_USER_ROLE_NOTMEMBER,
-        );
-        $_REQUEST['blogtypes_acl_comment'] = array(
-            'notmember' => ModuleBlog::BLOG_USER_ROLE_NOTMEMBER,
-        );
-        $_REQUEST['blogtypes_contenttypes'] = '';
-        $aFilter = array('content_active' => 1);
-        $aContentTypes = $this->Topic_GetContentTypes($aFilter, false);
-        $this->Viewer_Assign('aContentTypes', $aContentTypes);
+        $this->Lang_AddLangJs(array(
+                'action.admin.blogtypes_del_confirm_title',
+                'action.admin.blogtypes_del_confirm_text',
+            ));
     }
 
     /**
@@ -2889,6 +2861,41 @@ class ActionAdmin extends Action {
     /**
      *
      */
+    protected function _eventBlogTypesAdd() {
+
+        $this->_setTitle($this->Lang_Get('action.admin.blogtypes_menu'));
+        $this->SetTemplateAction('settings/blogtypes_edit');
+
+        $aLangList = $this->Lang_GetLangList();
+        $this->Viewer_Assign('aLangList', $aLangList);
+
+        if ($this->IsPost('submit_type_add')) {
+            return $this->_eventBlogTypesAddSubmit();
+        }
+        $_REQUEST['blogtypes_show_title'] = true;
+        $_REQUEST['blogtypes_index_content'] = true;
+        $_REQUEST['blogtypes_allow_add'] = true;
+        $_REQUEST['blogtypes_min_rating'] = Config::Get('acl.create.blog.rating');
+        $_REQUEST['blogtypes_min_rate_comment'] = Config::Get('acl.create.comment.rating');
+
+        $_REQUEST['blogtypes_acl_write'] = array(
+            'notmember' => ModuleBlog::BLOG_USER_ROLE_NOTMEMBER,
+        );
+        $_REQUEST['blogtypes_acl_read'] = array(
+            'notmember' => ModuleBlog::BLOG_USER_ROLE_NOTMEMBER,
+        );
+        $_REQUEST['blogtypes_acl_comment'] = array(
+            'notmember' => ModuleBlog::BLOG_USER_ROLE_NOTMEMBER,
+        );
+        $_REQUEST['blogtypes_contenttypes'] = '';
+        $aFilter = array('content_active' => 1);
+        $aContentTypes = $this->Topic_GetContentTypes($aFilter, false);
+        $this->Viewer_Assign('aContentTypes', $aContentTypes);
+    }
+
+    /**
+     *
+     */
     protected function _eventBlogTypesAddSubmit() {
 
         $oBlogType = Engine::GetEntity('Blog_BlogType');
@@ -2935,6 +2942,41 @@ class ActionAdmin extends Action {
     }
 
     /**
+     * @return bool
+     */
+    protected function _eventBlogTypesDelete() {
+
+        $iBlogTypeId = intval($this->getParam(1));
+        if ($iBlogTypeId && ($oBlogType = $this->Blog_GetBlogTypeById($iBlogTypeId))) {
+
+            if ($oBlogType->GetBlogsCount()) {
+                $this->Message_AddErrorSingle(
+                    $this->Lang_Get('action.admin.blogtypes_del_err_notempty', array('count' => $oBlogType->GetBlogsCount())),
+                    $this->Lang_Get('action.admin.blogtypes_del_err'),
+                    true
+                );
+            } else {
+                $sName = $oBlogType->getTypeCode() . ' - ' . htmlentities($oBlogType->getName());
+                if ($this->_deleteBlogType($oBlogType)) {
+                    $this->Message_AddNoticeSingle(
+                        $this->Lang_Get('action.admin.blogtypes_del_success', array('name' => $sName)),
+                        null,
+                        true
+                    );
+                } else {
+                    $this->Message_AddErrorSingle(
+                        $this->Lang_Get('action.admin.blogtypes_del_err_text', array('name' => $sName)),
+                        $this->Lang_Get('action.admin.blogtypes_del_err'),
+                        true
+                    );
+                }
+            }
+        }
+
+        Router::Location('admin/settings-blogtypes');
+    }
+
+    /**
      * @param $oBlogType
      *
      * @return bool
@@ -2952,6 +2994,16 @@ class ActionAdmin extends Action {
     protected function _updateBlogType($oBlogType) {
 
         return $this->Blog_UpdateBlogType($oBlogType);
+    }
+
+    /**
+     * @param $oBlogType
+     *
+     * @return bool
+     */
+    protected function _deleteBlogType($oBlogType) {
+
+        return $this->Blog_DeleteBlogType($oBlogType);
     }
 
     /**

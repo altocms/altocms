@@ -780,8 +780,8 @@ class ModuleBlog_MapperBlog extends Mapper {
               DISTINCT blog_type AS ARRAY_KEY,
               Count(blog_id) AS blogs_count
             FROM ?_blog
-            GROUP BY blog_type
             {WHERE blog_type IN (?a)}
+            GROUP BY blog_type
             ORDER BY blog_type
             ";
         $aRows = $this->oDb->select($sql, $aTypes ? $aTypes : DBSIMPLE_SKIP);
@@ -952,6 +952,24 @@ class ModuleBlog_MapperBlog extends Mapper {
                  ':id'               => $oBlogType->getId()
             )
         );
+        return $xResult !== false;
+    }
+
+    /**
+     * @param array $aBlogTypes
+     *
+     * @return bool
+     */
+    public function DeleteBlogType($aBlogTypes) {
+
+        if (!is_array($aBlogTypes)) {
+            $aBlogTypes = array((string)$aBlogTypes);
+        }
+        $sql = "
+            DELETE FROM ?_blog_type
+            WHERE type_code IN(?a)
+        ";
+        $xResult = $this->oDb->query($sql, $aBlogTypes);
         return $xResult !== false;
     }
 

@@ -1616,10 +1616,10 @@ class ModuleBlog extends Module {
      */
     public function DeleteBlogType($oBlogType) {
 
-        $nCount = $this->oMapper->GetBlogCountsByTypes($oBlogType->GetTypeCode());
+        $iCount = $this->oMapper->GetBlogCountsByTypes($oBlogType->GetTypeCode());
         // Если есть блоги такого типа, то НЕ удаляем тип
-        if (!$nCount) {
-            $bResult = $this->oMapper->DeleteBlogType($oBlogType);
+        if (!$iCount) {
+            $bResult = $this->oMapper->DeleteBlogType($oBlogType->GetTypeCode());
             if ($bResult) {
                 //чистим зависимые кеши
                 $this->Cache_CleanByTags(array('blog_update'));

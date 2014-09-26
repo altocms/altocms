@@ -106,7 +106,7 @@
                             <a href="{router page='admin'}settings-blogtypes/edit/{$oBlogType->getId()}/">
                                 <i class="icon icon-note tip-top" title="{$aLang.action.admin.content_edit}"></i></a>
                             {if $oBlogType AND $oBlogType->CanDelete()}
-                            <a href="{router page='admin'}settings-blogtypes/delete/{$oBlogType->getId()}/">
+                            <a href="#" onclick="return admin.blogtypeDelete('{$oBlogType->getId()}', '{$oBlogType->getTypeCode()}', '{$oBlogType->getName()|escape:'html'}')">
                                 <i class="icon icon-trash tip-top" title="{$aLang.action.admin.content_delete}"></i></a>
                             {/if}
                         </td>
