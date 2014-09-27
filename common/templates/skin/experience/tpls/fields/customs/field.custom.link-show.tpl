@@ -2,7 +2,7 @@
  {* @licence     CC Attribution-ShareAlike   *}
 
 {if $oField}
-    {$sVal = $oTopic->getLink($oField->getFieldId(), true)}
+    {$sVal = $oTopic->getFieldLink($oField->getFieldId(), true)}
     {if $sVal}
         <p><b>{$oField->getFieldName()}</b>:
             <a href="{$sVal|escape:'html'}" rel="nofollow">{$sVal|escape:'html'}</a>
