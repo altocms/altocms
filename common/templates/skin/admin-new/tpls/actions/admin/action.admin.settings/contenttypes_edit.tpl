@@ -150,7 +150,7 @@
                 </div>
             </div>
 
-            {if $sEvent=='settings-contenttypesedit'}
+            {if $sMode=='edit'}
                 <div class="panel-heading">
                     <div class="panel-title">{$aLang.action.admin.contenttypes_fields_added}</div>
                 </div>
@@ -158,6 +158,7 @@
                     <div class="table table-striped-responsive"><table id="sortable" class="table table-striped table-bordered mb15">
                         <thead class="topiccck_thead">
                         <tr>
+                            <th>ID</th>
                             <th>{$aLang.action.admin.contenttypes_type}</th>
                             <th>{$aLang.action.admin.contenttypes_name}</th>
                             <th>{$aLang.action.admin.contenttypes_description}</th>
@@ -168,6 +169,9 @@
                         <tbody class="content">
                         {foreach from=$oContentType->getFields() item=oField name=el2}
                             <tr id="{$oField->getFieldId()}" class="cursor-x">
+                                <td align="center">
+                                    {$oField->getFieldId()}
+                                </td>
                                 <td align="center">
                                     {$oField->getFieldType()}
                                 </td>

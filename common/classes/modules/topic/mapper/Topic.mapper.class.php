@@ -374,7 +374,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 					AND
 					t.blog_id=b.blog_id;";
         if ($aRow = $this->oDb->selectRow($sql)) {
-            return $aRow['count'];
+            return intval($aRow['count']);
         }
         return false;
     }
@@ -1408,44 +1408,39 @@ class ModuleTopic_MapperTopic extends Mapper {
      * Список типов контента
      *
      * @param  array $aFilter    Фильтр
-     * @param  bool  $urls       Возвращать url или полные объекты
      *
      * @return array
      */
     public function getContentTypes($aFilter) {
 
-        $sql
-            = "SELECT
-						*
-					FROM
-						?_content
-					WHERE
-						1=1
-						{ AND content_active = ?d }
-					ORDER BY content_sort desc
-					";
-        $aTypes = array();
-        if ($aRows = $this->oDb->select(
-            $sql,
-            (isset($aFilter['content_active']) ? 1 : DBSIMPLE_SKIP)
-        )
-        ) {
-            foreach ($aRows as $aType) {
-                $aTypes[$aType['content_url']] = Engine::GetEntity('Topic_ContentType', $aType);
-            }
+        $sql = "
+            SELECT
+                content_url AS ARRAY_KEY,
+                c.*
+            FROM
+                ?_content AS c
+            WHERE
+                1=1
+				{ AND content_active = ?d }
+            ORDER BY content_sort DESC
+        ";
+        $aContentTypes = array();
+        $aRows = $this->oDb->select($sql, (isset($aFilter['content_active']) ? 1 : DBSIMPLE_SKIP));
+        if ($aRows) {
+            $aContentTypes = Engine::GetEntityRows('Topic_ContentType', $aRows);
         }
-        return $aTypes;
+        return $aContentTypes;
     }
 
 
     /**
      * Добавляет тип контента
      *
-     * @param ModuleTopic_EntityContentType $oType    Объект типа контента
+     * @param ModuleTopic_EntityContentType $oContentType    Объект типа контента
      *
      * @return int|bool
      */
-    public function AddContentType($oType) {
+    public function AddContentType($oContentType) {
 
         $sql = "INSERT INTO ?_content
 			(content_title,
@@ -1457,30 +1452,26 @@ class ModuleTopic_MapperTopic extends Mapper {
 			)
 			VALUES(?, ?, ?, ?d, ?d, ?)
 		";
-        if ($iId = $this->oDb->query(
+        $iId = $this->oDb->query(
             $sql,
-            $oType->getContentTitle(),
-            $oType->getContentTitleDecl(),
-            $oType->getContentUrl(),
-            $oType->getContentCandelete(),
-            $oType->getContentAccess(),
-            $oType->getExtra()
-        )
-        ) {
-            $oType->setContentId($iId);
-            return $iId;
-        }
-        return false;
+            $oContentType->getContentTitle(),
+            $oContentType->getContentTitleDecl(),
+            $oContentType->getContentUrl(),
+            $oContentType->getContentCandelete(),
+            $oContentType->getContentAccess(),
+            $oContentType->getExtra()
+        );
+        return $iId ? $iId : false;
     }
 
     /**
      * Обновляет тип контента
      *
-     * @param ModuleTopic_EntityType $oType    Объект типа контента
+     * @param ModuleTopic_EntityContentType $oContentType    Объект типа контента
      *
      * @return bool
      */
-    public function UpdateContentType($oType) {
+    public function UpdateContentType($oContentType) {
 
         $sql = "UPDATE ?_content
 			SET
@@ -1497,17 +1488,34 @@ class ModuleTopic_MapperTopic extends Mapper {
 		";
         $bResult = $this->oDb->query(
             $sql,
-            $oType->getContentTitle(),
-            $oType->getContentTitleDecl(),
-            $oType->getContentUrl(),
-            $oType->getContentSort(),
-            $oType->getContentCandelete(),
-            $oType->getContentActive(),
-            $oType->getContentAccess(),
-            $oType->getExtra(),
-            $oType->getContentId()
+            $oContentType->getContentTitle(),
+            $oContentType->getContentTitleDecl(),
+            $oContentType->getContentUrl(),
+            $oContentType->getContentSort(),
+            $oContentType->getContentCandelete(),
+            $oContentType->getContentActive(),
+            $oContentType->getContentAccess(),
+            $oContentType->getExtra(),
+            $oContentType->getContentId()
         );
         return $bResult !== false;
+    }
+
+    /**
+     * @param array|int $aContentTypesId
+     *
+     * @return bool
+     */
+    public function DeleteContentType($aContentTypesId) {
+
+        if (!is_array($aContentTypesId)) {
+            $aContentTypesId = array(intval($aContentTypesId));
+        }
+        $sql = "
+            DELETE FROM ?_content
+            WHERE content_id IN(?a)
+        ";
+        return $this->oDb->query($sql, $aContentTypesId) !== false;
     }
 
     /**

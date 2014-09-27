@@ -288,6 +288,21 @@ var admin = admin || {};
         return false;
     };
 
+    $this.contenttypeDelete = function(id, type, name) {
+        var title = ls.lang.get('action.admin.contenttypes_del_confirm_title'),
+            text = ls.lang.get('action.admin.contenttypes_del_confirm_text', {name: type + ' - ' + name});
+
+        ls.modal.confirm({
+            title: title,
+            text: text
+        }, {
+            onConfirm: function() {
+                ls.progressStart();
+                location.href = ls.routerUrl('admin') + 'settings-contenttypes/delete/' + id + '/?security_key=' + ALTO_SECURITY_KEY;
+            }
+        });
+        return false;
+    };
 })(jQuery);
 
 !function ($) {

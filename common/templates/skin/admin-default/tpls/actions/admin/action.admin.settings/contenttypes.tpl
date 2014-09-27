@@ -3,7 +3,7 @@
 {block name="content-bar"}
     {if count($aTypes)>0}
         <div class="btn-group">
-            <a href="{router page='admin'}settings-contenttypesadd/" class="btn btn-primary tip-top"
+            <a href="{router page='admin'}settings-contenttypes/add/" class="btn btn-primary tip-top"
                title="{$aLang.action.admin.contenttypes_add}"><i class="icon icon-plus"></i></a>
         </div>
     {/if}
@@ -65,11 +65,11 @@
                     {foreach from=$aTypes item=oContentType}
                         <tr id="{$oContentType->getContentId()}" class="cursor-x">
                             <td class="center">
-                                {$oContentType->getContentTitle()|escape:'html'}{if !$oContentType->getContentCandelete()} <em>
-                                    [{$aLang.action.admin.contenttypes_standart}]</em>{/if}
+                                {$oContentType->getContentUrl()|escape:'html'}
                             </td>
                             <td class="center">
-                                {$oContentType->getContentUrl()|escape:'html'}
+                                {$oContentType->getContentTitle()|escape:'html'}{if !$oContentType->getContentCandelete()} <em>
+                                    [{$aLang.action.admin.contenttypes_standart}]</em>{/if}
                             </td>
                             <td>
                                 {foreach $oContentType->getFields() as $oField}
@@ -86,17 +86,19 @@
                                 </span>
                             </td>
                             <td class="center">
-                                <a href="{router page='admin'}settings-contenttypesedit/{$oContentType->getContentId()}/">
+                                <a href="{router page='admin'}settings-contenttypes/edit/{$oContentType->getContentId()}/">
                                     <i class="icon icon-note tip-top" title="{$aLang.action.admin.contenttypes_edit}"></i></a>
                                 <a href="{router page='admin'}settings-contenttypes/?toggle={if $oContentType->getContentActive()}off{else}on{/if}&content_id={$oContentType->getContentId()}&security_key={$ALTO_SECURITY_KEY}">
                                     {if $oContentType->getContentActive()}
-                                        <i class="icon icon-ban tip-top"
-                                           title="{$aLang.action.admin.contenttypes_turn_off}"></i>
+                                        <i class="icon icon-ban tip-top" title="{$aLang.action.admin.contenttypes_turn_off}"></i>
                                     {else}
-                                        <i class="icon icon-ok-circle tip-top"
-                                           title="{$aLang.action.admin.contenttypes_turn_on}"></i>
+                                        <i class="icon icon-ok-circle tip-top" title="{$aLang.action.admin.contenttypes_turn_on}"></i>
                                     {/if}
                                 </a>
+                                {if !$oContentType->getContentActive() AND $oContentType->getContentCandelete()}
+                                    <a href="#" onclick="return admin.contenttypeDelete('{$oContentType->getId()}', '{$oContentType->getContentUrl()}', '{$oContentType->getContentTitle()|escape:'html'}')">
+                                    <i class="icon icon-trash tip-top" title="{$aLang.action.admin.content_delete}"></i></a>
+                                {/if}
                             </td>
                         </tr>
                     {/foreach}

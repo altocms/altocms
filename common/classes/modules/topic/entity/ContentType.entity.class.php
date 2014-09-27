@@ -20,6 +20,11 @@ class ModuleTopic_EntityContentType extends Entity {
 
     protected $aExtra = null;
 
+    public function getId() {
+
+        return $this->getContentId();
+    }
+
     public function getFields() {
 
         if (is_null($this->aFields)) {

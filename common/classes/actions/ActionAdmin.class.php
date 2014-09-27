@@ -93,8 +93,6 @@ class ActionAdmin extends Action {
 
         //поля контента
         $this->AddEvent('settings-contenttypes', 'EventContentTypes');
-        $this->AddEvent('settings-contenttypesadd', 'EventContentTypesAdd');
-        $this->AddEvent('settings-contenttypesedit', 'EventContentTypesEdit');
 
         $this->AddEvent('settings-contenttypes-fieldadd', 'EventAddField');
         $this->AddEvent('settings-contenttypes-fieldedit', 'EventEditField');
@@ -3212,6 +3210,22 @@ class ActionAdmin extends Action {
         $this->_setTitle($this->Lang_Get('action.admin.contenttypes_menu'));
         $this->SetTemplateAction('settings/contenttypes');
 
+        $sMode = $this->getParam(0);
+        $this->Viewer_Assign('sMode', $sMode);
+
+        $this->Lang_AddLangJs(array(
+            'action.admin.contenttypes_del_confirm_title',
+            'action.admin.contenttypes_del_confirm_text',
+        ));
+
+        if ($sMode == 'add') {
+            return $this->_eventContentTypesAdd();
+        } elseif ($sMode == 'edit') {
+            return $this->_eventContentTypesEdit();
+        } elseif ($sMode == 'delete') {
+            return $this->_eventContentTypesDelete();
+        }
+
         // * Получаем список
         $aFilter = array();
         $aTypes = $this->Topic_GetContentTypes($aFilter, false);
@@ -3232,19 +3246,13 @@ class ActionAdmin extends Action {
             }
         }
 
-        if (F::GetRequest('add')) {
-            $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success'));
-        }
-
-        if (F::GetRequest('edit')) {
-            $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success_edit'));
-        }
-
+        return null;
     }
 
-    protected function EventContentTypesAdd() {
-
-        $this->sMainMenuItem = 'settings';
+    /**
+     * @return bool
+     */
+    protected function _eventContentTypesAdd() {
 
         $this->_setTitle($this->Lang_Get('action.admin.contenttypes_add_title'));
         $this->SetTemplateAction('settings/contenttypes_edit');
@@ -3256,11 +3264,14 @@ class ActionAdmin extends Action {
         $this->Viewer_AddHtmlTitle($this->Lang_Get('action.admin.contenttypes_add_title'));
 
         // * Обрабатываем отправку формы
-        return $this->SubmitContentTypesAdd();
+        return $this->_eventContentTypesAddSubmit();
 
     }
 
-    protected function SubmitContentTypesAdd() {
+    /**
+     * @return bool
+     */
+    protected function _eventContentTypesAddSubmit() {
 
         // * Проверяем отправлена ли форма с данными
         if (!F::isPost('submit_type_add')) {
@@ -3288,17 +3299,17 @@ class ActionAdmin extends Action {
         }
 
         if ($this->Topic_AddContentType($oContentType)) {
-            Router::Location('admin/settings-contenttypes/?add=success');
+            $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success_add'), null, true);
+            Router::Location('admin/settings-contenttypes/');
         }
-
+        return false;
     }
 
-    protected function EventContentTypesEdit() {
-
-        $this->sMainMenuItem = 'settings';
+    protected function _eventContentTypesEdit() {
 
         // * Получаем тип
-        if (!$oContentType = $this->Topic_GetContentTypeById($this->GetParam(0))) {
+        $iContentTypeById = intval($this->GetParam(1));
+        if (!$iContentTypeById || !($oContentType = $this->Topic_GetContentTypeById($iContentTypeById))) {
             return parent::EventNotFound();
         }
         $this->Viewer_Assign('oContentType', $oContentType);
@@ -3307,21 +3318,11 @@ class ActionAdmin extends Action {
         $this->_setTitle($this->Lang_Get('action.admin.contenttypes_edit_title'));
         $this->SetTemplateAction('settings/contenttypes_edit');
 
-        if (F::GetRequest('fieldadd')) {
-            $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success_fieldadd'));
-        }
-        if (F::GetRequest('fieldedit')) {
-            $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success_fieldedit'));
-        }
-        if (F::GetRequest('fielddelete')) {
-            $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success_fielddelete'));
-        }
-
         // * Проверяем отправлена ли форма с данными
-        if (isset($_REQUEST['submit_type_add'])) {
+        if ($this->isPost('submit_type_add')) {
 
             // * Обрабатываем отправку формы
-            return $this->SubmitContentTypesEdit($oContentType);
+            return $this->_eventContentTypesEditSubmit($oContentType);
         } else {
             $_REQUEST['content_id'] = $oContentType->getContentId();
             $_REQUEST['content_title'] = $oContentType->getContentTitle();
@@ -3333,10 +3334,10 @@ class ActionAdmin extends Action {
             $_REQUEST['config']['question'] = $oContentType->getExtraValue('question');
             $_REQUEST['config']['link'] = $oContentType->getExtraValue('link');
         }
-
+        return null;
     }
 
-    protected function SubmitContentTypesEdit($oContentType) {
+    protected function _eventContentTypesEditSubmit($oContentType) {
 
         // * Проверяем отправлена ли форма с данными
         if (!F::isPost('submit_type_add')) {
@@ -3371,8 +3372,38 @@ class ActionAdmin extends Action {
                 $this->Topic_ChangeType($sTypeOld, $oContentType->getContentUrl());
             }
 
-            Router::Location('admin/settings-contenttypes/?edit=success');
+            $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success_edit'), null, true);
+            Router::Location('admin/settings-contenttypes/');
         }
+        return false;
+    }
+
+    protected function _eventContentTypesDelete() {
+
+        // * Получаем тип
+        $iContentTypeById = intval($this->GetParam(1));
+        if (!$iContentTypeById || !($oContentType = $this->Topic_GetContentTypeById($iContentTypeById))) {
+            return parent::EventNotFound();
+        }
+
+        if ($oContentType->getContentCandelete()) {
+            $aFilter = array(
+                'topic_type' => $oContentType->getContentUrl(),
+            );
+            $iCountTopic = $this->Topic_GetCountTopicsByFilter($aFilter);
+            if ($iCountTopic) {
+                $this->Message_AddErrorSingle(
+                    $this->Lang_Get('action.admin.contenttypes_del_err_notempty', array('count' => $iCountTopic)),
+                    $this->Lang_Get('action.admin.contenttypes_del_err_text', array('name' => '')),
+                    true
+                );
+                Router::Location('admin/settings-contenttypes/');
+            } elseif ($this->Topic_DeleteContentType($oContentType)) {
+                $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success_edit'), null, true);
+                Router::Location('admin/settings-contenttypes/');
+            }
+        }
+        return false;
     }
 
     public function EventAjaxChangeOrderTypes() {
@@ -3496,9 +3527,10 @@ class ActionAdmin extends Action {
         }
 
         if ($this->Topic_AddContentField($oField)) {
-            Router::Location('admin/settings-contenttypesedit/' . $oContentType->getContentId() . '/?fieldadd=success');
+            $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success_fieldadd'), null, true);
+            Router::Location('admin/settings-contenttypes/edit/' . $oContentType->getContentId() . '/');
         }
-
+        return false;
     }
 
     protected function EventEditField() {
@@ -3560,10 +3592,10 @@ class ActionAdmin extends Action {
         }
 
         if ($this->Topic_UpdateContentField($oField)) {
-            Router::Location('admin/settings-contenttypesedit/' . $oContentType->getContentId() . '/?fieldedit=success');
+            $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success_fieldedit'), null, true);
+            Router::Location('admin/settings-contenttypes/edit/' . $oContentType->getContentId() . '/');
         }
-
-
+        return false;
     }
 
     protected function EventDeleteField() {
@@ -3578,8 +3610,11 @@ class ActionAdmin extends Action {
             return parent::EventNotFound();
         }
 
-        $this->Topic_DeleteField($oField);
-        Router::Location('admin/settings-contenttypesedit/' . $oContentType->getContentId() . '/?fielddelete=success');
+        if ($this->Topic_DeleteField($oField)) {
+            $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success_fielddelete'), null, true);
+            Router::Location('admin/settings-contenttypes/edit/' . $oContentType->getContentId() . '/');
+        }
+        return false;
     }
 
 

@@ -909,8 +909,9 @@ return array (
     // 'text_length_error' => 'A field %%name%% can be length from '.Config:: Get ('plugin.topiccck.text_length_min')'. to '.Config:: Get ('plugin.topiccck.text_length_max')'. symbols',
 
     'contenttypes_save_sort_success' => 'Sorting is kept',
-    'contenttypes_success' => 'New type is successfully added',
+    'contenttypes_success_add' => 'New type is successfully added',
     'contenttypes_success_edit' => 'Edited successfully',
+    'contenttypes_success_del' => 'Deleted successfully',
     'contenttypes_success_fieldadd' => 'The field is added',
     'contenttypes_success_fieldedit' => 'The field is edited successfully',
     'contenttypes_success_fielddelete' => 'The field is removed successfully',

@@ -225,6 +225,29 @@ class ModuleTopic extends Module {
     }
 
     /**
+     * Обновляет топик
+     *
+     * @param ModuleTopic_EntityContentType $oContentType    Объект типа контента
+     *
+     * @return bool
+     */
+    public function DeleteContentType($oContentType) {
+
+        $aFilter = array(
+            'topic_type' => $oContentType->getContentUrl(),
+        );
+        $iCount = $this->GetCountTopicsByFilter($aFilter);
+        if (!$iCount && $this->oMapper->DeleteContentType($oContentType->getId())) {
+
+            //чистим зависимые кеши
+            $this->Cache_CleanByTags(array('content_new', 'content_update', 'topic_update'));
+            $this->Cache_Delete("content_type_{$oContentType->getId()}");
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Получает доступные поля для типа контента
      *
      * @param $aFilter
@@ -306,12 +329,13 @@ class ModuleTopic extends Module {
      */
     public function DeleteField($oField) {
 
-        // * Чистим зависимые кеши
-        $this->Cache_CleanByTags(array('field_update'));
-        $this->Cache_Delete("content_field_{$oField->getFieldId()}");
-
         // * Если топик успешно удален, удаляем связанные данные
         if ($bResult = $this->oMapper->DeleteField($oField)) {
+
+            // * Чистим зависимые кеши
+            $this->Cache_CleanByTags(array('field_update'));
+            $this->Cache_Delete("content_field_{$oField->getFieldId()}");
+
             return true;
         }
 

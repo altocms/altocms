@@ -778,7 +778,7 @@ return array(
     'blogtypes_del_success'          => 'Тип блога <strong>%%name%%</strong> удален',
     'blogtypes_del_err'              => 'Ошибка удаления типа блога',
     'blogtypes_del_err_text'         => 'Ошибка удаления типа блога <strong>%%name%%</strong>',
-    'blogtypes_del_err_notempty'     => 'Есть <strong>%%count%%</strong> блогов этого типа',
+    'blogtypes_del_err_notempty'     => 'Есть блоги этого типа (<strong>%%count%%</strong>)',
 
     'blog_user_role_administrator'   => 'Администратор',
     'blog_user_role_moderator'       => 'Модератор',
@@ -817,14 +817,14 @@ return array(
     /*
      * Content types
      */
-    'contenttypes_menu'             => 'Типы контента',
-    'contenttypes_add'              => 'Добавить новый',
-    'contenttypes_add_title'        => 'Добавление нового типа контента',
-    'contenttypes_edit_title'       => 'Редактирование типа контента',
-    'contenttypes_add_field_title'  => 'Добавление нового поля',
-    'contenttypes_edit_field_title' => 'Редактирование поля',
-    'contenttypes_types_list'       => 'Список типов контента',
-    'contenttypes_add_additional'   => 'Подключить',
+    'contenttypes_menu'               => 'Типы контента',
+    'contenttypes_add'                => 'Добавить новый',
+    'contenttypes_add_title'          => 'Добавление нового типа контента',
+    'contenttypes_edit_title'         => 'Редактирование типа контента',
+    'contenttypes_add_field_title'    => 'Добавление нового поля',
+    'contenttypes_edit_field_title'   => 'Редактирование поля',
+    'contenttypes_types_list'         => 'Список типов контента',
+    'contenttypes_add_additional'     => 'Подключить',
 
     'contenttypes_title'              => 'Название',
     'contenttypes_title_notice'       => 'Например, <b>Обзор</b>',
@@ -838,7 +838,14 @@ return array(
     'contenttypes_url'                => 'Служебный идентификатор',
     'contenttypes_url_notice'         => 'Только латиница и подчеркивание. Например, <b>review</b>',
 
-    'save_sort_success'=>'Сортировка успешно сохранена',
+    'save_sort_success'               => 'Сортировка успешно сохранена',
+
+    'contenttypes_del_confirm_title'  => 'Удалить тип контента?',
+    'contenttypes_del_confirm_text'   => 'Вы действительно хотите удалить тип контента %%name%%?',
+    'contenttypes_del_success'        => 'Тип контента <strong>%%name%%</strong> удален',
+    'contenttypes_del_err'            => 'Ошибка удаления типа контента',
+    'contenttypes_del_err_text'       => 'Ошибка удаления типа контента <strong>%%name%%</strong>',
+    'contenttypes_del_err_notempty'   => 'Есть статьи этого типа (<strong>%%count%%</strong>)',
 
     /*
      * Поля
@@ -932,8 +939,9 @@ return array(
     //'text_length_error'=>'Поле %%name%% может быть длиной от '.Config::Get('plugin.topiccck.text_length_min').' до '.Config::Get('plugin.topiccck.text_length_max').' символов',
 
     'contenttypes_save_sort_success'       => 'Сортировка сохранена',
-    'contenttypes_success'                 => 'Новый тип успешно добавлен',
-    'contenttypes_success_edit'            => 'Успешно отредактировано',
+    'contenttypes_success_add'             => 'Новый тип успешно добавлен',
+    'contenttypes_success_edit'            => 'Тип контента успешно отредактирован',
+    'contenttypes_success_del'             => 'Тип контента успешно удален',
     'contenttypes_success_fieldadd'        => 'Поле добавлено',
     'contenttypes_success_fieldedit'       => 'Поле успешно отредактировано',
     'contenttypes_success_fielddelete'     => 'Поле успешно удалено',

@@ -2,7 +2,7 @@
 {block name="content-bar"}
 {if count($aTypes)>0}
 <div class="col-md-12 mb15">
-<a href="{router page='admin'}settings-contenttypesadd/" class="btn btn-primary"
+<a href="{router page='admin'}settings-contenttypes/add/" class="btn btn-primary"
       title="{$aLang.action.admin.contenttypes_add}"><i class="glyphicon glyphicon-plus"></i></a>
 </div>
 {/if}
@@ -83,7 +83,7 @@
               </span>
             </td>
             <td class="center">
-              <a href="{router page='admin'}settings-contenttypesedit/{$oContentType->getContentId()}/">
+              <a href="{router page='admin'}settings-contenttypes/edit/{$oContentType->getContentId()}/">
               <i class="ion-edit" title="{$aLang.action.admin.contenttypes_edit}"></i></a>
               <a href="{router page='admin'}settings-contenttypes/?toggle={if $oContentType->getContentActive()}off{else}on{/if}&content_id={$oContentType->getContentId()}&security_key={$ALTO_SECURITY_KEY}">
               {if $oContentType->getContentActive()}
