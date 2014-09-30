@@ -56,7 +56,7 @@ class ActionDownload extends Action {
         }
 
         //получаем объект файла
-        $oFile = $oTopic->getFile($oField->getFieldId());
+        $oFile = $oTopic->getFieldFile($oField->getFieldId());
         //получаем объект поля топика, содержащий данные о файле
         $oValue = $oTopic->getField($oField->getFieldId());
 

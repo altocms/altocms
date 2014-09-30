@@ -2790,8 +2790,8 @@ class ModuleTopic extends Module {
                         if ($oField->getFieldType() == 'file') {
                             //если указано удаление файла
                             if (F::GetRequest('topic_delete_file_' . $oField->getFieldId())) {
-                                if ($oTopic->getFile($oField->getFieldId())) {
-                                    @unlink(Config::Get('path.root.dir') . $oTopic->getFile($oField->getFieldId())->getFileUrl());
+                                if ($oTopic->getFieldFile($oField->getFieldId())) {
+                                    @unlink(Config::Get('path.root.dir') . $oTopic->getFieldFile($oField->getFieldId())->getFileUrl());
                                     //$oTopic->setValueField($oField->getFieldId(),'');
                                     $sData = null;
                                 }
@@ -2820,8 +2820,8 @@ class ModuleTopic extends Module {
                                             $sFileFullPath = Config::Get('path.root.dir') . $sFile;
                                             if (copy($sFileTmp, $sFileFullPath)) {
                                                 //удаляем старый файл
-                                                if ($oTopic->getFile($oField->getFieldId())) {
-                                                    $sOldFile = Config::Get('path.root.dir') . $oTopic->getFile($oField->getFieldId())->getFileUrl();
+                                                if ($oTopic->getFieldFile($oField->getFieldId())) {
+                                                    $sOldFile = Config::Get('path.root.dir') . $oTopic->getFieldFile($oField->getFieldId())->getFileUrl();
                                                     F::File_Delete($sOldFile);
                                                 }
 
@@ -2837,7 +2837,12 @@ class ModuleTopic extends Module {
                                                 F::File_Delete($sFileTmp);
                                             }
                                         }
+                                    } else {
+                                        $sTypes = implode(', ', Config::Get('module.topic.upload_mime_types'));
+                                        $this->Message_AddError($this->Lang_Get('topic_field_file_upload_err_type', array('types' => $sTypes)), null, true);
                                     }
+                                } else {
+                                    $this->Message_AddError($this->Lang_Get('topic_field_file_upload_err_size', array('size' => Config::Get('module.topic.max_filesize_limit'))), null, true);
                                 }
                             }
                             F::File_Delete($_FILES['fields_' . $oField->getFieldId()]['tmp_name']);

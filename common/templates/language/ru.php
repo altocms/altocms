@@ -330,6 +330,9 @@ return array(
 
     'topic_field_poll_add'                      => 'Добавить опрос',
 
+    'topic_field_file_upload_err_size'          => 'Файл не загружен - недопустимый размер. Максимально допустимый размер: %%size%%',
+    'topic_field_file_upload_err_type'          => 'Файл не загружен - недопустимый тип файла. Допустимые типы: %%types%%',
+
     /**
      * Топик-ссылка
      */

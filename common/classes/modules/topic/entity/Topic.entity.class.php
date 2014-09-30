@@ -764,7 +764,7 @@ class ModuleTopic_EntityTopic extends Entity {
      *
      * @return ModuleTopic_EntityTopicFile|null
      */
-    public function getFile($nId) {
+    public function getFieldFile($nId) {
 
         if ($this->getField($nId)) {
             return Engine::GetEntity(
