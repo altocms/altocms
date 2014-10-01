@@ -267,38 +267,42 @@ class ModuleLogger_EntityLog extends Entity {
 
             // file for locking
             $sCheckFileName = $sFile . '.lock';
-            $fp = @fopen($sCheckFileName, 'c');
-            if (!$fp) {
-                // It is not clear what to do here
-                if ($xResult = F::File_PutContents($sFile, $sMsg . "\n", FILE_APPEND | LOCK_EX)) {
-                    // Do rotation if need
-                    if ($this->GetUseRotate() && $this->GetSizeForRotate()) {
-                        $this->_rotate();
-                    }
-                }
+            if (is_file($sCheckFileName) && !is_writeable($sCheckFileName)) {
+                F::SysWarning('Cannot write to file ' . $sCheckFileName);
             } else {
-                // Tries to lock
-                $iTotal = 0;
-                // Check the count of attempts at competitive lock requests
-                for ($iCnt = 0; $iCnt < self::MAX_LOCK_CNT; $iCnt++) {
-                    if (flock($fp, LOCK_EX)) {
-                        if ($xResult = F::File_PutContents($sFile, $sMsg . "\n", FILE_APPEND | LOCK_EX)) {
-                            // Do rotation if need
-                            if ($this->GetUseRotate() && $this->GetSizeForRotate()) {
-                                $this->_rotate();
-                            }
+                $fp = @fopen($sCheckFileName, 'c');
+                if (!$fp) {
+                    // It is not clear what to do here
+                    if ($xResult = F::File_PutContents($sFile, $sMsg . "\n", FILE_APPEND | LOCK_EX)) {
+                        // Do rotation if need
+                        if ($this->GetUseRotate() && $this->GetSizeForRotate()) {
+                            $this->_rotate();
                         }
-                        flock($fp, LOCK_UN);
-                        break;
-                    } else {
-                        $iTotal += self::MAX_LOCK_PERIOD;
-                        if ($iTotal >= self::MAX_LOCK_TIME) {
-                            break;
-                        }
-                        usleep(self::MAX_LOCK_PERIOD);
                     }
+                } else {
+                    // Tries to lock
+                    $iTotal = 0;
+                    // Check the count of attempts at competitive lock requests
+                    for ($iCnt = 0; $iCnt < self::MAX_LOCK_CNT; $iCnt++) {
+                        if (flock($fp, LOCK_EX)) {
+                            if ($xResult = F::File_PutContents($sFile, $sMsg . "\n", FILE_APPEND | LOCK_EX)) {
+                                // Do rotation if need
+                                if ($this->GetUseRotate() && $this->GetSizeForRotate()) {
+                                    $this->_rotate();
+                                }
+                            }
+                            flock($fp, LOCK_UN);
+                            break;
+                        } else {
+                            $iTotal += self::MAX_LOCK_PERIOD;
+                            if ($iTotal >= self::MAX_LOCK_TIME) {
+                                break;
+                            }
+                            usleep(self::MAX_LOCK_PERIOD);
+                        }
+                    }
+                    fclose($fp);
                 }
-                fclose($fp);
             }
         }
         return $xResult;
