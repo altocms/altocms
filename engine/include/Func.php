@@ -107,7 +107,7 @@ class Func {
      */
     static public function _errorLog($sError) {
 
-        $sError = mb_convert_encoding($sError, 'UTF-8');
+        $sError = mb_convert_encoding($sError, 'UTF-8', 'auto');
         $sText = $sError;
         $nErrorExtInfo = static::_errorLogExtInfo();
         if ($nErrorExtInfo) {
