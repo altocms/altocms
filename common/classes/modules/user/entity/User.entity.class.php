@@ -538,7 +538,7 @@ class ModuleUser_EntityUser extends Entity {
                 if (F::File_Exists($sFile)) {
                     $sModSuffix = F::File_ImgModSuffix($xSize, pathinfo($sFile, PATHINFO_EXTENSION));
                     $sFile .= $sModSuffix;
-                    if ($sFile = $this->Img_Duplicate($sFile)) {
+                    if (F::File_Exists($sFile) || ($sFile = $this->Img_Duplicate($sFile))) {
                         $sUrl = $this->Uploader_Dir2Url($sFile);
                     }
                 }
@@ -604,7 +604,8 @@ class ModuleUser_EntityUser extends Entity {
     public function GetDefaultPhotoUrl($xSize = null) {
 
         $sPath = $this->Uploader_GetUserAvatarDir(0)
-            . 'user_photo_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '_' . ($this->getProfileSex() == 'woman' ? 'female' : 'male')
+            . 'user_photo_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '_'
+            . ($this->getProfileSex() == 'woman' ? 'female' : 'male')
             . '.png';
         if ($xSize) {
             if (strpos($xSize, 'x')) {

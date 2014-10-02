@@ -443,48 +443,51 @@ class ModuleImg extends Module {
     /**
      * Duplicates image file with other sizes
      *
-     * @param $sFile
+     * @param string $sFile
+     * @param bool   $bForceRewrite
      *
      * @return string|bool
      */
-    public function Duplicate($sFile) {
+    public function Duplicate($sFile, $bForceRewrite = false) {
 
         $this->nError = 0;
-        $sOriginal = $this->OriginalFile($sFile, $aOptions);
-        if ($aOptions) {
-            $sResultFile = false;
-            if (F::File_Exists($sOriginal)) {
-                $nW = $aOptions['width'];
-                $nH = $aOptions['height'];
-                $sModifier = $aOptions['mod'];
-                if ($sModifier == 'fit') {
-                    $sResultFile = $this->Copy($sOriginal, $sFile, $nW, $nH, true);
-                } elseif ($sModifier == 'pad') {
-                    $sResultFile = $this->Copy($sOriginal, $sFile, $nW, $nH, false);
-                } elseif ($sModifier == 'crop') {
-                    if ($oImg = $this->Resize($sOriginal, $nW, $nH, false)) {
-                        $oImg = $this->CropCenter($oImg, $nW, $nH);
-                        $sResultFile = $oImg->Save($sFile);
-                    }
-                } else {
-                    $oImg = $this->Resize($sOriginal, $nW, $nH, true);
-                    // real size can differ from request size, so we need change canvas size
-                    $nDX = ($nW ? $nW - $oImg->GetWidth() : 0);
-                    $nDY = ($nH ? $nH - $oImg->GetHeight() : 0);
-                    if ($nDX < 0 || $nDY < 0) {
-                        $oImg = $this->CropCenter($oImg, $oImg->GetWidth() + $nDX, $oImg->GetHeight() + $nDY);
+        if (!F::File_Exists($sFile) || $bForceRewrite) {
+            $sOriginal = $this->OriginalFile($sFile, $aOptions);
+            if ($aOptions) {
+                $sResultFile = false;
+                if (F::File_Exists($sOriginal)) {
+                    $nW = $aOptions['width'];
+                    $nH = $aOptions['height'];
+                    $sModifier = $aOptions['mod'];
+                    if ($sModifier == 'fit') {
+                        $sResultFile = $this->Copy($sOriginal, $sFile, $nW, $nH, true);
+                    } elseif ($sModifier == 'pad') {
+                        $sResultFile = $this->Copy($sOriginal, $sFile, $nW, $nH, false);
+                    } elseif ($sModifier == 'crop') {
+                        if ($oImg = $this->Resize($sOriginal, $nW, $nH, false)) {
+                            $oImg = $this->CropCenter($oImg, $nW, $nH);
+                            $sResultFile = $oImg->Save($sFile);
+                        }
+                    } else {
+                        $oImg = $this->Resize($sOriginal, $nW, $nH, true);
+                        // real size can differ from request size, so we need change canvas size
                         $nDX = ($nW ? $nW - $oImg->GetWidth() : 0);
                         $nDY = ($nH ? $nH - $oImg->GetHeight() : 0);
-                    }
-                    if ($nDX || $nDY) {
-                        $oImg->CanvasSize($nW, $nH);
-                        $sResultFile = $oImg->Save($sFile);
-                    } else {
-                        $sResultFile = $oImg->Save($sFile);
+                        if ($nDX < 0 || $nDY < 0) {
+                            $oImg = $this->CropCenter($oImg, $oImg->GetWidth() + $nDX, $oImg->GetHeight() + $nDY);
+                            $nDX = ($nW ? $nW - $oImg->GetWidth() : 0);
+                            $nDY = ($nH ? $nH - $oImg->GetHeight() : 0);
+                        }
+                        if ($nDX || $nDY) {
+                            $oImg->CanvasSize($nW, $nH);
+                            $sResultFile = $oImg->Save($sFile);
+                        } else {
+                            $sResultFile = $oImg->Save($sFile);
+                        }
                     }
                 }
+                return $sResultFile;
             }
-            return $sResultFile;
         }
         if (F::File_Exists($sFile) && !$this->nError) {
             return $sFile;
