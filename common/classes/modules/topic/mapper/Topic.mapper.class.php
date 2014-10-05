@@ -786,7 +786,7 @@ class ModuleTopic_MapperTopic extends Mapper {
                     if ($sType == '*') {
                         $aOrClauses[] = "(t.blog_id IN ('" . join("','", $aBlogsId) . "'))";
                     } else {
-                        $aOrClauses[] = "b.blog_type='" . $sType . "' AND t.blog_id IN ('" . join("','", $aBlogsId) . "'))";
+                        $aOrClauses[] = "b.blog_type='" . $sType . "' AND t.blog_id IN ('" . join("','", $aBlogsId) . "')";
                     }
                 } else {
                     // blog type only
