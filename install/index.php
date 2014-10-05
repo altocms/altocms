@@ -1007,6 +1007,14 @@ class Install {
             $this->Assign('validate_local_plugins', '<span style="color:green;">' . $this->Lang('yes') . '</span>');
         }
 
+        $sPluginsDat = ALTO_DIR . '/app/plugins/plugins.dat';
+        if (!is_file($sPluginsDat) || !is_writable($sPluginsDat)) {
+            $bOk = false;
+            $this->Assign('validate_local_plugins_dat', '<span style="color:red;">' . $this->Lang('no') . '</span>');
+        } else {
+            $this->Assign('validate_local_plugins_dat', '<span style="color:green;">' . $this->Lang('yes') . '</span>');
+        }
+
         return $bOk;
     }
 

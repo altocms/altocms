@@ -71,6 +71,7 @@ return array(
     'local_runtime_dir'                => 'Папка /_run существует и доступна для записи',
     'local_uploads_dir'                => 'Папка /uploads существует и доступна для записи',
     'local_plugins_dir'                => 'Папка /app/plugins существует и доступна для записи',
+    'local_plugins_dat'                => 'Файл /app/plugins/plugins.dat существует и доступен для записи',
 
     'db_params'                        => 'Настройка базы данных',
     'db_params_host'                   => 'Имя сервера БД',

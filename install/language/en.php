@@ -70,6 +70,7 @@ return array(
     'local_runtime_dir'                => 'Folder /_run exists and writable',
     'local_uploads_dir'                => 'Folder /uploads exists and writable',
     'local_plugins_dir'                => 'Folder /app/plugins exists and writable',
+    'local_plugins_dat'                => 'File /app/plugins/plugins.dat exists and writable',
 
     'db_params'                        => 'Database (DB) configuration',
     'db_params_host'                   => 'DB hostname',
