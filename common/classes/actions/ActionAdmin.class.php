@@ -3047,27 +3047,22 @@ class ActionAdmin extends Action {
 
         $aAdmin = $this->GetPost('userrights_administrator');
         $aModer = $this->GetPost('userrights_moderator');
-        $aConfig = array(
-            'rights' => array(
-                'blogs' => array(
-                    'administrator' => array(
-                        'control_users'  => (isset($aAdmin['control_users'])  && $aAdmin['control_users'])  ? true : false,
-                        'edit_blog'      => (isset($aAdmin['edit_blog'])      && $aAdmin['edit_blog'])      ? true : false,
-                        'edit_content'   => (isset($aAdmin['edit_content'])   && $aAdmin['edit_content'])   ? true : false,
-                        'delete_content' => (isset($aAdmin['delete_content']) && $aAdmin['delete_content']) ? true : false,
-                        'edit_comment'   => (isset($aAdmin['edit_comment'])   && $aAdmin['edit_comment'])   ? true : false,
-                        'delete_comment' => (isset($aAdmin['delete_comment']) && $aAdmin['delete_comment']) ? true : false,
-                    ),
-                    'moderator'     => array(
-                        'control_users'  => (isset($aModer['control_users'])  && $aModer['control_users'])  ? true : false,
-                        'edit_blog'      => (isset($aModer['edit_blog'])      && $aModer['edit_blog'])      ? true : false,
-                        'edit_content'   => (isset($aModer['edit_content'])   && $aModer['edit_content'])   ? true : false,
-                        'delete_content' => (isset($aModer['delete_content']) && $aModer['delete_content']) ? true : false,
-                        'edit_comment'   => (isset($aModer['edit_comment'])   && $aModer['edit_comment'])   ? true : false,
-                        'delete_comment' => (isset($aModer['delete_comment']) && $aModer['delete_comment']) ? true : false,
-                    ),
-                ),
-            ),
+        $aConfig = array();
+        $aConfig['rights.blogs.administrator'] = array(
+            'control_users'  => (isset($aAdmin['control_users'])  && $aAdmin['control_users'])  ? true : false,
+            'edit_blog'      => (isset($aAdmin['edit_blog'])      && $aAdmin['edit_blog'])      ? true : false,
+            'edit_content'   => (isset($aAdmin['edit_content'])   && $aAdmin['edit_content'])   ? true : false,
+            'delete_content' => (isset($aAdmin['delete_content']) && $aAdmin['delete_content']) ? true : false,
+            'edit_comment'   => (isset($aAdmin['edit_comment'])   && $aAdmin['edit_comment'])   ? true : false,
+            'delete_comment' => (isset($aAdmin['delete_comment']) && $aAdmin['delete_comment']) ? true : false,
+        );
+        $aConfig['rights.blogs.moderator'] = array(
+            'control_users'  => (isset($aModer['control_users'])  && $aModer['control_users'])  ? true : false,
+            'edit_blog'      => (isset($aModer['edit_blog'])      && $aModer['edit_blog'])      ? true : false,
+            'edit_content'   => (isset($aModer['edit_content'])   && $aModer['edit_content'])   ? true : false,
+            'delete_content' => (isset($aModer['delete_content']) && $aModer['delete_content']) ? true : false,
+            'edit_comment'   => (isset($aModer['edit_comment'])   && $aModer['edit_comment'])   ? true : false,
+            'delete_comment' => (isset($aModer['delete_comment']) && $aModer['delete_comment']) ? true : false,
         );
         Config::WriteCustomConfig($aConfig);
     }
