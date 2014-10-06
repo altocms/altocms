@@ -62,7 +62,7 @@
         </div>
     {/block}
 
-    {if $oContentType AND $oContentType->isAllow('link') AND $oTopic->getLinkUrl()}
+    {if $oContentType AND $oContentType->isAllow('link') AND $oTopic->getSourceLink()}
         {include file="fields/field.link-show.tpl"}
     {/if}
 

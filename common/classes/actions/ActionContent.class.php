@@ -62,7 +62,7 @@ class ActionContent extends Action {
     public function Init() {
 
         // * Проверяем авторизован ли юзер
-        if (!$this->User_IsAuthorization()) {
+        if (!$this->User_IsAuthorization() && Router::GetActionEvent() !== 'go') {
             return parent::EventNotFound();
         }
         $this->oUserCurrent = $this->User_GetUserCurrent();

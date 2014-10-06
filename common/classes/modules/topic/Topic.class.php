@@ -832,10 +832,11 @@ class ModuleTopic extends Module {
         $oTopicOld = $this->GetTopicById($oTopic->getId());
         $oTopic->setDateEdit(F::Now());
         if ($this->oMapper->UpdateTopic($oTopic)) {
-            // * Если топик изменил видимость(publish) или локацию (BlogId) или список тегов
-            if (($oTopic->getPublish() != $oTopicOld->getPublish()) || ($oTopic->getBlogId() != $oTopicOld->getBlogId())
+            // * Если топик изменил видимость (publish) или локацию (BlogId) или список тегов
+            if ($oTopicOld && (($oTopic->getPublish() != $oTopicOld->getPublish())
+                || ($oTopic->getBlogId() != $oTopicOld->getBlogId())
                 || ($oTopic->getTags() != $oTopicOld->getTags())
-            ) {
+            )) {
                 // * Обновляем теги
                 $this->DeleteTopicTagsByTopicId($oTopic->getId());
                 if ($oTopic->getPublish() && $oTopic->getTags()) {
@@ -850,7 +851,7 @@ class ModuleTopic extends Module {
                     }
                 }
             }
-            if ($oTopic->getPublish() != $oTopicOld->getPublish()) {
+            if ($oTopicOld && ($oTopic->getPublish() != $oTopicOld->getPublish())) {
                 // * Обновляем избранное
                 $this->SetFavouriteTopicPublish($oTopic->getId(), $oTopic->getPublish());
                 // * Удаляем комментарий топика из прямого эфира
