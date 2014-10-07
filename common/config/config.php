@@ -448,12 +448,12 @@ $config['module']['rating']['blog']['count_users']      =0.2;   //Коэффиц
 $config['module']['rating']['blog']['topic_count']      =0.15;  //Коэффициент количества топиков в блоге для расчета рейтинга блога
 
 /**
- * Настройка топика-фотосета
+ * Настройка фотосета топика
  */
 $config['module']['image']['photoset']['jpg_quality'] = 100;        // настройка модуля Image, качество обработки фото
 $config['module']['topic']['photoset']['photo_max_size'] = 6*1024;  // максимально допустимый размер фото, Kb
 $config['module']['topic']['photoset']['count_photos_min'] = 2;     // минимальное количество фоток
-$config['module']['topic']['photoset']['count_photos_max'] = 30;    // максимальное количество фоток
+$config['module']['topic']['photoset']['count_photos_max'] = 30;    // максимальное количество фоток (если 0, то без ограничений)
 $config['module']['topic']['photoset']['per_page'] = 20;            // число фоток для одновременной загрузки
 
 // Какие модули должны быть загружены на старте

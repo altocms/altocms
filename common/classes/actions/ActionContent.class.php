@@ -879,7 +879,7 @@ class ActionContent extends Action {
         }
 
         // * Максимальное количество фото в топике
-        if ($iCountPhotos >= Config::Get('module.topic.photoset.count_photos_max')) {
+        if (Config::Get('module.topic.photoset.count_photos_max') && $iCountPhotos >= Config::Get('module.topic.photoset.count_photos_max')) {
             $this->Message_AddError(
                 $this->Lang_Get(
                     'topic_photoset_error_too_much_photos',
