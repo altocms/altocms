@@ -1126,10 +1126,10 @@ class ModuleTopic_EntityTopic extends Entity {
         if ($aPhotos && ($iFromId || $iCount)) {
             $iCntSet = -1;
             foreach($aPhotos as $iPhotoId => $oPhoto) {
-                if (++$iCntSet >= $iCount) {
-                    break;
-                }
                 if ($iPhotoId >= $iFromId) {
+                    if (++$iCntSet >= $iCount) {
+                        break;
+                    }
                     $aResult[$iPhotoId] = $oPhoto;
                 }
             }

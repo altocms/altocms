@@ -62,7 +62,7 @@ class ActionContent extends Action {
     public function Init() {
 
         // * Проверяем авторизован ли юзер
-        if (!$this->User_IsAuthorization() && Router::GetActionEvent() !== 'go') {
+        if (!$this->User_IsAuthorization() && Router::GetActionEvent() !== 'go' && Router::GetActionEvent() !== 'photo') {
             return parent::EventNotFound();
         }
         $this->oUserCurrent = $this->User_GetUserCurrent();
@@ -95,10 +95,12 @@ class ActionContent extends Action {
         $this->AddEvent('delete', 'EventDelete');
 
         // Photosets
-        $this->AddEventPreg('/^photo$/i', '/^upload$/i', 'EventAjaxPhotoUpload'); // Uploads image to photoset
-        $this->AddEventPreg('/^photo$/i', '/^description$/i', 'EventAjaxPhotoDescription'); // Sets description to image of photoset
+        if ($this->User_IsAuthorization()) {
+            $this->AddEventPreg('/^photo$/i', '/^upload$/i', 'EventAjaxPhotoUpload'); // Uploads image to photoset
+            $this->AddEventPreg('/^photo$/i', '/^description$/i', 'EventAjaxPhotoDescription'); // Sets description to image of photoset
+            $this->AddEventPreg('/^photo$/i', '/^delete$/i', 'EventPhotoDelete'); // Deletes image from photoset
+        }
         $this->AddEventPreg('/^photo$/i', '/^getmore$/i', 'EventAjaxPhotoGetMore'); // Gets more images from photosets to showed topic
-        $this->AddEventPreg('/^photo$/i', '/^delete$/i', 'EventPhotoDelete'); // Deletes image from photoset
 
         // Переход для топика с оригиналом
         $this->AddEvent('go', 'EventGo');
@@ -989,32 +991,32 @@ class ActionContent extends Action {
      *
      */
     protected function EventAjaxPhotoGetMore() {
-        /**
-         * Устанавливаем формат Ajax ответа
-         */
+
+        // * Устанавливаем формат Ajax ответа
         $this->Viewer_SetResponseAjax('json');
-        /**
-         * Существует ли топик
-         */
-        $oTopic = $this->Topic_GetTopicById(F::GetRequestStr('topic_id'));
-        if (!$oTopic || !F::GetRequest('last_id')) {
+
+        // * Существует ли топик
+        $iTopicId = F::GetRequestStr('topic_id');
+        $iLastId = F::GetRequest('last_id');
+        $sThumbSize = F::GetRequest('thumb_size');
+        if (!$sThumbSize) {
+            $sThumbSize = '50crop';
+        }
+        if (!$iTopicId || !($oTopic = $this->Topic_GetTopicById($iTopicId)) || !$iLastId) {
             $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
             F::SysWarning('System Error');
-            return false;
+            return;
         }
-        /**
-         * Получаем список фото
-         */
-        $aPhotos = $oTopic->getPhotosetPhotos(F::GetRequestStr('last_id'), Config::Get('module.topic.photoset.per_page'));
+
+        // * Получаем список фото
+        $aPhotos = $oTopic->getPhotosetPhotos($iLastId, Config::Get('module.topic.photoset.per_page'));
         $aResult = array();
         if (count($aPhotos)) {
-            /**
-             * Формируем данные для ajax ответа
-             */
+            // * Формируем данные для ajax ответа
             foreach ($aPhotos as $oPhoto) {
                 $aResult[] = array(
                     'id'          => $oPhoto->getId(),
-                    'path_thumb'  => $oPhoto->getUrl('50crop'),
+                    'path_thumb'  => $oPhoto->getUrl($sThumbSize),
                     'path'        => $oPhoto->getUrl(),
                     'description' => $oPhoto->getDescription(),
                 );
@@ -1024,6 +1026,9 @@ class ActionContent extends Action {
         $this->Viewer_AssignAjax('bHaveNext', count($aPhotos) == Config::Get('module.topic.photoset.per_page'));
     }
 
+    /**
+     * DEPRECATED
+     */
     protected function EventPhotoGetMore() {
 
         return $this->EventAjaxPhotoGetMore();

@@ -2,25 +2,42 @@
  {* @licence     CC Attribution-ShareAlike   *}
 
 <script type="text/javascript">
-    jQuery(document).ready(function($){
-        $("a[rel^='prettyPhoto']").prettyPhoto({
-            social_tools: '',
-            show_title: true,
-            deeplinking: false
-        });
-
-        var $masonryTopicGalleryWidth = 6;
-        var $masonryTopicGallery = $('.js-topic-photoset-list');
-
-        $masonryTopicGallery.imagesLoaded(function () {
-            $('.js-topic-photoset-list').css('margin-bottom', $masonryTopicGalleryWidth + 'px');
-            $masonryTopicGallery.masonry({
-                columnWidth:  $masonryTopicGalleryWidth,
-                itemSelector: '.topic-photoset-item'
+    (function($){
+        "use strict";
+        function setPrettyPhoto() {
+            $("a[rel^='prettyPhoto']").prettyPhoto({
+                social_tools:'',
+                show_title: false,
+                slideshow:true,
+                deeplinking: false
             });
+        }
+
+        function setRowGrid() {
+            $('.js-topic-photoset-list').rowGrid({
+                itemSelector: '.topic-photoset-item',
+                minMargin: 10,
+                maxMargin: 15,
+                resize: false,
+                lastRowClass: 'topic-photoset-last_row',
+                firstItemClass: "first-item"
+            });
+        }
+
+        function resetRowGrid() {
+            $('.js-topic-photoset-list').rowGrid('appended');
+        }
+
+        $(function(){
+            setPrettyPhoto();
+            setRowGrid();
         });
 
-    });
+        $('body').on('ls_photoset_update', function(){
+            setPrettyPhoto();
+            resetRowGrid();
+        });
+    }(jQuery));
 </script>
 
 <div class="topic-photoset">
@@ -32,17 +49,19 @@
 
     <ul class="topic-photoset-list list-unstyled list-inline clearfix js-topic-photoset-list">
         {if count($aPhotos)}
+            {$sThumbneilSize = 'x80'}
             {foreach $aPhotos as $oPhoto}
                 <li class="topic-photoset-item" style="margin-bottom: 6px;">
                     <a class="topic-photoset-image" href="{$oPhoto->getUrl()}" rel="prettyPhoto[pp_gal]"  title="{$oPhoto->getDescription()}">
-                        <img src="{$oPhoto->getUrl('x80')}" {$oPhoto->getImgSizeAttr('x80')} alt="{$oPhoto->getDescription()}" class="" />
+                        <img src="{$oPhoto->getUrl($sThumbneilSize)}" {$oPhoto->getImgSizeAttr($sThumbneilSize)} alt="{$oPhoto->getDescription()}" class="" />
                     </a>
                 </li>
                 {$iLastPhotoId=$oPhoto->getId()}
             {/foreach}
         {/if}
         <script type="text/javascript">
-            ls.photoset.idLast='{$iLastPhotoId}';
+            ls.photoset.idLast='{$iLastPhotoId+1}';
+            ls.photoset.thumbSize='{$sThumbneilSize}';
         </script>
     </ul>
 

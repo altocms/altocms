@@ -309,31 +309,37 @@ ls.photoset = ( function ($) {
 
         if (this.isLoading) return;
         this.isLoading = true;
+        var params = {
+            'topic_id': topic_id,
+            'last_id': this.idLast,
+            'thumb_size' : this.thumbSize ? this.thumbSize : ''
+        };
 
-        ls.ajaxGet(ls.routerUrl('content') + 'photo/getmore', {'topic_id': topic_id, 'last_id': this.idLast}, function (response) {
+        ls.progressStart();
+        ls.ajaxGet(ls.routerUrl('content') + 'photo/getmore', params, function (response) {
             this.isLoading = false;
+            ls.progressDone();
             if (!response) {
                 ls.msg.error(null, 'System error #1001');
             } else if (response.bStateError) {
+                ls.msg.error(response.sMsgTitle ? response.sMsgTitle : 'Error', response.sMsg ? response.sMsg : 'Please try again later');
+            } else {
                 if (response.photos) {
+                    var photoset = $('.js-topic-photoset-list');
+                    var item = photoset.find('.topic-photoset-item').last().clone(true);
+                    item.find('img').attr('src', '');
                     $.each(response.photos, function (index, photo) {
-                        var image = '<li><a class="photoset-image" href="' + photo.path + '" rel="[photoset]" title="' + photo.description + '"><img src="' + photo.path_thumb + '" alt="' + photo.description + '" /></a></li>';
-                        $('#topic-photo-images').append(image);
-                        this.idLast = photo.id;
-                        $('.photoset-image').unbind('click');
-                        $('.photoset-image').prettyPhoto({
-                            social_tools: '',
-                            show_title: false,
-                            slideshow: false,
-                            deeplinking: false
-                        });
+                        var newItem = item.clone(true);
+                        newItem.find('a').attr('href', photo.path).attr('title', photo.description);
+                        newItem.find('img').attr('src', photo.path_thumb).attr('alt', photo.description);
+                        newItem.appendTo(photoset);
+                        ls.photoset.idLast = parseInt(photo.id) + 1;
                     }.bind(this));
+                    $('body').trigger('ls_photoset_update');
                 }
                 if (!response.bHaveNext || !response.photos) {
                     $('#topic-photo-more').remove();
                 }
-            } else {
-                ls.msg.error('Error', 'Please try again later');
             }
         }.bind(this));
     };
