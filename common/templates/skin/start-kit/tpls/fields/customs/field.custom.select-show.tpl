@@ -1,5 +1,9 @@
 {if $oField}
-	<p><b>{$oField->getFieldName()}</b>:
-		{$oTopic->getField($oField->getFieldId())->getValue()}
-	</p>
+    {$oTopicField = $oTopic->getField($oField->getFieldId())}
+    <p>
+        <strong>{$oField->getFieldName()}</strong>:
+        {if $oTopicField}
+            {$oTopicField->getValue()}
+        {/if}
+    </p>
 {/if}

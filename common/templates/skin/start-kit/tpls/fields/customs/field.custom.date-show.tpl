@@ -1,7 +1,11 @@
 {if $oField}
-	<p><b>{$oField->getFieldName()}</b>:
-		<time datetime="{date_format date=$oTopic->getField($oField->getFieldId())->getValue() format='c'}" title="{date_format date=$oTopic->getField($oField->getFieldId())->getValue() format='j F Y'}">
-			{date_format date=$oTopic->getField($oField->getFieldId())->getValue() format="j F Y"}
-		</time>
-	</p>
+    {$oTopicField = $oTopic->getField($oField->getFieldId())}
+    <p>
+        <strong>{$oField->getFieldName()}</strong>:
+        {if $oTopicField}
+            <time datetime="{date_format date=$oTopicField->getValue() format='c'}" title="{date_format date=$oTopicField->getValue() format='j F Y'}">
+                {date_format date=$oTopicField->getValue() format="j F Y"}
+            </time>
+        {/if}
+    </p>
 {/if}
