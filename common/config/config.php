@@ -355,6 +355,8 @@ $config['module']['user']['login']['max_size'] = 30;            // Максим�
 $config['module']['user']['login']['charset'] = '0-9a-z_\-';    // Допустимые в логине пользователя символы
 $config['module']['user']['login']['disabled'] = array('admin', 'administrator', 'moderator', 'new');  // недопустимые имена логинов
 
+$config['module']['user']['display_name'] = '%%login%%';        // Допустимые подстановки - %%login%%, %%profilename%%
+
 $config['module']['user']['profile_url'] = 'profile/%login%';   // ссылка на профиль пользователя
 $config['module']['user']['profile_photo_size'] = '240x340';    // размер фотопрофиля по умолчанию
 $config['module']['user']['profile_avatar_size'] = 100;         // размер аватара по умолчанию

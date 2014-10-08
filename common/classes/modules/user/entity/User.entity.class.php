@@ -401,7 +401,17 @@ class ModuleUser_EntityUser extends Entity {
 
     public function getDisplayName() {
 
-        return $this->getLogin();
+        $sDisplayName = $this->getProp('_display_name');
+        if (!$sDisplayName) {
+            $sDisplayName = Config::Get('module.user.display_name');
+            if (!$sDisplayName) {
+                $sDisplayName = $this->getLogin();
+            } else {
+                $sDisplayName = str_replace(array('%%login%%', '%%profilename%%'), array($this->getLogin(), $this->getProfileName()), $sDisplayName);
+            }
+            $this->setProp('_display_name', $sDisplayName);
+        }
+        return $sDisplayName;
     }
 
     /**
