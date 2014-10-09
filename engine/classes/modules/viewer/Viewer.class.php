@@ -1499,7 +1499,7 @@ class ModuleViewer extends Module {
                         $this->ViewerAsset_ExcludeJs($aRule['js']['exclude']);
                     }
                     if (isset($aRule['js']['include']) && is_array($aRule['js']['include'])) {
-                        $this->ViewerAsset_AddJsFiles($aRule['js']['exclude']);
+                        $this->ViewerAsset_AddJsFiles($aRule['js']['include']);
                     }
 
                     // * Преобразование CSS
@@ -1510,7 +1510,7 @@ class ModuleViewer extends Module {
                         $this->ViewerAsset_ExcludeCss($aRule['js']['exclude']);
                     }
                     if (isset($aRule['css']['include']) && is_array($aRule['css']['include'])) {
-                        $this->ViewerAsset_AddCssFiles($aRule['js']['exclude']);
+                        $this->ViewerAsset_AddCssFiles($aRule['js']['include']);
                     }
 
                     // * Продолжаем поиск
