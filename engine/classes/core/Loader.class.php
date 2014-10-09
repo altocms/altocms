@@ -237,11 +237,15 @@ class Loader {
         if (!F::File_CheckDir(Config::Get('path.dir.app'), false)) {
             die('Application folder "' . F::File_LocalDir(Config::Get('path.dir.app')) . '" does not exist');
         }
-        if (!F::File_CheckDir(Config::Get('path.tmp.dir'), false)) {
+        if (!F::File_CheckDir(Config::Get('path.tmp.dir'), true)) {
             die('Required folder "' . F::File_LocalDir(Config::Get('path.tmp.dir')) . '" does not exist');
+        } elseif (!is_writeable(Config::Get('path.tmp.dir'))) {
+            die('Required folder "' . F::File_LocalDir(Config::Get('path.tmp.dir')) . '" does not writeable');
         }
-        if (!F::File_CheckDir(Config::Get('path.runtime.dir'), false)) {
+        if (!F::File_CheckDir(Config::Get('path.runtime.dir'), true)) {
             die('Required folder "' . F::File_LocalDir(Config::Get('path.runtime.dir')) . '" does not exist');
+        } elseif (!is_writeable(Config::Get('path.runtime.dir'))) {
+            die('Required folder "' . F::File_LocalDir(Config::Get('path.runtime.dir')) . '" does not writeable');
         }
     }
 
