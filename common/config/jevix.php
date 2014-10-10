@@ -41,7 +41,7 @@ return array(
                       'height' => '#int',
                       'hspace' => '#int',
                       'vspace' => '#int',
-                      'class'  => array('image-center'),
+                      'class'  => '#text',
                 )
             ),
             // следующий вызов метода
