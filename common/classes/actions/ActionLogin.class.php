@@ -103,7 +103,8 @@ class ActionLogin extends Action {
                 $this->User_Authorization($oUser, $bRemember);
 
                 // * Определяем редирект
-                $sUrl = Config::Get('module.user.redirect_after_login');
+                //$sUrl = Config::Get('module.user.redirect_after_login');
+                $sUrl = Config::Get('path.root.url');
                 if (F::GetRequestStr('return-path')) {
                     $sUrl = F::GetRequestStr('return-path');
                 }
@@ -172,8 +173,19 @@ class ActionLogin extends Action {
 
         $this->Security_ValidateSendForm();
         $this->User_Logout();
-        if (isset($_SERVER['HTTP_REFERER']) && F::File_IsLocalUrl($_SERVER['HTTP_REFERER'])) {
-            Router::Location($_SERVER['HTTP_REFERER']);
+
+        $iShowTime = Config::Val('module.user.logout.show_exit', 3);
+        $sRedirect = Config::Get('module.user.logout.redirect');
+        if (!$sRedirect) {
+            if (isset($_SERVER['HTTP_REFERER']) && F::File_IsLocalUrl($_SERVER['HTTP_REFERER'])) {
+                $sRedirect = $_SERVER['HTTP_REFERER'];
+            }
+        }
+        if ($iShowTime) {
+            $sUrl = F::RealUrl($sRedirect);
+            $this->Viewer_SetHtmlHeadTag('meta', array('http-equiv' => 'Refresh', 'Content' => $iShowTime . '; url=' . $sUrl));
+        } elseif ($sRedirect) {
+            Router::Location($sRedirect);
             exit;
         } else {
             $this->Viewer_Assign('bRefreshToHome', true);
@@ -188,24 +200,17 @@ class ActionLogin extends Action {
         // * Устанвливаем формат Ajax ответа
         $this->Viewer_SetResponseAjax('json');
 
+        /*
+        $sEmail = F::GetRequestStr('mail');
         // * Пользователь с таким емайлом существует?
-        if ((F::CheckVal(F::GetRequestStr('mail'), 'mail') && $oUser = $this->User_GetUserByMail(F::GetRequestStr('mail')))) {
-
-            // * Формируем и отправляем ссылку на смену пароля
-            $oReminder = Engine::GetEntity('User_Reminder');
-            $oReminder->setCode(F::RandomStr(32));
-            $oReminder->setDateAdd(F::Now());
-            $oReminder->setDateExpire(date('Y-m-d H:i:s', time() + 60 * 60 * 24 * 7));
-            $oReminder->setDateUsed(null);
-            $oReminder->setIsUsed(0);
-            $oReminder->setUserId($oUser->getId());
-            if ($this->User_AddReminder($oReminder)) {
-                $this->Message_AddNotice($this->Lang_Get('password_reminder_send_link'));
-                $this->Notify_SendReminderCode($oUser, $oReminder);
+        if ($sEmail && (F::CheckVal($sEmail, 'mail'))) {
+            if ($this->_eventRecoveryRequest($sEmail)) {
                 return;
             }
         }
         $this->Message_AddError($this->Lang_Get('password_reminder_bad_email'), $this->Lang_Get('error'));
+        */
+        $this->_eventRecovery(true);
     }
 
     /**
@@ -218,38 +223,88 @@ class ActionLogin extends Action {
         // * Устанавливаем title страницы
         $this->Viewer_AddHtmlTitle($this->Lang_Get('password_reminder'));
 
-        // * Проверка кода на восстановление пароля и генерация нового пароля
-        if (F::CheckVal($this->GetParam(0), 'md5')) {
+        $this->_eventRecovery(false);
+    }
 
-            // * Проверка кода подтверждения
-            if ($oReminder = $this->User_GetReminderByCode($this->GetParam(0))) {
-                if (!$oReminder->getIsUsed() && strtotime($oReminder->getDateExpire()) > time()
-                    && $oUser = $this->User_GetUserById($oReminder->getUserId())
-                ) {
-                    $sNewPassword = F::RandomStr(7);
-                    $oUser->setPassword($sNewPassword, true);
-                    if ($this->User_Update($oUser)) {
-                        // Do logout of current user
-                        $this->User_Logout();
-                        // Close all sessions of this user
-                        $this->User_CloseAllSessions($oUser);
+    protected function _eventRecovery($bAjax = false) {
 
-                        $oReminder->setDateUsed(F::Now());
-                        $oReminder->setIsUsed(1);
-                        $this->User_UpdateReminder($oReminder);
-                        $this->Notify_SendReminderPassword($oUser, $sNewPassword);
-                        $this->SetTemplateAction('reminder_confirm');
-
-                        if (($sUrl = F::GetPost('return_url')) || ($sUrl = F::GetPost('return-path'))) {
-                            $this->Viewer_Assign('return-path', $sUrl);
-                        }
-                        return null;
+        if ($this->IsPost()) {
+            // Was POST request
+            $sEmail = F::GetRequestStr('mail');
+            // * Пользователь с таким емайлом существует?
+            if ($sEmail && (F::CheckVal($sEmail, 'mail'))) {
+                if ($this->_eventRecoveryRequest($sEmail)) {
+                    if (!$bAjax) {
+                        $this->Message_AddNoticeSingle($this->Lang_Get('password_reminder_send_link'));
                     }
+                    return;
                 }
             }
-            $this->Message_AddErrorSingle($this->Lang_Get('password_reminder_bad_code_txt'), $this->Lang_Get('password_reminder_bad_code'));
-            return Router::Action('error');
+            $this->Message_AddError($this->Lang_Get('password_reminder_bad_email'), $this->Lang_Get('error'));
+        } elseif ($sRecoveryCode = $this->GetParam(0)) {
+            // Was recovery code in GET
+            if (F::CheckVal($sRecoveryCode, 'md5')) {
+
+                // * Проверка кода подтверждения
+                if ($this->_eventRecoverySend($sRecoveryCode)) {
+                    return null;
+                }
+                $this->Message_AddErrorSingle($this->Lang_Get('password_reminder_bad_code_txt'), $this->Lang_Get('password_reminder_bad_code'));
+                if (!$bAjax) {
+                    return Router::Action('error');
+                }
+                return;
+            }
         }
+    }
+
+    protected function _eventRecoveryRequest($sMail) {
+
+        if ($oUser = $this->User_GetUserByMail($sMail)) {
+
+            // * Формируем и отправляем ссылку на смену пароля
+            $oReminder = Engine::GetEntity('User_Reminder');
+            $oReminder->setCode(F::RandomStr(32));
+            $oReminder->setDateAdd(F::Now());
+            $oReminder->setDateExpire(date('Y-m-d H:i:s', time() + Config::Val('module.user.pass_recovery_delay', 60 * 60 * 24 * 7)));
+            $oReminder->setDateUsed(null);
+            $oReminder->setIsUsed(0);
+            $oReminder->setUserId($oUser->getId());
+            if ($this->User_AddReminder($oReminder)) {
+                $this->Notify_SendReminderCode($oUser, $oReminder);
+                $this->Message_AddNotice($this->Lang_Get('password_reminder_send_link'));
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected function _eventRecoverySend($sRecoveryCode) {
+
+        if ($oReminder = $this->User_GetReminderByCode($sRecoveryCode)) {
+            if ($oReminder->IsValid() && $oUser = $this->User_GetUserById($oReminder->getUserId())) {
+                $sNewPassword = F::RandomStr(7);
+                $oUser->setPassword($sNewPassword, true);
+                if ($this->User_Update($oUser)) {
+                    // Do logout of current user
+                    $this->User_Logout();
+                    // Close all sessions of this user
+                    $this->User_CloseAllSessions($oUser);
+
+                    $oReminder->setDateUsed(F::Now());
+                    $oReminder->setIsUsed(1);
+                    $this->User_UpdateReminder($oReminder);
+                    $this->Notify_SendReminderPassword($oUser, $sNewPassword);
+                    $this->SetTemplateAction('reminder_confirm');
+
+                    if (($sUrl = F::GetPost('return_url')) || ($sUrl = F::GetPost('return-path'))) {
+                        $this->Viewer_Assign('return-path', $sUrl);
+                    }
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }
