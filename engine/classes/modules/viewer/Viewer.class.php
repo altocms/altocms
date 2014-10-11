@@ -157,6 +157,8 @@ class ModuleViewer extends Module {
      */
     protected $aHtmlHeadTags = array();
 
+    protected $aSpecMetaTagsAttr = array('http-equiv', 'name', 'property', 'itemprop');
+
     /**
      * Переменные для передачи в шаблон
      *
@@ -1668,11 +1670,13 @@ class ModuleViewer extends Module {
                     $aAttrs[] = $sValue;
                 }
             }
-            $aKeyAttr = array('http-equiv', 'name', 'property', 'itemprop');
+
             if ($sTagName == 'meta') {
-                foreach ($aKeyAttr as $sName) {
+                foreach ($this->aSpecMetaTagsAttr as $sName) {
                     if (isset($aAttrs[$sName])) {
+                        // defines special key for meta tags
                         $sKey = $sTagName . ' ' . $sName . '=' . $aAttrs[$sName];
+                        break;
                     }
                 }
             }
