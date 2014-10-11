@@ -237,8 +237,9 @@
 
             {hook run='form_settings_profile_end'}
 
-            <button type="submit" name="submit_profile_edit" class="btn btn-success"/>
-            {$aLang.settings_profile_submit}</button>
+            <button type="submit" name="submit_profile_edit" class="btn btn-success">
+                {$aLang.settings_profile_submit}
+            </button>
         </div>
     </form>
     {hook run='settings_profile_end'}

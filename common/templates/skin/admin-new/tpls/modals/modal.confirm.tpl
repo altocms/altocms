@@ -13,8 +13,8 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="submit" name="" class="btn btn-success js-confirm"/>
-                    <button type="submit" name="" class="btn btn-danger js-cancel"/>
+                    <button type="submit" name="" class="btn btn-success js-confirm"></button>
+                    <button type="submit" name="" class="btn btn-danger js-cancel"></button>
                 </div>
 
             </div>

@@ -18,9 +18,10 @@
         <h3>{$aLang.password_reminder}</h3>
     </div>
     <form action="{router page='login'}reminder/" method="POST" id="reminder-form">
+        <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
         <div class="form-group">
-            <label for="reminder-mail">{$aLang.password_reminder_email}</label>
-            <input type="text" name="mail" id="reminder-mail" class="form-control js-focus-in"/>
+            <label for="input-reminder-mail">{$aLang.password_reminder_email}</label>
+            <input type="text" name="mail" id="input-reminder-mail" class="form-control js-focus-in"/>
 
             <p class="help-block">
                 <small class="text-danger validate-error-hide validate-error-reminder"></small>

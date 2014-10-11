@@ -94,6 +94,8 @@
         <h5 class="text-center site-description">{Config::Get('view.description')}</h5>
     </hgroup>
 
+    {include file='commons/common.messages.tpl'}
+
     <div class="light-form">
         {block name="layout_content"}
             {hook run='content_begin'}
