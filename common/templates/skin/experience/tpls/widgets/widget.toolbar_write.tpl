@@ -7,7 +7,6 @@
 <div class="toolbar-button toolbar-write toolbar-menu-popover">
     <div id="hidden-toolbar-write-content" style="display: none;">
         <ul class="toolbar-menu">
-            <ul class="toolbar-menu">
                 {foreach from=$aContentTypes item=oContentType}
                     {if $oContentType->isAccessible()}
                         <li>
@@ -42,8 +41,6 @@
                         </a>
                     </li>
                 {/if}
-
-            </ul>
         </ul>
     </div>
     <a href="#"
