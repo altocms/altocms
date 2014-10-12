@@ -496,14 +496,19 @@ class ActionAdmin extends Action {
 
         if ($sHomePage = $this->GetPost('submit_data_save')) {
             $aConfig = array();
+            $sHomePageSelect = '';
             if ($sHomePage = $this->GetPost('homepage')) {
                 if ($sHomePage == 'page') {
-                    $sHomePage = 'page/' . $this->GetPost('page_url');
+                    $sHomePage = $this->GetPost('page_url');
+                    $sHomePageSelect = 'page';
+                } elseif($sHomePage == 'other') {
+                    $sHomePage = $this->GetPost('other_url');
+                    $sHomePageSelect = 'other';
                 }
                 $aConfig = array(
                     'router.config.action_default' => 'homepage',
                     'router.config.homepage' => $sHomePage,
-                    'router.config.homepage_select' => '',
+                    'router.config.homepage_select' => $sHomePageSelect,
                 );
             }
             if ($sDraftLink = $this->GetPost('draft_link')) {
@@ -552,17 +557,24 @@ class ActionAdmin extends Action {
         }
         $this->SetTemplateAction('settings/links');
         $sHomePage = Config::Get('router.config.homepage');
+        $sHomePageSelect = Config::Get('router.config.homepage_select');
 
+        $aPages = $this->Page_GetPages();
         $sHomePageUrl = '';
         if (!$sHomePage || $sHomePage == 'index') {
             $sHomePageSelect = 'index';
             $sHomePageUrl = '';
-        } elseif (strpos($sHomePage, 'page/') === 0) {
-            list ($sHomePageSelect, $sHomePageUrl) = explode('/', $sHomePage, 2);
-        } else {
+        } elseif ($sHomePageSelect == 'page') {
+            foreach($aPages as $oPage) {
+                if ($oPage->getUrl() == $sHomePage) {
+                    $sHomePageUrl = $oPage->getUrlPath();
+                }
+            }
+        } elseif ($sHomePageSelect == 'other') {
+            $sHomePageUrl = $sHomePage;
+        } elseif(!$sHomePageSelect) {
             $sHomePageSelect = $sHomePage;
         }
-        $aPages = $this->Page_GetPages();
 
         $sPermalinkUrl = trim(Config::Get('module.topic.url'), '/');
         if (!$sPermalinkUrl) {

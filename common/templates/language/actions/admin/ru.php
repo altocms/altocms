@@ -383,7 +383,8 @@ return array(
     'set_links_homepage_label' => 'Что показывать на главной',
     'set_links_homepage_home' => 'Домашнюю страницу',
     'set_links_homepage_index' => 'Ленту статей',
-    'set_links_homepage_page' => 'Заданную страницу',
+    'set_links_homepage_page' => 'Выбранную страницу',
+    'set_links_homepage_other' => 'Локальный адрес',
 
     'set_links_drafts' => 'Черновики',
     'set_links_drafts_enable' => 'Показывать черновики по прямой ссылке',

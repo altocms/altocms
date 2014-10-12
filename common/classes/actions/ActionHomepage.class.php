@@ -42,12 +42,33 @@ class ActionHomepage extends Action {
         $this->Viewer_Assign('sMenuHeadItemSelect', 'homepage');
         $sHomepage = Config::Get('router.config.homepage');
         if ($sHomepage) {
+            $sHomepageSelect = Config::Get('router.config.homepage_select');
+            if ($sHomepageSelect == 'page') {
+                // if page not active or deleted then this homepage is off
+                $oPage = $this->Page_GetPageByUrlFull($sHomepage, 1);
+                if ($oPage) {
+                    $sHomepage = $oPage->getUrlPath();
+                } else {
+                    $sHomepage = '';
+                }
+            } else {
+                if ($sHomepageSelect == 'category_homepage') {
+                    $sHomepageSelect = 'plugin-category-homepage';
+                }
+                $aHomePageSelect = explode('-', $sHomepageSelect);
+                // if homepage was from plugin and plugin is not active then this homepage is off
+                if ($aHomePageSelect[0] == 'plugin' && isset($aHomePageSelect[1])) {
+                    if (!E::ActivePlugin($aHomePageSelect[1])) {
+                        $sHomepage = '';
+                    }
+                }
+            }
             if ($sHomepage == 'home') {
                 if ($this->Viewer_TemplateExists('actions/homepage/action.homepage.index.tpl')) {
                     $this->SetTemplateAction('index');
                     return;
                 }
-            } else {
+            } elseif ($sHomepage) {
                 return Router::Action($sHomepage);
             }
         }

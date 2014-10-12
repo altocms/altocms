@@ -22,13 +22,18 @@
                     {$aLang.action.admin.set_links_homepage_page}
                     <select name="page_url">
                         {foreach $aPages as $oPage}
-                            <option value="{$oPage->GetUrl()}"
-                                    {if $oPage->GetUrl()==$sHomePageUrl}selected{/if}
+                            <option value="{$oPage->getUrlFull()}"
+                                    {if $oPage->getUrlFull()==$sHomePage}selected{/if}
                                     {if !$oPage->GetActive()}disabled="disabled"{/if}>
-                                page/{$oPage->GetUrl()} - {$oPage->GetTitle()}
+                                    {$oPage->getUrlPath()} :: {$oPage->GetTitle()}
                             </option>
                         {/foreach}
                     </select>
+                </label>
+                <label {if $sHomePageSelect == 'other'}class="checked"{/if}>
+                    <input type="radio" name="homepage" value="other" {if $sHomePageSelect == 'other'}checked{/if}/>
+                    {$aLang.action.admin.set_links_homepage_other}
+                    <input name="other_url" value="{$sHomePageUrl}" />
                 </label>
                 {hook run='admin_select_homepage'}
             </div>

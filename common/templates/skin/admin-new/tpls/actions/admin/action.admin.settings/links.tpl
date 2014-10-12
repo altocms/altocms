@@ -24,17 +24,28 @@
         </div>
         <div class="col-sm-4">
           <select class="form-control" name="page_url">
-            {foreach $aPages as $oPage}
-            <option value="{$oPage->GetUrl()}"
-              {if $oPage->GetUrl()==$sHomePageUrl}selected{/if}
-              {if !$oPage->GetActive()}disabled="disabled"{/if}>
-              page/{$oPage->GetUrl()} - {$oPage->GetTitle()}
-            </option>
-            {/foreach}
+              {foreach $aPages as $oPage}
+                  <option value="{$oPage->getUrlFull()}"
+                          {if $oPage->getUrlFull()==$sHomePage}selected{/if}
+                          {if !$oPage->GetActive()}disabled="disabled"{/if}>
+                      {$oPage->getUrlPath()} :: {$oPage->GetTitle()}
+                  </option>
+              {/foreach}
           </select>
         </div>
       </div>
       {hook run='admin_select_homepage'}
+        <div class="form-group">
+            <div class="col-sm-4">
+                <label for="homepage" class="col-sm-12 {if $sHomePageSelect == 'other'}checked{/if}">
+                    <input type="radio" name="homepage" value="other" {if $sHomePageSelect == 'other'}checked{/if}/>
+                    {$aLang.action.admin.set_links_homepage_other}
+                </label>
+            </div>
+            <div class="col-sm-4">
+                <input name="other_url" value="{$sHomePageUrl}" />
+            </div>
+        </div>
     </div>
   </div>
 </div>

@@ -35,6 +35,16 @@ class ModulePage_EntityPage extends Entity {
         return $this->getProp('page_url_full');
     }
 
+    public function getUrlPath() {
+
+        $sResult = $this->getProp('_page_url_path');
+        if (!$sResult) {
+            $sResult = F::File_LocalUrl(Router::GetPath('page') . '/' . $this->getUrlFull());
+            $this->setProp('_page_url_path', $sResult);
+        }
+        return $sResult;
+    }
+
     public function getTitle() {
 
         return $this->getProp('page_title');
