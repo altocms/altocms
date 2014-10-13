@@ -192,7 +192,14 @@ class AltoFunc_File {
         while (strpos($sPath, $sSeparator . $sSeparator)) {
             $sPath = str_replace($sSeparator . $sSeparator, $sSeparator, $sPath);
         }
-        return $sPrefix . $sPath;
+        $sResult = $sPrefix . $sPath;
+        if (DIRECTORY_SEPARATOR == '\\' && strlen($sResult) > 2) {
+            // First symbol in Windows is a disk
+            if ($sResult[1] == ':' && $sResult[0] >= 'a' && $sResult[0] <= 'z') {
+                $sResult = ucfirst($sResult);
+            }
+        }
+        return $sResult;
     }
 
     /**
@@ -502,8 +509,15 @@ class AltoFunc_File {
         if ($sPath && $sRoot) {
             $sPath = static::NormPath($sPath);
             $sRoot = static::NormPath($sRoot . '/');
-            if (strpos($sPath, $sRoot) === 0 || strpos($sPath . '/', $sRoot) === 0) {
-                return substr($sPath, strlen($sRoot));
+            if (DIRECTORY_SEPARATOR == '\\') {
+                // case-insensitive in Windows
+                if (stripos($sPath, $sRoot) === 0 || stripos($sPath . '/', $sRoot) === 0) {
+                    return substr($sPath, strlen($sRoot));
+                }
+            } else {
+                if (strpos($sPath, $sRoot) === 0 || strpos($sPath . '/', $sRoot) === 0) {
+                    return substr($sPath, strlen($sRoot));
+                }
             }
         }
         return $xResult;
