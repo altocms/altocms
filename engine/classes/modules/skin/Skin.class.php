@@ -28,20 +28,26 @@ class ModuleSkin extends Module {
     /**
      * Load skin manifest from XML
      *
-     * @param $sSkin
+     * @param string $sSkin
+     * @param string $sSkinDir
      *
      * @return mixed
      */
-    public function GetSkinManifest($sSkin) {
+    public function GetSkinManifest($sSkin, $sSkinDir = null) {
 
-        if (F::File_Exists(Config::Get('path.skins.dir') . $sSkin . '/' . self::SKIN_XML_FILE)) {
-            $sXmlFile = Config::Get('path.skins.dir') . $sSkin . '/' . self::SKIN_XML_FILE;
+        if (!$sSkinDir) {
+            $sSkinDir = Config::Get('path.skins.dir') . $sSkin . '/';
+        }
+
+        if (F::File_Exists($sSkinDir . '/' . self::SKIN_XML_FILE)) {
+            $sXmlFile = $sSkinDir . '/' . self::SKIN_XML_FILE;
         } else {
-            $sXmlFile = Config::Get('path.skins.dir') . $sSkin . '/settings/' . self::SKIN_XML_FILE;
+            $sXmlFile = $sSkinDir . '/settings/' . self::SKIN_XML_FILE;
         }
         if ($sXml = F::File_GetContents($sXmlFile)) {
             return $sXml;
         }
+        return null;
     }
 
     /**
@@ -53,10 +59,15 @@ class ModuleSkin extends Module {
     public function GetSkinsList($aFilter = array()) {
 
         $aSkinList = array();
-        if (isset($aFilter['name'])) {
-            $sPattern = Config::Get('path.skins.dir') . $aFilter['name'];
+        if (isset($aFilter['dir'])) {
+            $sSkinsDir = $aFilter['dir'];
         } else {
-            $sPattern = Config::Get('path.skins.dir') . '*';
+            $sSkinsDir = Config::Get('path.skins.dir');
+        }
+        if (isset($aFilter['name'])) {
+            $sPattern = $sSkinsDir . $aFilter['name'];
+        } else {
+            $sPattern = $sSkinsDir . '*';
         }
         $aList = glob($sPattern, GLOB_ONLYDIR);
         if ($aList) {
@@ -64,7 +75,11 @@ class ModuleSkin extends Module {
             $sActiveSkin = Config::Get('view.skin', Config::DEFAULT_CONFIG_ROOT);
             foreach ($aList as $sSkinDir) {
                 $sSkin = basename($sSkinDir);
-                $oSkinEntity = Engine::GetEntity('Skin', $sSkin);
+                $aData = array(
+                    'id' => $sSkin,
+                    'dir' => $sSkinDir,
+                );
+                $oSkinEntity = Engine::GetEntity('Skin', $aData);
                 if (!$aFilter['type'] || $aFilter['type'] == $oSkinEntity->GetType()) {
                     $oSkinEntity->SetIsActive($oSkinEntity->GetId() == $sActiveSkin);
                     $aSkinList[$oSkinEntity->GetId()] = $oSkinEntity;

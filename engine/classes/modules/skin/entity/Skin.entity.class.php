@@ -12,27 +12,39 @@ class ModuleSkin_EntitySkin extends Entity {
 
     public function __construct($aParams = false) {
 
-        if (is_array($aParams)) {
-            $this->setProps($aParams);
-        } elseif($aParams) {
-            $this->LoadFromXmlFile((string)$aParams);
+        if (!is_array($aParams)) {
+            $aParams['id'] = (string)$aParams;
+        }
+        $this->setProps($aParams);
+        if (!$this->isProp('property') && $this->getId()) {
+            $this->LoadFromXmlFile($this->getId(), $aParams);
         }
         $this->Init();
     }
 
     public function LoadFromXmlFile($sSkinId, $aData = null) {
 
-        $sSkinXML = $this->Skin_GetSkinManifest($sSkinId);
-        if (is_null($aData)) {
+        if (isset($aData['dir'])) {
+            $sSkinDir = $aData['dir'];
+        } else {
+            $sSkinDir = null;
+        }
+        $sSkinXML = $this->Skin_GetSkinManifest($sSkinId, $sSkinDir);
+        if (!is_array($aData)) {
             $aData = array(
                 'id' => $sSkinId,
             );
+        } elseif (!isset($aData['id'])) {
+            $aData['id'] = $sSkinId;
         }
         $this->LoadFromXml($sSkinXML, $aData);
     }
 
     public function LoadFromXml($sSkinXML, $aData = null) {
 
+        if (Is_null($aData)) {
+            $aData = array();
+        }
         $oXml = @simplexml_load_string($sSkinXML);
         if (!$oXml) {
             $sXml = '<?xml version="1.0" encoding="UTF-8"?>
@@ -143,6 +155,11 @@ class ModuleSkin_EntitySkin extends Entity {
         return $this->_getDataProperty('requires');
     }
 
+    /**
+     * Returns array of screenshots
+     *
+     * @return array
+     */
     public function GetScreenshots() {
 
         $aResult = array();
@@ -160,6 +177,11 @@ class ModuleSkin_EntitySkin extends Entity {
         return $aResult;
     }
 
+    /**
+     * Returns preview from manifest
+     *
+     * @return string|null
+     */
     public function GetPreview() {
 
         $aScreens=$this->GetScreenshots();
@@ -172,14 +194,20 @@ class ModuleSkin_EntitySkin extends Entity {
         return null;
     }
 
+    /**
+     * Returns URL of preview if it exists
+     *
+     * @return string|null
+     */
     public function GetPreviewUrl() {
 
         $aScreen = $this->GetPreview();
         if ($aScreen && isset($aScreen['file'])) {
-            $sFile = Config::Get('path.skins.dir') . $this->GetId() . '/settings/' . $aScreen['file'];
+            $sFile = ($this->getDir() ? $this->getDir() : Config::Get('path.skins.dir') . $this->GetId()) . '/settings/' . $aScreen['file'];
             $sUrl = F::File_Dir2Url($sFile);
             return $sUrl;
         }
+        return null;
     }
 
     /**
