@@ -7,7 +7,7 @@
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
  */
-define('ALTO_CORE', ALTO_DIR);
+defined('ALTO_CORE') || define('ALTO_CORE', ALTO_DIR);
 
 /**
  * Настройка путей для первичной загрузки
