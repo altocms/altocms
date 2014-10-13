@@ -18,6 +18,7 @@ $config['view']['header']['top'] = 'fixed'; // static or fixed
 /* Banner under top bar - turn on/off */
 $config['view']['header']['banner'] = true;
 
+// Relative path from skin dir OR absolute path on disk OR URL
 $config['view']['header']['logo'] = Config::Get('path.skin.url') . 'themes/___view.theme___/img/favicon.png';
 $config['view']['header']['name'] = 'START<span>KIT</span>';
 

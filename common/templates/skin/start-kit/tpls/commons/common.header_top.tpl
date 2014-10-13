@@ -17,7 +17,7 @@
                     {strip}
                         <h1 class="site-name"><a class="navbar-brand" href="{Config::Get('path.root.url')}">
                         {if Config::Get('view.header.logo')}
-                            <img src="{Config::Get('view.header.logo')}" alt="{Config::Get('view.name')}" class="navbar-brand-logo">
+                            <img src="{asset file=Config::Get('view.header.logo')}" alt="{Config::Get('view.name')}" class="navbar-brand-logo">
                         {/if}
                         {if Config::Get('view.header.name')}
                             {Config::Get('view.header.name')}
