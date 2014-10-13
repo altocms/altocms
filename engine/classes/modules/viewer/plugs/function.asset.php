@@ -25,30 +25,40 @@ function smarty_function_asset($aParams, $oSmartyTemplate) {
     }
 
     if (isset($aParams['file'])) {
-        // Need URL to asset file
-        if (empty($aParams['skin'])) {
-            $sSkin = E::Viewer_GetConfigSkin();
+        if ((stripos($aParams['file'], 'http://') === 0)
+            || (stripos($aParams['file'], 'https://') === 0)
+            || (stripos($aParams['file'], 'http://') === 0)) {
+            $sUrl = $aParams['file'];
         } else {
-            $sSkin = $aParams['skin'];
-        }
-        if (isset($aParams['theme'])) {
-            if (is_bool($aParams['theme'])) {
-                $sTheme = E::Viewer_GetConfigTheme();
+            if (F::File_LocalDir($aParams['file'])) {
+                $sFile = $aParams['file'];
             } else {
-                $sTheme = $aParams['theme'];
+                // Need URL to asset file
+                if (empty($aParams['skin'])) {
+                    $sSkin = E::Viewer_GetConfigSkin();
+                } else {
+                    $sSkin = $aParams['skin'];
+                }
+                if (isset($aParams['theme'])) {
+                    if (is_bool($aParams['theme'])) {
+                        $sTheme = E::Viewer_GetConfigTheme();
+                    } else {
+                        $sTheme = $aParams['theme'];
+                    }
+                } else {
+                    $sTheme = '';
+                }
+                if ($sTheme) {
+                    $sTheme = 'themes/' . $sTheme . '/';
+                }
+                if (isset($aParams['plugin'])) {
+                    $sFile = Plugin::GetTemplateFile($aParams['plugin'], $aParams['file']);
+                } else {
+                    $sFile = Config::Get('path.skins.dir') . '/' . $sSkin . '/' . $sTheme . $aParams['file'];
+                }
             }
-        } else {
-            $sTheme = '';
+            $sUrl = E::ViewerAsset_File2Link($sFile, 'skin/' . $sSkin . '/');
         }
-        if ($sTheme) {
-            $sTheme = 'themes/' . $sTheme . '/';
-        }
-        if (isset($aParams['plugin'])) {
-            $sFile = Plugin::GetTemplateFile($aParams['plugin'], $aParams['file']);
-        } else {
-            $sFile = Config::Get('path.skins.dir') . '/' . $sSkin . '/' . $sTheme . $aParams['file'];
-        }
-        $sUrl = E::ViewerAsset_File2Link($sFile, 'skin/' . $sSkin . '/');
     } else {
         // Need URL to asset dir
         $sUrl = E::Viewer_GetAssetUrl() . 'skin/' . $aParams['skin'] . '/';
