@@ -136,6 +136,7 @@ $config['smarty']['cache_lifetime']         = false;  // Кеширование 
 /**
  * Настройки плагинов
  */
+$config['sys']['plugins']['activation_dir'] = '___path.dir.app___plugins/'; // файл со списком активных плагинов в каталоге /plugins/
 $config['sys']['plugins']['activation_file'] = 'plugins.dat'; // файл со списком активных плагинов в каталоге /plugins/
 
 /**

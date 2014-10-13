@@ -711,7 +711,7 @@ class Func {
     static public function GetPluginsDatDir() {
 
         if (class_exists('Config', false)) {
-            return Config::Get('path.dir.app') . 'plugins/';
+            return Config::Get('sys.plugins.activation_dir');
         } else {
             return F::File_RootDir() . 'app/plugins/';
         }
@@ -741,11 +741,11 @@ class Func {
      */
     static public function GetPluginsList($bAll = false) {
 
-        if (isset(self::$_aPluginList[$bAll])) {
-            $aPlugins = self::$_aPluginList[$bAll];
+        $sPluginsDatFile = static::GetPluginsDatFile();
+        if (isset(self::$_aPluginList[$sPluginsDatFile][$bAll])) {
+            $aPlugins = self::$_aPluginList[$sPluginsDatFile][$bAll];
         } else {
             $sPluginsDir = static::GetPluginsDir();
-            $sPluginsDatFile = static::GetPluginsDatFile();
             $aPlugins = array();
             $aPluginsRaw = array();
             if ($bAll) {
@@ -768,7 +768,7 @@ class Func {
                     }
                 }
             }
-            self::$_aPluginList[$bAll] = $aPlugins;
+            self::$_aPluginList[$sPluginsDatFile][$bAll] = $aPlugins;
         }
         return $aPlugins;
     }
