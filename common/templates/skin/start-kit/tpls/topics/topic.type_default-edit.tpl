@@ -59,7 +59,7 @@
             {/if}
             <span class="b-topic_url_demo">{$aEditTopicUrl.after}</span>
             {/strip}
-            {if $sMode != 'add' AND E::IsAdmin()}
+            {if $sMode != 'add' AND $_aRequest.topic_url_input AND E::IsAdmin()}
                 <button class="btn btn-default js-tip-help" title="{$aLang.topic_create_url_edit}"
                         onclick="ls.topic.editUrl(this); return false;"><i class="glyphicon glyphicon-edit"></i></button>
             {/if}
