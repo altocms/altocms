@@ -426,6 +426,14 @@ $config['module']['image']['preset']['default'] = array(
         'height' => 700,
     ),
 );
+// Параметры для изображений, загружаемых в фотосет
+$config['module']['image']['preset']['photoset'] = array(
+    'size' => array(
+        'width' => 1280,
+        'height' => 1024,
+    ),
+);
+
 $config['module']['image']['autoresize'] = true;
 
 // Нужно ли использовать водяной знак для изображений в топике
