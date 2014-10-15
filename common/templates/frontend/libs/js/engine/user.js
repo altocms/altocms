@@ -389,6 +389,7 @@ ls.user = (function ($) {
         ls.progressStart();
         ls.ajax(options.url.crop, params, function (result) {
             ls.progressDone();
+            $that.uploadImageCropDone();
             if (!result) {
                 ls.msg.error(null, 'System error #1001');
             } else if (result.bStateError) {
