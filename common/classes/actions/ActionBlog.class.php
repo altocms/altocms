@@ -1572,8 +1572,8 @@ class ActionBlog extends Action {
 
         // * Проверяем, имеет ли право текущий пользователь добавлять invite в blog
         $oBlogUser = $this->Blog_GetBlogUserByBlogIdAndUserId($oBlog->getId(), $this->oUserCurrent->getId());
-        $bIsAdministratorBlog = $oBlogUser ? $oBlogUser->getIsAdministrator() : false;
-        if ($oBlog->getOwnerId() != $this->oUserCurrent->getId() && !$this->oUserCurrent->isAdministrator() && !$bIsAdministratorBlog) {
+        $bBlogAdministrator = ($oBlogUser ? $oBlogUser->IsBlogAdministrator() : false);
+        if ($oBlog->getOwnerId() != $this->oUserCurrent->getId() && !$this->oUserCurrent->isAdministrator() && !$bBlogAdministrator) {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
             return;
         }
@@ -1726,8 +1726,8 @@ class ActionBlog extends Action {
          * Проверяем, имеет ли право текущий пользователь добавлять invite в blog
          */
         $oBlogUser = $this->Blog_GetBlogUserByBlogIdAndUserId($oBlog->getId(), $this->oUserCurrent->getId());
-        $bIsAdministratorBlog = $oBlogUser ? $oBlogUser->getIsAdministrator() : false;
-        if ($oBlog->getOwnerId() != $this->oUserCurrent->getId() && !$this->oUserCurrent->isAdministrator() && !$bIsAdministratorBlog) {
+        $bBlogAdministrator = ($oBlogUser ? $oBlogUser->IsBlogAdministrator() : false);
+        if ($oBlog->getOwnerId() != $this->oUserCurrent->getId() && !$this->oUserCurrent->isAdministrator() && !$bBlogAdministrator) {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
             return;
         }
@@ -1781,8 +1781,8 @@ class ActionBlog extends Action {
          * Проверяем, имеет ли право текущий пользователь добавлять invite в blog
          */
         $oBlogUser = $this->Blog_GetBlogUserByBlogIdAndUserId($oBlog->getId(), $this->oUserCurrent->getId());
-        $bIsAdministratorBlog = $oBlogUser ? $oBlogUser->getIsAdministrator() : false;
-        if ($oBlog->getOwnerId() != $this->oUserCurrent->getId() && !$this->oUserCurrent->isAdministrator() && !$bIsAdministratorBlog) {
+        $bBlogAdministrator = ($oBlogUser ? $oBlogUser->IsBlogAdministrator() : false);
+        if ($oBlog->getOwnerId() != $this->oUserCurrent->getId() && !$this->oUserCurrent->isAdministrator() && !$bBlogAdministrator) {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
             return;
         }

@@ -180,7 +180,7 @@ return array(
     'blog_admin_users_reader'                   => 'читатель',
     'blog_admin_users_bun'                      => 'забаненный',
     'blog_admin_users_current_administrator'    => 'это вы &mdash; настоящий администратор!',
-    'blog_admin_users_empty'                    => 'в блоге никто не состоит',
+    'blog_admin_users_empty'                    => 'на блог никто не подписан',
     'blog_admin_users_submit'                   => 'сохранить',
     'blog_admin_users_submit_notice'            => 'После нажатия на кнопку «Сохранить» права пользователей будут сохранены',
     'blog_admin_users_submit_ok'                => 'Права сохранены',

@@ -207,8 +207,8 @@ class ModuleBlog extends Module {
             }
             if (isset($aBlogUsers[$oBlog->getId()])) {
                 $oBlog->setUserIsJoin(true);
-                $oBlog->setUserIsAdministrator($aBlogUsers[$oBlog->getId()]->getIsAdministrator());
-                $oBlog->setUserIsModerator($aBlogUsers[$oBlog->getId()]->getIsModerator());
+                $oBlog->setUserIsAdministrator($aBlogUsers[$oBlog->getId()]->IsBlogAdministrator());
+                $oBlog->setUserIsModerator($aBlogUsers[$oBlog->getId()]->IsBlogModerator());
             } else {
                 $oBlog->setUserIsJoin(false);
                 $oBlog->setUserIsAdministrator(false);
@@ -1004,7 +1004,7 @@ class ModuleBlog extends Module {
                     $oBlogType = $oBlog->GetBlogType();
 
                     // админа и модератора блога не проверяем
-                    if ($oBlogUser->getIsAdministrator() || $oBlogUser->getIsModerator()) {
+                    if ($oBlogUser->IsBlogAdministrator() || $oBlogUser->IsBlogModerator()) {
                         $aAllowBlogs[$oBlog->getId()] = $oBlog;
                     } else {
                         $bAllow = false;

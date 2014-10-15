@@ -514,7 +514,7 @@ class ModuleACL extends Module {
         }
 
         $oBlogUser = $this->Blog_GetBlogUserByBlogIdAndUserId($oBlog->getId(), $oUser->getId());
-        if ($oBlogUser && $oBlogUser->getIsAdministrator()) {
+        if ($oBlogUser && $oBlogUser->IsBlogAdministrator()) {
             return self::CAN_DELETE_BLOG_EMPTY_ONLY;
         }
         return false;
@@ -666,9 +666,9 @@ class ModuleACL extends Module {
         } else {
             $oBlogUser = $this->Blog_GetBlogUserByBlogIdAndUserId($oBlog, $oUser->getId());
             if ($oBlogUser) {
-                if ($oBlogUser->getIsAdministrator()) {
+                if ($oBlogUser->IsBlogAdministrator()) {
                     $sUserRole = 'administrator';
-                } elseif ($oBlogUser->getIsModerator()) {
+                } elseif ($oBlogUser->IsBlogModerator()) {
                     $sUserRole = 'moderator';
                 }
             }
