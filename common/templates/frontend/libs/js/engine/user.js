@@ -253,6 +253,7 @@ ls.user = (function ($) {
 
     /* UPLOAD USER'S AVATAR AND PHOTO */
 
+    var cancelInProcess = false;
     /**
      * Sets options for the mode
      *
@@ -340,9 +341,14 @@ ls.user = (function ($) {
     };
 
     /**
-     * Отмена ресайза аватарки, подчищаем временный данные
+     * Отмена ресайза аватарки, подчищаем временные данные
      */
     this.uploadImageCropCancel = function (button, options) {
+        if (cancelInProcess) {
+            return;
+        }
+        cancelInProcess = true;
+
         button = $(button);
         if (typeof options == "string") {
             options = $that.options[options];
@@ -364,6 +370,7 @@ ls.user = (function ($) {
             }
             button.removeClass('loading');
             $that.uploadImageCropDone();
+            cancelInProcess = false;
         });
     };
 
@@ -425,7 +432,10 @@ ls.user = (function ($) {
         if (options.lang.help) {
             modal.find('.js-crop_img-help').text(ls.lang.get(options.lang.help));
         }
-
+        modal.on('hidden.bs.modal', function(e){
+            $that.uploadImageCropCancel(this, options);
+            e.stopPropagation();
+        });
         modal.modal('show');
 
         modal.find('.js-confirm').off('click').on('click', function(){

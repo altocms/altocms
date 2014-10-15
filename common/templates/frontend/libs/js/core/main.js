@@ -581,7 +581,7 @@ ls = (function ($) {
             if (beforeSendFunc) {
                 beforeSendFunc(xhr);
             }
-        }
+        };
 
         ls.hook.run('ls_ajax_before', [ajaxOptions, callback, more], this);
 

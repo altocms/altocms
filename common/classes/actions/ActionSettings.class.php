@@ -145,7 +145,7 @@ class ActionSettings extends Action {
              * Ресайзим и сохраняем уменьшенную копию
              * Храним две копии - мелкую для показа пользователю и крупную в качестве исходной для ресайза
              */
-            $sPreviewFile = $this->Uploader_GetUserAvatarDir($this->oUserCurrent->getId()) . 'photo-preview.' . F::File_GetExtension($sTmpFile);
+            $sPreviewFile = $this->Uploader_GetUserAvatarDir($this->oUserCurrent->getId()) . 'photo-preview.' . F::File_GetExtension($sTmpFile, true);
             if ($sPreviewFile = $this->Img_Copy($sTmpFile, $sPreviewFile, self::PREVIEW_RESIZE, self::PREVIEW_RESIZE)) {
                 // * Сохраняем в сессии временный файл с изображением
                 $this->Session_Set('sPhotoTmp', $sTmpFile);
@@ -274,7 +274,7 @@ class ActionSettings extends Action {
         if ($sUploadedFile && $this->Img_MimeType($sUploadedFile)) {
             if ($this->Img_ResizeFile($sUploadedFile, self::PREVIEW_RESIZE, self::PREVIEW_RESIZE)) {
                 // Сохраняем аватар в оригинале
-                $sAvatarFile = $this->Uploader_GetUserAvatarDir($this->oUserCurrent->getId()) . 'original.' . F::File_GetExtension($sUploadedFile);
+                $sAvatarFile = $this->Uploader_GetUserAvatarDir($this->oUserCurrent->getId()) . 'original.' . F::File_GetExtension($sUploadedFile, true);
                 if ($sAvatarFile = $this->Uploader_Move($sUploadedFile, $sAvatarFile, true)) {
                     // Сохраняем в сессии
                     $this->Session_Set('sAvatarFileTmp', $sAvatarFile);
