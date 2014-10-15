@@ -47,7 +47,7 @@
             <label class="control-label">{$aLang.action.admin.set_links_topics_mode}</label>
 
             <div class="controls">
-			<div class="-box">
+            <div class="-box">
                 <label {if $sPermalinkMode == 'alto'}class="checked"{/if}>
                     <span class="span6">
                         <input type="radio" name="topic_link" value="alto" {if $sPermalinkMode == 'alto'}checked{/if}/>
@@ -57,6 +57,17 @@
                         {Config::Get('path.root.url')}123.html
                     </span>
                     <span id="topic_link_alto" style="display: none;">%topic_id%.html</span>
+                </label>
+
+                <label {if $sPermalinkMode == 'friendly'}class="checked"{/if}>
+                    <span class="span6">
+                        <input type="radio" name="topic_link" value="friendly" {if $sPermalinkMode == 'friendly'}checked{/if}/>
+                        {$aLang.action.admin.set_links_topics_mode_friendly}
+                    </span>
+                    <span class="span6 b-topic-url-demo">
+                        {Config::Get('path.root.url')}sample-topic.html
+                    </span>
+                    <span id="topic_link_friendly" style="display: none;">%topic_url%.html</span>
                 </label>
 
                 <label {if $sPermalinkMode == 'ls'}class="checked"{/if}>
@@ -112,7 +123,7 @@
                         <input type="text" name="topic_link_url" value="{$sPermalinkUrl}" />
                     </span>
                 </label>
-				</div>
+            </div>
             </div>
         </div>
         <div class="control-group">

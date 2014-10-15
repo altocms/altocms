@@ -522,6 +522,8 @@ class ActionAdmin extends Action {
                 $aConfig['module.topic.url_mode'] = $sTopicLink;
                 if ($sTopicLink == 'alto') {
                     $aConfig['module.topic.url'] = '%topic_id%.html';
+                } elseif ($sTopicLink == 'friendly') {
+                    $aConfig['module.topic.url'] = '%topic_url%.html';
                 } elseif ($sTopicLink == 'ls') {
                     $aConfig['module.topic.url'] = '';
                 } elseif ($sTopicLink == 'id') {
@@ -585,6 +587,10 @@ class ActionAdmin extends Action {
             $sPermalinkMode = 'day_name';
         } elseif ($sPermalinkUrl == '%year%/%month%/%topic_url%') {
             $sPermalinkMode = 'month_name';
+        } elseif ($sPermalinkUrl == '%topic_id%.html') {
+            $sPermalinkMode = 'alto';
+        } elseif ($sPermalinkUrl == '%topic_url%.html') {
+            $sPermalinkMode = 'friendly';
         } else {
             $sPermalinkMode = 'custom';
         }

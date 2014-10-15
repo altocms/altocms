@@ -378,6 +378,7 @@ return array (
     'set_links_topics' => 'Articles',
     'set_links_topics_mode' => 'Links to articles',
     'set_links_topics_mode_alto' => 'Standard',
+    'set_links_topics_mode_friendly' => 'Friendly URL',
     'set_links_topics_mode_ls' => 'As in LiveStreet',
     'set_links_topics_mode_id' => 'ID articles (numerical)',
     'set_links_topics_mode_day_name' => 'Day and name',
