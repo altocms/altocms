@@ -152,12 +152,16 @@ class ModuleText extends Module {
      * @return string
      */
     public function VideoParser($sText) {
+        $iWidth = Config::Get('module.image.preset.default.size.width');
+        $iHeight = $iWidth / 1.777;
+
+        $sIframeAttr = 'frameborder="0" webkitAllowFullScreen mozallowfullscreen allowfullscreen="allowfullscreen"';
         /**
          * youtube.com
          */
         $sText = preg_replace(
             '/<video>http(?:s|):\/\/(?:www\.|m.|)youtube\.com\/watch\?v=([a-zA-Z0-9_\-]+)(&.+)?<\/video>/Ui',
-            '<iframe width="560" height="315" src="http://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>',
+            '<iframe width="' . $iWidth . '" height="' . $iHeight . '" src="http://www.youtube.com/embed/$1" ' . $sIframeAttr . '></iframe>',
             $sText
         );
         /**
@@ -165,7 +169,7 @@ class ModuleText extends Module {
          */
         $sText = preg_replace(
             '/<video>http(?:s|):\/\/(?:www\.|m.|)youtu\.be\/([a-zA-Z0-9_\-]+)(&.+)?<\/video>/Ui',
-            '<iframe width="560" height="315" src="http://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>',
+            '<iframe width="' . $iWidth . '" height="' . $iHeight . '" src="http://www.youtube.com/embed/$1" ' . $sIframeAttr . '></iframe>',
             $sText
         );
         /**
@@ -173,7 +177,7 @@ class ModuleText extends Module {
          */
         $sText = preg_replace(
             '/<video>http(?:s|):\/\/(?:www\.|)vimeo\.com\/(\d+).*<\/video>/i',
-            '<iframe src="http://player.vimeo.com/video/$1" width="500" height="281" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>',
+            '<iframe src="http://player.vimeo.com/video/$1" width="' . $iWidth . '" height="' . $iHeight . '" ' . $sIframeAttr . '></iframe>',
             $sText
         );
         /**
@@ -181,17 +185,18 @@ class ModuleText extends Module {
          */
         $sText = preg_replace(
             '/<video>http(?:s|):\/\/(?:www\.|)rutube\.ru\/tracks\/(\d+)\.html.*<\/video>/Ui',
-            '<object width="470" height="353"><param name="movie" value="http://video.rutube.ru/$1"></param><param name="wmode" value="window"></param><param name="allowFullScreen" value="true"></param><embed src="http://video.rutube.ru/$1" type="application/x-shockwave-flash" wmode="window" width="470" height="353" allowFullScreen="true" ></embed></object>',
+            '<iframe src="//rutube.ru/play/embed/$1" width="' . $iWidth . '" height="' . $iHeight . '" ' . $sIframeAttr . '></iframe>',
+            $sText
+        );
+
+        $sText = preg_replace(
+            '/<video>http(?:s|):\/\/(?:www\.|)rutube\.ru\/video\/(\w+)\/?<\/video>/Ui',
+            '<iframe src="//rutube.ru/play/embed/$1" width="' . $iWidth . '" height="' . $iHeight . '" ' . $sIframeAttr . '></iframe>',
             $sText
         );
         /**
-         * video.yandex.ru
+         * video.yandex.ru - closed
          */
-        $sText = preg_replace(
-            '/<video>http(?:s|):\/\/video\.yandex\.ru\/users\/([a-zA-Z0-9_\-]+)\/view\/(\d+).*<\/video>/i',
-            '<object width="467" height="345"><param name="video" value="http://video.yandex.ru/users/$1/view/$2/get-object-by-url/redirect"></param><param name="allowFullScreen" value="true"></param><param name="scale" value="noscale"></param><embed src="http://video.yandex.ru/users/$1/view/$2/get-object-by-url/redirect" type="application/x-shockwave-flash" width="467" height="345" allowFullScreen="true" scale="noscale" ></embed></object>',
-            $sText
-        );
         return $sText;
     }
 
