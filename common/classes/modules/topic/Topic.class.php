@@ -2845,8 +2845,8 @@ class ModuleTopic extends Module {
                                 } else {
                                     $this->Message_AddError($this->Lang_Get('topic_field_file_upload_err_size', array('size' => Config::Get('module.topic.max_filesize_limit'))), null, true);
                                 }
+                                F::File_Delete($_FILES['fields_' . $oField->getFieldId()]['tmp_name']);
                             }
-                            F::File_Delete($_FILES['fields_' . $oField->getFieldId()]['tmp_name']);
                         }
 
                         $this->Hook_Run('content_field_proccess', array('sData' => &$sData, 'oField' => $oField, 'oTopic' => $oTopic, 'aValues' => $aValues, 'sType' => &$sType));
@@ -2861,7 +2861,7 @@ class ModuleTopic extends Module {
                             $oValue->setValue($sData);
                             $oValue->setValueSource(($oField->getFieldType() == 'file') ? $sData : $_REQUEST['fields'][$oField->getFieldId()]);
 
-                            $this->Topic_AddTopicValue($oValue);
+                            $this->AddTopicValue($oValue);
 
                         }
                     }

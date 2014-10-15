@@ -13,6 +13,7 @@
                 ({$_aRequest.fields.$iFieldId.file_name|escape:'html'})
             </label>
             <small class="control-notice">{$oField->getFieldDescription()}</small>
+            <input type="hidden" name="fields[{$iFieldId}]" id="fields-{$iFieldId}" value="{$iFieldId}"/>
         {else}
             <div class="input-group">
                 <label class="input-group-addon" for="fields-{$iFieldId}">{$oField->getFieldName()}{if $_aRequest.fields.$iFieldId} ({$aLang.content_file_replace}){/if}</label>

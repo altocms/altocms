@@ -8,6 +8,7 @@
                        value="on"> &mdash; {$aLang.content_delete_file}
                 ({$_aRequest.fields.$iFieldId.file_name|escape:'html'})
             </label>
+            <input type="hidden" name="fields[{$iFieldId}]" id="fields-{$iFieldId}" value="{$iFieldId}"/>
         {else}
             <label for="topic_upload_file">
                 {$oField->getFieldName()}{if $_aRequest.fields.$iFieldId} ({$aLang.content_file_replace}){/if}
