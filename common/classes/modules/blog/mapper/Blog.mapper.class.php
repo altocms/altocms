@@ -578,29 +578,43 @@ class ModuleBlog_MapperBlog extends Mapper {
                 LIMIT 0, ?d";
         $aResult = array();
         if ($aRows = $this->oDb->select($sql, $nUserId, $nLimit)) {
-            $aReturn = Engine::GetEntityRows('Blog', $aRows);
+            $aResult = Engine::GetEntityRows('Blog', $aRows);
         }
         return $aResult;
     }
 
     /**
-     * Возвращает полный список закрытых блогов
-     *
-     * @param $oUser
-     *
-     * @return array
+     * LS-compatibility
      */
     public function GetCloseBlogs($oUser = null) {
 
+        return $this->GetCloseBlogsId($oUser);
+    }
+
+    /**
+     * Returns array of IDs of blogs that closed for user
+     *
+     * @param ModuleUser_EntityUser $oUser
+     *
+     * @return array
+     */
+    public function GetCloseBlogsId($oUser = null) {
+
+        // Gets an array of types of blogs that closed for user
         $aTypes = $this->Blog_GetCloseBlogTypes($oUser);
-        $aCriteria = array(
-            'filter' => array(
-                //'blog_type' => 'close',
-                'blog_type' => $aTypes,
-            ),
-        );
-        $aResult = $this->GetBlogsIdByCriteria($aCriteria);
-        return $aResult['data'];
+
+        // If array is not empty...
+        if ($aTypes) {
+            $aCriteria = array(
+                'filter' => array(
+                    //'blog_type' => 'close',
+                    'blog_type' => $aTypes,
+                ),
+            );
+            $aResult = $this->GetBlogsIdByCriteria($aCriteria);
+            return $aResult['data'];
+        }
+        return array();
     }
 
     /**

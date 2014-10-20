@@ -1137,7 +1137,7 @@ class ModuleBlog extends Module {
         $nUserId = $oUser ? $oUser->getId() : 0;
         $sCacheKey = 'blog_inaccessible_user_' . $nUserId;
         if (false === ($aCloseBlogsId = $this->Cache_Get($sCacheKey))) {
-            $aCloseBlogsId = $this->oMapper->GetCloseBlogs($oUser);
+            $aCloseBlogsId = $this->oMapper->GetCloseBlogsId($oUser);
 
             if ($oUser) {
                 // * Получаем массив идентификаторов блогов, которые являются откытыми для данного пользователя
@@ -1162,12 +1162,11 @@ class ModuleBlog extends Module {
             if ($oUser) {
                 $this->Cache_Set(
                     $aCloseBlogsId, $sCacheKey,
-                    array('blog_new', 'blog_update', "blog_relation_change_{$nUserId}"), 60 * 60 * 24
+                    array('blog_new', 'blog_update', "blog_relation_change_{$nUserId}"), 'P1D'
                 );
             } else {
                 $this->Cache_Set(
-                    $aCloseBlogsId, $sCacheKey, array('blog_new', 'blog_update'),
-                    60 * 60 * 24 * 3
+                    $aCloseBlogsId, $sCacheKey, array('blog_new', 'blog_update'), 'P3D'
                 );
             }
         }
