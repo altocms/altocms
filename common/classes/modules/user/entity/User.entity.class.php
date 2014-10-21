@@ -399,6 +399,12 @@ class ModuleUser_EntityUser extends Entity {
         return $this->getProfilePhoto();
     }
 
+    /**
+     * Returns display name according with pattern from configuration
+     * If pattern is missed or if result string is empty then returns login
+     *
+     * @return string
+     */
     public function getDisplayName() {
 
         $sDisplayName = $this->getProp('_display_name');
@@ -408,6 +414,9 @@ class ModuleUser_EntityUser extends Entity {
                 $sDisplayName = $this->getLogin();
             } else {
                 $sDisplayName = str_replace(array('%%login%%', '%%profilename%%'), array($this->getLogin(), $this->getProfileName()), $sDisplayName);
+                if (!$sDisplayName) {
+                    $sDisplayName = $this->getLogin();
+                }
             }
             $this->setProp('_display_name', $sDisplayName);
         }
