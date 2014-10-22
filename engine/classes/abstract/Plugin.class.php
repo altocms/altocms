@@ -392,6 +392,7 @@ abstract class Plugin extends LsObject {
 
         return self::_pluginDirName($xPlugin);
     }
+
     /**
      * Returns full dir path of plugin
      *
@@ -411,6 +412,28 @@ abstract class Plugin extends LsObject {
             }
         }
         return null;
+    }
+
+    /**
+     * Returns array of dirs with language files of the plugin
+     *
+     * @param object|string $xPlugin
+     *
+     * @return array
+     */
+    static public function GetDirLang($xPlugin) {
+
+        $sPluginDirName = self::_pluginDirName($xPlugin);
+
+        $aDirs = array_reverse(Config::Get('path.root.seek'));
+        $aResult = array();
+        foreach($aDirs as $sDir) {
+            $sPluginDir = $sDir . '/plugins/' . $sPluginDirName . '/templates/language/';
+            if (is_dir($sPluginDir)) {
+                $aResult[] = $sPluginDir;
+            }
+        }
+        return $aResult;
     }
 
     /**

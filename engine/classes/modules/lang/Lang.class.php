@@ -324,9 +324,11 @@ class ModuleLang extends Module {
         // * Ищем языковые файлы активированных плагинов
         if ($aPluginList = F::GetPluginsList()) {
             foreach ($aPluginList as $sPluginName) {
-                $sDir = Plugin::GetDir($sPluginName);
-                $aParams = array('name' => $sPluginName, 'category' => 'plugin');
-                $this->_loadFiles($sDir . '/templates/language/', $sLangName, $aParams, $sLangFor);
+                $aDirs = Plugin::GetDirLang($sPluginName);
+                foreach($aDirs as $sDir) {
+                    $aParams = array('name' => $sPluginName, 'category' => 'plugin');
+                    $this->_loadFiles($sDir, $sLangName, $aParams, $sLangFor);
+                }
             }
 
         }
