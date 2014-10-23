@@ -28,6 +28,10 @@ class HookStatisticsPerformance extends Hook {
      */
     public function RegisterHook() {
 
+        if (F::AjaxRequest()) {
+            return;
+        }
+
         $xShowStats = Config::Get('general.show.stats');
 
         // if is null then show to admins only
