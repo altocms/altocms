@@ -483,9 +483,20 @@ class ModuleViewerAsset_EntityPackage extends Entity {
     protected function _stageBegin($nStage) {
 
         $sFile = F::File_GetAssetDir() . '_check/' . $this->GetHash();
+
         if ($aCheckFiles = glob($sFile . '.{1,2,3}.begin.tmp', GLOB_BRACE)) {
-            return false;
-        } elseif (($nStage == 2) && ($aCheckFiles = glob($sFile . '.{2,3}.end.tmp', GLOB_BRACE))) {
+            $sCheckFile = reset($aCheckFiles);
+            // check time of tmp file
+            $nTime = filectime($sCheckFile);
+            if (!$nTime) {
+                $nTime = F::File_GetContents($sCheckFile);
+            }
+            if (time() < $nTime + ModuleViewerAsset::TMP_TIME) {
+                return false;
+            }
+        }
+
+        if (($nStage == 2) && ($aCheckFiles = glob($sFile . '.{2,3}.end.tmp', GLOB_BRACE))) {
             return false;
         } elseif (($nStage == 3) && F::File_Exists($sFile . '.3.end.tmp')) {
             return false;

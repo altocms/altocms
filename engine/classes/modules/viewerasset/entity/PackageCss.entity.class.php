@@ -155,7 +155,7 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
                 continue;
             }
 
-            if ($n = strpos($sPath, '?')) {
+            if (($n = strpos($sPath, '?')) || ($n = strpos($sPath, '#'))) {
                 $sPath = substr($sPath, 0, $n);
                 $sFileParam = substr($sPath, $n);
             } else {
@@ -164,13 +164,15 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
             if (!isset($aUrls[$sPath])) {
                 // if url didn't prepare...
                 $sRealPath = realpath($sSourceDir . $sPath);
-                $sDestination = F::File_GetAssetDir() . F::Crc32(dirname($sRealPath), true) . '/' . basename($sRealPath);
-                $aUrls[$sPath] = array(
-                    'source'      => $sRealPath,
-                    'destination' => $sDestination,
-                    'url'         => F::File_Dir2Url($sDestination) . $sFileParam,
-                );
-                F::File_Copy($sRealPath, $sDestination);
+                if ($sRealPath) {
+                    $sDestination = F::File_GetAssetDir() . F::Crc32(dirname($sRealPath), true) . '/' . basename($sRealPath);
+                    $aUrls[$sPath] = array(
+                        'source'      => $sRealPath,
+                        'destination' => $sDestination,
+                        'url'         => F::File_Dir2Url($sDestination) . $sFileParam,
+                    );
+                    F::File_Copy($sRealPath, $sDestination);
+                }
             }
         }
         if ($aUrls) {

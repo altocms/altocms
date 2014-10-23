@@ -560,7 +560,7 @@ class ModuleViewerAsset extends Module {
             // tmp file cannot live more than 1 minutes
             $nTime = filectime($sTmpFile);
             if (!$nTime) {
-                $nTime = F::File_GetContents($sFile);
+                $nTime = F::File_GetContents($sTmpFile);
             }
             if (time() < $nTime + self::TMP_TIME) {
                 $xResult = 1;
@@ -571,6 +571,14 @@ class ModuleViewerAsset extends Module {
             }
         }
         return $xResult;
+    }
+
+    protected function _resetAssets() {
+
+        $sFile = $this->GetAssetsCacheName();
+        F::File_PutContents($sFile . '.tmp', time());
+        F::File_Delete($sFile);
+        F::File_Delete($this->GetAssetsCheckName());
     }
 
     /**
@@ -621,11 +629,11 @@ class ModuleViewerAsset extends Module {
         }
 
         if (!F::File_GetContents($this->GetAssetsCheckName()) || $bForcePreparation) {
-            $this->aAssets = array();
 
-            // makes assets here
-            $sFile = $this->GetAssetsCacheName();
-            F::File_PutContents($sFile . '.tmp', time());
+            // reset assets here
+            $this->_resetAssets();
+
+            $this->aAssets = array();
 
             // Add files & links to assets
             foreach ($this->aFiles as $sType => $aData) {
