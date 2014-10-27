@@ -107,7 +107,10 @@ class ModuleUploader_EntityDriverFile extends Entity {
         if (F::File_LocalUrl($sUrl)) {
             $sDir = F::File_Url2Dir($sUrl);
             if (strpos($sDir, Config::Get('path.uploads.root')) === 0) {
-                $sDir = Config::Get('path.static.dir') . $sDir;
+                $sDir = F::File_NormPath(Config::Get('path.static.dir') . $sDir);
+            } elseif (Config::Get('path.root.subdir') && strpos($sDir, Config::Get('path.root.subdir') . Config::Get('path.uploads.root')) === 0) {
+                $sRootPath = substr(Config::Get('path.static.dir'), 0, -strlen(Config::Get('path.root.subdir')));
+                $sDir = F::File_NormPath($sRootPath . $sDir);
             }
             return $sDir;
         }

@@ -66,6 +66,18 @@ class Loader {
         );
         Config::Set('path.root.seek', $aSeekDirClasses);
 
+        if (is_null(Config::Get('path.root.subdir'))) {
+            if (isset($_SERVER['DOCUMENT_ROOT'])) {
+                $sPathSubdir = '/' . F::File_LocalPath(ALTO_DIR, $_SERVER['DOCUMENT_ROOT']);
+            } elseif ($iOffset = Config::Get('path.offset_request_url')) {
+                $aParts = array_slice(explode('/', F::File_NormPath(ALTO_DIR)), -$iOffset);
+                $sPathSubdir = '/' . implode('/', $aParts);
+            } else {
+                $sPathSubdir = '';
+            }
+            Config::Set('path.root.subdir', $sPathSubdir);
+        }
+
         // Подгружаем конфиг из файлового кеша, если он есть
         Config::ResetLevel(Config::LEVEL_CUSTOM);
         $aConfig = Config::ReadCustomConfig(null, true);

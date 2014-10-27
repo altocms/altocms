@@ -527,7 +527,7 @@ class ModuleViewer extends Module {
 
         foreach ($aPlugins as $sPlugin => $oPlugin) {
             $sDir = Plugin::GetTemplateDir(get_class($oPlugin));
-            $this->oSmarty->addTemplateDir($sDir, $oPlugin->GetName(false));
+            $this->oSmarty->addTemplateDir(array($sDir . 'tpls/', $sDir), $oPlugin->GetName(false));
             $aPluginsTemplateDir[$sPlugin] = $sDir;
             $aPluginsTemplateUrl[$sPlugin] = Plugin::GetTemplateUrl(get_class($oPlugin));
         }
