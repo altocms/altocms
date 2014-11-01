@@ -88,7 +88,7 @@ class ModuleACL extends Module {
      */
     public function CanAddTopic(ModuleUser_EntityUser $oUser, ModuleBlog_EntityBlog $oBlog) {
         // * Если юзер является создателем блога то разрешаем ему постить
-        if ($oUser->getId() == $oBlog->getOwnerId()) {
+        if ($oUser->isAdministrator() || ($oUser->getId() == $oBlog->getOwnerId())) {
             return true;
         }
         // * Если рейтинг юзера больше либо равен порогу постинга в блоге то разрешаем постинг
