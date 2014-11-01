@@ -734,36 +734,38 @@ class ActionBlog extends Action {
             return parent::EventNotFound();
         }
 
-        // * Проверяем права на просмотр топика-черновика
-        if (!$oTopic->getPublish() && !Config::Get('module.topic.draft_link')) {
-            if (!$this->oUserCurrent
-                || ($this->oUserCurrent->getId() != $oTopic->getUserId() && !$this->oUserCurrent->isAdministrator())
-            ) {
+        // Trusted user is admin or owner of topic
+        if ($this->oUserCurrent && ($this->oUserCurrent->isAdministrator() || ($this->oUserCurrent->getId() == $oTopic->getUserId()))) {
+            $bTrustedUser = true;
+        } else {
+            $bTrustedUser = false;
+        }
+
+        if (!$bTrustedUser) {
+            // Topic with future date
+            if ($oTopic->getDate() > date('Y-m-d')) {
                 return parent::EventNotFound();
             }
-        }
-        if (!$oTopic->getPublish()) {
-            // По умолчанию черновик смотреть можно только автору или админу
-            if ($this->oUserCurrent
-                && ($this->oUserCurrent->getId() == $oTopic->getUserId() || $this->oUserCurrent->isAdministrator())
-            ) {
-                $bOk = true;
-            } else {
-                $bOk = false;
-            }
-            // Если режим просмотра по прямой ссылке включен, то проверяем параметры
-            if (Config::Get('module.topic.draft_link')) {
-                if ($sDraftCode = F::GetRequestStr('draft', null, 'get')) {
-                    if (strpos($sDraftCode, ':')) {
-                        list($nUser, $sHash) = explode(':', $sDraftCode);
-                        if ($oTopic->GetUserId() == $nUser && $oTopic->getTextHash() == $sHash) {
-                            $bOk = true;
+
+            // * Проверяем права на просмотр топика-черновика
+            if (!$oTopic->getPublish()) {
+                if (!Config::Get('module.topic.draft_link')) {
+                    return parent::EventNotFound();
+                } else {
+                    // Если режим просмотра по прямой ссылке включен, то проверяем параметры
+                    $bOk = false;
+                    if ($sDraftCode = F::GetRequestStr('draft', null, 'get')) {
+                        if (strpos($sDraftCode, ':')) {
+                            list($nUser, $sHash) = explode(':', $sDraftCode);
+                            if ($oTopic->GetUserId() == $nUser && $oTopic->getTextHash() == $sHash) {
+                                $bOk = true;
+                            }
                         }
                     }
+                    if (!$bOk) {
+                        return parent::EventNotFound();
+                    }
                 }
-            }
-            if (!$bOk) {
-                return parent::EventNotFound();
             }
         }
 
@@ -778,7 +780,7 @@ class ActionBlog extends Action {
             return Router::Action('error');
         }
 
-        // Если номер топика правильный, но UTL блога неверный, то корректируем его и перенаправляем на нужный адрес
+        // Если номер топика правильный, но URL блога неверный, то корректируем его и перенаправляем на нужный адрес
         if ($sBlogUrl != '' && $oTopic->getBlog()->getUrl() != $sBlogUrl) {
             Router::Location($oTopic->getUrl());
         }
