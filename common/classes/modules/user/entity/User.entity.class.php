@@ -627,7 +627,7 @@ class ModuleUser_EntityUser extends Entity {
             . ($this->getProfileSex() == 'woman' ? 'female' : 'male')
             . '.png';
         if ($xSize) {
-            if (strpos($xSize, 'x')) {
+            if (strpos($xSize, 'x') !== false) {
                 list($nW, $nH) = array_map('intval', explode('x', $xSize));
             } else {
                 $nW = $nH = intval($xSize);

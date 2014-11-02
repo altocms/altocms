@@ -104,6 +104,23 @@ class ModuleUser extends Module {
     }
 
     /**
+     * Compares user's password and passed password
+     *
+     * @param ModuleUser_EntityUser $oUser
+     * @param string $sCheckPassword
+     *
+     * @return bool
+     */
+    public function CheckPassword($oUser, $sCheckPassword) {
+
+        $sUserPassword = $oUser->getPassword();
+        if ($this->Security_CheckSalted($sUserPassword, $sCheckPassword, 'pass') || $this->Security_CheckSalted($sUserPassword, trim($sCheckPassword), 'pass')) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Возвращает список типов полей
      *
      * @return array
