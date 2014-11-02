@@ -19,6 +19,8 @@
  */
 class ActionPage extends Action {
 
+    protected $oCurrentPage;
+
     public function Init() {
     }
 
@@ -38,15 +40,11 @@ class ActionPage extends Action {
      */
 
     /**
-     * Отображение страницы
+     * Returns page by requested URL
      *
-     * @return mixed
+     * @return ModulePage_EntityPage
      */
-    protected function EventShowPage() {
-
-        if (!$this->sCurrentEvent) {
-            // * Показывает дефолтную страницу (а это какая страница?)
-        }
+    protected function _getPageFromUrl() {
 
         // * Составляем полный URL страницы для поиска по нему в БД
         $sUrlFull = join('/', $this->GetParams());
@@ -57,20 +55,38 @@ class ActionPage extends Action {
         }
 
         // * Ищем страницу в БД
-        if (!($oPage = $this->Page_GetPageByUrlFull($sUrlFull, 1))) {
+        $oPage = $this->Page_GetPageByUrlFull($sUrlFull, 1);
+
+        return $oPage;
+    }
+
+    /**
+     * Отображение страницы
+     *
+     * @return mixed
+     */
+    protected function EventShowPage() {
+
+        if (!$this->sCurrentEvent) {
+            // * Показывает дефолтную страницу (а это какая страница?)
+        }
+
+        $this->oCurrentPage = $this->_getPageFromUrl();
+
+        if (!$this->oCurrentPage) {
             return $this->EventNotFound();
         }
 
         // * Заполняем HTML теги и SEO
-        $this->Viewer_AddHtmlTitle($oPage->getTitle());
-        if ($oPage->getSeoKeywords()) {
-            $this->Viewer_SetHtmlKeywords($oPage->getSeoKeywords());
+        $this->Viewer_AddHtmlTitle($this->oCurrentPage->getTitle());
+        if ($this->oCurrentPage->getSeoKeywords()) {
+            $this->Viewer_SetHtmlKeywords($this->oCurrentPage->getSeoKeywords());
         }
-        if ($oPage->getSeoDescription()) {
-            $this->Viewer_SetHtmlDescription($oPage->getSeoDescription());
+        if ($this->oCurrentPage->getSeoDescription()) {
+            $this->Viewer_SetHtmlDescription($this->oCurrentPage->getSeoDescription());
         }
 
-        $this->Viewer_Assign('oPage', $oPage);
+        $this->Viewer_Assign('oPage', $this->oCurrentPage);
 
         // * Устанавливаем шаблон для вывода
         $this->SetTemplateAction('show');
