@@ -9,7 +9,7 @@ ls.userfield = ( function ($) {
         this.modalWindow = $('#modal-userfield');
         this.fieldIdPrefix = '#userfield_';
         this.iCountMax = 2;
-    }
+    };
 
     this.addUserfieldDialog = function () {
         this.modalWindow.find('.modal-title').text(ls.lang.get('action.admin.user_field_admin_title_add'));

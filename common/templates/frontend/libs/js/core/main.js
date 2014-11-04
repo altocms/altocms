@@ -28,9 +28,10 @@ Function.prototype.bind = function (context) {
 };
 
 String.prototype.tr = function (a, p) {
-    var k;
-    var p = typeof(p) == 'string' ? p : '';
-    var s = this;
+    var k, s = this;
+
+    p = typeof(p) == 'string' ? p : '';
+
     jQuery.each(a, function (k) {
         var tk = p ? p.split('/') : [];
         tk[tk.length] = k;
@@ -193,12 +194,11 @@ ls.timer = (function ($) {
             clearTimeout(this.aTimers[timer.id]);
             this.aTimers[timer.id] = null;
         }
-        var timeout = setTimeout(function () {
+        this.aTimers[timer.id] = setTimeout(function () {
             clearTimeout(this.aTimers[timer.id]);
             this.aTimers[timer.id] = null;
             timer.callback.apply(this, timer.params);
         }.bind(this), timer.timeout);
-        this.aTimers[timer.id] = timeout;
     };
 
     return this;
@@ -316,7 +316,7 @@ ls.tools = (function ($) {
             case 'false':
                 return false;
             case undefined:
-                return defaultValue
+                return defaultValue;
             default:
                 return option;
         }
@@ -411,26 +411,33 @@ ls.tools = (function ($) {
 
         // finalFormat()
         var doFormat = function (substring, valueIndex, flags, minWidth, _, precision, type) {
+            var number = 0;
+            var prefix = '';
+
             if (substring == '%%') return '%';
 
             // parse flags
             var leftJustify = false, positivePrefix = '', zeroPad = false, prefixBaseX = false;
-            for (var j = 0; flags && j < flags.length; j++) switch (flags.charAt(j)) {
-                case ' ':
-                    positivePrefix = ' ';
-                    break;
-                case '+':
-                    positivePrefix = '+';
-                    break;
-                case '-':
-                    leftJustify = true;
-                    break;
-                case '0':
-                    zeroPad = true;
-                    break;
-                case '#':
-                    prefixBaseX = true;
-                    break;
+            for (var j = 0; flags && j < flags.length; j++) {
+                switch (flags.charAt(j)) {
+                    case ' ':
+                        positivePrefix = ' ';
+                        break;
+                    case '+':
+                        positivePrefix = '+';
+                        break;
+                    case '-':
+                        leftJustify = true;
+                        break;
+                    case '0':
+                        zeroPad = true;
+                        break;
+                    case '#':
+                        prefixBaseX = true;
+                        break;
+                    default:
+                        break;
+                }
             }
 
             // parameters may be null, undefined, empty-string or real valued
@@ -486,8 +493,8 @@ ls.tools = (function ($) {
                 case 'i':
                 case 'd':
                 {
-                    var number = parseInt(+value);
-                    var prefix = number < 0 ? '-' : positivePrefix;
+                    number = parseInt(+value);
+                    prefix = number < 0 ? '-' : positivePrefix;
                     value = prefix + pad(String(Math.abs(number)), precision, '0', false);
                     return justify(value, prefix, leftJustify, minWidth, zeroPad);
                 }
@@ -498,8 +505,8 @@ ls.tools = (function ($) {
                 case 'g':
                 case 'G':
                 {
-                    var number = +value;
-                    var prefix = number < 0 ? '-' : positivePrefix;
+                    number = +value;
+                    prefix = number < 0 ? '-' : positivePrefix;
                     var method = ['toExponential', 'toFixed', 'toPrecision']['efg'.indexOf(type.toLowerCase())];
                     var textTransform = ['toString', 'toUpperCase']['eEfFgG'.indexOf(type) % 2];
                     value = prefix + Math.abs(number)[method](precision);
@@ -613,6 +620,10 @@ ls = (function ($) {
         more = more || {};
         if (more && more.progress) {
             progressDone = ls.progressDone;
+        }
+
+        if (!url) {
+            url = form.attr('action');
         }
 
         if (url.indexOf('http://') != 0 && url.indexOf('https://') != 0 && url.indexOf('/') != 0) {
@@ -755,7 +766,7 @@ ls = (function ($) {
         ls.insertToEditor(html);
         form.parents('.modal').first().modal('hide');
         return false;
-    }
+    };
 
     /**
      * Insert html
