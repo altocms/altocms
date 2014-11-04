@@ -220,6 +220,13 @@ return array(
     'user_wrote_comments' => 'Написал комментариев',
     'comment_edit' => 'Редактирование комментария',
 
+    'user_add_dialog'   => 'Добавить нового пользователя',
+    'user_add_login'    => 'Логин пользователя',
+    'user_add_mail'     => 'E-mail пользователя',
+    'user_add_password' => 'Пароль',
+    'user_add_setadmin' => 'Зарегистрировать пользователя администратором',
+    'user_add_setadmin_alert' => 'Внимание! Пользователь будет зарегистрирован, как администратор!',
+
     /* INVITES */
     'invites_title' => 'Приглашения',
     'invites_all' => 'Все приглашения',

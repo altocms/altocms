@@ -36,7 +36,7 @@ a.icon:hover                            { color: #999 }
 
 #sidebar                                { display: block; float: left; position: relative; width: 280px; }
 .b-sidebar-top                          { color: #fff; text-align: center; }
-.logo span                              { width: 100%; display: block; width: 280px; height: 121px; }
+.logo span                              { display: block; width: 280px; height: 121px; }
 .site-search                            { position: relative }
 .site-search input                      { border: 1px solid rgba(0, 0, 0, 0.1); width: 100%; padding: 10px 5px; background: rgba(0, 0, 0, 0.1); }
 .site-search button                     { background: none; position: absolute; border: none; top: 7px; right: 5px; color: #eee; font-size: 15px; }
@@ -231,7 +231,5 @@ div.dataTables_wrapper .ui-widget-header, .b-wbox-header, .modal-header, .table 
 
 .input-group-addon:first-child { border-right: 1px solid #DDD; right: -3px; position: relative; }
 
-texterea.input-wide,
-input[type=text].input-wide,
-input[type=password].input-wide,
-select.input-wide { width: 100%; }
+textarea.input-wide,
+input.input-wide { width: 100%; }

@@ -104,6 +104,7 @@ class ActionAdmin extends Action {
         $this->AddEvent('ajaxsetprofile', 'EventAjaxSetProfile');
 
         $this->AddEventPreg('/^ajax$/i', '/^config$/i', 'EventAjaxConfig');
+        $this->AddEventPreg('/^ajax$/i', '/^user$/i', '/^add$/i', 'EventAjaxUserAdd');
     }
 
     /**
@@ -3809,6 +3810,48 @@ class ActionAdmin extends Action {
                 $aConfig[str_replace('--', '.', $sKey)] = $sValue;
             }
             Config::WriteCustomConfig($aConfig);
+        }
+    }
+
+    public function EventAjaxUserAdd() {
+
+        $this->Viewer_SetResponseAjax('json');
+
+        if ($this->IsPost()) {
+            Config::Set('module.user.captcha_use_registration', false);
+
+            $oUser = Engine::GetEntity('ModuleUser_EntityUser');
+            $oUser->_setValidateScenario('registration');
+
+            // * Заполняем поля (данные)
+            $oUser->setLogin($this->GetPost('user_login'));
+            $oUser->setMail($this->GetPost('user_mail'));
+            $oUser->setPassword($this->GetPost('user_password'));
+            $oUser->setPasswordConfirm($this->GetPost('user_password'));
+            $oUser->setDateRegister(F::Now());
+            $oUser->setIpRegister('');
+            $oUser->setActivate(1);
+
+            if ($oUser->_Validate()) {
+                $this->Hook_Run('registration_validate_after', array('oUser' => $oUser));
+                $oUser->setPassword($oUser->getPassword(), true);
+                if ($this->User_Add($oUser)) {
+                    $this->Hook_Run('registration_after', array('oUser' => $oUser));
+
+                    // Подписываем пользователя на дефолтные события в ленте активности
+                    $this->Stream_SwitchUserEventDefaultTypes($oUser->getId());
+
+                    if ($this->IsPost('user_setadmin')) {
+                        $this->Admin_SetAdministrator($oUser->GetId());
+                    }
+                }
+                $this->Message_AddNoticeSingle($this->Lang_Get('registration_ok'));
+            } else {
+                $this->Message_AddErrorSingle($this->Lang_Get('error'));
+                $this->Viewer_AssignAjax('aErrors', $oUser->_getValidateErrors());
+            }
+        } else {
+            $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
         }
     }
 

@@ -8,7 +8,7 @@
             <thead>
             <tr>
                 <th>
-                    <input type="checkbox" id="id_0" onchange="admin.selectAllUsers(this);"/>
+                    <input type="checkbox" id="id_0" onchange="admin.user.selectAll(this);"/>
                 </th>
                 <th>
                     ID
@@ -49,7 +49,7 @@
                     {if Config::Get('general.reg.activation') AND !$oUser->getDateActivate()}
                         {assign var=classIcon value='icon-gray'}
                     {elseif $oUser->isAdministrator()}
-                        {assign var=classIcon value='icon-green'}
+                        {assign var=classIcon value='icon-green-inverse'}
                     {elseif $oUser->isBanned()}
                         {assign var=classIcon value='icon-red'}
                     {else}
@@ -151,74 +151,5 @@
         <input type="hidden" name="users_list" value=""/>
         <input type="hidden" name="return_url" value="{$PATH_WEB_CURRENT|escape:'html'}"/>
     </form>
-
-<script>
-    var admin = admin || { };
-    admin.user = admin.user || { };
-    admin.user.setIpInfo = function(ip1, ip2) {
-        $('#user-win-iplist').find('.ip-split-reg').text(ip1);
-        $('#user-win-iplist').find('.ip-split-last').text(ip2);
-    };
-
-    admin.selectAllUsers = function (element) {
-        if ($(element).prop('checked')) {
-            $('tr.selectable td.checkbox input[type=checkbox]').prop('checked', true);
-            $('tr.selectable').addClass('info');
-        } else {
-            $('tr.selectable td.checkbox input[type=checkbox]').prop('checked', false);
-            $('tr.selectable').removeClass('info');
-        }
-        admin.user.select();
-    };
-
-    admin.user.select = function () {
-        var list_id = [], list_login = [];
-
-        $('tr.selectable td.check-row input[type=checkbox]:checked').each(function () {
-            var id = parseInt($(this).data('user-id')), login = $(this).data('user-login');
-            if (id && login) {
-                list_id.push(id);
-                list_login.push(login);
-            }
-            $(this).parents('tr.selectable').addClass('info');
-        });
-
-        var users_view = '', users_list_id = list_id.join(', '), users_list_login = list_login.join(', ');
-        $.each(list_login, function (index, item) {
-            if (users_view) {
-                users_view += ', ';
-            }
-            users_view += '<span class="popup-user">' + item + '</span>';
-        });
-        $('form input.users_list').each(function () {
-            $(this).val(users_list_id);
-        });
-        $('form input.users_list_login').each(function () {
-            $(this).val(users_list_login);
-        });
-        $('form .users_list_view').each(function () {
-            $(this).html(users_view);
-        });
-    };
-
-    admin.user.unsetAdmin = function(login) {
-        var form = $('#user-do-command');
-        if (form.length) {
-            form.find('[name=adm_user_cmd]').val('adm_user_unsetadmin');
-            form.find('[name=users_list]').val(login);
-            form.submit();
-        }
-    };
-
-    admin.user.activate = function(login) {
-        var form = $('#user-do-command');
-        if (form.length) {
-            form.find('[name=adm_user_cmd]').val('adm_user_activate');
-            form.find('[name=users_list]').val(login);
-            form.submit();
-        }
-    };
-
-</script>
 
 {/block}

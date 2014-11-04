@@ -481,8 +481,8 @@ class ModuleUser extends Module {
      */
     public function Add(ModuleUser_EntityUser $oUser) {
 
-        if ($sId = $this->oMapper->Add($oUser)) {
-            $oUser->setId($sId);
+        if ($nId = $this->oMapper->Add($oUser)) {
+            $oUser->setId($nId);
 
             //чистим зависимые кеши
             $this->Cache_CleanByTags(array('user_new'));
@@ -490,8 +490,10 @@ class ModuleUser extends Module {
             // * Создаем персональный блог (проверки на права там внутри)
             $this->Blog_CreatePersonalBlog($oUser);
 
-            // Авторизуем пользователя
-            $this->Authorization($oUser, true);
+            if (!$this->IsAuthorization()) {
+                // Авторизуем пользователя
+                $this->Authorization($oUser, true);
+            }
             return $oUser;
         }
         return false;

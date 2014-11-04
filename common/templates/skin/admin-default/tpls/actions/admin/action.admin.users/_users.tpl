@@ -1,8 +1,16 @@
 {extends file='_index.tpl'}
 
 {block name="content-bar"}
+<script>
+$(function(){
+    $('.js-admin-user-add').click(function(){
+        admin.user.addUserDialog();
+        return false;
+    });
+});
+</script>
     <div class="btn-group">
-        <a href="#" class="btn btn-primary disabled"><i class="icon icon-plus"></i></a>
+        <a href="#" class="btn btn-primary js-admin-user-add"><i class="icon icon-plus"></i></a>
     </div>
     <div class="btn-group">
         <a class="btn btn-default {if $sMode=='list'}active{/if}" href="{router page='admin'}users-list/list/">
@@ -12,6 +20,10 @@
             Admins <span class="badge badge-up">{$nCountAdmins}</span>
         </a>
     </div>
+{/block}
+
+{block name="layout_body" prepend}
+    {include file="modals/modal.adduser.tpl"}
 {/block}
 
 {block name="content-body"}
@@ -348,17 +360,5 @@
 </div>
 
 </div>
-
-<script>
-var admin = admin || { };
-admin.user = admin.user || { };
-admin.user.filterReset = function(form) {
-    form = $(form);
-    form.find('input[type=text]').each(function(){
-        $(this).val('').removeClass('success');
-    });
-    form.submit();
-};
-</script>
 
 {/block}

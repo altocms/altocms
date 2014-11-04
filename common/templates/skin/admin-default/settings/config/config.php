@@ -77,6 +77,7 @@ $config['head']['default']['js'] = array(
     '___path.frontend.dir___/libs/js/engine/settings.js',
     '___path.frontend.dir___/libs/js/engine/topic.js',
     '___path.skin.dir___/assets/js/admin.js',
+    '___path.skin.dir___/assets/js/admin.user.js',
     '___path.skin.dir___/assets/js/jquery.formstyler.min.js',
 );
 

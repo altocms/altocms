@@ -8,7 +8,7 @@
             <thead>
             <tr>
                 <th>
-                    <input type="checkbox" id="id_0" onclick="admin.selectAllUsers(this);"/>
+                    <input type="checkbox" id="id_0" onclick="admin.user.selectAll(this);"/>
                 </th>
                 <th>
                     ID
@@ -148,66 +148,5 @@
         <input type="hidden" name="users_list" value=""/>
         <input type="hidden" name="return_url" value="{$PATH_WEB_CURRENT|escape:'html'}"/>
     </form>
-
-<script>
-    var admin = admin || { };
-    admin.user = admin.user || { };
-    admin.user.setIpInfo = function(ip1, ip2) {
-        $('#user-win-iplist').find('.ip-split-reg').text(ip1);
-        $('#user-win-iplist').find('.ip-split-last').text(ip2);
-    };
-
-    admin.selectAllUsers = function (element) {
-        if ($(element).prop('checked')) {
-            $('tr.selectable td.checkbox input[type=checkbox]').prop('checked', true);
-            $('tr.selectable').addClass('info');
-        } else {
-            $('tr.selectable td.checkbox input[type=checkbox]').prop('checked', false);
-            $('tr.selectable').removeClass('info');
-        }
-        admin.user.select();
-    }
-
-    admin.user.select = function (list) {
-        //console.log(list);
-        if (admin.isEmpty(list)) list = [];
-        else if (typeof list == 'string') list = [list];
-
-        $('tr.selectable td.check-row input[type=checkbox]:checked').each(function () {
-            var id = $(this).prop('id');
-            if (id.indexOf('login_') === 0) {
-                list.push(id.substr(6, 255));
-            }
-            $(this).parents('tr.selectable').addClass('info');
-        });
-
-        var view = '';
-        $.each(list, function (index, item) {
-            if (view) view += ', ';
-            view += '<span class="popup-user">' + item + '</span>';
-        });
-        $('form .users_list').val(list.join(', '));
-        $('form .users_list_view').html(view);
-    }
-
-    admin.user.unsetAdmin = function(login) {
-        var form = $('#user-do-command');
-        if (form.length) {
-            form.find('[name=adm_user_cmd]').val('adm_user_unsetadmin');
-            form.find('[name=users_list]').val(login);
-            form.submit();
-        }
-    }
-
-    admin.user.activate = function(login) {
-        var form = $('#user-do-command');
-        if (form.length) {
-            form.find('[name=adm_user_cmd]').val('adm_user_activate');
-            form.find('[name=users_list]').val(login);
-            form.submit();
-        }
-    }
-
-</script>
 
 {/block}

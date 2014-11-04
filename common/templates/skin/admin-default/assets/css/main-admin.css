@@ -207,7 +207,10 @@ button[name=mblog_category_del_blog]    { width: 140px; margin-bottom: 5px; text
 
 .i-img-preview-100x100                  { max-height: 100px; max-width: 100px; border: 1px solid #CCC; }
 
+.icon {padding: 1px; width: 14px; }
 .icon-red { color: #990000; }
 .icon-green { color: #009900;}
 .icon-gray { color: #555555; }
 .icon-inverse { color: #ffffff; background: #555555; }
+.icon-green-inverse { color: #ffffff; background: #006600;}
+.icon-red-inverse { color: #ffffff; background: #990000;}
