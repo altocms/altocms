@@ -23,7 +23,7 @@ $(function(){
 {/block}
 
 {block name="layout_body" prepend}
-    {include file="modals/modal.adduser.tpl"}
+    {include file="modals/modal.user_add.tpl"}
 {/block}
 
 {block name="content-body"}

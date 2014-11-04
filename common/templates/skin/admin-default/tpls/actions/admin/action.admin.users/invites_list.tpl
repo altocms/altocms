@@ -1,8 +1,17 @@
 {extends file='_index.tpl'}
 
 {block name="content-bar"}
+    <script>
+        $(function(){
+            $('.js-admin-user-invite').click(function(){
+                admin.user.inviteUserDialog();
+                return false;
+            });
+        });
+    </script>
+
     <div class="btn-group">
-        <a href="{router page='admin'}users-invites/new/" class="btn btn-primary disabled"><i class="icon icon-plus"></i></a>
+        <a href="#" class="btn btn-primary js-admin-user-invite"><i class="icon icon-plus"></i></a>
     </div>
     <div class="btn-group">
         <a class="btn btn-default {if $sMode=='all'}active{/if}" href="{router page='admin'}users-invites/all/">
@@ -15,6 +24,10 @@
             {$aLang.action.admin.invites_unused} <span class="badge badge-up">{$aCounts.unused}</span>
         </a>
     </div>
+{/block}
+
+{block name="layout_body" prepend}
+    {include file="modals/modal.user_invite.tpl"}
 {/block}
 
 {block name="content-body"}

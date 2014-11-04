@@ -16,7 +16,8 @@ admin.user = (function ($) {
 
     var init = function() {
 
-        $that.modalWindowAddUser = $('#modal-adduser');
+        $that.modalWindowAddUser = $('#modal-user_add');
+        $that.modalWindowInviteUser = $('#modal-user_invite');
     };
 
     this.addUserDialog = function() {
@@ -58,6 +59,34 @@ admin.user = (function ($) {
                     }
                     ls.progressStart();
                     window.location.href = ls.routerUrl('admin') + 'users-list/';
+                }
+            }
+        });
+    };
+
+    this.inviteUserDialog = function() {
+
+        $that.modalWindowInviteUser.modal('show');
+    };
+
+    this.inviteUserSubmit = function(button) {
+        var form = $(button).closest('form'),
+            url = ls.routerUrl('/admin/ajax/user/invite');
+
+        ls.progressStart();
+        ls.ajaxSubmit(url, form, function (response) {
+            ls.progressDone();
+            if (!response) {
+                ls.msg.error(null, 'System error #1001');
+            } else {
+                if (response.bStateError) {
+                    ls.msg.error(response.sMsgTitle ? response.sMsgTitle : 'Error', response.sMsg);
+                } else {
+                    if (response.sMsg) {
+                        ls.msg.notice(response.sMsgTitle ? response.sMsgTitle : '', response.sMsg);
+                    }
+                    ls.progressStart();
+                    window.location.href = ls.routerUrl('admin') + 'users-invites/';
                 }
             }
         });

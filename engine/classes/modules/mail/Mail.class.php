@@ -152,10 +152,10 @@ class ModuleMail extends Module {
 
         // * Кодировка писем
         $this->sCharSet = Config::Get('sys.mail.charset');
-	
-	// * Кодирование писем
+
+        // * Кодирование писем
         $this->sEncoding = Config::Get('sys.mail.encoding');
-	
+
         // * Мыло от кого отправляется вся почта
         $this->sFrom = Config::Get('sys.mail.from_email');
 
@@ -163,7 +163,7 @@ class ModuleMail extends Module {
         $this->sFromName = Config::Get('sys.mail.from_name');
 
         // * Создаём объект phpMailer и устанвливаем ему необходимые настройки
-        $this->oMailer = new phpmailer();
+        $this->oMailer = new PHPMailer();
         $this->oMailer->Host = $this->sHost;
         $this->oMailer->Port = $this->iPort;
         $this->oMailer->Username = $this->sUsername;

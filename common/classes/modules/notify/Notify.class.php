@@ -91,7 +91,7 @@ class ModuleNotify extends Module {
         if (!$oUserTo->getSettingsNoticeNewComment()) {
             return false;
         }
-        $this->Send(
+        return $this->Send(
             $oUserTo,
             'comment_new.tpl',
             $this->Lang_Get('notify_subject_comment_new'),
@@ -102,7 +102,6 @@ class ModuleNotify extends Module {
                  'oUserComment' => $oUserComment,
             )
         );
-        return true;
     }
 
     /**
@@ -125,7 +124,7 @@ class ModuleNotify extends Module {
         if (!$oUserTo->getSettingsNoticeReplyComment()) {
             return false;
         }
-        $this->Send(
+        return $this->Send(
             $oUserTo,
             'comment_reply.tpl',
             $this->Lang_Get('notify_subject_comment_reply'),
@@ -136,7 +135,6 @@ class ModuleNotify extends Module {
                  'oUserComment' => $oUserComment,
             )
         );
-        return true;
     }
 
     /**
@@ -159,7 +157,7 @@ class ModuleNotify extends Module {
         if (!$oUserTo->getSettingsNoticeNewTopic()) {
             return false;
         }
-        $this->Send(
+        return $this->Send(
             $oUserTo,
             'topic_new.tpl',
             $this->Lang_Get('notify_subject_topic_new') . ' «' . htmlspecialchars($oBlog->getTitle()) . '»',
@@ -170,17 +168,18 @@ class ModuleNotify extends Module {
                  'oUserTopic' => $oUserTopic,
             )
         );
-        return true;
     }
 
     /**
      * Отправляет уведомление с новым линком активации
      *
      * @param ModuleUser_EntityUser $oUser    Объект пользователя
+     *
+     * @return bool
      */
     public function SendReactivationCode(ModuleUser_EntityUser $oUser) {
 
-        $this->Send(
+        return $this->Send(
             $oUser,
             'reactivation.tpl',
             $this->Lang_Get('notify_subject_reactvation'),
@@ -195,10 +194,12 @@ class ModuleNotify extends Module {
      *
      * @param ModuleUser_EntityUser $oUser        Объект пользователя
      * @param string                $sPassword    Пароль пользователя
+     *
+     * @return bool
      */
     public function SendRegistrationActivate(ModuleUser_EntityUser $oUser, $sPassword) {
 
-        $this->Send(
+        return $this->Send(
             $oUser,
             'registration_activate.tpl',
             $this->Lang_Get('notify_subject_registration_activate'),
@@ -214,10 +215,12 @@ class ModuleNotify extends Module {
      *
      * @param ModuleUser_EntityUser $oUser        Объект пользователя
      * @param string                $sPassword    Пароль пользователя
+     *
+     * @return bool
      */
     public function SendRegistration(ModuleUser_EntityUser $oUser, $sPassword) {
 
-        $this->Send(
+        return $this->Send(
             $oUser,
             'registration.tpl',
             $this->Lang_Get('notify_subject_registration'),
@@ -234,10 +237,12 @@ class ModuleNotify extends Module {
      * @param ModuleUser_EntityUser   $oUserFrom    Пароль пользователя, который отправляет инвайт
      * @param string                  $sMailTo      Емайл на который отправляем инвайт
      * @param ModuleUser_EntityInvite $oInvite      Объект инвайта
+     *
+     * @return bool
      */
     public function SendInvite(ModuleUser_EntityUser $oUserFrom, $sMailTo, ModuleUser_EntityInvite $oInvite) {
 
-        $this->Send(
+        return $this->Send(
             $sMailTo,
             'invite.tpl',
             $this->Lang_Get('notify_subject_invite'),
@@ -265,7 +270,7 @@ class ModuleNotify extends Module {
         if (!$oUserTo->getSettingsNoticeNewTalk()) {
             return false;
         }
-        $this->Send(
+        return $this->Send(
             $oUserTo,
             'talk_new.tpl',
             $this->Lang_Get('notify_subject_talk_new'),
@@ -275,7 +280,6 @@ class ModuleNotify extends Module {
                  'oTalk'     => $oTalk,
             )
         );
-        return true;
     }
 
     /**
@@ -298,7 +302,7 @@ class ModuleNotify extends Module {
         if (!$oUserTo->getSettingsNoticeNewTalk()) {
             return false;
         }
-        $this->Send(
+        return $this->Send(
             $oUserTo,
             'talk_comment_new.tpl',
             $this->Lang_Get('notify_subject_talk_comment_new'),
@@ -309,7 +313,6 @@ class ModuleNotify extends Module {
                  'oTalkComment' => $oTalkComment,
             )
         );
-        return true;
     }
 
     /**
@@ -329,7 +332,7 @@ class ModuleNotify extends Module {
         if (!$oUserTo->getSettingsNoticeNewFriend()) {
             return false;
         }
-        $this->Send(
+        return $this->Send(
             $oUserTo,
             'user_friend_new.tpl',
             $this->Lang_Get('notify_subject_user_friend_new'),
@@ -340,7 +343,6 @@ class ModuleNotify extends Module {
                  'sPath'     => $sPath,
             )
         );
-        return true;
     }
 
     /**
@@ -350,10 +352,12 @@ class ModuleNotify extends Module {
      * @param ModuleUser_EntityUser $oUserFrom    Объект пользователя, которого приглашаем
      * @param ModuleBlog_EntityBlog $oBlog        Объект блога
      * @param                       $sPath
+     *
+     * @return bool
      */
     public function SendBlogUserInvite(ModuleUser_EntityUser $oUserTo, ModuleUser_EntityUser $oUserFrom, ModuleBlog_EntityBlog $oBlog, $sPath) {
 
-        $this->Send(
+        return $this->Send(
             $oUserTo,
             'blog_invite_new.tpl',
             $this->Lang_Get('notify_subject_blog_invite_new'),
@@ -371,10 +375,12 @@ class ModuleNotify extends Module {
      *
      * @param ModuleUser_EntityUser     $oUser        Объект пользователя
      * @param ModuleUser_EntityReminder $oReminder    объект напоминания пароля
+     *
+     * @return bool
      */
     public function SendReminderCode(ModuleUser_EntityUser $oUser, ModuleUser_EntityReminder $oReminder) {
 
-        $this->Send(
+        return $this->Send(
             $oUser,
             'reminder_code.tpl',
             $this->Lang_Get('notify_subject_reminder_code'),
@@ -390,10 +396,12 @@ class ModuleNotify extends Module {
      *
      * @param ModuleUser_EntityUser $oUser           Объект пользователя
      * @param string                $sNewPassword    Новый пароль
+     *
+     * @return bool
      */
     public function SendReminderPassword(ModuleUser_EntityUser $oUser, $sNewPassword) {
 
-        $this->Send(
+        return $this->Send(
             $oUser,
             'reminder_password.tpl',
             $this->Lang_Get('notify_subject_reminder_password'),
@@ -410,10 +418,12 @@ class ModuleNotify extends Module {
      * @param ModuleWall_EntityWall $oWallParent    Объект сообщения на стене, на которое отвечаем
      * @param ModuleWall_EntityWall $oWall          Объект нового сообщения на стене
      * @param ModuleUser_EntityUser $oUser          Объект пользователя
+     *
+     * @return bool
      */
     public function SendWallReply(ModuleWall_EntityWall $oWallParent, ModuleWall_EntityWall $oWall, ModuleUser_EntityUser $oUser) {
 
-        $this->Send(
+        return $this->Send(
             $oWallParent->getUser(),
             'wall_reply.tpl',
             $this->Lang_Get('notify_subject_wall_reply'),
@@ -432,10 +442,12 @@ class ModuleNotify extends Module {
      *
      * @param ModuleWall_EntityWall $oWall    Объект нового сообщения на стене
      * @param ModuleUser_EntityUser $oUser    Объект пользователя
+     *
+     * @return bool
      */
     public function SendWallNew(ModuleWall_EntityWall $oWall, ModuleUser_EntityUser $oUser) {
 
-        $this->Send(
+        return $this->Send(
             $oWall->getWallUser(),
             'wall_new.tpl',
             $this->Lang_Get('notify_subject_wall_new'),

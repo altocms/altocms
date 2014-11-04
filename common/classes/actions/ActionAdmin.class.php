@@ -105,6 +105,7 @@ class ActionAdmin extends Action {
 
         $this->AddEventPreg('/^ajax$/i', '/^config$/i', 'EventAjaxConfig');
         $this->AddEventPreg('/^ajax$/i', '/^user$/i', '/^add$/i', 'EventAjaxUserAdd');
+        $this->AddEventPreg('/^ajax$/i', '/^user$/i', '/^invite$/i', 'EventAjaxUserList');
     }
 
     /**
@@ -3853,6 +3854,35 @@ class ActionAdmin extends Action {
         } else {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
         }
+    }
+
+    public function EventAjaxUserList() {
+
+        $this->Viewer_SetResponseAjax('json');
+
+        if ($this->IsPost()) {
+            $sList = trim($this->GetPost('invite_listmail'));
+            if ($aList = F::Array_Str2Array($sList, "\n", true)) {
+                $iSentCount = 0;
+                foreach($aList as $iKey => $sMail) {
+                    if (F::CheckVal($sMail, 'mail')) {
+                        $oInvite = $this->User_GenerateInvite($this->oUserCurrent);
+                        if ($this->Notify_SendInvite($this->oUserCurrent, $sMail, $oInvite)) {
+                            unset($aList[$iKey]);
+                            $iSentCount++;
+                        }
+                    }
+                }
+
+                $this->Message_AddNotice($this->Lang_Get('action.admin.invaite_mail_done', array('num' => $iSentCount)), null, true);
+                if ($aList) {
+                    $this->Message_AddError($this->Lang_Get('action.admin.invaite_mail_err', array('num' => count($aList))), null, true);
+                }
+            }
+        } else {
+            $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
+        }
+
     }
 
     /**

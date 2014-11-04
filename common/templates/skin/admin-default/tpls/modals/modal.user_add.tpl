@@ -1,4 +1,4 @@
-<div class="modal fade in" id="modal-adduser">
+<div class="modal fade in" id="modal-user_add">
     <div class="modal-dialog">
         <div class="modal-content">
 
@@ -7,7 +7,7 @@
                 <h3 class="modal-title">{$aLang.action.admin.user_add_dialog}</h3>
             </header>
 
-            <form id="modal-adduser-form" class="uniform" method="post" action="" role="form">
+            <form id="modal-user_add-form" class="uniform" method="post" action="" role="form">
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="user_add_login" class="control-label">{$aLang.action.admin.user_add_login}:</label>
@@ -56,7 +56,7 @@ $(function(){
         }
     });
 
-    $('#modal-adduser-form').submit(function(){
+    $('#modal-user_add-form').submit(function(){
         admin.user.addUserSubmit(this);
         return false;
     });
