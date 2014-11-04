@@ -743,7 +743,7 @@ class ActionBlog extends Action {
 
         if (!$bTrustedUser) {
             // Topic with future date
-            if ($oTopic->getDate() > date('Y-m-d')) {
+            if ($oTopic->getDate() > date('Y-m-d H:i:s')) {
                 return parent::EventNotFound();
             }
 
