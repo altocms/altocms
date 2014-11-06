@@ -176,8 +176,8 @@ class ModuleFavourite extends Module {
                 $data,
                 $sCacheKey,
                 array(
-                     "favourite_{$sTargetType}_change",
-                     "favourite_{$sTargetType}_change_user_{$nUserId}"
+                    "favourite_{$sTargetType}_change",
+                    "favourite_{$sTargetType}_change_user_{$nUserId}"
                 ),
                 60 * 60 * 24 * 1
             );
@@ -203,8 +203,8 @@ class ModuleFavourite extends Module {
                 $data,
                 "{$sTargetType}_count_favourite_user_{$sUserId}_{$s}",
                 array(
-                     "favourite_{$sTargetType}_change",
-                     "favourite_{$sTargetType}_change_user_{$sUserId}"
+                    "favourite_{$sTargetType}_change",
+                    "favourite_{$sTargetType}_change_user_{$sUserId}"
                 ),
                 60 * 60 * 24 * 1
             );
@@ -235,8 +235,8 @@ class ModuleFavourite extends Module {
                 $data,
                 "comment_favourite_user_{$sUserId}_{$iCurrPage}_{$iPerPage}_open",
                 array(
-                     "favourite_comment_change",
-                     "favourite_comment_change_user_{$sUserId}"
+                    "favourite_comment_change",
+                    "favourite_comment_change_user_{$sUserId}"
                 ),
                 60 * 60 * 24 * 1
             );
@@ -259,8 +259,8 @@ class ModuleFavourite extends Module {
                 $data,
                 "comment_count_favourite_user_{$sUserId}_open",
                 array(
-                     "favourite_comment_change",
-                     "favourite_comment_change_user_{$sUserId}"
+                    "favourite_comment_change",
+                    "favourite_comment_change_user_{$sUserId}"
                 ),
                 60 * 60 * 24 * 1
             );
@@ -291,8 +291,8 @@ class ModuleFavourite extends Module {
                 $data,
                 "topic_favourite_user_{$sUserId}_{$iCurrPage}_{$iPerPage}_open",
                 array(
-                     "favourite_topic_change",
-                     "favourite_topic_change_user_{$sUserId}"
+                    "favourite_topic_change",
+                    "favourite_topic_change_user_{$sUserId}"
                 ),
                 60 * 60 * 24 * 1
             );
@@ -315,8 +315,8 @@ class ModuleFavourite extends Module {
                 $data,
                 "topic_count_favourite_user_{$sUserId}_open",
                 array(
-                     "favourite_topic_change",
-                     "favourite_topic_change_user_{$sUserId}"
+                    "favourite_topic_change",
+                    "favourite_topic_change_user_{$sUserId}"
                 ),
                 60 * 60 * 24 * 1
             );
@@ -385,7 +385,12 @@ class ModuleFavourite extends Module {
         /**
          * Добавляем новые
          */
-        if ($bAddNew && $oFavourite->getTags()) {
+//      issue 252, {@link https://github.com/altocms/altocms/issues/252} В избранном не отображаются теги
+//      Свойство $oFavourite->getTags() содержит только пользовательские теги, а не все теги избранного объекта,
+//      соответственно при отсутствии пользовательских тегов в условие не заходили и теги избранного
+//      объекта не добалялись.
+//      if ($bAddNew && $oFavourite->getTags()) {
+        if ($bAddNew) {
             /**
              * Добавляем теги объекта избранного, если есть
              */
