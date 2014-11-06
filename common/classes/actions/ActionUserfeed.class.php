@@ -337,15 +337,15 @@ class ActionUserfeed extends Action {
         /**
          * Подсчитываем новые топики
          */
-        //$iCountTopicsCollectiveNew=$this->Topic_GetCountTopicsCollectiveNew();
-        //$iCountTopicsPersonalNew=$this->Topic_GetCountTopicsPersonalNew();
-        //$iCountTopicsNew=$iCountTopicsCollectiveNew+$iCountTopicsPersonalNew;
+        $iCountTopicsCollectiveNew=$this->Topic_GetCountTopicsCollectiveNew();
+        $iCountTopicsPersonalNew=$this->Topic_GetCountTopicsPersonalNew();
+        $iCountTopicsNew=$iCountTopicsCollectiveNew+$iCountTopicsPersonalNew;
         /**
          * Загружаем переменные в шаблон
          */
-        //$this->Viewer_Assign('iCountTopicsCollectiveNew',$iCountTopicsCollectiveNew);
-        //$this->Viewer_Assign('iCountTopicsPersonalNew',$iCountTopicsPersonalNew);
-        //$this->Viewer_Assign('iCountTopicsNew',$iCountTopicsNew);
+        $this->Viewer_Assign('iCountTopicsCollectiveNew',$iCountTopicsCollectiveNew);
+        $this->Viewer_Assign('iCountTopicsPersonalNew',$iCountTopicsPersonalNew);
+        $this->Viewer_Assign('iCountTopicsNew',$iCountTopicsNew);
     }
 }
 

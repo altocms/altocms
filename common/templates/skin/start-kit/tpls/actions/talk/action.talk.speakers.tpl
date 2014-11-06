@@ -22,7 +22,7 @@
 			<form onsubmit="return ls.talk.addToTalk({$oTalk->getId()});">
 				<div class="form-group">
 					<label for="talk_speaker_add">{$aLang.talk_speaker_add_label}</label>
-					<input type="text" id="talk_speaker_add" name="add" class="form-control autocomplete-users-sep" />
+					<input type="text" id="talk_speaker_add" name="add" placeholder="{$aLang.panel_user_promt}" class="form-control autocomplete-users-sep" />
 				</div>
 
 				<input type="hidden" id="talk_id" value="{$oTalk->getId()}" />

@@ -1711,6 +1711,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 					?_content_field
 				WHERE
 					content_id IN(?a)
+                ORDER BY content_id, field_sort desc
 				";
         $aFields = array();
         if ($aRows = $this->oDb->select($sql, $aContentId)) {
