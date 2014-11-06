@@ -178,10 +178,28 @@ class ActionLogin extends Action {
                 $sRedirect = $_SERVER['HTTP_REFERER'];
             }
         }
+
+        /**
+         * issue #104, {@see https://github.com/altocms/altocms/issues/104}
+         * Установим в lgp (last_good_page) хэш имени страницы с постфиксом "logout". Такая
+         * кука будет означать, что на этой странице пользователь вышел с сайта. Время 60 -
+         * заранее достаточное время, что бы произошел редирект на страницу HTTP_REFERER. Если
+         * же эта страница выпадет в 404 то в экшене ActionError уйдем на главную, поскольку
+         * эта страница недоступна стала после выхода с сайта, а до этого была вполне ничего.
+         */
+
         if ($iShowTime) {
             $sUrl = F::RealUrl($sRedirect);
+            $sReferrer = Config::Get('path.root.web'). Router::GetAction() . "/" . Router::GetActionEvent() .'/?security_key=' . getRequest('security_key', '');
+            $this->Session_SetCookie('lgp', md5($sReferrer . 'logout'), 60);
             $this->Viewer_SetHtmlHeadTag('meta', array('http-equiv' => 'Refresh', 'Content' => $iShowTime . '; url=' . $sUrl));
         } elseif ($sRedirect) {
+            // Если установлена пользовтаельская страница выхода, то считаем,
+            // что она без ошибки и смело не нее редиректим, в других случаях
+            // возможна 404
+            if (!Config::Get('module.user.logout.redirect')) {
+                $this->Session_SetCookie('lgp', md5(F::RealUrl($sRedirect) . 'logout'), 60);
+            }
             Router::Location($sRedirect);
             exit;
         } else {

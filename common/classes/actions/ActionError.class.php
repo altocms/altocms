@@ -37,6 +37,16 @@ class ActionError extends Action {
      *
      */
     public function Init() {
+
+        /**
+         * issue #104, {@see https://github.com/altocms/altocms/issues/104}
+         * Проверим, не пришли ли мы в ошибку с логаута, если да, то перейдем на главную,
+         * поскольку страница на самом деле есть, но только когда мы авторизованы.
+         */
+        if (isset($_SERVER['HTTP_REFERER']) && $this->Session_GetCookie('lgp') == md5(F::RealUrl($_SERVER['HTTP_REFERER']) . 'logout')) {
+            return Router::Location((string)Config::Get('module.user.logout.redirect'));
+        }
+
         /**
          * Устанавливаем дефолтный евент
          */
