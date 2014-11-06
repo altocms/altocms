@@ -1691,6 +1691,30 @@ class ModuleUser_MapperUser extends Mapper {
         return $aResult;
     }
 
+    /**
+     * issue 258 {@link https://github.com/altocms/altocms/issues/258}
+     * Проверяет забанен ли пользователь или нет
+     *
+     * @param $sIp
+     * @return bool
+     */
+    public function IpIsBanned($sIp) {
+
+        $sql = "SELECT id FROM ?_adminips WHERE
+                    INET_ATON(?) >= ip1 AND INET_ATON(?) <= ip2
+                    AND banactive = ?d
+                    AND banline > ?";
+
+        $aRows = $this->oDb->select($sql, $sIp, $sIp, 1, date('Y-m-d H:i:s'));
+
+        if ($aRows) {
+            return TRUE;
+        }
+
+        return FALSE;
+
+    }
+
 }
 
 // EOF

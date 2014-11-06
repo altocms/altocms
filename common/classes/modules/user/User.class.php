@@ -1981,6 +1981,18 @@ class ModuleUser extends Module {
         return $bResult;
     }
 
+    /**
+     * issue 258 {@link https://github.com/altocms/altocms/issues/258}
+     * Проверяет, не забанен ли этот адрес
+     *
+     * @param string $sIp Ip Адрес
+     * @return mixed
+     */
+    public function IpIsBanned($sIp) {
+
+        return $this->oMapper->IpIsBanned($sIp);
+    }
+
 }
 
 // EOF
