@@ -1376,6 +1376,8 @@ class ActionProfile extends Action {
         );
 
         $this->Viewer_Assign('sText', $this->Lang_Get('settings_profile_mail_change_to_notice'));
+        // Исправление ошибки смены email {@link https://github.com/altocms/altocms/issues/260}
+        $this->Viewer_Assign('oUserProfile', $oUser);
         $this->SetTemplateAction('changemail_confirm');
     }
 
@@ -1414,6 +1416,8 @@ class ActionProfile extends Action {
                 'settings_profile_mail_change_ok', array('mail' => htmlspecialchars($oChangemail->getMailTo()))
             )
         );
+        // Исправление ошибки смены email {@link https://github.com/altocms/altocms/issues/260}
+        $this->Viewer_Assign('oUserProfile', $oUser);
         $this->SetTemplateAction('changemail_confirm');
     }
 
