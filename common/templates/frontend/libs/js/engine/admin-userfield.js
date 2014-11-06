@@ -64,7 +64,8 @@ ls.userfield = ( function ($) {
                 ls.msg.error(null, 'System error #1001');
             } else if (!response.bStateError) {
                 var html = $($that.fieldIdPrefix + 'ID').outerHTML();
-                var field = $(html.replace('ID', response.id)).show();
+                html = html.replace(/ID/g, response.id);
+                var field = $(html).show();
                 field.find('.userfield_admin_name').text(name);
                 field.find('.userfield_admin_title').text(title);
                 field.find('.userfield_admin_pattern').text(pattern);
