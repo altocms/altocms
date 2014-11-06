@@ -31,7 +31,7 @@
                  <div class="form-group">
                      <div class="input-group">
                          <span class="input-group-addon">{$aLang.talk_speaker_add_label}</span>
-                         <input type="text" id="talk_speaker_add" name="add" class="form-control autocomplete-users-sep" />
+                         <input type="text" id="talk_speaker_add" name="add" placeholder="{$aLang.panel_user_promt}" class="form-control autocomplete-users-sep" />
 
                      </div>
                  </div>
