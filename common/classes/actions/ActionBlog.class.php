@@ -844,7 +844,10 @@ class ActionBlog extends Action {
             $this->Viewer_Assign('aPagingCmt', $aPaging);
         }
 
-        if ($this->oUserCurrent) {
+//      issue 253 {@link https://github.com/altocms/altocms/issues/253}
+//      Запрещаем оставлять комментарии к топику-черновику
+//      if ($this->oUserCurrent) {
+        if ($this->oUserCurrent && (int)$oTopic->getPublish()) {
             $bAllowToComment = $this->Blog_GetBlogsAllowTo('comment', $this->oUserCurrent, $oTopic->getBlog()->GetId(), true);
         } else {
             $bAllowToComment = false;
@@ -1213,8 +1216,11 @@ class ActionBlog extends Action {
         }
 
         // * Возможность постить коммент в топик в черновиках
-        if (!$oTopic->getPublish() && ($this->oUserCurrent->getId() != $oTopic->getUserId())
-            && !$this->oUserCurrent->isAdministrator()
+        if (!$oTopic->getPublish()
+//            issue 253 {@link https://github.com/altocms/altocms/issues/253}
+//            Запрещаем оставлять комментарии к топику-черновику
+//            && ($this->oUserCurrent->getId() != $oTopic->getUserId())
+//            && !$this->oUserCurrent->isAdministrator()
         ) {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
             return;
