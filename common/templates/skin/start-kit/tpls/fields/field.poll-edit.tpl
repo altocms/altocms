@@ -7,7 +7,7 @@
             </a>
         </h5>
     </div>
-    <div id="topic-field-poll" class="panel-collapse collapse {if $_aRequest.topic_field_question}in{/if}">
+    <div id="topic-field-poll" class="panel-collapse collapse {if count($_aRequest.topic_field_answers)>0}in{/if}">
         <div class="panel-body form-group topic-poll-add js-poll-edit">
             <label>{$aLang.topic_question_create_question}:</label>
             <input type="text" value="{$_aRequest.topic_field_question}" name="topic_field_question"
