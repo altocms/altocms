@@ -230,7 +230,19 @@ class ModuleComment_MapperComment extends Mapper {
             FROM ?_comment
             WHERE   target_id IN (?a) AND target_type = ?
         ";
-        return ($this->oDb->selectCol($sql, $aTargetsId, $sTargetType) !== false);
+
+        // issue 257. Ид. не получались, кэш не чистился {@link https://github.com/altocms/altocms/issues/257}
+//      return ($this->oDb->selectCol($sql, $aTargetsId, $sTargetType) !== false);
+        $aRows = $this->oDb->select($sql, $aTargetsId, $sTargetType);
+
+        $aCommentId = array();
+        if ($aRows) {
+            foreach ($aRows as $aRow) {
+                $aCommentId[] = $aRow['comment_id'];
+            }
+        }
+
+        return $aCommentId;
     }
 
     /**
