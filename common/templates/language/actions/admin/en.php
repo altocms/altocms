@@ -317,6 +317,7 @@ return array (
     'logs_admin_file_notice' => 'Enter a name of the file of administrators\' action magazine',
 
     'logs_max_size' => 'The maximum size of a log file',
+    'logs_too_long' => 'Log file is too long',
     'logs_max_size_notice' => 'At achievement of this size, the copy and the new file are created. If zero, the new file is created every day',
     'logs_max_files' => 'Number of log files\' copies',
     'logs_max_files_notice' => 'Number log files\' of archival copies kept on a site',
