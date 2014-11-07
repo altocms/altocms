@@ -463,6 +463,15 @@ ls.user = (function ($) {
         input.clone(true).insertAfter(input);
         input.removeAttr('id').appendTo(form);
 
+        // issue 149 (https://github.com/altocms/altocms/issues/194)
+        // Некоторым браузерам нужно время, что бы обновить размеры картинок,
+        // поэтому разделил сброс параметров картинки и их установку в строке 451
+        var cropImage = $(options.selectors.cropImage);
+        cropImage.removeAttr('style').attr('src', '').css({
+            width: 'auto',
+            height: 'auto'
+        });
+
         ls.ajaxSubmit(options.url.upload, form, function (result) {
             if (!result) {
                 ls.msg.error(null, 'System error #1001');
