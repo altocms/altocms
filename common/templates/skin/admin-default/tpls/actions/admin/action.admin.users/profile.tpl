@@ -9,6 +9,7 @@
 
         var options = {
             trigger:'manual',
+            placement:'top',
             content:function () {
                 var result = '';
                 if (value < 0) {
@@ -44,8 +45,29 @@
             }
         };
 
-        var popup = admin.pointup(button, options);
+//        var popup = admin.pointup(button, options);
+        button.popover(options);
         button.popover('show');
+
+        $('.confirm').off('click').on('click', function (e) {
+            $(event.currentTarget).progressOn();
+            var val = parseInt($(this).parent().find('input[name=value]').val() * $(this).parent().find('input[name=sign]').val());
+            if (val) {
+                var views = {
+                    skill:$('.sidebar .strength .total'),
+                    rating:$('.sidebar .voting .total'),
+                    voteCount:$('.sidebar .voting .count')
+                };
+                admin.vote('user', '{$oUserProfile->getId()}', val, views, function () {
+                    $(event.currentTarget).progressOff();
+                });
+            }
+            button.popover('hide');
+        });
+        $(".cancel").off('click').on('click', function (e) {
+            button.popover('hide');
+        });
+
         return false;
     }
 
