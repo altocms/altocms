@@ -59,6 +59,7 @@ class ActionAjax extends Action {
 
         $this->AddEventPreg('/^stream$/i', '/^comment$/', 'EventStreamComment');
         $this->AddEventPreg('/^stream$/i', '/^topic$/', 'EventStreamTopic');
+        $this->AddEventPreg('/^stream$/i', '/^wall/', 'EventStreamWall');
 
         $this->AddEventPreg('/^blogs$/i', '/^top$/', 'EventBlogsTop');
         $this->AddEventPreg('/^blogs$/i', '/^self$/', 'EventBlogsSelf');
@@ -869,6 +870,25 @@ class ActionAjax extends Action {
             $oViewer->Assign('oTopics', $aTopics);
         }
         $sTextResult = $oViewer->FetchWidget('stream_topic.tpl');
+        $this->Viewer_AssignAjax('sText', $sTextResult);
+    }
+
+    /**
+     * Обработка получения последних записей стены
+     * Используется в блоке "Прямой эфир"
+     *
+     */
+    protected function EventStreamWall() {
+
+        /** @var ModuleViewer $oViewer */
+        $oViewer = $this->Viewer_GetLocalViewer();
+
+        $aResult = $this->Wall_GetWall(array(), array('date_add' => 'DESC'), 1, Config::Get('block.stream.row'));
+        if ($aResult['count'] != 0) {
+            $oViewer->Assign('aWall', $aResult['collection']);
+        }
+
+        $sTextResult = $oViewer->FetchWidget('stream_wall.tpl');
         $this->Viewer_AssignAjax('sText', $sTextResult);
     }
 

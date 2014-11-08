@@ -821,6 +821,10 @@ return array(
     'widget_stream_comments'                     => 'Comments',
     'widget_stream_comments_no'                  => 'No comments.',
     'widget_stream_comments_all'                 => 'All comments',
+    'widget_stream_wall'                         => 'Стена',
+    'widget_stream_wall_no'                      => 'No messages',
+    'widget_stream_on_wall'                      => 'on wall',
+    'widget_stream_on_his_wall'                  => 'on his wall',
 
     'widget_friends'                             => 'Friends',
     'widget_friends_check'                       => 'Check all',

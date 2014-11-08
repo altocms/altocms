@@ -1,4 +1,4 @@
- {* Тема оформления Experience v.1.0  для Alto CMS      *}
+$config['module']['user']['login']['charset'] = '0-9a-z_\-@'; {* Тема оформления Experience v.1.0  для Alto CMS      *}
  {* @licence     CC Attribution-ShareAlike   *}
 
 {if Config::Get('view.masonry') && !Config::Get('view.masonry_sidebar') && in_array(Router::GetAction(), Config::Get('view.masonry_sidebar_pages'))}{$isMasonry = true}{/if}
@@ -31,8 +31,9 @@
                     <li {if $aItem@first}class="active"{/if}>
                         <a onclick="$('.js-widget-stream-navs a').removeClass('active'); return false;"
                            href="#" class="link link-dual link-lead link-clear" data-toggle="tab" data-type="{$aItem.type}">
-                            {if $aItem.type == 'comment'}<i class="fa fa-comment-o"></i>{/if}
-                            {if $aItem.type == 'topic'}<i class="fa fa-file-o"></i>{/if}
+                            {*{if $aItem.type == 'comment'}<i class="fa fa-comment-o"></i>{/if}*}
+                            {*{if $aItem.type == 'topic'}<i class="fa fa-file-o"></i>{/if}*}
+                            {*{if $aItem.type == 'wall'}<i class="fa fa-bars"></i>{/if}*}
                             {$aLang[$aItem.text]}
                         </a>
                     </li>

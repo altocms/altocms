@@ -45,6 +45,7 @@ class ActionRss extends Action {
 
         $this->AddEvent('index', 'RssGood');
         $this->AddEvent('new', 'RssNew');
+        $this->AddEvent('wall', 'RssWall');
         $this->AddEvent('allcomments', 'RssComments');
         $this->AddEvent('comments', 'RssTopicComments');
         $this->AddEvent('tag', 'RssTag');
@@ -170,6 +171,54 @@ class ActionRss extends Action {
             $item['pubDate'] = $oComment->getDate();
             $item['author'] = $oComment->getUser()->getLogin();
             $item['category'] = 'comments';
+            $comments[] = $item;
+        }
+        /**
+         * Формируем ответ
+         */
+        $this->InitRss();
+        $this->Viewer_Assign('aChannel', $aChannel);
+        $this->Viewer_Assign('aItems', $comments);
+        $this->SetTemplateAction('index');
+    }
+
+    /**
+     * Вывод RSS последних комментариев
+     */
+    protected function RssWall() {
+        /**
+         * Получаем комментарии
+         */
+        $aResult = $this->Wall_GetWall(array(), array('date_add' => 'DESC'), 1, Config::Get('module.wall.per_page'));
+        /** @var ModuleWall_EntityWall[] $aWall */
+        $aWall = $aResult['collection'];
+
+        /**
+         * Формируем данные канала RSS
+         */
+        $aChannel['title'] = Config::Get('view.name');
+        $aChannel['link'] = Config::Get('path.root.url');
+        $aChannel['description'] = Config::Get('path.root.url') . ' / RSS channel';
+        $aChannel['language'] = 'ru';
+        $aChannel['managingEditor'] = Config::Get('general.rss_editor_mail');
+        $aChannel['generator'] = Config::Get('path.root.url');
+        /**
+         * Формируем записи RSS
+         */
+        $comments = array();
+        foreach ($aWall as $oWall) {
+            /** @var ModuleUser_EntityUser $oWallUser */
+            $oWallUser = $oWall->getWallUser();
+            /** @var ModuleUser_EntityUser $oUser */
+            $oUser = $this->User_GetUserById($oWall->getUserId());
+
+            $item['title'] = 'Wall: ' . $oUser->getLogin();
+            $item['guid'] = $oWall->getUrlWall();
+            $item['link'] = $oWall->getUrlWall();
+            $item['description'] = $oWall->getText();
+            $item['pubDate'] = $oWall->getDateAdd();
+            $item['author'] = $oUser->getLogin();
+            $item['category'] = 'wall';
             $comments[] = $item;
         }
         /**
