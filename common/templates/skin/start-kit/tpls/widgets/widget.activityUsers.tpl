@@ -1,3 +1,19 @@
+<script>
+    $(function(){
+        ls.stream.options.elements.userItem = function(el) {
+
+            return $('<li class="checkbox">'+
+                    '<label>'+
+                        '<input class="streamUserCheckbox" type="checkbox" id="strm_u_' + el.uid  + '" checked="checked" '+
+                        'onClick="if (jQuery(this).prop(\'checked\')) { ls.stream.subscribe(' + el.uid  + ') } else { ls.stream.unsubscribe(' + el.uid  + ') } "/>'+
+                        '<a href="'+el.user_web_path+'" title="' + el.user_login + '">'+
+                    '<img src="'+el.user_avatar_48+'" alt="avatar" class="avatar" style="height:24px;" /></a>'+
+                    '<a href="' + el.user_web_path + '">' + el.user_login + '</a>'+
+                    '</label>'+
+                    '</li>');
+        }
+    })
+</script>
 <section class="panel panel-default widget widget-type-activity">
     <div class="panel-body">
 
@@ -46,6 +62,7 @@
                     <small>{$aLang.stream_no_subscribed_users}</small>
                 </p>
             {/if}
+            <ul id="activity-block-users" class="list-unstyled user-list-mini max-height-200"></ul>
         </div>
 
     </div>

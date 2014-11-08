@@ -12,14 +12,15 @@
         ls.stream.options.elements.userItem = function(el) {
             var t = $('<li class="checkbox pal0">'+
             '<label>' +
-            '<input class="streamUserCheckbox" type="checkbox" id="strm_u_' + el.uid  + '" checked="checked" />&nbsp;' +
+            '<input class="streamUserCheckbox" ' +
+            'type="checkbox" id="strm_u_' + el.uid  + '" checked="checked" />&nbsp;' +
             '<a href="' + el.user_web_path + '" title="' + el.user_login + '"><img style="width: 24px;" src="'+el.user_avatar_48+'" alt="avatar" class="avatar"/></a>' +
             '<a href="' + el.user_web_path + '">' + el.user_login + '</a>' +
             '</label>' +
             '</li>')
-                    t.find('input')
+                    t.find('input.streamUserCheckbox')
                     .on('change', function() {
-                if (jQuery(this).prop('checked')) { ls.stream.subscribe({$iUserId}) } else { ls.stream.unsubscribe({$iUserId}) }
+                if (jQuery(this).prop('checked')) { ls.stream.subscribe(el.uid) } else { ls.stream.unsubscribe(el.uid) }
             }).iCheck({
                 checkboxClass: 'icheckbox_square-blue',
                 radioClass: 'iradio_square-blue'
@@ -78,10 +79,8 @@
                         {/if}
                     {/foreach}
                 </ul>
-            {else}
-                <ul id="activity-block-users" class="list-unstyled max-height-200"></ul>
-                {*<div class="bg-warning">{$aLang.stream_no_subscribed_users}</div>*}
             {/if}
+                <ul id="activity-block-users" class="list-unstyled max-height-200"></ul>
         </div>
 
     </div>

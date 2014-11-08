@@ -10461,6 +10461,7 @@ ul.menu-level-1 > li.menu-hidden-container ul.menu-hidden li.open > a.userlogo {
   font-family: Verdana, Helvetica, Arial, sans-serif;
   font-size: 11px;
   line-height: 18px;
+  white-space: normal;
 }
 .panel.comment .comment-content .comment-text img[align="center"] {
   width: 100%;
@@ -12468,6 +12469,7 @@ span.ui-helper-hidden-accessible {
   background: url(../images/blue.png) no-repeat;
   border: none;
   cursor: pointer;
+  position: relative;
 }
 .icheckbox_square-blue {
   background-position: 0 0;
