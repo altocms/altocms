@@ -215,7 +215,11 @@ class ActionBlog extends Action {
          */
         $oBlog = Engine::GetEntity('Blog');
         $oBlog->setOwnerId($this->oUserCurrent->getId());
-        $oBlog->setTitle(strip_tags(F::GetRequestStr('blog_title')));
+
+        // issue 151 (https://github.com/altocms/altocms/issues/151)
+        // Некорректная обработка названия блога
+        // $oBlog->setTitle(strip_tags(F::GetRequestStr('blog_title')));
+        $oBlog->setTitle($this->Tools_RemoveAllTags(F::GetRequestStr('blog_title')));
 
         // * Парсим текст на предмет разных HTML-тегов
         $sText = $this->Text_Parser(F::GetRequestStr('blog_description'));
@@ -325,7 +329,11 @@ class ActionBlog extends Action {
             if (!$this->checkBlogFields($oBlog)) {
                 return false;
             }
-            $oBlog->setTitle(strip_tags(F::GetRequestStr('blog_title')));
+
+            // issue 151 (https://github.com/altocms/altocms/issues/151)
+            // Некорректная обработка названия блога
+            // $oBlog->setTitle(strip_tags(F::GetRequestStr('blog_title')));
+            $oBlog->setTitle($this->Tools_RemoveAllTags(F::GetRequestStr('blog_title')));
 
             // Парсим описание блога
             $sText = $this->Text_Parser(F::GetRequestStr('blog_description'));
