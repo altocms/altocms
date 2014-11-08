@@ -1345,7 +1345,17 @@ class ActionBlog extends Action {
                 );
             }
 
-            // * Отправка уведомления автору топика
+            // issue 131 (https://github.com/altocms/altocms/issues/131)
+            // Не работает настройка уведомлений о комментариях к своим топикам
+
+            // Уберём автора топика из рассылки
+            /** @var ModuleTopic_EntityTopic $oTopic */
+            $aExcludeMail[] = $oTopic->getUser()->getMail();
+            // Отправим ему сообщение через отдельный метод, который проверяет эту настройку
+            /** @var ModuleComment_EntityComment $oCommentNew */
+            $this->Notify_SendCommentNewToAuthorTopic($oTopic->getUser(), $oTopic, $oCommentNew, $this->oUserCurrent);
+
+            // * Отправка уведомления всем, кто подписан на топик кроме автора
             $this->Subscribe_Send(
                 'topic_new_comment', $oTopic->getId(), 'comment_new.tpl',
                 $this->Lang_Get('notify_subject_comment_new'),
