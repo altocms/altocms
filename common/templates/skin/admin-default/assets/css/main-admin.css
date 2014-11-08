@@ -142,6 +142,7 @@ td.adm_field .adm_field_value           { padding: 4px }
 .user-profile .voting .total,
 .user-profile .voting .count            { font-weight: bold; font-size: 11px; text-align: center; line-height: 23px; height: 22px; width: 26px; margin: 0 auto 10px auto; }
 .user-profile .strength .total          { color: #628FA5; background: #EDF8FD; }
+.user-profile .voting .total            { width: 56px; }
 .user-profile .voting .total.positive   { background: #ccffcc; color: #33aa33; }
 .user-profile .voting .total.negative   { background: #ffcccc; color: #da4242; }
 .user-profile .voting .count            { background: #fffccc }
@@ -153,9 +154,9 @@ td.adm_field .adm_field_value           { padding: 4px }
 .user-profile table.vote-stat td.lable  { width: 50% }
 .user-profile table.vote-stat td.plus   { color: #390; text-align: center; }
 .user-profile table.vote-stat td.minus  { color: #f00; text-align: center; }
-input.adm_vote_value                    { width: 20px }
-i.adm_vote_sign                         { vertical-align: baseline }
-.popover-content button                 { margin-left: 4px; margin-top: 3px; height: 22px; }
+input.adm_vote_value                    { width: 48px }
+i.adm_vote_sign                         { vertical-align: baseline; right: 6px; }
+.popover-content button                 { margin-left: 4px; margin-top: 3px; height: 24px; }
 .popover.adm_vote                       { width: 150px }
 i.adm-progress                          { display: inline-block; width: 16px; height: 11px; line-height: 14px; vertical-align: text-top; background-repeat: no-repeat; background-image: url(../img/adm_progress.gif); background-position: center; background-repeat: no-repeat; }
 .opacity50                              { opacity: 0.5 }

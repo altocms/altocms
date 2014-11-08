@@ -79,6 +79,26 @@ class ModuleTools extends Module {
         unset($aTable['&']);
         return strtr($sText, $aTable);
     }
+
+    /**
+     * Удаляет из строки все теги, используется как аналог strip_tags там,
+     * где последний удаляет часть текста вместе с не валидными тегами, например
+     * при обработке строки ">>> Hello <<<". Подробнее в задаче #151
+     * {@see https://github.com/altocms/altocms/issues/151}
+     *
+     * @param $sText
+     * @param null $aError
+     * @return string
+     */
+    public function RemoveAllTags($sText, &$aError = null) {
+        F::File_IncludeLib('Jevix/jevix.class.php');
+
+        /** @var Jevix $oJevix */
+        $oJevix = new Jevix();
+
+        return htmlspecialchars_decode($oJevix->parse($sText, $aError));
+    }
+
 }
 
 // EOF

@@ -174,16 +174,18 @@ ls.userfeed = (function ($) {
     this.getMore = function (button) {
         var lastId,
             url,
-            params;
+            params,
+            feedType;
         button = $(button);
         lastId = button.data('last-id');
+        feedType = button.data('type');
         if (this.isBusy || !lastId) {
             return;
         }
         this.isBusy = true;
 
         url = ls.routerUrl('feed') + 'get_more/';
-        params = {'last_id': lastId};
+        params = {'last_id': lastId, type: feedType};
 
         //button.addClass('loading');
 

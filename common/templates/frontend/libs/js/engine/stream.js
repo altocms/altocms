@@ -91,6 +91,10 @@ ls.stream = ( function ($) {
             ls.progressDone();
             if (result && !result.bStateError) {
                 ls.msg.notice(result.sMsgTitle, result.sMsg);
+                var el = $('#strm_u_' + iUserId).parents('li');
+                el.fadeOut(300, function(){
+                   el.remove();
+                });
                 ls.hook.run('ls_stream_unsubscribe_after', [params, result]);
             }
         });

@@ -78,9 +78,9 @@ class ActionUserfeed extends Action {
             $this->Viewer_Assign('iUserfeedLastId', end($aTopics)->getId());
         }
         if (count($aTopics) < Config::Get('module.userfeed.count_default')) {
-            $this->Viewer_Assign('bDisableGetMoreButton', true);
+            $this->Viewer_Assign('bDisableGetMoreButton', TRUE);
         } else {
-            $this->Viewer_Assign('bDisableGetMoreButton', false);
+            $this->Viewer_Assign('bDisableGetMoreButton', FALSE);
         }
         $this->SetTemplateAction('list');
     }
@@ -93,26 +93,23 @@ class ActionUserfeed extends Action {
 
         $this->sMenuSubItemSelect = 'track';
 
-        // * Передан ли номер страницы
-        $iPage = $this->GetParamEventMatch(0, 2) ? $this->GetParamEventMatch(0, 2) : 1;
-
         // * Получаем топики
-        $aResult = $this->Userfeed_Trackread(
-            $this->oUserCurrent->getId(), $iPage, Config::Get('module.topic.per_page')
-        );
-
+        $aResult = $this->Userfeed_Trackread($this->oUserCurrent->getId(), 1, Config::Get('module.userfeed.count_default'));
         $aTopics = $aResult['collection'];
-
-        // * Формируем постраничность
-        $aPaging = $this->Viewer_MakePaging(
-            $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
-            Router::GetPath('feed') . 'track'
-        );
 
         // * Вызов хуков
         $this->Hook_Run('topics_list_show', array('aTopics' => $aTopics));
+
         $this->Viewer_Assign('aTopics', $aTopics);
-        $this->Viewer_Assign('aPaging', $aPaging);
+        $this->Viewer_Assign('sFeedType', 'track');
+        if (count($aTopics)) {
+            $this->Viewer_Assign('iUserfeedLastId', 1);
+        }
+        if ($aResult['count'] < Config::Get('module.userfeed.count_default')) {
+            $this->Viewer_Assign('bDisableGetMoreButton', TRUE);
+        } else {
+            $this->Viewer_Assign('bDisableGetMoreButton', FALSE);
+        }
 
         $this->SetTemplateAction('track');
     }
@@ -125,26 +122,23 @@ class ActionUserfeed extends Action {
 
         $this->sMenuSubItemSelect = 'track_new';
 
-        // * Передан ли номер страницы
-        $iPage = $this->GetParamEventMatch(1, 2) ? $this->GetParamEventMatch(1, 2) : 1;
-
         // * Получаем топики
-        $aResult = $this->Userfeed_Trackread(
-            $this->oUserCurrent->getId(), $iPage, Config::Get('module.topic.per_page'), true
-        );
-
+        $aResult = $this->Userfeed_Trackread($this->oUserCurrent->getId(), 1, Config::Get('module.userfeed.count_default'), TRUE);
         $aTopics = $aResult['collection'];
-
-        // * Формируем постраничность
-        $aPaging = $this->Viewer_MakePaging(
-            $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
-            Router::GetPath('feed') . 'track/new'
-        );
 
         // * Вызов хуков
         $this->Hook_Run('topics_list_show', array('aTopics' => $aTopics));
+
         $this->Viewer_Assign('aTopics', $aTopics);
-        $this->Viewer_Assign('aPaging', $aPaging);
+        $this->Viewer_Assign('sFeedType', 'track_new');
+        if (count($aTopics)) {
+            $this->Viewer_Assign('iUserfeedLastId', 1);
+        }
+        if ($aResult['count'] < Config::Get('module.userfeed.count_default')) {
+            $this->Viewer_Assign('bDisableGetMoreButton', TRUE);
+        } else {
+            $this->Viewer_Assign('bDisableGetMoreButton', FALSE);
+        }
 
         $this->SetTemplateAction('track');
     }
@@ -162,11 +156,18 @@ class ActionUserfeed extends Action {
         $iFromId = intval(F::GetRequestStr('last_id'));
         if (!$iFromId) {
             $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+
             return;
         }
 
         // * Получаем топики
-        $aTopics = $this->Userfeed_Read($this->oUserCurrent->getId(), null, $iFromId);
+        $sTrackType = F::GetRequestStr('type', FALSE);
+        if ($sTrackType) {
+            $aResult = $this->Userfeed_Trackread($this->oUserCurrent->getId(), ++$iFromId, Config::Get('module.userfeed.count_default'), ($sTrackType == 'track_new' ? TRUE : FALSE));
+            $aTopics = $aResult['collection'];
+        } else {
+            $aTopics = $this->Userfeed_Read($this->oUserCurrent->getId(), NULL, $iFromId);
+        }
 
         // * Вызов хуков
         $this->Hook_Run('topics_list_show', array('aTopics' => $aTopics));
@@ -178,7 +179,11 @@ class ActionUserfeed extends Action {
         $this->Viewer_AssignAjax('topics_count', count($aTopics));
 
         if (count($aTopics)) {
-            $this->Viewer_AssignAjax('iUserfeedLastId', end($aTopics)->getId());
+            if ($sTrackType) {
+                $this->Viewer_AssignAjax('iUserfeedLastId', $iFromId);
+            } else {
+                $this->Viewer_AssignAjax('iUserfeedLastId', end($aTopics)->getId());
+            }
         }
     }
 

@@ -16,6 +16,9 @@ ls.widgets = (function ($) {
             stream_topic: {
                 url: ls.routerUrl('ajax') + 'stream/topic/'
             },
+            stream_wall: {
+                url: ls.routerUrl('ajax') + 'stream/wall/'
+            },
             blogs_top: {
                 url: ls.routerUrl('ajax') + 'blogs/top/'
             },

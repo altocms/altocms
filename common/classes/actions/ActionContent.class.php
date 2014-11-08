@@ -229,7 +229,12 @@ class ActionContent extends Action {
 
         // * Заполняем поля для валидации
         $oTopic->setBlogId(F::GetRequestStr('blog_id'));
-        $oTopic->setTitle(strip_tags(F::GetRequestStr('topic_title')));
+
+        // issue 151 (https://github.com/altocms/altocms/issues/151)
+        // Некорректная обработка названия блога
+        // $oTopic->setTitle(strip_tags(F::GetRequestStr('topic_title')));
+        $oTopic->setTitle($this->Tools_RemoveAllTags(F::GetRequestStr('topic_title')));
+
         $oTopic->setTextSource(F::GetRequestStr('topic_text'));
         $oTopic->setUserId($this->oUserCurrent->getId());
         $oTopic->setType($this->oContentType->getContentUrl());
@@ -558,7 +563,12 @@ class ActionContent extends Action {
 
         // * Заполняем поля для валидации
         $oTopic->setBlogId(F::GetRequestStr('blog_id'));
-        $oTopic->setTitle(strip_tags(F::GetRequestStr('topic_title')));
+
+        // issue 151 (https://github.com/altocms/altocms/issues/151)
+        // Некорректная обработка названия блога
+        // $oTopic->setTitle(strip_tags(F::GetRequestStr('topic_title')));
+        $oTopic->setTitle($this->Tools_RemoveAllTags(F::GetRequestStr('topic_title')));
+
         $oTopic->setTextSource(F::GetRequestStr('topic_text'));
 
         if ($this->oContentType->isAllow('link')) {

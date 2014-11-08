@@ -2271,6 +2271,9 @@ class ActionAdmin extends Action {
 
         $aLogs = array();
         if (preg_match_all('/\[LOG\:(?<id>[\d\-\.\,]+)\]\[(?<date>[\d\-\s\:]+)\].*\[\[(?<text>.*)\]\]/siuU', $sLogTxt, $aM, PREG_PATTERN_ORDER)) {
+            if (preg_last_error() == PREG_BACKTRACK_LIMIT_ERROR) {
+                $this->Message_AddError($this->Lang_Get('action.admin.logs_too_long'), null);
+            }
             foreach ($aM[0] as $nRec => $sVal) {
                 $aRec = array(
                     'id' => $aM['id'][$nRec],

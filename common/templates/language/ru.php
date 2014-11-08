@@ -862,6 +862,10 @@ return array(
     'widget_stream_comments_no'                 => 'Нет комментариев.',
     'widget_stream_comments_all'                => 'Весь эфир',
     'widget_stream_topics_all'                  => 'Весь эфир',
+    'widget_stream_wall'                        => 'Стена',
+    'widget_stream_wall_no'                     => 'Нет записей на стене',
+    'widget_stream_on_wall'                     => 'на стене',
+    'widget_stream_on_his_wall'                 => 'на своей стене',
 
     'widget_friends'                            => 'Выбрать получателей из списка друзей',
     'widget_friends_check'                      => 'Отметить всех',

@@ -215,7 +215,11 @@ class ActionBlog extends Action {
          */
         $oBlog = Engine::GetEntity('Blog');
         $oBlog->setOwnerId($this->oUserCurrent->getId());
-        $oBlog->setTitle(strip_tags(F::GetRequestStr('blog_title')));
+
+        // issue 151 (https://github.com/altocms/altocms/issues/151)
+        // Некорректная обработка названия блога
+        // $oBlog->setTitle(strip_tags(F::GetRequestStr('blog_title')));
+        $oBlog->setTitle($this->Tools_RemoveAllTags(F::GetRequestStr('blog_title')));
 
         // * Парсим текст на предмет разных HTML-тегов
         $sText = $this->Text_Parser(F::GetRequestStr('blog_description'));
@@ -325,7 +329,11 @@ class ActionBlog extends Action {
             if (!$this->checkBlogFields($oBlog)) {
                 return false;
             }
-            $oBlog->setTitle(strip_tags(F::GetRequestStr('blog_title')));
+
+            // issue 151 (https://github.com/altocms/altocms/issues/151)
+            // Некорректная обработка названия блога
+            // $oBlog->setTitle(strip_tags(F::GetRequestStr('blog_title')));
+            $oBlog->setTitle($this->Tools_RemoveAllTags(F::GetRequestStr('blog_title')));
 
             // Парсим описание блога
             $sText = $this->Text_Parser(F::GetRequestStr('blog_description'));
@@ -1345,7 +1353,17 @@ class ActionBlog extends Action {
                 );
             }
 
-            // * Отправка уведомления автору топика
+            // issue 131 (https://github.com/altocms/altocms/issues/131)
+            // Не работает настройка уведомлений о комментариях к своим топикам
+
+            // Уберём автора топика из рассылки
+            /** @var ModuleTopic_EntityTopic $oTopic */
+            $aExcludeMail[] = $oTopic->getUser()->getMail();
+            // Отправим ему сообщение через отдельный метод, который проверяет эту настройку
+            /** @var ModuleComment_EntityComment $oCommentNew */
+            $this->Notify_SendCommentNewToAuthorTopic($oTopic->getUser(), $oTopic, $oCommentNew, $this->oUserCurrent);
+
+            // * Отправка уведомления всем, кто подписан на топик кроме автора
             $this->Subscribe_Send(
                 'topic_new_comment', $oTopic->getId(), 'comment_new.tpl',
                 $this->Lang_Get('notify_subject_comment_new'),
