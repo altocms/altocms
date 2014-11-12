@@ -12617,7 +12617,7 @@ ______________________________________________*/
   pointer-events: none;
 }
 #nprogress .bar {
-  background: 29d;
+  background: #2299dd;
   position: fixed;
   z-index: 1060;
   top: 0;
@@ -12635,7 +12635,7 @@ ______________________________________________*/
   right: 0px;
   width: 100px;
   height: 100%;
-  box-shadow: 0 0 10px 29d, 0 0 5px 29d;
+  box-shadow: 0 0 10px #2299dd, 0 0 5px #2299dd;
   /*#29d;*/
   opacity: 1.0;
   -webkit-transform: rotate(3deg) translate(0px, -4px);
@@ -12658,8 +12658,8 @@ ______________________________________________*/
   height: 18px;
   box-sizing: border-box;
   border: solid 2px transparent;
-  border-top-color: 29d;
-  border-left-color: 29d;
+  border-top-color: #2299dd;
+  border-left-color: #2299dd;
   border-radius: 50%;
   -webkit-animation: nprogress-spinner 400ms linear infinite;
   animation: nprogress-spinner 400ms linear infinite;
@@ -12823,3 +12823,4 @@ ______________________________________________*/
 .input-group-addon:not(:first-child) {
   border-left: 0;
 }
+/*# sourceMappingURL=style.min.css.map */

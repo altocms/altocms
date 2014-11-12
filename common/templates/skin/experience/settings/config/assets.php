@@ -42,6 +42,7 @@ $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/e
 
 $config['head']['default']['css'] = array(
     '___path.skin.dir___/assets/css/style.min.css',
+    '___path.skin.dir___/assets/css/style.min.css.map',
     '___path.frontend.dir___/libs/vendor/prettyphoto/css/prettyphoto.css',
     '___path.frontend.dir___/libs/vendor/jcrop/jquery.Jcrop.css',
     '___path.skin.dir___/themes/___view.theme___/css/custom.css',
