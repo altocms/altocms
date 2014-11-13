@@ -88,12 +88,10 @@
                             </div>
                         </td>
                         <td class="center">
-                            {if !$oBlogType->GetContentTypes()}
-                                {$aLang.action.admin.blogtypes_contenttypes_nothing}
+                            {if !$oBlogType->GetContentType()}
+                                {$aLang.action.admin.blogtypes_contenttypes_any}
                             {else}
-                                {foreach $oBlogType->GetContentTypes() as $oContentType}
-                                    {$oContentType->getContentTitle()}
-                                {/foreach}
+                                {$oBlogType->GetContentType()}
                             {/if}
                         </td>
                         <td class="center">

@@ -760,152 +760,20 @@ class ModuleBlog_MapperBlog extends Mapper {
             $sql,
             isset($aFilter['allow_add']) ? ($aFilter['allow_add'] ? 1 : 0) : DBSIMPLE_SKIP
         );
-
-        // Получим типы контента
-        $aResult = Engine::GetEntityRows('Blog_BlogType', $aRows);
-
-        // Если вернули хотя бы один тип контента. то можно делать
-        // дополнительные запросы
-        if ($aResult) {
-
-            $aBlogTypeKeys = array();
-            foreach ($aResult as $oBlogType) {
-                $aBlogTypeKeys[] = $oBlogType->getId();
-            }
-
-            // Сделаем дополнительные запросы по количеству и типам контента, если нужно
+        if ($aRows) {
+            $aResult = array();
             $aStat = $this->GetBlogCountsByTypes();
-            $aContentType = $this->GetBlogTypeContentByArrayId($aBlogTypeKeys);
-
-            /**
-             * Установим доп. данные в свойства типов контента
-             *
-             * @var int $iId
-             * @var ModuleBlog_EntityBlogType $oBlogType
-             */
-            foreach ($aResult as $oBlogType) {
-                if (isset($aContentType[$oBlogType->getId()])) {
-                    $oBlogType->setContentTypes($aContentType[$oBlogType->getId()]);
+            foreach ($aRows as $aType) {
+                if (isset($aStat[$aType['type_code']])) {
+                    $aType['blogs_count'] = $aStat[$aType['type_code']]['blogs_count'];
+                } else {
+                    $aType['blogs_count'] = 0;
                 }
-
-                $oBlogType->setBlogsCount(
-                    isset($aStat[$oBlogType->getTypeCode()])
-                        ? $aStat[$oBlogType->getTypeCode()]['blogs_count']
-                        : 0
-                );
+                $aResult[] = Engine::GetEntity('Blog_BlogType', $aType);
             }
-
-        }
-
             return $aResult;
-
         }
-
-    /**
-     * Получает массив типов контента для укзанных в параметре типов блогов
-     *
-     * @param ModuleBlog_EntityBlogType[] $aBlogTypeId
-     *
-     * @return ModuleTopic_EntityContentType[][]
-     */
-    public function GetBlogTypeContentByArrayId($aBlogTypeId) {
-
-        $sql =
-            "SELECT
-                  bct.blog_type_id blog_type_id,
-                  ct.*
-              FROM
-                  ?_blog_type_content bct,
-                  ?_content ct
-              WHERE
-                  ct.content_id = bct.content_id
-                  AND bct.blog_type_id IN ( ?a )
-
-                  -- Здесь такой манёвр: тип контента должен быть либо привязан к типу
-                  -- блога по таблице ?_blog_type_content, либо, из соображений свместимости
-                  -- с версией Alto 1.0, должен храниться в соответствующем свойстве типа блога
-                  -- запрос на выборку из этого всего уникальных не делаю, поскольку варианта
-                  -- тут два - либо контент в свойстве типа блога и тогда по нему работает
-                  -- второй подзапрос, либо только в таблице связей - тогда работает первый.
-              UNION
-                  SELECT
-                    bt.id blog_type_id,
-                    ct.*
-                  FROM
-                    ?_blog_type bt, ?_content ct
-                  WHERE
-                    bt.content_type = ct.content_url AND bt.id IN ( ?a )";
-
-        /** @var ModuleTopic_EntityContentType $aContentType */
-        $aContentType = Engine::GetEntityRows(
-            'Topic_ContentType',
-            $this->oDb->select($sql, $aBlogTypeId, $aBlogTypeId)
-        );
-
-        $aResult = array();
-        foreach ($aContentType as $oContentType) {
-            $aResult[$oContentType->getBlogTypeId()][] = $oContentType;
-    }
-
-        return $aResult;
-    }
-
-    /**
-     * Удаляет связанные с типом блога типы контента
-     *
-     * @param $iBlogTypeId
-     * @return bool
-     */
-    public function DeleteBlogTypeContent($iBlogTypeId) {
-
-        return $this->oDb->query(
-            "DELETE FROM ?_blog_type_content WHERE blog_type_id = ?d",
-            $iBlogTypeId
-        ) !== false;
-
-    }
-
-    /**
-     * Удаляет связанные с типом блога типы контента по массиву кодов типа блога
-     *
-     * @param $aBlogTypes
-     * @return bool
-     */
-    public function DeleteBlogTypeContentByTypeCode($aBlogTypes) {
-
-        return $this->oDb->query(
-            "DELETE FROM
-                ?_blog_type_content
-            WHERE
-                blog_type_id IN (
-                  SELECT bt.id FROM ?_blog_type bt WHERE bt.type_code IN ( ?a )
-                )",
-            $aBlogTypes
-        ) !== false;
-
-    }
-
-    /**
-     * Сохраняет связь между типом блога и типом контента
-     *
-     * @param int $iBlogTypeId
-     * @param int[] $aContentType
-     */
-    public function SetBlogTypeContent($iBlogTypeId, $aContentType) {
-
-        // Сначала удалим старые связи
-        $this->DeleteBlogTypeContent($iBlogTypeId);
-
-        // И создадим новые
-        foreach ($aContentType as $iContentTypeId) {
-            // Подставляем различные значения параметров.
-            $this->oDb->query(
-                'INSERT INTO ?_blog_type_content (blog_type_id, content_id) VALUES(?d, ?d)',
-                $iBlogTypeId,
-                $iContentTypeId
-            );
-        }
-
+        return array();
     }
 
     /**
@@ -951,18 +819,7 @@ class ModuleBlog_MapperBlog extends Mapper {
             ";
         $aRow = $this->oDb->selectRow($sql, $nBlogTypeId);
         if ($aRow) {
-
-            /** @var ModuleBlog_EntityBlogType $oBlogType */
-            $oBlogType = Engine::GetEntity('Blog_BlogType', $aRow);
-
-            /** @var ModuleTopic_EntityContentType[] $aContentType */
-            $aContentType = $this->GetBlogTypeContentByArrayId(array($oBlogType->getId()));
-
-            // Установим полученые типы контента типу блога
-            $oBlogType->setContentTypes($aContentType[$oBlogType->getId()]);
-
-            return $oBlogType;
-
+            return Engine::GetEntity('Blog_BlogType', $aRow);
         }
         return null;
     }
@@ -970,7 +827,7 @@ class ModuleBlog_MapperBlog extends Mapper {
     /**
      * Добавляет тип блога
      *
-     * @param ModuleBlog_EntityBlogType $oBlogType
+     * @param $oBlogType
      *
      * @return bool
      */
@@ -1046,22 +903,13 @@ class ModuleBlog_MapperBlog extends Mapper {
                  ':id'               => $oBlogType->getId()
             )
         );
-
-        /** @var int $iBlogTypeId Ид. Созданного типа блога*/
-        $iBlogTypeId = $nId ? $nId : false;
-
-        // Теперь зафиксируем типы контента для нашего типа блога
-        if ($iBlogTypeId) {
-            $this->SetBlogTypeContent($iBlogTypeId, $oBlogType->getContentTypes());
-    }
-
-        return $iBlogTypeId;
+        return $nId ? $nId : false;
     }
 
     /**
      * Обновляет тип блога
      *
-     * @param ModuleBlog_EntityBlogType $oBlogType
+     * @param $oBlogType
      *
      * @return bool
      */
@@ -1118,18 +966,7 @@ class ModuleBlog_MapperBlog extends Mapper {
                  ':id'               => $oBlogType->getId()
             )
         );
-
-        $bResult = $xResult !== false;
-
-        // Теперь зафиксируем типы контента для нашего типа блога
-        if ($bResult && $oBlogType->getContentTypes()) {
-            $this->SetBlogTypeContent($oBlogType->getId(), $oBlogType->getContentTypes());
-        } elseif (!$oBlogType->getContentTypes()) {
-            $this->DeleteBlogTypeContent($oBlogType->getId());
-    }
-
-
-        return $bResult;
+        return $xResult !== false;
     }
 
     /**
@@ -1147,16 +984,7 @@ class ModuleBlog_MapperBlog extends Mapper {
             WHERE type_code IN(?a)
         ";
         $xResult = $this->oDb->query($sql, $aBlogTypes);
-
-        $bResult = $xResult !== false;
-
-        // Теперь зафиксируем типы контента для нашего типа блога
-        if ($bResult) {
-            $this->DeleteBlogTypeContentByTypeCode($aBlogTypes);
-        }
-
-        return $bResult;
-
+        return $xResult !== false;
     }
 
     /**

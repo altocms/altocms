@@ -1449,7 +1449,6 @@ class ModuleBlog extends Module {
         $aResult = array();
         $sCacheKey = 'blog_types';
         if (false === ($data = $this->Cache_Get($sCacheKey, 'tmp'))) {
-            /** @var ModuleBlog_EntityBlogType[] $data */
             $data = $this->oMapper->GetBlogTypes();
             $this->Cache_Set($data, $sCacheKey, array('blog_update', 'blog_new'), 'P30D', 'tmp');
         }
@@ -1513,22 +1512,6 @@ class ModuleBlog extends Module {
                     $bOk = $bOk && ($oBlogType->GetAclComment() & $aFilter['acl_comment']);
                     if (!$bOk) continue;
                 }
-                // Проверим, есть ли в данном типе блога вообще типы контента
-                /** @var ModuleTopic_EntityContentType[] $aContentTypes */
-                if ($aContentTypes = $oBlogType->getContentTypes()) {
-                    foreach ($aContentTypes as $iCTId => $oContentType) {
-                        // Тип контента не активирован
-                        if (!$oContentType->getActive()) {
-                            unset($aContentTypes[$iCTId]);
-                        }
-                        // Тип контента включен, но создавать могу только админы
-                        if (!$oContentType->isAccessible()) {
-                            unset($aContentTypes[$iCTId]);
-                        }
-                    }
-                }
-                // Проверим существующие типы контента на возможность создания пользователей
-
                 if ($bOk) {
                     $aBlogTypes[$oBlogType->GetTypeCode()] = $oBlogType;
                 }

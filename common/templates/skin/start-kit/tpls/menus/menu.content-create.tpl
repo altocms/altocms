@@ -49,15 +49,13 @@
 
 {if $sMenuItemSelect=='topic'}
     <ul class="nav nav-pills nav-filter-wrapper">
-        {if $aAllowedContentTypes}
-            {foreach from=$aAllowedContentTypes item=oContentType}
+        {foreach from=$aContentTypes item=oContentType}
             {if $oContentType->isAccessible()}
                 <li {if $sMenuSubItemSelect==$oContentType->getContentUrl()}class="active"{/if}>
                     <a href="{router page='content'}{$oContentType->getContentUrl()}/add/">{$oContentType->getContentTitle()|escape:'html'}</a>
                 </li>
             {/if}
         {/foreach}
-        {/if}
         {if $iUserCurrentCountTopicDraft}
             <li class="pull-right{if $sMenuSubItemSelect=='drafts'} active{/if}">
                 <a href="{router page='content'}drafts/">{$aLang.topic_menu_drafts} ({$iUserCurrentCountTopicDraft})</a>

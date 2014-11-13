@@ -2759,7 +2759,6 @@ class ActionAdmin extends Action {
 
         $nBlogTypeId = intval($this->getParam(1));
         if ($nBlogTypeId) {
-            /** @var ModuleBlog_EntityBlogType $oBlogType */
             $oBlogType = $this->Blog_GetBlogTypeById($nBlogTypeId);
 
             $aLangList = $this->Lang_GetLangList();
@@ -2817,11 +2816,7 @@ class ActionAdmin extends Action {
                     $_REQUEST['blogtypes_title'][$sLang] = $oBlogType->GetTitle($sLang);
                 }
 
-//                $_REQUEST['blogtypes_contenttype'] = $oBlogType->GetContentType();
-                foreach ($oBlogType->getContentTypes() as $oContentType) {
-                    $_REQUEST['blogtypes_contenttype'][] = $oContentType->GetId();
-                }
-
+                $_REQUEST['blogtypes_contenttype'] = $oBlogType->GetContentType();
             }
             $this->Viewer_Assign('oBlogType', $oBlogType);
             $this->Viewer_Assign('aLangList', $aLangList);
@@ -2838,7 +2833,6 @@ class ActionAdmin extends Action {
 
         $nBlogTypeId = intval($this->getParam(1));
         if ($nBlogTypeId) {
-            /** @var ModuleBlog_EntityBlogType $oBlogType */
             $oBlogType = $this->Blog_GetBlogTypeById($nBlogTypeId);
             if ($oBlogType) {
                 $oBlogType->_setValidateScenario('update');
@@ -2856,11 +2850,7 @@ class ActionAdmin extends Action {
                 $oBlogType->SetMinRateRead($this->GetPost('blogtypes_min_rate_read'));
                 $oBlogType->SetMinRateComment($this->GetPost('blogtypes_min_rate_comment'));
                 $oBlogType->SetActive($this->GetPost('blogtypes_active'));
-
-                // Теперь здесь null будет всегда...
-//                $oBlogType->SetContentType($this->GetPost('blogtypes_contenttype'));
-                $oBlogType->SetContentType(NULL);
-                $oBlogType->setContentTypes(array_unique(array_keys($this->GetPost('blogtypes_contenttype'))));
+                $oBlogType->SetContentType($this->GetPost('blogtypes_contenttype'));
 
                 // Установка прав на запись
                 $nAclValue = intval($this->GetPost('blogtypes_acl_write'));
@@ -2928,7 +2918,7 @@ class ActionAdmin extends Action {
      *
      */
     protected function _eventBlogTypesAddSubmit() {
-        /** @var ModuleBlog_EntityBlogType $oBlogType */
+
         $oBlogType = Engine::GetEntity('Blog_BlogType');
         $oBlogType->_setValidateScenario('add');
 
@@ -2947,10 +2937,7 @@ class ActionAdmin extends Action {
         $oBlogType->SetMinRateRead($this->GetPost('blogtypes_min_rate_read'));
         $oBlogType->SetMinRateComment($this->GetPost('blogtypes_min_rate_comment'));
         $oBlogType->SetActive($this->GetPost('blogtypes_active'));
-
-//        $oBlogType->SetContentType($this->GetPost('blogtypes_contenttype'));
-        $oBlogType->SetContentType(NULL);
-        $oBlogType->setContentTypes(array_unique(array_keys($this->GetPost('blogtypes_contenttype'))));
+        $oBlogType->SetContentType($this->GetPost('blogtypes_contenttype'));
 
         // Установка прав на запись
         $nAclValue = intval($this->GetPost('blogtypes_acl_write'));

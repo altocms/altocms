@@ -27,8 +27,8 @@
 
 
         {if $sMenuItemSelect=='topic'}
-            {if $sMode=='add' && $aAllowedContentTypes}
-                {foreach from=$aAllowedContentTypes item=oContentType}
+            {if $sMode=='add'}
+                {foreach from=$aContentTypes item=oContentType}
                     {if $oContentType->isAccessible()}
                         <li><a class="link link-light-gray link-lead link-clear {if $sMenuSubItemSelect==$oContentType->getContentUrl()}active{/if}"
                            href="{router page='content'}{$oContentType->getContentUrl()}/add/">

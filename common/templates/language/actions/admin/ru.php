@@ -812,7 +812,6 @@ return array(
     'blogtypes_contenttypes'        => 'Тип контента',
     'blogtypes_contenttypes_notice' => 'Допустимый тип контента, который может быть в блоге',
     'blogtypes_contenttypes_any'    => 'Любой',
-    'blogtypes_contenttypes_nothing'=> 'Ни одного',
 
     'blogtypes_err_id_notfound'     => 'Тип блога с заданным ID не найден',
 
