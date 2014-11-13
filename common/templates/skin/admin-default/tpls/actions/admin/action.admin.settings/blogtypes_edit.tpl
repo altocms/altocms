@@ -285,19 +285,15 @@
             </label>
 
             <div class="controls">
-                <select name="blogtypes_contenttype">
-                    <option value="">
-                        {$aLang.action.admin.blogtypes_contenttypes_any}
-                    </option>
                     {foreach $aContentTypes as $sContentName=>$oContentType}
-                        <option value="{$sContentName}"
-                                {if $_aRequest.blogtypes_contenttype==$sContentName}selected{/if}>
+                <label class="inline-checkbox">
+                    <input type="checkbox" id="blogtypes_contenttype_{$oContentType->getId()}"
+                           name="blogtypes_contenttype[{$oContentType->getId()}]" value="1"
+                           {if in_array($oContentType->getId(), $_aRequest.blogtypes_contenttype)}checked{/if}/>
                             {$sContentName}
-                        </option>
+                </label>
                     {/foreach}
-                </select>
                 <span class="help-block">{$aLang.action.admin.blogtypes_contenttypes_notice}</span>
-
             </div>
         </div>
     </div>

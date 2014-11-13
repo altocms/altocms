@@ -128,6 +128,10 @@ class ActionContent extends Action {
         $sContentTypeName = (isset($aFilter['content_type']) ? $aFilter['content_type'] : null);
 
         $aBlogs = $this->Blog_GetBlogsAllowByUser($oUser);
+        // Добавим персональный блог пользователю
+        if ($oUser) {
+            $aBlogs[] = $this->Blog_GetPersonalBlogByUserId($oUser->getId());
+        }
         $aAllowBlogs = array();
 
         /** @var ModuleBlog_EntityBlog $oBlog */
@@ -185,6 +189,27 @@ class ActionContent extends Action {
             'content_type' => $this->oContentType,
         );
         $aBlogsAllow = $this->_getAllowBlogs($aBlogFilter);
+
+        // Такой тип контента не разрешен для пользователя ни в одном из типов блогов
+        if (!$aBlogsAllow) {
+            return parent::EventNotFound();
+        }
+
+        // Проверим можно ли писать в персональный блог такой тип контента
+        /** @var ModuleBlog_EntityBlog $oAllowedBlog */
+        $this->bPersonalBlogEnabled = FALSE;
+        foreach ($aBlogsAllow as $oAllowedBlog) {
+            // Нашли среди разрешенных персональный блог
+            if ($oAllowedBlog->getType() == 'personal') {
+                foreach ($oAllowedBlog->getBlogType()->getContentTypes() as $oContentType) {
+                    if ($oContentType->getId() == $this->oContentType->getId()) {
+                        $this->bPersonalBlogEnabled = TRUE;
+                        break;
+                    }
+                }
+                break;
+            }
+        }
 
         // * Загружаем переменные в шаблон
         $this->Viewer_Assign('bPersonalBlog', $this->bPersonalBlogEnabled);
@@ -456,6 +481,11 @@ class ActionContent extends Action {
             'content_type' => $this->oContentType,
         );
         $aBlogsAllow = $this->_getAllowBlogs($aBlogFilter);
+
+        // Такой тип контента не разрешен для пользователя ни в одном из типов блогов
+        if (!$aBlogsAllow) {
+            return parent::EventNotFound();
+        }
 
         // * Вызов хука
         $this->Hook_Run('topic_edit_show', array('oTopic' => $oTopic));

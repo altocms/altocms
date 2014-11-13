@@ -469,6 +469,9 @@ class ModuleUser extends Module {
         }
         $this->Viewer_Assign('oUserCurrent', $this->oUserCurrent);
         $this->Viewer_Assign('aContentTypes', $this->Topic_GetContentTypes(array('content_active' => 1)));
+        if ($this->oUserCurrent) {
+            $this->Viewer_Assign('aAllowedContentTypes', $this->Topic_GetAllowContentTypeByUserId($this->oUserCurrent));
+        }
 
     }
 

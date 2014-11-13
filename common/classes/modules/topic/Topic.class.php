@@ -129,6 +129,51 @@ class ModuleTopic extends Module {
     }
 
     /**
+     * Возвращает доступные для создания пользователем типы контента
+     *
+     * @param ModuleUser_EntityUser $oUser
+     * @return ModuleTopic_EntityContentType[]
+     */
+    public function GetAllowContentTypeByUserId($oUser) {
+
+        // Получим все блоги пользователя
+        $aBlogs = $this->Blog_GetBlogsAllowByUser($oUser);
+
+        // Добавим персональный блог пользователю
+        if ($oUser) {
+            $aBlogs[] = $this->Blog_GetPersonalBlogByUserId($oUser->getId());
+        }
+
+        // Получим типы контента
+        /** @var ModuleTopic_EntityContentType[] $aContentTypes */
+        $aContentTypes = $this->Topic_GetContentTypes(array('content_active' => 1));
+
+        $aAllowContentTypes = array();
+
+        /** @var ModuleBlog_EntityBlog $oBlog */
+        foreach($aBlogs as $oBlog) {
+            // Пропускаем блог, если в него нельзя добавлять топики
+            if (!$this->ACL_CanAddTopic($oUser, $oBlog)) {
+                continue;
+            }
+
+            if ($aContentTypes) {
+                foreach ($aContentTypes as $k=>$oContentType) {
+                    if ($oBlog->IsContentTypeAllow($oContentType->getContentUrl())) {
+                        $aAllowContentTypes[] = $oContentType;
+                        // Удалим, что бы повторное не проверять, ведь в каком-то
+                        // блоге пользвоателя этот тип контента уже разрешён
+                        unset($aContentTypes[$k]);
+                    }
+                }
+            }
+
+
+        }
+        return $aAllowContentTypes;
+    }
+
+    /**
      * Получить тип контента по id
      *
      * @param string $nId
