@@ -1509,10 +1509,10 @@ class ModuleViewer extends Module {
                         $this->ViewerAsset_ClearCss();
                     }
                     if (isset($aRule['css']['exclude']) && is_array($aRule['css']['exclude'])) {
-                        $this->ViewerAsset_ExcludeCss($aRule['js']['exclude']);
+                        $this->ViewerAsset_ExcludeCss($aRule['css']['exclude']);
                     }
                     if (isset($aRule['css']['include']) && is_array($aRule['css']['include'])) {
-                        $this->ViewerAsset_AddCssFiles($aRule['js']['include']);
+                        $this->ViewerAsset_AddCssFiles($aRule['css']['include']);
                     }
 
                     // * Продолжаем поиск
