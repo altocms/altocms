@@ -53,7 +53,8 @@
                 <table class="table table-striped table-condensed pages-list" id="sortable">
                     <thead>
                     <tr>
-                        <th class="span4">{$aLang.action.admin.contenttypes_title}</th>
+                        <th>ID</th>
+                        <th>{$aLang.action.admin.contenttypes_title}</th>
                         <th>{$aLang.action.admin.contenttypes_url}</th>
                         <th>{$aLang.action.admin.contenttypes_fields_added}</th>
                         <th>{$aLang.action.admin.contenttypes_status}</th>
@@ -63,7 +64,10 @@
 
                     <tbody class="content">
                     {foreach from=$aTypes item=oContentType}
-                        <tr id="{$oContentType->getContentId()}" class="cursor-x">
+                        <tr id="{$oContentType->getContentId()}" class="i-cursor-x">
+                            <td class="right">
+                                {$oContentType->getContentId()}
+                            </td>
                             <td class="center">
                                 {$oContentType->getContentUrl()|escape:'html'}
                             </td>
