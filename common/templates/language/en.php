@@ -921,6 +921,7 @@ return array(
     'talk_filter_label_favourite'               => 'Search in favourites',
     'talk_filter_label_date'                    => 'Set dates',
     'talk_filter_notice_sender'                 => 'Specify sender\'s login',
+    'talk_filter_notice_addressee'              => 'Specify addressee\'s login',
     'talk_filter_notice_keyword'                => 'Specify keywords',
     'talk_filter_notice_date'                   => 'Date should be in the following format 25.12.2008',
     'talk_filter_submit'                        => 'Submit filter',

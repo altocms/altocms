@@ -272,7 +272,7 @@ class ActionTalk extends Action {
         }
 
         // * Ключевые слова в тексте сообщения
-        if ($sKeyRequest = F::GetRequest('keyword_text') && is_string($sKeyRequest)) {
+        if (($sKeyRequest = F::GetRequest('keyword_text')) && is_string($sKeyRequest)) {
             $sKeyRequest = urldecode($sKeyRequest);
             preg_match_all('~(\S+)~u', $sKeyRequest, $aWords);
 
@@ -284,8 +284,8 @@ class ActionTalk extends Action {
         }
 
         // * Отправитель
-        if (($sender = F::GetRequest('sender')) && is_string($sender)) {
-            $aFilter['user_login'] = urldecode($sender);
+        if (($sSender = F::GetRequest('sender')) && is_string($sSender)) {
+            $aFilter['user_login'] = F::Array_Str2Array(urldecode($sSender), ',', true);
         }
         // * Адресат
         if (($sAddressee = F::GetRequest('addressee')) && is_string($sAddressee)) {

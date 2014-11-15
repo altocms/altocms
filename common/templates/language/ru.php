@@ -974,6 +974,7 @@ return array(
     'talk_filter_label_favourite'               => 'Искать только в избранном',
     'talk_filter_label_date'                    => 'Ограничения по дате',
     'talk_filter_notice_sender'                 => 'Укажите логин отправителя',
+    'talk_filter_notice_addressee'              => 'Укажите логин адресата',
     'talk_filter_notice_keyword'                => 'Введите одно или несколько слов',
     'talk_filter_notice_date'                   => 'Дата вводится в формате 25.12.2008',
     'talk_filter_submit'                        => 'Отфильтровать',
