@@ -8,8 +8,9 @@
 
     {include file='menus/menu.talk.tpl'}
 
+    {include file='actions/talk/action.talk.filter.tpl'}
+
     {if $aTalks}
-        {include file='actions/talk/action.talk.filter.tpl'}
         <form action="{router page='talk'}" method="post" id="form_talks_list">
             <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
             <input type="hidden" name="submit_talk_read" id="form_talks_list_submit_read" value=""/>

@@ -472,23 +472,23 @@ class ModuleTalk_MapperTalk extends Mapper {
         }
         $sql
             = "SELECT
-					tu.talk_id
+					t.talk_id
 				FROM 
-					?_talk_user as tu,
-					?_talk as t,
-					?_user as u
+					?_talk_user AS tui
+                  JOIN ?_talk AS t ON t.talk_id=tui.talk_id
+                  JOIN ?_talk_user AS tu ON tu.talk_id=t.talk_id
+                  JOIN ?_user AS u ON u.user_id=tu.user_id
 				WHERE 
-					tu.talk_id=t.talk_id
-					AND tu.talk_user_active = ?d
-					AND u.user_id=t.user_id
-					{ AND tu.user_id = ?d }
-					{ AND tu.talk_id IN (?a) }
+					tui.talk_user_active = ?d
+					{ AND tui.user_id = ?d }
+					{ AND tui.talk_id IN (?a) }
 					{ AND ( tu.comment_count_new > ?d OR tu.date_last IS NULL ) }
 					{ AND t.talk_date <= ? }
 					{ AND t.talk_date >= ? }
 					{ AND t.talk_title LIKE ? }
 					{ AND t.talk_text LIKE ? }
 					{ AND u.user_login = ? }
+					{ AND u.user_login IN (?a) }
 					{ AND t.user_id = ? }
 				ORDER BY t.talk_date_last desc, t.talk_date desc
 				LIMIT ?d, ?d
@@ -506,7 +506,8 @@ class ModuleTalk_MapperTalk extends Mapper {
             (!empty($aFilter['date_min']) ? $aFilter['date_min'] : DBSIMPLE_SKIP),
             (!empty($aFilter['keyword']) ? $aFilter['keyword'] : DBSIMPLE_SKIP),
             (!empty($aFilter['text_like']) ? $aFilter['text_like'] : DBSIMPLE_SKIP),
-            (!empty($aFilter['user_login']) ? $aFilter['user_login'] : DBSIMPLE_SKIP),
+            ((!empty($aFilter['user_login']) && !is_array($aFilter['user_login']))? $aFilter['user_login'] : DBSIMPLE_SKIP),
+            ((!empty($aFilter['user_login']) && is_array($aFilter['user_login']))? $aFilter['user_login'] : DBSIMPLE_SKIP),
             (!empty($aFilter['sender_id']) ? $aFilter['sender_id'] : DBSIMPLE_SKIP),
             ($iCurrPage - 1) * $iPerPage,
             $iPerPage

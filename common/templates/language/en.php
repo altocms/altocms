@@ -915,6 +915,7 @@ return array(
     'talk_filter_erase'                         => 'Remove filter',
     'talk_filter_erase_form'                    => 'Empty form',
     'talk_filter_label_sender'                  => 'Sender',
+    'talk_filter_label_addresee'                => 'Addressee',
     'talk_filter_label_keyword'                 => 'Search in the subjects',
     'talk_filter_label_keyword_text'            => 'Search in the message',
     'talk_filter_label_favourite'               => 'Search in favourites',

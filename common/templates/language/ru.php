@@ -968,6 +968,7 @@ return array(
     'talk_filter_erase'                         => 'Сбросить фильтр',
     'talk_filter_erase_form'                    => 'Очистить форму',
     'talk_filter_label_sender'                  => 'Отправитель',
+    'talk_filter_label_addressee'               => 'Адресат',
     'talk_filter_label_keyword'                 => 'Искать в заголовке',
     'talk_filter_label_keyword_text'            => 'Искать в тексте',
     'talk_filter_label_favourite'               => 'Искать только в избранном',

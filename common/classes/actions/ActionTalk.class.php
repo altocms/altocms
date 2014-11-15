@@ -123,9 +123,8 @@ class ActionTalk extends Action {
      * Отображение списка сообщений
      */
     protected function EventInbox() {
-        /**
-         * Обработка удаления сообщений
-         */
+
+        // * Обработка удаления сообщений
         if (F::GetRequest('submit_talk_del')) {
             $this->Security_ValidateSendForm();
 
@@ -134,9 +133,8 @@ class ActionTalk extends Action {
                 $this->Talk_DeleteTalkUserByArray(array_keys($aTalksIdDel), $this->oUserCurrent->getId());
             }
         }
-        /**
-         * Обработка отметки о прочтении
-         */
+
+        // * Обработка отметки о прочтении
         if (F::GetRequest('submit_talk_read')) {
             $this->Security_ValidateSendForm();
 
@@ -145,9 +143,8 @@ class ActionTalk extends Action {
                 $this->Talk_MarkReadTalkUserByArray(array_keys($aTalksIdDel), $this->oUserCurrent->getId());
             }
         }
-		/**
-         * Обработка отметки непрочтенных сообщений
-         */
+
+        // * Обработка отметки непрочтенных сообщений
         if (F::GetRequest('submit_talk_unread')) {
             $this->Security_ValidateSendForm();
 
@@ -157,37 +154,29 @@ class ActionTalk extends Action {
             }
         }
         $this->sMenuSubItemSelect = 'inbox';
-        /**
-         * Количество сообщений на страницу
-         */
+
+        // * Количество сообщений на страницу
         $iPerPage = Config::Get('module.talk.per_page');
-        /**
-         * Формируем фильтр для поиска сообщений
-         */
+
+        // * Формируем фильтр для поиска сообщений
         $aFilter = $this->BuildFilter();
-        /**
-         * Если только новые, то добавляем условие в фильтр
-         */
+
+        // * Если только новые, то добавляем условие в фильтр
         if ($this->GetParam(0) == 'new') {
             $this->sMenuSubItemSelect = 'new';
             $aFilter['only_new'] = true;
             $iPerPage = 50; // новых отображаем только последние 50 писем, без постраничности
         }
-        /**
-         * Передан ли номер страницы
-         */
+
+        // * Передан ли номер страницы
         $iPage = preg_match("/^page([1-9]\d{0,5})$/i", $this->getParam(0), $aMatch) ? $aMatch[1] : 1;
-        /**
-         * Получаем список писем
-         */
-        $aResult = $this->Talk_GetTalksByFilter(
-            $aFilter, $iPage, $iPerPage
-        );
+
+        // * Получаем список писем
+        $aResult = $this->Talk_GetTalksByFilter($aFilter, $iPage, $iPerPage);
 
         $aTalks = $aResult['collection'];
-        /**
-         * Формируем постраничность
-         */
+
+        // * Формируем постраничность
         $aPaging = $this->Viewer_MakePaging(
             $aResult['count'], $iPage, $iPerPage, Config::Get('pagination.pages.count'),
             Router::GetPath('talk') . $this->sCurrentEvent,
@@ -199,9 +188,8 @@ class ActionTalk extends Action {
                 )
             )
         );
-        /**
-         * Показываем сообщение, если происходит поиск по фильтру
-         */
+
+        // * Показываем сообщение, если происходит поиск по фильтру
         if (F::GetRequest('submit_talk_filter')) {
             $this->Message_AddNotice(
                 ($aResult['count'])
@@ -209,9 +197,8 @@ class ActionTalk extends Action {
                     : $this->Lang_Get('talk_filter_result_empty')
             );
         }
-        /**
-         * Загружаем переменные в шаблон
-         */
+
+        // * Загружаем переменные в шаблон
         $this->Viewer_Assign('aPaging', $aPaging);
         $this->Viewer_Assign('aTalks', $aTalks);
     }
@@ -222,15 +209,13 @@ class ActionTalk extends Action {
      * @return array
      */
     protected function BuildFilter() {
-        /**
-         * Текущий пользователь
-         */
+
+        // * Текущий пользователь
         $aFilter = array(
             'user_id' => $this->oUserCurrent->getId(),
         );
-        /**
-         * Дата старта поиска
-         */
+
+        // * Дата старта поиска
         if ($start = F::GetRequestStr('start')) {
             if (F::CheckVal($start, 'text', 6, 10) && substr_count($start, '.') == 2) {
                 list($d, $m, $y) = explode('.', $start);
@@ -251,9 +236,8 @@ class ActionTalk extends Action {
                 unset($_REQUEST['start']);
             }
         }
-        /**
-         * Дата окончания поиска
-         */
+
+        // * Дата окончания поиска
         if ($end = F::GetRequestStr('end')) {
             if (F::CheckVal($end, 'text', 6, 10) && substr_count($end, '.') == 2) {
                 list($d, $m, $y) = explode('.', $end);
@@ -274,9 +258,8 @@ class ActionTalk extends Action {
                 unset($_REQUEST['end']);
             }
         }
-        /**
-         * Ключевые слова в теме сообщения
-         */
+
+        // * Ключевые слова в теме сообщения
         if (($sKeyRequest = F::GetRequest('keyword')) && is_string($sKeyRequest)) {
             $sKeyRequest = urldecode($sKeyRequest);
             preg_match_all('~(\S+)~u', $sKeyRequest, $aWords);
@@ -287,9 +270,8 @@ class ActionTalk extends Action {
                 unset($_REQUEST['keyword']);
             }
         }
-        /**
-         * Ключевые слова в тексте сообщения
-         */
+
+        // * Ключевые слова в тексте сообщения
         if ($sKeyRequest = F::GetRequest('keyword_text') && is_string($sKeyRequest)) {
             $sKeyRequest = urldecode($sKeyRequest);
             preg_match_all('~(\S+)~u', $sKeyRequest, $aWords);
@@ -300,15 +282,17 @@ class ActionTalk extends Action {
                 unset($_REQUEST['keyword_text']);
             }
         }
-        /**
-         * Отправитель
-         */
+
+        // * Отправитель
         if (($sender = F::GetRequest('sender')) && is_string($sender)) {
             $aFilter['user_login'] = urldecode($sender);
         }
-        /**
-         * Искать только в избранных письмах
-         */
+        // * Адресат
+        if (($sAddressee = F::GetRequest('addressee')) && is_string($sAddressee)) {
+            $aFilter['user_login'] = F::Array_Str2Array(urldecode($sAddressee), ',', true);
+        }
+
+        // * Искать только в избранных письмах
         if (F::GetRequest('favourite')) {
             $aTalkIdResult = $this->Favourite_GetFavouritesByUserId(
                 $this->oUserCurrent->getId(), 'talk', 1, 500
