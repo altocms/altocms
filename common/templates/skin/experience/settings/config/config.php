@@ -54,77 +54,9 @@ $config['view']['header']['logo']['file'] = 'logo.png';
 //$config['view']['header']['logo']['url'] = 'http://site.com/logo.png';
 $config['view']['header']['logo']['name'] = Config::Get('view.name');
 
-
-// Пункты меню второго уровня
-$config['view']['menu']['main'] = array(
-    'items' => array(
-        'index' => array(
-            'lang' => 'topic_title',
-            'url' => Config::Get('path.root.url'),
-            'icon_class' => 'fa fa-file-text-o',
-        ),
-        'blogs' => array(
-            'lang' => 'blogs',
-            'url' => Router::GetPath('blogs'),
-            'icon_class' => 'fa fa-comment-o',
-        ),
-        'people' => array(
-            'lang' => 'people',
-            'url' => Router::GetPath('people'),
-            'icon_class' => 'fa fa-circle-o',
-        ),
-        'stream' => array(
-            'lang' => 'stream_menu',
-            'url' => Router::GetPath('stream'),
-            'icon_class' => 'fa fa-signal',
-        ),
-    ),
-);
-
-// Пункты меню третьего уровня
-$config['view']['menu']['blogs'] = array(
-    'config' => array(
-        //'fill_from' => 'blogs',
-        //'fill_from' => array('blogs' => array('dev', 'special', 'trips', 'albums')),
-        //'fill_from' => 'categories',
-        //'fill_from' => array('blogs' => array('trips', 'albums'), 'categories' => array('events', 'news'), 'list' => array('blog_1', 'blog_2')),
-        'limit' => 7,
-    ),
-    'items' => array(
-        'blog_1' => array(
-            'text' => 'Дизайн',
-            'url' => Config::Get('path.root.url'),
-        ),
-        'blog_2' => array(
-            'text' => 'Техника',
-            'url' => Config::Get('path.root.url'),
-        ),
-        'blog_3' => array(
-            'text' => 'Смартфоны',
-            'url' => Config::Get('path.root.url'),
-        ),
-        'blog_4' => array(
-            'text' => 'Приложения',
-            'url' => Config::Get('path.root.url'),
-        ),
-        'blog_5' => array(
-            'text' => 'Спорт',
-            'url' => Config::Get('path.root.url'),
-        ),
-        'blog_6' => array(
-            'text' => 'Новости',
-            'url' => Config::Get('path.root.url'),
-        ),
-        'blog_7' => array(
-            'text' => 'Технологии',
-            'url' => Config::Get('path.root.url'),
-        ),
-    ),
-);
-
 $config['module']['user']['profile_photo_size'] = '222x';
 
 // Настройка css- и js-наборов
-require 'assets.php';
+//require 'assets.php';
 
 return $config;

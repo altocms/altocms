@@ -22,29 +22,6 @@ $config['view']['header']['banner'] = true;
 $config['view']['header']['logo'] = Config::Get('path.skin.url') . 'themes/___view.theme___/img/favicon.png';
 $config['view']['header']['name'] = 'START<span>KIT</span>';
 
-/* Main menu in top bar */
-$config['view']['menu']['main'] = array(
-    'options' => array(),
-    'items' => array(
-            'index' => array(
-                'lang' => 'topic_title',
-                'url' => Config::Get('path.root.url'),
-            ),
-            'blogs' => array(
-                'lang' => 'blogs',
-                'url' => Router::GetPath('blogs'),
-            ),
-            'people' => array(
-                'lang' => 'people',
-                'url' => Router::GetPath('people'),
-            ),
-            'stream' => array(
-                'lang' => 'stream_menu',
-                'url' => Router::GetPath('stream'),
-            ),
-    ),
-);
-
 $config['head']['default']['js'] = Config::Get('head.default.js');
 $config['head']['default']['js'][] = '___path.skin.dir___/assets/js/template.js';
 

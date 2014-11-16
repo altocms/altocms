@@ -324,6 +324,11 @@ $config['module']['topic']['on_duplicate_url'] = 1;                 // 0 - иг�
 $config['module']['upload']['max_filesize'] = '5M';     // максимальный размер загружаемого файла в байтах (по умолчанию 5МБ)
 $config['module']['upload']['file_extensions'] = array('gif','png','jpg','jpeg'); //расширения файлов, которые можно загружать + 'module.topic.upload_mime_types'
 
+
+// Модуль Menu
+$config['module']['menu']['default_length'] = 7;
+$config['module']['menu']['blog_logo_size'] = '24x24crop';
+
 /*
  * Настройка ЧПУ топика
  * Допустимые параметры:
@@ -797,7 +802,9 @@ $config['config_load'] = array(
     'classes',      // Определения классов
     'jevix',        // Настройки типографа текста Jevix
     'widgets',      // Виджеты
+    'menu',         // Меню
 );
+
 
 return $config;
 

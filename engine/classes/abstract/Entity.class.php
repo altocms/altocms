@@ -768,6 +768,109 @@ abstract class Entity extends LsObject {
         $this->delPropExpanded($sName);
     }
 
+    /**
+     * Проверяет массив правил. В качестве правил может быть задана колбэк-функция
+     * или указан метод владельца сущности, который должен быть реализован заранее
+     *
+     * @param $aRules
+     * @param bool $bConcatenateResult
+     * @param bool $sOwnerClassName
+     * @return bool
+     */
+    public function checkCustomRules($aRules, $bConcatenateResult = FALSE, $sOwnerClassName = FALSE) {
+
+        // Правило жёстко задано - вернем его
+        if (is_bool($aRules)) {
+            return $aRules;
+        }
+        // Правило жёстко задано - вернем его
+        if (is_string($aRules)) {
+            return $aRules;
+        }
+
+        /** @var callable[]|[][] $aActiveRule Правило вычисления активности */
+        // Нет правила, кнопка вообще не активна будет
+        if (!$aRules) {
+            return FALSE;
+        }
+
+        // Правило задается методаом меню
+        if (!is_array($aRules)) {
+            return FALSE;
+        }
+
+        if (!$sOwnerClassName) {
+            $aOwnerClassName = Engine::getInstance()->GetClassInfo($this, Engine::CI_MODULE);
+            $sOwnerClassName = array_shift($aOwnerClassName);
+        }
+
+        // Все проверки пройдены, запускаем вычисление активности
+        $bResult = FALSE;
+        foreach ($aRules as $sMethodName => $xRule) {
+
+            if (is_bool($xRule)) {
+                if ($bConcatenateResult) {
+                    $bResult .= $xRule;
+                } else {
+                    $bResult = $bResult || $xRule;
+                }
+
+                if ($bResult && !$bConcatenateResult) {
+                    break;
+                }
+                continue;
+            }
+
+            if (is_string($xRule) && $bConcatenateResult){
+                $bResult .= $xRule;
+                continue;
+            }
+
+            // Передан колбэк
+            if (is_callable($xRule)) {
+                $bResult = $bResult || $xRule();
+                if ($bResult && !$bConcatenateResult) {
+                    break;
+                }
+                continue;
+            }
+
+            /**
+             * Передан вызов функции, например
+             * $xRule = array('compare_action' => array('index'))
+             */
+            $sTmpMethodName = FALSE;
+            $aTmpMethodParams = FALSE;
+            // Метод передан строкой
+            if (is_int($sMethodName) && is_string($xRule)) {
+                $sTmpMethodName = $xRule;
+                $aTmpMethodParams = array();
+            }
+            // Метод передан массивом
+            if (is_string($sMethodName) && is_array($xRule)) {
+                $sTmpMethodName = $sMethodName;
+                $aTmpMethodParams = $xRule;
+            }
+            // Вызовем метод
+            if ($sTmpMethodName && $aTmpMethodParams !== FALSE) {
+                $sTmpMethodName = $sOwnerClassName . '_' . F::StrCamelize($sTmpMethodName);
+                if ($bConcatenateResult) {
+                    $bResult .= call_user_func_array(array($this, $sTmpMethodName), $aTmpMethodParams);
+                } else {
+                    $bResult = $bResult || call_user_func_array(array($this, $sTmpMethodName), $aTmpMethodParams);
+                }
+
+                if ($bResult && !$bConcatenateResult) {
+                    break;
+                }
+                continue;
+            }
+        }
+
+        return $bResult;
+
+    }
+
 }
 
 // EOF

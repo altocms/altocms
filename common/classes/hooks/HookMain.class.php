@@ -75,18 +75,19 @@ class HookMain extends Hook {
 
     public function RenderInitDone() {
 
-        $aMenus = Config::Get('view.menu');
+        $aMenus = Config::Get('menu.data');
         $bChanged = false;
         if ($aMenus && is_array($aMenus)) {
+
             foreach($aMenus as $sMenuId => $aMenu) {
-                if (isset($aMenu['config']['fill_from'])) {
-                    $aMenus[$sMenuId] = $this->Menu_Prepare($aMenu);
+                if (isset($aMenu['init']['fill'])) {
+                    $aMenus[$sMenuId] = $this->Menu_Prepare($sMenuId, $aMenu);
                     $bChanged = true;
                 }
             }
             if ($bChanged) {
-                Config::Set('view.menu', null);
-                Config::Set('view.menu', $aMenus);
+                Config::Set('menu.data', null);
+                Config::Set('menu.data', $aMenus);
             }
         }
     }

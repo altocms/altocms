@@ -413,7 +413,13 @@ class Config extends Storage {
                 } else {
                     $sNewKey = $k;
                 }
+                // В меню возвращаемым значением является объект, а в нем
+                // менять плейсхолдеры не нужно - приводит к ошибке
+                if (is_object($v)) {
+                    $xResult[$sNewKey] = $v;
+                } else {
                 $xResult[$sNewKey] = static::KeyReplace($v, $sRoot);
+                }
                 unset($xCfg[$k]);
             }
         } else {
