@@ -481,7 +481,7 @@ class Func {
         if ($aLastError && ($aLastError['err_no'] & ~static::$nFatalErrors)) {
             foreach ($aStack as $nI => $aCaller) {
                 // find point of error
-                if ((isset($aCaller['args'][0]) && $aCaller['args'][0] == $aLastError['err_no'])
+                if ((isset($aCaller['args'][0]) && is_numeric($aCaller['args'][0]) && $aCaller['args'][0] == $aLastError['err_no'])
                     && (isset($aCaller['args'][1]) && $aCaller['args'][1] == $aLastError['err_msg'])
                     && (isset($aCaller['args'][2]) && $aCaller['args'][2] == $aLastError['err_file'])
                     && (isset($aCaller['args'][3]) && $aCaller['args'][3] == $aLastError['err_line'])
