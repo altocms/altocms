@@ -14,6 +14,10 @@ class ModuleMenu_EntityMenu extends Entity {
      */
     protected $_aItems = array();
 
+    public function Init(){
+        $this->_aItems = isset($this->_aData['items']) ? $this->_aData['items'] : NULL;
+    }
+
     /**
      * Возвращает числовую позицию элемента
      *
@@ -34,7 +38,7 @@ class ModuleMenu_EntityMenu extends Entity {
         );
 
         // Позиция элемента
-        return (int)eval(str_replace(
+        return (int)(str_replace(
             array_keys($aMenuPosition),
             array_values($aMenuPosition),
             $xPosition)
@@ -61,13 +65,22 @@ class ModuleMenu_EntityMenu extends Entity {
      */
     public function AddItem($xPosition, $oMenuItem, $bReplace = FALSE) {
 
-        $this->_aItems = array_splice(
+        array_splice(
             $this->_aItems,
             $this->_getIntPosition($xPosition),
-            (int)!$bReplace,
+            (int)$bReplace,
             array($oMenuItem)
         );
 
+
+    }
+
+    /**
+     * Возвращает ид. меню
+     * @return int|null
+     */
+    public function getId() {
+        return isset($this->_aData['id']) ? $this->_aData['id'] : NULL;
     }
 
     /**
@@ -85,7 +98,7 @@ class ModuleMenu_EntityMenu extends Entity {
     /**
      * Удаляет элемент меню
      *
-     * @param $xPosition Позиция в списке.
+     * @param mixed $xPosition Позиция в списке.
      * @return array
      */
     public function RemoveItem($xPosition) {

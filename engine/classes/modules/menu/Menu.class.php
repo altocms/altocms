@@ -105,11 +105,33 @@ class ModuleMenu extends Module {
     public function GetMenu($sMenuId) {
 
         // Настройки меню
-        $aMenuConfig = Config::Get('view.menu.' . $sMenuId);
+        $aMenuConfig = Config::Get('menu.data.' . $sMenuId);
 
         // Из них возьмем сами сформированные меню
         if (isset($aMenuConfig['items'])) {
-            return $aMenuConfig['items'];
+            return Engine::GetEntity('Menu_Menu', array(
+                'id'    => $sMenuId,
+                'items' => $aMenuConfig['items']
+            ));
+        }
+
+        return FALSE;
+    }
+
+    /**
+     * Сохраняем меню
+     *
+     * @param ModuleMenu_EntityMenu $oMenu
+     * @return bool|Entity
+     */
+    public function SaveMenu($oMenu) {
+
+        // Настройки меню
+        $aMenu = Config::Get('menu.data');
+
+        // Из них возьмем сами сформированные меню
+        if ($aMenu) {
+            Config::Set("menu.data.{$oMenu->getId()}.items", $oMenu->GetItems());
         }
 
         return FALSE;
@@ -385,8 +407,8 @@ class ModuleMenu extends Module {
             $aPlugins = array($aPlugins);
         }
 
-        $bResult = false;
-        foreach ($aPlugins as $sPluginName ){
+        $bResult = FALSE;
+        foreach ($aPlugins as $sPluginName) {
             $bResult = $bResult || E::ActivePlugin($sPluginName);
             if ($bResult) {
                 break;
@@ -402,7 +424,7 @@ class ModuleMenu extends Module {
      * @param $aActionName
      * @return bool
      */
-    public function CompareAction($aActionName){
+    public function CompareAction($aActionName) {
 
         if (is_string($aActionName)) {
             $aActionName = array($aActionName);
@@ -413,10 +435,40 @@ class ModuleMenu extends Module {
     }
 
     /**
+     * Вызывается по строке "not_action"
+     * @param $aActionName
+     * @return bool
+     */
+    public function NotAction($aActionName) {
+
+        if (is_string($aActionName)) {
+            $aActionName = array($aActionName);
+        }
+
+        return !in_array(Router::GetAction(), $aActionName);
+
+    }
+
+    /**
+     * Вызывается по строке "not_event"
+     * @param $aEventName
+     * @return bool
+     */
+    public function NotEvent($aEventName) {
+
+        if (is_string($aEventName)) {
+            $aEventName = array($aEventName);
+        }
+
+        return !in_array(Router::GetActionEvent(), $aEventName);
+
+    }
+
+    /**
      * Вызывается по строке "new_talk"
      * @return bool
      */
-    public function NewTalk(){
+    public function NewTalk() {
 
         return (int)$this->Talk_GetCountTalkNew(E::IsUser());
 
@@ -426,7 +478,7 @@ class ModuleMenu extends Module {
      * Вызывается по строке "new_talk_string"
      * @return bool
      */
-    public function NewTalkString(){
+    public function NewTalkString() {
 
         $iCount = (int)$this->Talk_GetCountTalkNew(E::IsUser());
         if ($iCount) {
@@ -440,7 +492,7 @@ class ModuleMenu extends Module {
      * Вызывается по строке "user_avatar_url"
      * @return bool
      */
-    public function UserAvatarUrl($sSize){
+    public function UserAvatarUrl($sSize) {
 
         if (E::IsUser()) {
             return E::User()->getAvatarUrl($sSize);
@@ -454,7 +506,7 @@ class ModuleMenu extends Module {
      * Вызывается по строке "user_name"
      * @return bool
      */
-    public function UserName(){
+    public function UserName() {
 
         if (E::IsUser()) {
             return E::User()->getDisplayName();
@@ -470,7 +522,7 @@ class ModuleMenu extends Module {
      * @param $sParamData
      * @return bool
      */
-    public function CompareParam($iParam, $sParamData){
+    public function CompareParam($iParam, $sParamData) {
 
         return Router::GetParam($iParam) == $sParamData;
 
@@ -483,7 +535,7 @@ class ModuleMenu extends Module {
      * @internal param $sParamData
      * @return bool
      */
-    public function TopicKind($sTopicType){
+    public function TopicKind($sTopicType) {
 
         if (is_null(Router::GetActionEvent())) {
             return 'good' == $sTopicType;
@@ -499,11 +551,12 @@ class ModuleMenu extends Module {
      * @internal param $sParamData
      * @return bool
      */
-    public function NewTopicsCount(){
+    public function NewTopicsCount() {
 
         $iCountTopicsCollectiveNew = $this->Topic_GetCountTopicsCollectiveNew();
         $iCountTopicsPersonalNew = $this->Topic_GetCountTopicsPersonalNew();
-        return $iCountTopicsCollectiveNew +$iCountTopicsPersonalNew;
+
+        return $iCountTopicsCollectiveNew + $iCountTopicsPersonalNew;
 
     }
 
@@ -513,11 +566,12 @@ class ModuleMenu extends Module {
      * @internal param $sParamData
      * @return bool
      */
-    public function NoNewTopics(){
+    public function NoNewTopics() {
 
         $iCountTopicsCollectiveNew = $this->Topic_GetCountTopicsCollectiveNew();
         $iCountTopicsPersonalNew = $this->Topic_GetCountTopicsPersonalNew();
-        return $iCountTopicsCollectiveNew +$iCountTopicsPersonalNew == 0;
+
+        return $iCountTopicsCollectiveNew + $iCountTopicsPersonalNew == 0;
 
     }
 

@@ -152,7 +152,7 @@ if (E::IsUser()) {
             ),
             'settings'     => array(
                 'text' => '{{user_settings}}',
-                'link' => E::User()->getProfileUrl() . 'profile/',
+                'link' => E::User()->getProfileUrl() . 'settings/',
             ),
             'userbar_item' => '',
             'logout'       => array(
