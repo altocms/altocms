@@ -357,14 +357,18 @@ class ModuleViewer extends Module {
             $aConfig = F::IncludeFile($sFile, FALSE, TRUE);
         }
 
-        $aConfigLoad = F::Str2Array(Config::Get('config_load'));
-        if ($aConfigLoad) {
-            foreach ($aConfigLoad as $sConfigName) {
-                if (F::File_Exists($sFile = Config::Get('path.smarty.template') . "/settings/config/$sConfigName.php")) {
-                    $aConfig = array_merge($aConfig, F::IncludeFile($sFile, false, true));
-                }
-            }
+        if (F::File_Exists($sFile = Config::Get('path.smarty.template') . '/settings/config/menu.php')) {
+            $aConfig = F::Array_MergeCombo($aConfig, F::IncludeFile($sFile, false, true));
         }
+
+//        $aConfigLoad = F::Str2Array(Config::Get('config_load'));
+//        if ($aConfigLoad) {
+//            foreach ($aConfigLoad as $sConfigName) {
+//                if (F::File_Exists($sFile = Config::Get('path.smarty.template') . "/settings/config/$sConfigName.php")) {
+//                    $aConfig = array_merge($aConfig, F::IncludeFile($sFile, false, true));
+//                }
+//            }
+//        }
 
         // Checks skin's config in app dir
         $sFile = Config::Get('path.dir.app') . F::File_LocalPath($sFile, Config::Get('path.dir.common'));
