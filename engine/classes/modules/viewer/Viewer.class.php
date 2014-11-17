@@ -380,6 +380,9 @@ class ModuleViewer extends Module {
             Config::Set('view.theme', $this->GetConfigTheme());
         }
 
+        // Load lang files for skin
+        $this->Lang_LoadLangFileTemplate($this->Lang_GetLang());
+
         // Skip skin widgets for local viewer
         if (!$this->bLocal) {
             // * Load skin widgets

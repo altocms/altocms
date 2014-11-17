@@ -341,9 +341,9 @@ class ModuleLang extends Module {
      *
      * @param string $sLangName    Язык для загрузки
      */
-    public function LoadLangFileTemplate($sLangName) {
+    public function LoadLangFileTemplate($sLangName = null, $sLangFor = null) {
 
-        $this->_loadFiles(Config::Get('path.smarty.template') . '/settings/language/', $sLangName);
+        $this->_loadFiles(Config::Get('path.smarty.template') . '/settings/language/', $sLangName, null, $sLangFor);
     }
 
     /**

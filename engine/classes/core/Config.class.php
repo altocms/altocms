@@ -40,6 +40,8 @@ class Config extends Storage {
 
     const CUSTOM_CONFIG_PREFIX = 'custom.config.';
 
+    const ROOT_KEY = '$root$';
+
     /**
      * Mapper rules for Config Path <-> Constant Name relations
      *
@@ -217,7 +219,22 @@ class Config extends Storage {
             $nLevel = $this->nLevel;
         }
         $sStorageKey = $this->_storageKey($sRootKey, $nLevel);
-        return parent::SetStorage($sStorageKey, $aConfig, $bReset);
+
+        $aRootSection = array();
+        if ($bReset && isset($aConfig[static::ROOT_KEY])) {
+            if (is_array($aConfig[static::ROOT_KEY])) {
+                $aRootSection = $aConfig[static::ROOT_KEY];
+            } else {
+                $aRootSection = array();
+            }
+            unset($aConfig[static::ROOT_KEY]);
+        }
+        if ($aRootSection) {
+            parent::SetStorage($sStorageKey, $aConfig, $bReset);
+            return parent::SetStorage($sStorageKey, $aRootSection, false);
+        } else {
+            return parent::SetStorage($sStorageKey, $aConfig, $bReset);
+        }
     }
 
     public function _isExists($sKey, $sRoot = self::DEFAULT_CONFIG_ROOT) {
@@ -469,9 +486,9 @@ class Config extends Storage {
             $nLevel = $sRoot;
             $sRoot = self::DEFAULT_CONFIG_ROOT;
         }
-        if (isset($xValue['$root$']) && is_array($xValue['$root$'])) {
-            $aRoot = $xValue['$root$'];
-            unset($xValue['$root$']);
+        if (isset($xValue[static::ROOT_KEY]) && is_array($xValue[static::ROOT_KEY])) {
+            $aRoot = $xValue[static::ROOT_KEY];
+            unset($xValue[static::ROOT_KEY]);
             foreach ($aRoot as $sRootKey => $xVal) {
                 if (static::isExist($sRootKey)) {
                     static::Set($sRootKey, F::Array_MergeCombo(Config::Get($sRootKey, $sRoot), $xVal), $sRoot, $nLevel);
