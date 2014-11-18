@@ -245,7 +245,7 @@ class ActionBlog extends Action {
         if ($this->_addBlog($oBlog)) {
             $this->Hook_Run('blog_add_after', array('oBlog' => $oBlog));
 
-            // Получаем блог, это для получение полного пути блога,
+            // Читаем блог - это для получения полного пути блога,
             // если он в будущем будет зависит от других сущностей (компании, юзер и т.п.)
             $oBlog->Blog_GetBlogById($oBlog->getId());
 
