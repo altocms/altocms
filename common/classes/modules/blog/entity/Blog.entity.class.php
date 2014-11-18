@@ -560,6 +560,42 @@ class ModuleBlog_EntityBlog extends Entity {
         }
         return false;
     }
+
+    /**
+     * Can this blog be edited by the user?
+     *
+     * @param ModuleUser_EntityUser $oUser
+     *
+     * @return bool
+     */
+    public function CanEditedBy($oUser) {
+
+        return $this->ACL_IsAllowEditBlog($this, $oUser);
+    }
+
+    /**
+     * Can this blog be administarted by the user?
+     *
+     * @param ModuleUser_EntityUser $oUser
+     *
+     * @return bool
+     */
+    public function CanAdminBy($oUser) {
+
+        return $this->ACL_IsAllowAdminBlog($this, $oUser);
+    }
+
+    /**
+     * Can this blog be deleted by the user?
+     *
+     * @param ModuleUser_EntityUser $oUser
+     *
+     * @return bool
+     */
+    public function CanDeletedBy($oUser) {
+
+        return $this->ACL_IsAllowDeleteBlog($this, $oUser);
+    }
 }
 
 // EOF
