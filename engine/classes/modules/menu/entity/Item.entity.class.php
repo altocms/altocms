@@ -104,8 +104,10 @@ class ModuleMenu_EntityItem extends Entity {
 
     /**
      * Проверка на то, нужно выводить элемент или нет
+     * @param string|bool $sType Текущий контент
+     * @return bool
      */
-    public function isEnabled() {
+    public function isEnabled($sType = FALSE) {
 
         // Проверим по доступности
         if ($this->getDisplay() === FALSE) {
@@ -129,6 +131,11 @@ class ModuleMenu_EntityItem extends Entity {
 
         // Проверим по плагину
         if ($this->getOptions() && $this->getOptions()->getPlugin() && !$this->checkPlugin($this->getOptions()->getPlugin())) {
+            return FALSE;
+        }
+
+        // Проверим по контексту
+        if (($aContext = $this->getType()) && !in_array($sType, $aContext)) {
             return FALSE;
         }
 

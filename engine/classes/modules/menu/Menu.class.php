@@ -247,6 +247,7 @@ class ModuleMenu extends Module {
                 isset($aItemConfig['text']) ? array('item_text' => $aItemConfig['text']) : array(),
                 isset($aItemConfig['link']) ? array('item_url' => $aItemConfig['link']) : array(),
                 isset($aItemConfig['active']) ? array('item_active' => $aItemConfig['active']) : array(),
+                isset($aItemConfig['type']) ? array('item_active' => $aItemConfig['type']) : array(),
                 isset($aItemConfig['submenu']) ? array('item_submenu' => $aItemConfig['submenu']) : array(),
                 isset($aItemConfig['on']) ? array('item_on' => $aItemConfig['on']) : array(),
                 isset($aItemConfig['off']) ? array('item_off' => $aItemConfig['off']) : array(),

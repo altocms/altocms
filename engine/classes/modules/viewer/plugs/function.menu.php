@@ -55,7 +55,7 @@ function smarty_function_menu($aParams, &$oSmarty = NULL) {
             continue;
         }
 
-        if (!$oMenuItem->isEnabled()) {
+        if (!$oMenuItem->isEnabled($aParams['type']?$aParams['type']:false)) {
             continue;
         }
 
