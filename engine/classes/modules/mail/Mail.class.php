@@ -175,8 +175,11 @@ class ModuleMail extends Module {
         $this->oMailer->CharSet = $this->sCharSet;
         $this->oMailer->Encoding = $this->sEncoding;
 
-        $this->oMailer->From = $this->sFrom;
-        $this->oMailer->FromName = $this->sFromName;
+        // see https://github.com/altocms/altocms/issues/259
+        //$this->oMailer->From = $this->sFrom;
+        //$this->oMailer->FromName = $this->sFromName;
+
+        $this->oMailer->SetFrom($this->sFrom, $this->sFromName);
     }
 
     /**
