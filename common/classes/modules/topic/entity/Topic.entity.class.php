@@ -1589,6 +1589,29 @@ class ModuleTopic_EntityTopic extends Entity {
         $this->setTopicIndexIgnore(self::INDEX_IGNORE_LOCK);
     }
 
+    /**
+     * Can this topic be edited by the user?
+     *
+     * @param ModuleUser_EntityUser $oUser
+     *
+     * @return bool
+     */
+    public function CanEditedBy($oUser) {
+
+        return $this->ACL_IsAllowEditTopic($this, $oUser);
+    }
+
+    /**
+     * Can this topic be deleted by the user?
+     *
+     * @param ModuleUser_EntityUser $oUser
+     *
+     * @return bool
+     */
+    public function CanDeletedBy($oUser) {
+
+        return $this->ACL_IsAllowDeleteTopic($this, $oUser);
+    }
 }
 
 // EOF
