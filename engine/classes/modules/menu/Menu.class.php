@@ -19,6 +19,31 @@ class ModuleMenu extends Module {
     }
 
     /**
+     * Возвращает кэшированные элементы меню
+     *
+     * @param string $sMenuId Идентификатор меню
+     * @param array $aMenu Конфиг меню
+     * @return ModuleMenu_EntityItem[]
+     */
+    protected function GetCachedItems($sMenuId, $aMenu) {
+
+        // Нужно обновлять кэш каждый раз, когда изменился конфиг, для этого возьмем
+        // хэш от сериализованного массива настроек и запишем его как имя кэша, а в теги
+        // добавим идентификатор этого меню. И если кэша не будет, то на всякий случай
+        // очистим по тегу.
+
+        $sCacheKey = md5(serialize($aMenu));
+        if (FALSE === ($data = $this->Cache_Get($sCacheKey))) {
+            $this->Cache_CleanByTags(array($sMenuId));
+
+            return array();
+        }
+
+        return $data;
+
+    }
+
+    /**
      * Подготавливает меню для вывода, заполняя его из указанных в
      * конфиге параметров.
      *
@@ -35,6 +60,19 @@ class ModuleMenu extends Module {
             return FALSE;
         }
 
+        // Почему-то при сохранении конфига добавляется пустой элемент массива с
+        // числовым индексом
+        if (isset($aMenu['list'][0])) unset($aMenu['list'][0]);
+
+        // Тут возникает два варианта, либо есть закэширвоанные элеемнты меню,
+        // либо их нет. Если есть, то вернем их
+        /** @var ModuleMenu_EntityItem[] $aCashedItems */
+        $aCashedItems = $this->GetCachedItems($sMenuId, $aMenu);
+        if ($aCashedItems) {
+            $aMenu['items'] = $aCashedItems;
+
+            return $aMenu;
+        }
 
         // Получим разрешенное количество элементов меню. Имеет смысл только для динамического
         // заполнения списка меню.
@@ -50,7 +88,6 @@ class ModuleMenu extends Module {
             return FALSE;
         }
 
-
         // Проверим корректность переданного режима заполнения
         if (is_array($aFillMode) && $aModeName = array_keys($aFillMode)) {
 
@@ -64,9 +101,13 @@ class ModuleMenu extends Module {
             }
 
             // Если валидных режимов заполнения не осталось, то завершимся
+            // и сбросим кэш, ведь очевидно, что меню пустое :(
             if (empty($aFillMode)) {
+                $this->Cache_Delete('menu_' . $sMenuId);
+
                 return FALSE;
             }
+
         }
 
 
@@ -88,6 +129,13 @@ class ModuleMenu extends Module {
             $aItems = array_slice($aItems, 0, $iTotal);
         }
 
+        // Кэшируем результат
+        $this->Cache_Set(
+            $aItems,
+            md5(serialize($aMenu)),
+            array($sMenuId),
+            isset($aItems['cache']['period']) ? $aItems['cache']['period'] : 'P30D'
+        );
 
         // Добавим сформированные данные к конфигу меню
         $aMenu['items'] = $aItems;
@@ -122,19 +170,21 @@ class ModuleMenu extends Module {
      * Сохраняем меню
      *
      * @param ModuleMenu_EntityMenu $oMenu
-     * @return bool|Entity
      */
     public function SaveMenu($oMenu) {
 
-        // Настройки меню
-        $aMenu = Config::Get('menu.data');
+        // Установим объект для дальнейшего использования
+        Config::Set("menu.data.{$oMenu->getId()}.items", $oMenu->GetItems());
 
-        // Из них возьмем сами сформированные меню
-        if ($aMenu) {
-            Config::Set("menu.data.{$oMenu->getId()}.items", $oMenu->GetItems());
+        // И конфиг сохраним
+        $aNewConfigData = array();
+        /** @var ModuleMenu_EntityItem $oMenuItem */
+        foreach ($oMenu->GetItems() as $oMenuItem) {
+            $aNewConfigData[$oMenuItem->getId()] = $oMenuItem->getItemConfig();
         }
+        Config::WriteCustomConfig(array("menu.data.{$oMenu->getId()}.list" => $aNewConfigData));
+        Config::Set("menu.data.{$oMenu->getId()}.list", $aNewConfigData);
 
-        return FALSE;
     }
 
     /**
@@ -158,59 +208,6 @@ class ModuleMenu extends Module {
      */
     private function _getProcessMethodName($sModeName) {
         return 'Process' . ucfirst($sModeName) . 'Mode';
-    }
-
-    /**
-     * Сопоставление заданных путей с текущим
-     *
-     * @param   string|array $aPaths
-     * @param   bool $bDefault
-     * @return  bool
-     */
-    protected function _checkPath($aPaths, $bDefault = TRUE) {
-
-        if ($aPaths) {
-            return Router::CompareWithLocalPath($aPaths);
-        }
-
-        return $bDefault;
-    }
-
-    /**
-     * Проверка на то, нужно выводить элемент или нет
-     *
-     * @param ModuleMenu_EntityItem $oMenuItem
-     * @return bool
-     */
-    protected function _checkMenuItem($oMenuItem) {
-
-        // Проверим по доступности
-        if ($oMenuItem->getDisplay() === FALSE) {
-            return FALSE;
-        }
-
-        // Проверим по скину
-        if ($oMenuItem->getOptions() && $oMenuItem->getOptions()->getSkin() && $oMenuItem->getOptions()->getSkin() != $this->Viewer_GetConfigSkin()) {
-            return FALSE;
-        } else {
-            // Если шкурка совпала, то проверим по теме
-            if ($oMenuItem->getOptions() && $oMenuItem->getOptions()->getTheme() && $oMenuItem->getOptions()->getTheme() != $this->Viewer_GetConfigTheme()) {
-                return FALSE;
-            }
-        }
-
-        // Проверим по пути
-        if (!($this->_checkPath($oMenuItem->getOn(), TRUE) && !$this->_checkPath($oMenuItem->getOff(), FALSE))) {
-            return FALSE;
-        }
-
-        // Проверим по плагину
-        if ($oMenuItem->getOptions() && $oMenuItem->getOptions()->getPlugin() && !$this->CheckPlugin($oMenuItem->getOptions()->getPlugin())) {
-            return FALSE;
-        }
-
-        // Все проверки пройдены
-        return TRUE;
     }
 
     /**
@@ -245,7 +242,7 @@ class ModuleMenu extends Module {
 
         return Engine::GetEntity('Menu_Item',
             array_merge(
-                array('item_id' => $sItemId),
+                array('item_id' => $sItemId, 'item_config' => $aItemConfig),
                 isset($aItemConfig['title']) ? array('item_title' => $aItemConfig['title']) : array(),
                 isset($aItemConfig['text']) ? array('item_text' => $aItemConfig['text']) : array(),
                 isset($aItemConfig['link']) ? array('item_url' => $aItemConfig['link']) : array(),
@@ -295,9 +292,8 @@ class ModuleMenu extends Module {
                     continue;
                 }
 
-                if (!is_string($oMenuItem) && $this->_checkMenuItem($oMenuItem)) {
                     $aItems[$sItemId] = $oMenuItem;
-                }
+
             }
         }
 

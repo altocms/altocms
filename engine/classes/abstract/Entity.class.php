@@ -779,6 +779,12 @@ abstract class Entity extends LsObject {
      */
     public function checkCustomRules($aRules, $bConcatenateResult = FALSE, $sOwnerClassName = FALSE) {
 
+        // Ключ кэша
+        $sCacheKey = md5(serialize($aRules) . (string)$bConcatenateResult . (string)$sOwnerClassName);
+        if (!(FALSE === ($data = $this->Cache_GetLife($sCacheKey)))) {
+            return $data;
+        }
+
         // Правило жёстко задано - вернем его
         if (is_bool($aRules)) {
             return $aRules;
@@ -821,7 +827,7 @@ abstract class Entity extends LsObject {
                 continue;
             }
 
-            if (is_string($xRule) && $bConcatenateResult){
+            if (is_string($xRule) && $bConcatenateResult) {
                 $bResult .= $xRule;
                 continue;
             }
@@ -866,6 +872,9 @@ abstract class Entity extends LsObject {
                 continue;
             }
         }
+
+        // Закэшируем результат
+        $this->Cache_SetLife($bResult, $sCacheKey);
 
         return $bResult;
 

@@ -14,7 +14,7 @@ class ModuleMenu_EntityMenu extends Entity {
      */
     protected $_aItems = array();
 
-    public function Init(){
+    public function Init() {
         $this->_aItems = isset($this->_aData['items']) ? $this->_aData['items'] : NULL;
     }
 
@@ -27,6 +27,12 @@ class ModuleMenu_EntityMenu extends Entity {
     private function _getIntPosition($xPosition) {
 
         if (is_int($xPosition)) {
+
+            if ($xPosition < 0)
+                $xPosition = 0;
+            if ($xPosition >= $this->getLength())
+                $xPosition = $xPosition - 1;
+
             return $xPosition;
         }
 
@@ -43,6 +49,8 @@ class ModuleMenu_EntityMenu extends Entity {
             array_values($aMenuPosition),
             $xPosition)
         );
+
+
     }
 
     /**
@@ -60,19 +68,32 @@ class ModuleMenu_EntityMenu extends Entity {
      * @param ModuleMenu_EntityItem $oMenuItem
      * @param mixed $xPosition Позиция в списке. Может задаваться числом, а
      * может строками 'first'|'last'
-     * @param bool $bReplace Заменять или добавлять
      * @return array
      */
-    public function AddItem($xPosition, $oMenuItem, $bReplace = FALSE) {
+    public function AddItem($xPosition, $oMenuItem) {
 
-        array_splice(
-            $this->_aItems,
-            $this->_getIntPosition($xPosition),
-            (int)$bReplace,
-            array($oMenuItem)
-        );
+        $xPosition = $this->_getIntPosition($xPosition);
 
 
+        if ($this->GetItemById($oMenuItem->getId())) {
+            return TRUE;
+        }
+
+        $aIds = array_keys($this->_aItems);
+        $aVals = array_values($this->_aItems);
+        $aResult = array();
+
+        for ($i = 0; $i < $xPosition; $i++) {
+            $aResult[$aIds[$i]] = $aVals[$i];
+        }
+        $aResult[$oMenuItem->getId()] = $oMenuItem;
+        for ($i = $xPosition; $i < count($this->_aItems); $i++) {
+            $aResult[$aIds[$i]] = $aVals[$i];
+        }
+
+        $this->_aItems = $aResult;
+
+        return TRUE;
     }
 
     /**
@@ -88,10 +109,30 @@ class ModuleMenu_EntityMenu extends Entity {
      *
      * @param mixed $xPosition Позиция в списке.
      * @param ModuleMenu_EntityItem $oMenuItem
+     * @return bool
      */
     public function ReplaceItem($xPosition, $oMenuItem) {
 
-        $this->AddItem($xPosition, $oMenuItem, TRUE);
+        if ($this->GetItemById($oMenuItem->getId())) {
+            return;
+        }
+
+        $xPosition = $this->_getIntPosition($xPosition);
+
+        $aIds = array_keys($this->_aItems);
+        $aVals = array_values($this->_aItems);
+        $aResult = array();
+
+
+        for ($i = 0; $i < count($this->_aItems); $i++) {
+            if ($i == $xPosition) {
+                $aResult[$oMenuItem->getId()] = $oMenuItem;
+                continue;
+            }
+            $aResult[$aIds[$i]] = $aVals[$i];
+        }
+
+        $this->_aItems = $aResult;
 
     }
 
@@ -103,11 +144,21 @@ class ModuleMenu_EntityMenu extends Entity {
      */
     public function RemoveItem($xPosition) {
 
-        $this->_aItems = array_splice(
-            $this->_aItems,
-            $this->_getIntPosition($xPosition),
-            1
-        );
+        $xPosition = $this->_getIntPosition($xPosition);
+
+        $aIds = array_keys($this->_aItems);
+        $aVals = array_values($this->_aItems);
+        $aResult = array();
+
+
+        for ($i = 0; $i < count($this->_aItems); $i++) {
+            if ($i == $xPosition) {
+                continue;
+            }
+            $aResult[$aIds[$i]] = $aVals[$i];
+        }
+
+        $this->_aItems = $aResult;
 
     }
 
@@ -135,6 +186,16 @@ class ModuleMenu_EntityMenu extends Entity {
      */
     public function GetItem($xPosition) {
         return $this->SelectItem($xPosition);
+    }
+
+    /**
+     * Возвращает элемент меню из указанной позиции, синоним {@see SelectItem}
+     *
+     * @param $sItemId
+     * @return bool|ModuleMenu_EntityItem
+     */
+    public function GetItemById($sItemId) {
+        return isset($this->_aItems[$sItemId]) ? $this->_aItems[$sItemId] : NULL;
     }
 
     /**

@@ -43,6 +43,16 @@ class ModuleMenu_EntityItem extends Entity {
      */
     protected $_text = NULL;
 
+
+    /**
+     * Заполним меню HTML-кодом
+     */
+    public function Init() {
+        if (!isset($this->_aData['item_flags'])) {
+            $this->_aData['item_flags'] = $this->formHtml();
+        }
+    }
+
     /**
      * Возвращает путь ссылки
      * @return int|null
@@ -59,13 +69,81 @@ class ModuleMenu_EntityItem extends Entity {
         return '';
     }
 
+    /**
+     * Сопоставление заданных путей с текущим
+     *
+     * @param   string|array $aPaths
+     * @param   bool $bDefault
+     * @return  bool
+     */
+    protected function _checkPath($aPaths, $bDefault = TRUE) {
+
+        if ($aPaths) {
+            return Router::CompareWithLocalPath($aPaths);
+        }
+
+        return $bDefault;
+    }
+
+    public function checkPlugin($aPlugins) {
+        if (is_string($aPlugins)) {
+            $aPlugins = array($aPlugins);
+        }
+
+        $bResult = FALSE;
+        foreach ($aPlugins as $sPluginName) {
+            $bResult = $bResult || E::ActivePlugin($sPluginName);
+            if ($bResult) {
+                break;
+            }
+            continue;
+        }
+
+        return $bResult;
+    }
+
+    /**
+     * Проверка на то, нужно выводить элемент или нет
+     */
+    public function isEnabled() {
+
+        // Проверим по доступности
+        if ($this->getDisplay() === FALSE) {
+            return FALSE;
+        }
+
+        // Проверим по скину
+        if ($this->getOptions() && $this->getOptions()->getSkin() && $this->getOptions()->getSkin() != $this->Viewer_GetConfigSkin()) {
+            return FALSE;
+        } else {
+            // Если шкурка совпала, то проверим по теме
+            if ($this->getOptions() && $this->getOptions()->getTheme() && $this->getOptions()->getTheme() != $this->Viewer_GetConfigTheme()) {
+                return FALSE;
+            }
+        }
+
+        // Проверим по пути
+        if (!($this->_checkPath($this->getOn(), TRUE) && !$this->_checkPath($this->getOff(), FALSE))) {
+            return FALSE;
+        }
+
+        // Проверим по плагину
+        if ($this->getOptions() && $this->getOptions()->getPlugin() && !$this->checkPlugin($this->getOptions()->getPlugin())) {
+            return FALSE;
+        }
+
+        // Все проверки пройдены
+        return TRUE;
+    }
+
     public function getLangText($sTextTemplate, $sLang = NULL) {
 
-        return preg_replace_callback('~(\{\{\S*\}\})~', function($sTextTemplatePart){
+        return preg_replace_callback('~(\{\{\S*\}\})~', function ($sTextTemplatePart) {
             $sTextTemplatePart = array_shift($sTextTemplatePart);
             if (!is_null($sText = E::Lang_Get(substr($sTextTemplatePart, 2, strlen($sTextTemplatePart) - 4)))) {
                 return $sText;
             }
+
             return $sTextTemplatePart;
         }, $sTextTemplate);
 
@@ -86,7 +164,9 @@ class ModuleMenu_EntityItem extends Entity {
 
         $this->_title = $this->checkCustomRules($aActiveRule, TRUE);
 
-        return $this->getLangText($this->_title);
+        $this->_title = $this->getLangText($this->_title);
+
+        return $this->_title;
     }
 
     /**
@@ -105,7 +185,9 @@ class ModuleMenu_EntityItem extends Entity {
 
         $this->_text = $this->checkCustomRules($aActiveRule, TRUE);
 
-        return $this->getLangText($this->_text);
+        $this->_text = $this->getLangText($this->_text);
+
+        return $this->_text;
 
     }
 
@@ -175,7 +257,7 @@ class ModuleMenu_EntityItem extends Entity {
      * Возвращает идентификатор меню
      * @return mixed
      */
-    public function getMenuId() {
+    public function getId() {
         return isset($this->_aData['item_id']) ? $this->_aData['item_id'] : NULL;
     }
 
@@ -191,8 +273,8 @@ class ModuleMenu_EntityItem extends Entity {
      * Возвращает идентификатор меню
      * @return mixed
      */
-    public function getMenuConfig() {
-        return Config::Get('view.menu.' . $this->getMenuId());
+    public function getItemConfig() {
+        return isset($this->_aData['item_config']) ? $this->_aData['item_config'] : NULL;
     }
 
     /**
@@ -212,6 +294,117 @@ class ModuleMenu_EntityItem extends Entity {
         $this->_isActive = $this->checkCustomRules($aActiveRule);
 
         return $this->_isActive;
+
+    }
+
+    /**
+     * Получаем html-код для этого элемента меню
+     *
+     * @return string
+     */
+    public function formHtml() {
+
+        // Сформируем параметры-флаги для быстрого формирования html
+        $aItemFlags = array();
+
+        // Ссылка
+        $aItemFlags['link_id'] = ($this->getOptions() && ($aLinkId = $this->getOptions()->getLinkId())) ? "id='{$aLinkId}'" : '';
+        $aItemFlags['link_active'] = ($this->getOptions() && ($this->getOptions()->getActiveLinkClass())) ? $this->getOptions()->getActiveLinkClass() : 'active';
+        $aItemFlags['link_class'] = ($this->getOptions() && ($aLinkClass = $this->getOptions()->getLinkClass())) ? "class='{$aLinkClass} [[link_active]]'" : '';
+        $sLinkDataResult = '';
+        if ($this->getOptions() && ($aLinkData = $this->getOptions()->getLinkData()) && is_array($aLinkData)) {
+            $sLinkDataResult = '';
+            foreach ($aLinkData as $sLinkDataName => $sLinkDataValue) {
+                $sLinkDataResult .= " data-{$sLinkDataName}='{$sLinkDataValue}' ";
+            }
+            $sLinkDataResult = trim($sLinkDataResult);
+        }
+        $aItemFlags['link_data'] = $sLinkDataResult;
+        $aItemFlags['item_icon'] = (($this->getOptions() && ($aSkin = $this->getOptions()->getIconClass())) ? "<i class='{$aSkin}'></i>" : '');
+        $aItemFlags['item_image_class'] = ($this->getOptions() && $this->getOptions()->getImageClass()) ? "class='{$this->getOptions()->getImageClass()}'" : '';
+        $aItemFlags['item_url'] = $this->getUrl();
+
+        // Подменю
+        $aItemFlags['item_submenu'] = $this->getSubMenuId() ? "[[submenu_{$this->getSubMenuId()}]]" : '';
+
+        // Элемент меню
+        $aItemFlags['item_active'] = ($this->getOptions() && ($this->getOptions()->getActiveClass())) ? $this->getOptions()->getActiveClass() : 'active';
+        $aItemFlags['item_class'] = ($this->getOptions() && ($sClass = $this->getOptions()->getClass())) ? "class='{$sClass} [[link_active]]'" : '';
+        // получим data
+        $sDataResult = '';
+        if ($this->getOptions() && ($aData = $this->getOptions()->getData()) && is_array($aData)) {
+            $sDataResult = '';
+            foreach ($aData as $sDataName => $sDataValue) {
+                $sDataResult .= " data-{$sDataName}='{$sDataValue}' ";
+            }
+            $sDataResult = trim($sDataResult);
+        }
+        $aItemFlags['item_data'] = $sDataResult;
+
+        return $aItemFlags;
+    }
+
+    public function getHtml() {
+
+        // Сформируем динамические параметры
+        $aParams = array();
+
+        // Ссылка
+        $sActive = FALSE;
+        if ($aParams['[[link_text]]'] = $this->getText()) {
+            // Ссылка есть
+            $aParams['[[link_image]]'] = '';
+            if (($this->getOptions() && ($sImageUrl = $this->getOptions()->getImageUrl()))) {
+                $sImageAlt = ($this->getOptions() && ($sImageTitle = $this->getOptions()->getImageTitle())) ? "alt='{$sImageTitle}'" : '';
+                $aParams['[[link_image]]'] = "<img {$this->_aData['item_flags']['item_image_class']} {$sImageAlt} src='$sImageUrl' />";
+            }
+            $aParams['[[link_title]]'] = '';
+            if (($this->getOptions() && ($sLinkTitle = $this->getOptions()->getLinkTitle()))) {
+                $aParams['[[link_title]]'] = "title='{$sLinkTitle}'";
+            }
+            $sActive = $this->getActive();
+            if ($sActive && $this->_aData['item_flags']['link_class']) {
+                $sLinkClass = str_replace('[[link_active]]', $this->_aData['item_flags']['link_active'], $this->_aData['item_flags']['link_class']);
+            } else if ($sActive && !$this->_aData['item_flags']['link_class']) {
+                $sLinkClass = "class='{$this->_aData['item_flags']['link_active']}'";
+            } else if (!$sActive && $this->_aData['item_flags']['link_class']) {
+                $sLinkClass = str_replace('[[link_active]]', '', $this->_aData['item_flags']['link_class']);
+            } else {
+                $sLinkClass = '';
+            }
+            $aParams['[[link_class]]'] = $sLinkClass;
+
+            $sCurrentLink = "<a {$this->_aData['item_flags']['link_id']} [[link_class]] [[link_title]] {$this->_aData['item_flags']['link_data']} href='{$this->_aData['item_flags']['item_url']}'>{$this->_aData['item_flags']['item_icon']}[[link_image]][[link_text]]</a>";
+        } else {
+            $sCurrentLink = '';
+        }
+
+        $aParams['[[item_title]]'] = '';
+        if ($sItemTitle = $this->getTitle()) {
+            $aParams['[[item_title]]'] = "title='{$sItemTitle}'";
+        }
+
+        if ($sActive && $this->_aData['item_flags']['item_class']) {
+            $sItemClass = str_replace('[[link_active]]', $this->_aData['item_flags']['item_active'], $this->_aData['item_flags']['item_class']);
+        } else if ($sActive && !$this->_aData['item_flags']['item_class']) {
+            $sItemClass = "class='{$this->_aData['item_flags']['item_active']}'";
+        } else if (!$sActive && $this->_aData['item_flags']['item_class']) {
+            $sItemClass = str_replace('[[link_active]]', '', $this->_aData['item_flags']['item_class']);
+        } else {
+            $sItemClass = '';
+        }
+        $aParams['[[item_class]]'] = $sItemClass;
+
+        $aParams['[[item_show]]'] = '';
+        if (!$this->getShow()) {
+            $aParams['[[item_show]]'] = "style='display: none;'";
+        }
+
+        $sHtml = "<li [[item_show]] [[item_class]] [[item_title]] {$this->_aData['item_flags']['item_data']}>{$sCurrentLink}{$this->_aData['item_flags']['item_submenu']}</li>";
+
+        $sHtml = str_replace(array_keys($aParams), array_values($aParams), $sHtml);
+
+        return $sHtml;
 
     }
 

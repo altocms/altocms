@@ -53,9 +53,11 @@ class ModuleMenu_EntityItemOptions extends Entity {
         /** @var callable[]|[][] $aActiveRule Правило вычисления активности */
         $aActiveRule = isset($this->_aData['link_title']) ? $this->_aData['link_title'] : '';
 
-        $this->_link_title= $this->checkCustomRules($aActiveRule, TRUE);
+        $this->_link_title = $this->checkCustomRules($aActiveRule, TRUE);
 
-        return $this->getLangText($this->_link_title);
+        $this->_link_title = $this->getLangText($this->_link_title);
+
+        return $this->_link_title;
     }
 
     /**

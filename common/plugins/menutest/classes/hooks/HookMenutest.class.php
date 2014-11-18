@@ -28,10 +28,10 @@ class PluginMenutest_HookMenutest extends Hook {
             $oMenu = $this->Menu_GetMenu('user');
 
             // Проверим, может в этой теме меню не объектное
-            if ($oMenu) {
+            if ($oMenu && !$oMenu->GetItemById('plugin_menutest_my_menu')) {
 
                 // Создадим элемент меню
-                $oMenuItem = $this->Menu_CreateMenuItem(F::RandomStr(5), array(
+                $oMenuItem = $this->Menu_CreateMenuItem('plugin_menutest_my_menu', array(
                     'text'    => '{{plugin.menutest.empty_about}}',
                     'link'    => E::User()->getProfileUrl() . 'settings/',
                     'display' => array(
@@ -43,7 +43,7 @@ class PluginMenutest_HookMenutest extends Hook {
                 ));
 
                 // Добавим в меню
-                $oMenu->AddItem('last', $oMenuItem);
+                $oMenu->AddItem('first', $oMenuItem);
 
                 // Сохраним
                 $this->Menu_SaveMenu($oMenu);
