@@ -78,9 +78,6 @@ function smarty_function_date_format($aParams, &$oSmarty) {
     $iDate = (preg_match("/^\d+$/", $sDate)) ? $sDate : strtotime($sDate);
     $iDate += $iDiff;
 
-    if ($iDate > $iNow) {
-        return '&gt;&gt;' . date('Y-m-d');
-    }
     /**
      * Если указана необходимость выполнять проверку на NOW
      */
