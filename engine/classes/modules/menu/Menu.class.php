@@ -56,13 +56,14 @@ class ModuleMenu extends Module {
 
         // Если тип меню не находится в списке разрешенных, то его не обрабатываем
         // Плагины же могут расширить этот список и переопределить данный метод.
-       if (!in_array($sMenuId, Config::Get('menu.allowed'))) {
-            return FALSE;
-        }
+//        if (!in_array($sMenuId, Config::Get('menu.allowed'))) {
+//            return FALSE;
+//        }
 
         // Почему-то при сохранении конфига добавляется пустой элемент массива с
         // числовым индексом
-        if (isset($aMenu['list'][0])) unset($aMenu['list'][0]);
+        if (isset($aMenu['list'][0]))
+            unset($aMenu['list'][0]);
 
         // Тут возникает два варианта, либо есть закэширвоанные элеемнты меню,
         // либо их нет. Если есть, то вернем их
@@ -158,12 +159,48 @@ class ModuleMenu extends Module {
         // Из них возьмем сами сформированные меню
         if (isset($aMenuConfig['items'])) {
             return Engine::GetEntity('Menu_Menu', array(
-                'id'    => $sMenuId,
-                'items' => $aMenuConfig['items']
+                'id'          => $sMenuId,
+                'items'       => $aMenuConfig['items'],
+                'description' => isset($aMenuConfig['description']) ? $aMenuConfig['description'] : '',
             ));
         }
 
         return FALSE;
+    }
+
+    /**
+     * Получает все меню сайта
+     *
+     * @return ModuleMenu_EntityMenu[]
+     */
+    public function GetMenus() {
+        /** @var string[] $aMenuId */
+        $aMenuId = array_keys(Config::Get('menu.data'));
+
+        return $this->GetMenusByArrayId($aMenuId);
+    }
+
+    /**
+     * Получает все меню сайта
+     *
+     * @param string[] $aMenuId
+     * @return ModuleMenu_EntityMenu[]
+     */
+    public function GetMenusByArrayId($aMenuId) {
+
+        if (!is_array($aMenuId)) {
+            $aMenuId = array($aMenuId);
+        }
+
+        /** @var ModuleMenu_EntityMenu[] $aResult */
+        $aResult = array();
+        if ($aMenuId) {
+            foreach ($aMenuId as $sMenuId) {
+                $aResult[] = $this->GetMenu($sMenuId);
+            }
+        }
+
+        return $aResult;
     }
 
     /**
@@ -247,6 +284,7 @@ class ModuleMenu extends Module {
                 isset($aItemConfig['text']) ? array('item_text' => $aItemConfig['text']) : array(),
                 isset($aItemConfig['link']) ? array('item_url' => $aItemConfig['link']) : array(),
                 isset($aItemConfig['active']) ? array('item_active' => $aItemConfig['active']) : array(),
+                isset($aItemConfig['description']) ? array('item_description' => $aItemConfig['description']) : array(),
                 isset($aItemConfig['type']) ? array('item_active' => $aItemConfig['type']) : array(),
                 isset($aItemConfig['submenu']) ? array('item_submenu' => $aItemConfig['submenu']) : array(),
                 isset($aItemConfig['on']) ? array('item_on' => $aItemConfig['on']) : array(),
@@ -293,7 +331,7 @@ class ModuleMenu extends Module {
                     continue;
                 }
 
-                    $aItems[$sItemId] = $oMenuItem;
+                $aItems[$sItemId] = $oMenuItem;
 
             }
         }

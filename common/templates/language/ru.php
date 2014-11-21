@@ -1324,6 +1324,18 @@ return array(
     'text_yes'                                  => 'Да',
     'text_no'                                   => 'Нет',
 
+    'menu_main_description' => 'Главное меню сайта',
+    'menu_main_index_description' => 'Главная страница сайта',
+    'menu_main_blogs_description' => 'Страница списков блогов',
+    'menu_main_people_description' => 'Страница списка пользователей сайта',
+    'menu_main_stream_description' => 'Лента событий сайта',
+
+    'menu_user_description' => 'Меню авторизованного пользователя',
+    'menu_empty_user_name' => '[[ИМЯ ПОЛЬЗОВАТЕЛЯ]]',
+    'menu_user_submenu_description' => 'Подменю пользователя',
+    'menu_topics_submenu_description' => 'Меню топиков',
+    'menu_login_submenu_description' => 'Меню не авторизованного пользователя',
+
     'timezone_list'                             => array(
         '-12'   => '[UTC − 12] Меридиан смены дат (запад)',
         '-11'   => '[UTC − 11] о. Мидуэй, Самоа',

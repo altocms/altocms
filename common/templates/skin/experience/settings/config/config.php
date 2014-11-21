@@ -57,6 +57,6 @@ $config['view']['header']['logo']['name'] = Config::Get('view.name');
 $config['module']['user']['profile_photo_size'] = '222x';
 
 // Настройка css- и js-наборов
-//require 'assets.php';
+require 'assets.php';
 
 return $config;

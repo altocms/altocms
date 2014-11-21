@@ -14,8 +14,41 @@ class ModuleMenu_EntityMenu extends Entity {
      */
     protected $_aItems = array();
 
+    /**
+     * Переменная для кэширвоания описания элемента меню
+     * @var null|bool
+     */
+    protected $_description = NULL;
+
     public function Init() {
         $this->_aItems = isset($this->_aData['items']) ? $this->_aData['items'] : NULL;
+    }
+
+    public function getLangText($sTextTemplate, $sLang = NULL) {
+
+        return preg_replace_callback('~(\{\{\S*\}\})~', function ($sTextTemplatePart) {
+            $sTextTemplatePart = array_shift($sTextTemplatePart);
+            if (!is_null($sText = E::Lang_Get(substr($sTextTemplatePart, 2, strlen($sTextTemplatePart) - 4)))) {
+                return $sText;
+            }
+
+            return $sTextTemplatePart;
+        }, $sTextTemplate);
+
+    }
+
+    /**
+     * Получает описание элемента меню
+     * @return bool|mixed|null
+     */
+    public function getDescription(){
+        if ($this->_description) {
+            return $this->_description;
+        }
+        $this->_description = isset($this->_aData['description']) ? $this->_aData['description'] : NULL;
+        $this->_description = $this->getLangText($this->_description);
+
+        return $this->_description;
     }
 
     /**
@@ -204,7 +237,23 @@ class ModuleMenu_EntityMenu extends Entity {
      * @return ModuleMenu_EntityItem[]
      */
     public function GetItems() {
-        return $this->_aItems;
+        $aAllowedItems = $this->_aItems;
+        $aAllowedData = $aAllowedData = array_values(Config::Get("menu.data.{$this->getId()}.init.fill.list"));
+        if (count($aAllowedData) > 1 && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
+            unset($aAllowedData[0]);
+        }
+        if (is_array($aAllowedData) && count($aAllowedData) == 1 && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
+            return $aAllowedItems;
+        }
+
+
+        foreach ($aAllowedItems as $k => $v) {
+            if (!in_array($k, $aAllowedData)) {
+                unset($aAllowedItems[$k]);
+            }
+        }
+
+        return $aAllowedItems;
     }
 
     /**

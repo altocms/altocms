@@ -372,3 +372,9 @@ input.wide, textarea.wide, select.wide, .jq-selectbox.wide { width: 100%; }
 	display: inline !important;
 	margin-right: 18px;
 }
+
+.btn-inline {
+	top: 10px;
+	position: relative;
+	left: 12px;
+}

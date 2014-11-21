@@ -43,6 +43,12 @@ class ModuleMenu_EntityItem extends Entity {
      */
     protected $_text = NULL;
 
+    /**
+     * Переменная для кэширвоания описания элемента меню
+     * @var null|bool
+     */
+    protected $_description = NULL;
+
 
     /**
      * Заполним меню HTML-кодом
@@ -58,15 +64,25 @@ class ModuleMenu_EntityItem extends Entity {
      * @return int|null
      */
     public function getUrl() {
-        if (isset($this->_aData['item_url'])) {
-            if (strpos($this->_aData['item_url'], '___') === FALSE) {
-                return $this->_aData['item_url'];
-            }
+//        if (isset($this->_aData['item_url'])) {
+//            if (strpos($this->_aData['item_url'], '___') === FALSE) {
+//                return $this->_aData['item_url'];
+//            }
+//
+//            return Config::Get($this->_aData['item_url']);
+//        }
+//
+//        return '';
 
-            return Config::Get($this->_aData['item_url']);
+        $sLink = Config::Get(isset($this->_aData['item_url']) ? $this->_aData['item_url'] : NULL);
+//        if ($sLink && is_array($sLink)) {
+//            $sLink = array_pop($sLink);
+//        }
+        if (!$sLink) {
+            return isset($this->_aData['item_url']) ? $this->_aData['item_url'] : NULL;
         }
 
-        return '';
+        return $sLink;
     }
 
     /**
@@ -177,6 +193,20 @@ class ModuleMenu_EntityItem extends Entity {
     }
 
     /**
+     * Получает описание элемента меню
+     * @return bool|mixed|null
+     */
+    public function getDescription(){
+        if ($this->_description) {
+            return $this->_description;
+        }
+        $this->_description = isset($this->_aData['item_description']) ? $this->_aData['item_description'] : NULL;
+        $this->_description = $this->getLangText($this->_description);
+
+        return $this->_description;
+    }
+
+    /**
      * Возвращает надпись на ссылке
      * @return int|null
      */
@@ -220,6 +250,20 @@ class ModuleMenu_EntityItem extends Entity {
      */
     public function getOff() {
         return isset($this->_aData['item_off']) ? $this->_aData['item_off'] : NULL;
+    }
+
+    /**
+     * Возвращает массив страниц где ссылка НЕ отображается
+     * @return array|null
+     */
+    public function getType() {
+
+        $xData = isset($this->_aData['item_type']) ? $this->_aData['item_type'] : NULL;
+        if ($xData && !is_array($xData)) {
+            $xData = array($xData);
+        }
+
+        return $xData;
     }
 
     /**
@@ -282,6 +326,14 @@ class ModuleMenu_EntityItem extends Entity {
      */
     public function getItemConfig() {
         return isset($this->_aData['item_config']) ? $this->_aData['item_config'] : NULL;
+    }
+
+    /**
+     * Возвращает идентификатор меню
+     * @return mixed
+     */
+    public function getLink() {
+        return $this->getUrl();
     }
 
     /**

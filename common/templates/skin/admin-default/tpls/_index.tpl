@@ -132,6 +132,9 @@
                 <li class="menu-item_userfields {if $sEvent=='settings-userfields'}active{/if}">
                     <a href="{router page="admin"}settings-userfields/">{$aLang.action.admin.menu_settings_userfields}</a>
                 </li>
+                <li class="menu-item_menumanager {if $sEvent=='settings-menumanager'}active{/if}">
+                    <a href="{router page="admin"}settings-menumanager/">{$aLang.action.admin.menu_menu_manager}</a>
+                </li>
                 {hook run='admin_menu_settings'}
             </ul>
 

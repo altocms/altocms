@@ -74,6 +74,7 @@ class ActionAdmin extends Action {
         $this->AddEvent('settings-blogtypes', 'EventBlogTypes');
         $this->AddEvent('settings-userrights', 'EventUserRights');
         $this->AddEvent('settings-userfields', 'EventUserFields');
+        $this->AddEvent('settings-menumanager', 'EventMenuManager');
 
         $this->AddEvent('site-skins', 'EventSkins');
         $this->AddEvent('site-widgets', 'EventWidgets');
@@ -106,6 +107,12 @@ class ActionAdmin extends Action {
         $this->AddEventPreg('/^ajax$/i', '/^config$/i', 'EventAjaxConfig');
         $this->AddEventPreg('/^ajax$/i', '/^user$/i', '/^add$/i', 'EventAjaxUserAdd');
         $this->AddEventPreg('/^ajax$/i', '/^user$/i', '/^invite$/i', 'EventAjaxUserList');
+
+        // Аякс для меню
+        $this->AddEvent('ajaxchangeordermenu', 'EventAjaxChangeOrderMenu');
+        $this->AddEvent('ajaxchangemenutext', 'EventAjaxChangeMenuText');
+        $this->AddEvent('ajaxchangemenulink', 'EventAjaxChangeMenuLink');
+        $this->AddEvent('ajaxmenuitemremove', 'EventAjaxRemoveItem');
     }
 
     /**
@@ -3101,6 +3108,490 @@ class ActionAdmin extends Action {
             'delete_comment' => (isset($aModer['delete_comment']) && $aModer['delete_comment']) ? true : false,
         );
         Config::WriteCustomConfig($aConfig);
+    }
+
+    /**********************************************************************************/
+
+    public function EventAjaxChangeOrderMenu() {
+
+        // * Устанавливаем формат ответа
+        $this->Viewer_SetResponseAjax('json');
+
+        if (!$this->User_IsAuthorization()) {
+            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            return;
+        }
+        if (!$this->oUserCurrent->isAdministrator()) {
+            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            return;
+        }
+        if (!F::GetRequest('order')) {
+            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            return;
+        }
+        if (!F::GetRequest('menu_id')) {
+            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            return;
+        }
+
+        $this->_prepareMenus();
+
+        /** @var ModuleMenu_EntityMenu $oMenu */
+        $oMenu = $this->Menu_GetMenu(F::GetRequest('menu_id'));
+
+        $sItemsKey = "menu.data.{$oMenu->getId()}.init.fill.list";
+
+        if (is_array(F::GetRequest('order')) && $oMenu) {
+
+            $aData = array();
+            $aAllowedData = array_keys(Config::Get("menu.data.{$oMenu->getId()}.items"));
+            foreach (F::GetRequest('order') as $oOrder) {
+                if (!($sId = (isset($oOrder['id'])?$oOrder['id']:FALSE))) {
+                    continue;
+                }
+                if (!in_array($sId, $aAllowedData)) {
+                    continue;
+                }
+                $aData[]=$sId;
+            }
+
+            if ($aData) {
+                Config::WriteCustomConfig(array($sItemsKey=> $aData));
+                Config::Set($sItemsKey, $aData);
+            }
+
+
+            $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.save_sort_success'));
+            return;
+        } else {
+            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            return;
+        }
+
+    }
+
+    public function EventAjaxChangeMenuText() {
+
+        // * Устанавливаем формат ответа
+        $this->Viewer_SetResponseAjax('json');
+
+        if (!$this->User_IsAuthorization()) {
+            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            return;
+        }
+        if (!$this->oUserCurrent->isAdministrator()) {
+            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            return;
+        }
+        if (!F::GetRequest('menu_id')) {
+            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            return;
+        }
+
+        if (!F::GetRequest('item_id')) {
+            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            return;
+        }
+
+        if (!F::GetRequest('text')) {
+            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            return;
+        }
+
+        $this->_prepareMenus();
+
+        /** @var ModuleMenu_EntityMenu $oMenu */
+        $oMenu = $this->Menu_GetMenu(F::GetRequest('menu_id'));
+
+        /** @var ModuleMenu_EntityItem $oItem */
+        $oItem = $oMenu->GetItemById(F::GetRequest('item_id'));
+        if ($oItem) {
+            $sItemTextKey = "menu.data.{$oMenu->getId()}.list.{$oItem->getId()}.text";
+            if ($sText = trim(F::GetRequest('text'))) {
+                Config::WriteCustomConfig(array($sItemTextKey=> $sText));
+
+                $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.menu_manager_save_text_ok'));
+
+                $this->Viewer_AssignAjax('text', $sText);
+
+                return;
+            }
+        }
+
+        $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        return;
+
+    }
+
+    public function EventAjaxChangeMenuLink() {
+
+        // * Устанавливаем формат ответа
+        $this->Viewer_SetResponseAjax('json');
+
+        if (!$this->User_IsAuthorization()) {
+            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            return;
+        }
+        if (!$this->oUserCurrent->isAdministrator()) {
+            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            return;
+        }
+        if (!F::GetRequest('menu_id')) {
+            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            return;
+        }
+
+        if (!F::GetRequest('item_id')) {
+            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            return;
+        }
+
+        if (!F::GetRequest('text')) {
+            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            return;
+        }
+
+        $this->_prepareMenus();
+
+        /** @var ModuleMenu_EntityMenu $oMenu */
+        $oMenu = $this->Menu_GetMenu(F::GetRequest('menu_id'));
+
+        /** @var ModuleMenu_EntityItem $oItem */
+        $oItem = $oMenu->GetItemById(F::GetRequest('item_id'));
+        if ($oItem) {
+            $sItemTextKey = "menu.data.{$oMenu->getId()}.list.{$oItem->getId()}.link";
+            if ($sText = trim(F::GetRequest('text'))) {
+                Config::WriteCustomConfig(array($sItemTextKey=> $sText));
+
+                $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.menu_manager_save_link_ok'));
+
+                $this->Viewer_AssignAjax('text', $sText);
+
+                return;
+            }
+        }
+
+        $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        return;
+
+    }
+
+    public function EventAjaxRemoveItem() {
+
+        // * Устанавливаем формат ответа
+        $this->Viewer_SetResponseAjax('json');
+
+        if (!$this->User_IsAuthorization()) {
+            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            return;
+        }
+        if (!$this->oUserCurrent->isAdministrator()) {
+            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            return;
+        }
+        if (!F::GetRequest('menu_id')) {
+            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            return;
+        }
+
+        if (!F::GetRequest('item_id')) {
+            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            return;
+        }
+
+        $this->_prepareMenus();
+
+        /** @var ModuleMenu_EntityMenu $oMenu */
+        $oMenu = $this->Menu_GetMenu(F::GetRequest('menu_id'));
+
+        /** @var ModuleMenu_EntityItem $oItem */
+        $oItem = $oMenu->GetItemById(F::GetRequest('item_id'));
+        if ($oItem) {
+            $aAllowedData = array_values(Config::Get("menu.data.{$oMenu->getId()}.init.fill.list"));
+            if (count($aAllowedData) > 1 && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
+                unset($aAllowedData[0]);
+            }
+            if (is_array($aAllowedData) && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
+                $aAllowedData = array_keys(Config::Get("menu.data.{$oMenu->getId()}.list"));
+            }
+
+
+            $aAllowedData = array_flip($aAllowedData);
+            if (isset($aAllowedData[$oItem->getId()])) {
+                unset($aAllowedData[$oItem->getId()]);
+                $aAllowedData = array_flip($aAllowedData);
+                if (!$aAllowedData) {
+                    $aAllowedData = array(F::RandomStr(12));
+                }
+                Config::WriteCustomConfig(array("menu.data.{$oMenu->getId()}.init.fill.list"=> $aAllowedData));
+//                Config::Set("menu.data.{$oMenu->getId()}.init.fill.list", $aAllowedData);
+                $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.menu_manager_remove_link_ok'));
+
+
+                // Если это подменю, то удал
+
+
+                return;
+            }
+
+        }
+
+        $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        return;
+
+    }
+
+    protected function _eventMenuEdit() {
+
+        // * Получаем тип
+        $sMenuId = $this->GetParam(1);
+
+
+        if (!$oMenu = $this->Menu_GetMenu($sMenuId)) {
+            return parent::EventNotFound();
+        }
+
+        $this->Viewer_Assign('oMenu', $oMenu);
+
+        if (strpos($oMenu->getId(), 'submenu_') === 0) {
+            $this->Viewer_Assign('isSubMenu', $this->Lang_Get('action.admin.menu_manager_submenu'));
+        }
+
+        // * Устанавливаем шаблон вывода
+        $this->_setTitle($this->Lang_Get('action.admin.menu_manager_edit_menu'));
+        $this->SetTemplateAction('settings/menumanager_edit');
+
+        // * Проверяем отправлена ли форма с данными
+        if (getRequestPost('submit_add_new_item')) {
+
+            if (!(($sItemLink = trim(F::GetRequestStr('menu-item-link'))) && ($sItemTitle = trim(F::GetRequestStr('menu-item-title'))))) {
+                $this->Message_AddErrorSingle($this->Lang_Get('menu_manager_item_add_error'), $this->Lang_Get('error'));
+                return null;
+            }
+
+            $sRoot = F::GetRequest('menu-item-place');
+            if ($sRoot == 'root_item') {
+                $sItemName = F::RandomStr(10);
+
+                // Добавим имя в объявление
+                $aAllowedData = array_values(Config::Get("menu.data.{$oMenu->getId()}.init.fill.list"));
+                if (count($aAllowedData) > 1 && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
+                    unset($aAllowedData[0]);
+                }
+                if (is_array($aAllowedData) && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
+                    $aAllowedData = array_keys(Config::Get("menu.data.{$oMenu->getId()}.list"));
+                }
+
+                $aNewItems = array_merge(
+                    $aAllowedData,
+                    array($sItemName)
+                );
+                Config::WriteCustomConfig(array("menu.data.{$oMenu->getId()}.init.fill.list" => $aNewItems));
+                Config::Set("menu.data.{$oMenu->getId()}.init.fill.list", $aNewItems);
+
+                // Добавим имя в список
+                $aNewItemConfig = array(
+                    $sItemName => array(
+                    'text'        => $sItemTitle,
+                    'link'        => $sItemLink,
+                    'active'      => false,
+                    )
+                );
+                $aNewItemConfig = array_merge(
+                    Config::Get("menu.data.{$oMenu->getId()}.list"),
+                    $aNewItemConfig
+                );
+                Config::WriteCustomConfig(array("menu.data.{$oMenu->getId()}.list" => $aNewItemConfig));
+                Config::Set("menu.data.{$oMenu->getId()}.list", $aNewItemConfig);
+
+
+                Router::Location("admin/settings-menumanager/edit/{$sMenuId}");
+
+                return null;
+
+            } elseif ($sRoot) {
+
+                // Разрешенные идентификаторы меню
+                $aAllowedData = array_values(Config::Get("menu.data.{$oMenu->getId()}.init.fill.list"));
+                if (count($aAllowedData) > 1 && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
+                    unset($aAllowedData[0]);
+                }
+                if (is_array($aAllowedData) && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
+                    $aAllowedData = array_keys(Config::Get("menu.data.{$oMenu->getId()}.list"));
+                }
+                if (!in_array($sRoot, $aAllowedData)) {
+                    $this->Message_AddErrorSingle($this->Lang_Get('menu_manager_item_add_error'), $this->Lang_Get('error'));
+                    return null;
+                }
+
+                // Проверим есть ли подменю для этого элемента?
+                $sSubMenuName = Config::Get("menu.data.{$oMenu->getId()}.list.{$sRoot}.submenu");
+                if (!$sSubMenuName) {
+                    $sSubMenuName = 'submenu_' . F::RandomStr(10);
+                    // Сохраним указатьль на подменю
+                    Config::WriteCustomConfig(array("menu.data.{$oMenu->getId()}.list.{$sRoot}.submenu" => $sSubMenuName));
+                    Config::Set("menu.data.{$oMenu->getId()}.list.{$sRoot}.submenu", $sSubMenuName);
+                    // Сохраним само пордменю
+                    $aSubmenu = array(
+                        'init'        => array(
+                            'fill' => array(
+                                'list' => array('*'),
+                            ),
+                        ),
+                        'list'        => array(),
+                    );
+                    Config::WriteCustomConfig(array("menu.data.{$sSubMenuName}" => $aSubmenu));
+                    Config::Set("menu.data.{$sSubMenuName}", $aSubmenu);
+                }
+
+                // Добавим новый элемент в подменю
+                $sItemName = F::RandomStr(10);
+
+                // Добавим имя в объявление
+                $aAllowedData = array_values(Config::Get("menu.data.{$sSubMenuName}.init.fill.list"));
+                if (is_array($aAllowedData) && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
+                    $aAllowedData = array_keys(Config::Get("menu.data.{$sSubMenuName}.list"));
+                }
+                if (count($aAllowedData) > 1 && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
+                    unset($aAllowedData[0]);
+                }
+                $aNewItems = array_merge(
+                    $aAllowedData,
+                    array($sItemName)
+                );
+                Config::WriteCustomConfig(array("menu.data.{$sSubMenuName}.init.fill.list" => $aNewItems));
+                Config::Set("menu.data.{$sSubMenuName}.init.fill.list", $aNewItems);
+
+                // Добавим имя в список
+                $aNewItemConfig = array(
+                    $sItemName => array(
+                        'text'        => $sItemTitle,
+                        'link'        => $sItemLink,
+                        'active'      => false,
+                    )
+                );
+                $aNewItemConfig = array_merge(
+                    Config::Get("menu.data.{$sSubMenuName}.list"),
+                    $aNewItemConfig
+                );
+                Config::WriteCustomConfig(array("menu.data.{$sSubMenuName}.list" => $aNewItemConfig));
+                Config::Set("menu.data.{$sSubMenuName}.list", $aNewItemConfig);
+
+
+                Router::Location("admin/settings-menumanager/edit/{$sMenuId}");
+
+                return null;
+
+            }
+
+
+            $this->Message_AddErrorSingle($this->Lang_Get('menu_manager_item_add_error'), $this->Lang_Get('error'));
+            return null;
+        }
+
+        return null;
+    }
+
+    protected function _eventMenuReset() {
+
+        // * Получаем тип
+        $sMenuId = $this->GetParam(1);
+
+        if (!$oMenu = $this->Menu_GetMenu($sMenuId)) {
+            return parent::EventNotFound();
+        }
+
+        Config::ResetCustomConfig("menu.data.{$sMenuId}");
+
+        // Это подменю, удалим его
+        if (strpos($oMenu->getId(), 'submenu_') === 0) {
+            $aMenus = Config::Get('menu.data');
+            foreach ($aMenus as $k=>$v) {
+                foreach ($v['list'] as $sItemKey => $aItemData) {
+                    if ($aItemData['submenu'] == $sMenuId) {
+                        Config::WriteCustomConfig(array("menu.data.{$k}.list.{$sItemKey}.submenu" => ''));
+                    }
+                }
+                $aMenus[$k] = $v;
+            }
+
+            Router::Location("admin/settings-menumanager/");
+        }
+
+
+
+        Router::Location("admin/settings-menumanager/edit/{$sMenuId}");
+
+        return FALSE;
+
+    }
+
+    private function _prepareMenus() {
+        // Какая-то странность, что хук окончания инициализации вьювера
+        // выполняется после экшена админки, поэтому меню остается не
+        // проинициализировано и приходится это делать вручную в этом
+        // экшене, но ничего страшного, повторно всё равно не
+        // проинициализируется
+        $aMenus = Config::Get('menu.data');
+        $bChanged = false;
+        if ($aMenus && is_array($aMenus)) {
+
+            foreach($aMenus as $sMenuId => $aMenu) {
+                if (isset($aMenu['init']['fill'])) {
+                    $aMenus[$sMenuId] = $this->Menu_Prepare($sMenuId, $aMenu);
+                    $bChanged = true;
+                }
+            }
+            if ($bChanged) {
+                Config::Set('menu.data', null);
+                Config::Set('menu.data', $aMenus);
+            }
+        }
+    }
+
+    /**
+     * Обработчик экшена менеджера меню
+     *
+     * @return bool|null|string
+     */
+    protected function EventMenuManager() {
+
+        // Активная вкладка главного меню
+        $this->sMainMenuItem = 'settings';
+
+        $this->_prepareMenus();
+
+        // Получим страницу, на которой находится пользователь
+        $sMode = $this->getParam(0);
+
+        // В зависимости от страницы запускаем нужный обработчик
+        if ($sMode == 'edit') {
+            return $this->_eventMenuEdit();
+        } else if ($sMode == 'reset') {
+            return $this->_eventMenuReset();
+        } else {
+
+            // Получим те меню, которые можно редактировать ползхователю.
+            // В априори, вообще-то все, но пока ограничим лишь главными.
+            $aMenu = $this->Menu_GetMenusByArrayId(array(
+                'main', 'user', 'topics', 'blog_list', 'login',
+            ));
+
+            // Заполним вьювер
+            $this->Viewer_Assign(array(
+                'aMenu' => $aMenu,
+                'sMode' => $sMode,
+            ));
+
+
+            // Установим заголовок страницы
+            $this->_setTitle($this->Lang_Get('action.admin.menu_manager'));
+
+
+            // Установми страницу вывода
+            $this->SetTemplateAction('settings/menu_manager');
+        }
+
     }
 
     /**********************************************************************************/
