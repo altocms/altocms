@@ -936,6 +936,11 @@ ls = (function ($) {
  * Автокомплитер
  */
 ls.autocomplete = (function ($) {
+
+    this.stripHTML = function(oldString) {
+        return oldString.replace(/<\/?[^>]+>/g,'');
+    };
+
     /**
      * Добавляет автокомплитер к полю ввода
      */
@@ -969,7 +974,11 @@ ls.autocomplete = (function ($) {
                         this.value = terms.join(", ");
                         return false;
                     }
-                });
+                }).bind(
+                    'autocompleteclose',
+                    function(){
+                        $(this).val(ls.autocomplete.stripHTML($(this).val()));
+                    });
         } else {
             obj.autocomplete({
                 source: function (request, response) {
@@ -977,7 +986,11 @@ ls.autocomplete = (function ($) {
                         response(data.aItems);
                     });
                 }
-            });
+            }).bind(
+                'autocompleteclose',
+                function(){
+                    $(this).val(ls.autocomplete.stripHTML($(this).val()));
+                });
         }
     };
 

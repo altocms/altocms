@@ -586,6 +586,7 @@ $config['head']['default']['js'] = array(
     '___path.frontend.dir___/libs/vendor/jquery-migrate-1.2.1.min.js' => array('asset' => 'mini'),
     '___path.frontend.dir___/libs/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js' => array('asset' => 'mini'),
     '___path.frontend.dir___/libs/vendor/jquery-ui/js/localization/jquery-ui-datepicker-ru.js',
+    '___path.frontend.dir___/libs/vendor/jquery-ui/js/jquery.ui.autocomplete.html.js',
     '___path.frontend.dir___/libs/vendor/jquery.browser.js',
     '___path.frontend.dir___/libs/vendor/jquery.scrollto.js',
     '___path.frontend.dir___/libs/vendor/jquery.rich-array.min.js',
@@ -805,6 +806,11 @@ $config['config_load'] = array(
     'menu',         // Меню
 );
 
+/**
+ * Настройки автокомплита пользователей
+ */
+$config['autocomplete']['user']['show_avatar'] = true;  // Добавлять аватар?
+$config['autocomplete']['user']['avatar_size'] = 24;    // Размер аватара
 
 return $config;
 

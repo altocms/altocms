@@ -1202,9 +1202,12 @@ class ActionAjax extends Action {
         $aItems = array();
 
         // * Формируем список пользователей
+        /** @var ModuleUser_EntityUser[] $aUsers */
         $aUsers = $this->User_GetUsersByLoginLike($sValue, 10);
         foreach ($aUsers as $oUser) {
-            $aItems[] = $oUser->getLogin();
+            $aItems[] =
+                (Config::Get('autocomplete.user.show_avatar') ? '<img src="' . $oUser->getAvatarUrl(Config::Get('autocomplete.user.avatar_size')) . '">' : '')
+                . $oUser->getLogin();
         }
         // * Передаем результат в ajax ответ
         $this->Viewer_AssignAjax('aItems', $aItems);
