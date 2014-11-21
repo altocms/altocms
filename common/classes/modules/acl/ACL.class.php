@@ -113,6 +113,9 @@ class ModuleACL extends Module {
             if ($oBlogUser && $oBlogUser->getUserRole() == ModuleBlog::BLOG_USER_ROLE_BAN) {
                 return self::CAN_TOPIC_COMMENT_ERROR_BAN;
             }
+            if ($oBlogUser && $oBlogUser->getUserRole() == ModuleBlog::BLOG_USER_ROLE_BAN_FOR_COMMENT) {
+                return self::CAN_TOPIC_COMMENT_ERROR_BAN;
+            }
         }
         // * Проверяем на закрытый блог
         if ($oTopic && !$this->IsAllowShowBlog($oTopic->getBlog(), $oUser)) {
@@ -249,6 +252,9 @@ class ModuleACL extends Module {
         if ($oBlog && $oBlog->getBlogType()) {
             $oBlogUser = $this->Blog_GetBlogUserByBlogIdAndUserId($oBlog->getId(), $oUser->getId());
             if ($oBlogUser && $oBlogUser->getUserRole() == ModuleBlog::BLOG_USER_ROLE_BAN) {
+                return self::CAN_VOTE_COMMENT_ERROR_BAN;
+            }
+            if ($oBlogUser && $oBlogUser->getUserRole() == ModuleBlog::BLOG_USER_ROLE_BAN_FOR_COMMENT) {
                 return self::CAN_VOTE_COMMENT_ERROR_BAN;
             }
         }

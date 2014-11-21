@@ -464,6 +464,9 @@ class ActionBlog extends Action {
                     case 'reader':
                         $oBlogUser->setUserRole(ModuleBlog::BLOG_USER_ROLE_USER);
                         break;
+                    case 'ban_for_comment':
+                        $oBlogUser->setUserRole(ModuleBlog::BLOG_USER_ROLE_BAN_FOR_COMMENT);
+                        break;
                     case 'ban':
                         if ($oBlogUser->getUserRole() != ModuleBlog::BLOG_USER_ROLE_BAN) {
                             $oBlog->setCountUser($oBlog->getCountUser() - 1);
@@ -489,6 +492,7 @@ class ActionBlog extends Action {
             $oBlog->getId(),
             array(
                  ModuleBlog::BLOG_USER_ROLE_BAN,
+                 ModuleBlog::BLOG_USER_ROLE_BAN_FOR_COMMENT,
                  ModuleBlog::BLOG_USER_ROLE_USER,
                  ModuleBlog::BLOG_USER_ROLE_MODERATOR,
                  ModuleBlog::BLOG_USER_ROLE_ADMINISTRATOR
@@ -1611,6 +1615,7 @@ class ActionBlog extends Action {
             $oBlog->getId(),
             array(
                  ModuleBlog::BLOG_USER_ROLE_BAN,
+                 ModuleBlog::BLOG_USER_ROLE_BAN_FOR_COMMENT,
                  ModuleBlog::BLOG_USER_ROLE_REJECT,
                  ModuleBlog::BLOG_USER_ROLE_INVITE,
                  ModuleBlog::BLOG_USER_ROLE_USER,
@@ -2176,6 +2181,10 @@ class ActionBlog extends Action {
             $this->Message_AddErrorSingle($this->Lang_Get('blog_leave_error_banned'), $this->Lang_Get('error'));
             return;
         }
+        if ($oBlogUser && ($oBlogUser->getUserRole() == ModuleBlog::BLOG_USER_ROLE_BAN_FOR_COMMENT)) {
+            $this->Message_AddErrorSingle($this->Lang_Get('blog_leave_error_banned'), $this->Lang_Get('error'));
+            return;
+        }
     }
 
     /**
@@ -2202,6 +2211,7 @@ class ActionBlog extends Action {
         $this->Viewer_Assign('BLOG_USER_ROLE_INVITE', ModuleBlog::BLOG_USER_ROLE_INVITE);
         $this->Viewer_Assign('BLOG_USER_ROLE_REJECT', ModuleBlog::BLOG_USER_ROLE_REJECT);
         $this->Viewer_Assign('BLOG_USER_ROLE_BAN', ModuleBlog::BLOG_USER_ROLE_BAN);
+        $this->Viewer_Assign('BLOG_USER_ROLE_BAN_FOR_COMMENT', ModuleBlog::BLOG_USER_ROLE_BAN_FOR_COMMENT);
     }
 
 }

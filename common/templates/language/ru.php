@@ -185,6 +185,7 @@ return array(
     'blog_admin_users_submit_notice'            => 'После нажатия на кнопку «Сохранить» права пользователей будут сохранены',
     'blog_admin_users_submit_ok'                => 'Права сохранены',
     'blog_admin_users_submit_error'             => 'Что-то не так',
+    'blog_admin_users_bun_for_comment'          => 'не комментирует',
     'blog_admin_delete_title'                   => 'Удаление блога',
     'blog_admin_delete_confirm'                 => 'Вы уверены, что хотите удалить блог?',
     'blog_admin_delete_move'                    => 'Удалить статьи или переместить в другой блог',

@@ -24,6 +24,7 @@
                     <th class="ta-c">{$aLang.blog_admin_users_administrator}</th>
                     <th class="ta-c">{$aLang.blog_admin_users_moderator}</th>
                     <th class="ta-c">{$aLang.blog_admin_users_reader}</th>
+                    <th class="ta-c">{$aLang.blog_admin_users_bun_for_comment}</th>
                     <th class="ta-c">{$aLang.blog_admin_users_bun}</th>
                 </tr>
                 </thead>
@@ -62,8 +63,14 @@
                             </td>
                             <td class="tac">
                                 {if $oUser->getId() != E::UserId()}
-                                <input type="radio" name="user_rank[{$oUser->getId()}]" value="ban"
-                                                    {if $oBlogUser->getUserRole()==$BLOG_USER_ROLE_BAN}checked{/if} />
+                                <input type="radio" name="user_rank[{$oUser->getId()}]" value="ban_for_comment"
+                                                    {if $oBlogUser->getUserRole()==$BLOG_USER_ROLE_BAN_FOR_COMMENT}checked{/if} />
+                                {/if}
+                            </td>
+                            <td class="tac">
+                                {if $oUser->getId() != E::UserId()}
+                                    <input type="radio" name="user_rank[{$oUser->getId()}]" value="ban"
+                                           {if $oBlogUser->getUserRole()==$BLOG_USER_ROLE_BAN}checked{/if} />
                                 {/if}
                             </td>
                     </tr>

@@ -186,6 +186,7 @@ return array(
     'blog_admin_user_add_label'                 => 'Add users',
     'blog_admin_user_invited'                   => 'List of invitees',
     'blog_admin_user_add_header'                => 'Invite users',
+    'blog_admin_users_bun_for_comment'          => 'Disabled for comment',
     'blog_admin_user_add_empty'                 => 'No invited users',
     'blog_close_show'                           => "It's a 'close blog', you don't have enought rights to see it's content",
     'blog_user_invite_add_self'                 => "Can't send invitation to yourself",
