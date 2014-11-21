@@ -199,6 +199,22 @@
             });
         };
 
+        var changeDisplayItem = function (link) {
+            var $link = $(link);
+            var data = {
+                'menu_id': "{$oMenu->getId()}",
+                'item_id': $link.data('item_id')
+            };
+            ls.ajax(aRouter['admin'] + 'ajaxmenuitemdisplay/', data, function (response) {
+                if (!response.bStateError) {
+                    ls.msg.notice(response.sMsgTitle, response.sMsg);
+                    $link.removeClass('icon-eye-close').removeClass('icon-eye-open').addClass(response.class);
+                } else {
+                    ls.msg.error(response.sMsgTitle, response.sMsg);
+                }
+            });
+        };
+
     </script>
     <div class="span12">
 
@@ -271,6 +287,11 @@
                            data-item_id="{$oItem->getId()}"
                            title="{$aLang.action.admin.menu_manager_remove}"
                            class="icon icon-remove"></a>
+                        <a href="#"
+                           onclick="return changeDisplayItem(this)"
+                           data-item_id="{$oItem->getId()}"
+                           title="{$aLang.action.admin.menu_manager_change_display}"
+                           class="icon {if $oItem->getDisplay()}icon-eye-open{else}icon-eye-close{/if}"></a>
                     </td>
                 </tr>
             {/foreach}

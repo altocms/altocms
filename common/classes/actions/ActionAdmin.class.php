@@ -113,6 +113,7 @@ class ActionAdmin extends Action {
         $this->AddEvent('ajaxchangemenutext', 'EventAjaxChangeMenuText');
         $this->AddEvent('ajaxchangemenulink', 'EventAjaxChangeMenuLink');
         $this->AddEvent('ajaxmenuitemremove', 'EventAjaxRemoveItem');
+        $this->AddEvent('ajaxmenuitemdisplay', 'EventAjaxDisplayItem');
     }
 
     /**
@@ -3330,6 +3331,77 @@ class ActionAdmin extends Action {
 
                 // Если это подменю, то удал
 
+
+                return;
+            }
+
+        }
+
+        $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        return;
+
+    }
+
+    public function EventAjaxDisplayItem() {
+
+        // * Устанавливаем формат ответа
+        $this->Viewer_SetResponseAjax('json');
+
+        if (!$this->User_IsAuthorization()) {
+            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            return;
+        }
+        if (!$this->oUserCurrent->isAdministrator()) {
+            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            return;
+        }
+        if (!F::GetRequest('menu_id')) {
+            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            return;
+        }
+
+        if (!F::GetRequest('item_id')) {
+            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            return;
+        }
+
+        $this->_prepareMenus();
+
+        /** @var ModuleMenu_EntityMenu $oMenu */
+        $oMenu = $this->Menu_GetMenu(F::GetRequest('menu_id'));
+
+        /** @var ModuleMenu_EntityItem $oItem */
+        $oItem = $oMenu->GetItemById(F::GetRequest('item_id'));
+        if ($oItem) {
+            $aAllowedData = array_values(Config::Get("menu.data.{$oMenu->getId()}.init.fill.list"));
+            if (count($aAllowedData) > 1 && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
+                unset($aAllowedData[0]);
+            }
+            if (is_array($aAllowedData) && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
+                $aAllowedData = array_keys(Config::Get("menu.data.{$oMenu->getId()}.list"));
+            }
+
+
+            $aAllowedData = array_flip($aAllowedData);
+            if (isset($aAllowedData[$oItem->getId()])) {
+
+                $bDisplay = Config::Get("menu.data.{$oMenu->getId()}.list.{$oItem->getId()}.display");
+                if (is_null($bDisplay)) {
+                    $bDisplay = FALSE;
+                } else {
+                    $bDisplay = !$bDisplay;
+                }
+
+
+                if ($bDisplay) {
+                    $this->Viewer_AssignAjax('class', 'icon-eye-open');
+                } else {
+                    $this->Viewer_AssignAjax('class', 'icon-eye-close');
+                }
+
+                Config::WriteCustomConfig(array("menu.data.{$oMenu->getId()}.list.{$oItem->getId()}.display"=> $bDisplay));
+
+                $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.menu_manager_display_link_ok'));
 
                 return;
             }
