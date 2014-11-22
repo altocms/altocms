@@ -254,9 +254,6 @@ class ModuleACL extends Module {
             if ($oBlogUser && $oBlogUser->getUserRole() == ModuleBlog::BLOG_USER_ROLE_BAN) {
                 return self::CAN_VOTE_COMMENT_ERROR_BAN;
             }
-            if ($oBlogUser && $oBlogUser->getUserRole() == ModuleBlog::BLOG_USER_ROLE_BAN_FOR_COMMENT) {
-                return self::CAN_VOTE_COMMENT_ERROR_BAN;
-            }
         }
         if ($oUser->getRating() >= Config::Get('acl.vote.comment.rating')) {
             return self::CAN_VOTE_COMMENT_TRUE;

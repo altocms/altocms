@@ -29,6 +29,7 @@ class ModuleBlog extends Module {
     const BLOG_USER_ROLE_ADMINISTRATOR = 4;
     const BLOG_USER_ROLE_OWNER = 8;
     const BLOG_USER_ROLE_NOTMEMBER = 16;
+    const BLOG_USER_ROLE_BAN_FOR_COMMENT = 32;
 
     // LS-compatible //
     const BLOG_USER_ROLE_USER = 1;
@@ -55,7 +56,6 @@ class ModuleBlog extends Module {
      * Забаненный в блоге пользователь
      */
     const BLOG_USER_ROLE_BAN = -4;
-    const BLOG_USER_ROLE_BAN_FOR_COMMENT = -6;
 
     const BLOG_SORT_TITLE = 1;
     const BLOG_SORT_TITLE_PERSONAL = 2;
