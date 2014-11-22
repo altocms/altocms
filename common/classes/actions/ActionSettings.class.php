@@ -270,17 +270,19 @@ class ActionSettings extends Action {
         $sError = '';
 
         // Загружаем файл
-        $sUploadedFile = $this->Uploader_UploadLocal($aUploadedFile);
-        if ($sUploadedFile && $this->Img_MimeType($sUploadedFile)) {
-            if ($this->Img_ResizeFile($sUploadedFile, self::PREVIEW_RESIZE, self::PREVIEW_RESIZE)) {
-                // Сохраняем аватар в оригинале
-                $sAvatarFile = $this->Uploader_GetUserAvatarDir($this->oUserCurrent->getId()) . 'original.' . F::File_GetExtension($sUploadedFile, true);
-                if ($sAvatarFile = $this->Uploader_Move($sUploadedFile, $sAvatarFile, true)) {
-                    // Сохраняем в сессии
-                    $this->Session_Set('sAvatarFileTmp', $sAvatarFile);
-                    $this->Viewer_AssignAjax('sTmpFile', $this->Uploader_Dir2Url($sAvatarFile));
-                    return;
-                }
+        $sTmpFile = $this->Uploader_UploadLocal($aUploadedFile);
+        if ($sTmpFile && $this->Img_MimeType($sTmpFile)) {
+            /**
+             * Ресайзим и сохраняем уменьшенную копию
+             * Храним две копии - мелкую для показа пользователю и крупную в качестве исходной для ресайза
+             */
+            $sPreviewFile = $this->Uploader_GetUserAvatarDir($this->oUserCurrent->getId()) . 'original.' . F::File_GetExtension($sTmpFile, true);
+            if ($sPreviewFile = $this->Img_Copy($sTmpFile, $sPreviewFile, self::PREVIEW_RESIZE, self::PREVIEW_RESIZE)) {
+                // * Сохраняем в сессии временный файл с изображением
+                $this->Session_Set('sAvatarTmp', $sTmpFile);
+                $this->Session_Set('sAvatarPreview', $sPreviewFile);
+                $this->Viewer_AssignAjax('sTmpFile', $this->Uploader_Dir2Url($sPreviewFile));
+                return;
             }
         } else {
             $sError = $this->Uploader_GetErrorMsg();
@@ -302,30 +304,52 @@ class ActionSettings extends Action {
         // * Устанавливаем формат Ajax ответа
         $this->Viewer_SetResponseAjax('json');
 
-        // * Получаем файл из сессии
-        $sFileAvatar = $this->Session_Get('sAvatarFileTmp');
-        if (!F::File_Exists($sFileAvatar)) {
+        // * Достаем из сессии временный файл
+        $sTmpFile = $this->Session_Get('sAvatarTmp');
+        $sPreviewFile = $this->Session_Get('sAvatarPreview');
+        if (!F::File_Exists($sTmpFile)) {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
             return;
         }
 
+        // * Определяем размер большого фото для подсчета множителя пропорции
+        $fRation = 1;
+        if (($aSizeFile = getimagesize($sTmpFile)) && isset($aSizeFile[0])) {
+            // в self::PREVIEW_RESIZE задана максимальная сторона
+            $fRation = max($aSizeFile[0], $aSizeFile[1]) / self::PREVIEW_RESIZE; // 200 - размер превью по которой пользователь определяет область для ресайза
+            if ($fRation < 1) {
+                $fRation = 1;
+            }
+        }
+
         // * Получаем размер области из параметров
         $aSize = $this->_getImageSize('size');
+        if ($aSize) {
+            $aSize = array(
+                'x1' => round($fRation * $aSize['x1']), 'y1' => round($fRation * $aSize['y1']),
+                'x2' => round($fRation * $aSize['x2']), 'y2' => round($fRation * $aSize['y2'])
+            );
+        }
 
-        // * Вырезаем аватару
-        if ($aSize && ($sFileUrl = $this->User_UploadAvatar($sFileAvatar, $this->oUserCurrent, $aSize))) {
+        // * Вырезаем фото
+        if ($sFileWeb = $this->User_UploadAvatar($sTmpFile, $this->oUserCurrent, $aSize)) {
 
             // * Удаляем старые аватарки
-            if ($sFileUrl != $this->oUserCurrent->getProfileAvatar()) {
+            if ($sFileWeb != $this->oUserCurrent->getProfileAvatar()) {
                 $this->User_DeleteAvatar($this->oUserCurrent);
             } else {
                 $this->User_DeleteAvatarSizes($this->oUserCurrent);
             }
 
-            $this->oUserCurrent->setProfileAvatar($sFileUrl);
-
+            $this->oUserCurrent->setProfileAvatar($sFileWeb);
             $this->User_Update($this->oUserCurrent);
-            $this->Session_Drop('sAvatarFileTmp');
+
+            $this->Img_Delete($sTmpFile);
+            $this->Img_Delete($sPreviewFile);
+
+            // * Удаляем из сессии
+            $this->Session_Drop('sAvatarTmp');
+            $this->Session_Drop('sAvatarPreview');
             $this->Viewer_AssignAjax('sFile', $this->oUserCurrent->getAvatarUrl());
             $this->Viewer_AssignAjax('sTitleUpload', $this->Lang_Get('settings_profile_avatar_change'));
         } else {
