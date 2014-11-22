@@ -371,6 +371,32 @@ class ModuleNotify extends Module {
     }
 
     /**
+     * Отправляет пользователю сообщение о том, что ему нужно промодерировать запрос
+     * пользовтаеля на вступление в блог, владельцем/админом/модератором которого он является
+     *
+     * @param ModuleUser_EntityUser $oUserTo      Объект пользователя, который отправляет приглашение
+     * @param ModuleUser_EntityUser $oUserFrom    Объект пользователя, которого приглашаем
+     * @param ModuleBlog_EntityBlog $oBlog        Объект блога
+     * @param                       $sPath
+     *
+     * @return bool
+     */
+    public function SendBlogUserRequest(ModuleUser_EntityUser $oUserTo, ModuleUser_EntityUser $oUserFrom, ModuleBlog_EntityBlog $oBlog, $sPath) {
+
+        return $this->Send(
+            $oUserTo,
+            'blog_request_new.tpl',
+            $this->Lang_Get('notify_subject_blog_request_new'),
+            array(
+                 'oUserTo'   => $oUserTo,
+                 'oUserFrom' => $oUserFrom,
+                 'oBlog'     => $oBlog,
+                 'sPath'     => $sPath,
+            )
+        );
+    }
+
+    /**
      * Уведомление при восстановлении пароля
      *
      * @param ModuleUser_EntityUser     $oUser        Объект пользователя

@@ -56,6 +56,7 @@ class ModuleBlog extends Module {
      * Забаненный в блоге пользователь
      */
     const BLOG_USER_ROLE_BAN = -4;
+    const BLOG_USER_ROLE_WISHES = -6;
 
     const BLOG_SORT_TITLE = 1;
     const BLOG_SORT_TITLE_PERSONAL = 2;
