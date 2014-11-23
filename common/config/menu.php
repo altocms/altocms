@@ -136,7 +136,7 @@ $config['data']['userbar'] = array(
         ),
         'settings'     => array(
             'text' => '{{user_settings}}',
-            'link' => '___path.root.url___/talk/',
+            'link' => '___path.root.url___/settings/',
         ),
         'userbar_item' => '',
         'logout'       => array(

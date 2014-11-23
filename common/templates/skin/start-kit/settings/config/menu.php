@@ -90,9 +90,6 @@ if (E::IsUser()) {
             'favourites'   => array(
                 'link' => E::User()->getProfileUrl() . 'favourites/topics/',
             ),
-            'settings'     => array(
-                'link' => E::User()->getProfileUrl() . 'settings/',
-            ),
             'userbar_item' => '',
             'logout'       => array(
                 'link' => Router::GetPath('login') . 'exit/?security_key=' . E::Security_GetSecurityKey(),

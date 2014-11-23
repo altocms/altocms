@@ -123,11 +123,6 @@ if (E::IsUser()) {
      *  Подменю пользователя + experience
      */
     $config['menu']['data']['userbar'] = array(
-        'init'  => array(
-            'fill' => array(
-                'list' => array('*'),
-            ),
-        ),
         'class' => 'dropdown-menu',
         'list'  => array(
             'user'         => array(
@@ -154,9 +149,6 @@ if (E::IsUser()) {
             ),
             'favourites'   => array(
                 'link' => E::User()->getProfileUrl() . 'favourites/topics/',
-            ),
-            'settings'     => array(
-                'link' => E::User()->getProfileUrl() . 'settings/',
             ),
             'userbar_item' => '',
             'logout'       => array(
@@ -269,11 +261,6 @@ $config['menu']['data']['top'] = array(
  * Сеню с сыллками на блоги
  */
 $config['menu']['data']['blog_list'] = array(
-    'init' => array(
-        'fill' => array(
-            'list' => array('*'),
-        ),
-    ),
     'description' => 'Список блогов',
     'list' => array(
         'link1' => array(
