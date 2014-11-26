@@ -325,6 +325,11 @@ class ModuleMenu extends Module {
                 /** @var ModuleMenu_EntityItem $oMenuItem */
                 $oMenuItem = $this->CreateMenuItem($sItemId, $aMenu['list'][$sItemId]);
 
+                // Это не хук, добавим флаг режима заполнения
+                if (!is_string($oMenuItem)) {
+                    $oMenuItem->setMenuMode('list');
+                }
+
                 // Это хук
                 if (is_string($oMenuItem)) {
                     $aItems[$sItemId] = $oMenuItem;

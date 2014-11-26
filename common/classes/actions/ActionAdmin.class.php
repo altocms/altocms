@@ -3209,7 +3209,7 @@ class ActionAdmin extends Action {
         if ($oItem) {
             $sItemTextKey = "menu.data.{$oMenu->getId()}.list.{$oItem->getId()}.text";
             if ($sText = trim(F::GetRequest('text'))) {
-                Config::WriteCustomConfig(array($sItemTextKey=> $sText));
+                Config::WriteCustomConfig(array($sItemTextKey=> $sText), false);
 
                 $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.menu_manager_save_text_ok'));
 
@@ -3262,7 +3262,7 @@ class ActionAdmin extends Action {
         if ($oItem) {
             $sItemTextKey = "menu.data.{$oMenu->getId()}.list.{$oItem->getId()}.link";
             if ($sText = trim(F::GetRequest('text'))) {
-                Config::WriteCustomConfig(array($sItemTextKey=> $sText));
+                Config::WriteCustomConfig(array($sItemTextKey=> $sText), false);
 
                 $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.menu_manager_save_link_ok'));
 

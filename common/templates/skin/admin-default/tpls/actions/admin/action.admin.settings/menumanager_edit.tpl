@@ -233,6 +233,10 @@
         {if $aItems=$oMenu->getItems()}
             {foreach from=$aItems item=oItem}
                 {if !$oItem}{continue}{/if}
+                {if is_string($oItem)}{continue}{/if}
+                {if $oItem->getMenuMode() != 'list'}{continue}{/if}
+
+
                 <tr id="menumanager_{$oItem->getId()}" data-id="{$oItem->getId()}">
                     <td class="menumanager_id">{$oItem->getId()|escape:"html"}</td>
                     <td class="menumanager_text">
