@@ -22,4 +22,4 @@ INSERT INTO prefix_blog_type_content
      prefix_content AS ct,
      prefix_blog_type AS bt
    WHERE
-     isnull(bt.content_type));
+     isnull(bt.content_type) OR bt.content_type = '');
