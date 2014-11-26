@@ -72,6 +72,8 @@
                                         {if $aItems=$oMenu->getItems()}
                                             {foreach from=$aItems item=oItem}
                                                 {if !$oItem}{continue}{/if}
+                                                {if is_string($oItem)}{continue}{/if}
+                                                {if $oItem->getMenuMode() != 'list'}{continue}{/if}
                                                 <option id="new_list_item_{$oItem->getId()}" value="{$oItem->getId()}">{$aLang.action.admin.menu_manager_as_submenu} "{$oItem->getText()}"</option>
                                             {/foreach}
                                         {/if}
