@@ -135,7 +135,7 @@ class ModuleMenu extends Module {
             $aItems,
             md5(serialize($aMenu)),
             array($sMenuId),
-            isset($aItems['cache']['period']) ? $aItems['cache']['period'] : 'P30D'
+            isset($aMenu['init']['cache']) ? $aMenu['init']['cache'] : 'P30D'
         );
 
         // Добавим сформированные данные к конфигу меню
