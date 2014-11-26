@@ -3643,11 +3643,8 @@ class ActionAdmin extends Action {
             return $this->_eventMenuReset();
         } else {
 
-            // Получим те меню, которые можно редактировать ползхователю.
-            // В априори, вообще-то все, но пока ограничим лишь главными.
-            $aMenu = $this->Menu_GetMenusByArrayId(array(
-                'main', 'user', 'topics', 'blog_list', 'login',
-            ));
+            // Получим те меню, которые можно редактировать ползователю.
+            $aMenu = $this->Menu_GetMenusByArrayId(Config::Get('module.menu.admin'));
 
             // Заполним вьювер
             $this->Viewer_Assign(array(

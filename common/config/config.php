@@ -328,6 +328,7 @@ $config['module']['upload']['file_extensions'] = array('gif','png','jpg','jpeg')
 // Модуль Menu
 $config['module']['menu']['default_length'] = 20;
 $config['module']['menu']['blog_logo_size'] = '24x24crop';
+$config['module']['menu']['admin'] = array( 'main', 'user', 'topics', 'login');
 
 /*
  * Настройка ЧПУ топика
