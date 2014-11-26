@@ -289,7 +289,7 @@
                 <label class="inline-checkbox">
                     <input type="checkbox" id="blogtypes_contenttype_{$oContentType->getId()}"
                            name="blogtypes_contenttype[{$oContentType->getId()}]" value="1"
-                           {if in_array($oContentType->getId(), $_aRequest.blogtypes_contenttype)}checked{/if}/>
+                           {if $_aRequest.blogtypes_contenttype && in_array($oContentType->getId(), $_aRequest.blogtypes_contenttype)}checked{/if}/>
                             {$sContentName}
                 </label>
                     {/foreach}
