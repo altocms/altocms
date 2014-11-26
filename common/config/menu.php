@@ -165,14 +165,14 @@ $config['data']['topics'] = array(
         ),
         'new'                  => array(
             'text'    => '{{blog_menu_all_new}}',
-            'link'    => '___path.root.url___/new/',
+            'link'    => '___path.root.url___/index/new/',
             'active'  => array('topic_kind' => array('new')),
             'display' => array('new_topics_count'),
         ),
 
         'newall'               => array(
             'text'    => '{{blog_menu_all_new}}',
-            'link'    => '___path.root.url___/newall/',
+            'link'    => '___path.root.url___/index/newall/',
             'active'  => array('topic_kind' => array('newall')),
             'display' => array('no_new_topics'),
         ),
@@ -185,14 +185,14 @@ $config['data']['topics'] = array(
 
         'discussed'            => array(
             'text'    => '{{blog_menu_all_discussed}}',
-            'link'    => '___path.root.url___/discussed/',
+            'link'    => '___path.root.url___/index/discussed/',
             'active'  => array('topic_kind' => array('discussed')),
             'submenu' => 'discussed',
         ),
 
         'top'                  => array(
             'text'    => '{{blog_menu_all_top}}',
-            'link'    => '___path.root.url___/top/',
+            'link'    => '___path.root.url___/index/top/',
             'active'  => array('topic_kind' => array('top')),
             'submenu' => 'top',
         ),
