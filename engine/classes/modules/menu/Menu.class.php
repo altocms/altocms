@@ -244,7 +244,7 @@ class ModuleMenu extends Module {
      * @return string
      */
     private function _getProcessMethodName($sModeName) {
-        return 'Process' . ucfirst($sModeName) . 'Mode';
+        return 'Process' . F::StrCamelize($sModeName) . 'Mode';
     }
 
     /**
