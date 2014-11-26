@@ -51,7 +51,7 @@ function smarty_function_menu($aParams, &$oSmarty = NULL) {
 
         // Вызовем хук
         if (is_string($oMenuItem)) {
-            smarty_function_hook(array_merge(array('run' => $sItemMenuName), isset($aParams[$oMenuItem]) ? $aParams[$oMenuItem] : array()), $oSmarty);
+            $sMenu .= smarty_function_hook(array_merge(array('run' => $sItemMenuName), isset($aParams[$oMenuItem]) ? $aParams[$oMenuItem] : array()), $oSmarty);
             continue;
         }
 
