@@ -23,3 +23,10 @@ INSERT INTO prefix_blog_type_content
      prefix_blog_type AS bt
    WHERE
      isnull(bt.content_type) OR bt.content_type = '');
+
+ALTER TABLE  `prefix_blog` ADD  `blog_order` INT NULL DEFAULT  '0',
+ADD INDEX (  `blog_order` ) ;
+
+ALTER TABLE  `prefix_topic` ADD  `topic_order` INT NULL DEFAULT  '0',
+ADD INDEX (  `topic_order` ) ;
+

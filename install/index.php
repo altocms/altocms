@@ -1126,9 +1126,10 @@ class Install {
 
         // * Если указано проверить наличие таблицы и она уже существует, то выполнять SQL-дамп не нужно
         if (in_array($aParams['prefix'] . $aParams['check_table'], $aDbTables)) {
-            return false;
+            return true;
         }
 
+        $bResult = true;
         // * Выполняем запросы по очереди
         foreach ($aQuery as $sQuery) {
             $sQuery = trim($sQuery);
