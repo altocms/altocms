@@ -233,9 +233,17 @@
         </thead>
         <tbody class="content">
         {if $aItems=$oMenu->getItems()}
-            {foreach from=$aItems item=oItem}
-                {if !$oItem}{continue}{/if}
-                {if is_string($oItem)}{continue}{/if}
+            {foreach $aItems as $k=>$oItem}
+
+                {if $oItem==''}
+                    <tr id="menumanager_{$k}" data-id="{$k}">
+                        <td class="menumanager_id">{$k|escape:"html"}</td>
+                        <td class="menumanager_text" colspan="5">
+                            {$aLang.action.admin.menu_manager_hook}
+                        </td>
+                    </tr>
+                    {continue}
+                {/if}
                 {if $oItem->getMenuMode() != 'list'}{continue}{/if}
 
 
