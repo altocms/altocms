@@ -260,6 +260,7 @@ return array(
     'menu_manager_actions_remove_submenu' => 'Удалить подменю',
     'menu_manager_change_display'         => 'Изменить видимость',
     'menu_manager_display_link_ok'        => 'Видимость элемента изменена',
+    'menu_manager_hook'                   => 'Место вызова хука меню',
 
 
 
