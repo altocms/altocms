@@ -434,22 +434,6 @@ $(function () {
         }
     });
 
-    var newMarkitupSettings = ls.settings.getMarkitup();
-
-    ls.settings.getMarkitup = function() {
-
-        newMarkitupSettings.markupSet = newMarkitupSettings.markupSet.concat([
-            {separator: '---------------'},
-            {
-                name:       ls.lang.get('panel_br'),
-                className   : 'editor-br',
-                replaceWith: function(markitup) { if (markitup.selection) return '\n<br/>\n'; else return '\n<br/>\n' }
-            }
-        ]);
-
-        return newMarkitupSettings;
-    };
-
 
     $('.topic-text img, .comment-text img').each(function(){
         var a = $('<a href="'+$(this).attr('src')+'" rel="prettyPhoto[pp]" ></a>');
