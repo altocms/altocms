@@ -231,7 +231,7 @@ return array(
     /* MENU */
     'menu_manager'                        => 'Менеджер меню',
     'menu_manager_id'                     => 'Тип',
-    'menu_manager_description'            => 'Опсиание',
+    'menu_manager_description'            => 'Описание',
     'menu_manager_actions'                => 'Действия',
     'menu_manager_edit'                   => 'Редактировать',
     'menu_manager_edit_menu'              => 'Редактирование меню',
