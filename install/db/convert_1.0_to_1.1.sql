@@ -30,8 +30,6 @@ ADD INDEX (  `blog_order` ) ;
 ALTER TABLE  `prefix_topic` ADD  `topic_order` INT NULL DEFAULT  '0',
 ADD INDEX (  `topic_order` ) ;
 
-     isnull(bt.content_type) OR bt.content_type = '');
-
 
 
 ###################################################################################################################
