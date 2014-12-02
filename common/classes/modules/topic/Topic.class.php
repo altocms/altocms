@@ -2780,10 +2780,10 @@ class ModuleTopic extends Module {
         F::File_PrintChunked($sFilename);
     }
 
-    /*
+    /**
      * Обработка дополнительных полей топика
      *
-     * @param $oTopic
+     * @param ModuleTopic_EntityTopic $oTopic
      *
      * @return bool
      */
@@ -2806,7 +2806,7 @@ class ModuleTopic extends Module {
             if ($aFields = $oType->getFields()) {
                 foreach ($aFields as $oField) {
                     $sData = null;
-                    if (isset($_REQUEST['fields'][$oField->getFieldId()]) || isset($_FILES['fields_' . $oField->getFieldId()])) {
+                    if (isset($_REQUEST['fields'][$oField->getFieldId()]) || isset($_FILES['fields_' . $oField->getFieldId()]) || $oField->getFieldType() == 'single-image-uploader') {
 
                         //текстовые поля
                         if (in_array($oField->getFieldType(), array('input', 'textarea', 'select'))) {
@@ -2894,6 +2894,59 @@ class ModuleTopic extends Module {
                             }
                         }
 
+                        // Поле с изображением
+                        if ($oField->getFieldType() == 'single-image-uploader') {
+                            $sTargetType = $oField->getFieldType(). '-' . $oField->getFieldId();
+                            $sTargetId = $oTopic->getId();
+
+                            // 1. Удалить значение target_tmp
+                            // Нужно затереть временный ключ в ресурсах, что бы в дальнейшем картнка не
+                            // воспринималась как временная.
+                            if ($sTargetTmp = E::Session_GetCookie('uploader_target_tmp')) {
+                                // 2. Удалить куку.
+                                // Если прозошло сохранение вновь созданного топика, то нужно
+                                // удалить куку временной картинки. Если же сохранялся уже существующий топик,
+                                // то удаление куки ни на что влиять не будет.
+                                $this->Session_DelCookie('uploader_target_tmp');
+
+                                // 3. Переместить фото
+
+                                $sNewPath = $this->Uploader_GetUploadDir($sTargetId, $sTargetType) . '/';
+                                $aMresourceRel = E::Mresource_GetMresourcesRelByTargetAndUser($sTargetType, 0, E::UserId());
+                                $this->Mresource_UnlinkFile($sTargetType, $sTargetId, $oTopic->getUserId());
+                                if ($aMresourceRel) {
+                                    $oResource = array_shift($aMresourceRel);
+                                    $sOldPath = $oResource->GetFile();
+
+                                    $xStoredFile = $this->Uploader_Store($sOldPath, $sNewPath);
+                                    /** @var ModuleMresource_EntityMresource $oResource */
+                                    $oResource = $this->Mresource_GetMresourcesByUuid($xStoredFile->getUuid());
+                                    if ($oResource) {
+                                        $oResource->setUrl($this->Mresource_NormalizeUrl($this->Uploader_GetTargetUrl($sTargetId, $sTargetType)));
+                                        $oResource->setType($sTargetType);
+                                        $oResource->setUserId(E::UserId());
+                                        // 4. В свойство поля записать адрес картинки
+                                        $sData = $oResource->getMresourceId();
+                                        $oResource = array($oResource);
+
+                                        $this->Mresource_AddTargetRel($oResource, $sTargetType, $sTargetId);
+                                    }
+                                }
+                            } else {
+                                // Топик редактируется, просто обновим поле
+                                $aMresourceRel = E::Mresource_GetMresourcesRelByTargetAndUser($sTargetType, $sTargetId, E::UserId());
+                                if ($aMresourceRel) {
+                                    $oResource = array_shift($aMresourceRel);
+                                    $sData = $oResource->getMresourceId();
+                                } else {
+                                    $sData = false;
+//                                    $this->DeleteField($oField);
+                                }
+                            }
+
+
+                        }
+
                         $this->Hook_Run('content_field_proccess', array('sData' => &$sData, 'oField' => $oField, 'oTopic' => $oTopic, 'aValues' => $aValues, 'sType' => &$sType));
 
                         //Добавляем поле к топику.
@@ -2904,7 +2957,9 @@ class ModuleTopic extends Module {
                             $oValue->setFieldId($oField->getFieldId());
                             $oValue->setFieldType($oField->getFieldType());
                             $oValue->setValue($sData);
-                            $oValue->setValueSource(($oField->getFieldType() == 'file') ? $sData : $_REQUEST['fields'][$oField->getFieldId()]);
+                            $oValue->setValueSource(in_array($oField->getFieldType(), array('file', 'single-image-uploader'))
+                                ? $sData
+                                : $_REQUEST['fields'][$oField->getFieldId()]);
 
                             $this->AddTopicValue($oValue);
 

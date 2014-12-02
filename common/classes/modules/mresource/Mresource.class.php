@@ -286,6 +286,12 @@ class ModuleMresource extends Module {
         return $aData;
     }
 
+    public function GetMresourcesRelByTargetAndUser($sTargetType, $nTargetId, $iUserId) {
+
+        $aData = $this->oMapper->GetMresourcesRelByTargetAndUser($sTargetType, $nTargetId, $iUserId);
+        return $aData;
+    }
+
     /**
      * Deletes media resources by ID
      *
@@ -397,6 +403,21 @@ class ModuleMresource extends Module {
         }
         return true;
     }
+    public function DeleteMresourcesRelByTargetAndUser($sTargetType, $nTargetId, $iUserId) {
+
+        $aMresourceRel = $this->oMapper->GetMresourcesRelByTargetAndUser($sTargetType, $nTargetId, $iUserId);
+        if ($aMresourceRel) {
+            if ($this->oMapper->DeleteTargetRel($sTargetType, $nTargetId)) {
+                $aMresId = array();
+                foreach ($aMresourceRel as $oResourceRel) {
+                    $aMresId[] = $oResourceRel->GetMresourceId();
+                }
+                $aMresId = array_unique($aMresId);
+            }
+            return $this->DeleteMresources($aMresId);
+        }
+        return true;
+    }
 
     /**
      * Calc hash of URL for seeking & comparation
@@ -422,6 +443,40 @@ class ModuleMresource extends Module {
             . '-' . F::Crc32($sStorage . ':' . $sFileName . ':' . $iUserId, true)
             . '-' . F::Crc32($sStorage . ':' . $sFileHash . ':' . $sFileName, true);
         return $sUuid;
+    }
+
+    /**
+     * Удаляет временную ссылку
+     * @param $sTargetTmp
+     * @param $sTargetId
+     */
+    public function ResetTmpRelById($sTargetTmp, $sTargetId) {
+        $this->oMapper->ResetTmpRelById($sTargetTmp, $sTargetId);
+    }
+
+    /**
+     * Удаление изображения
+     *
+     * @param $sTargetType
+     * @param $sTargetId
+     * @param $sUserId
+     */
+    public function UnlinkFile($sTargetType, $sTargetId, $sUserId) {
+
+        // Получим и удалим все ресурсы
+        $aMresourceRel = $this->GetMresourcesRelByTargetAndUser($sTargetType, $sTargetId, $sUserId);
+        if ($aMresourceRel) {
+            $aMresId = array();
+            foreach ($aMresourceRel as $oResourceRel) {
+                $aMresId[] = $oResourceRel->GetMresourceId();
+            }
+            if ($aMresId) {
+                $this->DeleteMresources($aMresId, TRUE);
+            }
+        }
+
+        // И связи
+        $this->DeleteMresourcesRelByTargetAndUser($sTargetType, $sTargetId, E::UserId());
     }
 }
 

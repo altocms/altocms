@@ -612,6 +612,137 @@ class ModuleUploader extends Module {
         }
     }
 
+    /**
+     * Проверяет доступность того или иного целевого объекта, переопределяется
+     * плагинами. По умолчанию всё грузить запрещено.
+     * Если всё нормально и пользователю разрешено сюда загружать картинки,
+     * то метод возвращает целевой объект, иначе значение FALSE.
+     *
+     * @param string $sTarget
+     * @param int|bool $sTargetId
+     * @return bool
+     */
+    public function CheckAccessAndGetTarget($sTarget, $sTargetId = FALSE) {
+
+        // Проверяем право пользователя на прикрепление картинок к топику
+        if (mb_strpos($sTarget, 'single-image-uploader') === 0) {
+
+            // Проверям, авторизован ли пользователь
+            if (!E::IsUser()) {
+                return FALSE;
+            }
+
+            // Топик редактируется
+            if ($oTopic = $this->Topic_GetTopicById($sTargetId)) {
+                if (!$this->ACL_IsAllowEditTopic($oTopic, E::User())) {
+                    return FALSE;
+                }
+            }
+
+            return TRUE;
+        }
+
+        return FALSE;
+    }
+
+    /**
+     * Получает путь к картинкам брендинга
+     *
+     * @param int    $sTargetId Идентификатор целевого объекта
+     * @param string $sType     Что за картинка
+     * @return string
+     */
+    public function GetUploadDir($sTargetId, $sType) {
+
+        if ($sTargetId == "0") {
+            $sPath = '_tmp/';
+
+        } else {
+            $nMaxLen = 6;
+            $nSplitLen = 2;
+            $sPath = join('/', str_split(str_pad($sTargetId, $nMaxLen, '0', STR_PAD_LEFT), $nSplitLen));
+        }
+
+
+        $sResult = F::File_NormPath(F::File_RootDir() . Config::Get('path.uploads.root') . "/{$sType}/" . $sPath);
+        F::File_CheckDir($sResult, TRUE);
+
+        return $sResult;
+
+    }
+
+    /**
+     * Получает урл цели
+     *
+     * @param $sTargetId
+     * @param $sTarget
+     * @return string
+     */
+    public function GetTargetUrl($sTargetId, $sTarget) {
+
+        if (mb_strpos($sTarget, 'single-image-uploader') === 0) {
+            /** @var $oTopic ModuleTopic_EntityTopic */
+            if (!$oTopic = $this->Topic_GetTopicById($sTargetId)) {
+                return '';
+            }
+
+            return $oTopic->getUrl();
+        }
+
+        return '';
+    }
+
+    /**
+     * Получает урл изображения целевого объекта
+     *
+     * @param      $sTargetId
+     * @param      $sTarget
+     * @param bool|string $xSize
+     * @return mixed|string
+     */
+    public function GetTargetImageUrl($sTargetId, $sTarget, $xSize=FALSE) {
+
+        $aMResourceRel = $this->Mresource_GetMresourcesRelByTarget($sTarget, $sTargetId);
+        if ($aMResourceRel) {
+            $oMResource = array_shift($aMResourceRel);
+
+            $sUrl = str_replace('@', Config::Get('path.root.web'), $oMResource->getPathUrl());
+
+            if (!$xSize) {
+                return $sUrl;
+            }
+
+            return $this->ResizeTargetImage($sUrl, $xSize);
+        }
+
+        return '';
+
+    }
+
+    /**
+     * Возвращает урл изображения по новому размеру
+     *
+     * @param string $sOriginalPath
+     * @param string    $xSize
+     *
+     * @return string
+     */
+    public function ResizeTargetImage($sOriginalPath, $xSize) {
+
+        $sModSuffix = F::File_ImgModSuffix($xSize, pathinfo($sOriginalPath, PATHINFO_EXTENSION));
+        $sUrl = $sOriginalPath . $sModSuffix;
+
+        if (Config::Get('module.image.autoresize')) {
+            $sFile = $this->Uploader_Url2Dir($sUrl);
+            if (!F::File_Exists($sFile)) {
+                $this->Img_Duplicate($sFile);
+            }
+        }
+
+        return $sUrl;
+
+    }
+
 }
 
 // EOF

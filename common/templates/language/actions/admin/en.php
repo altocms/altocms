@@ -959,6 +959,9 @@ return array (
 
     'contenttypes_role_topiccck' => 'Article addition',
 
+    'contenttypes_field_image_notice'    => 'Field for upload image',
+    'contenttypes_field_image'           => 'Image',
+
 );
 
 // EOF

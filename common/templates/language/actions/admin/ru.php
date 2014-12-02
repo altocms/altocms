@@ -947,6 +947,8 @@ return array(
     'contenttypes_additional_question'   => 'Опрос',
     'contenttypes_additional_link'       => 'Ссылка на оригинал',
 
+    'contenttypes_field_image_notice'    => 'Поле для загрузки изображения',
+    'contenttypes_field_image'           => 'Изображение',
 
     /*
      * Администрирование

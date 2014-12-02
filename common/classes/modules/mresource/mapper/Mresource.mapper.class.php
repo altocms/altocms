@@ -69,6 +69,19 @@ class ModuleMresource_MapperMresource extends Mapper {
         return $nId ? $nId : false;
     }
 
+    /**
+     * @param $sTargetTmp
+     * @param $sTargetId
+     * @return mixed
+     */
+    public function ResetTmpRelById($sTargetTmp, $sTargetId) {
+        return $this->oDb->query(
+          'UPDATE ?_mresource_target SET target_tmp = null, target_id = ?d  where target_tmp = ?',
+          $sTargetId,
+          $sTargetTmp
+        );
+    }
+
     public function AddTargetRel($oMresource) {
 
         $aParams = array(
@@ -158,6 +171,7 @@ class ModuleMresource_MapperMresource extends Mapper {
                 {AND (mr.type & ?d:type)>0}
                 {AND mr.hash_url=?:hash_url}
                 {AND mr.hash_file=?:hash_file}
+                {AND mrt.target_tmp=?:target_tmp}
         ");
         $aRows = $oSql->bind(
             array(
@@ -172,6 +186,7 @@ class ModuleMresource_MapperMresource extends Mapper {
                  ':type' => isset($aFilter['type']) ? $aFilter['type'] : DBSIMPLE_SKIP,
                  ':hash_url' => isset($aFilter['hash_url']) ? $aFilter['hash_url'] : DBSIMPLE_SKIP,
                  ':hash_file' => isset($aFilter['hash_file']) ? $aFilter['hash_file'] : DBSIMPLE_SKIP,
+                 ':target_tmp' => isset($aFilter['target_tmp']) ? $aFilter['target_tmp'] : DBSIMPLE_SKIP,
             )
         )->select();
         return array('data' => $aRows ? $aRows : array());
@@ -211,6 +226,10 @@ class ModuleMresource_MapperMresource extends Mapper {
             } else {
                 $aCriteria['limit'] = 1;
             }
+        }
+        if (isset($aFilter['mresource_target_tmp'])) {
+            $aUuidFilter[] = '(target_tmp=?:target_tmp)';
+            $aParams[':uuid'] = $aFilter['mresource_target_tmp'];
         }
         list($nOffset, $nLimit) = $this->_prepareLimit($aCriteria);
 
@@ -499,6 +518,34 @@ class ModuleMresource_MapperMresource extends Mapper {
             'filter' => array(
                 'target_type' => $sTargetType,
                 'target_id' => $nTargetId,
+            ),
+        );
+
+        $aData = $this->_getMresourcesRelByCriteria($aCriteria);
+        $aResult = array();
+        if ($aData['data']) {
+            foreach($aData['data'] as $nI => $aRow) {
+                $aResult[$nI] = Engine::GetEntity('Mresource_MresourceRel', $aRow);
+            }
+        }
+        return $aResult;
+    }
+
+    /**
+     * Returns media resources' relation entities by target
+     *
+     * @param $sTargetType
+     * @param $nTargetId
+     *
+     * @return array
+     */
+    public function GetMresourcesRelByTargetAndUser($sTargetType, $nTargetId, $iUserId) {
+
+        $aCriteria = array(
+            'filter' => array(
+                'target_type' => $sTargetType,
+                'target_id' => $nTargetId,
+                'user_id' => $iUserId,
             ),
         );
 

@@ -573,3 +573,16 @@ a.user-friends:hover { color: #ff4136; text-decoration: none; }
 .pagination-comments { margin-bottom: 30px; }
 
 #users-list-original .paging { border: 1px solid #e6e6e6; }
+
+/* UPLOADER */
+.uploader-actions {
+    position: relative;
+}
+
+.uploader-actions-file {
+    position: absolute;
+    opacity: 0;
+    top: 0;
+    height: 20px;
+    cursor: pointer
+}

@@ -1242,6 +1242,18 @@ class ModuleTopic_EntityTopic extends Entity {
         return $bResult;
     }
 
+    public function getSingleImage($nId, $sSize) {
+        if ($this->getField($nId)) {
+
+            return $this->Uploader_GetTargetImageUrl(
+                $this->getField($nId)->getTargetId(),
+                $this->getField($nId)->getFieldType() . '-' . $nId,
+                $sSize);
+
+        }
+        return null;
+    }
+
     //***************************************************************************************************************
 
     /**

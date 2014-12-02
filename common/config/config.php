@@ -700,6 +700,7 @@ $config['head']['default']['js'] = array(
     //'___path.frontend.dir___/libs/js/engine/admin.js',
     '___path.frontend.dir___/libs/js/engine/userfield.js',
     '___path.frontend.dir___/libs/js/engine/init.js',
+    '___path.frontend.dir___/libs/js/engine/altoUploader.js',
 );
 
 //потенциально проблемные файлы выводим в футере

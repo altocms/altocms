@@ -1358,7 +1358,13 @@ return array(
         '12.75' => '[UTC + 12:45] Chatham Islands Time',
         '13'    => '[UTC + 13] Tonga Time, Phoenix Islands Time',
         '14'    => '[UTC + 14] Line Island Time'
-    )
+    ),
+
+    'uploader_single_upload_resize_title' => 'Select image area',
+    'uploader_single_upload_resize_help'  => 'Select the image area you want to load. If you do not need to crop the image, simply click the "Apply"',
+    'uploader_image_change'               => 'Change image',
+    'uploader_image_upload'               => 'Upload image',
+    'uploader_image_delete'               => 'Remove image',
 );
 
 // EOF
