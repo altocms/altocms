@@ -1365,6 +1365,8 @@ return array(
     'uploader_image_change'               => 'Change image',
     'uploader_image_upload'               => 'Upload image',
     'uploader_image_delete'               => 'Remove image',
+    'error_upload_image'                  => 'Error loading image',
+    'uploader_upload_success'             => 'Image uploaded',
 );
 
 // EOF

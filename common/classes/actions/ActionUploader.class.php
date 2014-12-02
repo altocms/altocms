@@ -290,7 +290,7 @@ class ActionUploader extends Action {
 
         // Проверяем, загружен ли файл
         if (!($aUploadedFile = $this->GetUploadedFile('uploader-upload-image'))) {
-            $this->Message_AddError($this->Lang_Get('plugin.br.error_upload_image'), $this->Lang_Get('error'));
+            $this->Message_AddError($this->Lang_Get('error_upload_image'), $this->Lang_Get('error'));
 
             return;
         }
@@ -344,7 +344,7 @@ class ActionUploader extends Action {
             // Ошибки загрузки картинки
             $sError = $this->Uploader_GetErrorMsg();
             if (!$sError) {
-                $sError = $this->Lang_Get('plugin.br.error_upload_image');
+                $sError = $this->Lang_Get('error_upload_image');
             }
         }
 
@@ -429,9 +429,9 @@ class ActionUploader extends Action {
 
             $this->Viewer_AssignAjax('sFile', $sFileWeb);
             $this->Viewer_AssignAjax('sFilePreview', $sFileWebPreview);
-            $this->Viewer_AssignAjax('sTitleUpload', $this->Lang_Get('plugin.br.uploader_upload_success'));
+            $this->Viewer_AssignAjax('sTitleUpload', $this->Lang_Get('uploader_upload_success'));
         } else {
-            $this->Message_AddError($this->Lang_Get('plugin.br.error_upload_image'), $this->Lang_Get('error'));
+            $this->Message_AddError($this->Lang_Get('error_upload_image'), $this->Lang_Get('error'));
         }
     }
 
@@ -464,7 +464,7 @@ class ActionUploader extends Action {
         ));
 
         // * Возвращает дефолтную аватарку
-        $this->Viewer_AssignAjax('sTitleUpload', $this->Lang_Get('plugin.br.uploader_upload_success'));
+        $this->Viewer_AssignAjax('sTitleUpload', $this->Lang_Get('uploader_upload_success'));
 
     }
 

@@ -1395,7 +1395,8 @@ return array(
     'uploader_image_change'               => 'Изменить изображение',
     'uploader_image_upload'               => 'Загрузить изображение',
     'uploader_image_delete'               => 'Удалить изображение',
-
+    'error_upload_image'                  => 'Ошибка загрузки изображения',
+    'uploader_upload_success'             => 'Изображение загружено',
 );
 
 // EOF
