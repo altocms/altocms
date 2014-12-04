@@ -713,7 +713,6 @@ class ModuleComment extends Module {
             }
 
 
-
             // 2. Пробежимся по ресурсам комментария и если ресурса нет в новых, тогда
             // удалим этот ресурс.
             // Читаем список ресурсов из базы
@@ -733,6 +732,7 @@ class ModuleComment extends Module {
             }
         }
 
+        return TRUE;
     }
 
     /**
