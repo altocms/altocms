@@ -637,7 +637,7 @@ class ModuleComment extends Module {
             }
 
             // Освежим хранилище картинок
-            $this->CheckCommentImages($oComment);
+            $this->CheckCommentImages($oComment, $nId);
 
             // чистим зависимые кеши
             $this->Cache_CleanByTags(
@@ -663,7 +663,7 @@ class ModuleComment extends Module {
         if ($this->oMapper->UpdateComment($oComment)) {
 
             // Освежим хранилище картинок
-            $this->CheckCommentImages($oComment);
+            $this->CheckCommentImages($oComment, $oComment->getId());
 
             //чистим зависимые кеши
             $this->Cache_CleanByTags(
@@ -680,7 +680,7 @@ class ModuleComment extends Module {
      * @param ModuleComment_EntityComment $oComment
      * @return bool
      */
-    public function CheckCommentImages($oComment) {
+    public function CheckCommentImages($oComment, $nId) {
 
         // 1. Получим uuid рисунков из текста топика и создадим связь с объектом
         // если ее ещё нет.
@@ -709,7 +709,7 @@ class ModuleComment extends Module {
 
             // Добавим связи, если нужно
             if ($aNewResources) {
-                $this->Mresource_AddTargetRel($aNewResources, 'comment', $oComment->getId());
+                $this->Mresource_AddTargetRel($aNewResources, $oComment->getTargetType() . '_comment', $nId);
             }
 
 
@@ -717,7 +717,7 @@ class ModuleComment extends Module {
             // 2. Пробежимся по ресурсам комментария и если ресурса нет в новых, тогда
             // удалим этот ресурс.
             // Читаем список ресурсов из базы
-            $aMresources = $this->Mresource_GetMresourcesRelByTarget('comment', $oComment->getId());
+            $aMresources = $this->Mresource_GetMresourcesRelByTarget($oComment->getTargetType() . '_comment', $nId);
 
             // Строим список ID ресурсов для удаления
             $aDeleteResources = array();

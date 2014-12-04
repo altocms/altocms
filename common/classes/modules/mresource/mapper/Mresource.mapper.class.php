@@ -231,9 +231,9 @@ class ModuleMresource_MapperMresource extends Mapper {
             $aUuidFilter[] = '(target_tmp=?:target_tmp)';
             $aParams[':uuid'] = $aFilter['mresource_target_tmp'];
         }
-        if (isset($aFilter['mresource_url_like'])) {
-            $aUuidFilter[] = '(path_url like ?:path_url)';
-            $aParams[':path_url'] = $aFilter['mresource_url_like'];
+        if (isset($aFilter['target_type'])) {
+            $aUuidFilter[] = '(target_type=?:target_type)';
+            $aParams[':target_type'] = $aFilter['target_type'];
         }
         list($nOffset, $nLimit) = $this->_prepareLimit($aCriteria);
 
@@ -279,7 +279,8 @@ class ModuleMresource_MapperMresource extends Mapper {
             $sUuidFilter = '1=1';
         }
 
-        $oSql = $this->oDb->sql("
+        if (!isset($aFilter['target_type'])) {
+            $oSql = $this->oDb->sql("
             SELECT
                 mresource_id AS ARRAY_KEY,
                 $sFields
@@ -299,6 +300,30 @@ class ModuleMresource_MapperMresource extends Mapper {
             $sSqlOrder
             $sSqlLimit
         ");
+        } else
+        $oSql = $this->oDb->sql("
+            SELECT
+                mr.mresource_id AS ARRAY_KEY,
+                mrt.target_type,
+                $sFields
+            FROM ?_mresource AS mr, ?_mresource_target as mrt
+            WHERE
+                $sUuidFilter
+                AND mrt.mresource_id = mr.mresource_id
+                {AND mr.mresource_id=?d:mresource_id}
+                {AND mr.mresource_id IN (?a:mresource_ids)}
+                {AND mr.user_id=?d:user_id}
+                {AND mr.user_id IN (?a:user_ids)}
+                {AND mr.link=?d:link}
+                {AND (mr.type & ?d:type)>0}
+                {AND mr.hash_url=?:hash_url}
+                {AND mr.hash_url IN (?a:hash_url_a)}
+                {AND mr.hash_file=?:hash_file}
+                {AND mr.hash_file IN (?:hash_file_a)}
+                {AND mrt.target_type IN (?:target_type)}
+            $sSqlOrder
+            $sSqlLimit
+        ");
         $aParams = array_merge(
             $aParams,
             array(
@@ -311,7 +336,8 @@ class ModuleMresource_MapperMresource extends Mapper {
                  ':hash_url' => (isset($aFilter['hash_url']) && !is_array($aFilter['hash_url'])) ? $aFilter['hash_url'] : DBSIMPLE_SKIP,
                  ':hash_url_a' => (isset($aFilter['hash_url']) && is_array($aFilter['hash_url'])) ? $aFilter['hash_url'] : DBSIMPLE_SKIP,
                  ':hash_file' => (isset($aFilter['hash_file']) && !is_array($aFilter['hash_file'])) ? $aFilter['hash_file'] : DBSIMPLE_SKIP,
-                 ':hash_file_a' => (isset($aFilter['hash_file']) && is_array($aFilter['hash_file'])) ? $aFilter['hash_file'] : DBSIMPLE_SKIP
+                 ':hash_file_a' => (isset($aFilter['hash_file']) && is_array($aFilter['hash_file'])) ? $aFilter['hash_file'] : DBSIMPLE_SKIP,
+                 ':target_type' => isset($aFilter['target_type']) ? $aFilter['target_type'] : DBSIMPLE_SKIP
             )
         );
         $aRows = $oSql->bind($aParams)->select();

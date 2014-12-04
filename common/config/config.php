@@ -92,8 +92,6 @@ $config['path']['root']['engine_lib']   = '___path.root.web___/engine/libs/';  /
 
 $config['path']['uploads']['root']      = '/uploads';                          // папка для загрузки файлов
 $config['path']['uploads']['images']    = '___path.uploads.root___/images/';
-$config['path']['uploads']['topic']    = '___path.uploads.root___/topic_image/';
-$config['path']['uploads']['comment']    = '___path.uploads.root___/comment_image/';
 $config['path']['uploads']['files']     = '___path.uploads.root___/files/';
 
 $config['path']['offset_request_url']   = 0;                                   // иногда помогает если сервер использует внутренние реврайты

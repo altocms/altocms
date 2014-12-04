@@ -1395,7 +1395,7 @@ class ActionAdmin extends Action {
         );
 
         if ($sMode &&  $sMode != 'all') {
-            $aFilter = array('mresource_url_like' => "%{$sMode}%");
+            $aFilter = array('target_type' => $sMode);
         }
 
         $aCriteria = array(
