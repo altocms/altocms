@@ -2913,7 +2913,7 @@ class ModuleTopic extends Module {
 
                                 $sNewPath = $this->Uploader_GetUploadDir($sTargetId, $sTargetType) . '/';
                                 $aMresourceRel = E::Mresource_GetMresourcesRelByTargetAndUser($sTargetType, 0, E::UserId());
-                                $this->Mresource_UnlinkFile($sTargetType, $sTargetId, $oTopic->getUserId());
+
                                 if ($aMresourceRel) {
                                     $oResource = array_shift($aMresourceRel);
                                     $sOldPath = $oResource->GetFile();
@@ -2928,7 +2928,7 @@ class ModuleTopic extends Module {
                                         // 4. В свойство поля записать адрес картинки
                                         $sData = $oResource->getMresourceId();
                                         $oResource = array($oResource);
-
+                                        $this->Mresource_UnlinkFile($sTargetType, 0, $oTopic->getUserId());
                                         $this->Mresource_AddTargetRel($oResource, $sTargetType, $sTargetId);
                                     }
                                 }

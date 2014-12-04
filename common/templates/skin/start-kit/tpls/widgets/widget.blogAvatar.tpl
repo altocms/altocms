@@ -14,13 +14,13 @@
             <div class              ="js-alto-uploader"
                  data-target        ="blog_avatar"
                  data-target-id     ="{$sTarget_id}"
-                 data-empty         ="{asset file="img/empty_image.png" theme=true}"
+                 data-empty         ="{asset file="img/empty_blog_image.png" theme=true}"
                  data-preview-crop  ="309x309crop"
                  data-crop          ="no">
 
                 {* Картинка фона блога *}
                 {img attr=[
-                    'src'           => "{asset file="img/empty_image.png" theme=true}",
+                    'src'           => "{asset file="img/empty_blog_image.png" theme=true}",
                     'alt'           => "image",
                     'class'         => "thumbnail js-uploader-image",
                     'target-type'   => "blog_avatar",

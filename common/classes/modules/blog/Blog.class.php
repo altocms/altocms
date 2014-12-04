@@ -482,7 +482,7 @@ class ModuleBlog extends Module {
                 $sTargetId = $sId;
                 $sNewPath = $this->Uploader_GetUploadDir($sTargetId, $sTargetType) . '/';
                 $aMresourceRel = E::Mresource_GetMresourcesRelByTargetAndUser($sTargetType, 0, E::UserId());
-                $this->Mresource_UnlinkFile($sTargetType, $sTargetId, E::UserId());
+
                 if ($aMresourceRel) {
                     $oResource = array_shift($aMresourceRel);
                     $sOldPath = $oResource->GetFile();
@@ -496,7 +496,7 @@ class ModuleBlog extends Module {
                         $oResource->setUserId(E::UserId());
 
                         $oResource = array($oResource);
-
+                        $this->Mresource_UnlinkFile($sTargetType, 0, E::UserId());
                         $this->Mresource_AddTargetRel($oResource, $sTargetType, $sTargetId);
                     }
                 }
