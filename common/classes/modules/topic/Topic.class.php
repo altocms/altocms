@@ -2558,6 +2558,21 @@ class ModuleTopic extends Module {
     }
 
     /**
+     * @param array                 $aFile
+     * @param ModuleUser_EntityUser $oUser
+     * @param array                 $aOptions
+     *
+     * @return string|bool
+     */
+    public function UploadCommentImageFile($aFile, $oUser, $aOptions = array()) {
+
+        if ($sFileTmp = $this->Uploader_UploadLocal($aFile)) {
+            return $this->_saveTopicImage($sFileTmp, $oUser, 'comment', $aOptions);
+        }
+        return false;
+    }
+
+    /**
      * Загрузка изображений по переданному URL
      *
      * @param  string                $sUrl    URL изображения
@@ -2570,6 +2585,23 @@ class ModuleTopic extends Module {
 
         if ($sFileTmp = $this->Uploader_UploadRemote($sUrl)) {
             return $this->_saveTopicImage($sFileTmp, $oUser, 'topic', $aOptions);
+        }
+        return false;
+    }
+
+    /**
+     * Загрузка изображений по переданному URL
+     *
+     * @param  string                $sUrl    URL изображения
+     * @param  ModuleUser_EntityUser $oUser
+     * @param array                 $aOptions
+     *
+     * @return string|int
+     */
+    public function UploadCommentImageUrl($sUrl, $oUser, $aOptions = array()) {
+
+        if ($sFileTmp = $this->Uploader_UploadRemote($sUrl)) {
+            return $this->_saveTopicImage($sFileTmp, $oUser, 'comment', $aOptions);
         }
         return false;
     }

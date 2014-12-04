@@ -635,6 +635,10 @@ class ModuleComment extends Module {
             if ($oComment->getTargetType() == 'topic') {
                 $this->Topic_RecalcCountOfComments($oComment->getTargetId());
             }
+
+            // Освежим хранилище картинок
+            $this->CheckCommentImages($oComment);
+
             // чистим зависимые кеши
             $this->Cache_CleanByTags(
                 array("comment_new", "comment_new_{$oComment->getTargetType()}",
@@ -657,6 +661,10 @@ class ModuleComment extends Module {
     public function UpdateComment(ModuleComment_EntityComment $oComment) {
 
         if ($this->oMapper->UpdateComment($oComment)) {
+
+            // Освежим хранилище картинок
+            $this->CheckCommentImages($oComment);
+
             //чистим зависимые кеши
             $this->Cache_CleanByTags(
                 array("comment_update", "comment_update_{$oComment->getTargetType()}_{$oComment->getTargetId()}")
@@ -665,6 +673,66 @@ class ModuleComment extends Module {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Проверяет картикнки комментариев
+     * @param ModuleComment_EntityComment $oComment
+     * @return bool
+     */
+    public function CheckCommentImages($oComment) {
+
+        // 1. Получим uuid рисунков из текста топика и создадим связь с объектом
+        // если ее ещё нет.
+        if (preg_match_all("~0u\w{8}-\w{8}-\w{8}~", $oComment->getText(), $aUuid) && isset($aUuid[0])) {
+
+            // Получим uuid ресурсов
+            $aUuid = array_unique($aUuid[0]);
+
+            // Найдем ресурсы
+            /** @var ModuleMresource_EntityMresource[] $aResult */
+            $aResult = $this->Mresource_GetMresourcesByUuid($aUuid);
+            if (!$aResult) {
+                return FALSE;
+            }
+
+            // Новым рисункам добавим таргет
+            $aNewResources = array();
+            foreach ($aResult as $sId => $oResource) {
+                if ($oResource->getTargetsCount() != 0) {
+                    continue;
+                }
+
+                // Текущий ресурс новый
+                $aNewResources[] = $oResource;
+            }
+
+            // Добавим связи, если нужно
+            if ($aNewResources) {
+                $this->Mresource_AddTargetRel($aNewResources, 'comment', $oComment->getId());
+            }
+
+
+
+            // 2. Пробежимся по ресурсам комментария и если ресурса нет в новых, тогда
+            // удалим этот ресурс.
+            // Читаем список ресурсов из базы
+            $aMresources = $this->Mresource_GetMresourcesRelByTarget('comment', $oComment->getId());
+
+            // Строим список ID ресурсов для удаления
+            $aDeleteResources = array();
+            foreach ($aMresources as $oMresource) {
+                if (!isset($aResult[$oMresource->getMresourceId()])) {
+                    // Если ресурса нет в хеш-таблице, то это прентендент на удаление
+                    $aDeleteResources[$oMresource->GetId()] = $oMresource->getMresourceId();
+                }
+            }
+            if ($aDeleteResources) {
+                $this->Mresource_DeleteMresources(array_values($aDeleteResources));
+                $this->Mresource_DeleteMresourcesRel(array_keys($aDeleteResources));
+            }
+        }
+
     }
 
     /**

@@ -1143,7 +1143,7 @@ class ActionAjax extends Action {
                     }
                 }
             }
-            $sFile = $this->Topic_UploadTopicImageFile($aUploadedFile, $this->oUserCurrent, $aOptions);
+            $sFile = $this->Topic_UploadCommentImageFile($aUploadedFile, $this->oUserCurrent, $aOptions);
             if (!$sFile) {
                 $sMessage = $this->Lang_Get('uploadimg_file_error');
                 if ($this->Uploader_GetError()) {
