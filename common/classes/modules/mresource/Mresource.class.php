@@ -478,6 +478,14 @@ class ModuleMresource extends Module {
         // И связи
         $this->DeleteMresourcesRelByTargetAndUser($sTargetType, $sTargetId, E::UserId());
     }
+
+    public function GetTargetTypes() {
+        return $this->oMapper->GetTargetTypes();
+    }
+
+    public function GetMresourcesCountByTarget($sTargetType) {
+        return $this->oMapper->GetMresourcesCountByTarget($sTargetType);
+    }
 }
 
 // EOF

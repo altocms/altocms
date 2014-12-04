@@ -231,6 +231,10 @@ class ModuleMresource_MapperMresource extends Mapper {
             $aUuidFilter[] = '(target_tmp=?:target_tmp)';
             $aParams[':uuid'] = $aFilter['mresource_target_tmp'];
         }
+        if (isset($aFilter['mresource_url_like'])) {
+            $aUuidFilter[] = '(path_url like ?:path_url)';
+            $aParams[':path_url'] = $aFilter['mresource_url_like'];
+        }
         list($nOffset, $nLimit) = $this->_prepareLimit($aCriteria);
 
         // Формируем строку лимита и автосчетчик общего числа записей
@@ -660,6 +664,32 @@ class ModuleMresource_MapperMresource extends Mapper {
         return $xResult !== false;
     }
 
+    /**
+     * Получает все типы целей
+     * @return $aResult
+     */
+    public function GetTargetTypes() {
+        return $this->oDb->selectCol("select DISTINCT target_type from prefix_mresource_target");
+    }
+
+    /**
+     * Получает количество ресурсов по типу
+     *
+     * @param $sTargetType
+     *
+     * @return int
+     */
+    public function GetMresourcesCountByTarget($sTargetType) {
+
+        if ($sTargetType == 'all') {
+            $aRow =  $this->oDb->selectRow("select count(target_type) as count from prefix_mresource_target");
+        } else {
+            $aRow =  $this->oDb->selectRow("select count(target_type) as count from prefix_mresource_target where target_type = ?", $sTargetType);
+        }
+
+
+        return isset($aRow['count'])?$aRow['count']:0;
+    }
 }
 
 // EOF

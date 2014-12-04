@@ -194,6 +194,9 @@
     <div id="breadcrumb" class="b-content-breadcrumb">
         <a href="#" ><i class="icon icon-magic-wand"></i> {$aLang.action.admin.title}</a>
         <a href="#" class="current">{$sPageTitle}</a>
+        {if isset($sPageSubMenu)}
+            <a href="#" class="current">{$sPageSubMenu}</a>
+        {/if}
     </div>
 
     {block name="sysmessage"}{/block}

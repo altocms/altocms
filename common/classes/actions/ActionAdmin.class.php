@@ -1385,22 +1385,31 @@ class ActionAdmin extends Action {
             $this->_eventMresourcesDelete();
         }
 
+        $sMode = $this->_getMode(1, 'all');
+
         // * Передан ли номер страницы
         $nPage = $this->_getPageNum();
 
         $aFilter = array(
             //'type' => ModuleMresource::TYPE_IMAGE,
         );
+
+        if ($sMode &&  $sMode != 'all') {
+            $aFilter = array('mresource_url_like' => "%{$sMode}%");
+        }
+
         $aCriteria = array(
             'fields' => array('mr.*', 'targets_count'),
             'filter' => $aFilter,
             'limit'  => array(($nPage - 1) * Config::Get('admin.items_per_page'), Config::Get('admin.items_per_page')),
             'with'   => array('user'),
         );
+
         $aResult = $this->Mresource_GetMresourcesByCriteria($aCriteria);
+        $aResult['count'] = $this->Mresource_GetMresourcesCountByTarget($sMode);
 
         $aPaging = $this->Viewer_MakePaging($aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4,
-            Router::GetPath('admin') . 'content-mresources/');
+            Router::GetPath('admin') . 'content-mresources/list/' . $sMode . '/');
 
         $this->Lang_AddLangJs(
             array(
@@ -1409,7 +1418,17 @@ class ActionAdmin extends Action {
             )
         );
 
+        $aTargetTypes = $this->Mresource_GetTargetTypes();
+
         $this->Viewer_Assign('aMresources', $aResult['collection']);
+        $this->Viewer_Assign('aTargetTypes', $aTargetTypes);
+        $this->Viewer_Assign('sMode', $sMode);
+        if (strpos($sMode, 'single-image-uploader') === 0) {
+            $sMode = str_replace('single-image-uploader', $this->Lang_Get('target_type_single-image-uploader'), $sMode);
+        } else {
+            $sMode = $this->Lang_Get('target_type_' . $sMode);
+        }
+        $this->Viewer_Assign('sPageSubMenu', $sMode);
         $this->Viewer_Assign('aPaging', $aPaging);
     }
 
