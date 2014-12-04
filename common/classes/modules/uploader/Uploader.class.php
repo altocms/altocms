@@ -415,14 +415,18 @@ class ModuleUploader extends Module {
     }
 
     /**
-     * @param int  $nUserId
+     * @param int $nUserId
      * @param bool $bAutoMake
      *
+     * @param bool $sType
      * @return string
      */
-    public function GetUserImagesUploadDir($nUserId, $bAutoMake = true) {
+    public function GetUserImagesUploadDir($nUserId, $bAutoMake = TRUE, $sType = FALSE) {
 
-        return $this->_getUserUploadDir($nUserId, Config::Get('path.uploads.images'), $bAutoMake);
+//        return $this->_getUserUploadDir($nUserId, Config::Get('path.uploads.images'), $bAutoMake);
+        $sDir = ($sType && ($sDir = Config::Get('path.uploads.' . $sType))) ? $sDir : Config::Get('path.uploads.images');
+
+        return $this->_getUserUploadDir($nUserId, $sDir, $bAutoMake);
     }
 
     /**
@@ -461,12 +465,12 @@ class ModuleUploader extends Module {
      *
      * @return string
      */
-    public function GetUserImageDir($iUserId = null, $bAutoMake = true) {
+    public function GetUserImageDir($iUserId = null, $bAutoMake = true, $sType = false) {
 
         if (is_null($iUserId)) {
             $iUserId = intval(E::UserId());
         }
-        $sResult = $this->GetUserImagesUploadDir($iUserId) . date('Y/m/d/');
+        $sResult = $this->GetUserImagesUploadDir($iUserId, $bAutoMake, $sType) . date('Y/m/d/');
         if ($bAutoMake) {
             F::File_CheckDir($sResult, $bAutoMake);
         }

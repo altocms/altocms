@@ -2529,7 +2529,7 @@ class ModuleTopic extends Module {
 
         $sFileTmp = $this->Img_TransformFile($sImageFile, $sType, $aOptions);
         if ($sFileTmp) {
-            $sDirUpload = $this->Uploader_GetUserImageDir($oUser->getId());
+            $sDirUpload = $this->Uploader_GetUserImageDir($oUser->getId(), true, $sType);
             $sFileImage = $this->Uploader_Uniqname($sDirUpload, F::File_GetExtension($sFileTmp, true));
             if ($xStoredFile = $this->Uploader_Store($sFileTmp, $sFileImage)) {
                 if (is_object($xStoredFile)) {
@@ -2986,22 +2986,23 @@ class ModuleTopic extends Module {
         $aMresources = $this->Mresource_GetMresourcesRelByTarget('topic', $oTopic->GetId());
 
         // Строим список ID ресурсов для удаления
-        $aDeleteRelId = array();
+        $aDeleteResources = array();
         foreach ($aMresources as $oMresource) {
             if (isset($aList[$oMresource->GetHash()])) {
                 // Если сохраненный ресурс есть в хеш-таблице, то чистим соответствующий хеш
                 unset($aList[$oMresource->GetHash()]);
             } else {
                 // Если ресурса нет в хеш-таблице, то это прентендент на удаление
-                $aDeleteRelId[] = $oMresource->GetId();
+                $aDeleteResources[$oMresource->GetId()] = $oMresource->getMresourceId();
             }
         }
         // В списке остались только новые ресурсы
         if ($aList) {
             $this->Mresource_AddTargetRel($aList, 'topic', $oTopic->GetId());
         }
-        if ($aDeleteRelId) {
-            $this->Mresource_DeleteMresourcesRel($aDeleteRelId);
+        if ($aDeleteResources) {
+            $this->Mresource_DeleteMresources(array_values($aDeleteResources));
+            $this->Mresource_DeleteMresourcesRel(array_keys($aDeleteResources));
         }
     }
 
