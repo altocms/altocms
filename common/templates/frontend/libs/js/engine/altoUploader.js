@@ -241,10 +241,10 @@
 
             // Установим текстовки
             if ($this.options.title !== undefined) {
-                $this.$modal.find('.modal-title').text(ls.lang.get($this.options.title));
+                $this.$modal.find('.modal-title').text(ls.lang.get($this.options.title) || $this.options.title);
             }
             if ($this.options.help !== undefined) {
-                $this.$modal.find('.js-crop_img-help').text(ls.lang.get($this.options.help));
+                $this.$modal.find('.js-crop_img-help').text(ls.lang.get($this.options.help) || $this.options.help);
             }
 
             // Покажем форму кропа

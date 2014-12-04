@@ -465,6 +465,43 @@ class ModuleBlog extends Module {
             $oBlog->setId($sId);
             //чистим зависимые кеши
             $this->Cache_CleanByTags(array('blog_new'));
+
+
+            // 1. Удалить значение target_tmp
+            // Нужно затереть временный ключ в ресурсах, что бы в дальнейшем картнка не
+            // воспринималась как временная.
+            if ($sTargetTmp = E::Session_GetCookie('uploader_target_tmp')) {
+                // 2. Удалить куку.
+                // Если прозошло сохранение вновь созданного топика, то нужно
+                // удалить куку временной картинки. Если же сохранялся уже существующий топик,
+                // то удаление куки ни на что влиять не будет.
+                $this->Session_DelCookie('uploader_target_tmp');
+
+                // 3. Переместить фото
+                $sTargetType = 'blog_avatar';
+                $sTargetId = $sId;
+                $sNewPath = $this->Uploader_GetUploadDir($sTargetId, $sTargetType) . '/';
+                $aMresourceRel = E::Mresource_GetMresourcesRelByTargetAndUser($sTargetType, 0, E::UserId());
+                $this->Mresource_UnlinkFile($sTargetType, $sTargetId, E::UserId());
+                if ($aMresourceRel) {
+                    $oResource = array_shift($aMresourceRel);
+                    $sOldPath = $oResource->GetFile();
+
+                    $xStoredFile = $this->Uploader_Store($sOldPath, $sNewPath);
+                    /** @var ModuleMresource_EntityMresource $oResource */
+                    $oResource = $this->Mresource_GetMresourcesByUuid($xStoredFile->getUuid());
+                    if ($oResource) {
+                        $oResource->setUrl($this->Mresource_NormalizeUrl($this->Uploader_GetTargetUrl($sTargetId, $sTargetType)));
+                        $oResource->setType($sTargetType);
+                        $oResource->setUserId(E::UserId());
+
+                        $oResource = array($oResource);
+
+                        $this->Mresource_AddTargetRel($oResource, $sTargetType, $sTargetId);
+                    }
+                }
+            }
+
             return $oBlog;
         }
         return false;

@@ -48,6 +48,15 @@ $config['widgets'][] = array(
     ),
 );
 
+$config['widgets'][] = array(
+    'name' => 'widgets/widget.blogAvatar.tpl',  // шаблонный виджет
+    'wgroup' => 'right',
+    'priority' => 999,
+    'on' => array(
+        'blog/add', 'blog/edit',
+    ),
+);
+
 // Теги
 $config['widgets'][] = array(
     'name' => 'tags',

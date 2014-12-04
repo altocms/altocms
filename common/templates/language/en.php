@@ -818,6 +818,8 @@ return array(
     'widget_blog_info_note'                      => 'Tip',
     'widget_blog_info_note_text'                 => '<strong>Tag &lt;cut&gt; shortens long articles</strong>, hiding them totally or partially under the link («read more»). Hidden part is not visible in the blog but will be available on the full Topic\'s page.',
 
+    'widget_blog_avatar_block'                   => 'Blog avatar',
+
     'widget_blogs'                               => 'Blogs',
     'widget_blogs_top'                           => 'Top',
     'widget_blogs_join'                          => 'Blogs I\'ve joined',

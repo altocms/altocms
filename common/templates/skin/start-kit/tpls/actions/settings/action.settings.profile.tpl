@@ -87,23 +87,48 @@
 
                     <div class="col-lg-4">
                         <div class="pull-right settings-avatar-change">
-                            <img src="{E::User()->getAvatarUrl(100)}" id="profile-avatar-image" class="profile-avatar js-profile-avatar-image"/>
 
-                            <div class="profile-avatar-menu small">
-                                <button class="btn btn-default btn-xs" data-toggle="file" data-target="#profile-avatar-file">
-                                    {if $oUserCurrent->getProfileAvatar()}
+                            {* БЛОК ЗАГРУЗКИ ИЗОБРАЖЕНИЯ *}
+                            <div class              ="js-alto-uploader tac settings-avatar-change"
+                                 data-target        ="profile_avatar"
+                                 data-target-id     ="{E::User()->getId()}"
+                                 data-title         ="{$aLang.settings_profile_avatar_resize_title}"
+                                 data-help          ="{$aLang.settings_profile_avatar_resize_text}"
+                                 data-empty         ="{E::User()->getDefaultAvatarUrl(100)}"
+                                 data-preview-crop  ="100x100"
+                                 data-crop          ="yes">
+
+                                {* Картинка фона блога *}
+                                <img style="width: 100%; display: block; margin-bottom: 8px;"
+                                     src="{E::User()->getAvatarUrl(100)}"
+                                     id="profile-avatar-image"
+                                     class="profile-avatar js-uploader-image"/>
+
+                                {* Меню управления картинкой фона блога *}
+                                <div class="uploader-actions profile-avatar-menu">
+
+                                    {* Кнопка загрузки картинки *}
+                                    <a href="#" onclick="return false;" class="btn btn-default btn-xs js-uploader-button-upload"
+                                       data-toggle="file" data-target="#profile-avatar-file">
                                         {$aLang.settings_profile_avatar_change}
-                                    {else}
-                                        {$aLang.settings_profile_avatar_upload}
-                                    {/if}
-                                </button>
-                                <br/>
-                                <a href="#" class="link-dotted js-profile-avatar-remove" {if !$oUserCurrent->getProfileAvatar()}style="visibility: hidden;"{/if}>
-                                    {$aLang.settings_profile_avatar_delete}
-                                </a>
-                                <input type="file" name="avatar" id="profile-avatar-file" class="js-profile-avatar-file" data-target=".js-profile-avatar-image">
+                                    </a>
+
+                                    {* Кнопка удаления картинки *}
+                                    <br/>
+                                    <a href="#" class="link-dotted js-uploader-button-remove"
+                                       {if !$oUserCurrent->hasAvatar()}style="display: none;"{/if}>
+                                        {$aLang.settings_profile_avatar_delete}
+                                    </a>
+
+                                    {* Файл для загрузки *}
+                                    <input type="file" name="uploader-upload-image" class="uploader-actions-file js-uploader-file">
+
+                                </div>
+
+                                {* Форма обрезки картинки при ее загрузке *}
+                                {include_once file="modals/modal.crop_img.tpl"}
+
                             </div>
-                            {include_once file="modals/modal.crop_img.tpl"}
 
                         </div>
 

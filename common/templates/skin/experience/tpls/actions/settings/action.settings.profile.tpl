@@ -33,22 +33,45 @@
 
                 <div class="row">
                     <div class="col-md-4">
-                        <div class="tac settings-avatar-change tac">
-                            <img style="width: 100%; display: block; margin-bottom: 8px;" src="{E::User()->getAvatarUrl(100)}" id="profile-avatar-image" class="profile-avatar js-profile-avatar-image"/>
 
-                            <div class="profile-avatar-menu" style="position: relative;">
-                                <a href="#" onclick="return false;" class="link link-lead link-blue no-corner" data-toggle="file" data-target="#profile-avatar-file"><i class="fa fa-pencil"></i>&nbsp;
-                                    {if $oUserCurrent->getProfileAvatar()}
-                                        {$aLang.settings_profile_avatar_change}
-                                    {else}
-                                        {$aLang.settings_profile_avatar_upload}
-                                    {/if}
+                        {* БЛОК ЗАГРУЗКИ ИЗОБРАЖЕНИЯ *}
+                        <div class              ="js-alto-uploader tac settings-avatar-change"
+                             data-target        ="profile_avatar"
+                             data-target-id     ="{E::User()->getId()}"
+                             data-title         ="{$aLang.settings_profile_avatar_resize_title}"
+                             data-help          ="{$aLang.settings_profile_avatar_resize_text}"
+                             data-empty         ="{E::User()->getDefaultAvatarUrl(100)}"
+                             data-preview-crop  ="100x100"
+                             data-crop          ="yes">
+
+                            {* Картинка фона блога *}
+                            <img style="width: 100%; display: block; margin-bottom: 8px;"
+                                 src="{E::User()->getAvatarUrl(100)}"
+                                 id="profile-avatar-image"
+                                 class="profile-avatar js-uploader-image"/>
+
+                            {* Меню управления картинкой фона блога *}
+                            <div class="uploader-actions profile-avatar-menu">
+
+                                {* Кнопка загрузки картинки *}
+                                <a href="#" onclick="return false;" class="link link-lead link-blue no-corner js-uploader-button-upload"
+                                   data-toggle="file" data-target="#profile-avatar-file">
+                                    <i class="fa fa-pencil"></i>&nbsp;{$aLang.settings_profile_avatar_change}
                                 </a>
-                                <input style="position: absolute; top:0; width: 100%;" type="file" name="avatar" id="profile-avatar-file" class="js-profile-avatar-file" data-target=".js-profile-avatar-image">
+
+                                {* Кнопка удаления картинки *}
+                                <br/>
+                                <a href="#" class="link link-lead link-clear link-red-blue js-uploader-button-remove"
+                                   {if !$oUserCurrent->hasAvatar()}style="display: none;"{/if}>
+                                    <i class="fa fa-times"></i>&nbsp;{$aLang.settings_profile_avatar_delete}
+                                </a>
+
+                                {* Файл для загрузки *}
+                                <input type="file" name="uploader-upload-image" class="uploader-actions-file js-uploader-file">
+
                             </div>
-                            <a href="#" class="link link-lead link-clear link-red-blue js-profile-avatar-remove" {if !$oUserCurrent->getProfileAvatar()}style="visibility: hidden;"{/if}>
-                                <i class="fa fa-times"></i>&nbsp;{$aLang.settings_profile_avatar_delete}
-                            </a>
+
+                            {* Форма обрезки картинки при ее загрузке *}
                             {include_once file="modals/modal.crop_img.tpl"}
 
                         </div>

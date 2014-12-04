@@ -178,7 +178,8 @@ class ModuleBlog_EntityBlog extends Entity {
      */
     public function getAvatar() {
 
-        return $this->getProp('blog_avatar');
+//        return $this->getProp('blog_avatar');
+        return $this->Uploader_GetTargetImageUrl($this->getId(), 'blog_avatar');
     }
 
     /**
@@ -221,20 +222,8 @@ class ModuleBlog_EntityBlog extends Entity {
      */
     public function getAvatarUrl($xSize = 48) {
 
-        if ($sUrl = $this->getAvatar()) {
-            if (!$xSize) {
-                return $sUrl;
-            } else {
-                $sModSuffix = F::File_ImgModSuffix($xSize, pathinfo($sUrl, PATHINFO_EXTENSION));
-                $sUrl = $sUrl . $sModSuffix;
-                if (Config::Get('module.image.autoresize')) {
-                    $sFile = $this->Uploader_Url2Dir($sUrl);
-                    if (!F::File_Exists($sFile)) {
-                        $this->Img_Duplicate($sFile);
-                    }
-                }
-                return $sUrl;
-            }
+        if ($sUrl = $this->Uploader_GetTargetImageUrl($this->getId(), 'blog_avatar', $xSize)) {
+            return $sUrl;
         } else {
             $sPath = $this->Uploader_GetUserAvatarDir(0) . 'avatar_blog_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '.png';
             if ($xSize) {
@@ -250,6 +239,7 @@ class ModuleBlog_EntityBlog extends Entity {
             }
             return $this->Uploader_Dir2Url($sPath);
         }
+
     }
 
     public function getAvatarPath($nSize = 48) {

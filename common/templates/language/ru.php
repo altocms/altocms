@@ -857,6 +857,8 @@ return array(
     'widget_blogs_self_error'                   => 'У вас нет своих блогов',
     'widget_blogs_all'                          => 'Все блоги',
 
+    'widget_blog_avatar_block' => 'Аватар блога',
+
     'widget_tags'                               => 'Теги',
     'widget_tags_empty'                         => 'Нет тегов',
     'widget_tags_search'                        => 'Поиск тегов',

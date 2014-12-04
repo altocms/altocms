@@ -637,9 +637,50 @@ class ModuleUploader extends Module {
                 if (!$this->ACL_IsAllowEditTopic($oTopic, E::User())) {
                     return FALSE;
                 }
+                return $oTopic;
             }
 
             return TRUE;
+        }
+
+        // Загружать аватарки можно только в свой профиль
+        if ($sTarget == 'profile_avatar') {
+
+            if ($sTargetId && E::IsUser() && $sTargetId == E::UserId()) {
+                return E::User();
+            }
+
+            return FALSE;
+        }
+
+        // Загружать аватарки можно только в свой профиль
+        if ($sTarget == 'profile_photo') {
+
+            if ($sTargetId && E::IsUser() && $sTargetId == E::UserId()) {
+                return E::User();
+            }
+
+            return FALSE;
+        }
+
+        if ($sTarget == 'blog_avatar') {
+            /** @var ModuleBlog_EntityBlog $oBlog */
+            $oBlog = $this->Blog_GetBlogById($sTargetId);
+
+            if (!E::IsUser()) {
+                return false;
+            }
+
+            if (!$oBlog) {
+                // Блог еще не создан
+                return ($this->ACL_CanCreateBlog(E::User()) || E::IsAdmin());
+            }
+
+            if ($oBlog && ($this->ACL_CheckBlogEditBlog($oBlog, E::User()) || E::IsAdmin())) {
+                return $oBlog;
+            }
+
+            return '';
         }
 
         return FALSE;
@@ -687,6 +728,23 @@ class ModuleUploader extends Module {
             }
 
             return $oTopic->getUrl();
+        }
+
+        if ($sTarget == 'profile_avatar') {
+            return Router::GetPath('settings');
+        }
+
+        if ($sTarget == 'profile_photo') {
+            return Router::GetPath('settings');
+        }
+
+        if ($sTarget == 'blog_avatar') {
+            /** @var ModuleBlog_EntityBlog $oBlog */
+            $oBlog = $this->Blog_GetBlogById($sTargetId);
+            if ($oBlog) {
+                return $oBlog->getUrlFull();
+            }
+            return '';
         }
 
         return '';

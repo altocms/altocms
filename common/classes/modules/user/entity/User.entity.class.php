@@ -541,38 +541,54 @@ class ModuleUser_EntityUser extends Entity {
                 $xSize = self::DEFAULT_AVATAR_SIZE;
             }
         }
+
+        if ($sUrl = $this->Uploader_GetTargetImageUrl($this->getId(), 'profile_avatar', $xSize)) {
+            return $sUrl;
+        } else {
+            return $this->getDefaultAvatarUrl($xSize);
+        }
+
+    }
+
+    /**
+     * Возвращает дефолтный аватар пользователя
+     *
+     * @param null $xSize
+     * @return mixed
+     */
+    public function getDefaultAvatarUrl($xSize = null) {
+
+        $sPath = $this->Uploader_GetUserAvatarDir(0)
+            . 'avatar_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '_' . ($this->getProfileSex() == 'woman' ? 'female' : 'male')
+            . '.png';
+
+        if (!$xSize) {
+            if (Config::Get('module.user.profile_avatar_size')) {
+                $xSize = Config::Get('module.user.profile_avatar_size');
+            } else {
+                $xSize = self::DEFAULT_AVATAR_SIZE;
+            }
+        }
+
         if (is_string($xSize) && strpos($xSize, 'x')) {
             list($nW, $nH) = array_map('intval', explode('x', $xSize));
         } else {
             $nW = $nH = intval($xSize);
         }
 
-        if ($sUrl = $this->getProfileAvatar()) {
-            if ($sUrl[0] == '@') {
-                $sUrl = F::File_RootUrl() . substr($sUrl, 1);
-            }
-
-            if (Config::Get('module.image.autoresize')) {
-                $sFile = $this->Uploader_Url2Dir($sUrl);
-                if (F::File_Exists($sFile)) {
-                    $sModSuffix = F::File_ImgModSuffix($xSize, pathinfo($sFile, PATHINFO_EXTENSION));
-                    $sFile .= $sModSuffix;
-                    if (F::File_Exists($sFile) || ($sFile = $this->Img_Duplicate($sFile))) {
-                        $sUrl = $this->Uploader_Dir2Url($sFile);
-                    }
-                }
-            }
-            return $sUrl;
-        } else {
-            $sPath = $this->Uploader_GetUserAvatarDir(0)
-                . 'avatar_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '_' . ($this->getProfileSex() == 'woman' ? 'female' : 'male')
-                . '.png';
-            $sPath .= '-' . $nW . 'x' . $nH . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
-            if (Config::Get('module.image.autoresize') && !F::File_Exists($sPath)) {
-                $this->Img_AutoresizeSkinImage($sPath, 'avatar', max($nH, $nW));
-            }
-            return $this->Uploader_Dir2Url($sPath);
+        $sPath .= '-' . $nW . 'x' . $nH . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
+        if (Config::Get('module.image.autoresize') && !F::File_Exists($sPath)) {
+            $this->Img_AutoresizeSkinImage($sPath, 'avatar', max($nH, $nW));
         }
+        return $this->Uploader_Dir2Url($sPath);
+    }
+
+    /**
+     * Возвращает информацию о том, есть ли вообще у пользователя аватар
+     * @return bool
+     */
+    public function hasAvatar() {
+        return (bool)$this->Uploader_GetTargetImageUrl($this->getId(), 'profile_avatar');
     }
 
     /**
@@ -592,25 +608,28 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function GetPhotoUrl($xSize = null) {
 
-        if ($sUrl = $this->getProfilePhoto()) {
-            if (!$xSize) {
-                if (Config::Get('module.user.profile_photo_size')) {
-                    $xSize = Config::Get('module.user.profile_photo_size');
-                } else {
-                    $xSize = self::DEFAULT_PHOTO_SIZE;
-                }
+        if (!$xSize) {
+            if (Config::Get('module.user.profile_photo_size')) {
+                $xSize = Config::Get('module.user.profile_photo_size');
+            } else {
+                $xSize = self::DEFAULT_PHOTO_SIZE;
             }
-            $sModSuffix = F::File_ImgModSuffix($xSize, pathinfo($sUrl, PATHINFO_EXTENSION));
-            $sUrl = $sUrl . $sModSuffix;
-            if (Config::Get('module.image.autoresize')) {
-                $sFile = $this->Uploader_Url2Dir($sUrl);
-                if (!F::File_Exists($sFile)) {
-                    $this->Img_Duplicate($sFile);
-                }
-            }
-            return $sUrl;
         }
-        return $this->GetDefaultPhotoUrl($xSize);
+
+        if ($sUrl = $this->Uploader_GetTargetImageUrl($this->getId(), 'profile_photo', $xSize)) {
+            return $sUrl;
+        } else {
+            return $this->GetDefaultPhotoUrl($xSize);
+        }
+
+    }
+
+    /**
+     * Возвращает информацию о том, есть ли вообще у пользователя аватар
+     * @return bool
+     */
+    public function hasPhoto() {
+        return (bool)$this->Uploader_GetTargetImageUrl($this->getId(), 'profile_photo');
     }
 
     /**

@@ -6,30 +6,75 @@
 <div class="panel panel-default sidebar user-panel raised">
     <div class="panel-body">
         <div class="panel-content">
-            <img src="{$oUserProfile->getPhotoUrl('222x')}" alt="photo" class="profile-photo js-profile-photo-image"/>
-            <span class="label label-{if $oUserProfile->isOnline()}success{else}danger{/if}">
-                {if $oUserProfile->isOnline()}{$aLang.user_status_online}{else}{$aLang.user_status_offline}{/if}
-            </span>
 
-            {if $sAction=='settings' AND E::UserId() == $oUserProfile->getId()}
-                <div class="profile-photo-menu">
-                    <br/>
-                    <a class="link link-lead link-blue link-clear mat8" href="#" onclick="return false;" data-toggle="file" data-target="#profile-photo-file"><i class="fa fa-pencil"></i>&nbsp;
-                        {if $oUserCurrent->getProfilePhoto()}
-                            {$aLang.settings_profile_photo_change}
-                        {else}
-                            {$aLang.settings_profile_photo_upload}
-                        {/if}
-                    </a>
-                    <br/>
-                    <a href="#" class="link link-lead link-red-blue link-clear js-profile-photo-remove" {if !$oUserCurrent->getProfilePhoto()}style="visibility: hidden;"{/if}>
-                        <i class="fa fa-times"></i>&nbsp;{$aLang.settings_profile_photo_delete}
-                    </a>
-                    <input type="file" name="photo" id="profile-photo-file" class="js-profile-photo-file"
-                           data-target=".js-profile-photo-image">
-                </div>
-                {include_once file="modals/modal.crop_img.tpl"}
-            {/if}
+            {* БЛОК ЗАГРУЗКИ ИЗОБРАЖЕНИЯ *}
+            <div class ="{if $sAction=='settings' AND E::UserId() == $oUserProfile->getId()}js-alto-uploader{/if} settings-photo-change"
+                    {if $sAction=='settings' AND E::UserId() == $oUserProfile->getId()}
+                        data-target        ="profile_photo"
+                        data-target-id     ="{E::User()->getId()}"
+                        data-title         ="{$aLang.settings_profile_photo_resize_title}"
+                        data-help          ="{$aLang.settings_profile_photo_resize_text}"
+                        data-empty         ="{E::User()->getDefaultPhotoUrl('222crop')}"
+                        data-preview-crop  ="222crop"
+                        data-crop          ="yes"
+                    {/if}
+                    >
+
+                <img style="width: 100%; display: block; margin-bottom: 8px;"
+                     src="{E::User()->getPhotoUrl('222crop')}"
+                     id="profile-photo-image"
+                     class="profile-photo js-uploader-image"/>
+                <span class="label label-{if $oUserProfile->isOnline()}success{else}danger{/if}">
+                    {if $oUserProfile->isOnline()}{$aLang.user_status_online}{else}{$aLang.user_status_offline}{/if}
+                </span>
+
+                {* Меню управления картинкой фона блога *}
+                {if $sAction=='settings' AND E::UserId() == $oUserProfile->getId()}
+                    <div class="uploader-actions profile-photo-menu">
+
+                        {* Кнопка загрузки картинки *}
+                        <a href="#" onclick="return false;" class="link link-lead link-blue link-clear mat8 js-uploader-button-upload"
+                           data-toggle="file" data-target="#profile-photo-file">
+                            <i class="fa fa-pencil"></i>&nbsp;{$aLang.settings_profile_photo_change}
+                        </a>
+
+                        {* Кнопка удаления картинки *}
+                        <br/>
+                        <a href="#" class="link link-lead link-red-blue link-clear js-uploader-button-remove"
+                           {if !$oUserCurrent->hasPhoto()}style="display: none;"{/if}>
+                            <i class="fa fa-times"></i>&nbsp;{$aLang.settings_profile_photo_delete}
+                        </a>
+
+                        {* Файл для загрузки *}
+                        <input type="file" name="uploader-upload-image" class="uploader-actions-file js-uploader-file">
+
+                    </div>
+
+                    {* Форма обрезки картинки при ее загрузке *}
+                    {include_once file="modals/modal.crop_img.tpl"}
+                {/if}
+            </div>
+
+
+            {*{if $sAction=='settings' AND E::UserId() == $oUserProfile->getId()}*}
+                {*<div class="profile-photo-menu">*}
+                    {*<br/>*}
+                    {*<a class="link link-lead link-blue link-clear mat8" href="#" onclick="return false;" data-toggle="file" data-target="#profile-photo-file"><i class="fa fa-pencil"></i>&nbsp;*}
+                        {*{if $oUserCurrent->getProfilePhoto()}*}
+                            {*{$aLang.settings_profile_photo_change}*}
+                        {*{else}*}
+                            {*{$aLang.settings_profile_photo_upload}*}
+                        {*{/if}*}
+                    {*</a>*}
+                    {*<br/>*}
+                    {*<a href="#" class="link link-lead link-red-blue link-clear js-profile-photo-remove" {if !$oUserCurrent->getProfilePhoto()}style="visibility: hidden;"{/if}>*}
+                        {*<i class="fa fa-times"></i>&nbsp;{$aLang.settings_profile_photo_delete}*}
+                    {*</a>*}
+                    {*<input type="file" name="photo" id="profile-photo-file" class="js-profile-photo-file"*}
+                           {*data-target=".js-profile-photo-image">*}
+                {*</div>*}
+                {*{include_once file="modals/modal.crop_img.tpl"}*}
+            {*{/if}*}
 
             {hook run='profile_sidebar_menu_before' oUserProfile=$oUserProfile}
 

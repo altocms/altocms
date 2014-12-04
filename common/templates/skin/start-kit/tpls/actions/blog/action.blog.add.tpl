@@ -81,24 +81,15 @@
         </div>
 
         <p>
-            {if $oBlogEdit AND $oBlogEdit->getAvatar()}
+            {*{if $oBlogEdit AND $oBlogEdit->getAvatar()}*}
 
-        <div class="avatar-edit">
-            {foreach Config::Get('module.blog.avatar_size') as $iSize}
-                {if $iSize}<img src="{$oBlogEdit->getAvatarPath({$iSize})}">{/if}
-            {/foreach}
+        {*<div class="avatar-edit">*}
+            {*{foreach Config::Get('module.blog.avatar_size') as $iSize}*}
+                {*{if $iSize}<img src="{$oBlogEdit->getAvatarPath({$iSize})}">{/if}*}
+            {*{/foreach}*}
+        {*</div>*}
+        {*{/if}*}
 
-            <div class="checkbox">
-                <label><input type="checkbox" id="avatar_delete" name="avatar_delete" value="on"
-                              class="input-checkbox">{$aLang.blog_create_avatar_delete}</label>
-            </div>
-        </div>
-        {/if}
-
-        <div class="form-group">
-            <label for="avatar">{$aLang.blog_create_avatar}</label>
-            <input type="file" name="avatar" id="avatar">
-        </div>
         </p>
 
         {hook run='form_add_blog_end'}
