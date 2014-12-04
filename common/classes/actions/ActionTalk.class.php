@@ -403,73 +403,13 @@ class ActionTalk extends Action {
         )
         ) {
 
-            $this->CheckTalkImages($oTalk, $oTalk->getId());
+            $this->Mresources_CheckTargetTextForImages('talk', $oTalk->getId(), $oTalk->getText());
 
             Router::Location(Router::GetPath('talk') . 'read/' . $oTalk->getId() . '/');
         } else {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
             return Router::Action('error');
         }
-    }
-
-    /**
-     * Проверяет картикнки комментариев
-     * @param ModuleComment_EntityComment $oComment
-     * @return bool
-     */
-    public function CheckTalkImages($oComment, $nId) {
-
-        // 1. Получим uuid рисунков из текста топика и создадим связь с объектом
-        // если ее ещё нет.
-        if (preg_match_all("~0u\w{8}-\w{8}-\w{8}~", $oComment->getText(), $aUuid) && isset($aUuid[0])) {
-
-            // Получим uuid ресурсов
-            $aUuid = array_unique($aUuid[0]);
-
-            // Найдем ресурсы
-            /** @var ModuleMresource_EntityMresource[] $aResult */
-            $aResult = $this->Mresource_GetMresourcesByUuid($aUuid);
-            if (!$aResult) {
-                return FALSE;
-            }
-
-            // Новым рисункам добавим таргет
-            $aNewResources = array();
-            foreach ($aResult as $sId => $oResource) {
-                if ($oResource->getTargetsCount() != 0) {
-                    continue;
-                }
-
-                // Текущий ресурс новый
-                $aNewResources[] = $oResource;
-            }
-
-            // Добавим связи, если нужно
-            if ($aNewResources) {
-                $this->Mresource_AddTargetRel($aNewResources, 'talk', $nId);
-            }
-
-
-            // 2. Пробежимся по ресурсам комментария и если ресурса нет в новых, тогда
-            // удалим этот ресурс.
-            // Читаем список ресурсов из базы
-            $aMresources = $this->Mresource_GetMresourcesRelByTarget('talk', $nId);
-
-            // Строим список ID ресурсов для удаления
-            $aDeleteResources = array();
-            foreach ($aMresources as $oMresource) {
-                if (!isset($aResult[$oMresource->getMresourceId()])) {
-                    // Если ресурса нет в хеш-таблице, то это прентендент на удаление
-                    $aDeleteResources[$oMresource->GetId()] = $oMresource->getMresourceId();
-                }
-            }
-            if ($aDeleteResources) {
-                $this->Mresource_DeleteMresources(array_values($aDeleteResources));
-                $this->Mresource_DeleteMresourcesRel(array_keys($aDeleteResources));
-            }
-        }
-
-        return TRUE;
     }
 
     /**
