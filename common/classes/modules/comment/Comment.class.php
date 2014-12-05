@@ -637,7 +637,7 @@ class ModuleComment extends Module {
             }
 
             // Освежим хранилище картинок
-            $this->Mresources_CheckTargetTextForImages(
+            $this->Mresource_CheckTargetTextForImages(
                 $oComment->getTargetType() . '_comment',
                 $nId,
                 $oComment->getText()
@@ -667,9 +667,7 @@ class ModuleComment extends Module {
         if ($this->oMapper->UpdateComment($oComment)) {
 
             // Освежим хранилище картинок
-            $this->CheckCommentImages($oComment, $oComment->getId());
-
-            $this->Mresources_CheckTargetTextForImages(
+            $this->Mresource_CheckTargetTextForImages(
                 $oComment->getTargetType() . '_comment',
                 $oComment->getId(),
                 $oComment->getText()

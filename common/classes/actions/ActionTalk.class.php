@@ -403,7 +403,7 @@ class ActionTalk extends Action {
         )
         ) {
 
-            $this->Mresources_CheckTargetTextForImages('talk', $oTalk->getId(), $oTalk->getText());
+            $this->Mresource_CheckTargetTextForImages('talk', $oTalk->getId(), $oTalk->getText());
 
             Router::Location(Router::GetPath('talk') . 'read/' . $oTalk->getId() . '/');
         } else {

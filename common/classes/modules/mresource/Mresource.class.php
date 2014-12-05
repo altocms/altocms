@@ -489,7 +489,7 @@ class ModuleMresource extends Module {
 
     /**
      * Проверяет картикнки комментариев
-     * $this->Mresources_CheckTargetTextForImages($sTarget, $sTargetId, $sTargetText);
+     * $this->Mresource_CheckTargetTextForImages($sTarget, $sTargetId, $sTargetText);
      *
      * @param $sTarget
      * @param $sTargetId
