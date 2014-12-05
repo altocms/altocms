@@ -1399,6 +1399,18 @@ return array(
     'uploader_image_delete'               => 'Удалить изображение',
     'error_upload_image'                  => 'Ошибка загрузки изображения',
     'uploader_upload_success'             => 'Изображение загружено',
+
+
+
+    'target_type_blog_avatar'           => 'Блоги',
+    'target_type_topic'                 => 'Топики',
+    'target_type_talk'                  => 'Переписка',
+    'target_type_topic_comment'         => 'Комментарии топиков',
+    'target_type_talk_comment'          => 'Комментарии переписки',
+    'target_type_profile_avatar'        => 'Аватары',
+    'target_type_profile_photo'         => 'Фото',
+    'target_type_single-image-uploader' => 'Поле контента',
+    'target_type_all'                   => 'Все',
 );
 
 // EOF

@@ -1362,13 +1362,16 @@ return array(
         '14'    => '[UTC + 14] Line Island Time'
     ),
 
-    'uploader_single_upload_resize_title' => 'Select image area',
-    'uploader_single_upload_resize_help'  => 'Select the image area you want to load. If you do not need to crop the image, simply click the "Apply"',
-    'uploader_image_change'               => 'Change image',
-    'uploader_image_upload'               => 'Upload image',
-    'uploader_image_delete'               => 'Remove image',
-    'error_upload_image'                  => 'Error loading image',
-    'uploader_upload_success'             => 'Image uploaded',
+
+
+
+    'target_type_blog_avatar'           => 'Blog avatars',
+    'target_type_topic'                 => 'Topic images',
+    'target_type_comment'               => 'Comment images',
+    'target_type_profile_avatar'        => 'User avatars',
+    'target_type_profile_photo'         => 'User photos',
+    'target_type_single-image-uploader' => 'Content images',
+    'target_type_all'                   => 'All types',
 );
 
 // EOF
