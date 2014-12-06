@@ -551,6 +551,46 @@ class ModuleMresource extends Module {
 
         return TRUE;
     }
+
+    /**
+     * Прикрепляетвременный ресурс к вновь созданному объекту
+     *
+     * @param string $sTargetId
+     * @param string $sTargetType
+     * @param $sTargetTmp
+     * @return bool|mixed|ModuleMresource_EntityMresource
+     */
+    public function LinkTempResource($sTargetId, $sTargetType, $sTargetTmp) {
+
+        if ($sTargetTmp && E::IsUser()) {
+
+            $sNewPath = $this->Uploader_GetUploadDir($sTargetId, $sTargetType) . '/';
+            $aMresourceRel = E::Mresource_GetMresourcesRelByTargetAndUser($sTargetType, 0, E::UserId());
+
+            if ($aMresourceRel) {
+                $oResource = array_shift($aMresourceRel);
+                $sOldPath = $oResource->GetFile();
+
+                $xStoredFile = $this->Uploader_Store($sOldPath, $sNewPath);
+                /** @var ModuleMresource_EntityMresource $oResource */
+                $oResource = $this->Mresource_GetMresourcesByUuid($xStoredFile->getUuid());
+                if ($oResource) {
+                    $oResource->setUrl($this->Mresource_NormalizeUrl($this->Uploader_GetTargetUrl($sTargetId, $sTargetType)));
+                    $oResource->setType($sTargetType);
+                    $oResource->setUserId(E::UserId());
+
+                    // 4. В свойство поля записать адрес картинки
+                    $this->Mresource_UnlinkFile($sTargetType, 0, E::UserId());
+                    $this->Mresource_AddTargetRel($oResource, $sTargetType, $sTargetId);
+
+                    return $oResource;
+
+                }
+            }
+        }
+
+        return false;
+    }
 }
 
 // EOF

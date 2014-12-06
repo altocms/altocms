@@ -1426,7 +1426,12 @@ class ActionAdmin extends Action {
         if (strpos($sMode, 'single-image-uploader') === 0) {
             $sMode = str_replace('single-image-uploader', $this->Lang_Get('target_type_single-image-uploader'), $sMode);
         } else {
-            $sMode = $this->Lang_Get('target_type_' . $sMode);
+            if (strpos($sMode, 'plugin.') === 0) {
+                $sMode = $this->Lang_Get($sMode);
+            } else {
+                $sMode = $this->Lang_Get('target_type_' . $sMode);
+            }
+
         }
         $this->Viewer_Assign('sPageSubMenu', $sMode);
         $this->Viewer_Assign('aPaging', $aPaging);
