@@ -110,7 +110,8 @@
     // Кнопка "UP"
     ls.toolbar.up.init();
 
-    $('.js-title-comment, .js-title-topic').tooltip({
+    $('body').tooltip({
+        selector: '.js-title-comment, .js-title-topic',
         placement: 'left'
     });
 
