@@ -167,8 +167,9 @@ class Loader {
                             if (!Config::isExist($sKey)) {
                                 Config::Set($sKey, $aConfig, null, $nConfigLevel);
                             } else {
-                                // Если уже существую привязанные к плагину ключи,
-                                // то сливаем старые и новое значения ассоциативно
+                                // Если уже существуют привязанные к плагину ключи,
+                                // то сливаем старые и новое значения ассоциативно-комбинированно
+                                /** @see AltoFunc_Array::MergeCombo() */
                                 Config::Set($sKey, F::Array_MergeCombo(Config::Get($sKey), $aConfig), null, $nConfigLevel);
                             }
                         }

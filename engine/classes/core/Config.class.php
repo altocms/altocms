@@ -13,6 +13,8 @@
  *----------------------------------------------------------------------------
  */
 
+require_once 'DataArray.class.php';
+
 /**
  * Управление простым конфигом в виде массива
  *
@@ -37,6 +39,9 @@ class Config extends Storage {
 
     const KEY_LINK_STR = '___';
     const KEY_LINK_PREG = '~___([\S|\.]+)(___/|___)~Ui';
+    const KEY_ROOT = '$root$';
+    const KEY_EXTENDS = '$extends$';
+    const KEY_REPLACE = '$replace$';
 
     const CUSTOM_CONFIG_PREFIX = 'custom.config.';
 
@@ -220,6 +225,14 @@ class Config extends Storage {
         return parent::SetStorage($sStorageKey, $aConfig, $bReset);
     }
 
+    /**
+     * Checks if the key exists
+     *
+     * @param string $sKey
+     * @param string $sRoot
+     *
+     * @return array|bool|null
+     */
     public function _isExists($sKey, $sRoot = self::DEFAULT_CONFIG_ROOT) {
 
         $sStorageKey = $this->_storageKey($sRoot);
@@ -348,6 +361,17 @@ class Config extends Storage {
     }
 
     /**
+     * @param string $sKey
+     *
+     * @return DataArray
+     */
+    static public function GetData($sKey = '') {
+
+        $xData = Config::Get($sKey);
+        return new DataArray($xData);
+    }
+
+    /**
      * As a method Get() but with default value
      *
      * @param string $sKey
@@ -377,17 +401,19 @@ class Config extends Storage {
             // Return config by path (separator=".")
             $aKeys = explode('.', $sKey);
 
-            $cfg = $this->GetConfig($sRootKey, $nLevel);
+            $xConfigData = $this->GetConfig($sRootKey, $nLevel);
             foreach ((array)$aKeys as $sK) {
-                if (isset($cfg[$sK])) {
-                    $cfg = $cfg[$sK];
+                if (isset($xConfigData[$sK])) {
+                    $xConfigData = $xConfigData[$sK];
                 } else {
                     return null;
                 }
             }
 
-            $cfg = static::KeyReplace($cfg, $sRootKey);
-            $this->aQuickMap[$sKeyMap] = $cfg;
+            if (is_array($xConfigData) || is_string($xConfigData)) {
+                $xConfigData = static::KeyReplace($xConfigData, $sRootKey);
+            }
+            $this->aQuickMap[$sKeyMap] = $xConfigData;
         }
 
         return $this->aQuickMap[$sKeyMap];
@@ -398,36 +424,38 @@ class Config extends Storage {
      *
      * @static
      *
-     * @param string|array $xCfg  - Значения конфига
+     * @param string|array $xConfigData  - Значения конфига
      * @param string       $sRoot - Корневой ключ конфига
      *
      * @return array|mixed
      */
-    static public function KeyReplace($xCfg, $sRoot = self::DEFAULT_CONFIG_ROOT) {
+    static public function KeyReplace($xConfigData, $sRoot = self::DEFAULT_CONFIG_ROOT) {
 
-        if (is_array($xCfg)) {
+        if (is_array($xConfigData)) {
             $xResult = array();
-            foreach ($xCfg as $k => $v) {
-                if (strpos($k, self::KEY_LINK_STR) !== false) {
-                    $sNewKey = static::KeyReplace($k, $sRoot);
-                } else {
-                    $sNewKey = $k;
-                }
-                // В меню возвращаемым значением является объект, а в нем
-                // менять плейсхолдеры не нужно - приводит к ошибке
-                if (is_object($v)) {
-                    $xResult[$sNewKey] = $v;
-                } else {
-                $xResult[$sNewKey] = static::KeyReplace($v, $sRoot);
-                }
-                unset($xCfg[$k]);
+            if (isset($xConfigData[self::KEY_EXTENDS])) {
+                $aParentData = Config::KeyReplace($xConfigData[self::KEY_EXTENDS]);
+                unset($xConfigData[self::KEY_EXTENDS]);
+                $xConfigData = F::Array_MergeCombo($aParentData, $xConfigData);
             }
-        } else {
-            $xResult = $xCfg;
-            if (strpos($xCfg, self::KEY_LINK_STR) !== false
-                && preg_match_all(self::KEY_LINK_PREG, $xCfg, $aMatch, PREG_SET_ORDER)
-            ) {
-                if (count($aMatch) == 1 && $aMatch[0][0] == $xCfg) {
+            foreach ($xConfigData as $xKey => $xData) {
+                if (is_string($xKey) && strpos($xKey, self::KEY_LINK_STR) !== false) {
+                    $sNewKey = static::KeyReplace($xKey, $sRoot);
+                } else {
+                    $sNewKey = $xKey;
+                }
+                // Changes placeholders for array or string only
+                if (is_array($xData) || (is_string($xData) && strpos($xData, self::KEY_LINK_STR) !== false)) {
+                    $xResult[$sNewKey] = static::KeyReplace($xData, $sRoot);
+                } else {
+                    $xResult[$sNewKey] = $xData;
+                }
+                //unset($xCfg[$xKey]);
+            }
+        } elseif (is_string($xConfigData)) {
+            $xResult = $xConfigData;
+            if (strpos($xConfigData, self::KEY_LINK_STR) !== false && preg_match_all(self::KEY_LINK_PREG, $xConfigData, $aMatch, PREG_SET_ORDER)) {
+                if (count($aMatch) == 1 && $aMatch[0][0] == $xConfigData) {
                     $xResult = Config::Get($aMatch[0][1], $sRoot);
                 } else {
                     foreach ($aMatch as $aItem) {
@@ -439,6 +467,8 @@ class Config extends Storage {
                     }
                 }
             }
+        } else {
+            $xResult = $xConfigData;
         }
         return $xResult;
     }
@@ -475,9 +505,14 @@ class Config extends Storage {
             $nLevel = $sRoot;
             $sRoot = self::DEFAULT_CONFIG_ROOT;
         }
-        if (isset($xValue['$root$']) && is_array($xValue['$root$'])) {
-            $aRoot = $xValue['$root$'];
-            unset($xValue['$root$']);
+        if (isset($xValue[self::KEY_EXTENDS])) {
+            if (is_string($xValue[self::KEY_EXTENDS])) {
+
+            }
+        }
+        if (isset($xValue[self::KEY_ROOT]) && is_array($xValue[self::KEY_ROOT])) {
+            $aRoot = $xValue[self::KEY_ROOT];
+            unset($xValue[self::KEY_ROOT]);
             foreach ($aRoot as $sRootKey => $xVal) {
                 if (static::isExist($sRootKey)) {
                     static::Set($sRootKey, F::Array_MergeCombo(Config::Get($sRootKey, $sRoot), $xVal), $sRoot, $nLevel);
