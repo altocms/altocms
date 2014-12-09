@@ -63,7 +63,8 @@ class ModuleUploader extends Module {
      */
     public function Init() {
 
-        $this->aModConfig = Config::Get('module.upload');
+        $this->aModConfig = Config::GetData('module.uploader');
+        /*
         $this->aModConfig['file_extensions'] = array_merge(
             $this->aModConfig['file_extensions'], (array)Config::Get('module.topic.upload_mime_types')
         );
@@ -77,7 +78,7 @@ class ModuleUploader extends Module {
 
         $this->aModConfig['img_max_width'] = Config::Get('view.img_max_width');
         $this->aModConfig['img_max_height'] = Config::Get('view.img_max_height');
-
+        */
         $this->RegisterDriver('file');
     }
 
@@ -143,13 +144,14 @@ class ModuleUploader extends Module {
             }
             return $this->aLoadedDrivers[$sDriverName];
         }
+        return null;
     }
 
     /**
      * Move temporary file to destination
      *
      * @param string $sTmpFile
-     * @param string TargetFile
+     * @param string $sTargetFile
      *
      * @return bool
      */
@@ -187,31 +189,39 @@ class ModuleUploader extends Module {
             } else {
                 $this->sLastError = 'Unknown error during file uploading';
             }
-            $nError = $this->sLastError;
+            $sError = $this->sLastError;
             if ($bReset) {
                 $this->nLastError = 0;
             }
-            return $nError;
+            return $sError;
         }
+        return null;
     }
 
     /**
      * @param string $sFile
+     * @param string $sConfigKey
      *
      * @return bool
      */
-    protected function _checkUploadedImage($sFile) {
+    protected function _checkUploadedImage($sFile, $sConfigKey = '') {
 
         $aInfo = @getimagesize($sFile);
         if (!$aInfo) {
             $this->nLastError = self::ERR_IMG_NO_INFO;
             return false;
         }
-        if ($this->aModConfig['img_max_width'] && $this->aModConfig['img_max_width'] < $aInfo[0]) {
+        // Gets local config
+        if (!$sConfigKey) {
+            $aConfig = $this->aModConfig['images.default'];
+        } else {
+            $aConfig = $this->aModConfig[$sConfigKey];
+        }
+        if ($aConfig['max_width'] && F::MemSize2Int($aConfig['max_width']) < $aInfo[0]) {
             $this->nLastError = self::ERR_IMG_LARGE_WIDTH;
             return false;
         }
-        if ($this->aModConfig['img_max_height'] && $this->aModConfig['img_max_height'] < $aInfo[1]) {
+        if ($aConfig['max_height'] && F::MemSize2Int($aConfig['max_height']) < $aInfo[1]) {
             $this->nLastError = self::ERR_IMG_LARGE_HEIGHT;
             return false;
         }
@@ -220,26 +230,40 @@ class ModuleUploader extends Module {
 
     /**
      * @param string $sFile
+     * @param string $sConfigKey
      *
      * @return bool
      */
-    protected function _checkUploadedFile($sFile) {
+    protected function _checkUploadedFile($sFile, $sConfigKey = '') {
 
         $sExtension = strtolower(pathinfo($sFile, PATHINFO_EXTENSION));
+        // Gets local config
+        if (!$sConfigKey) {
+            $aImageExtensions = $this->aModConfig['images.default.image_extensions'];
+            if (is_array($aImageExtensions) && in_array($sExtension, $aImageExtensions)) {
+                $aConfig = $this->aModConfig['images.default'];
+            } else {
+                $aConfig = $this->aModConfig['files.default'];
+                $aImageExtensions = array();
+            }
+        } else {
+            $aConfig = $this->aModConfig[$sConfigKey];
+            $aImageExtensions = (array)$aConfig['image_extensions'];
+        }
+
         // Check allow extensions
-        if ($this->aModConfig['file_extensions']
-            && !in_array($sExtension, $this->aModConfig['file_extensions'])) {
+        if ($aConfig['file_extensions'] && !in_array($sExtension, $aConfig['file_extensions'])) {
             $this->nLastError = self::ERR_NOT_ALLOWED_EXTENSION;
             return false;
         }
         // Check filesize
-        if ($this->aModConfig['max_filesize'] && filesize($sFile) > $this->aModConfig['max_filesize']) {
+        if ($aConfig['file_maxsize'] && filesize($sFile) > F::MemSize2Int($aConfig['file_maxsize'])) {
             $this->nLastError = self::ERR_FILE_TOO_LARGE;
             return false;
         }
         // Check images
-        if (in_array($sExtension, array('gif', 'png', 'jpg', 'jpeg'))) {
-            if (!$this->_checkUploadedImage($sFile)) {
+        if (in_array($sExtension, $aImageExtensions)) {
+            if (!$this->_checkUploadedImage($sFile, $sConfigKey)) {
                 return false;
             }
         }
@@ -266,12 +290,15 @@ class ModuleUploader extends Module {
                     } else {
                         $sTmpFile = basename(F::File_UploadUniqname(pathinfo($aFile['name'], PATHINFO_EXTENSION)));
                     }
+                    // Copy uploaded file in our temp folder
                     if ($sTmpFile = F::File_MoveUploadedFile($aFile['tmp_name'], $sTmpFile)) {
                         if ($this->_checkUploadedFile($sTmpFile)) {
                             if ($sDir) {
                                 $sTmpFile = $this->MoveTmpFile($sTmpFile, $sDir);
                             }
                             return $sTmpFile;
+                        } else {
+                            F::File_Delete($sTmpFile);
                         }
                     }
                 } else {
@@ -307,7 +334,7 @@ class ModuleUploader extends Module {
         }
         $sContent = '';
         if ($aParams['max_size']) {
-            $hFile = fopen($sUrl, 'r');
+            $hFile = @fopen($sUrl, 'r');
             if (!$hFile) {
                 $this->nLastError = self::ERR_REMOTE_FILE_OPEN;
                 return false;
@@ -331,7 +358,7 @@ class ModuleUploader extends Module {
                 return false;
             }
         } else {
-            $sContent = file_get_contents($sUrl);
+            $sContent = @file_get_contents($sUrl);
             if ($sContent === false) {
                 $this->nLastError = self::ERR_REMOTE_FILE_READ;
                 return false;
@@ -540,7 +567,7 @@ class ModuleUploader extends Module {
      * @param string $sFile
      * @param string $sDestination
      *
-     * @return string
+     * @return string|bool
      */
     public function Store($sFile, $sDestination = null) {
 
@@ -561,6 +588,7 @@ class ModuleUploader extends Module {
                 return $oStoredItem;
             }
         }
+        return false;
     }
 
     /**
@@ -602,7 +630,7 @@ class ModuleUploader extends Module {
     /**
      * @param string $sUrl
      *
-     * @return bool
+     * @return string|bool
      */
     public function Url2Dir($sUrl) {
 
@@ -614,6 +642,7 @@ class ModuleUploader extends Module {
                 return $sFile;
             }
         }
+        return false;
     }
 
     /**
@@ -624,6 +653,7 @@ class ModuleUploader extends Module {
      *
      * @param string $sTarget
      * @param int|bool $sTargetId
+     *
      * @return bool
      */
     public function CheckAccessAndGetTarget($sTarget, $sTargetId = FALSE) {

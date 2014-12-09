@@ -2849,14 +2849,12 @@ class ModuleTopic extends Module {
                             }
 
                             if (isset($_FILES['fields_' . $oField->getFieldId()]) && is_uploaded_file( $_FILES['fields_' . $oField->getFieldId()]['tmp_name'])) {
-                                if (filesize($_FILES['fields_' . $oField->getFieldId()]['tmp_name']) <= Config::Get('module.topic.max_filesize_limit')) {
+                                $iMaxFileSize = F::MemSize2Int(Config::Get('module.uploader.files.default.file_maxsize'));
+                                $aFileExtensions = F::MemSize2Int(Config::Get('module.uploader.files.default.file_extensions'));
+                                if (!$iMaxFileSize || filesize($_FILES['fields_' . $oField->getFieldId()]['tmp_name']) <= $iMaxFileSize) {
                                     $aPathInfo = pathinfo($_FILES['fields_' . $oField->getFieldId()]['name']);
 
-                                    if (in_array(
-                                        strtolower($aPathInfo['extension']),
-                                        Config::Get('module.topic.upload_mime_types')
-                                    )
-                                    ) {
+                                    if (!$aFileExtensions || in_array(strtolower($aPathInfo['extension']), $aFileExtensions)) {
                                         $sFileTmp = $_FILES['fields_' . $oField->getFieldId()]['tmp_name'];
                                         $sDirSave = Config::Get('path.uploads.root') . '/files/' . $this->User_GetUserCurrent()->getId() . '/' . F::RandomStr(16);
                                         mkdir(Config::Get('path.root.dir') . $sDirSave, 0777, true);
@@ -2884,11 +2882,11 @@ class ModuleTopic extends Module {
                                             }
                                         }
                                     } else {
-                                        $sTypes = implode(', ', Config::Get('module.topic.upload_mime_types'));
+                                        $sTypes = implode(', ', $aFileExtensions);
                                         $this->Message_AddError($this->Lang_Get('topic_field_file_upload_err_type', array('types' => $sTypes)), null, true);
                                     }
                                 } else {
-                                    $this->Message_AddError($this->Lang_Get('topic_field_file_upload_err_size', array('size' => Config::Get('module.topic.max_filesize_limit'))), null, true);
+                                    $this->Message_AddError($this->Lang_Get('topic_field_file_upload_err_size', array('size' => $iMaxFileSize)), null, true);
                                 }
                                 F::File_Delete($_FILES['fields_' . $oField->getFieldId()]['tmp_name']);
                             }

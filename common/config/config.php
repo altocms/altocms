@@ -32,10 +32,14 @@ $config['view']['theme']            = 'default';                    // тема
 $config['view']['name']             = 'Your Site Name';             // название сайта
 $config['view']['wysiwyg']          = false;    // использовать или нет визуальный редактор
 $config['view']['noindex']          = true;     // "прятать" или нет ссылки от поисковиков, оборачивая их в тег <noindex> и добавляя rel="nofollow"
+
+/* Obsolete from Alto CMS 1.1.0
+ * @see $config['module']['uploader']['images']['default']
 $config['view']['img_resize_width'] = 570;      // до какого размера в пикселях ужимать картинку по ширине при загрузки её в топики и комменты
 $config['view']['img_max_width']    = 5000;     // максимальная ширина загружаемых изображений в пикселях
 $config['view']['img_max_height']   = 5000;     // максимальная высота загружаемых изображений в пикселях
 $config['view']['img_max_size_url'] = 500;      // максимальный размер картинки в kB для загрузки по URL
+*/
 
 $config['view']['html']['description']      = 'Description of your site';   // meta tag description
 $config['view']['html']['keywords']         = 'site, google, internet';     // meta tag keywords
@@ -315,14 +319,88 @@ $config['module']['topic']['max_length'] = 15000;                   // Макс�
 $config['module']['topic']['link_max_length'] = 500;                // Максимальное количество символов в одном топике-ссылке
 $config['module']['topic']['question_max_length'] = 500;            // Максимальное количество символов в одном топике-опросе
 $config['module']['topic']['allow_empty_tags'] = true;              // Разрешать или нет не заполнять теги
-$config['module']['topic']['max_filesize_limit'] = 5*1024*1024;     // максимальный размер загружаемого файла в байтах (по умолчанию 5мб)
-$config['module']['topic']['upload_mime_types'] = array('zip','rar','gz','mp3','png', 'doc', 'docx', 'pdf','djv','djvu'); //расширения файлов, которые можно прикреплять к топикам
+//$config['module']['topic']['max_filesize_limit'] = 5*1024*1024;     // максимальный размер загружаемого файла в байтах (по умолчанию 5мб)
+//$config['module']['topic']['upload_mime_types'] = array('zip','rar','gz','mp3','png', 'doc', 'docx', 'pdf','djv','djvu'); //расширения файлов, которые можно прикреплять к топикам
 $config['module']['topic']['draft_link'] = false;                   // разрешить показывать черновик по прямой ссылке
 $config['module']['topic']['on_duplicate_url'] = 1;                 // 0 - игнорировать; 1 - добавлять порядковый номер;
 
-// Модуль Upload
-$config['module']['upload']['max_filesize'] = '5M';     // максимальный размер загружаемого файла в байтах (по умолчанию 5МБ)
-$config['module']['upload']['file_extensions'] = array('gif','png','jpg','jpeg'); //расширения файлов, которые можно загружать + 'module.topic.upload_mime_types'
+// Модуль Uploader
+/*
+ * Obsolete from Alto CMS 1.1.0
+ */
+//$config['module']['upload']['max_filesize'] = '5M';     // максимальный размер загружаемого файла в байтах (по умолчанию 5МБ)
+//$config['module']['upload']['file_extensions'] = array('gif','png','jpg','jpeg'); //расширения файлов, которые можно загружать + 'module.topic.upload_mime_types'
+
+// Default options for file uploading
+$config['module']['uploader']['files']['default'] = array(
+    'file_maxsize'    => '5Mb', // максимальный размер загружаемого файла
+    'file_extensions' => array( //расширения файлов, которые можно прикреплять к топикам
+        'zip','rar','gz','mp3',
+        'doc', 'docx', 'xls', 'xlsx', 'pdf','djv','djvu',
+        'gif', 'png', 'jpg', 'jpeg',
+    ),
+    'upload'          => array( // параметры сохранения при загрузке
+        'return_url' => true,   // возвращает URL загруженного файла
+    ),
+);
+
+$config['module']['uploader']['images']['default'] = array(
+    '$extends$' => '___module.uploader.files.default___',
+    'libs'      => 'Imagick,GD', // 'GD', 'Imagick' or 'Gmagick', or several libs separated by comma
+    'image_extensions' => array('gif', 'png', 'jpg', 'jpeg'),
+    'max_width'  => 8000, // максимальная ширина загружаемых изображений в пикселях
+    'max_height' => 6000, // максимальная высота загружаемых изображений в пикселях
+    'url_maxsize' => '500Kb', // максимальный размер изображения в kB для загрузки по URL
+    // параметры сохранения при загрузке
+    'transform' => array(
+        'max_width'  => 800,        // максимаьная ширина сохраняеого изображения
+        'max_height' => 600,        // максимаьная высота сохраняеого изображения
+        'bg_color'  => '#cccccc',   // цвет фона при преобразовании изображений
+        //'output' => 'jpg',
+        'mime-jpeg' => array(
+            'quality' => 80,
+        ),
+        'mime-png'  => array(
+            'output' => 'jpg',
+        ),
+    ),
+);
+
+// Модуль Image
+
+// Параметры для загружаемых изображений по умолчанию
+$config['module']['image']['preset']['default'] = array(
+    'driver' => 'Imagick,GD', // 'GD', 'Imagick' or 'Gmagick', or several libs separated by comma
+    'jpg_quality' => 80,
+    'watermark' => array(
+        'enable' => false,
+        'image' => array(
+            'path' => '___path.static.dir___/___path.uploads.root___',
+            'file' => 'altocms.png',
+            'topleft' => false,
+            'position' => '0,0',
+        ),
+    ),
+    'size' => array(
+        'width' => 700,
+        'height' => 700,
+    ),
+);
+// Параметры для изображений, загружаемых в фотосет
+$config['module']['image']['preset']['photoset'] = array(
+    'size' => array(
+        'width' => 1280,
+        'height' => 1024,
+    ),
+);
+
+$config['module']['image']['autoresize'] = true;
+
+// Нужно ли использовать водяной знак для изображений в топике
+$config['module']['image']['preset']['topic']['watermark']['enable']  = false;
+
+// Нужно ли использовать водяной знак для изображений в фотосете
+$config['module']['image']['preset']['photoset']['watermark']['enable']  = false;
 
 
 // Модуль Menu
@@ -411,42 +489,6 @@ $config['module']['notify']['insert_single']= false;    // Если опция �
 $config['module']['notify']['per_process']  = 10;       // Количество отложенных заданий, обрабатываемых одним крон-процессом
 $config['module']['notify']['dir']          = 'emails'; // Относительный (относительно папки скина) путь до папки с шаблонами писем
 $config['module']['notify']['prefix']       = 'email.'; // Префикс шаблонов емэйлов
-
-// Модуль Image
-
-// Параметры для загружаемых изображений по умолчанию
-$config['module']['image']['preset']['default'] = array(
-    'driver' => 'Imagick,GD', // 'GD', 'Imagick' or 'Gmagick', or several libs separated by comma
-    'jpg_quality' => 80,
-    'watermark' => array(
-        'enable' => false,
-        'image' => array(
-            'path' => '___path.static.dir___/___path.uploads.root___',
-            'file' => 'altocms.png',
-            'topleft' => false,
-            'position' => '0,0',
-        ),
-    ),
-    'size' => array(
-        'width' => 700,
-        'height' => 700,
-    ),
-);
-// Параметры для изображений, загружаемых в фотосет
-$config['module']['image']['preset']['photoset'] = array(
-    'size' => array(
-        'width' => 1280,
-        'height' => 1024,
-    ),
-);
-
-$config['module']['image']['autoresize'] = true;
-
-// Нужно ли использовать водяной знак для изображений в топике
-$config['module']['image']['preset']['topic']['watermark']['enable']  = false;
-
-// Нужно ли использовать водяной знак для изображений в фотосете
-$config['module']['image']['preset']['photoset']['watermark']['enable']  = false;
 
 // Модуль Security
 $config['module']['security']['hash']  = 'alto_security_key'; // "примесь" к строке, хешируемой в качестве security-кода

@@ -638,9 +638,11 @@ class ActionAdmin extends Action {
                 $aConfig['view.noindex'] = false;
             }
 
-            $aConfig['view.img_resize_width'] = intval($this->GetPost('view--img_resize_width'));
-            $aConfig['view.img_max_width'] = intval($this->GetPost('view--img_max_width'));
-            $aConfig['view.img_max_height'] = intval($this->GetPost('view--img_max_height'));
+            //$aConfig['view.img_resize_width'] = intval($this->GetPost('view--img_resize_width'));
+            //$aConfig['view.img_max_width'] = intval($this->GetPost('view--img_max_width'));
+            //$aConfig['view.img_max_height'] = intval($this->GetPost('view--img_max_height'));
+            $aConfig['module.uploader.images.default.max_width'] = intval($this->GetPost('view--img_max_width'));
+            $aConfig['module.uploader.images.default.max_height'] = intval($this->GetPost('view--img_max_height'));
 
             if ($this->GetPost('tag_required')) {
                 $aConfig['module.topic.allow_empty_tags'] = false;
@@ -876,7 +878,7 @@ class ActionAdmin extends Action {
             if ($sAction == 'activate') {
                 $this->_eventPluginsActivate($aPlugins);
             } elseif ($sAction == 'deactivate') {
-                $this->_eventPluginsDectivate($aPlugins);
+                $this->_eventPluginsDeactivate($aPlugins);
             }
             Router::Location('admin/site-plugins/');
         }
@@ -906,7 +908,7 @@ class ActionAdmin extends Action {
         return $this->Plugin_Activate($sPluginId);
     }
 
-    protected function _eventPluginsDectivate($aPlugins) {
+    protected function _eventPluginsDeactivate($aPlugins) {
 
         if (is_array($aPlugins)) {
             // если передан массив, то обрабатываем только первый элемент
