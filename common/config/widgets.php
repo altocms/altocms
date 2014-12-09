@@ -2,9 +2,19 @@
 
 /**
  * Настройка Виджетов
+ * Widgets settings
  */
 /*
+ * $config['widgets'][<id>] = array(
+ *     // ...
+ * );
+ *
  * $config['widgets'][] = array(
+ *      'id' => <id>,
+ *      // ...
+ * );
+ *
+ * $config['widgets']['stream'] = array(
     'name' => 'stream',     // виджет
     'wgroup' => 'right',    // имя группы
     'priority' => 100,      // приоритет - чем выше приоритет, тем раньше в группе выводится виджет
@@ -20,8 +30,8 @@
 
  */
 // Прямой эфир
-$config['widgets'][] = array(
-    'name' => 'stream',     // исполняемый виджет Stream
+$config['widgets']['stream'] = array(
+    'name' => 'stream',     // исполняемый виджет Stream (class WidgetStream)
     'wgroup' => 'right',    // группа, куда нужно добавить виджет
     'priority' => 100,      // приоритет
     'action' => array(
@@ -40,7 +50,7 @@ $config['widgets'][] = array(
     ),
 );
 
-$config['widgets'][] = array(
+$config['widgets']['blogInfo.tpl'] = array(
     'name' => 'widgets/widget.blogInfo.tpl',  // шаблонный виджет
     'wgroup' => 'right',
     'action' => array(
@@ -48,7 +58,7 @@ $config['widgets'][] = array(
     ),
 );
 
-$config['widgets'][] = array(
+$config['widgets']['blogAvatar.tpl'] = array(
     'name' => 'widgets/widget.blogAvatar.tpl',  // шаблонный виджет
     'wgroup' => 'right',
     'priority' => 999,
@@ -58,7 +68,7 @@ $config['widgets'][] = array(
 );
 
 // Теги
-$config['widgets'][] = array(
+$config['widgets']['tags'] = array(
     'name' => 'tags',
     'wgroup' => 'right',
     'priority' => 50,
@@ -73,7 +83,7 @@ $config['widgets'][] = array(
 );
 
 // Блоги
-$config['widgets'][] = array(
+$config['widgets']['blogs'] = array(
     'name' => 'blogs',
     'wgroup' => 'right',
     'priority' => 1,
@@ -93,14 +103,14 @@ $config['widgets'][] = array(
 );
 */
 
-$config['widgets'][] = array(
+$config['widgets']['profile.sidebar.tpl'] = array(
     'name' => 'actions/profile/action.profile.sidebar.tpl',
     'wgroup' => 'right',
     'priority' => 150,
     'on' => 'profile, talk, settings',
 );
 
-$config['widgets'][] = array(
+$config['widgets']['userfeedBlogs'] = array(
     'name' => 'userfeedBlogs',
     'wgroup' => 'right',
     'action' => array(
@@ -108,7 +118,7 @@ $config['widgets'][] = array(
     ),
 );
 
-$config['widgets'][] = array(
+$config['widgets']['userfeedUsers'] = array(
     'name' => 'userfeedUsers',
     'wgroup' => 'right',
     'action' => array(
@@ -116,7 +126,7 @@ $config['widgets'][] = array(
     ),
 );
 
-$config['widgets'][] = array(
+$config['widgets']['blog.tpl'] = array(
     'name' => 'widgets/widget.blog.tpl',
     'wgroup' => 'right',
     'priority' => 300,

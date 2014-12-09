@@ -42,6 +42,35 @@ class ModuleWidget extends Module {
     }
 
     /**
+     * Returns full widget data (extends other widget or config dataset if needs)
+     *
+     * @param string|null $sWidgetId
+     * @param array       $aWidgetData
+     * @param array       $aWidgets
+     *
+     * @return array
+     */
+    protected function _getWidgetData($sWidgetId, $aWidgetData, $aWidgets) {
+
+        $xExtends = false;
+        if (!empty($aWidgetData[Config::KEY_EXTENDS])) {
+            $xExtends = $aWidgetData[Config::KEY_EXTENDS];
+            unset($aWidgetData[Config::KEY_EXTENDS]);
+        } elseif (($iKey = array_search(Config::KEY_EXTENDS, $aWidgetData)) !== false) {
+            $xExtends = true;
+            unset($aWidgetData[$iKey]);
+        }
+        if ($xExtends) {
+            if (($xExtends === true) && $sWidgetId && isset($aWidgets[$sWidgetId])) {
+                $aWidgetData = F::Array_MergeCombo($aWidgets[$sWidgetId], $aWidgetData);
+            } elseif(is_string($xExtends)) {
+                $aWidgetData = F::Array_MergeCombo(Config::Get($xExtends), $aWidgetData);
+            }
+        }
+        return $aWidgetData;
+    }
+
+    /**
      * Загружает список виджетов и конфигурирует их
      *
      * @return array
@@ -56,7 +85,23 @@ class ModuleWidget extends Module {
         if ($aPlugins) {
             foreach($aPlugins as $sPlugin) {
                 if ($aPluginWidgets = Config::Get('plugin.' . $sPlugin . '.widgets')) {
-                    $aWidgets = array_merge($aWidgets, $aPluginWidgets);
+                    foreach ($aPluginWidgets as $xKey => $aWidgetData) {
+                        // ID виджета может задаваться либо ключом элемента массива, либо параметром 'id'
+                        if (isset($aWidgetData['id'])) {
+                            $sWidgetId = $aWidgetData['id'];
+                        } elseif (!is_integer($xKey)) {
+                            $sWidgetId = $aWidgetData['id'] = $xKey;
+                        } else {
+                            $sWidgetId = null;
+                        }
+                        $aWidgetData = $this->_getWidgetData($sWidgetId, $aWidgetData, $aWidgets);
+                        if ($sWidgetId) {
+                            $aWidgets[$sWidgetId] = $aWidgetData;
+                        } else {
+                            $aWidgets[] = $aWidgetData;
+                        }
+                    }
+                    //$aWidgets = F::Array_MergeCombo($aWidgets, $aPluginWidgets);
                 }
             }
         }
@@ -64,11 +109,7 @@ class ModuleWidget extends Module {
         if ($aWidgets) {
             // формируем окончательный список виджетов
             foreach($aWidgets as $sKey=>$aWidgetData) {
-                // ID виджета может задаваться либо ключом эелемента массива, либо пааметром 'id'
-                if (!is_integer($sKey) && !isset($aWidgetData['id'])) {
-                    $aWidgetData['id'] = $sKey;
-                }
-                // Если ID не задан, то формируется автоматически по хешу
+                // Если ID виджета не задан, то он формируется автоматически
                 $oWidget = $this->MakeWidget($aWidgetData);
                 $aResult[$oWidget->getId()] = $oWidget;
             }
