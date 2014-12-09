@@ -30,7 +30,14 @@ ADD INDEX (  `blog_order` ) ;
 ALTER TABLE  `prefix_topic` ADD  `topic_order` INT NULL DEFAULT  '0',
 ADD INDEX (  `topic_order` ) ;
 
-
+-- Изменение формата таблицы 'prefix_storage'
+ALTER TABLE  `prefix_storage` CHANGE  `storage_val`  `storage_val` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ;
+ALTER TABLE  `prefix_storage` ADD  `storage_ord` INT NOT NULL DEFAULT  '1',
+ADD INDEX (  `storage_aut` ) ;
+ALTER TABLE  `prefix_storage` DROP PRIMARY KEY ;
+ALTER TABLE  `prefix_storage` ADD  `storage_id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST ;
+ALTER TABLE  `prefix_storage` ADD  `storage_src` VARCHAR( 100 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER  `storage_id` ,
+ADD INDEX (  `storage_src` ) ;
 
 ###################################################################################################################
 # МОДУЛЬ UPLOAD - УНИВЕРСАЛЬНАЯ ЗАГРУЗКА ИЗОБРАЖЕНИЙ
