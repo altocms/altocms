@@ -131,7 +131,7 @@ class ActionSettings extends Action {
     protected function EventUploadPhoto() {
 
         // * Устанавливаем формат Ajax ответа
-        $this->Viewer_SetResponseAjax('jsonIframe', false);
+        $this->Viewer_SetResponseAjax(F::AjaxRequest(true)?'json':'jsonIframe', false);
 
         if (!($aUploadedFile = $this->GetUploadedFile('photo')) && !($aUploadedFile = $this->GetUploadedFile('foto'))) {
             $this->Message_AddError($this->Lang_Get('settings_profile_photo_error'), $this->Lang_Get('error'));
@@ -260,7 +260,7 @@ class ActionSettings extends Action {
     protected function EventUploadAvatar() {
 
         // * Устанавливаем формат Ajax ответа
-        $this->Viewer_SetResponseAjax('jsonIframe', false);
+        $this->Viewer_SetResponseAjax(F::AjaxRequest(true)?'json':'jsonIframe', false);
 
         $aUploadedFile = $this->GetUploadedFile('avatar');
         if (!$aUploadedFile) {
