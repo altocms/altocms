@@ -695,7 +695,7 @@ class ModuleMresource_MapperMresource extends Mapper {
      * @return $aResult
      */
     public function GetTargetTypes() {
-        return $this->oDb->selectCol("select DISTINCT target_type from prefix_mresource_target");
+        return $this->oDb->selectCol("select DISTINCT target_type from ?_mresource_target");
     }
 
     /**
@@ -708,9 +708,9 @@ class ModuleMresource_MapperMresource extends Mapper {
     public function GetMresourcesCountByTarget($sTargetType) {
 
         if ($sTargetType == 'all') {
-            $aRow =  $this->oDb->selectRow("select count(target_type) as count from prefix_mresource_target");
+            $aRow =  $this->oDb->selectRow("select count(target_type) as count from ?_mresource_target");
         } else {
-            $aRow =  $this->oDb->selectRow("select count(target_type) as count from prefix_mresource_target where target_type = ?", $sTargetType);
+            $aRow =  $this->oDb->selectRow("select count(target_type) as count from ?_mresource_target where target_type = ?", $sTargetType);
         }
 
 
