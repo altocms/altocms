@@ -20,6 +20,7 @@ class ModuleMresource extends Module {
     const TYPE_FLASH = 8;
     const TYPE_PHOTO = 16; // Элемент фотосета
     const TYPE_HREF  = 32;
+    const TYPE_PHOTO_PRIMARY  = 64; // Обложка фотосета
 
     /** @var  ModuleMresource_MapperMresource */
     protected $oMapper;
@@ -591,6 +592,73 @@ class ModuleMresource extends Module {
 
         return false;
     }
+
+    /**
+     * Обновляет параметры ресурса
+     *
+     * @param ModuleMresource_EntityMresource $oResource
+     * @return bool
+     */
+    public function UpdateParams($oResource){
+        return $this->oMapper->UpdateParams($oResource);
+    }
+
+    /**
+     * Обновляет тип ресурса
+     *
+     * @param ModuleMresource_EntityMresource $oResource
+     * @return bool
+     */
+    public function UpdateType($oResource){
+        return $this->oMapper->UpdateType($oResource);
+    }
+
+    /**
+     * Устанавливает главный рисунок фотосета
+     *
+     * @param ModuleMresource_EntityMresource $oResource
+     * @param $sTargetType
+     * @param $sTargetId
+     * @return bool
+     */
+    public function UpdatePrimary($oResource, $sTargetType, $sTargetId){
+        return $this->oMapper->UpdatePrimary($oResource, $sTargetType, $sTargetId);
+    }
+
+    /**
+     * Возвращает информацию о количестве и обложке фотосета
+     *
+     * @param $sTargetType
+     * @param $sTargetId
+     * @return array
+     */
+    public function GetPhotosetData($sTargetType, $sTargetId) {
+
+        $aMresource = $this->GetMresourcesRelByTarget($sTargetType, $sTargetId);
+
+        $aResult = array(
+            'count' => 0,
+            'cover' => FALSE,
+        );
+
+        if ($aMresource) {
+
+            $aResult['count'] = count($aMresource);
+
+            foreach ($aMresource as $oResource) {
+                if ($oResource->IsCover()) {
+                    $aResult['cover'] = $oResource->getMresourceId();
+                    break;
+                }
+
+            }
+
+        }
+
+        return $aResult;
+
+    }
+
 }
 
 // EOF

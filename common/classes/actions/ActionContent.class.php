@@ -332,26 +332,10 @@ class ActionContent extends Action {
             }
         }
 
-        // * Если есть прикрепленные фото
-        if ($this->oContentType->isAllow('photoset') && ($sTargetTmp = $this->Session_GetCookie('ls_photoset_target_tmp'))) {
-            $oTopic->setTargetTmp($sTargetTmp);
-            if ($aPhotos = $this->Topic_GetPhotosByTargetTmp($sTargetTmp)) {
-                $oPhotoMain = $this->Topic_GetTopicPhotoById(F::GetRequestStr('topic_main_photo'));
-                if (!$oPhotoMain || $oPhotoMain->getTargetTmp() != $sTargetTmp) {
-                    $oPhotoMain = $aPhotos[0];
-                }
-                if ($oPhotoMain) {
-                    $oTopic->setPhotosetMainPhotoId($oPhotoMain->getId());
-                }
-                $oTopic->setPhotosetCount(count($aPhotos));
-                $aPhotosId = array();
-                foreach($aPhotos as $oPhoto) {
-                    $aPhotosId[] = $oPhoto->GetId();
-                }
-                $oTopic->setPhotosId($aPhotosId);
-            } else {
-                $oTopic->setPhotosetCount(0);
-            }
+        $aPhotoSetData = $this->Mresource_GetPhotosetData('topic-multi-image-uploader', 0);
+        $oTopic->setPhotosetCount($aPhotoSetData['count']);
+        if ($aPhotoSetData['cover']) {
+            $oTopic->setPhotosetMainPhotoId($aPhotoSetData['cover']);
         }
 
         // * Публикуем или сохраняем
@@ -425,6 +409,40 @@ class ActionContent extends Action {
 
             // * Удаляем временную куку
             $this->Session_DelCookie('ls_photoset_target_tmp');
+
+            // Обработаем фотосет
+            if ($this->oContentType->isAllow('photoset') && ($sTargetTmp = $this->Session_GetCookie('uploader_target_tmp'))) {
+                // А вот здесь ничего сохранять не будем,
+                // 1. Просто уберем у ресурса флаг временного размещения и удалим из куки target_tmp
+                $this->Session_DelCookie('uploader_target_tmp');
+
+                // 2. Переместим фото из временной папки в рабочую
+                $sTargetType = 'topic-multi-image-uploader';
+                $sTargetId = $oTopic->getId();
+
+                $sNewPath = $this->Uploader_GetUploadDir($sTargetId, $sTargetType) . '/';
+                $aMresourceRel = E::Mresource_GetMresourcesRelByTargetAndUser($sTargetType, 0, E::UserId());
+
+                if ($aMresourceRel) {
+                    foreach ($aMresourceRel as $oResource) {
+                        $sOldPath = $oResource->GetFile();
+
+                        $xStoredFile = $this->Uploader_Store($sOldPath, $sNewPath);
+                        /** @var ModuleMresource_EntityMresource $oResource */
+                        $oResource = $this->Mresource_GetMresourcesByUuid($xStoredFile->getUuid());
+                        if ($oResource) {
+                            $oResource->setUrl($this->Mresource_NormalizeUrl($this->Uploader_GetTargetUrl($sTargetId, $sTargetType)));
+                            $oResource->setType($sTargetType);
+                            $oResource->setUserId(E::UserId());
+                            $oResource = array($oResource);
+                            $this->Mresource_AddTargetRel($oResource, $sTargetType, $sTargetId);
+                        }
+                    }
+                    $this->Mresource_UnlinkFile($sTargetType, 0, $oTopic->getUserId());
+                }
+            }
+
+
 
             // * Добавляем событие в ленту
             $this->Stream_Write(
@@ -574,7 +592,12 @@ class ActionContent extends Action {
         $_REQUEST['topic_url_after'] = $aEditTopicUrl['after'];
 
         $this->Viewer_Assign('oTopic', $oTopic);
-        $this->Viewer_Assign('aPhotos', $this->Topic_GetPhotosByTopicId($oTopic->getId()));
+
+        // Добавим картинки фотосета для вывода
+        $this->Viewer_Assign(
+            'aPhotos',
+            E::Mresource_GetMresourcesRelByTarget('topic-multi-image-uploader', $oTopic->getId())
+        );
     }
 
     /**
@@ -674,22 +697,10 @@ class ActionContent extends Action {
             }
         }
 
-        // * Если есть прикрепленные фото
-        if ($this->oContentType->isAllow('photoset') && $aPhotos = $oTopic->getPhotosetPhotos()) {
-            $oPhotoMain = $this->Topic_GetTopicPhotoById(F::GetRequestStr('topic_main_photo'));
-            if (!$oPhotoMain || $oPhotoMain->getTopicId() != $oTopic->getId()) {
-                $oPhotoMain = reset($aPhotos);
-            }
-            $oTopic->setPhotosetMainPhotoId($oPhotoMain->getId());
-            $oTopic->setPhotosetCount(count($aPhotos));
-            // Сохраняем ID фотографий из фотосета
-            $aPhotosId = array();
-            foreach($aPhotos as $oPhoto) {
-                $aPhotosId[] = $oPhoto->GetId();
-            }
-            $oTopic->setPhotosId($aPhotosId);
-        } else {
-            $oTopic->setPhotosetCount(0);
+        $aPhotoSetData = $this->Mresource_GetPhotosetData('topic-multi-image-uploader', $oTopic->getId());
+        $oTopic->setPhotosetCount($aPhotoSetData['count']);
+        if ($aPhotoSetData['cover']) {
+            $oTopic->setPhotosetMainPhotoId($aPhotoSetData['cover']);
         }
 
         // * Publish or save as a draft

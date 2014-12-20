@@ -787,9 +787,7 @@ class ModuleTopic_EntityTopic extends Entity {
         $aResources = array();
         $aPhotos = $this->getPhotosetPhotos();
         if ($aPhotos) {
-            foreach($aPhotos as $oPhoto) {
-                $oMresource = $oPhoto->BuildMresource();
-                $oMresource->setUserId($this->getUserId());
+            foreach($aPhotos as $oMresource) {
                 $aResources[] = $oMresource;
             }
         }
@@ -1117,11 +1115,7 @@ class ModuleTopic_EntityTopic extends Entity {
             return array();
         }
 
-        $aPhotos = $this->getProp('_photoset_photos');
-        if (is_null($aPhotos)) {
-            $aPhotos = $this->Topic_GetPhotosByTopicId($this->getId(), null, $iPhotosCount);
-            $this->setProp('_photoset_photos', $aPhotos);
-        }
+        $aPhotos = E::Mresource_GetMresourcesRelByTarget('topic-multi-image-uploader', $this->getId());
         $aResult = array();
         if ($aPhotos && ($iFromId || $iCount)) {
             $iCntSet = -1;

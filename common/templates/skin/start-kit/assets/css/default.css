@@ -586,3 +586,63 @@ a.user-friends:hover { color: #ff4136; text-decoration: none; }
     height: 20px;
     cursor: pointer
 }
+
+
+/* MULTI-UPLOADER */
+.js-alto-multi-uploader-form .js-add { position: relative; overflow: hidden; }
+.js-alto-multi-uploader-form canvas { width: 100%; }
+.js-alto-multi-uploader-form .js-file-delete {
+    top: -6px;
+    right: 17px;
+    color: #FF0000;
+    cursor: pointer;
+    opacity: 0;
+    z-index: 999;
+    position: absolute;
+    font-size: 20px;
+    -webkit-transition: opacity .1s ease-in;
+    -moz-transition: opacity .1s ease-in;
+    transition: opacity .1s ease-in;
+}
+.js-alto-multi-uploader-form .progress {
+    margin-bottom: 0;
+}
+.js-alto-multi-uploader-form .js-file-name {
+    font-size: 10px;
+    text-align: center;
+    overflow: hidden;
+}
+.js-alto-multi-uploader-form .js-file-tpl:hover .js-file-delete {
+    opacity: 1;
+}
+.js-alto-multi-uploader-form .js-file-rotate {
+    top: 33%;
+    left: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    margin: -16px 0 0 -16px;
+    position: absolute;
+}
+.js-alto-multi-uploader-form .js-file-rotate i { font-size: 36px; }
+.js-alto-multi-uploader-form { position: relative; }
+.js-alto-multi-uploader-form input {
+    position: absolute;
+    overflow: hidden;
+    -moz-opacity: 0;
+    filter:  alpha(opacity: 0);
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+    top: -10px;
+    left: -10px;
+    font-size: 30px;
+}
+.js-uploader-picker {
+    border: 1px dashed #808080;
+    padding-top: 12px;
+}
+.js-uploader-picker-hover {
+    background: #ffff00;
+    border: 1px dashed yellowgreen;
+}

@@ -709,6 +709,10 @@ $config['head']['default']['js'] = array(
         'compress' => false,
         'merge'    => false,
     ),
+    '___path.frontend.dir___/libs/vendor/jquery.fileapi/FileAPI/*'       => array(
+        'dir_from'  => '___path.frontend.dir___/libs/vendor/jquery.fileapi/FileAPI/',
+        'prepare'   => true,
+    ),
 
     /* Core */
     '___path.frontend.dir___/libs/js/core/main.js',
@@ -743,6 +747,11 @@ $config['head']['default']['js'] = array(
     '___path.frontend.dir___/libs/js/engine/userfield.js',
     '___path.frontend.dir___/libs/js/engine/init.js',
     '___path.frontend.dir___/libs/js/engine/altoUploader.js',
+
+    '___path.frontend.dir___/libs/vendor/jquery.fileapi/FileAPI/FileAPI.min.js',
+    '___path.frontend.dir___/libs/vendor/jquery.fileapi/FileAPI/FileAPI.exif.js',
+    '___path.frontend.dir___/libs/vendor/jquery.fileapi/jquery.fileapi.js',
+    '___path.frontend.dir___/libs/js/engine/altoMultiUploader.js',
 );
 
 //потенциально проблемные файлы выводим в футере

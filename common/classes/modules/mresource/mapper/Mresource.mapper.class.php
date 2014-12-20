@@ -716,6 +716,52 @@ class ModuleMresource_MapperMresource extends Mapper {
 
         return isset($aRow['count'])?$aRow['count']:0;
     }
+
+    /**
+     * Обновляет параметры ресурса
+     *
+     * @param ModuleMresource_EntityMresource $oResource
+     * @return bool
+     */
+    public function UpdateParams($oResource){
+
+        $sql = "UPDATE ?_mresource SET params = ? WHERE mresource_id = ?d";
+        return $this->oDb->query($sql, $oResource->getParams(), $oResource->getMresourceId());
+
+    }
+
+    /**
+     * Обновляет тип ресурса
+     *
+     * @param ModuleMresource_EntityMresource $oResource
+     * @return bool
+     */
+    public function UpdateType($oResource){
+
+        $sql = "UPDATE ?_mresource SET type = ?d WHERE mresource_id = ?d";
+        return $this->oDb->query($sql, $oResource->getType(), $oResource->getMresourceId());
+
+    }
+
+    /**
+     * Устанавливает главный рисунок фотосета
+     *
+     * @param ModuleMresource_EntityMresource $oResource
+     * @param $sTargetType
+     * @param $sTargetId
+     * @return bool
+     */
+    public function UpdatePrimary($oResource, $sTargetType, $sTargetId){
+
+        $sql = "UPDATE ?_mresource SET type = ?d WHERE mresource_id IN (
+          SELECT mresource_id FROM ?_mresource_target WHERE target_type = ? AND target_id = ?d
+        )";
+        $this->oDb->query($sql, ModuleMresource::TYPE_PHOTO, $sTargetType, $sTargetId);
+
+        $this->UpdateType($oResource);
+
+    }
+
 }
 
 // EOF
