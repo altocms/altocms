@@ -864,13 +864,19 @@ class Func {
     /**
      * Check if request is ajax
      *
+     * @param bool $bPureAjax
+     *
      * @return  bool
      */
-    static public function AjaxRequest() {
+    static public function AjaxRequest($bPureAjax = false) {
 
-        return (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')
-                || (isset($_SERVER['HTTP_X_ALTO_AJAX_KEY']) && $_REQUEST['HTTP_X_ALTO_AJAX_KEY'])
-                || (isset($_REQUEST['ALTO_AJAX']) && $_REQUEST['ALTO_AJAX']);
+        if ($bPureAjax) {
+            return (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
+        } else {
+            return (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')
+            || (isset($_SERVER['HTTP_X_ALTO_AJAX_KEY']) && $_REQUEST['HTTP_X_ALTO_AJAX_KEY'])
+            || (isset($_REQUEST['ALTO_AJAX']) && $_REQUEST['ALTO_AJAX']);
+        }
     }
 
     /**
@@ -954,6 +960,22 @@ class Func {
         }
 
         return F::File_NormPath($sUrl);
+    }
+
+    static public function HostProtocol($bScheme = false) {
+
+        $sResult = 'http';
+        if(isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'https') {
+            $sResult = 'https';
+        } elseif (isset($_SERVER['HTTP_SCHEME']) && strtolower($_SERVER['HTTP_SCHEME']) == 'https') {
+            $sResult = 'https';
+        } elseif(isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') {
+            $sResult = 'https';
+        }
+        if ($bScheme) {
+            $sResult .= '://';
+        }
+        return $sResult;
     }
 
     /**
