@@ -846,6 +846,7 @@ return array(
     'panel_clear_tags'                          => 'очистить от тегов',
     'panel_user'                                => 'вставить пользователя',
     'panel_user_promt'                          => 'Введите логин пользователя',
+    'panel_photoset'                            => 'вставить фотосет',
 
     /**
      * Виджеты
