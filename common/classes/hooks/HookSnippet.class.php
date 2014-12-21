@@ -35,12 +35,12 @@ class HookSnippet extends Hook {
 
         // Получим параметры, собственно, он тут единственный - это
         // имя пользователя которое и добавляем в редактор
-        if (!($sUserName = isset($aData['params']['name']) ? $aData['params']['name'] : FALSE)) {
+        if (!($sUserLogin = isset($aData['params']['login']) ? $aData['params']['login'] : FALSE)) {
             return FALSE;
         }
 
         // Если пользователь найден, то вернём ссылку на него
-        if (is_string($sUserName) && ($oUser = $this->User_GetUserByLogin($sUserName))) {
+        if (is_string($sUserLogin) && ($oUser = $this->User_GetUserByLogin($sUserLogin))) {
             return ($aData['result'] = "<a href='{$oUser->getUserWebPath()}'>{$oUser->getLogin()}</a>");
         }
 

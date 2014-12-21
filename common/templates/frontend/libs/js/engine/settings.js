@@ -31,7 +31,7 @@ ls.settings = (function ($) {
                 {name: 'H6', className: 'editor-h6', openWith: '<h6>', closeWith: '</h6>' },
                 {separator: '---------------' },
                 { name:'snippets',  className: 'snippet-menu', dropMenu: [
-                    {name: ls.lang.get('panel_user'),   className: 'editor-user', replaceWith: '<alto:user name="[![' + ls.lang.get('panel_user_promt') + ']!]"/>' },
+                    {name: ls.lang.get('panel_user'),   className: 'editor-user', replaceWith: '<alto:user login="[![' + ls.lang.get('panel_user_promt') + ']!]"/>' },
                     {name: ls.lang.get('panel_photoset'),   className: 'editor-photoset', replaceWith: '<alto:photoset from="1" to="last"/>' }
                 ]
                 },
