@@ -749,7 +749,7 @@ $config['head']['default']['js'] = array(
     '___path.frontend.dir___/libs/js/engine/altoUploader.js',
 
     '___path.frontend.dir___/libs/vendor/jquery.fileapi/FileAPI/FileAPI.min.js',
-    '___path.frontend.dir___/libs/vendor/jquery.fileapi/FileAPI/FileAPI.exif.js',
+//    '___path.frontend.dir___/libs/vendor/jquery.fileapi/FileAPI/FileAPI.exif.js',
     '___path.frontend.dir___/libs/vendor/jquery.fileapi/jquery.fileapi.js',
     '___path.frontend.dir___/libs/js/engine/altoMultiUploader.js',
 );

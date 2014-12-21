@@ -172,6 +172,7 @@ class ModuleMresource_MapperMresource extends Mapper {
                 {AND mr.hash_url=?:hash_url}
                 {AND mr.hash_file=?:hash_file}
                 {AND mrt.target_tmp=?:target_tmp}
+            ORDER BY mr.sort DESC, mr.mresource_id ASC
         ");
         $aRows = $oSql->bind(
             array(
@@ -249,7 +250,7 @@ class ModuleMresource_MapperMresource extends Mapper {
         if (isset($aCriteria['order'])) {
             $sOrder = $aCriteria['order'];
         } else {
-            $sOrder = 'mresource_id DESC';
+            $sOrder = 'sort DESC, mresource_id ASC';
         }
         if ($sOrder) {
             $sSqlOrder = 'ORDER BY ' . $sOrder;
@@ -762,6 +763,34 @@ class ModuleMresource_MapperMresource extends Mapper {
 
     }
 
+    /**
+     * Устанавливает новый порядок сортировки изображений
+     *
+     * @param $aOrder
+     * @param $sTargetType
+     * @param $sTargetId
+     */
+    public function UpdateSort($aOrder, $sTargetType, $sTargetId) {
+
+        $sData = '';
+        foreach ($aOrder as $sId => $iSort) {
+            $sData .= " WHEN mresource_id = '$sId' THEN '$iSort' ";
+        }
+
+        $sql ="UPDATE ?_mresource SET sort = (CASE $sData END) WHERE
+                mresource_id
+              IN (
+                SELECT
+                  mresource_id
+                FROM
+                  prefix_mresource_target
+                WHERE
+                  target_type = ? AND target_id = ?d)";
+
+
+        return $this->oDb->query($sql, $sTargetType, $sTargetId);
+
+    }
 }
 
 // EOF

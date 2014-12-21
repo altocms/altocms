@@ -43,3 +43,4 @@ ADD INDEX (  `storage_src` ) ;
 # МОДУЛЬ UPLOAD - УНИВЕРСАЛЬНАЯ ЗАГРУЗКА ИЗОБРАЖЕНИЙ
 #
 ALTER TABLE `prefix_content_values` CHANGE `value_type` `value_type` ENUM('string','text','number','single-image-uploader') NULL DEFAULT NULL;
+ALTER TABLE `prefix_mresource` ADD  `sort` INT NULL DEFAULT '0';

@@ -53,6 +53,7 @@ class ActionUploader extends Action {
         $this->AddEventPreg('/^multi-image/i', '/^$/i', 'EventMultiUpload'); // Прямая загрузка нескольких изображений
         $this->AddEvent('description', 'EventDescription'); // Установка описания ресурса
         $this->AddEvent('cover', 'EventCover'); // Установка обложки фотосета
+        $this->AddEvent('sort', 'EventSort'); // Меняет сортировку элементов фотосета
 
     }
 
@@ -774,4 +775,42 @@ class ActionUploader extends Action {
         $this->Message_AddNoticeSingle($this->Lang_Get('topic_photoset_is_preview'));
 
     }
+
+
+    /**
+     * Меняет сортировку элементов фотосета
+     */
+    public function EventSort() {
+
+        // * Устанавливаем формат Ajax ответа
+        $this->Viewer_SetResponseAjax('json');
+
+        // Проверяем, целевой объект и права на его редактирование
+        if (!$oTarget = $this->Uploader_CheckAccessAndGetTarget(
+            $sTargetType = getRequest('target', FALSE),
+            $sTargetId = getRequest('target_id', FALSE))
+        ) {
+            $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+
+            return;
+        }
+
+        if (!($aOrder = getRequest('order', FALSE))) {
+            $this->Message_AddError($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+
+            return;
+        }
+
+        if (!is_array($aOrder)) {
+            $this->Message_AddError($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+
+            return;
+        }
+
+        $this->Mresource_UpdateSort(array_flip($aOrder), $sTargetType, $sTargetId);
+
+        $this->Message_AddNoticeSingle($this->Lang_Get('uploader_sort_changed'));
+
+    }
+
 }

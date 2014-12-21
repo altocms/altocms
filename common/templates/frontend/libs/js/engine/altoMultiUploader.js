@@ -92,6 +92,38 @@
                 }
             });
 
+            // Добавим сортировку изображений в фотосете
+            $this.$list
+                .sortable({
+                    stop: function () {
+
+                        var elements = $this.$list.find('li');
+                        if (elements.length > 0) {
+                            var order = [];
+                            $.each(elements.get().reverse(), function (index, value) {
+                                order.push($(value).attr('id').replace('uploader_item_', ''));
+                            });
+                            ls.ajax($this.options.url.sort, {
+                                    target: $this.options.target,
+                                    target_id: $this.options.targetId,
+                                    order: order
+                                },
+                                /**
+                                 * Выведем пользователю сообщение о результате сортировки
+                                 * @param {{bStateError: {boolean}, sMsg: {string}, sMsgTitle: {string}}} result
+                                 */
+                                function (result) {
+                                    return result.bStateError
+                                        ? ls.msg.error(result.sMsgTitle, result.sMsg)
+                                        : ls.msg.notice(result.sMsgTitle, result.sMsg);
+
+                                }
+                            );
+                        }
+                    }
+                })
+                .disableSelection();
+
             return $this;
         },
 
@@ -170,7 +202,7 @@
          *
          * @param id
          */
-        remove: function(id) {
+        remove: function (id) {
 
             var $this = this;
             if ($this.blockButtons) {
@@ -215,7 +247,7 @@
          * @param {int} id Ид. ресурса
          * @returns {altoMultiUploader}
          */
-        setDescription: function(id) {
+        setDescription: function (id) {
 
             var $this = this;
             if ($this.blockButtons) {
@@ -319,7 +351,8 @@
             upload: ls.routerUrl('uploader') + 'multi-image/',
             remove: ls.routerUrl('uploader') + 'remove-image-by-id/',
             description: ls.routerUrl('uploader') + 'description/',
-            cover: ls.routerUrl('uploader') + 'cover/'
+            cover: ls.routerUrl('uploader') + 'cover/',
+            sort: ls.routerUrl('uploader') + 'sort/'
         },
         previewCrop: '400fit'
     };

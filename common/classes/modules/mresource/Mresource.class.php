@@ -626,6 +626,17 @@ class ModuleMresource extends Module {
     }
 
     /**
+     * Устанавливает новый порядок сортировки изображений
+     *
+     * @param $aOrder
+     * @param $sTargetType
+     * @param $sTargetId
+     */
+    public function UpdateSort($aOrder, $sTargetType, $sTargetId) {
+        return $this->oMapper->UpdateSort($aOrder, $sTargetType, $sTargetId);
+    }
+
+    /**
      * Возвращает информацию о количестве и обложке фотосета
      *
      * @param $sTargetType

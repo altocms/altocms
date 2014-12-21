@@ -6,7 +6,7 @@
         <li id="uploader_item_ID">
             <div class="row">
                 <div class="col-sm-4">
-                    <img src="uploader_item_SRC" width="100px" alt="image"/>
+                    <img src="uploader_item_SRC" width="100%" alt="image"/>
                 </div>
                 <div class="col-sm-20">
                     <textarea onblur="$('.js-topic-photoset').altoMultiUploader({ description: 'ID' }); return false;"
@@ -31,7 +31,7 @@
             <li id="uploader_item_{$oPhoto->getMResourceId()}">
                 <div class="row">
                     <div class="col-sm-4">
-                        <img src="{$oPhoto->getWebPath('100crop')}" width="100px" alt="image"/>
+                        <img src="{$oPhoto->getWebPath('100crop')}" width="100%" alt="image"/>
                     </div>
                     <div class="col-sm-20">
                     <textarea onblur="$('.js-topic-photoset').altoMultiUploader({ description: '{$oPhoto->getMResourceId()}' }); return false;"
@@ -90,7 +90,7 @@
                                 </div>
                                 <% if( /^image/.test(type) ){ %>
                                 <div data-fileapi="file.rotate.cw" class="js-file-rotate">
-                                    <i class="glyphicon glyphicon-repeat"></i>
+                                    <i class="fa fa-repeat"></i>
                                 </div>
                                 <% } %>
                                 <div class="progress">
@@ -104,9 +104,10 @@
                         <div class="col-md-24 js-uploader-picker">
                             <div class="small text-muted topic-photo-upload-rules pull-right">
                                 {$aLang.uploader_picker}<br>
+                                {$aLang.uploader_sort_notice}<br>
                                 {$nMaxSixe=Config::Get('module.topic.photoset.photo_max_size')}
                                 {$nMaxCount=Config::Get('module.topic.photoset.count_photos_max')}
-                                {$aLang.topic_photoset_upload_rules|ls_lang:"SIZE%%$nMaxSixe":"COUNT%%$nMaxCount"}
+                                - {$aLang.topic_photoset_upload_rules|ls_lang:"SIZE%%$nMaxSixe":"COUNT%%$nMaxCount"}
                                 <div class="js-uploader-picker-supported"></div>
                             </div>
                             <div class="btn btn-success btn-sm js-add js-fileapi-wrapper">
