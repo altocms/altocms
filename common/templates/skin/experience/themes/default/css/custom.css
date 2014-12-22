@@ -43,3 +43,104 @@
     height: 20px;
     cursor: pointer
 }
+
+/* MULTI-UPLOADER */
+.js-alto-multi-uploader-form .js-add { position: relative; overflow: hidden; }
+.js-alto-multi-uploader-form canvas { width: 100%; }
+.js-alto-multi-uploader-form .js-file-delete {
+    top: -6px;
+    right: 17px;
+    color: #FF0000;
+    cursor: pointer;
+    opacity: 0;
+    z-index: 999;
+    position: absolute;
+    font-size: 20px;
+    -webkit-transition: opacity .1s ease-in;
+    -moz-transition: opacity .1s ease-in;
+    transition: opacity .1s ease-in;
+}
+.js-alto-multi-uploader-form .progress {
+    margin-bottom: 0;
+}
+.js-alto-multi-uploader-form .js-file-name {
+    font-size: 10px;
+    text-align: center;
+    overflow: hidden;
+}
+.js-alto-multi-uploader-form .js-file-tpl:hover .js-file-delete {
+    opacity: 1;
+}
+.js-alto-multi-uploader-form .js-file-rotate {
+    top: 33%;
+    left: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    margin: -16px 0 0 -16px;
+    position: absolute;
+}
+.js-alto-multi-uploader-form .js-file-rotate i { font-size: 36px; }
+.js-alto-multi-uploader-form { position: relative; }
+.js-alto-multi-uploader-form input {
+    position: absolute;
+    overflow: hidden;
+    -moz-opacity: 0;
+    filter:  alpha(opacity: 0);
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+    top: -10px;
+    left: -10px;
+    font-size: 30px;
+}
+.js-uploader-picker {
+    border: 1px dashed #808080;
+    padding: 12px;
+}
+.js-uploader-picker-hover {
+    background: #ffff00;
+    border: 1px dashed yellowgreen;
+}
+
+
+/* СНИППЕТЫ
+____________________________________________________________*/
+.snippet-menu {
+    width: 20px;
+    height: 16px !important;
+    background-image: none !important;
+}
+.snippet-menu > a, .snippet-menu > a:hover {
+    background: url('../images/editor_snippet.png') no-repeat;
+    width: 20px;
+    height: 20px;
+    background-position-x: -2px;
+    background-position-y: -2px;
+}
+.snippet-menu ul {
+    border: 1px solid #c7c7c7 !important;
+    border-radius: 4px;
+}
+.snippet-menu li {
+    border: 0;
+    border-bottom: 1px solid #c7c7c7 !important;
+    border-radius: 4px !important;
+}
+.snippet-menu li:last-child {
+    border-bottom: 0 !important;
+}
+.snippet-menu li a {
+    background: none;
+    text-align: left;
+    height: 24px;
+    line-height: 24px;
+    padding: 0 0 0 6px !important;
+    width: 160px !important;
+    background: white;
+    color: #434343 !important;
+}
+.snippet-menu li a:hover {
+    background-image: none;
+    background-color: #e6e6e6 !important;
+}

@@ -30,6 +30,12 @@ ls.settings = (function ($) {
                 {name: 'H5', className: 'editor-h5', openWith: '<h5>', closeWith: '</h5>' },
                 {name: 'H6', className: 'editor-h6', openWith: '<h6>', closeWith: '</h6>' },
                 {separator: '---------------' },
+                { name:'snippets',  className: 'snippet-menu', dropMenu: [
+                    {name: ls.lang.get('panel_user'),   className: 'editor-user', replaceWith: '<alto:user login="[![' + ls.lang.get('panel_user_promt') + ']!]"/>' },
+                    {name: ls.lang.get('panel_photoset'),   className: 'editor-photoset', replaceWith: '<alto:photoset from="1" to="last"/>' }
+                ]
+                },
+                {separator: '---------------' },
                 {name: ls.lang.get('panel_b'),  className: 'editor-bold', key: 'B', openWith: '(!(<strong>|!|<b>)!)', closeWith: '(!(</strong>|!|</b>)!)' },
                 {name: ls.lang.get('panel_i'),  className: 'editor-italic', key: 'I', openWith: '(!(<em>|!|<i>)!)', closeWith: '(!(</em>|!|</i>)!)'  },
                 {name: ls.lang.get('panel_s'),  className: 'editor-stroke', key: 'S', openWith: '<s>', closeWith: '</s>' },
@@ -48,7 +54,7 @@ ls.settings = (function ($) {
                 } },
                 {name: ls.lang.get('panel_video'),  className: 'editor-video', replaceWith: '<video>[![' + ls.lang.get('panel_video_promt') + ':!:http://]!]</video>' },
                 {name: ls.lang.get('panel_url'),    className: 'editor-link', key: 'L', openWith: '<a href="[![' + ls.lang.get('panel_url_promt') + ':!:http://]!]"(!( title="[![Title]!]")!)>', closeWith: '</a>', placeHolder: 'Your text to link...' },
-                {name: ls.lang.get('panel_user'),   className: 'editor-user', replaceWith: '<ls user="[![' + ls.lang.get('panel_user_promt') + ']!]" />' },
+
                 {separator: '---------------' },
                 {name: ls.lang.get('panel_clear_tags'), className: 'editor-clean', replaceWith: function (markitup) {
                     return markitup.selection.replace(/<(.*?)>/g, "")

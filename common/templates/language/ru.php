@@ -410,6 +410,7 @@ return array(
     'topic_photoset_edit'                       => 'Редактирование фотосета',
     'topic_photoset_upload_title'               => 'Загрузка изображений',
     'topic_photoset_upload_choose'              => 'Загрузить фото',
+    'topic_photoset_upload_add'                 => 'Добавить',
     'topic_photoset_upload_close'               => 'Закрыть',
     'topic_photoset_upload_rules'               => 'Доступна загрузка изображений в формат JPG, PNG, GIF<br />Размер изображений не должен превышать %%SIZE%% Kб<br />Максимальное число загружаемых изображений: %%COUNT%%',
     'topic_photoset_choose_image'               => 'Выберите изображение для загрузки',
@@ -845,6 +846,7 @@ return array(
     'panel_clear_tags'                          => 'очистить от тегов',
     'panel_user'                                => 'вставить пользователя',
     'panel_user_promt'                          => 'Введите логин пользователя',
+    'panel_photoset'                            => 'вставить фотосет',
 
     /**
      * Виджеты
@@ -1399,6 +1401,10 @@ return array(
     'uploader_image_delete'               => 'Удалить изображение',
     'error_upload_image'                  => 'Ошибка загрузки изображения',
     'uploader_upload_success'             => 'Изображение загружено',
+    'uploader_photoset_error_count_photos'         => 'Разрешено загружать до %%MAX%% изображений',
+    'uploader_picker'               => '- Перенесите нужные изображения в это область',
+    'uploader_sort_notice'          => '- Порядок изображений можно изменить просто <br>переместив мышью изображение на нужное место.',
+    'uploader_sort_changed'         => 'Очерёдность изображений изменена',
 
 
 
@@ -1411,6 +1417,7 @@ return array(
     'target_type_profile_photo'         => 'Фото',
     'target_type_single-image-uploader' => 'Поле контента',
     'target_type_all'                   => 'Все',
+    'target_type_topic-multi-image-uploader' => 'Фотосет топика',
 );
 
 // EOF

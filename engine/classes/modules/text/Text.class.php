@@ -201,6 +201,63 @@ class ModuleText extends Module {
     }
 
     /**
+     * Разбирает текст и анализирует его на наличие сниппетов.
+     * Если они найдены, то запускает хуки для их обработки.
+     * @param $sText
+     * @return string
+     */
+    public function SnippetParser($sText) {
+
+        // Получим массив: сниппетов, их имён и параметров
+        // Здесь получаем в $aMatches три массива из которых первым идет массив найденных сниппетов,
+        // который позже будет заменён на результат полученный от хука. Вторым массивом идут имена
+        // найденных сниппетов, которые будут использоваться для формирвоания имени хука.
+        // Третим массивом будут идти параметры сниппетов.
+        if (preg_match_all('~<alto:(\w+)((?:\s+\w+(?:\s*=\s*(?:(?:"[^"]*")|(?:\'[^\']*\')|[^>\s]+))?)*)\s*\/*>~Ui', $sText, $aMatches)) {
+
+            // Данные для замены сниппетов на полученный код
+            $aReplaceData = array();
+
+            foreach ($aMatches[1] as $k => $sSnippetName) {
+
+                // Получим параметры в виде массива. Вообще-то их может и не быть воовсе,
+                // но мы всё-таки попробуем это сделать...
+                $aParams = array();
+                if (preg_match_all('~([a-zA-Z]+)\s*=\s*[\'"]([^\'"]+)[\'"]~Ui', $aMatches[2][$k], $aMatchesParams)) {
+                    foreach ($aMatchesParams[1] as $pk => $sParamName) {
+                        $aParams[$sParamName] = @$aMatchesParams[2][$pk];
+                    }
+                }
+
+
+                // Попытаемся получить результат от обработчика
+                // Может сниппет уже был в обработке, тогда просто возьмем его из кэша
+                $sCacheKey = $sSnippetName . md5(serialize($aParams));
+                if (FALSE === ($sResult = $this->Cache_GetLife($sCacheKey))) {
+                    $this->Hook_Run('snippet_' . $sSnippetName, array(
+                        'params' => &$aParams,
+                        'result' => &$sResult,
+                    ));
+                    $this->Cache_SetLife($sResult, $sCacheKey);
+                }
+
+                $aReplaceData[$aMatches[0][$k]] = is_string($sResult) ? $sResult : '';
+
+            }
+
+            // Произведем замену. Если обработчиков не было, то сниппеты
+            // будут заменены на пустую строку.
+            $sText = str_replace(
+                array_keys($aReplaceData),
+                array_values($aReplaceData),
+                $sText
+            );
+        }
+
+        return $sText;
+    }
+
+    /**
      * Парсит текст, применя все парсеры
      *
      * @param string $sText Исходный текст
@@ -215,6 +272,7 @@ class ModuleText extends Module {
         $this->aLinks = array();
 
         $sResult = $this->FlashParamParser($sText);
+        $sResult = $this->SnippetParser($sResult);
         $sResult = $this->JevixParser($sResult);
         $sResult = $this->VideoParser($sResult);
 

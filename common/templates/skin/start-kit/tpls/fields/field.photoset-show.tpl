@@ -49,8 +49,8 @@
             {$sThumbneilSize = 'x100'}
             {foreach $aPhotos as $oPhoto}
                 <li class="topic-photoset-item">
-                    <a class="topic-photoset-image" href="{$oPhoto->getUrl()}" rel="prettyPhoto[pp_gal]"  title="{$oPhoto->getDescription()}">
-                        <img src="{$oPhoto->getUrl($sThumbneilSize)}" {*$oPhoto->getImgSizeAttr($sThumbneilSize)*} alt="{$oPhoto->getDescription()}" class="" />
+                    <a class="topic-photoset-image" href="{$oPhoto->getWebPath()}" rel="prettyPhoto[pp_gal]"  title="{$oPhoto->getDescription()}">
+                        <img src="{$oPhoto->getWebPath($sThumbneilSize)}" {*$oPhoto->getImgSizeAttr($sThumbneilSize)*} alt="{$oPhoto->getDescription()}" class="" />
                     </a>
                 </li>
                 {$iLastPhotoId=$oPhoto->getId()}

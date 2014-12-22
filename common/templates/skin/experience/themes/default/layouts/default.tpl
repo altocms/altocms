@@ -66,6 +66,13 @@
                 aRouter['{$sPage}'] = '{$sPath}';
             {/foreach}
 
+            {$SWF_DIR_NAME=E::ViewerAsset_AssetFileHashDir("{Config::Get('path.root.dir')}common/templates/frontend/libs/vendor/jquery.fileapi/FileAPI/")}
+            window.FileAPI = {
+                debug: false, // debug mode
+                media: true,
+                staticPath: "{F::File_GetAssetUrl()}{$SWF_DIR_NAME}" // path to *.swf
+            };
+
         </script>
 
         {$aHtmlHeadFiles.js}

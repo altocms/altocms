@@ -10,6 +10,13 @@
 
 class ModuleMresource_EntityMresource extends Entity {
 
+    /**
+     * Массив параметров ресурса
+     *
+     * @var array
+     */
+    protected $aParams = null;
+
     public function __construct($aParam = null) {
 
         if ($aParam && $aParam instanceOf ModuleUploader_EntityItem) {
@@ -333,6 +340,103 @@ class ModuleMresource_EntityMresource extends Entity {
         return $this->Uploader_Exists($sCheckUuid);
     }
 
+    public function getWebPath($xSize=FALSE) {
+
+        $sUrl = str_replace('@', Config::Get('path.root.web'), $this->getPathUrl());
+
+        if (!$xSize) {
+            return $sUrl;
+        }
+
+        return $this->Uploader_ResizeTargetImage($sUrl, $xSize);
+
+    }
+
+    /**
+     * Возвращает сериализованную строку дополнительных данных ресурса
+     *
+     * @return string
+     */
+    public function getParams() {
+
+        $sResult = $this->getProp('params');
+        return !is_null($sResult) ? $sResult : serialize('');
+    }
+
+    /**
+     * Устанавливает сериализованную строчку дополнительных данных
+     *
+     * @param string $data
+     */
+    public function setParams($data) {
+
+        $this->setProp('params', serialize($data));
+    }
+
+    /**
+     * Получает описание ресурса
+     *
+     * @return mixed|null
+     */
+    public function getDescription() {
+        return $this->getParamValue('description');
+    }
+
+    /**
+     * Устанавливает описание ресурса
+     * @param $sValue
+     */
+    public function setDescription($sValue) {
+        $this->setParamValue('description', $sValue);
+    }
+
+
+    public function IsCover() {
+        return $this->getType() == ModuleMresource::TYPE_PHOTO_PRIMARY;
+    }
+    /* ****************************************************************************************************************
+ * методы расширения типов топика
+ * ****************************************************************************************************************
+ */
+
+    /**
+     * Извлекает сериализованные данные топика
+     */
+    protected function extractParams() {
+
+        if (is_null($this->aParams)) {
+            $this->aParams = @unserialize($this->getParams());
+        }
+    }
+
+    /**
+     * Устанавливает значение нужного параметра
+     *
+     * @param string $sName    Название параметра/данных
+     * @param mixed  $data     Данные
+     */
+    protected function setParamValue($sName, $data) {
+
+        $this->extractParams();
+        $this->aParams[$sName] = $data;
+        $this->setParams($this->aParams);
+    }
+
+    /**
+     * Извлекает значение параметра
+     *
+     * @param string $sName    Название параметра
+     *
+     * @return null|mixed
+     */
+    protected function getParamValue($sName) {
+
+        $this->extractParams();
+        if (isset($this->aParams[$sName])) {
+            return $this->aParams[$sName];
+        }
+        return null;
+    }
 }
 
 // EOF

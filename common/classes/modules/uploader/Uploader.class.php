@@ -646,6 +646,23 @@ class ModuleUploader extends Module {
     }
 
     /**
+     * Возвращает максимальное количество картинок для типа объекта
+     *
+     * @param $sTarget
+     * @param bool $sTargetId
+     * @return bool|mixed
+     */
+    public function GetAllowedCount($sTarget, $sTargetId = FALSE) {
+
+        if ($sTarget == 'topic-multi-image-uploader') {
+            $aPhotoSetData = $this->Mresource_GetPhotosetData($sTarget, (int)$sTargetId);
+            return $aPhotoSetData['count'] < Config::Get('module.topic.photoset.count_photos_max');
+        }
+
+        return FALSE;
+    }
+
+    /**
      * Проверяет доступность того или иного целевого объекта, переопределяется
      * плагинами. По умолчанию всё грузить запрещено.
      * Если всё нормально и пользователю разрешено сюда загружать картинки,
@@ -659,7 +676,7 @@ class ModuleUploader extends Module {
     public function CheckAccessAndGetTarget($sTarget, $sTargetId = FALSE) {
 
         // Проверяем право пользователя на прикрепление картинок к топику
-        if (mb_strpos($sTarget, 'single-image-uploader') === 0) {
+        if (mb_strpos($sTarget, 'single-image-uploader') === 0 || $sTarget = 'topic-multi-image-uploader') {
 
             // Проверям, авторизован ли пользователь
             if (!E::IsUser()) {
@@ -755,7 +772,7 @@ class ModuleUploader extends Module {
      */
     public function GetTargetUrl($sTargetId, $sTarget) {
 
-        if (mb_strpos($sTarget, 'single-image-uploader') === 0) {
+        if (mb_strpos($sTarget, 'single-image-uploader') === 0 || $sTarget = 'topic-multi-image-uploader') {
             /** @var $oTopic ModuleTopic_EntityTopic */
             if (!$oTopic = $this->Topic_GetTopicById($sTargetId)) {
                 return '';
@@ -834,6 +851,7 @@ class ModuleUploader extends Module {
         return $sUrl;
 
     }
+
 
 }
 

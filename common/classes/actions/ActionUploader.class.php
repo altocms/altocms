@@ -24,6 +24,9 @@ class ActionUploader extends Action {
 
     const PREVIEW_RESIZE = 222;
 
+    const OK = 200;
+    const ERROR = 500;
+
     /**
      * Абстрактный метод инициализации экшена
      *
@@ -43,9 +46,14 @@ class ActionUploader extends Action {
 
         $this->AddEventPreg('/^upload-image/i', '/^$/i', 'EventUploadImage'); // Загрузка изображения на сервер
         $this->AddEventPreg('/^resize-image/i', '/^$/i', 'EventResizeImage'); // Ресайз изображения
+        $this->AddEventPreg('/^remove-image-by-id/i', '/^$/i', 'EventRemoveImageById'); // Удаление изображения по его идентификатору
         $this->AddEventPreg('/^remove-image/i', '/^$/i', 'EventRemoveImage'); // Удаление изображения
         $this->AddEventPreg('/^cancel-image/i', '/^$/i', 'EventCancelImage'); // Отмена ресайза в окне, закрытие окна ресайза
         $this->AddEventPreg('/^direct-image/i', '/^$/i', 'EventDirectImage'); // Прямая загрузка изображения без открытия окна ресайза
+        $this->AddEventPreg('/^multi-image/i', '/^$/i', 'EventMultiUpload'); // Прямая загрузка нескольких изображений
+        $this->AddEvent('description', 'EventDescription'); // Установка описания ресурса
+        $this->AddEvent('cover', 'EventCover'); // Установка обложки фотосета
+        $this->AddEvent('sort', 'EventSort'); // Меняет сортировку элементов фотосета
 
     }
 
@@ -94,11 +102,16 @@ class ActionUploader extends Action {
      * @param $xStoredFile
      * @param $sTargetId
      * @param $sTargetType
+     * @param bool $bMulti
      * @return bool
      */
-    public function AddUploadedFileRelationInfo($xStoredFile, $sTargetId, $sTargetType) {
+    public function AddUploadedFileRelationInfo($xStoredFile, $sTargetId, $sTargetType, $bMulti = FALSE) {
 
-        $this->Mresource_UnlinkFile($sTargetType, $sTargetId, E::UserId());
+        // Если одиночная загрузка, то предыдущий файл затрем
+        // Иначе просто добавляем еще один.
+        if (!$bMulti) {
+            $this->Mresource_UnlinkFile($sTargetType, $sTargetId, E::UserId());
+        }
 
         /** @var ModuleMresource_EntityMresource $oResource */
         $oResource = $this->Mresource_GetMresourcesByUuid($xStoredFile->getUuid());
@@ -114,7 +127,7 @@ class ActionUploader extends Action {
 
             $this->Mresource_AddTargetRel($oResource, $sTargetType, $sTargetId);
 
-            return TRUE;
+            return $oResource;
         }
 
         return FALSE;
@@ -134,7 +147,7 @@ class ActionUploader extends Action {
         $sTmpFile = $this->Session_Get("sTmp-{$sTarget}-{$sTargetId}");
         $sPreviewFile = $this->Session_Get("sPreview-{$sTarget}-{$sTargetId}");
 
-        if ($sTargetId == '0'){
+        if ($sTargetId == '0') {
             if (!$this->Session_GetCookie('uploader_target_tmp')) {
                 return FALSE;
             }
@@ -219,16 +232,16 @@ class ActionUploader extends Action {
     /**
      * Загрузка изображения после его ресайза
      *
-     * @param  string $sFile     - Серверный путь до временной фотографии
+     * @param  string $sFile - Серверный путь до временной фотографии
      * @param  string $sTargetId - Ид. целевого объекта
-     * @param  string $sTarget   - Тип целевого объекта
-     * @param  array  $aSize     - Размер области из которой нужно вырезать картинку - array('x1'=>0,'y1'=>0,'x2'=>100,'y2'=>100)
+     * @param  string $sTarget - Тип целевого объекта
+     * @param  array $aSize - Размер области из которой нужно вырезать картинку - array('x1'=>0,'y1'=>0,'x2'=>100,'y2'=>100)
      *
      * @return string|bool
      */
     public function UploadImageAfterResize($sFile, $sTargetId, $sTarget, $aSize = array()) {
 
-        if ($sTargetId == '0'){
+        if ($sTargetId == '0') {
             if (!$this->Session_GetCookie('uploader_target_tmp')) {
                 return FALSE;
             }
@@ -336,6 +349,10 @@ class ActionUploader extends Action {
                 $this->Session_Set("sTmp-{$sTarget}-{$sTargetId}", $sTmpFile);
                 $this->Session_Set("sPreview-{$sTarget}-{$sTargetId}", $sPreviewFile);
                 $this->Viewer_AssignAjax('sPreview', $this->Uploader_Dir2Url($sPreviewFile));
+
+                if (getRequest('direct', FALSE)) {
+                    $this->EventDirectImage();
+                }
 
                 return;
             }
@@ -500,6 +517,299 @@ class ActionUploader extends Action {
         $this->Session_Drop('sTargetId');
         $this->Session_Drop("sTmp-{$sTarget}-{$sTargetId}");
         $this->Session_Drop("sPreview-{$sTarget}-{$sTargetId}");
+
+    }
+
+    /**
+     * Загружаем картинку
+     */
+    public function EventMultiUpload() {
+
+        // Устанавливаем формат Ajax ответа
+        $this->Viewer_SetResponseAjax('json', FALSE);
+
+        $this->Security_ValidateSendForm();
+
+        // Проверяем, загружен ли файл
+        if (!($aUploadedFile = $this->GetUploadedFile('uploader-upload-image'))) {
+            $this->Message_AddError($this->Lang_Get('error_upload_image'), $this->Lang_Get('error'));
+
+            return;
+        }
+
+        $sTarget = getRequest('target', FALSE);
+        $sTargetId = getRequest('target_id', FALSE);
+        $oTarget = $this->Uploader_CheckAccessAndGetTarget($sTarget, $sTargetId);
+
+        // Проверяем, целевой объект и права на его редактирование
+        if (!$oTarget) {
+            // Здесь два варианта, либо редактировать нельзя, либо можно, но топика еще нет
+            if ($oTarget === TRUE) {
+                // Будем делать временную картинку
+
+            } else {
+                $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+
+                return;
+            }
+
+        }
+
+        // Ошибок пока нет
+        $sError = '';
+
+        // Сделаем временный файд
+        $sTmpFile = $this->Uploader_UploadLocal($aUploadedFile);
+
+        // Вызовем хук перед началом загрузки картинки
+        $this->Hook_Run('uploader_upload_before', array('oTarget' => $oTarget, 'sTmpFile' => $sTmpFile, 'sTarget' => $sTarget));
+
+        // Если все ок, и по миме проходит, то
+        if ($sTmpFile && $this->Img_MimeType($sTmpFile)) {
+
+            // Проверим, проходит ли по количеству
+            if (!$this->Uploader_GetAllowedCount(
+                $sTarget = getRequest('target', FALSE),
+                $sTargetId = getRequest('target_id', FALSE))
+            ) {
+                $this->Message_AddError($this->Lang_Get(
+                    'uploader_photoset_error_count_photos',
+                    array('MAX' => Config::Get('module.topic.photoset.count_photos_max'))
+                ), $this->Lang_Get('error'));
+
+                return FALSE;
+            }
+
+            // Определим, существует ли объект или он будет создан позже
+            if (!($sTmpKey = $this->Session_GetCookie('uploader_target_tmp')) && $sTargetId == '0') {
+                $this->Message_AddError($this->Lang_Get('error_upload_image'), $this->Lang_Get('error'));
+
+                return FALSE;
+            }
+
+            // Пересохраним файл из кэша
+            // Сохраняем фото во временный файл
+            $oImg = $this->Img_Read($sTmpFile);
+            $sExtension = strtolower(pathinfo($sTmpFile, PATHINFO_EXTENSION));
+            if (!$sTmpFile = $oImg->Save(F::File_UploadUniqname($sExtension))) {
+                $this->Message_AddError($this->Lang_Get('error_upload_image'), $this->Lang_Get('error'));
+
+                return FALSE;
+            }
+
+            // Файл, куда будет записано фото
+            $sPhoto = $this->Uploader_Uniqname($this->Uploader_GetUploadDir($sTargetId, $sTarget), $sExtension);
+
+            // Окончательная запись файла только через модуль Uploader
+            if ($xStoredFile = $this->Uploader_Store($sTmpFile, $sPhoto)) {
+
+                if (is_object($xStoredFile)) {
+                    /** @var ModuleMresource_EntityMresource $oResource */
+                    $oResource = $this->AddUploadedFileRelationInfo($xStoredFile, $sTargetId, $sTarget, TRUE);
+                    $sFile = $xStoredFile->GetUrl();
+                    if ($oResource) {
+                        $oResource = array_shift($oResource);
+                        $oResource->setType(ModuleMresource::TYPE_PHOTO);
+                        $this->Mresource_UpdateType($oResource);
+                    }
+                } else {
+                    $this->Message_AddError($this->Lang_Get('error_upload_image'), $this->Lang_Get('error'));
+
+                    return FALSE;
+                }
+
+                $sFilePreview = $sFile;
+                if ($sSize = getRequest('crop_size', FALSE)) {
+                    $sFilePreview = $this->Uploader_ResizeTargetImage($sFile, $sSize);
+                }
+
+                // Запускаем хук на действия после загрузки картинки
+                $this->Hook_Run('uploader_upload_image_after', array(
+                    'sFile'        => $sFile,
+                    'sFilePreview' => $sFilePreview,
+                    'sTargetId'    => $sTargetId,
+                    'sTarget'      => $sTarget,
+                    'oTarget'      => $oTarget,
+                ));
+
+                $this->Viewer_AssignAjax('file', $sFilePreview);
+                $this->Viewer_AssignAjax('id', $oResource->getMresourceId());
+
+
+                // Чистим
+                $this->Img_Delete($sTmpFile);
+
+                return TRUE;
+            }
+
+        } else {
+
+            // Ошибки загрузки картинки
+            $sError = $this->Uploader_GetErrorMsg();
+            if (!$sError) {
+                $sError = $this->Lang_Get('error_upload_image');
+            }
+        }
+
+        // Выведем ошибки пользователю
+        $this->Message_AddError($sError, $this->Lang_Get('error'));
+
+        // Удалим ранее загруженый файл
+        F::File_Delete($sTmpFile);
+
+    }
+
+
+    /**
+     * Удаление картинки
+     */
+    public function EventRemoveImageById() {
+
+        // * Устанавливаем формат Ajax ответа
+        $this->Viewer_SetResponseAjax('json');
+
+        // Проверяем, целевой объект и права на его редактирование
+        if (!$oTarget = $this->Uploader_CheckAccessAndGetTarget(
+            $sTargetType = getRequest('target', FALSE),
+            $sTargetId = getRequest('target_id', FALSE))
+        ) {
+            $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+
+            return;
+        }
+
+        if (!($sResourceId = getRequest('resource_id', FALSE))) {
+            $this->Message_AddError($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+
+            return;
+        }
+
+        if (!($oResource = $this->Mresource_GetMresourceById($sResourceId))) {
+            $this->Message_AddError($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+
+            return;
+        }
+
+        // Удалим ресурс без проверки связи с объектом. Объект-то останется, а вот
+        // изображение нам уже ни к чему.
+        $this->Mresource_DeleteMresources($oResource, TRUE, TRUE);
+
+        $this->Message_AddNoticeSingle($this->Lang_Get('topic_photoset_photo_deleted'));
+
+    }
+
+
+    /**
+     * Удаление картинки
+     */
+    public function EventDescription() {
+
+        // * Устанавливаем формат Ajax ответа
+        $this->Viewer_SetResponseAjax('json');
+
+        // Проверяем, целевой объект и права на его редактирование
+        if (!$oTarget = $this->Uploader_CheckAccessAndGetTarget(
+            $sTargetType = getRequest('target', FALSE),
+            $sTargetId = getRequest('target_id', FALSE))
+        ) {
+            $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+
+            return;
+        }
+
+        if (!($sResourceId = getRequest('resource_id', FALSE))) {
+            $this->Message_AddError($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+
+            return;
+        }
+
+        /** @var ModuleMresource_EntityMresource $oResource */
+        if (!($oResource = $this->Mresource_GetMresourceById($sResourceId))) {
+            $this->Message_AddError($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+
+            return;
+        }
+
+        $oResource->setDescription(F::GetRequestStr('description', ''));
+        $this->Mresource_UpdateParams($oResource);
+
+        $this->Message_AddNoticeSingle($this->Lang_Get('topic_photoset_description_done'));
+
+    }
+
+
+    /**
+     * Удаление картинки
+     */
+    public function EventCover() {
+
+        // * Устанавливаем формат Ajax ответа
+        $this->Viewer_SetResponseAjax('json');
+
+        // Проверяем, целевой объект и права на его редактирование
+        if (!$oTarget = $this->Uploader_CheckAccessAndGetTarget(
+            $sTargetType = getRequest('target', FALSE),
+            $sTargetId = getRequest('target_id', FALSE))
+        ) {
+            $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+
+            return;
+        }
+
+        if (!($sResourceId = getRequest('resource_id', FALSE))) {
+            $this->Message_AddError($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+
+            return;
+        }
+
+        /** @var ModuleMresource_EntityMresource $oResource */
+        if (!($oResource = $this->Mresource_GetMresourceById($sResourceId))) {
+            $this->Message_AddError($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+
+            return;
+        }
+
+        $oResource->setType(ModuleMresource::TYPE_PHOTO_PRIMARY);
+        $this->Mresource_UpdatePrimary($oResource, $sTargetType, $sTargetId);
+
+        $this->Message_AddNoticeSingle($this->Lang_Get('topic_photoset_is_preview'));
+
+    }
+
+
+    /**
+     * Меняет сортировку элементов фотосета
+     */
+    public function EventSort() {
+
+        // * Устанавливаем формат Ajax ответа
+        $this->Viewer_SetResponseAjax('json');
+
+        // Проверяем, целевой объект и права на его редактирование
+        if (!$oTarget = $this->Uploader_CheckAccessAndGetTarget(
+            $sTargetType = getRequest('target', FALSE),
+            $sTargetId = getRequest('target_id', FALSE))
+        ) {
+            $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+
+            return;
+        }
+
+        if (!($aOrder = getRequest('order', FALSE))) {
+            $this->Message_AddError($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+
+            return;
+        }
+
+        if (!is_array($aOrder)) {
+            $this->Message_AddError($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+
+            return;
+        }
+
+        $this->Mresource_UpdateSort(array_flip($aOrder), $sTargetType, $sTargetId);
+
+        $this->Message_AddNoticeSingle($this->Lang_Get('uploader_sort_changed'));
 
     }
 

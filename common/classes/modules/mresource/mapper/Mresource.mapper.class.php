@@ -172,6 +172,7 @@ class ModuleMresource_MapperMresource extends Mapper {
                 {AND mr.hash_url=?:hash_url}
                 {AND mr.hash_file=?:hash_file}
                 {AND mrt.target_tmp=?:target_tmp}
+            ORDER BY mr.sort DESC, mr.mresource_id ASC
         ");
         $aRows = $oSql->bind(
             array(
@@ -249,7 +250,7 @@ class ModuleMresource_MapperMresource extends Mapper {
         if (isset($aCriteria['order'])) {
             $sOrder = $aCriteria['order'];
         } else {
-            $sOrder = 'mresource_id DESC';
+            $sOrder = 'sort DESC, mresource_id ASC';
         }
         if ($sOrder) {
             $sSqlOrder = 'ORDER BY ' . $sOrder;
@@ -695,7 +696,7 @@ class ModuleMresource_MapperMresource extends Mapper {
      * @return $aResult
      */
     public function GetTargetTypes() {
-        return $this->oDb->selectCol("select DISTINCT target_type from prefix_mresource_target");
+        return $this->oDb->selectCol("select DISTINCT target_type from ?_mresource_target");
     }
 
     /**
@@ -708,13 +709,87 @@ class ModuleMresource_MapperMresource extends Mapper {
     public function GetMresourcesCountByTarget($sTargetType) {
 
         if ($sTargetType == 'all') {
-            $aRow =  $this->oDb->selectRow("select count(target_type) as count from prefix_mresource_target");
+            $aRow =  $this->oDb->selectRow("select count(target_type) as count from ?_mresource_target");
         } else {
-            $aRow =  $this->oDb->selectRow("select count(target_type) as count from prefix_mresource_target where target_type = ?", $sTargetType);
+            $aRow =  $this->oDb->selectRow("select count(target_type) as count from ?_mresource_target where target_type = ?", $sTargetType);
         }
 
 
         return isset($aRow['count'])?$aRow['count']:0;
+    }
+
+    /**
+     * Обновляет параметры ресурса
+     *
+     * @param ModuleMresource_EntityMresource $oResource
+     * @return bool
+     */
+    public function UpdateParams($oResource){
+
+        $sql = "UPDATE ?_mresource SET params = ? WHERE mresource_id = ?d";
+        return $this->oDb->query($sql, $oResource->getParams(), $oResource->getMresourceId());
+
+    }
+
+    /**
+     * Обновляет тип ресурса
+     *
+     * @param ModuleMresource_EntityMresource $oResource
+     * @return bool
+     */
+    public function UpdateType($oResource){
+
+        $sql = "UPDATE ?_mresource SET type = ?d WHERE mresource_id = ?d";
+        return $this->oDb->query($sql, $oResource->getType(), $oResource->getMresourceId());
+
+    }
+
+    /**
+     * Устанавливает главный рисунок фотосета
+     *
+     * @param ModuleMresource_EntityMresource $oResource
+     * @param $sTargetType
+     * @param $sTargetId
+     * @return bool
+     */
+    public function UpdatePrimary($oResource, $sTargetType, $sTargetId){
+
+        $sql = "UPDATE ?_mresource SET type = ?d WHERE mresource_id IN (
+          SELECT mresource_id FROM ?_mresource_target WHERE target_type = ? AND target_id = ?d
+        )";
+        $this->oDb->query($sql, ModuleMresource::TYPE_PHOTO, $sTargetType, $sTargetId);
+
+        $this->UpdateType($oResource);
+
+    }
+
+    /**
+     * Устанавливает новый порядок сортировки изображений
+     *
+     * @param $aOrder
+     * @param $sTargetType
+     * @param $sTargetId
+     */
+    public function UpdateSort($aOrder, $sTargetType, $sTargetId) {
+
+        $sData = '';
+        foreach ($aOrder as $sId => $iSort) {
+            $sData .= " WHEN mresource_id = '$sId' THEN '$iSort' ";
+        }
+
+        $sql ="UPDATE ?_mresource SET sort = (CASE $sData END) WHERE
+                mresource_id
+              IN (
+                SELECT
+                  mresource_id
+                FROM
+                  prefix_mresource_target
+                WHERE
+                  target_type = ? AND target_id = ?d)";
+
+
+        return $this->oDb->query($sql, $sTargetType, $sTargetId);
+
     }
 }
 
