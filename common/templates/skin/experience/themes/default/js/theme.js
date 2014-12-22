@@ -450,9 +450,60 @@ $(function () {
     //    return newMarkitupSettings;
     //};
 
+    var $container 	= $('.alto-photoset'),
+        $imgs		= $container.find('img').hide(),
+        totalImgs	= $imgs.length,
+        cnt			= 0;
 
-    $('.topic-text img, .comment-text img').each(function(){
-        var a = $('<a href="'+$(this).attr('src')+'" rel="prettyPhoto[pp]" ></a>');
+    var cw = $container.data('width');
+    if (cw) {
+        $container
+            .css({
+                width: '280px',
+                float: cw
+            });
+    } else {
+        $container
+            .css('width', '100.1%');
+    }
+
+    $container
+        .find('a').removeAttr('rel').find('br').remove();
+
+
+    $imgs.each(function() {
+        var $img	= $(this);
+        $('<img/>').load(function() {
+            ++cnt;
+            if( cnt === totalImgs ) {
+                $imgs.show();
+                $container.montage({
+                    fillLastRow	: true,
+                    alternateHeight	: true,
+                    alternateHeightRange : {
+                        min	: 60,
+                        max	: 120
+                    },
+                    margin : 0
+                });
+                $container.find('a').each(function(){
+                    $(this).attr('rel', $(this).find('img').data('rel'))
+                });
+                $container.find("a[rel^='prettyPhoto']").prettyPhoto({
+                    social_tools:'',
+                    show_title: false,
+                    slideshow:true,
+                    deeplinking: false
+                });
+            }
+        }).attr('src',$img.attr('src'));
+    });
+
+    $('.topic-text > img, .comment-text > img').each(function(){
+
+        var src = $(this).data('src') || $(this).attr('src');
+
+        var a = $('<a href="'+src+'" rel="prettyPhoto[pp]" ></a>');
         a.insertAfter($(this));
         $(this).appendTo(a);
         a.attr('rel', "prettyPhoto[topic]").prettyPhoto({

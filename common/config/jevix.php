@@ -14,7 +14,7 @@ return array(
                 array('p', 'ls', 'cut', 'a', 'img', 'i', 'b', 'u', 's', 'small', 'video', 'em', 'strong', 'nobr', 'li',
                       'ol', 'ul', 'sup', 'abbr', 'sub', 'acronym', 'h4', 'h5', 'h6', 'br', 'hr', 'pre', 'code',
                       'codeline', 'object', 'param', 'embed', 'blockquote', 'iframe', 'table', 'tbody', 'thead', 'th',
-                      'tr', 'td'),
+                      'tr', 'td', 'div'),
             ),
         ),
         // Коротие теги типа
@@ -35,6 +35,8 @@ return array(
             array(
                 'img',
                 array('src', 'title',
+                      'data-rel',
+                      'data-src',
                       'alt'    => '#text',
                       'align'  => array('right', 'left', 'center', 'middle'),
                       'width'  => '#int',
@@ -118,6 +120,10 @@ return array(
                 array('border' => '#int', 'cellpadding' => '#int', 'cellspacing' => '#int', 'height' => '#int', 'width' => '#int',
                       'align'  => array('right', 'left', 'center'),
                 )
+            ),
+            array(
+                'div',
+                array('class'=> array('alto-photoset'), 'data-width')
             ),
         ),
         // допустимые комбинации значений у параметров

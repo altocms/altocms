@@ -641,6 +641,7 @@ $config['head']['default']['js'] = array(
     '___path.frontend.dir___/libs/vendor/jquery.placeholder.min.js',
     '___path.frontend.dir___/libs/vendor/jquery.charcount.js',
     '___path.frontend.dir___/libs/vendor/jquery.imagesloaded.js',
+    '___path.frontend.dir___/libs/vendor/jquery.montage.min.js',
     '___path.frontend.dir___/libs/vendor/jcrop/jquery.Jcrop.js',
     '___path.frontend.dir___/libs/vendor/markitup/jquery.markitup.js',
     '___path.frontend.dir___/libs/vendor/notifier/jquery.notifier.js',
