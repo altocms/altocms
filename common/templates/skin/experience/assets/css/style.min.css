@@ -9520,7 +9520,7 @@ ul.menu-level-1 > li.menu-hidden-container ul.menu-hidden li.open > a.userlogo {
   width: 100%;
   margin: 0 0 12px 0;
 }
-.content .topic .topic-text img {
+.content .topic .topic-text > img {
   max-width: 100%;
   margin: 0 0 12px 0;
 }
