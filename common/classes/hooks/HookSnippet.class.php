@@ -21,8 +21,37 @@ class HookSnippet extends Hook {
      * Регистрация хуков
      */
     public function RegisterHook() {
+
+        // Хук обработки шаблонного сниппета
+        $this->AddHook('snippet_template_type', 'SnippetTemplateType');
+
+        // Хук вывода имени пользователя
         $this->AddHook('snippet_user', 'SnippetUser');
+        // Хук сниппета фотосета
         $this->AddHook('snippet_photoset', 'SnippetPhotoset');
+    }
+
+    /**
+     * Хук обработки шаблонного сниппета
+     *
+     * @param $aData
+     * @return bool|string
+     */
+    public function SnippetTemplateType($aData) {
+
+        // Для шаблонного сниппета обязательно должен быть параметр имени
+        if (!isset($aData['params']['snippet_name'])) {
+            return FALSE;
+        }
+
+        // Получим html-код сниппета
+        /** @var ModuleViewer $oLocalViewer */
+        $oLocalViewer = $this->Viewer_GetLocalViewer();
+        $oLocalViewer->Assign('aParams', isset($aData['params']) ? $aData['params'] : array());
+
+        $aData['result'] = trim($oLocalViewer->Fetch("tpls/snippets/snippet.{$aData['params']['snippet_name']}.tpl"));
+
+        return $aData['result'];
     }
 
     /**
@@ -30,7 +59,7 @@ class HookSnippet extends Hook {
      * пользователя.
      *
      * @param $aData
-     * @return bool
+     * @return bool|string
      */
     public function SnippetUser($aData) {
 
@@ -42,7 +71,14 @@ class HookSnippet extends Hook {
 
         // Если пользователь найден, то вернём ссылку на него
         if (is_string($sUserLogin) && ($oUser = $this->User_GetUserByLogin($sUserLogin))) {
-            return ($aData['result'] = "<a href='{$oUser->getUserWebPath()}'>{$oUser->getLogin()}</a>");
+            // Получим html-код сниппета
+            /** @var ModuleViewer $oLocalViewer */
+            $oLocalViewer = $this->Viewer_GetLocalViewer();
+            $oLocalViewer->Assign('oUser', $oUser);
+
+            $aData['result'] = trim($oLocalViewer->Fetch('tpls/snippets/snippet.user.tpl'));
+
+            return $aData['result'];
         }
 
         // Иначе, затрём сниппет
@@ -122,13 +158,10 @@ class HookSnippet extends Hook {
                 return FALSE;
             }
 
-            $sPosition =  $iTopicId = (int)isset($aData['params']['position']) ? $aData['params']['position'] : 'center';
+            $sPosition = $iTopicId = (int)isset($aData['params']['position']) ? $aData['params']['position'] : 'center';
             if (!in_array($sPosition, array('left', 'right'))) {
                 $sPosition = 'center';
             }
-
-            //@todo Разные режимы вывода
-
 
             // Получим html-код сниппета
             /** @var ModuleViewer $oLocalViewer */
@@ -139,6 +172,7 @@ class HookSnippet extends Hook {
             $oLocalViewer->Assign('sPhotosetHash', md5(serialize($aData['params'])));
 
             $aData['result'] = trim($oLocalViewer->Fetch('tpls/snippets/snippet.photoset.tpl'));
+
             return $aData['result'];
         }
 

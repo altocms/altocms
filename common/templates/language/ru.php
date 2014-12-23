@@ -847,6 +847,7 @@ return array(
     'panel_user'                                => 'вставить пользователя',
     'panel_user_promt'                          => 'Введите логин пользователя',
     'panel_photoset'                            => 'вставить фотосет',
+    'panel_spoiler'                             => 'вставить спойлер',
 
     /**
      * Виджеты
@@ -1418,6 +1419,10 @@ return array(
     'target_type_single-image-uploader' => 'Поле контента',
     'target_type_all'                   => 'Все',
     'target_type_topic-multi-image-uploader' => 'Фотосет топика',
+
+    'spoiler_toggle_show' => 'показать',
+
+
 );
 
 // EOF
