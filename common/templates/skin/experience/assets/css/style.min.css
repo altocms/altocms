@@ -10004,7 +10004,7 @@ ul.menu-level-1 > li.menu-hidden-container ul.menu-hidden li.open > a.userlogo {
   right: 24px;
   top: 187px;
   width: 32px;
-  z-index: 1;
+  z-index: 2;
 }
 .toolbar > div.toolbar-button {
   margin-bottom: 8px;
