@@ -29,12 +29,8 @@ class ActionCaptcha extends Action {
 
     public function EventIndex() {
 
-        if (!class_exists('KCAPTCHA', false)) {
-            F::IncludeLib('kcaptcha/kcaptcha.php');
-        }
-        $oCaptcha = new KCAPTCHA();
-        $this->Session_Set('captcha_keystring', $oCaptcha->getKeyString());
-        exit;
+        $this->Hook_Run('captcha');
+
     }
 }
 
