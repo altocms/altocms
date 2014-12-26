@@ -840,8 +840,9 @@ class ActionContent extends Action {
      */
     protected function EventAjaxPhotoUpload() {
 
-        // * Устанавливаем формат Ajax ответа. В зависимости от типа загрузчика устанавливается тип ответа
-        $this->Viewer_SetResponseAjax(F::AjaxRequest(true)?'json':'jsonIframe', false);
+        // Устанавливаем формат Ajax ответа. Здесь всегда json, поскольку грузится
+        // картинка с помощью flash
+        $this->Viewer_SetResponseAjax('json', false);
 
         // * Проверяем авторизован ли юзер
         if (!$this->User_IsAuthorization()) {
