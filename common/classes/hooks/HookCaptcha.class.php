@@ -27,9 +27,13 @@ class HookCaptcha extends Hook {
      *
      * @return string
      */
-    public function TemplateCaptcha() {
-        return $this->Viewer_Fetch('inc.captcha.tpl');
+    public function TemplateCaptcha($aData) {
+
+        $sType = isset($aData['type']) ? $aData['type'] : 'registration';
+
+        return $this->Viewer_Fetch("tpls/commons/common.captcha.$sType.tpl");
     }
+
 }
 
 // EOF

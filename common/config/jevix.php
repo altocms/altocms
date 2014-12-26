@@ -123,7 +123,7 @@ return array(
             ),
             array(
                 'div',
-                array('class'=> array('alto-photoset'), 'data-width')
+                array('class'=> array('alto-photoset', 'spoiler', 'spoiler-title', 'spoiler-slider', 'spoiler-text'), 'data-width')
             ),
         ),
         // допустимые комбинации значений у параметров

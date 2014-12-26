@@ -32,7 +32,8 @@ ls.settings = (function ($) {
                 {separator: '---------------' },
                 { name:'snippets',  className: 'snippet-menu', dropMenu: [
                     {name: ls.lang.get('panel_user'),   className: 'editor-user', replaceWith: '<alto:user login="[![' + ls.lang.get('panel_user_promt') + ']!]"/>' },
-                    {name: ls.lang.get('panel_photoset'),   className: 'editor-photoset', replaceWith: '<alto:photoset/>' }
+                    {name: ls.lang.get('panel_photoset'),   className: 'editor-photoset', replaceWith: '<alto:photoset/>' },
+                    {name: ls.lang.get('panel_spoiler'),  className: 'editor-spoiler', openWith: '<alto:spoiler title="">', closeWith: '</alto:spoiler>' }
                 ]
                 },
                 {separator: '---------------' },

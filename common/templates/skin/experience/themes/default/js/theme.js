@@ -560,4 +560,10 @@ $(function () {
         });
     };
 
+    $('.spoiler-slider')
+        .on('click', function(){
+            $(this).parent().next().slideToggle();
+        })
+
+
 });

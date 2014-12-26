@@ -102,6 +102,16 @@ class ModuleHook extends Module {
     }
 
     /**
+     * Возвращает информацию о том, включен хук или нет
+     *
+     * @param $sHookName
+     * @return bool
+     */
+    public function IsEnabled($sHookName) {
+        return isset($this->aHooks[$sHookName]);
+    }
+
+    /**
      * Добавление обработчика на хук
      *
      * @param string $sName        Имя хука
