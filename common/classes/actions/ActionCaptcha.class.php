@@ -19,17 +19,22 @@ class ActionCaptcha extends Action {
      *
      */
     public function Init() {
-        $this->SetDefaultEvent('index');
+        $this->SetDefaultEvent('registration');
     }
 
     protected function RegisterEvent() {
 
-        $this->AddEvent('index', 'EventIndex');
+        $this->AddEvent('registration', 'EventRegistration');
     }
 
-    public function EventIndex() {
+    public function EventRegistration() {
 
-        $this->Hook_Run('captcha');
+        if (!class_exists('KCAPTCHA', FALSE)) {
+            F::IncludeLib('kcaptcha/kcaptcha.php');
+        }
+        $oCaptcha = new KCAPTCHA();
+        $this->Session_Set('captcha_keystring', $oCaptcha->getKeyString());
+        exit;
 
     }
 }
