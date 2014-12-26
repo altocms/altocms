@@ -99,7 +99,7 @@ class HookSnippet extends Hook {
 
         // Редактируется топик.
         // Получим его ид. и по нему поднимем необходимый фотосет
-        if (preg_match('~content\/edit\/(\d)\/~', Router::GetControllerPath(), $aMatches)) {
+        if (preg_match('~content\/edit\/(\d+)\/~', Router::GetControllerPath(), $aMatches)) {
 
             // Найдем топик, из которого будем брать фотосет
             $iTopicId = (int)isset($aData['params']['topic']) ? $aData['params']['topic'] : $aMatches[1];
