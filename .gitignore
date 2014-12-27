@@ -1,3 +1,4 @@
+.gitmodules
 uploads/*
 _tmp/*
 !.htaccess
