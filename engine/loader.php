@@ -28,6 +28,10 @@ $config = include(__DIR__ . '/config.php');
 // load system functions
 include($config['path']['dir']['engine'] . '/include/Func.php');
 
+if (!isset($config['url']['request'])) {
+    $config['url']['request'] = F::ParseUrl();
+}
+
 // load Storage class
 F::IncludeFile($config['path']['dir']['engine'] . '/classes/core/Storage.class.php');
 

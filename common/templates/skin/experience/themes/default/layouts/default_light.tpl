@@ -29,8 +29,8 @@
 
         {$aHtmlHeadFiles.css}
 
-        {*<link href='http://fonts.googleapis.com/css?family=Roboto:300,400,500,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>*}
-        {*<link href='http://fonts.googleapis.com/css?family=Roboto+Condensed:300,400,500,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>*}
+        {*<link href='//fonts.googleapis.com/css?family=Roboto:300,400,500,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>*}
+        {*<link href='//fonts.googleapis.com/css?family=Roboto+Condensed:300,400,500,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>*}
 
 
         <link href="{asset file="images/favicon.ico" theme=true}?v1" rel="shortcut icon"/>

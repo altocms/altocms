@@ -94,8 +94,7 @@ class AltoFunc_File {
      */
     static public function RootUrl($xAddLang = false) {
 
-        if (class_exists('Config', false)) {
-            $sUrl = Config::Get('path.root.url');
+        if (class_exists('Config', false) && ($sUrl = Config::Get('path.root.url'))) {
 
             // Если требуется, то добавляем в URL язык
             if ($xAddLang && Config::Get('lang.in_url') && class_exists('Router', false)) {
@@ -111,7 +110,7 @@ class AltoFunc_File {
                 }
             }
         } elseif (isset($_SERVER['HTTP_HOST'])) {
-            $sUrl = 'http://' . $_SERVER['HTTP_HOST'];
+            $sUrl = F::UrlScheme(true) . $_SERVER['HTTP_HOST'];
         } else {
             $sUrl = null;
         }

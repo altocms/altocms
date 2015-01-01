@@ -962,7 +962,72 @@ class Func {
         return F::File_NormPath($sUrl);
     }
 
-    static public function HostProtocol($bScheme = false) {
+    /**
+     * $url = 'http://username:password@hostname.com/path?arg=value#anchor';
+     *
+     * @param null $sUrl
+     * @param int  $iComponent
+     *
+     * @return array|string
+     */
+    static function ParseUrl($sUrl = null, $iComponent = -1) {
+
+        if (is_null($sUrl) && isset($_SERVER['HTTP_HOST'])) {
+            $sUrl = F::UrlScheme(true) . $_SERVER['HTTP_HOST'];
+        }
+        $xResult = array(
+            'scheme' => null,
+            'host' => null,
+            'port' => null,
+            'user' => null,
+            'pass' => null,
+            'path' => null,
+            'query' => null,
+            'fragment' => null,
+            'base' => null,
+        );
+        if ($sUrl) {
+            $xResult = array_merge($xResult, parse_url($sUrl));
+            if ($xResult['host']) {
+                $xResult['base'] = $xResult['host'];
+                if ($xResult['scheme']) {
+                    $xResult['base'] = $xResult['scheme'] . '://' . $xResult['base'];
+                }
+                if ($xResult['port']) {
+                    $xResult['base'] .= ':' . $xResult['port'];
+                }
+            }
+        }
+        if ($iComponent != -1) {
+            if ($iComponent == PHP_URL_SCHEME) {
+                $xResult = $xResult['scheme'];
+            } elseif($iComponent == PHP_URL_HOST) {
+                $xResult = $xResult['host'];
+            } elseif($iComponent == PHP_URL_PORT) {
+                $xResult = $xResult['port'];
+            } elseif($iComponent == PHP_URL_USER) {
+                $xResult = $xResult['user'];
+            } elseif($iComponent == PHP_URL_PASS) {
+                $xResult = $xResult['pass'];
+            } elseif($iComponent == PHP_URL_PATH) {
+                $xResult = $xResult['path'];
+            } elseif($iComponent == PHP_URL_QUERY) {
+                $xResult = $xResult['query'];
+            } elseif($iComponent == PHP_URL_FRAGMENT) {
+                $xResult = $xResult['fragment'];
+            } else {
+                $xResult = false;
+            }
+        }
+        return $xResult;
+    }
+
+    /**
+     * @param bool $bAddSlash
+     *
+     * @return string
+     */
+    static public function UrlScheme($bAddSlash = false) {
 
         $sResult = 'http';
         if(isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'https') {
@@ -972,10 +1037,21 @@ class Func {
         } elseif(isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') {
             $sResult = 'https';
         }
-        if ($bScheme) {
+        if ($bAddSlash) {
             $sResult .= '://';
         }
         return $sResult;
+    }
+
+    /**
+     * Returns base part of current URL request - scheme, host and port (if exists)
+     *
+     * @return string
+     */
+    static function UrlBase() {
+
+        $aUrlParts = F::ParseUrl();
+        return !empty($aUrlParts['base']) ? $aUrlParts['base'] : null;
     }
 
     /**
