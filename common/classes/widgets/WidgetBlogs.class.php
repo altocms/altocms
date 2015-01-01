@@ -26,7 +26,7 @@ class WidgetBlogs extends Widget {
     public function Exec() {
 
         // * Получаем список блогов
-        if ($aResult = $this->Blog_GetBlogsRating(1, Config::Get('block.blogs.row'))) {
+        if ($aResult = $this->Blog_GetBlogsRating(1, Config::Get('widgets.blogs.params.limit'))) {
             $aBlogs = $aResult['collection'];
 
             $aVars = array('aBlogs' => $aBlogs);

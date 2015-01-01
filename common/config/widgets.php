@@ -47,6 +47,7 @@ $config['widgets']['stream'] = array(
             'comments' => array('text' => 'widget_stream_comments', 'type'=>'comment'),
             'topics' => array('text' => 'widget_stream_topics', 'type'=>'topic'),
         ),
+        'limit' => 20, // max items for display
     ),
 );
 
@@ -80,6 +81,9 @@ $config['widgets']['tags'] = array(
         'blog' => array('{topics}', '{topic}', '{blog}'),
         'tag',
     ),
+    'params' => array(
+        'limit' => 70, // max items for display
+    ),
 );
 
 // Блоги
@@ -93,6 +97,9 @@ $config['widgets']['blogs'] = array(
         'filter',
         'comments',
         'blog' => array('{topics}', '{topic}', '{blog}'),
+    ),
+    'params' => array(
+        'limit' => 10, // max items for display
     ),
 );
 /*

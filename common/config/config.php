@@ -13,7 +13,7 @@
  *
  * All changes of settings you need to do in application
  * configuration file, which usually placed here:
- * /app/config/config.php
+ * /app/config/config.local.php
  ********************************************************/
 
 /********************************************************
@@ -21,11 +21,11 @@
  *
  * Все изменения настроек нужно выполнять в файле
  * конфигурации приложения, который обычно находится здесь:
- * /app/config/config.php
+ * /app/config/config.local.php
  ********************************************************/
 
-/**
- * Настройки HTML вида
+/*
+ * Базовые настройки внешнего вида
  */
 $config['view']['skin']             = 'start-kit';                  // скин
 $config['view']['theme']            = 'default';                    // тема
@@ -41,25 +41,15 @@ $config['view']['img_max_height']   = 5000;     // максимальная вы
 $config['view']['img_max_size_url'] = 500;      // максимальный размер картинки в kB для загрузки по URL
 */
 
-$config['view']['html']['description']      = 'Description of your site';   // meta tag description
-$config['view']['html']['keywords']         = 'site, google, internet';     // meta tag keywords
-//$config['view']['html']['title']            = '___view.name___';  // строка, которая всегда добавляется в конец тега <title>
-$config['view']['html']['title_max']        = 0;       // максимальное число частей, из которых состоит тег <title>
-$config['view']['html']['title_sep']        = ' / ';   // разделитель для формирования тега <title>
+$config['view']['html']['description'] = 'Description of your site';   // meta tag description
+$config['view']['html']['keywords']    = 'site, google, internet';     // meta tag keywords
 
-/**
- * Настройки СЕО для вывода топиков
- */
-$config['seo']['description_words_count'] = 20;               // количество слов из топика для вывода в метатег description
+$config['view']['html']['description_max_words'] = 20; // количество слов из топика для вывода в метатег description
 
-/**
- * Настройка основных блоков
- */
-$config['block']['stream']['row'] = 20;                       // сколько записей выводить в блоке "Прямой эфир"
-$config['block']['stream']['show_tip'] = true;                // выводить или нет всплывающие сообщения в блоке "Прямой эфир"
-$config['block']['blogs']['row']  = 10;                       // сколько записей выводить в блоке "Блоги"
-$config['block']['tags']['tags_count'] = 70;                  // сколько тегов выводить в блоке "теги"
-$config['block']['tags']['personal_tags_count'] = 70;         // сколько тегов пользователя выводить в блоке "теги"
+//$config['view']['html']['title']       = '___view.name___';  // строка, которая всегда добавляется в конец тега <title>
+$config['view']['html']['title_max']   = 0;       // максимальное число частей, из которых состоит тег <title>
+$config['view']['html']['title_sep']   = ' / ';   // разделитель для формирования тега <title>
+
 
 /**
  * Настройка пагинации
@@ -67,30 +57,23 @@ $config['block']['tags']['personal_tags_count'] = 70;         // сколько 
 $config['pagination']['pages']['count'] = 9;                  // количество ссылок на другие страницы в пагинации
 
 
-/**
+/* ----------------------------------------------------------------------------
  * Настройка путей
- * Если необходимо установить движек в директорию(не корень сайта) то следует сделать так:
- * $config['path']['root']['web']    = 'http://'.$_SERVER['HTTP_HOST'].'/subdir';
- * $config['path']['root']['server'] = $_SERVER['DOCUMENT_ROOT'].'/subdir';
- * и возможно придётся увеличить значение $config['path']['offset_request_url'] на число вложенных директорий,
- * например, для директории первой вложенности www.site.ru/community/ поставить значение равное 1
  *
  * Как правило полный путь до папки или файла содержит в названии 'dir'
  * URL-путь содержит в названии 'url'
  */
-if (isset($_SERVER['HTTP_HOST'])) {
-    $config['path']['root']['url']      = 'http://'. $_SERVER['HTTP_HOST'] . '/';   // полный WEB адрес сайта
-} else {
-    // for CLI scripts. or you can append "HTTP_HOST=http://yoursite.url" before script run command
-    $config['path']['root']['url']      = null;
-}
+
+$config['path']['root']['url'] = F::UrlBase() . '/';
 $config['path']['root']['dir'] = ALTO_DIR . '/';
+
+$config['path']['offset_request_url']   = 0;                                   // иногда помогает если сервер использует внутренние реврайты
 
 /**
  * Параметры сервера для статики. По умолчанию совпадают с основным сервером
  */
-$config['path']['static']['url']        = '___path.root.url___';        // Полный URL до static-сервера
-$config['path']['static']['dir']        = '___path.root.dir___';        // Полный путь до static-сервера в файловой системе
+$config['path']['static']['url']        = '___path.root.url___';               // Полный URL до static-сервера
+$config['path']['static']['dir']        = '___path.root.dir___';               // Полный путь до static-сервера в файловой системе
 
 $config['path']['root']['engine_lib']   = '___path.root.web___/engine/libs/';  // Путь до библиотек в файловой системе
 
@@ -98,11 +81,9 @@ $config['path']['uploads']['root']      = '/uploads';                          /
 $config['path']['uploads']['images']    = '___path.uploads.root___/images/';
 $config['path']['uploads']['files']     = '___path.uploads.root___/files/';
 
-$config['path']['offset_request_url']   = 0;                                   // иногда помогает если сервер использует внутренние реврайты
-
-$config['path']['tmp']['dir']           = '___path.root.dir___/_tmp/';           // путь к папке для временных файлов
-$config['path']['runtime']['dir']       = '___path.root.dir___/_run/';           // путь к папке для runtime-файлов
-$config['path']['runtime']['url']       = '___path.root.url___/_run/';              // путь к папке для runtime-файлов
+$config['path']['tmp']['dir']           = '___path.root.dir___/_tmp/';         // путь к папке для временных файлов
+$config['path']['runtime']['dir']       = '___path.root.dir___/_run/';         // путь к папке для runtime-файлов
+$config['path']['runtime']['url']       = '___path.root.url___/_run/';         // URL для runtime-файлов
 
 $config['path']['templates']['dir']     = '___path.dir.common___/templates/';
 $config['path']['frontend']['dir']      = '___path.dir.common___/templates/frontend/';
@@ -116,7 +97,7 @@ $config['path']['skin']['assets']['dir']= '___path.runtime.dir___assets/skin/___
 
 /**
  * Следующие параметры определяем для совместимости с LS
- * LS-compatible
+ * LS-compatibility
  */
 $config['path']['root']['web']          = '___path.root.url___';        // Определяем для совместимости с LS
 $config['path']['root']['server']       = '___path.root.dir___';        // Определяем для совместимости с LS
@@ -258,13 +239,13 @@ $config['sys']['logs']['count_for_rotate'] = 99;            // максимал�
  *   'exclude_private'  - исключать IP частных сетей
  *   'default'          - если IP так и не определен
  */
-$config['sys']['ip']['trusted'] = array('REMOTE_ADDR', 'HTTP_X_REAL_IP', 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_VIA');
-$config['sys']['ip']['non_trusted'] = array();
-$config['sys']['ip']['backward'] = true;
-$config['sys']['ip']['exclude'] = array('127.0.0.1', 'fe80::1', '::1');
-$config['sys']['ip']['exclude_server'] = true;
+$config['sys']['ip']['trusted']         = array('REMOTE_ADDR', 'HTTP_X_REAL_IP', 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_VIA');
+$config['sys']['ip']['non_trusted']     = array();
+$config['sys']['ip']['backward']        = true;
+$config['sys']['ip']['exclude']         = array('127.0.0.1', 'fe80::1', '::1');
+$config['sys']['ip']['exclude_server']  = true;
 $config['sys']['ip']['exclude_private'] = true;
-$config['sys']['ip']['default'] = '127.0.0.1';
+$config['sys']['ip']['default']         = '127.0.0.1';
 
 /**
  * Общие настройки

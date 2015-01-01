@@ -27,7 +27,7 @@ class WidgetStream extends Widget {
 
         /*
         // * Получаем комментарии
-        if ($aComments = $this->Comment_GetCommentsOnline('topic', Config::Get('block.stream.row'))) {
+        if ($aComments = $this->Comment_GetCommentsOnline('topic', Config::Get('widgets.stream.params.limit'))) {
             $aVars = array('aComments' => $aComments);
 
             // * Формируем результат в виде шаблона и возвращаем

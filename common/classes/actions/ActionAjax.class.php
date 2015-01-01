@@ -849,7 +849,7 @@ class ActionAjax extends Action {
     protected function EventStreamComment() {
 
         $oViewer = $this->Viewer_GetLocalViewer();
-        if ($aComments = $this->Comment_GetCommentsOnline('topic', Config::Get('block.stream.row'))) {
+        if ($aComments = $this->Comment_GetCommentsOnline('topic', Config::Get('widgets.stream.params.limit'))) {
             $oViewer->Assign('aComments', $aComments);
         }
         $sTextResult = $oViewer->FetchWidget('stream_comment.tpl');
@@ -864,7 +864,7 @@ class ActionAjax extends Action {
     protected function EventStreamTopic() {
 
         $oViewer = $this->Viewer_GetLocalViewer();
-        if ($aTopics = $this->Topic_GetTopicsLast(Config::Get('block.stream.row'))) {
+        if ($aTopics = $this->Topic_GetTopicsLast(Config::Get('widgets.stream.params.limit'))) {
             $oViewer->Assign('aTopics', $aTopics);
             // LS-compatibility
             $oViewer->Assign('oTopics', $aTopics);
@@ -883,7 +883,7 @@ class ActionAjax extends Action {
         /** @var ModuleViewer $oViewer */
         $oViewer = $this->Viewer_GetLocalViewer();
 
-        $aResult = $this->Wall_GetWall(array(), array('date_add' => 'DESC'), 1, Config::Get('block.stream.row'));
+        $aResult = $this->Wall_GetWall(array(), array('date_add' => 'DESC'), 1, Config::Get('widgets.stream.params.limit'));
         if ($aResult['count'] != 0) {
             $oViewer->Assign('aWall', $aResult['collection']);
         }
@@ -900,7 +900,7 @@ class ActionAjax extends Action {
     protected function EventBlogsTop() {
 
         // * Получаем список блогов и формируем ответ
-        if ($aResult = $this->Blog_GetBlogsRating(1, Config::Get('block.blogs.row'))) {
+        if ($aResult = $this->Blog_GetBlogsRating(1, Config::Get('widgets.blogs.params.limit'))) {
             $aBlogs = $aResult['collection'];
             $oViewer = $this->Viewer_GetLocalViewer();
             $oViewer->Assign('aBlogs', $aBlogs);
@@ -927,7 +927,7 @@ class ActionAjax extends Action {
             return;
         }
         // * Получаем список блогов и формируем ответ
-        if ($aBlogs = $this->Blog_GetBlogsRatingSelf($this->oUserCurrent->getId(), Config::Get('block.blogs.row'))) {
+        if ($aBlogs = $this->Blog_GetBlogsRatingSelf($this->oUserCurrent->getId(), Config::Get('widgets.blogs.params.limit'))) {
             $oViewer = $this->Viewer_GetLocalViewer();
             $oViewer->Assign('aBlogs', $aBlogs);
             $sTextResult = $oViewer->FetchWidget('blogs_top.tpl');
@@ -951,7 +951,7 @@ class ActionAjax extends Action {
             return;
         }
         // * Получаем список блогов и формируем ответ
-        if ($aBlogs = $this->Blog_GetBlogsRatingJoin($this->oUserCurrent->getId(), Config::Get('block.blogs.row'))) {
+        if ($aBlogs = $this->Blog_GetBlogsRatingJoin($this->oUserCurrent->getId(), Config::Get('widgets.blogs.params.limit'))) {
             $oViewer = $this->Viewer_GetLocalViewer();
             $oViewer->Assign('aBlogs', $aBlogs);
 

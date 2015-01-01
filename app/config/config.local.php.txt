@@ -10,13 +10,33 @@
 
 define('DEBUG', 0);
 
-/**
+/*
  * Config for your site
- * You need to rename this file to "config.local.php" and fill your settings
+ * You need to rename this file to "config.local.php" and fill by your settings
  */
 
-/**
- * Settings for connection to database
+/* ============================================================================
+ * SETTINGS OF ROOT PATHS FOR YOUR SITE
+ * ----------------------------------------------------------------------------
+ *
+ * If you need to install the engine in a subdirectory (not in the root of the domain, e.g. in site.com/subdir),
+ * you should do so:
+ *
+ * $config['path']['root']['web']    = F::UrlBase() . '/subdir/';
+ * $config['path']['root']['server'] = ALTO_DIR . '/subdir/';
+
+ * And maybe you should increase value of $config['path']['offset_request_url'] by the number of subdirectories,
+ * e.g. for site.ru/subdir/:
+ * $config['path']['offset_request_url']   = 1;
+ */
+$config['path']['root']['url'] = F::UrlBase() . '/';
+$config['path']['root']['dir'] = ALTO_DIR . '/';
+
+$config['path']['offset_request_url']   = 0;
+
+/* ============================================================================
+ * SETTINGS FOR CONNECTION TO DATABASE
+ * ----------------------------------------------------------------------------
  */
 $config['db']['params']['host'] = 'localhost';
 $config['db']['params']['port'] = '3306';
@@ -27,8 +47,9 @@ $config['db']['params']['dbname'] = 'social';
 $config['db']['table']['prefix'] = 'prefix_';
 $config['db']['tables']['engine'] = 'InnoDB';
 
-/**
- * "Salt" to enhance the security of hashable data
+/* ============================================================================
+ * "SALT" TO ENHANCE THE SECURITY OF HASHABLE DATA
+ * ----------------------------------------------------------------------------
  */
 $config['security']['salt_sess']  = '123456789012345678901234567890';
 $config['security']['salt_pass']  = 'qwertyuiopqwertyuiopqwertyuiop';
