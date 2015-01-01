@@ -143,20 +143,17 @@ class ActionRegistration extends Action {
      * Обработка Ajax регистрации
      */
     protected function EventAjaxRegistration() {
-        /**
-         * Устанавливаем формат Ajax ответа
-         */
+
+        // * Устанавливаем формат Ajax ответа
         $this->Viewer_SetResponseAjax('json');
 
         $this->Security_ValidateSendForm();
-        /**
-         * Создаем объект пользователя и устанавливаем сценарий валидации
-         */
+
+        // * Создаем объект пользователя и устанавливаем сценарий валидации
         $oUser = Engine::GetEntity('ModuleUser_EntityUser');
         $oUser->_setValidateScenario('registration');
-        /**
-         * Заполняем поля (данные)
-         */
+
+        // * Заполняем поля (данные)
         $oUser->setLogin($this->GetPost('login'));
         $oUser->setMail($this->GetPost('mail'));
         $oUser->setPassword($this->GetPost('password'));
@@ -164,9 +161,8 @@ class ActionRegistration extends Action {
         $oUser->setCaptcha($this->GetPost('captcha'));
         $oUser->setDateRegister(F::Now());
         $oUser->setIpRegister(F::GetUserIp());
-        /**
-         * Если используется активация, то генерим код активации
-         */
+
+        // * Если используется активация, то генерим код активации
         if (Config::Get('general.reg.activation')) {
             $oUser->setActivate(0);
             $oUser->setActivateKey(F::RandomStr());
@@ -175,53 +171,39 @@ class ActionRegistration extends Action {
             $oUser->setActivateKey(null);
         }
         $this->Hook_Run('registration_validate_before', array('oUser' => $oUser));
-        /**
-         * Запускаем валидацию
-         */
+
+        // * Запускаем валидацию
         if ($oUser->_Validate()) {
             $this->Hook_Run('registration_validate_after', array('oUser' => $oUser));
             $oUser->setPassword($oUser->getPassword(), true);
             if ($this->User_Add($oUser)) {
                 $this->Hook_Run('registration_after', array('oUser' => $oUser));
-                /**
-                 * Убиваем каптчу
-                 */
-                $this->Session_Drop('captcha_keystring');
-                /**
-                 * Подписываем пользователя на дефолтные события в ленте активности
-                 */
+
+                // * Подписываем пользователя на дефолтные события в ленте активности
                 $this->Stream_SwitchUserEventDefaultTypes($oUser->getId());
-                /**
-                 * Если юзер зарегистрировался по приглашению то обновляем инвайт
-                 */
-                if (Config::Get('general.reg.invite')
-                    && $oInvite = $this->User_GetInviteByCode($this->GetInviteRegister())
-                ) {
+
+                // * Если юзер зарегистрировался по приглашению то обновляем инвайт
+                if (Config::Get('general.reg.invite') && ($oInvite = $this->User_GetInviteByCode($this->GetInviteRegister()))) {
                     $oInvite->setUserToId($oUser->getId());
                     $oInvite->setDateUsed(F::Now());
                     $oInvite->setUsed(1);
                     $this->User_UpdateInvite($oInvite);
                 }
-                /**
-                 * Если стоит регистрация с активацией то проводим её
-                 */
+
+                // * Если стоит регистрация с активацией то проводим её
                 if (Config::Get('general.reg.activation')) {
-                    /**
-                     * Отправляем на мыло письмо о подтверждении регистрации
-                     */
+                    // * Отправляем на мыло письмо о подтверждении регистрации
                     $this->Notify_SendRegistrationActivate($oUser, F::GetRequestStr('password'));
                     $this->Viewer_AssignAjax('sUrlRedirect', Router::GetPath('registration') . 'confirm/');
                 } else {
                     $this->Notify_SendRegistration($oUser, F::GetRequestStr('password'));
                     $oUser = $this->User_GetUserById($oUser->getId());
-                    /**
-                     * Сразу авторизуем
-                     */
+
+                    // * Сразу авторизуем
                     $this->User_Authorization($oUser, false);
                     $this->DropInviteRegister();
-                    /**
-                     * Определяем URL для редиректа после авторизации
-                     */
+
+                    // * Определяем URL для редиректа после авторизации
                     $sUrl = Config::Get('module.user.redirect_after_registration');
                     if (F::GetRequestStr('return-path')) {
                         $sUrl = F::GetRequestStr('return-path');
@@ -234,9 +216,7 @@ class ActionRegistration extends Action {
                 return;
             }
         } else {
-            /**
-             * Получаем ошибки
-             */
+            // * Получаем ошибки
             $this->Viewer_AssignAjax('aErrors', $oUser->_getValidateErrors());
         }
     }
