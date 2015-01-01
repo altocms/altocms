@@ -19,6 +19,7 @@ class ActionCaptcha extends Action {
      *
      */
     public function Init() {
+
         $this->SetDefaultEvent('registration');
     }
 
@@ -29,14 +30,13 @@ class ActionCaptcha extends Action {
 
     public function EventRegistration() {
 
-        if (!class_exists('KCAPTCHA', FALSE)) {
-            F::IncludeLib('kcaptcha/kcaptcha.php');
-        }
-        $oCaptcha = new KCAPTCHA();
+        /** @var ModuleCaptcha_EntityCaptcha $oCaptcha */
+        $oCaptcha = Engine::GetEntity('Captcha_Captcha');
         $this->Session_Set('captcha_keystring', $oCaptcha->getKeyString());
+        $oCaptcha->Display();
         exit;
-
     }
+
 }
 
 // EOF

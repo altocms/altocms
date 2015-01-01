@@ -19,7 +19,8 @@ class HookCaptcha extends Hook {
      * Регистрируем хуки
      */
     public function RegisterHook() {
-        $this->AddHook('template_registration_captcha', 'TemplateCaptcha', __CLASS__);
+
+        $this->AddHookTemplate('registration_captcha', 'TemplateCaptcha', __CLASS__);
     }
 
     /**
