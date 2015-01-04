@@ -258,11 +258,11 @@ class Engine extends LsObject {
      */
     static public function getInstance() {
 
-        if (isset(self::$oInstance) && (self::$oInstance instanceof self)) {
-            return self::$oInstance;
+        if (isset(static::$oInstance) && (static::$oInstance instanceof self)) {
+            return static::$oInstance;
         } else {
-            self::$oInstance = new self();
-            return self::$oInstance;
+            static::$oInstance = new static();
+            return static::$oInstance;
         }
     }
 
@@ -1287,14 +1287,8 @@ class Engine extends LsObject {
         return $sPath ? $sPath : null;
     }
 
-
-}
-
-/**
- * Альтернативные алиасы функций движка
- */
-class E extends LsObject {
     public static function __callStatic($sName, $aArgs = array()) {
+
         return call_user_func_array(array(Engine::getInstance(), $sName), $aArgs);
     }
 
@@ -1304,7 +1298,10 @@ class E extends LsObject {
      * @return ModuleUser_EntityUser
      */
     public static function User() {
-        return E::User_GetUserCurrent();
+
+        $aArgs = array();
+        $oUser = Engine::getInstance()->_CallModule('User_GetUserCurrent', $aArgs);
+        return $oUser;
     }
 
     /**
@@ -1313,7 +1310,9 @@ class E extends LsObject {
      * @return bool
      */
     public static function IsUser() {
-        return (bool)E::User();
+
+        $oUser = static::User();
+        return $oUser;
     }
 
     /**
@@ -1322,7 +1321,8 @@ class E extends LsObject {
      * @return bool
      */
     public static function IsAdmin() {
-        $oUser = E::User();
+
+        $oUser = static::User();
         return ($oUser && $oUser->isAdministrator());
     }
 
@@ -1332,7 +1332,8 @@ class E extends LsObject {
      * @return bool
      */
     public static function IsNotAdmin() {
-        $oUser = E::User();
+
+        $oUser = static::User();
         return ($oUser && !$oUser->isAdministrator());
     }
 
@@ -1342,7 +1343,8 @@ class E extends LsObject {
      * @return int|null
      */
     public static function UserId() {
-        if ($oUser = E::User()) {
+
+        if ($oUser = static::User()) {
             return $oUser->GetId();
         }
         return null;
@@ -1355,7 +1357,8 @@ class E extends LsObject {
      * @return  bool
      */
     public static function ActivePlugin($sPlugin) {
-        return E::Plugin_IsActivePlugin($sPlugin);
+
+        return static::Plugin_IsActivePlugin($sPlugin);
     }
 
 }

@@ -144,11 +144,11 @@ class Router extends LsObject {
      */
     static public function getInstance() {
 
-        if (isset(self::$oInstance) && (self::$oInstance instanceof self)) {
-            return self::$oInstance;
+        if (isset(static::$oInstance) && (static::$oInstance instanceof self)) {
+            return static::$oInstance;
         } else {
-            self::$oInstance = new self();
-            return self::$oInstance;
+            static::$oInstance = new static();
+            return static::$oInstance;
         }
     }
 

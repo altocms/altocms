@@ -327,9 +327,19 @@ class Loader {
      */
     static public function Autoload($sClassName) {
 
-        if (Config::Get('classes') && self::_autoloadDefinedClass($sClassName)) {
-            return true;
+        if (Config::Get('classes')) {
+            if ($sParentClass = Config::Get('classes.alias.' . $sClassName)) {
+                if (!class_alias($sParentClass, $sClassName)) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+            if (self::_autoloadDefinedClass($sClassName)) {
+                return true;
+            }
         }
+
         if (class_exists('Engine', false) && (Engine::GetStage() >= Engine::STAGE_INIT)) {
             $aInfo = Engine::GetClassInfo($sClassName, Engine::CI_CLASSPATH | Engine::CI_INHERIT);
             if ($aInfo[Engine::CI_INHERIT]) {
