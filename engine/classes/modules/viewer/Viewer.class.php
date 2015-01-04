@@ -585,6 +585,10 @@ class ModuleViewer extends Module {
         if ($this->sResponseAjax) {
             $this->DisplayAjax($this->sResponseAjax);
         }
+
+        header('Content-Type: text/html; charset=utf-8');
+        header('X-Powered-By: Alto CMS');
+
         /*
          * Если шаблон найден то выводим, иначе - ошибка
          * Но предварительно проверяем наличие делегата
