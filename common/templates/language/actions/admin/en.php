@@ -514,8 +514,6 @@ return array (
     'set_sys_logs_sql_query_file' => 'Log file of SQL requests',
     'set_sys_logs_sql_error' => 'Turn on of  logging of SQL errors',
     'set_sys_logs_sql_error_file' => 'Log file of SQL errors',
-    'set_sys_logs_profiler' => 'Turn on of  profiling of processes',
-    'set_sys_logs_profiler_file' => 'Log file of profiling ',
     'set_sys_logs_cron_file' => 'Log file of cron processes',
 
     'set_section_css' => 'Settings of processing of CSS files',

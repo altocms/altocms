@@ -541,8 +541,6 @@ return array(
     'set_sys_logs_sql_query_file' => 'Файл журнала SQL-запросов',
     'set_sys_logs_sql_error' => 'Включить логгирование ошибочных SQL-запросов',
     'set_sys_logs_sql_error_file' => 'Файл журнала ошибочных SQL-запросов',
-    'set_sys_logs_profiler' => 'Включить профилирование процессов',
-    'set_sys_logs_profiler_file' => 'Файл журнала профилирования процессов',
     'set_sys_logs_cron_file' => 'Файл журнала запуска крон-процессов',
 
     'set_section_css' => 'Настройки обработки CSS-файлов',

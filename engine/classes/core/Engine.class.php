@@ -14,7 +14,6 @@
  */
 
 set_include_path(get_include_path() . PATH_SEPARATOR . __DIR__);
-F::IncludeLib('ProfilerSimple/Profiler.class.php');
 
 F::IncludeFile('../abstract/LsObject.class.php');
 
