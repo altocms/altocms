@@ -217,12 +217,48 @@ class Config extends Storage {
             $sRootKey = self::DEFAULT_CONFIG_ROOT;
         }
 
-        $this->_clearQuickMap();
+        $aClearedConfig = static::_extractForReplacement($aConfig);
+        if ($aClearedConfig) {
+            $this->SetConfig($aClearedConfig, false, $sRootKey, $nLevel);
+        } else {
+            $this->_clearQuickMap();
+        }
         if (is_null($nLevel)) {
             $nLevel = $this->nLevel;
         }
         $sStorageKey = $this->_storageKey($sRootKey, $nLevel);
         return parent::SetStorage($sStorageKey, $aConfig, $bReset);
+    }
+
+    /**
+     * Filters array and extract structure data for replacement
+     *
+     * @param array $aConfig
+     * @param int   $iDataLevel
+     *
+     * @return array|bool
+     */
+    protected function _extractForReplacement(&$aConfig, $iDataLevel = 0) {
+
+        $aResult = array();
+        foreach($aConfig as $xKey => &$xVal) {
+            if ($iDataLevel && (($xKey === self::KEY_REPLACE && $xVal) || (is_integer($xKey) && $xVal === self::KEY_REPLACE))) {
+                unset($aConfig[$xKey]);
+                if ($xKey === self::KEY_REPLACE && is_array($xVal)) {
+                    return array_fill_keys($xVal, null);
+                } else {
+                    return true;
+                }
+            } elseif(is_array($xVal)) {
+                $xSubResult = static::_extractForReplacement($xVal, ++$iDataLevel);
+                if ($xSubResult === true) {
+                    $aResult[$xKey] = null;
+                } elseif (!empty($xSubResult)) {
+                    $aResult[$xKey] = (array)$xSubResult;
+                }
+            }
+        }
+        return $aResult;
     }
 
     /**
@@ -505,7 +541,7 @@ class Config extends Storage {
             $nLevel = $sRoot;
             $sRoot = self::DEFAULT_CONFIG_ROOT;
         }
-        if (isset($xValue[self::KEY_EXTENDS])) {
+        if (isset($xValue[self::KEY_REPLACE])) {
             if (is_string($xValue[self::KEY_EXTENDS])) {
 
             }
