@@ -510,7 +510,7 @@ class ModuleMenu extends Module {
      */
     public function NewTalk() {
 
-        return (int)$this->Talk_GetCountTalkNew(E::IsUser());
+        return (int)$this->Talk_GetCountTalkNew(E::UserId());
 
     }
 
@@ -520,7 +520,7 @@ class ModuleMenu extends Module {
      */
     public function NewTalkString() {
 
-        $iCount = (int)$this->Talk_GetCountTalkNew(E::IsUser());
+        $iCount = (int)$this->Talk_GetCountTalkNew(E::UserId());
         if ($iCount) {
             return '+' . $iCount;
         }
