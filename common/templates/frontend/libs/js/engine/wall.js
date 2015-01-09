@@ -149,7 +149,7 @@ ls.wall = (function ($) {
     };
 
     this.loadReplyNext = function (iPid) {
-        var divLast = $('#wall-reply-container-' + iPid).find('.js-wall-reply-item:first-child');
+        var divLast = $('#wall-reply-container-' + iPid).find('.js-wall-reply-item').first();
         if (divLast.length) {
             var idLess = divLast.attr('id').replace('wall-reply-item-', '');
         } else {
