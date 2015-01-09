@@ -15,6 +15,10 @@ $config['view']['theme'] = 'light';
 //$config['view']['header']['top'] = 'static'; // static or fixed
 $config['view']['header']['top'] = 'fixed'; // static or fixed
 
+
+// Использовать или нет плавающую шапку редактора
+$config['view']['float_editor'] = true;
+
 /* Banner under top bar - turn on/off */
 $config['view']['header']['banner'] = true;
 

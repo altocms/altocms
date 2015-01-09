@@ -27,6 +27,8 @@ $config['view']['theme'] = 'default';
  */
 $config['view']['fix_menu'] = true;
 
+// Использовать или нет плавающую шапку редактора
+$config['view']['float_editor'] = true;
 
 /**
  * Показывать рейтинг топика всем
