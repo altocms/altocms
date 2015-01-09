@@ -1,7 +1,7 @@
 {foreach $aReplyWall as $oReplyWall}
     {$oReplyUser=$oReplyWall->getUser()}
     <div id="wall-reply-item-{$oReplyWall->getId()}" class="js-wall-reply-item comment wall-comment-reply">
-        <a href="{$oReplyUser->getProfileUrl()}" class="comment-avatar js-popup-user-{$oWallUser->getId()}">
+        <a href="{$oReplyUser->getProfileUrl()}" class="comment-avatar js-popup-user-{$oReplyUser->getId()}">
             <img src="{$oReplyUser->getAvatarUrl(48)}" alt="{$oReplyUser->getDisplayName()}" />
         </a>
 
