@@ -211,6 +211,9 @@ return array (
     'user_wrote_comments' => 'Wrote comments',
     'comment_edit'        => 'Edit comment',
 
+    'user_show_all' => 'Show all friends',
+    'user_ban' => 'Banned',
+
     /* INVITES */
     'invites_title'      => 'Invitations',
     'invite_code'        => 'Invitation code',
