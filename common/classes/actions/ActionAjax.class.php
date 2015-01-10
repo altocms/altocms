@@ -502,8 +502,8 @@ class ActionAjax extends Action {
         $oUser->setCountVote($oUser->getCountVote() + 1);
         if ($this->Vote_AddVote($oUserVote) && $this->User_Update($oUser)) {
             $this->Message_AddNoticeSingle($this->Lang_Get('user_vote_ok'), $this->Lang_Get('attention'));
-            $this->Viewer_AssignAjax('iRating', $oUser->getRating());
-            $this->Viewer_AssignAjax('iSkill', $oUser->getSkill());
+            $this->Viewer_AssignAjax('iRating', number_format($oUser->getRating(), Config::Get('view.skill_length')));
+            $this->Viewer_AssignAjax('iSkill', number_format($oUser->getSkill(), Config::Get('view.rating_length')));
             $this->Viewer_AssignAjax('iCountVote', $oUser->getCountVote());
             /**
              * Добавляем событие в ленту

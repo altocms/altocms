@@ -26,7 +26,7 @@
                     {$aLang.user_skill}
                 </h4>
                 <div class="user-power" id="user_skill_{$oUserProfile->getId()}">
-                    {$oUserProfile->getSkill()}
+                    {$oUserProfile->getSkill()|number_format:{Config::Get('view.skill_length')}}
                 </div>
             </div>
         </div>
@@ -49,7 +49,7 @@
             {/if}
             <div class="user-rating vote js-vote {$sClasses}"  data-target-type="user" data-target-id="{$oUserProfile->getId()}">
                 <a href="#" class="{$sVoteClass} vote-down js-vote-down link link-gray link-clear"><i class="fa fa-thumbs-o-down"></i></a>
-                <span class="vote-total js-vote-rating {$sClasses}">{if $oUserProfile->getRating() > 0}+{/if}{$oUserProfile->getRating()}</span>
+                <span class="vote-total js-vote-rating {$sClasses}">{if $oUserProfile->getRating() > 0}+{/if}{$oUserProfile->getRating()|number_format:{Config::Get('view.rating_length')}}</span>
                 <a href="#" class="{$sVoteClass} vote-up js-vote-up link link link-gray link-clear"><i class="fa fa-thumbs-o-up"></i></a>
             </div>
         </div>

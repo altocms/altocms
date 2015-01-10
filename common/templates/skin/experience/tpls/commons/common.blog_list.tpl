@@ -136,7 +136,7 @@
                     <div class="visible-xxs hif last-div" style="display: none;">
                         {$aLang.blogs_rating}:
                         {if Router::GetActionEvent()=='personal'}
-                            {$oUserOwner->getRating()}
+                            {$oUserOwner->getRating()|number_format:{Config::Get('view.rating_length')}}
                         {else}
                             {$oBlog->getRating()}
                         {/if}
@@ -165,7 +165,7 @@
                 {/if}
                 <td rowspan="3" class="rating-value hidden-xxs last-td" id="blog_user_count_{$oBlog->getId()}">
                     {if Router::GetActionEvent()=='personal'}
-                        {$oUserOwner->getRating()}
+                        {$oUserOwner->getRating()|number_format:{Config::Get('view.rating_length')}}
                     {else}
                         {$oBlog->getRating()}
                     {/if}

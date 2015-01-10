@@ -53,10 +53,10 @@
                         <small>{date_format date=$oUserList->getDateRegister() format="d.m.y, H:i"}</small>
                     </td>
                     <td class="text-info cell-skill">
-                        <small>{$oUserList->getSkill()}</small>
+                        <small>{$oUserList->getSkill()|number_format:{Config::Get('view.skill_length')}}</small>
                     </td>
                     <td class="cell-rating{if $oUserList->getRating() < 0} text-danger negative{else} text-success{/if}">
-                        <small>{$oUserList->getRating()}</small>
+                        <small>{$oUserList->getRating()|number_format:{Config::Get('view.rating_length')}}</small>
                     </td>
                 </tr>
             {/foreach}
