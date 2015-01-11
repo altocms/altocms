@@ -510,7 +510,7 @@ class ModuleMenu extends Module {
      */
     public function NewTalk() {
 
-        return (int)$this->Talk_GetCountTalkNew(E::IsUser());
+        return (int)$this->Talk_GetCountTalkNew(E::User());
 
     }
 
@@ -520,7 +520,7 @@ class ModuleMenu extends Module {
      */
     public function NewTalkString() {
 
-        $iCount = (int)$this->Talk_GetCountTalkNew(E::IsUser());
+        $iCount = $this->NewTalk();
         if ($iCount) {
             return '+' . $iCount;
         }
@@ -534,8 +534,8 @@ class ModuleMenu extends Module {
      */
     public function UserAvatarUrl($sSize) {
 
-        if (E::IsUser()) {
-            return E::User()->getAvatarUrl($sSize);
+        if ($oUser = E::User()) {
+            return $oUser->getAvatarUrl($sSize);
         }
 
         return '';
@@ -548,8 +548,8 @@ class ModuleMenu extends Module {
      */
     public function UserName() {
 
-        if (E::IsUser()) {
-            return E::User()->getDisplayName();
+        if ($oUser = E::User()) {
+            return $oUser->getDisplayName();
         }
 
         return '';
