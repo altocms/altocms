@@ -111,13 +111,13 @@ abstract class Entity extends LsObject {
      *
      * @param   string $sKey
      * @param   mixed $xVal
-     * @return  mixed|null
+     *
+     * @return  object
      */
     public function setProp($sKey, $xVal) {
 
-        $xOldVal = $this->getProp($sKey);
         $this->_aData[$sKey] = $xVal;
-        return $xOldVal;
+        return $this;
     }
 
     /**
@@ -129,7 +129,7 @@ abstract class Entity extends LsObject {
      */
     public function getProp($sKey, $xDefault = null) {
 
-        if ($this->isProp($sKey)) {
+        if (isset($this->_aData[$sKey]) || array_key_exists($sKey, $this->_aData)) {
             return $this->_aData[$sKey];
         }
         return $xDefault;
@@ -196,7 +196,7 @@ abstract class Entity extends LsObject {
      */
     public function delProp($sKey) {
 
-        if ($this->isProp($sKey)) {
+        if (isset($this->_aData[$sKey]) || array_key_exists($sKey, $this->_aData)) {
             unset($this->_aData[$sKey]);
         }
     }
@@ -374,7 +374,7 @@ abstract class Entity extends LsObject {
      */
     public function isProp($sKey) {
 
-        return array_key_exists($sKey, $this->_aData);
+        return isset($this->_aData[$sKey]) || array_key_exists($sKey, $this->_aData);
     }
 
     /**
@@ -509,15 +509,15 @@ abstract class Entity extends LsObject {
                 if ($this->isProp($sKey)) {
                     return $this->getProp($sKey);
                 } else {
-                    if (preg_match('/Entity([^_]+)/', get_class($this), $sModulePrefix)) {
-                        $sModulePrefix = F::StrUnderscore($sModulePrefix[1]) . '_';
+                    if (preg_match('/Entity([^_]+)/', get_class($this), $aMatches)) {
+                        $sModulePrefix = F::StrUnderscore($aMatches[1]) . '_';
                         if ($this->isProp($sModulePrefix . $sKey)) {
                             return $this->getProp($sModulePrefix . $sKey);
                         }
                     }
                 }
                 return null;
-            } elseif ($sType == 'set' && array_key_exists(0, $aArgs)) {
+            } elseif ($sType == 'set' && (isset($aArgs[0]) || array_key_exists(0, $aArgs))) {
                 $this->setProp($sKey, $aArgs[0]);
             }
         } else {

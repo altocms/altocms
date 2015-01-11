@@ -84,7 +84,8 @@ class ModuleGeo_EntityGeo extends Entity {
         }
         if ($this->getRegionId()) {
             $oRegion = $this->Geo_GetRegionById($this->getRegionId());
-            return $this->setProp('region', $oRegion);
+            $this->setProp('region', $oRegion);
+            return $oRegion;
         }
         return null;
     }
@@ -104,7 +105,8 @@ class ModuleGeo_EntityGeo extends Entity {
         }
         if ($this->getCityId()) {
             $oCity = $this->Geo_GetCityById($this->getCityId());
-            return $this->setProp('city', $oCity);
+            $this->setProp('city', $oCity);
+            return $oCity;
         }
         return null;
     }
