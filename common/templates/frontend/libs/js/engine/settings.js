@@ -26,9 +26,9 @@ ls.settings = (function ($) {
             onShiftEnter:   {keepDefault: false, replaceWith: '<br />\n'},
             onCtrlEnter:    {keepDefault: false, openWith: '\n<p>', closeWith: '</p>'},
             onTab:          {keepDefault: false, replaceWith: '    '},
-            markupSet: [              {name: 'H4', className: 'editor-h4', openWith: '<h4>', closeWith: '</h4>' },
-                {name: 'H5', className: 'editor-h5', openWith: '<h5>', closeWith: '</h5>' },
-                {name: 'H6', className: 'editor-h6', openWith: '<h6>', closeWith: '</h6>' },
+            markupSet: [              {name: ls.lang.get('panel_title_h4'), className: 'editor-h4', openWith: '<h4>', closeWith: '</h4>' },
+                {name: ls.lang.get('panel_title_h4'), className: 'editor-h5', openWith: '<h5>', closeWith: '</h5>' },
+                {name: ls.lang.get('panel_title_h4'), className: 'editor-h6', openWith: '<h6>', closeWith: '</h6>' },
                 {separator: '---------------' },
                 {name: ls.lang.get('panel_b'),  className: 'editor-bold', key: 'B', openWith: '(!(<strong>|!|<b>)!)', closeWith: '(!(</strong>|!|</b>)!)' },
                 {name: ls.lang.get('panel_i'),  className: 'editor-italic', key: 'I', openWith: '(!(<em>|!|<i>)!)', closeWith: '(!(</em>|!|</i>)!)'  },
@@ -99,9 +99,9 @@ ls.settings = (function ($) {
             toolbar_items_size: 'small',
             image_advtab: false,
             style_formats: [
-                {title: 'Head 1', block: 'h4'},
-                {title: 'Head 2', block: 'h5'},
-                {title: 'Head 3', block: 'h6'}
+                {title: ls.lang.get('panel_title_h4'), block: 'h4'},
+                {title: ls.lang.get('panel_title_h5'), block: 'h5'},
+                {title: ls.lang.get('panel_title_h6'), block: 'h6'}
             ],
             object_resizing:    true,
             forced_root_block:  '', // Needed for 3.x
