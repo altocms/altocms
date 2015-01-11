@@ -26,9 +26,10 @@ ls.settings = (function ($) {
             onShiftEnter:   {keepDefault: false, replaceWith: '<br />\n'},
             onCtrlEnter:    {keepDefault: false, openWith: '\n<p>', closeWith: '</p>'},
             onTab:          {keepDefault: false, replaceWith: '    '},
-            markupSet: [              {name: ls.lang.get('panel_title_h4'), className: 'editor-h4', openWith: '<h4>', closeWith: '</h4>' },
-                {name: ls.lang.get('panel_title_h4'), className: 'editor-h5', openWith: '<h5>', closeWith: '</h5>' },
-                {name: ls.lang.get('panel_title_h4'), className: 'editor-h6', openWith: '<h6>', closeWith: '</h6>' },
+            markupSet: [
+                {name: ls.lang.get('panel_title_h4'), className: 'editor-h4', openWith: '<h4>', closeWith: '</h4>' },
+                {name: ls.lang.get('panel_title_h5'), className: 'editor-h5', openWith: '<h5>', closeWith: '</h5>' },
+                {name: ls.lang.get('panel_title_h6'), className: 'editor-h6', openWith: '<h6>', closeWith: '</h6>' },
                 {separator: '---------------' },
                 {name: ls.lang.get('panel_b'),  className: 'editor-bold', key: 'B', openWith: '(!(<strong>|!|<b>)!)', closeWith: '(!(</strong>|!|</b>)!)' },
                 {name: ls.lang.get('panel_i'),  className: 'editor-italic', key: 'I', openWith: '(!(<em>|!|<i>)!)', closeWith: '(!(</em>|!|</i>)!)'  },
