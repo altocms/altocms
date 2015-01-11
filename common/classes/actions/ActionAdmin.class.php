@@ -1659,7 +1659,7 @@ class ActionAdmin extends Action {
         }
 
         $sMode = $this->GetParam(2);
-        //$aUserVoteStat = $this->User_GetUserVoteStats($oUserProfile->getId());
+        $aUserVoteStat = $this->Vote_GetUserVoteStats($oUserProfile->getId());
 
         if ($sMode == 'topics') {
             $this->EventUsersProfileTopics($oUserProfile);
@@ -1680,7 +1680,7 @@ class ActionAdmin extends Action {
 
         $this->Viewer_Assign('sMode', $sMode);
         $this->Viewer_Assign('oUserProfile', $oUserProfile);
-        //$this->Viewer_Assign('aUserVoteStat', $aUserVoteStat);
+        $this->Viewer_Assign('aUserVoteStat', $aUserVoteStat);
         $this->Viewer_Assign('nParamVoteValue', 1);
 
     }

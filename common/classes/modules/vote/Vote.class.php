@@ -205,6 +205,34 @@ class ModuleVote extends Module {
         return false;
     }
 
+    /**
+     * Получить статистику по юзерам
+     * cnt_topics_p / cnt_topics_m - Количество голосований за топик +/-
+     * sum_topics_p / sum_topics_m - Количество голосований за топик +/-
+     * cnt_comments_p / cnt_comments_m - Количество голосований за комментарий +/-
+     * sum_comments_p / sum_comments_m - Количество голосований за комментарий +/-
+     * cnt_user_p / cnt_user_m - Количество голосований за пользователя +/-
+     * sum_user_p / sum_user_m - Количество голосований за пользователя +/-
+     *
+     * @param string|int $sUserId Ид. пользователя
+     * @return array
+     */
+    public function GetUserVoteStats($sUserId) {
+
+        if (false === ($aResult = $this->Cache_Get('user_vote_stats'))) {
+            $aResult = $this->oMapper->GetUserVoteStats($sUserId);
+            $this->Cache_Set($aResult, 'user_vote_stats', array(
+                "vote_update_topic_{$sUserId}",
+                "vote_update_comment_{$sUserId}",
+                "vote_update_user_{$sUserId}"
+            ));
+
+        }
+
+        return $aResult;
+
+    }
+
 }
 
 // EOF
