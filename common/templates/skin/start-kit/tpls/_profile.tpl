@@ -34,14 +34,14 @@
                         <a href="#" class="vote-up js-vote-up" ><span class="glyphicon glyphicon-plus-sign"></span></a>
 
                         <div class="vote-count js-vote-rating" title="{$aLang.user_vote_count}: {$oUserProfile->getCountVote()}">
-                            {if $oUserProfile->getRating() > 0}+{/if}{$oUserProfile->getRating()}
+                            {if $oUserProfile->getRating() > 0}+{/if}{$oUserProfile->getRating()|number_format:{Config::Get('view.rating_length')}}
                         </div>
                         <a href="#" class="vote-down js-vote-down"><span class="glyphicon glyphicon-minus-sign"></span></a>
                     </div>
 
                     <div class="small pull-right strength">
                         <div class="text-muted vote-label">{$aLang.user_skill}</div>
-                        <div class="text-info count" id="user_skill_{$oUserProfile->getId()}">{$oUserProfile->getSkill()}</div>
+                        <div class="text-info count" id="user_skill_{$oUserProfile->getId()}">{$oUserProfile->getSkill()|number_format:{Config::Get('view.skill_length')}}</div>
                     </div>
 
                     <h1 class="user-login word-wrap {if !$oUserProfile->getProfileName()}no-user-name{/if}"

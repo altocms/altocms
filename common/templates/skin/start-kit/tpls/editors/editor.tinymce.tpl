@@ -13,4 +13,16 @@
             tinymce.init({$sSettingsTinymce});
         });
     }
+
+    {if Config::Get('view.float_editor')}
+    $(function(){
+        ls.editor.float({
+            topStep: {if Config::Get('view.header.top') == 'fixed'}60{else}0{/if},
+            dif: 0,
+            textareaClass: '.js-editor-wysiwyg',
+            editorClass: '.mce-tinymce',
+            headerClass: '.mce-toolbar-grp'
+        });
+    });
+    {/if}
 </script>

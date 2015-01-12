@@ -9,6 +9,16 @@
         $('.js-editor-markitup').markItUp(settings);
         ls.insertToEditor = function(markup) {
             $.markItUp({ replaceWith: markup });
-        }
+        };
+
+        {if Config::Get('view.float_editor')}
+        ls.editor.float({
+            topStep: {if Config::Get('view.header.top') == 'fixed'}60{else}0{/if},
+            dif: 0,
+            textareaClass: '.js-editor-markitup',
+            editorClass: '.markItUp',
+            headerClass: '.markItUpHeader'
+        });
+        {/if}
     });
 </script>
