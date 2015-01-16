@@ -316,7 +316,7 @@ class ModuleMenu extends Module {
 
         //
         if (isset($aFillSet[0]) && $aFillSet[0] == '*') {
-            $aFillSet = isset($aMenu['list']) ? array_keys($aMenu['list']) : array();
+            $aFillSet = (isset($aMenu['list']) && $aMenu['list']) ? array_keys($aMenu['list']) : array();
         }
 
         // Добавим в вывод только нужные элементы меню
