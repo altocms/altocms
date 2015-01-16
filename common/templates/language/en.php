@@ -1087,6 +1087,13 @@ return array(
     'uploadimg_cancel'                          => 'Cancel',
     'uploadimg_title'                           => 'Title',
     /**
+     * Insert image
+     */
+    'insertimg'       => 'Add image',
+    'select_category' => 'Select category',
+    'next_page'       => 'Next page',
+    'prev_page'       => 'Prev page',
+    /**
      * Notifications
      */
     'notify_subject_comment_new'                => 'New comment on topic',
@@ -1373,6 +1380,8 @@ return array(
     'target_type_single-image-uploader' => 'Content images',
     'target_type_all'                   => 'All types',
     'target_type_topic-multi-image-uploader' => 'Topic photoset',
+    'target_type_tmp' => 'Temporary',
+    'target_type_current' => 'This topic',
 );
 
 // EOF

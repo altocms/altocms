@@ -1136,6 +1136,15 @@ return array(
     'uploadimg_size_width_max_text'             => 'Макс. размер изображения в процентах относительно ширины текста',
     'uploadimg_title'                           => 'Описание',
     /**
+     * Втавка изображений
+     */
+    'insertimg'       => 'Добавить изображение',
+    'select_category' => 'Выберите категорию изображений',
+    'next_page'       => 'Следущая страница',
+    'prev_page'       => 'Предыдущая страница',
+
+
+    /**
      * Уведомления
      */
     'notify_subject_comment_new'                => 'Новый комментарий к статье',
@@ -1419,6 +1428,8 @@ return array(
     'target_type_single-image-uploader' => 'Поле контента',
     'target_type_all'                   => 'Все',
     'target_type_topic-multi-image-uploader' => 'Фотосет топика',
+    'target_type_tmp' => 'Временные',
+    'target_type_current' => 'Этот топик',
 
     'spoiler_toggle_show' => 'показать',
 

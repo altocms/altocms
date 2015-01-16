@@ -670,6 +670,27 @@ class ModuleMresource extends Module {
 
     }
 
+    /**
+     * Возвращает категории изображения для пользователя
+     * @param $iUserId
+     * @param bool $sTopicId
+     * @return array
+     */
+    public function GetImageCategoriesByUserId($iUserId, $sTopicId = FALSE){
+        $aRows = $this->oMapper->GetImageCategoriesByUserId($iUserId, $sTopicId);
+        $aResult = array();
+        if ($aRows) {
+            foreach ($aRows as $aRow) {
+                $aResult[] = Engine::GetEntity('Mresource_MresourceCategory', array(
+                    'id' => $aRow['ttype'],
+                    'count' => $aRow['count'],
+                    'label' => $this->Lang_Get('target_type_' . $aRow['ttype']),
+                ));
+            }
+        }
+        return $aResult;
+    }
+
 }
 
 // EOF

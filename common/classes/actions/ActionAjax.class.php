@@ -81,6 +81,11 @@ class ActionAjax extends Action {
         $this->AddEventPreg('/^infobox/i', '/^info/', '/^blog/', 'EventInfoboxInfoBlog');
 
         $this->AddEvent('fetch', 'EventFetch');
+
+        // Менеджер изображений
+        $this->AddEvent('image-manager-load-tree', 'EventImageManagerLoadTree');
+        $this->AddEvent('image-manager-load-images', 'EventImageManagerLoadImages');
+
     }
 
 
@@ -88,6 +93,80 @@ class ActionAjax extends Action {
      ************************ РЕАЛИЗАЦИЯ ЭКШЕНА ***************************************
      **********************************************************************************
      */
+
+    /**
+     * Загрузка страницы картинок
+     */
+    protected function EventImageManagerLoadImages(){
+        // Только пользователь может смотреть своё дерево изображений
+        if (!E::IsUser()) {
+            $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
+            return;
+        }
+
+        $sCategory = getRequestStr('category', FALSE);
+        $sPage = getRequestStr('page', '1');
+        $sTopicId = getRequestStr('topic_id', FALSE);
+
+        if (!$sCategory) {
+            return;
+        }
+
+        if ($sCategory == 'current') {
+            $aResources = $this->Mresource_GetMresourcesByFilter(array(
+                'target_type' => 'topic-multi-image-uploader',
+                'target_id' => $sTopicId,
+                'user_id' => E::UserId(),
+            ), $sPage, Config::Get('module.topic.images_per_page'));
+        } else {
+            $aResources = $this->Mresource_GetMresourcesByFilter(array(
+                'target_type' => $sCategory,
+                'user_id' => E::UserId(),
+            ), $sPage, Config::Get('module.topic.images_per_page'));
+        }
+
+
+
+        /** @var ModuleViewer $oLocalViewer */
+        $oLocalViewer = $this->Viewer_GetLocalViewer();
+        $oLocalViewer->Assign('aResources', $aResources['collection']);
+        $sImages = $oLocalViewer->Fetch('modals/insert_img/inject.images.tpl');
+
+        $this->Viewer_AssignAjax('images', $sImages);
+        $this->Viewer_AssignAjax('page', $sPage);
+        $this->Viewer_AssignAjax('pages', ceil($aResources['count'] / Config::Get('module.topic.images_per_page')));
+
+    }
+
+
+    /**
+     * Загрузка дерева изображений пользователя
+     */
+    protected function EventImageManagerLoadTree(){
+
+        // Только пользователь может смотреть своё дерево изображений
+        if (!E::IsUser()) {
+            $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
+            return;
+        }
+
+        $sTopicId = Router::GetParam(0);
+        if (!$this->Topic_GetTopicById($sTopicId)) {
+            $sTopicId = FALSE;
+        }
+
+        /** @var ModuleMresource_EntityMresourceCategory[] $aResources Категории объектов пользователя */
+        $aCategories = $this->Mresource_GetImageCategoriesByUserId(E::UserId(), $sTopicId);
+        /** @var ModuleViewer $oLocalViewer */
+        $oLocalViewer = $this->Viewer_GetLocalViewer();
+        $oLocalViewer->Assign('aCategories', $aCategories);
+        $sCategories = $oLocalViewer->Fetch('modals/insert_img/inject.categories.tpl');
+
+        $this->Viewer_AssignAjax('categories', $sCategories);
+
+        return FALSE;
+    }
+
 
     /**
      * Вывод информации о блоге
