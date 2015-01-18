@@ -296,7 +296,8 @@ $config['module']['blog']['avatar_size'] = array(100,64,48,24,0);   // Спис�
 // Модуль Topic
 $config['module']['topic']['new_time']   = 60*60*24*1;              // Время в секундах в течении которого топик считается новым
 $config['module']['topic']['per_page']   = 10;                      // Число топиков на одну страницу
-$config['module']['topic']['images_per_page']   = 12;                      // Число топиков на одну страницу
+$config['module']['topic']['images_per_page']   = 12;               // Число картинок на одну страницу
+$config['module']['topic']['group_images_per_page']   = 6;          // Число картинок группы на одну страницу
 $config['module']['topic']['max_length'] = 15000;                   // Максимальное количество символов в одном топике
 $config['module']['topic']['link_max_length'] = 500;                // Максимальное количество символов в одном топике-ссылке
 $config['module']['topic']['question_max_length'] = 500;            // Максимальное количество символов в одном топике-опросе
@@ -388,7 +389,7 @@ $config['module']['image']['preset']['photoset']['watermark']['enable']  = false
 // Модуль Menu
 $config['module']['menu']['default_length'] = 20;
 $config['module']['menu']['blog_logo_size'] = '24x24crop';
-$config['module']['menu']['admin'] = array( 'main', 'user', 'topics', 'login');
+$config['module']['menu']['admin'] = array( 'main', 'user', 'topics', 'login', 'image_insert');
 
 /*
  * Настройка ЧПУ топика

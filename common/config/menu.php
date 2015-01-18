@@ -14,6 +14,7 @@ $config['allowed'] = array(
     'topics',   // Меню топиков
     'discussed',// Подменю обсуждаемых топиков
     'top',      // Подменю популярных топиков
+    'image_insert',  // Меню добавления изображений
 );
 
 /**
@@ -266,5 +267,48 @@ $config['data']['top'] = array(
             'active' => array('compare_param' => array(0, 'all')),
         ),
 
+    )
+);
+
+/**
+ *  Меню управления добавлением изображений
+ */
+$config['data']['image_insert'] = array(
+    'init' => array(
+        'fill' => array(
+            'list' => array('*'),
+            'insert_image' => array()
+        ),
+    ),
+    'description' => '{{menu_image_insert_description}}',
+    'list' => array(
+        'insert_from_pc' => array(
+            'text'    => array(
+                '{{insertimg_from_pc}}'
+            ),
+            'link'   => '#',
+            'active'  => true,
+            'options' => array(
+                'class'       => 'category-show active',
+                'link_class'  => '',
+                'link_data'   => array(
+                    'category' => 'insert-from-pc',
+                ),
+            ),
+        ),
+        'insert_from_link' => array(
+            'text'    => array(
+                '{{insertimg_from_link}}'
+            ),
+            'link'   => '#',
+            'options' => array(
+                'class'       => 'category-show active',
+                'link_class'  => '',
+                'link_data'   => array(
+                    'category' => 'insert-from-link',
+                ),
+            ),
+        ),
+        'menu_image_insert_item' => '',
     )
 );

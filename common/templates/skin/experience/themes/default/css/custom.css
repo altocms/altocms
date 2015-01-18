@@ -240,7 +240,7 @@ ____________________________________________________________*/
 }
 
 .image-categories-tree {
-    min-height: 400px;
+    min-height: 230px;
     border: 1px #d3d3d3;
 }
 li.active.category-show {
@@ -264,4 +264,15 @@ li.active.category-show {
 #image-container  .masonry-item {
     padding-left: 1px;
     padding-right: 1px;
+}
+
+.image-categories-tree .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+    color: #ffffff;
+    background-color: #428bca !important;
+}
+#js-alto-image-manager .modal-dialog{
+    width: 600px;
+}
+#js-alto-image-manager .fileinput .form-control{
+    width: 234px;
 }

@@ -233,7 +233,10 @@ class ModuleMresource_MapperMresource extends Mapper {
             $aParams[':uuid'] = $aFilter['mresource_target_tmp'];
         }
         if (isset($aFilter['target_type'])) {
-            $aUuidFilter[] = '(target_type=?:target_type)';
+            if (!is_array($aFilter['target_type'])) {
+                $aFilter['target_type'] = array($aFilter['target_type']);
+            }
+            $aUuidFilter[] = '(target_type IN (?a:target_type))';
             $aParams[':target_type'] = $aFilter['target_type'];
         }
         list($nOffset, $nLimit) = $this->_prepareLimit($aCriteria);
@@ -306,6 +309,7 @@ class ModuleMresource_MapperMresource extends Mapper {
             SELECT
                 mr.mresource_id AS ARRAY_KEY,
                 mrt.target_type,
+                mrt.target_id,
                 $sFields
             FROM ?_mresource AS mr, ?_mresource_target as mrt
             WHERE
@@ -321,7 +325,8 @@ class ModuleMresource_MapperMresource extends Mapper {
                 {AND mr.hash_url IN (?a:hash_url_a)}
                 {AND mr.hash_file=?:hash_file}
                 {AND mr.hash_file IN (?:hash_file_a)}
-                {AND mrt.target_type IN (?:target_type)}
+                {AND mrt.target_type IN (?a:target_type)}
+                {AND mrt.target_id = ?d:target_id}
             $sSqlOrder
             $sSqlLimit
         ");
@@ -338,7 +343,8 @@ class ModuleMresource_MapperMresource extends Mapper {
                  ':hash_url_a' => (isset($aFilter['hash_url']) && is_array($aFilter['hash_url'])) ? $aFilter['hash_url'] : DBSIMPLE_SKIP,
                  ':hash_file' => (isset($aFilter['hash_file']) && !is_array($aFilter['hash_file'])) ? $aFilter['hash_file'] : DBSIMPLE_SKIP,
                  ':hash_file_a' => (isset($aFilter['hash_file']) && is_array($aFilter['hash_file'])) ? $aFilter['hash_file'] : DBSIMPLE_SKIP,
-                 ':target_type' => isset($aFilter['target_type']) ? $aFilter['target_type'] : DBSIMPLE_SKIP
+                 ':target_type' => isset($aFilter['target_type']) ? $aFilter['target_type'] : DBSIMPLE_SKIP,
+                 ':target_id' => (isset($aFilter['target_id']) && !is_array($aFilter['target_id'])) ? $aFilter['target_id'] : DBSIMPLE_SKIP
             )
         );
         $aRows = $oSql->bind($aParams)->select();
@@ -711,8 +717,60 @@ class ModuleMresource_MapperMresource extends Mapper {
         if ($sTargetType == 'all') {
             $aRow =  $this->oDb->selectRow("select count(target_type) as count from ?_mresource_target");
         } else {
-            $aRow =  $this->oDb->selectRow("select count(target_type) as count from ?_mresource_target where target_type = ?", $sTargetType);
+            if (!is_array($sTargetType)) {
+                $sTargetType = array($sTargetType);
+            }
+            $aRow =  $this->oDb->selectRow("select count(target_type) as count from ?_mresource_target where target_type IN ( ?a )", $sTargetType);
         }
+
+
+        return isset($aRow['count'])?$aRow['count']:0;
+    }
+
+    /**
+     * Получает количество ресурсов по типу
+     *
+     * @param $sTargetType
+     *
+     * @return int
+     */
+    public function GetMresourcesCountByTargetAndUserId($sTargetType, $iUserId) {
+
+        if ($sTargetType == 'all') {
+            $aRow =  $this->oDb->selectRow("select count(t.target_type) as count from ?_mresource_target t, ?_mresource m  where m.user_id = ?d and m.mresource_id = t.mresource_id", $iUserId);
+        } else {
+            if (!is_array($sTargetType)) {
+                $sTargetType = array($sTargetType);
+            }
+            $aRow =  $this->oDb->selectRow("select count(t.target_type) as count from ?_mresource_target t, ?_mresource m  where m.user_id = ?d and m.mresource_id = t.mresource_id and t.target_type in ( ?a )", $iUserId, $sTargetType);
+        }
+
+
+        return isset($aRow['count'])?$aRow['count']:0;
+    }
+
+    /**
+     * Получает количество ресурсов по типу и ид.
+     *
+     * @param $sTargetType
+     *
+     * @param $sTargetId
+     * @param $iUserId
+     * @return int
+     */
+    public function GetMresourcesCountByTargetIdAndUserId($sTargetType, $sTargetId, $iUserId){
+
+        $sql = "select
+                  count(t.target_type) as count
+                from
+                  ?_mresource_target t, ?_mresource m
+                where
+                  m.user_id = ?d
+                  and m.mresource_id = t.mresource_id
+                  and t.target_id = ?d
+                  and t.target_type = ?";
+
+        $aRow =  $this->oDb->selectRow($sql, $iUserId, $sTargetId, $sTargetType);
 
 
         return isset($aRow['count'])?$aRow['count']:0;
@@ -798,18 +856,123 @@ class ModuleMresource_MapperMresource extends Mapper {
      */
     public function GetImageCategoriesByUserId($iUserId, $sTopicId){
         $sql = "SELECT
-                  IF(ISNULL(t.target_tmp), IF(t.target_type LIKE 'topic%' AND t.target_id = ?d, 'current', t.target_type), 'tmp') AS ttype
+                  IF(
+                    ISNULL(t.target_tmp),
+                    IF((t.target_type LIKE 'topic%' AND t.target_id = ?d), 'current',
+                      IF(t.target_type = 'profile_avatar' OR t.target_type = 'profile_photo', 'user', t.target_type)),
+                    'tmp') AS ttype
                   , count(t.target_id) AS count
                 FROM
                   prefix_mresource_target as t, prefix_mresource as m
                 WHERE
-                  t.mresource_id = m.mresource_id AND m.user_id = ?d
-                GROUP  BY
-                  ttype";
+                  t.mresource_id = m.mresource_id
+                  AND m.user_id = ?d
+                  AND t.target_type IN ( ?a )
 
-        return $this->oDb->select($sql, (int)$sTopicId, $iUserId);
+                GROUP  BY
+                  ttype                ORDER BY
+                 m.date_add desc";
+
+        return $this->oDb->select($sql, (int)$sTopicId, $iUserId, array(
+            'current',
+            'tmp',
+            'blog_avatar',
+            'profile_avatar',
+            'profile_photo'
+        ));
 
     }
+
+    public function GetCurrentTopicResourcesId($iUserId, $sTopicId) {
+        $sql = "select r.mresource_id FROM
+                  (SELECT
+                  t.mresource_id,
+                  IF(NOT ISNULL(t.target_tmp), 'tmp', t.target_type) AS ttype
+
+                FROM prefix_mresource_target AS t, prefix_mresource AS m
+                WHERE t.mresource_id = m.mresource_id AND m.user_id = ?d
+                      AND (NOT ISNULL(t.target_tmp) OR ((t.target_type in ( ?a ) || t.target_type LIKE 'single-image-uploader%')  AND t.target_id = ?d))
+
+                GROUP BY t.mresource_id  ORDER BY
+                 m.date_add desc) as r";
+        $aData = $this->oDb->selectCol($sql, $iUserId, array(
+            'topic-multi-image-uploader',
+            'topic'
+        ), (int)$sTopicId);
+
+        return $aData;
+    }
+
+    /**
+     * Получает ид. топиков с картинками
+     *
+     * @param $iUserId
+     * @param $iCount
+     * @param $iCurrPage
+     * @param $iPerPage
+     * @return mixed
+     */
+    public function GetTopicInfo($iUserId, &$iCount, $iCurrPage, $iPerPage) {
+        $sql = "SELECT
+                  t.target_id        AS topic_id,
+                  count(t.target_id) AS count
+                FROM prefix_mresource_target t, prefix_mresource m
+                WHERE
+                  m.mresource_id = t.mresource_id
+                  AND m.user_id = ?d
+                  AND t.target_id <> 0
+                  AND (t.target_type IN (?a) OR t.target_type LIKE 'single-image-uploader%')
+                GROUP BY topic_id
+                ORDER BY m.date_add desc
+                LIMIT ?d, ?d";
+
+        $aResult = array();
+
+        if ($aRows = $this->oDb->selectPage($iCount, $sql, $iUserId, array(
+            'topic-multi-image-uploader',
+            'topic'
+        ), ($iCurrPage - 1) * $iPerPage, $iPerPage)) {
+            foreach ($aRows as $aRow) {
+                $aResult[$aRow['topic_id']] = $aRow['count'];
+            }
+        }
+
+        return $aResult;
+    }
+
+    /**
+     * Получает ид. писем пользователя
+     *
+     * @param $iUserId
+     * @param $iCount
+     * @param $iCurrPage
+     * @param $iPerPage
+     * @return mixed
+     */
+    public function GetTalkInfo($iUserId, &$iCount, $iCurrPage, $iPerPage) {
+        $sql = "SELECT
+                  t.target_id        AS talk_id,
+                  count(t.target_id) AS count
+                FROM prefix_mresource_target t, prefix_mresource m
+                WHERE
+                  m.mresource_id = t.mresource_id
+                  AND m.user_id = ?d
+                  AND t.target_type IN ( ?a )
+                GROUP BY talk_id
+                ORDER BY m.date_add desc
+                LIMIT ?d, ?d";
+
+        $aResult = array();
+
+        if ($aRows = $this->oDb->selectPage($iCount, $sql, $iUserId, array('talk'), ($iCurrPage - 1) * $iPerPage, $iPerPage)) {
+            foreach ($aRows as $aRow) {
+                $aResult[$aRow['talk_id']] = $aRow['count'];
+            }
+        }
+
+        return $aResult;
+    }
+
 }
 
 // EOF

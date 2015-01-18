@@ -112,29 +112,198 @@ class ActionAjax extends Action {
             return;
         }
 
-        if ($sCategory == 'current') {
+        /** @var ModuleViewer $oLocalViewer */
+        $oLocalViewer = $this->Viewer_GetLocalViewer();
+
+        // Страница загрузки картинки с компьютера
+        if ($sCategory == 'insert-from-pc') {
+            $sImages = $oLocalViewer->Fetch('modals/insert_img/inject.pc.tpl');
+            $this->Viewer_AssignAjax('images', $sImages);
+            return;
+        }
+
+        // Страница загрузки из интернета
+        if ($sCategory == 'insert-from-link') {
+            $sImages = $oLocalViewer->Fetch('modals/insert_img/inject.link.tpl');
+            $this->Viewer_AssignAjax('images', $sImages);
+            return;
+        }
+
+        $sTemplateName = 'inject.images.tpl';
+
+        /** @var ModuleViewer $oLocalViewer */
+        $oLocalViewer = $this->Viewer_GetLocalViewer();
+
+        if ($sCategory == 'user') {       //ок
+            /**
+             * Аватар и фото пользователя
+             */
             $aResources = $this->Mresource_GetMresourcesByFilter(array(
-                'target_type' => 'topic-multi-image-uploader',
-                'target_id' => $sTopicId,
-                'user_id' => E::UserId(),
+                'target_type' => array(
+                    'profile_avatar',
+                    'profile_photo'
+                ),
+                'user_id'     => E::UserId(),
             ), $sPage, Config::Get('module.topic.images_per_page'));
+            $sTemplateName = 'inject.images.user.tpl';
+            $iPages = 0;
+        } elseif ($sCategory == 'topic') {
+            /**
+             * конкретный топик
+             */
+            $oTopic = $this->Topic_GetTopicById($sTopicId);
+            if ($oTopic && $this->ACL_IsAllowEditTopic($oTopic, E::User())) {
+                $aResourcesId = $this->Mresource_GetCurrentTopicResourcesId(E::UserId(), $sTopicId);
+                if ($aResourcesId) {
+                    $aResources = $this->Mresource_GetMresourcesByFilter(array(
+                        'user_id' => E::UserId(),
+                        'mresource_id' => $aResourcesId,
+                    ), $sPage, Config::Get('module.topic.images_per_page'));
+                    $aResources['count'] = count($aResourcesId);
+                    $iPages = ceil($aResources['count'] / Config::Get('module.topic.images_per_page'));
+                    $oLocalViewer->Assign('oTopic', $oTopic);
+                } else {
+                    $aResources = array();
+                    $iPages = 0;
+                }
+            } else {
+                $aResources = array();
+                $iPages = 0;
+            }
+
+            $sTemplateName = 'inject.images.tpl';
+
+        } elseif ($sCategory == 'talk') {
+            /**
+             * Письмо
+             */
+            /** @var ModuleTalk_EntityTalk $oTopic */
+            $oTopic = $this->Talk_GetTalkById($sTopicId);
+            if ($oTopic && $this->Talk_GetTalkUser($sTopicId, E::UserId())) {
+
+                $aResources = $this->Mresource_GetMresourcesByFilter(array(
+                    'user_id' => E::UserId(),
+                    'target_type' => 'talk',
+                    'target_id' => $sTopicId,
+                ), $sPage, Config::Get('module.topic.images_per_page'));
+                $aResources['count'] = $this->Mresource_GetMresourcesCountByTargetIdAndUserId('talk', $sTopicId, E::UserId());
+                $iPages = ceil($aResources['count'] / Config::Get('module.topic.images_per_page'));
+                $oLocalViewer->Assign('oTopic', $oTopic);
+
+            } else {
+                $aResources = array();
+                $iPages = 0;
+            }
+
+            $sTemplateName = 'inject.images.tpl';
+
+        } elseif ($sCategory == 'comments') {
+            /**
+             * Комментарии
+             */
+
+            $aResources = $this->Mresource_GetMresourcesByFilter(array(
+                'user_id'     => E::UserId(),
+                'target_type' => array(
+                    'talk_comment',
+                    'topic_comment'
+                )
+            ), $sPage, Config::Get('module.topic.images_per_page'));
+            $aResources['count'] = $this->Mresource_GetMresourcesCountByTargetAndUserId(array(
+                'talk_comment',
+                'topic_comment'
+            ), E::UserId());
+            $iPages = ceil($aResources['count'] / Config::Get('module.topic.images_per_page'));
+
+            $sTemplateName = 'inject.images.tpl';
+
+        } elseif ($sCategory == 'current') {       //ок
+            /**
+             * Картинки текущего топика (текст, фотосет, одиночные картинки)
+             */
+            $aResourcesId = $this->Mresource_GetCurrentTopicResourcesId(E::UserId(), $sTopicId);
+            if ($aResourcesId) {
+                $aResources = $this->Mresource_GetMresourcesByFilter(array(
+                    'user_id' => E::UserId(),
+                    'mresource_id' => $aResourcesId,
+                ), $sPage, Config::Get('module.topic.images_per_page'));
+                $aResources['count'] = count($aResourcesId);
+                $iPages = ceil($aResources['count'] / Config::Get('module.topic.images_per_page'));
+
+            } else {
+                $aResources = array();
+                $iPages = 0;
+            }
+
+            $sTemplateName = 'inject.images.tpl';
+
+
+        } elseif ($sCategory == 'blog_avatar') { // ок
+            /**
+             * Аватары созданных блогов
+             */
+            $aResources = $this->Mresource_GetMresourcesByFilter(array(
+                'target_type' => 'blog_avatar',
+                'user_id' => E::UserId(),
+            ), $sPage, Config::Get('module.topic.group_images_per_page'));
+            $aResources['count'] = $this->Mresource_GetMresourcesCountByTargetAndUserId('blog_avatar', E::UserId());
+            // Получим блоги
+            $aBlogsId = array();
+            foreach ($aResources['collection'] as $oResource) {
+                $aBlogsId[] = $oResource->getTargetId();
+            }
+            if ($aBlogsId) {
+                $aBlogs = $this->Blog_GetBlogsAdditionalData($aBlogsId);
+                $oLocalViewer->Assign('aBlogs', $aBlogs);
+            }
+
+            $sTemplateName = 'inject.images.blog.tpl';
+            $iPages = ceil($aResources['count'] / Config::Get('module.topic.group_images_per_page'));
+
+
+        } elseif ($sCategory == 'topics') { // ок
+            /**
+             * Страница топиков
+             */
+            $aTopicsData = $this->Mresource_GetTopicsPage(E::UserId(), $sPage, Config::Get('module.topic.group_images_per_page'));
+
+            $oLocalViewer->Assign('aTopics', $aTopicsData['collection']);
+            $sTemplateName = 'inject.images.topic.tpl';
+            $iPages = ceil($aTopicsData['count'] / Config::Get('module.topic.group_images_per_page'));
+            $aResources= array('collection'=>array());
+
+        } elseif ($sCategory == 'talks') { // ок
+            /**
+             * Страница писем
+             */
+            $aTalksData = $this->Mresource_GetTalksPage(E::UserId(), $sPage, Config::Get('module.topic.group_images_per_page'));
+
+            $oLocalViewer->Assign('aTalks', $aTalksData['collection']);
+            $sTemplateName = 'inject.images.talk.tpl';
+            $iPages = ceil($aTalksData['count'] / Config::Get('module.topic.group_images_per_page'));
+            $aResources= array('collection'=>array());
+
         } else {
+            /**
+             * Прочие изображения
+             */
             $aResources = $this->Mresource_GetMresourcesByFilter(array(
                 'target_type' => $sCategory,
                 'user_id' => E::UserId(),
             ), $sPage, Config::Get('module.topic.images_per_page'));
+            $iPages = ceil($aResources['count'] / Config::Get('module.topic.images_per_page'));
         }
 
 
 
-        /** @var ModuleViewer $oLocalViewer */
-        $oLocalViewer = $this->Viewer_GetLocalViewer();
+
         $oLocalViewer->Assign('aResources', $aResources['collection']);
-        $sImages = $oLocalViewer->Fetch('modals/insert_img/inject.images.tpl');
+        $sImages = $oLocalViewer->Fetch('modals/insert_img/' . $sTemplateName);
 
         $this->Viewer_AssignAjax('images', $sImages);
+        $this->Viewer_AssignAjax('category', $sCategory);
         $this->Viewer_AssignAjax('page', $sPage);
-        $this->Viewer_AssignAjax('pages', ceil($aResources['count'] / Config::Get('module.topic.images_per_page')));
+        $this->Viewer_AssignAjax('pages', $iPages);
 
     }
 
@@ -144,22 +313,39 @@ class ActionAjax extends Action {
      */
     protected function EventImageManagerLoadTree(){
 
-        // Только пользователь может смотреть своё дерево изображений
-        if (!E::IsUser()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
-            return;
-        }
-
-        $sTopicId = Router::GetParam(0);
-        if (!$this->Topic_GetTopicById($sTopicId)) {
-            $sTopicId = FALSE;
-        }
-
-        /** @var ModuleMresource_EntityMresourceCategory[] $aResources Категории объектов пользователя */
-        $aCategories = $this->Mresource_GetImageCategoriesByUserId(E::UserId(), $sTopicId);
+//        // Только пользователь может смотреть своё дерево изображений
+//        if (!E::IsUser()) {
+//            $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
+//            return;
+//        }
+//
+//        $sTopicId = getRequestStr('topic_id', FALSE);
+//        if ($sTopicId && !$this->Topic_GetTopicById($sTopicId)) {
+//            $sTopicId = FALSE;
+//        }
+//
+//        /** @var ModuleMresource_EntityMresourceCategory[] $aResources Категории объектов пользователя */
+//        $aCategories = $this->Mresource_GetImageCategoriesByUserId(E::UserId(), $sTopicId);
+//
+//        if ($oCurrentTopicCategory = $this->Mresource_GetCurrentTopicImageCategory(E::UserId(), $sTopicId)) {
+//            $aCategories[] = $oCurrentTopicCategory;
+//        }
+//
+//        if ($oTopicsCategory = $this->Mresource_GetTopicsImageCategory(E::UserId())) {
+//            $aCategories[] = $oTopicsCategory;
+//        }
+//
+//        if ($oTalksCategory = $this->Mresource_GetTalksImageCategory(E::UserId())) {
+//            $aCategories[] = $oTalksCategory;
+//        }
+//
+//        if ($oCommentsCategory = $this->Mresource_GetCommentsImageCategory(E::UserId())) {
+//            $aCategories[] = $oCommentsCategory;
+//        }
+//
         /** @var ModuleViewer $oLocalViewer */
         $oLocalViewer = $this->Viewer_GetLocalViewer();
-        $oLocalViewer->Assign('aCategories', $aCategories);
+//        $oLocalViewer->Assign('aCategories', $aCategories);
         $sCategories = $oLocalViewer->Fetch('modals/insert_img/inject.categories.tpl');
 
         $this->Viewer_AssignAjax('categories', $sCategories);

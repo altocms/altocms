@@ -711,6 +711,11 @@ class ModuleImg extends Module {
                 $aParams['alt'] = $aParams['title'];
             }
         }
+
+        if (isset($aParams['img_width']) && is_numeric($aParams['img_width'])) {
+            $sText .= " width=\"{$aParams['img_width']}%\"";
+        }
+
         if (isset($aParams['align']) && in_array($aParams['align'], array('left', 'right', 'center'))) {
             if ($aParams['align'] == 'center') {
                 $sText .= ' class="image-center"';

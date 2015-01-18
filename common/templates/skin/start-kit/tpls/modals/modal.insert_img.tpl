@@ -4,35 +4,49 @@
 
             <header class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title">{$aLang.insertimg}</h4>
+                <h4 class="modal-title">{$aLang.insertimg} <span id="aim-pages-container"></span></h4>
             </header>
 
             <div class="modal-body">
 
+                <script id="aim-pages-template" type="template/javascript">
+                    &nbsp;-&nbsp; {$aLang.insertimg_page} %page% {$aLang.insertimg_from} %pages%
+                </script>
+
                 <div class="row">
                     <div class="col-md-4 image-categories-tree">
+                        <ul class="image-categories-nav list-unstyled list-inline list-no-border ">
+                            <li>
+                                <a class="image-categories-nav-refresh" href="#">
+                                    <i class="glyphicon glyphicon-refresh"></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="image-categories-nav-trigger" href="#">
+                                    <i class="glyphicon glyphicon-eye-close"></i>
+                                </a>
+                            </li>
+                            <li id="backTopics" style="display: none;">
+                                <a class="image-categories-nav-back-topics" href="#">
+                                    <i class="glyphicon glyphicon-arrow-left"></i>
+                                </a>
+                            </li>
+                            <li id="backTalks" style="display: none;">
+                                <a class="image-categories-nav-back-talks" href="#">
+                                    <i class="glyphicon glyphicon-arrow-left"></i>
+                                </a>
+                            </li>
+                        </ul>
                         <div id="image-categories-tree-container">
 
                         </div>
                     </div>
                     <div class="col-md-8">
                         <div id="image-container">
-                            {$aLang.select_category}
+                            {include "modals/insert_img/inject.pc.tpl"}
                         </div>
                     </div>
                 </div>
-
-                <br/>
-                <div class="clearfix">
-                    <button id="images-next-page" class="refresh-tree btn pull-right btn-default btn-sm" disabled >
-                        {$aLang.next_page}
-                    </button>
-
-                    <button id="images-prev-page" class="btn btn-default btn-sm pull-right" disabled >
-                        {$aLang.prev_page}
-                    </button>
-                </div>
-
 
             </div>
 

@@ -1158,14 +1158,27 @@ class ModuleTopic_EntityTopic extends Entity {
      *
      * @return ModuleTopic_EntityTopicPhoto|null
      */
-    public function getPhotosetMainPhoto() {
+    public function getPhotosetMainPhoto($bFirst = false) {
 
         $iPhotoId = $this->getPhotosetMainPhotoId();
-        if ($iPhotoId) {
+        if ($iPhotoId || $bFirst) {
             $aPhotos = $this->getPhotosetPhotos($iPhotoId, 1);
             if (isset($aPhotos[$iPhotoId])) {
                 return $aPhotos[$iPhotoId];
+            } else {
+                if ($aPhotos && $bFirst) {
+                    return array_shift($aPhotos);
+                }
             }
+        }
+        return null;
+    }
+
+    public function getPhotosetMainPhotoUrl($bFirst = false, $sSize='' ) {
+
+        $oMresource = $this->getPhotosetMainPhoto($bFirst);
+        if ($oMresource) {
+            return $this->Uploader_ResizeTargetImage($oMresource->getWebPath(), $sSize);
         }
         return null;
     }

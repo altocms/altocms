@@ -50,9 +50,9 @@ ls.settings = (function ($) {
                 {name: ls.lang.get('panel_list'),   className: 'editor-ol', openWith: '    <li>', closeWith: '</li>', multiline: true, openBlockWith: '<ol>\n', closeBlockWith: '\n</ol>' },
                 {name: ls.lang.get('panel_list_li'), className: 'editor-li', openWith: '<li>', closeWith: '</li>' },
                 {separator: '---------------' },
-                {name: ls.lang.get('panel_image'),  className: 'editor-picture', key: 'P', beforeInsert: function (h) {
-                    jQuery('#modal-upload_img').modal();
-                } },
+                //{name: ls.lang.get('panel_image'),  className: 'editor-picture', key: 'P', beforeInsert: function (h) {
+                //    jQuery('#modal-upload_img').modal();
+                //} },
                 {name: ls.lang.get('panel_insert_image'),  className: 'editor-insert-picture', key: 'K', beforeInsert: function (h) {
                     jQuery('#js-alto-image-manager').modal();
                 } },
@@ -84,9 +84,9 @@ ls.settings = (function ($) {
                     if (m.selectionOuter) return '<blockquote>' + m.selectionOuter + '</blockquote>'; else if (m.selection) return '<blockquote>' + m.selection + '</blockquote>'; else return '<blockquote></blockquote>'
                 } },
                 {name: ls.lang.get('panel_code'), className: 'editor-code', openWith: '<(!(code|!|codeline)!)>', closeWith: '</(!(code|!|codeline)!)>' },
-                {name: ls.lang.get('panel_image'), className: 'editor-picture', key: 'P', beforeInsert: function (h) {
-                    jQuery('#modal-upload_img').modal();
-                } },
+                //{name: ls.lang.get('panel_image'), className: 'editor-picture', key: 'P', beforeInsert: function (h) {
+                //    jQuery('#modal-upload_img').modal();
+                //} },
                 {name: ls.lang.get('panel_insert_image'),  className: 'editor-insert-picture', key: 'K', beforeInsert: function (h) {
                     jQuery('#js-alto-image-manager').modal();
                 } },
