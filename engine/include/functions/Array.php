@@ -12,14 +12,15 @@
  * Array functions for Alto CMS
  */
 class AltoFunc_Array {
+
     /**
      * Рекурсивно изменяет элементы массива, добавляя ко всем значениям (кроме объектов) префикс и суффикс
      *
-     * @param   array   $aData
-     * @param   string  $sBefore
-     * @param   string  $sAfter
+     * @param  array  $aData
+     * @param  string $sBefore
+     * @param  string $sAfter
      *
-     * @return  array
+     * @return array
      */
     static public function ChangeValues($aData, $sBefore = '', $sAfter = '') {
 
@@ -37,14 +38,18 @@ class AltoFunc_Array {
      * Меняет числовые ключи массива на их значения
      * Т.е. если ключ - число, а значение элемента - строка, то они меняются местами
      *
-     * @param   array   $aData
-     * @param   mixed   $xDefValue
+     * @param  array $aData
+     * @param  mixed $xDefValue
      *
-     * @return  array
+     * @return array
      */
     static public function FlipIntKeys($aData, $xDefValue = 1) {
 
-        $aData = (array)$aData;
+        if (empty($aData)) {
+            $aData = array();
+        } elseif (!is_array($aData) && !($aData instanceof DataArray)) {
+            $aData = (array)$aData;
+        }
         foreach ($aData as $nKey => $sValue) {
             if (is_int($nKey) && is_string($sValue)) {
                 unset($aData[$nKey]);
@@ -57,10 +62,10 @@ class AltoFunc_Array {
     /**
      * Сортировка массива данных по заданному массиву ключей
      *
-     * @param   array   $aData
-     * @param   array   $aKeys
+     * @param  array $aData
+     * @param  array $aKeys
      *
-     * @return  array
+     * @return array
      */
     static public function SortByKeysArray($aData, $aKeys) {
 
@@ -76,14 +81,18 @@ class AltoFunc_Array {
     /**
      * Сливает рекурсивно два массива с сохранением ключей
      *
-     * @param   array   $aData1
-     * @param   array   $aData2
+     * @param  array $aData1
+     * @param  array $aData2
      *
-     * @return  array
+     * @return array
      */
     static public function Merge($aData1, $aData2) {
 
-        $aData1 = (array)$aData1;
+        if (empty($aData1)) {
+            $aData1 = array();
+        } elseif (!is_array($aData1) && !($aData1 instanceof DataArray)) {
+            $aData1 = (array)$aData1;
+        }
         if ($aData2) {
             foreach ($aData2 as $sKey => $xVal) {
                 $bIsKeyInt = false;
@@ -118,7 +127,11 @@ class AltoFunc_Array {
      */
     static public function MergeCombo($aData1, $aData2) {
 
-        $aData1 = (array)$aData1;
+        if (empty($aData1)) {
+            $aData1 = array();
+        } elseif (!is_array($aData1) && !($aData1 instanceof DataArray)) {
+            $aData1 = (array)$aData1;
+        }
         if ($aData2) {
             foreach ($aData2 as $xKey => $xVal) {
                 if (is_integer($xKey)) {
@@ -138,13 +151,14 @@ class AltoFunc_Array {
     /**
      * Рекурсивный вариант array_keys
      *
-     * @param  array $aData     Массив
+     * @param  array  $aData      Массив
+     * @param  string $sDelimiter Символ-разделитель
      *
      * @return array
      */
-    static public function KeysRecursive($aData) {
+    static public function KeysRecursive($aData, $sDelimiter = '.') {
 
-        if (!is_array($aData)) {
+        if (!is_array($aData) && !($aData instanceof DataArray)) {
             return false;
         } else {
             $aKeys = array_keys($aData);
@@ -152,7 +166,7 @@ class AltoFunc_Array {
                 if ($aAppend = static::KeysRecursive($aData[$v])) {
                     unset($aKeys[$k]);
                     foreach ($aAppend as $sNewKey) {
-                        $aKeys[] = $v . '.' . $sNewKey;
+                        $aKeys[] = $v . $sDelimiter . $sNewKey;
                     }
                 }
             }
@@ -163,15 +177,15 @@ class AltoFunc_Array {
     /**
      * Преобразует строку в массив
      *
-     * @param   string|array    $sStr
-     * @param   string          $sSeparator
-     * @param   bool            $bSkipEmpty
+     * @param  string|array $sStr
+     * @param  string       $sSeparator
+     * @param  bool         $bSkipEmpty
      *
-     * @return  array
+     * @return array
      */
     static public function Str2Array($sStr, $sSeparator = ',', $bSkipEmpty = false) {
 
-        if (!is_string($sStr) && !is_array($sStr)) {
+        if (!is_string($sStr) && !is_array($sStr) && !($sStr instanceof DataArray)) {
             return (array)$sStr;
         }
         if (is_array($sStr)) {
@@ -192,11 +206,11 @@ class AltoFunc_Array {
     /**
      * Преобразует строку в массив целых чисел
      *
-     * @param   string|array    $sStr
-     * @param   string          $sSeparator
-     * @param   bool            $bUnique
+     * @param  string|array $sStr
+     * @param  string       $sSeparator
+     * @param  bool         $bUnique
      *
-     * @return  array
+     * @return array
      */
     static public function Str2ArrayInt($sStr, $sSeparator = ',', $bUnique = true) {
 
@@ -225,11 +239,17 @@ class AltoFunc_Array {
      *   array('a', 'b')    | array('a', 'b')
      * ---------------------+--------------------
      * </pre>
+     *
+     * @param mixed  $xVal
+     * @param string $sSeparator
+     * @param bool   $bSkipEmpty
+     *
+     * @return array
      */
     static public function Val2Array($xVal, $sSeparator = ',', $bSkipEmpty = false) {
 
         if (is_array($xVal) && (sizeof($xVal) == 1) && isset($xVal[0]) && strpos($xVal[0], ',')) {
-            $aResult = F::Str2Array($xVal[0], $sSeparator, $bSkipEmpty);
+            $aResult = static::Str2Array($xVal[0], $sSeparator, $bSkipEmpty);
         } elseif (is_array($xVal)) {
             $aResult = $xVal;
         } elseif (is_null($xVal)) {
@@ -237,7 +257,7 @@ class AltoFunc_Array {
         } elseif (!is_string($xVal)) {
             $aResult = (array)$xVal;
         } else {
-            $aResult = F::Str2Array($xVal, $sSeparator, $bSkipEmpty);
+            $aResult = static::Str2Array($xVal, $sSeparator, $bSkipEmpty);
         }
         return $aResult;
     }
@@ -245,38 +265,40 @@ class AltoFunc_Array {
     /**
      * Returns the first key of array
      *
-     * @param $aData
+     * @param array $aData
      *
      * @return mixed
      */
     static public function FirstKey($aData) {
 
-        if (is_array($aData)) {
+        if (is_array($aData) || ($aData instanceof DataArray)) {
             $aKeys = array_keys($aData);
-            return array_shift($aKeys);
+            return reset($aKeys);
         }
+        return null;
     }
 
     /**
      * Returns the last key of array
      *
-     * @param $aData
+     * @param array $aData
      *
      * @return mixed
      */
     static public function LastKey($aData) {
 
-        if (is_array($aData)) {
+        if (is_array($aData) || ($aData instanceof DataArray)) {
             $aKeys = array_keys($aData);
-            return array_pop($aKeys);
+            return end($aKeys);
         }
+        return null;
     }
 
     /**
      * Search string in array with case-insensitive string comparison
      *
-     * @param $sStr
-     * @param $aArray
+     * @param string $sStr
+     * @param array  $aArray
      *
      * @return bool
      */
@@ -295,11 +317,11 @@ class AltoFunc_Array {
     /**
      * Returns the values from a single column of the input array, identified by the columnKey
      *
-     * @param      $aArray
-     * @param      $sColumnKey
-     * @param null $sIndexKey
+     * @param array  $aArray
+     * @param string $sColumnKey
+     * @param null   $sIndexKey
      *
-     * @return array|bool
+     * @return array
      */
     static public function Column($aArray, $sColumnKey, $sIndexKey = null) {
 
@@ -373,8 +395,8 @@ class AltoFunc_Array {
     /**
      * Callback function for entities array sorting
      *
-     * @param $oEntity1
-     * @param $oEntity2
+     * @param Entity $oEntity1
+     * @param Entity $oEntity2
      *
      * @return int
      */
