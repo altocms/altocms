@@ -666,8 +666,12 @@
                     title = (title == '') ? '' : ' title="' + title + '"' + ' alt="' + title + '" ';
 
                     var html = '<img src="' + url + '"' + title + align + size + ' />';
+                    if (tinymce) {
+                        ls.insertToEditor(html);
+                    } else {
+                        $.markItUp({replaceWith: html});
+                    }
 
-                    $.markItUp({replaceWith: html});
                     $this.$element.modal('hide');
                 });
 
