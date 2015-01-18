@@ -82,7 +82,7 @@ class Loader {
         Config::ResetLevel(Config::LEVEL_CUSTOM);
         $aConfig = Config::ReadCustomConfig(null, true);
         if ($aConfig) {
-            Config::Load($aConfig, false);
+            Config::Load($aConfig, false, null, null, 'custom');
         }
 
         // Задаем локаль по умолчанию
@@ -127,12 +127,12 @@ class Loader {
         $sDirConfig = $sConfigDir . '/modules/';
         $aFiles = glob($sDirConfig . '*/config.php');
         if ($aFiles) {
-            foreach ($aFiles as $sFileConfig) {
-                $sDirModule = basename(dirname($sFileConfig));
-                $aConfig = F::IncludeFile($sFileConfig, true, true);
+            foreach ($aFiles as $sConfigFile) {
+                $sDirModule = basename(dirname($sConfigFile));
+                $aConfig = F::IncludeFile($sConfigFile, true, true);
                 if (!empty($aConfig) && is_array($aConfig)) {
                     $sKey = 'module.' . $sDirModule;
-                    Config::Load(array($sKey => $aConfig), false, null, $nConfigLevel);
+                    Config::Load(array($sKey => $aConfig), false, null, $nConfigLevel, $sConfigFile);
                 }
             }
         }
@@ -141,10 +141,10 @@ class Loader {
          * LS-compatible
          * Подгружаем файлы локального и продакшн-конфига
          */
-        $sFile = $sConfigDir . '/config.local.php';
-        if (F::File_Exists($sFile)) {
-            if ($aConfig = F::File_IncludeFile($sFile, true, Config::Get())) {
-                Config::Load($aConfig, true, null, $nConfigLevel);
+        $sConfigFile = $sConfigDir . '/config.local.php';
+        if (F::File_Exists($sConfigFile)) {
+            if ($aConfig = F::File_IncludeFile($sConfigFile, true, Config::Get())) {
+                Config::Load($aConfig, true, null, $nConfigLevel, $sConfigFile);
             }
         }
 
@@ -159,18 +159,18 @@ class Loader {
                 // Загружаем все конфиг-файлы плагина
                 $aConfigFiles = glob($sPluginsDir . '/' . $sPlugin . '/config/*.php');
                 if ($aConfigFiles) {
-                    foreach ($aConfigFiles as $sPath) {
-                        $aConfig = F::IncludeFile($sPath, true, true);
+                    foreach ($aConfigFiles as $sConfigFile) {
+                        $aConfig = F::IncludeFile($sConfigFile, true, true);
                         if (!empty($aConfig) && is_array($aConfig)) {
                             // Если конфиг этого плагина пуст, то загружаем массив целиком
                             $sKey = 'plugin.' . $sPlugin;
                             if (!Config::isExist($sKey)) {
-                                Config::Set($sKey, $aConfig, null, $nConfigLevel);
+                                Config::Set($sKey, $aConfig, null, $nConfigLevel, $sConfigFile);
                             } else {
                                 // Если уже существуют привязанные к плагину ключи,
                                 // то сливаем старые и новое значения ассоциативно-комбинированно
                                 /** @see AltoFunc_Array::MergeCombo() */
-                                Config::Set($sKey, F::Array_MergeCombo(Config::Get($sKey), $aConfig), null, $nConfigLevel);
+                                Config::Set($sKey, F::Array_MergeCombo(Config::Get($sKey), $aConfig), null, $nConfigLevel. $sConfigFile);
                             }
                         }
                     }
@@ -210,7 +210,9 @@ class Loader {
 
         foreach ($aConfigSections as $sName) {
             $sFile = $sConfigDir . '/' . $sName . '.php';
-            self::_loadSectionFile($sFile, $sName, $nConfigLevel);
+            if (F::File_Exists($sFile)) {
+                self::_loadSectionFile($sFile, $sName, $nConfigLevel);
+            }
 
             $sFile = $sConfigDir . '/' . $sName . '.local.php';
             if (F::File_Exists($sFile)) {
@@ -228,7 +230,6 @@ class Loader {
      */
     static protected function _loadSectionFile($sFile, $sName, $nConfigLevel = 0) {
 
-        $aConfig = array();
         if (F::File_Exists($sFile)) {
             $aCfg = F::File_IncludeFile($sFile, true, true);
             if ($aCfg) {
@@ -237,9 +238,9 @@ class Loader {
                 } else {
                     $aConfig = $aCfg;
                 }
+                Config::Load(array($sName => $aConfig), false, null, $nConfigLevel, $sFile);
             }
         }
-        Config::Load(array($sName => $aConfig), false, null, $nConfigLevel);
     }
 
     /**

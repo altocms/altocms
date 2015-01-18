@@ -95,14 +95,14 @@ class Config extends Storage {
     /**
      * Load configuration array from file
      *
-     * @param string $sFile    - Путь до файла конфига
-     * @param bool   $bReset   - Сбосить старые значения
-     * @param string $sRootKey - Корневой ключ конфига
-     * @param int    $nLevel   - Уровень конфига
+     * @param string $sConfigFile - Путь до файла конфига
+     * @param bool   $bReset      - Сбосить старые значения
+     * @param string $sRootKey    - Корневой ключ конфига
+     * @param int    $nLevel      - Уровень конфига
      *
-     * @return  bool|Config
+     * @return  bool
      */
-    static public function LoadFromFile($sFile, $bReset = true, $sRootKey = null, $nLevel = null) {
+    static public function LoadFromFile($sConfigFile, $bReset = true, $sRootKey = null, $nLevel = null) {
 
         if (is_integer($sRootKey) && is_null($nLevel)) {
             $nLevel = $sRootKey;
@@ -110,13 +110,13 @@ class Config extends Storage {
         }
 
         // Check if file exists
-        if (!F::File_Exists($sFile)) {
-            return false;
+        if (F::File_Exists($sConfigFile)) {
+            // Get config from file
+            if ($aConfig = F::File_IncludeFile($sConfigFile, true, true)) {
+                return static::Load($aConfig, $bReset, $sRootKey, $nLevel, $sConfigFile);
+            }
         }
-        // Get config from file
-        if ($aConfig = F::File_IncludeFile($sFile, true, true)) {
-            return static::Load($aConfig, $bReset, $sRootKey, $nLevel);
-        }
+        return false;
     }
 
     /**
@@ -140,10 +140,11 @@ class Config extends Storage {
      * @param bool   $bReset   - Сбросить старые значения
      * @param string $sRootKey - Корневой ключ конфига
      * @param int    $nLevel   - Уровень конфига
+     * @param string $sSource  - Источник
      *
      * @return  bool|Config
      */
-    static public function Load($aConfig, $bReset = true, $sRootKey = null, $nLevel = null) {
+    static public function Load($aConfig, $bReset = true, $sRootKey = null, $nLevel = null, $sSource = null) {
 
         if (is_integer($sRootKey) && is_null($nLevel)) {
             $nLevel = $sRootKey;
@@ -155,8 +156,7 @@ class Config extends Storage {
             return false;
         }
         // Set config to current or handle instance
-        static::getInstance()->SetConfig($aConfig, $bReset, $sRootKey, $nLevel);
-        return static::getInstance();
+        return static::Set($aConfig, $bReset, $sRootKey, $nLevel, $sSource);
     }
 
     /**
@@ -217,48 +217,13 @@ class Config extends Storage {
             $sRootKey = self::DEFAULT_CONFIG_ROOT;
         }
 
-        $aClearedConfig = static::_extractForReplacement($aConfig);
-        if ($aClearedConfig) {
-            $this->SetConfig($aClearedConfig, false, $sRootKey, $nLevel);
-        } else {
-            $this->_clearQuickMap();
-        }
+        $this->_clearQuickMap();
         if (is_null($nLevel)) {
             $nLevel = $this->nLevel;
         }
         $sStorageKey = $this->_storageKey($sRootKey, $nLevel);
+
         return parent::SetStorage($sStorageKey, $aConfig, $bReset);
-    }
-
-    /**
-     * Filters array and extract structure data for replacement
-     *
-     * @param array $aConfig
-     * @param int   $iDataLevel
-     *
-     * @return array|bool
-     */
-    protected function _extractForReplacement(&$aConfig, $iDataLevel = 0) {
-
-        $aResult = array();
-        foreach($aConfig as $xKey => &$xVal) {
-            if ($iDataLevel && (($xKey === self::KEY_REPLACE && $xVal) || (is_integer($xKey) && $xVal === self::KEY_REPLACE))) {
-                unset($aConfig[$xKey]);
-                if ($xKey === self::KEY_REPLACE && is_array($xVal)) {
-                    return array_fill_keys($xVal, null);
-                } else {
-                    return true;
-                }
-            } elseif(is_array($xVal)) {
-                $xSubResult = static::_extractForReplacement($xVal, ++$iDataLevel);
-                if ($xSubResult === true) {
-                    $aResult[$xKey] = null;
-                } elseif (!empty($xSubResult)) {
-                    $aResult[$xKey] = (array)$xSubResult;
-                }
-            }
-        }
-        return $aResult;
     }
 
     /**
@@ -486,9 +451,8 @@ class Config extends Storage {
                 } else {
                     $xResult[$sNewKey] = $xData;
                 }
-                //unset($xCfg[$xKey]);
             }
-        } elseif (is_string($xConfigData)) {
+        } elseif (is_string($xConfigData) && !is_numeric($xConfigData)) {
             $xResult = $xConfigData;
             if (strpos($xConfigData, self::KEY_LINK_STR) !== false && preg_match_all(self::KEY_LINK_PREG, $xConfigData, $aMatch, PREG_SET_ORDER)) {
                 if (count($aMatch) == 1 && $aMatch[0][0] == $xConfigData) {
@@ -526,41 +490,134 @@ class Config extends Storage {
     }
 
     /**
-     * Add information in config array by handle path
+     * Set config value(s)
+     * Usage:
+     *   Config::Set('key', $xData, ...);
+     * or
+     *   Config::Set(array('key', $xData), $bReplace, ...);
      *
-     * @param string $sKey   - Ключ
-     * @param mixed  $xValue - Значение
-     * @param string $sRoot  - Корневой ключ конфига
-     * @param int    $nLevel
+     * @param string|array $sKey    - Key or Config data array
+     * @param mixed        $xValue  - Value(s) or Replace flag
+     * @param string       $sRoot   - Root key
+     * @param int          $nLevel  - Level of config
+     * @param string       $sSource - Source of data
      *
      * @return bool
      */
-    static public function Set($sKey, $xValue, $sRoot = self::DEFAULT_CONFIG_ROOT, $nLevel = null) {
+    static public function Set($sKey, $xValue, $sRoot = self::DEFAULT_CONFIG_ROOT, $nLevel = null, $sSource = null) {
 
-        if (is_integer($sRoot) && is_null($nLevel)) {
-            $nLevel = $sRoot;
-            $sRoot = self::DEFAULT_CONFIG_ROOT;
+        if (is_array($sKey) && is_bool($xValue)) {
+            $aConfigData = $sKey;
+            $bReplace = $xValue;
+            $xValue = reset($aConfigData);
+        } else {
+            $aConfigData = array($sKey => $xValue);
+            $bReplace = false;
         }
-        if (isset($xValue[self::KEY_REPLACE])) {
-            if (is_string($xValue[self::KEY_EXTENDS])) {
 
+        if ($aConfigData) {
+            if (is_integer($sRoot) && (is_null($nLevel) || is_string($nLevel))) {
+                if (is_string($nLevel)) {
+                    $sSource = $nLevel;
+                }
+                $nLevel = $sRoot;
+                $sRoot = self::DEFAULT_CONFIG_ROOT;
+            }
+
+            // Check for KEY_ROOT in config data
+            if (isset($xValue[self::KEY_ROOT]) && is_array($xValue[self::KEY_ROOT])) {
+                $aRoot = $xValue[self::KEY_ROOT];
+                unset($xValue[self::KEY_ROOT]);
+                foreach ($aRoot as $sRootKey => $xVal) {
+                    if (static::isExist($sRootKey)) {
+                        static::Set($sRootKey, F::Array_MergeCombo(Config::Get($sRootKey, $sRoot), $xVal), $sRoot, $nLevel, $sSource);
+                    } else {
+                        static::Set($sRootKey, $xVal, $sRoot, $nLevel, $sSource);
+                    }
+                }
+            }
+
+            $oConfig = static::getInstance();
+
+            // Check for KEY_REPLACE in config data
+            $aClearConfig = self::_extractForReplacement($aConfigData);
+            if ($aClearConfig) {
+                $oConfig->SetConfig($aClearConfig, false, $sRoot, $nLevel, $sSource);
+            }
+
+            $oConfig->SetConfig($aConfigData, $bReplace, $sRoot, $nLevel, $sSource);
+        }
+
+        return true;
+    }
+
+    static protected $bKeyReplace = false;
+
+    static public function _checkForReplacement(&$xItem, $xKey) {
+
+        if (!self::$bKeyReplace) {
+            self::$bKeyReplace = ($xKey === Config::KEY_REPLACE);
+        }
+    }
+
+    /**
+     * Filters config array and extract structure data for replacement
+     *
+     * @param $aConfig
+     *
+     * @return array|bool
+     */
+    static protected function _extractForReplacement(&$aConfig) {
+
+            self::$bKeyReplace = false;
+            array_walk_recursive($aConfig, 'Config::_checkForReplacement');
+
+            if (!self::$bKeyReplace) {
+                // Has no KEY_REPLACE in data
+                return array();
+            }
+
+        return self::_extractForReplacementData($aConfig);
+    }
+
+    /**
+     * Filters array and extract structure data for replacement
+     *
+     * @param array $aConfig
+     * @param int   $iDataLevel
+     *
+     * @return array|bool
+     */
+    static protected function _extractForReplacementData(&$aConfig, $iDataLevel = 0) {
+
+        $aResult = array();
+
+        if ($iDataLevel) {
+            // KEY_REPLACE on this level
+            if (isset($aConfig[self::KEY_REPLACE])) {
+                if (is_array($aConfig[self::KEY_REPLACE])) {
+                    unset($aConfig[self::KEY_REPLACE]);
+                    $aResult = array_fill_keys($aConfig[self::KEY_REPLACE], null);
+                } else {
+                    unset($aConfig[self::KEY_REPLACE]);
+                    $aResult = true;
+                }
+                return $aResult;
             }
         }
-        if (isset($xValue[self::KEY_ROOT]) && is_array($xValue[self::KEY_ROOT])) {
-            $aRoot = $xValue[self::KEY_ROOT];
-            unset($xValue[self::KEY_ROOT]);
-            foreach ($aRoot as $sRootKey => $xVal) {
-                if (static::isExist($sRootKey)) {
-                    static::Set($sRootKey, F::Array_MergeCombo(Config::Get($sRootKey, $sRoot), $xVal), $sRoot, $nLevel);
-                } else {
-                    static::Set($sRootKey, $xVal, $sRoot, $nLevel);
+
+        // KEY_REPLACE on deeper levels
+        foreach($aConfig as $xKey => &$xVal) {
+            if(is_array($xVal)) {
+                $xSubResult = self::_extractForReplacementData($xVal, ++$iDataLevel);
+                if ($xSubResult === true) {
+                    $aResult[$xKey] = null;
+                } elseif (!empty($xSubResult)) {
+                    $aResult[$xKey] = (array)$xSubResult;
                 }
             }
         }
-
-        static::getInstance()->SetConfig(array($sKey => $xValue), false, $sRoot, $nLevel);
-
-        return true;
+        return $aResult;
     }
 
     /**

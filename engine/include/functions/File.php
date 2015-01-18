@@ -729,7 +729,7 @@ class AltoFunc_File {
      */
     static public function PutContents($sFile, $sData, $nFlags = 0) {
 
-        if (static::CheckDir(dirname($sFile))) {
+        if ($sFile && static::CheckDir(dirname($sFile))) {
             return file_put_contents($sFile, $sData, $nFlags);
         }
         return false;
@@ -935,8 +935,7 @@ class AltoFunc_File {
             self::$nIncludedTime += (microtime(true) - self::$_time);
             self::$nIncludedCount++;
             if (F::IsDebug()) {
-                self::$aIncludedFiles[]
-                    = $sFile . '; result: ' . (is_scalar(self::$_temp) ? self::$_temp : gettype(self::$_temp));
+                self::$aIncludedFiles[] = $sFile . '; result: ' . (is_scalar(self::$_temp) ? self::$_temp : gettype(self::$_temp));
             }
         } catch (ErrorException $oException) {
             if ($oException->getFile() !== __FILE__) {

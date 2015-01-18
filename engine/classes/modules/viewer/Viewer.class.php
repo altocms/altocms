@@ -387,7 +387,7 @@ class ModuleViewer extends Module {
 
         Config::ResetLevel(Config::LEVEL_SKIN);
         if ($aConfig) {
-            Config::Load($aConfig, false);
+            Config::Load($aConfig, false, null, null, 'skin');
         }
 
         // Check skin theme and set one in config if it was changed
