@@ -224,8 +224,6 @@ $config['sys']['logs']['error_extinfo']     = false;        // выводить 
 $config['sys']['logs']['error_callstack']   = false;        // выводить стек вызовов в лог ошибок
 $config['sys']['logs']['error_norepeat']    = true;         // не повторять вывод одинаковых ошибок
 
-$config['sys']['logs']['hacker_console']  = false;          // позволяет удобно выводить логи дебага через функцию dump(), использя "хакерскую" консоль Дмитрия Котерова
-
 $config['sys']['logs']['size_for_rotate'] = 1000000;        // максимальный размер для ротации логов (если 0 - без ротации)
 $config['sys']['logs']['count_for_rotate'] = 99;            // максимальное число файлов в ротации (если 0 - без ограничений)
 

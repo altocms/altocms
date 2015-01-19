@@ -8,7 +8,7 @@
  *-------------------------------------------------------
  */
 
-define('DEBUG', 0);
+defined('DEBUG') || define('DEBUG', 0);
 
 /*
  * Config for your site
