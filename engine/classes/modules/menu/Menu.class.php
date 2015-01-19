@@ -316,7 +316,7 @@ class ModuleMenu extends Module {
 
         //
         if (isset($aFillSet[0]) && $aFillSet[0] == '*') {
-            $aFillSet = isset($aMenu['list']) ? array_keys($aMenu['list']) : array();
+            $aFillSet = (isset($aMenu['list']) && $aMenu['list']) ? array_keys($aMenu['list']) : array();
         }
 
         // Добавим в вывод только нужные элементы меню
@@ -341,6 +341,73 @@ class ModuleMenu extends Module {
             }
         }
 
+
+        return $aItems;
+
+    }
+
+    /**
+     * Обработчик формирования меню в режиме blogs
+     *
+     * @param string[] $aFillSet Набор элементов меню
+     * @param array $aMenu Само меню
+     * @return array
+     */
+    public function ProcessInsertImageMode($aFillSet, $aMenu = NULL) {
+
+        /** @var ModuleMenu_EntityItem[] $aItems */
+        $aItems = array();
+
+        // Только пользователь может смотреть своё дерево изображений
+        if (!E::IsUser()) {
+            $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
+            return $aItems;
+        }
+
+        $sTopicId = getRequestStr('topic_id', FALSE);
+        if ($sTopicId && !$this->Topic_GetTopicById($sTopicId)) {
+            $sTopicId = FALSE;
+        }
+
+        /** @var ModuleMresource_EntityMresourceCategory[] $aResources Категории объектов пользователя */
+        $aCategories = $this->Mresource_GetImageCategoriesByUserId(E::UserId(), $sTopicId);
+
+        if ($oCurrentTopicCategory = $this->Mresource_GetCurrentTopicImageCategory(E::UserId(), $sTopicId)) {
+            $aCategories[] = $oCurrentTopicCategory;
+        }
+
+        if ($oTopicsCategory = $this->Mresource_GetTopicsImageCategory(E::UserId())) {
+            $aCategories[] = $oTopicsCategory;
+        }
+
+        if ($oTalksCategory = $this->Mresource_GetTalksImageCategory(E::UserId())) {
+            $aCategories[] = $oTalksCategory;
+        }
+
+        if ($oCommentsCategory = $this->Mresource_GetCommentsImageCategory(E::UserId())) {
+            $aCategories[] = $oCommentsCategory;
+        }
+
+        if ($aCategories) {
+            /** @var ModuleMresource_EntityMresourceCategory $oCategory */
+            foreach ($aCategories as $oCategory) {
+                $aItems['menu_insert_'.$oCategory->getId()] = $this->CreateMenuItem('menu_insert_'.$oCategory->getId(), array(
+                    'text'   => $oCategory->getLabel() . '<span>(' . $oCategory->getCount() . ')</span>',
+                    'link'    => '#',
+                    'active'  => false,
+                    'submenu' => array(),
+                    'display' => TRUE,
+                    'options' => array(
+                        'link_class'  => '',
+                        'link_url'   => '#',
+                        'class'   =>  'category-show category-show-' . $oCategory->getId(),
+                        'link_data'   => array(
+                            'category' => $oCategory->getId(),
+                        ),
+                    ),
+                ));
+            }
+        }
 
         return $aItems;
 

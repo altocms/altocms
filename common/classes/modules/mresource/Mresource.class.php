@@ -488,6 +488,14 @@ class ModuleMresource extends Module {
         return $this->oMapper->GetMresourcesCountByTarget($sTargetType);
     }
 
+    public function GetMresourcesCountByTargetAndUserId($sTargetType, $iUserId) {
+        return $this->oMapper->GetMresourcesCountByTargetAndUserId($sTargetType, $iUserId);
+    }
+
+    public function GetMresourcesCountByTargetIdAndUserId($sTargetType, $sTargetId, $iUserId) {
+        return $this->oMapper->GetMresourcesCountByTargetIdAndUserId($sTargetType, $sTargetId, $iUserId);
+    }
+
     /**
      * Проверяет картикнки комментариев
      * $this->Mresource_CheckTargetTextForImages($sTarget, $sTargetId, $sTargetText);
@@ -668,6 +676,151 @@ class ModuleMresource extends Module {
 
         return $aResult;
 
+    }
+
+    /**
+     * Возвращает категории изображения для пользователя
+     * @param $iUserId
+     * @param bool $sTopicId
+     * @return array
+     */
+    public function GetImageCategoriesByUserId($iUserId, $sTopicId = FALSE){
+        $aRows = $this->oMapper->GetImageCategoriesByUserId($iUserId, $sTopicId);
+        $aResult = array();
+        if ($aRows) {
+            foreach ($aRows as $aRow) {
+                $aResult[] = Engine::GetEntity('Mresource_MresourceCategory', array(
+                    'id' => $aRow['ttype'],
+                    'count' => $aRow['count'],
+                    'label' => $this->Lang_Get('aim_target_type_' . $aRow['ttype']),
+                ));
+            }
+        }
+        return $aResult;
+    }
+
+    public function GetCurrentTopicResourcesId($iUserId, $sTopicId) {
+        return $this->oMapper->GetCurrentTopicResourcesId($iUserId, $sTopicId);
+    }
+
+    public function GetCurrentTopicImageCategory($iUserId, $sTopicId = FALSE) {
+        $aResourcesId = $this->oMapper->GetCurrentTopicResourcesId($iUserId, $sTopicId);
+        if ($aResourcesId) {
+            return Engine::GetEntity('Mresource_MresourceCategory', array(
+                'id' => 'current',
+                'count' => count($aResourcesId),
+                'label' => $this->Lang_Get('aim_target_type_current'),
+            ));
+        }
+
+        return FALSE;
+    }
+
+
+
+    public function GetTopicsImageCategory($iUserId) {
+
+        $aTopicInfo = $this->oMapper->GetTopicInfo($iUserId, $iCount, 1, 100000);
+        if ($aTopicInfo) {
+            return Engine::GetEntity('Mresource_MresourceCategory', array(
+                'id' => 'topics',
+                'count' => count($aTopicInfo),
+                'label' => $this->Lang_Get('aim_target_type_topics'),
+            ));
+        }
+
+        return FALSE;
+    }
+
+    /**
+     * Получает топики пользователя с картинками
+     * @param $iUserId
+     * @return bool|array
+     */
+    public function GetTopicsPage($iUserId, $iCurrPage, $iPerPage)  {
+        $iCount = 0;
+        $aResult = array(
+            'collection' => array(),
+            'count' => 0
+        );
+
+        $aTopicInfo = $this->oMapper->GetTopicInfo($iUserId, $iCount, $iCurrPage, $iPerPage);
+        if ($aTopicInfo) {
+
+            $aTopics = $this->Topic_GetTopicsAdditionalData(array_keys($aTopicInfo));
+            if ($aTopics) {
+                foreach ($aTopics as $sTopicId => $oTopic) {
+                    $oTopic->setImagesCount($aTopicInfo[$sTopicId]);
+                    $aTopics[$sTopicId] = $oTopic;
+                }
+            }
+
+            $aResult['collection'] = $aTopics;
+            $aResult['count'] = $iCount;
+        }
+
+        return $aResult;
+    }
+
+
+    public function GetTalksImageCategory($iUserId) {
+
+        $aTalkInfo = $this->oMapper->GetTalkInfo($iUserId, $iCount, 1, 100000);
+        if ($aTalkInfo) {
+            return Engine::GetEntity('Mresource_MresourceCategory', array(
+                'id' => 'talks',
+                'count' => count($aTalkInfo),
+                'label' => $this->Lang_Get('aim_target_type_talks'),
+            ));
+        }
+
+        return FALSE;
+    }
+    /**
+     * Получает топики пользователя с картинками
+     * @param $iUserId
+     * @return bool|array
+     */
+    public function GetTalksPage($iUserId, $iCurrPage, $iPerPage)  {
+        $iCount = 0;
+        $aResult = array(
+            'collection' => array(),
+            'count' => 0
+        );
+
+        $aTalkInfo = $this->oMapper->GetTalkInfo($iUserId, $iCount, $iCurrPage, $iPerPage);
+        if ($aTalkInfo) {
+
+            $aTalks = $this->Talk_GetTalksAdditionalData(array_keys($aTalkInfo));
+            if ($aTalks) {
+                foreach ($aTalks as $sTopicId => $oTopic) {
+                    $oTopic->setImagesCount($aTalkInfo[$sTopicId]);
+                    $aTalks[$sTopicId] = $oTopic;
+                }
+            }
+
+            $aResult['collection'] = $aTalks;
+            $aResult['count'] = $iCount;
+        }
+
+        return $aResult;
+    }
+
+    public function GetCommentsImageCategory($iUserId) {
+
+        $aImagesInCommentsCount = $this->Mresource_GetMresourcesCountByTargetAndUserId(array(
+            'talk_comment',
+            'topic_comment'
+        ), $iUserId);
+        if ($aImagesInCommentsCount) {
+            return Engine::GetEntity('Mresource_MresourceCategory', array(
+                'id' => 'comments',
+                'count' => $aImagesInCommentsCount,
+                'label' => $this->Lang_Get('aim_target_type_comments'),
+            ));
+        }
+
+        return FALSE;
     }
 
 }

@@ -14,6 +14,7 @@
             {hook run='form_add_topic_begin'}
 
             <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
+            <input type="hidden" id="topic_id"  name="topic_id" value="{$_aRequest.topic_id}"/>
 
             {* ВЫБОР БЛОГА *}
             <div class="form-group">

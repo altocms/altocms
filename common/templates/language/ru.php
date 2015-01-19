@@ -1136,6 +1136,38 @@ return array(
     'uploadimg_size_width_max_text'             => 'Макс. размер изображения в процентах относительно ширины текста',
     'uploadimg_title'                           => 'Описание',
     /**
+     * Втавка изображений
+     */
+    'insertimg'           => 'Добавить изображение',
+    'insertimg_from_pc'   => 'C этого компьютера',
+    'insertimg_from_link' => 'Из интернета',
+    'insertimg_size'      => 'Размер',
+    'select_category'     => 'Выберите категорию изображений',
+    'next_page'           => 'Следущая страница',
+    'prev_page'           => 'Предыдущая страница',
+    'insertimg_page'      => 'страница',
+    'insertimg_from'      => 'из',
+
+    'aim_target_type_blog_avatar'            => 'Блоги',
+    'aim_target_type_user'                   => 'Аватары',
+    'aim_target_type_profile_photo'          => 'Фото',
+    'aim_target_type_profile_avatar'         => 'Аватар',
+    'aim_target_type_tmp'                    => 'Временные',
+    'aim_target_type_current'                => 'Этот топик',
+    'aim_target_type_topics'                 => 'Топики',
+    'aim_target_type_talks'                  => 'Письма',
+    'aim_target_type_comments'               => 'Комментарии',
+    'menu_image_insert_description'          => 'Меню добавления изображения',
+
+    'target_type_topic'                      => 'Топики',
+    'target_type_talk'                       => 'Переписка',
+    'target_type_topic_comment'              => 'Комментарии топиков',
+    'target_type_talk_comment'               => 'Комментарии переписки',
+    'target_type_single-image-uploader'      => 'Поле контента',
+    'target_type_all'                        => 'Все',
+    'target_type_topic-multi-image-uploader' => 'Фотосет топика',
+
+    /**
      * Уведомления
      */
     'notify_subject_comment_new'                => 'Новый комментарий к статье',
@@ -1419,6 +1451,8 @@ return array(
     'target_type_single-image-uploader' => 'Поле контента',
     'target_type_all'                   => 'Все',
     'target_type_topic-multi-image-uploader' => 'Фотосет топика',
+    'target_type_tmp' => 'Временные',
+    'target_type_current' => 'Этот топик',
 
     'spoiler_toggle_show' => 'показать',
 
