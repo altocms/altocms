@@ -943,7 +943,8 @@ class ModuleViewer extends Module {
         $bResult = $this->oSmarty->templateExists($sTemplate);
         //$this->_unmuteErrors();
         if (!$bResult && $bException) {
-            $sMessage = 'Can not find the template "' . $sTemplate . '" in skin "' . $this->GetConfigSkin() . '"';
+            $sSkin = $this->GetConfigSkin();
+            $sMessage = 'Can not find the template "' . $sTemplate . '" in skin "' . $sSkin . '"';
             if ($aTpls = $this->GetSmartyObject()->template_objects) {
                 if (is_array($aTpls)) {
                     $sMessage .= ' (from: ';
@@ -952,6 +953,11 @@ class ModuleViewer extends Module {
                     }
                     $sMessage .= ')';
                 }
+            }
+            $sMessage .= '. ';
+            $oSkin = E::Skin_GetSkin($sSkin);
+            if ((!$oSkin || $oSkin->GetCompatible() != 'alto') && !E::ActivePlugin('ls')) {
+                $sMessage .= 'Probably you need to activate plugin "Ls".';
             }
 
             // записываем доп. информацию - пути к шаблонам Smarty

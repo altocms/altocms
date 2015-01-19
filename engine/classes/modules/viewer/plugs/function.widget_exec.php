@@ -92,6 +92,12 @@ function smarty_function_widget_exec($aParams, $oSmartyTemplate) {
             }
             // Проверяем делигирование найденного класса
             $sWidgetClass = E::Plugin_GetDelegate('block', $sWidgetClass);
+            if (!$sTemplate) {
+                $sLsTemplate = E::Plugin_GetDelegate('template', 'blocks/block.' . $sWidgetName . '.tpl');
+                if (F::File_Exists($sLsTemplate, $oSmartyTemplate->getTemplateDir())) {
+                    $sTemplate = $sLsTemplate;
+                }
+            }
         }
     } else {
         $sWidgetClass = $sDelegatedClass;
