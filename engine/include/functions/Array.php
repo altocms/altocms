@@ -83,7 +83,11 @@ class AltoFunc_Array {
      */
     static public function Merge($aData1, $aData2) {
 
-        $aData1 = (array)$aData1;
+        if (empty($aData1)) {
+            $aData1 = array();
+        } elseif (!is_array($aData1) && !$aData1 instanceof DataArray){
+            $aData1 = (array)$aData1;
+        }
         if ($aData2) {
             foreach ($aData2 as $sKey => $xVal) {
                 $bIsKeyInt = false;
@@ -118,7 +122,11 @@ class AltoFunc_Array {
      */
     static public function MergeCombo($aData1, $aData2) {
 
-        $aData1 = (array)$aData1;
+        if (empty($aData1)) {
+            $aData1 = array();
+        } elseif (!is_array($aData1) && !$aData1 instanceof DataArray){
+            $aData1 = (array)$aData1;
+        }
         if ($aData2) {
             foreach ($aData2 as $xKey => $xVal) {
                 if (is_integer($xKey)) {
