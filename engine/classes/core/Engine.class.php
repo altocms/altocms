@@ -13,10 +13,6 @@
  *----------------------------------------------------------------------------
  */
 
-set_include_path(get_include_path() . PATH_SEPARATOR . __DIR__);
-
-F::IncludeFile('../abstract/LsObject.class.php');
-
 F::IncludeFile('Plugin.class.php');
 F::IncludeFile('Hook.class.php');
 F::IncludeFile('Module.class.php');

@@ -13,6 +13,7 @@ return array(
         'R' => 'Router',
         'C' => 'Config',
         'E' => 'Engine',
+        'App' => 'Application',
     ),
     'class'  => array(
         'LsObject' => '___path.dir.engine___/classes/abstract/LsObject.class.php',

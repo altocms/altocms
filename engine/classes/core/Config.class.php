@@ -13,7 +13,8 @@
  *----------------------------------------------------------------------------
  */
 
-require_once 'DataArray.class.php';
+F::IncludeFile('Storage.class.php');
+F::IncludeFile('DataArray.class.php');
 
 /**
  * Управление простым конфигом в виде массива

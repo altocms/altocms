@@ -16,7 +16,7 @@ defined('ALTO_DIR') || define('ALTO_DIR', dirname(__FILE__));
 // Run engine loader
 require_once(ALTO_DIR . '/engine/loader.php');
 
-$oRouter = R::getInstance();
-$oRouter->Exec();
+// Creates and executes application
+App::Create()->Exec();
 
 // EOF
