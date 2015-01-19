@@ -297,7 +297,7 @@ abstract class Plugin extends LsObject {
 
         if (!$this->oPluginEntity) {
             $sPluginId = F::StrUnderscore($this->GetName());
-            $this->oPluginEntity = Engine::GetEntity('Plugin', $sPluginId);
+            $this->oPluginEntity = E::GetEntity('Plugin', $sPluginId);
         }
         return $this->oPluginEntity;
     }

@@ -24,38 +24,31 @@ class WidgetTagsFavouriteTopic extends Widget {
      * Запуск обработки
      */
     public function Exec() {
-        /**
-         * Пользователь авторизован?
-         */
-        if ($oUserCurrent = $this->User_GetUserCurrent()) {
+
+        // * Пользователь авторизован?
+        if ($oUserCurrent = E::User_GetUserCurrent()) {
             if (!($oUser = $this->getParam('user'))) {
                 $oUser = $oUserCurrent;
             }
-            /**
-             * Получаем список тегов
-             */
-            $aTags = $this->oEngine->Favourite_GetGroupTags($oUser->getId(), 'topic', false, 70);
-            /**
-             * Расчитываем логарифмическое облако тегов
-             */
-            $this->Tools_MakeCloud($aTags);
-            /**
-             * Устанавливаем шаблон вывода
-             */
-            $this->Viewer_Assign('aFavouriteTopicTags', $aTags);
-            /**
-             * Получаем список тегов пользователя
-             */
-            $aTags = $this->oEngine->Favourite_GetGroupTags($oUser->getId(), 'topic', true, 70);
-            /**
-             * Расчитываем логарифмическое облако тегов
-             */
-            $this->Tools_MakeCloud($aTags);
-            /**
-             * Устанавливаем шаблон вывода
-             */
-            $this->Viewer_Assign('aFavouriteTopicUserTags', $aTags);
-            $this->Viewer_Assign('oFavouriteUser', $oUser);
+
+            // * Получаем список тегов
+            $aTags = E::Favourite_GetGroupTags($oUser->getId(), 'topic', false, 70);
+
+            // * Расчитываем логарифмическое облако тегов
+            E::Tools_MakeCloud($aTags);
+
+            // * Устанавливаем шаблон вывода
+            E::Viewer_Assign('aFavouriteTopicTags', $aTags);
+
+            // * Получаем список тегов пользователя
+            $aTags = E::Favourite_GetGroupTags($oUser->getId(), 'topic', true, 70);
+
+            // * Расчитываем логарифмическое облако тегов
+            E::Tools_MakeCloud($aTags);
+
+            // * Устанавливаем шаблон вывода
+            E::Viewer_Assign('aFavouriteTopicUserTags', $aTags);
+            E::Viewer_Assign('oFavouriteUser', $oUser);
         }
     }
 }

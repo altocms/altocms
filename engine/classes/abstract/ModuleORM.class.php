@@ -195,7 +195,7 @@ abstract class ModuleORM extends Module {
         if ($sPrimaryKey = $oEntity->_getPrimaryKey()) {
             if ($sPrimaryKeyValue = $oEntity->getProp($sPrimaryKey)) {
                 if ($oEntityNew = $this->GetByFilter(
-                    array($sPrimaryKey => $sPrimaryKeyValue), Engine::GetEntityName($oEntity)
+                    array($sPrimaryKey => $sPrimaryKeyValue), E::GetEntityName($oEntity)
                 )
                 ) {
                     $oEntity->_setData($oEntityNew->_getData());
@@ -249,7 +249,7 @@ abstract class ModuleORM extends Module {
                 if ($sPrimaryKey = $oEntity->_getPrimaryKey()) {
                     if ($sPrimaryKeyValue = $oEntity->getProp($sPrimaryKey)) {
                         $aChildren = $this->GetItemsByFilter(
-                            array('parent_id' => $sPrimaryKeyValue), Engine::GetEntityName($oEntity)
+                            array('parent_id' => $sPrimaryKeyValue), E::GetEntityName($oEntity)
                         );
                     }
                 }
@@ -280,7 +280,7 @@ abstract class ModuleORM extends Module {
                 if ($sPrimaryKey = $oEntity->_getPrimaryKey()) {
                     if ($sParentId = $oEntity->getParentId()) {
                         $oParent = $this->GetByFilter(
-                            array($sPrimaryKey => $sParentId), Engine::GetEntityName($oEntity)
+                            array($sPrimaryKey => $sParentId), E::GetEntityName($oEntity)
                         );
                     }
                 }
@@ -363,13 +363,13 @@ abstract class ModuleORM extends Module {
     public function LoadTree($aFilter = array(), $sEntityFull = null) {
 
         if (is_null($sEntityFull)) {
-            $sEntityFull = Engine::GetPluginPrefix($this)
-                . 'Module' . Engine::GetModuleName($this) . '_Entity' . Engine::GetModuleName(get_class($this));
+            $sEntityFull = E::GetPluginPrefix($this)
+                . 'Module' . E::GetModuleName($this) . '_Entity' . E::GetModuleName(get_class($this));
         } elseif (!substr_count($sEntityFull, '_')) {
-            $sEntityFull = Engine::GetPluginPrefix($this)
-                . 'Module' . Engine::GetModuleName($this) . '_Entity' . $sEntityFull;
+            $sEntityFull = E::GetPluginPrefix($this)
+                . 'Module' . E::GetModuleName($this) . '_Entity' . $sEntityFull;
         }
-        if ($oEntityDefault = Engine::GetEntity($sEntityFull)) {
+        if ($oEntityDefault = E::GetEntity($sEntityFull)) {
             if (in_array(EntityORM::RELATION_TYPE_TREE, $oEntityDefault->_getRelations())) {
                 if ($sPrimaryKey = $oEntityDefault->_getPrimaryKey()) {
                     if ($aItems = $this->GetItemsByFilter($aFilter, $sEntityFull)) {
@@ -410,11 +410,11 @@ abstract class ModuleORM extends Module {
     public function GetByFilter($aFilter = array(), $sEntityFull = null) {
 
         if (is_null($sEntityFull)) {
-            $sEntityFull = Engine::GetPluginPrefix($this)
-                . 'Module' . Engine::GetModuleName($this) . '_Entity' . Engine::GetModuleName(get_class($this));
+            $sEntityFull = E::GetPluginPrefix($this)
+                . 'Module' . E::GetModuleName($this) . '_Entity' . E::GetModuleName(get_class($this));
         } elseif (!substr_count($sEntityFull, '_')) {
-            $sEntityFull = Engine::GetPluginPrefix($this)
-                . 'Module' . Engine::GetModuleName($this) . '_Entity' . $sEntityFull;
+            $sEntityFull = E::GetPluginPrefix($this)
+                . 'Module' . E::GetModuleName($this) . '_Entity' . $sEntityFull;
         }
         return $this->oMapper->GetByFilter($aFilter, $sEntityFull);
     }
@@ -435,15 +435,15 @@ abstract class ModuleORM extends Module {
         }
 
         if (is_null($sEntityFull)) {
-            $sEntityFull = Engine::GetPluginPrefix($this)
-                . 'Module' . Engine::GetModuleName($this) . '_Entity' . Engine::GetModuleName(get_class($this));
+            $sEntityFull = E::GetPluginPrefix($this)
+                . 'Module' . E::GetModuleName($this) . '_Entity' . E::GetModuleName(get_class($this));
         } elseif (!substr_count($sEntityFull, '_')) {
-            $sEntityFull = Engine::GetPluginPrefix($this)
-                . 'Module' . Engine::GetModuleName($this) . '_Entity' . $sEntityFull;
+            $sEntityFull = E::GetPluginPrefix($this)
+                . 'Module' . E::GetModuleName($this) . '_Entity' . $sEntityFull;
         } elseif (strpos($sEntityFull, '_') && (strpos($sEntityFull, 'Module') !== 0) && !strpos($sEntityFull, '_Entity')) {
             if (substr_count($sEntityFull, '_') == 1) {
                 list($sModule, $sEntity) = explode('_', $sEntityFull);
-                $sEntityFull = Engine::GetPluginPrefix($this) . 'Module' . $sModule . '_Entity' . $sEntity;
+                $sEntityFull = E::GetPluginPrefix($this) . 'Module' . $sModule . '_Entity' . $sEntity;
             }
         }
 
@@ -478,7 +478,7 @@ abstract class ModuleORM extends Module {
             if (!is_array($aFilter['#with'])) {
                 $aFilter['#with'] = array($aFilter['#with']);
             }
-            $oEntityEmpty = Engine::GetEntity($sEntityFull);
+            $oEntityEmpty = E::GetEntity($sEntityFull);
             $aRelations = $oEntityEmpty->_getRelations();
             $aEntityKeys = array();
             foreach ($aFilter['#with'] as $sRelationName) {
@@ -505,15 +505,15 @@ abstract class ModuleORM extends Module {
                 /**
                  * Делаем общий запрос по всем ключам
                  */
-                $oRelEntityEmpty = Engine::GetEntity($sRelEntity);
-                $sRelModuleName = Engine::GetModuleName($sRelEntity);
-                $sRelEntityName = Engine::GetEntityName($sRelEntity);
-                $sRelPluginPrefix = Engine::GetPluginPrefix($sRelEntity);
+                $oRelEntityEmpty = E::GetEntity($sRelEntity);
+                $sRelModuleName = E::GetModuleName($sRelEntity);
+                $sRelEntityName = E::GetEntityName($sRelEntity);
+                $sRelPluginPrefix = E::GetPluginPrefix($sRelEntity);
                 $sRelPrimaryKey = method_exists($oRelEntityEmpty, '_getPrimaryKey')
                     ? F::StrCamelize($oRelEntityEmpty->_getPrimaryKey())
                     : 'Id';
                 $aCallParams = array($aEntityKeys[$sRelKey]);
-                $aRelData = Engine::GetInstance()->_CallModule(
+                $aRelData = E::GetInstance()->_CallModule(
                     "{$sRelPluginPrefix}{$sRelModuleName}_get{$sRelEntityName}ItemsByArray{$sRelPrimaryKey}",
                     $aCallParams
                 );
@@ -575,11 +575,11 @@ abstract class ModuleORM extends Module {
     public function GetCountItemsByFilter($aFilter = array(), $sEntityFull = null) {
 
         if (is_null($sEntityFull)) {
-            $sEntityFull = Engine::GetPluginPrefix($this)
-                . 'Module' . Engine::GetModuleName($this) . '_Entity' . Engine::GetModuleName(get_class($this));
+            $sEntityFull = E::GetPluginPrefix($this)
+                . 'Module' . E::GetModuleName($this) . '_Entity' . E::GetModuleName(get_class($this));
         } elseif (!substr_count($sEntityFull, '_')) {
-            $sEntityFull = Engine::GetPluginPrefix($this)
-                . 'Module' . Engine::GetModuleName($this) . '_Entity' . $sEntityFull;
+            $sEntityFull = E::GetPluginPrefix($this)
+                . 'Module' . E::GetModuleName($this) . '_Entity' . $sEntityFull;
         }
         // Если параметр #cache указан и пуст, значит игнорируем кэширование для запроса
         if (array_key_exists('#cache', $aFilter) && !$aFilter['#cache']) {
@@ -638,11 +638,11 @@ abstract class ModuleORM extends Module {
     public function GetItemsByJoinTable($aJoinData = array(), $sEntityFull = null) {
 
         if (is_null($sEntityFull)) {
-            $sEntityFull = Engine::GetPluginPrefix($this)
-                . 'Module' . Engine::GetModuleName($this) . '_Entity' . Engine::GetModuleName(get_class($this));
+            $sEntityFull = E::GetPluginPrefix($this)
+                . 'Module' . E::GetModuleName($this) . '_Entity' . E::GetModuleName(get_class($this));
         } elseif (!substr_count($sEntityFull, '_')) {
-            $sEntityFull = Engine::GetPluginPrefix($this)
-                . 'Module' . Engine::GetModuleName($this) . '_Entity' . $sEntityFull;
+            $sEntityFull = E::GetPluginPrefix($this)
+                . 'Module' . E::GetModuleName($this) . '_Entity' . $sEntityFull;
         }
 
         // Если параметр #cache указан и пуст, значит игнорируем кэширование для запроса
@@ -696,11 +696,11 @@ abstract class ModuleORM extends Module {
     public function GetCountItemsByJoinTable($aJoinData = array(), $sEntityFull = null) {
 
         if (is_null($sEntityFull)) {
-            $sEntityFull = Engine::GetPluginPrefix($this)
-                . 'Module' . Engine::GetModuleName($this) . '_Entity' . Engine::GetModuleName(get_class($this));
+            $sEntityFull = E::GetPluginPrefix($this)
+                . 'Module' . E::GetModuleName($this) . '_Entity' . E::GetModuleName(get_class($this));
         } elseif (!substr_count($sEntityFull, '_')) {
-            $sEntityFull = Engine::GetPluginPrefix($this)
-                . 'Module' . Engine::GetModuleName($this) . '_Entity' . $sEntityFull;
+            $sEntityFull = E::GetPluginPrefix($this)
+                . 'Module' . E::GetModuleName($this) . '_Entity' . $sEntityFull;
         }
         // Если параметр #cache указан и пуст, значит игнорируем кэширование для запроса
         if (array_key_exists('#cache', $aJoinData) && !$aJoinData['#cache']) {
@@ -817,7 +817,7 @@ abstract class ModuleORM extends Module {
         if ($iEntityPosEnd && $iEntityPosEnd > 4) {
             $sEntityName = substr($sNameUnderscore, 4, $iEntityPosEnd - 4);
         } else {
-            $sEntityName = F::StrUnderscore(Engine::GetModuleName($this)) . '_';
+            $sEntityName = F::StrUnderscore(E::GetModuleName($this)) . '_';
             $sNameUnderscore = substr_replace($sNameUnderscore, $sEntityName, 4, 0);
             $iEntityPosEnd = strlen($sEntityName) - 1 + 4;
         }

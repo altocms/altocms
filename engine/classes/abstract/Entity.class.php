@@ -484,7 +484,7 @@ abstract class Entity extends LsObject {
      */
     public function getEntityName() {
 
-        $aInfo = Engine::getInstance()->GetClassInfo($this, Engine::CI_ENTITY);
+        $aInfo = E::getInstance()->GetClassInfo($this, Engine::CI_ENTITY);
         if (isset($aInfo[Engine::CI_ENTITY])) {
             return $aInfo[Engine::CI_ENTITY];
         }
@@ -521,7 +521,7 @@ abstract class Entity extends LsObject {
                 $this->setProp($sKey, $aArgs[0]);
             }
         } else {
-            return Engine::getInstance()->_CallModule($sName, $aArgs);
+            return E::getInstance()->_CallModule($sName, $aArgs);
         }
     }
 
@@ -806,8 +806,8 @@ abstract class Entity extends LsObject {
         }
 
         if (!$sOwnerClassName) {
-            $aOwnerClassName = Engine::getInstance()->GetClassInfo($this, Engine::CI_MODULE);
-            $sOwnerClassName = array_shift($aOwnerClassName);
+            $aOwnerClassName = E::getInstance()->GetClassInfo($this, Engine::CI_MODULE);
+            $sOwnerClassName = reset($aOwnerClassName);
         }
 
         // Все проверки пройдены, запускаем вычисление активности

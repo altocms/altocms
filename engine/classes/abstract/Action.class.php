@@ -95,13 +95,13 @@ abstract class Action extends LsObject {
 
         if (func_num_args() == 1 && is_string($oEngine)) {
             // Передан только экшен
-            $this->oEngine = Engine::getInstance();
+            $this->oEngine = E::getInstance();
             $sAction = $oEngine;
         } else {
             // LS-compatible
             $this->oEngine = $oEngine;
         }
-        Engine::getInstance();
+        //Engine::getInstance();
         $this->RegisterEvent();
         $this->sCurrentAction = $sAction;
         $this->aParams = Router::GetParams();

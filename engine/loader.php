@@ -23,6 +23,9 @@ if (version_compare(phpversion(), ALTO_PHP_REQUIRED) < 0) {
 define('ALTO_DEBUG_PROFILE', 1);
 define('ALTO_DEBUG_FILES', 2);
 
+if (is_file(__DIR__ . '/config.defines.php')) {
+    include(__DIR__ . '/config.defines.php');
+}
 $config = include(__DIR__ . '/config.php');
 
 // load system functions

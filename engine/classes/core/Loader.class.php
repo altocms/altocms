@@ -330,29 +330,21 @@ class Loader {
 
         if (Config::Get('classes')) {
             if ($sParentClass = Config::Get('classes.alias.' . $sClassName)) {
-                if (!class_alias($sParentClass, $sClassName)) {
-                    return false;
-                } else {
-                    return true;
-                }
+                return self::_classAlias($sParentClass, $sClassName);
             }
             if (self::_autoloadDefinedClass($sClassName)) {
                 return true;
             }
         }
 
-        if (class_exists('Engine', false) && (Engine::GetStage() >= Engine::STAGE_INIT)) {
-            $aInfo = Engine::GetClassInfo($sClassName, Engine::CI_CLASSPATH | Engine::CI_INHERIT);
-            if ($aInfo[Engine::CI_INHERIT]) {
-                $sInheritClass = $aInfo[Engine::CI_INHERIT];
-                $sParentClass = Engine::getInstance()->Plugin_GetParentInherit($sInheritClass);
-                if (!class_alias($sParentClass, $sClassName)) {
-                    return false;
-                } else {
-                    return true;
-                }
-            } elseif ($aInfo[Engine::CI_CLASSPATH]) {
-                return self::_includeFile($aInfo[Engine::CI_CLASSPATH], $sClassName);
+        if (class_exists('Engine', false) && (E::GetStage() >= E::STAGE_INIT)) {
+            $aInfo = E::GetClassInfo($sClassName, E::CI_CLASSPATH | E::CI_INHERIT);
+            if ($aInfo[E::CI_INHERIT]) {
+                $sInheritClass = $aInfo[E::CI_INHERIT];
+                $sParentClass = E::getInstance()->Plugin_GetParentInherit($sInheritClass);
+                return self::_classAlias($sParentClass, $sClassName);
+            } elseif ($aInfo[E::CI_CLASSPATH]) {
+                return self::_includeFile($aInfo[E::CI_CLASSPATH], $sClassName);
             }
         }
         if (self::_autoloadPSR0($sClassName)) {
@@ -444,6 +436,43 @@ class Loader {
         return false;
     }
 
+    /**
+     * @var array Array of class aliases
+     */
+    static protected $_aClassAliases = array();
+
+    /**
+     * Creates an alias for a class
+     *
+     * @param string $sOriginal
+     * @param string $sAlias
+     * @param bool   $bAutoload
+     *
+     * @return bool
+     */
+    static protected function _classAlias($sOriginal, $sAlias, $bAutoload = TRUE) {
+
+        $bResult = class_alias($sOriginal, $sAlias, $bAutoload);
+        if (defined('DEBUG') && DEBUG) {
+            self::$_aClassAliases[$sAlias] = array(
+                'original' => $sOriginal,
+                'autoload' => $bAutoload,
+                'result' => $bResult,
+            );
+        }
+
+        return $bResult;
+    }
+
+    /**
+     * Returns of class aliases
+     *
+     * @return array
+     */
+    static public function GetAliases() {
+
+        return self::$_aClassAliases;
+    }
 }
 
 // EOF

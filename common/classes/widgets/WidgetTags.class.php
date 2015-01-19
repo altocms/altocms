@@ -27,7 +27,7 @@ class WidgetTags extends Widget {
         /**
          * Получаем список тегов
          */
-        $aTags = $this->oEngine->Topic_GetOpenTopicTags(Config::Get('widgets.tags.params.limit'));
+        $aTags = E::Topic_GetOpenTopicTags(Config::Get('widgets.tags.params.limit'));
         /**
          * Расчитываем логарифмическое облако тегов
          */
@@ -42,7 +42,7 @@ class WidgetTags extends Widget {
          * Теги пользователя
          */
         if ($oUserCurrent = $this->User_GetUserCurrent()) {
-            $aTags = $this->oEngine->Topic_GetOpenTopicTags(
+            $aTags = E::Topic_GetOpenTopicTags(
                 Config::Get('widgets.tags.params.limit'), $oUserCurrent->getId()
             );
             /**

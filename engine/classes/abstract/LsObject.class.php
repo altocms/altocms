@@ -41,7 +41,7 @@ abstract class LsObject {
 
         // Ввзовом метода модуля считаем, если есть подчеркивание и оно не в начале
         if (strpos($sName, '_')) {
-            return Engine::getInstance()->_CallModule($sName, $aArgs);
+            return E::getInstance()->_CallModule($sName, $aArgs);
         } else {
             // Если подчеркивания нет, то вызов несуществующего метода
             $oExeption = new Exception('Method "' . $sName . '" not exists in class "' . get_class($this) . '"');
@@ -70,6 +70,14 @@ abstract class LsObject {
         }
     }
 
+    public function __get($sName) {
+
+        // LS compatibility
+        if ($sName === 'oEngine') {
+            $this->oEngine = E::getInstance();
+        }
+        return $this->oEngine;
+    }
 }
 
 // EOF

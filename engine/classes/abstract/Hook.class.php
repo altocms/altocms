@@ -31,6 +31,7 @@ abstract class Hook extends LsObject {
      * @param int         $iPriority         Приоритет обработчика хука, чем выше число, тем больше приоритет - хук обработчик выполнится раньше остальных
      */
     protected function AddHook($sName, $sCallBack, $sClassNameHook = null, $iPriority = 1) {
+
         if (is_null($sClassNameHook)) {
             $sCallBack = array($this, $sCallBack);
             $this->Hook_AddExecFunction($sName, $sCallBack, $iPriority);
@@ -40,6 +41,7 @@ abstract class Hook extends LsObject {
     }
 
     protected function AddHookTemplate($sName, $sCallBack, $sClassNameHook = null, $iPriority = 1) {
+
         if (strpos($sName, 'template_') !== 0) {
             $sName = 'template_' . $sName;
         }
@@ -60,6 +62,7 @@ abstract class Hook extends LsObject {
      * @param int         $iPriority         Приоритет обработчика хука
      */
     protected function AddDelegateHook($sName, $sCallBack, $sClassNameHook = null, $iPriority = 1) {
+
         if (is_null($sClassNameHook)) {
             $sClassNameHook = get_class($this);
         }
@@ -79,6 +82,7 @@ abstract class Hook extends LsObject {
      * @param array $aParams
      */
     public function FetchTemplate($aParams) {
+
         if (isset($aParams['template'])) {
             return $this->Viewer_Fetch($aParams['template']);
         }
@@ -94,7 +98,8 @@ abstract class Hook extends LsObject {
      * @return mixed
      */
     public function __call($sName, $aArgs) {
-        return Engine::getInstance()->_CallModule($sName, $aArgs);
+
+        return E::getInstance()->_CallModule($sName, $aArgs);
     }
 }
 

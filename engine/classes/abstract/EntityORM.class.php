@@ -402,21 +402,21 @@ abstract class EntityORM extends Entity {
      */
     protected function _Method($sName) {
 
-        $sModuleName = Engine::GetModuleName($this);
-        $sEntityName = Engine::GetEntityName($this);
-        $sPluginPrefix = Engine::GetPluginPrefix($this);
+        $sModuleName = E::GetModuleName($this);
+        $sEntityName = E::GetEntityName($this);
+        $sPluginPrefix = E::GetPluginPrefix($this);
         /**
          * If Module not exists, try to find its root Delegater
          */
-        $aClassInfo = Engine::GetClassInfo($sPluginPrefix . 'Module_' . $sModuleName, Engine::CI_MODULE);
-        if (empty($aClassInfo[Engine::CI_MODULE])
+        $aClassInfo = E::GetClassInfo($sPluginPrefix . 'Module_' . $sModuleName, Engine::CI_MODULE);
+        if (empty($aClassInfo[E::CI_MODULE])
             && $sRootDelegater = $this->Plugin_GetRootDelegater('entity', get_class($this))
         ) {
-            $sModuleName = Engine::GetModuleName($sRootDelegater);
-            $sPluginPrefix = Engine::GetPluginPrefix($sRootDelegater);
+            $sModuleName = E::GetModuleName($sRootDelegater);
+            $sPluginPrefix = E::GetPluginPrefix($sRootDelegater);
         }
         $aCallArgs = array($this);
-        return Engine::GetInstance()->_CallModule("{$sPluginPrefix}{$sModuleName}_{$sName}{$sEntityName}", $aCallArgs);
+        return E::GetInstance()->_CallModule("{$sPluginPrefix}{$sModuleName}_{$sName}{$sEntityName}", $aCallArgs);
     }
 
     /**
@@ -479,7 +479,7 @@ abstract class EntityORM extends Entity {
                 return null;
             }
             $sFieldU = F::StrCamelize($sField);
-            $sEntityField = F::StrUnderscore(Engine::GetEntityName($this) . $sFieldU);
+            $sEntityField = F::StrUnderscore(E::GetEntityName($this) . $sFieldU);
             if (in_array($sEntityField, $aFields)) {
                 return $sEntityField;
             }
@@ -487,7 +487,7 @@ abstract class EntityORM extends Entity {
                 return null;
             }
             $sModuleEntityField = F::StrUnderscore(
-                Engine::GetModuleName($this) . Engine::GetEntityName($this) . $sFieldU
+                E::GetModuleName($this) . E::GetEntityName($this) . $sFieldU
             );
             if (in_array($sModuleEntityField, $aFields)) {
                 return $sModuleEntityField;
@@ -495,7 +495,7 @@ abstract class EntityORM extends Entity {
             if ($iPersistence == 2) {
                 return null;
             }
-            $sModuleField = F::StrUnderscore(Engine::GetModuleName($this) . $sFieldU);
+            $sModuleField = F::StrUnderscore(E::GetModuleName($this) . $sFieldU);
             if (in_array($sModuleField, $aFields)) {
                 return $sModuleField;
             }
@@ -594,11 +594,11 @@ abstract class EntityORM extends Entity {
                     }
 
 
-                    $sRelModuleName = Engine::GetModuleName($sEntityRel);
-                    $sRelEntityName = Engine::GetEntityName($sEntityRel);
-                    $sRelPluginPrefix = Engine::GetPluginPrefix($sEntityRel);
+                    $sRelModuleName = E::GetModuleName($sEntityRel);
+                    $sRelEntityName = E::GetEntityName($sEntityRel);
+                    $sRelPluginPrefix = E::GetPluginPrefix($sEntityRel);
                     $sRelPrimaryKey = 'id';
-                    if ($oRelEntity = Engine::GetEntity($sEntityRel)) {
+                    if ($oRelEntity = E::GetEntity($sEntityRel)) {
                         $sRelPrimaryKey = $oRelEntity->_getPrimaryKey();
                     }
 
@@ -642,7 +642,7 @@ abstract class EntityORM extends Entity {
                         $mCmdArgs = array_merge($mCmdArgs, $aArgs[0]);
                     }
                     $aCallArgs = array($mCmdArgs);
-                    $res = Engine::GetInstance()->_CallModule($sCmd, $aCallArgs);
+                    $res = E::GetInstance()->_CallModule($sCmd, $aCallArgs);
 
                     // Сохраняем данные только в случае "чистой" выборки
                     if (!$bUseFilter) {
@@ -669,7 +669,7 @@ abstract class EntityORM extends Entity {
                 }
             }
         } else {
-            return Engine::getInstance()->_CallModule($sName, $aArgs);
+            return E::getInstance()->_CallModule($sName, $aArgs);
         }
     }
 

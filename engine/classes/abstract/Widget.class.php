@@ -21,12 +21,7 @@
  * @since 1.0
  */
 abstract class Widget extends LsObject {
-    /**
-     * Ядро движка
-     *
-     * @var Engine|null
-     */
-    protected $oEngine = null;
+
     /**
      * Список параметров блока
      *
@@ -40,8 +35,8 @@ abstract class Widget extends LsObject {
      * @param array $aParams Список параметров блока
      */
     public function __construct($aParams) {
+
         $this->aParams = $aParams;
-        $this->oEngine = Engine::getInstance();
     }
 
     /**
@@ -52,6 +47,7 @@ abstract class Widget extends LsObject {
      * @return  mixed
      */
     protected function GetParam($sName, $xDefault = null) {
+
         if (isset($this->aParams[$sName])) {
             return $this->aParams[$sName];
         } else {
@@ -78,7 +74,7 @@ abstract class Widget extends LsObject {
     protected function Fetch($sTemplate, $aVars = array()) {
 
         $aVars = F::Array_Merge(array('aWidgetParams' => $this->aParams), $aVars);
-        return $this->Viewer_FetchWidget($sTemplate, $aVars);
+        return E::Viewer_FetchWidget($sTemplate, $aVars);
     }
 }
 
