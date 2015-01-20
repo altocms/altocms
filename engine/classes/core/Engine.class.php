@@ -13,17 +13,17 @@
  *----------------------------------------------------------------------------
  */
 
-F::IncludeFile('Plugin.class.php');
-F::IncludeFile('Hook.class.php');
-F::IncludeFile('Module.class.php');
+F::IncludeFile('../abstract/Plugin.class.php');
+F::IncludeFile('../abstract/Hook.class.php');
+F::IncludeFile('../abstract/Module.class.php');
 F::IncludeFile('Router.class.php');
 
-F::IncludeFile('Entity.class.php');
-F::IncludeFile('Mapper.class.php');
+F::IncludeFile('../abstract/Entity.class.php');
+F::IncludeFile('../abstract/Mapper.class.php');
 
-F::IncludeFile('ModuleORM.class.php');
-F::IncludeFile('EntityORM.class.php');
-F::IncludeFile('MapperORM.class.php');
+F::IncludeFile('../abstract/ModuleORM.class.php');
+F::IncludeFile('../abstract/EntityORM.class.php');
+F::IncludeFile('../abstract/MapperORM.class.php');
 
 F::IncludeFile('ManyToManyRelation.class.php');
 
