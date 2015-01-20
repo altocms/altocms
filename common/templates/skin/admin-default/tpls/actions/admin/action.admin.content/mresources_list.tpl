@@ -2,9 +2,6 @@
 
 {block name="content-bar"}
     <div class="btn-group">
-        <a href="#" class="btn btn-primary disabled"><i class="icon icon-plus"></i></a>
-    </div>
-    <div class="btn-group">
         <a class="btn btn-default {if $sMode=='all' || $sMode==''}active{/if}" href="{router page='admin'}content-mresources/list/all/">
             {$aLang.target_type_all}
         </a>
