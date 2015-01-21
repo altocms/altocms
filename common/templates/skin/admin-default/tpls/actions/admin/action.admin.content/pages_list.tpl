@@ -101,9 +101,10 @@
     var admin = admin || { };
 
     admin.confirmDelete = function(id, title) {
-        ls.modal.confirm(
-                '{$aLang.action.admin.pages_admin_action_delete}',
-                '{$aLang.action.admin.pages_admin_action_delete_message} "' + title + '"<br/>{$aLang.action.admin.pages_admin_action_delete_confirm}',
+        ls.modal.confirm({
+                    title: '{$aLang.action.admin.pages_admin_action_delete}',
+                    message: '{$aLang.action.admin.pages_admin_action_delete_message} "' +title + '"<br/>{$aLang.action.admin.pages_admin_action_delete_confirm}'
+                },
                 function() {
                     document.location = "{router page='admin'}content-pages/delete/" + id + "/?security_key={$ALTO_SECURITY_KEY}";
                 }
