@@ -1,1 +1,1 @@
-<a href='{$oUser->getUserWebPath()}'>{$oUser->getLogin()}</a>
+<a href='{$oUser->getUserWebPath()}'>{$oUser->getDisplayName()}</a>
