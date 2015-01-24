@@ -435,6 +435,7 @@ class Config extends Storage {
      */
     static public function KeyReplace($xConfigData, $sRoot = self::DEFAULT_CONFIG_ROOT) {
 
+        $xResult = $xConfigData;
         if (is_array($xConfigData)) {
             $xResult = array();
             if (isset($xConfigData[self::KEY_EXTENDS])) {
@@ -456,7 +457,6 @@ class Config extends Storage {
                 }
             }
         } elseif (is_string($xConfigData) && !is_numeric($xConfigData)) {
-            $xResult = $xConfigData;
             if (strpos($xConfigData, self::KEY_LINK_STR) !== false && preg_match_all(self::KEY_LINK_PREG, $xConfigData, $aMatch, PREG_SET_ORDER)) {
                 if (count($aMatch) == 1 && $aMatch[0][0] == $xConfigData) {
                     $xResult = Config::Get($aMatch[0][1], $sRoot);
