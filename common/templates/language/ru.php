@@ -1466,6 +1466,8 @@ return array(
     'panel_photoset_align_both' => 'по центру',
     'panel_photoset_topic' => 'Ид. топика-источника фотосета ',
 
+    'panel_user_login' => 'Логин',
+
 
 );
 

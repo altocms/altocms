@@ -1392,6 +1392,9 @@ return array(
     'panel_photoset_align_right' => 'right',
     'panel_photoset_align_both' => 'justify',
     'panel_photoset_topic' => 'Topic-source id',
+
+
+    'panel_user_login' => 'login',
 );
 
 // EOF
