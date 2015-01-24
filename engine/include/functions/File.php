@@ -355,14 +355,14 @@ class AltoFunc_File {
         }
 
         if ($bRecursively || ($nFlag & GLOB_ONLYDIR)) {
-            $aSubDirs = glob($sDir . '/{,.}*', $nFlag | GLOB_BRACE | GLOB_ONLYDIR);
+            $aSubDirs = glob($sDir . ((substr($sDir, -1) !== '/') ? '/' : '') . '{,.}*', $nFlag | GLOB_BRACE | GLOB_ONLYDIR);
             // исключаем из выдачи '.' и '..'
             $aSubDirs = static::_excludeDotted($aSubDirs);
         } else {
             $aSubDirs = array();
         }
 
-        if ($nFlag & GLOB_ONLYDIR) {
+        if ($nFlag & GLOB_ONLYDIR && !$bRecursively) {
             return $aSubDirs;
         }
 
