@@ -1467,6 +1467,8 @@ return array(
     'panel_photoset_topic' => 'Ид. топика-источника фотосета ',
 
     'panel_user_login' => 'Логин',
+    'panel_spoiler_text' => 'Текст спойлера',
+    'panel_spoiler_title' => 'Спойлер',
 
 
 );

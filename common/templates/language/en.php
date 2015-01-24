@@ -1395,6 +1395,8 @@ return array(
 
 
     'panel_user_login' => 'login',
+    'panel_spoiler_text' => 'Spoiler text',
+    'panel_spoiler_title' => 'Spoiler',
 );
 
 // EOF
