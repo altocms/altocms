@@ -665,6 +665,7 @@ class Install {
         $aParams['password'] = $this->GetRequest('install_db_password', '');
         $aParams['create'] = $this->GetRequest('install_db_create', 0);
         $aParams['convert_from_097'] = $this->GetRequest('install_db_convert_from_alto_097', 0);
+        $aParams['convert_to_alto_11'] = $this->GetRequest('install_db_convert_to_alto_11', 0);
         $aParams['convert_to_alto'] = $this->GetRequest('install_db_convert_to_alto', 0);
         $aParams['prefix'] = $this->GetRequest('install_db_prefix', 'prefix_');
         $aParams['engine'] = $this->GetRequest('install_db_engine', 'InnoDB');
@@ -683,6 +684,10 @@ class Install {
         );
         $this->Assign(
             'install_db_convert_from_alto_097_check', (($aParams['convert_from_097']) ? 'checked="checked"' : ''),
+            self::SET_VAR_IN_SESSION
+        );
+        $this->Assign(
+            'install_db_convert_to_alto_11_check', (($aParams['convert_to_alto_11']) ? 'checked="checked"' : ''),
             self::SET_VAR_IN_SESSION
         );
         $this->Assign('install_db_prefix', $aParams['prefix'], self::SET_VAR_IN_SESSION);
@@ -797,6 +802,20 @@ class Install {
                      */
                     list($bResult, $aErrors) = array_values(
                         $this->ConvertDatabaseToAlto10('convert_0.9.7_to_1.0.sql', $aParams)
+                    );
+                    if (!$bResult) {
+                        foreach ($aErrors as $sError) {
+                            $this->aMessages[] = array('type' => 'error', 'text' => $sError);
+                        }
+                        $this->Layout('steps/db.tpl');
+                        return false;
+                    }
+                } elseif ($aParams['convert_to_alto_11']) {
+                    /**
+                     * Если указана конвертация AltoCMS 1.1 в Alto CMS 1.1
+                     */
+                    list($bResult, $aErrors) = array_values(
+                        $this->ConvertDatabaseToAlto10('convert_1.0_to_1.1.sql', $aParams)
                     );
                     if (!$bResult) {
                         foreach ($aErrors as $sError) {
