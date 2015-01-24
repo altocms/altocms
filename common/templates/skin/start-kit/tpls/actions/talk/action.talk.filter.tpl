@@ -10,9 +10,9 @@
              {if $_aRequest.submit_talk_filter}style="display:block;" {/if}>
             <form action="{router page='talk'}" method="GET" name="talk_filter_form">
                 <div class="form-group">
-                    <label for="talk_filter_sender">{$aLang.talk_filter_label_sender}</label>
-                    <input type="text" id="talk_filter_sender" name="sender" value="{$_aRequest.sender}"
-                           class="form-control"/>
+                    <label for="talk_filter_addressee">{$aLang.talk_filter_label_addressee}</label>
+                    <input type="text" id="talk_filter_addressee" name="addressee" value="{$_aRequest.addressee}"
+                           class="form-control js-autocomplete-users-sep"/>
 
                     <p class="help-block">
                         <small>{$aLang.talk_filter_notice_sender}</small>

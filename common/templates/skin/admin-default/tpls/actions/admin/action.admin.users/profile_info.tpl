@@ -217,30 +217,35 @@
     <tr>
         <td class="adm_var">{$oLang->profile_friends}:</td>
         <td class="friends">
-            {if $aUsersFrend}
-                {foreach from=$aUsersFrend item=oUserFrend}
-                    <a href="{$oUserFrend->getProfileUrl()}">{$oUserFrend->getDisplayName()}</a>&nbsp;
+            {if $aUsersFriend}
+                {foreach from=$aUsersFriend item=oUserFriend}
+                    <a href="{$oUserFriend->getProfileUrl()}">{$oUserFriend->getDisplayName()}</a>{if !$oUserFriend@last}, {/if}
                 {/foreach}
+                {if count($aUsersFriend) > 10}
+                    <br/><a href="{router page='profile'}{$oUserProfile->getLogin()}/friends/">{$aLang.action.admin.user_show_all}</a>
+            {/if}
+            {else}
+                {$aLang.action.admin.word_no}
             {/if}
         </td>
     </tr>
 
-    <tr>
-        <td class="adm_var">{$oLang->profile_friends_self}:</td>
-        <td class="friends">
-            {if $aUsersSelfFrend}
-                {foreach from=$aUsersSelfFrend item=oUserFrend}
-                    <a href="{$oUserFrend->getProfileUrl()}">{$oUserFrend->getDisplayName()}</a>&nbsp;
-                {/foreach}
-            {/if}
-        </td>
-    </tr>
+    {*<tr>*}
+        {*<td class="adm_var">{$oLang->profile_friends_self}:</td>*}
+        {*<td class="friends">*}
+            {*{if $aUsersSelfFrend}*}
+                {*{foreach from=$aUsersSelfFrend item=oUserFrend}*}
+                    {*<a href="{$oUserFrend->getProfileUrl()}">{$oUserFrend->getDisplayName()}</a>&nbsp;*}
+                {*{/foreach}*}
+            {*{/if}*}
+        {*</td>*}
+    {*</tr>*}
 
     {if Config::Get('general.reg.invite') and $oUserInviteFrom}
         <tr>
             <td class="adm_var">{$oLang->profile_invite_from}:</td>
             <td class="friends">
-                <a href="{$oUserInviteFrom->getProfileUrl()}">{$oUserInviteFrom->getDisplayName()}</a>&nbsp;
+                <a href="{$oUserInviteFrom->getProfileUrl()}">{$oUserInviteFrom->getDisplayName()}</a>
             </td>
         </tr>
     {/if}
@@ -250,7 +255,7 @@
             <td class="adm_var">{$oLang->profile_invite_to}:</td>
             <td class="friends">
                 {foreach from=$aUsersInvite item=oUserInvite}
-                    <a href="{$oUserInvite->getProfileUrl()}">{$oUserInvite->getDisplayName()}</a>&nbsp;
+                    <a href="{$oUserInvite->getProfileUrl()}">{$oUserInvite->getDisplayName()}</a>{if !$oUserInvite@last}, {/if}
                 {/foreach}
             </td>
         </tr>
@@ -315,15 +320,31 @@
         </td>
     </tr>
 
+
+    <tr>
+        <td class="adm_var">{$aLang.action.admin.user_ban}:</td>
+        <td>
+            {if $aBlogsBanUser}
+                {foreach from=$aBlogsBanUser item=oBanUser name=ban_user}
+                    {assign var="oBlog" value=$oBanUser->getBlog()}
+                    <a href="{$oBlog->getUrlFull()}">{$oBlog->getBlogTitle()|escape:'html'}</a>{if !$smarty.foreach.ban_user.last}
+                    , {/if}
+                {/foreach}
+                {else}
+                {$aLang.action.admin.word_no}
+            {/if}
+        </td>
+    </tr>
+
     <tr>
         <td class="adm_var">{$aLang.action.admin.user_wrote_topics}:</td>
         <td>
-            {if $oUserProfile->GetCountTopics()}{$oUserProfile->GetCountTopics()}{else}0{/if}
+            {$iCountTopicsByUser}
             {if $aLastTopicList}
                 (
                 {foreach from=$aLastTopicList item=oTopic name=topic_user}
                     <a href="{router page='blog'}{$oTopic->getId()}.html">{$oTopic->getTitle()|escape:'html'}</a>{if !$smarty.foreach.topic_user.last}
-                    , {/if}
+                    , {else}  ...{/if}
                 {/foreach}
                 )
             {/if}
@@ -333,7 +354,7 @@
     <tr>
         <td class="adm_var">{$aLang.action.admin.user_wrote_comments}:</td>
         <td>
-            {if $oUserProfile->GetCountComments()}{$oUserProfile->GetCountComments()}{else}0{/if}
+            {$iCountCommentsByUser}
         </td>
     </tr>
 

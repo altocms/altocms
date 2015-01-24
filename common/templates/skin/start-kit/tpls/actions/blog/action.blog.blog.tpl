@@ -56,20 +56,26 @@
             <a href="#" class="vote-down js-vote-down"><span class="glyphicon glyphicon-minus-sign"></span></a>
         </div>
 
-        {if E::IsUser() AND (E::UserId()==$oBlog->getOwnerId() OR E::IsAdmin() OR $oBlog->getUserIsAdministrator() OR $oBlog->getUserIsModerator())}
+        {if E::IsUser() AND ($oBlog->CanEditedBy(E::User()) OR $oBlog->CanAdminBy(E::User()) OR $oBlog->CanDeletedBy(E::User()))}
             <ul class="small list-unstyled list-inline pull-right actions">
                 <li><span class="glyphicon glyphicon-cog actions-tool"></span></li>
+                {if $oBlog->CanEditedBy(E::User())}
                 <li>
                     <a href="{router page='blog'}edit/{$oBlog->getId()}/" title="{$aLang.blog_menu_edit}"
                        class="actions-edit">{$aLang.blog_menu_edit}</a>
                 </li>
+                {/if}
+                {if $oBlog->CanAdminBy(E::User())}
                 <li>
                     <a href="{router page='blog'}admin/{$oBlog->getId()}/" title="{$aLang.blog_menu_admin}"
                        class="actions-edit">{$aLang.blog_menu_admin}</a>
                 </li>
+                {/if}
+                {if $oBlog->CanDeletedBy(E::User())}
                 <li>
                     <a href="#" title="{$aLang.blog_menu_delete}" class="actions-delete js-modal-blog_delete">{$aLang.blog_menu_delete}</a>
                 </li>
+                {/if}
             </ul>
         {/if}
     </header>

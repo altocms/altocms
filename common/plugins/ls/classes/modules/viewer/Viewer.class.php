@@ -41,6 +41,7 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
         'actions/talk/action.talk.message.tpl' => 'actions/ActionTalk/read.tpl',
         'actions/ActionProfile/info.tpl' => 'actions/ActionProfile/whois.tpl',
         'actions/profile/action.profile.info.tpl' => 'actions/ActionProfile/whois.tpl',
+        'actions/stream/action.stream.follow.tpl' => 'actions/ActionStream/user.tpl',
 
         'topics/topic.list.tpl' => 'topic_list.tpl',
 

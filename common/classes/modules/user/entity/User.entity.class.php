@@ -835,10 +835,15 @@ class ModuleUser_EntityUser extends Entity {
 
     public function IsBannedByIp() {
 
-//        return ($this->GetProp('ban_ip'));
+        // return ($this->GetProp('ban_ip'));
 
         // issue 258 {@link https://github.com/altocms/altocms/issues/258}
-        return $this->User_IpIsBanned(F::GetUserIp());
+        $bResult = $this->GetProp('ban_ip');
+        if (is_null($bResult)) {
+            $bResult = (bool)$this->User_IpIsBanned(F::GetUserIp());
+            $this->setProp('ban_ip', $bResult);
+        }
+        return $bResult;
     }
 
     public function IsBanned() {

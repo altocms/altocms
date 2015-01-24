@@ -395,6 +395,9 @@ class ModuleViewer extends Module {
             Config::Set('view.theme', $this->GetConfigTheme());
         }
 
+        // Load lang files for skin
+        $this->Lang_LoadLangFileTemplate($this->Lang_GetLang());
+
         // Skip skin widgets for local viewer
         if (!$this->bLocal) {
             // * Load skin widgets
@@ -1534,10 +1537,10 @@ class ModuleViewer extends Module {
                         $this->ViewerAsset_ClearCss();
                     }
                     if (isset($aRule['css']['exclude']) && is_array($aRule['css']['exclude'])) {
-                        $this->ViewerAsset_ExcludeCss($aRule['js']['exclude']);
+                        $this->ViewerAsset_ExcludeCss($aRule['css']['exclude']);
                     }
                     if (isset($aRule['css']['include']) && is_array($aRule['css']['include'])) {
-                        $this->ViewerAsset_AddCssFiles($aRule['js']['include']);
+                        $this->ViewerAsset_AddCssFiles($aRule['css']['include']);
                     }
 
                     // * Продолжаем поиск

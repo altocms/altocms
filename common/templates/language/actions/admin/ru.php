@@ -264,6 +264,9 @@ return array(
 
 
 
+    'user_show_all' => 'Показать всех друзей',
+    'user_ban' => 'Забанен',
+
     /* INVITES */
     'invites_title'       => 'Приглашения',
     'invites_all'         => 'Все приглашения',
@@ -541,6 +544,8 @@ return array(
     'set_sys_logs_sql_query_file' => 'Файл журнала SQL-запросов',
     'set_sys_logs_sql_error' => 'Включить логгирование ошибочных SQL-запросов',
     'set_sys_logs_sql_error_file' => 'Файл журнала ошибочных SQL-запросов',
+    'set_sys_logs_profiler' => 'Включить профилирование процессов',
+    'set_sys_logs_profiler_file' => 'Файл журнала профилирования процессов',
     'set_sys_logs_cron_file' => 'Файл журнала запуска крон-процессов',
 
     'set_section_css' => 'Настройки обработки CSS-файлов',
@@ -847,7 +852,6 @@ return array(
     'blogtypes_contenttypes'        => 'Тип контента',
     'blogtypes_contenttypes_notice' => 'Допустимый тип контента, который может быть в блоге',
     'blogtypes_contenttypes_any'    => 'Любой',
-    'blogtypes_contenttypes_nothing'=> 'Ни одного',
 
     'blogtypes_err_id_notfound'     => 'Тип блога с заданным ID не найден',
 
@@ -945,8 +949,6 @@ return array(
     'contenttypes_additional_question'   => 'Опрос',
     'contenttypes_additional_link'       => 'Ссылка на оригинал',
 
-    'contenttypes_field_image_notice'    => 'Поле для загрузки изображения',
-    'contenttypes_field_image'           => 'Изображение',
 
     /*
      * Администрирование

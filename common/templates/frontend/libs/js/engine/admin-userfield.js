@@ -111,7 +111,7 @@ ls.userfield = ( function ($) {
         var title = ls.lang.get('action.admin.user_field_delete_confirm_title'),
             text = ls.lang.get('action.admin.user_field_delete_confirm_text', {field: $(this.fieldIdPrefix + id).find('.userfield_admin_name').text()});
 
-        ls.modal.confirm({title: title, text: text}, function () {
+        ls.modal.confirm({title: title, text: text, onConfirm: function () {
             var url = ls.routerUrl('admin') + 'settings-userfields';
             var params = {'action': 'delete', 'id': id};
 
@@ -128,7 +128,7 @@ ls.userfield = ( function ($) {
                     ls.msg.error(response.sMsgTitle, response.sMsg);
                 }
             });
-        });
+        }});
         return false;
     };
 

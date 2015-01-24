@@ -1693,7 +1693,7 @@ class ActionAdmin extends Action {
         }
 
         $sMode = $this->GetParam(2);
-        //$aUserVoteStat = $this->User_GetUserVoteStats($oUserProfile->getId());
+        $aUserVoteStat = $this->Vote_GetUserVoteStats($oUserProfile->getId());
 
         if ($sMode == 'topics') {
             $this->EventUsersProfileTopics($oUserProfile);
@@ -1714,12 +1714,41 @@ class ActionAdmin extends Action {
 
         $this->Viewer_Assign('sMode', $sMode);
         $this->Viewer_Assign('oUserProfile', $oUserProfile);
-        //$this->Viewer_Assign('aUserVoteStat', $aUserVoteStat);
+        $this->Viewer_Assign('aUserVoteStat', $aUserVoteStat);
         $this->Viewer_Assign('nParamVoteValue', 1);
 
     }
 
+    /**
+     * @param ModuleUser_EntityUser $oUserProfile
+     */
     protected function _eventUsersProfileInfo($oUserProfile) {
+
+        /** @var ModuleUser_EntityUser[] $aUsersFriend */
+        $aUsersFriend = $this->User_GetUsersFriend($oUserProfile->getId(), 1, 10);
+        /** @var ModuleUser_EntityUser[] $aUserInvite */
+        $aUsersInvite = $this->User_GetUsersInvite($oUserProfile->getId());
+        $oUserInviteFrom = $this->User_GetUserInviteFrom($oUserProfile->getId());
+        $aBlogsOwner = $this->Blog_GetBlogsByOwnerId($oUserProfile->getId());
+        $aBlogsModeration = $this->Blog_GetBlogUsersByUserId($oUserProfile->getId(), ModuleBlog::BLOG_USER_ROLE_MODERATOR);
+        $aBlogsAdministration = $this->Blog_GetBlogUsersByUserId($oUserProfile->getId(), ModuleBlog::BLOG_USER_ROLE_ADMINISTRATOR);
+        $aBlogsUser = $this->Blog_GetBlogUsersByUserId($oUserProfile->getId(), ModuleBlog::BLOG_USER_ROLE_USER);
+        $aBlogsBanUser = $this->Blog_GetBlogUsersByUserId($oUserProfile->getId(), ModuleBlog::BLOG_USER_ROLE_BAN);
+        $aLastTopicList = $this->Topic_GetLastTopicsByUserId($oUserProfile->getId(), Config::Get('acl.create.topic.limit_time')*1000000, 3);
+        $iCountTopicsByUser = $this->Topic_GetCountTopicsByFilter(array('user_id' => $oUserProfile->getId()));
+        $iCountCommentsByUser = $this->Comment_GetCountCommentsByUserId($oUserProfile->getId(), 'topic');
+
+        $this->Viewer_Assign('aUsersFriend', isset($aUsersFriend['collection'])?$aUsersFriend['collection']:false);
+        $this->Viewer_Assign('aUsersInvite', $aUsersInvite);
+        $this->Viewer_Assign('oUserInviteFrom', $oUserInviteFrom);
+        $this->Viewer_Assign('aBlogsOwner', $aBlogsOwner);
+        $this->Viewer_Assign('aBlogsModeration', $aBlogsModeration);
+        $this->Viewer_Assign('aBlogsAdministration', $aBlogsAdministration);
+        $this->Viewer_Assign('aBlogsUser', $aBlogsUser);
+        $this->Viewer_Assign('aBlogsBanUser', $aBlogsBanUser);
+        $this->Viewer_Assign('iCountTopicsByUser', $iCountTopicsByUser);
+        $this->Viewer_Assign('iCountCommentsByUser', $iCountCommentsByUser);
+        $this->Viewer_Assign('aLastTopicList', isset($aLastTopicList['collection'])?$aLastTopicList['collection']:false);
 
         $this->SetTemplateAction('users/profile_info');
     }
@@ -2304,7 +2333,7 @@ class ActionAdmin extends Action {
     protected function _parseLog($sLogTxt) {
 
         $aLogs = array();
-        if (preg_match_all('/\[LOG\:(?<id>[\d\-\.\,]+)\]\[(?<date>[\d\-\s\:]+)\].*\[\[(?<text>.*)\]\]/siuU', $sLogTxt, $aM, PREG_PATTERN_ORDER)) {
+        if (preg_match_all('/\[LOG\:(?<id>[\d\-\.\,A-F]+)\]\[(?<date>[\d\-\s\:]+)\].*\[\[(?<text>.*)\]\]/siuU', $sLogTxt, $aM, PREG_PATTERN_ORDER)) {
             if (preg_last_error() == PREG_BACKTRACK_LIMIT_ERROR) {
                 $this->Message_AddError($this->Lang_Get('action.admin.logs_too_long'), null);
             }

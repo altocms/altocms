@@ -9520,6 +9520,7 @@ ul.menu-level-1 > li.menu-hidden-container ul.menu-hidden li.open > a.userlogo {
   width: 100%;
   margin: 0 0 12px 0;
 }
+.content .topic .topic-text img.image-center   { display: block; margin: 0 auto; }
 .content .topic .topic-text > img {
   max-width: 100%;
   margin: 0 0 12px 0;
@@ -10003,7 +10004,7 @@ ul.menu-level-1 > li.menu-hidden-container ul.menu-hidden li.open > a.userlogo {
   right: 24px;
   top: 187px;
   width: 32px;
-  z-index: 1;
+  z-index: 2;
 }
 .toolbar > div.toolbar-button {
   margin-bottom: 8px;
@@ -10466,6 +10467,10 @@ ul.menu-level-1 > li.menu-hidden-container ul.menu-hidden li.open > a.userlogo {
 .panel.comment .comment-content .comment-text img[align="center"] {
   width: 100%;
   margin: 0 0 12px 0;
+}
+.panel.comment .comment-content .comment-text img.image-center {
+  display: block;
+  margin: 0 auto;
 }
 .panel.comment .comment-content .comment-text img {
   max-width: 100%;

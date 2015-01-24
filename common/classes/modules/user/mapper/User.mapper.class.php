@@ -285,7 +285,7 @@ class ModuleUser_MapperUser extends Mapper {
             UPDATE ?_session
             SET
                 session_exit = ?
-            WHERE user_id = ?
+            WHERE user_id = ? AND (session_exit IS NULL OR session_exit = '')
             ";
         return ($this->oDb->query($sql, F::Now(), $nUserId) !== false);
     }

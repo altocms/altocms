@@ -80,6 +80,48 @@ class ModuleVote_MapperVote extends Mapper {
     }
 
     /**
+     * Возвращает статистику голосований по пользователю
+     *
+     * @param string|int $sUserId Ид. пользователя
+     */
+    public function GetUserVoteStats($sUserId) {
+
+        $sql = "SELECT
+                  target_type, vote_direction, count(id) as cnt, sum(vote_value) as sum
+                FROM
+                  ?_vote
+                WHERE
+                  user_voter_id = ?d
+                GROUP BY
+                  target_type, vote_direction";
+
+        $aResult = array(
+            'cnt_topics_p' => 0,
+            'cnt_topics_m' => 0,
+            'sum_topics_p' => 0,
+            'sum_topics_m' => 0,
+            'cnt_comments_p' => 0,
+            'cnt_comments_m' => 0,
+            'sum_comments_p' => 0,
+            'sum_comments_m' => 0,
+            'cnt_users_p' => 0,
+            'cnt_users_m' => 0,
+            'sum_users_p' => 0,
+            'sum_users_m' => 0,
+        );
+
+        if ($aRows = $this->oDb->select($sql, $sUserId)) {
+            foreach ($aRows as $aRow) {
+                $aResult["cnt_{$aRow['target_type']}s_" . ($aRow['vote_direction'] == '1' ? 'p' : 'm')] = $aRow['cnt'];
+                $aResult["sum_{$aRow['target_type']}s_" . ($aRow['vote_direction'] == '1' ? 'p' : 'm')] = $aRow['sum'];
+            }
+        }
+
+        return $aResult;
+
+    }
+
+    /**
      * Удаляет голосование из базы по списку идентификаторов таргета
      *
      * @param   array|int   $aTargetsId     Список ID владельцев

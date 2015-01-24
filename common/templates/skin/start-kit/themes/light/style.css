@@ -30,7 +30,7 @@
 /* MIXINS */
 /* COMMON */
 body {
-  background: #eaeaea url("img/bg.jpg");
+  background: #eaeaea url("colors-light.less/img/bg.jpg");
 }
 a {
   color: #00afd1;
@@ -164,7 +164,7 @@ a {
   padding: 0;
 }
 .blog-header .actions a,
-.topic-header-info .actions a,
+.topic-header .actions a,
 .usernote-header .actions a {
   display: inline-block;
   color: #777777;
@@ -172,7 +172,7 @@ a {
   padding: 2px 4px 1px 4px;
 }
 .blog-header .actions .actions-tool,
-.topic-header-info .actions .actions-tool,
+.topic-header .actions .actions-tool,
 .usernote-header .actions .actions-tool {
   color: #ededed;
   background-color: #777777;
@@ -295,7 +295,7 @@ a {
   background-color: #ffffff;
 }
 .comment .comment-avatar {
-  border-color: #eaeaea url("img/bg.jpg");
+  border-color: #eaeaea url("colors-light.less/img/bg.jpg");
 }
 #comments .comment {
   background-color: #ededed;
@@ -365,4 +365,3 @@ a {
   text-decoration: none;
   color: #00afd1;
 }
-/*# sourceMappingURL=style.css.map */

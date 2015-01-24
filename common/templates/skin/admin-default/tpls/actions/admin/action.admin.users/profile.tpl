@@ -50,7 +50,7 @@
         button.popover('show');
 
         $('.confirm').off('click').on('click', function (e) {
-            $(event.currentTarget).progressOn();
+            $(e.currentTarget).progressOn();
             var val = parseInt($(this).parent().find('input[name=value]').val() * $(this).parent().find('input[name=sign]').val());
             if (val) {
                 var views = {
@@ -59,7 +59,7 @@
                     voteCount:$('.sidebar .voting .count')
                 };
                 admin.vote('user', '{$oUserProfile->getId()}', val, views, function () {
-                    $(event.currentTarget).progressOff();
+                    $(e.currentTarget).progressOff();
                 });
             }
             button.popover('hide');

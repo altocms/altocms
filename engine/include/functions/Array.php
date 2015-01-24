@@ -12,15 +12,14 @@
  * Array functions for Alto CMS
  */
 class AltoFunc_Array {
-
     /**
      * Рекурсивно изменяет элементы массива, добавляя ко всем значениям (кроме объектов) префикс и суффикс
      *
-     * @param  array  $aData
-     * @param  string $sBefore
-     * @param  string $sAfter
+     * @param   array   $aData
+     * @param   string  $sBefore
+     * @param   string  $sAfter
      *
-     * @return array
+     * @return  array
      */
     static public function ChangeValues($aData, $sBefore = '', $sAfter = '') {
 
@@ -38,10 +37,10 @@ class AltoFunc_Array {
      * Меняет числовые ключи массива на их значения
      * Т.е. если ключ - число, а значение элемента - строка, то они меняются местами
      *
-     * @param  array $aData
-     * @param  mixed $xDefValue
+     * @param   array   $aData
+     * @param   mixed   $xDefValue
      *
-     * @return array
+     * @return  array
      */
     static public function FlipIntKeys($aData, $xDefValue = 1) {
 
@@ -62,10 +61,10 @@ class AltoFunc_Array {
     /**
      * Сортировка массива данных по заданному массиву ключей
      *
-     * @param  array $aData
-     * @param  array $aKeys
+     * @param   array   $aData
+     * @param   array   $aKeys
      *
-     * @return array
+     * @return  array
      */
     static public function SortByKeysArray($aData, $aKeys) {
 
@@ -81,10 +80,10 @@ class AltoFunc_Array {
     /**
      * Сливает рекурсивно два массива с сохранением ключей
      *
-     * @param  array $aData1
-     * @param  array $aData2
+     * @param   array   $aData1
+     * @param   array   $aData2
      *
-     * @return array
+     * @return  array
      */
     static public function Merge($aData1, $aData2) {
 
@@ -151,8 +150,7 @@ class AltoFunc_Array {
     /**
      * Рекурсивный вариант array_keys
      *
-     * @param  array  $aData      Массив
-     * @param  string $sDelimiter Символ-разделитель
+     * @param  array $aData     Массив
      *
      * @return array
      */
@@ -177,11 +175,11 @@ class AltoFunc_Array {
     /**
      * Преобразует строку в массив
      *
-     * @param  string|array $sStr
-     * @param  string       $sSeparator
-     * @param  bool         $bSkipEmpty
+     * @param   string|array    $sStr
+     * @param   string          $sSeparator
+     * @param   bool            $bSkipEmpty
      *
-     * @return array
+     * @return  array
      */
     static public function Str2Array($sStr, $sSeparator = ',', $bSkipEmpty = false) {
 
@@ -206,11 +204,11 @@ class AltoFunc_Array {
     /**
      * Преобразует строку в массив целых чисел
      *
-     * @param  string|array $sStr
-     * @param  string       $sSeparator
-     * @param  bool         $bUnique
+     * @param   string|array    $sStr
+     * @param   string          $sSeparator
+     * @param   bool            $bUnique
      *
-     * @return array
+     * @return  array
      */
     static public function Str2ArrayInt($sStr, $sSeparator = ',', $bUnique = true) {
 

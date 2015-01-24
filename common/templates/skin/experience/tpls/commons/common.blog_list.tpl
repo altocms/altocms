@@ -159,11 +159,11 @@
                 </td>
                 {/if}
                 {if Router::GetActionEvent()!='personal'}
-                <td class="blog-peoples hidden-xxs last-td">
+                <td class="blog-peoples hidden-xxs last-td" id="blog_user_count_{$oBlog->getId()}">
                     {$oBlog->getCountUser()}
                 </td>
                 {/if}
-                <td rowspan="3" class="rating-value hidden-xxs last-td" id="blog_user_count_{$oBlog->getId()}">
+                <td rowspan="3" class="rating-value hidden-xxs last-td">
                     {if Router::GetActionEvent()=='personal'}
                         {$oUserOwner->getRating()|number_format:{Config::Get('view.rating_length')}}
                     {else}

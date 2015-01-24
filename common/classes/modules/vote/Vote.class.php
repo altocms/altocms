@@ -50,7 +50,13 @@ class ModuleVote extends Module {
         }
         if ($this->oMapper->AddVote($oVote)) {
             $this->Cache_Delete("vote_{$oVote->getTargetType()}_{$oVote->getTargetId()}_{$oVote->getVoterId()}");
-            $this->Cache_CleanByTags(array("vote_update_{$oVote->getTargetType()}_{$oVote->getVoterId()}"));
+            $this->Cache_CleanByTags(
+                array(
+                    "vote_update_{$oVote->getTargetType()}_{$oVote->getVoterId()}",
+                    "vote_update_{$oVote->getTargetType()}_{$oVote->getTargetId()}",
+                    "vote_update_{$oVote->getTargetType()}",
+                )
+            );
 
             return true;
         }
@@ -78,9 +84,9 @@ class ModuleVote extends Module {
     /**
      * Получить список голосований по списку айдишников
      *
-     * @param array|int $aTargetId   Список ID владельцев
-     * @param string    $sTargetType Тип владельца
-     * @param int       $iUserId     ID пользователя
+     * @param array  $aTargetId      Список ID владельцев
+     * @param string $sTargetType    Тип владельца
+     * @param int    $sUserId        ID пользователя
      *
      * @return array
      */

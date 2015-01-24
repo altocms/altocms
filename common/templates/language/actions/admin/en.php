@@ -212,6 +212,9 @@ return array (
     'user_wrote_comments' => 'Wrote comments',
     'comment_edit'        => 'Edit comment',
 
+    'user_show_all' => 'Show all friends',
+    'user_ban' => 'Banned',
+
     /* MENU */
     'menu_manager'                        => 'Menu Manager',
     'menu_manager_id'                     => 'Type',

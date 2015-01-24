@@ -79,10 +79,10 @@
 
 
     // Автокомплит
-    ls.autocomplete.add($(".autocomplete-tags-sep"), ls.routerUrl('ajax') + 'autocompleter/tag/', true);
-    ls.autocomplete.add($(".autocomplete-tags"), ls.routerUrl('ajax') + 'autocompleter/tag/', false);
-    ls.autocomplete.add($(".autocomplete-users-sep"), ls.routerUrl('ajax') + 'autocompleter/user/', true);
-    ls.autocomplete.add($(".autocomplete-users"), ls.routerUrl('ajax') + 'autocompleter/user/', false);
+    ls.autocomplete.add($(".autocomplete-tags-sep,.js-autocomplete-tags-sep"), ls.routerUrl('ajax') + 'autocompleter/tag/', true);
+    ls.autocomplete.add($(".autocomplete-tags,.js-autocomplete-tags"), ls.routerUrl('ajax') + 'autocompleter/tag/', false);
+    ls.autocomplete.add($(".autocomplete-users-sep,.js-autocomplete-users-sep"), ls.routerUrl('ajax') + 'autocompleter/user/', true);
+    ls.autocomplete.add($(".autocomplete-users,.js-autocomplete-users"), ls.routerUrl('ajax') + 'autocompleter/user/', false);
 
     // Autofocus
     $('form').each(function(){
@@ -110,7 +110,8 @@
     // Кнопка "UP"
     ls.toolbar.up.init();
 
-    $('.js-title-comment, .js-title-topic').tooltip({
+    $('body').tooltip({
+        selector: '.js-title-comment, .js-title-topic',
         placement: 'left'
     });
 

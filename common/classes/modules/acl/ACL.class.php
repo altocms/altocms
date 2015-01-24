@@ -660,6 +660,11 @@ class ModuleACL extends Module {
         }
 
         if ($bCurrentUser) {
+            // Blog owner has any rights
+            if ($oBlog->getUserOwnerId() == $oUser->getId()) {
+                return true;
+            }
+
             // * Для авторизованного пользователя данный код будет работать быстрее
             if ($oBlog->getUserIsAdministrator()) {
                 $sUserRole = 'administrator';

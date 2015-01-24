@@ -24,30 +24,38 @@
      <div class="panel panel-default user-info raised">
          <div class="panel-body">
 
-                                        <span class="pull-right blog-top-controls">
-                                    <a href="{router page='blog'}admin/{$oBlog->getId()}/"
-                                       title="{$aLang.blog_menu_admin}"
-                                       class="small link link-lead link-dark link-clear">
-                                        {*{$aLang.blog_menu_admin}*}
-                                        <i class="fa fa-cog"></i>
-                                    </a>
-                                    <a href="{router page='blog'}edit/{$oBlog->getId()}/"
-                                       title="{$aLang.blog_menu_edit}"
-                                       class="small link link-lead link-dark link-clear">
-                                        {*{$aLang.blog_menu_edit}*}
-                                        <i class="fa fa-pencil"></i>
-                                    </a>
-                                    <a href="#" title="{$aLang.blog_menu_delete}"
-                                       class="small link link-lead link-clear link-red-blue js-modal-blog_delete">
-                                        {*{$aLang.blog_menu_delete}*}
-                                        <i class="fa fa-times"></i>
-                                    </a>
-                            </span>
+             {if E::IsUser() AND ($oBlog->CanEditedBy(E::User()) OR $oBlog->CanAdminBy(E::User()) OR $oBlog->CanDeletedBy(E::User()))}
+                 <span class="pull-right blog-top-controls">
+                    {if $oBlog->CanAdminBy(E::User())}
+                    <a href="{router page='blog'}admin/{$oBlog->getId()}/"
+                       title="{$aLang.blog_menu_admin}"
+                       class="small link link-lead link-dark link-clear">
+                        {*{$aLang.blog_menu_admin}*}
+                        <i class="fa fa-cog"></i>
+                    </a>
+                    {/if}
+                    {if $oBlog->CanEditedBy(E::User())}
+                    <a href="{router page='blog'}edit/{$oBlog->getId()}/"
+                       title="{$aLang.blog_menu_edit}"
+                       class="small link link-lead link-dark link-clear">
+                        {*{$aLang.blog_menu_edit}*}
+                        <i class="fa fa-pencil"></i>
+                    </a>
+                    {/if}
+                    {if $oBlog->CanDeletedBy(E::User())}
+                    <a href="#" title="{$aLang.blog_menu_delete}"
+                       class="small link link-lead link-clear link-red-blue js-modal-blog_delete">
+                        {*{$aLang.blog_menu_delete}*}
+                        <i class="fa fa-times"></i>
+                    </a>
+                    {/if}
+                </span>
+             {/if}
 
              <div class="row user-info-block">
                  <div class="col-lg-20">
                      {$oBlogType=$oBlog->getBlogType()}
-                     <img class="user-logo" src="{$oBlog->getAvatarPath(85)}" alt="avatar"/>
+                     <img class="user-logo" src="{$oBlog->getAvatarPath(95)}" alt="avatar"/>
                      <div class="user-name">
                          <div class="user-login-block">
                             <span class="user-login">

@@ -46,6 +46,8 @@ class Config extends Storage {
 
     const CUSTOM_CONFIG_PREFIX = 'custom.config.';
 
+    const ROOT_KEY = '$root$';
+
     /**
      * Mapper rules for Config Path <-> Constant Name relations
      *
@@ -96,12 +98,12 @@ class Config extends Storage {
     /**
      * Load configuration array from file
      *
-     * @param string $sConfigFile - Путь до файла конфига
-     * @param bool   $bReset      - Сбосить старые значения
-     * @param string $sRootKey    - Корневой ключ конфига
-     * @param int    $nLevel      - Уровень конфига
+     * @param string $sFile    - Путь до файла конфига
+     * @param bool   $bReset   - Сбосить старые значения
+     * @param string $sRootKey - Корневой ключ конфига
+     * @param int    $nLevel   - Уровень конфига
      *
-     * @return  bool
+     * @return  bool|Config
      */
     static public function LoadFromFile($sConfigFile, $bReset = true, $sRootKey = null, $nLevel = null) {
 
@@ -468,8 +470,6 @@ class Config extends Storage {
                     }
                 }
             }
-        } else {
-            $xResult = $xConfigData;
         }
         return $xResult;
     }

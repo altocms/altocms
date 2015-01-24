@@ -7,6 +7,29 @@
 <article class="topic topic-type_{$oTopic->getType()} js-topic">
     {block name="topic_header"}
         <header class="topic-header">
+            {if !$bPreview}
+            {if E::IsUser() AND ($oTopic->CanEditedBy(E::User()) OR $oTopic->CanDeletedBy(E::User()))}
+                <ul class="list-unstyled list-inline small pull-right actions">
+                    <li><span class="glyphicon glyphicon-cog actions-tool"></span></li>
+                    {if $oTopic->CanEditedBy(E::User())}
+                        <li>
+                            <a href="{router page='content'}edit/{$oTopic->getId()}/" title="{$aLang.topic_edit}" class="actions-edit">
+                                {$aLang.topic_edit}
+                            </a>
+                        </li>
+                    {/if}
+
+                    {if $oTopic->CanDeletedBy(E::User())}
+                        <li>
+                            <a href="#" class="actions-delete" title="{$aLang.topic_delete}"
+                               onclick="ls.topic.remove('{$oTopic->getId()}', '{$oTopic->getTitle()}'); return false;">
+                                {$aLang.topic_delete}
+                            </a>
+                        </li>
+                    {/if}
+                </ul>
+            {/if}
+            {/if}
             <h1 class="topic-header-title">
                 {$oTopic->getTitle()|escape:'html'}
 
@@ -27,27 +50,6 @@
                     {date_format date=$oTopic->getDate() hours_back="12" minutes_back="60" now="60" day="day H:i" format="j F Y, H:i"}
                 </time>
 
-                {if !$bPreview}
-                {if E::IsAdmin() OR E::UserId()==$oTopic->getUserId() OR E::UserId()==$oBlog->getOwnerId() OR $oBlog->getUserIsAdministrator() OR $oBlog->getUserIsModerator()}
-                    <ul class="list-unstyled list-inline small pull-right actions">
-                        <li><span class="glyphicon glyphicon-cog actions-tool"></span></li>
-                        <li>
-                            <a href="{router page='content'}edit/{$oTopic->getId()}/" title="{$aLang.topic_edit}" class="actions-edit">
-                                {$aLang.topic_edit}
-                            </a>
-                        </li>
-
-                        {if E::IsAdmin() OR $oBlog->getUserIsAdministrator() OR $oBlog->getOwnerId()==E::UserId()}
-                            <li>
-                                <a href="#" class="actions-delete" title="{$aLang.topic_delete}"
-                                   onclick="ls.topic.remove('{$oTopic->getId()}', '{$oTopic->getTitle()}'); return false;">
-                                    {$aLang.topic_delete}
-                                </a>
-                            </li>
-                        {/if}
-                    </ul>
-                {/if}
-                {/if}
             </div>
         </header>
     {/block}

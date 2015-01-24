@@ -762,6 +762,7 @@ class ModuleUser extends Module {
             $this->oMapper->UpdateSession($this->oSession);
         }
         $this->Cache_Set($data, $sCacheKey, array(), 'PT20M', true);
+        $this->Cache_CleanByTags(array('user_session_update'));
     }
 
     /**

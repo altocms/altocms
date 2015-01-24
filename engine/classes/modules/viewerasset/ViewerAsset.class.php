@@ -474,6 +474,26 @@ class ModuleViewerAsset extends Module {
     }
 
     /**
+     * LS-compatibility
+     *
+     * @param array $aFiles
+     */
+    public function ExcludeJs($aFiles) {
+
+        $this->Exclude('js', $aFiles);
+    }
+
+    /**
+     * LS-compatibility
+     *
+     * @param array $aFiles
+     */
+    public function ExcludeCss($aFiles) {
+
+        $this->Exclude('css', $aFiles);
+    }
+
+    /**
      * @param string $sType
      * @param array $aFiles
      */
