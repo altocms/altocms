@@ -473,7 +473,7 @@ class ModuleCache extends Module {
             $nTimeLife += $nConcurentDaley;
         } else {
             $aData = array(
-                'time' => false,   // контрольное время не сохраняем, конкурирующие запросу к кешу игнорируем
+                'time' => false,   // контрольное время не сохраняем, конкурирующие запросы к кешу игнорируем
                 'tags' => $aTags,
                 'data' => $xData,
             );
@@ -484,20 +484,20 @@ class ModuleCache extends Module {
     /**
      * Получить значение из кеша
      *
-     * @param   string      $sCacheKey  - Имя ключа кеширования
-     * @param   string|null $sCacheType - Механизм используемого кеширования
+     * @param   string|array $xCacheKey  - Имя ключа кеширования
+     * @param   string|null  $sCacheType - Механизм используемого кеширования
      *
      * @return mixed|bool
      */
-    public function Get($sCacheKey, $sCacheType = null) {
+    public function Get($xCacheKey, $sCacheType = null) {
 
         // Проверяем возможность кеширования
         if (!$this->_cacheOn($sCacheType)) {
             return false;
         }
 
-        if (!is_array($sCacheKey)) {
-            $aData = $this->_backendLoad($sCacheType, $this->_hash($sCacheKey));
+        if (!is_array($xCacheKey)) {
+            $aData = $this->_backendLoad($sCacheType, $this->_hash($xCacheKey));
             if (is_array($aData) && array_key_exists('data', $aData)) {
                 // Если необходимо разрешение конкурирующих запросов...
                 if (isset($aData['time']) && ($nConcurentDaley = $this->_backendIsConcurent($sCacheType))) {
@@ -505,14 +505,14 @@ class ModuleCache extends Module {
                         // Если данные кеша по факту "протухли", то пересохраняем их с доп.задержкой и без метки времени
                         // За время задержки кеш должен пополниться свежими данными
                         $aData['time'] = false;
-                        $this->_backendSave($sCacheType, $aData, $this->_hash($sCacheKey), $aData['tags'], $nConcurentDaley);
+                        $this->_backendSave($sCacheType, $aData, $this->_hash($xCacheKey), $aData['tags'], $nConcurentDaley);
                         return false;
                     }
                 }
                 return $aData['data'];
             }
         } else {
-            return $this->multiGet($sCacheKey, $sCacheType);
+            return $this->MultiGet($xCacheKey, $sCacheType);
         }
         return false;
     }
