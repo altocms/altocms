@@ -1458,6 +1458,14 @@ return array(
 
     'spoiler_toggle_show' => 'показать',
 
+    'panel_photoset_from' => 'Начальный номер изображения',
+    'panel_photoset_to' => 'Конечный номер изображения',
+    'panel_photoset_align' => 'Выравнивание',
+    'panel_photoset_align_left' => 'слева',
+    'panel_photoset_align_right' => 'справа',
+    'panel_photoset_align_both' => 'по центру',
+    'panel_photoset_topic' => 'Ид. топика-источника фотосета ',
+
 
 );
 

@@ -109,7 +109,7 @@ ls.settings = (function ($) {
             theme:              'modern',
             relative_urls:      false,
             menubar:            false,
-            toolbar: "undo redo | styleselect | bold italic strikethrough underline blockquote | alignleft aligncenter alignright | bullist numlist table | link unlink | altoimage media | code | pagebreak ",
+            toolbar: "undo styleselect | bold italic strikethrough underline blockquote snippets | alignleft aligncenter alignright | bullist numlist table | link unlink | altoimage media | code pagebreak ",
             toolbar_items_size: 'small',
             image_advtab: false,
             style_formats: [
@@ -120,10 +120,12 @@ ls.settings = (function ($) {
             object_resizing:    true,
             forced_root_block:  '', // Needed for 3.x
             force_p_newlines:   true,
+            custom_elements : "alto:photoset",
+            self_closing_elements: "alto:photoset",
             force_br_newlines:  false,
-            plugins: "advlist autolink autosave link lists media pagebreak autoresize table code altoimage",
+            plugins: "advlist autolink autosave link lists media pagebreak autoresize table code altoimage snippets photoset",
             //convert_urls: false,
-            extended_valid_elements: "embed[src|type|allowscriptaccess|allowfullscreen|width|height]",
+            extended_valid_elements: "embed[src|type|allowscriptaccess|allowfullscreen|width|height],alto[from|to|style|position|topic],alto:photoset[from|to|style|position|topic]",
             pagebreak_separator: "<cut>",
             media_strict: false,
             language: 'ru',
@@ -149,7 +151,7 @@ ls.settings = (function ($) {
                 {title: 'Head 2', block: 'h5'},
                 {title: 'Head 3', block: 'h6'}
             ],
-            object_resizing:    true,
+            object_resizing:    'table,img.mce-object-video,div',
             forced_root_block:  '', // Needed for 3.x
             force_p_newlines:   true,
             force_br_newlines:  false,

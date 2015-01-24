@@ -1384,6 +1384,14 @@ return array(
     'target_type_topic-multi-image-uploader' => 'Topic photoset',
     'target_type_tmp' => 'Temporary',
     'target_type_current' => 'This topic',
+
+    'panel_photoset_from' => 'First image',
+    'panel_photoset_to' => 'Last image',
+    'panel_photoset_align' => 'Align',
+    'panel_photoset_align_left' => 'left',
+    'panel_photoset_align_right' => 'right',
+    'panel_photoset_align_both' => 'justify',
+    'panel_photoset_topic' => 'Topic-source id',
 );
 
 // EOF

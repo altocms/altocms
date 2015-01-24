@@ -877,3 +877,12 @@ ____________________________________________________________*/
     font-style: italic;
     font-size: 12px;
 }
+
+
+
+.mce-snippets button>span {
+    font-size: 18px !important;
+    font-weight: bold;
+    position: relative;
+    top: -1px;
+}

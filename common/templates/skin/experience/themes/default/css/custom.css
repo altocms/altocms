@@ -276,3 +276,11 @@ li.active.category-show {
 #js-alto-image-manager .fileinput .form-control{
     width: 234px;
 }
+
+
+.mce-snippets button>span {
+    font-size: 18px !important;
+    font-weight: bold;
+    position: relative;
+    top: -1px;
+}
