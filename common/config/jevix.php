@@ -47,7 +47,7 @@ return array(
             // следующий вызов метода
             array(
                 'a',
-                array('title', 'href', 'rel' => '#text', 'name' => '#text', 'target' => array('_blank'))
+                array('title', 'href', 'rel' => '#text', 'name' => '#text', 'target' => array('_blank'), 'class' => array('ls-user'))
             ),
             // и т.д.
             array(
