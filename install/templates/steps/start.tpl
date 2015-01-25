@@ -23,6 +23,10 @@ ___LANG_START_PARAGRAPH___
         <td>___LANG_PHP_PARAMS_SIMPLEXML___</td>
         <td class="result">___VALIDATE_SIMPLEXML___</td>
     </tr>
+    <tr>
+        <td>___LANG_PHP_PARAMS_GRAPHIC_PACKAGES___</td>
+        <td class="result">___VALIDATE_GRAPHIC_PACKAGES___  ___VALIDATE_GRAPHIC_PACKAGES_NAME___</td>
+    </tr>
 </table>
 <br/>
 

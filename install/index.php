@@ -981,6 +981,15 @@ class Install {
             $this->Assign('validate_simplexml', '<span style="color:red;">' . $this->Lang('no') . '</span>');
         }
 
+        if ($aGraphicPackages = array_diff(array('Gmagick' => @extension_loaded('Gmagick'), 'Imagick' => @extension_loaded('Imagick'), 'GD' => @extension_loaded('GD')), array(''))) {
+            $this->Assign('validate_graphic_packages', '<span style="color:green;">' . $this->Lang('yes') . '</span>');
+            $this->Assign('validate_graphic_packages_name', '<small style="color:green;">(' . implode(',', array_keys($aGraphicPackages)) . ')</small>');
+        } else {
+            $bOk = FALSE;
+            $this->Assign('validate_graphic_packages', '<span style="color:red;">' . $this->Lang('no') . '</span>');
+            $this->Assign('validate_graphic_packages_name', '');
+        }
+
         $sLocalConfigPath = $this->sConfigDir . '/config.local.php';
         if (!file_exists($sLocalConfigPath) || !is_writeable($sLocalConfigPath)) {
             // пытаемся создать файл локального конфига

@@ -62,6 +62,7 @@ return array(
     'php_params_utf8'                  => 'Поддержка UTF8 в PCRE',
     'php_params_mbstring'              => 'Поддержка Mbstring',
     'php_params_simplexml'             => 'Поддержка SimpleXML',
+    'php_params_graphic_packages'      => 'Графические пакеты (Gmagick, Imagick или GD)',
 
     'local_config'                     => 'Локальная конфигурация',
     'local_file_is_writable'           => 'Файл %%file%% существует и доступен для записи',
