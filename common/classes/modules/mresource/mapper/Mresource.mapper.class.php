@@ -841,7 +841,7 @@ class ModuleMresource_MapperMresource extends Mapper {
                 SELECT
                   mresource_id
                 FROM
-                  prefix_mresource_target
+                  ?_mresource_target
                 WHERE
                   target_type = ? AND target_id = ?d)";
 
@@ -863,7 +863,7 @@ class ModuleMresource_MapperMresource extends Mapper {
                     'tmp') AS ttype
                   , count(t.target_id) AS count
                 FROM
-                  prefix_mresource_target as t, prefix_mresource as m
+                  ?_mresource_target as t, ?_mresource as m
                 WHERE
                   t.mresource_id = m.mresource_id
                   AND m.user_id = ?d
@@ -889,7 +889,7 @@ class ModuleMresource_MapperMresource extends Mapper {
                   t.mresource_id,
                   IF(NOT ISNULL(t.target_tmp), 'tmp', t.target_type) AS ttype
 
-                FROM prefix_mresource_target AS t, prefix_mresource AS m
+                FROM ?_mresource_target AS t, ?_mresource AS m
                 WHERE t.mresource_id = m.mresource_id AND m.user_id = ?d
                       AND (NOT ISNULL(t.target_tmp) OR ((t.target_type in ( ?a ) || t.target_type LIKE 'single-image-uploader%')  AND t.target_id = ?d))
 
@@ -916,7 +916,7 @@ class ModuleMresource_MapperMresource extends Mapper {
         $sql = "SELECT
                   t.target_id        AS topic_id,
                   count(t.target_id) AS count
-                FROM prefix_mresource_target t, prefix_mresource m
+                FROM ?_mresource_target t, ?_mresource m
                 WHERE
                   m.mresource_id = t.mresource_id
                   AND m.user_id = ?d
@@ -953,7 +953,7 @@ class ModuleMresource_MapperMresource extends Mapper {
         $sql = "SELECT
                   t.target_id        AS talk_id,
                   count(t.target_id) AS count
-                FROM prefix_mresource_target t, prefix_mresource m
+                FROM ?_mresource_target t, ?_mresource m
                 WHERE
                   m.mresource_id = t.mresource_id
                   AND m.user_id = ?d
