@@ -755,7 +755,7 @@ class ActionAdmin extends Action {
             $aConfig = array();
             $sPrefix = 'widget.' . $oWidget->GetId() . '.config.';
             if ($xVal = $this->GetPost('widget_group')) {
-                $aConfig[$sPrefix . 'group'] = $xVal;
+                $aConfig[$sPrefix . 'wgroup'] = $xVal;
             }
 
             $aConfig[$sPrefix . 'active'] = (bool)$this->GetPost('widget_active');
