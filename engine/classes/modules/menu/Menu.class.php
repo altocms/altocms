@@ -360,7 +360,6 @@ class ModuleMenu extends Module {
 
         // Только пользователь может смотреть своё дерево изображений
         if (!E::IsUser()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
             return $aItems;
         }
 
