@@ -44,7 +44,7 @@ class ActionError extends Action {
          * поскольку страница на самом деле есть, но только когда мы авторизованы.
          */
         if (isset($_SERVER['HTTP_REFERER']) && $this->Session_GetCookie('lgp') == md5(F::RealUrl($_SERVER['HTTP_REFERER']) . 'logout')) {
-            return Router::Location((string)Config::Get('module.user.logout.redirect'));
+            return R::Location((string)Config::Get('module.user.logout.redirect'));
         }
 
         /**
@@ -54,7 +54,7 @@ class ActionError extends Action {
         /**
          * Запрешаем отображать статистику выполнения
          */
-        Router::SetIsShowStats(false);
+        R::SetIsShowStats(false);
     }
 
     /**

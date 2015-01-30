@@ -44,8 +44,7 @@ class ActionAdmin extends Action {
          * Но нужно это делать через Router::Location, т.к. Viewer может быть уже инициирован
          */
         if (!$this->oUserCurrent || !$this->oUserCurrent->isAdministrator()) {
-            //return Router::Action('error', '404');
-            return Router::Location('error/404/');
+            R::Location('error/404/');
         }
         $this->SetDefaultEvent('info-dashboard');
     }
@@ -125,7 +124,7 @@ class ActionAdmin extends Action {
      */
     protected function _getMode($nParam = 0, $sDefault, $aAvail = null) {
 
-        $sKey = Router::GetAction() . '.' . Router::GetActionEvent() . '.' . $nParam;
+        $sKey = R::GetAction() . '.' . R::GetActionEvent() . '.' . $nParam;
         $sMode = $this->GetParam($nParam, $this->Session_Get($sKey, $sDefault));
         if (!is_null($aAvail) && !is_array($aAvail)) $aAvail = array($aAvail);
         if (is_null($aAvail) || ($sMode && in_array($sMode, $aAvail))) {
@@ -136,7 +135,7 @@ class ActionAdmin extends Action {
 
     protected function _saveMode($nParam = 0, $sData) {
 
-        $sKey = Router::GetAction() . '.' . Router::GetActionEvent() . '.' . $nParam;
+        $sKey = R::GetAction() . '.' . R::GetActionEvent() . '.' . $nParam;
         $this->Session_Set($sKey, $sData);
     }
 
@@ -186,7 +185,7 @@ class ActionAdmin extends Action {
                 }
             }
             Config::WriteCustomConfig($aConfig);
-            Router::Location('admin');
+            R::Location('admin');
         }
         $this->_setTitle($this->Lang_Get('action.admin.menu_info_dashboard'));
         $this->SetTemplateAction('info/index');
@@ -552,7 +551,7 @@ class ActionAdmin extends Action {
             }
             if ($aConfig) {
                 Config::WriteCustomConfig($aConfig);
-                Router::Location('admin/settings-site/links/');
+                R::Location('admin/settings-site/links/');
             }
         }
         if ($this->GetPost('adm_cmd') == 'generate_topics_url') {
@@ -565,7 +564,7 @@ class ActionAdmin extends Action {
             } else {
                 $this->Message_AddNotice($this->Lang_Get('action.admin.set_links_generate_done'), null, true);
             }
-            Router::Location('admin/settings-site/links/');
+            R::Location('admin/settings-site/links/');
         }
         $this->SetTemplateAction('settings/links');
         $sHomePage = Config::Get('router.config.homepage');
@@ -673,7 +672,7 @@ class ActionAdmin extends Action {
             }
 
             Config::WriteCustomConfig($aConfig);
-            Router::Location('admin/settings-site/');
+            R::Location('admin/settings-site/');
             exit;
         }
         $this->SetTemplateAction('settings/edit');
@@ -728,7 +727,7 @@ class ActionAdmin extends Action {
         if ($aConfig) {
             Config::WriteCustomConfig($aConfig);
         }
-        Router::Location('admin/settings-site/');
+        R::Location('admin/settings-site/');
     }
 
     /**********************************************************************************/
@@ -786,7 +785,7 @@ class ActionAdmin extends Action {
             $aConfig[$sPrefix . 'visitors'] = (in_array($xVal, array('users', 'admins')) ? $xVal : null);
 
             Config::WriteCustomConfig($aConfig);
-            Router::Location('admin/site-widgets');
+            R::Location('admin/site-widgets');
         }
         $this->_setTitle($this->Lang_Get('action.admin.widget_edit_title'));
         $this->SetTemplateAction('site/widgets_add');
@@ -802,7 +801,7 @@ class ActionAdmin extends Action {
                 $aConfig[$sPrefix . 'active'] = true;
             }
             Config::WriteCustomConfig($aConfig);
-            Router::Location('admin/site-widgets');
+            R::Location('admin/site-widgets');
         }
     }
 
@@ -815,7 +814,7 @@ class ActionAdmin extends Action {
                 $aConfig[$sPrefix . 'active'] = false;
             }
             Config::WriteCustomConfig($aConfig);
-            Router::Location('admin/site-widgets');
+            R::Location('admin/site-widgets');
         }
     }
 
@@ -862,7 +861,7 @@ class ActionAdmin extends Action {
     protected function _EventPluginsMenu() {
 
         $this->PluginDelBlock('right', 'AdminInfo');
-        $sEvent = Router::GetActionEvent();
+        $sEvent = R::GetActionEvent();
         if (isset($this->aExternalEvents[$sEvent])) {
             return $this->EventPluginsExec($this->aExternalEvents[$sEvent]);
         }
@@ -880,7 +879,7 @@ class ActionAdmin extends Action {
             } elseif ($sAction == 'deactivate') {
                 $this->_eventPluginsDeactivate($aPlugins);
             }
-            Router::Location('admin/site-plugins/');
+            R::Location('admin/site-plugins/');
         }
 
         $sMode = $this->GetParam(1, 'all');
@@ -967,7 +966,7 @@ class ActionAdmin extends Action {
             $this->Security_ValidateSendForm();
             if ($this->Page_DeletePageById($this->GetParam(1))) {
                 $this->Message_AddNotice($this->Lang_Get('action.admin.pages_admin_action_delete_ok'). null, true);
-                Router::Location('admin/content-pages/');
+                R::Location('admin/content-pages/');
             } else {
                 $this->Message_AddError($this->Lang_Get('action.admin.pages_admin_action_delete_error'), $this->Lang_Get('error'));
             }
@@ -1003,7 +1002,7 @@ class ActionAdmin extends Action {
             $this->Page_UpdatePage($oPage);
             $this->Page_ReSort();
         }
-        Router::Location('admin/content-pages');
+        R::Location('admin/content-pages');
     }
 
     protected function _eventPagesEdit($sMode) {
@@ -1095,7 +1094,7 @@ class ActionAdmin extends Action {
             $this->Message_AddNotice($this->Lang_Get('action.admin.pages_edit_submit_save_ok'));
             $this->SetParam(0, null);
             $this->SetParam(1, null);
-            Router::Location('admin/content-pages/');
+            R::Location('admin/content-pages/');
         } else {
             $this->Message_AddError($this->Lang_Get('system_error'));
         }
@@ -1148,7 +1147,7 @@ class ActionAdmin extends Action {
         if ($this->Page_AddPage($oPage)) {
             $this->Message_AddNotice($this->Lang_Get('action.admin.pages_create_submit_save_ok'));
             $this->SetParam(0, null);
-            Router::Location('admin/content-pages/');
+            R::Location('admin/content-pages/');
         } else {
             $this->Message_AddError($this->Lang_Get('system_error'));
         }
@@ -1245,7 +1244,7 @@ class ActionAdmin extends Action {
 
         $aResult = $this->Blog_GetBlogsByFilter($aFilter, '', $nPage, Config::Get('admin.items_per_page'));
         $aPaging = $this->Viewer_MakePaging($aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4,
-            Router::GetPath('admin') . 'content-blogs/list/' . $sMode);
+            R::GetPath('admin') . 'content-blogs/list/' . $sMode);
 
         $aBlogTypes = $this->Blog_GetBlogTypes();
         $nBlogsTotal = 0;
@@ -1311,7 +1310,7 @@ class ActionAdmin extends Action {
                 $this->Lang_Get('action.admin.blog_del_error'), $this->Lang_Get('error'), true
             );
         }
-        Router::ReturnBack();
+        R::ReturnBack();
     }
 
     /**********************************************************************************/
@@ -1333,7 +1332,7 @@ class ActionAdmin extends Action {
 
         $aResult = $this->Topic_GetTopicsByFilter(array(), $nPage, Config::Get('admin.items_per_page'));
         $aPaging = $this->Viewer_MakePaging($aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4,
-            Router::GetPath('admin') . 'content-topics/');
+            R::GetPath('admin') . 'content-topics/');
 
         $this->Viewer_Assign('aTopics', $aResult['collection']);
         $this->Viewer_Assign('aPaging', $aPaging);
@@ -1364,7 +1363,7 @@ class ActionAdmin extends Action {
 
         $aResult = $this->Comment_GetCommentsByFilter(array(), '', $nPage, Config::Get('admin.items_per_page'));
         $aPaging = $this->Viewer_MakePaging($aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4,
-            Router::GetPath('admin') . 'content-comments/');
+            R::GetPath('admin') . 'content-comments/');
 
         $this->Viewer_Assign('aComments', $aResult['collection']);
         $this->Viewer_Assign('aPaging', $aPaging);
@@ -1411,7 +1410,7 @@ class ActionAdmin extends Action {
         $aResult['count'] = $this->Mresource_GetMresourcesCountByTarget($sMode);
 
         $aPaging = $this->Viewer_MakePaging($aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4,
-            Router::GetPath('admin') . 'content-mresources/list/' . $sMode . '/');
+            R::GetPath('admin') . 'content-mresources/list/' . $sMode . '/');
 
         $this->Lang_AddLangJs(
             array(
@@ -1494,16 +1493,16 @@ class ActionAdmin extends Action {
             } elseif ($sCmd == 'adm_del_user') {
                 if ($this->_eventUsersCmdDelete()) {
                     $nPage = $this->_getPageNum();
-                    Router::Location('admin/users-list/' . ($nPage ? 'page' . $nPage : ''));
+                    R::Location('admin/users-list/' . ($nPage ? 'page' . $nPage : ''));
                 } else {
-                    Router::ReturnBack();
+                    R::ReturnBack();
                 }
             } elseif ($sCmd == 'adm_user_message') {
                 $this->_eventUsersCmdMessage();
             } elseif ($sCmd == 'adm_user_activate') {
                 $this->_eventUsersCmdActivate();
             }
-            Router::Location('admin/users-list/');
+            R::Location('admin/users-list/');
         }
 
         if ($this->GetPost('adm_userlist_filter')) {
@@ -1615,7 +1614,7 @@ class ActionAdmin extends Action {
 
         $aResult = $this->User_GetUsersByFilter($aFilter, '', $nPage, Config::Get('admin.items_per_page'));
         $aPaging = $this->Viewer_MakePaging($aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4,
-            Router::GetPath('admin') . 'users-list/');
+            R::GetPath('admin') . 'users-list/');
 
         foreach ($aFilter as $sKey => $xVal) {
             if ($sKey == 'ip') {
@@ -1660,7 +1659,7 @@ class ActionAdmin extends Action {
                     }
                 }
             }
-        Router::ReturnBack(true);
+        R::ReturnBack(true);
     }
 
     protected function _eventUsersCmdUnsetAdministrator() {
@@ -1680,7 +1679,7 @@ class ActionAdmin extends Action {
                     }
                 }
             }
-        Router::ReturnBack(true);
+        R::ReturnBack(true);
     }
 
     protected function _eventUsersProfile() {
@@ -2019,7 +2018,7 @@ class ActionAdmin extends Action {
                 $this->User_Update($oUser);
             }
         }
-        Router::ReturnBack();
+        R::ReturnBack();
     }
 
     /**********************************************************************************/
@@ -2073,7 +2072,7 @@ class ActionAdmin extends Action {
         $aCounts = $this->Admin_GetInvitesCount();
 
         // Формируем постраничность
-        $aPaging = $this->Viewer_MakePaging($aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4, Router::GetPath('admin') . 'users-invites');
+        $aPaging = $this->Viewer_MakePaging($aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4, R::GetPath('admin') . 'users-invites');
         $this->Viewer_Assign('aPaging', $aPaging);
         $this->Viewer_Assign('aInvites', $aInvites);
         $this->Viewer_Assign('aCounts', $aCounts);
@@ -2094,7 +2093,7 @@ class ActionAdmin extends Action {
             $nResult = $this->Admin_DeleteInvites($aIds);
             $this->Message_AddNotice($this->Lang_Get('action.admin.invaite_deleted', array('num' => $nResult)));
         }
-        Router::ReturnBack(true);
+        R::ReturnBack(true);
     }
 
     /**********************************************************************************/
@@ -2152,7 +2151,7 @@ class ActionAdmin extends Action {
             $aUsersId = F::Array_Str2ArrayInt($this->GetPost('bans_list'), ',', true);
             $this->_eventUsersCmdUnban($aUsersId);
         }
-        Router::ReturnBack(true);
+        R::ReturnBack(true);
     }
 
     protected function _eventBanlistIds($nPage) {
@@ -2164,7 +2163,7 @@ class ActionAdmin extends Action {
 
         // Формируем постраничность
         $aPaging = $this->Viewer_MakePaging(
-            $aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4, Router::GetPath('admin') . 'banlist/ids/'
+            $aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4, R::GetPath('admin') . 'banlist/ids/'
         );
         $this->Viewer_Assign('aPaging', $aPaging);
         $this->Viewer_Assign('aUserList', $aResult['collection']);
@@ -2179,7 +2178,7 @@ class ActionAdmin extends Action {
 
         // Формируем постраничность
         $aPaging = $this->Viewer_MakePaging(
-            $aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4, Router::GetPath('admin') . 'banlist/ips/'
+            $aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4, R::GetPath('admin') . 'banlist/ips/'
         );
         $this->Viewer_Assign('aPaging', $aPaging);
         $this->Viewer_Assign('aIpsList', $aResult['collection']);
@@ -2275,14 +2274,14 @@ class ActionAdmin extends Action {
 
         $aConfig = array('view.skin' => $sSkin);
         Config::WriteCustomConfig($aConfig);
-        Router::Location('admin/site-skins/' . $sMode . '/');
+        R::Location('admin/site-skins/' . $sMode . '/');
     }
 
     protected function _eventSkinThemeActivate($sMode, $sSkin, $sTheme) {
 
         $aConfig = array('skin.' . $sSkin . '.config.view.theme' => $sTheme);
         Config::WriteCustomConfig($aConfig);
-        Router::Location('admin/site-skins/' . $sMode . '/');
+        R::Location('admin/site-skins/' . $sMode . '/');
     }
 
     /**********************************************************************************/
@@ -2327,7 +2326,6 @@ class ActionAdmin extends Action {
     protected function _eventLogsErrorDelete($sLogFile) {
 
         F::File_Delete($sLogFile);
-        //Router::Location();
     }
 
     protected function _parseLog($sLogTxt) {
@@ -2482,7 +2480,7 @@ class ActionAdmin extends Action {
             } else {
                 $this->Session_DelCookie('adm_tools_reset');
             }
-            Router::Location('admin/tools-reset/');
+            R::Location('admin/tools-reset/');
         }
         if ($sSettings = $this->Session_GetCookie('adm_tools_reset')) {
             $aSettings = @unserialize($sSettings);
@@ -2756,7 +2754,7 @@ class ActionAdmin extends Action {
             if ($aConfig) {
                 Config::WriteCustomConfig($aConfig);
             }
-            Router::Location('admin/settings-lang/');
+            R::Location('admin/settings-lang/');
         }
 
         $this->_setTitle($this->Lang_Get('action.admin.set_title_lang'));
@@ -2940,7 +2938,7 @@ class ActionAdmin extends Action {
                 $this->Hook_Run('blogtype_edit_validate_before', array('oBlogType' => $oBlogType));
                 if ($oBlogType->_Validate()) {
                     if ($this->_updateBlogType($oBlogType)) {
-                        Router::Location('admin/settings-blogtypes');
+                        R::Location('admin/settings-blogtypes');
                     }
                 } else {
                     $this->Message_AddError($oBlogType->_getValidateError(), $this->Lang_Get('error'));
@@ -3030,7 +3028,7 @@ class ActionAdmin extends Action {
         $this->Hook_Run('blogtype_add_validate_before', array('oBlogType' => $oBlogType));
         if ($oBlogType->_Validate()) {
             if ($this->_addBlogType($oBlogType)) {
-                Router::Location('admin/settings-blogtypes');
+                R::Location('admin/settings-blogtypes');
             }
         } else {
             $this->Message_AddError($oBlogType->_getValidateError(), $this->Lang_Get('error'));
@@ -3070,7 +3068,7 @@ class ActionAdmin extends Action {
             }
         }
 
-        Router::Location('admin/settings-blogtypes');
+        R::Location('admin/settings-blogtypes');
     }
 
     /**
@@ -3119,7 +3117,7 @@ class ActionAdmin extends Action {
                 }
             }
         }
-        Router::Location('admin/settings-blogtypes');
+        R::Location('admin/settings-blogtypes');
     }
 
     /**********************************************************************************/
@@ -3532,7 +3530,7 @@ class ActionAdmin extends Action {
                 Config::Set("menu.data.{$oMenu->getId()}.list", $aNewItemConfig);
 
 
-                Router::Location("admin/settings-menumanager/edit/{$sMenuId}");
+                R::Location("admin/settings-menumanager/edit/{$sMenuId}");
 
                 return null;
 
@@ -3605,7 +3603,7 @@ class ActionAdmin extends Action {
                 Config::Set("menu.data.{$sSubMenuName}.list", $aNewItemConfig);
 
 
-                Router::Location("admin/settings-menumanager/edit/{$sMenuId}");
+                R::Location("admin/settings-menumanager/edit/{$sMenuId}");
 
                 return null;
 
@@ -3642,12 +3640,12 @@ class ActionAdmin extends Action {
                 $aMenus[$k] = $v;
             }
 
-            Router::Location("admin/settings-menumanager/");
+            R::Location("admin/settings-menumanager/");
         }
 
 
 
-        Router::Location("admin/settings-menumanager/edit/{$sMenuId}");
+        R::Location("admin/settings-menumanager/edit/{$sMenuId}");
 
         return FALSE;
 
@@ -3888,7 +3886,7 @@ class ActionAdmin extends Action {
                 $oTypeTog->setContentActive($iToggle);
                 $this->Topic_UpdateContentType($oTypeTog);
 
-                Router::Location('admin/settings-contenttypes/');
+                R::Location('admin/settings-contenttypes/');
             }
         }
 
@@ -3946,7 +3944,7 @@ class ActionAdmin extends Action {
 
         if ($this->Topic_AddContentType($oContentType)) {
             $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success_add'), null, true);
-            Router::Location('admin/settings-contenttypes/');
+            R::Location('admin/settings-contenttypes/');
         }
         return false;
     }
@@ -4019,7 +4017,7 @@ class ActionAdmin extends Action {
             }
 
             $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success_edit'), null, true);
-            Router::Location('admin/settings-contenttypes/');
+            R::Location('admin/settings-contenttypes/');
         }
         return false;
     }
@@ -4043,10 +4041,10 @@ class ActionAdmin extends Action {
                     $this->Lang_Get('action.admin.contenttypes_del_err_text', array('name' => '')),
                     true
                 );
-                Router::Location('admin/settings-contenttypes/');
+                R::Location('admin/settings-contenttypes/');
             } elseif ($this->Topic_DeleteContentType($oContentType)) {
                 $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success_edit'), null, true);
-                Router::Location('admin/settings-contenttypes/');
+                R::Location('admin/settings-contenttypes/');
             }
         }
         return false;
@@ -4174,7 +4172,7 @@ class ActionAdmin extends Action {
 
         if ($this->Topic_AddContentField($oField)) {
             $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success_fieldadd'), null, true);
-            Router::Location('admin/settings-contenttypes/edit/' . $oContentType->getContentId() . '/');
+            R::Location('admin/settings-contenttypes/edit/' . $oContentType->getContentId() . '/');
         }
         return false;
     }
@@ -4239,7 +4237,7 @@ class ActionAdmin extends Action {
 
         if ($this->Topic_UpdateContentField($oField)) {
             $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success_fieldedit'), null, true);
-            Router::Location('admin/settings-contenttypes/edit/' . $oContentType->getContentId() . '/');
+            R::Location('admin/settings-contenttypes/edit/' . $oContentType->getContentId() . '/');
         }
         return false;
     }
@@ -4258,7 +4256,7 @@ class ActionAdmin extends Action {
 
         if ($this->Topic_DeleteField($oField)) {
             $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success_fielddelete'), null, true);
-            Router::Location('admin/settings-contenttypes/edit/' . $oContentType->getContentId() . '/');
+            R::Location('admin/settings-contenttypes/edit/' . $oContentType->getContentId() . '/');
         }
         return false;
     }
@@ -4311,7 +4309,7 @@ class ActionAdmin extends Action {
             $bOk = false;
         }
 
-        if (Router::GetActionEvent() == 'fieldadd') {
+        if (R::GetActionEvent() == 'fieldadd') {
             if ($oContentType == 'photoset' && (F::GetRequest('field_type', null, 'post') == 'photoset' || $oContentType->isPhotosetEnable())) {
                 $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
                 $bOk = false;

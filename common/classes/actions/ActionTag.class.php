@@ -70,7 +70,7 @@ class ActionTag extends Action {
         // * Makes pages
         $aPaging = $this->Viewer_MakePaging(
             $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
-            Router::GetPath('tag') . htmlspecialchars($sTag)
+            R::GetPath('tag') . htmlspecialchars($sTag)
         );
 
         // * Loads variables to template
@@ -79,7 +79,7 @@ class ActionTag extends Action {
         $this->Viewer_Assign('sTag', $sTag);
         $this->Viewer_AddHtmlTitle($this->Lang_Get('tag_title'));
         $this->Viewer_AddHtmlTitle($sTag);
-        $this->Viewer_SetHtmlRssAlternate(Router::GetPath('rss') . 'tag/' . $sTag . '/', $sTag);
+        $this->Viewer_SetHtmlRssAlternate(R::GetPath('rss') . 'tag/' . $sTag . '/', $sTag);
 
         // * Sets template for display
         $this->SetTemplateAction('index');

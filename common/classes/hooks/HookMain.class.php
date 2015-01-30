@@ -59,15 +59,15 @@ class HookMain extends Hook {
             && (!isset($_SERVER['HTTP_APP_ENV']) || $_SERVER['HTTP_APP_ENV'] != 'test')
         ) {
             $this->Message_AddErrorSingle($this->Lang_Get('install_directory_exists'));
-            Router::Action('error');
+            R::Action('error');
         }
 
         // * Проверка на закрытый режим
         $oUserCurrent = $this->User_GetUserCurrent();
         if (!$oUserCurrent && Config::Get('general.close.mode')){
             $aEnabledActions = F::Str2Array(Config::Get('general.close.actions'));
-            if (!in_array(Router::GetAction(), $aEnabledActions)) {
-                return Router::Action('login');
+            if (!in_array(R::GetAction(), $aEnabledActions)) {
+                return R::Action('login');
             }
         }
         return null;

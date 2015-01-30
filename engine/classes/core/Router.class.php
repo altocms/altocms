@@ -522,9 +522,9 @@ class Router extends LsObject {
      * Если ею завершить евент в экшене то запустится новый экшен
      * Примеры:
      * <pre>
-     * return Router::Action('error');
-     * return Router::Action('error', '404');
-     * return Router::Action('error/404');
+     * return R::Action('error');
+     * return R::Action('error', '404');
+     * return R::Action('error/404');
      * </pre>
      *
      * @param string $sAction    Экшен

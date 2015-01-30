@@ -29,7 +29,7 @@ class ActionLogin extends Action {
         $this->SetDefaultEvent('index');
 
         // Отключаем отображение статистики выполнения
-        Router::SetIsShowStats(false);
+        R::SetIsShowStats(false);
     }
 
     /**
@@ -88,7 +88,7 @@ class ActionLogin extends Action {
                     $this->Message_AddErrorSingle(
                         $this->Lang_Get(
                             'user_not_activated',
-                            array('reactivation_path' => Router::GetPath('login') . 'reactivation')
+                            array('reactivation_path' => R::GetPath('login') . 'reactivation')
                         )
                     );
                     return;
@@ -117,7 +117,7 @@ class ActionLogin extends Action {
     protected function EventReactivation() {
 
         if ($this->User_GetUserCurrent()) {
-            Router::Location(Config::Get('path.root.url') . '/');
+            R::Location(Config::Get('path.root.url') . '/');
         }
 
         $this->Viewer_AddHtmlTitle($this->Lang_Get('reactivation'));
@@ -157,7 +157,7 @@ class ActionLogin extends Action {
 
         // Если уже авторизирован
         if ($this->User_GetUserCurrent()) {
-            Router::Location(Config::Get('path.root.url') . '/');
+            R::Location(Config::Get('path.root.url') . '/');
         }
         $this->Viewer_AddHtmlTitle($this->Lang_Get('login'));
     }
@@ -190,7 +190,7 @@ class ActionLogin extends Action {
 
         if ($iShowTime) {
             $sUrl = F::RealUrl($sRedirect);
-            $sReferrer = Config::Get('path.root.web'). Router::GetAction() . "/" . Router::GetActionEvent() .'/?security_key=' . getRequest('security_key', '');
+            $sReferrer = Config::Get('path.root.web'). R::GetAction() . "/" . R::GetActionEvent() .'/?security_key=' . getRequest('security_key', '');
             $this->Session_SetCookie('lgp', md5($sReferrer . 'logout'), 60);
             $this->Viewer_SetHtmlHeadTag('meta', array('http-equiv' => 'Refresh', 'Content' => $iShowTime . '; url=' . $sUrl));
         } elseif ($sRedirect) {
@@ -200,7 +200,7 @@ class ActionLogin extends Action {
             if (!Config::Get('module.user.logout.redirect')) {
                 $this->Session_SetCookie('lgp', md5(F::RealUrl($sRedirect) . 'logout'), 60);
             }
-            Router::Location($sRedirect);
+            R::Location($sRedirect);
             exit;
         } else {
             $this->Viewer_Assign('bRefreshToHome', true);
@@ -257,7 +257,7 @@ class ActionLogin extends Action {
                 }
                 $this->Message_AddErrorSingle($this->Lang_Get('password_reminder_bad_code_txt'), $this->Lang_Get('password_reminder_bad_code'));
                 if (!$bAjax) {
-                    return Router::Action('error');
+                    return R::Action('error');
                 }
                 return;
             }

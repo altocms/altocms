@@ -115,7 +115,7 @@ class ActionBlogs extends Action {
         // * Формируем постраничность
         $aPaging = $this->Viewer_MakePaging(
             $aResult['count'], $iPage, Config::Get('module.blog.per_page'), Config::Get('pagination.pages.count'),
-            Router::GetPath('blogs'), array('order' => $sOrder, 'order_way' => $sOrderWay)
+            R::GetPath('blogs'), array('order' => $sOrder, 'order_way' => $sOrderWay)
         );
 
         //  * Загружаем переменные в шаблон
@@ -125,7 +125,7 @@ class ActionBlogs extends Action {
         $this->Viewer_Assign('sBlogOrderWay', htmlspecialchars($sOrderWay));
         $this->Viewer_Assign('sBlogOrderWayNext', htmlspecialchars($sOrderWay == 'desc' ? 'asc' : 'desc'));
         $this->Viewer_Assign('sShow', 'collective');
-        $this->Viewer_Assign('sBlogsRootPage', Router::GetPath('blogs'));
+        $this->Viewer_Assign('sBlogsRootPage', R::GetPath('blogs'));
 
         // * Устанавливаем title страницы
         $this->Viewer_AddHtmlTitle($this->Lang_Get('blog_menu_all_list'));
@@ -162,7 +162,7 @@ class ActionBlogs extends Action {
         // * Формируем постраничность
         $aPaging = $this->Viewer_MakePaging(
             $aResult['count'], $iPage, Config::Get('module.blog.per_page'), Config::Get('pagination.pages.count'),
-            Router::GetPath('blogs') . 'personal/', array('order' => $sOrder, 'order_way' => $sOrderWay)
+            R::GetPath('blogs') . 'personal/', array('order' => $sOrder, 'order_way' => $sOrderWay)
         );
 
         // * Загружаем переменные в шаблон
@@ -172,7 +172,7 @@ class ActionBlogs extends Action {
         $this->Viewer_Assign('sBlogOrderWay', htmlspecialchars($sOrderWay));
         $this->Viewer_Assign('sBlogOrderWayNext', htmlspecialchars($sOrderWay == 'desc' ? 'asc' : 'desc'));
         $this->Viewer_Assign('sShow', 'personal');
-        $this->Viewer_Assign('sBlogsRootPage', Router::GetPath('blogs') . 'personal/');
+        $this->Viewer_Assign('sBlogsRootPage', R::GetPath('blogs') . 'personal/');
 
         // * Устанавливаем title страницы
         $this->Viewer_AddHtmlTitle($this->Lang_Get('blog_menu_all_list'));

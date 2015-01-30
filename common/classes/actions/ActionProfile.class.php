@@ -220,7 +220,7 @@ class ActionProfile extends Action {
         $this->Viewer_AddHtmlTitle($this->Lang_Get('user_menu_publication') . ' ' . $this->oUserProfile->getLogin());
         $this->Viewer_AddHtmlTitle($this->Lang_Get('user_menu_publication_blog'));
         $this->Viewer_SetHtmlRssAlternate(
-            Router::GetPath('rss') . 'personal_blog/' . $this->oUserProfile->getLogin() . '/',
+            R::GetPath('rss') . 'personal_blog/' . $this->oUserProfile->getLogin() . '/',
             $this->oUserProfile->getLogin()
         );
         /**
@@ -841,7 +841,7 @@ class ActionProfile extends Action {
          */
         if (!$oUser = $this->User_GetUserById($sUserId)) {
             $this->Message_AddError($this->Lang_Get('user_not_found'), $this->Lang_Get('error'), true);
-            Router::Location(Router::GetPath('talk'));
+            R::Location(R::GetPath('talk'));
             return;
         }
         /**
@@ -861,7 +861,7 @@ class ActionProfile extends Action {
                 : $this->Lang_Get('user_friend_offer_not_found');
             $this->Message_AddError($sMessage, $this->Lang_Get('error'), true);
 
-            Router::Location('talk');
+            R::Location('talk');
             return;
         }
         /**
@@ -887,7 +887,7 @@ class ActionProfile extends Action {
                 true
             );
         }
-        Router::Location('talk');
+        R::Location('talk');
     }
 
     /**
@@ -1216,8 +1216,8 @@ class ActionProfile extends Action {
             $sCode = rawurlencode(base64_encode(xxtea_encrypt($sCode, Config::Get('module.talk.encrypt'))));
 
             $aPath = array(
-                'accept' => Router::GetPath('profile') . 'friendoffer/accept/?code=' . $sCode,
-                'reject' => Router::GetPath('profile') . 'friendoffer/reject/?code=' . $sCode
+                'accept' => R::GetPath('profile') . 'friendoffer/accept/?code=' . $sCode,
+                'reject' => R::GetPath('profile') . 'friendoffer/reject/?code=' . $sCode
             );
 
             $sText = $this->Lang_Get(
@@ -1235,7 +1235,7 @@ class ActionProfile extends Action {
              */
             $this->Notify_SendUserFriendNew(
                 $oUser, $this->oUserCurrent, $sUserText,
-                Router::GetPath('talk') . 'read/' . $oTalk->getId() . '/'
+                R::GetPath('talk') . 'read/' . $oTalk->getId() . '/'
             );
             /**
              * Удаляем отправляющего юзера из переписки

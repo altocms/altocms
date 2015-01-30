@@ -32,16 +32,16 @@ class ActionRegistration extends Action {
             $this->Message_AddErrorSingle(
                 $this->Lang_Get('registration_is_authorization'), $this->Lang_Get('attention')
             );
-            return Router::Action('error');
+            return R::Action('error');
         }
         /**
          * Если включены инвайты то перенаправляем на страницу регистрации по инвайтам
          */
         if (!$this->User_IsAuthorization() && Config::Get('general.reg.invite')
-            && !in_array(Router::GetActionEvent(), array('invite', 'activate', 'confirm'))
+            && !in_array(R::GetActionEvent(), array('invite', 'activate', 'confirm'))
             && !$this->CheckInviteRegister()
         ) {
-            return Router::Action('registration', 'invite');
+            return R::Action('registration', 'invite');
         }
         $this->SetDefaultEvent('index');
         /**
@@ -194,7 +194,7 @@ class ActionRegistration extends Action {
                 if (Config::Get('general.reg.activation')) {
                     // * Отправляем на мыло письмо о подтверждении регистрации
                     $this->Notify_SendRegistrationActivate($oUser, F::GetRequestStr('password'));
-                    $this->Viewer_AssignAjax('sUrlRedirect', Router::GetPath('registration') . 'confirm/');
+                    $this->Viewer_AssignAjax('sUrlRedirect', R::GetPath('registration') . 'confirm/');
                 } else {
                     $this->Notify_SendRegistration($oUser, F::GetRequestStr('password'));
                     $oUser = $this->User_GetUserById($oUser->getId());
@@ -255,7 +255,7 @@ class ActionRegistration extends Action {
             $this->Message_AddErrorSingle(
                 $this->Lang_Get('registration_activate_error_reactivate'), $this->Lang_Get('error')
             );
-            return Router::Action('error');
+            return R::Action('error');
         }
         /**
          * Если что то не то
@@ -264,7 +264,7 @@ class ActionRegistration extends Action {
             $this->Message_AddErrorSingle(
                 $this->Lang_Get('registration_activate_error_code'), $this->Lang_Get('error')
             );
-            return Router::Action('error');
+            return R::Action('error');
         }
         /**
          * Активируем
@@ -281,7 +281,7 @@ class ActionRegistration extends Action {
             return;
         } else {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
-            return Router::Action('error');
+            return R::Action('error');
         }
     }
 
@@ -311,7 +311,7 @@ class ActionRegistration extends Action {
                 if (!$this->CheckInviteRegister()) {
                     $this->Session_Set('invite_code', $oInvate->getCode());
                 }
-                return Router::Action('registration');
+                return R::Action('registration');
             } else {
                 $this->Message_AddError($this->Lang_Get('registration_invite_code_error'), $this->Lang_Get('error'));
             }

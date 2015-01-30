@@ -907,7 +907,7 @@ class ModuleTopic extends Module {
                 $this->Comment_SetCommentsPublish($oTopic->getId(), 'topic', $oTopic->getPublish());
             }
 
-            if (Router::GetAction() == 'content') {
+            if (R::GetAction() == 'content') {
                 $this->processTopicFields($oTopic, 'update');
             }
 

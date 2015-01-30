@@ -51,7 +51,7 @@ class ActionSettings extends Action {
         // * Проверяем авторизован ли юзер
         if (!$this->User_IsAuthorization()) {
             $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
-            return Router::Action('error');
+            return R::Action('error');
         }
 
         // * Получаем текущего юзера

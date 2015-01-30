@@ -78,7 +78,7 @@ class ModuleLang extends Module {
             $sLangKey = (is_string(Config::Get('lang.in_get')) ? Config::Get('lang.in_get') : 'lang');
 
             // Получаем язык, если он был задан в URL
-            $this->sCurrentLang = Router::GetLang();
+            $this->sCurrentLang = R::GetLang();
 
             // Проверка куки, если требуется
             if (!$this->sCurrentLang && $nSavePeriod) {
@@ -600,13 +600,13 @@ class ModuleLang extends Module {
         $this->AssignToJs();
         if (Config::Get('lang.multilang')) {
             $this->Viewer_AddHtmlHeadTag(
-                '<link rel="alternate" hreflang="x-default" href="' . Router::Url('link') . '">'
+                '<link rel="alternate" hreflang="x-default" href="' . R::Url('link') . '">'
             );
             $aLangs = Config::Get('lang.allow');
             foreach ($aLangs as $sLang) {
                 $this->Viewer_AddHtmlHeadTag(
                     '<link rel="alternate" hreflang="' . $sLang . '" href="' . trim(F::File_RootUrl($sLang), '/')
-                        . Router::Url('path') . '">'
+                        . R::Url('path') . '">'
                 );
             }
         }

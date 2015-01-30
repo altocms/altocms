@@ -258,7 +258,7 @@ class ModulePlugin_EntityPlugin extends Entity {
 
         $sResult = $this->getProp('settings');
         if (is_null($sResult)) {
-            $sResult = preg_replace('/{([^}]+)}/', Router::GetPath('$1'), $this->oXml->settings);
+            $sResult = preg_replace('/{([^}]+)}/', R::GetPath('$1'), $this->oXml->settings);
             $this->setProp('settings', $sResult);
         }
         return $sResult;

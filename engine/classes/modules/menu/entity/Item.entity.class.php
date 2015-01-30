@@ -95,7 +95,7 @@ class ModuleMenu_EntityItem extends Entity {
     protected function _checkPath($aPaths, $bDefault = TRUE) {
 
         if ($aPaths) {
-            return Router::CompareWithLocalPath($aPaths);
+            return R::CompareWithLocalPath($aPaths);
         }
 
         return $bDefault;

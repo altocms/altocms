@@ -516,7 +516,7 @@ class ModuleViewer extends Module {
             throw new Exception('Router rules is underfined.');
         }
         foreach ($aPages as $sPage => $aAction) {
-            $aRouter[$sPage] = Router::GetPath($sPage);
+            $aRouter[$sPage] = R::GetPath($sPage);
         }
         $this->_assignTpl('aRouter', $aRouter);
 
@@ -1511,7 +1511,7 @@ class ModuleViewer extends Module {
      */
     protected function BuildHeadFiles() {
 
-        $sPath = Router::GetPathWebCurrent();
+        $sPath = R::GetPathWebCurrent();
 
         $this->aFileRules = Config::Get('head.rules');
         foreach ((array)$this->aFileRules as $sName => $aRule) {

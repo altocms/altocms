@@ -83,7 +83,7 @@ class ActionComments extends Action {
          */
         $aPaging = $this->Viewer_MakePaging(
             $aResult['count'], $iPage, Config::Get('module.comment.per_page'), Config::Get('pagination.pages.count'),
-            Router::GetPath('comments')
+            R::GetPath('comments')
         );
         /**
          * Загружаем переменные в шаблон
@@ -94,7 +94,7 @@ class ActionComments extends Action {
          * Устанавливаем title страницы
          */
         $this->Viewer_AddHtmlTitle($this->Lang_Get('comments_all'));
-        $this->Viewer_SetHtmlRssAlternate(Router::GetPath('rss') . 'allcomments/', $this->Lang_Get('comments_all'));
+        $this->Viewer_SetHtmlRssAlternate(R::GetPath('rss') . 'allcomments/', $this->Lang_Get('comments_all'));
         /**
          * Устанавливаем шаблон вывода
          */
@@ -121,15 +121,15 @@ class ActionComments extends Action {
          * Определяем необходимую страницу для отображения комментария
          */
         if (!Config::Get('module.comment.use_nested') || !Config::Get('module.comment.nested_per_page')) {
-            Router::Location($oTopic->getUrl() . '#comment' . $oComment->getId());
+            R::Location($oTopic->getUrl() . '#comment' . $oComment->getId());
         }
         $iPage = $this->Comment_GetPageCommentByTargetId(
             $oComment->getTargetId(), $oComment->getTargetType(), $oComment
         );
         if ($iPage == 1) {
-            Router::Location($oTopic->getUrl() . '#comment' . $oComment->getId());
+            R::Location($oTopic->getUrl() . '#comment' . $oComment->getId());
         } else {
-            Router::Location($oTopic->getUrl() . "?cmtpage={$iPage}#comment" . $oComment->getId());
+            R::Location($oTopic->getUrl() . "?cmtpage={$iPage}#comment" . $oComment->getId());
         }
         exit();
     }

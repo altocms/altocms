@@ -64,7 +64,7 @@ class ActionDownload extends Action {
 
             if (preg_match("/^(http:\/\/)/i", $oFile->getFileUrl())) {
                 $sFullPath = $oFile->getFileUrl();
-                Router::Location($sFullPath);
+                R::Location($sFullPath);
             } else {
                 $sFullPath = Config::Get('path.root.dir') . $oFile->getFileUrl();
             }
@@ -97,7 +97,7 @@ class ActionDownload extends Action {
 
         } else {
             $this->Message_AddErrorSingle($this->Lang_Get('content_download_file_error'));
-            return Router::Action('error');
+            return R::Action('error');
         }
 
     }

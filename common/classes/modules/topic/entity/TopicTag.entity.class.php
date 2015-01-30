@@ -153,7 +153,7 @@ class ModuleTopic_EntityTopicTag extends Entity {
 
     public function getLink() {
 
-        return Router::GetPath('tag') . F::UrlEncode($this->getText()) . '/';
+        return R::GetPath('tag') . F::UrlEncode($this->getText()) . '/';
     }
 
 }

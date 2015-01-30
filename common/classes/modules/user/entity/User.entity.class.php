@@ -738,11 +738,11 @@ class ModuleUser_EntityUser extends Entity {
         }
 
         if (!$sUrlMask) {
-            $sUrlMask = Router::GetUserUrlMask();
+            $sUrlMask = R::GetUserUrlMask();
         }
         if (!$sUrlMask) {
             // формирование URL по умолчанию
-            return Router::GetPath('profile') . $this->getLogin() . '/';
+            return R::GetPath('profile') . $this->getLogin() . '/';
         }
         $aReplace = array(
             '%user_id%' => $this->GetId(),
@@ -751,7 +751,7 @@ class ModuleUser_EntityUser extends Entity {
         $sUrl = strtr($sUrlMask, $aReplace);
         if (strpos($sUrl, '/')) {
             list($sAction, $sPath) = explode('/', $sUrl, 2);
-            $sUrl = Router::GetPath($sAction) . $sPath;
+            $sUrl = R::GetPath($sAction) . $sPath;
         } else {
             $sUrl = F::File_RootUrl() . $sUrl;
         }

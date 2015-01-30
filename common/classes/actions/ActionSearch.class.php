@@ -154,7 +154,7 @@ class ActionSearch extends Action {
             $sUserLogin = $this->oUser->GetLogin();
         }
 
-        $path = Router::GetPathWebCurrent();
+        $path = R::GetPathWebCurrent();
         $uri = $_SERVER['REQUEST_URI'];
 
         $sStrLog = 'user=>"' . $sUserLogin . '" ip=>"' . $_SERVER['REMOTE_ADDR'] . '"' . "\n" .
@@ -363,7 +363,7 @@ class ActionSearch extends Action {
      */
     public function EventIndex() {
 
-        $sEvent = Router::GetActionEvent();
+        $sEvent = R::GetActionEvent();
 
         if ($sEvent == 'comments') {
             return $this->EventComments();

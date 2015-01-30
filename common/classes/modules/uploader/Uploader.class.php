@@ -782,11 +782,11 @@ class ModuleUploader extends Module {
         }
 
         if ($sTarget == 'profile_avatar') {
-            return Router::GetPath('settings');
+            return R::GetPath('settings');
         }
 
         if ($sTarget == 'profile_photo') {
-            return Router::GetPath('settings');
+            return R::GetPath('settings');
         }
 
         if ($sTarget == 'blog_avatar') {

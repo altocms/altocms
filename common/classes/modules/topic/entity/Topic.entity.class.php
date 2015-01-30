@@ -573,14 +573,14 @@ class ModuleTopic_EntityTopic extends Entity {
         }
 
         if (!$sUrlMask) {
-            $sUrlMask = Router::GetTopicUrlMask();
+            $sUrlMask = R::GetTopicUrlMask();
         }
         if (!$sUrlMask) {
             // формирование URL по умолчанию в LS-стиле
             if ($this->getBlog()->getType() == 'personal') {
-                return Router::GetPath('blog') . $this->getId() . '.html';
+                return R::GetPath('blog') . $this->getId() . '.html';
             } else {
-                return Router::GetPath('blog') . $this->getBlog()->getUrl() . '/' . $this->getId() . '.html';
+                return R::GetPath('blog') . $this->getBlog()->getUrl() . '/' . $this->getId() . '.html';
             }
         }
         // ЧПУ по маске
@@ -634,7 +634,7 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function getUrlShort() {
 
-        return Router::GetPath('t') . $this->getId() . '/';
+        return R::GetPath('t') . $this->getId() . '/';
     }
 
     /**
@@ -644,7 +644,7 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function getUrlEdit() {
 
-        return Router::GetPath('content') . 'edit/' . $this->getId() . '/';
+        return R::GetPath('content') . 'edit/' . $this->getId() . '/';
     }
 
     /**

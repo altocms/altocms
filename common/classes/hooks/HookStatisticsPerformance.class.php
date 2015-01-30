@@ -36,7 +36,7 @@ class HookStatisticsPerformance extends Hook {
 
         // if is null then show to admins only
         if ((is_null($xShowStats) && E::IsAdmin()) || ($xShowStats === true) || (is_array($xShowStats) && in_array(E::UserId(), $xShowStats)))  {
-            $xShowStats = Router::GetIsShowStats();
+            $xShowStats = R::GetIsShowStats();
         } else {
             $xShowStats = false;
         }
@@ -73,7 +73,7 @@ class HookStatisticsPerformance extends Hook {
         $aStats['viewer']['preproc'] = round(ModuleViewer::GetPreprocessingTime(), 3);
         $aStats['viewer']['total'] = round(ModuleViewer::GetTotalTime(), 3);
 
-        $bIsShowStatsPerformance = Router::GetIsShowStats();
+        $bIsShowStatsPerformance = R::GetIsShowStats();
         if ($bIsShowStatsPerformance) {
             $this->Viewer_Assign('aStatsPerformance', $aStats);
             $this->Viewer_Assign('bIsShowStatsPerformance', $bIsShowStatsPerformance);

@@ -27,7 +27,7 @@ class ActionRss extends Action {
     public function Init() {
 
         $this->SetDefaultEvent('index');
-        Router::SetIsShowStats(false);
+        R::SetIsShowStats(false);
     }
 
     /**

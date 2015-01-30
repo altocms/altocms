@@ -403,9 +403,9 @@ class ModuleWidget_EntityWidget extends Entity {
             if (!$aActions) {
                 $bResult = true;
             } else {
-                $sCurrentAction = strtolower(Router::GetAction());
-                $sCurrentEvent = strtolower(Router::GetActionEvent());
-                $sCurrentEventName = strtolower(Router::GetActionEventName());
+                $sCurrentAction = strtolower(R::GetAction());
+                $sCurrentEvent = strtolower(R::GetActionEvent());
+                $sCurrentEventName = strtolower(R::GetActionEventName());
 
                 foreach ($aActions as $sAction => $aEvents) {
                     // приводим к виду action=>array(events)

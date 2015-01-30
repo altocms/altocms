@@ -536,7 +536,7 @@ class ModuleMenu extends Module {
             $aActionName = array($aActionName);
         }
 
-        return in_array(Router::GetAction(), $aActionName);
+        return in_array(R::GetAction(), $aActionName);
 
     }
 
@@ -551,7 +551,7 @@ class ModuleMenu extends Module {
             $aActionName = array($aActionName);
         }
 
-        return !in_array(Router::GetAction(), $aActionName);
+        return !in_array(R::GetAction(), $aActionName);
 
     }
 
@@ -566,7 +566,7 @@ class ModuleMenu extends Module {
             $aEventName = array($aEventName);
         }
 
-        return !in_array(Router::GetActionEvent(), $aEventName);
+        return !in_array(R::GetActionEvent(), $aEventName);
 
     }
 
@@ -630,7 +630,7 @@ class ModuleMenu extends Module {
      */
     public function CompareParam($iParam, $sParamData) {
 
-        return Router::GetParam($iParam) == $sParamData;
+        return R::GetParam($iParam) == $sParamData;
 
     }
 
@@ -643,11 +643,11 @@ class ModuleMenu extends Module {
      */
     public function TopicKind($sTopicType) {
 
-        if (is_null(Router::GetActionEvent())) {
+        if (is_null(R::GetActionEvent())) {
             return 'good' == $sTopicType;
         }
 
-        return Router::GetActionEvent() == $sTopicType;
+        return R::GetActionEvent() == $sTopicType;
 
     }
 

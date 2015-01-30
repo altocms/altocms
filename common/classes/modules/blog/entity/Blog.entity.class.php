@@ -287,7 +287,7 @@ class ModuleBlog_EntityBlog extends Entity {
         if ($this->getType() == 'personal') {
             return $this->getOwner()->getUserUrl() . 'created/topics/';
         } else {
-            return Router::GetPath('blog') . $this->getUrl() . '/';
+            return R::GetPath('blog') . $this->getUrl() . '/';
         }
     }
 

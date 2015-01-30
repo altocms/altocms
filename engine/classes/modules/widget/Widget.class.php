@@ -28,7 +28,7 @@ class ModuleWidget extends Module {
     protected function _checkPath($aPaths, $bDefault = true) {
 
         if ($aPaths) {
-            return Router::CompareWithLocalPath($aPaths);
+            return R::CompareWithLocalPath($aPaths);
         }
         return $bDefault;
     }
@@ -38,7 +38,7 @@ class ModuleWidget extends Module {
      */
     public function Init() {
 
-        $this->sCurentPath = Router::GetControllerPath();
+        $this->sCurentPath = R::GetControllerPath();
     }
 
     /**

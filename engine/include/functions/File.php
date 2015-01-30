@@ -103,7 +103,7 @@ class AltoFunc_File {
                     $sLang = $xAddLang;
                 } else {
                     // иначе язык берем из роутера
-                    $sLang = Router::GetLang();
+                    $sLang = R::GetLang();
                 }
                 if ($sLang) {
                     $sUrl = static::NormPath($sUrl . '/' . $sLang . '/');

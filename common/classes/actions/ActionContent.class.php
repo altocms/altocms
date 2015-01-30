@@ -62,7 +62,7 @@ class ActionContent extends Action {
     public function Init() {
 
         // * Проверяем авторизован ли юзер
-        if (!$this->User_IsAuthorization() && Router::GetActionEvent() !== 'go' && Router::GetActionEvent() !== 'photo') {
+        if (!$this->User_IsAuthorization() && R::GetActionEvent() !== 'go' && R::GetActionEvent() !== 'photo') {
             return parent::EventNotFound();
         }
         $this->oUserCurrent = $this->User_GetUserCurrent();
@@ -449,11 +449,11 @@ class ActionContent extends Action {
                 $oTopic->getUserId(), 'add_topic', $oTopic->getId(),
                 $oTopic->getPublish() && (!$oBlog->getBlogType() || !$oBlog->getBlogType()->IsPrivate())
             );
-            Router::Location($oTopic->getUrl());
+            R::Location($oTopic->getUrl());
         } else {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
             F::SysWarning('System Error');
-            return Router::Action('error');
+            return R::Action('error');
         }
     }
 
@@ -559,7 +559,7 @@ class ActionContent extends Action {
             }
         }
 
-        $sUrlMask = Router::GetTopicUrlMask();
+        $sUrlMask = R::GetTopicUrlMask();
         if (strpos($sUrlMask, '%topic_url%') === false) {
             // Нет в маске URL
             $aEditTopicUrl = array(
@@ -773,13 +773,13 @@ class ActionContent extends Action {
             if (!$oTopic->getPublish() && !$this->oUserCurrent->isAdministrator()
                 && $this->oUserCurrent->getId() != $oTopic->getUserId()
             ) {
-                Router::Location($oBlog->getUrlFull());
+                R::Location($oBlog->getUrlFull());
             }
-            Router::Location($oTopic->getUrl());
+            R::Location($oTopic->getUrl());
         } else {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
             F::SysWarning('System Error');
-            return Router::Action('error');
+            return R::Action('error');
         }
     }
 
@@ -820,9 +820,9 @@ class ActionContent extends Action {
             $this->Hook_Run('topic_delete_after', array('oTopic' => $oTopic));
 
             // * Перенаправляем на страницу со списком топиков из блога этого топика
-            Router::Location($oTopic->getBlog()->getUrlFull());
+            R::Location($oTopic->getBlog()->getUrlFull());
         } else {
-            Router::Location($oTopic->getUrl());
+            R::Location($oTopic->getUrl());
         }
     }
 
@@ -864,7 +864,7 @@ class ActionContent extends Action {
          */
         $aPaging = $this->Viewer_MakePaging(
             $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
-            Router::GetPath('content') . $this->sCurrentEvent
+            R::GetPath('content') . $this->sCurrentEvent
         );
         /**
          * Загружаем переменные в шаблон
@@ -1004,7 +1004,7 @@ class ActionContent extends Action {
          */
         if (!$this->User_IsAuthorization()) {
             $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
-            return Router::Action('error');
+            return R::Action('error');
         }
         /**
          * Поиск фото по id
@@ -1159,7 +1159,7 @@ class ActionContent extends Action {
         $this->Topic_UpdateTopic($oTopic);
 
         // * собственно сам переход по ссылке
-        Router::Location($oTopic->getSourceLink());
+        R::Location($oTopic->getSourceLink());
     }
 
     /*

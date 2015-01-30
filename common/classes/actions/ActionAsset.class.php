@@ -40,7 +40,7 @@ class ActionAsset extends Action {
                     } else {
                         $sUrl .= '?' . uniqid();
                     }
-                    Router::Location($sUrl);
+                    R::Location($sUrl);
                 } else {
                     header_remove();
                     if ($sMimeType = F::File_MimeType($sAssetFile)) {

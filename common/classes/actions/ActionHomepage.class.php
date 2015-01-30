@@ -69,10 +69,10 @@ class ActionHomepage extends Action {
                     return;
                 }
             } elseif ($sHomepage) {
-                return Router::Action($sHomepage);
+                return R::Action($sHomepage);
             }
         }
-        return Router::Action('index');
+        return R::Action('index');
     }
 
 }

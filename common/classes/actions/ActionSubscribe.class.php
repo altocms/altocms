@@ -74,9 +74,9 @@ class ActionSubscribe extends Action {
          * Получаем URL для редиректа
          */
         if ((!$sUrl = $this->Subscribe_GetUrlTarget($oSubscribe->getTargetType(), $oSubscribe->getTargetId()))) {
-            $sUrl = Router::GetPath('index');
+            $sUrl = R::GetPath('index');
         }
-        Router::Location($sUrl);
+        R::Location($sUrl);
     }
 
     /**

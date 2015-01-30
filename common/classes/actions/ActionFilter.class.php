@@ -105,7 +105,7 @@ class ActionFilter extends Action {
          */
         $aPaging = $this->Viewer_MakePaging(
             $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
-            Router::GetPath('filter') . $this->sCurrentEvent
+            R::GetPath('filter') . $this->sCurrentEvent
         );
         /**
          * Загружаем переменные в шаблон

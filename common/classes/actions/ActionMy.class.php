@@ -77,7 +77,7 @@ class ActionMy extends Action {
          * Выполняем редирект на новый URL, в новых версиях LS экшен "my" будет удален
          */
         $sPage = $iPage == 1 ? '' : "page{$iPage}/";
-        Router::Location($this->oUserProfile->getUserWebPath() . 'created/topics/' . $sPage);
+        R::Location($this->oUserProfile->getUserWebPath() . 'created/topics/' . $sPage);
     }
 
     /**
@@ -104,7 +104,7 @@ class ActionMy extends Action {
          * Выполняем редирект на новый URL, в новых версиях LS экшен "my" будет удален
          */
         $sPage = $iPage == 1 ? '' : "page{$iPage}/";
-        Router::Location($this->oUserProfile->getUserWebPath() . 'created/comments/' . $sPage);
+        R::Location($this->oUserProfile->getUserWebPath() . 'created/comments/' . $sPage);
     }
 }
 

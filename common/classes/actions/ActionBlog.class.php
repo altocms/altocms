@@ -103,7 +103,7 @@ class ActionBlog extends Action {
          * Устанавливаем евент по дефолту, т.е. будем показывать хорошие топики из коллективных блогов
          */
         $this->SetDefaultEvent('good');
-        $this->sMenuSubBlogUrl = Router::GetPath('blog');
+        $this->sMenuSubBlogUrl = R::GetPath('blog');
         /**
          * Достаём текущего пользователя
          */
@@ -192,14 +192,14 @@ class ActionBlog extends Action {
          */
         if (!$this->User_IsAuthorization()) {
             $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
-            return Router::Action('error');
+            return R::Action('error');
         }
         /**
          * Проверяем хватает ли рейтинга юзеру чтоб создать блог
          */
         if (!$this->ACL_CanCreateBlog($this->oUserCurrent) && !$this->oUserCurrent->isAdministrator()) {
             $this->Message_AddErrorSingle($this->Lang_Get('blog_create_acl'), $this->Lang_Get('error'));
-            return Router::Action('error');
+            return R::Action('error');
         }
         $this->Hook_Run('blog_add_show');
 
@@ -256,7 +256,7 @@ class ActionBlog extends Action {
             // Подписываем владельца блога на свой блог
             $this->Userfeed_SubscribeUser($oBlog->getOwnerId(), ModuleUserfeed::SUBSCRIBE_TYPE_BLOG, $oBlog->getId());
 
-            Router::Location($oBlog->getUrlFull());
+            R::Location($oBlog->getUrlFull());
         } else {
             $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
         }
@@ -298,13 +298,13 @@ class ActionBlog extends Action {
         // Проверям, авторизован ли пользователь
         if (!$this->User_IsAuthorization()) {
             $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
-            return Router::Action('error');
+            return R::Action('error');
         }
 
         // Проверка на право редактировать блог
         if (!$this->ACL_IsAllowEditBlog($oBlog, $this->oUserCurrent)) {
             $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('not_access'));
-            return Router::Action('error');
+            return R::Action('error');
         }
 
         $this->Hook_Run('blog_edit_show', array('oBlog' => $oBlog));
@@ -370,10 +370,10 @@ class ActionBlog extends Action {
             $this->Hook_Run('blog_edit_before', array('oBlog' => $oBlog));
             if ($this->_updateBlog($oBlog)) {
                 $this->Hook_Run('blog_edit_after', array('oBlog' => $oBlog));
-                Router::Location($oBlog->getUrlFull());
+                R::Location($oBlog->getUrlFull());
             } else {
                 $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
-                return Router::Action('error');
+                return R::Action('error');
             }
         } else {
 
@@ -421,14 +421,14 @@ class ActionBlog extends Action {
          */
         if (!$this->User_IsAuthorization()) {
             $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
-            return Router::Action('error');
+            return R::Action('error');
         }
         /**
          * Проверка на право управлением пользователями блога
          */
         if (!$this->ACL_IsAllowAdminBlog($oBlog, $this->oUserCurrent)) {
             $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('not_access'));
-            return Router::Action('error');
+            return R::Action('error');
         }
         /**
          * Обрабатываем сохранение формы
@@ -505,7 +505,7 @@ class ActionBlog extends Action {
          */
         $aPaging = $this->Viewer_MakePaging(
             $aResult['count'], $iPage, Config::Get('module.blog.users_per_page'), Config::Get('pagination.pages.count'),
-            Router::GetPath('blog') . "admin/{$oBlog->getId()}"
+            R::GetPath('blog') . "admin/{$oBlog->getId()}"
         );
         $this->Viewer_Assign('aPaging', $aPaging);
         /**
@@ -658,7 +658,7 @@ class ActionBlog extends Action {
          */
         $iPage = $this->GetParamEventMatch(0, 2) ? $this->GetParamEventMatch(0, 2) : 1;
         if ($iPage == 1 && !F::GetRequest('period')) {
-            $this->Viewer_SetHtmlCanonical(Router::GetPath('blog') . $sShowType . '/');
+            $this->Viewer_SetHtmlCanonical(R::GetPath('blog') . $sShowType . '/');
         }
         /**
          * Получаем список топиков
@@ -686,7 +686,7 @@ class ActionBlog extends Action {
          */
         $aPaging = $this->Viewer_MakePaging(
             $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
-            Router::GetPath('blog') . $sShowType,
+            R::GetPath('blog') . $sShowType,
             in_array($sShowType, array('discussed', 'top')) ? array('period' => $sPeriod) : array()
         );
         /**
@@ -700,7 +700,7 @@ class ActionBlog extends Action {
         $this->Viewer_Assign('aPaging', $aPaging);
         if (in_array($sShowType, array('discussed', 'top'))) {
             $this->Viewer_Assign('sPeriodSelectCurrent', $sPeriod);
-            $this->Viewer_Assign('sPeriodSelectRoot', Router::GetPath('blog') . $sShowType . '/');
+            $this->Viewer_Assign('sPeriodSelectRoot', R::GetPath('blog') . $sShowType . '/');
         }
         /**
          * Устанавливаем шаблон вывода
@@ -717,7 +717,7 @@ class ActionBlog extends Action {
             return parent::EventNotFound();
         }
 
-        return Router::Action('blog/' . $nTopicId . '.html');
+        return R::Action('blog/' . $nTopicId . '.html');
     }
 
     /**
@@ -729,7 +729,7 @@ class ActionBlog extends Action {
         $this->sMenuHeadItemSelect = 'index';
 
         $sBlogUrl = '';
-        $sTopicUrlMask = Router::GetTopicUrlMask();
+        $sTopicUrlMask = R::GetTopicUrlMask();
         if ($this->GetParamEventMatch(0, 1)) {
             // из коллективного блога
             $sBlogUrl = $this->sCurrentEvent;
@@ -790,32 +790,32 @@ class ActionBlog extends Action {
         // Определяем права на отображение записи из закрытого блога
         if (!$this->ACL_IsAllowShowBlog($oTopic->getBlog(), $this->oUserCurrent)) {
             $this->Message_AddErrorSingle($this->Lang_Get('acl_cannot_show_content'), $this->Lang_Get('not_access'));
-            return Router::Action('error');
+            return R::Action('error');
         }
 
         // Если номер топика правильный, но URL блога неверный, то корректируем его и перенаправляем на нужный адрес
         if ($sBlogUrl != '' && $oTopic->getBlog()->getUrl() != $sBlogUrl) {
-            Router::Location($oTopic->getUrl());
+            R::Location($oTopic->getUrl());
         }
 
         // Если запросили не персональный топик с маской, в которой указано название блога,
         // то перенаправляем на страницу для вывода коллективного топика
         if ($sTopicUrlMask && $sBlogUrl != '' && $oTopic->getBlog()->getType() != 'personal') {
-            Router::Location($oTopic->getUrl());
+            R::Location($oTopic->getUrl());
         }
 
         // Если запросили не персональный топик без маски и не указаным названием блога,
         // то перенаправляем на страницу для вывода коллективного топика
         if (!$sTopicUrlMask && $sBlogUrl == '' && $oTopic->getBlog()->getType() != 'personal') {
-            Router::Location($oTopic->getUrl());
+            R::Location($oTopic->getUrl());
         }
 
         // Если запросили топик с определенной маской, не указаным названием блога,
         // но ссылка на топик и ЧПУ url разные, то перенаправляем на страницу для вывода коллективного топика
         if ($sTopicUrlMask && $sBlogUrl == '' 
-            && $oTopic->getUrl() != Router::GetPathWebCurrent() . (substr($oTopic->getUrl(), -1) == '/' ? '/' : '')
+            && $oTopic->getUrl() != R::GetPathWebCurrent() . (substr($oTopic->getUrl(), -1) == '/' ? '/' : '')
         ) {
-            Router::Location($oTopic->getUrl());
+            R::Location($oTopic->getUrl());
         }
 
         // Обрабатываем добавление коммента
@@ -896,7 +896,7 @@ class ActionBlog extends Action {
         $this->Viewer_AddHtmlTitle($oTopic->getBlog()->getTitle());
         $this->Viewer_AddHtmlTitle($oTopic->getTitle());
         $this->Viewer_SetHtmlRssAlternate(
-            Router::GetPath('rss') . 'comments/' . $oTopic->getId() . '/', $oTopic->getTitle()
+            R::GetPath('rss') . 'comments/' . $oTopic->getId() . '/', $oTopic->getTitle()
         );
 
         // Устанавливаем шаблон вывода
@@ -1191,7 +1191,7 @@ class ActionBlog extends Action {
          */
         $this->Viewer_AddHtmlTitle($oBlog->getTitle());
         $this->Viewer_SetHtmlRssAlternate(
-            Router::GetPath('rss') . 'blog/' . $oBlog->getUrl() . '/', $oBlog->getTitle()
+            R::GetPath('rss') . 'blog/' . $oBlog->getUrl() . '/', $oBlog->getTitle()
         );
         /**
          * Устанавливаем шаблон вывода
@@ -1855,8 +1855,8 @@ class ActionBlog extends Action {
         $sCode = rawurlencode(base64_encode(xxtea_encrypt($sCode, Config::Get('module.blog.encrypt'))));
 
         $aPath = array(
-            'accept' => Router::GetPath('blog') . 'request/accept/?code=' . $sCode,
-            'reject' => Router::GetPath('blog') . 'request/reject/?code=' . $sCode
+            'accept' => R::GetPath('blog') . 'request/accept/?code=' . $sCode,
+            'reject' => R::GetPath('blog') . 'request/reject/?code=' . $sCode
         );
 
         $sText = $this->Lang_Get(
@@ -1873,7 +1873,7 @@ class ActionBlog extends Action {
 
         $this->Notify_SendBlogUserRequest(
             $oBlogOwnerUser, $this->oUserCurrent, $oBlog,
-            Router::GetPath('talk') . 'read/' . $oTalk->getId() . '/'
+            R::GetPath('talk') . 'read/' . $oTalk->getId() . '/'
         );
         /**
          * Удаляем отправляющего юзера из переписки
@@ -1900,8 +1900,8 @@ class ActionBlog extends Action {
         $sCode = rawurlencode(base64_encode(xxtea_encrypt($sCode, Config::Get('module.blog.encrypt'))));
 
         $aPath = array(
-            'accept' => Router::GetPath('blog') . 'invite/accept/?code=' . $sCode,
-            'reject' => Router::GetPath('blog') . 'invite/reject/?code=' . $sCode
+            'accept' => R::GetPath('blog') . 'invite/accept/?code=' . $sCode,
+            'reject' => R::GetPath('blog') . 'invite/reject/?code=' . $sCode
         );
 
         $sText = $this->Lang_Get(
@@ -1919,7 +1919,7 @@ class ActionBlog extends Action {
          */
         $this->Notify_SendBlogUserInvite(
             $oUser, $this->oUserCurrent, $oBlog,
-            Router::GetPath('talk') . 'read/' . $oTalk->getId() . '/'
+            R::GetPath('talk') . 'read/' . $oTalk->getId() . '/'
         );
         /**
          * Удаляем отправляющего юзера из переписки
@@ -1969,12 +1969,12 @@ class ActionBlog extends Action {
         if ($oBlogUser->getUserRole() > ModuleBlog::BLOG_USER_ROLE_GUEST) {
             $sMessage = $this->Lang_Get('blog_user_invite_already_done');
             $this->Message_AddError($sMessage, $this->Lang_Get('error'), true);
-            Router::Location(Router::GetPath('talk'));
+            R::Location(R::GetPath('talk'));
             return;
         }
         if (!in_array($oBlogUser->getUserRole(), array(ModuleBlog::BLOG_USER_ROLE_INVITE, ModuleBlog::BLOG_USER_ROLE_REJECT))) {
             $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'), true);
-            Router::Location(Router::GetPath('talk'));
+            R::Location(R::GetPath('talk'));
             return;
         }
 
@@ -1982,7 +1982,7 @@ class ActionBlog extends Action {
         $oBlogUser->setUserRole(($sAction == 'accept') ? ModuleBlog::BLOG_USER_ROLE_USER : ModuleBlog::BLOG_USER_ROLE_REJECT);
         if (!$this->Blog_UpdateRelationBlogUser($oBlogUser)) {
             $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'), true);
-            Router::Location(Router::GetPath('talk'));
+            R::Location(R::GetPath('talk'));
             return;
         }
         if ($sAction == 'accept') {
@@ -2000,7 +2000,7 @@ class ActionBlog extends Action {
         $this->Message_AddNotice($sMessage, $this->Lang_Get('attention'), true);
 
         // * Перенаправляем на страницу личной почты
-        Router::Location(Router::GetPath('talk'));
+        R::Location(R::GetPath('talk'));
     }
 
     /**
@@ -2053,7 +2053,7 @@ class ActionBlog extends Action {
         if ($oBlogUser->getUserRole() >= ModuleBlog::BLOG_USER_ROLE_USER) {
             $sMessage = $this->Lang_Get('blog_user_request_already_done');
             $this->Message_AddError($sMessage, $this->Lang_Get('error'), true);
-            Router::Location(Router::GetPath('talk'));
+            R::Location(R::GetPath('talk'));
             return;
         }
 
@@ -2066,7 +2066,7 @@ class ActionBlog extends Action {
         $oBlogUser->setUserRole(($sAction == 'accept') ? ModuleBlog::BLOG_USER_ROLE_USER : ModuleBlog::BLOG_USER_ROLE_NOTMEMBER);
         if (!$this->Blog_UpdateRelationBlogUser($oBlogUser)) {
             $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'), true);
-            Router::Location(Router::GetPath('talk'));
+            R::Location(R::GetPath('talk'));
             return;
         }
         if ($sAction == 'accept') {
@@ -2084,7 +2084,7 @@ class ActionBlog extends Action {
         $this->Message_AddNotice($sMessage, $this->Lang_Get('attention'), true);
 
         // * Перенаправляем на страницу личной почты
-        Router::Location(Router::GetPath('talk'));
+        R::Location(R::GetPath('talk'));
     }
 
     /**
@@ -2104,7 +2104,7 @@ class ActionBlog extends Action {
         // * Проверям авторизован ли пользователь
         if (!$this->User_IsAuthorization()) {
             $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
-            return Router::Action('error');
+            return R::Action('error');
         }
 
         // * проверяем есть ли право на удаление блога
@@ -2119,7 +2119,7 @@ class ActionBlog extends Action {
                     $this->Message_AddErrorSingle(
                         $this->Lang_Get('blog_admin_delete_not_empty'), $this->Lang_Get('error'), true
                     );
-                    Router::Location($oBlog->getUrlFull());
+                    R::Location($oBlog->getUrlFull());
                 }
                 break;
             case ModuleACL::CAN_DELETE_BLOG_WITH_TOPICS :
@@ -2135,14 +2135,14 @@ class ActionBlog extends Action {
                         $this->Message_AddErrorSingle(
                             $this->Lang_Get('blog_admin_delete_move_error'), $this->Lang_Get('error'), true
                         );
-                        Router::Location($oBlog->getUrlFull());
+                        R::Location($oBlog->getUrlFull());
                     }
                     // * Если выбранный блог является персональным, возвращаем ошибку
                     if ($oBlogNew->getType() == 'personal') {
                         $this->Message_AddErrorSingle(
                             $this->Lang_Get('blog_admin_delete_move_personal'), $this->Lang_Get('error'), true
                         );
-                        Router::Location($oBlog->getUrlFull());
+                        R::Location($oBlog->getUrlFull());
                     }
                     // * Перемещаем топики
                     $this->Topic_MoveTopics($nBlogId, $nNewBlogId);
@@ -2160,9 +2160,9 @@ class ActionBlog extends Action {
             $this->Message_AddNoticeSingle(
                 $this->Lang_Get('blog_admin_delete_success'), $this->Lang_Get('attention'), true
             );
-            Router::Location(Router::GetPath('blogs'));
+            R::Location(R::GetPath('blogs'));
         } else {
-            Router::Location($oBlog->getUrlFull());
+            R::Location($oBlog->getUrlFull());
         }
     }
 

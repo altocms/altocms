@@ -49,7 +49,7 @@ class ActionTalk extends Action {
          */
         if (!$this->User_IsAuthorization()) {
             $this->Message_AddErrorSingle($this->Lang_Get('not_access'));
-            return Router::Action('error');
+            return R::Action('error');
         }
         /**
          * Получаем текущего юзера
@@ -116,7 +116,7 @@ class ActionTalk extends Action {
          * Обработка удаления сообщения
          */
         $this->Talk_DeleteTalkUserByArray($sTalkId, $this->oUserCurrent->getId());
-        Router::Location(Router::GetPath('talk'));
+        R::Location(R::GetPath('talk'));
     }
 
     /**
@@ -179,7 +179,7 @@ class ActionTalk extends Action {
         // * Формируем постраничность
         $aPaging = $this->Viewer_MakePaging(
             $aResult['count'], $iPage, $iPerPage, Config::Get('pagination.pages.count'),
-            Router::GetPath('talk') . $this->sCurrentEvent,
+            R::GetPath('talk') . $this->sCurrentEvent,
             array_intersect_key(
                 $_REQUEST,
                 array_fill_keys(
@@ -336,7 +336,7 @@ class ActionTalk extends Action {
          */
         $aPaging = $this->Viewer_MakePaging(
             $aResult['count'], $iPage, Config::Get('module.talk.per_page'), Config::Get('pagination.pages.count'),
-            Router::GetPath('talk') . $this->sCurrentEvent
+            R::GetPath('talk') . $this->sCurrentEvent
         );
         /**
          * Загружаем переменные в шаблон
@@ -389,10 +389,10 @@ class ActionTalk extends Action {
 
             $this->Mresource_CheckTargetTextForImages('talk', $oTalk->getId(), $oTalk->getText());
 
-            Router::Location(Router::GetPath('talk') . 'read/' . $oTalk->getId() . '/');
+            R::Location(R::GetPath('talk') . 'read/' . $oTalk->getId() . '/');
         } else {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
-            return Router::Action('error');
+            return R::Action('error');
         }
     }
 

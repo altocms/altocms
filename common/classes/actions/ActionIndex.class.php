@@ -105,7 +105,7 @@ class ActionIndex extends Action {
          */
         $iPage = $this->GetParamEventMatch(0, 2) ? $this->GetParamEventMatch(0, 2) : 1;
         if ($iPage == 1 && !F::GetRequest('period')) {
-            $this->Viewer_SetHtmlCanonical(Router::GetPath('index') . 'top/');
+            $this->Viewer_SetHtmlCanonical(R::GetPath('index') . 'top/');
         }
         /**
          * Получаем список топиков
@@ -132,7 +132,7 @@ class ActionIndex extends Action {
          */
         $aPaging = $this->Viewer_MakePaging(
             $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
-            Router::GetPath('index') . 'top', array('period' => $sPeriod)
+            R::GetPath('index') . 'top', array('period' => $sPeriod)
         );
 
         $this->Viewer_AddHtmlTitle($this->Lang_Get('blog_menu_all_top') . ($iPage>1 ? (' (' . $iPage . ')') : ''));
@@ -142,7 +142,7 @@ class ActionIndex extends Action {
         $this->Viewer_Assign('aTopics', $aTopics);
         $this->Viewer_Assign('aPaging', $aPaging);
         $this->Viewer_Assign('sPeriodSelectCurrent', $sPeriod);
-        $this->Viewer_Assign('sPeriodSelectRoot', Router::GetPath('index') . 'top/');
+        $this->Viewer_Assign('sPeriodSelectRoot', R::GetPath('index') . 'top/');
         /**
          * Устанавливаем шаблон вывода
          */
@@ -166,7 +166,7 @@ class ActionIndex extends Action {
          */
         $iPage = $this->GetParamEventMatch(0, 2) ? $this->GetParamEventMatch(0, 2) : 1;
         if ($iPage == 1 && !F::GetRequest('period')) {
-            $this->Viewer_SetHtmlCanonical(Router::GetPath('index') . 'discussed/');
+            $this->Viewer_SetHtmlCanonical(R::GetPath('index') . 'discussed/');
         }
         /**
          * Получаем список топиков
@@ -193,7 +193,7 @@ class ActionIndex extends Action {
          */
         $aPaging = $this->Viewer_MakePaging(
             $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
-            Router::GetPath('index') . 'discussed', array('period' => $sPeriod)
+            R::GetPath('index') . 'discussed', array('period' => $sPeriod)
         );
 
         $this->Viewer_AddHtmlTitle($this->Lang_Get('blog_menu_collective_discussed') . ($iPage>1 ? (' (' . $iPage . ')') : ''));
@@ -203,7 +203,7 @@ class ActionIndex extends Action {
         $this->Viewer_Assign('aTopics', $aTopics);
         $this->Viewer_Assign('aPaging', $aPaging);
         $this->Viewer_Assign('sPeriodSelectCurrent', $sPeriod);
-        $this->Viewer_Assign('sPeriodSelectRoot', Router::GetPath('index') . 'discussed/');
+        $this->Viewer_Assign('sPeriodSelectRoot', R::GetPath('index') . 'discussed/');
         /**
          * Устанавливаем шаблон вывода
          */
@@ -214,7 +214,7 @@ class ActionIndex extends Action {
      * Вывод новых топиков
      */
     protected function EventNew() {
-        $this->Viewer_SetHtmlRssAlternate(Router::GetPath('rss') . 'new/', Config::Get('view.name'));
+        $this->Viewer_SetHtmlRssAlternate(R::GetPath('rss') . 'new/', Config::Get('view.name'));
         /**
          * Меню
          */
@@ -237,7 +237,7 @@ class ActionIndex extends Action {
          */
         $aPaging = $this->Viewer_MakePaging(
             $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
-            Router::GetPath('index') . 'new'
+            R::GetPath('index') . 'new'
         );
         /**
          * Загружаем переменные в шаблон
@@ -254,7 +254,7 @@ class ActionIndex extends Action {
      * Вывод ВСЕХ новых топиков
      */
     protected function EventNewAll() {
-        $this->Viewer_SetHtmlRssAlternate(Router::GetPath('rss') . 'new/', Config::Get('view.name'));
+        $this->Viewer_SetHtmlRssAlternate(R::GetPath('rss') . 'new/', Config::Get('view.name'));
         /**
          * Меню
          */
@@ -277,7 +277,7 @@ class ActionIndex extends Action {
          */
         $aPaging = $this->Viewer_MakePaging(
             $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
-            Router::GetPath('index') . 'newall'
+            R::GetPath('index') . 'newall'
         );
 
         $this->Viewer_AddHtmlTitle($this->Lang_Get('blog_menu_all_new')  . ($iPage>1 ? (' (' . $iPage . ')') : ''));
@@ -297,7 +297,7 @@ class ActionIndex extends Action {
      *
      */
     protected function EventIndex() {
-        $this->Viewer_SetHtmlRssAlternate(Router::GetPath('rss') . 'index/', Config::Get('view.name'));
+        $this->Viewer_SetHtmlRssAlternate(R::GetPath('rss') . 'index/', Config::Get('view.name'));
         /**
          * Меню
          */
@@ -326,7 +326,7 @@ class ActionIndex extends Action {
          */
         $aPaging = $this->Viewer_MakePaging(
             $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
-            Router::GetPath('index')
+            R::GetPath('index')
         );
         /**
          * Загружаем переменные в шаблон

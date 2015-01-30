@@ -104,7 +104,7 @@ abstract class Action extends LsObject {
         //Engine::getInstance();
         $this->RegisterEvent();
         $this->sCurrentAction = $sAction;
-        $this->aParams = Router::GetParams();
+        $this->aParams = R::GetParams();
 
         // load action's config if exists
         Config::ResetLevel(Config::LEVEL_ACTION);
@@ -174,10 +174,10 @@ abstract class Action extends LsObject {
      */
     public function ExecEvent() {
 
-        $this->sCurrentEvent = Router::GetActionEvent();
+        $this->sCurrentEvent = R::GetActionEvent();
         if ($this->sCurrentEvent == null) {
             $this->sCurrentEvent = $this->GetDefaultEvent();
-            Router::SetActionEvent($this->sCurrentEvent);
+            R::SetActionEvent($this->sCurrentEvent);
         }
         foreach ($this->aRegisterEvent as $aEvent) {
             if (preg_match($aEvent['preg'], $this->sCurrentEvent, $aMatch)) {
@@ -321,8 +321,8 @@ abstract class Action extends LsObject {
      */
     public function SetParam($iOffset, $value) {
 
-        Router::SetParam($iOffset, $value);
-        $this->aParams = Router::GetParams();
+        R::SetParam($iOffset, $value);
+        $this->aParams = R::GetParams();
     }
 
     /**
@@ -416,7 +416,7 @@ abstract class Action extends LsObject {
      */
     public function GetActionClass() {
 
-        return Router::GetActionClass();
+        return R::GetActionClass();
     }
 
     /**
@@ -439,7 +439,7 @@ abstract class Action extends LsObject {
      */
     protected function EventNotFound() {
 
-        return Router::Action('error', '404');
+        return R::Action('error', '404');
     }
 
     /**
