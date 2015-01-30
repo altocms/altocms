@@ -10712,10 +10712,10 @@ ul.menu-level-1 > li.menu-hidden-container ul.menu-hidden li.open > a.userlogo {
 .markItUp .editor-code a {
   background-position: -224px -2px;
 }
-.markItUp .editor-ul a {
+.markItUp .editor-ol a {
   background-position: -144px -2px;
 }
-.markItUp .editor-ol a {
+.markItUp .editor-ul a {
   background-position: -164px -2px;
 }
 .markItUp .editor-li a {
