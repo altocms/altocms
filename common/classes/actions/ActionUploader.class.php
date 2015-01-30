@@ -297,7 +297,7 @@ class ActionUploader extends Action {
     public function EventUploadImage() {
 
         // Устанавливаем формат Ajax ответа
-        $this->Viewer_SetResponseAjax('jsonIframe', FALSE);
+        $this->Viewer_SetResponseAjax('json', FALSE);
 
         $this->Security_ValidateSendForm();
 
