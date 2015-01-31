@@ -1,0 +1,1 @@
+{$aLang.infobox_blog_rating} &mdash; {$oBlog->getRating()}<br/>**
