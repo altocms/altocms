@@ -40,7 +40,7 @@ class ModuleUserfeed extends Module {
      */
     public function Init() {
 
-        $this->oMapper = Engine::GetMapper(__CLASS__);
+        $this->oMapper = E::GetMapper(__CLASS__);
     }
 
     /**

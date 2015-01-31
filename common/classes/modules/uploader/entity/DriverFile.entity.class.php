@@ -46,7 +46,7 @@ class ModuleUploader_EntityDriverFile extends Entity {
             $sDestination = $sDestinationDir . $sUuid . '.' . $sExtension;
 
             if ($sStoredFile = $this->Uploader_Move($sFile, $sDestination, true)) {
-                $oStoredItem = Engine::GetEntity(
+                $oStoredItem = E::GetEntity(
                     'Uploader_Item',
                     array(
                          'storage'           => 'file',

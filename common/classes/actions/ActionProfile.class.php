@@ -554,7 +554,8 @@ class ActionProfile extends Action {
         }
 
         // * Создаем запись
-        $oWall = Engine::GetEntity('Wall');
+        /** @var ModuleWall_EntityWall $oWall */
+        $oWall = E::GetEntity('Wall');
         $oWall->_setValidateScenario('add');
         $oWall->setWallUserId($this->oUserProfile->getId());
         $oWall->setUserId($this->oUserCurrent->getId());
@@ -718,10 +719,10 @@ class ActionProfile extends Action {
         if (!$this->oUserCurrent) {
             return parent::EventNotFound();
         }
-        /**
-         * Создаем заметку и проводим валидацию
-         */
-        $oNote = Engine::GetEntity('ModuleUser_EntityNote');
+
+        // * Создаем заметку и проводим валидацию
+        /** @var ModuleUser_EntityNote $oNote */
+        $oNote = E::GetEntity('ModuleUser_EntityNote');
         $oNote->setTargetUserId(F::GetRequestStr('iUserId'));
         $oNote->setUserId($this->oUserCurrent->getId());
         $oNote->setText(F::GetRequestStr('text'));
@@ -1167,9 +1168,9 @@ class ActionProfile extends Action {
     /**
      * Обработка добавления в друзья
      *
-     * @param      $oUser
-     * @param      $sUserText
-     * @param null $oFriend
+     * @param ModuleUser_EntityUser $oUser
+     * @param string                $sUserText
+     * @param ModuleUser_EntityUser $oFriend
      *
      * @return bool
      */
@@ -1188,7 +1189,8 @@ class ActionProfile extends Action {
         /**
          * Создаем связь с другом
          */
-        $oFriendNew = Engine::GetEntity('User_Friend');
+        /** @var ModuleUser_EntityFriend $oFriendNew */
+        $oFriendNew = E::GetEntity('User_Friend');
         $oFriendNew->setUserTo($oUser->getId());
         $oFriendNew->setUserFrom($this->oUserCurrent->getId());
 

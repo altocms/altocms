@@ -1113,7 +1113,7 @@ class ActionAdmin extends Action {
             return;
         }
         // * Заполняем свойства
-        $oPage = Engine::GetEntity('Page');
+        $oPage = E::GetEntity('Page');
         $oPage->setActive(F::GetRequest('page_active') ? 1 : 0);
         $oPage->setAutoBr(F::GetRequest('page_auto_br') ? 1 : 0);
         $oPage->setMain(F::GetRequest('page_main') ? 1 : 0);
@@ -1876,7 +1876,7 @@ class ActionAdmin extends Action {
 
         if ($aUsers) {
             if ($bOk && $aUsers) {
-                $oTalk = Engine::GetEntity('Talk_Talk');
+                $oTalk = E::GetEntity('Talk_Talk');
                 $oTalk->setUserId($this->oUserCurrent->getId());
                 $oTalk->setUserIdLast($this->oUserCurrent->getId());
                 $oTalk->setTitle($sTitle);
@@ -1891,7 +1891,7 @@ class ActionAdmin extends Action {
                 // теперь рассылаем остальным
                 foreach ($aUsers as $sUserLogin) {
                     if ($sUserLogin && ($oUserRecipient = $this->User_GetUserByLogin($sUserLogin))) {
-                        $oTalkUser = Engine::GetEntity('Talk_TalkUser');
+                        $oTalkUser = E::GetEntity('Talk_TalkUser');
                         $oTalkUser->setTalkId($oTalk->getId());
                         $oTalkUser->setUserId($oUserRecipient->GetId());
                         if ($sUserLogin != $this->oUserCurrent->getLogin()) {
@@ -1937,7 +1937,7 @@ class ActionAdmin extends Action {
         if ($aUsers) {
             // Если указано, то шлем самому себе со списком получателей
             if (F::GetRequest('send_copy_self')) {
-                $oSelfTalk = Engine::GetEntity('Talk_Talk');
+                $oSelfTalk = E::GetEntity('Talk_Talk');
                 $oSelfTalk->setUserId($this->oUserCurrent->getId());
                 $oSelfTalk->setUserIdLast($this->oUserCurrent->getId());
                 $oSelfTalk->setTitle($sTitle);
@@ -1946,7 +1946,7 @@ class ActionAdmin extends Action {
                 $oSelfTalk->setDateLast($sDate);
                 $oSelfTalk->setUserIp($sIp);
                 if (($oSelfTalk = $this->Talk_AddTalk($oSelfTalk))) {
-                    $oTalkUser = Engine::GetEntity('Talk_TalkUser');
+                    $oTalkUser = E::GetEntity('Talk_TalkUser');
                     $oTalkUser->setTalkId($oSelfTalk->getId());
                     $oTalkUser->setUserId($this->oUserCurrent->getId());
                     $oTalkUser->setDateLast($sDate);
@@ -1964,7 +1964,7 @@ class ActionAdmin extends Action {
                 // теперь рассылаем остальным - каждому отдельное сообщение
                 foreach ($aUsers as $sUserLogin) {
                     if ($sUserLogin && $sUserLogin != $this->oUserCurrent->getLogin() && ($oUserRecipient = $this->User_GetUserByLogin($sUserLogin))) {
-                        $oTalk = Engine::GetEntity('Talk_Talk');
+                        $oTalk = E::GetEntity('Talk_Talk');
                         $oTalk->setUserId($this->oUserCurrent->getId());
                         $oTalk->setUserIdLast($this->oUserCurrent->getId());
                         $oTalk->setTitle($sTitle);
@@ -1973,14 +1973,14 @@ class ActionAdmin extends Action {
                         $oTalk->setDateLast($sDate);
                         $oTalk->setUserIp($sIp);
                         if (($oTalk = $this->Talk_AddTalk($oTalk))) {
-                            $oTalkUser = Engine::GetEntity('Talk_TalkUser');
+                            $oTalkUser = E::GetEntity('Talk_TalkUser');
                             $oTalkUser->setTalkId($oTalk->getId());
                             $oTalkUser->setUserId($oUserRecipient->GetId());
                             $oTalkUser->setDateLast(null);
                             $this->Talk_AddTalkUser($oTalkUser);
 
                             // Отправка самому себе, чтобы можно было читать ответ
-                            $oTalkUser = Engine::GetEntity('Talk_TalkUser');
+                            $oTalkUser = E::GetEntity('Talk_TalkUser');
                             $oTalkUser->setTalkId($oTalk->getId());
                             $oTalkUser->setUserId($this->oUserCurrent->getId());
                             $oTalkUser->setDateLast($sDate);
@@ -2992,7 +2992,7 @@ class ActionAdmin extends Action {
      */
     protected function _eventBlogTypesAddSubmit() {
         /** @var ModuleBlog_EntityBlogType $oBlogType */
-        $oBlogType = Engine::GetEntity('Blog_BlogType');
+        $oBlogType = E::GetEntity('Blog_BlogType');
         $oBlogType->_setValidateScenario('add');
 
         $sTypeCode = $this->GetPost('blogtypes_typecode');
@@ -3736,7 +3736,7 @@ class ActionAdmin extends Action {
                 if (!$this->checkUserField()) {
                     return;
                 }
-                $oField = Engine::GetEntity('User_Field');
+                $oField = E::GetEntity('User_Field');
                 $oField->setName(F::GetRequestStr('name'));
                 $oField->setTitle(F::GetRequestStr('title'));
                 $oField->setPattern(F::GetRequestStr('pattern'));
@@ -3785,7 +3785,7 @@ class ActionAdmin extends Action {
                 if (!$this->checkUserField()) {
                     return;
                 }
-                $oField = Engine::GetEntity('User_Field');
+                $oField = E::GetEntity('User_Field');
                 $oField->setId(F::GetRequestStr('id'));
                 $oField->setName(F::GetRequestStr('name'));
                 $oField->setTitle(F::GetRequestStr('title'));
@@ -3929,7 +3929,7 @@ class ActionAdmin extends Action {
             return false;
         }
 
-        $oContentType = Engine::GetEntity('Topic_ContentType');
+        $oContentType = E::GetEntity('Topic_ContentType');
         $oContentType->setContentTitle(F::GetRequest('content_title'));
         $oContentType->setContentTitleDecl(F::GetRequest('content_title_decl'));
         $oContentType->setContentUrl(F::GetRequest('content_url'));
@@ -4162,7 +4162,7 @@ class ActionAdmin extends Action {
             return false;
         }
 
-        $oField = Engine::GetEntity('Topic_Field');
+        $oField = E::GetEntity('Topic_Field');
         $oField->setFieldType(F::GetRequest('field_type'));
         $oField->setContentId($oContentType->getContentId());
         $oField->setFieldName(F::GetRequest('field_name'));
@@ -4352,7 +4352,7 @@ class ActionAdmin extends Action {
 
         if (!($oUserVote = $this->Vote_GetVote($oUser->getId(), 'user', $this->oUserCurrent->getId()))) {
             // первичное голосование
-            $oUserVote = Engine::GetEntity('Vote');
+            $oUserVote = E::GetEntity('Vote');
             $oUserVote->setTargetId($oUser->getId());
             $oUserVote->setTargetType('user');
             $oUserVote->setVoterId($this->oUserCurrent->getId());
@@ -4452,7 +4452,7 @@ class ActionAdmin extends Action {
         if ($this->IsPost()) {
             Config::Set('module.user.captcha_use_registration', false);
 
-            $oUser = Engine::GetEntity('ModuleUser_EntityUser');
+            $oUser = E::GetEntity('ModuleUser_EntityUser');
             $oUser->_setValidateScenario('registration');
 
             // * Заполняем поля (данные)

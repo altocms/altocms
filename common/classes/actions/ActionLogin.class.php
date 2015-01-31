@@ -270,7 +270,7 @@ class ActionLogin extends Action {
 
             // Формируем и отправляем ссылку на смену пароля
             /** @var ModuleUser_EntityReminder $oReminder */
-            $oReminder = Engine::GetEntity('User_Reminder');
+            $oReminder = E::GetEntity('User_Reminder');
             $oReminder->setCode(F::RandomStr(32));
             $oReminder->setDateAdd(F::Now());
             $oReminder->setDateExpire(date('Y-m-d H:i:s', time() + Config::Val('module.user.pass_recovery_delay', 60 * 60 * 24 * 7)));

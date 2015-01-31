@@ -31,7 +31,7 @@ class ModuleMresource extends Module {
      */
     public function Init() {
 
-        $this->oMapper = Engine::GetMapper(__CLASS__);
+        $this->oMapper = E::GetMapper(__CLASS__);
     }
 
     /**
@@ -43,7 +43,7 @@ class ModuleMresource extends Module {
      */
     public function BuildMresourceLink($sLink) {
 
-        $oMresource = Engine::GetEntity('Mresource');
+        $oMresource = E::GetEntity('Mresource');
         $oMresource->setUrl($this->NormalizeUrl($sLink));
         return $oMresource;
     }
@@ -245,7 +245,7 @@ class ModuleMresource extends Module {
 
         $aData = $this->oMapper->GetMresourcesByCriteria($aCriteria);
         if ($aData['data']) {
-            $aCollection = Engine::GetEntityRows('Mresource', $aData['data']);
+            $aCollection = E::GetEntityRows('Mresource', $aData['data']);
             if (isset($aCriteria['with'])) {
                 if (!is_array($aCriteria['with'])) {
                     $aCriteria['with'] = array($aCriteria['with']);
@@ -689,7 +689,7 @@ class ModuleMresource extends Module {
         $aResult = array();
         if ($aRows) {
             foreach ($aRows as $aRow) {
-                $aResult[] = Engine::GetEntity('Mresource_MresourceCategory', array(
+                $aResult[] = E::GetEntity('Mresource_MresourceCategory', array(
                     'id' => $aRow['ttype'],
                     'count' => $aRow['count'],
                     'label' => $this->Lang_Get('aim_target_type_' . $aRow['ttype']),
@@ -706,7 +706,7 @@ class ModuleMresource extends Module {
     public function GetCurrentTopicImageCategory($iUserId, $sTopicId = FALSE) {
         $aResourcesId = $this->oMapper->GetCurrentTopicResourcesId($iUserId, $sTopicId);
         if ($aResourcesId) {
-            return Engine::GetEntity('Mresource_MresourceCategory', array(
+            return E::GetEntity('Mresource_MresourceCategory', array(
                 'id' => 'current',
                 'count' => count($aResourcesId),
                 'label' => $this->Lang_Get('aim_target_type_current'),
@@ -722,7 +722,7 @@ class ModuleMresource extends Module {
 
         $aTopicInfo = $this->oMapper->GetTopicInfo($iUserId, $iCount, 1, 100000);
         if ($aTopicInfo) {
-            return Engine::GetEntity('Mresource_MresourceCategory', array(
+            return E::GetEntity('Mresource_MresourceCategory', array(
                 'id' => 'topics',
                 'count' => count($aTopicInfo),
                 'label' => $this->Lang_Get('aim_target_type_topics'),
@@ -767,7 +767,7 @@ class ModuleMresource extends Module {
 
         $aTalkInfo = $this->oMapper->GetTalkInfo($iUserId, $iCount, 1, 100000);
         if ($aTalkInfo) {
-            return Engine::GetEntity('Mresource_MresourceCategory', array(
+            return E::GetEntity('Mresource_MresourceCategory', array(
                 'id' => 'talks',
                 'count' => count($aTalkInfo),
                 'label' => $this->Lang_Get('aim_target_type_talks'),
@@ -813,7 +813,7 @@ class ModuleMresource extends Module {
             'topic_comment'
         ), $iUserId);
         if ($aImagesInCommentsCount) {
-            return Engine::GetEntity('Mresource_MresourceCategory', array(
+            return E::GetEntity('Mresource_MresourceCategory', array(
                 'id' => 'comments',
                 'count' => $aImagesInCommentsCount,
                 'label' => $this->Lang_Get('aim_target_type_comments'),

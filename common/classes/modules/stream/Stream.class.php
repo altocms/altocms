@@ -59,7 +59,7 @@ class ModuleStream extends Module {
      */
     public function Init() {
 
-        $this->oMapper = Engine::GetMapper(__CLASS__);
+        $this->oMapper = E::GetMapper(__CLASS__);
     }
 
     /**
@@ -186,13 +186,12 @@ class ModuleStream extends Module {
         }
         $aParams = $this->aEventTypes[$sEventType];
         if (isset($aParams['unique']) and $aParams['unique']) {
-            /**
-             * Проверяем на уникальность
-             */
+
+            // * Проверяем на уникальность
+            /** @var ModuleStream_EntityEvent $oEvent */
             if ($oEvent = $this->GetEventByTarget($sEventType, $iTargetId)) {
-                /**
-                 * Событие уже было
-                 */
+
+                // * Событие уже было
                 if ($oEvent->getPublish() != $iPublish) {
                     $oEvent->setPublish($iPublish);
                     $this->UpdateEvent($oEvent);
@@ -201,13 +200,11 @@ class ModuleStream extends Module {
             }
         }
         if (isset($aParams['unique_user']) and $aParams['unique_user']) {
-            /**
-             * Проверяем на уникальность для конкретного пользователя
-             */
+
+            // * Проверяем на уникальность для конкретного пользователя
             if ($oEvent = $this->GetEventByTarget($sEventType, $iTargetId, $iUserId)) {
-                /**
-                 * Событие уже было
-                 */
+
+                // * Событие уже было
                 if ($oEvent->getPublish() != $iPublish) {
                     $oEvent->setPublish($iPublish);
                     $this->UpdateEvent($oEvent);
@@ -220,7 +217,8 @@ class ModuleStream extends Module {
             /**
              * Создаем новое событие
              */
-            $oEvent = Engine::GetEntity('Stream_Event');
+            /** @var ModuleStream_EntityEvent $oEvent */
+            $oEvent = E::GetEntity('Stream_Event');
             $oEvent->setEventType($sEventType);
             $oEvent->setUserId($iUserId);
             $oEvent->setTargetId($iTargetId);

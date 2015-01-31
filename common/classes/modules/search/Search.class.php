@@ -18,7 +18,7 @@ class ModuleSearch extends Module {
 
     public function Init() {
 
-        $this->oMapper = Engine::GetMapper(__CLASS__);
+        $this->oMapper = E::GetMapper(__CLASS__);
         $this->oUserCurrent = $this->User_GetUserCurrent();
     }
 

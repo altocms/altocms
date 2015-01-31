@@ -103,7 +103,7 @@ class ModuleUploader extends Module {
     public function LoadDriver($sDriverName) {
 
         $sClass = $this->aRegisteredDrivers[$sDriverName];
-        return Engine::GetEntity($sClass);
+        return E::GetEntity($sClass);
     }
 
     /**
@@ -583,7 +583,7 @@ class ModuleUploader extends Module {
                 if (!$oStoredItem->GetUuid()) {
                     $oStoredItem->SetUuid($sDriverName);
                 }
-                $oMresource = Engine::GetEntity('Mresource', $oStoredItem);
+                $oMresource = E::GetEntity('Mresource', $oStoredItem);
                 $this->Mresource_Add($oMresource);
                 return $oStoredItem;
             }

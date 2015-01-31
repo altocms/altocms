@@ -249,7 +249,7 @@ class ActionContent extends Action {
         if (!F::isPost('submit_topic_publish') && !F::isPost('submit_topic_draft') && !F::isPost('submit_topic_save')) {
             return false;
         }
-        $oTopic = Engine::GetEntity('Topic');
+        $oTopic = E::GetEntity('Topic');
         $oTopic->_setValidateScenario('topic');
 
         // * Заполняем поля для валидации
@@ -952,7 +952,7 @@ class ActionContent extends Action {
         $sFile = $this->Topic_UploadTopicPhoto($aUploadedFile);
         if ($sFile) {
             // * Создаем фото
-            $oPhoto = Engine::GetEntity('Topic_TopicPhoto');
+            $oPhoto = E::GetEntity('Topic_TopicPhoto');
             $oPhoto->setPath($sFile);
             if ($iTopicId) {
                 $oPhoto->setTopicId($iTopicId);

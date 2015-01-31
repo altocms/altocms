@@ -52,7 +52,7 @@ class ModuleCaptcha extends Module {
     public function GetCaptcha($sKeyName = null) {
 
         /** @var ModuleCaptcha_EntityCaptcha $oCaptcha */
-        $oCaptcha = Engine::GetEntity('Captcha_Captcha');
+        $oCaptcha = E::GetEntity('Captcha_Captcha');
         if (!$sKeyName) {
             $sKeyName = $this->sKeyName;
         }

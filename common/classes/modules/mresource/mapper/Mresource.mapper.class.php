@@ -383,7 +383,7 @@ class ModuleMresource_MapperMresource extends Mapper {
         );
         $aData = $this->GetMresourcesByCriteria($aCriteria);
         if ($aData['data']) {
-            $aData['data'] = Engine::GetEntityRows('Mresource', $aData['data']);
+            $aData['data'] = E::GetEntityRows('Mresource', $aData['data']);
         }
         return $aData;
     }
@@ -455,9 +455,7 @@ class ModuleMresource_MapperMresource extends Mapper {
         $aData = $this->GetMresourcesByCriteria($aCritera);
         $aResult = array();
         if ($aData['data']) {
-            foreach($aData['data'] as $nI => $aRow) {
-                $aResult[$nI] = Engine::GetEntity('Mresource', $aRow);
-            }
+            $aResult = E::GetEntityRows('Mresource', $aData['data']);
         }
         return $aResult;
     }
@@ -477,7 +475,7 @@ class ModuleMresource_MapperMresource extends Mapper {
         $aData = $this->GetMresourcesByCriteria($aCriteria);
         $aResult = array();
         if ($aData['data']) {
-            $aResult = Engine::GetEntityRows('Mresource', $aData['data']);
+            $aResult = E::GetEntityRows('Mresource', $aData['data']);
         }
         return $aResult;
     }
@@ -513,7 +511,7 @@ class ModuleMresource_MapperMresource extends Mapper {
 
         $aData = $this->GetMresourcesByCriteria($aCriteria);
 
-        return $aData['data'] ? Engine::GetEntityRows('Mresource', $aData['data']) : array();
+        return $aData['data'] ? E::GetEntityRows('Mresource', $aData['data']) : array();
     }
 
     /**
@@ -534,9 +532,7 @@ class ModuleMresource_MapperMresource extends Mapper {
         $aData = $this->_getMresourcesRelByCriteria($aCriteria);
         $aResult = array();
         if ($aData['data']) {
-            foreach($aData['data'] as $nI => $aRow) {
-                $aResult[$nI] = Engine::GetEntity('Mresource_MresourceRel', $aRow);
-            }
+            $aResult = E::GetEntityRows('Mresource_MresourceRel', $aData['data']);
         }
         return $aResult;
     }
@@ -561,9 +557,7 @@ class ModuleMresource_MapperMresource extends Mapper {
         $aData = $this->_getMresourcesRelByCriteria($aCriteria);
         $aResult = array();
         if ($aData['data']) {
-            foreach($aData['data'] as $nI => $aRow) {
-                $aResult[$nI] = Engine::GetEntity('Mresource_MresourceRel', $aRow);
-            }
+            $aResult = E::GetEntityRows('Mresource_MresourceRel', $aData['data']);
         }
         return $aResult;
     }
@@ -589,9 +583,7 @@ class ModuleMresource_MapperMresource extends Mapper {
         $aData = $this->_getMresourcesRelByCriteria($aCriteria);
         $aResult = array();
         if ($aData['data']) {
-            foreach($aData['data'] as $nI => $aRow) {
-                $aResult[$nI] = Engine::GetEntity('Mresource_MresourceRel', $aRow);
-            }
+            $aResult = E::GetEntityRows('Mresource_MresourceRel', $aData['data']);
         }
         return $aResult;
     }

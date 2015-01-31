@@ -163,7 +163,7 @@ class ModuleBlog_MapperBlog extends Mapper {
 
         $aBlogs = array();
         if ($aRows = $this->oDb->select($sql, $aBlogId)) {
-            $aBlogs = Engine::GetEntityRows('Blog', $aRows, !$sOrder ? $aBlogId : null);
+            $aBlogs = E::GetEntityRows('Blog', $aRows, !$sOrder ? $aBlogId : null);
         }
         return $aBlogs;
     }
@@ -280,7 +280,7 @@ class ModuleBlog_MapperBlog extends Mapper {
 
         $aBlogUsers = array();
         if ($aRows) {
-            $aBlogUsers = Engine::GetEntityRows('Blog_BlogUser', $aRows);
+            $aBlogUsers = E::GetEntityRows('Blog_BlogUser', $aRows);
         }
         return $aBlogUsers;
     }
@@ -310,7 +310,7 @@ class ModuleBlog_MapperBlog extends Mapper {
                 LIMIT $nLimit";
         $aBlogUsers = array();
         if ($aRows = $this->oDb->select($sql, $aBlogId, $nUserId)) {
-            $aBlogUsers = Engine::GetEntityRows('Blog_BlogUser', $aRows);
+            $aBlogUsers = E::GetEntityRows('Blog_BlogUser', $aRows);
         }
         return $aBlogUsers;
     }
@@ -551,7 +551,7 @@ class ModuleBlog_MapperBlog extends Mapper {
                 LIMIT 0, ?d";
         $aResult = array();
         if ($aRows = $this->oDb->select($sql, $nUserId, $nLimit)) {
-            $aResult = Engine::GetEntityRows('Blog', $aRows);
+            $aResult = E::GetEntityRows('Blog', $aRows);
         }
         return $aResult;
     }
@@ -578,7 +578,7 @@ class ModuleBlog_MapperBlog extends Mapper {
                 LIMIT 0, ?d";
         $aResult = array();
         if ($aRows = $this->oDb->select($sql, $nUserId, $nLimit)) {
-            $aResult = Engine::GetEntityRows('Blog', $aRows);
+            $aResult = E::GetEntityRows('Blog', $aRows);
         }
         return $aResult;
     }
@@ -762,7 +762,7 @@ class ModuleBlog_MapperBlog extends Mapper {
         );
 
         // Получим типы контента
-        $aResult = Engine::GetEntityRows('Blog_BlogType', $aRows);
+        $aResult = E::GetEntityRows('Blog_BlogType', $aRows);
 
         // Если вернули хотя бы один тип контента. то можно делать
         // дополнительные запросы
@@ -837,7 +837,7 @@ class ModuleBlog_MapperBlog extends Mapper {
                     bt.content_type = ct.content_url AND bt.id IN ( ?a )";
 
         /** @var ModuleTopic_EntityContentType $aContentType */
-        $aContentType = Engine::GetEntityRows(
+        $aContentType = E::GetEntityRows(
             'Topic_ContentType',
             $this->oDb->select($sql, $aBlogTypeId, $aBlogTypeId)
         );
@@ -953,7 +953,7 @@ class ModuleBlog_MapperBlog extends Mapper {
         if ($aRow) {
 
             /** @var ModuleBlog_EntityBlogType $oBlogType */
-            $oBlogType = Engine::GetEntity('Blog_BlogType', $aRow);
+            $oBlogType = E::GetEntity('Blog_BlogType', $aRow);
 
             /** @var ModuleTopic_EntityContentType[] $aContentType */
             $aContentType = $this->GetBlogTypeContentByArrayId(array($oBlogType->getId()));
@@ -1189,7 +1189,7 @@ class ModuleBlog_MapperBlog extends Mapper {
             ";
         $aBlogs = array();
         if ($aRows = $this->oDb->select($sql, $aExcludeTypes)) {
-            $aBlogs = Engine::GetEntityRows('Blog', $aRows);
+            $aBlogs = E::GetEntityRows('Blog', $aRows);
         }
         return $aBlogs;
     }

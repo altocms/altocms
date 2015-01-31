@@ -197,7 +197,7 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
 
     public function buildMresource() {
 
-        $oMresource = Engine::GetEntity('Mresource_MresourceRel');
+        $oMresource = E::GetEntity('Mresource_MresourceRel');
         $oMresource->SetLink(false);
         $oMresource->SetType(ModuleMresource::TYPE_IMAGE | ModuleMresource::TYPE_PHOTO);
         $oMresource->SetUrl($this->Mresource_NormalizeUrl($this->GetPath()));

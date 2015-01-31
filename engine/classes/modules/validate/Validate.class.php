@@ -125,7 +125,7 @@ class ModuleValidate extends Module {
          */
         $sMethod = 'validate' . F::StrCamelize($sName);
         if (method_exists($oObject, $sMethod)) {
-            $oValidator = Engine::GetEntity('ModuleValidate_EntityValidatorInline');
+            $oValidator = E::GetEntity('ModuleValidate_EntityValidatorInline');
             if (!is_null($aFields)) {
                 $oValidator->fields = $aFields;
             }
@@ -143,7 +143,7 @@ class ModuleValidate extends Module {
                 $aParams['fields'] = $aFields;
             }
             $sValidateName = 'Validator' . F::StrCamelize($sName);
-            $oValidator = Engine::GetEntity('ModuleValidate_Entity' . $sValidateName);
+            $oValidator = E::GetEntity('ModuleValidate_Entity' . $sValidateName);
             foreach ($aParams as $sNameParam => $sValue) {
                 $oValidator->$sNameParam = $sValue;
             }

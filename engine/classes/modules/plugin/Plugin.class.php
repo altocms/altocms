@@ -124,7 +124,7 @@ class ModulePlugin extends Module {
                     }
 
                     // Создаем сущность плагина по его манифесту
-                    $oPluginEntity = Engine::GetEntity('Plugin', $sPluginId);
+                    $oPluginEntity = E::GetEntity('Plugin', $sPluginId);
                     if ($oPluginEntity->GetId()) {
                         // Если сущность плагина создана, то...
                         $oPluginEntity->SetNum($nNum);
@@ -147,7 +147,7 @@ class ModulePlugin extends Module {
                 ) {
 
                     if ($bAsArray) {
-                        $aPlugins[$sPluginId] = $oPluginEntity->_getData();
+                        $aPlugins[$sPluginId] = $oPluginEntity->getAllProps();
                     } else {
                         $aPlugins[$sPluginId] = $oPluginEntity;
                     }

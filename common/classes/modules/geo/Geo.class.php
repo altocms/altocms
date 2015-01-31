@@ -63,7 +63,7 @@ class ModuleGeo extends Module {
      */
     public function Init() {
 
-        $this->oMapper = Engine::GetMapper(__CLASS__);
+        $this->oMapper = E::GetMapper(__CLASS__);
         $this->oUserCurrent = $this->User_GetUserCurrent();
     }
 
@@ -213,7 +213,7 @@ class ModuleGeo extends Module {
         /**
          * Создаем связь
          */
-        $oTarget = Engine::GetEntity('ModuleGeo_EntityTarget');
+        $oTarget = E::GetEntity('ModuleGeo_EntityTarget');
         $oTarget->setGeoType($oGeoObject->getType());
         $oTarget->setGeoId($oGeoObject->getId());
         $oTarget->setTargetType($sTargetType);

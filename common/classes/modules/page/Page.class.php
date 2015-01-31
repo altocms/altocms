@@ -31,7 +31,7 @@ class ModulePage extends Module {
      */
     public function Init() {
 
-        $this->oMapper = Engine::GetMapper(__CLASS__);
+        $this->oMapper = E::GetMapper(__CLASS__);
     }
 
     /**
@@ -148,7 +148,7 @@ class ModulePage extends Module {
             $aTemp = $aPage;
             $aTemp['level'] = $iLevel;
             unset($aTemp['childNodes']);
-            $aResultPages[] = Engine::GetEntity('Page', $aTemp);
+            $aResultPages[] = E::GetEntity('Page', $aTemp);
             if (isset($aPage['childNodes']) and count($aPage['childNodes']) > 0) {
                 $iLevel++;
                 $this->BuildPagesRecursive($aPage['childNodes'], false);

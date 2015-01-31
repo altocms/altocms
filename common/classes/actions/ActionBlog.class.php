@@ -216,7 +216,7 @@ class ActionBlog extends Action {
         /**
          * Если всё ок то пытаемся создать блог
          */
-        $oBlog = Engine::GetEntity('Blog');
+        $oBlog = E::GetEntity('Blog');
         $oBlog->setOwnerId($this->oUserCurrent->getId());
 
         // issue 151 (https://github.com/altocms/altocms/issues/151)
@@ -870,7 +870,7 @@ class ActionBlog extends Action {
 
         // Отмечаем дату прочтения топика
         if ($this->oUserCurrent) {
-            $oTopicRead = Engine::GetEntity('Topic_TopicRead');
+            $oTopicRead = E::GetEntity('Topic_TopicRead');
             $oTopicRead->setTopicId($oTopic->getId());
             $oTopicRead->setUserId($this->oUserCurrent->getId());
             $oTopicRead->setCommentCountLast($oTopic->getCountComment());
@@ -1306,7 +1306,7 @@ class ActionBlog extends Action {
         }
 
         // * Создаём коммент
-        $oCommentNew = Engine::GetEntity('Comment');
+        $oCommentNew = E::GetEntity('Comment');
         $oCommentNew->setTargetId($oTopic->getId());
         $oCommentNew->setTargetType('topic');
         $oCommentNew->setTargetParentId($oTopic->getBlog()->getId());
@@ -1333,7 +1333,7 @@ class ActionBlog extends Action {
             if ($oTopic->getPublish()) {
 
                 // * Добавляем коммент в прямой эфир если топик не в черновиках
-                $oCommentOnline = Engine::GetEntity('Comment_CommentOnline');
+                $oCommentOnline = E::GetEntity('Comment_CommentOnline');
                 $oCommentOnline->setTargetId($oCommentNew->getTargetId());
                 $oCommentOnline->setTargetType($oCommentNew->getTargetType());
                 $oCommentOnline->setTargetParentId($oCommentNew->getTargetParentId());
@@ -1459,7 +1459,7 @@ class ActionBlog extends Action {
         }
         $iMaxIdComment = $aReturn['iMaxIdComment'];
 
-        $oTopicRead = Engine::GetEntity('Topic_TopicRead');
+        $oTopicRead = E::GetEntity('Topic_TopicRead');
         $oTopicRead->setTopicId($oTopic->getId());
         $oTopicRead->setUserId($this->oUserCurrent->getId());
         $oTopicRead->setCommentCountLast($oTopic->getCountComment());
@@ -1661,7 +1661,7 @@ class ActionBlog extends Action {
 
             if (!isset($aBlogUsers[$oUser->getId()])) {
                 // * Создаем нового блог-пользователя со статусом INVITED
-                $oBlogUserNew = Engine::GetEntity('Blog_BlogUser');
+                $oBlogUserNew = E::GetEntity('Blog_BlogUser');
                 $oBlogUserNew->setBlogId($oBlog->getId());
                 $oBlogUserNew->setUserId($oUser->getId());
                 $oBlogUserNew->setUserRole(ModuleBlog::BLOG_USER_ROLE_INVITE);
@@ -2255,7 +2255,7 @@ class ActionBlog extends Action {
                         $bResult = $this->Blog_UpdateRelationBlogUser($oBlogUser);
                     } elseif ($oBlogType->GetMembership(ModuleBlog::BLOG_USER_JOIN_FREE)) {
                         // User can free subsribe to blog
-                        $oBlogUserNew = Engine::GetEntity('Blog_BlogUser');
+                        $oBlogUserNew = E::GetEntity('Blog_BlogUser');
                         $oBlogUserNew->setBlogId($oBlog->getId());
                         $oBlogUserNew->setUserId($this->oUserCurrent->getId());
                         $oBlogUserNew->setUserRole(ModuleBlog::BLOG_USER_ROLE_USER);
@@ -2302,7 +2302,7 @@ class ActionBlog extends Action {
                     }
 
                     // Подписки ещё не было - оформим ее
-                    $oBlogUserNew = Engine::GetEntity('Blog_BlogUser');
+                    $oBlogUserNew = E::GetEntity('Blog_BlogUser');
                     $oBlogUserNew->setBlogId($oBlog->getId());
                     $oBlogUserNew->setUserId($this->oUserCurrent->getId());
                     $oBlogUserNew->setUserRole(ModuleBlog::BLOG_USER_ROLE_WISHES);

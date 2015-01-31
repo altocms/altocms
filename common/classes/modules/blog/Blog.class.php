@@ -85,7 +85,7 @@ class ModuleBlog extends Module {
      */
     public function Init() {
 
-        $this->oMapper = Engine::GetMapper(__CLASS__);
+        $this->oMapper = E::GetMapper(__CLASS__);
         $this->oUserCurrent = $this->User_GetUserCurrent();
 
         /**
@@ -438,7 +438,7 @@ class ModuleBlog extends Module {
 
         // Создаем персональный блог, только если это разрешено
         if ($oBlogType && $oBlogType->IsActive()) {
-            $oBlog = Engine::GetEntity('Blog');
+            $oBlog = E::GetEntity('Blog');
             $oBlog->setOwnerId($oUser->getId());
             $oBlog->setOwner($oUser);
             $oBlog->setTitle($this->Lang_Get('blogs_personal_title') . ' ' . $oUser->getLogin());

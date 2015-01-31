@@ -74,7 +74,7 @@ class ModuleUser extends Module {
      */
     public function Init() {
 
-        $this->oMapper = Engine::GetMapper(__CLASS__);
+        $this->oMapper = E::GetMapper(__CLASS__);
 
         // * Проверяем есть ли у юзера сессия, т.е. залогинен или нет
         $nUserId = intval($this->Session_Get('user_id'));
@@ -809,7 +809,7 @@ class ModuleUser extends Module {
         $this->Cache_Delete("user_session_{$oUser->getId()}");
 
         /** @var $oSession ModuleUser_EntitySession */
-        $oSession = Engine::GetEntity('User_Session');
+        $oSession = E::GetEntity('User_Session');
 
         $oSession->setUserId($oUser->getId());
         $oSession->setKey($sKey);
@@ -1241,7 +1241,7 @@ class ModuleUser extends Module {
      */
     public function GenerateInvite($oUser) {
 
-        $oInvite = Engine::GetEntity('User_Invite');
+        $oInvite = E::GetEntity('User_Invite');
         $oInvite->setCode(F::RandomStr(32));
         $oInvite->setDateAdd(F::Now());
         $oInvite->setUserFromId($oUser->getId());
@@ -1719,7 +1719,7 @@ class ModuleUser extends Module {
                         $oNote->setTargetUser($aUsers[$oNote->getTargetUserId()]);
                     } else {
                         // пустого пользователя во избеания ошибок, т.к. пользователь всегда должен быть
-                        $oNote->setTargetUser(Engine::GetEntity('User'));
+                        $oNote->setTargetUser(E::GetEntity('User'));
                     }
                 }
             }
@@ -1919,7 +1919,8 @@ class ModuleUser extends Module {
      */
     public function MakeUserChangemail($oUser, $sMailNew) {
 
-        $oChangemail = Engine::GetEntity('ModuleUser_EntityChangemail');
+        /** @var ModuleUser_EntityChangemail $oChangemail */
+        $oChangemail = E::GetEntity('ModuleUser_EntityChangemail');
         $oChangemail->setUserId($oUser->getId());
         $oChangemail->setDateAdd(date('Y-m-d H:i:s'));
         $oChangemail->setDateExpired(date('Y-m-d H:i:s', time() + 3 * 24 * 60 * 60)); // 3 дня для смены емайла

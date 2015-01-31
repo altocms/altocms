@@ -702,10 +702,10 @@ class ActionTalk extends Action {
             $this->Message_AddErrorSingle($this->Lang_Get('topic_comment_spam'), $this->Lang_Get('error'));
             return;
         }
-        /**
-         * Создаём коммент
-         */
-        $oCommentNew = Engine::GetEntity('Comment');
+
+        // * Создаём комментарий
+        /** @var ModuleComment_EntityComment $oCommentNew */
+        $oCommentNew = E::GetEntity('Comment');
         $oCommentNew->setTargetId($oTalk->getId());
         $oCommentNew->setTargetType('talk');
         $oCommentNew->setUserId($this->oUserCurrent->getId());
@@ -1081,7 +1081,7 @@ class ActionTalk extends Action {
                             case ModuleTalk::TALK_USER_DELETE_BY_AUTHOR:
                                 if (
                                     $this->Talk_AddTalkUser(
-                                        Engine::GetEntity(
+                                        E::GetEntity(
                                             'Talk_TalkUser',
                                             array(
                                                  'talk_id'          => $idTalk,
@@ -1148,7 +1148,7 @@ class ActionTalk extends Action {
                         }
                     } elseif (
                         $this->Talk_AddTalkUser(
-                            Engine::GetEntity(
+                            E::GetEntity(
                                 'Talk_TalkUser',
                                 array(
                                      'talk_id'          => $idTalk,

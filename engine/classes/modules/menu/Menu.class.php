@@ -158,7 +158,7 @@ class ModuleMenu extends Module {
 
         // Из них возьмем сами сформированные меню
         if (isset($aMenuConfig['items'])) {
-            return Engine::GetEntity('Menu_Menu', array(
+            return E::GetEntity('Menu_Menu', array(
                 'id'          => $sMenuId,
                 'items'       => $aMenuConfig['items'],
                 'description' => isset($aMenuConfig['description']) ? $aMenuConfig['description'] : '',
@@ -277,7 +277,7 @@ class ModuleMenu extends Module {
             return $aItemConfig;
         }
 
-        return Engine::GetEntity('Menu_Item',
+        return E::GetEntity('Menu_Item',
             array_merge(
                 array('item_id' => $sItemId, 'item_config' => $aItemConfig),
                 isset($aItemConfig['title']) ? array('item_title' => $aItemConfig['title']) : array(),
@@ -291,7 +291,7 @@ class ModuleMenu extends Module {
                 isset($aItemConfig['off']) ? array('item_off' => $aItemConfig['off']) : array(),
                 isset($aItemConfig['display']) ? array('item_display' => $aItemConfig['display']) : array(),
                 isset($aItemConfig['show']) ? array('item_show' => $aItemConfig['show']) : array(),
-                isset($aItemConfig['options']) ? array('item_options' => Engine::GetEntity('Menu_ItemOptions', $aItemConfig['options'])) : array()
+                isset($aItemConfig['options']) ? array('item_options' => E::GetEntity('Menu_ItemOptions', $aItemConfig['options'])) : array()
             )
         );
     }

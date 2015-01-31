@@ -767,7 +767,7 @@ class ModuleTopic_EntityTopic extends Entity {
     public function getFieldFile($nId) {
 
         if ($this->getField($nId)) {
-            return Engine::GetEntity(
+            return E::GetEntity(
                 'ModuleTopic_EntityTopicFile', unserialize($this->getField($nId)->getValueSource())
             );
         }
@@ -794,7 +794,7 @@ class ModuleTopic_EntityTopic extends Entity {
         $aTextLinks = $this->GetTextLinks();
         if ($aTextLinks) {
             foreach($aTextLinks as $aLink) {
-                $oMresource = Engine::GetEntity('Mresource_MresourceRel');
+                $oMresource = E::GetEntity('Mresource_MresourceRel');
                 $oMresource->setUrl($this->Mresource_NormalizeUrl($aLink['link']));
                 $oMresource->setType($aLink['type']);
                 $oMresource->setUserId($this->getUserId());
@@ -804,7 +804,7 @@ class ModuleTopic_EntityTopic extends Entity {
                     // get original path and make one more mresorce
                     $sOriginal = $oMresource->GetOriginalPathUrl();
 
-                    $oMresource = Engine::GetEntity('Mresource_MresourceRel');
+                    $oMresource = E::GetEntity('Mresource_MresourceRel');
                     $oMresource->setUrl($this->Mresource_NormalizeUrl($sOriginal));
                     $oMresource->setType($aLink['type']);
                     $oMresource->setUserId($this->getUserId());

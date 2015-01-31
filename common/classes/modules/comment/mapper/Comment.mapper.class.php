@@ -175,7 +175,7 @@ class ModuleComment_MapperComment extends Mapper {
             ";
         $aComments = array();
         if ($aRows = $this->oDb->select($sql, $aCommentId)) {
-            $aComments = Engine::GetEntityRows('Comment', $aRows, $aCommentId);
+            $aComments = E::GetEntityRows('Comment', $aRows, $aCommentId);
         }
         return $aComments;
     }
@@ -443,7 +443,7 @@ class ModuleComment_MapperComment extends Mapper {
 				LIMIT 0,1 ;";
 
         if ($aRow = $this->oDb->selectRow($sql, $iTargetId, $sTargetType, $iLeft, $iLeft)) {
-            return Engine::GetEntity('Comment', $aRow);
+            return E::GetEntity('Comment', $aRow);
         }
         return null;
     }
@@ -660,7 +660,7 @@ class ModuleComment_MapperComment extends Mapper {
 			LIMIT 0,1
 				";
         if ($aRow = $this->oDb->selectRow($sql, $iTargetId, $sTargetType)) {
-            return Engine::GetEntity('Comment', $aRow);
+            return E::GetEntity('Comment', $aRow);
         }
         return null;
     }

@@ -26,7 +26,7 @@ function smarty_function_include_once($params, &$smarty) {
         return;
     }
 
-    $sTemplate = Engine::getInstance()->Plugin_GetDelegate('template', $params['file']);
+    $sTemplate = E::Plugin_GetDelegate('template', $params['file']);
     $aIncluded = (array)$smarty->getTemplateVars('_included_files');
 
     if (!in_array($sTemplate, $aIncluded)) {

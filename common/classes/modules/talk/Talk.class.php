@@ -55,7 +55,7 @@ class ModuleTalk extends Module {
      */
     public function Init() {
 
-        $this->oMapper = Engine::GetMapper(__CLASS__);
+        $this->oMapper = E::GetMapper(__CLASS__);
         $this->oUserCurrent = $this->User_GetUserCurrent();
     }
 
@@ -90,7 +90,7 @@ class ModuleTalk extends Module {
         }
         $aUserIdTo = array_unique($aUserIdTo);
         if (!empty($aUserIdTo)) {
-            $oTalk = Engine::GetEntity('Talk');
+            $oTalk = E::GetEntity('Talk');
             $oTalk->setUserId($iUserIdFrom);
             $oTalk->setTitle($sTitle);
             $oTalk->setText($sText);
@@ -100,7 +100,7 @@ class ModuleTalk extends Module {
             $oTalk->setUserIp(F::GetUserIp());
             if ($oTalk = $this->AddTalk($oTalk)) {
                 foreach ($aUserIdTo as $iUserId) {
-                    $oTalkUser = Engine::GetEntity('Talk_TalkUser');
+                    $oTalkUser = E::GetEntity('Talk_TalkUser');
                     $oTalkUser->setTalkId($oTalk->getId());
                     $oTalkUser->setUserId($iUserId);
                     if ($iUserId == $iUserIdFrom) {
@@ -500,7 +500,7 @@ class ModuleTalk extends Module {
         // Удаляем для каждого отметку избранного
         foreach ($aTalkId as $nTalkId) {
             $this->DeleteFavouriteTalk(
-                Engine::GetEntity(
+                E::GetEntity(
                     'Favourite',
                     array(
                          'target_id'   => intval($nTalkId),

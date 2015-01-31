@@ -506,7 +506,7 @@ class ActionAjax extends Action {
         }
 
         // * Голосуем
-        $oTopicCommentVote = Engine::GetEntity('Vote');
+        $oTopicCommentVote = E::GetEntity('Vote');
         $oTopicCommentVote->setTargetId($oComment->getId());
         $oTopicCommentVote->setTargetType('comment');
         $oTopicCommentVote->setVoterId($this->oUserCurrent->getId());
@@ -586,7 +586,7 @@ class ActionAjax extends Action {
         }
 
         // * Голосуем
-        $oTopicVote = Engine::GetEntity('Vote');
+        $oTopicVote = E::GetEntity('Vote');
         $oTopicVote->setTargetId($oTopic->getId());
         $oTopicVote->setTargetType('topic');
         $oTopicVote->setVoterId($this->oUserCurrent->getId());
@@ -662,7 +662,7 @@ class ActionAjax extends Action {
             case ModuleACL::CAN_VOTE_BLOG_TRUE:
                 $iValue = F::GetRequestStr('value', null, 'post');
                 if (in_array($iValue, array('1', '-1'))) {
-                    $oBlogVote = Engine::GetEntity('Vote');
+                    $oBlogVote = E::GetEntity('Vote');
                     $oBlogVote->setTargetId($oBlog->getId());
                     $oBlogVote->setTargetType('blog');
                     $oBlogVote->setVoterId($this->oUserCurrent->getId());
@@ -756,7 +756,7 @@ class ActionAjax extends Action {
         /**
          * Голосуем
          */
-        $oUserVote = Engine::GetEntity('Vote');
+        $oUserVote = E::GetEntity('Vote');
         $oUserVote->setTargetId($oUser->getId());
         $oUserVote->setTargetType('user');
         $oUserVote->setVoterId($this->oUserCurrent->getId());
@@ -839,7 +839,7 @@ class ActionAjax extends Action {
         $oTopic->setUserQuestionIsVote(true);
 
         // * Голосуем(отвечаем на опрос)
-        $oTopicQuestionVote = Engine::GetEntity('Topic_TopicQuestionVote');
+        $oTopicQuestionVote = E::GetEntity('Topic_TopicQuestionVote');
         $oTopicQuestionVote->setTopicId($oTopic->getId());
         $oTopicQuestionVote->setVoterId($this->oUserCurrent->getId());
         $oTopicQuestionVote->setAnswer($idAnswer);
@@ -934,7 +934,7 @@ class ActionAjax extends Action {
         // * Топик уже в избранном?
         $oFavouriteTopic = $this->Topic_GetFavouriteTopic($oTopic->getId(), $this->oUserCurrent->getId());
         if (!$oFavouriteTopic && $iType) {
-            $oFavouriteTopicNew = Engine::GetEntity(
+            $oFavouriteTopicNew = E::GetEntity(
                 'Favourite',
                 array(
                      'target_id'      => $oTopic->getId(),
@@ -1001,7 +1001,7 @@ class ActionAjax extends Action {
         // * Комментарий уже в избранном?
         $oFavouriteComment = $this->Comment_GetFavouriteComment($oComment->getId(), $this->oUserCurrent->getId());
         if (!$oFavouriteComment && $iType) {
-            $oFavouriteCommentNew = Engine::GetEntity(
+            $oFavouriteCommentNew = E::GetEntity(
                 'Favourite',
                 array(
                      'target_id'      => $oComment->getId(),
@@ -1070,7 +1070,7 @@ class ActionAjax extends Action {
         // * Сообщение уже в избранном?
         $oFavouriteTalk = $this->Talk_GetFavouriteTalk($oTalk->getId(), $this->oUserCurrent->getId());
         if (!$oFavouriteTalk && $iType) {
-            $oFavouriteTalkNew = Engine::GetEntity(
+            $oFavouriteTalkNew = E::GetEntity(
                 'Favourite',
                 array(
                      'target_id'      => $oTalk->getId(),
@@ -1253,7 +1253,7 @@ class ActionAjax extends Action {
         }
 
         // * Создаем объект топика для валидации данных
-        $oTopic = Engine::GetEntity('ModuleTopic_EntityTopic');
+        $oTopic = E::GetEntity('ModuleTopic_EntityTopic');
         $oTopic->_setValidateScenario($sType); // зависит от типа топика
 
         $oTopic->setTitle(strip_tags(F::GetRequestStr('topic_title')));
@@ -1324,7 +1324,7 @@ class ActionAjax extends Action {
                         }
 
                         if ($sText) {
-                            $oValue = Engine::GetEntity('Topic_ContentValues');
+                            $oValue = E::GetEntity('Topic_ContentValues');
                             $oValue->setFieldId($oField->getFieldId());
                             $oValue->setFieldType($oField->getFieldType());
                             $oValue->setValue($sText);

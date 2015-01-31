@@ -79,7 +79,7 @@ class ModuleSkin extends Module {
                     'id' => $sSkin,
                     'dir' => $sSkinDir,
                 );
-                $oSkinEntity = Engine::GetEntity('Skin', $aData);
+                $oSkinEntity = E::GetEntity('Skin', $aData);
                 if (!$aFilter['type'] || $aFilter['type'] == $oSkinEntity->GetType()) {
                     $oSkinEntity->SetIsActive($oSkinEntity->GetId() == $sActiveSkin);
                     $aSkinList[$oSkinEntity->GetId()] = $oSkinEntity;

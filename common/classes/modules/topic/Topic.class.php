@@ -76,7 +76,7 @@ class ModuleTopic extends Module {
      */
     public function Init() {
 
-        $this->oMapperTopic = $this->oMapper = Engine::GetMapper(__CLASS__);
+        $this->oMapperTopic = $this->oMapper = E::GetMapper(__CLASS__);
         $this->oUserCurrent = $this->User_GetUserCurrent();
         $this->aTopicTypesObjects = $this->getContentTypes(array('content_active' => 1));
         $this->aTopicTypes = array_keys($this->aTopicTypesObjects);
@@ -625,7 +625,7 @@ class ModuleTopic extends Module {
             if ($oTopic->getPublish() && $oTopic->getTags()) {
                 $aTags = explode(',', $oTopic->getTags());
                 foreach ($aTags as $sTag) {
-                    $oTag = Engine::GetEntity('Topic_TopicTag');
+                    $oTag = E::GetEntity('Topic_TopicTag');
                     $oTag->setTopicId($oTopic->getId());
                     $oTag->setUserId($oTopic->getUserId());
                     $oTag->setBlogId($oTopic->getBlogId());
@@ -887,7 +887,7 @@ class ModuleTopic extends Module {
                 if ($oTopic->getPublish() && $oTopic->getTags()) {
                     $aTags = explode(',', $oTopic->getTags());
                     foreach ($aTags as $sTag) {
-                        $oTag = Engine::GetEntity('Topic_TopicTag');
+                        $oTag = E::GetEntity('Topic_TopicTag');
                         $oTag->setTopicId($oTopic->getId());
                         $oTag->setUserId($oTopic->getUserId());
                         $oTag->setBlogId($oTopic->getBlogId());
@@ -2949,7 +2949,7 @@ class ModuleTopic extends Module {
 
                         //Добавляем поле к топику.
                         if ($sData) {
-                            $oValue = Engine::GetEntity('Topic_ContentValues');
+                            $oValue = E::GetEntity('Topic_ContentValues');
                             $oValue->setTargetId($oTopic->getId());
                             $oValue->setTargetType('topic');
                             $oValue->setFieldId($oField->getFieldId());

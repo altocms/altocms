@@ -21,7 +21,7 @@ class Smarty_Resource_File extends Smarty_Internal_Resource_File {
      */
     public function populate(Smarty_Template_Source $source, Smarty_Internal_Template $_template = null) {
 
-        $source->name = Engine::getInstance()->Plugin_GetDelegate('template', $source->name);
+        $source->name = E::Plugin_GetDelegate('template', $source->name);
         parent::populate($source, $_template);
     }
 

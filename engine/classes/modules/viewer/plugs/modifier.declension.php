@@ -82,7 +82,7 @@ function smarty_modifier_declension_ru($forms, $count) {
 function smarty_modifier_declension($count, $forms, $language = '') {
 
     if (!$language) {
-        $language = Engine::getInstance()->Lang_GetLang();
+        $language = E::Lang_GetLang();
     }
 
     $count = abs($count);

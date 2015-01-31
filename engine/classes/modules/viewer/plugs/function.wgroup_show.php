@@ -40,7 +40,7 @@ function smarty_function_wgroup_show($aParams, $oSmartyTemplate) {
         return null;
     }
     $sWidgetGroup = $aParams['group'];
-    $aWidgets = Engine::getInstance()->Viewer_GetWidgets();
+    $aWidgets = E::Viewer_GetWidgets();
 
     $sResult = '';
     if (isset($aWidgets[$sWidgetGroup])) {

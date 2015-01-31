@@ -75,14 +75,13 @@ class ActionRegistration extends Action {
      * Ajax валидация формы регистрации
      */
     protected function EventAjaxValidateFields() {
-        /**
-         * Устанавливаем формат Ajax ответа
-         */
+
+        // * Устанавливаем формат Ajax ответа
         $this->Viewer_SetResponseAjax('json');
-        /**
-         * Создаем объект пользователя и устанавливаем сценарий валидации
-         */
-        $oUser = Engine::GetEntity('ModuleUser_EntityUser');
+
+        // * Создаем объект пользователя и устанавливаем сценарий валидации
+        /** @var ModuleUser_EntityUser $oUser */
+        $oUser = E::GetEntity('ModuleUser_EntityUser');
         $oUser->_setValidateScenario('registration');
         /**
          * Пробегаем по переданным полям/значениям и валидируем их каждое в отдельности
@@ -150,7 +149,8 @@ class ActionRegistration extends Action {
         $this->Security_ValidateSendForm();
 
         // * Создаем объект пользователя и устанавливаем сценарий валидации
-        $oUser = Engine::GetEntity('ModuleUser_EntityUser');
+        /** @var ModuleUser_EntityUser $oUser */
+        $oUser = E::GetEntity('ModuleUser_EntityUser');
         $oUser->_setValidateScenario('registration');
 
         // * Заполняем поля (данные)

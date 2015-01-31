@@ -50,7 +50,7 @@ class ModuleSubscribe extends Module {
      */
     public function Init() {
 
-        $this->oMapper = Engine::GetMapper(__CLASS__);
+        $this->oMapper = E::GetMapper(__CLASS__);
         $this->oUserCurrent = $this->User_GetUserCurrent();
     }
 
@@ -179,7 +179,7 @@ class ModuleSubscribe extends Module {
             return false;
         }
         if (!($oSubscribe = $this->Subscribe_GetSubscribeByTargetAndMail($sTargetType, $sTargetId, $sMail))) {
-            $oSubscribe = Engine::GetEntity('Subscribe');
+            $oSubscribe = E::GetEntity('Subscribe');
             $oSubscribe->setTargetType($sTargetType);
             $oSubscribe->setTargetId($sTargetId);
             $oSubscribe->setMail($sMail);
@@ -229,7 +229,7 @@ class ModuleSubscribe extends Module {
             return false;
         }
         if (!($oTrack = $this->Subscribe_GetTrackByTargetAndUser($sTargetType, $sTargetId, $sUserId))) {
-            $oTrack = Engine::GetEntity('ModuleSubscribe_EntityTrack');
+            $oTrack = E::GetEntity('ModuleSubscribe_EntityTrack');
             $oTrack->setTargetType($sTargetType);
             $oTrack->setTargetId($sTargetId);
             $oTrack->setUserId($sUserId);

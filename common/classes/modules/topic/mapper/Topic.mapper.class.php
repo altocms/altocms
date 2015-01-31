@@ -286,7 +286,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 				LIMIT $nLimit";
         $aTopics = array();
         if ($aRows = $this->oDb->select($sql, $aTopicsId)) {
-            $aTopics = Engine::GetEntityRows('Topic', $aRows, $aTopicsId);
+            $aTopics = E::GetEntityRows('Topic', $aRows, $aTopicsId);
         }
         return $aTopics;
     }
@@ -535,9 +535,7 @@ class ModuleTopic_MapperTopic extends Mapper {
                 $aData[mb_strtolower($aRow['topic_tag_text'], 'UTF-8')] = $aRow;
             }
             ksort($aData);
-            foreach ($aData as $aRow) {
-                $aResult[] = Engine::GetEntity('Topic_TopicTag', $aRow);
-            }
+            $aResult = E::GetEntityRows('Topic_TopicTag', $aData);
         }
         return $aResult;
     }
@@ -580,9 +578,7 @@ class ModuleTopic_MapperTopic extends Mapper {
                 $aData[mb_strtolower($aRow['topic_tag_text'], 'UTF-8')] = $aRow;
             }
             ksort($aData);
-            foreach ($aData as $aRow) {
-                $aResult[] = Engine::GetEntity('Topic_TopicTag', $aRow);
-            }
+            $aResult = E::GetEntityRows('Topic_TopicTag', $aData);
         }
         return $aResult;
     }
@@ -835,7 +831,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 				";
         $aResult = array();
         if ($aRows = $this->oDb->select($sql, $sTag . '%', $iLimit)) {
-            $aResult = Engine::GetEntityRows('Topic_TopicTag', $aRows);
+            $aResult = E::GetEntityRows('Topic_TopicTag', $aRows);
         }
         return $aResult;
     }
@@ -940,7 +936,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 				";
         $aReads = array();
         if ($aRows = $this->oDb->select($sql, $aTopicId, $iUserId)) {
-            $aReads = Engine::GetEntityRows('Topic_TopicRead', $aRows);
+            $aReads = E::GetEntityRows('Topic_TopicRead', $aRows);
         }
         return $aReads;
     }
@@ -992,7 +988,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 				";
         $aVotes = array();
         if ($aRows = $this->oDb->select($sql, $aTopicId, $iUserId)) {
-            $aVotes = Engine::GetEntityRows('Topic_TopicQuestionVote', $aRows);
+            $aVotes = E::GetEntityRows('Topic_TopicQuestionVote', $aRows);
         }
         return $aVotes;
     }
@@ -1145,7 +1141,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 				";
         $aResult = array();
         if ($aRows = $this->oDb->select($sql, $aPhotosId)) {
-            $aResult = Engine::GetEntityRows('Topic_TopicPhoto', $aRows, $aPhotosId);
+            $aResult = E::GetEntityRows('Topic_TopicPhoto', $aRows, $aPhotosId);
         }
         return $aResult;
     }
@@ -1179,7 +1175,7 @@ class ModuleTopic_MapperTopic extends Mapper {
             $iCount ? $iCount : DBSIMPLE_SKIP);
         $aResult = array();
         if ($aRows) {
-            $aResult = Engine::GetEntityRows('Topic_TopicPhoto', $aRows);
+            $aResult = E::GetEntityRows('Topic_TopicPhoto', $aRows);
         }
         return $aResult;
     }
@@ -1197,7 +1193,7 @@ class ModuleTopic_MapperTopic extends Mapper {
         $aRows = $this->oDb->select($sql, $sTargetTmp);
         $aResult = array();
         if ($aRows) {
-            $aResult = Engine::GetEntityRows('Topic_TopicPhoto', $aRows);
+            $aResult = E::GetEntityRows('Topic_TopicPhoto', $aRows);
         }
         return $aResult;
     }
@@ -1214,7 +1210,7 @@ class ModuleTopic_MapperTopic extends Mapper {
         $sql = "SELECT * FROM ?_topic_photo WHERE id = ?d LIMIT 1";
         $aRow = $this->oDb->selectRow($sql, $iPhotoId);
         if ($aRow) {
-            return Engine::GetEntity('Topic_TopicPhoto', $aRow);
+            return E::GetEntity('Topic_TopicPhoto', $aRow);
         } else {
             return null;
         }
@@ -1427,7 +1423,7 @@ class ModuleTopic_MapperTopic extends Mapper {
         $aContentTypes = array();
         $aRows = $this->oDb->select($sql, (isset($aFilter['content_active']) ? 1 : DBSIMPLE_SKIP));
         if ($aRows) {
-            $aContentTypes = Engine::GetEntityRows('Topic_ContentType', $aRows);
+            $aContentTypes = E::GetEntityRows('Topic_ContentType', $aRows);
         }
         return $aContentTypes;
     }
@@ -1536,7 +1532,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 						content_id = ?d
 					";
         if ($aRow = $this->oDb->selectRow($sql, $nId)) {
-            return Engine::GetEntity('Topic_ContentType', $aRow);
+            return E::GetEntity('Topic_ContentType', $aRow);
         }
         return null;
     }
@@ -1559,7 +1555,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 						content_url = ?
 					";
         if ($aRow = $this->oDb->selectRow($sql, $sUrl)) {
-            return Engine::GetEntity('Topic_ContentType', $aRow);
+            return E::GetEntity('Topic_ContentType', $aRow);
         }
         return null;
     }
@@ -1680,14 +1676,12 @@ class ModuleTopic_MapperTopic extends Mapper {
 						{ AND content_id = ?d }
 					ORDER BY field_sort desc
 					";
-        $aFields = array();
+        $aResult = array();
         $aRows = $this->oDb->select($sql, (isset($aFilter['content_id']) ? $aFilter['content_id'] : DBSIMPLE_SKIP));
         if ($aRows) {
-            foreach ($aRows as $aField) {
-                $aFields[] = Engine::GetEntity('Topic_Field', $aField);
-            }
+            $aResult = E::GetEntityRows('Topic_Field', $aRows);
         }
-        return $aFields;
+        return $aResult;
     }
 
     /**
@@ -1715,7 +1709,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 				";
         $aFields = array();
         if ($aRows = $this->oDb->select($sql, $aContentId)) {
-            $aFields = Engine::GetEntityRows('Topic_Field', $aRows);
+            $aFields = E::GetEntityRows('Topic_Field', $aRows);
         }
         return $aFields;
     }
@@ -1738,7 +1732,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 						field_id = ?d
 					";
         if ($aRow = $this->oDb->selectRow($sql, $nId)) {
-            return Engine::GetEntity('Topic_Field', $aRow);
+            return E::GetEntity('Topic_Field', $aRow);
         }
         return null;
     }
@@ -1864,7 +1858,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 				";
         $aFields = array();
         if ($aRows = $this->oDb->select($sql, $aTargetId)) {
-            $aFields = Engine::GetEntityRows('Topic_ContentValues', $aRows);
+            $aFields = E::GetEntityRows('Topic_ContentValues', $aRows);
         }
         return $aFields;
     }

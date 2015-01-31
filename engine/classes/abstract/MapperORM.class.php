@@ -57,7 +57,7 @@ class MapperORM extends Mapper {
                     . $this->oDb->escape($oEntity->getProp($sField));
             }
             $sql = "UPDATE " . $sTableName . " SET ?a WHERE {$sWhere}";
-            return $this->oDb->query($sql, $oEntity->_getData());
+            return $this->oDb->query($sql, $oEntity->getAllProps());
         } else {
             $aOriginalData = $oEntity->_getOriginalData();
             $sWhere = implode(
@@ -70,7 +70,7 @@ class MapperORM extends Mapper {
                 )
             );
             $sql = "UPDATE " . $sTableName . " SET ?a WHERE 1=1 AND " . $sWhere;
-            return $this->oDb->query($sql, $oEntity->_getData());
+            return $this->oDb->query($sql, $oEntity->getAllProps());
         }
     }
 

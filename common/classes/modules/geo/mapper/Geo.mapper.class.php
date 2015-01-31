@@ -82,9 +82,7 @@ class ModuleGeo_MapperGeo extends Mapper {
             ($iCurrPage - 1) * $iPerPage, $iPerPage
         );
         if ($aRows) {
-            foreach ($aRows as $aRow) {
-                $aResult[] = Engine::GetEntity('ModuleGeo_EntityTarget', $aRow);
-            }
+            $aResult = E::GetEntityRows('ModuleGeo_EntityTarget', $aRows);
         }
         return $aResult;
     }
@@ -118,9 +116,7 @@ class ModuleGeo_MapperGeo extends Mapper {
 		";
         $aResult = array();
         if ($aRows = $this->oDb->select($sql, $sTargetType, $iLimit)) {
-            foreach ($aRows as $aRow) {
-                $aResult[] = Engine::GetEntity('ModuleGeo_EntityCountry', $aRow);
-            }
+            $aResult = E::GetEntityRows('ModuleGeo_EntityCountry', $aRows);
         }
         return $aResult;
     }
@@ -154,9 +150,7 @@ class ModuleGeo_MapperGeo extends Mapper {
 		";
         $aResult = array();
         if ($aRows = $this->oDb->select($sql, $sTargetType, $iLimit)) {
-            foreach ($aRows as $aRow) {
-                $aResult[] = Engine::GetEntity('ModuleGeo_EntityCity', $aRow);
-            }
+            $aResult = E::GetEntityRows('ModuleGeo_EntityCity', $aRows);
         }
         return $aResult;
     }
@@ -228,9 +222,9 @@ class ModuleGeo_MapperGeo extends Mapper {
 
         $sql
             = "SELECT
-					*
+					gc.id AS ARRAY_KEY, gc.*
 				FROM
-					?_geo_country
+					?_geo_country AS gc
 				WHERE
 					1 = 1
 					{ AND id = ?d }
@@ -256,9 +250,7 @@ class ModuleGeo_MapperGeo extends Mapper {
             ($iCurrPage - 1) * $iPerPage, $iPerPage
         );
         if ($aRows) {
-            foreach ($aRows as $aRow) {
-                $aResult[$aRow['id']] = Engine::GetEntity('ModuleGeo_EntityCountry', $aRow);
-            }
+            $aResult = E::GetEntityRows('ModuleGeo_EntityCountry', $aRows);
         }
         return $aResult;
     }
@@ -296,9 +288,9 @@ class ModuleGeo_MapperGeo extends Mapper {
 
         $sql
             = "SELECT
-					*
+					gr.id AS ARRAY_KEY, gr.*
 				FROM
-					?_geo_region
+					?_geo_region AS gr
 				WHERE
 					1 = 1
 					{ AND id = ?d }
@@ -324,9 +316,7 @@ class ModuleGeo_MapperGeo extends Mapper {
             ($iCurrPage - 1) * $iPerPage, $iPerPage
         );
         if ($aRows) {
-            foreach ($aRows as $aRow) {
-                $aResult[$aRow['id']] = Engine::GetEntity('ModuleGeo_EntityRegion', $aRow);
-            }
+            $aResult = E::GetEntityRows('ModuleGeo_EntityRegion', $aRows);
         }
         return $aResult;
     }
@@ -367,7 +357,7 @@ class ModuleGeo_MapperGeo extends Mapper {
 
         $sql
             = "SELECT
-					*
+					gc.id AS ARRAY_KEY, gc.*
 				FROM
 					?_geo_city
 				WHERE
@@ -397,9 +387,7 @@ class ModuleGeo_MapperGeo extends Mapper {
             ($iCurrPage - 1) * $iPerPage, $iPerPage
         );
         if ($aRows) {
-            foreach ($aRows as $aRow) {
-                $aResult[$aRow['id']] = Engine::GetEntity('ModuleGeo_EntityCity', $aRow);
-            }
+            $aResult = E::GetEntityRows('ModuleGeo_EntityCity', $aRows);
         }
         return $aResult;
     }

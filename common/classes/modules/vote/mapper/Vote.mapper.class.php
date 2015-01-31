@@ -74,7 +74,7 @@ class ModuleVote_MapperVote extends Mapper {
 					user_voter_id = ?d ";
         $aVotes = array();
         if ($aRows = $this->oDb->select($sql, $aTargetId, $sTargetType, $iUserId)) {
-            $aVotes = Engine::GetEntityRows('Vote', $aRows);
+            $aVotes = E::GetEntityRows('Vote', $aRows);
         }
         return $aVotes;
     }

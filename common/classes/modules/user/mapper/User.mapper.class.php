@@ -316,7 +316,7 @@ class ModuleUser_MapperUser extends Mapper {
 			";
         $aResult = array();
         if ($aRows = $this->oDb->select($sql, $aUserId)) {
-            $aResult = Engine::GetEntityRows('User_Session', $aRows);
+            $aResult = E::GetEntityRows('User_Session', $aRows);
         }
         return $aResult;
     }
@@ -351,7 +351,7 @@ class ModuleUser_MapperUser extends Mapper {
 			";
         $aUsers = array();
         if ($aRows = $this->oDb->select($sql, $aUsersId, count($aUsersId))) {
-            $aUsers = Engine::GetEntityRows('User', $aRows, $aUsersId);
+            $aUsers = E::GetEntityRows('User', $aRows, $aUsersId);
         }
         return $aUsers;
     }
@@ -679,7 +679,7 @@ class ModuleUser_MapperUser extends Mapper {
         if ($aRows) {
             foreach ($aRows as $aRow) {
                 $aRow['user'] = $nUserId;
-                $aRes[] = Engine::GetEntity('User_Friend', $aRow);
+                $aRes[] = E::GetEntity('User_Friend', $aRow);
             }
         }
         return $aRes;
@@ -858,7 +858,7 @@ class ModuleUser_MapperUser extends Mapper {
 
         $sql = "SELECT * FROM ?_invite WHERE invite_code = ? AND invite_used = ?d ";
         if ($aRow = $this->oDb->selectRow($sql, $sCode, $iUsed)) {
-            return Engine::GetEntity('User_Invite', $aRow);
+            return E::GetEntity('User_Invite', $aRow);
         }
         return null;
     }
@@ -1061,7 +1061,7 @@ class ModuleUser_MapperUser extends Mapper {
 				LIMIT 1
 				";
         if ($aRow = $this->oDb->selectRow($sql, $sCode)) {
-            return Engine::GetEntity('User_Reminder', $aRow);
+            return E::GetEntity('User_Reminder', $aRow);
         }
         return null;
     }
@@ -1085,7 +1085,7 @@ class ModuleUser_MapperUser extends Mapper {
         }
         $aResult = array();
         foreach ($aFields as $aField) {
-            $aResult[$aField['id']] = Engine::GetEntity('User_Field', $aField);
+            $aResult[$aField['id']] = E::GetEntity('User_Field', $aField);
         }
         return $aResult;
     }
@@ -1155,7 +1155,7 @@ class ModuleUser_MapperUser extends Mapper {
                 if ($bOnlyNoEmpty && !$aRow['value']) {
                     continue;
                 }
-                $aResult[] = Engine::GetEntity('User_Field', $aRow);
+                $aResult[] = E::GetEntity('User_Field', $aRow);
             }
         }
         return $aResult;
@@ -1350,7 +1350,7 @@ class ModuleUser_MapperUser extends Mapper {
 			LIMIT ?d, ?d ";
         $aResult = array();
         if ($aRows = $this->oDb->selectPage($iCount, $sql, $iUserId, ($iCurrPage - 1) * $iPerPage, $iPerPage)) {
-            $aResult = Engine::GetEntityRows('ModuleUser_EntityNote', $aRows);
+            $aResult = E::GetEntityRows('ModuleUser_EntityNote', $aRows);
         }
         return $aResult;
     }
@@ -1388,7 +1388,7 @@ class ModuleUser_MapperUser extends Mapper {
 
         $sql = "SELECT * FROM ?_user_note WHERE target_user_id = ?d AND user_id = ?d ";
         if ($aRow = $this->oDb->selectRow($sql, $iTargetUserId, $iUserId)) {
-            return Engine::GetEntity('ModuleUser_EntityNote', $aRow);
+            return E::GetEntity('ModuleUser_EntityNote', $aRow);
         }
         return null;
     }
@@ -1409,7 +1409,7 @@ class ModuleUser_MapperUser extends Mapper {
             LIMIT 1
             ";
         if ($aRow = $this->oDb->selectRow($sql, $iId)) {
-            return Engine::GetEntity('ModuleUser_EntityNote', $aRow);
+            return E::GetEntity('ModuleUser_EntityNote', $aRow);
         }
         return null;
     }
@@ -1435,13 +1435,11 @@ class ModuleUser_MapperUser extends Mapper {
 				WHERE target_user_id IN (?a) AND user_id = ?d
 				";
         $aRows = $this->oDb->select($sql, $aArrayId, $nUserId);
-        $aRes = array();
+        $aResult = array();
         if ($aRows) {
-            foreach ($aRows as $aRow) {
-                $aRes[] = Engine::GetEntity('ModuleUser_EntityNote', $aRow);
-            }
+            $aResult = E::GetEntityRows('ModuleUser_EntityNote', $aRows);
         }
-        return $aRes;
+        return $aResult;
     }
 
     /**
@@ -1544,7 +1542,7 @@ class ModuleUser_MapperUser extends Mapper {
             LIMIT 1
             ";
         if ($aRow = $this->oDb->selectRow($sql, $sCode)) {
-            return Engine::GetEntity('ModuleUser_EntityChangemail', $aRow);
+            return E::GetEntity('ModuleUser_EntityChangemail', $aRow);
         }
         return null;
     }
@@ -1565,7 +1563,7 @@ class ModuleUser_MapperUser extends Mapper {
             LIMIT 1
             ";
         if ($aRow = $this->oDb->selectRow($sql, $sCode)) {
-            return Engine::GetEntity('ModuleUser_EntityChangemail', $aRow);
+            return E::GetEntity('ModuleUser_EntityChangemail', $aRow);
         }
         return null;
     }

@@ -30,7 +30,7 @@ class ModuleFavourite extends Module {
      */
     public function Init() {
 
-        $this->oMapper = Engine::GetMapper(__CLASS__);
+        $this->oMapper = E::GetMapper(__CLASS__);
     }
 
     /**
@@ -396,7 +396,8 @@ class ModuleFavourite extends Module {
              */
             if ($aTags = $this->GetTagsTarget($oFavourite->getTargetType(), $oFavourite->getTargetId())) {
                 foreach ($aTags as $sTag) {
-                    $oTag = Engine::GetEntity('ModuleFavourite_EntityTag', $oFavourite->_getData());
+                    /** @var ModuleFavourite_EntityTag $oTag */
+                    $oTag = E::GetEntity('ModuleFavourite_EntityTag', $oFavourite->getAllProps());
                     $oTag->setText(htmlspecialchars($sTag));
                     $oTag->setIsUser(0);
                     $this->oMapper->AddTag($oTag);
@@ -406,7 +407,7 @@ class ModuleFavourite extends Module {
              * Добавляем пользовательские теги
              */
             foreach ($oFavourite->getTagsArray() as $sTag) {
-                $oTag = Engine::GetEntity('ModuleFavourite_EntityTag', $oFavourite->_getData());
+                $oTag = E::GetEntity('ModuleFavourite_EntityTag', $oFavourite->getAllProps());
                 $oTag->setText($sTag); // htmlspecialchars уже используется при установке тегов
                 $oTag->setIsUser(1);
                 $this->oMapper->AddTag($oTag);

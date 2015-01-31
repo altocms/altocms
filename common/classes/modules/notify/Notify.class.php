@@ -66,7 +66,7 @@ class ModuleNotify extends Module {
     public function Init() {
 
         $this->oViewerLocal = $this->Viewer_GetLocalViewer();
-        $this->oMapper = Engine::GetMapper(__CLASS__);
+        $this->oMapper = E::GetMapper(__CLASS__);
         $this->sDir = Config::Get('module.notify.dir');
         $this->sPrefix = Config::Get('module.notify.prefix');
     }
@@ -525,7 +525,7 @@ class ModuleNotify extends Module {
          * сразу отсылаем на email
          */
         if (Config::Get('module.notify.delayed') && !$bForceSend) {
-            $oNotifyTask = Engine::GetEntity(
+            $oNotifyTask = E::GetEntity(
                 'Notify_Task',
                 array(
                      'user_mail'          => $sMail,

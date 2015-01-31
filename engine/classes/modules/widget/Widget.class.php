@@ -125,7 +125,7 @@ class ModuleWidget extends Module {
      */
     public function MakeWidget($aWidgetData) {
 
-        $oWidget = Engine::GetEntity('Widget', $aWidgetData);
+        $oWidget = E::GetEntity('Widget', $aWidgetData);
 
         return $oWidget;
     }
