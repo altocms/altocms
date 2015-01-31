@@ -88,7 +88,7 @@ class ActionAdmin extends Action {
         $this->AddEvent('tools-recalcfavourites', 'EventRecalculateFavourites');
         $this->AddEvent('tools-recalcvotes', 'EventRecalculateVotes');
         $this->AddEvent('tools-recalctopics', 'EventRecalculateTopics');
-        if (C::Get('ratind.enabled')) {
+        if (C::Get('rating.enabled')) {
             $this->AddEvent('tools-recalcblograting', 'EventRecalculateBlogRating');
         }
         $this->AddEvent('tools-checkdb', 'EventCheckDb');
