@@ -248,6 +248,9 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CanVoteComment(ModuleUser_EntityUser $oUser, ModuleComment_EntityComment $oComment) {
+        if (!C::Get('rating.enabled')) {
+            return self::CAN_VOTE_COMMENT_FALSE;
+        }
         $oBlog = $oComment->getTargetBlog();
         if ($oBlog && $oBlog->getBlogType()) {
             $oBlogUser = $this->Blog_GetBlogUserByBlogIdAndUserId($oBlog->getId(), $oUser->getId());
@@ -270,6 +273,9 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CanVoteBlog(ModuleUser_EntityUser $oUser, ModuleBlog_EntityBlog $oBlog) {
+        if (!C::Get('rating.enabled')) {
+            return self::CAN_VOTE_BLOG_FALSE;
+        }
         $oBlogUser = $this->Blog_GetBlogUserByBlogIdAndUserId($oBlog->getId(), $oUser->getId());
         if ($oBlogUser && $oBlogUser->getUserRole() == ModuleBlog::BLOG_USER_ROLE_BAN) {
             return self::CAN_VOTE_BLOG_ERROR_BAN;
@@ -295,6 +301,9 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CanVoteTopic(ModuleUser_EntityUser $oUser, ModuleTopic_EntityTopic $oTopic) {
+        if (!C::Get('rating.enabled')) {
+            return self::CAN_VOTE_TOPIC_FALSE;
+        }
         $oBlog = $oTopic->getBlog();
         if ($oBlog && $oBlog->getBlogType()) {
             $oBlogUser = $this->Blog_GetBlogUserByBlogIdAndUserId($oBlog->getId(), $oUser->getId());
@@ -317,7 +326,9 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CanVoteUser(ModuleUser_EntityUser $oUser, ModuleUser_EntityUser $oUserTarget) {
-
+        if (!C::Get('rating.enabled')) {
+            return false;
+        }
         if ($oUser->getRating() >= Config::Get('acl.vote.user.rating')) {
             return true;
         }

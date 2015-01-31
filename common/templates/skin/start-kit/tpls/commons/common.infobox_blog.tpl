@@ -1,8 +1,8 @@
 {$aLang.infobox_blog_create} &mdash; {$oBlog->getDateAdd()}<br/>
 {$aLang.infobox_blog_topics} &mdash; {$oBlog->getCountTopic()}<br/>
 {$aLang.infobox_blog_users} &mdash; {$oBlog->getCountUser()}<br/>
-{$aLang.infobox_blog_rating} &mdash; {$oBlog->getRating()}<br/>
 {$aLang.infobox_blog_limit_rating} &mdash; {$oBlog->getLimitRatingTopic()}<br/>
+{hook run="blog_infobox" oBlog=$oBlog}
 
 {if $oTopicLast}
 	<br/>

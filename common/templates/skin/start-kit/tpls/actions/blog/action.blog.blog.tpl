@@ -32,29 +32,7 @@
             {/if}
         </h1>
 
-        {$sClasses = ''}
-        {if $oBlog->getRating() > 0}
-            {$sClasses = "$sClasses vote-count-positive"}
-        {elseif $oBlog->getRating() < 0}
-            {$sClasses = "$sClasses vote-count-negative"}
-        {/if}
-        {if $oVote}
-            {$sClasses = "$sClasses voted"}
-            {if $oVote->getDirection()>0}
-                {$sClasses = "$sClasses voted-up"}
-            {elseif $oVote->getDirection()<0}
-                {$sClasses = "$sClasses voted-down"}
-            {/if}
-        {/if}
-        <div class="small vote js-vote {$sClasses}" data-target-type="blog" data-target-id="{$oBlog->getId()}">
-            <div class="text-muted vote-label">{$aLang.blog_rating}</div>
-            <a href="#" class="vote-up js-vote-up"><span class="glyphicon glyphicon-plus-sign"></span></a>
-
-            <div class="vote-count count js-vote-rating" title="{$aLang.blog_vote_count}: {$oBlog->getCountVote()}">
-                {if $oBlog->getRating() > 0}+{/if}{$oBlog->getRating()}
-            </div>
-            <a href="#" class="vote-down js-vote-down"><span class="glyphicon glyphicon-minus-sign"></span></a>
-        </div>
+        {hook run="blog_header" oBlog=$oBlog}
 
         {if E::IsUser() AND ($oBlog->CanEditedBy(E::User()) OR $oBlog->CanAdminBy(E::User()) OR $oBlog->CanDeletedBy(E::User()))}
             <ul class="small list-unstyled list-inline pull-right actions">
@@ -121,8 +99,7 @@
                         <dt><a href="{$oBlog->getUrlFull()}users/">{$aLang.infobox_blog_users}</a></dt>
                         <dd>{$iCountBlogUsers}</dd>
 
-                        <dt>{$aLang.infobox_blog_rating}</dt>
-                        <dd class="text-success rating">{$oBlog->getRating()}</dd>
+                        {hook run="blog_stat" oBlog=$oBlog}
                     </dl>
                 </div>
 
@@ -196,6 +173,7 @@
                     </ul>
                 </li>
 
+                {if C::Get('rating.enabled')}
                 <li class="dropdown{if $sMenuSubItemSelect=='top'} active{/if}">
                     <a href="{$sMenuSubBlogUrl}top/" class="dropdown-toggle" data-toggle="dropdown">
                         {$aLang.blog_menu_collective_top}
@@ -213,6 +191,7 @@
                                     href="{$sMenuSubBlogUrl}top/?period=all">{$aLang.blog_menu_top_period_all}</a></li>
                     </ul>
                 </li>
+                {/if}
 
                 {hook run='menu_blog_blog_item'}
             </ul>

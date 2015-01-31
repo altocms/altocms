@@ -850,6 +850,12 @@ $config['config_load'] = array(
 $config['autocomplete']['user']['show_avatar'] = true;  // Добавлять аватар?
 $config['autocomplete']['user']['avatar_size'] = 24;    // Размер аватара
 
+/**
+ * Доступна ли стстема рейтинга. Эту настройку менять НЕ нужно,
+ * она устанавливается в true только плагинами рейтинга
+ */
+$config['rating']['enabled'] = false;
+
 return $config;
 
 // EOF

@@ -223,25 +223,27 @@ $config['menu']['data']['topics'] = array(
             )
         ),
 
-        'top'                  => array(
-            'text'    => array(
-                '{{blog_menu_all_top}}',
-                '&nbsp;<i class="caret"></i>',
-            ),
-            'submenu' => 'top',
-            'options' => array(
-                'class'     => 'btn dropdown active',
-                'link_data' => array(
-                    'toggle' => 'dropdown',
-                ),
-                'data'      => array(
-                    'hidden-class' => 'btn',
-                ),
-            )
-        ),
-
     )
 );
+
+if (C::Get('rating.enabled')) {
+    $config['menu']['data']['topics']['list']['top'] = array(
+        'text'    => array(
+            '{{blog_menu_all_top}}',
+            '&nbsp;<i class="caret"></i>',
+        ),
+        'submenu' => 'top',
+        'options' => array(
+            'class'     => 'btn dropdown active',
+            'link_data' => array(
+                'toggle' => 'dropdown',
+            ),
+            'data'      => array(
+                'hidden-class' => 'btn',
+            ),
+        )
+    );
+}
 
 /**
  *  Подменю обсуждаемых
@@ -250,12 +252,15 @@ $config['menu']['data']['discussed'] = array(
     'class' => 'dropdown-menu',
 );
 
-/**
- *  Подменю топовых
- */
-$config['menu']['data']['top'] = array(
-    'class' => 'dropdown-menu',
-);
+if (C::Get('rating.enabled')) {
+    /**
+     *  Подменю топовых
+     */
+    $config['menu']['data']['top'] = array(
+        'class' => 'dropdown-menu',
+    );
+}
+
 
 /**
  * Сеню с сыллками на блоги

@@ -79,7 +79,9 @@ class ActionIndex extends Action {
         $this->AddEventPreg('/^new$/i', '/^(page([1-9]\d{0,5}))?$/i', 'EventNew');
         $this->AddEventPreg('/^newall$/i', '/^(page([1-9]\d{0,5}))?$/i', 'EventNewAll');
         $this->AddEventPreg('/^discussed/i', '/^(page([1-9]\d{0,5}))?$/i', 'EventDiscussed');
-        $this->AddEventPreg('/^top/i', '/^(page([1-9]\d{0,5}))?$/i', 'EventTop');
+        if (C::Get('rating.enabled')) {
+            $this->AddEventPreg('/^top/i', '/^(page([1-9]\d{0,5}))?$/i', 'EventTop');
+        }
     }
 
 

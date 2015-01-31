@@ -30,15 +30,7 @@
                         <span class="text-muted favourite-count" id="fav_count_comment_{$oComment->getId()}">{if $oComment->getCountFavourite() > 0}{$oComment->getCountFavourite()}{/if}</span>
                     </li>
                 {/if}
-                <li id="vote_area_comment_{$oComment->getId()}"
-                    class="pull-right vote
-                    {if $oComment->getRating() > 0}
-                        vote-count-positive
-                    {elseif $oComment->getRating() < 0}
-                        vote-count-negative
-                    {/if}">
-                    <span class="vote-count" id="vote_total_comment_{$oComment->getId()}">{$oComment->getRating()}</span>
-                </li>
+                {hook run="comment_list_info" oComment=$oComment}
             </ul>
 
             <div class="comment-content text">

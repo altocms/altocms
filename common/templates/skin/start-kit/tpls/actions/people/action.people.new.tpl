@@ -8,6 +8,7 @@
     <div class="page-header">
         <h1>{$aLang.people}</h1>
     </div>
+
     <table class="table table-hover table-users">
         <thead>
         <tr>
@@ -17,12 +18,7 @@
             <th class="cell-date">
                 <small>{$aLang.user_date_registration}</small>
             </th>
-            <th class="cell-skill">
-                <small>{$aLang.user_skill}</small>
-            </th>
-            <th class="cell-rating">
-                <small>{$aLang.user_rating}</small>
-            </th>
+            {hook run='user_list_header' bUsersUseOrder=$bUsersUseOrder sUsersRootPage=$sUsersRootPage sUsersOrderWay=$sUsersOrderWay sUsersOrder=$sUsersOrder}
         </tr>
         </thead>
 
@@ -52,12 +48,7 @@
                     <td class="text-muted cell-date">
                         <small>{date_format date=$oUserList->getDateRegister() format="d.m.y, H:i"}</small>
                     </td>
-                    <td class="text-info cell-skill">
-                        <small>{$oUserList->getSkill()|number_format:{Config::Get('view.skill_length')}}</small>
-                    </td>
-                    <td class="cell-rating{if $oUserList->getRating() < 0} text-danger negative{else} text-success{/if}">
-                        <small>{$oUserList->getRating()|number_format:{Config::Get('view.rating_length')}}</small>
-                    </td>
+                    {hook run='user_list_line' oUserList=$oUserList}
                 </tr>
             {/foreach}
         {else}

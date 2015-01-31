@@ -13,7 +13,6 @@
             {/if}
 
             {$oBlog->getTitle()|escape:'html'}
-            <span class="topic-count">{$oBlog->getRating()}</span>
         </a>
     </li>
     {/foreach}

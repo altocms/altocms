@@ -9,7 +9,11 @@
         <div class="panel-navigation">
             {if E::IsUser()}
                 <ul >
-                    <li class="active js-widget-blogs-item" data-type="top"><a class="link link-dual link-lead link-clear" href="#">{$aLang.widget_blogs_top}</a></li>
+                    <li class="active js-widget-blogs-item" data-type="top">
+                        <a class="link link-dual link-lead link-clear" href="#">
+                            {if C::Get('rating.enabled')}{$aLang.widget_blogs_top}{else}{$aLang.blog_menu_all_list}{/if}
+                        </a>
+                    </li>
                     <li class="js-widget-blogs-item" data-type="join"><a class="link link-dual link-lead link-clear" href="#">{$aLang.widget_blogs_join}</a></li>
                     <li class="js-widget-blogs-item" data-type="self"><a class="link link-dual link-lead link-clear" href="#">{$aLang.widget_blogs_self}</a></li>
                 </ul>

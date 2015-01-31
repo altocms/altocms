@@ -24,18 +24,7 @@
                     <th class="hidden-xxs">
                         {$aLang.user_date_last}
                     </th>
-                    <th class="hidden-xxs">
-                        <a class="link {if $sUsersOrder=='user_skill'}{$sUsersOrderWay}{/if}"
-                           href="{$sUsersRootPage}?order=user_skill&order_way={if $sUsersOrder=='user_skill'}{$sUsersOrderWayNext}{else}{$sUsersOrderWay}{/if}">
-                           {$aLang.user_skill}
-                        </a>
-                    </th>
-                    <th class="hidden-xxs">
-                         <a class="link {if $sUsersOrder=='user_rating'}{$sUsersOrderWay}{/if}"
-                            href="{$sUsersRootPage}?order=user_rating&order_way={if $sUsersOrder=='user_rating'}{$sUsersOrderWayNext}{else}{$sUsersOrderWay}{/if}">
-                               {$aLang.user_rating}
-                         </a>
-                    </th>
+                    {hook run='user_list_header' bUsersUseOrder=$bUsersUseOrder sUsersRootPage=$sUsersRootPage sUsersOrderWay=$sUsersOrderWay sUsersOrder=$sUsersOrder}
                 </tr>
                 </thead>
             {else}
@@ -43,8 +32,7 @@
                 <tr>
                     <th colspan="3">{$aLang.user}</th>
                     <th class="hidden-xxs">{$aLang.user_date_last}</th>
-                    <th class="hidden-xxs">{$aLang.user_skill}</th>
-                    <th class="hidden-xxs">{$aLang.user_rating}</th>
+                    {hook run='user_list_header' bUsersUseOrder=$bUsersUseOrder sUsersRootPage=$sUsersRootPage sUsersOrderWay=$sUsersOrderWay sUsersOrder=$sUsersOrder}
                 </tr>
                 </thead>
             {/if}
@@ -89,12 +77,7 @@
                         {/if}
                     </span>
                 </td>
-                <td rowspan="3" class="hidden-xxs rating-value last-td {if $oUserList->getSkill() < 0}red{/if}">
-                    {$oUserList->getSkill()|number_format:{Config::Get('view.skill_length')}}
-                </td>
-                <td rowspan="3" class="hidden-xxs rating-value last-td {if $oUserList->getRating() < 0}red{/if}">
-                   {$oUserList->getRating()|number_format:{Config::Get('view.rating_length')}}
-                </td>
+                {hook run='user_list_line' oUserList=$oUserList}
             </tr>
             <tr>
                 <td class="action-icon action-user">
@@ -140,8 +123,7 @@
                         {/if}
                     </span>
                     </div>
-                    <div class="visible-xxs hif last-div rating-value {if $oUserList->getSkill() < 0}red{/if}" style="display: none;">{$aLang.user_skill}: {$oUserList->getSkill()|number_format:{Config::Get('view.skill_length')}}</div>
-                    <div class="visible-xxs hif last-div rating-value {if $oUserList->getRating() < 0}red{/if}" style="display: none;">{$aLang.user_rating}: {$oUserList->getRating()|number_format:{Config::Get('view.rating_length')}}</div>
+                    {hook run='user_list_linexxs' oUserList=$oUserList}
                     {if $oGeoTarget}
                         {if $oGeoTarget->getCountryId()}
                             <a class="link link-lead link-blue"

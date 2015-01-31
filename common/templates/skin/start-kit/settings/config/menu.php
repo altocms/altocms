@@ -155,23 +155,25 @@ $config['menu']['data']['topics'] = array(
             )
         ),
 
-        'top'                  => array(
-            'text'    => array(
-                '{{blog_menu_all_top}}',
-                '<b class="caret"></b>',
-            ),
-            'submenu' => 'top',
-            'options' => array(
-                'class'      => 'dropdown',
-                'link_class' => 'dropdown-toggle',
-                'link_data'  => array(
-                    'toggle' => 'dropdown',
-                )
-            )
-        ),
-
     )
 );
+
+if (C::Get('rating.enabled')) {
+    $config['menu']['data']['topics']['list']['top'] = array(
+        'text'    => array(
+            '{{blog_menu_all_top}}',
+            '<b class="caret"></b>',
+        ),
+        'submenu' => 'top',
+        'options' => array(
+            'class'      => 'dropdown',
+            'link_class' => 'dropdown-toggle',
+            'link_data'  => array(
+                'toggle' => 'dropdown',
+            )
+        )
+    );
+}
 
 /**
  *  Подменю обсуждаемых
@@ -180,9 +182,11 @@ $config['menu']['data']['discussed'] = array(
     'class' => 'dropdown-menu',
 );
 
-/**
- *  Подменю топовых
- */
-$config['menu']['data']['top'] = array(
-    'class' => 'dropdown-menu',
-);
+if (C::Get('rating.enabled')) {
+    /**
+     *  Подменю топовых
+     */
+    $config['menu']['data']['top'] = array(
+        'class' => 'dropdown-menu',
+    );
+}

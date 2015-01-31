@@ -31,7 +31,7 @@
                         href="{router page='index'}discussed/?period=all">{$aLang.blog_menu_top_period_all}</a></li>
         </ul>
     </li>
-
+    {if C::Get('rating.enabled')}
     <li class="dropdown{if $sMenuSubItemSelect=='top'} active{/if}">
         <a href="{router page='index'}top/" class="dropdown-toggle" data-toggle="dropdown">
             {$aLang.blog_menu_all_top}
@@ -48,6 +48,7 @@
                         href="{router page='index'}top/?period=all">{$aLang.blog_menu_top_period_all}</a></li>
         </ul>
     </li>
+    {/if}
 
     {if E::IsUser()}
         <li {if $sMenuItemSelect=='feed'}class="active"{/if}>

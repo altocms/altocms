@@ -81,32 +81,8 @@
                          </div>
                      </div>
                  </div>
-                 <div class="col-lg-4 user-rating-container">
-                     <h4 class="user-rating-header">
-                         Рейтинг
-                     </h4>
-                     {$sClasses = ''}
-                     {if $oBlog->getRating() > 0}
-                         {$sClasses = "$sClasses vote-count-positive"}
-                     {elseif $oBlog->getRating() < 0}
-                         {$sClasses = "$sClasses vote-count-negative"}
-                     {/if}
-                     {if $oVote}
-                         {$sClasses = "$sClasses voted"}
-                         {if $oVote->getDirection()>0}
-                             {$sClasses = "$sClasses voted-up"}
-                         {elseif $oVote->getDirection()<0}
-                             {$sClasses = "$sClasses voted-down"}
-                         {/if}
-                     {/if}
-                     <div class="user-rating vote js-vote {$sClasses}"  data-target-type="blog" data-target-id="{$oBlog->getId()}">
-                         <a href="#" class="{$sVoteClass} vote-down link link-gray link-clear js-vote-down"><i class="fa fa-thumbs-o-down"></i></a>
-                        <span class="vote-total {$sClasses} js-vote-rating" title="{$aLang.blog_vote_count}: {$oBlog->getCountVote()}">
-                            {if $oBlog->getRating() > 0}+{/if}{$oBlog->getRating()}
-                        </span>
-                         <a href="#" class="{$sVoteClass} vote-up link link link-gray link-clear js-vote-up"><i class="fa fa-thumbs-o-up"></i></a>
-                     </div>
-                 </div>
+                 {hook run="blog_header" oBlog=$oBlog}
+
              </div>
 
              <div class="user-more-block" id="blog-more-content" style="display: none;">
@@ -129,13 +105,10 @@
                                  <td>{$oBlog->getCountTopic()}</td>
                              </tr>
                              <tr>
-                                 <td>{$aLang.infobox_blog_rating}</a></td>
-                                 <td>{$oBlog->getRating()}</td>
-                             </tr>
-                             <tr>
                                  <td><a href="{$oBlog->getUrlFull()}users/">{$aLang.infobox_blog_users}</a></td>
                                  <td>{$iCountBlogUsers}</td>
                              </tr>
+                             {hook run="blog_stat" oBlog=$oBlog}
                              </tbody>
                          </table>
                      </div>
@@ -251,6 +224,7 @@
                  </li>
              </ul>
          </div>
+         {if C::Get('rating.enabled')}
          <div class="inb outline-no dropdown{if $sMenuSubItemSelect=='top'} active{/if}">
              <a href="{$sMenuSubBlogUrl}top/" class="outline-no btn btn-light-gray dropdown-toggle" data-toggle="dropdown">
                  {$aLang.blog_menu_collective_top}
@@ -270,6 +244,7 @@
 
              {hook run='menu_blog_blog_item'}
          </div>
+         {/if}
      </div>
 
      {if $bCloseBlog}
