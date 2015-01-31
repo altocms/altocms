@@ -573,6 +573,20 @@ class ModuleUser extends Module {
     }
 
     /**
+     * @param $sUserMailOrLogin
+     *
+     * @return ModuleUser_EntityUser|null
+     */
+    public function GetUserByMailOrLogin($sUserMailOrLogin) {
+
+        if ((F::CheckVal($sUserMailOrLogin, 'mail') && ($oUser = $this->GetUserByMail($sUserMailOrLogin)))
+            || ($oUser = $this->GetUserByLogin($sUserMailOrLogin))) {
+            return $oUser;
+        }
+        return null;
+    }
+
+    /**
      * Получить юзера по ID
      *
      * @param int $nId    ID пользователя

@@ -66,7 +66,7 @@ class ActionLogin extends Action {
 
         // Seek user by mail or by login
         /** @var ModuleUser_EntityUser $oUser */
-        if ((F::CheckVal($sUserLogin, 'mail') && $oUser = $this->User_GetUserByMail($sUserLogin)) || ($oUser = $this->User_GetUserByLogin($sUserLogin))) {
+        if ($oUser = $this->User_GetUserByMailOrLogin($sUserLogin)) {
             // Не забанен ли юзер
             if ($oUser->IsBanned()) {
                 if ($oUser->IsBannedByIp()) {
