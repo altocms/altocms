@@ -286,7 +286,9 @@ class Engine extends LsObject {
         /**
          * Запускаем хуки для события завершения инициализации Engine
          */
-        $this->Hook_Run('engine_init_complete');
+        //$this->Hook_Run('engine_init_complete');
+        $aArgs = array('engine_init_complete');
+        $this->_CallModule('Hook_Run', $aArgs);
         self::$nStage = self::STAGE_RUN;
     }
 
@@ -356,7 +358,9 @@ class Engine extends LsObject {
             $sHookPrefix .= static::GetModuleName($sClassName) . '_init_';
         }
         if ($bRunHooks) {
-            $this->Hook_Run($sHookPrefix . 'before');
+            //$this->Hook_Run($sHookPrefix . 'before');
+            $aArgs = array($sHookPrefix . 'before');
+            $this->_CallModule('Hook_Run', $aArgs);
         }
         if ($oModule->InInitProgress()) {
             // Нельзя запускать инициализацию модуля в процессе его инициализации
@@ -366,7 +370,9 @@ class Engine extends LsObject {
         $oModule->Init();
         $oModule->SetInit();
         if ($bRunHooks || $sClassName == 'ModuleHook') {
-            $this->Hook_Run($sHookPrefix . 'after');
+            //$this->Hook_Run($sHookPrefix . 'after');
+            $aArgs = array($sHookPrefix . 'after');
+            $this->_CallModule('Hook_Run', $aArgs);
         }
     }
 
@@ -379,7 +385,9 @@ class Engine extends LsObject {
     public function isInitModule($sModuleClass) {
 
         if ($sModuleClass !== 'ModulePlugin' && $sModuleClass !== 'ModuleHook') {
-            $sModuleClass = $this->Plugin_GetDelegate('module', $sModuleClass);
+            //$sModuleClass = $this->Plugin_GetDelegate('module', $sModuleClass);
+            $aArgs = array('module', $sModuleClass);
+            $sModuleClass = $this->_CallModule('Plugin_GetDelegate', $aArgs);
         }
         if (isset($this->aModules[$sModuleClass]) && $this->aModules[$sModuleClass]->isInit()) {
             return true;
@@ -466,7 +474,9 @@ class Engine extends LsObject {
         foreach ($this->aConfigModule['_autoLoad_'] as $sModuleName) {
             $sModuleClass = 'Module' . $sModuleName;
             if ($sModuleName !== 'Plugin' && $sModuleName !== 'Hook') {
-                $sModuleClass = $this->Plugin_GetDelegate('module', $sModuleClass);
+                //$sModuleClass = $this->Plugin_GetDelegate('module', $sModuleClass);
+                $aArgs = array('module', $sModuleClass);
+                $sModuleClass = $this->_CallModule('Plugin_GetDelegate', $aArgs);
             }
 
             if (!isset($this->aModules[$sModuleClass])) {
@@ -477,6 +487,11 @@ class Engine extends LsObject {
                 }
             }
         }
+    }
+
+    public function GetLoadedModules() {
+
+        return $this->aModules;
     }
 
     /**
@@ -596,7 +611,7 @@ class Engine extends LsObject {
      */
     public function _CallModule($sName, &$aArgs) {
 
-        list($oModule, $sModuleName, $sMethod) = $this->GetModule($sName);
+        list($oModule, $sModuleName, $sMethod) = $this->GetModuleMethod($sName);
 
         if ($sModuleName !== 'Plugin' && $sModuleName !== 'Hook') {
             $sHookName = 'module_' . strtolower($sModuleName . '_' . $sMethod);
@@ -607,7 +622,7 @@ class Engine extends LsObject {
         $aResultHook = array();
         if ($sHookName) {
             $aHookArgs = array($sHookName . '_before', &$aArgs);
-            list($oHookModule, $sHookModuleName, $sHookMethod) = $this->GetModule('Hook_Run');
+            list($oHookModule, $sHookModuleName, $sHookMethod) = $this->GetModuleMethod('Hook_Run');
             $aResultHook = call_user_func_array(array($oHookModule, $sHookMethod), $aHookArgs);
         }
 
@@ -643,38 +658,50 @@ class Engine extends LsObject {
      * @return array
      * @throws Exception
      */
-    public function GetModule($sCallName) {
+    public function GetModuleMethod($sCallName) {
 
         if (isset($this->aModulesMap[$sCallName])) {
             list($sModuleClass, $sModuleName, $sMethod) = $this->aModulesMap[$sCallName];
         } else {
             $sName = $sCallName;
-            // * Поддержка полного синтаксиса при вызове метода модуля
-            $aInfo = static::GetClassInfo($sName, self::CI_MODULE | self::CI_PPREFIX | self::CI_METHOD);
-            if ($aInfo[self::CI_MODULE] && $aInfo[self::CI_METHOD]) {
-                $sName = $aInfo[self::CI_MODULE] . '_' . $aInfo[self::CI_METHOD];
-                if ($aInfo[self::CI_PPREFIX]) {
-                    $sName = $aInfo[self::CI_PPREFIX] . $sName;
+            if (strpos($sCallName, 'Module') !== false || substr_count($sCallName, '_') > 1) {
+                // * Поддержка полного синтаксиса при вызове метода модуля
+                $aInfo = static::GetClassInfo($sName, self::CI_MODULE | self::CI_PPREFIX | self::CI_METHOD);
+                if ($aInfo[self::CI_MODULE] && $aInfo[self::CI_METHOD]) {
+                    $sName = $aInfo[self::CI_MODULE] . '_' . $aInfo[self::CI_METHOD];
+                    if ($aInfo[self::CI_PPREFIX]) {
+                        $sName = $aInfo[self::CI_PPREFIX] . $sName;
+                    }
                 }
             }
 
             $aName = explode('_', $sName);
 
-            if (count($aName) == 2) {
-                $sModuleName = $aName[0];
-                $sModuleClass = 'Module' . $aName[0];
-                $sMethod = $aName[1];
-            } elseif (count($aName) == 3) {
-                $sModuleName = $aName[0] . '_' . $aName[1];
-                $sModuleClass = $aName[0] . '_Module' . $aName[1];
-                $sMethod = $aName[2];
-            } else {
-                throw new Exception('Undefined method module: ' . $sName);
+            switch (count($aName)) {
+                case 1:
+                    $sModuleName = $sName;
+                    $sModuleClass = 'Module' . $sName;
+                    $sMethod = null;
+                    break;
+                case 2:
+                    $sModuleName = $aName[0];
+                    $sModuleClass = 'Module' . $aName[0];
+                    $sMethod = $aName[1];
+                    break;
+                case 3:
+                    $sModuleName = $aName[0] . '_' . $aName[1];
+                    $sModuleClass = $aName[0] . '_Module' . $aName[1];
+                    $sMethod = $aName[2];
+                    break;
+                default:
+                    throw new Exception('Undefined method module: ' . $sName);
             }
 
             // * Получаем делегат модуля (в случае наличия такового)
             if ($sModuleName !== 'Plugin' && $sModuleName !== 'Hook') {
-                $sModuleClass = $this->Plugin_GetDelegate('module', $sModuleClass);
+                //$sModuleClass = $this->Plugin_GetDelegate('module', $sModuleClass);
+                $aArgs = array('module', $sModuleClass);
+                $sModuleClass = $this->_CallModule('Plugin_GetDelegate', $aArgs);
             }
             $this->aModulesMap[$sCallName] = array($sModuleClass, $sModuleName, $sMethod);
         }
@@ -691,22 +718,23 @@ class Engine extends LsObject {
     /**
      * Возвращает объект модуля
      *
-     * @param string $sName Имя модуля
+     * @param string $sModuleName Имя модуля
+     *
+     * @return object|null
+     * @throws Exception
      */
-    public function GetModuleObject($sName) {
+    public function GetModule($sModuleName) {
 
-        if (static::GetPluginPrefix($sName)) {
-            if (substr_count($sName, '_') < 2) {
-                $sName .= '_x';
-            }
-        } else {
-            if (substr_count($sName, '_') < 1) {
-                $sName .= '_x';
-            }
+        // $sCallName === 'User' or $sCallName === 'ModuleUser'
+        if (substr($sModuleName, 0, 6) == 'Module' && preg_match('/^(Module)?([A-Z].*)$/', $sModuleName, $aMatches)) {
+            $sModuleName = $aMatches[2];
         }
-        $aCallArray = $this->GetModule($sName);
+        if ($sModuleName) {
+            $aData = $this->GetModuleMethod($sModuleName);
 
-        return $aCallArray[0];
+            return $aData[0];
+        }
+        return null;
     }
 
     /**
@@ -1276,9 +1304,31 @@ class Engine extends LsObject {
         return $sPath ? $sPath : null;
     }
 
+    /**
+     * @param string $sName
+     * @param array  $aArgs
+     *
+     * @return mixed
+     */
     public static function __callStatic($sName, $aArgs = array()) {
 
+        if (substr($sName, 0, 6) == 'Module') {
+            $oModule = static::Module($sName);
+            if ($oModule) {
+                return $oModule;
+            }
+        }
         return call_user_func_array(array(static::getInstance(), $sName), $aArgs);
+    }
+
+    /**
+     * @param $sModuleName
+     *
+     * @return null|object
+     */
+    public static function Module($sModuleName) {
+
+        return static::getInstance()->GetModule($sModuleName);
     }
 
     /**
@@ -1288,9 +1338,7 @@ class Engine extends LsObject {
      */
     public static function User() {
 
-        $aArgs = array();
-        $oUser = static::getInstance()->_CallModule('User_GetUserCurrent', $aArgs);
-        return $oUser;
+        return static::ModuleUser()->GetUserCurrent();
     }
 
     /**
