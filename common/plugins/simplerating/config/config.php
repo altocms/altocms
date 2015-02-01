@@ -9,18 +9,34 @@
  */
 $config = array(
 
-    'user_add'            => '3',
-    'user_remove'         => '1',
+    'user'    => array(
+        'vote'        => TRUE,
+        'dislike'     => TRUE,
+        'add'    => '3',
+        'remove' => '1',
+    ),
 
-    'comment_user_add'    => '0.5',
-    'comment_user_remove' => '-0.25',
+    'comment' => array(
+        'vote'        => TRUE,
+        'dislike'     => TRUE,
+        'user_add'    => '0.5',
+        'user_remove' => '-0.25',
+    ),
 
-    'blog_add'            => '0.75',
-    'blog_user_remove'    => '-0.1',
+    'blog'    => array(
+        'vote'        => TRUE,
+        'dislike'     => TRUE,
+        'add'         => '0.75',
+        'user_remove' => '-0.1',
+    ),
 
-    'topic_user_add'      => '1',
-    'topic_user_remove'   => '-0.25',
-    'topic_add'           => '0.25',
+    'topic'   => array(
+        'vote'        => TRUE,
+        'dislike'     => TRUE,
+        'user_add'    => '1',
+        'user_remove' => '-0.25',
+        'add'         => '0.25',
+    ),
 
 
 );

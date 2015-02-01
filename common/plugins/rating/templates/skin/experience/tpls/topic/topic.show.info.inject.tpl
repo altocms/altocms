@@ -34,7 +34,9 @@
             <div id="vote-info-topic-{$oTopic->getId()}" style="display: none;">
                 <ul class="list-unstyled vote-topic-info">
                     <li><span class="glyphicon glyphicon-thumbs-up"></span>{$oTopic->getCountVoteUp()}</li>
-                    <li><span class="glyphicon glyphicon-thumbs-down"></span>{$oTopic->getCountVoteDown()}
+                    {if C::Get('plugin.rating.topic.dislike')}
+                        <li><span class="glyphicon glyphicon-thumbs-down"></span>{$oTopic->getCountVoteDown()}
+                    {/if}
                     </li>
                     <li><span class="glyphicon glyphicon-eye-open"></span>{$oTopic->getCountVoteAbstain()}
                     </li>
@@ -76,7 +78,9 @@
                                     <div id="vote-info-topic-{$oTopic->getId()}">
                                         <ul class="vote-topic-info list-unstyled mal0">
                                             <li><i class="fa fa-thumbs-o-up"></i><span>{$oTopic->getCountVoteUp()}</span>
-                                            <li><i class="fa fa-thumbs-o-down"></i><span>{$oTopic->getCountVoteDown()}</span>
+                                            {if C::Get('plugin.rating.topic.dislike')}
+                                                <li><span class="glyphicon glyphicon-thumbs-down"></span>{$oTopic->getCountVoteDown()}
+                                            {/if}
                                             <li><i class="fa fa-eye"></i><span>{$oTopic->getCountVoteAbstain()}</span>
                                             {hook run='topic_show_vote_stats' topic=$oTopic bTopicList=true}
                                         </ul>
@@ -126,7 +130,7 @@
                                         <ul class="vote-topic-info list-unstyled mal0">
                                             <li><i class="fa fa-thumbs-o-up"></i><span>{$oTopic->getCountVoteUp()}</span>
                                             {if C::Get('plugin.rating.topic.dislike')}
-                                            <li><i class="fa fa-thumbs-o-down"></i><span>{$oTopic->getCountVoteDown()}</span>
+                                                <li><i class="fa fa-thumbs-o-down"></i><span>{$oTopic->getCountVoteDown()}</span>
                                             {/if}
                                             <li><i class="fa fa-eye"></i><span>{$oTopic->getCountVoteAbstain()}</span>
                                             {hook run='topic_show_vote_stats' topic=$oTopic bTopicList=false}

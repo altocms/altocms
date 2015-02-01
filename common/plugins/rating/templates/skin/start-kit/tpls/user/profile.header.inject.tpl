@@ -13,13 +13,15 @@
 {/if}
 <div class="small pull-right vote js-vote {$sClasses}" data-target-type="user" data-target-id="{$oUserProfile->getId()}">
     <div class="text-muted vote-label">{$aLang.user_rating}</div>
-    {if C::Get('plugin.rating.user.dislike')}
+
     <a href="#" class="vote-up js-vote-up" ><span class="glyphicon glyphicon-plus-sign"></span></a>
-    {/if}
+
     <div class="vote-count js-vote-rating" title="{$aLang.user_vote_count}: {$oUserProfile->getCountVote()}">
         {if $oUserProfile->getRating() > 0}+{/if}{$oUserProfile->getRating()|number_format:{Config::Get('view.rating_length')}}
     </div>
+    {if C::Get('plugin.rating.user.dislike')}
     <a href="#" class="vote-down js-vote-down"><span class="glyphicon glyphicon-minus-sign"></span></a>
+    {/if}
 </div>
 
 <div class="small pull-right strength">

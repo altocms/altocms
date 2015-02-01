@@ -17,7 +17,8 @@
         <div class="vote-up js-vote-up"><span class="glyphicon glyphicon-plus-sign"></span></div>
 
         <span class="vote-count js-vote-rating">{if $oComment->getRating() > 0}+{/if}{$oComment->getRating()}</span>
-
-        <div class="vote-down js-vote-down"><span class="glyphicon glyphicon-minus-sign"></span></div>
+        {if C::Get('plugin.simplerating.comment.dislike')}
+            <div class="vote-down js-vote-down"><span class="glyphicon glyphicon-minus-sign"></span></div>
+        {/if}
     </li>
 {/if}

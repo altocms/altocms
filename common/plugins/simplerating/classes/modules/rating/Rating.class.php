@@ -39,6 +39,12 @@ class PluginSimplerating_ModuleRating extends PluginSimplerating_Inherit_ModuleR
      * @return int
      */
     public function VoteComment($oUser, $oComment, $iValue) {
+        if (!C::Get('plugin.simplerating.comment.vote')) {
+            return 0;
+        }
+        if (!C::Get('plugin.simplerating.comment.dislike') && $iValue < 0) {
+            return 0;
+        }
         /**
          * Устанавливаем рейтинг комментария
          */
@@ -46,9 +52,11 @@ class PluginSimplerating_ModuleRating extends PluginSimplerating_Inherit_ModuleR
         /**
          * Начисляем рейтинг автору комментария
          */
-        $oUserComment = $this->User_GetUserById($oComment->getUserId());
-        $oUserComment->setRating((float)$oUserComment->getRating() + (float)C::Get('plugin.simplerating.comment_user_add'));
-        $this->User_Update($oUserComment);
+        if (C::Get('plugin.simplerating.comment_user_add')) {
+            $oUserComment = $this->User_GetUserById($oComment->getUserId());
+            $oUserComment->setRating((float)$oUserComment->getRating() + (float)C::Get('plugin.simplerating.comment_user_add'));
+            $this->User_Update($oUserComment);
+        }
         /**
          * Убавляем рейтинг голосующего, если нужно
          */
@@ -70,17 +78,28 @@ class PluginSimplerating_ModuleRating extends PluginSimplerating_Inherit_ModuleR
      * @return int
      */
     public function VoteTopic($oUser, $oTopic, $iValue) {
-
+        if (!C::Get('plugin.simplerating.topic.vote')) {
+            return 0;
+        }
+        if (!C::Get('plugin.simplerating.topic.dislike') && $iValue < 0) {
+            return 0;
+        }
         /**
          * Устанавливаем рейтинг топика
          */
-        $oTopic->setRating((float)$oTopic->getRating() + (float)C::Get('plugin.simplerating.topic_add'));
+        if (C::Get('plugin.simplerating.topic_add')) {
+            $oTopic->setRating((float)$oTopic->getRating() + (float)C::Get('plugin.simplerating.topic_add'));
+        }
+
         /**
          * Устанавливаем рейтинг автора
          */
-        $oUserTopic = $this->User_GetUserById($oTopic->getUserId());
-        $oUserTopic->setRating((float)$oUserTopic->getRating() + (float)C::Get('plugin.simplerating.topic_user_add'));
-        $this->User_Update($oUserTopic);
+        if (C::Get('plugin.simplerating.topic_user_add')) {
+            $oUserTopic = $this->User_GetUserById($oTopic->getUserId());
+            $oUserTopic->setRating((float)$oUserTopic->getRating() + (float)C::Get('plugin.simplerating.topic_user_add'));
+            $this->User_Update($oUserTopic);
+        }
+
         /**
          * Убавляем рейтинг голосующего, если нужно
          */
@@ -103,7 +122,12 @@ class PluginSimplerating_ModuleRating extends PluginSimplerating_Inherit_ModuleR
      * @return int
      */
     public function VoteBlog($oUser, $oBlog, $iValue) {
-
+        if (!C::Get('plugin.simplerating.blog.vote')) {
+            return 0;
+        }
+        if (!C::Get('plugin.simplerating.blog.dislike') && $iValue < 0) {
+            return 0;
+        }
         /**
          * Устанавливаем рейтинг блога
          */
@@ -131,6 +155,12 @@ class PluginSimplerating_ModuleRating extends PluginSimplerating_Inherit_ModuleR
      * @return float
      */
     public function VoteUser($oUser, $oUserTarget, $iValue) {
+        if (!C::Get('plugin.simplerating.user.vote')) {
+            return 0;
+        }
+        if (!C::Get('plugin.simplerating.user.dislike') && $iValue < 0) {
+            return 0;
+        }
         /**
          * Начисляем рейтинг пользователя
          */
