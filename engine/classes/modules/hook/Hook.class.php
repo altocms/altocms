@@ -218,9 +218,9 @@ class ModuleHook extends Module {
                 $this->aHooksOrders = array();
                 $iCount = count($this->aHooks[$sName]);
                 for ($iHookNum = 0; $iHookNum < $iCount; $iHookNum++) {
-                    $this->aHooksOrders[$iHookNum] = $this->aHooks[$sName][$iHookNum]['priority'];
+                    $this->aHooksOrders[$sName][$iHookNum] = $this->aHooks[$sName][$iHookNum]['priority'];
                 }
-                arsort($this->aHooksOrders, SORT_NUMERIC);
+                arsort($this->aHooksOrders[$sName], SORT_NUMERIC);
             }
 
             // Runs hooks in priority order
