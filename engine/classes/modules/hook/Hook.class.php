@@ -86,6 +86,8 @@ class ModuleHook extends Module {
      * )
      */
     protected $aHooks = array();
+
+    protected $aHooksOrders = array();
     /**
      * Список объектов обработки хукков, для их кешировани
      *
@@ -104,7 +106,8 @@ class ModuleHook extends Module {
     /**
      * Возвращает информацию о том, включен хук или нет
      *
-     * @param $sHookName
+     * @param string $sHookName
+     *
      * @return bool
      */
     public function IsEnabled($sHookName) {
@@ -136,6 +139,9 @@ class ModuleHook extends Module {
             'params' => $aParams,
             'priority' => (int)$iPriority
         );
+        if (!empty($this->aHooksOrders)) {
+            $this->aHooksOrders = array();
+        }
         return true;
     }
 
@@ -194,64 +200,6 @@ class ModuleHook extends Module {
     }
 
     /**
-     * Добавляет делегирующий обработчик хука с типом "module"
-     * Делегирующий хук применяется для перекрытия метода модуля, результат хука возвращает вместо результата метода модуля
-     * Позволяет в качестве обработчика использовать метод модуля
-     *
-     * @see Add
-     * @see Engine::_CallModule
-     *
-     * @param string $sName        Имя хука
-     * @param string $sCallBack    Полное имя метода обработки хука, например, "Mymodule_CallBack"
-     * @param int    $iPriority    Приоритер обработки, чем выше, тем раньше сработает хук относительно других
-     *
-     * @return bool
-     */
-    public function AddDelegateModule($sName, $sCallBack, $iPriority = 1) {
-
-        return $this->Add($sName, 'module', $sCallBack, $iPriority, array('delegate' => true));
-    }
-
-    /**
-     * Добавляет делегирующий обработчик хука с типом "function"
-     * Делегирующий хук применяется для перекрытия метода модуля, результат хука возвращает вместо результата метода модуля
-     * Позволяет в качестве обработчика использовать функцию
-     *
-     * @see Add
-     *
-     * @param string $sName        Имя хука
-     * @param string $sCallBack    Функция обработки хука, например, "var_dump"
-     * @param int    $iPriority    Приоритер обработки, чем выше, тем раньше сработает хук относительно других
-     *
-     * @return bool
-     */
-    public function AddDelegateFunction($sName, $sCallBack, $iPriority = 1) {
-
-        return $this->Add($sName, 'function', $sCallBack, $iPriority, array('delegate' => true));
-    }
-
-    /**
-     * Добавляет делегирующий обработчик хука с типом "hook"
-     * Делегирующий хук применяется для перекрытия метода модуля, результат хука возвращает вместо результата метода модуля
-     * Позволяет в качестве обработчика использовать метод хука(класса хука из каталога /classes/hooks/)
-     *
-     * @see Add
-     * @see Hook::AddHook
-     *
-     * @param string $sName        Имя хука
-     * @param string $sCallBack    Метод хука, например, "InitAction"
-     * @param int    $iPriority    Приоритер обработки, чем выше, тем раньше сработает хук относительно других
-     * @param array  $aParams      Параметры
-     *
-     * @return bool
-     */
-    public function AddDelegateHook($sName, $sCallBack, $iPriority = 1, $aParams = array()) {
-
-        $aParams['delegate'] = true;
-        return $this->Add($sName, 'hook', $sCallBack, $iPriority, $aParams);
-    }
-
-    /**
      * Запускает обаботку хуков
      *
      * @param string $sName    Имя хука
@@ -264,27 +212,20 @@ class ModuleHook extends Module {
         $xResult = array();
         $sName = strtolower($sName);
         $bTemplateHook = strpos($sName, 'template_') === 0 ? true : false;
-        if (isset($this->aHooks[$sName])) {
-            $aHookNum = array();
-            $aHookNumDelegate = array();
 
-            // * Все хуки делим на обычные (exec) и делигирующие (delegate)
-            for ($i = 0; $i < count($this->aHooks[$sName]); $i++) {
-                if (isset($this->aHooks[$sName][$i]['params']['delegate'])
-                    && $this->aHooks[$sName][$i]['params']['delegate']
-                ) {
-                    $aHookNumDelegate[$i] = $this->aHooks[$sName][$i]['priority'];
-                } else {
-                    $aHookNum[$i] = $this->aHooks[$sName][$i]['priority'];
+        if (isset($this->aHooks[$sName])) {
+            if (empty($this->aHooksOrders[$sName])) {
+                $this->aHooksOrders = array();
+                $iCount = count($this->aHooks[$sName]);
+                for ($iHookNum = 0; $iHookNum < $iCount; $iHookNum++) {
+                    $this->aHooksOrders[$iHookNum] = $this->aHooks[$sName][$iHookNum]['priority'];
                 }
+                arsort($this->aHooksOrders, SORT_NUMERIC);
             }
-            arsort($aHookNum, SORT_NUMERIC);
-            arsort($aHookNumDelegate, SORT_NUMERIC);
-            /**
-             * Сначала запускаем на выполнение простые
-             */
-            foreach ($aHookNum as $iKey => $iPr) {
-                $aHook = $this->aHooks[$sName][$iKey];
+
+            // Runs hooks in priority order
+            foreach ($this->aHooksOrders[$sName] as $iHookNum => $iPr) {
+                $aHook = $this->aHooks[$sName][$iHookNum];
                 if ($bTemplateHook || $aHook['type'] == 'template') {
                     if (isset($aHook['params']['template']) && !isset($aVars['template'])) {
                         $aVars['template'] = $aHook['params']['template'];
@@ -292,30 +233,15 @@ class ModuleHook extends Module {
                     // * Если это шаблонный хук то сохраняем результат
                     $xResult['template_result'][] = $this->RunType($aHook, $aVars);
                 } else {
-                    $this->RunType($aHook, $aVars);
+                    $xResult = $this->RunType($aHook, $aVars);
                 }
-            }
-            /**
-             * Теперь запускаем делигирующие
-             * Делегирующий хук должен вернуть результат в формате:
-             *
-             */
-            foreach ($aHookNumDelegate as $iKey => $iPr) {
-                $aHook = $this->aHooks[$sName][$iKey];
-                $xResult = array(
-                    'delegate_result' => $this->RunType($aHook, $aVars)
-                );
-                /**
-                 * На данный момент только один хук может быть делегирующим
-                 */
-                break;
             }
         }
         return $xResult;
     }
 
     /**
-     * Запускает обработчик хука в зависимости от туипа обработчика
+     * Запускает обработчик хука в зависимости от типа обработчика
      *
      * @param array $aHook    Данные хука
      * @param array $aVars    Параметры переданные в хук
