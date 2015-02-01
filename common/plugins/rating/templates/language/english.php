@@ -20,8 +20,11 @@ return array(
     'acl_vote_topic_rating_notice'   => 'Vote for the topic',
     'acl_vote_comment_rating_notice' => 'Vote for your comment',
     'acl_vote'                       => 'The lower threshold rating to vote (users with lower ratings will not be able to vote)',
+    'acl_notice'                     => 'Common settings',
 
     'user_config'                    => 'User rating calculation parameters from voting for him',
+    'user_vote'                      => 'Use voting for user',
+    'user_dislike'                   => 'Use dislike for user',
     'user_min_change'                => 'The minimum possible changes',
     'user_max_change'                => 'The value of the maximum possible change',
     'user_max_rating'                => 'The maximum rating of the vote',
@@ -32,6 +35,8 @@ return array(
     'user_right_divider'             => 'Divider right range',
 
     'blog_config'                    => 'The parameters for calculating the rating of the blog when voting for him',
+    'blog_vote'                      => 'Use voting for blog',
+    'blog_dislike'                   => 'Use dislike for blog',
     'blog_min_change'                => 'The minimum possible changes',
     'blog_max_change'                => 'The value of the maximum possible change',
     'blog_max_rating'                => 'The maximum rating of the vote',
@@ -42,6 +47,8 @@ return array(
     'blog_right_divider'             => 'Divider right range',
 
     'comment_config'                 => 'Parameters for calculating power by voting for his comment',
+    'comment_vote'                   => 'Use voting for comment',
+    'comment_dislike'                => 'Use dislike for comment',
     'comment_min_change'             => 'The minimum possible changes',
     'comment_max_change'             => 'The value of the maximum possible change',
     'comment_max_rating'             => 'The maximum rating of the vote',
@@ -52,6 +59,8 @@ return array(
     'comment_right_divider'          => 'Divider right range',
 
     'topic_config'                   => 'The parameters for calculating the strength and power user voting for his topic',
+    'topic_vote'                     => 'Use voting for topic',
+    'topic_dislike'                  => 'Use dislike for topic',
     'topic_min_change'               => 'The minimum possible changes',
     'topic_max_change'               => 'The value of the maximum possible change',
     'topic_max_rating'               => 'The maximum rating of the vote',
@@ -63,6 +72,7 @@ return array(
     'topic_auth_coef'                => 'Coefficient of authors',
 
     'rating_config'                  => 'The parameters for calculating the rating of topic voting for him',
+    'rating_vote'                    => 'Use voting for author',
     'rating_topic_border_1'          => 'The first border rankings topic',
     'rating_topic_border_2'          => 'The second border rankings topic',
     'rating_topic_border_3'          => 'The third border rankings topic',
