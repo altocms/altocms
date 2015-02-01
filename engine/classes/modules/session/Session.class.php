@@ -146,7 +146,7 @@ class ModuleSession extends Module {
      */
     public function GetKey() {
 
-        return $this->Security_Salted($this->GetId(), 'sess');
+        return E::ModuleSecurity()->Salted($this->GetId(), 'sess');
     }
 
     /**
@@ -165,7 +165,7 @@ class ModuleSession extends Module {
      */
     protected function ReadData() {
 
-        $this->aData = $this->Cache_Get($this->sId);
+        $this->aData = E::ModuleCache()->Get($this->sId);
     }
 
     /**
@@ -174,7 +174,7 @@ class ModuleSession extends Module {
      */
     protected function Save() {
 
-        $this->Cache_Set($this->aData, $this->sId, array(), Config::Get('sys.session.timeout'));
+        E::ModuleCache()->Set($this->aData, $this->sId, array(), Config::Get('sys.session.timeout'));
     }
 
     /**

@@ -110,7 +110,7 @@ class ModuleImg_EntityImage extends Entity {
 
     public function IsMultiframe() {
 
-        if (($oImage = $this->GetImage()) && ($this->Img_GetDriver() != 'GD')) {
+        if (($oImage = $this->GetImage()) && (E::ModuleImg()->GetDriver() != 'GD')) {
             return $oImage->image->getImageIterations();
         }
     }
@@ -346,7 +346,7 @@ class ModuleImg_EntityImage extends Entity {
             $nDX = $nWidth - $this->GetWidth();
             $nDY = $nHeight - $this->GetHeight();
             if ($nDX || $nDY) {
-                if ($this->Img_GetDriver() == 'Imagick' && $this->IsMultiframe()) {
+                if (E::ModuleImg()->GetDriver() == 'Imagick' && $this->IsMultiframe()) {
                     $this->_canvasSizeMultiframe($nWidth, $nHeight, $nDX, $nDY);
                 } else {
                     $this->_canvasSizeOrdinary($nWidth, $nHeight, $nDX, $nDY);
@@ -407,7 +407,7 @@ class ModuleImg_EntityImage extends Entity {
             if ($sTmpFile = F::File_GetUploadDir() . F::RandomStr() . '.' . pathinfo($sFile, PATHINFO_EXTENSION)) {
                 if (F::File_CheckDir(dirname($sTmpFile))) {
                     $oImage->save($sTmpFile);
-                    if ($this->Uploader_Move($sTmpFile, $sFile)) {
+                    if (E::ModuleUploader()->Move($sTmpFile, $sFile)) {
                         return $sFile;
                     }
                 }
@@ -459,7 +459,7 @@ class ModuleImgConfig extends LsObject {
             } else {
                 $sConfigKey = 'default';
             }
-            $sDriver = $this->Img_GetDriver($sConfigKey);
+            $sDriver = E::ModuleImg()->GetDriver($sConfigKey);
             F::IncludeLib('PHPixie/Image/' . $sDriver . '.php');
             return $sDriver;
         }

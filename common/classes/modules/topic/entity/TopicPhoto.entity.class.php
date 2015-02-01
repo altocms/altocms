@@ -101,10 +101,10 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
                     if ($sModSuffix) {
                         $sResizedUrl = $sUrl . $sModSuffix;
                         if (Config::Get('module.image.autoresize')) {
-                            $sFile = $this->Uploader_Url2Dir($sResizedUrl);
+                            $sFile = E::ModuleUploader()->Url2Dir($sResizedUrl);
                             $this->setProp('_size-' . $xSize . '-file', $sFile);
                             if (!F::File_Exists($sFile)) {
-                                $this->Img_Duplicate($sFile);
+                                E::ModuleImg()->Duplicate($sFile);
                             }
                         }
                     }
@@ -125,7 +125,7 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
             $sFile = $this->getProp('_size-' . $sSize . '-file');
             if (!$sFile) {
                 $sUrl = $this->getUrl($sSize);
-                $sFile = $this->Uploader_Url2Dir($sUrl);
+                $sFile = E::ModuleUploader()->Url2Dir($sUrl);
                 $this->setProp('_size-' . $sSize . '-file', $sFile);
             }
             if ($sFile && F::File_Exists($sFile)) {
@@ -200,7 +200,7 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
         $oMresource = E::GetEntity('Mresource_MresourceRel');
         $oMresource->SetLink(false);
         $oMresource->SetType(ModuleMresource::TYPE_IMAGE | ModuleMresource::TYPE_PHOTO);
-        $oMresource->SetUrl($this->Mresource_NormalizeUrl($this->GetPath()));
+        $oMresource->SetUrl(E::ModuleMresource()->NormalizeUrl($this->GetPath()));
         return $oMresource;
     }
 

@@ -42,7 +42,7 @@ class ModuleWall extends Module {
     public function Init() {
 
         $this->oMapper = E::GetMapper(__CLASS__);
-        $this->oUserCurrent = $this->User_GetUserCurrent();
+        $this->oUserCurrent = E::ModuleUser()->GetUserCurrent();
     }
 
     /**
@@ -185,12 +185,12 @@ class ModuleWall extends Module {
 
         // * Получаем дополнительные данные
         $aUsers = (isset($aAllowData['user']) && is_array($aAllowData['user']))
-            ? $this->User_GetUsersAdditionalData($aUserId, $aAllowData['user'])
-            : $this->User_GetUsersAdditionalData($aUserId);
+            ? E::ModuleUser()->GetUsersAdditionalData($aUserId, $aAllowData['user'])
+            : E::ModuleUser()->GetUsersAdditionalData($aUserId);
 
         $aWallUsers = (isset($aAllowData['wall_user']) && is_array($aAllowData['wall_user']))
-            ? $this->User_GetUsersAdditionalData($aWallUserId, $aAllowData['wall_user'])
-            : $this->User_GetUsersAdditionalData($aWallUserId);
+            ? E::ModuleUser()->GetUsersAdditionalData($aWallUserId, $aAllowData['wall_user'])
+            : E::ModuleUser()->GetUsersAdditionalData($aWallUserId);
 
         $aWallReply = array();
         if (isset($aAllowData['reply']) && count($aWallReplyId)) {

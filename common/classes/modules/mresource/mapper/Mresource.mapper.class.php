@@ -397,7 +397,7 @@ class ModuleMresource_MapperMresource extends Mapper {
         }
         $aHash = array();
         foreach($aUrls as $sLink) {
-            $aHash[] = md5($this->Mresource_NormalizeUrl($sLink));
+            $aHash[] = md5(E::ModuleMresource()->NormalizeUrl($sLink));
         }
         return $this->GetMresourcesIdByHashUrl($aHash, $nUserId);
     }

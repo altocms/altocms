@@ -79,7 +79,7 @@ class ModuleBlog_EntityBlog extends Entity {
 
         $oBlogType = $this->getProp('blog_type_obj');
         if (!$oBlogType && ($sType = $this->getType())) {
-            $oBlogType = $this->Blog_GetBlogTypeByCode($sType);
+            $oBlogType = E::ModuleBlog()->GetBlogTypeByCode($sType);
         }
         return $oBlogType;
     }
@@ -179,7 +179,7 @@ class ModuleBlog_EntityBlog extends Entity {
     public function getAvatar() {
 
 //        return $this->getProp('blog_avatar');
-        return $this->Uploader_GetTargetImageUrl($this->getId(), 'blog_avatar');
+        return E::ModuleUploader()->GetTargetImageUrl($this->getId(), 'blog_avatar');
     }
 
     /**
@@ -222,10 +222,10 @@ class ModuleBlog_EntityBlog extends Entity {
      */
     public function getAvatarUrl($xSize = 48) {
 
-        if ($sUrl = $this->Uploader_GetTargetImageUrl($this->getId(), 'blog_avatar', $xSize)) {
+        if ($sUrl = E::ModuleUploader()->GetTargetImageUrl($this->getId(), 'blog_avatar', $xSize)) {
             return $sUrl;
         } else {
-            $sPath = $this->Uploader_GetUserAvatarDir(0) . 'avatar_blog_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '.png';
+            $sPath = E::ModuleUploader()->GetUserAvatarDir(0) . 'avatar_blog_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '.png';
             if ($xSize) {
                 if (is_string($xSize) && $xSize[0] == 'x') {
                     $xSize = substr($xSize, 1);
@@ -235,9 +235,9 @@ class ModuleBlog_EntityBlog extends Entity {
                 }
             }
             if (Config::Get('module.image.autoresize') && !F::File_Exists($sPath)) {
-                $this->Img_AutoresizeSkinImage($sPath, 'avatar_blog', $xSize ? $xSize : null);
+                E::ModuleImg()->AutoresizeSkinImage($sPath, 'avatar_blog', $xSize ? $xSize : null);
             }
-            return $this->Uploader_Dir2Url($sPath);
+            return E::ModuleUploader()->Dir2Url($sPath);
         }
 
     }
@@ -560,7 +560,7 @@ class ModuleBlog_EntityBlog extends Entity {
      */
     public function CanEditedBy($oUser) {
 
-        return $this->ACL_IsAllowEditBlog($this, $oUser);
+        return E::ModuleACL()->IsAllowEditBlog($this, $oUser);
     }
 
     /**
@@ -572,7 +572,7 @@ class ModuleBlog_EntityBlog extends Entity {
      */
     public function CanAdminBy($oUser) {
 
-        return $this->ACL_IsAllowAdminBlog($this, $oUser);
+        return E::ModuleACL()->IsAllowAdminBlog($this, $oUser);
     }
 
     /**
@@ -584,7 +584,7 @@ class ModuleBlog_EntityBlog extends Entity {
      */
     public function CanDeletedBy($oUser) {
 
-        return $this->ACL_IsAllowDeleteBlog($this, $oUser);
+        return E::ModuleACL()->IsAllowDeleteBlog($this, $oUser);
     }
 }
 

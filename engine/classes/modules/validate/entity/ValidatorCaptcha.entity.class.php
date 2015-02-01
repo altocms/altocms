@@ -40,7 +40,7 @@ class ModuleValidate_EntityValidatorCaptcha extends ModuleValidate_EntityValidat
             return true;
         }
         if (E::Captcha_Verify(mb_strtolower($sValue)) !== 0) {
-            return $this->getMessage($this->Lang_Get('validate_captcha_not_valid', null, false), 'msg');
+            return $this->getMessage(E::ModuleLang()->Get('validate_captcha_not_valid', null, false), 'msg');
         }
         return E::Captcha_Verify(mb_strtolower($sValue)) === 0;
     }

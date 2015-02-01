@@ -20,7 +20,7 @@ class PluginSimplerating_HookAdmin extends Hook {
 
     public function AdminMenuInject() {
 
-        return $this->Viewer_Fetch(Plugin::GetTemplatePath('simplerating') . '/tpls/inject.admin.menu.tpl');
+        return E::ModuleViewer()->Fetch(Plugin::GetTemplatePath('simplerating') . '/tpls/inject.admin.menu.tpl');
     }
 
 }

@@ -56,7 +56,7 @@ class ModuleCaptcha extends Module {
         if (!$sKeyName) {
             $sKeyName = $this->sKeyName;
         }
-        $this->Session_Set($sKeyName, $oCaptcha->getKeyString());
+        E::ModuleSession()->Set($sKeyName, $oCaptcha->getKeyString());
 
         return $oCaptcha;
     }

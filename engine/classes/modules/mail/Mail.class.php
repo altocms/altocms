@@ -18,11 +18,11 @@ F::IncludeLib('phpMailer/class.phpmailer.php');
 /**
  * Модуль для отправки почты(e-mail) через phpMailer
  * <pre>
- * $this->Mail_SetAdress('claus@mail.ru','Claus');
- * $this->Mail_SetSubject('Hi!');
- * $this->Mail_SetBody('How are you?');
- * $this->Mail_SetHTML();
- * $this->Mail_Send();
+ * E::ModuleMail()->SetAdress('claus@mail.ru','Claus');
+ * E::ModuleMail()->SetSubject('Hi!');
+ * E::ModuleMail()->SetBody('How are you?');
+ * E::ModuleMail()->SetHTML();
+ * E::ModuleMail()->Send();
  * </pre>
  *
  * @package engine.modules

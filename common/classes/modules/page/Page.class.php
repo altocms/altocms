@@ -46,7 +46,7 @@ class ModulePage extends Module {
         if ($sId = $this->oMapper->AddPage($oPage)) {
             $oPage->setId($sId);
             //чистим зависимые кеши
-            $this->Cache_Clean(
+            E::ModuleCache()->Clean(
                 Zend_Cache::CLEANING_MODE_MATCHING_TAG,
                 array('page_change', "page_change_{$oPage->getId()}", "page_change_urlfull_{$oPage->getUrlFull()}")
             );
@@ -66,7 +66,7 @@ class ModulePage extends Module {
 
         if ($this->oMapper->UpdatePage($oPage)) {
             //чистим зависимые кеши
-            $this->Cache_Clean(
+            E::ModuleCache()->Clean(
                 Zend_Cache::CLEANING_MODE_MATCHING_TAG,
                 array('page_change', "page_change_{$oPage->getId()}", "page_change_urlfull_{$oPage->getUrlFull()}")
             );
@@ -85,14 +85,14 @@ class ModulePage extends Module {
      */
     public function GetPageByUrlFull($sUrlFull, $iActive = 1) {
 
-        if (false === ($data = $this->Cache_Get("page_{$sUrlFull}_{$iActive}"))) {
+        if (false === ($data = E::ModuleCache()->Get("page_{$sUrlFull}_{$iActive}"))) {
             $data = $this->oMapper->GetPageByUrlFull($sUrlFull, $iActive);
             if ($data) {
-                $this->Cache_Set(
+                E::ModuleCache()->Set(
                     $data, "page_{$sUrlFull}_{$iActive}", array("page_change_{$data->getId()}"), 60 * 60 * 24 * 5
                 );
             } else {
-                $this->Cache_Set(
+                E::ModuleCache()->Set(
                     $data, "page_{$sUrlFull}_{$iActive}", array("page_change_urlfull_{$sUrlFull}"), 60 * 60 * 24 * 5
                 );
             }
@@ -211,7 +211,7 @@ class ModulePage extends Module {
                 $this->SetPagesPidToNull($aPages);
             }
             //чистим зависимые кеши
-            $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array('page_change', "page_change_{$nId}"));
+            E::ModuleCache()->Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array('page_change', "page_change_{$nId}"));
             return true;
         }
         return false;

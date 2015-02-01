@@ -17,8 +17,8 @@
  * Модуль Validate
  * Выполняет валидацию данных по определенным правилам. Поддерживает как обычную валидацию данных:
  * <pre>
- * if (!$this->Validate_Validate('url','http://livestreet.ru')) {
- *    var_dump($this->Validate_GetErrors());
+ * if (!E::ModuleValidate()->Validate('url','http://livestreet.ru')) {
+ *    var_dump(E::ModuleValidate()->GetErrors());
  * }
  * </pre>
  * так и валидацию данных сущности:

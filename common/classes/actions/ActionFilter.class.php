@@ -46,7 +46,7 @@ class ActionFilter extends Action {
      */
     public function Init() {
 
-        $this->oUserCurrent = $this->User_GetUserCurrent();
+        $this->oUserCurrent = E::ModuleUser()->GetUserCurrent();
 
 
     }
@@ -81,14 +81,14 @@ class ActionFilter extends Action {
         /*
          * Получаем тип контента
          */
-        if (!$this->oType = $this->Topic_GetContentType($this->sCurrentEvent)) {
+        if (!$this->oType = E::ModuleTopic()->GetContentType($this->sCurrentEvent)) {
             return parent::EventNotFound();
         }
 
         /**
          * Устанавливаем title страницы
          */
-        $this->Viewer_AddHtmlTitle($this->oType->getContentTitleDecl());
+        E::ModuleViewer()->AddHtmlTitle($this->oType->getContentTitleDecl());
         /**
          * Передан ли номер страницы
          */
@@ -96,22 +96,22 @@ class ActionFilter extends Action {
         /**
          * Получаем список топиков
          */
-        $aResult = $this->Topic_GetTopicsByType(
+        $aResult = E::ModuleTopic()->GetTopicsByType(
             $iPage, Config::Get('module.topic.per_page'), $this->oType->getContentUrl()
         );
         $aTopics = $aResult['collection'];
         /**
          * Формируем постраничность
          */
-        $aPaging = $this->Viewer_MakePaging(
+        $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
             R::GetPath('filter') . $this->sCurrentEvent
         );
         /**
          * Загружаем переменные в шаблон
          */
-        $this->Viewer_Assign('aPaging', $aPaging);
-        $this->Viewer_Assign('aTopics', $aTopics);
+        E::ModuleViewer()->Assign('aPaging', $aPaging);
+        E::ModuleViewer()->Assign('aTopics', $aTopics);
         $this->SetTemplateAction('index');
     }
 
@@ -120,9 +120,9 @@ class ActionFilter extends Action {
      *
      */
     public function EventShutdown() {
-        $this->Viewer_Assign('sMenuHeadItemSelect', $this->sMenuHeadItemSelect);
-        $this->Viewer_Assign('sMenuItemSelect', $this->sMenuItemSelect);
-        $this->Viewer_Assign('sMenuSubItemSelect', $this->sMenuSubItemSelect);
+        E::ModuleViewer()->Assign('sMenuHeadItemSelect', $this->sMenuHeadItemSelect);
+        E::ModuleViewer()->Assign('sMenuItemSelect', $this->sMenuItemSelect);
+        E::ModuleViewer()->Assign('sMenuSubItemSelect', $this->sMenuSubItemSelect);
     }
 }
 

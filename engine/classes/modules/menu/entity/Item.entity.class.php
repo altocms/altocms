@@ -131,11 +131,11 @@ class ModuleMenu_EntityItem extends Entity {
         }
 
         // Проверим по скину
-        if ($this->getOptions() && $this->getOptions()->getSkin() && $this->getOptions()->getSkin() != $this->Viewer_GetConfigSkin()) {
+        if ($this->getOptions() && $this->getOptions()->getSkin() && $this->getOptions()->getSkin() != E::ModuleViewer()->GetConfigSkin()) {
             return FALSE;
         } else {
             // Если шкурка совпала, то проверим по теме
-            if ($this->getOptions() && $this->getOptions()->getTheme() && $this->getOptions()->getTheme() != $this->Viewer_GetConfigTheme()) {
+            if ($this->getOptions() && $this->getOptions()->getTheme() && $this->getOptions()->getTheme() != E::ModuleViewer()->GetConfigTheme()) {
                 return FALSE;
             }
         }

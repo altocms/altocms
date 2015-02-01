@@ -34,9 +34,9 @@ abstract class Hook extends LsObject {
 
         if (is_null($sClassNameHook)) {
             $sCallBack = array($this, $sCallBack);
-            $this->Hook_AddExecFunction($sName, $sCallBack, $iPriority);
+            E::ModuleHook()->AddExecFunction($sName, $sCallBack, $iPriority);
         } else {
-            $this->Hook_AddExecHook($sName, $sCallBack, $iPriority, array('sClassName' => $sClassNameHook));
+            E::ModuleHook()->AddExecHook($sName, $sCallBack, $iPriority, array('sClassName' => $sClassNameHook));
         }
     }
 
@@ -46,7 +46,7 @@ abstract class Hook extends LsObject {
             $sName = 'template_' . $sName;
         }
         if (substr($sCallBack, -4) == '.tpl') {
-            $this->Hook_AddExecFunction($sName, array($this, 'FetchTemplate'), $iPriority, array('template' => $sCallBack));
+            E::ModuleHook()->AddExecFunction($sName, array($this, 'FetchTemplate'), $iPriority, array('template' => $sCallBack));
             return;
         }
         $this->AddHook($sName, $sCallBack, $sClassNameHook, $iPriority);
@@ -66,7 +66,7 @@ abstract class Hook extends LsObject {
         if (is_null($sClassNameHook)) {
             $sClassNameHook = get_class($this);
         }
-        $this->Hook_AddDelegateHook($sName, $sCallBack, $iPriority, array('sClassName' => $sClassNameHook));
+        E::ModuleHook()->AddDelegateHook($sName, $sCallBack, $iPriority, array('sClassName' => $sClassNameHook));
     }
 
     /**
@@ -84,7 +84,7 @@ abstract class Hook extends LsObject {
     public function FetchTemplate($aParams) {
 
         if (isset($aParams['template'])) {
-            return $this->Viewer_Fetch($aParams['template']);
+            return E::ModuleViewer()->Fetch($aParams['template']);
         }
     }
 

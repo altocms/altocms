@@ -61,25 +61,25 @@ class ActionTag extends Action {
         $iPage = $this->GetParamEventMatch(0, 2) ? $this->GetParamEventMatch(0, 2) : 1;
 
         // * Gets topics list
-        $aResult = $this->Topic_GetTopicsByTag($sTag, $iPage, Config::Get('module.topic.per_page'));
+        $aResult = E::ModuleTopic()->GetTopicsByTag($sTag, $iPage, Config::Get('module.topic.per_page'));
         $aTopics = $aResult['collection'];
 
         // * Calls hooks
-        $this->Hook_Run('topics_list_show', array('aTopics' => $aTopics));
+        E::ModuleHook()->Run('topics_list_show', array('aTopics' => $aTopics));
 
         // * Makes pages
-        $aPaging = $this->Viewer_MakePaging(
+        $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
             R::GetPath('tag') . htmlspecialchars($sTag)
         );
 
         // * Loads variables to template
-        $this->Viewer_Assign('aPaging', $aPaging);
-        $this->Viewer_Assign('aTopics', $aTopics);
-        $this->Viewer_Assign('sTag', $sTag);
-        $this->Viewer_AddHtmlTitle($this->Lang_Get('tag_title'));
-        $this->Viewer_AddHtmlTitle($sTag);
-        $this->Viewer_SetHtmlRssAlternate(R::GetPath('rss') . 'tag/' . $sTag . '/', $sTag);
+        E::ModuleViewer()->Assign('aPaging', $aPaging);
+        E::ModuleViewer()->Assign('aTopics', $aTopics);
+        E::ModuleViewer()->Assign('sTag', $sTag);
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('tag_title'));
+        E::ModuleViewer()->AddHtmlTitle($sTag);
+        E::ModuleViewer()->SetHtmlRssAlternate(R::GetPath('rss') . 'tag/' . $sTag . '/', $sTag);
 
         // * Sets template for display
         $this->SetTemplateAction('index');
@@ -93,7 +93,7 @@ class ActionTag extends Action {
         /**
          * Загружаем в шаблон необходимые переменные
          */
-        $this->Viewer_Assign('sMenuHeadItemSelect', $this->sMenuHeadItemSelect);
+        E::ModuleViewer()->Assign('sMenuHeadItemSelect', $this->sMenuHeadItemSelect);
     }
 }
 

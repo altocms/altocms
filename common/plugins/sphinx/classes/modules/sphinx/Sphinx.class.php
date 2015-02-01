@@ -95,7 +95,7 @@ class PluginSphinx_ModuleSphinx extends Module {
         $sExtraFilters = serialize($aExtraFilters);
         $cacheKey = Config::Get('plugin.sphinx.prefix')
             . "searchResult_{$sObjType}_{$sQuery}_{$iOffset}_{$iLimit}_{$sExtraFilters}";
-        if (false === ($data = $this->Cache_Get($cacheKey))) {
+        if (false === ($data = E::ModuleCache()->Get($cacheKey))) {
 
             // * Параметры поиска
             $this->oSphinx->SetMatchMode(SPH_MATCH_ALL);
@@ -135,7 +135,7 @@ class PluginSphinx_ModuleSphinx extends Module {
              * хотя тут момент спорный
              */
             if ($data['total'] > 0) {
-                $this->Cache_Set($data, $cacheKey, array(), 60 * 15);
+                E::ModuleCache()->Set($data, $cacheKey, array(), 60 * 15);
             }
         }
         return $data;

@@ -26,7 +26,7 @@ class CronNotify extends Cron {
      */
     public function Client() {
 
-        $aNotifyTasks = $this->Notify_GetTasksDelayed(Config::Get('module.notify.per_process'));
+        $aNotifyTasks = E::ModuleNotify()->GetTasksDelayed(Config::Get('module.notify.per_process'));
 
         if (empty($aNotifyTasks)) {
             $this->Log('No tasks are found.');
@@ -36,13 +36,13 @@ class CronNotify extends Cron {
         // * Последовательно загружаем задания на отправку
         $aArrayId = array();
         foreach ($aNotifyTasks as $oTask) {
-            $this->Notify_SendTask($oTask);
+            E::ModuleNotify()->SendTask($oTask);
             $aArrayId[] = $oTask->getTaskId();
         }
         $this->Log('Send notify: ' . count($aArrayId));
 
         // * Удаляем отработанные задания
-        $this->Notify_DeleteTaskByArrayId($aArrayId);
+        E::ModuleNotify()->DeleteTaskByArrayId($aArrayId);
     }
 }
 

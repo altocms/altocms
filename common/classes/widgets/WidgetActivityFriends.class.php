@@ -27,11 +27,11 @@ class WidgetActivityFriends extends Widget {
         /**
          * пользователь авторизован?
          */
-        if ($oUserCurrent = $this->User_GetUserCurrent()) {
+        if ($oUserCurrent = E::ModuleUser()->GetUserCurrent()) {
             // * Получаем и прогружаем необходимые переменные в шаблон
-            $aFriends = $this->User_GetUsersFriend($oUserCurrent->getId());
+            $aFriends = E::ModuleUser()->GetUsersFriend($oUserCurrent->getId());
             if ($aFriends) {
-                $this->Viewer_Assign('aStreamFriends', $aFriends['collection']);
+                E::ModuleViewer()->Assign('aStreamFriends', $aFriends['collection']);
             }
         }
     }

@@ -46,15 +46,15 @@ class PluginSimplerating_ModuleRating extends PluginSimplerating_Inherit_ModuleR
         /**
          * Начисляем рейтинг автору комментария
          */
-        $oUserComment = $this->User_GetUserById($oComment->getUserId());
+        $oUserComment = E::ModuleUser()->GetUserById($oComment->getUserId());
         $oUserComment->setRating((float)$oUserComment->getRating() + (float)C::Get('plugin.simplerating.comment_user_add'));
-        $this->User_Update($oUserComment);
+        E::ModuleUser()->Update($oUserComment);
         /**
          * Убавляем рейтинг голосующего, если нужно
          */
         if (C::Get('plugin.simplerating.comment_user_remove')) {
             $oUser->setRating((float)$oUser->getRating() + (float)C::Get('plugin.simplerating.comment_user_remove'));
-            $this->User_Update($oUser);
+            E::ModuleUser()->Update($oUser);
         }
 
         return $iValue;
@@ -78,15 +78,15 @@ class PluginSimplerating_ModuleRating extends PluginSimplerating_Inherit_ModuleR
         /**
          * Устанавливаем рейтинг автора
          */
-        $oUserTopic = $this->User_GetUserById($oTopic->getUserId());
+        $oUserTopic = E::ModuleUser()->GetUserById($oTopic->getUserId());
         $oUserTopic->setRating((float)$oUserTopic->getRating() + (float)C::Get('plugin.simplerating.topic_user_add'));
-        $this->User_Update($oUserTopic);
+        E::ModuleUser()->Update($oUserTopic);
         /**
          * Убавляем рейтинг голосующего, если нужно
          */
         if (C::Get('plugin.simplerating.topic_user_remove')) {
             $oUser->setRating((float)$oUser->getRating() + (float)C::Get('plugin.simplerating.topic_user_remove'));
-            $this->User_Update($oUser);
+            E::ModuleUser()->Update($oUser);
         }
 
 
@@ -113,7 +113,7 @@ class PluginSimplerating_ModuleRating extends PluginSimplerating_Inherit_ModuleR
          */
         if (C::Get('plugin.simplerating.blog_user_remove')) {
             $oUser->setRating((float)$oUser->getRating() + (float)C::Get('plugin.simplerating.blog_user_remove'));
-            $this->User_Update($oUser);
+            E::ModuleUser()->Update($oUser);
         }
 
 
@@ -140,7 +140,7 @@ class PluginSimplerating_ModuleRating extends PluginSimplerating_Inherit_ModuleR
          */
         if (C::Get('plugin.simplerating.user_remove')) {
             $oUser->setRating((float)$oUser->getRating() + (float)C::Get('plugin.simplerating.user_remove'));
-            $this->User_Update($oUser);
+            E::ModuleUser()->Update($oUser);
         }
 
         return (float)C::Get('plugin.simplerating.user_add');
@@ -158,7 +158,7 @@ class PluginSimplerating_ModuleRating extends PluginSimplerating_Inherit_ModuleR
         /*
          * Получаем статистику
          */
-        $aBlogStat = $this->Blog_GetBlogsData(array('personal'));
+        $aBlogStat = E::ModuleBlog()->GetBlogsData(array('personal'));
 
         foreach ($aBlogStat as $oBlog) {
 
@@ -174,7 +174,7 @@ class PluginSimplerating_ModuleRating extends PluginSimplerating_Inherit_ModuleR
             $fRating = $fRating + Config::Get('module.rating.blog.count_topic') * $oBlog->getCountTopic();
 
             $oBlog->setRating($fRating);
-            $this->Blog_UpdateBlog($oBlog);
+            E::ModuleBlog()->UpdateBlog($oBlog);
 
         }
 

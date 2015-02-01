@@ -67,11 +67,11 @@ class PluginRating_ModuleRating extends PluginRating_Inherit_ModuleRating {
         /**
          * Сохраняем силу
          */
-        $oUserComment = $this->User_GetUserById($oComment->getUserId());
+        $oUserComment = E::ModuleUser()->GetUserById($oComment->getUserId());
         $iSkillNew = $oUserComment->getSkill() + $iValue * $iDelta;
         $iSkillNew = ($iSkillNew < 0) ? 0 : $iSkillNew;
         $oUserComment->setSkill($iSkillNew);
-        $this->User_Update($oUserComment);
+        E::ModuleUser()->Update($oUserComment);
         return $iValue;
     }
 
@@ -122,12 +122,12 @@ class PluginRating_ModuleRating extends PluginRating_Inherit_ModuleRating {
         /**
          * Сохраняем силу и рейтинг
          */
-        $oUserTopic = $this->User_GetUserById($oTopic->getUserId());
+        $oUserTopic = E::ModuleUser()->GetUserById($oTopic->getUserId());
         $iSkillNew = $oUserTopic->getSkill() + $iValue * $iDelta;
         $iSkillNew = ($iSkillNew < 0) ? 0 : $iSkillNew;
         $oUserTopic->setSkill($iSkillNew);
         $oUserTopic->setRating($oUserTopic->getRating() + $iValue * $iDelta / C::Get('plugin.rating.topic_auth_coef'));//2.73
-        $this->User_Update($oUserTopic);
+        E::ModuleUser()->Update($oUserTopic);
         return $iDeltaRating;
     }
 
@@ -219,7 +219,7 @@ class PluginRating_ModuleRating extends PluginRating_Inherit_ModuleRating {
         /*
          * Получаем статистику
          */
-        $aBlogStat = $this->Blog_GetBlogsData(array('personal'));
+        $aBlogStat = E::ModuleBlog()->GetBlogsData(array('personal'));
 
         foreach ($aBlogStat as $oBlog) {
 
@@ -235,7 +235,7 @@ class PluginRating_ModuleRating extends PluginRating_Inherit_ModuleRating {
             $fRating = $fRating + Config::Get('module.rating.blog.count_topic') * $oBlog->getCountTopic();
 
             $oBlog->setRating($fRating);
-            $this->Blog_UpdateBlog($oBlog);
+            E::ModuleBlog()->UpdateBlog($oBlog);
 
         }
 

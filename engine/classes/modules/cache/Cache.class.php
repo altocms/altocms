@@ -40,11 +40,11 @@ define('SYS_CACHE_TYPE_XCACHE', 'xcache');
  *    // Получает пользователя по его логину
  *    public function GetUserByLogin($sLogin) {
  *        // Пытаемся получить значение из кеша
- *        if (false === ($oUser = $this->Cache_Get("user_login_{$sLogin}"))) {
+ *        if (false === ($oUser = E::ModuleCache()->Get("user_login_{$sLogin}"))) {
  *            // Если значение из кеша получить не удалось, то обращаемся к базе данных
  *            $oUser = $this->oMapper->GetUserByLogin($sLogin);
  *            // Записываем значение в кеш
- *            $this->Cache_Set($oUser, "user_login_{$sLogin}", array(), 60*60*24*5);
+ *            E::ModuleCache()->Set($oUser, "user_login_{$sLogin}", array(), 60*60*24*5);
  *        }
  *        return $oUser;
  *    }
@@ -52,9 +52,9 @@ define('SYS_CACHE_TYPE_XCACHE', 'xcache');
  *    // Обновляет пользовател в БД
  *    public function UpdateUser($oUser) {
  *        // Удаляем кеш конкретного пользователя
- *        $this->Cache_Delete("user_login_{$oUser->getLogin()}");
+ *        E::ModuleCache()->Delete("user_login_{$oUser->getLogin()}");
  *        // Удалем кеш со списком всех пользователей
- *        $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG,array('user_update'));
+ *        E::ModuleCache()->Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG,array('user_update'));
  *        // Обновлем пользовател в базе данных
  *        return $this->oMapper->UpdateUser($oUser);
  *    }
@@ -62,11 +62,11 @@ define('SYS_CACHE_TYPE_XCACHE', 'xcache');
  *    // Получает список всех пользователей
  *    public function GetUsers() {
  *        // Пытаемся получить значение из кеша
- *        if (false === ($aUserList = $this->Cache_Get("users"))) {
+ *        if (false === ($aUserList = E::ModuleCache()->Get("users"))) {
  *            // Если значение из кеша получить не удалось, то обращаемся к базе данных
  *            $aUserList = $this->oMapper->GetUsers();
  *            // Записываем значение в кеш
- *            $this->Cache_Set($aUserList, "users", array('user_update'), 60*60*24*5);
+ *            E::ModuleCache()->Set($aUserList, "users", array('user_update'), 60*60*24*5);
  *        }
  *        return $aUserList;
  *    }

@@ -241,8 +241,8 @@ class ModuleStream extends Module {
     public function Read($iCount = null, $iFromId = null, $iUserId = null) {
 
         if (!$iUserId) {
-            if ($this->User_GetUserCurrent()) {
-                $iUserId = $this->User_GetUserCurrent()->getId();
+            if (E::ModuleUser()->GetUserCurrent()) {
+                $iUserId = E::ModuleUser()->GetUserCurrent()->getId();
             } else {
                 return array();
             }
@@ -488,7 +488,7 @@ class ModuleStream extends Module {
 
         $aIds = $this->oMapper->getUserSubscribes($iUserId);
         if ($aIds) {
-            return $this->User_GetUsersAdditionalData($aIds);
+            return E::ModuleUser()->GetUsersAdditionalData($aIds);
         }
         return array();
     }
@@ -565,7 +565,7 @@ class ModuleStream extends Module {
      */
     protected function loadRelatedWall($aIds) {
 
-        return $this->Wall_GetWallAdditionalData($aIds);
+        return E::ModuleWall()->GetWallAdditionalData($aIds);
     }
 
     /**
@@ -577,7 +577,7 @@ class ModuleStream extends Module {
      */
     protected function loadRelatedTopic($aIds) {
 
-        return $this->Topic_GetTopicsAdditionalData($aIds);
+        return E::ModuleTopic()->GetTopicsAdditionalData($aIds);
     }
 
     /**
@@ -589,7 +589,7 @@ class ModuleStream extends Module {
      */
     protected function loadRelatedBlog($aIds) {
 
-        return $this->Blog_GetBlogsAdditionalData($aIds);
+        return E::ModuleBlog()->GetBlogsAdditionalData($aIds);
     }
 
     /**
@@ -601,7 +601,7 @@ class ModuleStream extends Module {
      */
     protected function loadRelatedComment($aIds) {
 
-        return $this->Comment_GetCommentsAdditionalData($aIds);
+        return E::ModuleComment()->GetCommentsAdditionalData($aIds);
 
     }
 
@@ -614,7 +614,7 @@ class ModuleStream extends Module {
      */
     protected function loadRelatedUser($aIds) {
 
-        return $this->User_GetUsersAdditionalData($aIds);
+        return E::ModuleUser()->GetUsersAdditionalData($aIds);
     }
 }
 

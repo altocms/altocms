@@ -30,7 +30,7 @@ class ActionT extends Action {
 
     public function EventIndex() {
         if ($nTopicId = intval($this->sCurrentEvent)) {
-            $oTopic = $this->Topic_GetTopicById($nTopicId);
+            $oTopic = E::ModuleTopic()->GetTopicById($nTopicId);
             if ($oTopic) {
                 F::HttpRedirect($oTopic->getUrl());
                 exit;

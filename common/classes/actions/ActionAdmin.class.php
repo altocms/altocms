@@ -35,8 +35,8 @@ class ActionAdmin extends Action {
      */
     public function Init() {
 
-        if ($this->User_IsAuthorization()) {
-            $this->oUserCurrent = $this->User_GetUserCurrent();
+        if (E::ModuleUser()->IsAuthorization()) {
+            $this->oUserCurrent = E::ModuleUser()->GetUserCurrent();
         }
 
         /**
@@ -127,7 +127,7 @@ class ActionAdmin extends Action {
     protected function _getMode($nParam = 0, $sDefault, $aAvail = null) {
 
         $sKey = R::GetAction() . '.' . R::GetActionEvent() . '.' . $nParam;
-        $sMode = $this->GetParam($nParam, $this->Session_Get($sKey, $sDefault));
+        $sMode = $this->GetParam($nParam, E::ModuleSession()->Get($sKey, $sDefault));
         if (!is_null($aAvail) && !is_array($aAvail)) $aAvail = array($aAvail);
         if (is_null($aAvail) || ($sMode && in_array($sMode, $aAvail))) {
             $this->_saveMode(0, $sMode);
@@ -138,7 +138,7 @@ class ActionAdmin extends Action {
     protected function _saveMode($nParam = 0, $sData) {
 
         $sKey = R::GetAction() . '.' . R::GetActionEvent() . '.' . $nParam;
-        $this->Session_Set($sKey, $sData);
+        E::ModuleSession()->Set($sKey, $sData);
     }
 
     protected function _getPageNum($nNumParam = null) {
@@ -166,13 +166,13 @@ class ActionAdmin extends Action {
                 'name' => 'admin_dashboard_updates',
                 'key' => 'admin.dashboard.updates',
                 'status' => Config::Val('admin.dashboard.updates', true),
-                'label' => $this->Lang_Get('action.admin.dashboard_updates_title')
+                'label' => E::ModuleLang()->Get('action.admin.dashboard_updates_title')
             ),
             'admin_dashboard_news' => array(
                 'name' => 'admin_dashboard_news',
                 'key' => 'admin.dashboard.news',
                 'status' => Config::Val('admin.dashboard.news', true),
-                'label' => $this->Lang_Get('action.admin.dashboard_news_title')
+                'label' => E::ModuleLang()->Get('action.admin.dashboard_news_title')
             ),
         );
 
@@ -189,44 +189,44 @@ class ActionAdmin extends Action {
             Config::WriteCustomConfig($aConfig);
             R::Location('admin');
         }
-        $this->_setTitle($this->Lang_Get('action.admin.menu_info_dashboard'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.menu_info_dashboard'));
         $this->SetTemplateAction('info/index');
 
         $this->sMenuItem = $this->_getMode(0, 'index');
 
-        $aData = array('e-alto' => ALTO_VERSION, 'e-uniq' => $this->Security_GetUniqKey());
-        $aPlugins = $this->Plugin_GetPluginsList(true);
+        $aData = array('e-alto' => ALTO_VERSION, 'e-uniq' => E::ModuleSecurity()->GetUniqKey());
+        $aPlugins = E::ModulePlugin()->GetPluginsList(true);
         foreach ($aPlugins as $oPlugin) {
             $aData['p-' . $oPlugin->GetId()] = $oPlugin->GetVersion();
         }
-        $aSkins = $this->Skin_GetSkinsList();
+        $aSkins = E::ModuleSkin()->GetSkinsList();
         foreach ($aSkins as $oSkin) {
             $aData['s-' . $oSkin->GetId()] = $oSkin->GetVersion();
         }
 
-        $this->Viewer_Assign('sUpdatesRequest', base64_encode(http_build_query($aData)));
-        $this->Viewer_Assign('sUpdatesRefresh', true);
-        $this->Viewer_Assign('aDashboardWidgets', $aDashboardWidgets);
+        E::ModuleViewer()->Assign('sUpdatesRequest', base64_encode(http_build_query($aData)));
+        E::ModuleViewer()->Assign('sUpdatesRefresh', true);
+        E::ModuleViewer()->Assign('aDashboardWidgets', $aDashboardWidgets);
     }
 
     public function EventReport() {
 
         $this->sMainMenuItem = 'info';
 
-        $this->_setTitle($this->Lang_Get('action.admin.menu_info'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.menu_info'));
         $this->SetTemplateAction('info/report');
 
         if ($sReportMode = F::GetRequest('report', null, 'post')) {
             $this->_EventReportOut($this->_getInfoData(), $sReportMode);
         }
 
-        $this->Viewer_Assign('aInfoData', $this->_getInfoData());
+        E::ModuleViewer()->Assign('aInfoData', $this->_getInfoData());
     }
 
     protected function _getInfoData() {
 
-        $aPlugins = $this->Plugin_GetList(null, false);
-        $aActivePlugins = $this->Plugin_GetActivePlugins();
+        $aPlugins = E::ModulePlugin()->GetList(null, false);
+        $aActivePlugins = E::ModulePlugin()->GetActivePlugins();
         $aPluginList = array();
         foreach ($aActivePlugins as $sPlugin) {
             if (isset($aPlugins[$sPlugin])) {
@@ -248,10 +248,10 @@ class ActionAdmin extends Action {
             }
         }
 
-        $aSiteStat = $this->Admin_GetSiteStat();
-        $sSmartyVersion = $this->Viewer_GetSmartyVersion();
+        $aSiteStat = E::ModuleAdmin()->GetSiteStat();
+        $sSmartyVersion = E::ModuleViewer()->GetSmartyVersion();
 
-        $aImgSupport = $this->Img_GetDriversInfo();
+        $aImgSupport = E::ModuleImg()->GetDriversInfo();
         $sImgSupport = '';
         if ($aImgSupport) {
             foreach ($aImgSupport as $sDriver => $sVersion) {
@@ -266,35 +266,35 @@ class ActionAdmin extends Action {
 
         $aInfo = array(
             'versions' => array(
-                'label' => $this->Lang_Get('action.admin.info_versions'),
+                'label' => E::ModuleLang()->Get('action.admin.info_versions'),
                 'data' => array(
-                    'php' => array('label' => $this->Lang_Get('action.admin.info_version_php'), 'value' => PHP_VERSION,),
-                    'img' => array('label' => $this->Lang_Get('action.admin.info_version_img'), 'value' => $sImgSupport,),
-                    'smarty' => array('label' => $this->Lang_Get('action.admin.info_version_smarty'), 'value' => $sSmartyVersion ? $sSmartyVersion : 'n/a',),
-                    'alto' => array('label' => $this->Lang_Get('action.admin.info_version_alto'), 'value' => ALTO_VERSION,),
+                    'php' => array('label' => E::ModuleLang()->Get('action.admin.info_version_php'), 'value' => PHP_VERSION,),
+                    'img' => array('label' => E::ModuleLang()->Get('action.admin.info_version_img'), 'value' => $sImgSupport,),
+                    'smarty' => array('label' => E::ModuleLang()->Get('action.admin.info_version_smarty'), 'value' => $sSmartyVersion ? $sSmartyVersion : 'n/a',),
+                    'alto' => array('label' => E::ModuleLang()->Get('action.admin.info_version_alto'), 'value' => ALTO_VERSION,),
                 )
 
             ),
             'site' => array(
-                'label' => $this->Lang_Get('action.admin.site_info'),
+                'label' => E::ModuleLang()->Get('action.admin.site_info'),
                 'data' => array(
-                    'url' => array('label' => $this->Lang_Get('action.admin.info_site_url'), 'value' => Config::Get('path.root.url'),),
-                    'skin' => array('label' => $this->Lang_Get('action.admin.info_site_skin'), 'value' => Config::Get('view.skin', Config::LEVEL_CUSTOM),),
-                    'client' => array('label' => $this->Lang_Get('action.admin.info_site_client'), 'value' => $_SERVER['HTTP_USER_AGENT'],),
+                    'url' => array('label' => E::ModuleLang()->Get('action.admin.info_site_url'), 'value' => Config::Get('path.root.url'),),
+                    'skin' => array('label' => E::ModuleLang()->Get('action.admin.info_site_skin'), 'value' => Config::Get('view.skin', Config::LEVEL_CUSTOM),),
+                    'client' => array('label' => E::ModuleLang()->Get('action.admin.info_site_client'), 'value' => $_SERVER['HTTP_USER_AGENT'],),
                     'empty' => array('label' => '', 'value' => '',),
                 ),
             ),
             'plugins' => array(
-                'label' => $this->Lang_Get('action.admin.active_plugins'),
+                'label' => E::ModuleLang()->Get('action.admin.active_plugins'),
                 'data' => $aPluginList,
             ),
             'stats' => array(
-                'label' => $this->Lang_Get('action.admin.site_statistics'),
+                'label' => E::ModuleLang()->Get('action.admin.site_statistics'),
                 'data' => array(
-                    'users' => array('label' => $this->Lang_Get('action.admin.site_stat_users'), 'value' => $aSiteStat['users'],),
-                    'blogs' => array('label' => $this->Lang_Get('action.admin.site_stat_blogs'), 'value' => $aSiteStat['blogs'],),
-                    'topics' => array('label' => $this->Lang_Get('action.admin.site_stat_topics'), 'value' => $aSiteStat['topics'],),
-                    'comments' => array('label' => $this->Lang_Get('action.admin.site_stat_comments'), 'value' => $aSiteStat['comments'],),
+                    'users' => array('label' => E::ModuleLang()->Get('action.admin.site_stat_users'), 'value' => $aSiteStat['users'],),
+                    'blogs' => array('label' => E::ModuleLang()->Get('action.admin.site_stat_blogs'), 'value' => $aSiteStat['blogs'],),
+                    'topics' => array('label' => E::ModuleLang()->Get('action.admin.site_stat_topics'), 'value' => $aSiteStat['topics'],),
+                    'comments' => array('label' => E::ModuleLang()->Get('action.admin.site_stat_comments'), 'value' => $aSiteStat['comments'],),
                 ),
             ),
         );
@@ -304,7 +304,7 @@ class ActionAdmin extends Action {
 
     protected function _EventReportOut($aInfo, $sMode = 'txt') {
 
-        $this->Security_ValidateSendForm();
+        E::ModuleSecurity()->ValidateSendForm();
         $sMode = strtolower($sMode);
         $aParams = array(
             'filename' => $sFileName = str_replace(array('.', '/'), '_', str_replace(array('http://', 'https://'), '', Config::Get('path.root.url'))) . '.' . $sMode,
@@ -383,7 +383,7 @@ class ActionAdmin extends Action {
 
         $this->sMainMenuItem = 'info';
 
-        $this->_setTitle($this->Lang_Get('action.admin.menu_info_phpinfo'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.menu_info_phpinfo'));
         $this->SetTemplateAction('info/phpinfo');
 
         $this->_phpInfo(1);
@@ -425,7 +425,7 @@ class ActionAdmin extends Action {
                     $aPhpInfo[$n][$m[1]] = (!isset($m[3]) || $m[2] == $m[3]) ? $m[2] : array_slice($m, 2);
                 }
             }
-            $this->Viewer_Assign('aPhpInfo', array('collection' => $aPhpInfo, 'count' => sizeof($aPhpInfo)));
+            E::ModuleViewer()->Assign('aPhpInfo', array('collection' => $aPhpInfo, 'count' => sizeof($aPhpInfo)));
         } else {
             ob_start();
             phpinfo();
@@ -436,7 +436,7 @@ class ActionAdmin extends Action {
             if (preg_match('|<style\s*[\w="/]*>(.*)<\/style>|imu', $phpinfo, $match)) $info .= $match[0];
             if (preg_match('|<body\s*[\w="/]*>(.*)<\/body>|imu', $phpinfo, $match)) $info .= $match[1];
             if (!$info) $info = $phpinfo;
-            $this->Viewer_Assign('sPhpInfo', $info);
+            E::ModuleViewer()->Assign('sPhpInfo', $info);
         }
     }
 
@@ -449,7 +449,7 @@ class ActionAdmin extends Action {
 
         $this->sMainMenuItem = 'settings';
 
-        $this->_setTitle($this->Lang_Get('action.admin.config_title'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.config_title'));
 
         $sMode = $this->_getMode(0, 'base');
 
@@ -460,7 +460,7 @@ class ActionAdmin extends Action {
         } else {
             $this->_eventConfigParams($sMode);
         }
-        $this->Viewer_Assign('sMode', $sMode);
+        E::ModuleViewer()->Assign('sMode', $sMode);
     }
 
     /**
@@ -475,8 +475,8 @@ class ActionAdmin extends Action {
         $aFields = F::IncludeFile(Config::Get('path.dir.config') . 'actions/admin.settings.php', false, true);
         foreach ($aFields as $nSec => $aSection) {
             foreach ($aSection as $nKey => $aItem) {
-                $aItem['text'] = $this->Lang_Get($aItem['label']);
-                if (isset($aItem['help'])) $aItem['help'] = $this->Lang_Get($aItem['help']);
+                $aItem['text'] = E::ModuleLang()->Get($aItem['label']);
+                if (isset($aItem['help'])) $aItem['help'] = E::ModuleLang()->Get($aItem['help']);
                 if (isset($aItem['config'])) {
                     $aItem['value'] = Config::Get($aItem['config'], Config::LEVEL_CUSTOM);
                     $aItem['config'] = str_replace('.', '--', $aItem['config']);
@@ -497,7 +497,7 @@ class ActionAdmin extends Action {
             $sSelectedSection = F::Array_FirstKey($aFields);
             $this->_saveMode(0, $sSelectedSection);
         }
-        $this->Viewer_Assign('aFields', $aFields[$sSelectedSection]);
+        E::ModuleViewer()->Assign('aFields', $aFields[$sSelectedSection]);
     }
 
     /**
@@ -558,13 +558,13 @@ class ActionAdmin extends Action {
         }
         if ($this->GetPost('adm_cmd') == 'generate_topics_url') {
             // Генерация URL топиков
-            $nRest = $this->Admin_GenerateTopicsUrl();
+            $nRest = E::ModuleAdmin()->GenerateTopicsUrl();
             if ($nRest > 0) {
-                $this->Message_AddNotice($this->Lang_Get('action.admin.set_links_generate_next', array('num' => $nRest)), null, true);
+                E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('action.admin.set_links_generate_next', array('num' => $nRest)), null, true);
             } elseif ($nRest < 0) {
-                $this->Message_AddNotice($this->Lang_Get('action.admin.set_links_generate_done'), null, true);
+                E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('action.admin.set_links_generate_done'), null, true);
             } else {
-                $this->Message_AddNotice($this->Lang_Get('action.admin.set_links_generate_done'), null, true);
+                E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('action.admin.set_links_generate_done'), null, true);
             }
             R::Location('admin/settings-site/links/');
         }
@@ -572,7 +572,7 @@ class ActionAdmin extends Action {
         $sHomePage = Config::Get('router.config.homepage');
         $sHomePageSelect = Config::Get('router.config.homepage_select');
 
-        $aPages = $this->Page_GetPages();
+        $aPages = E::ModulePage()->GetPages();
         $sHomePageUrl = '';
         if (!$sHomePage || $sHomePage == 'index') {
             $sHomePageSelect = 'index';
@@ -606,12 +606,12 @@ class ActionAdmin extends Action {
             $sPermalinkMode = 'custom';
         }
 
-        $this->Viewer_Assign('sHomePageSelect', $sHomePageSelect);
-        $this->Viewer_Assign('sHomePageUrl', $sHomePageUrl);
-        $this->Viewer_Assign('aPages', $aPages);
-        $this->Viewer_Assign('sPermalinkMode', $sPermalinkMode);
-        $this->Viewer_Assign('sPermalinkUrl', $sPermalinkUrl);
-        $this->Viewer_Assign('nTopicsWithoutUrl', $this->Admin_GetNumTopicsWithoutUrl());
+        E::ModuleViewer()->Assign('sHomePageSelect', $sHomePageSelect);
+        E::ModuleViewer()->Assign('sHomePageUrl', $sHomePageUrl);
+        E::ModuleViewer()->Assign('aPages', $aPages);
+        E::ModuleViewer()->Assign('sPermalinkMode', $sPermalinkMode);
+        E::ModuleViewer()->Assign('sPermalinkUrl', $sPermalinkUrl);
+        E::ModuleViewer()->Assign('nTopicsWithoutUrl', E::ModuleAdmin()->GetNumTopicsWithoutUrl());
     }
 
     /**
@@ -696,9 +696,9 @@ class ActionAdmin extends Action {
         } else {
             $sCommentEditUnit = $aUnits['S']['name'];
         }
-        $this->Viewer_Assign('nCommentEditTime', $nCommentEditTime);
-        $this->Viewer_Assign('sCommentEditUnit', $sCommentEditUnit);
-        $this->Viewer_Assign('aTimeUnits', $aUnits);
+        E::ModuleViewer()->Assign('nCommentEditTime', $nCommentEditTime);
+        E::ModuleViewer()->Assign('sCommentEditUnit', $sCommentEditUnit);
+        E::ModuleViewer()->Assign('aTimeUnits', $aUnits);
     }
 
     /**
@@ -738,11 +738,11 @@ class ActionAdmin extends Action {
 
         $this->sMainMenuItem = 'site';
 
-        $this->_setTitle($this->Lang_Get('action.admin.widgets_title'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.widgets_title'));
         $this->SetTemplateAction('site/widgets');
 
         $sMode = $this->GetParam(0);
-        $aWidgets = $this->Widget_GetWidgets(true);
+        $aWidgets = E::ModuleWidget()->GetWidgets(true);
 
         if ($sMode == 'edit') {
             $sWidgetId = $this->GetParam(1);
@@ -757,7 +757,7 @@ class ActionAdmin extends Action {
                 $this->_eventWidgetsDeactivate($aWidgets);
             }
         }
-        $this->Viewer_Assign('aWidgetsList', $aWidgets);
+        E::ModuleViewer()->Assign('aWidgetsList', $aWidgets);
     }
 
     public function _eventWidgetsEdit($oWidget) {
@@ -789,9 +789,9 @@ class ActionAdmin extends Action {
             Config::WriteCustomConfig($aConfig);
             R::Location('admin/site-widgets');
         }
-        $this->_setTitle($this->Lang_Get('action.admin.widget_edit_title'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.widget_edit_title'));
         $this->SetTemplateAction('site/widgets_add');
-        $this->Viewer_Assign('oWidget', $oWidget);
+        E::ModuleViewer()->Assign('oWidget', $oWidget);
     }
 
     public function _eventWidgetsActivate($aWidgets) {
@@ -826,7 +826,7 @@ class ActionAdmin extends Action {
 
         $this->sMainMenuItem = 'site';
 
-        $this->_setTitle($this->Lang_Get('action.admin.plugins_title'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.plugins_title'));
         $this->SetTemplateAction('site/plugins');
 
         if ($this->GetParam(0) == 'add') {
@@ -838,7 +838,7 @@ class ActionAdmin extends Action {
         } else {
             $sParam = $this->GetParam(0, 'list');
             if ($sParam != 'list') {
-                $aPlugins = $this->Plugin_GetActivePlugins();
+                $aPlugins = E::ModulePlugin()->GetActivePlugins();
                 if (in_array($sParam, $aPlugins)) {
                     return $this->_EventPluginsExternalAdmin(0);
                 }
@@ -887,15 +887,15 @@ class ActionAdmin extends Action {
         $sMode = $this->GetParam(1, 'all');
 
         if ($sMode == 'active') {
-            $aPlugins = $this->Plugin_GetPluginsList(true);
+            $aPlugins = E::ModulePlugin()->GetPluginsList(true);
         } elseif ($sMode == 'inactive') {
-            $aPlugins = $this->Plugin_GetPluginsList(false);
+            $aPlugins = E::ModulePlugin()->GetPluginsList(false);
         } else {
-            $aPlugins = $this->Plugin_GetPluginsList();
+            $aPlugins = E::ModulePlugin()->GetPluginsList();
         }
 
-        $this->Viewer_Assign('aPluginList', $aPlugins);
-        $this->Viewer_Assign('sMode', $sMode);
+        E::ModuleViewer()->Assign('aPluginList', $aPlugins);
+        E::ModuleViewer()->Assign('sMode', $sMode);
     }
 
     protected function _eventPluginsActivate($aPlugins) {
@@ -906,7 +906,7 @@ class ActionAdmin extends Action {
         } else {
             $sPluginId = (string)$aPlugins;
         }
-        return $this->Plugin_Activate($sPluginId);
+        return E::ModulePlugin()->Activate($sPluginId);
     }
 
     protected function _eventPluginsDeactivate($aPlugins) {
@@ -917,25 +917,25 @@ class ActionAdmin extends Action {
         } else {
             $sPluginId = (string)$aPlugins;
         }
-        return $this->Plugin_Deactivate($sPluginId);
+        return E::ModulePlugin()->Deactivate($sPluginId);
     }
 
     protected function _eventPluginsDelete($aPlugins) {
 
-        $this->Plugin_Delete($aPlugins);
+        E::ModulePlugin()->Delete($aPlugins);
     }
 
     protected function _eventPluginsAdd() {
 
         if ($aZipFile = $this->GetUploadedFile('plugin_arc')) {
             if ($sPackFile = F::File_MoveUploadedFile($aZipFile['tmp_name'], $aZipFile['name'] . '/' . $aZipFile['name'])) {
-                $this->Plugin_UnpackPlugin($sPackFile);
+                E::ModulePlugin()->UnpackPlugin($sPackFile);
                 F::File_RemoveDir(dirname($sPackFile));
             }
         }
-        $this->_setTitle($this->Lang_Get('action.admin.plugins_title'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.plugins_title'));
         $this->SetTemplateAction('site/plugins_add');
-        $this->Viewer_Assign('sMode', 'add');
+        E::ModuleViewer()->Assign('sMode', 'add');
     }
 
     /**********************************************************************************/
@@ -944,14 +944,14 @@ class ActionAdmin extends Action {
 
         $this->sMainMenuItem = 'content';
 
-        $this->_setTitle($this->Lang_Get('action.admin.pages_title'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.pages_title'));
         // * Получаем и загружаем список всех страниц
-        $aPages = $this->Page_GetPages();
-        if (count($aPages) == 0 && $this->Page_GetCountPage()) {
-            $this->Page_SetPagesPidToNull();
-            $aPages = $this->Page_GetPages();
+        $aPages = E::ModulePage()->GetPages();
+        if (count($aPages) == 0 && E::ModulePage()->GetCountPage()) {
+            E::ModulePage()->SetPagesPidToNull();
+            $aPages = E::ModulePage()->GetPages();
         }
-        $this->Viewer_Assign('aPages', $aPages);
+        E::ModuleViewer()->Assign('aPages', $aPages);
         if ($this->GetParam(0) == 'add') {
             $this->_eventPagesEdit('add');
         } elseif ($this->GetParam(0) == 'edit') {
@@ -965,12 +965,12 @@ class ActionAdmin extends Action {
 
         // * Обработка удаления страницы
         if ($this->GetParam(0) == 'delete') {
-            $this->Security_ValidateSendForm();
-            if ($this->Page_DeletePageById($this->GetParam(1))) {
-                $this->Message_AddNotice($this->Lang_Get('action.admin.pages_admin_action_delete_ok'). null, true);
+            E::ModuleSecurity()->ValidateSendForm();
+            if (E::ModulePage()->DeletePageById($this->GetParam(1))) {
+                E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('action.admin.pages_admin_action_delete_ok'). null, true);
                 R::Location('admin/content-pages/');
             } else {
-                $this->Message_AddError($this->Lang_Get('action.admin.pages_admin_action_delete_error'), $this->Lang_Get('error'));
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.pages_admin_action_delete_error'), E::ModuleLang()->Get('error'));
             }
         }
 
@@ -983,14 +983,14 @@ class ActionAdmin extends Action {
 
     protected function _eventPagesListSort() {
 
-        $this->Security_ValidateSendForm();
-        if ($oPage = $this->Page_GetPageById($this->GetParam(1))) {
+        E::ModuleSecurity()->ValidateSendForm();
+        if ($oPage = E::ModulePage()->GetPageById($this->GetParam(1))) {
             $sWay = $this->GetParam(2) == 'down' ? 'down' : 'up';
             $iSortOld = $oPage->getSort();
-            if ($oPagePrev = $this->Page_GetNextPageBySort($iSortOld, $oPage->getPid(), $sWay)) {
+            if ($oPagePrev = E::ModulePage()->GetNextPageBySort($iSortOld, $oPage->getPid(), $sWay)) {
                 $iSortNew = $oPagePrev->getSort();
                 $oPagePrev->setSort($iSortOld);
-                $this->Page_UpdatePage($oPagePrev);
+                E::ModulePage()->UpdatePage($oPagePrev);
             } else {
                 if ($sWay == 'down') {
                     $iSortNew = $iSortOld - 1;
@@ -1001,17 +1001,17 @@ class ActionAdmin extends Action {
 
             // * Меняем значения сортировки местами
             $oPage->setSort($iSortNew);
-            $this->Page_UpdatePage($oPage);
-            $this->Page_ReSort();
+            E::ModulePage()->UpdatePage($oPage);
+            E::ModulePage()->ReSort();
         }
         R::Location('admin/content-pages');
     }
 
     protected function _eventPagesEdit($sMode) {
 
-        $this->_setTitle($this->Lang_Get('action.admin.pages_title'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.pages_title'));
         $this->SetTemplateAction('content/pages_add');
-        $this->Viewer_Assign('sMode', $sMode);
+        E::ModuleViewer()->Assign('sMode', $sMode);
 
         // * Обработка создания новой страницы
         if (F::isPost('submit_page_save')) {
@@ -1021,7 +1021,7 @@ class ActionAdmin extends Action {
         }
         // * Обработка показа страницы для редактирования
         if ($this->GetParam(0) == 'edit') {
-            if ($oPageEdit = $this->Page_GetPageById($this->GetParam(1))) {
+            if ($oPageEdit = E::ModulePage()->GetPageById($this->GetParam(1))) {
                 if (!F::isPost('submit_page_save')) {
                     $_REQUEST['page_title'] = $oPageEdit->getTitle();
                     $_REQUEST['page_pid'] = $oPageEdit->getPid();
@@ -1038,9 +1038,9 @@ class ActionAdmin extends Action {
                     // * Если отправили форму с редактированием, то обрабатываем её
                     $this->SubmitEditPage($oPageEdit);
                 }
-                $this->Viewer_Assign('oPageEdit', $oPageEdit);
+                E::ModuleViewer()->Assign('oPageEdit', $oPageEdit);
             } else {
-                $this->Message_AddError($this->Lang_Get('action.admin.pages_edit_notfound'), $this->Lang_Get('error'));
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.pages_edit_notfound'), E::ModuleLang()->Get('error'));
                 $this->SetParam(0, null);
             }
         }
@@ -1058,14 +1058,14 @@ class ActionAdmin extends Action {
             return;
         }
         if ($oPageEdit->getId() == F::GetRequest('page_pid')) {
-            $this->Message_AddError($this->Lang_Get('system_error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'));
             return;
         }
         
         // * Проверяем есть ли страница с указанным URL
         if ($oPageEdit->getUrlFull() != F::GetRequest('page_url')) {
-            if ($this->Page_GetPageByUrlFull(F::GetRequest('page_url'))) {
-                $this->Message_AddError($this->Lang_Get('action.admin.page_url_exist'), $this->Lang_Get('error'));
+            if (E::ModulePage()->GetPageByUrlFull(F::GetRequest('page_url'))) {
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.page_url_exist'), E::ModuleLang()->Get('error'));
                 return;
             }
         }
@@ -1080,7 +1080,7 @@ class ActionAdmin extends Action {
             $oPageEdit->setPid(null);
         } else {
             $oPageEdit->setPid(F::GetRequest('page_pid'));
-            $oPageParent = $this->Page_GetPageById(F::GetRequest('page_pid'));
+            $oPageParent = E::ModulePage()->GetPageById(F::GetRequest('page_pid'));
             $oPageEdit->setUrlFull($oPageParent->getUrlFull() . '/' . F::GetRequest('page_url'));
         }
         $oPageEdit->setSeoDescription(F::GetRequest('page_seo_description'));
@@ -1091,14 +1091,14 @@ class ActionAdmin extends Action {
         $oPageEdit->setSort(F::GetRequest('page_sort'));
 
         // * Обновляем страницу
-        if ($this->Page_UpdatePage($oPageEdit)) {
-            $this->Page_RebuildUrlFull($oPageEdit);
-            $this->Message_AddNotice($this->Lang_Get('action.admin.pages_edit_submit_save_ok'));
+        if (E::ModulePage()->UpdatePage($oPageEdit)) {
+            E::ModulePage()->RebuildUrlFull($oPageEdit);
+            E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('action.admin.pages_edit_submit_save_ok'));
             $this->SetParam(0, null);
             $this->SetParam(1, null);
             R::Location('admin/content-pages/');
         } else {
-            $this->Message_AddError($this->Lang_Get('system_error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'));
         }
     }
 
@@ -1123,7 +1123,7 @@ class ActionAdmin extends Action {
             $oPage->setPid(null);
         } else {
             $oPage->setPid(F::GetRequest('page_pid'));
-            $oPageParent = $this->Page_GetPageById(F::GetRequest('page_pid'));
+            $oPageParent = E::ModulePage()->GetPageById(F::GetRequest('page_pid'));
             $oPage->setUrlFull($oPageParent->getUrlFull() . '/' . F::GetRequest('page_url'));
         }
         $oPage->setSeoDescription(F::GetRequest('page_seo_description'));
@@ -1134,24 +1134,24 @@ class ActionAdmin extends Action {
         if (F::GetRequest('page_sort')) {
             $oPage->setSort(F::GetRequest('page_sort'));
         } else {
-            $oPage->setSort($this->Page_GetMaxSortByPid($oPage->getPid()) + 1);
+            $oPage->setSort(E::ModulePage()->GetMaxSortByPid($oPage->getPid()) + 1);
         }
         
         // * Проверяем есть ли страница с таким URL
-        if ($this->Page_GetPageByUrlFull($oPage->getUrlFull())) {
-            $this->Message_AddError($this->Lang_Get('action.admin.page_url_exist'), $this->Lang_Get('error'));
+        if (E::ModulePage()->GetPageByUrlFull($oPage->getUrlFull())) {
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.page_url_exist'), E::ModuleLang()->Get('error'));
             return;
         }
 
         /**
          * Добавляем страницу
          */
-        if ($this->Page_AddPage($oPage)) {
-            $this->Message_AddNotice($this->Lang_Get('action.admin.pages_create_submit_save_ok'));
+        if (E::ModulePage()->AddPage($oPage)) {
+            E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('action.admin.pages_create_submit_save_ok'));
             $this->SetParam(0, null);
             R::Location('admin/content-pages/');
         } else {
-            $this->Message_AddError($this->Lang_Get('system_error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'));
         }
     }
 
@@ -1162,14 +1162,14 @@ class ActionAdmin extends Action {
      */
     protected function CheckPageFields() {
 
-        $this->Security_ValidateSendForm();
+        E::ModuleSecurity()->ValidateSendForm();
 
         $bOk = true;
         /**
          * Проверяем есть ли заголовок топика
          */
         if (!F::CheckVal(F::GetRequest('page_title', null, 'post'), 'text', 2, 200)) {
-            $this->Message_AddError($this->Lang_Get('action.admin.pages_create_title_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.pages_create_title_error'), E::ModuleLang()->Get('error'));
             $bOk = false;
         }
         /**
@@ -1178,41 +1178,41 @@ class ActionAdmin extends Action {
         $pageUrl = preg_replace("/\s+/", '_', (string)F::GetRequest('page_url', null, 'post'));
         $_REQUEST['page_url'] = $pageUrl;
         if (!F::CheckVal(F::GetRequest('page_url', null, 'post'), 'login', 1, 50)) {
-            $this->Message_AddError($this->Lang_Get('action.admin.pages_create_url_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.pages_create_url_error'), E::ModuleLang()->Get('error'));
             $bOk = false;
         }
         /**
          * Проверяем на счет плохих УРЛов
          */
         /*if (in_array(F::GetRequest('page_url',null,'post'),$this->aBadPageUrl)) {
-            $this->Message_AddError($this->Lang_Get('action.admin.pages_create_url_error_bad').' '.join(',',$this->aBadPageUrl),$this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.pages_create_url_error_bad').' '.join(',',$this->aBadPageUrl),E::ModuleLang()->Get('error'));
             $bOk=false;
         }*/
         /**
          * Проверяем есть ли содержание страницы
          */
         if (!F::CheckVal(F::GetRequest('page_text', null, 'post'), 'text', 1, 50000)) {
-            $this->Message_AddError($this->Lang_Get('action.admin.pages_create_text_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.pages_create_text_error'), E::ModuleLang()->Get('error'));
             $bOk = false;
         }
         /**
          * Проверяем страницу в которую хотим вложить
          */
-        if (F::GetRequest('page_pid') != 0 && !($oPageParent = $this->Page_GetPageById(F::GetRequest('page_pid')))) {
-            $this->Message_AddError($this->Lang_Get('action.admin.pages_create_parent_page_error'), $this->Lang_Get('error'));
+        if (F::GetRequest('page_pid') != 0 && !($oPageParent = E::ModulePage()->GetPageById(F::GetRequest('page_pid')))) {
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.pages_create_parent_page_error'), E::ModuleLang()->Get('error'));
             $bOk = false;
         }
         /**
          * Проверяем сортировку
          */
         if (F::GetRequest('page_sort') && !is_numeric(F::GetRequest('page_sort'))) {
-            $this->Message_AddError($this->Lang_Get('action.admin.pages_create_sort_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.pages_create_sort_error'), E::ModuleLang()->Get('error'));
             $bOk = false;
         }
         /**
          * Выполнение хуков
          */
-        $this->Hook_Run('check_page_fields', array('bOk' => &$bOk));
+        E::ModuleHook()->Run('check_page_fields', array('bOk' => &$bOk));
 
         return $bOk;
     }
@@ -1224,7 +1224,7 @@ class ActionAdmin extends Action {
 
         $this->sMainMenuItem = 'content';
 
-        $this->_setTitle($this->Lang_Get('action.admin.blogs_title'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.blogs_title'));
         $this->SetTemplateAction('content/blogs_list');
 
         $sMode = 'all';
@@ -1244,72 +1244,72 @@ class ActionAdmin extends Action {
             $aFilter['type'] = $sMode;
         }
 
-        $aResult = $this->Blog_GetBlogsByFilter($aFilter, '', $nPage, Config::Get('admin.items_per_page'));
-        $aPaging = $this->Viewer_MakePaging($aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4,
+        $aResult = E::ModuleBlog()->GetBlogsByFilter($aFilter, '', $nPage, Config::Get('admin.items_per_page'));
+        $aPaging = E::ModuleViewer()->MakePaging($aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4,
             R::GetPath('admin') . 'content-blogs/list/' . $sMode);
 
-        $aBlogTypes = $this->Blog_GetBlogTypes();
+        $aBlogTypes = E::ModuleBlog()->GetBlogTypes();
         $nBlogsTotal = 0;
         foreach ($aBlogTypes as $oBlogType) {
             $nBlogsTotal += $oBlogType->GetBlogsCount();
         }
-        $aAllBlogs = $this->Blog_GetBlogs();
+        $aAllBlogs = E::ModuleBlog()->GetBlogs();
         foreach($aAllBlogs as $nBlogId=>$oBlog) {
             $aAllBlogs[$nBlogId] = $oBlog->GetTitle();
         }
 
-        $this->Viewer_Assign('nBlogsTotal', $nBlogsTotal);
-        $this->Viewer_Assign('aBlogTypes', $aBlogTypes);
-        $this->Viewer_Assign('aBlogs', $aResult['collection']);
-        $this->Viewer_Assign('aAllBlogs', $aAllBlogs);
+        E::ModuleViewer()->Assign('nBlogsTotal', $nBlogsTotal);
+        E::ModuleViewer()->Assign('aBlogTypes', $aBlogTypes);
+        E::ModuleViewer()->Assign('aBlogs', $aResult['collection']);
+        E::ModuleViewer()->Assign('aAllBlogs', $aAllBlogs);
 
-        $this->Viewer_Assign('sMode', $sMode);
-        $this->Viewer_Assign('aPaging', $aPaging);
+        E::ModuleViewer()->Assign('sMode', $sMode);
+        E::ModuleViewer()->Assign('aPaging', $aPaging);
     }
 
     protected function _eventBlogsDelete() {
 
         $nBlogId = $this->GetPost('delete_blog_id');
-        if (!$nBlogId || !($oBlog = $this->Blog_GetBlogById($nBlogId))) {
-            $this->Message_AddError($this->Lang_Get('action.admin.blog_del_error'));
+        if (!$nBlogId || !($oBlog = E::ModuleBlog()->GetBlogById($nBlogId))) {
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.blog_del_error'));
             return false;
         }
 
         if ($this->GetPost('delete_topics') !== 'delete') {
             // Топики перемещаются в новый блог
-            $aTopics = $this->Topic_GetTopicsByBlogId($nBlogId);
+            $aTopics = E::ModuleTopic()->GetTopicsByBlogId($nBlogId);
             $nNewBlogId = intval($this->GetPost('topic_move_to'));
             if (($nNewBlogId > 0) && is_array($aTopics) && count($aTopics)) {
-                if (!$oBlogNew = $this->Blog_GetBlogById($nNewBlogId)) {
-                    $this->Message_AddError($this->Lang_Get('blog_admin_delete_move_error'), $this->Lang_Get('error'));
+                if (!$oBlogNew = E::ModuleBlog()->GetBlogById($nNewBlogId)) {
+                    E::ModuleMessage()->AddError(E::ModuleLang()->Get('blog_admin_delete_move_error'), E::ModuleLang()->Get('error'));
                     return false;
                 }
                 // * Если выбранный блог является персональным, возвращаем ошибку
                 if ($oBlogNew->getType() == 'personal') {
-                    $this->Message_AddError($this->Lang_Get('blog_admin_delete_move_personal'), $this->Lang_Get('error'));
+                    E::ModuleMessage()->AddError(E::ModuleLang()->Get('blog_admin_delete_move_personal'), E::ModuleLang()->Get('error'));
                     return false;
                 }
                 // * Перемещаем топики
-                if (!$this->Topic_MoveTopics($nBlogId, $nNewBlogId)) {
-                    $this->Message_AddError($this->Lang_Get('action.admin.blog_del_move_error'), $this->Lang_Get('error'));
+                if (!E::ModuleTopic()->MoveTopics($nBlogId, $nNewBlogId)) {
+                    E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.blog_del_move_error'), E::ModuleLang()->Get('error'));
                     return false;
                 }
             } else {
-                $this->Message_AddError($this->Lang_Get('action.admin.blog_del_move_error'), $this->Lang_Get('error'));
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.blog_del_move_error'), E::ModuleLang()->Get('error'));
                 return false;
             }
         }
 
         // * Удаляяем блог
-        $this->Hook_Run('blog_delete_before', array('sBlogId' => $nBlogId));
-        if ($this->Blog_DeleteBlog($nBlogId)) {
-            $this->Hook_Run('blog_delete_after', array('sBlogId' => $nBlogId));
-            $this->Message_AddNoticeSingle(
-                $this->Lang_Get('blog_admin_delete_success'), $this->Lang_Get('attention'), true
+        E::ModuleHook()->Run('blog_delete_before', array('sBlogId' => $nBlogId));
+        if (E::ModuleBlog()->DeleteBlog($nBlogId)) {
+            E::ModuleHook()->Run('blog_delete_after', array('sBlogId' => $nBlogId));
+            E::ModuleMessage()->AddNoticeSingle(
+                E::ModuleLang()->Get('blog_admin_delete_success'), E::ModuleLang()->Get('attention'), true
             );
         } else {
-            $this->Message_AddNoticeSingle(
-                $this->Lang_Get('action.admin.blog_del_error'), $this->Lang_Get('error'), true
+            E::ModuleMessage()->AddNoticeSingle(
+                E::ModuleLang()->Get('action.admin.blog_del_error'), E::ModuleLang()->Get('error'), true
             );
         }
         R::ReturnBack();
@@ -1321,7 +1321,7 @@ class ActionAdmin extends Action {
 
         $this->sMainMenuItem = 'content';
 
-        $this->_setTitle($this->Lang_Get('action.admin.topics_title'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.topics_title'));
         $this->SetTemplateAction('content/topics_list');
 
         $sCmd = $this->GetPost('cmd');
@@ -1332,14 +1332,14 @@ class ActionAdmin extends Action {
             $nPage = $this->_getPageNum();
         }
 
-        $aResult = $this->Topic_GetTopicsByFilter(array(), $nPage, Config::Get('admin.items_per_page'));
-        $aPaging = $this->Viewer_MakePaging($aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4,
+        $aResult = E::ModuleTopic()->GetTopicsByFilter(array(), $nPage, Config::Get('admin.items_per_page'));
+        $aPaging = E::ModuleViewer()->MakePaging($aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4,
             R::GetPath('admin') . 'content-topics/');
 
-        $this->Viewer_Assign('aTopics', $aResult['collection']);
-        $this->Viewer_Assign('aPaging', $aPaging);
+        E::ModuleViewer()->Assign('aTopics', $aResult['collection']);
+        E::ModuleViewer()->Assign('aPaging', $aPaging);
 
-        $this->Lang_AddLangJs(array(
+        E::ModuleLang()->AddLangJs(array(
                 'topic_delete_confirm_title',
                 'topic_delete_confirm_text',
                 'topic_delete_confirm',
@@ -1352,7 +1352,7 @@ class ActionAdmin extends Action {
 
         $this->sMainMenuItem = 'content';
 
-        $this->_setTitle($this->Lang_Get('action.admin.comments_title'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.comments_title'));
         $this->SetTemplateAction('content/comments_list');
 
         $sCmd = $this->GetPost('cmd');
@@ -1363,12 +1363,12 @@ class ActionAdmin extends Action {
         // * Передан ли номер страницы
         $nPage = $this->_getPageNum();
 
-        $aResult = $this->Comment_GetCommentsByFilter(array(), '', $nPage, Config::Get('admin.items_per_page'));
-        $aPaging = $this->Viewer_MakePaging($aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4,
+        $aResult = E::ModuleComment()->GetCommentsByFilter(array(), '', $nPage, Config::Get('admin.items_per_page'));
+        $aPaging = E::ModuleViewer()->MakePaging($aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4,
             R::GetPath('admin') . 'content-comments/');
 
-        $this->Viewer_Assign('aComments', $aResult['collection']);
-        $this->Viewer_Assign('aPaging', $aPaging);
+        E::ModuleViewer()->Assign('aComments', $aResult['collection']);
+        E::ModuleViewer()->Assign('aPaging', $aPaging);
     }
 
     /**********************************************************************************/
@@ -1380,7 +1380,7 @@ class ActionAdmin extends Action {
 
         $this->sMainMenuItem = 'content';
 
-        $this->_setTitle($this->Lang_Get('action.admin.mresources_title'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.mresources_title'));
         $this->SetTemplateAction('content/mresources_list');
 
         $sCmd = $this->GetPost('cmd');
@@ -1408,36 +1408,36 @@ class ActionAdmin extends Action {
             'with'   => array('user'),
         );
 
-        $aResult = $this->Mresource_GetMresourcesByCriteria($aCriteria);
-        $aResult['count'] = $this->Mresource_GetMresourcesCountByTarget($sMode);
+        $aResult = E::ModuleMresource()->GetMresourcesByCriteria($aCriteria);
+        $aResult['count'] = E::ModuleMresource()->GetMresourcesCountByTarget($sMode);
 
-        $aPaging = $this->Viewer_MakePaging($aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4,
+        $aPaging = E::ModuleViewer()->MakePaging($aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4,
             R::GetPath('admin') . 'content-mresources/list/' . $sMode . '/');
 
-        $this->Lang_AddLangJs(
+        E::ModuleLang()->AddLangJs(
             array(
                  'action.admin.mresource_delete_confirm',
                  'action.admin.mresource_will_be_delete',
             )
         );
 
-        $aTargetTypes = $this->Mresource_GetTargetTypes();
+        $aTargetTypes = E::ModuleMresource()->GetTargetTypes();
 
-        $this->Viewer_Assign('aMresources', $aResult['collection']);
-        $this->Viewer_Assign('aTargetTypes', $aTargetTypes);
-        $this->Viewer_Assign('sMode', $sMode);
+        E::ModuleViewer()->Assign('aMresources', $aResult['collection']);
+        E::ModuleViewer()->Assign('aTargetTypes', $aTargetTypes);
+        E::ModuleViewer()->Assign('sMode', $sMode);
         if (strpos($sMode, 'single-image-uploader') === 0) {
-            $sMode = str_replace('single-image-uploader', $this->Lang_Get('target_type_single-image-uploader'), $sMode);
+            $sMode = str_replace('single-image-uploader', E::ModuleLang()->Get('target_type_single-image-uploader'), $sMode);
         } else {
             if (strpos($sMode, 'plugin.') === 0) {
-                $sMode = $this->Lang_Get($sMode);
+                $sMode = E::ModuleLang()->Get($sMode);
             } else {
-                $sMode = $this->Lang_Get('target_type_' . $sMode);
+                $sMode = E::ModuleLang()->Get('target_type_' . $sMode);
             }
 
         }
-        $this->Viewer_Assign('sPageSubMenu', $sMode);
-        $this->Viewer_Assign('aPaging', $aPaging);
+        E::ModuleViewer()->Assign('sPageSubMenu', $sMode);
+        E::ModuleViewer()->Assign('aPaging', $aPaging);
     }
 
     /**
@@ -1446,12 +1446,12 @@ class ActionAdmin extends Action {
     protected function _eventMresourcesDelete() {
 
         if ($iMresourceId = $this->GetPost('mresource_id')) {
-            if ($this->Mresource_DeleteMresources($iMresourceId)) {
-                $this->Message_AddNotice($this->Lang_Get('action.admin.mresource_deleted'));
+            if (E::ModuleMresource()->DeleteMresources($iMresourceId)) {
+                E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('action.admin.mresource_deleted'));
                 return true;
             }
         }
-        $this->Message_AddError($this->Lang_Get('action.admin.mresource_not_deleted'));
+        E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.mresource_not_deleted'));
         return false;
     }
 
@@ -1461,7 +1461,7 @@ class ActionAdmin extends Action {
 
         $this->sMainMenuItem = 'users';
 
-        $this->_setTitle($this->Lang_Get('action.admin.users_title'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.users_title'));
         $this->SetTemplateAction('users/users');
 
         $sMode = $this->_getMode(0, 'list', array('list', 'admins'));
@@ -1519,34 +1519,34 @@ class ActionAdmin extends Action {
         } else {
             $this->_eventUsersList($sMode);
         }
-        $this->Viewer_Assign('sMode', $sMode);
-        $this->Viewer_Assign('nCountUsers', $this->User_GetCountUsers());
-        $this->Viewer_Assign('nCountAdmins', $this->User_GetCountAdmins());
+        E::ModuleViewer()->Assign('sMode', $sMode);
+        E::ModuleViewer()->Assign('nCountUsers', E::ModuleUser()->GetCountUsers());
+        E::ModuleViewer()->Assign('nCountAdmins', E::ModuleUser()->GetCountAdmins());
     }
 
     protected function _eventUsersCmdBan($aUsersId, $nDays, $sComment) {
 
         if ($aUsersId) {
             if (in_array(E::UserId(), $aUsersId)) {
-                $this->Message_AddError($this->Lang_Get('action.admin.cannot_ban_self'), null, true);
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.cannot_ban_self'), null, true);
                 return false;
             }
             if (in_array(1, $aUsersId)) {
-                $this->Message_AddError($this->Lang_Get('action.admin.cannot_ban_admin'), null, true);
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.cannot_ban_admin'), null, true);
                 return false;
             }
-            $aUsers = $this->User_GetUsersByArrayId($aUsersId);
+            $aUsers = E::ModuleUser()->GetUsersByArrayId($aUsersId);
             foreach ($aUsers as $oUser) {
                 if ($oUser->isAdministrator()) {
-                    $this->Message_AddError($this->Lang_Get('action.admin.cannot_ban_admin'), null, true);
+                    E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.cannot_ban_admin'), null, true);
                     return false;
                 }
             }
-            if ($this->Admin_BanUsers($aUsersId, $nDays, $sComment)) {
-                $this->Message_AddNotice($this->Lang_Get('action.admin.action_ok'), null, true);
+            if (E::ModuleAdmin()->BanUsers($aUsersId, $nDays, $sComment)) {
+                E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('action.admin.action_ok'), null, true);
                 return true;
             } else {
-                $this->Message_AddError($this->Lang_Get('action.admin.action_err'), null, true);
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.action_err'), null, true);
             }
         }
         return false;
@@ -1556,11 +1556,11 @@ class ActionAdmin extends Action {
 
         if ($aUsersId) {
             $aId = F::Array_Str2ArrayInt($aUsersId, ',', true);
-            if ($this->Admin_UnbanUsers($aId)) {
-                $this->Message_AddNotice($this->Lang_Get('action.admin.action_ok'), null, true);
+            if (E::ModuleAdmin()->UnbanUsers($aId)) {
+                E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('action.admin.action_ok'), null, true);
                 return true;
             } else {
-                $this->Message_AddError($this->Lang_Get('action.admin.action_err'), null, true);
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.action_err'), null, true);
             }
         }
         return false;
@@ -1586,12 +1586,12 @@ class ActionAdmin extends Action {
                 if ($sIp2) $sIp2 .= '.';
                 $sIp2 .= $n;
             }
-            if ($this->Admin_SetBanIp($sIp1, $sIp2, $nDays, $sComment)) {
-                $this->Message_AddNotice($this->Lang_Get('action.admin.action_ok'), null, true);
+            if (E::ModuleAdmin()->SetBanIp($sIp1, $sIp2, $nDays, $sComment)) {
+                E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('action.admin.action_ok'), null, true);
                 return true;
             }
         }
-        $this->Message_AddError($this->Lang_Get('action.admin.action_err'), null, true);
+        E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.action_err'), null, true);
         return false;
     }
 
@@ -1602,7 +1602,7 @@ class ActionAdmin extends Action {
         $nPage = $this->_getPageNum();
 
         $aFilter = array();
-        $sData = $this->Session_Get('adm_userlist_filter');
+        $sData = E::ModuleSession()->Get('adm_userlist_filter');
         if ($sData) {
             $aFilter = @unserialize($sData);
             if (!is_array($aFilter)) {
@@ -1614,8 +1614,8 @@ class ActionAdmin extends Action {
             $aFilter['admin'] = 1;
         }
 
-        $aResult = $this->User_GetUsersByFilter($aFilter, '', $nPage, Config::Get('admin.items_per_page'));
-        $aPaging = $this->Viewer_MakePaging($aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4,
+        $aResult = E::ModuleUser()->GetUsersByFilter($aFilter, '', $nPage, Config::Get('admin.items_per_page'));
+        $aPaging = E::ModuleViewer()->MakePaging($aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4,
             R::GetPath('admin') . 'users-list/');
 
         foreach ($aFilter as $sKey => $xVal) {
@@ -1637,9 +1637,9 @@ class ActionAdmin extends Action {
                 unset($aFilter[$sKey]);
             }
         }
-        $this->Viewer_Assign('aUsers', $aResult['collection']);
-        $this->Viewer_Assign('aPaging', $aPaging);
-        $this->Viewer_Assign('aFilter', $aFilter);
+        E::ModuleViewer()->Assign('aUsers', $aResult['collection']);
+        E::ModuleViewer()->Assign('aPaging', $aPaging);
+        E::ModuleViewer()->Assign('aFilter', $aFilter);
     }
 
     protected function _eventUsersCmdSetAdministrator() {
@@ -1647,17 +1647,17 @@ class ActionAdmin extends Action {
         $aUserLogins = F::Str2Array($this->GetPost('user_login_admin'), ',', true);
         if ($aUserLogins)
             foreach ($aUserLogins as $sUserLogin) {
-                if (!$sUserLogin || !($oUser = $this->User_GetUserByLogin($sUserLogin))) {
-                    $this->Message_AddError($this->Lang_Get('action.admin.user_not_found', array('user' => $sUserLogin)));
+                if (!$sUserLogin || !($oUser = E::ModuleUser()->GetUserByLogin($sUserLogin))) {
+                    E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.user_not_found', array('user' => $sUserLogin)));
                 } elseif ($oUser->IsBanned()) {
-                    $this->Message_AddError($this->Lang_Get('action.admin.cannot_banned_admin'));
+                    E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.cannot_banned_admin'));
                 } elseif ($oUser->IsAdministrator()) {
-                    $this->Message_AddError($this->Lang_Get('action.admin.already_added'));
+                    E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.already_added'));
                 } else {
-                    if ($this->Admin_SetAdministrator($oUser->GetId())) {
-                        $this->Message_AddNotice($this->Lang_Get('action.admin.saved_ok'));
+                    if (E::ModuleAdmin()->SetAdministrator($oUser->GetId())) {
+                        E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('action.admin.saved_ok'));
                     } else {
-                        $this->Message_AddError($this->Lang_Get('action.admin.saved_err'));
+                        E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.saved_err'));
                     }
                 }
             }
@@ -1669,15 +1669,15 @@ class ActionAdmin extends Action {
         $aUserLogins = F::Str2Array($this->GetPost('users_list'), ',', true);
         if ($aUserLogins)
             foreach ($aUserLogins as $sUserLogin) {
-                if (!$sUserLogin || !($oUser = $this->User_GetUserByLogin($sUserLogin))) {
-                    $this->Message_AddError($this->Lang_Get('action.admin.user_not_found', array('user' => $sUserLogin)), 'admins:delete');
+                if (!$sUserLogin || !($oUser = E::ModuleUser()->GetUserByLogin($sUserLogin))) {
+                    E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.user_not_found', array('user' => $sUserLogin)), 'admins:delete');
                 } else {
                     if (mb_strtolower($sUserLogin) == 'admin') {
-                        $this->Message_AddError($this->Lang_Get('action.admin.cannot_with_admin'), 'admins:delete');
-                    } elseif ($this->Admin_UnsetAdministrator($oUser->GetId())) {
-                        $this->Message_AddNotice($this->Lang_Get('action.admin.saved_ok'), 'admins:delete');
+                        E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.cannot_with_admin'), 'admins:delete');
+                    } elseif (E::ModuleAdmin()->UnsetAdministrator($oUser->GetId())) {
+                        E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('action.admin.saved_ok'), 'admins:delete');
                     } else {
-                        $this->Message_AddError($this->Lang_Get('action.admin.saved_err'), 'admins:delete');
+                        E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.saved_err'), 'admins:delete');
                     }
                 }
             }
@@ -1687,14 +1687,14 @@ class ActionAdmin extends Action {
     protected function _eventUsersProfile() {
 
         $nUserId = $this->GetParam(1);
-        $oUserProfile = $this->User_GetUserById($nUserId);
+        $oUserProfile = E::ModuleUser()->GetUserById($nUserId);
         if (!$oUserProfile) {
-            $this->Message_AddError($this->Lang_Get('action.admin.user_not_found'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.user_not_found'));
             return;
         }
 
         $sMode = $this->GetParam(2);
-        $aUserVoteStat = $this->Vote_GetUserVoteStats($oUserProfile->getId());
+        $aUserVoteStat = E::ModuleVote()->GetUserVoteStats($oUserProfile->getId());
 
         if ($sMode == 'topics') {
             $this->EventUsersProfileTopics($oUserProfile);
@@ -1713,10 +1713,10 @@ class ActionAdmin extends Action {
             $this->_eventUsersProfileInfo($oUserProfile);
         }
 
-        $this->Viewer_Assign('sMode', $sMode);
-        $this->Viewer_Assign('oUserProfile', $oUserProfile);
-        $this->Viewer_Assign('aUserVoteStat', $aUserVoteStat);
-        $this->Viewer_Assign('nParamVoteValue', 1);
+        E::ModuleViewer()->Assign('sMode', $sMode);
+        E::ModuleViewer()->Assign('oUserProfile', $oUserProfile);
+        E::ModuleViewer()->Assign('aUserVoteStat', $aUserVoteStat);
+        E::ModuleViewer()->Assign('nParamVoteValue', 1);
 
     }
 
@@ -1726,30 +1726,30 @@ class ActionAdmin extends Action {
     protected function _eventUsersProfileInfo($oUserProfile) {
 
         /** @var ModuleUser_EntityUser[] $aUsersFriend */
-        $aUsersFriend = $this->User_GetUsersFriend($oUserProfile->getId(), 1, 10);
+        $aUsersFriend = E::ModuleUser()->GetUsersFriend($oUserProfile->getId(), 1, 10);
         /** @var ModuleUser_EntityUser[] $aUserInvite */
-        $aUsersInvite = $this->User_GetUsersInvite($oUserProfile->getId());
-        $oUserInviteFrom = $this->User_GetUserInviteFrom($oUserProfile->getId());
-        $aBlogsOwner = $this->Blog_GetBlogsByOwnerId($oUserProfile->getId());
-        $aBlogsModeration = $this->Blog_GetBlogUsersByUserId($oUserProfile->getId(), ModuleBlog::BLOG_USER_ROLE_MODERATOR);
-        $aBlogsAdministration = $this->Blog_GetBlogUsersByUserId($oUserProfile->getId(), ModuleBlog::BLOG_USER_ROLE_ADMINISTRATOR);
-        $aBlogsUser = $this->Blog_GetBlogUsersByUserId($oUserProfile->getId(), ModuleBlog::BLOG_USER_ROLE_USER);
-        $aBlogsBanUser = $this->Blog_GetBlogUsersByUserId($oUserProfile->getId(), ModuleBlog::BLOG_USER_ROLE_BAN);
-        $aLastTopicList = $this->Topic_GetLastTopicsByUserId($oUserProfile->getId(), Config::Get('acl.create.topic.limit_time')*1000000, 3);
-        $iCountTopicsByUser = $this->Topic_GetCountTopicsByFilter(array('user_id' => $oUserProfile->getId()));
-        $iCountCommentsByUser = $this->Comment_GetCountCommentsByUserId($oUserProfile->getId(), 'topic');
+        $aUsersInvite = E::ModuleUser()->GetUsersInvite($oUserProfile->getId());
+        $oUserInviteFrom = E::ModuleUser()->GetUserInviteFrom($oUserProfile->getId());
+        $aBlogsOwner = E::ModuleBlog()->GetBlogsByOwnerId($oUserProfile->getId());
+        $aBlogsModeration = E::ModuleBlog()->GetBlogUsersByUserId($oUserProfile->getId(), ModuleBlog::BLOG_USER_ROLE_MODERATOR);
+        $aBlogsAdministration = E::ModuleBlog()->GetBlogUsersByUserId($oUserProfile->getId(), ModuleBlog::BLOG_USER_ROLE_ADMINISTRATOR);
+        $aBlogsUser = E::ModuleBlog()->GetBlogUsersByUserId($oUserProfile->getId(), ModuleBlog::BLOG_USER_ROLE_USER);
+        $aBlogsBanUser = E::ModuleBlog()->GetBlogUsersByUserId($oUserProfile->getId(), ModuleBlog::BLOG_USER_ROLE_BAN);
+        $aLastTopicList = E::ModuleTopic()->GetLastTopicsByUserId($oUserProfile->getId(), Config::Get('acl.create.topic.limit_time')*1000000, 3);
+        $iCountTopicsByUser = E::ModuleTopic()->GetCountTopicsByFilter(array('user_id' => $oUserProfile->getId()));
+        $iCountCommentsByUser = E::ModuleComment()->GetCountCommentsByUserId($oUserProfile->getId(), 'topic');
 
-        $this->Viewer_Assign('aUsersFriend', isset($aUsersFriend['collection'])?$aUsersFriend['collection']:false);
-        $this->Viewer_Assign('aUsersInvite', $aUsersInvite);
-        $this->Viewer_Assign('oUserInviteFrom', $oUserInviteFrom);
-        $this->Viewer_Assign('aBlogsOwner', $aBlogsOwner);
-        $this->Viewer_Assign('aBlogsModeration', $aBlogsModeration);
-        $this->Viewer_Assign('aBlogsAdministration', $aBlogsAdministration);
-        $this->Viewer_Assign('aBlogsUser', $aBlogsUser);
-        $this->Viewer_Assign('aBlogsBanUser', $aBlogsBanUser);
-        $this->Viewer_Assign('iCountTopicsByUser', $iCountTopicsByUser);
-        $this->Viewer_Assign('iCountCommentsByUser', $iCountCommentsByUser);
-        $this->Viewer_Assign('aLastTopicList', isset($aLastTopicList['collection'])?$aLastTopicList['collection']:false);
+        E::ModuleViewer()->Assign('aUsersFriend', isset($aUsersFriend['collection'])?$aUsersFriend['collection']:false);
+        E::ModuleViewer()->Assign('aUsersInvite', $aUsersInvite);
+        E::ModuleViewer()->Assign('oUserInviteFrom', $oUserInviteFrom);
+        E::ModuleViewer()->Assign('aBlogsOwner', $aBlogsOwner);
+        E::ModuleViewer()->Assign('aBlogsModeration', $aBlogsModeration);
+        E::ModuleViewer()->Assign('aBlogsAdministration', $aBlogsAdministration);
+        E::ModuleViewer()->Assign('aBlogsUser', $aBlogsUser);
+        E::ModuleViewer()->Assign('aBlogsBanUser', $aBlogsBanUser);
+        E::ModuleViewer()->Assign('iCountTopicsByUser', $iCountTopicsByUser);
+        E::ModuleViewer()->Assign('iCountCommentsByUser', $iCountCommentsByUser);
+        E::ModuleViewer()->Assign('aLastTopicList', isset($aLastTopicList['collection'])?$aLastTopicList['collection']:false);
 
         $this->SetTemplateAction('users/profile_info');
     }
@@ -1809,7 +1809,7 @@ class ActionAdmin extends Action {
                 $aFilter['regdate'] = null;
             }
         }
-        $this->Session_Set('adm_userlist_filter', serialize($aFilter));
+        E::ModuleSession()->Set('adm_userlist_filter', serialize($aFilter));
     }
 
     /**
@@ -1819,30 +1819,30 @@ class ActionAdmin extends Action {
      */
     protected function _eventUsersCmdDelete() {
 
-        $this->Security_ValidateSendForm();
+        E::ModuleSecurity()->ValidateSendForm();
 
         $aUsersId = F::Str2Array(F::GetRequest('adm_user_list'), ',', true);
         $bResult = true;
         foreach ($aUsersId as $iUserId) {
             if ($iUserId == $this->oUserCurrent->GetId()) {
-                $this->Message_AddError($this->Lang_Get('action.admin.cannot_del_self'), null, true);
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.cannot_del_self'), null, true);
                 $bResult = false;
                 break;
-            } elseif (($oUser = $this->User_GetUserById($iUserId))) {
+            } elseif (($oUser = E::ModuleUser()->GetUserById($iUserId))) {
                 if ($oUser->IsAdministrator()) {
-                    $this->Message_AddError($this->Lang_Get('action.admin.cannot_del_admin'), null, true);
+                    E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.cannot_del_admin'), null, true);
                     $bResult = false;
                     break;
                 } elseif (!F::GetRequest('adm_user_del_confirm') && !F::GetRequest('adm_bulk_confirm')) {
-                    $this->Message_AddError($this->Lang_Get('action.admin.cannot_del_confirm'), null, true);
+                    E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.cannot_del_confirm'), null, true);
                     $bResult = false;
                     break;
                 } else {
-                    $this->Admin_DelUser($oUser->GetId());
-                    $this->Message_AddNotice($this->Lang_Get('action.admin.user_deleted', Array('user' => $oUser->getLogin())), null, true);
+                    E::ModuleAdmin()->DelUser($oUser->GetId());
+                    E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('action.admin.user_deleted', Array('user' => $oUser->getLogin())), null, true);
                 }
             } else {
-                $this->Message_AddError($this->Lang_Get('action.admin.user_not_found'), null, true);
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.user_not_found'), null, true);
                 $bResult = false;
                 break;
             }
@@ -1864,7 +1864,7 @@ class ActionAdmin extends Action {
         $bOk = true;
 
         $sTitle = $this->GetPost('talk_title');
-        $sText = $this->Text_Parser(F::GetRequest('talk_text'));
+        $sText = E::ModuleText()->Parser(F::GetRequest('talk_text'));
         $sDate = date(F::Now());
         $sIp = F::GetUserIp();
 
@@ -1884,13 +1884,13 @@ class ActionAdmin extends Action {
                 $oTalk->setDate($sDate);
                 $oTalk->setDateLast($sDate);
                 $oTalk->setUserIp($sIp);
-                $oTalk = $this->Talk_AddTalk($oTalk);
+                $oTalk = E::ModuleTalk()->AddTalk($oTalk);
 
                 // добавляем себя в общий список
                 $aUsers[] = $this->oUserCurrent->getLogin();
                 // теперь рассылаем остальным
                 foreach ($aUsers as $sUserLogin) {
-                    if ($sUserLogin && ($oUserRecipient = $this->User_GetUserByLogin($sUserLogin))) {
+                    if ($sUserLogin && ($oUserRecipient = E::ModuleUser()->GetUserByLogin($sUserLogin))) {
                         $oTalkUser = E::GetEntity('Talk_TalkUser');
                         $oTalkUser->setTalkId($oTalk->getId());
                         $oTalkUser->setUserId($oUserRecipient->GetId());
@@ -1899,12 +1899,12 @@ class ActionAdmin extends Action {
                         } else {
                             $oTalkUser->setDateLast($sDate);
                         }
-                        $this->Talk_AddTalkUser($oTalkUser);
+                        E::ModuleTalk()->AddTalkUser($oTalkUser);
 
                         // Отправляем уведомления
                         if ($sUserLogin != $this->oUserCurrent->getLogin() || F::GetRequest('send_copy_self')) {
-                            $oUserToMail = $this->User_GetUserById($oUserRecipient->GetId());
-                            $this->Notify_SendTalkNew($oUserToMail, $this->oUserCurrent, $oTalk);
+                            $oUserToMail = E::ModuleUser()->GetUserById($oUserRecipient->GetId());
+                            E::ModuleNotify()->SendTalkNew($oUserToMail, $this->oUserCurrent, $oTalk);
                         }
                     }
                 }
@@ -1912,9 +1912,9 @@ class ActionAdmin extends Action {
         }
 
         if ($bOk) {
-            $this->Message_AddNotice($this->Lang_Get('action.admin.msg_sent_ok'), null, true);
+            E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('action.admin.msg_sent_ok'), null, true);
         } else {
-            $this->Message_AddError($this->Lang_Get('system_error'), null, true);
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), null, true);
         }
     }
 
@@ -1924,7 +1924,7 @@ class ActionAdmin extends Action {
 
         $sTitle = F::GetRequest('talk_title');
 
-        $sText = $this->Text_Parser(F::GetRequest('talk_text'));
+        $sText = E::ModuleText()->Parser(F::GetRequest('talk_text'));
         $sDate = date(F::Now());
         $sIp = F::GetUserIp();
 
@@ -1941,20 +1941,20 @@ class ActionAdmin extends Action {
                 $oSelfTalk->setUserId($this->oUserCurrent->getId());
                 $oSelfTalk->setUserIdLast($this->oUserCurrent->getId());
                 $oSelfTalk->setTitle($sTitle);
-                $oSelfTalk->setText($this->Text_Parser('To: <i>' . $sUsers . '</i>' . "\n\n" . 'Msg: ' . $this->GetPost('talk_text')));
+                $oSelfTalk->setText(E::ModuleText()->Parser('To: <i>' . $sUsers . '</i>' . "\n\n" . 'Msg: ' . $this->GetPost('talk_text')));
                 $oSelfTalk->setDate($sDate);
                 $oSelfTalk->setDateLast($sDate);
                 $oSelfTalk->setUserIp($sIp);
-                if (($oSelfTalk = $this->Talk_AddTalk($oSelfTalk))) {
+                if (($oSelfTalk = E::ModuleTalk()->AddTalk($oSelfTalk))) {
                     $oTalkUser = E::GetEntity('Talk_TalkUser');
                     $oTalkUser->setTalkId($oSelfTalk->getId());
                     $oTalkUser->setUserId($this->oUserCurrent->getId());
                     $oTalkUser->setDateLast($sDate);
-                    $this->Talk_AddTalkUser($oTalkUser);
+                    E::ModuleTalk()->AddTalkUser($oTalkUser);
 
                     // уведомление по e-mail
                     $oUserToMail = $this->oUserCurrent;
-                    $this->Notify_SendTalkNew($oUserToMail, $this->oUserCurrent, $oSelfTalk);
+                    E::ModuleNotify()->SendTalkNew($oUserToMail, $this->oUserCurrent, $oSelfTalk);
                 } else {
                     $bOk = false;
                 }
@@ -1963,7 +1963,7 @@ class ActionAdmin extends Action {
             if ($bOk) {
                 // теперь рассылаем остальным - каждому отдельное сообщение
                 foreach ($aUsers as $sUserLogin) {
-                    if ($sUserLogin && $sUserLogin != $this->oUserCurrent->getLogin() && ($oUserRecipient = $this->User_GetUserByLogin($sUserLogin))) {
+                    if ($sUserLogin && $sUserLogin != $this->oUserCurrent->getLogin() && ($oUserRecipient = E::ModuleUser()->GetUserByLogin($sUserLogin))) {
                         $oTalk = E::GetEntity('Talk_Talk');
                         $oTalk->setUserId($this->oUserCurrent->getId());
                         $oTalk->setUserIdLast($this->oUserCurrent->getId());
@@ -1972,23 +1972,23 @@ class ActionAdmin extends Action {
                         $oTalk->setDate($sDate);
                         $oTalk->setDateLast($sDate);
                         $oTalk->setUserIp($sIp);
-                        if (($oTalk = $this->Talk_AddTalk($oTalk))) {
+                        if (($oTalk = E::ModuleTalk()->AddTalk($oTalk))) {
                             $oTalkUser = E::GetEntity('Talk_TalkUser');
                             $oTalkUser->setTalkId($oTalk->getId());
                             $oTalkUser->setUserId($oUserRecipient->GetId());
                             $oTalkUser->setDateLast(null);
-                            $this->Talk_AddTalkUser($oTalkUser);
+                            E::ModuleTalk()->AddTalkUser($oTalkUser);
 
                             // Отправка самому себе, чтобы можно было читать ответ
                             $oTalkUser = E::GetEntity('Talk_TalkUser');
                             $oTalkUser->setTalkId($oTalk->getId());
                             $oTalkUser->setUserId($this->oUserCurrent->getId());
                             $oTalkUser->setDateLast($sDate);
-                            $this->Talk_AddTalkUser($oTalkUser);
+                            E::ModuleTalk()->AddTalkUser($oTalkUser);
 
                             // Отправляем уведомления
-                            $oUserToMail = $this->User_GetUserById($oUserRecipient->GetId());
-                            $this->Notify_SendTalkNew($oUserToMail, $this->oUserCurrent, $oTalk);
+                            $oUserToMail = E::ModuleUser()->GetUserById($oUserRecipient->GetId());
+                            E::ModuleNotify()->SendTalkNew($oUserToMail, $this->oUserCurrent, $oTalk);
                         } else {
                             $bOk = false;
                             break;
@@ -1999,9 +1999,9 @@ class ActionAdmin extends Action {
         }
 
         if ($bOk) {
-            $this->Message_AddNotice($this->Lang_Get('action.admin.msg_sent_ok'), null, true);
+            E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('action.admin.msg_sent_ok'), null, true);
         } else {
-            $this->Message_AddError($this->Lang_Get('system_error'), null, true);
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), null, true);
         }
     }
 
@@ -2014,10 +2014,10 @@ class ActionAdmin extends Action {
         }
         if ($aUsers) {
             foreach ($aUsers as $sUserLogin) {
-                $oUser = $this->User_GetUserByLogin($sUserLogin);
+                $oUser = E::ModuleUser()->GetUserByLogin($sUserLogin);
                 $oUser->setActivate(1);
                 $oUser->setDateActivate(F::Now());
-                $this->User_Update($oUser);
+                E::ModuleUser()->Update($oUser);
             }
         }
         R::ReturnBack();
@@ -2029,7 +2029,7 @@ class ActionAdmin extends Action {
 
         $this->sMainMenuItem = 'users';
 
-        $this->_setTitle($this->Lang_Get('action.admin.invites_title'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.invites_title'));
         $this->SetTemplateAction('users/invites_list');
 
         $sMode = $this->GetParam(0);
@@ -2042,10 +2042,10 @@ class ActionAdmin extends Action {
         if ($this->oUserCurrent->isAdministrator()) {
             $iCountInviteAvailable = -1;
         } else {
-            $iCountInviteAvailable = $this->User_GetCountInviteAvailable($this->oUserCurrent);
+            $iCountInviteAvailable = E::ModuleUser()->GetCountInviteAvailable($this->oUserCurrent);
         }
-        $this->Viewer_Assign('iCountInviteAvailable', $iCountInviteAvailable);
-        $this->Viewer_Assign('iCountInviteUsed', $this->User_GetCountInviteUsed($this->oUserCurrent->getId()));
+        E::ModuleViewer()->Assign('iCountInviteAvailable', $iCountInviteAvailable);
+        E::ModuleViewer()->Assign('iCountInviteUsed', E::ModuleUser()->GetCountInviteUsed($this->oUserCurrent->getId()));
     }
 
     protected function _eventInvitesList($sMode) {
@@ -2069,21 +2069,21 @@ class ActionAdmin extends Action {
             $aFilter = array();
         }
         // Получаем список инвайтов
-        $aResult = $this->Admin_GetInvites($nPage, Config::Get('admin.items_per_page'), $aFilter);
+        $aResult = E::ModuleAdmin()->GetInvites($nPage, Config::Get('admin.items_per_page'), $aFilter);
         $aInvites = $aResult['collection'];
-        $aCounts = $this->Admin_GetInvitesCount();
+        $aCounts = E::ModuleAdmin()->GetInvitesCount();
 
         // Формируем постраничность
-        $aPaging = $this->Viewer_MakePaging($aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4, R::GetPath('admin') . 'users-invites');
-        $this->Viewer_Assign('aPaging', $aPaging);
-        $this->Viewer_Assign('aInvites', $aInvites);
-        $this->Viewer_Assign('aCounts', $aCounts);
-        $this->Viewer_Assign('sMode', $sMode);
+        $aPaging = E::ModuleViewer()->MakePaging($aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4, R::GetPath('admin') . 'users-invites');
+        E::ModuleViewer()->Assign('aPaging', $aPaging);
+        E::ModuleViewer()->Assign('aInvites', $aInvites);
+        E::ModuleViewer()->Assign('aCounts', $aCounts);
+        E::ModuleViewer()->Assign('sMode', $sMode);
     }
 
     protected function _eventInvitesDelete() {
 
-        $this->Security_ValidateSendForm();
+        E::ModuleSecurity()->ValidateSendForm();
 
         $aIds = array();
         foreach ($_POST as $sKey => $sVal) {
@@ -2092,8 +2092,8 @@ class ActionAdmin extends Action {
             }
         }
         if ($aIds) {
-            $nResult = $this->Admin_DeleteInvites($aIds);
-            $this->Message_AddNotice($this->Lang_Get('action.admin.invaite_deleted', array('num' => $nResult)));
+            $nResult = E::ModuleAdmin()->DeleteInvites($aIds);
+            E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('action.admin.invaite_deleted', array('num' => $nResult)));
         }
         R::ReturnBack(true);
     }
@@ -2104,7 +2104,7 @@ class ActionAdmin extends Action {
 
         $this->sMainMenuItem = 'users';
 
-        $this->_setTitle($this->Lang_Get('action.admin.banlist_title'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.banlist_title'));
         $sMode = $this->_getMode(0, 'ids');
         $nPage = $this->_getPageNum();
 
@@ -2117,7 +2117,7 @@ class ActionAdmin extends Action {
             $sMode = 'ids';
             $this->_eventBanlistIds($nPage);
         }
-        $this->Viewer_Assign('sMode', $sMode);
+        E::ModuleViewer()->Assign('sMode', $sMode);
     }
 
     protected function _eventBanListCmd($sCmd) {
@@ -2138,7 +2138,7 @@ class ActionAdmin extends Action {
                 // здесь получаем логины юзеров
                 $aUsersLogin = F::Array_Str2Array($sUsersList);
                 // по логинам получаем список юзеров
-                $aUsers = $this->User_GetUsersByFilter(array('login' => $aUsersLogin), '', 1, 100, array());
+                $aUsers = E::ModuleUser()->GetUsersByFilter(array('login' => $aUsersLogin), '', 1, 100, array());
                 if ($aUsers) {
                     // и их баним
                     $this->_eventUsersCmdBan(array_keys($aUsers['collection']), $nBanDays, $sBanComment);
@@ -2148,7 +2148,7 @@ class ActionAdmin extends Action {
             }
         } elseif ($sCmd == 'adm_unsetban_ip') {
             $aId = F::Array_Str2ArrayInt($this->GetPost('bans_list'), ',', true);
-            $this->Admin_UnsetBanIp($aId);
+            E::ModuleAdmin()->UnsetBanIp($aId);
         } elseif ($sCmd == 'adm_unsetban_user') {
             $aUsersId = F::Array_Str2ArrayInt($this->GetPost('bans_list'), ',', true);
             $this->_eventUsersCmdUnban($aUsersId);
@@ -2161,14 +2161,14 @@ class ActionAdmin extends Action {
         $this->SetTemplateAction('users/banlist_ids');
 
         // Получаем список забаненных юзеров
-        $aResult = $this->Admin_GetUsersBanList($nPage, Config::Get('admin.items_per_page'));
+        $aResult = E::ModuleAdmin()->GetUsersBanList($nPage, Config::Get('admin.items_per_page'));
 
         // Формируем постраничность
-        $aPaging = $this->Viewer_MakePaging(
+        $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4, R::GetPath('admin') . 'banlist/ids/'
         );
-        $this->Viewer_Assign('aPaging', $aPaging);
-        $this->Viewer_Assign('aUserList', $aResult['collection']);
+        E::ModuleViewer()->Assign('aPaging', $aPaging);
+        E::ModuleViewer()->Assign('aUserList', $aResult['collection']);
     }
 
     protected function _eventBanlistIps($nPage) {
@@ -2176,14 +2176,14 @@ class ActionAdmin extends Action {
         $this->SetTemplateAction('users/banlist_ips');
 
         // Получаем список забаненных ip-адресов
-        $aResult = $this->Admin_GetIpsBanList($nPage, Config::Get('admin.items_per_page'));
+        $aResult = E::ModuleAdmin()->GetIpsBanList($nPage, Config::Get('admin.items_per_page'));
 
         // Формируем постраничность
-        $aPaging = $this->Viewer_MakePaging(
+        $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4, R::GetPath('admin') . 'banlist/ips/'
         );
-        $this->Viewer_Assign('aPaging', $aPaging);
-        $this->Viewer_Assign('aIpsList', $aResult['collection']);
+        E::ModuleViewer()->Assign('aPaging', $aPaging);
+        E::ModuleViewer()->Assign('aIpsList', $aResult['collection']);
     }
 
     /**********************************************************************************/
@@ -2206,7 +2206,7 @@ class ActionAdmin extends Action {
 
         $this->sMainMenuItem = 'site';
 
-        $this->_setTitle($this->Lang_Get('action.admin.skins_title'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.skins_title'));
         $this->SetTemplateAction('site/skins');
 
         // Определяем скин и тему основного сайта (не админки)
@@ -2243,7 +2243,7 @@ class ActionAdmin extends Action {
             $this->_eventSkinThemeActivate($sMode, $sSkin, $sTheme);
         }
 
-        $aSkins = $this->Skin_GetSkinsList($aFilter);
+        $aSkins = E::ModuleSkin()->GetSkinsList($aFilter);
         $oActiveSkin = null;
         foreach ($aSkins as $sKey => $oSkin) {
             if ($sMode == 'adm') {
@@ -2260,16 +2260,16 @@ class ActionAdmin extends Action {
         }
 
         if ($sMode == 'adm') {
-            $this->Viewer_Assign('sSiteSkin', $sAdminSkin);
-            $this->Viewer_Assign('sSiteTheme', $sAdminTheme);
+            E::ModuleViewer()->Assign('sSiteSkin', $sAdminSkin);
+            E::ModuleViewer()->Assign('sSiteTheme', $sAdminTheme);
         } else {
-            $this->Viewer_Assign('sSiteSkin', $sSiteSkin);
-            $this->Viewer_Assign('sSiteTheme', $sSiteTheme);
+            E::ModuleViewer()->Assign('sSiteSkin', $sSiteSkin);
+            E::ModuleViewer()->Assign('sSiteTheme', $sSiteTheme);
         }
 
-        $this->Viewer_Assign('oActiveSkin', $oActiveSkin);
-        $this->Viewer_Assign('aSkins', $aSkins);
-        $this->Viewer_Assign('sMode', $sMode);
+        E::ModuleViewer()->Assign('oActiveSkin', $oActiveSkin);
+        E::ModuleViewer()->Assign('aSkins', $aSkins);
+        E::ModuleViewer()->Assign('sMode', $sMode);
     }
 
     protected function _eventSkinActivate($sMode, $sSkin) {
@@ -2309,20 +2309,20 @@ class ActionAdmin extends Action {
 
         $sLogTxt = F::File_GetContents($sLogFile);
         if ($this->sCurrentEvent == 'logs-sqlerror') {
-            $this->_setTitle($this->Lang_Get('action.admin.logs_sql_errors_title'));
+            $this->_setTitle(E::ModuleLang()->Get('action.admin.logs_sql_errors_title'));
             $this->SetTemplateAction('logs/sql_errors');
             $this->_eventLogsSqlErrors($sLogTxt);
         } elseif ($this->sCurrentEvent == 'logs-sqllog') {
-            $this->_setTitle($this->Lang_Get('action.admin.logs_sql_title'));
+            $this->_setTitle(E::ModuleLang()->Get('action.admin.logs_sql_title'));
             $this->SetTemplateAction('logs/sql_log');
             $this->_eventLogsSql($sLogTxt);
         } else {
-            $this->_setTitle($this->Lang_Get('action.admin.logs_errors_title'));
+            $this->_setTitle(E::ModuleLang()->Get('action.admin.logs_errors_title'));
             $this->SetTemplateAction('logs/errors');
             $this->_eventLogsErrors($sLogTxt);
         }
 
-        $this->Viewer_Assign('sLogTxt', $sLogTxt);
+        E::ModuleViewer()->Assign('sLogTxt', $sLogTxt);
     }
 
     protected function _eventLogsErrorDelete($sLogFile) {
@@ -2335,7 +2335,7 @@ class ActionAdmin extends Action {
         $aLogs = array();
         if (preg_match_all('/\[LOG\:(?<id>[\d\-\.\,A-F]+)\]\[(?<date>[\d\-\s\:]+)\].*\[\[(?<text>.*)\]\]/siuU', $sLogTxt, $aM, PREG_PATTERN_ORDER)) {
             if (preg_last_error() == PREG_BACKTRACK_LIMIT_ERROR) {
-                $this->Message_AddError($this->Lang_Get('action.admin.logs_too_long'), null);
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.logs_too_long'), null);
             }
             foreach ($aM[0] as $nRec => $sVal) {
                 $aRec = array(
@@ -2395,7 +2395,7 @@ class ActionAdmin extends Action {
             $aLogs[$nRec] = $aRec;
         }
 
-        $this->Viewer_Assign('aLogs', $aLogs);
+        E::ModuleViewer()->Assign('aLogs', $aLogs);
     }
 
     protected function _eventLogsSqlErrors($sLogTxt) {
@@ -2417,7 +2417,7 @@ class ActionAdmin extends Action {
             $aLogs[$nRec] = $aRec;
         }
 
-        $this->Viewer_Assign('aLogs', $aLogs);
+        E::ModuleViewer()->Assign('aLogs', $aLogs);
     }
 
     protected function _eventLogsSql($sLogTxt) {
@@ -2439,7 +2439,7 @@ class ActionAdmin extends Action {
             $aLogs[$nRec] = $aRec;
         }
 
-        $this->Viewer_Assign('aLogs', $aLogs);
+        E::ModuleViewer()->Assign('aLogs', $aLogs);
     }
 
     /**********************************************************************************/
@@ -2448,23 +2448,23 @@ class ActionAdmin extends Action {
 
         $this->sMainMenuItem = 'tools';
 
-        $this->_setTitle($this->Lang_Get('action.admin.reset_title'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.reset_title'));
         $this->SetTemplateAction('tools/reset');
 
         $aSettings = array();
         if ($this->GetPost('adm_reset_submit')) {
             $aConfig = array();
             if ($this->GetPost('adm_cache_clear_data')) {
-                $this->Cache_Clean();
+                E::ModuleCache()->Clean();
                 $aSettings['adm_cache_clear_data'] = 1;
             }
             if ($this->GetPost('adm_cache_clear_assets')) {
-                $this->Viewer_ClearAssetsFiles();
+                E::ModuleViewer()->ClearAssetsFiles();
                 $aConfig['assets.version'] = time();
                 $aSettings['adm_cache_clear_assets'] = 1;
             }
             if ($this->GetPost('adm_cache_clear_smarty')) {
-                $this->Viewer_ClearSmartyFiles();
+                E::ModuleViewer()->ClearSmartyFiles();
                 $aSettings['adm_cache_clear_smarty'] = 1;
             }
             if ($this->GetPost('adm_reset_config_data')) {
@@ -2475,19 +2475,19 @@ class ActionAdmin extends Action {
             if ($aConfig) {
                 Config::WriteCustomConfig($aConfig);
             }
-            $this->Message_AddNotice($this->Lang_Get('action.admin.action_ok'), null, true);
+            E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('action.admin.action_ok'), null, true);
 
             if ($aSettings) {
-                $this->Session_SetCookie('adm_tools_reset', serialize($aSettings));
+                E::ModuleSession()->SetCookie('adm_tools_reset', serialize($aSettings));
             } else {
-                $this->Session_DelCookie('adm_tools_reset');
+                E::ModuleSession()->DelCookie('adm_tools_reset');
             }
             R::Location('admin/tools-reset/');
         }
-        if ($sSettings = $this->Session_GetCookie('adm_tools_reset')) {
+        if ($sSettings = E::ModuleSession()->GetCookie('adm_tools_reset')) {
             $aSettings = @unserialize($sSettings);
             if (is_array($aSettings)) {
-                $this->Viewer_Assign('aSettings', $aSettings);
+                E::ModuleViewer()->Assign('aSettings', $aSettings);
             }
         }
     }
@@ -2510,23 +2510,23 @@ class ActionAdmin extends Action {
 
         $this->sMainMenuItem = 'tools';
 
-        $this->_setTitle($this->Lang_Get('action.admin.comments_tree_title'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.comments_tree_title'));
         $this->SetTemplateAction('tools/comments_tree');
         if (F::isPost('comments_tree_submit')) {
-            $this->Security_ValidateSendForm();
+            E::ModuleSecurity()->ValidateSendForm();
             set_time_limit(0);
-            $this->Comment_RestoreTree();
-            $this->Cache_Clean();
+            E::ModuleComment()->RestoreTree();
+            E::ModuleCache()->Clean();
 
-            $this->Message_AddNotice($this->Lang_Get('comments_tree_restored'), $this->Lang_Get('attention'));
-            $this->Viewer_Assign('bActionEnable', false);
+            E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('comments_tree_restored'), E::ModuleLang()->Get('attention'));
+            E::ModuleViewer()->Assign('bActionEnable', false);
         } else {
             if (Config::Get('module.comment.use_nested')) {
-                $this->Viewer_Assign('sMessage', $this->Lang_Get('action.admin.comments_tree_message'));
-                $this->Viewer_Assign('bActionEnable', true);
+                E::ModuleViewer()->Assign('sMessage', E::ModuleLang()->Get('action.admin.comments_tree_message'));
+                E::ModuleViewer()->Assign('bActionEnable', true);
             } else {
-                $this->Viewer_Assign('sMessage', $this->Lang_Get('action.admin.comments_tree_disabled'));
-                $this->Viewer_Assign('bActionEnable', false);
+                E::ModuleViewer()->Assign('sMessage', E::ModuleLang()->Get('action.admin.comments_tree_disabled'));
+                E::ModuleViewer()->Assign('bActionEnable', false);
             }
         }
     }
@@ -2541,20 +2541,20 @@ class ActionAdmin extends Action {
 
         $this->sMainMenuItem = 'tools';
 
-        $this->_setTitle($this->Lang_Get('action.admin.recalcfavourites_title'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.recalcfavourites_title'));
         $this->SetTemplateAction('tools/recalcfavourites');
         if (F::isPost('recalcfavourites_submit')) {
-            $this->Security_ValidateSendForm();
+            E::ModuleSecurity()->ValidateSendForm();
             set_time_limit(0);
-            $this->Comment_RecalculateFavourite();
-            $this->Topic_RecalculateFavourite();
-            $this->Cache_Clean();
+            E::ModuleComment()->RecalculateFavourite();
+            E::ModuleTopic()->RecalculateFavourite();
+            E::ModuleCache()->Clean();
 
-            $this->Message_AddNotice($this->Lang_Get('action.admin.favourites_recalculated'), $this->Lang_Get('attention'));
-            $this->Viewer_Assign('bActionEnable', false);
+            E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('action.admin.favourites_recalculated'), E::ModuleLang()->Get('attention'));
+            E::ModuleViewer()->Assign('bActionEnable', false);
         } else {
-            $this->Viewer_Assign('sMessage', $this->Lang_Get('action.admin.recalcfavourites_message'));
-            $this->Viewer_Assign('bActionEnable', true);
+            E::ModuleViewer()->Assign('sMessage', E::ModuleLang()->Get('action.admin.recalcfavourites_message'));
+            E::ModuleViewer()->Assign('bActionEnable', true);
         }
     }
 
@@ -2567,18 +2567,18 @@ class ActionAdmin extends Action {
 
         $this->sMainMenuItem = 'tools';
 
-        $this->_setTitle($this->Lang_Get('action.admin.recalcvotes_title'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.recalcvotes_title'));
         $this->SetTemplateAction('tools/recalcvotes');
         if (F::isPost('recalcvotes_submit')) {
-            $this->Security_ValidateSendForm();
+            E::ModuleSecurity()->ValidateSendForm();
             set_time_limit(0);
-            $this->Topic_RecalculateVote();
-            $this->Cache_Clean();
+            E::ModuleTopic()->RecalculateVote();
+            E::ModuleCache()->Clean();
 
-            $this->Message_AddNotice($this->Lang_Get('action.admin.votes_recalculated'), $this->Lang_Get('attention'));
+            E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('action.admin.votes_recalculated'), E::ModuleLang()->Get('attention'));
         } else {
-            $this->Viewer_Assign('sMessage', $this->Lang_Get('action.admin.recalcvotes_message'));
-            $this->Viewer_Assign('bActionEnable', true);
+            E::ModuleViewer()->Assign('sMessage', E::ModuleLang()->Get('action.admin.recalcvotes_message'));
+            E::ModuleViewer()->Assign('bActionEnable', true);
         }
     }
 
@@ -2591,18 +2591,18 @@ class ActionAdmin extends Action {
 
         $this->sMainMenuItem = 'tools';
 
-        $this->_setTitle($this->Lang_Get('action.admin.recalctopics_title'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.recalctopics_title'));
         $this->SetTemplateAction('tools/recalctopics');
         if (F::isPost('recalctopics_submit')) {
-            $this->Security_ValidateSendForm();
+            E::ModuleSecurity()->ValidateSendForm();
             set_time_limit(0);
-            $this->Blog_RecalculateCountTopic();
-            $this->Cache_Clean();
+            E::ModuleBlog()->RecalculateCountTopic();
+            E::ModuleCache()->Clean();
 
-            $this->Message_AddNotice($this->Lang_Get('action.admin.topics_recalculated'), $this->Lang_Get('attention'));
+            E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('action.admin.topics_recalculated'), E::ModuleLang()->Get('attention'));
         } else {
-            $this->Viewer_Assign('sMessage', $this->Lang_Get('action.admin.recalctopics_message'));
-            $this->Viewer_Assign('bActionEnable', true);
+            E::ModuleViewer()->Assign('sMessage', E::ModuleLang()->Get('action.admin.recalctopics_message'));
+            E::ModuleViewer()->Assign('bActionEnable', true);
         }
     }
 
@@ -2613,18 +2613,18 @@ class ActionAdmin extends Action {
 
         $this->sMainMenuItem = 'tools';
 
-        $this->_setTitle($this->Lang_Get('action.admin.recalcblograting_title'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.recalcblograting_title'));
         $this->SetTemplateAction('tools/recalcblograting');
         if (F::isPost('recalcblograting_submit')) {
-            $this->Security_ValidateSendForm();
+            E::ModuleSecurity()->ValidateSendForm();
             set_time_limit(0);
-            $this->Rating_RecalculateBlogRating();
-            $this->Cache_Clean();
+            E::ModuleRating()->RecalculateBlogRating();
+            E::ModuleCache()->Clean();
 
-            $this->Message_AddNotice($this->Lang_Get('action.admin.blograting_recalculated'), $this->Lang_Get('attention'));
+            E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('action.admin.blograting_recalculated'), E::ModuleLang()->Get('attention'));
         } else {
-            $this->Viewer_Assign('sMessage', $this->Lang_Get('action.admin.recalcblograting_message'));
-            $this->Viewer_Assign('bActionEnable', true);
+            E::ModuleViewer()->Assign('sMessage', E::ModuleLang()->Get('action.admin.recalcblograting_message'));
+            E::ModuleViewer()->Assign('bActionEnable', true);
         }
     }
 
@@ -2635,7 +2635,7 @@ class ActionAdmin extends Action {
 
         $this->sMainMenuItem = 'tools';
 
-        $this->_setTitle($this->Lang_Get('action.admin.checkdb_title'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.checkdb_title'));
         $this->SetTemplateAction('tools/checkdb');
 
         $sMode = $this->getParam(0, 'db');
@@ -2644,7 +2644,7 @@ class ActionAdmin extends Action {
         } elseif ($sMode == 'topics') {
             $this->_eventCheckDbTopics();
         }
-        $this->Viewer_Assign('sMode', $sMode);
+        E::ModuleViewer()->Assign('sMode', $sMode);
     }
 
     protected function _eventCheckDbBlogs() {
@@ -2652,20 +2652,20 @@ class ActionAdmin extends Action {
         $this->SetTemplateAction('tools/checkdb_blogs');
         $sDoAction = F::GetRequest('do_action');
         if ($sDoAction == 'clear_blogs_joined') {
-            $aJoinedBlogs = $this->Admin_GetUnlinkedBlogsForUsers();
+            $aJoinedBlogs = E::ModuleAdmin()->GetUnlinkedBlogsForUsers();
             if ($aJoinedBlogs) {
-                $this->Admin_DelUnlinkedBlogsForUsers(array_keys($aJoinedBlogs));
+                E::ModuleAdmin()->DelUnlinkedBlogsForUsers(array_keys($aJoinedBlogs));
             }
         } elseif ($sDoAction == 'clear_blogs_co') {
-            $aCommentsOnlineBlogs = $this->Admin_GetUnlinkedBlogsForCommentsOnline();
+            $aCommentsOnlineBlogs = E::ModuleAdmin()->GetUnlinkedBlogsForCommentsOnline();
             if ($aCommentsOnlineBlogs) {
-                $this->Admin_DelUnlinkedBlogsForCommentsOnline(array_keys($aCommentsOnlineBlogs));
+                E::ModuleAdmin()->DelUnlinkedBlogsForCommentsOnline(array_keys($aCommentsOnlineBlogs));
             }
         }
-        $aJoinedBlogs = $this->Admin_GetUnlinkedBlogsForUsers();
-        $aCommentsOnlineBlogs = $this->Admin_GetUnlinkedBlogsForCommentsOnline();
-        $this->Viewer_Assign('aJoinedBlogs', $aJoinedBlogs);
-        $this->Viewer_Assign('aCommentsOnlineBlogs', $aCommentsOnlineBlogs);
+        $aJoinedBlogs = E::ModuleAdmin()->GetUnlinkedBlogsForUsers();
+        $aCommentsOnlineBlogs = E::ModuleAdmin()->GetUnlinkedBlogsForCommentsOnline();
+        E::ModuleViewer()->Assign('aJoinedBlogs', $aJoinedBlogs);
+        E::ModuleViewer()->Assign('aCommentsOnlineBlogs', $aCommentsOnlineBlogs);
     }
 
     protected function _eventCheckDbTopics() {
@@ -2673,13 +2673,13 @@ class ActionAdmin extends Action {
         $this->SetTemplateAction('tools/checkdb_topics');
         $sDoAction = F::GetRequest('do_action');
         if ($sDoAction == 'clear_topics_co') {
-            $aCommentsOnlineBlogs = $this->Admin_GetUnlinkedTopicsForCommentsOnline();
+            $aCommentsOnlineBlogs = E::ModuleAdmin()->GetUnlinkedTopicsForCommentsOnline();
             if ($aCommentsOnlineBlogs) {
-                $this->Admin_DelUnlinkedTopicsForCommentsOnline(array_keys($aCommentsOnlineBlogs));
+                E::ModuleAdmin()->DelUnlinkedTopicsForCommentsOnline(array_keys($aCommentsOnlineBlogs));
             }
         }
-        $aCommentsOnlineTopics = $this->Admin_GetUnlinkedTopicsForCommentsOnline();
-        $this->Viewer_Assign('aCommentsOnlineTopics', $aCommentsOnlineTopics);
+        $aCommentsOnlineTopics = E::ModuleAdmin()->GetUnlinkedTopicsForCommentsOnline();
+        E::ModuleViewer()->Assign('aCommentsOnlineTopics', $aCommentsOnlineTopics);
     }
 
     /**********************************************************************************/
@@ -2691,7 +2691,7 @@ class ActionAdmin extends Action {
 
         $this->sMainMenuItem = 'settings';
 
-        $aLanguages = $this->Lang_GetAvailableLanguages();
+        $aLanguages = E::ModuleLang()->GetAvailableLanguages();
         $aAllows = (array)Config::Get('lang.allow');
         if (!$aAllows) $aAllows = array(Config::Get('lang.current'));
         if (!$aAllows) $aAllows = array(Config::Get('lang.default'));
@@ -2759,11 +2759,11 @@ class ActionAdmin extends Action {
             R::Location('admin/settings-lang/');
         }
 
-        $this->_setTitle($this->Lang_Get('action.admin.set_title_lang'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.set_title_lang'));
         $this->SetTemplateAction('settings/lang');
 
-        $this->Viewer_Assign('aLanguages', $aLanguages);
-        $this->Viewer_Assign('aLangAllow', $aLangAllow);
+        E::ModuleViewer()->Assign('aLanguages', $aLanguages);
+        E::ModuleViewer()->Assign('aLangAllow', $aLangAllow);
     }
 
     /**********************************************************************************/
@@ -2776,7 +2776,7 @@ class ActionAdmin extends Action {
         $this->sMainMenuItem = 'settings';
 
         $sMode = $this->getParam(0);
-        $this->Viewer_Assign('sMode', $sMode);
+        E::ModuleViewer()->Assign('sMode', $sMode);
 
         if ($sMode == 'add') {
             return $this->_eventBlogTypesAdd();
@@ -2797,16 +2797,16 @@ class ActionAdmin extends Action {
      */
     protected function _eventBlogTypesList() {
 
-        $this->_setTitle($this->Lang_Get('action.admin.blogtypes_menu'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.blogtypes_menu'));
         $this->SetTemplateAction('settings/blogtypes');
 
-        $aBlogTypes = $this->Blog_GetBlogTypes();
-        $aLangList = $this->Lang_GetLangList();
+        $aBlogTypes = E::ModuleBlog()->GetBlogTypes();
+        $aLangList = E::ModuleLang()->GetLangList();
 
-        $this->Viewer_Assign('aBlogTypes', $aBlogTypes);
-        $this->Viewer_Assign('aLangList', $aLangList);
+        E::ModuleViewer()->Assign('aBlogTypes', $aBlogTypes);
+        E::ModuleViewer()->Assign('aLangList', $aLangList);
 
-        $this->Lang_AddLangJs(array(
+        E::ModuleLang()->AddLangJs(array(
                 'action.admin.blogtypes_del_confirm_title',
                 'action.admin.blogtypes_del_confirm_text',
             ));
@@ -2817,15 +2817,15 @@ class ActionAdmin extends Action {
      */
     protected function _eventBlogTypesEdit() {
 
-        $this->_setTitle($this->Lang_Get('action.admin.blogtypes_menu'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.blogtypes_menu'));
         $this->SetTemplateAction('settings/blogtypes_edit');
 
         $nBlogTypeId = intval($this->getParam(1));
         if ($nBlogTypeId) {
             /** @var ModuleBlog_EntityBlogType $oBlogType */
-            $oBlogType = $this->Blog_GetBlogTypeById($nBlogTypeId);
+            $oBlogType = E::ModuleBlog()->GetBlogTypeById($nBlogTypeId);
 
-            $aLangList = $this->Lang_GetLangList();
+            $aLangList = E::ModuleLang()->GetLangList();
             if ($this->IsPost('submit_type_add')) {
                 return $this->_eventBlogTypesEditSubmit();
             } else {
@@ -2886,11 +2886,11 @@ class ActionAdmin extends Action {
                 }
 
             }
-            $this->Viewer_Assign('oBlogType', $oBlogType);
-            $this->Viewer_Assign('aLangList', $aLangList);
+            E::ModuleViewer()->Assign('oBlogType', $oBlogType);
+            E::ModuleViewer()->Assign('aLangList', $aLangList);
             $aFilter = array('content_active' => 1);
-            $aContentTypes = $this->Topic_GetContentTypes($aFilter, false);
-            $this->Viewer_Assign('aContentTypes', $aContentTypes);
+            $aContentTypes = E::ModuleTopic()->GetContentTypes($aFilter, false);
+            E::ModuleViewer()->Assign('aContentTypes', $aContentTypes);
         }
     }
 
@@ -2902,7 +2902,7 @@ class ActionAdmin extends Action {
         $nBlogTypeId = intval($this->getParam(1));
         if ($nBlogTypeId) {
             /** @var ModuleBlog_EntityBlogType $oBlogType */
-            $oBlogType = $this->Blog_GetBlogTypeById($nBlogTypeId);
+            $oBlogType = E::ModuleBlog()->GetBlogTypeById($nBlogTypeId);
             if ($oBlogType) {
                 $oBlogType->_setValidateScenario('update');
 
@@ -2937,19 +2937,19 @@ class ActionAdmin extends Action {
                 $nAclValue = intval($this->GetPost('blogtypes_acl_comment'));
                 $oBlogType->SetAclComment($nAclValue);
 
-                $this->Hook_Run('blogtype_edit_validate_before', array('oBlogType' => $oBlogType));
+                E::ModuleHook()->Run('blogtype_edit_validate_before', array('oBlogType' => $oBlogType));
                 if ($oBlogType->_Validate()) {
                     if ($this->_updateBlogType($oBlogType)) {
                         R::Location('admin/settings-blogtypes');
                     }
                 } else {
-                    $this->Message_AddError($oBlogType->_getValidateError(), $this->Lang_Get('error'));
+                    E::ModuleMessage()->AddError($oBlogType->_getValidateError(), E::ModuleLang()->Get('error'));
                 }
             } else {
-                $this->Message_AddError($this->Lang_Get('action.admin.blogtypes_err_id_notfound'), $this->Lang_Get('error'));
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.blogtypes_err_id_notfound'), E::ModuleLang()->Get('error'));
             }
         }
-        $this->Viewer_Assign('oBlogType', $oBlogType);
+        E::ModuleViewer()->Assign('oBlogType', $oBlogType);
     }
 
     /**
@@ -2957,11 +2957,11 @@ class ActionAdmin extends Action {
      */
     protected function _eventBlogTypesAdd() {
 
-        $this->_setTitle($this->Lang_Get('action.admin.blogtypes_menu'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.blogtypes_menu'));
         $this->SetTemplateAction('settings/blogtypes_edit');
 
-        $aLangList = $this->Lang_GetLangList();
-        $this->Viewer_Assign('aLangList', $aLangList);
+        $aLangList = E::ModuleLang()->GetLangList();
+        E::ModuleViewer()->Assign('aLangList', $aLangList);
 
         if ($this->IsPost('submit_type_add')) {
             return $this->_eventBlogTypesAddSubmit();
@@ -2983,8 +2983,8 @@ class ActionAdmin extends Action {
         );
         $_REQUEST['blogtypes_contenttypes'] = '';
         $aFilter = array('content_active' => 1);
-        $aContentTypes = $this->Topic_GetContentTypes($aFilter, false);
-        $this->Viewer_Assign('aContentTypes', $aContentTypes);
+        $aContentTypes = E::ModuleTopic()->GetContentTypes($aFilter, false);
+        E::ModuleViewer()->Assign('aContentTypes', $aContentTypes);
     }
 
     /**
@@ -3027,14 +3027,14 @@ class ActionAdmin extends Action {
         $nAclValue = intval($this->GetPost('blogtypes_acl_comment'));
         $oBlogType->SetAclComment($nAclValue);
 
-        $this->Hook_Run('blogtype_add_validate_before', array('oBlogType' => $oBlogType));
+        E::ModuleHook()->Run('blogtype_add_validate_before', array('oBlogType' => $oBlogType));
         if ($oBlogType->_Validate()) {
             if ($this->_addBlogType($oBlogType)) {
                 R::Location('admin/settings-blogtypes');
             }
         } else {
-            $this->Message_AddError($oBlogType->_getValidateError(), $this->Lang_Get('error'));
-            $this->Viewer_Assign('aFormErrors', $oBlogType->_getValidateErrors());
+            E::ModuleMessage()->AddError($oBlogType->_getValidateError(), E::ModuleLang()->Get('error'));
+            E::ModuleViewer()->Assign('aFormErrors', $oBlogType->_getValidateErrors());
         }
     }
 
@@ -3044,26 +3044,26 @@ class ActionAdmin extends Action {
     protected function _eventBlogTypesDelete() {
 
         $iBlogTypeId = intval($this->getParam(1));
-        if ($iBlogTypeId && ($oBlogType = $this->Blog_GetBlogTypeById($iBlogTypeId))) {
+        if ($iBlogTypeId && ($oBlogType = E::ModuleBlog()->GetBlogTypeById($iBlogTypeId))) {
 
             if ($oBlogType->GetBlogsCount()) {
-                $this->Message_AddErrorSingle(
-                    $this->Lang_Get('action.admin.blogtypes_del_err_notempty', array('count' => $oBlogType->GetBlogsCount())),
-                    $this->Lang_Get('action.admin.blogtypes_del_err'),
+                E::ModuleMessage()->AddErrorSingle(
+                    E::ModuleLang()->Get('action.admin.blogtypes_del_err_notempty', array('count' => $oBlogType->GetBlogsCount())),
+                    E::ModuleLang()->Get('action.admin.blogtypes_del_err'),
                     true
                 );
             } else {
                 $sName = $oBlogType->getTypeCode() . ' - ' . htmlentities($oBlogType->getName());
                 if ($this->_deleteBlogType($oBlogType)) {
-                    $this->Message_AddNoticeSingle(
-                        $this->Lang_Get('action.admin.blogtypes_del_success', array('name' => $sName)),
+                    E::ModuleMessage()->AddNoticeSingle(
+                        E::ModuleLang()->Get('action.admin.blogtypes_del_success', array('name' => $sName)),
                         null,
                         true
                     );
                 } else {
-                    $this->Message_AddErrorSingle(
-                        $this->Lang_Get('action.admin.blogtypes_del_err_text', array('name' => $sName)),
-                        $this->Lang_Get('action.admin.blogtypes_del_err'),
+                    E::ModuleMessage()->AddErrorSingle(
+                        E::ModuleLang()->Get('action.admin.blogtypes_del_err_text', array('name' => $sName)),
+                        E::ModuleLang()->Get('action.admin.blogtypes_del_err'),
                         true
                     );
                 }
@@ -3080,7 +3080,7 @@ class ActionAdmin extends Action {
      */
     protected function _addBlogType($oBlogType) {
 
-        return $this->Blog_AddBlogType($oBlogType);
+        return E::ModuleBlog()->AddBlogType($oBlogType);
     }
 
     /**
@@ -3090,7 +3090,7 @@ class ActionAdmin extends Action {
      */
     protected function _updateBlogType($oBlogType) {
 
-        return $this->Blog_UpdateBlogType($oBlogType);
+        return E::ModuleBlog()->UpdateBlogType($oBlogType);
     }
 
     /**
@@ -3100,7 +3100,7 @@ class ActionAdmin extends Action {
      */
     protected function _deleteBlogType($oBlogType) {
 
-        return $this->Blog_DeleteBlogType($oBlogType);
+        return E::ModuleBlog()->DeleteBlogType($oBlogType);
     }
 
     /**
@@ -3112,10 +3112,10 @@ class ActionAdmin extends Action {
         if (is_array($aBlogTypes) && count($aBlogTypes)) {
             $aBlogTypes = array_keys($aBlogTypes);
             foreach ($aBlogTypes as $nBlogTypeId) {
-                $oBlogType = $this->Blog_GetBlogTypeById($nBlogTypeId);
+                $oBlogType = E::ModuleBlog()->GetBlogTypeById($nBlogTypeId);
                 if ($oBlogType) {
                     $oBlogType->SetActive($nVal);
-                    $this->Blog_UpdateBlogType($oBlogType);
+                    E::ModuleBlog()->UpdateBlogType($oBlogType);
                 }
             }
         }
@@ -3131,14 +3131,14 @@ class ActionAdmin extends Action {
 
         $this->sMainMenuItem = 'settings';
 
-        $this->_setTitle($this->Lang_Get('action.admin.userrights_menu'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.userrights_menu'));
         $this->SetTemplateAction('settings/userrights');
 
         if ($this->IsPost('submit_type_add')) {
             return $this->_eventUserRightsEditSubmit();
         } else {
-            $_REQUEST['userrights_administrator'] = $this->ACL_GetUserRights('blogs', 'administrator');
-            $_REQUEST['userrights_moderator'] = $this->ACL_GetUserRights('blogs', 'moderator');
+            $_REQUEST['userrights_administrator'] = E::ModuleACL()->GetUserRights('blogs', 'administrator');
+            $_REQUEST['userrights_moderator'] = E::ModuleACL()->GetUserRights('blogs', 'moderator');
         }
     }
 
@@ -3171,29 +3171,29 @@ class ActionAdmin extends Action {
     public function EventAjaxChangeOrderMenu() {
 
         // * Устанавливаем формат ответа
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
 
-        if (!$this->User_IsAuthorization()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+        if (!E::ModuleUser()->IsAuthorization()) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
         if (!$this->oUserCurrent->isAdministrator()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
         if (!F::GetRequest('order')) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
         if (!F::GetRequest('menu_id')) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
 
         $this->_prepareMenus();
 
         /** @var ModuleMenu_EntityMenu $oMenu */
-        $oMenu = $this->Menu_GetMenu(F::GetRequest('menu_id'));
+        $oMenu = E::ModuleMenu()->GetMenu(F::GetRequest('menu_id'));
 
         $sItemsKey = "menu.data.{$oMenu->getId()}.init.fill.list";
 
@@ -3217,10 +3217,10 @@ class ActionAdmin extends Action {
             }
 
 
-            $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.save_sort_success'));
+            E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('action.admin.save_sort_success'));
             return;
         } else {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
 
@@ -3229,35 +3229,35 @@ class ActionAdmin extends Action {
     public function EventAjaxChangeMenuText() {
 
         // * Устанавливаем формат ответа
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
 
-        if (!$this->User_IsAuthorization()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+        if (!E::ModuleUser()->IsAuthorization()) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
         if (!$this->oUserCurrent->isAdministrator()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
         if (!F::GetRequest('menu_id')) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
 
         if (!F::GetRequest('item_id')) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
 
         if (!F::GetRequest('text')) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
 
         $this->_prepareMenus();
 
         /** @var ModuleMenu_EntityMenu $oMenu */
-        $oMenu = $this->Menu_GetMenu(F::GetRequest('menu_id'));
+        $oMenu = E::ModuleMenu()->GetMenu(F::GetRequest('menu_id'));
 
         /** @var ModuleMenu_EntityItem $oItem */
         $oItem = $oMenu->GetItemById(F::GetRequest('item_id'));
@@ -3266,15 +3266,15 @@ class ActionAdmin extends Action {
             if ($sText = trim(F::GetRequest('text'))) {
                 Config::WriteCustomConfig(array($sItemTextKey=> $sText), false);
 
-                $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.menu_manager_save_text_ok'));
+                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('action.admin.menu_manager_save_text_ok'));
 
-                $this->Viewer_AssignAjax('text', $sText);
+                E::ModuleViewer()->AssignAjax('text', $sText);
 
                 return;
             }
         }
 
-        $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
         return;
 
     }
@@ -3282,35 +3282,35 @@ class ActionAdmin extends Action {
     public function EventAjaxChangeMenuLink() {
 
         // * Устанавливаем формат ответа
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
 
-        if (!$this->User_IsAuthorization()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+        if (!E::ModuleUser()->IsAuthorization()) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
         if (!$this->oUserCurrent->isAdministrator()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
         if (!F::GetRequest('menu_id')) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
 
         if (!F::GetRequest('item_id')) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
 
         if (!F::GetRequest('text')) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
 
         $this->_prepareMenus();
 
         /** @var ModuleMenu_EntityMenu $oMenu */
-        $oMenu = $this->Menu_GetMenu(F::GetRequest('menu_id'));
+        $oMenu = E::ModuleMenu()->GetMenu(F::GetRequest('menu_id'));
 
         /** @var ModuleMenu_EntityItem $oItem */
         $oItem = $oMenu->GetItemById(F::GetRequest('item_id'));
@@ -3319,15 +3319,15 @@ class ActionAdmin extends Action {
             if ($sText = trim(F::GetRequest('text'))) {
                 Config::WriteCustomConfig(array($sItemTextKey=> $sText), false);
 
-                $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.menu_manager_save_link_ok'));
+                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('action.admin.menu_manager_save_link_ok'));
 
-                $this->Viewer_AssignAjax('text', $sText);
+                E::ModuleViewer()->AssignAjax('text', $sText);
 
                 return;
             }
         }
 
-        $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
         return;
 
     }
@@ -3335,30 +3335,30 @@ class ActionAdmin extends Action {
     public function EventAjaxRemoveItem() {
 
         // * Устанавливаем формат ответа
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
 
-        if (!$this->User_IsAuthorization()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+        if (!E::ModuleUser()->IsAuthorization()) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
         if (!$this->oUserCurrent->isAdministrator()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
         if (!F::GetRequest('menu_id')) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
 
         if (!F::GetRequest('item_id')) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
 
         $this->_prepareMenus();
 
         /** @var ModuleMenu_EntityMenu $oMenu */
-        $oMenu = $this->Menu_GetMenu(F::GetRequest('menu_id'));
+        $oMenu = E::ModuleMenu()->GetMenu(F::GetRequest('menu_id'));
 
         /** @var ModuleMenu_EntityItem $oItem */
         $oItem = $oMenu->GetItemById(F::GetRequest('item_id'));
@@ -3381,7 +3381,7 @@ class ActionAdmin extends Action {
                 }
                 Config::WriteCustomConfig(array("menu.data.{$oMenu->getId()}.init.fill.list"=> $aAllowedData));
 //                Config::Set("menu.data.{$oMenu->getId()}.init.fill.list", $aAllowedData);
-                $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.menu_manager_remove_link_ok'));
+                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('action.admin.menu_manager_remove_link_ok'));
 
 
                 // Если это подменю, то удал
@@ -3392,7 +3392,7 @@ class ActionAdmin extends Action {
 
         }
 
-        $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
         return;
 
     }
@@ -3400,30 +3400,30 @@ class ActionAdmin extends Action {
     public function EventAjaxDisplayItem() {
 
         // * Устанавливаем формат ответа
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
 
-        if (!$this->User_IsAuthorization()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+        if (!E::ModuleUser()->IsAuthorization()) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
         if (!$this->oUserCurrent->isAdministrator()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
         if (!F::GetRequest('menu_id')) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
 
         if (!F::GetRequest('item_id')) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
 
         $this->_prepareMenus();
 
         /** @var ModuleMenu_EntityMenu $oMenu */
-        $oMenu = $this->Menu_GetMenu(F::GetRequest('menu_id'));
+        $oMenu = E::ModuleMenu()->GetMenu(F::GetRequest('menu_id'));
 
         /** @var ModuleMenu_EntityItem $oItem */
         $oItem = $oMenu->GetItemById(F::GetRequest('item_id'));
@@ -3449,21 +3449,21 @@ class ActionAdmin extends Action {
 
 
                 if ($bDisplay) {
-                    $this->Viewer_AssignAjax('class', 'icon-eye-open');
+                    E::ModuleViewer()->AssignAjax('class', 'icon-eye-open');
                 } else {
-                    $this->Viewer_AssignAjax('class', 'icon-eye-close');
+                    E::ModuleViewer()->AssignAjax('class', 'icon-eye-close');
                 }
 
                 Config::WriteCustomConfig(array("menu.data.{$oMenu->getId()}.list.{$oItem->getId()}.display"=> $bDisplay));
 
-                $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.menu_manager_display_link_ok'));
+                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('action.admin.menu_manager_display_link_ok'));
 
                 return;
             }
 
         }
 
-        $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
         return;
 
     }
@@ -3474,25 +3474,25 @@ class ActionAdmin extends Action {
         $sMenuId = $this->GetParam(1);
 
 
-        if (!$oMenu = $this->Menu_GetMenu($sMenuId)) {
+        if (!$oMenu = E::ModuleMenu()->GetMenu($sMenuId)) {
             return parent::EventNotFound();
         }
 
-        $this->Viewer_Assign('oMenu', $oMenu);
+        E::ModuleViewer()->Assign('oMenu', $oMenu);
 
         if (strpos($oMenu->getId(), 'submenu_') === 0) {
-            $this->Viewer_Assign('isSubMenu', $this->Lang_Get('action.admin.menu_manager_submenu'));
+            E::ModuleViewer()->Assign('isSubMenu', E::ModuleLang()->Get('action.admin.menu_manager_submenu'));
         }
 
         // * Устанавливаем шаблон вывода
-        $this->_setTitle($this->Lang_Get('action.admin.menu_manager_edit_menu'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.menu_manager_edit_menu'));
         $this->SetTemplateAction('settings/menumanager_edit');
 
         // * Проверяем отправлена ли форма с данными
         if (getRequestPost('submit_add_new_item')) {
 
             if (!(($sItemLink = trim(F::GetRequestStr('menu-item-link'))) && ($sItemTitle = trim(F::GetRequestStr('menu-item-title'))))) {
-                $this->Message_AddErrorSingle($this->Lang_Get('menu_manager_item_add_error'), $this->Lang_Get('error'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('menu_manager_item_add_error'), E::ModuleLang()->Get('error'));
                 return null;
             }
 
@@ -3547,7 +3547,7 @@ class ActionAdmin extends Action {
                     $aAllowedData = array_keys(Config::Get("menu.data.{$oMenu->getId()}.list"));
                 }
                 if (!in_array($sRoot, $aAllowedData)) {
-                    $this->Message_AddErrorSingle($this->Lang_Get('menu_manager_item_add_error'), $this->Lang_Get('error'));
+                    E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('menu_manager_item_add_error'), E::ModuleLang()->Get('error'));
                     return null;
                 }
 
@@ -3612,7 +3612,7 @@ class ActionAdmin extends Action {
             }
 
 
-            $this->Message_AddErrorSingle($this->Lang_Get('menu_manager_item_add_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('menu_manager_item_add_error'), E::ModuleLang()->Get('error'));
             return null;
         }
 
@@ -3624,7 +3624,7 @@ class ActionAdmin extends Action {
         // * Получаем тип
         $sMenuId = $this->GetParam(1);
 
-        if (!$oMenu = $this->Menu_GetMenu($sMenuId)) {
+        if (!$oMenu = E::ModuleMenu()->GetMenu($sMenuId)) {
             return parent::EventNotFound();
         }
 
@@ -3665,7 +3665,7 @@ class ActionAdmin extends Action {
 
             foreach($aMenus as $sMenuId => $aMenu) {
                 if (isset($aMenu['init']['fill'])) {
-                    $aMenus[$sMenuId] = $this->Menu_Prepare($sMenuId, $aMenu);
+                    $aMenus[$sMenuId] = E::ModuleMenu()->Prepare($sMenuId, $aMenu);
                     $bChanged = true;
                 }
             }
@@ -3699,17 +3699,17 @@ class ActionAdmin extends Action {
         } else {
 
             // Получим те меню, которые можно редактировать ползователю.
-            $aMenu = $this->Menu_GetMenusByArrayId(Config::Get('module.menu.admin'));
+            $aMenu = E::ModuleMenu()->GetMenusByArrayId(Config::Get('module.menu.admin'));
 
             // Заполним вьювер
-            $this->Viewer_Assign(array(
+            E::ModuleViewer()->Assign(array(
                 'aMenu' => $aMenu,
                 'sMode' => $sMode,
             ));
 
 
             // Установим заголовок страницы
-            $this->_setTitle($this->Lang_Get('action.admin.menu_manager'));
+            $this->_setTitle(E::ModuleLang()->Get('action.admin.menu_manager'));
 
 
             // Установми страницу вывода
@@ -3732,7 +3732,7 @@ class ActionAdmin extends Action {
             // * Создание нового поля
             case 'add':
                 // * Обрабатываем как ajax запрос (json)
-                $this->Viewer_SetResponseAjax('json');
+                E::ModuleViewer()->SetResponseAjax('json');
                 if (!$this->checkUserField()) {
                     return;
                 }
@@ -3740,46 +3740,46 @@ class ActionAdmin extends Action {
                 $oField->setName(F::GetRequestStr('name'));
                 $oField->setTitle(F::GetRequestStr('title'));
                 $oField->setPattern(F::GetRequestStr('pattern'));
-                if (in_array(F::GetRequestStr('type'), $this->User_GetUserFieldTypes())) {
+                if (in_array(F::GetRequestStr('type'), E::ModuleUser()->GetUserFieldTypes())) {
                     $oField->setType(F::GetRequestStr('type'));
                 } else {
                     $oField->setType('');
                 }
 
-                $iId = $this->User_AddUserField($oField);
+                $iId = E::ModuleUser()->AddUserField($oField);
                 if (!$iId) {
-                    $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+                    E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
                     return;
                 }
                 // * Прогружаем переменные в ajax ответ
-                $this->Viewer_AssignAjax('id', $iId);
-                $this->Viewer_AssignAjax('lang_delete', $this->Lang_Get('user_field_delete'));
-                $this->Viewer_AssignAjax('lang_edit', $this->Lang_Get('user_field_update'));
-                $this->Message_AddNotice($this->Lang_Get('user_field_added'), $this->Lang_Get('attention'));
+                E::ModuleViewer()->AssignAjax('id', $iId);
+                E::ModuleViewer()->AssignAjax('lang_delete', E::ModuleLang()->Get('user_field_delete'));
+                E::ModuleViewer()->AssignAjax('lang_edit', E::ModuleLang()->Get('user_field_update'));
+                E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('user_field_added'), E::ModuleLang()->Get('attention'));
                 break;
 
             // * Удаление поля
             case 'delete':
                 // * Обрабатываем как ajax запрос (json)
-                $this->Viewer_SetResponseAjax('json');
+                E::ModuleViewer()->SetResponseAjax('json');
                 if (!F::GetRequestStr('id')) {
-                    $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+                    E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
                     return;
                 }
-                $this->User_DeleteUserField(F::GetRequestStr('id'));
-                $this->Message_AddNotice($this->Lang_Get('user_field_deleted'), $this->Lang_Get('attention'));
+                E::ModuleUser()->DeleteUserField(F::GetRequestStr('id'));
+                E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('user_field_deleted'), E::ModuleLang()->Get('attention'));
                 break;
 
             // * Изменение поля
             case 'update':
                 // * Обрабатываем как ajax запрос (json)
-                $this->Viewer_SetResponseAjax('json');
+                E::ModuleViewer()->SetResponseAjax('json');
                 if (!F::GetRequestStr('id')) {
-                    $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+                    E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
                     return;
                 }
-                if (!$this->User_UserFieldExistsById(F::GetRequestStr('id'))) {
-                    $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+                if (!E::ModuleUser()->UserFieldExistsById(F::GetRequestStr('id'))) {
+                    E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
                     return false;
                 }
                 if (!$this->checkUserField()) {
@@ -3790,22 +3790,22 @@ class ActionAdmin extends Action {
                 $oField->setName(F::GetRequestStr('name'));
                 $oField->setTitle(F::GetRequestStr('title'));
                 $oField->setPattern(F::GetRequestStr('pattern'));
-                if (in_array(F::GetRequestStr('type'), $this->User_GetUserFieldTypes())) {
+                if (in_array(F::GetRequestStr('type'), E::ModuleUser()->GetUserFieldTypes())) {
                     $oField->setType(F::GetRequestStr('type'));
                 } else {
                     $oField->setType('');
                 }
-                if (!$this->User_UpdateUserField($oField)) {
-                    $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+                if (!E::ModuleUser()->UpdateUserField($oField)) {
+                    E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
                     return;
                 }
-                $this->Message_AddNotice($this->Lang_Get('user_field_updated'), $this->Lang_Get('attention'));
+                E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('user_field_updated'), E::ModuleLang()->Get('attention'));
                 break;
 
             // * Показываем страницу со списком полей
             default:
                 // * Загружаем в шаблон JS текстовки
-                $this->Lang_AddLangJs(array(
+                E::ModuleLang()->AddLangJs(array(
                     'action.admin.user_field_delete_confirm_title',
                     'action.admin.user_field_delete_confirm_text',
                     'action.admin.user_field_admin_title_add',
@@ -3815,9 +3815,9 @@ class ActionAdmin extends Action {
                 ));
 
                 // * Получаем список всех полей
-                $this->Viewer_Assign('aUserFields', $this->User_GetUserFields());
-                $this->Viewer_Assign('aUserFieldTypes', $this->User_GetUserFieldTypes());
-                $this->_setTitle($this->Lang_Get('action.admin.user_fields_title'));
+                E::ModuleViewer()->Assign('aUserFields', E::ModuleUser()->GetUserFields());
+                E::ModuleViewer()->Assign('aUserFieldTypes', E::ModuleUser()->GetUserFieldTypes());
+                $this->_setTitle(E::ModuleLang()->Get('action.admin.user_fields_title'));
                 $this->SetTemplateAction('settings/userfields');
         }
     }
@@ -3830,18 +3830,18 @@ class ActionAdmin extends Action {
     public function checkUserField() {
 
         if (!F::GetRequestStr('title')) {
-            $this->Message_AddError($this->Lang_Get('user_field_error_add_no_title'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('user_field_error_add_no_title'), E::ModuleLang()->Get('error'));
             return false;
         }
         if (!F::GetRequestStr('name')) {
-            $this->Message_AddError($this->Lang_Get('user_field_error_add_no_name'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('user_field_error_add_no_name'), E::ModuleLang()->Get('error'));
             return false;
         }
         /**
          * Не допускаем дубликатов по имени
          */
-        if ($this->User_UserFieldExistsByName(F::GetRequestStr('name'), F::GetRequestStr('id'))) {
-            $this->Message_AddError($this->Lang_Get('user_field_error_name_exists'), $this->Lang_Get('error'));
+        if (E::ModuleUser()->UserFieldExistsByName(F::GetRequestStr('name'), F::GetRequestStr('id'))) {
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('user_field_error_name_exists'), E::ModuleLang()->Get('error'));
             return false;
         }
         return true;
@@ -3853,13 +3853,13 @@ class ActionAdmin extends Action {
 
         $this->sMainMenuItem = 'settings';
 
-        $this->_setTitle($this->Lang_Get('action.admin.contenttypes_menu'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.contenttypes_menu'));
         $this->SetTemplateAction('settings/contenttypes');
 
         $sMode = $this->getParam(0);
-        $this->Viewer_Assign('sMode', $sMode);
+        E::ModuleViewer()->Assign('sMode', $sMode);
 
-        $this->Lang_AddLangJs(array(
+        E::ModuleLang()->AddLangJs(array(
             'action.admin.contenttypes_del_confirm_title',
             'action.admin.contenttypes_del_confirm_text',
         ));
@@ -3874,19 +3874,19 @@ class ActionAdmin extends Action {
 
         // * Получаем список
         $aFilter = array();
-        $aTypes = $this->Topic_GetContentTypes($aFilter, false);
-        $this->Viewer_Assign('aTypes', $aTypes);
+        $aTypes = E::ModuleTopic()->GetContentTypes($aFilter, false);
+        E::ModuleViewer()->Assign('aTypes', $aTypes);
 
         // * Выключатель
         if (F::GetRequest('toggle') && F::CheckVal(F::GetRequest('content_id'), 'id', 1, 10) && in_array(F::GetRequest('toggle'), array('on', 'off'))) {
-            $this->Security_ValidateSendForm();
-            if ($oTypeTog = $this->Topic_GetContentTypeById(F::GetRequest('content_id'))) {
+            E::ModuleSecurity()->ValidateSendForm();
+            if ($oTypeTog = E::ModuleTopic()->GetContentTypeById(F::GetRequest('content_id'))) {
                 $iToggle = 1;
                 if (F::GetRequest('toggle') == 'off') {
                     $iToggle = 0;
                 }
                 $oTypeTog->setContentActive($iToggle);
-                $this->Topic_UpdateContentType($oTypeTog);
+                E::ModuleTopic()->UpdateContentType($oTypeTog);
 
                 R::Location('admin/settings-contenttypes/');
             }
@@ -3900,14 +3900,14 @@ class ActionAdmin extends Action {
      */
     protected function _eventContentTypesAdd() {
 
-        $this->_setTitle($this->Lang_Get('action.admin.contenttypes_add_title'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.contenttypes_add_title'));
         $this->SetTemplateAction('settings/contenttypes_edit');
 
         // * Вызов хуков
-        $this->Hook_Run('topic_type_add_show');
+        E::ModuleHook()->Run('topic_type_add_show');
 
         // * Загружаем переменные в шаблон
-        $this->Viewer_AddHtmlTitle($this->Lang_Get('action.admin.contenttypes_add_title'));
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('action.admin.contenttypes_add_title'));
 
         // * Обрабатываем отправку формы
         return $this->_eventContentTypesAddSubmit();
@@ -3944,8 +3944,8 @@ class ActionAdmin extends Action {
             $oContentType->setExtra('');
         }
 
-        if ($this->Topic_AddContentType($oContentType)) {
-            $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success_add'), null, true);
+        if (E::ModuleTopic()->AddContentType($oContentType)) {
+            E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('action.admin.contenttypes_success_add'), null, true);
             R::Location('admin/settings-contenttypes/');
         }
         return false;
@@ -3955,13 +3955,13 @@ class ActionAdmin extends Action {
 
         // * Получаем тип
         $iContentTypeById = intval($this->GetParam(1));
-        if (!$iContentTypeById || !($oContentType = $this->Topic_GetContentTypeById($iContentTypeById))) {
+        if (!$iContentTypeById || !($oContentType = E::ModuleTopic()->GetContentTypeById($iContentTypeById))) {
             return parent::EventNotFound();
         }
-        $this->Viewer_Assign('oContentType', $oContentType);
+        E::ModuleViewer()->Assign('oContentType', $oContentType);
 
         // * Устанавливаем шаблон вывода
-        $this->_setTitle($this->Lang_Get('action.admin.contenttypes_edit_title'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.contenttypes_edit_title'));
         $this->SetTemplateAction('settings/contenttypes_edit');
 
         // * Проверяем отправлена ли форма с данными
@@ -4010,15 +4010,15 @@ class ActionAdmin extends Action {
             $oContentType->setExtra('');
         }
 
-        if ($this->Topic_UpdateContentType($oContentType)) {
+        if (E::ModuleTopic()->UpdateContentType($oContentType)) {
 
             if ($oContentType->getContentUrl() != $sTypeOld) {
 
                 //меняем у уже созданных топиков системный тип
-                $this->Topic_ChangeType($sTypeOld, $oContentType->getContentUrl());
+                E::ModuleTopic()->ChangeType($sTypeOld, $oContentType->getContentUrl());
             }
 
-            $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success_edit'), null, true);
+            E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('action.admin.contenttypes_success_edit'), null, true);
             R::Location('admin/settings-contenttypes/');
         }
         return false;
@@ -4028,7 +4028,7 @@ class ActionAdmin extends Action {
 
         // * Получаем тип
         $iContentTypeById = intval($this->GetParam(1));
-        if (!$iContentTypeById || !($oContentType = $this->Topic_GetContentTypeById($iContentTypeById))) {
+        if (!$iContentTypeById || !($oContentType = E::ModuleTopic()->GetContentTypeById($iContentTypeById))) {
             return parent::EventNotFound();
         }
 
@@ -4036,16 +4036,16 @@ class ActionAdmin extends Action {
             $aFilter = array(
                 'topic_type' => $oContentType->getContentUrl(),
             );
-            $iCountTopic = $this->Topic_GetCountTopicsByFilter($aFilter);
+            $iCountTopic = E::ModuleTopic()->GetCountTopicsByFilter($aFilter);
             if ($iCountTopic) {
-                $this->Message_AddErrorSingle(
-                    $this->Lang_Get('action.admin.contenttypes_del_err_notempty', array('count' => $iCountTopic)),
-                    $this->Lang_Get('action.admin.contenttypes_del_err_text', array('name' => '')),
+                E::ModuleMessage()->AddErrorSingle(
+                    E::ModuleLang()->Get('action.admin.contenttypes_del_err_notempty', array('count' => $iCountTopic)),
+                    E::ModuleLang()->Get('action.admin.contenttypes_del_err_text', array('name' => '')),
                     true
                 );
                 R::Location('admin/settings-contenttypes/');
-            } elseif ($this->Topic_DeleteContentType($oContentType)) {
-                $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success_edit'), null, true);
+            } elseif (E::ModuleTopic()->DeleteContentType($oContentType)) {
+                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('action.admin.contenttypes_success_edit'), null, true);
                 R::Location('admin/settings-contenttypes/');
             }
         }
@@ -4055,18 +4055,18 @@ class ActionAdmin extends Action {
     public function EventAjaxChangeOrderTypes() {
 
         // * Устанавливаем формат ответа
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
 
-        if (!$this->User_IsAuthorization()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+        if (!E::ModuleUser()->IsAuthorization()) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
         if (!$this->oUserCurrent->isAdministrator()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
         if (!F::GetRequest('order')) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
 
@@ -4074,16 +4074,16 @@ class ActionAdmin extends Action {
         if (is_array(F::GetRequest('order'))) {
 
             foreach (F::GetRequest('order') as $oOrder) {
-                if (is_numeric($oOrder['order']) && is_numeric($oOrder['id']) && $oContentType = $this->Topic_GetContentTypeById($oOrder['id'])) {
+                if (is_numeric($oOrder['order']) && is_numeric($oOrder['id']) && $oContentType = E::ModuleTopic()->GetContentTypeById($oOrder['id'])) {
                     $oContentType->setContentSort($oOrder['order']);
-                    $this->Topic_UpdateContentType($oContentType);
+                    E::ModuleTopic()->UpdateContentType($oContentType);
                 }
             }
 
-            $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.save_sort_success'));
+            E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('action.admin.save_sort_success'));
             return;
         } else {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
 
@@ -4092,18 +4092,18 @@ class ActionAdmin extends Action {
     public function EventAjaxChangeOrderFields() {
 
         // * Устанавливаем формат ответа
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
 
-        if (!$this->User_IsAuthorization()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+        if (!E::ModuleUser()->IsAuthorization()) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
         if (!$this->oUserCurrent->isAdministrator()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
         if (!F::GetRequest('order')) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
 
@@ -4111,16 +4111,16 @@ class ActionAdmin extends Action {
         if (is_array(F::GetRequest('order'))) {
 
             foreach (F::GetRequest('order') as $oOrder) {
-                if (is_numeric($oOrder['order']) && is_numeric($oOrder['id']) && $oField = $this->Topic_GetContentFieldById($oOrder['id'])) {
+                if (is_numeric($oOrder['order']) && is_numeric($oOrder['id']) && $oField = E::ModuleTopic()->GetContentFieldById($oOrder['id'])) {
                     $oField->setFieldSort($oOrder['order']);
-                    $this->Topic_UpdateContentField($oField);
+                    E::ModuleTopic()->UpdateContentField($oField);
                 }
             }
 
-            $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.save_sort_success'));
+            E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('action.admin.save_sort_success'));
             return;
         } else {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
 
@@ -4133,14 +4133,14 @@ class ActionAdmin extends Action {
 
         $this->sMainMenuItem = 'settings';
 
-        $this->_setTitle($this->Lang_Get('action.admin.contenttypes_add_field_title'));
+        $this->_setTitle(E::ModuleLang()->Get('action.admin.contenttypes_add_field_title'));
 
         // * Получаем тип
-        if (!$oContentType = $this->Topic_GetContentTypeById($this->GetParam(0))) {
+        if (!$oContentType = E::ModuleTopic()->GetContentTypeById($this->GetParam(0))) {
             return parent::EventNotFound();
         }
 
-        $this->Viewer_Assign('oContentType', $oContentType);
+        E::ModuleViewer()->Assign('oContentType', $oContentType);
 
         // * Устанавливаем шаблон вывода
         $this->SetTemplateAction('settings/contenttypes_fieldadd');
@@ -4172,8 +4172,8 @@ class ActionAdmin extends Action {
             $oField->setOptionValue('select', F::GetRequest('field_values'));
         }
 
-        if ($this->Topic_AddContentField($oField)) {
-            $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success_fieldadd'), null, true);
+        if (E::ModuleTopic()->AddContentField($oField)) {
+            E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('action.admin.contenttypes_success_fieldadd'), null, true);
             R::Location('admin/settings-contenttypes/edit/' . $oContentType->getContentId() . '/');
         }
         return false;
@@ -4183,21 +4183,21 @@ class ActionAdmin extends Action {
 
         $this->sMainMenuItem = 'settings';
 
-        $this->Viewer_AddHtmlTitle($this->Lang_Get('action.admin.contenttypes_edit_field_title'));
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('action.admin.contenttypes_edit_field_title'));
 
         // * Получаем поле
-        if (!$oField = $this->Topic_GetContentFieldById($this->GetParam(0))) {
+        if (!$oField = E::ModuleTopic()->GetContentFieldById($this->GetParam(0))) {
             return parent::EventNotFound();
         }
 
-        $this->Viewer_Assign('oField', $oField);
+        E::ModuleViewer()->Assign('oField', $oField);
 
         // * Получаем тип
-        if (!$oContentType = $this->Topic_GetContentTypeById($oField->getContentId())) {
+        if (!$oContentType = E::ModuleTopic()->GetContentTypeById($oField->getContentId())) {
             return parent::EventNotFound();
         }
 
-        $this->Viewer_Assign('oContentType', $oContentType);
+        E::ModuleViewer()->Assign('oContentType', $oContentType);
 
         // * Устанавливаем шаблон вывода
         $this->SetTemplateAction('settings/contenttypes_fieldadd');
@@ -4237,8 +4237,8 @@ class ActionAdmin extends Action {
             $oField->setOptionValue('select', F::GetRequest('field_values'));
         }
 
-        if ($this->Topic_UpdateContentField($oField)) {
-            $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success_fieldedit'), null, true);
+        if (E::ModuleTopic()->UpdateContentField($oField)) {
+            E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('action.admin.contenttypes_success_fieldedit'), null, true);
             R::Location('admin/settings-contenttypes/edit/' . $oContentType->getContentId() . '/');
         }
         return false;
@@ -4248,16 +4248,16 @@ class ActionAdmin extends Action {
 
         $this->sMainMenuItem = 'settings';
 
-        $this->Security_ValidateSendForm();
-        if (!$oField = $this->Topic_GetContentFieldById($this->GetParam(0))) {
+        E::ModuleSecurity()->ValidateSendForm();
+        if (!$oField = E::ModuleTopic()->GetContentFieldById($this->GetParam(0))) {
             return parent::EventNotFound();
         }
-        if (!$oContentType = $this->Topic_GetContentTypeById($oField->getContentId())) {
+        if (!$oContentType = E::ModuleTopic()->GetContentTypeById($oField->getContentId())) {
             return parent::EventNotFound();
         }
 
-        if ($this->Topic_DeleteField($oField)) {
-            $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.contenttypes_success_fielddelete'), null, true);
+        if (E::ModuleTopic()->DeleteField($oField)) {
+            E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('action.admin.contenttypes_success_fielddelete'), null, true);
             R::Location('admin/settings-contenttypes/edit/' . $oContentType->getContentId() . '/');
         }
         return false;
@@ -4269,26 +4269,26 @@ class ActionAdmin extends Action {
      */
     protected function CheckContentFields() {
 
-        $this->Security_ValidateSendForm();
+        E::ModuleSecurity()->ValidateSendForm();
 
         $bOk = true;
 
         if (!F::CheckVal(F::GetRequest('content_title', null, 'post'), 'text', 2, 200)) {
-            $this->Message_AddError($this->Lang_Get('action.admin.contenttypes_type_title_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.contenttypes_type_title_error'), E::ModuleLang()->Get('error'));
             $bOk = false;
         }
 
         if (!F::CheckVal(F::GetRequest('content_title_decl', null, 'post'), 'text', 2, 200)) {
-            $this->Message_AddError($this->Lang_Get('action.admin.contenttypes_type_title_decl_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.contenttypes_type_title_decl_error'), E::ModuleLang()->Get('error'));
             $bOk = false;
         }
         if (!F::CheckVal(F::GetRequest('content_url', null, 'post'), 'login', 2, 50) || in_array(F::GetRequest('content_url', null, 'post'), array_keys(Config::Get('router.page')))) {
-            $this->Message_AddError($this->Lang_Get('action.admin.contenttypes_type_url_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.contenttypes_type_url_error'), E::ModuleLang()->Get('error'));
             $bOk = false;
         }
 
         if (!in_array(F::GetRequest('content_access'), array('1', '2', '4'))) {
-            $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             $bOk = false;
         }
 
@@ -4297,34 +4297,34 @@ class ActionAdmin extends Action {
 
     protected function CheckFieldsField($oContentType = null) {
 
-        $this->Security_ValidateSendForm();
+        E::ModuleSecurity()->ValidateSendForm();
 
         $bOk = true;
 
         if (!F::CheckVal(F::GetRequest('field_name', null, 'post'), 'text', 2, 100)) {
-            $this->Message_AddError($this->Lang_Get('field_name_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('field_name_error'), E::ModuleLang()->Get('error'));
             $bOk = false;
         }
 
         if (!F::CheckVal(F::GetRequest('field_description', null, 'post'), 'text', 2, 200)) {
-            $this->Message_AddError($this->Lang_Get('field_description_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('field_description_error'), E::ModuleLang()->Get('error'));
             $bOk = false;
         }
 
         if (R::GetActionEvent() == 'fieldadd') {
             if ($oContentType == 'photoset' && (F::GetRequest('field_type', null, 'post') == 'photoset' || $oContentType->isPhotosetEnable())) {
-                $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
                 $bOk = false;
             }
 
-            if (!in_array(F::GetRequest('field_type', null, 'post'), $this->Topic_GetAvailableFieldTypes())) {
-                $this->Message_AddError($this->Lang_Get('field_type_error'), $this->Lang_Get('error'));
+            if (!in_array(F::GetRequest('field_type', null, 'post'), E::ModuleTopic()->GetAvailableFieldTypes())) {
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get('field_type_error'), E::ModuleLang()->Get('error'));
                 $bOk = false;
             }
         }
 
         // * Выполнение хуков
-        $this->Hook_Run('check_admin_content_fields', array('bOk' => &$bOk));
+        E::ModuleHook()->Run('check_admin_content_fields', array('bOk' => &$bOk));
 
         return $bOk;
     }
@@ -4335,22 +4335,22 @@ class ActionAdmin extends Action {
     public function EventAjaxVote() {
 
         // * Устанавливаем формат ответа
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
 
         if (!E::IsAdmin()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
 
         $nUserId = $this->GetPost('idUser');
-        if (!$nUserId || !($oUser = $this->User_GetUserById($nUserId))) {
-            $this->Message_AddErrorSingle($this->Lang_Get('user_not_found'), $this->Lang_Get('error'));
+        if (!$nUserId || !($oUser = E::ModuleUser()->GetUserById($nUserId))) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('user_not_found'), E::ModuleLang()->Get('error'));
             return;
         }
 
         $nValue = $this->GetPost('value');
 
-        if (!($oUserVote = $this->Vote_GetVote($oUser->getId(), 'user', $this->oUserCurrent->getId()))) {
+        if (!($oUserVote = E::ModuleVote()->GetVote($oUser->getId(), 'user', $this->oUserCurrent->getId()))) {
             // первичное голосование
             $oUserVote = E::GetEntity('Vote');
             $oUserVote->setTargetId($oUser->getId());
@@ -4358,35 +4358,35 @@ class ActionAdmin extends Action {
             $oUserVote->setVoterId($this->oUserCurrent->getId());
             $oUserVote->setDirection($nValue);
             $oUserVote->setDate(F::Now());
-            $iVal = (float)$this->Rating_VoteUser($this->oUserCurrent, $oUser, $nValue);
+            $iVal = (float)E::ModuleRating()->VoteUser($this->oUserCurrent, $oUser, $nValue);
             $oUserVote->setValue($iVal);
             $oUser->setCountVote($oUser->getCountVote() + 1);
-            if ($this->Vote_AddVote($oUserVote) && $this->User_Update($oUser)) {
-                $this->Viewer_AssignAjax('iRating', $oUser->getRating());
-                $this->Viewer_AssignAjax('iSkill', $oUser->getSkill());
-                $this->Viewer_AssignAjax('iCountVote', $oUser->getCountVote());
+            if (E::ModuleVote()->AddVote($oUserVote) && E::ModuleUser()->Update($oUser)) {
+                E::ModuleViewer()->AssignAjax('iRating', $oUser->getRating());
+                E::ModuleViewer()->AssignAjax('iSkill', $oUser->getSkill());
+                E::ModuleViewer()->AssignAjax('iCountVote', $oUser->getCountVote());
 
                 // * Добавляем событие в ленту
-                //$this->Stream_Write($oUserVote->getVoterId(), 'vote_user', $oUser->getId());
-                $this->Message_AddNoticeSingle($this->Lang_Get('user_vote_ok'), $this->Lang_Get('attention'));
+                //E::ModuleStream()->Write($oUserVote->getVoterId(), 'vote_user', $oUser->getId());
+                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('user_vote_ok'), E::ModuleLang()->Get('attention'));
             } else {
-                $this->Message_AddErrorSingle($this->Lang_Get('action.admin.vote_error'), $this->Lang_Get('error'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('action.admin.vote_error'), E::ModuleLang()->Get('error'));
             }
         } else {
             // * Повторное голосование админа
             $iNewValue = $oUserVote->getValue() + $nValue;
             $oUserVote->setDirection($iNewValue);
             $oUserVote->setDate(F::Now());
-            $iVal = (float)$this->Rating_VoteUser($this->oUserCurrent, $oUser, $nValue);
+            $iVal = (float)E::ModuleRating()->VoteUser($this->oUserCurrent, $oUser, $nValue);
             $oUserVote->setValue($oUserVote->getValue() + $iVal);
             $oUser->setCountVote($oUser->getCountVote() + 1);
-            if ($this->Vote_Update($oUserVote) && $this->User_Update($oUser)) {
-                $this->Viewer_AssignAjax('iRating', $oUser->getRating());
-                $this->Viewer_AssignAjax('iSkill', $oUser->getSkill());
-                $this->Viewer_AssignAjax('iCountVote', $oUser->getCountVote());
-                $this->Message_AddNoticeSingle($this->Lang_Get('user_vote_ok'), $this->Lang_Get('attention'));
+            if (E::ModuleVote()->Update($oUserVote) && E::ModuleUser()->Update($oUser)) {
+                E::ModuleViewer()->AssignAjax('iRating', $oUser->getRating());
+                E::ModuleViewer()->AssignAjax('iSkill', $oUser->getSkill());
+                E::ModuleViewer()->AssignAjax('iCountVote', $oUser->getCountVote());
+                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('user_vote_ok'), E::ModuleLang()->Get('attention'));
             } else {
-                $this->Message_AddErrorSingle($this->Lang_Get('action.admin.repeat_vote_error'), $this->Lang_Get('error'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('action.admin.repeat_vote_error'), E::ModuleLang()->Get('error'));
             }
         }
     }
@@ -4394,15 +4394,15 @@ class ActionAdmin extends Action {
     public function EventAjaxSetProfile() {
 
         // * Устанавливаем формат ответа
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
 
         if (!E::IsAdmin()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
 
         $nUserId = intval($this->GetPost('user_id'));
-        if ($nUserId && ($oUser = $this->User_GetUserById($nUserId))) {
+        if ($nUserId && ($oUser = E::ModuleUser()->GetUserById($nUserId))) {
             $sData = $this->GetPost('profile_about');
             if (!is_null($sData)) {
                 $oUser->setProfileAbout($sData);
@@ -4416,19 +4416,19 @@ class ActionAdmin extends Action {
                 $oUser->setMail(trim($sData));
             }
 
-            if ($this->User_Update($oUser) !== false) {
-                $this->Message_AddNoticeSingle($this->Lang_Get('action.admin.saved_ok'));
+            if (E::ModuleUser()->Update($oUser) !== false) {
+                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('action.admin.saved_ok'));
             } else {
-                $this->Message_AddErrorSingle($this->Lang_Get('action.admin.saved_err'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('action.admin.saved_err'));
             }
         } else {
-            $this->Message_AddErrorSingle($this->Lang_Get('user_not_found'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('user_not_found'), E::ModuleLang()->Get('error'));
         }
     }
 
     public function EventAjaxConfig() {
 
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
 
         if ($sKeys = $this->GetPost('keys')) {
             if (!is_array($sKeys)) {
@@ -4447,7 +4447,7 @@ class ActionAdmin extends Action {
 
     public function EventAjaxUserAdd() {
 
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
 
         if ($this->IsPost()) {
             Config::Set('module.user.captcha_use_registration', false);
@@ -4465,31 +4465,31 @@ class ActionAdmin extends Action {
             $oUser->setActivate(1);
 
             if ($oUser->_Validate()) {
-                $this->Hook_Run('registration_validate_after', array('oUser' => $oUser));
+                E::ModuleHook()->Run('registration_validate_after', array('oUser' => $oUser));
                 $oUser->setPassword($oUser->getPassword(), true);
-                if ($this->User_Add($oUser)) {
-                    $this->Hook_Run('registration_after', array('oUser' => $oUser));
+                if (E::ModuleUser()->Add($oUser)) {
+                    E::ModuleHook()->Run('registration_after', array('oUser' => $oUser));
 
                     // Подписываем пользователя на дефолтные события в ленте активности
-                    $this->Stream_SwitchUserEventDefaultTypes($oUser->getId());
+                    E::ModuleStream()->SwitchUserEventDefaultTypes($oUser->getId());
 
                     if ($this->IsPost('user_setadmin')) {
-                        $this->Admin_SetAdministrator($oUser->GetId());
+                        E::ModuleAdmin()->SetAdministrator($oUser->GetId());
                     }
                 }
-                $this->Message_AddNoticeSingle($this->Lang_Get('registration_ok'));
+                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('registration_ok'));
             } else {
-                $this->Message_AddErrorSingle($this->Lang_Get('error'));
-                $this->Viewer_AssignAjax('aErrors', $oUser->_getValidateErrors());
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('error'));
+                E::ModuleViewer()->AssignAjax('aErrors', $oUser->_getValidateErrors());
             }
         } else {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
         }
     }
 
     public function EventAjaxUserList() {
 
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
 
         if ($this->IsPost()) {
             $sList = trim($this->GetPost('invite_listmail'));
@@ -4497,21 +4497,21 @@ class ActionAdmin extends Action {
                 $iSentCount = 0;
                 foreach($aList as $iKey => $sMail) {
                     if (F::CheckVal($sMail, 'mail')) {
-                        $oInvite = $this->User_GenerateInvite($this->oUserCurrent);
-                        if ($this->Notify_SendInvite($this->oUserCurrent, $sMail, $oInvite)) {
+                        $oInvite = E::ModuleUser()->GenerateInvite($this->oUserCurrent);
+                        if (E::ModuleNotify()->SendInvite($this->oUserCurrent, $sMail, $oInvite)) {
                             unset($aList[$iKey]);
                             $iSentCount++;
                         }
                     }
                 }
 
-                $this->Message_AddNotice($this->Lang_Get('action.admin.invaite_mail_done', array('num' => $iSentCount)), null, true);
+                E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('action.admin.invaite_mail_done', array('num' => $iSentCount)), null, true);
                 if ($aList) {
-                    $this->Message_AddError($this->Lang_Get('action.admin.invaite_mail_err', array('num' => count($aList))), null, true);
+                    E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.invaite_mail_err', array('num' => count($aList))), null, true);
                 }
             }
         } else {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
         }
 
     }
@@ -4523,15 +4523,15 @@ class ActionAdmin extends Action {
     public function EventShutdown() {
 
         // * Загружаем в шаблон необходимые переменные
-        $this->Viewer_Assign('sMainMenuItem', $this->sMainMenuItem);
-        $this->Viewer_Assign('sMenuItem', $this->sMenuItem);
-        $this->Lang_AddLangJs(array('action.admin.form_choose_file', 'action.admin.form_no_file_selected'));
+        E::ModuleViewer()->Assign('sMainMenuItem', $this->sMainMenuItem);
+        E::ModuleViewer()->Assign('sMenuItem', $this->sMenuItem);
+        E::ModuleLang()->AddLangJs(array('action.admin.form_choose_file', 'action.admin.form_no_file_selected'));
     }
 
     protected function _setTitle($sTitle) {
 
-        $this->Viewer_Assign('sPageTitle', $sTitle);
-        $this->Viewer_AddHtmlTitle($sTitle);
+        E::ModuleViewer()->Assign('sPageTitle', $sTitle);
+        E::ModuleViewer()->AddHtmlTitle($sTitle);
 
     }
 

@@ -75,21 +75,21 @@ class HookStatisticsPerformance extends Hook {
 
         $bIsShowStatsPerformance = R::GetIsShowStats();
         if ($bIsShowStatsPerformance) {
-            $this->Viewer_Assign('aStatsPerformance', $aStats);
-            $this->Viewer_Assign('bIsShowStatsPerformance', $bIsShowStatsPerformance);
+            E::ModuleViewer()->Assign('aStatsPerformance', $aStats);
+            E::ModuleViewer()->Assign('bIsShowStatsPerformance', $bIsShowStatsPerformance);
 
             // * В ответ рендерим шаблон статистики
-            if (!$this->Viewer_TemplateExists($sTemplate)) {
+            if (!E::ModuleViewer()->TemplateExists($sTemplate)) {
                 $sSkin = Config::Get('view.skin', Config::LEVEL_CUSTOM);
                 $sTemplate = Config::Get('path.skins.dir') . $sSkin . '/tpls/' . $sTemplate;
             }
-            if ($this->Viewer_TemplateExists($sTemplate)) {
+            if (E::ModuleViewer()->TemplateExists($sTemplate)) {
                 $this->bShown = true;
-                return $this->Viewer_Fetch($sTemplate);
-            } elseif ($this->Viewer_TemplateExists('statistics_performance.tpl')) {
+                return E::ModuleViewer()->Fetch($sTemplate);
+            } elseif (E::ModuleViewer()->TemplateExists('statistics_performance.tpl')) {
                 // LS-compatibility
                 $this->bShown = true;
-                return $this->Viewer_Fetch('statistics_performance.tpl');
+                return E::ModuleViewer()->Fetch('statistics_performance.tpl');
             }
         }
 

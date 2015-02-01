@@ -86,7 +86,7 @@ class ModuleBlog extends Module {
     public function Init() {
 
         $this->oMapper = E::GetMapper(__CLASS__);
-        $this->oUserCurrent = $this->User_GetUserCurrent();
+        $this->oUserCurrent = E::ModuleUser()->GetUserCurrent();
 
         /**
          * LS-compatible
@@ -189,13 +189,13 @@ class ModuleBlog extends Module {
         $aBlogUsers = array();
         $aBlogsVote = array();
         $aUsers = (isset($aAllowData['owner']) && is_array($aAllowData['owner']))
-            ? $this->User_GetUsersAdditionalData($aUserId, $aAllowData['owner'])
-            : $this->User_GetUsersAdditionalData($aUserId);
+            ? E::ModuleUser()->GetUsersAdditionalData($aUserId, $aAllowData['owner'])
+            : E::ModuleUser()->GetUsersAdditionalData($aUserId);
         if (isset($aAllowData['relation_user']) && $this->oUserCurrent) {
             $aBlogUsers = $this->GetBlogUsersByArrayBlog($aBlogsId, $this->oUserCurrent->getId());
         }
         if (isset($aAllowData['vote']) && $this->oUserCurrent) {
-            $aBlogsVote = $this->Vote_GetVoteByArray($aBlogsId, 'blog', $this->oUserCurrent->getId());
+            $aBlogsVote = E::ModuleVote()->GetVoteByArray($aBlogsId, 'blog', $this->oUserCurrent->getId());
         }
 
         $aBlogTypes = $this->GetBlogTypes();
@@ -254,7 +254,7 @@ class ModuleBlog extends Module {
          * Делаем мульти-запрос к кешу
          */
         $aCacheKeys = F::Array_ChangeValues($aBlogId, 'blog_');
-        if (false !== ($data = $this->Cache_Get($aCacheKeys))) {
+        if (false !== ($data = E::ModuleCache()->Get($aCacheKeys))) {
             /**
              * проверяем что досталось из кеша
              */
@@ -280,7 +280,7 @@ class ModuleBlog extends Module {
                  * Добавляем к результату и сохраняем в кеш
                  */
                 $aBlogs[$oBlog->getId()] = $oBlog;
-                $this->Cache_Set($oBlog, "blog_{$oBlog->getId()}", array(), 'P4D');
+                E::ModuleCache()->Set($oBlog, "blog_{$oBlog->getId()}", array(), 'P4D');
                 $aBlogIdNeedStore = array_diff($aBlogIdNeedStore, array($oBlog->getId()));
             }
         }
@@ -288,7 +288,7 @@ class ModuleBlog extends Module {
          * Сохраняем в кеш запросы не вернувшие результата
          */
         foreach ($aBlogIdNeedStore as $sId) {
-            $this->Cache_Set(null, "blog_{$sId}", array(), 'P4D');
+            E::ModuleCache()->Set(null, "blog_{$sId}", array(), 'P4D');
         }
         /**
          * Сортируем результат согласно входящему массиву
@@ -313,12 +313,12 @@ class ModuleBlog extends Module {
         $aBlogId = array_unique($aBlogId);
         $aBlogs = array();
         $sCacheKey = 'blog_id_' . join(',', $aBlogId);
-        if (false === ($data = $this->Cache_Get($sCacheKey))) {
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
             $data = $this->oMapper->GetBlogsByArrayId($aBlogId, $aOrder);
             foreach ($data as $oBlog) {
                 $aBlogs[$oBlog->getId()] = $oBlog;
             }
-            $this->Cache_Set($aBlogs, $sCacheKey, array('blog_update'), 'P1D');
+            E::ModuleCache()->Set($aBlogs, $sCacheKey, array('blog_update'), 'P1D');
             return $aBlogs;
         }
         return $data;
@@ -366,11 +366,11 @@ class ModuleBlog extends Module {
     public function GetBlogByUrl($sBlogUrl) {
 
         $sCacheKey = 'blog_url_' . $sBlogUrl;
-        if (false === ($iBlogId = $this->Cache_Get($sCacheKey))) {
+        if (false === ($iBlogId = E::ModuleCache()->Get($sCacheKey))) {
             if ($iBlogId = $this->oMapper->GetBlogsIdByUrl($sBlogUrl)) {
-                $this->Cache_Set($iBlogId, $sCacheKey, array("blog_update_{$iBlogId}"), 'P30D');
+                E::ModuleCache()->Set($iBlogId, $sCacheKey, array("blog_update_{$iBlogId}"), 'P30D');
             } else {
-                $this->Cache_Set(null, $sCacheKey, array('blog_update', 'blog_new'), 'P30D');
+                E::ModuleCache()->Set(null, $sCacheKey, array('blog_update', 'blog_new'), 'P30D');
             }
         }
         return $this->GetBlogById($iBlogId);
@@ -386,7 +386,7 @@ class ModuleBlog extends Module {
     public function GetBlogsByUrl($aBlogsUrl) {
 
         $sCacheKey = 'blogs_by_url_' . serialize($aBlogsUrl);
-        if (false === ($aBlogs = $this->Cache_Get($sCacheKey))) {
+        if (false === ($aBlogs = E::ModuleCache()->Get($sCacheKey))) {
             if ($aBlogsId = $this->oMapper->GetBlogsIdByUrl($aBlogsUrl)) {
                 $aBlogs = $this->GetBlogsAdditionalData($aBlogsId);
                 $aOrders = array_flip($aBlogsUrl);
@@ -401,7 +401,7 @@ class ModuleBlog extends Module {
             }
             $aAdditionalCacheKeys[] = 'blog_update';
             $aAdditionalCacheKeys[] = 'blog_new';
-            $this->Cache_Set(array(), $sCacheKey, $aAdditionalCacheKeys, 'P30D');
+            E::ModuleCache()->Set(array(), $sCacheKey, $aAdditionalCacheKeys, 'P30D');
         }
         return $aBlogs;
     }
@@ -415,11 +415,11 @@ class ModuleBlog extends Module {
      */
     public function GetBlogByTitle($sTitle) {
 
-        if (false === ($id = $this->Cache_Get("blog_title_{$sTitle}"))) {
+        if (false === ($id = E::ModuleCache()->Get("blog_title_{$sTitle}"))) {
             if ($id = $this->oMapper->GetBlogByTitle($sTitle)) {
-                $this->Cache_Set($id, "blog_title_{$sTitle}", array("blog_update_{$id}", 'blog_new'), 'P2D');
+                E::ModuleCache()->Set($id, "blog_title_{$sTitle}", array("blog_update_{$id}", 'blog_new'), 'P2D');
             } else {
-                $this->Cache_Set(null, "blog_title_{$sTitle}", array('blog_update', 'blog_new'), 60 * 60);
+                E::ModuleCache()->Set(null, "blog_title_{$sTitle}", array('blog_update', 'blog_new'), 60 * 60);
             }
         }
         return $this->GetBlogById($id);
@@ -441,9 +441,9 @@ class ModuleBlog extends Module {
             $oBlog = E::GetEntity('Blog');
             $oBlog->setOwnerId($oUser->getId());
             $oBlog->setOwner($oUser);
-            $oBlog->setTitle($this->Lang_Get('blogs_personal_title') . ' ' . $oUser->getLogin());
+            $oBlog->setTitle(E::ModuleLang()->Get('blogs_personal_title') . ' ' . $oUser->getLogin());
             $oBlog->setType('personal');
-            $oBlog->setDescription($this->Lang_Get('blogs_personal_description'));
+            $oBlog->setDescription(E::ModuleLang()->Get('blogs_personal_description'));
             $oBlog->setDateAdd(F::Now());
             $oBlog->setLimitRatingTopic(-1000);
             $oBlog->setUrl(null);
@@ -464,7 +464,7 @@ class ModuleBlog extends Module {
         if ($sId = $this->oMapper->AddBlog($oBlog)) {
             $oBlog->setId($sId);
             //чистим зависимые кеши
-            $this->Cache_CleanByTags(array('blog_new'));
+            E::ModuleCache()->CleanByTags(array('blog_new'));
 
 
             // 1. Удалить значение target_tmp
@@ -475,29 +475,29 @@ class ModuleBlog extends Module {
                 // Если прозошло сохранение вновь созданного топика, то нужно
                 // удалить куку временной картинки. Если же сохранялся уже существующий топик,
                 // то удаление куки ни на что влиять не будет.
-                $this->Session_DelCookie('uploader_target_tmp');
+                E::ModuleSession()->DelCookie('uploader_target_tmp');
 
                 // 3. Переместить фото
                 $sTargetType = 'blog_avatar';
                 $sTargetId = $sId;
-                $sNewPath = $this->Uploader_GetUploadDir($sTargetId, $sTargetType) . '/';
+                $sNewPath = E::ModuleUploader()->GetUploadDir($sTargetId, $sTargetType) . '/';
                 $aMresourceRel = E::Mresource_GetMresourcesRelByTargetAndUser($sTargetType, 0, E::UserId());
 
                 if ($aMresourceRel) {
                     $oResource = array_shift($aMresourceRel);
                     $sOldPath = $oResource->GetFile();
 
-                    $xStoredFile = $this->Uploader_Store($sOldPath, $sNewPath);
+                    $xStoredFile = E::ModuleUploader()->Store($sOldPath, $sNewPath);
                     /** @var ModuleMresource_EntityMresource $oResource */
-                    $oResource = $this->Mresource_GetMresourcesByUuid($xStoredFile->getUuid());
+                    $oResource = E::ModuleMresource()->GetMresourcesByUuid($xStoredFile->getUuid());
                     if ($oResource) {
-                        $oResource->setUrl($this->Mresource_NormalizeUrl($this->Uploader_GetTargetUrl($sTargetId, $sTargetType)));
+                        $oResource->setUrl(E::ModuleMresource()->NormalizeUrl(E::ModuleUploader()->GetTargetUrl($sTargetId, $sTargetType)));
                         $oResource->setType($sTargetType);
                         $oResource->setUserId(E::UserId());
 
                         $oResource = array($oResource);
-                        $this->Mresource_UnlinkFile($sTargetType, 0, E::UserId());
-                        $this->Mresource_AddTargetRel($oResource, $sTargetType, $sTargetId);
+                        E::ModuleMresource()->UnlinkFile($sTargetType, 0, E::UserId());
+                        E::ModuleMresource()->AddTargetRel($oResource, $sTargetType, $sTargetId);
                     }
                 }
             }
@@ -528,8 +528,8 @@ class ModuleBlog extends Module {
                     $aTags[] = 'topic_update_user_' . $nUserId;
                 }
             }
-            $this->Cache_CleanByTags($aTags);
-            $this->Cache_Delete("blog_{$oBlog->getId()}");
+            E::ModuleCache()->CleanByTags($aTags);
+            E::ModuleCache()->Delete("blog_{$oBlog->getId()}");
             return true;
         }
         return false;
@@ -545,11 +545,11 @@ class ModuleBlog extends Module {
     public function AddRelationBlogUser(ModuleBlog_EntityBlogUser $oBlogUser) {
 
         if ($this->oMapper->AddRelationBlogUser($oBlogUser)) {
-            $this->Cache_CleanByTags(
+            E::ModuleCache()->CleanByTags(
                 array("blog_relation_change_{$oBlogUser->getUserId()}",
                       "blog_relation_change_blog_{$oBlogUser->getBlogId()}")
             );
-            $this->Cache_Delete("blog_relation_user_{$oBlogUser->getBlogId()}_{$oBlogUser->getUserId()}");
+            E::ModuleCache()->Delete("blog_relation_user_{$oBlogUser->getBlogId()}_{$oBlogUser->getUserId()}");
             return true;
         }
         return false;
@@ -565,11 +565,11 @@ class ModuleBlog extends Module {
     public function DeleteRelationBlogUser(ModuleBlog_EntityBlogUser $oBlogUser) {
 
         if ($this->oMapper->DeleteRelationBlogUser($oBlogUser)) {
-            $this->Cache_CleanByTags(
+            E::ModuleCache()->CleanByTags(
                 array("blog_relation_change_{$oBlogUser->getUserId()}",
                       "blog_relation_change_blog_{$oBlogUser->getBlogId()}")
             );
-            $this->Cache_Delete("blog_relation_user_{$oBlogUser->getBlogId()}_{$oBlogUser->getUserId()}");
+            E::ModuleCache()->Delete("blog_relation_user_{$oBlogUser->getBlogId()}_{$oBlogUser->getUserId()}");
             return true;
         }
         return false;
@@ -637,10 +637,10 @@ class ModuleBlog extends Module {
             $aFilter['user_role'] = $iRole;
         }
         $s = serialize($aFilter);
-        if (false === ($data = $this->Cache_Get("blog_relation_user_by_filter_{$s}_{$iPage}_{$iPerPage}"))) {
+        if (false === ($data = E::ModuleCache()->Get("blog_relation_user_by_filter_{$s}_{$iPage}_{$iPerPage}"))) {
             $data = array('collection' => $this->oMapper->GetBlogUsers($aFilter, $iCount, $iPage, $iPerPage),
                           'count'      => $iCount);
-            $this->Cache_Set(
+            E::ModuleCache()->Set(
                 $data, "blog_relation_user_by_filter_{$s}_{$iPage}_{$iPerPage}",
                 array("blog_relation_change_blog_{$nBlogId}"), 60 * 60 * 24 * 3
             );
@@ -652,8 +652,8 @@ class ModuleBlog extends Module {
             foreach ($data['collection'] as $oBlogUser) {
                 $aUserId[] = $oBlogUser->getUserId();
             }
-            $aUsers = $this->User_GetUsersAdditionalData($aUserId);
-            $aBlogs = $this->Blog_GetBlogsAdditionalData($nBlogId);
+            $aUsers = E::ModuleUser()->GetUsersAdditionalData($aUserId);
+            $aBlogs = E::ModuleBlog()->GetBlogsAdditionalData($nBlogId);
 
             $aResults = array();
             foreach ($data['collection'] as $oBlogUser) {
@@ -692,9 +692,9 @@ class ModuleBlog extends Module {
             $aFilter['user_role'] = $iRole;
         }
         $sCacheKey = 'blog_relation_user_by_filter_' . serialize($aFilter);
-        if (false === ($aBlogUserRels = $this->Cache_Get($sCacheKey))) {
+        if (false === ($aBlogUserRels = E::ModuleCache()->Get($sCacheKey))) {
             $aBlogUserRels = $this->oMapper->GetBlogUsers($aFilter);
-            $this->Cache_Set(
+            E::ModuleCache()->Set(
                 $aBlogUserRels, $sCacheKey, array('blog_update', "blog_relation_change_{$iUserId}"), 60 * 60 * 24 * 3
             );
         }
@@ -711,8 +711,8 @@ class ModuleBlog extends Module {
              * Если указано возвращать полные объекты
              */
             if (!$bReturnIdOnly) {
-                $aUsers = $this->User_GetUsersAdditionalData($iUserId);
-                $aBlogs = $this->Blog_GetBlogsAdditionalData($aBlogId);
+                $aUsers = E::ModuleUser()->GetUsersAdditionalData($iUserId);
+                $aBlogs = E::ModuleBlog()->GetBlogsAdditionalData($aBlogId);
                 foreach ($aBlogUserRels as $oBlogUser) {
                     if (isset($aUsers[$oBlogUser->getUserId()])) {
                         $oBlogUser->setUser($aUsers[$oBlogUser->getUserId()]);
@@ -775,7 +775,7 @@ class ModuleBlog extends Module {
          * Делаем мульти-запрос к кешу
          */
         $aCacheKeys = F::Array_ChangeValues($aBlogId, 'blog_relation_user_', '_' . $iUserId);
-        if (false !== ($data = $this->Cache_Get($aCacheKeys))) {
+        if (false !== ($data = E::ModuleCache()->Get($aCacheKeys))) {
             /**
              * проверяем что досталось из кеша
              */
@@ -801,7 +801,7 @@ class ModuleBlog extends Module {
                  * Добавляем к результату и сохраняем в кеш
                  */
                 $aBlogUsers[$oBlogUser->getBlogId()] = $oBlogUser;
-                $this->Cache_Set(
+                E::ModuleCache()->Set(
                     $oBlogUser, "blog_relation_user_{$oBlogUser->getBlogId()}_{$oBlogUser->getUserId()}", array(), 'P4D'
                 );
                 $aBlogIdNeedStore = array_diff($aBlogIdNeedStore, array($oBlogUser->getBlogId()));
@@ -811,7 +811,7 @@ class ModuleBlog extends Module {
          * Сохраняем в кеш запросы не вернувшие результата
          */
         foreach ($aBlogIdNeedStore as $sId) {
-            $this->Cache_Set(null, "blog_relation_user_{$sId}_{$iUserId}", array(), 'P4D');
+            E::ModuleCache()->Set(null, "blog_relation_user_{$sId}_{$iUserId}", array(), 'P4D');
         }
         /**
          * Сортируем результат согласно входящему массиву
@@ -836,12 +836,12 @@ class ModuleBlog extends Module {
         $aBlogId = array_unique($aBlogId);
         $aBlogUsers = array();
         $s = join(',', $aBlogId);
-        if (false === ($data = $this->Cache_Get("blog_relation_user_{$sUserId}_id_{$s}"))) {
+        if (false === ($data = E::ModuleCache()->Get("blog_relation_user_{$sUserId}_id_{$s}"))) {
             $data = $this->oMapper->GetBlogUsersByArrayBlog($aBlogId, $sUserId);
             foreach ($data as $oBlogUser) {
                 $aBlogUsers[$oBlogUser->getBlogId()] = $oBlogUser;
             }
-            $this->Cache_Set(
+            E::ModuleCache()->Set(
                 $aBlogUsers, "blog_relation_user_{$sUserId}_id_{$s}",
                 array('blog_update', "blog_relation_change_{$sUserId}"), 'P1D'
             );
@@ -861,11 +861,11 @@ class ModuleBlog extends Module {
 
         $bResult = $this->oMapper->UpdateRelationBlogUser($oBlogUser);
         if ($bResult) {
-            $this->Cache_CleanByTags(
+            E::ModuleCache()->CleanByTags(
                 array("blog_relation_change_{$oBlogUser->getUserId()}",
                       "blog_relation_change_blog_{$oBlogUser->getBlogId()}")
             );
-            $this->Cache_Delete("blog_relation_user_{$oBlogUser->getBlogId()}_{$oBlogUser->getUserId()}");
+            E::ModuleCache()->Delete("blog_relation_user_{$oBlogUser->getBlogId()}_{$oBlogUser->getUserId()}");
             return $bResult;
         }
     }
@@ -882,9 +882,9 @@ class ModuleBlog extends Module {
         $nBlogId = $this->_entityId($xBlogId);
         if ($nBlogId) {
             $sCacheKey = 'authors_id_by_blog_' . $nBlogId;
-            if (false === ($data = $this->Cache_Get($sCacheKey))) {
+            if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
                 $data = $this->oMapper->GetAuthorsIdByBlogId($nBlogId);
-                $this->Cache_Set($data, $sCacheKey, array('blog_update', 'blog_new', 'topic_new', 'topic_update'), 'P1D');
+                E::ModuleCache()->Set($data, $sCacheKey, array('blog_update', 'blog_new', 'topic_new', 'topic_update'), 'P1D');
             }
             return $data;
         }
@@ -908,12 +908,12 @@ class ModuleBlog extends Module {
             $aAllowData = array('owner' => array(), 'relation_user');
         }
         $sCacheKey = 'blog_filter_' . serialize($aFilter) . serialize($aOrder) . "_{$nCurrPage}_{$nPerPage}";
-        if (false === ($data = $this->Cache_Get($sCacheKey))) {
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
             $data = array(
                 'collection' => $this->oMapper->GetBlogsIdByFilterPerPage($aFilter, $aOrder, $iCount, $nCurrPage, $nPerPage),
                 'count'      => $iCount
             );
-            $this->Cache_Set($data, $sCacheKey, array('blog_update', 'blog_new'), 'P2D');
+            E::ModuleCache()->Set($data, $sCacheKey, array('blog_update', 'blog_new'), 'P2D');
         }
         if ($data['collection']) {
             $data['collection'] = $this->GetBlogsAdditionalData($data['collection'], $aAllowData);
@@ -950,9 +950,9 @@ class ModuleBlog extends Module {
     public function GetBlogsRatingJoin($nUserId, $nLimit) {
 
         $sCacheKey = "blog_rating_join_{$nUserId}_{$nLimit}";
-        if (false === ($data = $this->Cache_Get($sCacheKey))) {
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
             $data = $this->oMapper->GetBlogsRatingJoin($nUserId, $nLimit);
-            $this->Cache_Set($data, $sCacheKey, array('blog_update', "blog_relation_change_{$nUserId}"), 'P1D');
+            E::ModuleCache()->Set($data, $sCacheKey, array('blog_update', "blog_relation_change_{$nUserId}"), 'P1D');
         }
         return $data;
     }
@@ -1008,7 +1008,7 @@ class ModuleBlog extends Module {
         $sCacheKey = 'blogs_allow_to_' . serialize(array($sAllow, $oUser ? $oUser->GetId() : 0, $iBlog, (bool)$bCheckOnly));
         if ($iBlog && $bCheckOnly) {
             // Если только проверка прав, то проверяем временный кеш
-            if (is_int($xCacheResult = $this->Cache_Get($sCacheKey, 'tmp'))) {
+            if (is_int($xCacheResult = E::ModuleCache()->Get($sCacheKey, 'tmp'))) {
                 return $xCacheResult;
             }
         }
@@ -1026,7 +1026,7 @@ class ModuleBlog extends Module {
             return $aAllowBlogs;
         }
 
-        if (false === ($aAllowBlogs = $this->Cache_Get($sCacheKey))) {
+        if (false === ($aAllowBlogs = E::ModuleCache()->Get($sCacheKey))) {
             if ($oUser) {
                 // Блоги, созданные пользователем
                 $aAllowBlogs = $this->GetBlogsByOwnerId($oUser->getId());
@@ -1051,7 +1051,7 @@ class ModuleBlog extends Module {
                             if ($sAllow == 'write') {
                                 $bAllow = ($oBlogType->GetAclWrite(self::BLOG_USER_ACL_MEMBER)
                                         && $oBlogType->GetMinRateWrite() <= $oUser->getRating())
-                                    || $this->ACL_CheckBlogEditContent($oBlog, $oUser);
+                                    || E::ModuleACL()->CheckBlogEditContent($oBlog, $oUser);
                             } elseif ($sAllow == 'read') {
                                 $bAllow = $oBlogType->GetAclRead(self::BLOG_USER_ACL_MEMBER)
                                     && $oBlogType->GetMinRateRead() <= $oUser->getRating();
@@ -1120,12 +1120,12 @@ class ModuleBlog extends Module {
             }
 
             $this->_sortByTitle($aAllowBlogs);
-            $this->Cache_Set($aAllowBlogs, $sCacheKey, array('blog_update', 'user_update'), 'P1D');
+            E::ModuleCache()->Set($aAllowBlogs, $sCacheKey, array('blog_update', 'user_update'), 'P1D');
         }
         if ($iBlog && $bCheckOnly) {
             // Если только проверка прав, то сохраняем во временный кеш
             // Чтоб не было ложных сробатываний, используем в этом кеше числовое значение
-            $this->Cache_Set($sCacheKey, $aAllowBlogs ? 1 : 0, array('blog_update', 'user_update'), 0, 'tmp');
+            E::ModuleCache()->Set($sCacheKey, $aAllowBlogs ? 1 : 0, array('blog_update', 'user_update'), 0, 'tmp');
         }
         return $aAllowBlogs;
 
@@ -1143,7 +1143,7 @@ class ModuleBlog extends Module {
         if ($oUser->isAdministrator()) {
             return $this->GetBlogs(true);
         }
-        if (false === ($aOpenBlogsUser = $this->Cache_Get("blog_accessible_user_{$oUser->getId()}"))) {
+        if (false === ($aOpenBlogsUser = E::ModuleCache()->Get("blog_accessible_user_{$oUser->getId()}"))) {
             /**
              * Заносим блоги, созданные пользователем
              */
@@ -1153,7 +1153,7 @@ class ModuleBlog extends Module {
              * (читателем, модератором, или администратором)
              */
             $aOpenBlogsUser = array_merge($aOpenBlogsUser, $this->GetBlogUsersByUserId($oUser->getId(), null, true));
-            $this->Cache_Set(
+            E::ModuleCache()->Set(
                 $aOpenBlogsUser, "blog_accessible_user_{$oUser->getId()}",
                 array('blog_new', 'blog_update', "blog_relation_change_{$oUser->getId()}"), 60 * 60 * 24
             );
@@ -1175,7 +1175,7 @@ class ModuleBlog extends Module {
         }
         $nUserId = $oUser ? $oUser->getId() : 0;
         $sCacheKey = 'blog_inaccessible_user_' . $nUserId;
-        if (false === ($aCloseBlogsId = $this->Cache_Get($sCacheKey))) {
+        if (false === ($aCloseBlogsId = E::ModuleCache()->Get($sCacheKey))) {
             $aCloseBlogsId = $this->oMapper->GetCloseBlogsId($oUser);
 
             if ($oUser) {
@@ -1199,12 +1199,12 @@ class ModuleBlog extends Module {
 
             // * Сохраняем в кеш
             if ($oUser) {
-                $this->Cache_Set(
+                E::ModuleCache()->Set(
                     $aCloseBlogsId, $sCacheKey,
                     array('blog_new', 'blog_update', "blog_relation_change_{$nUserId}"), 'P1D'
                 );
             } else {
-                $this->Cache_Set(
+                E::ModuleCache()->Set(
                     $aCloseBlogsId, $sCacheKey, array('blog_new', 'blog_update'), 'P3D'
                 );
             }
@@ -1226,7 +1226,7 @@ class ModuleBlog extends Module {
         if ($aBlogsId) {
             // * Получаем идентификаторы топиков блога. Удаляем топики блога.
             // * При удалении топиков удаляются комментарии к ним и голоса.
-            $aTopicsId = $this->Topic_GetTopicsByBlogId($aBlogsId);
+            $aTopicsId = E::ModuleTopic()->GetTopicsByBlogId($aBlogsId);
 
             // * Если блог не удален, возвращаем false
             if (!$this->oMapper->DeleteBlog($aBlogsId)) {
@@ -1235,20 +1235,20 @@ class ModuleBlog extends Module {
 
             if ($aTopicsId) {
                 // * Удаляем топики
-                $this->Topic_DeleteTopics($aTopicsId);
+                E::ModuleTopic()->DeleteTopics($aTopicsId);
             }
 
             // * Удаляем связи пользователей блога.
             $this->oMapper->DeleteBlogUsersByBlogId($aBlogsId);
 
             // * Удаляем голосование за блог
-            $this->Vote_DeleteVoteByTarget($aBlogsId, 'blog');
+            E::ModuleVote()->DeleteVoteByTarget($aBlogsId, 'blog');
 
             // * Чистим кеш
-            $this->Cache_CleanByTags(array('blog_update', 'topic_update', 'comment_online_update_topic', 'comment_update'));
+            E::ModuleCache()->CleanByTags(array('blog_update', 'topic_update', 'comment_online_update_topic', 'comment_update'));
             foreach ($aBlogsId as $nBlogId) {
-                $this->Cache_CleanByTags(array("blog_relation_change_blog_{$nBlogId}"));
-                $this->Cache_Delete("blog_{$nBlogId}");
+                E::ModuleCache()->CleanByTags(array("blog_relation_change_blog_{$nBlogId}"));
+                E::ModuleCache()->Delete("blog_{$nBlogId}");
             }
         }
 
@@ -1278,11 +1278,11 @@ class ModuleBlog extends Module {
      */
     public function UploadBlogAvatar($aFile, $oBlog) {
 
-        $sFileTmp = $this->Uploader_UploadLocal($aFile);
-        if ($sFileTmp && ($oImg = $this->Img_CropSquare($sFileTmp))) {
-            $sFile = $this->Uploader_Uniqname($this->Uploader_GetUserImageDir(), strtolower(pathinfo($sFileTmp, PATHINFO_EXTENSION)));
+        $sFileTmp = E::ModuleUploader()->UploadLocal($aFile);
+        if ($sFileTmp && ($oImg = E::ModuleImg()->CropSquare($sFileTmp))) {
+            $sFile = E::ModuleUploader()->Uniqname(E::ModuleUploader()->GetUserImageDir(), strtolower(pathinfo($sFileTmp, PATHINFO_EXTENSION)));
             if ($oImg->Save($sFile)) {
-                return $this->Uploader_Dir2Url($sFile);
+                return E::ModuleUploader()->Dir2Url($sFile);
             }
             F::File_Delete($sFile);
         }
@@ -1300,7 +1300,7 @@ class ModuleBlog extends Module {
 
         // * Если аватар есть, удаляем его и его рейсайзы
         if ($sUrl = $oBlog->getAvatar()) {
-            $this->Img_Delete($this->Uploader_Url2Dir($sUrl));
+            E::ModuleImg()->Delete(E::ModuleUploader()->Url2Dir($sUrl));
         }
     }
 
@@ -1314,7 +1314,7 @@ class ModuleBlog extends Module {
         $bResult = $this->oMapper->RecalculateCountTopic();
         if ($bResult) {
             //чистим зависимые кеши
-            $this->Cache_CleanByTags(array('blog_update'));
+            E::ModuleCache()->CleanByTags(array('blog_update'));
             return $bResult;
         }
     }
@@ -1336,13 +1336,13 @@ class ModuleBlog extends Module {
                 if (is_array($aBlogsId)) {
                     $aCacheTags = array('blog_update');
                     foreach ($aBlogsId as $iBlogId) {
-                        $this->Cache_Delete("blog_{$iBlogId}");
+                        E::ModuleCache()->Delete("blog_{$iBlogId}");
                         $aCacheTags[] = "blog_update_{$iBlogId}";
                     }
-                    $this->Cache_CleanByTags($aCacheTags);
+                    E::ModuleCache()->CleanByTags($aCacheTags);
                 } else {
-                    $this->Cache_CleanByTags(array('blog_update', "blog_update_{$aBlogsId}"));
-                    $this->Cache_Delete("blog_{$aBlogsId}");
+                    E::ModuleCache()->CleanByTags(array('blog_update', "blog_update_{$aBlogsId}"));
+                    E::ModuleCache()->Delete("blog_{$aBlogsId}");
                 }
                 return $bResult;
             }
@@ -1426,7 +1426,7 @@ class ModuleBlog extends Module {
             $iUserId = (is_object($xUser) ? $xUser->getId() : intval($xUser));
         }
         $sCacheKey = 'blog_types_open_' . ($iUserId ? 'user' : 'guest');
-        if (false === ($aBlogTypes = $this->Cache_Get($sCacheKey, 'tmp'))) {
+        if (false === ($aBlogTypes = E::ModuleCache()->Get($sCacheKey, 'tmp'))) {
             if ($this->oUserCurrent) {
                 $aFilter = array(
                     'acl_read' => ModuleBlog::BLOG_USER_ACL_GUEST | ModuleBlog::BLOG_USER_ACL_USER,
@@ -1438,7 +1438,7 @@ class ModuleBlog extends Module {
             }
             // Blog types for guest and all users
             $aBlogTypes = $this->GetBlogTypes($aFilter, true);
-            $this->Cache_Set($aBlogTypes, $sCacheKey, array('blog_update', 'blog_new'), 'P30D', 'tmp');
+            E::ModuleCache()->Set($aBlogTypes, $sCacheKey, array('blog_update', 'blog_new'), 'P30D', 'tmp');
         }
         return $aBlogTypes;
     }
@@ -1458,7 +1458,7 @@ class ModuleBlog extends Module {
             $iUserId = (is_object($oUser) ? $oUser->getId() : intval($oUser));
         }
         $sCacheKey = 'blog_types_close_' . ($iUserId ? 'user' : 'guest');
-        if (false === ($aBlogTypes = $this->Cache_Get($sCacheKey, 'tmp'))) {
+        if (false === ($aBlogTypes = E::ModuleCache()->Get($sCacheKey, 'tmp'))) {
             if ($this->oUserCurrent) {
                 $aFilter = array(
                     'acl_read' => ModuleBlog::BLOG_USER_ACL_MEMBER,
@@ -1470,7 +1470,7 @@ class ModuleBlog extends Module {
             }
             // Blog types for guest and all users
             $aBlogTypes = $this->GetBlogTypes($aFilter, true);
-            $this->Cache_Set($aBlogTypes, $sCacheKey, array('blog_update', 'blog_new'), 'P30D', 'tmp');
+            E::ModuleCache()->Set($aBlogTypes, $sCacheKey, array('blog_update', 'blog_new'), 'P30D', 'tmp');
         }
         return $aBlogTypes;
     }
@@ -1487,10 +1487,10 @@ class ModuleBlog extends Module {
 
         $aResult = array();
         $sCacheKey = 'blog_types';
-        if (false === ($data = $this->Cache_Get($sCacheKey, 'tmp'))) {
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey, 'tmp'))) {
             /** @var ModuleBlog_EntityBlogType[] $data */
             $data = $this->oMapper->GetBlogTypes();
-            $this->Cache_Set($data, $sCacheKey, array('blog_update', 'blog_new'), 'P30D', 'tmp');
+            E::ModuleCache()->Set($data, $sCacheKey, array('blog_update', 'blog_new'), 'P30D', 'tmp');
         }
         $aBlogTypes = array();
         if ($data) {
@@ -1594,9 +1594,9 @@ class ModuleBlog extends Module {
     public function GetBlogTypeById($nId) {
 
         $sCacheKey = 'blog_type_' . $nId;
-        if (false === ($data = $this->Cache_Get($sCacheKey))) {
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
             $data = $this->oMapper->GetBlogTypeById($nId);
-            $this->Cache_Set($data, $sCacheKey, array('blog_update', 'blog_new'), 'PT30M');
+            E::ModuleCache()->Set($data, $sCacheKey, array('blog_update', 'blog_new'), 'PT30M');
         }
         return $data;
     }
@@ -1636,8 +1636,8 @@ class ModuleBlog extends Module {
         if ($nId) {
             $oBlogType->SetId($nId);
             //чистим зависимые кеши
-            $this->Cache_CleanByTags(array('blog_update'));
-            $this->Cache_Delete("blog_type_{$oBlogType->getId()}");
+            E::ModuleCache()->CleanByTags(array('blog_update'));
+            E::ModuleCache()->Delete("blog_type_{$oBlogType->getId()}");
             return true;
         }
         return false;
@@ -1655,8 +1655,8 @@ class ModuleBlog extends Module {
         $bResult = $this->oMapper->UpdateBlogType($oBlogType);
         if ($bResult) {
             //чистим зависимые кеши
-            $this->Cache_CleanByTags(array('blog_update'));
-            $this->Cache_Delete("blog_type_{$oBlogType->getId()}");
+            E::ModuleCache()->CleanByTags(array('blog_update'));
+            E::ModuleCache()->Delete("blog_type_{$oBlogType->getId()}");
             return true;
         }
         return false;
@@ -1677,8 +1677,8 @@ class ModuleBlog extends Module {
             $bResult = $this->oMapper->DeleteBlogType($oBlogType->GetTypeCode());
             if ($bResult) {
                 //чистим зависимые кеши
-                $this->Cache_CleanByTags(array('blog_update'));
-                $this->Cache_Delete("blog_type_{$oBlogType->getId()}");
+                E::ModuleCache()->CleanByTags(array('blog_update'));
+                E::ModuleCache()->Delete("blog_type_{$oBlogType->getId()}");
                 return true;
             }
         }

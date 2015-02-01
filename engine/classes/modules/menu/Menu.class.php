@@ -33,8 +33,8 @@ class ModuleMenu extends Module {
         // очистим по тегу.
 
         $sCacheKey = md5(serialize($aMenu));
-        if (FALSE === ($data = $this->Cache_Get($sCacheKey))) {
-            $this->Cache_CleanByTags(array($sMenuId));
+        if (FALSE === ($data = E::ModuleCache()->Get($sCacheKey))) {
+            E::ModuleCache()->CleanByTags(array($sMenuId));
 
             return array();
         }
@@ -104,7 +104,7 @@ class ModuleMenu extends Module {
             // Если валидных режимов заполнения не осталось, то завершимся
             // и сбросим кэш, ведь очевидно, что меню пустое :(
             if (empty($aFillMode)) {
-                $this->Cache_Delete('menu_' . $sMenuId);
+                E::ModuleCache()->Delete('menu_' . $sMenuId);
 
                 return FALSE;
             }
@@ -131,7 +131,7 @@ class ModuleMenu extends Module {
         }
 
         // Кэшируем результат
-        $this->Cache_Set(
+        E::ModuleCache()->Set(
             $aItems,
             md5(serialize($aMenu)),
             array($sMenuId),
@@ -364,26 +364,26 @@ class ModuleMenu extends Module {
         }
 
         $sTopicId = getRequestStr('topic_id', FALSE);
-        if ($sTopicId && !$this->Topic_GetTopicById($sTopicId)) {
+        if ($sTopicId && !E::ModuleTopic()->GetTopicById($sTopicId)) {
             $sTopicId = FALSE;
         }
 
         /** @var ModuleMresource_EntityMresourceCategory[] $aResources Категории объектов пользователя */
-        $aCategories = $this->Mresource_GetImageCategoriesByUserId(E::UserId(), $sTopicId);
+        $aCategories = E::ModuleMresource()->GetImageCategoriesByUserId(E::UserId(), $sTopicId);
 
-        if ($oCurrentTopicCategory = $this->Mresource_GetCurrentTopicImageCategory(E::UserId(), $sTopicId)) {
+        if ($oCurrentTopicCategory = E::ModuleMresource()->GetCurrentTopicImageCategory(E::UserId(), $sTopicId)) {
             $aCategories[] = $oCurrentTopicCategory;
         }
 
-        if ($oTopicsCategory = $this->Mresource_GetTopicsImageCategory(E::UserId())) {
+        if ($oTopicsCategory = E::ModuleMresource()->GetTopicsImageCategory(E::UserId())) {
             $aCategories[] = $oTopicsCategory;
         }
 
-        if ($oTalksCategory = $this->Mresource_GetTalksImageCategory(E::UserId())) {
+        if ($oTalksCategory = E::ModuleMresource()->GetTalksImageCategory(E::UserId())) {
             $aCategories[] = $oTalksCategory;
         }
 
-        if ($oCommentsCategory = $this->Mresource_GetCommentsImageCategory(E::UserId())) {
+        if ($oCommentsCategory = E::ModuleMresource()->GetCommentsImageCategory(E::UserId())) {
             $aCategories[] = $oCommentsCategory;
         }
 
@@ -428,9 +428,9 @@ class ModuleMenu extends Module {
         $aBlogs = array();
 
         if ($aFillSet) {
-            $aBlogs = $this->Blog_GetBlogsByUrl($aFillSet['items']);
+            $aBlogs = E::ModuleBlog()->GetBlogsByUrl($aFillSet['items']);
         } else {
-            if ($aResult = $this->Blog_GetBlogsRating(1, $aFillSet['limit'])) {
+            if ($aResult = E::ModuleBlog()->GetBlogsRating(1, $aFillSet['limit'])) {
                 $aBlogs = $aResult['collection'];
             }
         }
@@ -576,7 +576,7 @@ class ModuleMenu extends Module {
      */
     public function NewTalk() {
 
-        return (int)$this->Talk_GetCountTalkNew(E::UserId());
+        return (int)E::ModuleTalk()->GetCountTalkNew(E::UserId());
 
     }
 
@@ -659,8 +659,8 @@ class ModuleMenu extends Module {
      */
     public function NewTopicsCount() {
 
-        $iCountTopicsCollectiveNew = $this->Topic_GetCountTopicsCollectiveNew();
-        $iCountTopicsPersonalNew = $this->Topic_GetCountTopicsPersonalNew();
+        $iCountTopicsCollectiveNew = E::ModuleTopic()->GetCountTopicsCollectiveNew();
+        $iCountTopicsPersonalNew = E::ModuleTopic()->GetCountTopicsPersonalNew();
 
         return $iCountTopicsCollectiveNew + $iCountTopicsPersonalNew;
 
@@ -674,8 +674,8 @@ class ModuleMenu extends Module {
      */
     public function NoNewTopics() {
 
-        $iCountTopicsCollectiveNew = $this->Topic_GetCountTopicsCollectiveNew();
-        $iCountTopicsPersonalNew = $this->Topic_GetCountTopicsPersonalNew();
+        $iCountTopicsCollectiveNew = E::ModuleTopic()->GetCountTopicsCollectiveNew();
+        $iCountTopicsPersonalNew = E::ModuleTopic()->GetCountTopicsPersonalNew();
 
         return $iCountTopicsCollectiveNew + $iCountTopicsPersonalNew == 0;
 

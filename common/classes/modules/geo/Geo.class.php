@@ -64,7 +64,6 @@ class ModuleGeo extends Module {
     public function Init() {
 
         $this->oMapper = E::GetMapper(__CLASS__);
-        $this->oUserCurrent = $this->User_GetUserCurrent();
     }
 
     /**
@@ -271,7 +270,7 @@ class ModuleGeo extends Module {
      *
      * @return array В качестве ключей используется ID объекта, в качестве значений массив связей этого объекта
      */
-    public function GetTargetsByTargetArray($sTargetType, $aTargetId) {
+    public function GetTargetsByTargetArray($sTargetType, &$aTargetId) {
 
         if (!is_array($aTargetId)) {
             $aTargetId = array($aTargetId);
@@ -501,7 +500,7 @@ class ModuleGeo extends Module {
      */
     public function CheckTargetUser($iTargetId) {
 
-        if ($oUser = $this->User_GetUserById($iTargetId)) {
+        if ($oUser = E::ModuleUser()->GetUserById($iTargetId)) {
             return true;
         }
         return false;

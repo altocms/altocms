@@ -60,7 +60,7 @@ class ActionRss extends Action {
         /**
          * Получаем топики
          */
-        $aResult = $this->Topic_GetTopicsGood(1, Config::Get('module.topic.per_page') * 2, false);
+        $aResult = E::ModuleTopic()->GetTopicsGood(1, Config::Get('module.topic.per_page') * 2, false);
         $aTopics = $aResult['collection'];
         /**
          * Формируем данные канала RSS
@@ -89,8 +89,8 @@ class ActionRss extends Action {
          * Формируем ответ
          */
         $this->InitRss();
-        $this->Viewer_Assign('aChannel', $aChannel);
-        $this->Viewer_Assign('aItems', $topics);
+        E::ModuleViewer()->Assign('aChannel', $aChannel);
+        E::ModuleViewer()->Assign('aItems', $topics);
         $this->SetTemplateAction('index');
     }
 
@@ -101,7 +101,7 @@ class ActionRss extends Action {
         /**
          * Получаем топики
          */
-        $aResult = $this->Topic_GetTopicsNew(1, Config::Get('module.topic.per_page') * 2, false);
+        $aResult = E::ModuleTopic()->GetTopicsNew(1, Config::Get('module.topic.per_page') * 2, false);
         $aTopics = $aResult['collection'];
         /**
          * Формируем данные канала RSS
@@ -130,8 +130,8 @@ class ActionRss extends Action {
          * Формируем ответ
          */
         $this->InitRss();
-        $this->Viewer_Assign('aChannel', $aChannel);
-        $this->Viewer_Assign('aItems', $topics);
+        E::ModuleViewer()->Assign('aChannel', $aChannel);
+        E::ModuleViewer()->Assign('aItems', $topics);
         $this->SetTemplateAction('index');
     }
 
@@ -142,11 +142,11 @@ class ActionRss extends Action {
         /**
          * Получаем закрытые блоги, чтобы исключить их из выдачи
          */
-        $aCloseBlogs = $this->Blog_GetInaccessibleBlogsByUser();
+        $aCloseBlogs = E::ModuleBlog()->GetInaccessibleBlogsByUser();
         /**
          * Получаем комментарии
          */
-        $aResult = $this->Comment_GetCommentsAll(
+        $aResult = E::ModuleComment()->GetCommentsAll(
             'topic', 1, Config::Get('module.comment.per_page') * 2, array(), $aCloseBlogs
         );
         $aComments = $aResult['collection'];
@@ -177,8 +177,8 @@ class ActionRss extends Action {
          * Формируем ответ
          */
         $this->InitRss();
-        $this->Viewer_Assign('aChannel', $aChannel);
-        $this->Viewer_Assign('aItems', $comments);
+        E::ModuleViewer()->Assign('aChannel', $aChannel);
+        E::ModuleViewer()->Assign('aItems', $comments);
         $this->SetTemplateAction('index');
     }
 
@@ -189,7 +189,7 @@ class ActionRss extends Action {
         /**
          * Получаем комментарии
          */
-        $aResult = $this->Wall_GetWall(array(), array('date_add' => 'DESC'), 1, Config::Get('module.wall.per_page'));
+        $aResult = E::ModuleWall()->GetWall(array(), array('date_add' => 'DESC'), 1, Config::Get('module.wall.per_page'));
         /** @var ModuleWall_EntityWall[] $aWall */
         $aWall = $aResult['collection'];
 
@@ -210,7 +210,7 @@ class ActionRss extends Action {
             /** @var ModuleUser_EntityUser $oWallUser */
             $oWallUser = $oWall->getWallUser();
             /** @var ModuleUser_EntityUser $oUser */
-            $oUser = $this->User_GetUserById($oWall->getUserId());
+            $oUser = E::ModuleUser()->GetUserById($oWall->getUserId());
 
             $item['title'] = 'Wall: ' . $oUser->getLogin();
             $item['guid'] = $oWall->getUrlWall();
@@ -225,8 +225,8 @@ class ActionRss extends Action {
          * Формируем ответ
          */
         $this->InitRss();
-        $this->Viewer_Assign('aChannel', $aChannel);
-        $this->Viewer_Assign('aItems', $comments);
+        E::ModuleViewer()->Assign('aChannel', $aChannel);
+        E::ModuleViewer()->Assign('aItems', $comments);
         $this->SetTemplateAction('index');
     }
 
@@ -238,12 +238,12 @@ class ActionRss extends Action {
         $sTopicId = $this->GetParam(0);
 
         // * Топик существует?
-        if (!($oTopic = $this->Topic_GetTopicById($sTopicId)) || !$oTopic->getPublish() || $oTopic->getBlog()->IsPrivate()) {
+        if (!($oTopic = E::ModuleTopic()->GetTopicById($sTopicId)) || !$oTopic->getPublish() || $oTopic->getBlog()->IsPrivate()) {
             return parent::EventNotFound();
         }
 
         // * Получаем комментарии
-        $aResult = $this->Comment_GetCommentsByFilter(
+        $aResult = E::ModuleComment()->GetCommentsByFilter(
             array('target_id' => $oTopic->getId(), 'target_type' => 'topic', 'delete' => 0),
             array('comment_id' => 'desc'), 1, 100
         );
@@ -272,8 +272,8 @@ class ActionRss extends Action {
 
         // * Формируем ответ
         $this->InitRss();
-        $this->Viewer_Assign('aChannel', $aChannel);
-        $this->Viewer_Assign('aItems', $comments);
+        E::ModuleViewer()->Assign('aChannel', $aChannel);
+        E::ModuleViewer()->Assign('aItems', $comments);
         $this->SetTemplateAction('index');
     }
 
@@ -286,7 +286,7 @@ class ActionRss extends Action {
         /**
          * Получаем топики
          */
-        $aResult = $this->Topic_GetTopicsByTag($sTag, 1, Config::Get('module.topic.per_page') * 2, false);
+        $aResult = E::ModuleTopic()->GetTopicsByTag($sTag, 1, Config::Get('module.topic.per_page') * 2, false);
         $aTopics = $aResult['collection'];
         /**
          * Формируем данные канала RSS
@@ -315,8 +315,8 @@ class ActionRss extends Action {
          * Формируем ответ
          */
         $this->InitRss();
-        $this->Viewer_Assign('aChannel', $aChannel);
-        $this->Viewer_Assign('aItems', $topics);
+        E::ModuleViewer()->Assign('aChannel', $aChannel);
+        E::ModuleViewer()->Assign('aItems', $topics);
         $this->SetTemplateAction('index');
     }
 
@@ -329,10 +329,10 @@ class ActionRss extends Action {
         /**
          * Если блог существует, то получаем записи
          */
-        if (!$sBlogUrl || !($oBlog = $this->Blog_GetBlogByUrl($sBlogUrl)) || $oBlog->getType() == "close") {
+        if (!$sBlogUrl || !($oBlog = E::ModuleBlog()->GetBlogByUrl($sBlogUrl)) || $oBlog->getType() == "close") {
             return parent::EventNotFound();
         } else {
-            $aResult = $this->Topic_GetTopicsByBlog($oBlog, 1, Config::Get('module.topic.per_page') * 2, 'good');
+            $aResult = E::ModuleTopic()->GetTopicsByBlog($oBlog, 1, Config::Get('module.topic.per_page') * 2, 'good');
         }
         $aTopics = $aResult['collection'];
         /**
@@ -362,8 +362,8 @@ class ActionRss extends Action {
          * Формируем ответ
          */
         $this->InitRss();
-        $this->Viewer_Assign('aChannel', $aChannel);
-        $this->Viewer_Assign('aItems', $topics);
+        E::ModuleViewer()->Assign('aChannel', $aChannel);
+        E::ModuleViewer()->Assign('aItems', $topics);
         $this->SetTemplateAction('index');
     }
 
@@ -377,14 +377,14 @@ class ActionRss extends Action {
             /**
              * RSS-лента всех записей из персональных блогов
              */
-            $aResult = $this->Topic_GetTopicsPersonal(1, Config::Get('module.topic.per_page') * 2);
-        } elseif (!$oUser = $this->User_GetUserByLogin($this->sUserLogin)) {
+            $aResult = E::ModuleTopic()->GetTopicsPersonal(1, Config::Get('module.topic.per_page') * 2);
+        } elseif (!$oUser = E::ModuleUser()->GetUserByLogin($this->sUserLogin)) {
             return parent::EventNotFound();
         } else {
             /**
              * RSS-лента записей персонального блога указанного пользователя
              */
-            $aResult = $this->Topic_GetTopicsPersonalByUser(
+            $aResult = E::ModuleTopic()->GetTopicsPersonalByUser(
                 $oUser->getId(), 1, 1, Config::Get('module.topic.per_page') * 2
             );
         }
@@ -418,8 +418,8 @@ class ActionRss extends Action {
          * Формируем ответ
          */
         $this->InitRss();
-        $this->Viewer_Assign('aChannel', $aChannel);
-        $this->Viewer_Assign('aItems', $topics);
+        E::ModuleViewer()->Assign('aChannel', $aChannel);
+        E::ModuleViewer()->Assign('aItems', $topics);
         $this->SetTemplateAction('index');
     }
 
@@ -431,11 +431,11 @@ class ActionRss extends Action {
 
         $sText = $oTopic->getTextShort();
         if ($oTopic->getTextShort() != $oTopic->getText()) {
-            $sText .= "<br><a href=\"{$oTopic->getUrl()}#cut\" title=\"{$this->Lang_Get('topic_read_more')}\">";
+            $sText .= "<br><a href=\"{$oTopic->getUrl()}#cut\" title=\"{E::ModuleLang()->Get('topic_read_more')}\">";
             if ($oTopic->getCutText()) {
                 $sText .= htmlspecialchars($oTopic->getCutText());
             } else {
-                $sText .= $this->Lang_Get('topic_read_more');
+                $sText .= E::ModuleLang()->Get('topic_read_more');
             }
             $sText .= "</a>";
         }

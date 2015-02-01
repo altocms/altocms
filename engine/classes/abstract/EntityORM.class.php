@@ -17,17 +17,17 @@
  * Абстрактный класс сущности ORM - аналог active record
  * Позволяет без написания SQL запросов работать с базой данных.
  * <pre>
- * $oUser=$this->User_GetUserById(1);
+ * $oUser=E::ModuleUser()->GetUserById(1);
  * $oUser->setName('Claus');
  * $oUser->Update();
  * </pre>
  * Возможно получать списки объектов по фильтру:
  * <pre>
- * $aUsers=$this->User_GetUserItemsByAgeAndSex(18,'male');
+ * $aUsers=E::ModuleUser()->GetUserItemsByAgeAndSex(18,'male');
  * // эквивалентно
- * $aUsers=$this->User_GetUserItemsByFilter(array('age'=>18,'sex'=>'male'));
+ * $aUsers=E::ModuleUser()->GetUserItemsByFilter(array('age'=>18,'sex'=>'male'));
  * // эквивалентно
- * $aUsers=$this->User_GetUserItemsByFilter(array('#where'=>array('age = ?d and sex = ?' => array(18,'male'))));
+ * $aUsers=E::ModuleUser()->GetUserItemsByFilter(array('#where'=>array('age = ?d and sex = ?' => array(18,'male'))));
  * </pre>
  *
  * @package engine.orm
@@ -410,7 +410,7 @@ abstract class EntityORM extends Entity {
          */
         $aClassInfo = E::GetClassInfo($sPluginPrefix . 'Module_' . $sModuleName, Engine::CI_MODULE);
         if (empty($aClassInfo[E::CI_MODULE])
-            && $sRootDelegater = $this->Plugin_GetRootDelegater('entity', get_class($this))
+            && $sRootDelegater = E::ModulePlugin()->GetRootDelegater('entity', get_class($this))
         ) {
             $sModuleName = E::GetModuleName($sRootDelegater);
             $sPluginPrefix = E::GetPluginPrefix($sRootDelegater);

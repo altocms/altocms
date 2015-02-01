@@ -212,7 +212,7 @@ class ModuleViewer extends Module {
 
     protected $bAssetInit = false;
 
-    //protected $nMuteErrorsCnt = 0;
+    protected $nMuteErrorsCnt = 0;
 
     /**
      * Константа для компиляции LESS-файлов
@@ -247,10 +247,11 @@ class ModuleViewer extends Module {
     /**
      * Инициализация модуля
      *
+     * @param bool $bLocal
      */
     public function Init($bLocal = false) {
 
-        $this->Hook_Run('viewer_init_start', compact('bLocal'));
+        E::ModuleHook()->Run('viewer_init_start', compact('bLocal'));
 
         $this->bLocal = (bool)$bLocal;
 
@@ -273,7 +274,7 @@ class ModuleViewer extends Module {
         $this->SetHtmlDescription($sValue);
 
         // * Пустой вызов только для того, чтоб модуль Message инициализировался, если еще не
-        $this->Message_IsInit();
+        E::ModuleMessage()->IsInit();
 
         $this->sCacheDir = Config::Get('path.runtime.dir');
     }
@@ -396,7 +397,7 @@ class ModuleViewer extends Module {
         }
 
         // Load lang files for skin
-        $this->Lang_LoadLangFileTemplate($this->Lang_GetLang());
+        E::ModuleLang()->LoadLangFileTemplate(E::ModuleLang()->GetLang());
 
         // Skip skin widgets for local viewer
         if (!$this->bLocal) {
@@ -420,7 +421,7 @@ class ModuleViewer extends Module {
      */
     protected function _initRender() {
 
-        $this->Hook_Run('render_init_start', array('bLocal' => $this->bLocal));
+        E::ModuleHook()->Run('render_init_start', array('bLocal' => $this->bLocal));
 
         // If skin not initialized (or it was changed) then init one
         if ($this->sSkin != $this->GetConfigSkin()) {
@@ -431,8 +432,8 @@ class ModuleViewer extends Module {
         }
 
         // Loads localized texts
-        $this->Assign('aLang', $this->Lang_GetLangMsg());
-        $this->Assign('oLang', $this->Lang_Dictionary());
+        $this->Assign('aLang', E::ModuleLang()->GetLangMsg());
+        $this->Assign('oLang', E::ModuleLang()->Dictionary());
 
         if (!$this->bLocal) {
             // Initialization of assets (JS-, CSS-files)
@@ -444,8 +445,7 @@ class ModuleViewer extends Module {
             $this->_initTemplator();
         }
 
-        $this->Hook_Run('render_init_done', array('bLocal' => $this->bLocal));
-
+        E::ModuleHook()->Run('render_init_done', array('bLocal' => $this->bLocal));
     }
 
     /**
@@ -455,7 +455,7 @@ class ModuleViewer extends Module {
      */
     public function GetLocalViewer() {
 
-        $sClass = $this->Plugin_GetDelegate('module', __CLASS__);
+        $sClass = E::ModulePlugin()->GetDelegate('module', __CLASS__);
 
         /** @var ModuleViewer $oViewerLocal */
         $oViewerLocal = new $sClass(Engine::getInstance());
@@ -533,16 +533,17 @@ class ModuleViewer extends Module {
         $this->_assignTpl('sHtmlCanonical', $this->sHtmlCanonical);
         $this->_assignTpl('aHtmlHeadTags', $this->aHtmlHeadTags);
 
-        $this->_assignTpl('aJsAssets', $this->ViewerAsset_GetPreparedAssetLinks());
+        $this->_assignTpl('aJsAssets', E::ModuleViewerAsset()->GetPreparedAssetLinks());
 
         // * Загружаем список активных плагинов
-        $aPlugins = $this->oEngine->GetPlugins();
+        $aPlugins = E::GetActivePlugins();
         $this->_assignTpl('aPluginActive', array_fill_keys(array_keys($aPlugins), true));
 
         // * Загружаем пути до шаблонов плагинов
         $aPluginsTemplateUrl = array();
         $aPluginsTemplateDir = array();
 
+        /** @var Plugin $oPlugin */
         foreach ($aPlugins as $sPlugin => $oPlugin) {
             $sDir = Plugin::GetTemplateDir(get_class($oPlugin));
             $this->oSmarty->addTemplateDir(array($sDir . 'tpls/', $sDir), $oPlugin->GetName(false));
@@ -603,10 +604,10 @@ class ModuleViewer extends Module {
             // Подавляем обработку ошибок
             //$this->_muteErrors();
 
-            $sTemplate = $this->Plugin_GetDelegate('template', $sTemplate);
+            $sTemplate = E::ModulePlugin()->GetDelegate('template', $sTemplate);
             if ($this->TemplateExists($sTemplate, true)) {
                 // Установка нового secret key непосредственно перед рендерингом
-                $this->Security_SetSecurityKey();
+                E::ModuleSecurity()->SetSecurityKey();
 
                 self::$_renderCount++;
                 self::$_renderStart = microtime(true);
@@ -633,7 +634,7 @@ class ModuleViewer extends Module {
         }
 
         // * Проверяем наличие делегата
-        $sTemplate = $this->Plugin_GetDelegate('template', $sTemplate);
+        $sTemplate = E::ModulePlugin()->GetDelegate('template', $sTemplate);
         if ($this->TemplateExists($sTemplate, true)) {
             // Если задаются локальные параметры кеширования, то сохраняем общие
             if (isset($aOptions['cache'])) {
@@ -692,10 +693,11 @@ class ModuleViewer extends Module {
     public function FetchWidget($sTemplate, $aVars = array(), $aOptions = array()) {
 
         // * Проверяем наличие делегата
-        $sDelegateTemplate = $this->Plugin_GetDelegate('template', $sTemplate);
+        $sDelegateTemplate = E::ModulePlugin()->GetDelegate('template', $sTemplate);
+        $sRenderTemplate = '';
         if ($sDelegateTemplate == $sTemplate && !$this->TemplateExists($sTemplate)) {
             $sWidgetTemplate = 'widgets/widget.' . $sTemplate;
-            $sWidgetTemplate = $this->Plugin_GetDelegate('template', $sWidgetTemplate);
+            $sWidgetTemplate = E::ModulePlugin()->GetDelegate('template', $sWidgetTemplate);
             if ($this->TemplateExists($sWidgetTemplate)) {
                 $sRenderTemplate = $sWidgetTemplate;
             }
@@ -703,7 +705,7 @@ class ModuleViewer extends Module {
             if (!$sRenderTemplate) {
                 // * LS-compatible *//
                 $sWidgetTemplate = 'blocks/block.' . $sTemplate;
-                $sWidgetTemplate = $this->Plugin_GetDelegate('template', $sWidgetTemplate);
+                $sWidgetTemplate = E::ModulePlugin()->GetDelegate('template', $sWidgetTemplate);
                 if ($this->TemplateExists($sWidgetTemplate)) {
                     $sRenderTemplate = $sWidgetTemplate;
                 }
@@ -712,6 +714,9 @@ class ModuleViewer extends Module {
             if (!$sRenderTemplate) {
                 $sRenderTemplate = $sWidgetTemplate;
             }
+        }
+        if (!$sRenderTemplate) {
+            $sRenderTemplate = $sDelegateTemplate;
         }
         $oSmarty = $this->GetSmartyObject();
         $oTpl = $oSmarty->createTemplate($sRenderTemplate, $oSmarty);
@@ -733,8 +738,8 @@ class ModuleViewer extends Module {
         $bStateError = false;
         $sMsgTitle = '';
         $sMsg = '';
-        $aMsgError = $this->Message_GetError();
-        $aMsgNotice = $this->Message_GetNotice();
+        $aMsgError = E::ModuleMessage()->GetError();
+        $aMsgNotice = E::ModuleMessage()->GetNotice();
         if (count($aMsgError) > 0) {
             $bStateError = true;
             $sMsgTitle = $aMsgError[0]['title'];
@@ -863,7 +868,7 @@ class ModuleViewer extends Module {
 
         // Для возможности кросс-доменных запросов
         if ($sResponseAjax != 'jsonp' && $bValidate) {
-            $this->Security_ValidateSendForm();
+            E::ModuleSecurity()->ValidateSendForm();
         }
         $this->sResponseAjax = $sResponseAjax;
         $_REQUEST['ALTO_AJAX'] = $sResponseAjax;
@@ -1081,7 +1086,7 @@ class ModuleViewer extends Module {
             unset($aWidgetData['params']['id']);
         }
 
-        $oWidget = $this->Widget_MakeWidget($aWidgetData);
+        $oWidget = E::ModuleWidget()->MakeWidget($aWidgetData);
 
         // Если тип виджета определен, то добавляем его
         if (!$oWidget->getType()) {
@@ -1104,7 +1109,7 @@ class ModuleViewer extends Module {
      * @param   array  $aWidgets        - Список добавляемых виджетов
      * @param   bool   $ClearWidgets    - Очищать или нет список виджетов, добавленных до этого, в данной группе
      * <pre>
-     * $this->Viewer_AddWidgets('right', array('tags', array('widget'=>'stream', 'priority'=>100)));
+     * E::ModuleViewer()->AddWidgets('right', array('tags', array('widget'=>'stream', 'priority'=>100)));
      * </pre>
      */
     public function AddWidgets($sGroup, $aWidgets, $ClearWidgets = true) {
@@ -1182,7 +1187,7 @@ class ModuleViewer extends Module {
         // Добавляем проверку на рсширение, чтобы не делать лишних телодвижений
         $bTpl = (substr($sName, -4) == '.tpl');
         if (!$bTpl) {
-            if ($this->Widget_FileClassExists($sName, $sPlugin)) {
+            if (E::ModuleWidget()->FileClassExists($sName, $sPlugin)) {
                 // Если найден файл класса виджета, то это исполняемый виджет
                 return array('type' => 'exec');
             }
@@ -1261,7 +1266,7 @@ class ModuleViewer extends Module {
     protected function MakeWidgetsLists() {
 
         // Load widgets from config files
-        $aWidgets = $this->Widget_GetWidgets();
+        $aWidgets = E::ModuleWidget()->GetWidgets();
         $iCount = $this->AddWidgetsToList($aWidgets);
 
         // Check widgets added from actions
@@ -1285,6 +1290,7 @@ class ModuleViewer extends Module {
     protected function AddWidgetsToList($aWidgets) {
 
         $iCount = 0;
+        /** @var ModuleWidget_EntityWidget $oWidget */
         foreach ($aWidgets as $oWidget) {
             $sGroup = $oWidget->getGroup();
             if (!$sGroup) {
@@ -1328,14 +1334,14 @@ class ModuleViewer extends Module {
             $this->aFilesPrepend['css'] = array_reverse($this->aFilesPrepend['css'], true);
         }
         if ($this->aFilesPrepend['js'] || $this->aFilesPrepend['css']) {
-            $this->ViewerAsset_AddAssetFiles($this->aFilesPrepend);
+            E::ModuleViewerAsset()->AddAssetFiles($this->aFilesPrepend);
             $this->aFilesPrepend = array();
         }
 
-        $this->ViewerAsset_AddAssetFiles(Config::Get('head.default'));
+        E::ModuleViewerAsset()->AddAssetFiles(Config::Get('head.default'));
 
         if ($this->aFilesAppend['js'] || $this->aFilesAppend['css']) {
-            $this->ViewerAsset_AddAssetFiles($this->aFilesAppend);
+            E::ModuleViewerAsset()->AddAssetFiles($this->aFilesAppend);
         }
         $this->bAssetInit = true;
     }
@@ -1364,7 +1370,7 @@ class ModuleViewer extends Module {
             $aParams['replace'] = $bReplace;
             $this->aFilesAppend['js'][$sFile] = $aParams;
         } else {
-            $this->ViewerAsset_AppendJs($sFile, $aParams, $bReplace);
+            E::ModuleViewerAsset()->AppendJs($sFile, $aParams, $bReplace);
         }
     }
 
@@ -1392,7 +1398,7 @@ class ModuleViewer extends Module {
             $aParams['replace'] = $bReplace;
             $this->aFilesPrepend['js'][$sFile] = $aParams;
         } else {
-            $this->ViewerAsset_PrependJs($sFile, $aParams, $bReplace);
+            E::ModuleViewerAsset()->PrependJs($sFile, $aParams, $bReplace);
         }
     }
 
@@ -1420,7 +1426,7 @@ class ModuleViewer extends Module {
             $aParams['replace'] = $bReplace;
             $this->aFilesAppend['css'][$sFile] = $aParams;
         } else {
-            $this->ViewerAsset_AppendCss($sFile, $aParams, $bReplace);
+            E::ModuleViewerAsset()->AppendCss($sFile, $aParams, $bReplace);
         }
     }
 
@@ -1448,7 +1454,7 @@ class ModuleViewer extends Module {
             $aParams['replace'] = $bReplace;
             $this->aFilesPrepend['css'][$sFile] = $aParams;
         } else {
-            $this->ViewerAsset_PrependCss($sFile, $aParams, $bReplace);
+            E::ModuleViewerAsset()->PrependCss($sFile, $aParams, $bReplace);
         }
     }
 
@@ -1475,7 +1481,7 @@ class ModuleViewer extends Module {
         } else {
             $aParams = array('prepare' => true);
         }
-        return $this->ViewerAsset_AppendJs($sFile, $aParams, $bReplace);
+        return E::ModuleViewerAsset()->AppendJs($sFile, $aParams, $bReplace);
     }
 
     /**
@@ -1501,7 +1507,7 @@ class ModuleViewer extends Module {
         } else {
             $aParams = array('prepare' => true);
         }
-        return $this->ViewerAsset_AppendCss($sFile, $aParams, $bReplace);
+        return E::ModuleViewerAsset()->AppendCss($sFile, $aParams, $bReplace);
     }
 
     /**
@@ -1523,24 +1529,24 @@ class ModuleViewer extends Module {
 
                     // * Преобразование JS
                     if (isset($aRule['js']['empty']) && $aRule['js']['empty']) {
-                        $this->ViewerAsset_ClearJs();
+                        E::ModuleViewerAsset()->ClearJs();
                     }
                     if (isset($aRule['js']['exclude']) && is_array($aRule['js']['exclude'])) {
-                        $this->ViewerAsset_ExcludeJs($aRule['js']['exclude']);
+                        E::ModuleViewerAsset()->ExcludeJs($aRule['js']['exclude']);
                     }
                     if (isset($aRule['js']['include']) && is_array($aRule['js']['include'])) {
-                        $this->ViewerAsset_AddJsFiles($aRule['js']['include']);
+                        E::ModuleViewerAsset()->AddJsFiles($aRule['js']['include']);
                     }
 
                     // * Преобразование CSS
                     if (isset($aRule['css']['empty']) && $aRule['css']['empty']) {
-                        $this->ViewerAsset_ClearCss();
+                        E::ModuleViewerAsset()->ClearCss();
                     }
                     if (isset($aRule['css']['exclude']) && is_array($aRule['css']['exclude'])) {
-                        $this->ViewerAsset_ExcludeCss($aRule['css']['exclude']);
+                        E::ModuleViewerAsset()->ExcludeCss($aRule['css']['exclude']);
                     }
                     if (isset($aRule['css']['include']) && is_array($aRule['css']['include'])) {
-                        $this->ViewerAsset_AddCssFiles($aRule['css']['include']);
+                        E::ModuleViewerAsset()->AddCssFiles($aRule['css']['include']);
                     }
 
                     // * Продолжаем поиск
@@ -1551,7 +1557,7 @@ class ModuleViewer extends Module {
             }
         }
 
-        $this->ViewerAsset_Prepare();
+        E::ModuleViewerAsset()->Prepare();
 
 
         // * Объединяем файлы в наборы
@@ -1621,7 +1627,7 @@ class ModuleViewer extends Module {
     protected function BuildHtmlHeadFiles($aHeadFiles) {
 
         foreach($aHeadFiles as $sType => $aFiles) {
-            $aHeaderLinks = $this->ViewerAsset_BuildHtmlLinks($sType);
+            $aHeaderLinks = E::ModuleViewerAsset()->BuildHtmlLinks($sType);
             if (isset($aHeaderLinks[$sType]) && $aHeaderLinks[$sType]) {
                 $aHeadFiles[$sType] = join(PHP_EOL, $aHeaderLinks[$sType]);
             } else {
@@ -1642,7 +1648,7 @@ class ModuleViewer extends Module {
             'url' => array(
                 'root' => Config::Get('path.root.url'),
             ),
-            'assets' => $this->ViewerAsset_GetPreparedAssetLinks(),
+            'assets' => E::ModuleViewerAsset()->GetPreparedAssetLinks(),
             'lang' => Config::Get('lang.current'),
             'wysiwyg' => Config::Get('view.wysiwyg'),
         );
@@ -2065,7 +2071,7 @@ class ModuleViewer extends Module {
 
         $sDir = F::File_GetAssetDir();
         F::File_RemoveDir($sDir);
-        $this->ViewerAsset_ClearAssetsCache();
+        E::ModuleViewerAsset()->ClearAssetsCache();
     }
 
     /**

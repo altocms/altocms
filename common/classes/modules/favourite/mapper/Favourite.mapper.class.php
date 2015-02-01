@@ -294,7 +294,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      */
     public function GetFavouriteOpenCommentsByUserId($iUserId, &$iCount, $iCurrPage, $iPerPage) {
 
-        $aOpenBlogTypes = $this->Blog_GetOpenBlogTypes();
+        $aOpenBlogTypes = E::ModuleBlog()->GetOpenBlogTypes();
         $sql = "
 			SELECT f.target_id
 			FROM 
@@ -343,7 +343,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      */
     public function GetCountFavouriteOpenCommentsByUserId($sUserId) {
 
-        $aOpenBlogTypes = $this->Blog_GetOpenBlogTypes();
+        $aOpenBlogTypes = E::ModuleBlog()->GetOpenBlogTypes();
         $sql = "SELECT
 					COUNT(f.target_id) as cnt
 				FROM 
@@ -386,7 +386,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      */
     public function GetFavouriteOpenTopicsByUserId($iUserId, &$iCount, $iCurrPage, $iPerPage) {
 
-        $aOpenBlogTypes = $this->Blog_GetOpenBlogTypes();
+        $aOpenBlogTypes = E::ModuleBlog()->GetOpenBlogTypes();
         $sql = "
 			SELECT f.target_id
 			FROM 
@@ -432,7 +432,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      */
     public function GetCountFavouriteOpenTopicsByUserId($iUserId) {
 
-        $aOpenBlogTypes = $this->Blog_GetOpenBlogTypes();
+        $aOpenBlogTypes = E::ModuleBlog()->GetOpenBlogTypes();
         $sql = "SELECT
 					COUNT(f.target_id) as cnt
 				FROM 

@@ -46,7 +46,7 @@ class HookSnippet extends Hook {
 
         // Получим html-код сниппета
         /** @var ModuleViewer $oLocalViewer */
-        $oLocalViewer = $this->Viewer_GetLocalViewer();
+        $oLocalViewer = E::ModuleViewer()->GetLocalViewer();
         $oLocalViewer->Assign('aParams', isset($aData['params']) ? $aData['params'] : array());
 
         $aData['result'] = trim($oLocalViewer->Fetch("tpls/snippets/snippet.{$aData['params']['snippet_name']}.tpl"));
@@ -70,10 +70,10 @@ class HookSnippet extends Hook {
         }
 
         // Если пользователь найден, то вернём ссылку на него
-        if (is_string($sUserLogin) && ($oUser = $this->User_GetUserByLogin($sUserLogin))) {
+        if (is_string($sUserLogin) && ($oUser = E::ModuleUser()->GetUserByLogin($sUserLogin))) {
             // Получим html-код сниппета
             /** @var ModuleViewer $oLocalViewer */
-            $oLocalViewer = $this->Viewer_GetLocalViewer();
+            $oLocalViewer = E::ModuleViewer()->GetLocalViewer();
             $oLocalViewer->Assign('oUser', $oUser);
 
             $aData['result'] = trim($oLocalViewer->Fetch('tpls/snippets/snippet.user.tpl'));
@@ -105,13 +105,13 @@ class HookSnippet extends Hook {
             $iTopicId = (int)isset($aData['params']['topic']) ? $aData['params']['topic'] : $aMatches[1];
 
             // Странно, но топик не нашли - завернём сниппет
-            if (!($oTopic = $this->Topic_GetTopicById($iTopicId))) {
+            if (!($oTopic = E::ModuleTopic()->GetTopicById($iTopicId))) {
                 return FALSE;
             }
 
             // Проверим, можно ли пользователю читать этот топик, а то вдруг
             // он запросил картинки из топика закрытого блога - а так нельзя
-            if (!$this->ACL_IsAllowShowBlog($oTopic->getBlog(), E::User())) {
+            if (!E::ModuleACL()->IsAllowShowBlog($oTopic->getBlog(), E::User())) {
                 return FALSE;
             }
 
@@ -165,7 +165,7 @@ class HookSnippet extends Hook {
 
             // Получим html-код сниппета
             /** @var ModuleViewer $oLocalViewer */
-            $oLocalViewer = $this->Viewer_GetLocalViewer();
+            $oLocalViewer = E::ModuleViewer()->GetLocalViewer();
             $oLocalViewer->Assign('oTopic', $oTopic);
             $oLocalViewer->Assign('aPhotos', $aPhotos);
             $oLocalViewer->Assign('sPosition', $sPosition);

@@ -17,7 +17,7 @@
  * Модуль обработки хуков(hooks)
  * В различных местах кода могут быть определеные вызовы хуков, например:
  * <pre>
- * $this->Hook_Run('topic_edit_before', array('oTopic'=>$oTopic,'oBlog'=>$oBlog));
+ * E::ModuleHook()->Run('topic_edit_before', array('oTopic'=>$oTopic,'oBlog'=>$oBlog));
  * </pre>
  * Данный вызов "вешает" хук "topic_edit_before"
  * Чтобы повесить обработчик на этот хук, его нужно объявить, например, через файл в /classes/hooks/HookTest.class.php
@@ -202,12 +202,12 @@ class ModuleHook extends Module {
     /**
      * Запускает обаботку хуков
      *
-     * @param string $sName    Имя хука
-     * @param array  $aVars    Список параметров хука, передаются в обработчик
+     * @param string $sName Имя хука
+     * @param array  $aVars Список параметров хука, передаются в обработчик
      *
      * @return array
      */
-    public function Run($sName, &$aVars = array()) {
+    public function Run($sName, $aVars = array()) {
 
         $xResult = array();
         $sName = strtolower($sName);

@@ -32,16 +32,16 @@ class WidgetTags extends Widget {
          * Расчитываем логарифмическое облако тегов
          */
         if ($aTags) {
-            $this->Tools_MakeCloud($aTags);
+            E::ModuleTools()->MakeCloud($aTags);
             /**
              * Устанавливаем шаблон вывода
              */
-            $this->Viewer_Assign('aTags', $aTags);
+            E::ModuleViewer()->Assign('aTags', $aTags);
         }
         /**
          * Теги пользователя
          */
-        if ($oUserCurrent = $this->User_GetUserCurrent()) {
+        if ($oUserCurrent = E::ModuleUser()->GetUserCurrent()) {
             $aTags = E::Topic_GetOpenTopicTags(
                 Config::Get('widgets.tags.params.limit'), $oUserCurrent->getId()
             );
@@ -49,11 +49,11 @@ class WidgetTags extends Widget {
              * Расчитываем логарифмическое облако тегов
              */
             if ($aTags) {
-                $this->Tools_MakeCloud($aTags);
+                E::ModuleTools()->MakeCloud($aTags);
                 /**
                  * Устанавливаем шаблон вывода
                  */
-                $this->Viewer_Assign('aTagsUser', $aTags);
+                E::ModuleViewer()->Assign('aTagsUser', $aTags);
             }
         }
     }

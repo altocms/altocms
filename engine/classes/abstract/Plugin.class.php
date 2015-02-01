@@ -77,14 +77,14 @@ abstract class Plugin extends LsObject {
         $aDelegates = $this->GetDelegates();
         foreach ($aDelegates as $sObjectName => $aParams) {
             foreach ($aParams as $sFrom => $sTo) {
-                $this->Plugin_Delegate($sObjectName, $sFrom, $sTo, get_class($this));
+                E::ModulePlugin()->Delegate($sObjectName, $sFrom, $sTo, get_class($this));
             }
         }
 
         $aInherits = $this->GetInherits();
         foreach ($aInherits as $aParams) {
             foreach ($aParams as $sFrom => $sTo) {
-                $this->Plugin_Inherit($sFrom, $sTo, get_class($this));
+                E::ModulePlugin()->Inherit($sFrom, $sTo, get_class($this));
             }
         }
     }
@@ -216,7 +216,7 @@ abstract class Plugin extends LsObject {
      */
     protected function ExportSQL($sFilePath) {
 
-        return $this->Database_ExportSQL($sFilePath);
+        return E::ModuleDatabase()->ExportSQL($sFilePath);
     }
 
     /**
@@ -230,7 +230,7 @@ abstract class Plugin extends LsObject {
      */
     protected function ExportSQLQuery($sSql) {
 
-        return $this->Database_ExportSQLQuery($sSql);
+        return E::ModuleDatabase()->ExportSQLQuery($sSql);
     }
 
     /**
@@ -247,7 +247,7 @@ abstract class Plugin extends LsObject {
      */
     protected function isTableExists($sTableName) {
 
-        return $this->Database_IsTableExists($sTableName);
+        return E::ModuleDatabase()->IsTableExists($sTableName);
     }
 
     /**
@@ -262,7 +262,7 @@ abstract class Plugin extends LsObject {
      */
     protected function isFieldExists($sTableName, $sFieldName) {
 
-        return $this->Database_IsFieldExists($sTableName, $sFieldName);
+        return E::ModuleDatabase()->IsFieldExists($sTableName, $sFieldName);
     }
 
     /**
@@ -277,7 +277,7 @@ abstract class Plugin extends LsObject {
      */
     protected function addEnumType($sTableName, $sFieldName, $sType) {
 
-        $this->Database_AddEnumType($sTableName, $sFieldName, $sType);
+        E::ModuleDatabase()->AddEnumType($sTableName, $sFieldName, $sType);
     }
 
     /**

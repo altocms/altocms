@@ -38,7 +38,7 @@ class ModulePlugin_EntityPlugin extends Entity {
      */
     public function LoadFromXmlFile($sPluginId, $aData = null) {
 
-        $sPluginXML = $this->Plugin_GetPluginManifest($sPluginId);
+        $sPluginXML = E::ModulePlugin()->GetPluginManifest($sPluginId);
         if (is_null($aData)) {
             $aData = array(
                 'id' => $sPluginId,
@@ -112,7 +112,7 @@ class ModulePlugin_EntityPlugin extends Entity {
 
         $sText = trim((string)array_shift($data));
         if ($sText) {
-            $oXml->$sProperty->data = ($bHtml ? $this->Text_Parser($sText) : strip_tags($sText));
+            $oXml->$sProperty->data = ($bHtml ? E::ModuleText()->Parser($sText) : strip_tags($sText));
         } else {
             $oXml->$sProperty->data = '';
         }
@@ -131,7 +131,7 @@ class ModulePlugin_EntityPlugin extends Entity {
 
         $sResult = $this->getProp($sName);
         if (is_null($sResult)) {
-            $aLangs = $this->Lang_GetLangAliases(true);
+            $aLangs = E::ModuleLang()->GetLangAliases(true);
             $this->_xlang($this->oXml, $sName, $aLangs);
             $xProp = $this->_getXmlProperty($sName);
             if ($xProp->data) {
@@ -245,7 +245,7 @@ class ModulePlugin_EntityPlugin extends Entity {
 
         $sResult = $this->getProp('homepage');
         if (is_null($sResult)) {
-            $sResult = $this->Text_Parser((string)$this->_getXmlProperty('homepage'));
+            $sResult = E::ModuleText()->Parser((string)$this->_getXmlProperty('homepage'));
             $this->setProp('homepage', $sResult);
         }
         return $sResult;

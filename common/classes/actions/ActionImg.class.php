@@ -40,7 +40,7 @@ class ActionImg extends Action {
         // Раз оказались здесь, то нет соответствующего изображения. Пробуем его создать
         $sUrl = F::File_RootUrl() . '/' . $this->sCurrentEvent . '/' . implode('/', $this->GetParams());
         $sFile = F::File_Url2Dir($sUrl);
-        $sNewFile = $this->Img_Duplicate($sFile);
+        $sNewFile = E::ModuleImg()->Duplicate($sFile);
 
         if (!$sNewFile) {
             if (preg_match('/\-(\d+)x(\d+)\.[a-z]{3}$/i', $sFile, $aMatches)) {
@@ -50,13 +50,13 @@ class ActionImg extends Action {
             }
             if (strpos(basename($sFile), 'avatar_blog') === 0) {
                 // Запрашивается аватар блога
-                $sNewFile = $this->Img_AutoresizeSkinImage($sFile, 'avatar_blog', $nSize ? $nSize : self::BLOG_AVATAR_SIZE);
+                $sNewFile = E::ModuleImg()->AutoresizeSkinImage($sFile, 'avatar_blog', $nSize ? $nSize : self::BLOG_AVATAR_SIZE);
             } elseif (strpos(basename($sFile), 'avatar') === 0) {
                 // Запрашивается аватар
-                $sNewFile = $this->Img_AutoresizeSkinImage($sFile, 'avatar', $nSize ? $nSize : self::USER_AVATAR_SIZE);
+                $sNewFile = E::ModuleImg()->AutoresizeSkinImage($sFile, 'avatar', $nSize ? $nSize : self::USER_AVATAR_SIZE);
             } elseif (strpos(basename($sFile), 'user_photo') === 0) {
                 // Запрашивается фото
-                $sNewFile = $this->Img_AutoresizeSkinImage($sFile, 'user_photo', $nSize ? $nSize : self::USER_PHOTO_SIZE);
+                $sNewFile = E::ModuleImg()->AutoresizeSkinImage($sFile, 'user_photo', $nSize ? $nSize : self::USER_PHOTO_SIZE);
             }
         }
 
@@ -66,7 +66,7 @@ class ActionImg extends Action {
                 R::Location($sUrl . '?rnd=' . uniqid());
             } else {
                 header_remove();
-                $this->Img_RenderFile($sNewFile);
+                E::ModuleImg()->RenderFile($sNewFile);
                 exit;
             }
         }

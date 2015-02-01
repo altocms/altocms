@@ -191,12 +191,12 @@ abstract class Action extends LsObject {
                     }
                 }
                 $this->sCurrentEventName = $aEvent['name'];
-                $this->Hook_Run(
+                E::ModuleHook()->Run(
                     'action_event_' . strtolower($this->sCurrentAction) . '_before',
                     array('event' => $this->sCurrentEvent, 'params' => $this->GetParams())
                 );
                 $result = call_user_func_array(array($this, $aEvent['method']), array());
-                $this->Hook_Run(
+                E::ModuleHook()->Run(
                     'action_event_' . strtolower($this->sCurrentAction) . '_after',
                     array('event' => $this->sCurrentEvent, 'params' => $this->GetParams())
                 );
@@ -349,14 +349,14 @@ abstract class Action extends LsObject {
 
         if (!F::File_IsLocalDir($sActionTemplatePath)) {
             // If not absolute path then defines real path of template
-            $aDelegates = $this->Plugin_GetDelegationChain('action', $this->GetActionClass());
+            $aDelegates = E::ModulePlugin()->GetDelegationChain('action', $this->GetActionClass());
             foreach ($aDelegates as $sAction) {
                 if (preg_match('/^(Plugin([\w]+)_)?Action([\w]+)$/i', $sAction, $aMatches)) {
                     // for LS-compatibility
                     $sActionNameOriginal = $aMatches[3];
                     // New-style action templates
                     $sActionName = strtolower($sActionNameOriginal);
-                    $sTemplatePath = $this->Plugin_GetDelegate('template', 'actions/' . $sActionName . '/action.' . $sActionName . '.' . $sTemplate);
+                    $sTemplatePath = E::ModulePlugin()->GetDelegate('template', 'actions/' . $sActionName . '/action.' . $sActionName . '.' . $sTemplate);
                     $sActionTemplatePath = $sTemplatePath;
                     if (!empty($aMatches[1])) {
                         $aPluginTemplateDirs = array(Plugin::GetTemplateDir($sAction));
@@ -374,13 +374,13 @@ abstract class Action extends LsObject {
                         }
 
                         // LS-compatibility
-                        if ($this->Plugin_IsActivePlugin('ls')) {
-                            $sLsTemplatePath = $this->Plugin_GetDelegate('template', 'actions/Action' . ucfirst($sActionName) . '/' . $sTemplate);
+                        if (E::ModulePlugin()->IsActivePlugin('ls')) {
+                            $sLsTemplatePath = E::ModulePlugin()->GetDelegate('template', 'actions/Action' . ucfirst($sActionName) . '/' . $sTemplate);
                             if ($sTemplatePath = F::File_Exists($sLsTemplatePath, $aPluginTemplateDirs)) {
                                 $sActionTemplatePath = $sTemplatePath;
                                 break;
                             }
-                            $sLsTemplatePath = $this->Plugin_GetDelegate('template', 'actions/Action' . ucfirst($sActionNameOriginal) . '/' . $sTemplate);
+                            $sLsTemplatePath = E::ModulePlugin()->GetDelegate('template', 'actions/Action' . ucfirst($sActionNameOriginal) . '/' . $sTemplate);
                             if ($sTemplatePath = F::File_Exists($sLsTemplatePath, $aPluginTemplateDirs)) {
                                 $sActionTemplatePath = $sTemplatePath;
                                 break;
@@ -473,7 +473,7 @@ abstract class Action extends LsObject {
     protected function IsPost($sName = null) {
 
         if (is_null(self::$bPost)) {
-            if ($this->Security_ValidateSendForm(false)
+            if (E::ModuleSecurity()->ValidateSendForm(false)
                 && isset($_SERVER['REQUEST_METHOD'])
                 && ($_SERVER['REQUEST_METHOD'] == 'POST')
                 && isset($_POST)
@@ -524,7 +524,7 @@ abstract class Action extends LsObject {
     protected function GetUploadedFile($sName = null) {
 
         $aFileData = false;
-        if ($this->Security_ValidateSendForm(false) && isset($_FILES)) {
+        if (E::ModuleSecurity()->ValidateSendForm(false) && isset($_FILES)) {
             if (is_null($sName) && is_array($_FILES) && sizeof($_FILES)) {
                 $aFileData = reset($_FILES);
             } elseif (isset($_FILES[$sName])) {

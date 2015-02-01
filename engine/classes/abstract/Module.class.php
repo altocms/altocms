@@ -25,26 +25,14 @@ abstract class Module extends LsObject {
     const STATUS_DONE_BEFORE = 3;
     const STATUS_DONE = 4;
 
-    /**
-     * Объект ядра
-     *
-     * @var Engine
-     */
-    protected $oEngine = null;
-
     /** @var int Статус модуля */
     protected $nStatus = 0;
 
     /** @var bool Признак предзагрузки */
     protected $bPreloaded = false;
 
-    /**
-     * При создании модуля передаем объект ядра
-     *
-     * @param Engine $oEngine
-     */
-    final public function __construct(Engine $oEngine) {
-        $this->oEngine = $oEngine;
+    final public function __construct() {
+
     }
 
     /**

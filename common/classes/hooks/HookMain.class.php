@@ -58,12 +58,12 @@ class HookMain extends Hook {
         if (is_dir(rtrim(Config::Get('path.root.dir'), '/') . '/install')
             && (!isset($_SERVER['HTTP_APP_ENV']) || $_SERVER['HTTP_APP_ENV'] != 'test')
         ) {
-            $this->Message_AddErrorSingle($this->Lang_Get('install_directory_exists'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('install_directory_exists'));
             R::Action('error');
         }
 
         // * Проверка на закрытый режим
-        $oUserCurrent = $this->User_GetUserCurrent();
+        $oUserCurrent = E::ModuleUser()->GetUserCurrent();
         if (!$oUserCurrent && Config::Get('general.close.mode')){
             $aEnabledActions = F::Str2Array(Config::Get('general.close.actions'));
             if (!in_array(R::GetAction(), $aEnabledActions)) {
@@ -81,7 +81,7 @@ class HookMain extends Hook {
 
             foreach($aMenus as $sMenuId => $aMenu) {
                 if (isset($aMenu['init']['fill'])) {
-                    $aMenus[$sMenuId] = $this->Menu_Prepare($sMenuId, $aMenu);
+                    $aMenus[$sMenuId] = E::ModuleMenu()->Prepare($sMenuId, $aMenu);
                     $bChanged = true;
                 }
             }
@@ -94,7 +94,7 @@ class HookMain extends Hook {
 
     public function insertFields() {
 
-        return $this->Viewer_Fetch('inject.topic.fields.tpl');
+        return E::ModuleViewer()->Fetch('inject.topic.fields.tpl');
     }
 
     public function showFields($aVars) {
@@ -111,10 +111,10 @@ class HookMain extends Hook {
                         //вставляем поля, если они прописаны для топика
                         foreach ($aFields as $oField) {
                             if ($oTopic->getField($oField->getFieldId()) || $oField->getFieldType() == 'photoset') {
-                                $this->Viewer_Assign('oField', $oField);
-                                $this->Viewer_Assign('oTopic', $oTopic);
-                                if ($this->Viewer_TemplateExists('forms/view_field_' . $oField->getFieldType() . '.tpl')) {
-                                    $sReturn .= $this->Viewer_Fetch('forms/view_field_' . $oField->getFieldType() . '.tpl');
+                                E::ModuleViewer()->Assign('oField', $oField);
+                                E::ModuleViewer()->Assign('oTopic', $oTopic);
+                                if (E::ModuleViewer()->TemplateExists('forms/view_field_' . $oField->getFieldType() . '.tpl')) {
+                                    $sReturn .= E::ModuleViewer()->Fetch('forms/view_field_' . $oField->getFieldType() . '.tpl');
                                 }
                             }
                         }
@@ -153,7 +153,7 @@ class HookMain extends Hook {
 
     public function InsertHtmlHeadTags() {
 
-        $aTags = $this->Viewer_GetHtmlHeadTags();
+        $aTags = E::ModuleViewer()->GetHtmlHeadTags();
         $sResult = '';
         foreach($aTags as $sTag) {
             $sResult .= $sTag . "\n";

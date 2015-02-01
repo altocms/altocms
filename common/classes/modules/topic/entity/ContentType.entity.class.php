@@ -30,7 +30,7 @@ class ModuleTopic_EntityContentType extends Entity {
         if (is_null($this->aFields)) {
             $aFilter = array();
             $aFilter['content_id'] = $this->getContentId();
-            $this->aFields = $this->Topic_GetContentFields($aFilter);
+            $this->aFields = E::ModuleTopic()->GetContentFields($aFilter);
         }
         return $this->aFields;
     }
@@ -114,7 +114,7 @@ class ModuleTopic_EntityContentType extends Entity {
         $sTemplate = $this->getProp('_template_' . $sMode);
         if (!$sTemplate) {
             $sTemplate = 'topic.type_' . $this->getTemplateName() . '-' . $sMode . '.tpl';
-            if (!$this->Viewer_TemplateExists('topics/' . $sTemplate)) {
+            if (!E::ModuleViewer()->TemplateExists('topics/' . $sTemplate)) {
                 $sTemplate = 'topic.type_default-' . $sMode . '.tpl';
             }
             $this->setProp('_template_' . $sMode, $sTemplate);
@@ -137,7 +137,7 @@ class ModuleTopic_EntityContentType extends Entity {
      */
     public function isAccessible() {
 
-        if ($oUser = $this->User_GetUserCurrent()) {
+        if ($oUser = E::ModuleUser()->GetUserCurrent()) {
             if ($this->getContentAccess() == ModuleTopic::CONTENT_ACCESS_ONLY_ADMIN && !$oUser->isAdministrator()) {
                 return false;
             } else {

@@ -110,22 +110,22 @@ class ActionUploader extends Action {
         // Если одиночная загрузка, то предыдущий файл затрем
         // Иначе просто добавляем еще один.
         if (!$bMulti) {
-            $this->Mresource_UnlinkFile($sTargetType, $sTargetId, E::UserId());
+            E::ModuleMresource()->UnlinkFile($sTargetType, $sTargetId, E::UserId());
         }
 
         /** @var ModuleMresource_EntityMresource $oResource */
-        $oResource = $this->Mresource_GetMresourcesByUuid($xStoredFile->getUuid());
+        $oResource = E::ModuleMresource()->GetMresourcesByUuid($xStoredFile->getUuid());
         if ($oResource) {
 //            $oRel = Engine::GetEntity('Mresource_MresourceRel');
-            $oResource->setUrl($this->Mresource_NormalizeUrl($this->Uploader_GetTargetUrl($sTargetId, $sTargetType)));
+            $oResource->setUrl(E::ModuleMresource()->NormalizeUrl(E::ModuleUploader()->GetTargetUrl($sTargetId, $sTargetType)));
             $oResource->setType($sTargetType);
             $oResource->setUserId(E::UserId());
             if ($sTargetId == '0') {
-                $oResource->setTargetTmp($this->Session_GetCookie('uploader_target_tmp'));
+                $oResource->setTargetTmp(E::ModuleSession()->GetCookie('uploader_target_tmp'));
             }
             $oResource = array($oResource);
 
-            $this->Mresource_AddTargetRel($oResource, $sTargetType, $sTargetId);
+            E::ModuleMresource()->AddTargetRel($oResource, $sTargetType, $sTargetId);
 
             return $oResource;
         }
@@ -139,36 +139,36 @@ class ActionUploader extends Action {
     public function EventDirectImage() {
 
         // * Устанавливаем формат Ajax ответа
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
 
         // * Достаем из сессии временный файл
-        $sTarget = $this->Session_Get('sTarget');
-        $sTargetId = $this->Session_Get('sTargetId');
-        $sTmpFile = $this->Session_Get("sTmp-{$sTarget}-{$sTargetId}");
-        $sPreviewFile = $this->Session_Get("sPreview-{$sTarget}-{$sTargetId}");
+        $sTarget = E::ModuleSession()->Get('sTarget');
+        $sTargetId = E::ModuleSession()->Get('sTargetId');
+        $sTmpFile = E::ModuleSession()->Get("sTmp-{$sTarget}-{$sTargetId}");
+        $sPreviewFile = E::ModuleSession()->Get("sPreview-{$sTarget}-{$sTargetId}");
 
         if ($sTargetId == '0') {
-            if (!$this->Session_GetCookie('uploader_target_tmp')) {
+            if (!E::ModuleSession()->GetCookie('uploader_target_tmp')) {
                 return FALSE;
             }
         }
 
         if (!F::File_Exists($sTmpFile)) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
 
             return;
         }
 
         // Проверяем, целевой объект и права на его редактирование
-        if (!$oTarget = $this->Uploader_CheckAccessAndGetTarget($sTarget, $sTargetId)) {
-            $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+        if (!$oTarget = E::ModuleUploader()->CheckAccessAndGetTarget($sTarget, $sTargetId)) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
             return;
         }
 
-        $this->Mresource_UnlinkFile($sTarget, $sTargetId, E::UserId());
+        E::ModuleMresource()->UnlinkFile($sTarget, $sTargetId, E::UserId());
 
-        $oImg = $this->Img_Read($sTmpFile);
+        $oImg = E::ModuleImg()->Read($sTmpFile);
 
         $sExtension = strtolower(pathinfo($sTmpFile, PATHINFO_EXTENSION));
 
@@ -176,10 +176,10 @@ class ActionUploader extends Action {
         if ($sTmpFile = $oImg->Save(F::File_UploadUniqname($sExtension))) {
 
             // Файл, куда будет записано фото
-            $sPhoto = $this->Uploader_Uniqname($this->Uploader_GetUploadDir($sTargetId, $sTarget), $sExtension);
+            $sPhoto = E::ModuleUploader()->Uniqname(E::ModuleUploader()->GetUploadDir($sTargetId, $sTarget), $sExtension);
 
             // Окончательная запись файла только через модуль Uploader
-            if ($xStoredFile = $this->Uploader_Store($sTmpFile, $sPhoto)) {
+            if ($xStoredFile = E::ModuleUploader()->Store($sTmpFile, $sPhoto)) {
 
                 if (is_object($xStoredFile)) {
 
@@ -192,11 +192,11 @@ class ActionUploader extends Action {
 
                 $sFilePreview = $sFile;
                 if ($sSize = getRequest('crop_size', FALSE)) {
-                    $sFilePreview = $this->Uploader_ResizeTargetImage($sFile, $sSize);
+                    $sFilePreview = E::ModuleUploader()->ResizeTargetImage($sFile, $sSize);
                 }
 
                 // Запускаем хук на действия после загрузки картинки
-                $this->Hook_Run('uploader_upload_image_after', array(
+                E::ModuleHook()->Run('uploader_upload_image_after', array(
                     'sFile'        => $sFile,
                     'sFilePreview' => $sFilePreview,
                     'sTargetId'    => $sTargetId,
@@ -204,27 +204,27 @@ class ActionUploader extends Action {
                     'oTarget'      => $oTarget,
                 ));
 
-                $this->Viewer_AssignAjax('sFile', $sFile);
-                $this->Viewer_AssignAjax('sFilePreview', $sFilePreview);
+                E::ModuleViewer()->AssignAjax('sFile', $sFile);
+                E::ModuleViewer()->AssignAjax('sFilePreview', $sFilePreview);
 
                 // Чистим
-                $sTmpFile = $this->Session_Get("sTmp-{$sTarget}-{$sTargetId}");
-                $sPreviewFile = $this->Session_Get("sPreview-{$sTarget}-{$sTargetId}");
-                $this->Img_Delete($sTmpFile);
-                $this->Img_Delete($sPreviewFile);
+                $sTmpFile = E::ModuleSession()->Get("sTmp-{$sTarget}-{$sTargetId}");
+                $sPreviewFile = E::ModuleSession()->Get("sPreview-{$sTarget}-{$sTargetId}");
+                E::ModuleImg()->Delete($sTmpFile);
+                E::ModuleImg()->Delete($sPreviewFile);
 
                 // * Удаляем из сессии
-                $this->Session_Drop('sTarget');
-                $this->Session_Drop('sTargetId');
-                $this->Session_Drop("sTmp-{$sTarget}-{$sTargetId}");
-                $this->Session_Drop("sPreview-{$sTarget}-{$sTargetId}");
+                E::ModuleSession()->Drop('sTarget');
+                E::ModuleSession()->Drop('sTargetId');
+                E::ModuleSession()->Drop("sTmp-{$sTarget}-{$sTargetId}");
+                E::ModuleSession()->Drop("sPreview-{$sTarget}-{$sTargetId}");
 
                 return;
             }
         }
 
         // * В случае ошибки, возвращаем false
-        $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
+        E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
 
         return;
     }
@@ -242,7 +242,7 @@ class ActionUploader extends Action {
     public function UploadImageAfterResize($sFile, $sTargetId, $sTarget, $aSize = array()) {
 
         if ($sTargetId == '0') {
-            if (!$this->Session_GetCookie('uploader_target_tmp')) {
+            if (!E::ModuleSession()->GetCookie('uploader_target_tmp')) {
                 return FALSE;
             }
         }
@@ -251,7 +251,7 @@ class ActionUploader extends Action {
             return FALSE;
         }
         if (!$aSize) {
-            $oImg = $this->Img_CropSquare($sFile, TRUE);
+            $oImg = E::ModuleImg()->CropSquare($sFile, TRUE);
         } else {
             if (!isset($aSize['w'])) {
                 $aSize['w'] = $aSize['x2'] - $aSize['x1'];
@@ -259,7 +259,7 @@ class ActionUploader extends Action {
             if (!isset($aSize['h'])) {
                 $aSize['h'] = $aSize['y2'] - $aSize['y1'];
             }
-            $oImg = $this->Img_Crop($sFile, $aSize['w'], $aSize['h'], $aSize['x1'], $aSize['y1']);
+            $oImg = E::ModuleImg()->Crop($sFile, $aSize['w'], $aSize['h'], $aSize['x1'], $aSize['y1']);
         }
         $sExtension = strtolower(pathinfo($sFile, PATHINFO_EXTENSION));
 
@@ -267,10 +267,10 @@ class ActionUploader extends Action {
         if ($sTmpFile = $oImg->Save(F::File_UploadUniqname($sExtension))) {
 
             // Файл, куда будет записано фото
-            $sPhoto = $this->Uploader_Uniqname($this->Uploader_GetUploadDir($sTargetId, $sTarget), $sExtension);
+            $sPhoto = E::ModuleUploader()->Uniqname(E::ModuleUploader()->GetUploadDir($sTargetId, $sTarget), $sExtension);
 
             // Окончательная запись файла только через модуль Uploader
-            if ($xStoredFile = $this->Uploader_Store($sTmpFile, $sPhoto)) {
+            if ($xStoredFile = E::ModuleUploader()->Store($sTmpFile, $sPhoto)) {
 
                 if (is_object($xStoredFile)) {
 
@@ -286,7 +286,7 @@ class ActionUploader extends Action {
         }
 
         // * В случае ошибки, возвращаем false
-        $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
+        E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
 
         return FALSE;
     }
@@ -297,19 +297,19 @@ class ActionUploader extends Action {
     public function EventUploadImage() {
 
         // Устанавливаем формат Ajax ответа
-        $this->Viewer_SetResponseAjax('json', FALSE);
+        E::ModuleViewer()->SetResponseAjax('json', FALSE);
 
-        $this->Security_ValidateSendForm();
+        E::ModuleSecurity()->ValidateSendForm();
 
         // Проверяем, загружен ли файл
         if (!($aUploadedFile = $this->GetUploadedFile('uploader-upload-image'))) {
-            $this->Message_AddError($this->Lang_Get('error_upload_image'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('error_upload_image'), E::ModuleLang()->Get('error'));
 
             return;
         }
 
         // Проверяем, целевой объект и права на его редактирование
-        if (!$oTarget = $this->Uploader_CheckAccessAndGetTarget(
+        if (!$oTarget = E::ModuleUploader()->CheckAccessAndGetTarget(
             $sTarget = getRequest('target', FALSE),
             $sTargetId = getRequest('target_id', FALSE))
         ) {
@@ -318,7 +318,7 @@ class ActionUploader extends Action {
                 // Будем делать временную картинку
 
             } else {
-                $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
                 return;
             }
@@ -329,26 +329,26 @@ class ActionUploader extends Action {
         $sError = '';
 
         // Сделаем временный файд
-        $sTmpFile = $this->Uploader_UploadLocal($aUploadedFile);
+        $sTmpFile = E::ModuleUploader()->UploadLocal($aUploadedFile);
 
         // Вызовем хук перед началом загрузки картинки
-        $this->Hook_Run('uploader_upload_before', array('oTarget' => $oTarget, 'sTmpFile' => $sTmpFile, 'sTarget' => $sTarget));
+        E::ModuleHook()->Run('uploader_upload_before', array('oTarget' => $oTarget, 'sTmpFile' => $sTmpFile, 'sTarget' => $sTarget));
 
         // Если все ок, и по миме проходит, то
-        if ($sTmpFile && $this->Img_MimeType($sTmpFile)) {
+        if ($sTmpFile && E::ModuleImg()->MimeType($sTmpFile)) {
 
             // Ресайзим и сохраняем уменьшенную копию
             // Храним две копии - мелкую для показа пользователю и крупную в качестве исходной для ресайза
-            $sPreviewFile = $this->Uploader_GetUploadDir($sTargetId, $sTarget) . '_preview.' . F::File_GetExtension($sTmpFile);
+            $sPreviewFile = E::ModuleUploader()->GetUploadDir($sTargetId, $sTarget) . '_preview.' . F::File_GetExtension($sTmpFile);
 
-            if ($sPreviewFile = $this->Img_Copy($sTmpFile, $sPreviewFile, self::PREVIEW_RESIZE, self::PREVIEW_RESIZE)) {
+            if ($sPreviewFile = E::ModuleImg()->Copy($sTmpFile, $sPreviewFile, self::PREVIEW_RESIZE, self::PREVIEW_RESIZE)) {
 
                 // * Сохраняем в сессии временный файл с изображением
-                $this->Session_Set('sTarget', $sTarget);
-                $this->Session_Set('sTargetId', $sTargetId);
-                $this->Session_Set("sTmp-{$sTarget}-{$sTargetId}", $sTmpFile);
-                $this->Session_Set("sPreview-{$sTarget}-{$sTargetId}", $sPreviewFile);
-                $this->Viewer_AssignAjax('sPreview', $this->Uploader_Dir2Url($sPreviewFile));
+                E::ModuleSession()->Set('sTarget', $sTarget);
+                E::ModuleSession()->Set('sTargetId', $sTargetId);
+                E::ModuleSession()->Set("sTmp-{$sTarget}-{$sTargetId}", $sTmpFile);
+                E::ModuleSession()->Set("sPreview-{$sTarget}-{$sTargetId}", $sPreviewFile);
+                E::ModuleViewer()->AssignAjax('sPreview', E::ModuleUploader()->Dir2Url($sPreviewFile));
 
                 if (getRequest('direct', FALSE)) {
                     $this->EventDirectImage();
@@ -359,14 +359,14 @@ class ActionUploader extends Action {
         } else {
 
             // Ошибки загрузки картинки
-            $sError = $this->Uploader_GetErrorMsg();
+            $sError = E::ModuleUploader()->GetErrorMsg();
             if (!$sError) {
-                $sError = $this->Lang_Get('error_upload_image');
+                $sError = E::ModuleLang()->Get('error_upload_image');
             }
         }
 
         // Выведем ошибки пользователю
-        $this->Message_AddError($sError, $this->Lang_Get('error'));
+        E::ModuleMessage()->AddError($sError, E::ModuleLang()->Get('error'));
 
         // Удалим ранее загруженый файл
         F::File_Delete($sTmpFile);
@@ -378,23 +378,23 @@ class ActionUploader extends Action {
      */
     public function EventResizeImage() {
         // * Устанавливаем формат Ajax ответа
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
 
         // * Достаем из сессии временный файл
-        $sTarget = $this->Session_Get('sTarget');
-        $sTargetId = $this->Session_Get('sTargetId');
-        $sTmpFile = $this->Session_Get("sTmp-{$sTarget}-{$sTargetId}");
-        $sPreviewFile = $this->Session_Get("sPreview-{$sTarget}-{$sTargetId}");
+        $sTarget = E::ModuleSession()->Get('sTarget');
+        $sTargetId = E::ModuleSession()->Get('sTargetId');
+        $sTmpFile = E::ModuleSession()->Get("sTmp-{$sTarget}-{$sTargetId}");
+        $sPreviewFile = E::ModuleSession()->Get("sPreview-{$sTarget}-{$sTargetId}");
 
         if (!F::File_Exists($sTmpFile)) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
 
             return;
         }
 
         // Проверяем, целевой объект и права на его редактирование
-        if (!$oTarget = $this->Uploader_CheckAccessAndGetTarget($sTarget, $sTargetId)) {
-            $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+        if (!$oTarget = E::ModuleUploader()->CheckAccessAndGetTarget($sTarget, $sTargetId)) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
             return;
         }
@@ -423,11 +423,11 @@ class ActionUploader extends Action {
 
             $sFileWebPreview = $sFileWeb;
             if ($sSize = getRequest('crop_size', FALSE)) {
-                $sFileWebPreview = $this->Uploader_ResizeTargetImage($sFileWeb, $sSize);
+                $sFileWebPreview = E::ModuleUploader()->ResizeTargetImage($sFileWeb, $sSize);
             }
 
             // Запускаем хук на действия после загрузки картинки
-            $this->Hook_Run('uploader_upload_image_after', array(
+            E::ModuleHook()->Run('uploader_upload_image_after', array(
                 'sFile'        => $sFileWeb,
                 'sFilePreview' => $sFileWebPreview,
                 'sTargetId'    => $sTargetId,
@@ -435,20 +435,20 @@ class ActionUploader extends Action {
                 'oTarget'      => $oTarget,
             ));
 
-            $this->Img_Delete($sTmpFile);
-            $this->Img_Delete($sPreviewFile);
+            E::ModuleImg()->Delete($sTmpFile);
+            E::ModuleImg()->Delete($sPreviewFile);
 
             // * Удаляем из сессии
-            $this->Session_Drop('sTarget');
-            $this->Session_Drop('sTargetId');
-            $this->Session_Drop("sTmp-{$sTarget}-{$sTargetId}");
-            $this->Session_Drop("sPreview-{$sTarget}-{$sTargetId}");
+            E::ModuleSession()->Drop('sTarget');
+            E::ModuleSession()->Drop('sTargetId');
+            E::ModuleSession()->Drop("sTmp-{$sTarget}-{$sTargetId}");
+            E::ModuleSession()->Drop("sPreview-{$sTarget}-{$sTargetId}");
 
-            $this->Viewer_AssignAjax('sFile', $sFileWeb);
-            $this->Viewer_AssignAjax('sFilePreview', $sFileWebPreview);
-            $this->Viewer_AssignAjax('sTitleUpload', $this->Lang_Get('uploader_upload_success'));
+            E::ModuleViewer()->AssignAjax('sFile', $sFileWeb);
+            E::ModuleViewer()->AssignAjax('sFilePreview', $sFileWebPreview);
+            E::ModuleViewer()->AssignAjax('sTitleUpload', E::ModuleLang()->Get('uploader_upload_success'));
         } else {
-            $this->Message_AddError($this->Lang_Get('error_upload_image'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('error_upload_image'), E::ModuleLang()->Get('error'));
         }
     }
 
@@ -458,30 +458,30 @@ class ActionUploader extends Action {
     public function EventRemoveImage() {
 
         // * Устанавливаем формат Ajax ответа
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
 
         // Проверяем, целевой объект и права на его редактирование
-        if (!$oTarget = $this->Uploader_CheckAccessAndGetTarget(
+        if (!$oTarget = E::ModuleUploader()->CheckAccessAndGetTarget(
             $sTargetType = getRequest('target', FALSE),
             $sTargetId = getRequest('target_id', FALSE))
         ) {
-            $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
             return;
         }
 
         // * Удаляем картинку
-        $this->Mresource_UnlinkFile($sTargetType, $sTargetId, E::UserId());
+        E::ModuleMresource()->UnlinkFile($sTargetType, $sTargetId, E::UserId());
 
         // Запускаем хук на действия после загрузки картинки
-        $this->Hook_Run('uploader_remove_image_after', array(
+        E::ModuleHook()->Run('uploader_remove_image_after', array(
             'sTargetId' => $sTargetId,
             'sTarget'   => $sTargetType,
             'oTarget'   => $oTarget,
         ));
 
         // * Возвращает дефолтную аватарку
-        $this->Viewer_AssignAjax('sTitleUpload', $this->Lang_Get('uploader_upload_success'));
+        E::ModuleViewer()->AssignAjax('sTitleUpload', E::ModuleLang()->Get('uploader_upload_success'));
 
     }
 
@@ -491,32 +491,32 @@ class ActionUploader extends Action {
     public function EventCancelImage() {
 
         // * Устанавливаем формат Ajax ответа
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
 
         // Проверяем, целевой объект и права на его редактирование
-        if (!$oTarget = $this->Uploader_CheckAccessAndGetTarget(
+        if (!$oTarget = E::ModuleUploader()->CheckAccessAndGetTarget(
             $sTarget = getRequest('target', FALSE),
             $sTargetId = getRequest('target_id', FALSE))
         ) {
-            $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
             return;
         }
-        $sTmpFile = $this->Session_Get("sTmp-{$sTarget}-{$sTargetId}");
+        $sTmpFile = E::ModuleSession()->Get("sTmp-{$sTarget}-{$sTargetId}");
 
         if (!F::File_Exists($sTmpFile)) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
 
             return;
         }
 
-        $this->Img_Delete($sTmpFile);
+        E::ModuleImg()->Delete($sTmpFile);
 
         // * Удаляем из сессии
-        $this->Session_Drop('sTarget');
-        $this->Session_Drop('sTargetId');
-        $this->Session_Drop("sTmp-{$sTarget}-{$sTargetId}");
-        $this->Session_Drop("sPreview-{$sTarget}-{$sTargetId}");
+        E::ModuleSession()->Drop('sTarget');
+        E::ModuleSession()->Drop('sTargetId');
+        E::ModuleSession()->Drop("sTmp-{$sTarget}-{$sTargetId}");
+        E::ModuleSession()->Drop("sPreview-{$sTarget}-{$sTargetId}");
 
     }
 
@@ -526,20 +526,20 @@ class ActionUploader extends Action {
     public function EventMultiUpload() {
 
         // Устанавливаем формат Ajax ответа
-        $this->Viewer_SetResponseAjax('json', FALSE);
+        E::ModuleViewer()->SetResponseAjax('json', FALSE);
 
-        $this->Security_ValidateSendForm();
+        E::ModuleSecurity()->ValidateSendForm();
 
         // Проверяем, загружен ли файл
         if (!($aUploadedFile = $this->GetUploadedFile('uploader-upload-image'))) {
-            $this->Message_AddError($this->Lang_Get('error_upload_image'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('error_upload_image'), E::ModuleLang()->Get('error'));
 
             return;
         }
 
         $sTarget = getRequest('target', FALSE);
         $sTargetId = getRequest('target_id', FALSE);
-        $oTarget = $this->Uploader_CheckAccessAndGetTarget($sTarget, $sTargetId);
+        $oTarget = E::ModuleUploader()->CheckAccessAndGetTarget($sTarget, $sTargetId);
 
         // Проверяем, целевой объект и права на его редактирование
         if (!$oTarget) {
@@ -548,7 +548,7 @@ class ActionUploader extends Action {
                 // Будем делать временную картинку
 
             } else {
-                $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
                 return;
             }
@@ -559,49 +559,49 @@ class ActionUploader extends Action {
         $sError = '';
 
         // Сделаем временный файд
-        $sTmpFile = $this->Uploader_UploadLocal($aUploadedFile);
+        $sTmpFile = E::ModuleUploader()->UploadLocal($aUploadedFile);
 
         // Вызовем хук перед началом загрузки картинки
-        $this->Hook_Run('uploader_upload_before', array('oTarget' => $oTarget, 'sTmpFile' => $sTmpFile, 'sTarget' => $sTarget));
+        E::ModuleHook()->Run('uploader_upload_before', array('oTarget' => $oTarget, 'sTmpFile' => $sTmpFile, 'sTarget' => $sTarget));
 
         // Если все ок, и по миме проходит, то
-        if ($sTmpFile && $this->Img_MimeType($sTmpFile)) {
+        if ($sTmpFile && E::ModuleImg()->MimeType($sTmpFile)) {
 
             // Проверим, проходит ли по количеству
-            if (!$this->Uploader_GetAllowedCount(
+            if (!E::ModuleUploader()->GetAllowedCount(
                 $sTarget = getRequest('target', FALSE),
                 $sTargetId = getRequest('target_id', FALSE))
             ) {
-                $this->Message_AddError($this->Lang_Get(
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get(
                     'uploader_photoset_error_count_photos',
                     array('MAX' => Config::Get('module.topic.photoset.count_photos_max'))
-                ), $this->Lang_Get('error'));
+                ), E::ModuleLang()->Get('error'));
 
                 return FALSE;
             }
 
             // Определим, существует ли объект или он будет создан позже
-            if (!($sTmpKey = $this->Session_GetCookie('uploader_target_tmp')) && $sTargetId == '0') {
-                $this->Message_AddError($this->Lang_Get('error_upload_image'), $this->Lang_Get('error'));
+            if (!($sTmpKey = E::ModuleSession()->GetCookie('uploader_target_tmp')) && $sTargetId == '0') {
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get('error_upload_image'), E::ModuleLang()->Get('error'));
 
                 return FALSE;
             }
 
             // Пересохраним файл из кэша
             // Сохраняем фото во временный файл
-            $oImg = $this->Img_Read($sTmpFile);
+            $oImg = E::ModuleImg()->Read($sTmpFile);
             $sExtension = strtolower(pathinfo($sTmpFile, PATHINFO_EXTENSION));
             if (!$sTmpFile = $oImg->Save(F::File_UploadUniqname($sExtension))) {
-                $this->Message_AddError($this->Lang_Get('error_upload_image'), $this->Lang_Get('error'));
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get('error_upload_image'), E::ModuleLang()->Get('error'));
 
                 return FALSE;
             }
 
             // Файл, куда будет записано фото
-            $sPhoto = $this->Uploader_Uniqname($this->Uploader_GetUploadDir($sTargetId, $sTarget), $sExtension);
+            $sPhoto = E::ModuleUploader()->Uniqname(E::ModuleUploader()->GetUploadDir($sTargetId, $sTarget), $sExtension);
 
             // Окончательная запись файла только через модуль Uploader
-            if ($xStoredFile = $this->Uploader_Store($sTmpFile, $sPhoto)) {
+            if ($xStoredFile = E::ModuleUploader()->Store($sTmpFile, $sPhoto)) {
 
                 if (is_object($xStoredFile)) {
                     /** @var ModuleMresource_EntityMresource $oResource */
@@ -610,21 +610,21 @@ class ActionUploader extends Action {
                     if ($oResource) {
                         $oResource = array_shift($oResource);
                         $oResource->setType(ModuleMresource::TYPE_PHOTO);
-                        $this->Mresource_UpdateType($oResource);
+                        E::ModuleMresource()->UpdateType($oResource);
                     }
                 } else {
-                    $this->Message_AddError($this->Lang_Get('error_upload_image'), $this->Lang_Get('error'));
+                    E::ModuleMessage()->AddError(E::ModuleLang()->Get('error_upload_image'), E::ModuleLang()->Get('error'));
 
                     return FALSE;
                 }
 
                 $sFilePreview = $sFile;
                 if ($sSize = getRequest('crop_size', FALSE)) {
-                    $sFilePreview = $this->Uploader_ResizeTargetImage($sFile, $sSize);
+                    $sFilePreview = E::ModuleUploader()->ResizeTargetImage($sFile, $sSize);
                 }
 
                 // Запускаем хук на действия после загрузки картинки
-                $this->Hook_Run('uploader_upload_image_after', array(
+                E::ModuleHook()->Run('uploader_upload_image_after', array(
                     'sFile'        => $sFile,
                     'sFilePreview' => $sFilePreview,
                     'sTargetId'    => $sTargetId,
@@ -632,12 +632,12 @@ class ActionUploader extends Action {
                     'oTarget'      => $oTarget,
                 ));
 
-                $this->Viewer_AssignAjax('file', $sFilePreview);
-                $this->Viewer_AssignAjax('id', $oResource->getMresourceId());
+                E::ModuleViewer()->AssignAjax('file', $sFilePreview);
+                E::ModuleViewer()->AssignAjax('id', $oResource->getMresourceId());
 
 
                 // Чистим
-                $this->Img_Delete($sTmpFile);
+                E::ModuleImg()->Delete($sTmpFile);
 
                 return TRUE;
             }
@@ -645,14 +645,14 @@ class ActionUploader extends Action {
         } else {
 
             // Ошибки загрузки картинки
-            $sError = $this->Uploader_GetErrorMsg();
+            $sError = E::ModuleUploader()->GetErrorMsg();
             if (!$sError) {
-                $sError = $this->Lang_Get('error_upload_image');
+                $sError = E::ModuleLang()->Get('error_upload_image');
             }
         }
 
         // Выведем ошибки пользователю
-        $this->Message_AddError($sError, $this->Lang_Get('error'));
+        E::ModuleMessage()->AddError($sError, E::ModuleLang()->Get('error'));
 
         // Удалим ранее загруженый файл
         F::File_Delete($sTmpFile);
@@ -666,35 +666,35 @@ class ActionUploader extends Action {
     public function EventRemoveImageById() {
 
         // * Устанавливаем формат Ajax ответа
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
 
         // Проверяем, целевой объект и права на его редактирование
-        if (!$oTarget = $this->Uploader_CheckAccessAndGetTarget(
+        if (!$oTarget = E::ModuleUploader()->CheckAccessAndGetTarget(
             $sTargetType = getRequest('target', FALSE),
             $sTargetId = getRequest('target_id', FALSE))
         ) {
-            $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
             return;
         }
 
         if (!($sResourceId = getRequest('resource_id', FALSE))) {
-            $this->Message_AddError($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
             return;
         }
 
-        if (!($oResource = $this->Mresource_GetMresourceById($sResourceId))) {
-            $this->Message_AddError($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+        if (!($oResource = E::ModuleMresource()->GetMresourceById($sResourceId))) {
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
             return;
         }
 
         // Удалим ресурс без проверки связи с объектом. Объект-то останется, а вот
         // изображение нам уже ни к чему.
-        $this->Mresource_DeleteMresources($oResource, TRUE, TRUE);
+        E::ModuleMresource()->DeleteMresources($oResource, TRUE, TRUE);
 
-        $this->Message_AddNoticeSingle($this->Lang_Get('topic_photoset_photo_deleted'));
+        E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('topic_photoset_photo_deleted'));
 
     }
 
@@ -705,35 +705,35 @@ class ActionUploader extends Action {
     public function EventDescription() {
 
         // * Устанавливаем формат Ajax ответа
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
 
         // Проверяем, целевой объект и права на его редактирование
-        if (!$oTarget = $this->Uploader_CheckAccessAndGetTarget(
+        if (!$oTarget = E::ModuleUploader()->CheckAccessAndGetTarget(
             $sTargetType = getRequest('target', FALSE),
             $sTargetId = getRequest('target_id', FALSE))
         ) {
-            $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
             return;
         }
 
         if (!($sResourceId = getRequest('resource_id', FALSE))) {
-            $this->Message_AddError($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
             return;
         }
 
         /** @var ModuleMresource_EntityMresource $oResource */
-        if (!($oResource = $this->Mresource_GetMresourceById($sResourceId))) {
-            $this->Message_AddError($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+        if (!($oResource = E::ModuleMresource()->GetMresourceById($sResourceId))) {
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
             return;
         }
 
         $oResource->setDescription(F::GetRequestStr('description', ''));
-        $this->Mresource_UpdateParams($oResource);
+        E::ModuleMresource()->UpdateParams($oResource);
 
-        $this->Message_AddNoticeSingle($this->Lang_Get('topic_photoset_description_done'));
+        E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('topic_photoset_description_done'));
 
     }
 
@@ -744,35 +744,35 @@ class ActionUploader extends Action {
     public function EventCover() {
 
         // * Устанавливаем формат Ajax ответа
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
 
         // Проверяем, целевой объект и права на его редактирование
-        if (!$oTarget = $this->Uploader_CheckAccessAndGetTarget(
+        if (!$oTarget = E::ModuleUploader()->CheckAccessAndGetTarget(
             $sTargetType = getRequest('target', FALSE),
             $sTargetId = getRequest('target_id', FALSE))
         ) {
-            $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
             return;
         }
 
         if (!($sResourceId = getRequest('resource_id', FALSE))) {
-            $this->Message_AddError($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
             return;
         }
 
         /** @var ModuleMresource_EntityMresource $oResource */
-        if (!($oResource = $this->Mresource_GetMresourceById($sResourceId))) {
-            $this->Message_AddError($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+        if (!($oResource = E::ModuleMresource()->GetMresourceById($sResourceId))) {
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
             return;
         }
 
         $oResource->setType(ModuleMresource::TYPE_PHOTO_PRIMARY);
-        $this->Mresource_UpdatePrimary($oResource, $sTargetType, $sTargetId);
+        E::ModuleMresource()->UpdatePrimary($oResource, $sTargetType, $sTargetId);
 
-        $this->Message_AddNoticeSingle($this->Lang_Get('topic_photoset_is_preview'));
+        E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('topic_photoset_is_preview'));
 
     }
 
@@ -783,33 +783,33 @@ class ActionUploader extends Action {
     public function EventSort() {
 
         // * Устанавливаем формат Ajax ответа
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
 
         // Проверяем, целевой объект и права на его редактирование
-        if (!$oTarget = $this->Uploader_CheckAccessAndGetTarget(
+        if (!$oTarget = E::ModuleUploader()->CheckAccessAndGetTarget(
             $sTargetType = getRequest('target', FALSE),
             $sTargetId = getRequest('target_id', FALSE))
         ) {
-            $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
             return;
         }
 
         if (!($aOrder = getRequest('order', FALSE))) {
-            $this->Message_AddError($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
             return;
         }
 
         if (!is_array($aOrder)) {
-            $this->Message_AddError($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
             return;
         }
 
-        $this->Mresource_UpdateSort(array_flip($aOrder), $sTargetType, $sTargetId);
+        E::ModuleMresource()->UpdateSort(array_flip($aOrder), $sTargetType, $sTargetId);
 
-        $this->Message_AddNoticeSingle($this->Lang_Get('uploader_sort_changed'));
+        E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('uploader_sort_changed'));
 
     }
 

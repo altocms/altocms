@@ -19,7 +19,7 @@ class ModuleSearch extends Module {
     public function Init() {
 
         $this->oMapper = E::GetMapper(__CLASS__);
-        $this->oUserCurrent = $this->User_GetUserCurrent();
+        $this->oUserCurrent = E::ModuleUser()->GetUserCurrent();
     }
 
     /**
@@ -36,12 +36,12 @@ class ModuleSearch extends Module {
 
         $s = md5(serialize($sRegexp) . serialize($aParams));
         $sCacheKey = 'search_topics_' . $s . '_' . $iPage . '_' . $iPerPage;
-        if (false === ($data = $this->Cache_Get($sCacheKey))) {
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
             $data = array(
                 'collection' => $this->oMapper->GetTopicsIdByRegexp($sRegexp, $iCount, $iPage, $iPerPage, $aParams),
                 'count'      => $iCount,
             );
-            $this->Cache_Set($data, $sCacheKey, array('topic_update', 'topic_new'), 'PT1H');
+            E::ModuleCache()->Set($data, $sCacheKey, array('topic_update', 'topic_new'), 'PT1H');
         }
         return $data;
     }
@@ -60,12 +60,12 @@ class ModuleSearch extends Module {
 
         $s = md5(serialize($sRegexp) . serialize($aParams));
         $sCacheKey = 'search_comments_' . $s . '_' . $iPage . '_' . $iPerPage;
-        if (false === ($data = $this->Cache_Get($sCacheKey))) {
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
             $data = array(
                 'collection' => $this->oMapper->GetCommentsIdByRegexp($sRegexp, $iCount, $iPage, $iPerPage, $aParams),
                 'count'      => $iCount,
             );
-            $this->Cache_Set($data, $sCacheKey, array('topic_update', 'comment_new'), 'PT1H');
+            E::ModuleCache()->Set($data, $sCacheKey, array('topic_update', 'comment_new'), 'PT1H');
         }
         return $data;
     }
@@ -84,11 +84,11 @@ class ModuleSearch extends Module {
 
         $s = md5(serialize($sRegexp) . serialize($aParams));
         $sCacheKey = 'search_blogs_' . $s . '_' . $iPage . '_' . $iPerPage;
-        if (false === ($data = $this->Cache_Get($sCacheKey))) {
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
             $data = array(
                 'collection' => $this->oMapper->GetBlogsIdByRegexp($sRegexp, $iCount, $iPage, $iPerPage, $aParams),
                 'count'      => $iCount);
-            $this->Cache_Set($data, $sCacheKey, array('blog_update', 'blog_new'), 'PT1H');
+            E::ModuleCache()->Set($data, $sCacheKey, array('blog_update', 'blog_new'), 'PT1H');
         }
         return $data;
     }

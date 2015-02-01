@@ -29,7 +29,7 @@ class ModuleSkin_EntitySkin extends Entity {
         } else {
             $sSkinDir = null;
         }
-        $sSkinXML = $this->Skin_GetSkinManifest($sSkinId, $sSkinDir);
+        $sSkinXML = E::ModuleSkin()->GetSkinManifest($sSkinId, $sSkinDir);
         if (!is_array($aData)) {
             $aData = array(
                 'id' => $sSkinId,
@@ -55,12 +55,12 @@ class ModuleSkin_EntitySkin extends Entity {
         }
 
         // Обрабатываем данные манифеста
-        $sLang = $this->Lang_GetLang();
+        $sLang = E::ModuleLang()->GetLang();
 
         $this->_xlang($oXml, 'name', $sLang);
         $this->_xlang($oXml, 'author', $sLang);
         $this->_xlang($oXml, 'description', $sLang);
-        $oXml->homepage = $this->Text_Parser((string)$oXml->homepage);
+        $oXml->homepage = E::ModuleText()->Parser((string)$oXml->homepage);
 
         if ($sId = (string)$oXml->id) {
             $aData['id'] = $sId;
@@ -83,7 +83,7 @@ class ModuleSkin_EntitySkin extends Entity {
         if (!count($data = $oXml->xpath("{$sProperty}/lang[@name='{$sLang}']"))) {
             $data = $oXml->xpath("{$sProperty}/lang[@name='default']");
         }
-        $oXml->$sProperty->data = $this->Text_Parser(trim((string)array_shift($data)));
+        $oXml->$sProperty->data = E::ModuleText()->Parser(trim((string)array_shift($data)));
     }
 
     protected function _getDataItem($sKey) {

@@ -1045,7 +1045,7 @@ class ModuleTopic_MapperTopic extends Mapper {
             $aFilter['topic_id'] = array($aFilter['topic_id']);
         }
 
-        $oBlogType = $this->Blog_GetBlogTypeById($nBlogIdNew);
+        $oBlogType = E::ModuleBlog()->GetBlogTypeById($nBlogIdNew);
         if ($oBlogType) {
             $nIndexIgnore = $oBlogType->getIndexIgnore();
         } else {

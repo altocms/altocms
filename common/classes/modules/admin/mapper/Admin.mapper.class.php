@@ -594,7 +594,7 @@ class ModuleAdmin_MapperAdmin extends Mapper {
         }
         // Обновление числа комментариев
         foreach ($aTargets as $aTarget) {
-            $this->Topic_RecalcCountOfComments($aTarget['target_id']);
+            E::ModuleTopic()->RecalcCountOfComments($aTarget['target_id']);
         }
 
         // удаление остального "хозяйства"

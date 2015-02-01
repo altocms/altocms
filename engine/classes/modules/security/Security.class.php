@@ -13,7 +13,7 @@
  * Необходимо использовать перед обработкой отправленной формы:
  * <pre>
  * if (F::GetRequest('submit_add')) {
- *    $this->Security_ValidateSendForm();
+ *    E::ModuleSecurity()->ValidateSendForm();
  *    // далее код обработки формы
  *  ......
  * }
@@ -103,7 +103,7 @@ class ModuleSecurity extends Module {
      */
     public function GetSecurityKey() {
 
-        $sSecurityKey = $this->Session_Get($this->sSecurityKeyName);
+        $sSecurityKey = E::ModuleSession()->Get($this->sSecurityKeyName);
         if (is_null($sSecurityKey)) {
             $sSecurityKey = $this->_generateSecurityKey();
         }
@@ -119,8 +119,8 @@ class ModuleSecurity extends Module {
 
         $sSecurityKey = $this->_generateSecurityKey();
 
-        $this->Session_Set($this->sSecurityKeyName, $sSecurityKey);
-        $this->Viewer_Assign($this->sSecurityKeyName, $sSecurityKey);
+        E::ModuleSession()->Set($this->sSecurityKeyName, $sSecurityKey);
+        E::ModuleViewer()->Assign($this->sSecurityKeyName, $sSecurityKey);
 
         return $sSecurityKey;
     }
@@ -133,13 +133,13 @@ class ModuleSecurity extends Module {
     protected function _generateSecurityKey() {
 
         // Сохраняем текущий ключ для ajax-запросов
-        if (F::AjaxRequest() && ($sKey = $this->Session_Get($this->sSecurityKeyName))) {
+        if (F::AjaxRequest() && ($sKey = E::ModuleSession()->Get($this->sSecurityKeyName))) {
             return $sKey;
         }
         if (Config::Get('module.security.randomkey')) {
             return F::RandomStr($this->sSecurityKeyLen);
         } else {
-            //return md5($this->Session_GetId().Config::Get('module.security.hash'));
+            //return md5(E::ModuleSession()->GetId().Config::Get('module.security.hash'));
             return md5($this->GetUniqKey() . $this->GetClientHash() . Config::Get('module.security.hash'));
         }
     }
@@ -207,7 +207,7 @@ class ModuleSecurity extends Module {
         if (isset($_SERVER['REMOTE_ADDR'])) {
             $sClientHash .= $_SERVER['REMOTE_ADDR'];
         }
-        //if ($sVizId = $this->Session_GetCookie('visitor_id')) $sClientHash .= $sVizId;
+        //if ($sVizId = E::ModuleSession()->GetCookie('visitor_id')) $sClientHash .= $sVizId;
 
         return $this->Salted($sClientHash, 'auth');
     }

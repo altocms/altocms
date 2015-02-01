@@ -11,6 +11,7 @@
 set_include_path(get_include_path() . PATH_SEPARATOR . __DIR__);
 
 F::IncludeFile('../abstract/LsObject.class.php');
+F::IncludeFile('Router.class.php');
 
 /**
  * Application class of CMS

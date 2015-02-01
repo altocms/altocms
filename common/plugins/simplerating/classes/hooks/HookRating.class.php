@@ -48,9 +48,9 @@ class PluginSimplerating_HookRating extends Hook {
         /** @var ModuleVote_EntityVote $oVote */
         $oVote = $aData['oVote'];
 
-        $this->Viewer_Assign('oUserProfile', $oUserProfile);
-        $this->Viewer_Assign('oVote', $oVote);
-        $sHtml = $this->Viewer_Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/user/profile.header.inject.tpl');
+        E::ModuleViewer()->Assign('oUserProfile', $oUserProfile);
+        E::ModuleViewer()->Assign('oVote', $oVote);
+        $sHtml = E::ModuleViewer()->Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/user/profile.header.inject.tpl');
 
         return $sHtml;
 
@@ -68,12 +68,12 @@ class PluginSimplerating_HookRating extends Hook {
         $sUsersOrder = $aData['sUsersOrder'];
 
 
-        $this->Viewer_Assign('bUsersUseOrder', $bUsersUseOrder);
-        $this->Viewer_Assign('sUsersRootPage', $sUsersRootPage);
-        $this->Viewer_Assign('sUsersOrderWay', $sUsersOrderWay);
-        $this->Viewer_Assign('sUsersOrder', $sUsersOrder);
+        E::ModuleViewer()->Assign('bUsersUseOrder', $bUsersUseOrder);
+        E::ModuleViewer()->Assign('sUsersRootPage', $sUsersRootPage);
+        E::ModuleViewer()->Assign('sUsersOrderWay', $sUsersOrderWay);
+        E::ModuleViewer()->Assign('sUsersOrder', $sUsersOrder);
 
-        $sHtml = $this->Viewer_Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/user/user.list.header.inject.tpl');
+        $sHtml = E::ModuleViewer()->Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/user/user.list.header.inject.tpl');
 
         return $sHtml;
 
@@ -87,9 +87,9 @@ class PluginSimplerating_HookRating extends Hook {
 
         $oUserList = $aData['oUserList'];
 
-        $this->Viewer_Assign('oUserList', $oUserList);
+        E::ModuleViewer()->Assign('oUserList', $oUserList);
 
-        $sHtml = $this->Viewer_Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/user/user.list.line.inject.tpl');
+        $sHtml = E::ModuleViewer()->Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/user/user.list.line.inject.tpl');
 
         return $sHtml;
 
@@ -103,9 +103,9 @@ class PluginSimplerating_HookRating extends Hook {
 
         $oUserList = $aData['oUserList'];
 
-        $this->Viewer_Assign('oUserList', $oUserList);
+        E::ModuleViewer()->Assign('oUserList', $oUserList);
 
-        $sHtml = $this->Viewer_Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/user/user.list.linexxs.inject.tpl');
+        $sHtml = E::ModuleViewer()->Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/user/user.list.linexxs.inject.tpl');
 
         return $sHtml;
 
@@ -118,9 +118,9 @@ class PluginSimplerating_HookRating extends Hook {
     public function HookBlogInfoboxRatingValueInject($aData) {
 
         $oBlog = $aData['oBlog'];
-        $this->Viewer_Assign('oBlog', $oBlog);
+        E::ModuleViewer()->Assign('oBlog', $oBlog);
 
-        return $this->Viewer_Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/blog/blog.infobox.rating.value.inject.tpl');
+        return E::ModuleViewer()->Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/blog/blog.infobox.rating.value.inject.tpl');
 
     }
 
@@ -138,13 +138,13 @@ class PluginSimplerating_HookRating extends Hook {
         $sBlogOrderWay = $aData['sBlogOrderWay'];
 
 
-        $this->Viewer_Assign('bBlogsUseOrder', $bBlogsUseOrder);
-        $this->Viewer_Assign('sBlogsRootPage', $sBlogsRootPage);
-        $this->Viewer_Assign('sBlogOrder', $sBlogOrder);
-        $this->Viewer_Assign('sBlogOrderWayNext', $sBlogOrderWayNext);
-        $this->Viewer_Assign('sBlogOrderWay', $sBlogOrderWay);
+        E::ModuleViewer()->Assign('bBlogsUseOrder', $bBlogsUseOrder);
+        E::ModuleViewer()->Assign('sBlogsRootPage', $sBlogsRootPage);
+        E::ModuleViewer()->Assign('sBlogOrder', $sBlogOrder);
+        E::ModuleViewer()->Assign('sBlogOrderWayNext', $sBlogOrderWayNext);
+        E::ModuleViewer()->Assign('sBlogOrderWay', $sBlogOrderWay);
 
-        $sHtml = $this->Viewer_Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/blog/blog.list.header.inject.tpl');
+        $sHtml = E::ModuleViewer()->Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/blog/blog.list.header.inject.tpl');
 
         return $sHtml;
 
@@ -158,9 +158,9 @@ class PluginSimplerating_HookRating extends Hook {
     public function HookBlogListLineInject($aData) {
 
         $oBlog = $aData['oBlog'];
-        $this->Viewer_Assign('oBlog', $oBlog);
+        E::ModuleViewer()->Assign('oBlog', $oBlog);
 
-        return $this->Viewer_Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/blog/blog.list.line.inject.tpl');
+        return E::ModuleViewer()->Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/blog/blog.list.line.inject.tpl');
 
     }
 
@@ -172,9 +172,9 @@ class PluginSimplerating_HookRating extends Hook {
     public function HookBlogListLineXssInject($aData) {
 
         $oBlog = $aData['oBlog'];
-        $this->Viewer_Assign('oBlog', $oBlog);
+        E::ModuleViewer()->Assign('oBlog', $oBlog);
 
-        return $this->Viewer_Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/blog/blog.list.linexxs.inject.tpl');
+        return E::ModuleViewer()->Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/blog/blog.list.linexxs.inject.tpl');
 
     }
 
@@ -186,9 +186,9 @@ class PluginSimplerating_HookRating extends Hook {
     public function HookBlogHeaderInject($aData) {
 
         $oBlog = $aData['oBlog'];
-        $this->Viewer_Assign('oBlog', $oBlog);
+        E::ModuleViewer()->Assign('oBlog', $oBlog);
 
-        return $this->Viewer_Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/blog/blog.header.inject.tpl');
+        return E::ModuleViewer()->Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/blog/blog.header.inject.tpl');
 
     }
 
@@ -200,9 +200,9 @@ class PluginSimplerating_HookRating extends Hook {
     public function HookBlogStatInject($aData) {
 
         $oBlog = $aData['oBlog'];
-        $this->Viewer_Assign('oBlog', $oBlog);
+        E::ModuleViewer()->Assign('oBlog', $oBlog);
 
-        return $this->Viewer_Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/blog/blog.info.inject.tpl');
+        return E::ModuleViewer()->Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/blog/blog.info.inject.tpl');
 
     }
 
@@ -214,9 +214,9 @@ class PluginSimplerating_HookRating extends Hook {
     public function HookCommentListInfoInject($aData) {
 
         $oComment = $aData['oComment'];
-        $this->Viewer_Assign('oComment', $oComment);
+        E::ModuleViewer()->Assign('oComment', $oComment);
 
-        return $this->Viewer_Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/comment/comment.list.info.inject.tpl');
+        return E::ModuleViewer()->Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/comment/comment.list.info.inject.tpl');
 
     }
 
@@ -228,9 +228,9 @@ class PluginSimplerating_HookRating extends Hook {
     public function HookCommentInfoInject($aData) {
 
         $oComment = $aData['oComment'];
-        $this->Viewer_Assign('oComment', $oComment);
+        E::ModuleViewer()->Assign('oComment', $oComment);
 
-        return $this->Viewer_Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/comment/comment.info.inject.tpl');
+        return E::ModuleViewer()->Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/comment/comment.info.inject.tpl');
 
     }
 
@@ -248,12 +248,12 @@ class PluginSimplerating_HookRating extends Hook {
         $bTopicList = isset($aData['bTopicList']) ? $aData['bTopicList'] : FALSE;
         $bSidebar = isset($aData['bSidebar']) ? $aData['bSidebar'] : FALSE;
 
-        $this->Viewer_Assign('oTopic', $oTopic);
-        $this->Viewer_Assign('oVote', $oVote);
-        $this->Viewer_Assign('bTopicList', $bTopicList);
-        $this->Viewer_Assign('bSidebar', $bSidebar);
+        E::ModuleViewer()->Assign('oTopic', $oTopic);
+        E::ModuleViewer()->Assign('oVote', $oVote);
+        E::ModuleViewer()->Assign('bTopicList', $bTopicList);
+        E::ModuleViewer()->Assign('bSidebar', $bSidebar);
 
-        return $this->Viewer_Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/topic/topic.show.info.inject.tpl');
+        return E::ModuleViewer()->Fetch(Plugin::GetTemplatePath(__CLASS__) . 'tpls/topic/topic.show.info.inject.tpl');
 
     }
 

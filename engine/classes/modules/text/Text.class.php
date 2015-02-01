@@ -19,7 +19,7 @@ F::IncludeLib('Jevix/jevix.class.php');
  * Модуль обработки текста на основе типографа Jevix
  * Позволяет вырезать из текста лишние HTML теги и предотвращает различные попытки внедрить в текст JavaScript
  * <pre>
- * $sText=$this->Text_Parser($sTestSource);
+ * $sText=E::ModuleText()->Parser($sTestSource);
  * </pre>
  * Настройки парсинга находятся в конфиге /config/jevix.php
  *
@@ -263,24 +263,24 @@ class ModuleText extends Module {
                     // Попытаемся получить результат от обработчика
                     // Может сниппет уже был в обработке, тогда просто возьмем его из кэша
                     $sCacheKey = $sSnippetName . md5(serialize($aParams));
-                    if (FALSE === ($sResult = $this->Cache_GetLife($sCacheKey))) {
+                    if (FALSE === ($sResult = E::ModuleCache()->GetLife($sCacheKey))) {
 
                         // Определим тип сниппета, может быть шаблонным, а может и исполняемым
                         // по умолчанию сниппет ссчитаем исполняемым. Если шаблонный, то его
                         // обрабатывает предопределенный хук snippet_template_type
                         $sHookName = 'snippet_' . $sSnippetName;
-                        $sHookName = $this->Hook_IsEnabled($sHookName)
+                        $sHookName = E::ModuleHook()->IsEnabled($sHookName)
                             ? 'snippet_' . $sSnippetName
                             : 'snippet_template_type';
 
                         // Установим хук
-                        $this->Hook_Run($sHookName, array(
+                        E::ModuleHook()->Run($sHookName, array(
                             'params' => &$aParams,
                             'result' => &$sResult,
                         ));
 
                         // Запишем результат обработки в кэш
-                        $this->Cache_SetLife($sResult, $sCacheKey);
+                        E::ModuleCache()->SetLife($sResult, $sCacheKey);
 
                     }
 
@@ -323,8 +323,8 @@ class ModuleText extends Module {
         $sResult = $this->VideoParser($sResult);
 
         // Clear links on local resources
-        //$sResult = $this->Mresource_NormalizeUrl($sResult, '/', '/');
-        //$sResult = $this->Mresource_NormalizeUrl($sResult, '/', '');
+        //$sResult = E::ModuleMresource()->NormalizeUrl($sResult, '/', '/');
+        //$sResult = E::ModuleMresource()->NormalizeUrl($sResult, '/', '');
 
         $sResult = $this->CodeSourceParser($sResult);
         return $sResult;
@@ -446,7 +446,7 @@ class ModuleText extends Module {
 
         $sText = '';
         if (isset($aParams['user'])) {
-            if ($oUser = $this->User_GetUserByLogin($aParams['user'])) {
+            if ($oUser = E::ModuleUser()->GetUserByLogin($aParams['user'])) {
                 $sText .= "<a href=\"{$oUser->getUserWebPath()}\" class=\"ls-user\">{$oUser->getLogin()}</a> ";
             }
         }
@@ -476,7 +476,7 @@ class ModuleText extends Module {
         if (isset($this->aCheckTagLinks[$sTag])) {
             if (isset($aParams[$this->aCheckTagLinks[$sTag]['link']])) {
                 $sLinkAttr = $this->aCheckTagLinks[$sTag]['link'];
-                $sLink = $this->Mresource_NormalizeUrl($aParams[$sLinkAttr]);
+                $sLink = E::ModuleMresource()->NormalizeUrl($aParams[$sLinkAttr]);
                 $nType = $this->aCheckTagLinks[$sTag]['type'];
                 $this->aLinks[] = array(
                     'type' => $nType,

@@ -51,7 +51,7 @@ class ModuleSubscribe extends Module {
     public function Init() {
 
         $this->oMapper = E::GetMapper(__CLASS__);
-        $this->oUserCurrent = $this->User_GetUserCurrent();
+        $this->oUserCurrent = E::ModuleUser()->GetUserCurrent();
     }
 
     /**
@@ -178,7 +178,7 @@ class ModuleSubscribe extends Module {
         if (!$sMail) {
             return false;
         }
-        if (!($oSubscribe = $this->Subscribe_GetSubscribeByTargetAndMail($sTargetType, $sTargetId, $sMail))) {
+        if (!($oSubscribe = E::ModuleSubscribe()->GetSubscribeByTargetAndMail($sTargetType, $sTargetId, $sMail))) {
             $oSubscribe = E::GetEntity('Subscribe');
             $oSubscribe->setTargetType($sTargetType);
             $oSubscribe->setTargetId($sTargetId);
@@ -193,7 +193,7 @@ class ModuleSubscribe extends Module {
             if ($sUserId && !$this->IsAllowTargetForGuest($sTargetType)) {
                 $oSubscribe->setUserId($sUserId);
             }
-            $this->Subscribe_AddSubscribe($oSubscribe);
+            E::ModuleSubscribe()->AddSubscribe($oSubscribe);
         }
         return $oSubscribe;
     }
@@ -228,7 +228,7 @@ class ModuleSubscribe extends Module {
         if (!$sUserId) {
             return false;
         }
-        if (!($oTrack = $this->Subscribe_GetTrackByTargetAndUser($sTargetType, $sTargetId, $sUserId))) {
+        if (!($oTrack = E::ModuleSubscribe()->GetTrackByTargetAndUser($sTargetType, $sTargetId, $sUserId))) {
             $oTrack = E::GetEntity('ModuleSubscribe_EntityTrack');
             $oTrack->setTargetType($sTargetType);
             $oTrack->setTargetId($sTargetId);
@@ -237,7 +237,7 @@ class ModuleSubscribe extends Module {
             $oTrack->setKey(F::RandomStr(32));
             $oTrack->setIp(F::GetUserIp());
             $oTrack->setStatus(1);
-            $this->Subscribe_AddTrack($oTrack);
+            E::ModuleSubscribe()->AddTrack($oTrack);
         }
         return $oTrack;
     }
@@ -382,7 +382,7 @@ class ModuleSubscribe extends Module {
     public function Send($sTargetType, $iTargetId, $sTemplate, $sTitle, $aParams = array(), $aExcludeMail = array(), $sPluginName = null) {
 
         $iPage = 1;
-        $aSubscribes = $this->Subscribe_GetSubscribes(
+        $aSubscribes = E::ModuleSubscribe()->GetSubscribes(
             array('target_type'  => $sTargetType, 'target_id' => $iTargetId, 'status' => 1,
                   'exclude_mail' => $aExcludeMail), array(), $iPage, 20
         );
@@ -390,7 +390,7 @@ class ModuleSubscribe extends Module {
             $iPage++;
             foreach ($aSubscribes['collection'] as $oSubscribe) {
                 $aParams['sSubscribeKey'] = $oSubscribe->getKey();
-                $this->Notify_Send(
+                E::ModuleNotify()->Send(
                     $oSubscribe->getMail(),
                     $sTemplate,
                     $sTitle,
@@ -398,7 +398,7 @@ class ModuleSubscribe extends Module {
                     $sPluginName
                 );
             }
-            $aSubscribes = $this->Subscribe_GetSubscribes(
+            $aSubscribes = E::ModuleSubscribe()->GetSubscribes(
                 array('target_type' => $sTargetType, 'target_id' => $iTargetId, 'status' => 1), array(), $iPage, 20
             );
         }
@@ -415,7 +415,7 @@ class ModuleSubscribe extends Module {
      */
     public function CheckTargetTopicNewComment($iTargetId, $iStatus) {
 
-        if ($oTopic = $this->Topic_GetTopicById($iTargetId)) {
+        if ($oTopic = E::ModuleTopic()->GetTopicById($iTargetId)) {
             /**
              * Топик может быть в закрытом блоге, поэтому необходимо разрешить подписку только если пользователь в нем состоит
              * Отписываться разрешаем с любого топика
@@ -423,7 +423,7 @@ class ModuleSubscribe extends Module {
             if ($iStatus == 1 && $oTopic->getBlog()->IsPrivate()) {
                 if (!$this->oUserCurrent
                     || !($oTopic->getBlog()->getOwnerId() == $this->oUserCurrent->getId()
-                        || $this->Blog_GetBlogUserByBlogIdAndUserId($oTopic->getBlogId(), $this->oUserCurrent->getId()))
+                        || E::ModuleBlog()->GetBlogUserByBlogIdAndUserId($oTopic->getBlogId(), $this->oUserCurrent->getId()))
                 ) {
                     return false;
                 }
@@ -443,7 +443,7 @@ class ModuleSubscribe extends Module {
      */
     public function GetUrlTargetTopicNewComment($iTargetId) {
 
-        if (($oTopic = $this->Topic_GetTopicById($iTargetId)) && $oTopic->getPublish()) {
+        if (($oTopic = E::ModuleTopic()->GetTopicById($iTargetId)) && $oTopic->getPublish()) {
             return $oTopic->getUrl();
         }
         return false;

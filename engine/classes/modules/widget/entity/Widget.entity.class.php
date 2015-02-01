@@ -30,7 +30,7 @@ class ModuleWidget_EntityWidget extends Entity {
         }
 
         if ($sName && is_null($this->getType())) {
-            $aTypeData = $this->Viewer_DefineWidgetType($sName, $this->GetDir(), $this->GetPluginId());
+            $aTypeData = E::ModuleViewer()->DefineWidgetType($sName, $this->GetDir(), $this->GetPluginId());
             if (isset($aTypeData['type'])) {
                 $this->setType($aTypeData['type']);
 

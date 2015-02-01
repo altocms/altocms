@@ -601,7 +601,7 @@ class ModuleBlog_MapperBlog extends Mapper {
     public function GetCloseBlogsId($oUser = null) {
 
         // Gets an array of types of blogs that closed for user
-        $aTypes = $this->Blog_GetCloseBlogTypes($oUser);
+        $aTypes = E::ModuleBlog()->GetCloseBlogTypes($oUser);
 
         // If array is not empty...
         if ($aTypes) {
@@ -1381,7 +1381,7 @@ class ModuleBlog_MapperBlog extends Mapper {
             'total' => -1,
         );
         if ($nCalcTotal) {
-            $sLastQuery = trim($this->Database_GetLastQuery());
+            $sLastQuery = trim(E::ModuleDatabase()->GetLastQuery());
             $n = strpos($sLastQuery, ' LIMIT ');
             if ($n) {
                 $sql = str_replace('SELECT b.blog_id', 'SELECT COUNT(*) AS cnt', substr($sLastQuery, 0, $n));

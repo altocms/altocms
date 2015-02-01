@@ -40,12 +40,12 @@ class ActionPeople extends Action {
         /**
          * Устанавливаем title страницы
          */
-        $this->Viewer_AddHtmlTitle($this->Lang_Get('people'));
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('people'));
 
-        if (!$this->Session_GetCookie('view') && F::GetRequestStr('view')) {
-            $this->Session_DelCookie('view');
+        if (!E::ModuleSession()->GetCookie('view') && F::GetRequestStr('view')) {
+            E::ModuleSession()->DelCookie('view');
         }
-        $this->Session_SetCookie('view', F::GetRequestStr('view', '2'), 60 * 60 * 24 * 365);
+        E::ModuleSession()->SetCookie('view', F::GetRequestStr('view', '2'), 60 * 60 * 24 * 365);
 
     }
 
@@ -77,7 +77,7 @@ class ActionPeople extends Action {
         /**
          * Устанавливаем формат Ajax ответа
          */
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
         /**
          * Получаем из реквеста первые быквы для поиска пользователей по логину
          */
@@ -85,7 +85,7 @@ class ActionPeople extends Action {
         if (is_string($sTitle) && mb_strlen($sTitle, 'utf-8')) {
             $sTitle = str_replace(array('_', '%'), array('\_', '\%'), $sTitle);
         } else {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
             return;
         }
         /**
@@ -101,17 +101,17 @@ class ActionPeople extends Action {
         /**
          * Ищем пользователей
          */
-        $aResult = $this->User_GetUsersByFilter(
+        $aResult = E::ModuleUser()->GetUsersByFilter(
             array('activate' => 1, 'login' => $sTitle), array('user_rating' => 'desc'), 1, 50
         );
         /**
          * Формируем ответ
          */
-        $oViewer = $this->Viewer_GetLocalViewer();
+        $oViewer = E::ModuleViewer()->GetLocalViewer();
         $oViewer->Assign('aUsersList', $aResult['collection']);
-        $oViewer->Assign('oUserCurrent', $this->User_GetUserCurrent());
-        $oViewer->Assign('sUserListEmpty', $this->Lang_Get('user_search_empty'));
-        $this->Viewer_AssignAjax('sText', $oViewer->Fetch('commons/common.user_list.tpl'));
+        $oViewer->Assign('oUserCurrent', E::ModuleUser()->GetUserCurrent());
+        $oViewer->Assign('sUserListEmpty', E::ModuleLang()->Get('user_search_empty'));
+        E::ModuleViewer()->AssignAjax('sText', $oViewer->Fetch('commons/common.user_list.tpl'));
     }
 
     /**
@@ -124,7 +124,7 @@ class ActionPeople extends Action {
         /**
          * Страна существует?
          */
-        if (!($oCountry = $this->Geo_GetCountryById($this->getParam(0)))) {
+        if (!($oCountry = E::ModuleGeo()->GetCountryById($this->getParam(0)))) {
             return parent::EventNotFound();
         }
         /**
@@ -138,7 +138,7 @@ class ActionPeople extends Action {
         /**
          * Получаем список вязей пользователей со страной
          */
-        $aResult = $this->Geo_GetTargets(
+        $aResult = E::ModuleGeo()->GetTargets(
             array('country_id' => $oCountry->getId(), 'target_type' => 'user'), $iPage,
             Config::Get('module.user.per_page')
         );
@@ -146,11 +146,11 @@ class ActionPeople extends Action {
         foreach ($aResult['collection'] as $oTarget) {
             $aUsersId[] = $oTarget->getTargetId();
         }
-        $aUsersCountry = $this->User_GetUsersAdditionalData($aUsersId);
+        $aUsersCountry = E::ModuleUser()->GetUsersAdditionalData($aUsersId);
         /**
          * Формируем постраничность
          */
-        $aPaging = $this->Viewer_MakePaging(
+        $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $iPage, Config::Get('module.user.per_page'), Config::Get('pagination.pages.count'),
             R::GetPath('people') . $this->sCurrentEvent . '/' . $oCountry->getId()
         );
@@ -158,10 +158,10 @@ class ActionPeople extends Action {
          * Загружаем переменные в шаблон
          */
         if ($aUsersCountry) {
-            $this->Viewer_Assign('aPaging', $aPaging);
+            E::ModuleViewer()->Assign('aPaging', $aPaging);
         }
-        $this->Viewer_Assign('oCountry', $oCountry);
-        $this->Viewer_Assign('aUsersCountry', $aUsersCountry);
+        E::ModuleViewer()->Assign('oCountry', $oCountry);
+        E::ModuleViewer()->Assign('aUsersCountry', $aUsersCountry);
     }
 
     /**
@@ -174,7 +174,7 @@ class ActionPeople extends Action {
         /**
          * Город существует?
          */
-        if (!($oCity = $this->Geo_GetCityById($this->getParam(0)))) {
+        if (!($oCity = E::ModuleGeo()->GetCityById($this->getParam(0)))) {
             return parent::EventNotFound();
         }
         /**
@@ -188,18 +188,18 @@ class ActionPeople extends Action {
         /**
          * Получаем список юзеров
          */
-        $aResult = $this->Geo_GetTargets(
+        $aResult = E::ModuleGeo()->GetTargets(
             array('city_id' => $oCity->getId(), 'target_type' => 'user'), $iPage, Config::Get('module.user.per_page')
         );
         $aUsersId = array();
         foreach ($aResult['collection'] as $oTarget) {
             $aUsersId[] = $oTarget->getTargetId();
         }
-        $aUsersCity = $this->User_GetUsersAdditionalData($aUsersId);
+        $aUsersCity = E::ModuleUser()->GetUsersAdditionalData($aUsersId);
         /**
          * Формируем постраничность
          */
-        $aPaging = $this->Viewer_MakePaging(
+        $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $iPage, Config::Get('module.user.per_page'), Config::Get('pagination.pages.count'),
             R::GetPath('people') . $this->sCurrentEvent . '/' . $oCity->getId()
         );
@@ -207,10 +207,10 @@ class ActionPeople extends Action {
          * Загружаем переменные в шаблон
          */
         if ($aUsersCity) {
-            $this->Viewer_Assign('aPaging', $aPaging);
+            E::ModuleViewer()->Assign('aPaging', $aPaging);
         }
-        $this->Viewer_Assign('oCity', $oCity);
-        $this->Viewer_Assign('aUsersCity', $aUsersCity);
+        E::ModuleViewer()->Assign('oCity', $oCity);
+        E::ModuleViewer()->Assign('aUsersCity', $aUsersCity);
     }
 
     /**
@@ -223,8 +223,8 @@ class ActionPeople extends Action {
         /**
          * Последние по визиту на сайт
          */
-        $aUsersLast = $this->User_GetUsersByDateLast(15);
-        $this->Viewer_Assign('aUsersLast', $aUsersLast);
+        $aUsersLast = E::ModuleUser()->GetUsersByDateLast(15);
+        E::ModuleViewer()->Assign('aUsersLast', $aUsersLast);
         /**
          * Получаем статистику
          */
@@ -241,8 +241,8 @@ class ActionPeople extends Action {
         /**
          * Последние по регистрации
          */
-        $aUsersRegister = $this->User_GetUsersByDateRegister(15);
-        $this->Viewer_Assign('aUsersRegister', $aUsersRegister);
+        $aUsersRegister = E::ModuleUser()->GetUsersByDateRegister(15);
+        E::ModuleViewer()->Assign('aUsersRegister', $aUsersRegister);
         /**
          * Получаем статистику
          */
@@ -282,30 +282,30 @@ class ActionPeople extends Action {
         /**
          * Получаем список юзеров
          */
-        $aResult = $this->User_GetUsersByFilter(
+        $aResult = E::ModuleUser()->GetUsersByFilter(
             $aFilter, array($sOrder => $sOrderWay), $iPage, Config::Get('module.user.per_page')
         );
         $aUsers = $aResult['collection'];
         /**
          * Формируем постраничность
          */
-        $aPaging = $this->Viewer_MakePaging(
+        $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $iPage, Config::Get('module.user.per_page'), Config::Get('pagination.pages.count'),
             R::GetPath('people') . 'index', array('order' => $sOrder, 'order_way' => $sOrderWay)
         );
         /**
          * Получаем алфавитный указатель на список пользователей
          */
-        $aPrefixUser = $this->User_GetGroupPrefixUser(1);
+        $aPrefixUser = E::ModuleUser()->GetGroupPrefixUser(1);
         /**
          * Загружаем переменные в шаблон
          */
-        $this->Viewer_Assign('aPaging', $aPaging);
-        $this->Viewer_Assign('aUsersRating', $aUsers);
-        $this->Viewer_Assign('aPrefixUser', $aPrefixUser);
-        $this->Viewer_Assign("sUsersOrder", htmlspecialchars($sOrder));
-        $this->Viewer_Assign("sUsersOrderWay", htmlspecialchars($sOrderWay));
-        $this->Viewer_Assign("sUsersOrderWayNext", htmlspecialchars($sOrderWay == 'desc' ? 'asc' : 'desc'));
+        E::ModuleViewer()->Assign('aPaging', $aPaging);
+        E::ModuleViewer()->Assign('aUsersRating', $aUsers);
+        E::ModuleViewer()->Assign('aPrefixUser', $aPrefixUser);
+        E::ModuleViewer()->Assign("sUsersOrder", htmlspecialchars($sOrder));
+        E::ModuleViewer()->Assign("sUsersOrderWay", htmlspecialchars($sOrderWay));
+        E::ModuleViewer()->Assign("sUsersOrderWayNext", htmlspecialchars($sOrderWay == 'desc' ? 'asc' : 'desc'));
         /**
          * Устанавливаем шаблон вывода
          */
@@ -320,11 +320,11 @@ class ActionPeople extends Action {
         /**
          * Статистика кто, где и т.п.
          */
-        $aStat = $this->User_GetStatUsers();
+        $aStat = E::ModuleUser()->GetStatUsers();
         /**
          * Загружаем переменные в шаблон
          */
-        $this->Viewer_Assign('aStat', $aStat);
+        E::ModuleViewer()->Assign('aStat', $aStat);
     }
 
     /**
@@ -335,8 +335,8 @@ class ActionPeople extends Action {
         /**
          * Загружаем в шаблон необходимые переменные
          */
-        $this->Viewer_Assign('sMenuHeadItemSelect', $this->sMenuHeadItemSelect);
-        $this->Viewer_Assign('sMenuItemSelect', $this->sMenuItemSelect);
+        E::ModuleViewer()->Assign('sMenuHeadItemSelect', $this->sMenuHeadItemSelect);
+        E::ModuleViewer()->Assign('sMenuItemSelect', $this->sMenuItemSelect);
     }
 }
 

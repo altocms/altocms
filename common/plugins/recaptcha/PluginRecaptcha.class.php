@@ -71,7 +71,7 @@ class PluginRecaptcha extends Plugin {
      */
     public function Init() {
         // Подключаем скрипт рекапчи
-        $this->Viewer_AppendScript('https://www.google.com/recaptcha/api.js');
+        E::ModuleViewer()->AppendScript('https://www.google.com/recaptcha/api.js');
     }
 
 }

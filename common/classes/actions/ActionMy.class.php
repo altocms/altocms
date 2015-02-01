@@ -62,7 +62,7 @@ class ActionMy extends Action {
         /**
          * Проверяем есть ли такой юзер
          */
-        if (!($this->oUserProfile = $this->User_GetUserByLogin($sUserLogin))) {
+        if (!($this->oUserProfile = E::ModuleUser()->GetUserByLogin($sUserLogin))) {
             return parent::EventNotFound();
         }
         /**
@@ -93,7 +93,7 @@ class ActionMy extends Action {
         /**
          * Проверяем есть ли такой юзер
          */
-        if (!($this->oUserProfile = $this->User_GetUserByLogin($sUserLogin))) {
+        if (!($this->oUserProfile = E::ModuleUser()->GetUserByLogin($sUserLogin))) {
             return parent::EventNotFound();
         }
         /**

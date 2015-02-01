@@ -32,7 +32,7 @@ class HookCaptcha extends Hook {
 
         $sType = isset($aData['type']) ? $aData['type'] : 'registration';
 
-        return $this->Viewer_Fetch("tpls/commons/common.captcha.$sType.tpl");
+        return E::ModuleViewer()->Fetch("tpls/commons/common.captcha.$sType.tpl");
     }
 
 }

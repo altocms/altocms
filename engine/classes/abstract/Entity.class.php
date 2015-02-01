@@ -147,11 +147,11 @@ abstract class Entity extends LsObject {
     public function getLangSuffixProp($sKey, $sLang = null, $xDefault = null) {
 
         if (is_null($sLang)) {
-            $sLang = $this->Lang_GetLang();
+            $sLang = E::ModuleLang()->GetLang();
         }
         $sResult = $this->getProp($sKey . '_' . $sLang);
         if (is_null($sResult)) {
-            $sResult = $this->getProp($sKey . '_' . $this->Lang_GetDefaultLang());
+            $sResult = $this->getProp($sKey . '_' . E::ModuleLang()->GetDefaultLang());
             if (is_null($sResult) && !is_null($sVal = $this->getProp($sKey . '_en'))) {
                 return $sVal;
             }
@@ -613,7 +613,7 @@ abstract class Entity extends LsObject {
         $aValidators = array();
         foreach ($this->aValidateRules as $aRule) {
             if (isset($aRule[0], $aRule[1])) {
-                $aValidators[] = $this->Validate_CreateValidator($aRule[1], $this, $aRule[0], array_slice($aRule, 2));
+                $aValidators[] = E::ModuleValidate()->CreateValidator($aRule[1], $this, $aRule[0], array_slice($aRule, 2));
             } else {
                 throw new Exception(get_class($this) . ' has an invalid validation rule');
             }
@@ -781,7 +781,7 @@ abstract class Entity extends LsObject {
 
         // Ключ кэша
         $sCacheKey = md5(serialize($aRules) . (string)$bConcatenateResult . (string)$sOwnerClassName);
-        if (!(FALSE === ($data = $this->Cache_GetLife($sCacheKey)))) {
+        if (!(FALSE === ($data = E::ModuleCache()->GetLife($sCacheKey)))) {
             return $data;
         }
 
@@ -874,7 +874,7 @@ abstract class Entity extends LsObject {
         }
 
         // Закэшируем результат
-        $this->Cache_SetLife($bResult, $sCacheKey);
+        E::ModuleCache()->SetLife($bResult, $sCacheKey);
 
         return $bResult;
 

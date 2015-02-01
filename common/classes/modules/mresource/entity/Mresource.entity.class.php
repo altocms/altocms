@@ -220,7 +220,7 @@ class ModuleMresource_EntityMresource extends Entity {
             $sHashFile = null;
         }
         if ($sPathUrl = $this->GetPathUrl()) {
-            $sHashUrl = $this->Mresource_CalcUrlHash($sPathUrl);
+            $sHashUrl = E::ModuleMresource()->CalcUrlHash($sPathUrl);
         } else {
             $sHashUrl = null;
         }
@@ -260,7 +260,7 @@ class ModuleMresource_EntityMresource extends Entity {
             $sUrl = $this->GetPathUrl();
             if (!$this->IsLink() && $this->IsImage() && $sUrl) {
                 $aOptions = array();
-                $sOriginal = $this->Img_OriginalFile($sUrl, $aOptions);
+                $sOriginal = E::ModuleImg()->OriginalFile($sUrl, $aOptions);
                 if ($sOriginal !== $sUrl) {
                     $sUrl = $sOriginal;
                 }
@@ -283,7 +283,7 @@ class ModuleMresource_EntityMresource extends Entity {
             $sHash = $this->GetHash();
             if (($sPathUrl = $this->GetPathUrl()) && ($sOriginalUrl = $this->GetOriginalPathUrl())) {
                 if ($sOriginalUrl !== $sPathUrl) {
-                    $sHash = $this->Mresource_CalcUrlHash($sOriginalUrl);
+                    $sHash = E::ModuleMresource()->CalcUrlHash($sOriginalUrl);
                 }
             }
             $this->setProp($sPropKey, $sHash);
@@ -311,9 +311,9 @@ class ModuleMresource_EntityMresource extends Entity {
             if (F::File_IsLocalUrl($sUrl) && ($sModSuffix = F::File_ImgModSuffix($xSize, pathinfo($sUrl, PATHINFO_EXTENSION)))) {
                 $sUrl = $sUrl . $sModSuffix;
                 if (Config::Get('module.image.autoresize')) {
-                    $sFile = $this->Uploader_Url2Dir($sUrl);
+                    $sFile = E::ModuleUploader()->Url2Dir($sUrl);
                     if (!F::File_Exists($sFile)) {
-                        $this->Img_Duplicate($sFile);
+                        E::ModuleImg()->Duplicate($sFile);
                     }
                 }
             }
@@ -337,7 +337,7 @@ class ModuleMresource_EntityMresource extends Entity {
         } else {
             $sCheckUuid = $this->GetStorageUuid();
         }
-        return $this->Uploader_Exists($sCheckUuid);
+        return E::ModuleUploader()->Exists($sCheckUuid);
     }
 
     public function getWebPath($xSize=FALSE) {
@@ -348,7 +348,7 @@ class ModuleMresource_EntityMresource extends Entity {
             return $sUrl;
         }
 
-        return $this->Uploader_ResizeTargetImage($sUrl, $xSize);
+        return E::ModuleUploader()->ResizeTargetImage($sUrl, $xSize);
 
     }
 

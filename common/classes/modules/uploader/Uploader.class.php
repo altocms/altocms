@@ -584,7 +584,7 @@ class ModuleUploader extends Module {
                     $oStoredItem->SetUuid($sDriverName);
                 }
                 $oMresource = E::GetEntity('Mresource', $oStoredItem);
-                $this->Mresource_Add($oMresource);
+                E::ModuleMresource()->Add($oMresource);
                 return $oStoredItem;
             }
         }
@@ -655,7 +655,7 @@ class ModuleUploader extends Module {
     public function GetAllowedCount($sTarget, $sTargetId = FALSE) {
 
         if ($sTarget == 'topic-multi-image-uploader') {
-            $aPhotoSetData = $this->Mresource_GetPhotosetData($sTarget, (int)$sTargetId);
+            $aPhotoSetData = E::ModuleMresource()->GetPhotosetData($sTarget, (int)$sTargetId);
             return $aPhotoSetData['count'] < Config::Get('module.topic.photoset.count_photos_max');
         }
 
@@ -684,8 +684,8 @@ class ModuleUploader extends Module {
             }
 
             // Топик редактируется
-            if ($oTopic = $this->Topic_GetTopicById($sTargetId)) {
-                if (!$this->ACL_IsAllowEditTopic($oTopic, E::User())) {
+            if ($oTopic = E::ModuleTopic()->GetTopicById($sTargetId)) {
+                if (!E::ModuleACL()->IsAllowEditTopic($oTopic, E::User())) {
                     return FALSE;
                 }
                 return $oTopic;
@@ -716,7 +716,7 @@ class ModuleUploader extends Module {
 
         if ($sTarget == 'blog_avatar') {
             /** @var ModuleBlog_EntityBlog $oBlog */
-            $oBlog = $this->Blog_GetBlogById($sTargetId);
+            $oBlog = E::ModuleBlog()->GetBlogById($sTargetId);
 
             if (!E::IsUser()) {
                 return false;
@@ -724,10 +724,10 @@ class ModuleUploader extends Module {
 
             if (!$oBlog) {
                 // Блог еще не создан
-                return ($this->ACL_CanCreateBlog(E::User()) || E::IsAdmin());
+                return (E::ModuleACL()->CanCreateBlog(E::User()) || E::IsAdmin());
             }
 
-            if ($oBlog && ($this->ACL_CheckBlogEditBlog($oBlog, E::User()) || E::IsAdmin())) {
+            if ($oBlog && (E::ModuleACL()->CheckBlogEditBlog($oBlog, E::User()) || E::IsAdmin())) {
                 return $oBlog;
             }
 
@@ -774,7 +774,7 @@ class ModuleUploader extends Module {
 
         if (mb_strpos($sTarget, 'single-image-uploader') === 0 || $sTarget = 'topic-multi-image-uploader') {
             /** @var $oTopic ModuleTopic_EntityTopic */
-            if (!$oTopic = $this->Topic_GetTopicById($sTargetId)) {
+            if (!$oTopic = E::ModuleTopic()->GetTopicById($sTargetId)) {
                 return '';
             }
 
@@ -791,7 +791,7 @@ class ModuleUploader extends Module {
 
         if ($sTarget == 'blog_avatar') {
             /** @var ModuleBlog_EntityBlog $oBlog */
-            $oBlog = $this->Blog_GetBlogById($sTargetId);
+            $oBlog = E::ModuleBlog()->GetBlogById($sTargetId);
             if ($oBlog) {
                 return $oBlog->getUrlFull();
             }
@@ -811,7 +811,7 @@ class ModuleUploader extends Module {
      */
     public function GetTargetImageUrl($sTargetId, $sTarget, $xSize=FALSE) {
 
-        $aMResourceRel = $this->Mresource_GetMresourcesRelByTarget($sTarget, $sTargetId);
+        $aMResourceRel = E::ModuleMresource()->GetMresourcesRelByTarget($sTarget, $sTargetId);
         if ($aMResourceRel) {
             $oMResource = array_shift($aMResourceRel);
 
@@ -842,9 +842,9 @@ class ModuleUploader extends Module {
         $sUrl = $sOriginalPath . $sModSuffix;
 
         if (Config::Get('module.image.autoresize')) {
-            $sFile = $this->Uploader_Url2Dir($sUrl);
+            $sFile = E::ModuleUploader()->Url2Dir($sUrl);
             if (!F::File_Exists($sFile)) {
-                $this->Img_Duplicate($sFile);
+                E::ModuleImg()->Duplicate($sFile);
             }
         }
 

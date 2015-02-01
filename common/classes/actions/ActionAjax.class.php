@@ -34,10 +34,10 @@ class ActionAjax extends Action {
     public function Init() {
 
         // * Устанавливаем формат ответа
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
 
         // * Получаем текущего пользователя
-        $this->oUserCurrent = $this->User_GetUserCurrent();
+        $this->oUserCurrent = E::ModuleUser()->GetUserCurrent();
     }
 
     /**
@@ -101,7 +101,7 @@ class ActionAjax extends Action {
     protected function EventImageManagerLoadImages(){
         // Только пользователь может смотреть своё дерево изображений
         if (!E::IsUser()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
             return;
         }
 
@@ -114,32 +114,32 @@ class ActionAjax extends Action {
         }
 
         /** @var ModuleViewer $oLocalViewer */
-        $oLocalViewer = $this->Viewer_GetLocalViewer();
+        $oLocalViewer = E::ModuleViewer()->GetLocalViewer();
 
         // Страница загрузки картинки с компьютера
         if ($sCategory == 'insert-from-pc') {
             $sImages = $oLocalViewer->Fetch('modals/insert_img/inject.pc.tpl');
-            $this->Viewer_AssignAjax('images', $sImages);
+            E::ModuleViewer()->AssignAjax('images', $sImages);
             return;
         }
 
         // Страница загрузки из интернета
         if ($sCategory == 'insert-from-link') {
             $sImages = $oLocalViewer->Fetch('modals/insert_img/inject.link.tpl');
-            $this->Viewer_AssignAjax('images', $sImages);
+            E::ModuleViewer()->AssignAjax('images', $sImages);
             return;
         }
 
         $sTemplateName = 'inject.images.tpl';
 
         /** @var ModuleViewer $oLocalViewer */
-        $oLocalViewer = $this->Viewer_GetLocalViewer();
+        $oLocalViewer = E::ModuleViewer()->GetLocalViewer();
 
         if ($sCategory == 'user') {       //ок
             /**
              * Аватар и фото пользователя
              */
-            $aResources = $this->Mresource_GetMresourcesByFilter(array(
+            $aResources = E::ModuleMresource()->GetMresourcesByFilter(array(
                 'target_type' => array(
                     'profile_avatar',
                     'profile_photo'
@@ -152,11 +152,11 @@ class ActionAjax extends Action {
             /**
              * конкретный топик
              */
-            $oTopic = $this->Topic_GetTopicById($sTopicId);
-            if ($oTopic && $this->ACL_IsAllowEditTopic($oTopic, E::User())) {
-                $aResourcesId = $this->Mresource_GetCurrentTopicResourcesId(E::UserId(), $sTopicId);
+            $oTopic = E::ModuleTopic()->GetTopicById($sTopicId);
+            if ($oTopic && E::ModuleACL()->IsAllowEditTopic($oTopic, E::User())) {
+                $aResourcesId = E::ModuleMresource()->GetCurrentTopicResourcesId(E::UserId(), $sTopicId);
                 if ($aResourcesId) {
-                    $aResources = $this->Mresource_GetMresourcesByFilter(array(
+                    $aResources = E::ModuleMresource()->GetMresourcesByFilter(array(
                         'user_id' => E::UserId(),
                         'mresource_id' => $aResourcesId,
                     ), $sPage, Config::Get('module.topic.images_per_page'));
@@ -179,15 +179,15 @@ class ActionAjax extends Action {
              * Письмо
              */
             /** @var ModuleTalk_EntityTalk $oTopic */
-            $oTopic = $this->Talk_GetTalkById($sTopicId);
-            if ($oTopic && $this->Talk_GetTalkUser($sTopicId, E::UserId())) {
+            $oTopic = E::ModuleTalk()->GetTalkById($sTopicId);
+            if ($oTopic && E::ModuleTalk()->GetTalkUser($sTopicId, E::UserId())) {
 
-                $aResources = $this->Mresource_GetMresourcesByFilter(array(
+                $aResources = E::ModuleMresource()->GetMresourcesByFilter(array(
                     'user_id' => E::UserId(),
                     'target_type' => 'talk',
                     'target_id' => $sTopicId,
                 ), $sPage, Config::Get('module.topic.images_per_page'));
-                $aResources['count'] = $this->Mresource_GetMresourcesCountByTargetIdAndUserId('talk', $sTopicId, E::UserId());
+                $aResources['count'] = E::ModuleMresource()->GetMresourcesCountByTargetIdAndUserId('talk', $sTopicId, E::UserId());
                 $iPages = ceil($aResources['count'] / Config::Get('module.topic.images_per_page'));
                 $oLocalViewer->Assign('oTopic', $oTopic);
 
@@ -203,14 +203,14 @@ class ActionAjax extends Action {
              * Комментарии
              */
 
-            $aResources = $this->Mresource_GetMresourcesByFilter(array(
+            $aResources = E::ModuleMresource()->GetMresourcesByFilter(array(
                 'user_id'     => E::UserId(),
                 'target_type' => array(
                     'talk_comment',
                     'topic_comment'
                 )
             ), $sPage, Config::Get('module.topic.images_per_page'));
-            $aResources['count'] = $this->Mresource_GetMresourcesCountByTargetAndUserId(array(
+            $aResources['count'] = E::ModuleMresource()->GetMresourcesCountByTargetAndUserId(array(
                 'talk_comment',
                 'topic_comment'
             ), E::UserId());
@@ -222,9 +222,9 @@ class ActionAjax extends Action {
             /**
              * Картинки текущего топика (текст, фотосет, одиночные картинки)
              */
-            $aResourcesId = $this->Mresource_GetCurrentTopicResourcesId(E::UserId(), $sTopicId);
+            $aResourcesId = E::ModuleMresource()->GetCurrentTopicResourcesId(E::UserId(), $sTopicId);
             if ($aResourcesId) {
-                $aResources = $this->Mresource_GetMresourcesByFilter(array(
+                $aResources = E::ModuleMresource()->GetMresourcesByFilter(array(
                     'user_id' => E::UserId(),
                     'mresource_id' => $aResourcesId,
                 ), $sPage, Config::Get('module.topic.images_per_page'));
@@ -243,18 +243,18 @@ class ActionAjax extends Action {
             /**
              * Аватары созданных блогов
              */
-            $aResources = $this->Mresource_GetMresourcesByFilter(array(
+            $aResources = E::ModuleMresource()->GetMresourcesByFilter(array(
                 'target_type' => 'blog_avatar',
                 'user_id' => E::UserId(),
             ), $sPage, Config::Get('module.topic.group_images_per_page'));
-            $aResources['count'] = $this->Mresource_GetMresourcesCountByTargetAndUserId('blog_avatar', E::UserId());
+            $aResources['count'] = E::ModuleMresource()->GetMresourcesCountByTargetAndUserId('blog_avatar', E::UserId());
             // Получим блоги
             $aBlogsId = array();
             foreach ($aResources['collection'] as $oResource) {
                 $aBlogsId[] = $oResource->getTargetId();
             }
             if ($aBlogsId) {
-                $aBlogs = $this->Blog_GetBlogsAdditionalData($aBlogsId);
+                $aBlogs = E::ModuleBlog()->GetBlogsAdditionalData($aBlogsId);
                 $oLocalViewer->Assign('aBlogs', $aBlogs);
             }
 
@@ -266,7 +266,7 @@ class ActionAjax extends Action {
             /**
              * Страница топиков
              */
-            $aTopicsData = $this->Mresource_GetTopicsPage(E::UserId(), $sPage, Config::Get('module.topic.group_images_per_page'));
+            $aTopicsData = E::ModuleMresource()->GetTopicsPage(E::UserId(), $sPage, Config::Get('module.topic.group_images_per_page'));
 
             $oLocalViewer->Assign('aTopics', $aTopicsData['collection']);
             $sTemplateName = 'inject.images.topic.tpl';
@@ -277,7 +277,7 @@ class ActionAjax extends Action {
             /**
              * Страница писем
              */
-            $aTalksData = $this->Mresource_GetTalksPage(E::UserId(), $sPage, Config::Get('module.topic.group_images_per_page'));
+            $aTalksData = E::ModuleMresource()->GetTalksPage(E::UserId(), $sPage, Config::Get('module.topic.group_images_per_page'));
 
             $oLocalViewer->Assign('aTalks', $aTalksData['collection']);
             $sTemplateName = 'inject.images.talk.tpl';
@@ -288,7 +288,7 @@ class ActionAjax extends Action {
             /**
              * Прочие изображения
              */
-            $aResources = $this->Mresource_GetMresourcesByFilter(array(
+            $aResources = E::ModuleMresource()->GetMresourcesByFilter(array(
                 'target_type' => $sCategory,
                 'user_id' => E::UserId(),
             ), $sPage, Config::Get('module.topic.images_per_page'));
@@ -301,10 +301,10 @@ class ActionAjax extends Action {
         $oLocalViewer->Assign('aResources', $aResources['collection']);
         $sImages = $oLocalViewer->Fetch('modals/insert_img/' . $sTemplateName);
 
-        $this->Viewer_AssignAjax('images', $sImages);
-        $this->Viewer_AssignAjax('category', $sCategory);
-        $this->Viewer_AssignAjax('page', $sPage);
-        $this->Viewer_AssignAjax('pages', $iPages);
+        E::ModuleViewer()->AssignAjax('images', $sImages);
+        E::ModuleViewer()->AssignAjax('category', $sCategory);
+        E::ModuleViewer()->AssignAjax('page', $sPage);
+        E::ModuleViewer()->AssignAjax('pages', $iPages);
 
     }
 
@@ -316,40 +316,40 @@ class ActionAjax extends Action {
 
 //        // Только пользователь может смотреть своё дерево изображений
 //        if (!E::IsUser()) {
-//            $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
+//            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
 //            return;
 //        }
 //
 //        $sTopicId = getRequestStr('topic_id', FALSE);
-//        if ($sTopicId && !$this->Topic_GetTopicById($sTopicId)) {
+//        if ($sTopicId && !E::ModuleTopic()->GetTopicById($sTopicId)) {
 //            $sTopicId = FALSE;
 //        }
 //
 //        /** @var ModuleMresource_EntityMresourceCategory[] $aResources Категории объектов пользователя */
-//        $aCategories = $this->Mresource_GetImageCategoriesByUserId(E::UserId(), $sTopicId);
+//        $aCategories = E::ModuleMresource()->GetImageCategoriesByUserId(E::UserId(), $sTopicId);
 //
-//        if ($oCurrentTopicCategory = $this->Mresource_GetCurrentTopicImageCategory(E::UserId(), $sTopicId)) {
+//        if ($oCurrentTopicCategory = E::ModuleMresource()->GetCurrentTopicImageCategory(E::UserId(), $sTopicId)) {
 //            $aCategories[] = $oCurrentTopicCategory;
 //        }
 //
-//        if ($oTopicsCategory = $this->Mresource_GetTopicsImageCategory(E::UserId())) {
+//        if ($oTopicsCategory = E::ModuleMresource()->GetTopicsImageCategory(E::UserId())) {
 //            $aCategories[] = $oTopicsCategory;
 //        }
 //
-//        if ($oTalksCategory = $this->Mresource_GetTalksImageCategory(E::UserId())) {
+//        if ($oTalksCategory = E::ModuleMresource()->GetTalksImageCategory(E::UserId())) {
 //            $aCategories[] = $oTalksCategory;
 //        }
 //
-//        if ($oCommentsCategory = $this->Mresource_GetCommentsImageCategory(E::UserId())) {
+//        if ($oCommentsCategory = E::ModuleMresource()->GetCommentsImageCategory(E::UserId())) {
 //            $aCategories[] = $oCommentsCategory;
 //        }
 //
         /** @var ModuleViewer $oLocalViewer */
-        $oLocalViewer = $this->Viewer_GetLocalViewer();
+        $oLocalViewer = E::ModuleViewer()->GetLocalViewer();
 //        $oLocalViewer->Assign('aCategories', $aCategories);
         $sCategories = $oLocalViewer->Fetch('modals/insert_img/inject.categories.tpl');
 
-        $this->Viewer_AssignAjax('categories', $sCategories);
+        E::ModuleViewer()->AssignAjax('categories', $sCategories);
 
         return FALSE;
     }
@@ -362,29 +362,29 @@ class ActionAjax extends Action {
 
         // * Если блог существует и он не персональный
         if (!is_string(F::GetRequest('iBlogId'))) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
             return;
         }
 
-        if (!($oBlog = $this->Blog_GetBlogById(F::GetRequest('iBlogId'))) /* || $oBlog->getType()=='personal'*/) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
+        if (!($oBlog = E::ModuleBlog()->GetBlogById(F::GetRequest('iBlogId'))) /* || $oBlog->getType()=='personal'*/) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
             return;
         }
 
         // * Получаем локальный вьюер для рендеринга шаблона
-        $oViewer = $this->Viewer_GetLocalViewer();
+        $oViewer = E::ModuleViewer()->GetLocalViewer();
 
         $oViewer->Assign('oBlog', $oBlog);
         // Тип блога может быть не определен
         if (!$oBlog->getBlogType() || !$oBlog->getBlogType()->IsPrivate() || $oBlog->getUserIsJoin()) {
             // * Получаем последний топик
-            $aResult = $this->Topic_GetTopicsByFilter(array('blog_id' => $oBlog->getId(), 'topic_publish' => 1), 1, 1);
+            $aResult = E::ModuleTopic()->GetTopicsByFilter(array('blog_id' => $oBlog->getId(), 'topic_publish' => 1), 1, 1);
             $oViewer->Assign('oTopicLast', reset($aResult['collection']));
         }
         $oViewer->Assign('oUserCurrent', $this->oUserCurrent);
 
         // * Устанавливаем переменные для ajax ответа
-        $this->Viewer_AssignAjax('sText', $oViewer->Fetch('commons/common.infobox_blog.tpl'));
+        E::ModuleViewer()->AssignAjax('sText', $oViewer->Fetch('commons/common.infobox_blog.tpl'));
     }
 
     /**
@@ -399,13 +399,13 @@ class ActionAjax extends Action {
         }
 
         // * Находим страну
-        if (!($oCountry = $this->Geo_GetGeoObject('country', $iCountryId))) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
+        if (!($oCountry = E::ModuleGeo()->GetGeoObject('country', $iCountryId))) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
             return;
         }
 
         // * Получаем список регионов
-        $aResult = $this->Geo_GetRegions(array('country_id' => $oCountry->getId()), array('sort' => 'asc'), 1, $iLimit);
+        $aResult = E::ModuleGeo()->GetRegions(array('country_id' => $oCountry->getId()), array('sort' => 'asc'), 1, $iLimit);
         $aRegions = array();
         foreach ($aResult['collection'] as $oObject) {
             $aRegions[] = array(
@@ -415,7 +415,7 @@ class ActionAjax extends Action {
         }
 
         // * Устанавливаем переменные для ajax ответа
-        $this->Viewer_AssignAjax('aRegions', $aRegions);
+        E::ModuleViewer()->AssignAjax('aRegions', $aRegions);
     }
 
     /**
@@ -430,13 +430,13 @@ class ActionAjax extends Action {
         }
 
         // * Находим регион
-        if (!($oRegion = $this->Geo_GetGeoObject('region', $iRegionId))) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
+        if (!($oRegion = E::ModuleGeo()->GetGeoObject('region', $iRegionId))) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
             return;
         }
 
         // * Получаем города
-        $aResult = $this->Geo_GetCities(array('region_id' => $oRegion->getId()), array('sort' => 'asc'), 1, $iLimit);
+        $aResult = E::ModuleGeo()->GetCities(array('region_id' => $oRegion->getId()), array('sort' => 'asc'), 1, $iLimit);
         $aCities = array();
         foreach ($aResult['collection'] as $oObject) {
             $aCities[] = array(
@@ -446,7 +446,7 @@ class ActionAjax extends Action {
         }
 
         // * Устанавливаем переменные для ajax ответа
-        $this->Viewer_AssignAjax('aCities', $aCities);
+        E::ModuleViewer()->AssignAjax('aCities', $aCities);
     }
 
     /**
@@ -457,43 +457,43 @@ class ActionAjax extends Action {
 
         // * Пользователь авторизован?
         if (!$this->oUserCurrent) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
 
         // * Комментарий существует?
-        if (!($oComment = $this->Comment_GetCommentById(F::GetRequestStr('idComment', null, 'post')))) {
-            $this->Message_AddErrorSingle($this->Lang_Get('comment_vote_error_noexists'), $this->Lang_Get('error'));
+        if (!($oComment = E::ModuleComment()->GetCommentById(F::GetRequestStr('idComment', null, 'post')))) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('comment_vote_error_noexists'), E::ModuleLang()->Get('error'));
             return;
         }
 
         // * Голосует автор комментария?
         if ($oComment->getUserId() == $this->oUserCurrent->getId()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('comment_vote_error_self'), $this->Lang_Get('attention'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('comment_vote_error_self'), E::ModuleLang()->Get('attention'));
             return;
         }
 
         // * Пользователь уже голосовал?
-        if ($oTopicCommentVote = $this->Vote_GetVote($oComment->getId(), 'comment', $this->oUserCurrent->getId())) {
-            $this->Message_AddErrorSingle($this->Lang_Get('comment_vote_error_already'), $this->Lang_Get('attention'));
+        if ($oTopicCommentVote = E::ModuleVote()->GetVote($oComment->getId(), 'comment', $this->oUserCurrent->getId())) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('comment_vote_error_already'), E::ModuleLang()->Get('attention'));
             return;
         }
 
         // * Время голосования истекло?
         if (strtotime($oComment->getDate()) <= time() - Config::Get('acl.vote.comment.limit_time')) {
-            $this->Message_AddErrorSingle($this->Lang_Get('comment_vote_error_time'), $this->Lang_Get('attention'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('comment_vote_error_time'), E::ModuleLang()->Get('attention'));
             return;
         }
 
         // * Пользователь имеет право голоса?
-        switch ($this->ACL_CanVoteComment($this->oUserCurrent, $oComment)) {
+        switch (E::ModuleACL()->CanVoteComment($this->oUserCurrent, $oComment)) {
             case ModuleACL::CAN_VOTE_COMMENT_ERROR_BAN:
-                $this->Message_AddErrorSingle($this->Lang_Get('comment_vote_error_banned'), $this->Lang_Get('attention'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('comment_vote_error_banned'), E::ModuleLang()->Get('attention'));
                 return;
                 break;
 
             case ModuleACL::CAN_VOTE_COMMENT_FALSE:
-                $this->Message_AddErrorSingle($this->Lang_Get('comment_vote_error_acl'), $this->Lang_Get('attention'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('comment_vote_error_acl'), E::ModuleLang()->Get('attention'));
                 return;
                 break;
         }
@@ -501,7 +501,7 @@ class ActionAjax extends Action {
         // * Как именно голосует пользователь
         $iValue = F::GetRequestStr('value', null, 'post');
         if (!in_array($iValue, array('1', '-1'))) {
-            $this->Message_AddErrorSingle($this->Lang_Get('comment_vote_error_value'), $this->Lang_Get('attention'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('comment_vote_error_value'), E::ModuleLang()->Get('attention'));
             return;
         }
 
@@ -512,19 +512,19 @@ class ActionAjax extends Action {
         $oTopicCommentVote->setVoterId($this->oUserCurrent->getId());
         $oTopicCommentVote->setDirection($iValue);
         $oTopicCommentVote->setDate(F::Now());
-        $iVal = (float)$this->Rating_VoteComment($this->oUserCurrent, $oComment, $iValue);
+        $iVal = (float)E::ModuleRating()->VoteComment($this->oUserCurrent, $oComment, $iValue);
         $oTopicCommentVote->setValue($iVal);
 
         $oComment->setCountVote($oComment->getCountVote() + 1);
-        if ($this->Vote_AddVote($oTopicCommentVote) && $this->Comment_UpdateComment($oComment)) {
-            $this->Message_AddNoticeSingle($this->Lang_Get('comment_vote_ok'), $this->Lang_Get('attention'));
-            $this->Viewer_AssignAjax('iRating', $oComment->getRating());
+        if (E::ModuleVote()->AddVote($oTopicCommentVote) && E::ModuleComment()->UpdateComment($oComment)) {
+            E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('comment_vote_ok'), E::ModuleLang()->Get('attention'));
+            E::ModuleViewer()->AssignAjax('iRating', $oComment->getRating());
             /**
              * Добавляем событие в ленту
              */
-            $this->Stream_Write($oTopicCommentVote->getVoterId(), 'vote_comment', $oComment->getId());
+            E::ModuleStream()->Write($oTopicCommentVote->getVoterId(), 'vote_comment', $oComment->getId());
         } else {
-            $this->Message_AddErrorSingle($this->Lang_Get('comment_vote_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('comment_vote_error'), E::ModuleLang()->Get('error'));
             return;
         }
     }
@@ -537,50 +537,50 @@ class ActionAjax extends Action {
 
         // * Пользователь авторизован?
         if (!$this->oUserCurrent) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
 
         // * Топик существует?
-        if (!($oTopic = $this->Topic_GetTopicById(F::GetRequestStr('idTopic', null, 'post')))) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        if (!($oTopic = E::ModuleTopic()->GetTopicById(F::GetRequestStr('idTopic', null, 'post')))) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
 
         // * Голосует автор топика?
         if ($oTopic->getUserId() == $this->oUserCurrent->getId()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('topic_vote_error_self'), $this->Lang_Get('attention'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_vote_error_self'), E::ModuleLang()->Get('attention'));
             return;
         }
 
         // * Пользователь уже голосовал?
-        if ($oTopicVote = $this->Vote_GetVote($oTopic->getId(), 'topic', $this->oUserCurrent->getId())) {
-            $this->Message_AddErrorSingle($this->Lang_Get('topic_vote_error_already'), $this->Lang_Get('attention'));
+        if ($oTopicVote = E::ModuleVote()->GetVote($oTopic->getId(), 'topic', $this->oUserCurrent->getId())) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_vote_error_already'), E::ModuleLang()->Get('attention'));
             return;
         }
 
         // * Время голосования истекло?
         if (strtotime($oTopic->getDateAdd()) <= time() - Config::Get('acl.vote.topic.limit_time')) {
-            $this->Message_AddErrorSingle($this->Lang_Get('topic_vote_error_time'), $this->Lang_Get('attention'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_vote_error_time'), E::ModuleLang()->Get('attention'));
             return;
         }
 
         // * Как проголосовал пользователь
         $iValue = F::GetRequestStr('value', null, 'post');
         if (!in_array($iValue, array('1', '-1', '0'))) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('attention'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('attention'));
             return;
         }
 
         // * Права на голосование
-        switch ($this->ACL_CanVoteTopic($this->oUserCurrent, $oTopic)) {
+        switch (E::ModuleACL()->CanVoteTopic($this->oUserCurrent, $oTopic)) {
             case ModuleACL::CAN_VOTE_TOPIC_ERROR_BAN:
-                $this->Message_AddErrorSingle($this->Lang_Get('topic_vote_error_banned'), $this->Lang_Get('attention'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_vote_error_banned'), E::ModuleLang()->Get('attention'));
                 return;
                 break;
 
             case ModuleACL::CAN_VOTE_TOPIC_FALSE:
-                $this->Message_AddErrorSingle($this->Lang_Get('topic_vote_error_acl'), $this->Lang_Get('attention'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_vote_error_acl'), E::ModuleLang()->Get('attention'));
                 return;
                 break;
         }
@@ -594,7 +594,7 @@ class ActionAjax extends Action {
         $oTopicVote->setDate(F::Now());
         $iVal = 0;
         if ($iValue != 0) {
-            $iVal = (float)$this->Rating_VoteTopic($this->oUserCurrent, $oTopic, $iValue);
+            $iVal = (float)E::ModuleRating()->VoteTopic($this->oUserCurrent, $oTopic, $iValue);
         }
         $oTopicVote->setValue($iVal);
         $oTopic->setCountVote($oTopic->getCountVote() + 1);
@@ -605,19 +605,19 @@ class ActionAjax extends Action {
         } elseif ($iValue == 0) {
             $oTopic->setCountVoteAbstain($oTopic->getCountVoteAbstain() + 1);
         }
-        if ($this->Vote_AddVote($oTopicVote) && $this->Topic_UpdateTopic($oTopic)) {
+        if (E::ModuleVote()->AddVote($oTopicVote) && E::ModuleTopic()->UpdateTopic($oTopic)) {
             if ($iValue) {
-                $this->Message_AddNoticeSingle($this->Lang_Get('topic_vote_ok'), $this->Lang_Get('attention'));
+                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('topic_vote_ok'), E::ModuleLang()->Get('attention'));
             } else {
-                $this->Message_AddNoticeSingle($this->Lang_Get('topic_vote_ok_abstain'), $this->Lang_Get('attention'));
+                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('topic_vote_ok_abstain'), E::ModuleLang()->Get('attention'));
             }
-            $this->Viewer_AssignAjax('iRating', $oTopic->getRating());
+            E::ModuleViewer()->AssignAjax('iRating', $oTopic->getRating());
             /**
              * Добавляем событие в ленту
              */
-            $this->Stream_Write($oTopicVote->getVoterId(), 'vote_topic', $oTopic->getId());
+            E::ModuleStream()->Write($oTopicVote->getVoterId(), 'vote_topic', $oTopic->getId());
         } else {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
     }
@@ -631,34 +631,34 @@ class ActionAjax extends Action {
          * Пользователь авторизован?
          */
         if (!$this->oUserCurrent) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
         /**
          * Блог существует?
          */
-        if (!($oBlog = $this->Blog_GetBlogById(F::GetRequestStr('idBlog', null, 'post')))) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        if (!($oBlog = E::ModuleBlog()->GetBlogById(F::GetRequestStr('idBlog', null, 'post')))) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
         /**
          * Голосует за свой блог?
          */
         if ($oBlog->getOwnerId() == $this->oUserCurrent->getId()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('blog_vote_error_self'), $this->Lang_Get('attention'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('blog_vote_error_self'), E::ModuleLang()->Get('attention'));
             return;
         }
         /**
          * Уже голосовал?
          */
-        if ($oBlogVote = $this->Vote_GetVote($oBlog->getId(), 'blog', $this->oUserCurrent->getId())) {
-            $this->Message_AddErrorSingle($this->Lang_Get('blog_vote_error_already'), $this->Lang_Get('attention'));
+        if ($oBlogVote = E::ModuleVote()->GetVote($oBlog->getId(), 'blog', $this->oUserCurrent->getId())) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('blog_vote_error_already'), E::ModuleLang()->Get('attention'));
             return;
         }
         /**
          * Имеет право на голосование?
          */
-        switch ($this->ACL_CanVoteBlog($this->oUserCurrent, $oBlog)) {
+        switch (E::ModuleACL()->CanVoteBlog($this->oUserCurrent, $oBlog)) {
             case ModuleACL::CAN_VOTE_BLOG_TRUE:
                 $iValue = F::GetRequestStr('value', null, 'post');
                 if (in_array($iValue, array('1', '-1'))) {
@@ -668,38 +668,38 @@ class ActionAjax extends Action {
                     $oBlogVote->setVoterId($this->oUserCurrent->getId());
                     $oBlogVote->setDirection($iValue);
                     $oBlogVote->setDate(F::Now());
-                    $iVal = (float)$this->Rating_VoteBlog($this->oUserCurrent, $oBlog, $iValue);
+                    $iVal = (float)E::ModuleRating()->VoteBlog($this->oUserCurrent, $oBlog, $iValue);
                     $oBlogVote->setValue($iVal);
                     $oBlog->setCountVote($oBlog->getCountVote() + 1);
-                    if ($this->Vote_AddVote($oBlogVote) && $this->Blog_UpdateBlog($oBlog)) {
-                        $this->Viewer_AssignAjax('iCountVote', $oBlog->getCountVote());
-                        $this->Viewer_AssignAjax('iRating', $oBlog->getRating());
-                        $this->Message_AddNoticeSingle($this->Lang_Get('blog_vote_ok'), $this->Lang_Get('attention'));
+                    if (E::ModuleVote()->AddVote($oBlogVote) && E::ModuleBlog()->UpdateBlog($oBlog)) {
+                        E::ModuleViewer()->AssignAjax('iCountVote', $oBlog->getCountVote());
+                        E::ModuleViewer()->AssignAjax('iRating', $oBlog->getRating());
+                        E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('blog_vote_ok'), E::ModuleLang()->Get('attention'));
                         /**
                          * Добавляем событие в ленту
                          */
-                        $this->Stream_Write($oBlogVote->getVoterId(), 'vote_blog', $oBlog->getId());
+                        E::ModuleStream()->Write($oBlogVote->getVoterId(), 'vote_blog', $oBlog->getId());
                     } else {
-                        $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('attention'));
+                        E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('attention'));
                         return;
                     }
                 } else {
-                    $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('attention'));
+                    E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('attention'));
                     return;
                 }
                 break;
             case ModuleACL::CAN_VOTE_BLOG_ERROR_CLOSE:
-                $this->Message_AddErrorSingle($this->Lang_Get('blog_vote_error_close'), $this->Lang_Get('attention'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('blog_vote_error_close'), E::ModuleLang()->Get('attention'));
                 return;
                 break;
             case ModuleACL::CAN_VOTE_BLOG_ERROR_BAN:
-                $this->Message_AddErrorSingle($this->Lang_Get('blog_vote_error_banned'), $this->Lang_Get('attention'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('blog_vote_error_banned'), E::ModuleLang()->Get('attention'));
                 return;
                 break;
 
             default:
             case ModuleACL::CAN_VOTE_BLOG_FALSE:
-                $this->Message_AddErrorSingle($this->Lang_Get('blog_vote_error_acl'), $this->Lang_Get('attention'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('blog_vote_error_acl'), E::ModuleLang()->Get('attention'));
                 return;
                 break;
         }
@@ -714,35 +714,35 @@ class ActionAjax extends Action {
          * Пользователь авторизован?
          */
         if (!$this->oUserCurrent) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
         /**
          * Пользователь существует?
          */
-        if (!($oUser = $this->User_GetUserById(F::GetRequestStr('idUser', null, 'post')))) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        if (!($oUser = E::ModuleUser()->GetUserById(F::GetRequestStr('idUser', null, 'post')))) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
         /**
          * Голосует за себя?
          */
         if ($oUser->getId() == $this->oUserCurrent->getId()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('user_vote_error_self'), $this->Lang_Get('attention'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('user_vote_error_self'), E::ModuleLang()->Get('attention'));
             return;
         }
         /**
          * Уже голосовал?
          */
-        if ($oUserVote = $this->Vote_GetVote($oUser->getId(), 'user', $this->oUserCurrent->getId())) {
-            $this->Message_AddErrorSingle($this->Lang_Get('user_vote_error_already'), $this->Lang_Get('attention'));
+        if ($oUserVote = E::ModuleVote()->GetVote($oUser->getId(), 'user', $this->oUserCurrent->getId())) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('user_vote_error_already'), E::ModuleLang()->Get('attention'));
             return;
         }
         /**
          * Имеет право на голосование?
          */
-        if (!$this->ACL_CanVoteUser($this->oUserCurrent, $oUser)) {
-            $this->Message_AddErrorSingle($this->Lang_Get('user_vote_error_acl'), $this->Lang_Get('attention'));
+        if (!E::ModuleACL()->CanVoteUser($this->oUserCurrent, $oUser)) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('user_vote_error_acl'), E::ModuleLang()->Get('attention'));
             return;
         }
         /**
@@ -750,7 +750,7 @@ class ActionAjax extends Action {
          */
         $iValue = F::GetRequestStr('value', null, 'post');
         if (!in_array($iValue, array('1', '-1'))) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('attention'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('attention'));
             return;
         }
         /**
@@ -762,21 +762,21 @@ class ActionAjax extends Action {
         $oUserVote->setVoterId($this->oUserCurrent->getId());
         $oUserVote->setDirection($iValue);
         $oUserVote->setDate(F::Now());
-        $iVal = (float)$this->Rating_VoteUser($this->oUserCurrent, $oUser, $iValue);
+        $iVal = (float)E::ModuleRating()->VoteUser($this->oUserCurrent, $oUser, $iValue);
         $oUserVote->setValue($iVal);
         //$oUser->setRating($oUser->getRating()+$iValue);
         $oUser->setCountVote($oUser->getCountVote() + 1);
-        if ($this->Vote_AddVote($oUserVote) && $this->User_Update($oUser)) {
-            $this->Message_AddNoticeSingle($this->Lang_Get('user_vote_ok'), $this->Lang_Get('attention'));
-            $this->Viewer_AssignAjax('iRating', number_format($oUser->getRating(), Config::Get('view.skill_length')));
-            $this->Viewer_AssignAjax('iSkill', number_format($oUser->getSkill(), Config::Get('view.rating_length')));
-            $this->Viewer_AssignAjax('iCountVote', $oUser->getCountVote());
+        if (E::ModuleVote()->AddVote($oUserVote) && E::ModuleUser()->Update($oUser)) {
+            E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('user_vote_ok'), E::ModuleLang()->Get('attention'));
+            E::ModuleViewer()->AssignAjax('iRating', number_format($oUser->getRating(), Config::Get('view.skill_length')));
+            E::ModuleViewer()->AssignAjax('iSkill', number_format($oUser->getSkill(), Config::Get('view.rating_length')));
+            E::ModuleViewer()->AssignAjax('iCountVote', $oUser->getCountVote());
             /**
              * Добавляем событие в ленту
              */
-            $this->Stream_Write($oUserVote->getVoterId(), 'vote_user', $oUser->getId());
+            E::ModuleStream()->Write($oUserVote->getVoterId(), 'vote_user', $oUser->getId());
         } else {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
     }
@@ -797,7 +797,7 @@ class ActionAjax extends Action {
 
         // * Пользователь авторизован?
         if (!$this->oUserCurrent) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
 
@@ -806,27 +806,27 @@ class ActionAjax extends Action {
         $idTopic = F::GetRequestStr('idTopic', null, 'post');
 
         // * Топик существует?
-        if (!($oTopic = $this->Topic_GetTopicById($idTopic))) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        if (!($oTopic = E::ModuleTopic()->GetTopicById($idTopic))) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
 
         // *  У топика существует опрос?
         if (!$oTopic->getQuestionAnswers()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
 
         // * Уже голосовал?
-        if ($oTopicQuestionVote = $this->Topic_GetTopicQuestionVote($oTopic->getId(), $this->oUserCurrent->getId())) {
-            $this->Message_AddErrorSingle($this->Lang_Get('topic_question_vote_already'), $this->Lang_Get('error'));
+        if ($oTopicQuestionVote = E::ModuleTopic()->GetTopicQuestionVote($oTopic->getId(), $this->oUserCurrent->getId())) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_question_vote_already'), E::ModuleLang()->Get('error'));
             return;
         }
 
         // * Вариант ответа
         $aAnswer = $oTopic->getQuestionAnswers();
         if (!isset($aAnswer[$idAnswer]) && $idAnswer != -1) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
 
@@ -844,13 +844,13 @@ class ActionAjax extends Action {
         $oTopicQuestionVote->setVoterId($this->oUserCurrent->getId());
         $oTopicQuestionVote->setAnswer($idAnswer);
 
-        if ($this->Topic_AddTopicQuestionVote($oTopicQuestionVote) && $this->Topic_UpdateTopic($oTopic)) {
-            $this->Message_AddNoticeSingle($this->Lang_Get('topic_question_vote_ok'), $this->Lang_Get('attention'));
-            $oViewer = $this->Viewer_GetLocalViewer();
+        if (E::ModuleTopic()->AddTopicQuestionVote($oTopicQuestionVote) && E::ModuleTopic()->UpdateTopic($oTopic)) {
+            E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('topic_question_vote_ok'), E::ModuleLang()->Get('attention'));
+            $oViewer = E::ModuleViewer()->GetLocalViewer();
             $oViewer->Assign('oTopic', $oTopic);
-            $this->Viewer_AssignAjax('sText', $oViewer->Fetch('fields/field.poll-show.tpl'));
+            E::ModuleViewer()->AssignAjax('sText', $oViewer->Fetch('fields/field.poll-show.tpl'));
         } else {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
     }
@@ -863,12 +863,12 @@ class ActionAjax extends Action {
 
         // * Пользователь авторизован?
         if (!$this->oUserCurrent) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
 
         // * Объект уже должен быть в избранном
-        if ($oFavourite = $this->Favourite_GetFavourite(F::GetRequestStr('target_id'), F::GetRequestStr('target_type'), $this->oUserCurrent->getId())) {
+        if ($oFavourite = E::ModuleFavourite()->GetFavourite(F::GetRequestStr('target_id'), F::GetRequestStr('target_type'), $this->oUserCurrent->getId())) {
             // * Обрабатываем теги
             $aTags = explode(',', trim(F::GetRequestStr('tags'), "\r\n\t\0\x0B ."));
             $aTagsNew = array();
@@ -893,11 +893,11 @@ class ActionAjax extends Action {
             } else {
                 $oFavourite->setTags(join(',', $aTagsNew));
             }
-            $this->Viewer_AssignAjax('aTags', $aTagsReturn);
-            $this->Favourite_UpdateFavourite($oFavourite);
+            E::ModuleViewer()->AssignAjax('aTags', $aTagsReturn);
+            E::ModuleFavourite()->UpdateFavourite($oFavourite);
             return;
         }
-        $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
     }
 
     /**
@@ -908,31 +908,31 @@ class ActionAjax extends Action {
 
         // * Пользователь авторизован?
         if (!$this->oUserCurrent) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
 
         // * Можно только добавить или удалить из избранного
         $iType = F::GetRequestStr('type', null, 'post');
         if (!in_array($iType, array('1', '0'))) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
 
         // * Топик существует?
-        if (!($oTopic = $this->Topic_GetTopicById(F::GetRequestStr('idTopic', null, 'post')))) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        if (!($oTopic = E::ModuleTopic()->GetTopicById(F::GetRequestStr('idTopic', null, 'post')))) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
 
         // * Пропускаем топик из черновиков
         if (!$oTopic->getPublish()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('error_favorite_topic_is_draft'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('error_favorite_topic_is_draft'), E::ModuleLang()->Get('error'));
             return;
         }
 
         // * Топик уже в избранном?
-        $oFavouriteTopic = $this->Topic_GetFavouriteTopic($oTopic->getId(), $this->oUserCurrent->getId());
+        $oFavouriteTopic = E::ModuleTopic()->GetFavouriteTopic($oTopic->getId(), $this->oUserCurrent->getId());
         if (!$oFavouriteTopic && $iType) {
             $oFavouriteTopicNew = E::GetEntity(
                 'Favourite',
@@ -944,31 +944,31 @@ class ActionAjax extends Action {
                 )
             );
             $oTopic->setCountFavourite($oTopic->getCountFavourite() + 1);
-            if ($this->Topic_AddFavouriteTopic($oFavouriteTopicNew) && $this->Topic_UpdateTopic($oTopic)) {
-                $this->Message_AddNoticeSingle($this->Lang_Get('topic_favourite_add_ok'), $this->Lang_Get('attention'));
-                $this->Viewer_AssignAjax('bState', true);
-                $this->Viewer_AssignAjax('iCount', $oTopic->getCountFavourite());
+            if (E::ModuleTopic()->AddFavouriteTopic($oFavouriteTopicNew) && E::ModuleTopic()->UpdateTopic($oTopic)) {
+                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('topic_favourite_add_ok'), E::ModuleLang()->Get('attention'));
+                E::ModuleViewer()->AssignAjax('bState', true);
+                E::ModuleViewer()->AssignAjax('iCount', $oTopic->getCountFavourite());
             } else {
-                $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
                 return;
             }
         }
         if (!$oFavouriteTopic && !$iType) {
-            $this->Message_AddErrorSingle($this->Lang_Get('topic_favourite_add_no'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_favourite_add_no'), E::ModuleLang()->Get('error'));
             return;
         }
         if ($oFavouriteTopic && $iType) {
-            $this->Message_AddErrorSingle($this->Lang_Get('topic_favourite_add_already'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_favourite_add_already'), E::ModuleLang()->Get('error'));
             return;
         }
         if ($oFavouriteTopic && !$iType) {
             $oTopic->setCountFavourite($oTopic->getCountFavourite() - 1);
-            if ($this->Topic_DeleteFavouriteTopic($oFavouriteTopic) && $this->Topic_UpdateTopic($oTopic)) {
-                $this->Message_AddNoticeSingle($this->Lang_Get('topic_favourite_del_ok'), $this->Lang_Get('attention'));
-                $this->Viewer_AssignAjax('bState', false);
-                $this->Viewer_AssignAjax('iCount', $oTopic->getCountFavourite());
+            if (E::ModuleTopic()->DeleteFavouriteTopic($oFavouriteTopic) && E::ModuleTopic()->UpdateTopic($oTopic)) {
+                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('topic_favourite_del_ok'), E::ModuleLang()->Get('attention'));
+                E::ModuleViewer()->AssignAjax('bState', false);
+                E::ModuleViewer()->AssignAjax('iCount', $oTopic->getCountFavourite());
             } else {
-                $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
                 return;
             }
         }
@@ -982,24 +982,24 @@ class ActionAjax extends Action {
 
         // * Пользователь авторизован?
         if (!$this->oUserCurrent) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
 
         // * Можно только добавить или удалить из избранного
         $iType = F::GetRequestStr('type', null, 'post');
         if (!in_array($iType, array('1', '0'))) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
 
         // * Комментарий существует?
-        if (!($oComment = $this->Comment_GetCommentById(F::GetRequestStr('idComment', null, 'post')))) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        if (!($oComment = E::ModuleComment()->GetCommentById(F::GetRequestStr('idComment', null, 'post')))) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
         // * Комментарий уже в избранном?
-        $oFavouriteComment = $this->Comment_GetFavouriteComment($oComment->getId(), $this->oUserCurrent->getId());
+        $oFavouriteComment = E::ModuleComment()->GetFavouriteComment($oComment->getId(), $this->oUserCurrent->getId());
         if (!$oFavouriteComment && $iType) {
             $oFavouriteCommentNew = E::GetEntity(
                 'Favourite',
@@ -1011,35 +1011,35 @@ class ActionAjax extends Action {
                 )
             );
             $oComment->setCountFavourite($oComment->getCountFavourite() + 1);
-            if ($this->Comment_AddFavouriteComment($oFavouriteCommentNew) && $this->Comment_UpdateComment($oComment)) {
-                $this->Message_AddNoticeSingle(
-                    $this->Lang_Get('comment_favourite_add_ok'), $this->Lang_Get('attention')
+            if (E::ModuleComment()->AddFavouriteComment($oFavouriteCommentNew) && E::ModuleComment()->UpdateComment($oComment)) {
+                E::ModuleMessage()->AddNoticeSingle(
+                    E::ModuleLang()->Get('comment_favourite_add_ok'), E::ModuleLang()->Get('attention')
                 );
-                $this->Viewer_AssignAjax('bState', true);
-                $this->Viewer_AssignAjax('iCount', $oComment->getCountFavourite());
+                E::ModuleViewer()->AssignAjax('bState', true);
+                E::ModuleViewer()->AssignAjax('iCount', $oComment->getCountFavourite());
             } else {
-                $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
                 return;
             }
         }
         if (!$oFavouriteComment && !$iType) {
-            $this->Message_AddErrorSingle($this->Lang_Get('comment_favourite_add_no'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('comment_favourite_add_no'), E::ModuleLang()->Get('error'));
             return;
         }
         if ($oFavouriteComment && $iType) {
-            $this->Message_AddErrorSingle($this->Lang_Get('comment_favourite_add_already'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('comment_favourite_add_already'), E::ModuleLang()->Get('error'));
             return;
         }
         if ($oFavouriteComment && !$iType) {
             $oComment->setCountFavourite($oComment->getCountFavourite() - 1);
-            if ($this->Comment_DeleteFavouriteComment($oFavouriteComment) && $this->Comment_UpdateComment($oComment)) {
-                $this->Message_AddNoticeSingle(
-                    $this->Lang_Get('comment_favourite_del_ok'), $this->Lang_Get('attention')
+            if (E::ModuleComment()->DeleteFavouriteComment($oFavouriteComment) && E::ModuleComment()->UpdateComment($oComment)) {
+                E::ModuleMessage()->AddNoticeSingle(
+                    E::ModuleLang()->Get('comment_favourite_del_ok'), E::ModuleLang()->Get('attention')
                 );
-                $this->Viewer_AssignAjax('bState', false);
-                $this->Viewer_AssignAjax('iCount', $oComment->getCountFavourite());
+                E::ModuleViewer()->AssignAjax('bState', false);
+                E::ModuleViewer()->AssignAjax('iCount', $oComment->getCountFavourite());
             } else {
-                $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
                 return;
             }
         }
@@ -1053,22 +1053,22 @@ class ActionAjax extends Action {
 
         // * Пользователь авторизован?
         if (!$this->oUserCurrent) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
         // * Можно только добавить или удалить из избранного
         $iType = F::GetRequestStr('type', null, 'post');
         if (!in_array($iType, array('1', '0'))) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
         // *    Сообщение существует?
-        if (!($oTalk = $this->Talk_GetTalkById(F::GetRequestStr('idTalk', null, 'post')))) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        if (!($oTalk = E::ModuleTalk()->GetTalkById(F::GetRequestStr('idTalk', null, 'post')))) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
         // * Сообщение уже в избранном?
-        $oFavouriteTalk = $this->Talk_GetFavouriteTalk($oTalk->getId(), $this->oUserCurrent->getId());
+        $oFavouriteTalk = E::ModuleTalk()->GetFavouriteTalk($oTalk->getId(), $this->oUserCurrent->getId());
         if (!$oFavouriteTalk && $iType) {
             $oFavouriteTalkNew = E::GetEntity(
                 'Favourite',
@@ -1079,28 +1079,28 @@ class ActionAjax extends Action {
                      'target_publish' => '1'
                 )
             );
-            if ($this->Talk_AddFavouriteTalk($oFavouriteTalkNew)) {
-                $this->Message_AddNoticeSingle($this->Lang_Get('talk_favourite_add_ok'), $this->Lang_Get('attention'));
-                $this->Viewer_AssignAjax('bState', true);
+            if (E::ModuleTalk()->AddFavouriteTalk($oFavouriteTalkNew)) {
+                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('talk_favourite_add_ok'), E::ModuleLang()->Get('attention'));
+                E::ModuleViewer()->AssignAjax('bState', true);
             } else {
-                $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
                 return;
             }
         }
         if (!$oFavouriteTalk && !$iType) {
-            $this->Message_AddErrorSingle($this->Lang_Get('talk_favourite_add_no'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('talk_favourite_add_no'), E::ModuleLang()->Get('error'));
             return;
         }
         if ($oFavouriteTalk && $iType) {
-            $this->Message_AddErrorSingle($this->Lang_Get('talk_favourite_add_already'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('talk_favourite_add_already'), E::ModuleLang()->Get('error'));
             return;
         }
         if ($oFavouriteTalk && !$iType) {
-            if ($this->Talk_DeleteFavouriteTalk($oFavouriteTalk)) {
-                $this->Message_AddNoticeSingle($this->Lang_Get('talk_favourite_del_ok'), $this->Lang_Get('attention'));
-                $this->Viewer_AssignAjax('bState', false);
+            if (E::ModuleTalk()->DeleteFavouriteTalk($oFavouriteTalk)) {
+                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('talk_favourite_del_ok'), E::ModuleLang()->Get('attention'));
+                E::ModuleViewer()->AssignAjax('bState', false);
             } else {
-                $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
                 return;
             }
         }
@@ -1114,12 +1114,12 @@ class ActionAjax extends Action {
      */
     protected function EventStreamComment() {
 
-        $oViewer = $this->Viewer_GetLocalViewer();
-        if ($aComments = $this->Comment_GetCommentsOnline('topic', Config::Get('widgets.stream.params.limit'))) {
+        $oViewer = E::ModuleViewer()->GetLocalViewer();
+        if ($aComments = E::ModuleComment()->GetCommentsOnline('topic', Config::Get('widgets.stream.params.limit'))) {
             $oViewer->Assign('aComments', $aComments);
         }
         $sTextResult = $oViewer->FetchWidget('stream_comment.tpl');
-        $this->Viewer_AssignAjax('sText', $sTextResult);
+        E::ModuleViewer()->AssignAjax('sText', $sTextResult);
     }
 
     /**
@@ -1129,14 +1129,14 @@ class ActionAjax extends Action {
      */
     protected function EventStreamTopic() {
 
-        $oViewer = $this->Viewer_GetLocalViewer();
-        if ($aTopics = $this->Topic_GetTopicsLast(Config::Get('widgets.stream.params.limit'))) {
+        $oViewer = E::ModuleViewer()->GetLocalViewer();
+        if ($aTopics = E::ModuleTopic()->GetTopicsLast(Config::Get('widgets.stream.params.limit'))) {
             $oViewer->Assign('aTopics', $aTopics);
             // LS-compatibility
             $oViewer->Assign('oTopics', $aTopics);
         }
         $sTextResult = $oViewer->FetchWidget('stream_topic.tpl');
-        $this->Viewer_AssignAjax('sText', $sTextResult);
+        E::ModuleViewer()->AssignAjax('sText', $sTextResult);
     }
 
     /**
@@ -1147,15 +1147,15 @@ class ActionAjax extends Action {
     protected function EventStreamWall() {
 
         /** @var ModuleViewer $oViewer */
-        $oViewer = $this->Viewer_GetLocalViewer();
+        $oViewer = E::ModuleViewer()->GetLocalViewer();
 
-        $aResult = $this->Wall_GetWall(array(), array('date_add' => 'DESC'), 1, Config::Get('widgets.stream.params.limit'));
+        $aResult = E::ModuleWall()->GetWall(array(), array('date_add' => 'DESC'), 1, Config::Get('widgets.stream.params.limit'));
         if ($aResult['count'] != 0) {
             $oViewer->Assign('aWall', $aResult['collection']);
         }
 
         $sTextResult = $oViewer->FetchWidget('stream_wall.tpl');
-        $this->Viewer_AssignAjax('sText', $sTextResult);
+        E::ModuleViewer()->AssignAjax('sText', $sTextResult);
     }
 
     /**
@@ -1166,16 +1166,16 @@ class ActionAjax extends Action {
     protected function EventBlogsTop() {
 
         // * Получаем список блогов и формируем ответ
-        if ($aResult = $this->Blog_GetBlogsRating(1, Config::Get('widgets.blogs.params.limit'))) {
+        if ($aResult = E::ModuleBlog()->GetBlogsRating(1, Config::Get('widgets.blogs.params.limit'))) {
             $aBlogs = $aResult['collection'];
-            $oViewer = $this->Viewer_GetLocalViewer();
+            $oViewer = E::ModuleViewer()->GetLocalViewer();
             $oViewer->Assign('aBlogs', $aBlogs);
 
             // Рендерим шаблон виджета
             $sTextResult = $oViewer->FetchWidget('blogs_top.tpl');
-            $this->Viewer_AssignAjax('sText', $sTextResult);
+            E::ModuleViewer()->AssignAjax('sText', $sTextResult);
         } else {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
     }
@@ -1189,17 +1189,17 @@ class ActionAjax extends Action {
 
         // * Пользователь авторизован?
         if (!$this->oUserCurrent) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
         // * Получаем список блогов и формируем ответ
-        if ($aBlogs = $this->Blog_GetBlogsRatingSelf($this->oUserCurrent->getId(), Config::Get('widgets.blogs.params.limit'))) {
-            $oViewer = $this->Viewer_GetLocalViewer();
+        if ($aBlogs = E::ModuleBlog()->GetBlogsRatingSelf($this->oUserCurrent->getId(), Config::Get('widgets.blogs.params.limit'))) {
+            $oViewer = E::ModuleViewer()->GetLocalViewer();
             $oViewer->Assign('aBlogs', $aBlogs);
             $sTextResult = $oViewer->FetchWidget('blogs_top.tpl');
-            $this->Viewer_AssignAjax('sText', $sTextResult);
+            E::ModuleViewer()->AssignAjax('sText', $sTextResult);
         } else {
-            $this->Message_AddErrorSingle($this->Lang_Get('widget_blogs_self_error'), $this->Lang_Get('attention'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('widget_blogs_self_error'), E::ModuleLang()->Get('attention'));
             return;
         }
     }
@@ -1213,19 +1213,19 @@ class ActionAjax extends Action {
 
         // * Пользователь авторизован?
         if (!$this->oUserCurrent) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
         // * Получаем список блогов и формируем ответ
-        if ($aBlogs = $this->Blog_GetBlogsRatingJoin($this->oUserCurrent->getId(), Config::Get('widgets.blogs.params.limit'))) {
-            $oViewer = $this->Viewer_GetLocalViewer();
+        if ($aBlogs = E::ModuleBlog()->GetBlogsRatingJoin($this->oUserCurrent->getId(), Config::Get('widgets.blogs.params.limit'))) {
+            $oViewer = E::ModuleViewer()->GetLocalViewer();
             $oViewer->Assign('aBlogs', $aBlogs);
 
             // Рендерим шаблон виджета
             $sTextResult = $oViewer->FetchWidget('blogs_top.tpl');
-            $this->Viewer_AssignAjax('sText', $sTextResult);
+            E::ModuleViewer()->AssignAjax('sText', $sTextResult);
         } else {
-            $this->Message_AddErrorSingle($this->Lang_Get('widget_blogs_join_error'), $this->Lang_Get('attention'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('widget_blogs_join_error'), E::ModuleLang()->Get('attention'));
             return;
         }
     }
@@ -1239,16 +1239,16 @@ class ActionAjax extends Action {
          * Т.к. используется обработка отправки формы, то устанавливаем тип ответа 'jsonIframe' (тот же JSON только обернутый в textarea)
          * Это позволяет избежать ошибок в некоторых браузерах, например, Opera
          */
-        $this->Viewer_SetResponseAjax(F::AjaxRequest(true)?'json':'jsonIframe', false);
+        E::ModuleViewer()->SetResponseAjax(F::AjaxRequest(true)?'json':'jsonIframe', false);
 
         // * Пользователь авторизован?
         if (!$this->oUserCurrent) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
         // * Допустимый тип топика?
-        if (!$this->Topic_IsAllowTopicType($sType = F::GetRequestStr('topic_type'))) {
-            $this->Message_AddErrorSingle($this->Lang_Get('topic_create_type_error'), $this->Lang_Get('error'));
+        if (!E::ModuleTopic()->IsAllowTopicType($sType = F::GetRequestStr('topic_type'))) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_create_type_error'), E::ModuleLang()->Get('error'));
             return;
         }
 
@@ -1275,15 +1275,15 @@ class ActionAjax extends Action {
         // * Валидируем необходимые поля топика
         $oTopic->_Validate(array('topic_title', 'topic_text', 'topic_tags', 'topic_type'), false);
         if ($oTopic->_hasValidateErrors()) {
-            $this->Message_AddErrorSingle($oTopic->_getValidateError());
+            E::ModuleMessage()->AddErrorSingle($oTopic->_getValidateError());
             return false;
         }
 
         // * Формируем текст топика
-        list($sTextShort, $sTextNew, $sTextCut) = $this->Text_Cut($oTopic->getTextSource());
+        list($sTextShort, $sTextNew, $sTextCut) = E::ModuleText()->Cut($oTopic->getTextSource());
         $oTopic->setCutText($sTextCut);
-        $oTopic->setText($this->Text_Parser($sTextNew));
-        $oTopic->setTextShort($this->Text_Parser($sTextShort));
+        $oTopic->setText(E::ModuleText()->Parser($sTextNew));
+        $oTopic->setTextShort(E::ModuleText()->Parser($sTextShort));
 
         // * Готовим дополнительные поля, кроме файлов
         if ($oType = $oTopic->getContentType()) {
@@ -1299,7 +1299,7 @@ class ActionAjax extends Action {
 
                         //текстовые поля
                         if (in_array($oField->getFieldType(), array('input', 'textarea', 'select'))) {
-                            $sText = $this->Text_Parser($_REQUEST['fields'][$oField->getFieldId()]);
+                            $sText = E::ModuleText()->Parser($_REQUEST['fields'][$oField->getFieldId()]);
                         }
                         //поле ссылки
                         if ($oField->getFieldType() == 'link') {
@@ -1339,23 +1339,23 @@ class ActionAjax extends Action {
         }
 
         // * Рендерим шаблон для предпросмотра топика
-        $oViewer = $this->Viewer_GetLocalViewer();
+        $oViewer = E::ModuleViewer()->GetLocalViewer();
         $oViewer->Assign('oTopic', $oTopic);
         $oViewer->Assign('bPreview', true);
 
         // Alto-style template
         $sTemplate = 'topics/topic.show.tpl';
-        if (!$this->Viewer_TemplateExists($sTemplate)) {
+        if (!E::ModuleViewer()->TemplateExists($sTemplate)) {
             // LS-style template
             $sTemplate = "topic_preview_{$oTopic->getType()}.tpl";
-            if (!$this->Viewer_TemplateExists($sTemplate)) {
+            if (!E::ModuleViewer()->TemplateExists($sTemplate)) {
                 $sTemplate = 'topic_preview_topic.tpl';
             }
         }
         $sTextResult = $oViewer->Fetch($sTemplate);
 
         // * Передаем результат в ajax ответ
-        $this->Viewer_AssignAjax('sText', $sTextResult);
+        E::ModuleViewer()->AssignAjax('sText', $sTextResult);
         return true;
     }
 
@@ -1372,10 +1372,10 @@ class ActionAjax extends Action {
         if ($bSave) {
             $sTextResult = htmlspecialchars($sText);
         } else {
-            $sTextResult = $this->Text_Parser($sText);
+            $sTextResult = E::ModuleText()->Parser($sText);
         }
         // * Передаем результат в ajax ответ
-        $this->Viewer_AssignAjax('sText', $sTextResult);
+        E::ModuleViewer()->AssignAjax('sText', $sTextResult);
     }
 
     /**
@@ -1388,11 +1388,11 @@ class ActionAjax extends Action {
          * (тот же JSON только обернутый в textarea)
          * Это позволяет избежать ошибок в некоторых браузерах, например, Opera
          */
-        $this->Viewer_SetResponseAjax(F::AjaxRequest(true)?'json':'jsonIframe', false);
+        E::ModuleViewer()->SetResponseAjax(F::AjaxRequest(true)?'json':'jsonIframe', false);
 
         // * Пользователь авторизован?
         if (!$this->oUserCurrent) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
         $sFile = null;
@@ -1409,28 +1409,28 @@ class ActionAjax extends Action {
                     }
                 }
             }
-            $sFile = $this->Topic_UploadTopicImageFile($aUploadedFile, $this->oUserCurrent, $aOptions);
+            $sFile = E::ModuleTopic()->UploadTopicImageFile($aUploadedFile, $this->oUserCurrent, $aOptions);
             if (!$sFile) {
-                $sMessage = $this->Lang_Get('uploadimg_file_error');
-                if ($this->Uploader_GetError()) {
-                    $sMessage .= ' (' . $this->Uploader_GetErrorMsg() . ')';
+                $sMessage = E::ModuleLang()->Get('uploadimg_file_error');
+                if (E::ModuleUploader()->GetError()) {
+                    $sMessage .= ' (' . E::ModuleUploader()->GetErrorMsg() . ')';
                 }
-                $this->Message_AddErrorSingle($sMessage, $this->Lang_Get('error'));
+                E::ModuleMessage()->AddErrorSingle($sMessage, E::ModuleLang()->Get('error'));
                 return;
             }
         } elseif (($sUrl = $this->GetPost('img_url')) && ($sUrl != 'http://')) {
             // * Загрузка файла по URL
-            $sFile = $this->Topic_UploadTopicImageUrl($sUrl, $this->oUserCurrent);
+            $sFile = E::ModuleTopic()->UploadTopicImageUrl($sUrl, $this->oUserCurrent);
         } else {
-            $this->Message_AddErrorSingle($this->Lang_Get('uploadimg_file_error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('uploadimg_file_error'));
             return;
         }
         // * Если файл успешно загружен, формируем HTML вставки и возвращаем в ajax ответе
         if ($sFile) {
-            $sText = $this->Img_BuildHTML($sFile, $_REQUEST);
-            $this->Viewer_AssignAjax('sText', $sText);
+            $sText = E::ModuleImg()->BuildHTML($sFile, $_REQUEST);
+            E::ModuleViewer()->AssignAjax('sText', $sText);
         } else {
-            $this->Message_AddErrorSingle($this->Uploader_GetErrorMsg(), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleUploader()->GetErrorMsg(), E::ModuleLang()->Get('error'));
         }
     }
 
@@ -1447,12 +1447,12 @@ class ActionAjax extends Action {
         $aItems = array();
 
         // * Формируем список тегов
-        $aTags = $this->Topic_GetTopicTagsByLike($sValue, 10);
+        $aTags = E::ModuleTopic()->GetTopicTagsByLike($sValue, 10);
         foreach ($aTags as $oTag) {
             $aItems[] = $oTag->getText();
         }
         // * Передаем результат в ajax ответ
-        $this->Viewer_AssignAjax('aItems', $aItems);
+        E::ModuleViewer()->AssignAjax('aItems', $aItems);
     }
 
     /**
@@ -1469,14 +1469,14 @@ class ActionAjax extends Action {
 
         // * Формируем список пользователей
         /** @var ModuleUser_EntityUser[] $aUsers */
-        $aUsers = $this->User_GetUsersByLoginLike($sValue, 10);
+        $aUsers = E::ModuleUser()->GetUsersByLoginLike($sValue, 10);
         foreach ($aUsers as $oUser) {
             $aItems[] =
                 (Config::Get('autocomplete.user.show_avatar') ? '<img src="' . $oUser->getAvatarUrl(Config::Get('autocomplete.user.avatar_size')) . '">' : '')
                 . $oUser->getLogin();
         }
         // * Передаем результат в ajax ответ
-        $this->Viewer_AssignAjax('aItems', $aItems);
+        E::ModuleViewer()->AssignAjax('aItems', $aItems);
     }
 
     /**
@@ -1487,39 +1487,39 @@ class ActionAjax extends Action {
 
         // * Комментарий существует?
         $idComment = F::GetRequestStr('idComment', null, 'post');
-        if (!($oComment = $this->Comment_GetCommentById($idComment))) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        if (!($oComment = E::ModuleComment()->GetCommentById($idComment))) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
         // * Есть права на удаление комментария?
         if (!$oComment->isDeletable()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
             return;
         }
         // * Устанавливаем пометку о том, что комментарий удален
         $oComment->setDelete(($oComment->getDelete() + 1) % 2);
-        $this->Hook_Run('comment_delete_before', array('oComment' => $oComment));
-        if (!$this->Comment_UpdateCommentStatus($oComment)) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        E::ModuleHook()->Run('comment_delete_before', array('oComment' => $oComment));
+        if (!E::ModuleComment()->UpdateCommentStatus($oComment)) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
-        $this->Hook_Run('comment_delete_after', array('oComment' => $oComment));
+        E::ModuleHook()->Run('comment_delete_after', array('oComment' => $oComment));
 
         // * Формируем текст ответа
         if ($bState = (bool)$oComment->getDelete()) {
-            $sMsg = $this->Lang_Get('comment_delete_ok');
-            $sTextToggle = $this->Lang_Get('comment_repair');
+            $sMsg = E::ModuleLang()->Get('comment_delete_ok');
+            $sTextToggle = E::ModuleLang()->Get('comment_repair');
         } else {
-            $sMsg = $this->Lang_Get('comment_repair_ok');
-            $sTextToggle = $this->Lang_Get('comment_delete');
+            $sMsg = E::ModuleLang()->Get('comment_repair_ok');
+            $sTextToggle = E::ModuleLang()->Get('comment_delete');
         }
         // * Обновление события в ленте активности
-        $this->Stream_Write($oComment->getUserId(), 'add_comment', $oComment->getId(), !$oComment->getDelete());
+        E::ModuleStream()->Write($oComment->getUserId(), 'add_comment', $oComment->getId(), !$oComment->getDelete());
 
         // * Показываем сообщение и передаем переменные в ajax ответ
-        $this->Message_AddNoticeSingle($sMsg, $this->Lang_Get('attention'));
-        $this->Viewer_AssignAjax('bState', $bState);
-        $this->Viewer_AssignAjax('sTextToggle', $sTextToggle);
+        E::ModuleMessage()->AddNoticeSingle($sMsg, E::ModuleLang()->Get('attention'));
+        E::ModuleViewer()->AssignAjax('bState', $bState);
+        E::ModuleViewer()->AssignAjax('sTextToggle', $sTextToggle);
     }
 
     /**
@@ -1531,13 +1531,13 @@ class ActionAjax extends Action {
         $bState = false;
         if ($sTpl = $this->GetParam(0)) {
             $sTpl = 'ajax.' . $sTpl . '.tpl';
-            if ($this->Viewer_TemplateExists($sTpl)) {
-                $sHtml = $this->Viewer_Fetch($sTpl);
+            if (E::ModuleViewer()->TemplateExists($sTpl)) {
+                $sHtml = E::ModuleViewer()->Fetch($sTpl);
                 $bState = true;
             }
         }
-        $this->Viewer_AssignAjax('sHtml', $sHtml);
-        $this->Viewer_AssignAjax('bState', $bState);
+        E::ModuleViewer()->AssignAjax('sHtml', $sHtml);
+        E::ModuleViewer()->AssignAjax('bState', $bState);
     }
 
 }
