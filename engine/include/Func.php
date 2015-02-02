@@ -390,6 +390,11 @@ class Func {
         }
     }
 
+    static public function _getExtensions() {
+
+        return static::$aExtsions;
+    }
+
     /**
      * TODO: Не выводить полностью текст ошибки на экран, а логгировать
      *
@@ -1253,10 +1258,6 @@ Redirect to <a href="' . $sUrl . '">' . $sUrl . '</a>
 
 }
 
-class F extends Func {
-
-}
-
 /***
  * Аналоги ф-ций preg_*, корректно обрабатывающие нелатиницу в UTF-8 при использовании флага PREG_OFFSET_CAPTURE
  */
@@ -1310,6 +1311,9 @@ if (!function_exists('mb_preg_match_all')) {
     }
 
 }
+
+//class_alias('Func', 'F');
+class F extends Func { }
 
 F::init();
 
