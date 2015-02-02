@@ -19,5 +19,7 @@
     <div class="vote-count count js-vote-rating" title="{$aLang.blog_vote_count}: {$oBlog->getCountVote()}">
         {if $oBlog->getRating() > 0}+{/if}{$oBlog->getRating()}
     </div>
-    <a href="#" class="vote-down js-vote-down"><span class="glyphicon glyphicon-minus-sign"></span></a>
+    {if C::Get('plugin.simplerating.blog.dislike')}
+        <a href="#" class="vote-down js-vote-down"><span class="glyphicon glyphicon-minus-sign"></span></a>
+    {/if}
 </div>

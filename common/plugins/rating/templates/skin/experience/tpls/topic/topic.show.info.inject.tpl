@@ -20,7 +20,9 @@
     {/if}
 
     <li class="pull-right topic-rating js-vote end marr0" data-target-type="topic" data-target-id="{$oTopic->getId()}">
+        {if C::Get('plugin.rating.topic.dislike')}
         <a href="#" onclick="return false;" class="vote-down link link-gray link-clear js-vote-down"><i class="fa fa-thumbs-o-down"></i></a>
+        {/if}
         {if $bVoteInfoShow}
             <span class="vote-total js-vote-rating {$sVoteClass}">{if $oTopic->getRating() > 0}+{/if}{$oTopic->getRating()}</span>
         {else}
@@ -32,7 +34,9 @@
             <div id="vote-info-topic-{$oTopic->getId()}" style="display: none;">
                 <ul class="list-unstyled vote-topic-info">
                     <li><span class="glyphicon glyphicon-thumbs-up"></span>{$oTopic->getCountVoteUp()}</li>
-                    <li><span class="glyphicon glyphicon-thumbs-down"></span>{$oTopic->getCountVoteDown()}
+                    {if C::Get('plugin.rating.topic.dislike')}
+                        <li><span class="glyphicon glyphicon-thumbs-down"></span>{$oTopic->getCountVoteDown()}
+                    {/if}
                     </li>
                     <li><span class="glyphicon glyphicon-eye-open"></span>{$oTopic->getCountVoteAbstain()}
                     </li>
@@ -64,7 +68,9 @@
     {/if}
 
     <li class="pull-right topic-rating js-vote end" data-target-type="topic" data-target-id="{$oTopic->getId()}">
+    {if C::Get('plugin.rating.topic.dislike')}
         <a href="#" onclick="return false;" class="{$sVoteClass} vote-down link link-gray link-clear js-vote-down"><i class="fa fa-thumbs-o-down"></i></a>
+    {/if}
                         <span class="vote-tooltip vote-total js-vote-rating {$sVoteClass} {if $oTopic->getRating() >= 0}green{else}red{/if}"
                                 {if Config::Get('view.show_rating') || $bVoteInfoShow}
                             data-placement="top"
@@ -72,7 +78,9 @@
                                     <div id="vote-info-topic-{$oTopic->getId()}">
                                         <ul class="vote-topic-info list-unstyled mal0">
                                             <li><i class="fa fa-thumbs-o-up"></i><span>{$oTopic->getCountVoteUp()}</span>
-                                            <li><i class="fa fa-thumbs-o-down"></i><span>{$oTopic->getCountVoteDown()}</span>
+                                            {if C::Get('plugin.rating.topic.dislike')}
+                                                <li><span class="glyphicon glyphicon-thumbs-down"></span>{$oTopic->getCountVoteDown()}
+                                            {/if}
                                             <li><i class="fa fa-eye"></i><span>{$oTopic->getCountVoteAbstain()}</span>
                                             {hook run='topic_show_vote_stats' topic=$oTopic bTopicList=true}
                                         </ul>
@@ -111,7 +119,9 @@
     {$sVoteClassOwner = ""}
     {if ($oUserCurrent && $oTopic->getUserId() == $oUserCurrent->getId())}{$sVoteClassOwner = "gray"}{/if}
     <li class="pull-right topic-rating js-vote end" data-target-type="topic" data-target-id="{$oTopic->getId()}">
+    {if C::Get('plugin.rating.topic.dislike')}
         <a href="#" onclick="return false;" class="{$sVoteClass} {$sVoteClassOwner} vote-down link link-gray link-clear js-vote-down"><i class="fa fa-thumbs-o-down"></i></a>
+    {/if}
                         <span class="vote-tooltip vote-total js-vote-rating {$sVoteClass} {if $oTopic->getRating() >= 0}green{else}red{/if}"
                                 {if Config::Get('view.show_rating') || $bVoteInfoShow}
                             data-placement="top"
@@ -119,7 +129,9 @@
                                     <div id="vote-info-topic-{$oTopic->getId()}">
                                         <ul class="vote-topic-info list-unstyled mal0">
                                             <li><i class="fa fa-thumbs-o-up"></i><span>{$oTopic->getCountVoteUp()}</span>
-                                            <li><i class="fa fa-thumbs-o-down"></i><span>{$oTopic->getCountVoteDown()}</span>
+                                            {if C::Get('plugin.rating.topic.dislike')}
+                                                <li><i class="fa fa-thumbs-o-down"></i><span>{$oTopic->getCountVoteDown()}</span>
+                                            {/if}
                                             <li><i class="fa fa-eye"></i><span>{$oTopic->getCountVoteAbstain()}</span>
                                             {hook run='topic_show_vote_stats' topic=$oTopic bTopicList=false}
                                         </ul>

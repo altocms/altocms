@@ -27,16 +27,20 @@
             <a href="#" onclick="return ls.vote.vote({$oTopic->getId()},this,0,'topic');">?</a>
         {/if}
     </div>
+    {if C::Get('plugin.rating.topic.dislike')}
     <div class="vote-down js-vote-down"><span class="glyphicon glyphicon-minus-sign"></span></div>
+    {/if}
     {if $bVoteInfoShow}
         <div id="vote-info-topic-{$oTopic->getId()}" style="display: none;">
             <ul class="list-unstyled vote-topic-info">
                 <li>
                     <span class="glyphicon glyphicon-thumbs-up"></span>{$oTopic->getCountVoteUp()}
                 </li>
+                {if C::Get('plugin.rating.topic.dislike')}
                 <li>
                     <span class="glyphicon glyphicon-thumbs-down"></span>{$oTopic->getCountVoteDown()}
                 </li>
+                {/if}
                 <li>
                     <span class="glyphicon glyphicon-eye-open"></span>{$oTopic->getCountVoteAbstain()}
                 </li>

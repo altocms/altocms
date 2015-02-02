@@ -20,7 +20,7 @@
     <div class="b-wbox-content">
     <div class="b-wbox-content">
 
-    <form method="post" action="" enctype="multipart/form-data" id="branding-setting" class="form-vertical uniform">
+    <form method="post" action="" enctype="multipart/form-data" id="rating-setting" class="form-vertical uniform">
     <input type="hidden" name="security_ls_key" value="{$LIVESTREET_SECURITY_KEY}"/>
 
 
@@ -37,12 +37,14 @@
                 </div>
             </div>
 
-        <br/><br/><br/>
+        <br/><br/>
+        <h4>{$aLang.plugin.rating.acl_notice}</h4>
+        <label for="acl_vote_user_rating" class="control-label">
+            {$aLang.plugin.rating.acl_vote}
+        </label>
         <div class="row">
             <div class="control-group">
-                <label for="acl_vote_user_rating" class="control-label">
-                    {$aLang.plugin.rating.acl_vote}:
-                </label>
+
                 <div class="controls">
                     <div class="col-md-3">
                         <input autocomplete="off" class="input-wide" placeholder="0" type="text" id="acl_vote_user_rating" name="acl_vote_user_rating" value="{$_aRequest.acl_vote_user_rating}"  />
@@ -64,12 +66,38 @@
                 </div>
             </div>
         </div>
+
+
         <br/><br/>
+        <h4 for="acl_vote_user_rating" class="control-label">
+            {$aLang.plugin.rating.user_config}
+        </h4>
+        <div class="control-group">
+            <div class="controls">
+                <label>
+                    <input type="checkbox"
+                           id="user_vote"
+                           name="user_vote"
+                           value="1"
+                           {if $_aRequest.user_vote}checked="checked"{/if}>
+                    {$aLang.plugin.rating.user_vote}
+                </label>
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="controls">
+                <label>
+                    <input type="checkbox"
+                           id="user_dislike"
+                           name="user_dislike"
+                           value="1"
+                           {if $_aRequest.user_dislike}checked="checked"{/if}>
+                    {$aLang.plugin.rating.user_dislike}
+                </label>
+            </div>
+        </div>
         <div class="row">
             <div class="control-group">
-                <label for="acl_vote_user_rating" class="control-label">
-                    {$aLang.plugin.rating.user_config}:
-                </label>
                 <div class="controls">
                     <div class="col-md-3">
                         <input autocomplete="off" class="input-wide" placeholder="0" type="text" id="user_min_change" name="user_min_change" value="{$_aRequest.user_min_change}"  />
@@ -107,12 +135,38 @@
                 </div>
             </div>
         </div>
+
         <br/><br/>
-        <div class="row">
+        <h4 for="acl_vote_blog_rating" class="control-label">
+            {$aLang.plugin.rating.blog_config}
+        </h4>
             <div class="control-group">
-                <label for="acl_vote_blog_rating" class="control-label">
-                    {$aLang.plugin.rating.blog_config}:
-                </label>
+                <div class="control-group">
+                    <div class="controls">
+                        <label>
+                            <input type="checkbox"
+                                   id="blog_vote"
+                                   name="blog_vote"
+                                   value="1"
+                                   {if $_aRequest.blog_vote}checked="checked"{/if}>
+                            {$aLang.plugin.rating.blog_vote}
+                        </label>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="controls">
+                        <label>
+                            <input type="checkbox"
+                                   id="blog_dislike"
+                                   name="blog_dislike"
+                                   value="1"
+                                   {if $_aRequest.blog_dislike}checked="checked"{/if}>
+                            {$aLang.plugin.rating.blog_dislike}
+                        </label>
+                    </div>
+                </div>
+            </div>
+        <div class="row">
                 <div class="controls">
                     <div class="col-md-3">
                         <input autocomplete="off" class="input-wide" placeholder="0" type="text" id="blog_min_change" name="blog_min_change" value="{$_aRequest.blog_min_change}"  />
@@ -148,14 +202,38 @@
                     </div>
 
                 </div>
+        </div>
+
+        <br/><br/>
+        <h4 for="acl_vote_comment_rating" class="control-label">
+            {$aLang.plugin.rating.comment_config}
+        </h4>
+        <div class="control-group">
+            <div class="controls">
+                <label>
+                    <input type="checkbox"
+                           id="comment_vote"
+                           name="comment_vote"
+                           value="1"
+                           {if $_aRequest.comment_vote}checked="checked"{/if}>
+                    {$aLang.plugin.rating.comment_vote}
+                </label>
             </div>
         </div>
-        <br/><br/>
+        <div class="control-group">
+            <div class="controls">
+                <label>
+                    <input type="checkbox"
+                           id="comment_dislike"
+                           name="comment_dislike"
+                           value="1"
+                           {if $_aRequest.comment_dislike}checked="checked"{/if}>
+                    {$aLang.plugin.rating.comment_dislike}
+                </label>
+            </div>
+        </div>
         <div class="row">
             <div class="control-group">
-                <label for="acl_vote_comment_rating" class="control-label">
-                    {$aLang.plugin.rating.comment_config}:
-                </label>
                 <div class="controls">
                     <div class="col-md-3">
                         <input autocomplete="off" class="input-wide" placeholder="0" type="text" id="comment_min_change" name="comment_min_change" value="{$_aRequest.comment_min_change}"  />
@@ -193,12 +271,37 @@
                 </div>
             </div>
         </div>
+
         <br/><br/>
+        <h4 for="acl_vote_topic_rating" class="control-label">
+            {$aLang.plugin.rating.topic_config}
+        </h4>
+        <div class="control-group">
+            <div class="controls">
+                <label>
+                    <input type="checkbox"
+                           id="topic_vote"
+                           name="topic_vote"
+                           value="1"
+                           {if $_aRequest.topic_vote}checked="checked"{/if}>
+                    {$aLang.plugin.rating.topic_vote}
+                </label>
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="controls">
+                <label>
+                    <input type="checkbox"
+                           id="topic_dislike"
+                           name="topic_dislike"
+                           value="1"
+                           {if $_aRequest.topic_dislike}checked="checked"{/if}>
+                    {$aLang.plugin.rating.topic_dislike}
+                </label>
+            </div>
+        </div>
         <div class="row">
             <div class="control-group">
-                <label for="acl_vote_topic_rating" class="control-label">
-                    {$aLang.plugin.rating.topic_config}:
-                </label>
                 <div class="controls">
                     <div class="col-md-3">
                         <input autocomplete="off" class="input-wide" placeholder="0" type="text" id="topic_min_change" name="topic_min_change" value="{$_aRequest.topic_min_change}"  />
@@ -240,12 +343,25 @@
                 </div>
             </div>
         </div>
+
         <br/><br/>
+        <h4 for="acl_vote_rating_rating" class="control-label">
+            {$aLang.plugin.rating.rating_config}
+        </h4>
+        <div class="control-group">
+            <div class="controls">
+                <label>
+                    <input type="checkbox"
+                           id="rating_vote"
+                           name="rating_vote"
+                           value="1"
+                           {if $_aRequest.rating_vote}checked="checked"{/if}>
+                    {$aLang.plugin.rating.rating_vote}
+                </label>
+            </div>
+        </div>
         <div class="row">
             <div class="control-group">
-                <label for="acl_vote_rating_rating" class="control-label">
-                    {$aLang.plugin.rating.rating_config}:
-                </label>
                 <div class="controls">
                     <div class="col-md-3">
                         <input autocomplete="off" class="input-wide" placeholder="0" type="text" id="rating_topic_border_1" name="rating_topic_border_1" value="{$_aRequest.rating_topic_border_1}"  />
@@ -279,11 +395,11 @@
             </div>
         </div>
         <br/><br/>
+        <h4 for="topic_rating_sum" class="control-label">
+            {$aLang.plugin.rating.personal_recalc}
+        </h4>
         <div class="row">
             <div class="control-group">
-                <label for="topic_rating_sum" class="control-label">
-                    {$aLang.plugin.rating.personal_recalc}:
-                </label>
                 <div class="controls">
                     <div class="col-md-3">
                         <input autocomplete="off" class="input-wide" placeholder="0" type="text" id="topic_rating_sum" name="topic_rating_sum" value="{$_aRequest.topic_rating_sum}"  />

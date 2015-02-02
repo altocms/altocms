@@ -17,22 +17,32 @@ class PluginSimplerating_HookRating extends Hook {
 
         // Выводим интерфейс работы с рейтингом только если он включён
         if (C::Get('rating.enabled')) {
-            $this->AddHook('template_profile_header', 'HookProfileRatingInject');
-            $this->AddHook('template_user_list_header', 'HookUserListHeaderInject');
-            $this->AddHook('template_user_list_line', 'HookUserListLineInject');
-            $this->AddHook('template_user_list_linexxs', 'HookUserListLineXssInject');
 
-            $this->AddHook('template_blog_infobox', 'HookBlogInfoboxRatingValueInject');
-            $this->AddHook('template_blog_list_header', 'HookBlogListHeaderInject');
-            $this->AddHook('template_blog_list_line', 'HookBlogListLineInject');
-            $this->AddHook('template_blog_list_linexxs', 'HookBlogListLineXssInject');
-            $this->AddHook('template_blog_header', 'HookBlogHeaderInject');
-            $this->AddHook('template_blog_stat', 'HookBlogStatInject');
+            if (C::Get('plugin.simplerating.user.vote')) {
+                $this->AddHook('template_profile_header', 'HookProfileRatingInject');
+                $this->AddHook('template_user_list_header', 'HookUserListHeaderInject');
+                $this->AddHook('template_user_list_line', 'HookUserListLineInject');
+                $this->AddHook('template_user_list_linexxs', 'HookUserListLineXssInject');
+            }
 
-            $this->AddHook('template_comment_list_info', 'HookCommentListInfoInject');
-            $this->AddHook('template_comment_info', 'HookCommentInfoInject');
+            if (C::Get('plugin.simplerating.blog.vote')) {
+                $this->AddHook('template_blog_infobox', 'HookBlogInfoboxRatingValueInject');
+                $this->AddHook('template_blog_list_header', 'HookBlogListHeaderInject');
+                $this->AddHook('template_blog_list_line', 'HookBlogListLineInject');
+                $this->AddHook('template_blog_list_linexxs', 'HookBlogListLineXssInject');
+                $this->AddHook('template_blog_header', 'HookBlogHeaderInject');
+                $this->AddHook('template_blog_stat', 'HookBlogStatInject');
+            }
 
-            $this->AddHook('template_topic_show_info', 'HookTopicShowInfoInject');
+            if (C::Get('plugin.simplerating.comment.vote')) {
+                $this->AddHook('template_comment_list_info', 'HookCommentListInfoInject');
+                $this->AddHook('template_comment_info', 'HookCommentInfoInject');
+            }
+
+            if (C::Get('plugin.simplerating.topic.vote')) {
+                $this->AddHook('template_topic_show_info', 'HookTopicShowInfoInject');
+            }
+
         }
 
     }
