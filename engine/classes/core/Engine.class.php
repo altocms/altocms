@@ -495,11 +495,11 @@ class Engine extends LsObject {
 
         // * Создаем объект модуля
         $oModule = new $sModuleClass();
-        $this->aModules[$sModuleClass] = $oModule;
         if ($bInit || $sModuleClass == 'ModuleCache') {
             $this->InitModule($oModule);
         }
         $oModuleDecorator = Decorator::Create($oModule);
+        $this->aModules[$sModuleClass] = $oModuleDecorator;
         $tm2 = microtime(true);
         $this->nTimeLoadModule += $tm2 - $tm1;
 
@@ -720,11 +720,11 @@ class Engine extends LsObject {
             list($sModuleClass, $sModuleName, $sMethod) = $this->aModulesMap[$sCallName];
         } else {
             $sName = $sCallName;
-            if (strpos($sCallName, 'Module') !== false || substr_count($sCallName, '_') > 1) {
+            if (strpos($sCallName, 'Module') !== false || strpos($sCallName, 'Plugin') !== false || substr_count($sCallName, '_') > 1) {
                 // * Поддержка полного синтаксиса при вызове метода модуля
                 $aInfo = static::GetClassInfo($sName, self::CI_MODULE | self::CI_PPREFIX | self::CI_METHOD);
-                if ($aInfo[self::CI_MODULE] && $aInfo[self::CI_METHOD]) {
-                    $sName = $aInfo[self::CI_MODULE] . '_' . $aInfo[self::CI_METHOD];
+                if ($aInfo[self::CI_MODULE]) {
+                    $sName = $aInfo[self::CI_MODULE] . '_' . ($aInfo[self::CI_METHOD] ? $aInfo[self::CI_METHOD] : '');
                     if ($aInfo[self::CI_PPREFIX]) {
                         $sName = $aInfo[self::CI_PPREFIX] . $sName;
                     }
@@ -780,9 +780,12 @@ class Engine extends LsObject {
      */
     public function GetModule($sModuleName) {
 
-        // $sCallName === 'User' or $sCallName === 'ModuleUser'
-        if (substr($sModuleName, 0, 6) == 'Module' && preg_match('/^(Module)?([A-Z].*)$/', $sModuleName, $aMatches)) {
+        // $sCallName === 'User' or $sCallName === 'ModuleUser' or $sCallName === 'PluginUser\User' or $sCallName === 'PluginUser\ModuleUser'
+        $sPrefix = substr($sModuleName, 0, 6);
+        if ($sPrefix == 'Module' && preg_match('/^(Module)?([A-Z].*)$/', $sModuleName, $aMatches)) {
             $sModuleName = $aMatches[2];
+        } elseif ($sPrefix === 'Plugin' && preg_match('/^Plugin([A-Z][\w]*)\\\\(Module)?([A-Z].*)$/', $sModuleName, $aMatches)) {
+            $sModuleName = 'Plugin' . $aMatches[1] . '_Module' . $aMatches[3];
         }
         if ($sModuleName) {
             $aData = $this->GetModuleMethod($sModuleName);
