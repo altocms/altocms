@@ -244,7 +244,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      * @param int   $iCurrPage       Номер текущейс страницы
      * @param int   $iPerPage        Количество элементов на одну страницу
      *
-     * @return array
+     * @return ModuleBlog_EntityBlogUser[]
      */
     public function GetBlogUsers($aFilter, &$iCount = null, $iCurrPage = null, $iPerPage = null) {
 
@@ -291,7 +291,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      * @param array $aBlogId Список ID блогов
      * @param int   $nUserId  ID блогов
      *
-     * @return array
+     * @return ModuleBlog_EntityBlogUser[]
      */
     public function GetBlogUsersByArrayBlog($aBlogId, $nUserId) {
 
@@ -320,7 +320,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @param $nBlogId
      *
-     * @return array
+     * @return int[]
      */
     public function GetAuthorsIdByBlogId($nBlogId) {
 

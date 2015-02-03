@@ -50,7 +50,8 @@
                             <td class="name">
                                 <div class="i-title">{$oPlugin->GetName()|escape:'html'}</div>
                                 <div class="description">
-                                    <b>{$oPlugin->GetId()}</b> - {$oPlugin->GetDescription()}
+                                    <b>{$oPlugin->GetId()} ({$oPlugin->GetDirname()})</b>
+                                    - {$oPlugin->GetDescription()}
                                 </div>
                                 {if ($oPlugin->GetHomepage()>'')}
                                     <div class="url">

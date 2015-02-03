@@ -19,10 +19,20 @@ class ModulePlugin_EntityPlugin extends Entity {
      */
     public function __construct($aParams = false) {
 
+        if (!is_array($aParams)) {
+            // передан ID плагина
+            $aParams = array(
+                'id' => (string)$aParams,
+            );
+        }
         if (is_array($aParams)) {
             $this->setProps($aParams);
-        } elseif($aParams) {
-            $this->LoadFromXmlFile((string)$aParams);
+        }
+        if(empty($aParams['manifest']) && !empty($aParams['id'])) {
+            $aParams['manifest'] = E::ModulePlugin()->GetPluginManifestFile($aParams['id']);
+        }
+        if(!empty($aParams['manifest'])) {
+            $this->LoadFromXmlFile($aParams['manifest'], $aParams);
         }
         $this->Init();
         if (!$this->GetNum()) {
@@ -31,32 +41,26 @@ class ModulePlugin_EntityPlugin extends Entity {
     }
 
     /**
-     * Load data from file
+     * Load data from XML file
      *
-     * @param string $sPluginId
+     * @param string $sPluginXmlFile
      * @param array  $aData
      */
-    public function LoadFromXmlFile($sPluginId, $aData = null) {
+    public function LoadFromXmlFile($sPluginXmlFile, $aData = null) {
 
-        $sPluginXML = E::ModulePlugin()->GetPluginManifest($sPluginId);
-        if (is_null($aData)) {
-            $aData = array(
-                'id' => $sPluginId,
-                'priority' => 0,
-            );
-        }
-        $this->LoadFromXml($sPluginXML, $aData);
+        $sPluginXmlString = E::ModulePlugin()->GetPluginManifestFrom($sPluginXmlFile);
+        $this->LoadFromXml($sPluginXmlString, $aData);
     }
 
     /**
-     * Load data from XML
+     * Load data from XML string
      *
-     * @param string $sPluginXML
+     * @param string $sPluginXmlString
      * @param array  $aData
      */
-    public function LoadFromXml($sPluginXML, $aData = null) {
+    public function LoadFromXml($sPluginXmlString, $aData = null) {
 
-        if ($this->oXml = @simplexml_load_string($sPluginXML)) {
+        if ($this->oXml = @simplexml_load_string($sPluginXmlString)) {
             if (is_null($aData)) {
                 $aData = array(
                     'priority' => 0,
@@ -262,6 +266,15 @@ class ModulePlugin_EntityPlugin extends Entity {
             $this->setProp('settings', $sResult);
         }
         return $sResult;
+    }
+
+    /**
+     * @return string
+     */
+    public function GetDirname() {
+
+        $sResult = (string)$this->_getXmlProperty('dirname');
+        return $sResult ? $sResult : $this->GetId();
     }
 
     /**

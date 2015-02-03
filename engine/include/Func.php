@@ -745,39 +745,70 @@ class Func {
     /**
      * Получить список плагинов
      *
-     * @param   bool    $bAll   - все плагины (иначе - только активные)
+     * @param   bool $bAll     - все плагины (иначе - только активные)
+     * @param   bool $bIdOnly  - только Id плагинов (иначе - вся строка с информацией о плагине)
+     *
      * @return  array
      */
-    static public function GetPluginsList($bAll = false) {
+    static public function GetPluginsList($bAll = false, $bIdOnly = true) {
 
         $sPluginsDatFile = static::GetPluginsDatFile();
         if (isset(self::$_aPluginList[$sPluginsDatFile][$bAll])) {
             $aPlugins = self::$_aPluginList[$sPluginsDatFile][$bAll];
         } else {
-            $sPluginsDir = static::GetPluginsDir();
+            $sCommonPluginsDir = static::GetPluginsDir();
             $aPlugins = array();
             $aPluginsRaw = array();
             if ($bAll) {
-                $aPaths = glob($sPluginsDir . '*', GLOB_ONLYDIR);
-                if ($aPaths)
-                    foreach ($aPaths as $sPath) {
-                        $aPluginsRaw[] = basename($sPath);
+                $aFiles = glob($sCommonPluginsDir . '{*,*/*}/plugin.xml', GLOB_BRACE);
+                if ($aFiles)
+                    foreach ($aFiles as $sXmlFile) {
+                        $aPluginInfo = array();
+                        $sXmlText = F::File_GetContents($sXmlFile);
+                        $sDirName = dirname(F::File_LocalPath($sXmlFile, $sCommonPluginsDir));
+                        if (preg_match('/\<id\>([\w\.\/]+)\<\/id\>/', $sXmlText, $aMatches)) {
+                            $aPluginInfo['id'] = $aMatches[1];
+                        } else {
+                            $aPluginInfo['id'] = $sDirName;
+                        }
+                        $aPluginInfo['dirname'] = $sDirName;
+                        $aPluginInfo['manifest'] = $sXmlFile;
+                        $aPlugins[$aPluginInfo['id']] = $aPluginInfo;
                     }
             } else {
                 if (is_file($sPluginsDatFile) && ($aPluginsRaw = @file($sPluginsDatFile))) {
                     $aPluginsRaw = array_map('trim', $aPluginsRaw);
                     $aPluginsRaw = array_unique($aPluginsRaw);
                 }
-            }
-            if ($aPluginsRaw) {
-                foreach ($aPluginsRaw as $sPlugin) {
-                    $sPluginXML = "$sPluginsDir/$sPlugin/plugin.xml";
-                    if (is_file($sPluginXML)) {
-                        $aPlugins[] = $sPlugin;
+                if ($aPluginsRaw) {
+                    foreach ($aPluginsRaw as $sPluginStr) {
+                        if (($n = strpos($sPluginStr, ';')) !== false) {
+                            if ($n === 0) {
+                                continue;
+                            }
+                            $sPluginStr = trim(substr($sPluginStr, 0, $n));
+                        }
+                        if ($sPluginStr) {
+                            $aPluginInfo = str_word_count($sPluginStr, 1, '/_');
+                            $aPluginInfo['id'] = $aPluginInfo[0];
+                            if (empty($aPluginInfo[1])) {
+                                $aPluginInfo['dirname'] = $aPluginInfo[0];
+                            } else {
+                                $aPluginInfo['dirname'] = $aPluginInfo[1];
+                            }
+                            $sXmlFile = $sCommonPluginsDir . '/' . $aPluginInfo['dirname'] . '/plugin.xml';
+                            if (is_file($sXmlFile)) {
+                                $aPluginInfo['manifest'] = $sXmlFile;
+                                $aPlugins[$aPluginInfo['id']] = $aPluginInfo;
+                            }
+                        }
                     }
                 }
             }
             self::$_aPluginList[$sPluginsDatFile][$bAll] = $aPlugins;
+        }
+        if ($bIdOnly) {
+            $aPlugins = array_keys($aPlugins);
         }
         return $aPlugins;
     }

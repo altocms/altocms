@@ -681,7 +681,7 @@ class ModuleBlog extends Module {
      * @param int|null $iRole            Роль пользователя в блоге
      * @param bool     $bReturnIdOnly    Возвращать только ID блогов или полные объекты
      *
-     * @return array
+     * @return int[]|ModuleBlog_EntityBlogUser[]
      */
     public function GetBlogUsersByUserId($iUserId, $iRole = null, $bReturnIdOnly = false) {
 
@@ -1040,6 +1040,7 @@ class ModuleBlog extends Module {
                 foreach ($aBlogUsers as $oBlogUser) {
                     /** @var ModuleBlog_EntityBlogType $oBlog */
                     $oBlog = $oBlogUser->getBlog();
+                    /** @var ModuleBlog_EntityBlogType $oBlogType */
                     $oBlogType = $oBlog->GetBlogType();
 
                     // админа и модератора блога не проверяем
