@@ -82,6 +82,14 @@ class ModuleCache extends Module {
     const CACHE_MODE_REQUEST    = 2; // кеширование только по запросу
     const CACHE_MODE_FORCE      = 4; // только принудительное кеширование
 
+    const DISABLED_NONE     = 0;
+    const DISABLED_SET      = 1;
+    const DISABLED_GET      = 2;
+    const DISABLED_ALL      = 3;
+
+    /** @var int Запрет кеширования */
+    protected $iDisabled = 0;
+
     /**
      * Доступные механизмы кеширования
      *
@@ -441,8 +449,13 @@ class ModuleCache extends Module {
             return false;
         }
 
+        /*
         // Если модуль завершил свою работу и не включено принудительное кеширование, то ничего не кешируется
         if ($this->isDone() && ($nMode != self::CACHE_MODE_FORCE)) {
+            return false;
+        }
+        */
+        if (($this->iDisabled & self::DISABLED_SET) && ($nMode != self::CACHE_MODE_FORCE)) {
             return false;
         }
 
@@ -491,8 +504,8 @@ class ModuleCache extends Module {
      */
     public function Get($xCacheKey, $sCacheType = null) {
 
-        // Проверяем возможность кеширования
-        if (!$this->_cacheOn($sCacheType)) {
+        // Checks the possibility of caching and prohibition of caching
+        if (!$this->_cacheOn($sCacheType) || ($this->iDisabled & self::DISABLED_GET)) {
             return false;
         }
 
@@ -677,20 +690,41 @@ class ModuleCache extends Module {
     }
 
     /**
+     * Сохраняет значение в сверхбыстром временном кеше (кеш времени исполнения скрипта)
+     *
+     * @param mixed $data
+     * @param string $sCacheKey
+     */
+    public function SetTmp($data, $sCacheKey) {
+
+        $this->Set($data, $sCacheKey, array(), false, 'tmp');
+    }
+
+    /**
+     * Получает значение из сверхбыстрого временного кеша (кеш времени исполнения скрипта)
+     *
+     * @param string $sCacheKey    - Имя ключа кеширования
+     *
+     * @return mixed
+     */
+    public function GetTmp($sCacheKey) {
+
+        return $this->Get($sCacheKey, 'tmp');
+    }
+
+    /**
      * LS-compatible
-     * Сохраняет значение в кеше на время исполнения скрипта(сессии), некий аналог Registry
      *
      * @param mixed  $data         - Данные для сохранения в кеше
      * @param string $sCacheKey    - Имя ключа кеширования
      */
     public function SetLife($data, $sCacheKey) {
 
-        $this->Set($data, $sCacheKey, array(), false, 'tmp');
+        $this->SetTmp($data, $sCacheKey);
     }
 
     /**
      * LS-compatible
-     * Получает значение из текущего кеша сессии
      *
      * @param string $sCacheKey    - Имя ключа кеширования
      *
@@ -698,8 +732,26 @@ class ModuleCache extends Module {
      */
     public function GetLife($sCacheKey) {
 
-        return $this->Get($sCacheKey, 'tmp');
+        return $this->GetTmp($sCacheKey);
     }
+
+
+    public function SetDesabled($xFlag) {
+
+        if ($xFlag === true) {
+            $this->iDisabled = self::DISABLED_ALL;
+        } elseif ($xFlag === false) {
+            $this->iDisabled = self::DISABLED_NONE;
+        } else {
+            $this->iDisabled = intval($xFlag);
+        }
+    }
+
+    public function GetDisabled() {
+
+        return $this->iDisabled;
+    }
+
 }
 
 // EOF
