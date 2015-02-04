@@ -423,6 +423,11 @@ class ModuleMresource extends Module {
             . '-' . F::Crc32($sStorage . ':' . $sFileHash . ':' . $sFileName, true);
         return $sUuid;
     }
+
+
+    public function GetMresourcesCountByTarget() {
+        return $this->oMapper->GetMresourcesCountByTarget();
+    }
 }
 
 // EOF

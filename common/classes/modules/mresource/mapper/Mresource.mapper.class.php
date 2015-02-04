@@ -613,6 +613,19 @@ class ModuleMresource_MapperMresource extends Mapper {
         return $xResult !== false;
     }
 
+
+    /**
+     * Получает количество ресурсов по типу
+     * @return int
+     */
+    public function GetMresourcesCountByTarget() {
+
+
+        $aRow = $this->oDb->selectRow("select count(target_type) as count from ?_mresource_target");
+
+        return isset($aRow['count']) ? $aRow['count'] : 0;
+    }
+
 }
 
 // EOF

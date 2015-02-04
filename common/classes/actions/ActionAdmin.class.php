@@ -1390,6 +1390,7 @@ class ActionAdmin extends Action {
             'with'   => array('user'),
         );
         $aResult = $this->Mresource_GetMresourcesByCriteria($aCriteria);
+        $aResult['count'] = $this->Mresource_GetMresourcesCountByTarget();
 
         $aPaging = $this->Viewer_MakePaging($aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4,
             Router::GetPath('admin') . 'content-mresources/');
