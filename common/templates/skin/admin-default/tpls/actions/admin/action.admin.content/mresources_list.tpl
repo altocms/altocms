@@ -1,20 +1,20 @@
 {extends file='./blogs.tpl'}
 
 {block name="content-bar"}
-    <div class="btn-group">
-        <a href="#" class="btn btn-primary disabled"><i class="icon icon-plus"></i></a>
-    </div>
-    <div class="btn-group">
-        <a class="btn btn-default {if $sMode=='all' || $sMode==''}active{/if}" href="{router page='admin'}content-blogs/list/">
-            {$aLang.action.admin.blogs_all_types} <span class="badge badge-up">{$nBlogsTotal}</span>
-        </a>
-        {foreach $aBlogTypes as $oBlogType}
-            <a class="btn {if $sMode==$oBlogType->GetTypeCode()}active{/if}"
-               href="{router page='admin'}content-blogs/list/{$oBlogType->GetTypeCode()}/">
-                {$oBlogType->GetName()} <span class="badge badge-up">{$oBlogType->GetBlogsCount()}</span>
-            </a>
-        {/foreach}
-    </div>
+    {*<div class="btn-group">*}
+        {*<a href="#" class="btn btn-primary disabled"><i class="icon icon-plus"></i></a>*}
+    {*</div>*}
+    {*<div class="btn-group">*}
+        {*<a class="btn btn-default {if $sMode=='all' || $sMode==''}active{/if}" href="{router page='admin'}content-blogs/list/">*}
+            {*{$aLang.action.admin.blogs_all_types} <span class="badge badge-up">{$nBlogsTotal}</span>*}
+        {*</a>*}
+        {*{foreach $aBlogTypes as $oBlogType}*}
+            {*<a class="btn {if $sMode==$oBlogType->GetTypeCode()}active{/if}"*}
+               {*href="{router page='admin'}content-blogs/list/{$oBlogType->GetTypeCode()}/">*}
+                {*{$oBlogType->GetName()} <span class="badge badge-up">{$oBlogType->GetBlogsCount()}</span>*}
+            {*</a>*}
+        {*{/foreach}*}
+    {*</div>*}
 {/block}
 
 {block name="content-body"}
