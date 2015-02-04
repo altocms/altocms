@@ -1,3 +1,8 @@
+<script>
+    $(function(){
+        $('.captcha-image').prop('src', ls.routerUrl('captcha') + 'registration/?n=' + Math.random());
+    })
+</script>
 <div class="form-group">
     <label for="input-registration-captcha" class="captcha">{$aLang.registration_captcha}</label>
     <img src="" onclick="this.src='{router page='captcha'}registration/?n='+Math.random();"
