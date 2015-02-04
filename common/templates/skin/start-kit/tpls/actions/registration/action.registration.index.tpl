@@ -6,33 +6,38 @@
 
 {block name="layout_content"}
     <script type="text/javascript">
-        jQuery(document).ready(function ($) {
-            $('#registration-form').find('input.js-ajax-validate').blur(function (e) {
-                var aParams = { };
-                if ($(e.target).attr('name') == 'password_confirm') {
-                    aParams['password'] = $('#registration-user-password').val();
+        jQuery(function ($) {
+
+            // --- //
+            $('.js-form-registration input.js-ajax-validate').blur(function (e) {
+                var params = { };
+                var fieldName = $(e.target).attr('name');
+                var fieldValue = $(e.target).val();
+                var form = $(e.target).parents('form').first();
+
+                if (fieldName == 'password_confirm') {
+                    params['password'] = $('#input-registration-password').val();
                 }
-                if ($(e.target).attr('name') == 'password') {
-                    aParams['password'] = $('#registration-user-password').val();
-                    if ($('#registration-user-password-confirm').val()) {
-                        ls.user.validateRegistrationField('password_confirm', $('#registration-user-password-confirm').val(), $('#registration-form'), { 'password': $(e.target).val() });
+                if (fieldName == 'password') {
+                    params['password'] = $('#input-registration-password').val();
+                    if ($('#input-registration-password-confirm').val()) {
+                        ls.user.validateRegistrationField(form,  'password_confirm', $('#input-registration-password-confirm').val(), { password: fieldValue });
                     }
                 }
-                ls.user.validateRegistrationField($(e.target).attr('name'), $(e.target).val(), $('#registration-form'), aParams);
+                ls.user.validateRegistrationField(form, fieldName, fieldValue, params);
             });
-            $('#registration-form').bind('submit', function () {
-                ls.user.registration('registration-form');
-                return false;
-            });
-            $('#registration-form-submit').attr('disabled', false);
+            $('.js-form-registration-submit').prop('disabled', false);
+
             $('.captcha-image').prop('src', ls.routerUrl('captcha') + '?n=' + Math.random());
+
         });
+
     </script>
     <div class="text-center page-header">
         <h3>{$aLang.registration}</h3>
     </div>
     {hook run='registration_begin'}
-    <form action="{router page='registration'}" method="post" class="js-form-registration">
+    <form action="{router page='registration'}" method="post" id="registration-form" class="js-form-registration">
         {hook run='form_registration_begin' isPopup=false}
 
         <div class="form-group">
