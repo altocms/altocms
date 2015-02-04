@@ -56,7 +56,7 @@
             </select>
 
             <p class="help-block">
-                <small>{$aLang.blog_create_type_open_notice}</small>
+                <small id="blog_type_note">{$aLang.blog_create_type_open_notice}</small>
             </p>
         </div>
 
