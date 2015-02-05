@@ -215,6 +215,12 @@ return array (
     'user_show_all' => 'Show all friends',
     'user_ban' => 'Banned',
 
+    'all_users' => 'All users',
+    'admins' => 'Admins',
+    'moderators' => 'Moderators',
+    'include_moderator' => 'Add moderator',
+    'exclude_moderator' => 'Remove moderator',
+
     /* MENU */
     'menu_manager'                        => 'Menu Manager',
     'menu_manager_id'                     => 'Type',

@@ -75,6 +75,9 @@
     {if $oUserCurrent->isAdministrator()}
         {$body_classes=$body_classes|cat:' ls-user-role-admin'}
     {/if}
+    {if $oUserCurrent->isModerator()}
+        {$body_classes=$body_classes|cat:' ls-user-role-moderator'}
+    {/if}
 {else}
     {$body_classes=$body_classes|cat:' ls-user-role-guest'}
 {/if}

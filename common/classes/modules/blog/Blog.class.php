@@ -991,7 +991,7 @@ class ModuleBlog extends Module {
      * Или проверяет на заданное действие конкретный блог
      *
      * @param string $sAllow
-     * @param string $oUser
+     * @param string ModuleUser_EntityUser $oUser
      * @param int    $xBlog
      * @param bool   $bCheckOnly
      *
@@ -1013,7 +1013,7 @@ class ModuleBlog extends Module {
             }
         }
 
-        if ($oUser->isAdministrator()) {
+        if ($oUser->isAdministrator() || $oUser->isModerator()) {
             // Если админ и если проверка на конкретный блог, то возвращаем без проверки
             if ($iBlog) {
                 return $iBlog;
@@ -1141,7 +1141,7 @@ class ModuleBlog extends Module {
      */
     public function GetAccessibleBlogsByUser($oUser) {
 
-        if ($oUser->isAdministrator()) {
+        if ($oUser->isAdministrator() || $oUser->isModerator()) {
             return $this->GetBlogs(true);
         }
         if (false === ($aOpenBlogsUser = E::ModuleCache()->Get("blog_accessible_user_{$oUser->getId()}"))) {

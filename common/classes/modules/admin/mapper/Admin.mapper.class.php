@@ -452,28 +452,17 @@ class ModuleAdmin_MapperAdmin extends Mapper {
     }
 
     /**
-     * @param int $nUserId
+     * Устанавливает новую роль пользователя
      *
-     * @return bool
+     * @param $oUser
+     * @param $iRole
+     * @return mixed
      */
-    public function SetAdministrator($nUserId) {
+    public function UpdateRole($oUser, $iRole) {
 
-        $sql = "SELECT user_id FROM ?_user_administrator WHERE user_id=?";
-        if (!$this->oDb->selectCell($sql, $nUserId)) {
-            return $this->oDb->query("INSERT INTO ?_user_administrator (user_id) VALUES(?)", $nUserId) !== false;
-        }
-        return false;
-    }
+        $sql = "UPDATE ?_user SET user_role = ?d WHERE user_id = ?d";
+        return $this->oDb->query($sql, $iRole, $oUser->getId());
 
-    /**
-     * @param int $nUserId
-     *
-     * @return bool
-     */
-    public function UnsetAdministrator($nUserId) {
-
-        $sql = "DELETE FROM ?_user_administrator WHERE user_id=?";
-        return $this->oDb->query($sql, $nUserId) !== false;
     }
 
     /**

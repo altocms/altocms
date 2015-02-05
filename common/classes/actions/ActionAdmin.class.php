@@ -1492,6 +1492,10 @@ class ActionAdmin extends Action {
                 $this->_eventUsersCmdSetAdministrator();
             } elseif ($sCmd == 'adm_user_unsetadmin') {
                 $this->_eventUsersCmdUnsetAdministrator();
+            } elseif ($sCmd == 'adm_user_setmoderator') {
+                $this->_eventUsersCmdSetModerator();
+            } elseif ($sCmd == 'adm_user_unsetmoderator') {
+                $this->_eventUsersCmdUnsetModerator();
             } elseif ($sCmd == 'adm_del_user') {
                 if ($this->_eventUsersCmdDelete()) {
                     $nPage = $this->_getPageNum();
@@ -1522,6 +1526,7 @@ class ActionAdmin extends Action {
         E::ModuleViewer()->Assign('sMode', $sMode);
         E::ModuleViewer()->Assign('nCountUsers', E::ModuleUser()->GetCountUsers());
         E::ModuleViewer()->Assign('nCountAdmins', E::ModuleUser()->GetCountAdmins());
+        E::ModuleViewer()->Assign('nCountModerators', E::ModuleUser()->GetCountModerators());
     }
 
     protected function _eventUsersCmdBan($aUsersId, $nDays, $sComment) {
@@ -1614,6 +1619,11 @@ class ActionAdmin extends Action {
             $aFilter['admin'] = 1;
         }
 
+
+        if ($sMode == 'moderators') {
+            $aFilter['moderator'] = 1;
+        }
+
         $aResult = E::ModuleUser()->GetUsersByFilter($aFilter, '', $nPage, Config::Get('admin.items_per_page'));
         $aPaging = E::ModuleViewer()->MakePaging($aResult['count'], $nPage, Config::Get('admin.items_per_page'), 4,
             R::GetPath('admin') . 'users-list/');
@@ -1633,6 +1643,8 @@ class ActionAdmin extends Action {
                     }
                     $aFilter[$sKey] = $aIp;
                 }
+            } elseif ($sKey == 'moderator' || !$xVal) {
+                unset($aFilter[$sKey]);
             } elseif ($sKey == 'admin' || !$xVal) {
                 unset($aFilter[$sKey]);
             }
@@ -1675,6 +1687,48 @@ class ActionAdmin extends Action {
                     if (mb_strtolower($sUserLogin) == 'admin') {
                         E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.cannot_with_admin'), 'admins:delete');
                     } elseif (E::ModuleAdmin()->UnsetAdministrator($oUser->GetId())) {
+                        E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('action.admin.saved_ok'), 'admins:delete');
+                    } else {
+                        E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.saved_err'), 'admins:delete');
+                    }
+                }
+            }
+        R::ReturnBack(true);
+    }
+
+    protected function _eventUsersCmdSetModerator() {
+
+        $aUserLogins = F::Str2Array($this->GetPost('user_login_moderator'), ',', true);
+        if ($aUserLogins)
+            foreach ($aUserLogins as $sUserLogin) {
+                if (!$sUserLogin || !($oUser = E::ModuleUser()->GetUserByLogin($sUserLogin))) {
+                    E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.user_not_found', array('user' => $sUserLogin)));
+                } elseif ($oUser->IsBanned()) {
+                    E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.cannot_banned_admin'));
+                } elseif ($oUser->IsModerator()) {
+                    E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.already_added'));
+                } else {
+                    if (E::ModuleAdmin()->SetModerator($oUser->GetId())) {
+                        E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('action.admin.saved_ok'));
+                    } else {
+                        E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.saved_err'));
+                    }
+                }
+            }
+        R::ReturnBack(true);
+    }
+
+    protected function _eventUsersCmdUnsetModerator() {
+
+        $aUserLogins = F::Str2Array($this->GetPost('users_list'), ',', true);
+        if ($aUserLogins)
+            foreach ($aUserLogins as $sUserLogin) {
+                if (!$sUserLogin || !($oUser = E::ModuleUser()->GetUserByLogin($sUserLogin))) {
+                    E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.user_not_found', array('user' => $sUserLogin)), 'admins:delete');
+                } else {
+                    if (mb_strtolower($sUserLogin) == 'admin') {
+                        E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.cannot_with_admin'), 'admins:delete');
+                    } elseif (E::ModuleAdmin()->UnsetModerator($oUser->GetId())) {
                         E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('action.admin.saved_ok'), 'admins:delete');
                     } else {
                         E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.saved_err'), 'admins:delete');

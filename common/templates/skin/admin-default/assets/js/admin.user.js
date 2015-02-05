@@ -156,6 +156,15 @@ admin.user = (function ($) {
         }
     };
 
+    this.unsetModerator = function(login) {
+        var form = $('#user-do-command');
+        if (form.length) {
+            form.find('[name=adm_user_cmd]').val('adm_user_unsetmoderator');
+            form.find('[name=users_list]').val(login);
+            form.submit();
+        }
+    };
+
     this.activate = function(login) {
         var form = $('#user-do-command');
         if (form.length) {

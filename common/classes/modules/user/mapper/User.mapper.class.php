@@ -339,11 +339,9 @@ class ModuleUser_MapperUser extends Mapper {
             SELECT
                 u.user_id AS ARRAY_KEY,
 				u.*,
-				IF(ua.user_id IS NULL,0,1) as user_is_administrator,
 				ab.banline, ab.banunlim, ab.banactive, ab.bancomment
 			FROM
 				?_user as u
-				LEFT JOIN ?_user_administrator AS ua ON u.user_id=ua.user_id
 				LEFT JOIN ?_adminban AS ab ON u.user_id=ab.user_id AND ab.banactive=1
 			WHERE
 				u.user_id IN(?a)
@@ -493,21 +491,32 @@ class ModuleUser_MapperUser extends Mapper {
         return $aResult ? $aResult : array();
     }
 
+//    /**
+//     * Возвращает общее количество пользователй
+//     *
+//     * @return int
+//     */
+//    public function GetCountUsers() {
+
+//        $sql = "SELECT count(*) as count FROM ?_user";
+//        return $this->oDb->selectCell($sql);
+//    }
+
+//    public function GetCountAdmins() {
+
+//        $sql = "SELECT count(*) as count FROM ?_user_administrator ";
+//        return $this->oDb->selectCell($sql);
+//    }
+
     /**
-     * Возвращает общее количество пользователй
-     *
-     * @return int
+     * Возвращает количество пользователей по роли
+     * @param $iRole
      */
-    public function GetCountUsers() {
+    public function GetCountByRole($iRole) {
 
-        $sql = "SELECT count(*) as count FROM ?_user";
-        return $this->oDb->selectCell($sql);
-    }
+        $sql = "SELECT count(user_id) as count FROM ?_user WHERE user_role & ?d";
+        return $this->oDb->selectCell($sql, $iRole);
 
-    public function GetCountAdmins() {
-
-        $sql = "SELECT count(*) as count FROM ?_user_administrator ";
-        return $this->oDb->selectCell($sql);
     }
 
     /**
@@ -1616,7 +1625,7 @@ class ModuleUser_MapperUser extends Mapper {
 					u.user_id
 				FROM
 					?_user AS u
-				    LEFT JOIN ?_user_administrator AS a ON a.user_id=u.user_id
+				    -- LEFT JOIN ?_user_administrator AS a ON a.user_id=u.user_id
 				WHERE
 					1 = 1
 					{ AND u.user_id = ?d }
@@ -1630,8 +1639,11 @@ class ModuleUser_MapperUser extends Mapper {
 					{ AND user_login IN (?a) }
 					{ AND user_date_register LIKE ? }
 					{ AND user_profile_name LIKE ? }
-					{ AND NOT a.user_id IS NULL AND ?d > -1}
-					{ AND a.user_id IS NULL AND ?d > -1}
+					{ AND user_role & ?d}
+					{ AND user_role & ~ ?d}
+					{ AND user_role & ?d}
+					{ AND user_role & ~ ?d}
+					{ AND user_role & ?d}
 				ORDER by {$sOrder}
 				LIMIT ?d, ?d ;
 					";
@@ -1650,8 +1662,11 @@ class ModuleUser_MapperUser extends Mapper {
             (isset($aFilter['login']) && is_array($aFilter['login'])) ? $aFilter['login'] : DBSIMPLE_SKIP,
             (isset($aFilter['regdate']) && $aFilter['regdate']) ? $aFilter['regdate'] : DBSIMPLE_SKIP,
             isset($aFilter['profile_name']) ? $aFilter['profile_name'] : DBSIMPLE_SKIP,
-            (isset($aFilter['admin']) && $aFilter['admin']) ? $aFilter['admin'] : DBSIMPLE_SKIP,
-            (isset($aFilter['admin']) && !$aFilter['admin']) ? $aFilter['admin'] : DBSIMPLE_SKIP,
+            (isset($aFilter['admin']) && $aFilter['admin']) ? ModuleUser::USER_ROLE_ADMINISTRATOR : DBSIMPLE_SKIP,
+            (isset($aFilter['admin']) && !$aFilter['admin']) ? ModuleUser::USER_ROLE_ADMINISTRATOR : DBSIMPLE_SKIP,
+            (isset($aFilter['moderator']) && $aFilter['moderator']) ? ModuleUser::USER_ROLE_MODERATOR : DBSIMPLE_SKIP,
+            (isset($aFilter['moderator']) && !$aFilter['moderator']) ? ModuleUser::USER_ROLE_MODERATOR : DBSIMPLE_SKIP,
+            (isset($aFilter['role']) && $aFilter['role']) ? $aFilter['role'] : DBSIMPLE_SKIP,
             ($iCurrPage - 1) * $iPerPage, $iPerPage
         );
         if ($aRows) {

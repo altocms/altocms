@@ -1433,6 +1433,17 @@ class Engine extends LsObject {
     }
 
     /**
+     * If user is authorized && moderator
+     *
+     * @return bool
+     */
+    public static function IsModerator() {
+
+        $oUser = static::User();
+        return ($oUser && $oUser->isModerator());
+    }
+
+    /**
      * If user is authorized && not admin
      *
      * @return bool

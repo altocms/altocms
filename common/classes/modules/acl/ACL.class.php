@@ -360,7 +360,7 @@ class ModuleACL extends Module {
      */
     public function IsAllowBlog($oBlog, $oUser) {
 
-        if ($oUser && ($oUser->isAdministrator() || $oBlog->getOwnerId() == $oUser->getId())) {
+        if ($oUser && ($oUser->isAdministrator() ||$oUser->isModerator() || $oBlog->getOwnerId() == $oUser->getId())) {
             return true;
         }
         if ($oUser->getRating() <= Config::Get('acl.create.topic.limit_rating')) {
@@ -386,7 +386,7 @@ class ModuleACL extends Module {
         if (!$oUser && !$oBlog->getBlogType()->GetAclRead(ModuleBlog::BLOG_USER_ACL_GUEST)) {
             return false;
         }
-        if ($oUser && ($oUser->isAdministrator() || $oBlog->getOwnerId() == $oUser->getId())) {
+        if ($oUser && ($oUser->isModerator() ||$oUser->isAdministrator() || $oBlog->getOwnerId() == $oUser->getId())) {
             return true;
         }
 
@@ -403,7 +403,7 @@ class ModuleACL extends Module {
      */
     public function IsAllowEditTopic($oTopic, $oUser) {
         // * Разрешаем если это админ сайта или автор топика
-        if ($oTopic->getUserId() == $oUser->getId() || $oUser->isAdministrator()) {
+        if ($oTopic->getUserId() == $oUser->getId() || $oUser->isAdministrator() || $oUser->isModerator()) {
             return true;
         }
         // * Если владелец блога
@@ -425,7 +425,7 @@ class ModuleACL extends Module {
      */
     public function IsAllowDeleteTopic($oTopic, $oUser) {
         // * Разрешаем если это админ сайта или автор топика
-        if ($oTopic->getUserId() == $oUser->getId() || $oUser->isAdministrator()) {
+        if ($oTopic->getUserId() == $oUser->getId() || $oUser->isAdministrator() || $oUser->isModerator()) {
             return true;
         }
         // * Если владелец блога
@@ -459,7 +459,7 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function IsAllowPublishIndex(ModuleUser_EntityUser $oUser) {
-        if ($oUser->isAdministrator()) {
+        if ($oUser->isAdministrator() || $oUser->isModerator()) {
             return true;
         }
         return false;
@@ -475,7 +475,7 @@ class ModuleACL extends Module {
      */
     public function IsAllowAdminBlog($oBlog, $oUser) {
 
-        if ($oUser->isAdministrator()) {
+        if ($oUser->isAdministrator() || $oUser->isModerator()) {
             return true;
         }
         // * Разрешаем если это владелец блога
@@ -497,7 +497,7 @@ class ModuleACL extends Module {
      */
     public function IsAllowEditBlog($oBlog, $oUser) {
 
-        if ($oUser->isAdministrator()) {
+        if ($oUser->isAdministrator() || $oUser->isModerator()) {
             return true;
         }
         // Разрешаем если это владелец блога
@@ -519,7 +519,7 @@ class ModuleACL extends Module {
      */
     public function IsAllowDeleteBlog($oBlog, $oUser) {
         // * Разрешаем если это админ сайта
-        if ($oUser->isAdministrator()) {
+        if ($oUser->isAdministrator() || $oUser->isModerator()) {
             return self::CAN_DELETE_BLOG_WITH_TOPICS;
         }
         // * Разрешаем владелецу, но только пустой

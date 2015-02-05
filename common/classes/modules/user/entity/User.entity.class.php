@@ -505,6 +505,16 @@ class ModuleUser_EntityUser extends Entity {
     }
 
     /**
+     * Возвращает роль пользователя
+     *
+     * @return int|null
+     */
+    public function getRole() {
+
+        return $this->getProp('user_role');
+    }
+
+    /**
      * Возвращает статус онлайн пользователь или нет
      *
      * @return bool
@@ -704,7 +714,17 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function isAdministrator() {
 
-        return $this->getProp('user_is_administrator');
+        return E::ModuleUser()->HasRole($this, ModuleUser::USER_ROLE_ADMINISTRATOR);
+    }
+
+    /**
+     * Возвращает статус модкратора сайта
+     *
+     * @return bool|null
+     */
+    public function isModerator() {
+
+        return E::ModuleUser()->HasRole($this, ModuleUser::USER_ROLE_MODERATOR);
     }
 
     /**
@@ -1185,6 +1205,16 @@ class ModuleUser_EntityUser extends Entity {
     public function setLastSession($data) {
 
         $this->setProp('user_last_session', $data);
+    }
+
+    /**
+     * Устанавливает рль пользователя
+     *
+     * @param $data
+     */
+    public function setRole($data) {
+
+        $this->setProp('user_role', $data);
     }
 
 }

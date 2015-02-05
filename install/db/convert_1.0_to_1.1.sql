@@ -44,3 +44,8 @@ ADD INDEX (  `storage_src` ) ;
 #
 ALTER TABLE `prefix_content_values` CHANGE `value_type` `value_type` ENUM('string','text','number','single-image-uploader') NULL DEFAULT NULL;
 ALTER TABLE `prefix_mresource` ADD  `sort` INT NULL DEFAULT '0';
+
+ALTER TABLE prefix_user ADD user_role INT UNSIGNED DEFAULT 1 NOT NULL;
+CREATE INDEX user_role_index ON prefix_user (user_role);
+UPDATE prefix_user SET user_role = 3 WHERE user_id in (SELECT user_id FROM prefix_user_administrator);
+UPDATE prefix_user SET user_role = 3 WHERE user_id = 1;

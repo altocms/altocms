@@ -228,6 +228,12 @@ return array(
     'user_add_setadmin' => 'Зарегистрировать пользователя администратором',
     'user_add_setadmin_alert' => 'Внимание! Пользователь будет зарегистрирован, как администратор!',
 
+    'all_users' => 'Все пользователи',
+    'admins' => 'Администраторы',
+    'moderators' => 'Модераторы',
+    'include_moderator' => 'Добавить модератора',
+    'exclude_moderator' => 'Удалить модератора',
+
     /* MENU */
     'menu_manager'                        => 'Менеджер меню',
     'menu_manager_id'                     => 'Тип',

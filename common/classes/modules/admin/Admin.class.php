@@ -322,12 +322,15 @@ class ModuleAdmin extends Module {
      */
     public function SetAdministrator($nUserId) {
 
-        $bOk = $this->oMapper->SetAdministrator($nUserId);
-        if ($bOk) {
-            $oUser = E::ModuleUser()->GetUserById($nUserId);
-            if ($oUser) E::ModuleUser()->Update($oUser);
+        /** @var ModuleUser_EntityUser $oUser */
+        $oUser = E::ModuleUser()->GetUserById($nUserId);
+        $bOk = false;
+        if ($oUser && $oUser->getRole() != ($oUser->getRole() | ModuleUser::USER_ROLE_ADMINISTRATOR)) {
+            $bOk = $this->oMapper->UpdateRole($oUser, $oUser->getRole() | ModuleUser::USER_ROLE_ADMINISTRATOR);
         }
+
         return $bOk;
+
     }
 
     /**
@@ -337,12 +340,47 @@ class ModuleAdmin extends Module {
      */
     public function UnsetAdministrator($nUserId) {
 
-        $bOk = $this->oMapper->UnsetAdministrator($nUserId);
-        if ($bOk) {
-            $oUser = E::ModuleUser()->GetUserById($nUserId);
-            if ($oUser) E::ModuleUser()->Update($oUser);
+        /** @var ModuleUser_EntityUser $oUser */
+        $oUser = E::ModuleUser()->GetUserById($nUserId);
+        if ($oUser) {
+            return $this->oMapper->UpdateRole($oUser, $oUser->getRole() ^ ModuleUser::USER_ROLE_ADMINISTRATOR);
         }
+        return false;
+
+    }
+
+    /**
+     * @param int $nUserId
+     *
+     * @return bool
+     */
+    public function SetModerator($nUserId) {
+
+        /** @var ModuleUser_EntityUser $oUser */
+        $oUser = E::ModuleUser()->GetUserById($nUserId);
+        $bOk = false;
+        if ($oUser && $oUser->getRole() != ($oUser->getRole() | ModuleUser::USER_ROLE_MODERATOR)) {
+            $bOk = $this->oMapper->UpdateRole($oUser, $oUser->getRole() | ModuleUser::USER_ROLE_MODERATOR);
+        }
+
         return $bOk;
+
+    }
+
+    /**
+     * @param int $nUserId
+     *
+     * @return bool
+     */
+    public function UnsetModerator($nUserId) {
+
+        /** @var ModuleUser_EntityUser $oUser */
+        $oUser = E::ModuleUser()->GetUserById($nUserId);
+        if ($oUser) {
+            return $this->oMapper->UpdateRole($oUser, $oUser->getRole() ^ ModuleUser::USER_ROLE_MODERATOR);
+        }
+        return false;
+
     }
 
     /**

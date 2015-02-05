@@ -744,12 +744,14 @@ CREATE TABLE IF NOT EXISTS `prefix_user` (
   `user_settings_notice_reply_comment` tinyint(1) NOT NULL DEFAULT '1',
   `user_settings_notice_new_friend` tinyint(1) NOT NULL DEFAULT '1',
   `user_settings_timezone` varchar(6) DEFAULT NULL,
+  `user_role` INT UNSIGNED DEFAULT 1 NOT NULL,
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `user_login` (`user_login`),
   UNIQUE KEY `user_mail` (`user_mail`),
   KEY `user_activate_key` (`user_activate_key`),
   KEY `user_activate` (`user_activate`),
   KEY `user_rating` (`user_rating`),
+  KEY `user_role` (`user_role`),
   KEY `user_profile_sex` (`user_profile_sex`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
@@ -1372,3 +1374,5 @@ ADD INDEX (  `storage_src` ) ;
 #
 ALTER TABLE `prefix_content_values` CHANGE `value_type` `value_type` ENUM('string','text','number','single-image-uploader') NULL DEFAULT NULL;
 ALTER TABLE `prefix_mresource` ADD  `sort` INT NULL DEFAULT '0';
+
+UPDATE prefix_user SET user_role = 3 WHERE user_id = 1;

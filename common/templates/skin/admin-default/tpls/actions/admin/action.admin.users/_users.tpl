@@ -14,10 +14,13 @@ $(function(){
     </div>
     <div class="btn-group">
         <a class="btn btn-default {if $sMode=='list'}active{/if}" href="{router page='admin'}users-list/list/">
-            All users <span class="badge badge-up">{$nCountUsers}</span>
+            {$aLang.action.admin.all_users} <span class="badge badge-up">{$nCountUsers}</span>
         </a>
         <a class="btn btn-default {if $sMode=='admins'}active{/if}" href="{router page='admin'}users-list/admins/">
-            Admins <span class="badge badge-up">{$nCountAdmins}</span>
+            {$aLang.action.admin.admins} <span class="badge badge-up">{$nCountAdmins}</span>
+        </a>
+        <a class="btn btn-default {if $sMode=='moderators'}active{/if}" href="{router page='admin'}users-list/moderators/">
+            {$aLang.action.admin.moderators} <span class="badge badge-up">{$nCountModerators}</span>
         </a>
     </div>
 {/block}
@@ -225,6 +228,43 @@ $(function(){
                         <div class="form-actions">
                             <input type="hidden" name="return-path" value="{Router::Url('url')}"/>
                             <input type="hidden" name="adm_user_cmd" value="adm_user_setadmin"/>
+                            <button type="submit" name="adm_action_submit" class="btn btn-primary">
+                                {$aLang.action.admin.include}
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {* add moderator *}
+        <div class="accordion-group no-border">
+            <div class="accordion-heading">
+                <button class="btn-block btn btn-default left" data-target="#admin_user_setmoderator" data-toggle="collapse"
+                        data-parent="#user-comands-switchmoderator">
+                    <i class="icon icon-user-follow"></i>
+                    {$aLang.action.admin.include_moderator}
+                </button>
+            </div>
+
+            <div class="accordion-body collapse" id="admin_user_setmoderator">
+                <form method="post" action="{router page='admin'}users-list/">
+
+                    <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}"/>
+
+                    <div class="well well-small">
+                        <div class="row control-group">
+                            <label for="user_login_moderator">{$aLang.action.admin.user_login}</label>
+
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="icon icon-user"></i></span>
+                                <input type="text" name="user_login_moderator" id="user_login_moderator" class="wide users_list_login js-autocomplete-users"/>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <input type="hidden" name="return-path" value="{Router::Url('url')}"/>
+                            <input type="hidden" name="adm_user_cmd" value="adm_user_setmoderator"/>
                             <button type="submit" name="adm_action_submit" class="btn btn-primary">
                                 {$aLang.action.admin.include}
                             </button>

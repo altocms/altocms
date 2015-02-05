@@ -35,6 +35,14 @@ class ModuleUser extends Module {
     const USER_LOGIN_ERR_MIN    = 1;
     const USER_LOGIN_ERR_LEN    = 2;
     const USER_LOGIN_ERR_CHARS  = 4;
+
+    /**
+     * Права
+     */
+    const USER_ROLE_USER = 1;
+    const USER_ROLE_ADMINISTRATOR = 2;
+    const USER_ROLE_MODERATOR = 4;
+
     /**
      * Объект маппера
      *
@@ -101,6 +109,18 @@ class ModuleUser extends Module {
         if (isset($this->oSession)) {
             $this->UpdateSession();
         }
+    }
+
+    /**
+     * Проверяет, есть ли у пользователя указанная роль
+     *
+     * @param ModuleUser_EntityUser $oUser
+     * @param int $iRole
+     * @return int
+     */
+    public function HasRole($oUser, $iRole) {
+
+        return (bool)($oUser->getRole() & $iRole);
     }
 
     /**
@@ -911,7 +931,7 @@ class ModuleUser extends Module {
     public function GetStatUsers() {
 
         if (false === ($aStat = E::ModuleCache()->Get('user_stats'))) {
-            $aStat['count_all'] = $this->oMapper->GetCountUsers();
+            $aStat['count_all'] = $this->oMapper->GetCountByRole(self::USER_ROLE_USER);
             $sDate = date('Y-m-d H:i:s', time() - Config::Get('module.user.time_active'));
             $aStat['count_active'] = $this->oMapper->GetCountUsersActive($sDate);
             $aStat['count_inactive'] = $aStat['count_all'] - $aStat['count_active'];
@@ -1965,12 +1985,26 @@ class ModuleUser extends Module {
 
     public function GetCountUsers() {
 
-        return $this->oMapper->GetCountUsers();
+        return $this->GetCountByRole(self::USER_ROLE_USER);
+    }
+
+    public function GetCountModerators() {
+
+        return $this->GetCountByRole(self::USER_ROLE_MODERATOR);
     }
 
     public function GetCountAdmins() {
 
-        return $this->oMapper->GetCountAdmins();
+        return $this->GetCountByRole(self::USER_ROLE_ADMINISTRATOR);
+    }
+
+    /**
+     * Возвращает количество пользователей по роли
+     * @param $iRole
+     */
+    public function GetCountByRole($iRole) {
+
+        return $this->oMapper->GetCountByRole($iRole);
     }
 
     /**
