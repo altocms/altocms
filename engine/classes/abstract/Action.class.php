@@ -174,7 +174,7 @@ abstract class Action extends LsObject {
      */
     public function ExecEvent() {
 
-        if ($this->GetDefaultEvent() == 'index') {
+        if ($this->GetDefaultEvent() == 'index' && method_exists($this, 'EventIndex')) {
             $this->AddEvent('index', 'EventIndex');
         }
         $this->sCurrentEvent = R::GetActionEvent();
