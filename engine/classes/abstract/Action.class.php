@@ -62,7 +62,7 @@ abstract class Action extends LsObject {
      *
      * @var string|null
      */
-    protected $sDefaultEvent = null;
+    protected $sDefaultEvent = 'index';
     /**
      * Текущий евент
      *
@@ -174,6 +174,9 @@ abstract class Action extends LsObject {
      */
     public function ExecEvent() {
 
+        if ($this->GetDefaultEvent() == 'index') {
+            $this->AddEvent('index', 'EventIndex');
+        }
         $this->sCurrentEvent = R::GetActionEvent();
         if ($this->sCurrentEvent == null) {
             $this->sCurrentEvent = $this->GetDefaultEvent();
@@ -451,17 +454,21 @@ abstract class Action extends LsObject {
     }
 
     /**
-     * Абстрактный метод инициализации экшена
+     * Метод инициализации экшена
      *
      */
-    abstract public function Init();
+    public function Init() {
+
+    }
 
     /**
-     * Абстрактный метод регистрации евентов.
+     * Метод регистрации евентов.
      * В нём необходимо вызывать метод AddEvent($sEventName,$sEventFunction)
      *
      */
-    abstract protected function RegisterEvent();
+    protected function RegisterEvent() {
+
+    }
 
     /**
      * Были ли ли переданы POST-параметры (или конкретный POST-параметр)
