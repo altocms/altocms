@@ -286,7 +286,7 @@ class Loader {
             // Если нет, то проверяем файл экшена среди плагинов
             $aPlugins = F::GetPluginsList(false, false);
             foreach ($aPlugins as $sPlugin => $aPluginInfo) {
-                if ($sActionFile = F::File_Exists('plugins/' . $aPluginInfo[1] . '/classes/actions/' . $sFileName, $aSeekDirs)) {
+                if ($sActionFile = F::File_Exists('plugins/' . $aPluginInfo[0] . '/classes/actions/' . $sFileName, $aSeekDirs)) {
                     $sActionClass = 'Plugin' . F::StrCamelize($sPlugin) . '_Action' . ucfirst($sAction);
                     $bOk = true;
                     break;
