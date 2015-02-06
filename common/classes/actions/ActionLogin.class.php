@@ -225,10 +225,15 @@ class ActionLogin extends Action {
      */
     protected function EventReminder() {
 
-        // Устанавливаем title страницы
-        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('password_reminder'));
+        if (E::IsUser()) {
+            // Для авторизованного юзера восстанавливать нечего
+            Router::Location('/');
+        } else {
+            // Устанавливаем title страницы
+            E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('password_reminder'));
 
-        $this->_eventRecovery(false);
+            $this->_eventRecovery(false);
+        }
     }
 
     protected function _eventRecovery($bAjax = false) {
