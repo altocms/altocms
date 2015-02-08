@@ -266,6 +266,11 @@ if (C::Get('rating.enabled')) {
  * Сеню с сыллками на блоги
  */
 $config['menu']['data']['blog_list'] = array(
+    'init' => array(
+        'fill' => array(
+            'list' => array('*'),
+        ),
+    ),
     'description' => 'Список блогов',
     'list' => array(
         'link1' => array(
