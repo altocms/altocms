@@ -82,11 +82,16 @@ class ModuleACL extends Module {
      * Проверяет может ли пользователь создавать топики в определенном блоге
      *
      * @param ModuleUser_EntityUser $oUser    Пользователь
-     * @param ModuleBlog_EntityBlog $oBlog    Блог
+     * @param ModuleBlog_EntityBlog|null $oBlog    Блог
      *
      * @return bool
      */
-    public function CanAddTopic(ModuleUser_EntityUser $oUser, ModuleBlog_EntityBlog $oBlog) {
+    public function CanAddTopic(ModuleUser_EntityUser $oUser, $oBlog) {
+        // Если у пользователя нет ни одного блога, то в эту переменную
+        // передаётся null, соответственно, постинг в никуда запрещаем
+        if (is_null($oBlog)) {
+            return false;
+        }
         // * Если юзер является создателем блога то разрешаем ему постить
         if ($oUser->isAdministrator() || ($oUser->getId() == $oBlog->getOwnerId())) {
             return true;
