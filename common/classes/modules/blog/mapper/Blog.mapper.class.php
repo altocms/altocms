@@ -889,7 +889,7 @@ class ModuleBlog_MapperBlog extends Mapper {
      * Сохраняет связь между типом блога и типом контента
      *
      * @param int $iBlogTypeId
-     * @param int[] $aContentType
+     * @param int[]|ModuleTopic_EntityContentType[] $aContentType
      */
     public function SetBlogTypeContent($iBlogTypeId, $aContentType) {
 
@@ -898,6 +898,9 @@ class ModuleBlog_MapperBlog extends Mapper {
 
         // И создадим новые
         foreach ($aContentType as $iContentTypeId) {
+            if (is_object($iContentTypeId)) {
+                $iContentTypeId = $iContentTypeId->getId();
+            }
             // Подставляем различные значения параметров.
             $this->oDb->query(
                 'INSERT INTO ?_blog_type_content (blog_type_id, content_id) VALUES(?d, ?d)',
@@ -958,8 +961,10 @@ class ModuleBlog_MapperBlog extends Mapper {
             /** @var ModuleTopic_EntityContentType[] $aContentType */
             $aContentType = $this->GetBlogTypeContentByArrayId(array($oBlogType->getId()));
 
-            // Установим полученые типы контента типу блога
-            $oBlogType->setContentTypes($aContentType[$oBlogType->getId()]);
+            if (isset($aContentType[$oBlogType->getId()])) {
+                // Установим полученые типы контента типу блога
+                $oBlogType->setContentTypes($aContentType[$oBlogType->getId()]);
+            }
 
             return $oBlogType;
 
