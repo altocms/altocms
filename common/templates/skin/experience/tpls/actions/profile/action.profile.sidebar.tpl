@@ -21,7 +21,7 @@
                     >
 
                 <img style="width: 100%; display: block; margin-bottom: 8px;"
-                     src="{E::User()->getPhotoUrl('222crop')}"
+                     src="{$oUserProfile->getPhotoUrl('222crop')}"
                      id="profile-photo-image"
                      class="profile-photo js-uploader-image"/>
                 <span class="label label-{if $oUserProfile->isOnline()}success{else}danger{/if}">
