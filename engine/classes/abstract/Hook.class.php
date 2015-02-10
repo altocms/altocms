@@ -40,33 +40,29 @@ abstract class Hook extends LsObject {
         }
     }
 
+    /**
+     * Adds template hook
+     *
+     * @param string          $sName
+     * @param string|callable $sCallBack
+     * @param string|null     $sClassNameHook
+     * @param int             $iPriority
+     */
     protected function AddHookTemplate($sName, $sCallBack, $sClassNameHook = null, $iPriority = 1) {
 
         if (strpos($sName, 'template_') !== 0) {
             $sName = 'template_' . $sName;
         }
-        if (substr($sCallBack, -4) == '.tpl') {
+        if (is_string($sCallBack) && substr($sCallBack, -4) == '.tpl') {
             E::ModuleHook()->AddExecFunction($sName, array($this, 'FetchTemplate'), $iPriority, array('template' => $sCallBack));
             return;
         }
-        $this->AddHook($sName, $sCallBack, $sClassNameHook, $iPriority);
-    }
-
-    /**
-     * Добавляет делегирующий обработчик на хук. Актуален для хуков на выполнение методов модулей.
-     * После него другие обработчики не выполняются, а результат метода модуля заменяется на рузультат обработчика.
-     *
-     * @param string      $sName             Название хука на который вешается обработчик
-     * @param  string     $sCallBack         Название метода обработчика
-     * @param null|string $sClassNameHook    Название класса обработчика, по умолчанию это текущий класс хука
-     * @param int         $iPriority         Приоритет обработчика хука
-     */
-    protected function AddDelegateHook($sName, $sCallBack, $sClassNameHook = null, $iPriority = 1) {
-
-        if (is_null($sClassNameHook)) {
-            $sClassNameHook = get_class($this);
+        if ((func_num_args() < 4) && (is_null($sClassNameHook) || is_int($sClassNameHook))) {
+            $iPriority = $sClassNameHook;
+            E::ModuleHook()->AddExecFunction($sName, $sCallBack, $iPriority);
+        } else {
+            E::ModuleHook()->AddExecHook($sName, $sCallBack, $iPriority, array('sClassName' => $sClassNameHook));
         }
-        E::ModuleHook()->AddDelegateHook($sName, $sCallBack, $iPriority, array('sClassName' => $sClassNameHook));
     }
 
     /**
@@ -79,13 +75,16 @@ abstract class Hook extends LsObject {
     /**
      * Метод для обработки хуков шаблнов
      *
-     * @param array $aParams
+     * @param $aParams
+     *
+     * @return string
      */
     public function FetchTemplate($aParams) {
 
         if (isset($aParams['template'])) {
             return E::ModuleViewer()->Fetch($aParams['template']);
         }
+        return '';
     }
 
     /**

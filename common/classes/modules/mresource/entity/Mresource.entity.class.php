@@ -8,6 +8,29 @@
  *----------------------------------------------------------------------------
  */
 
+/**
+ * Class ModuleMresource_EntityMresource
+ *
+ * @method setUserId(int)
+ * @method setTargetId(int)
+ * @method setLink(string)
+ * @method setHashFile(string)
+ * @method setHashUrl(string)
+ * @method setPathFile(string)
+ * @method setPathUrl(string)
+ * @method setType(int)
+ * @method setStorage(string)
+ *
+ * @method int getUserId()
+ * @method int getTargetId()
+ * @method string getLink()
+ * @method string getHashFile()
+ * @method string getHashUrl()
+ * @method string getPathFile()
+ * @method string getPathUrl()
+ * @method int getType()
+ * @method string getStorage()
+ */
 class ModuleMresource_EntityMresource extends Entity {
 
     /**

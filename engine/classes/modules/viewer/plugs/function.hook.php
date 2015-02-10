@@ -29,20 +29,30 @@ function smarty_function_hook($aParams, &$oSmarty) {
         return;
     }
 
-    $sHookName = 'template_' . strtolower($aParams['run']);
-    unset($aParams['run']);
-    $aResultHook = E::Hook_Run($sHookName, $aParams);
-
     $sReturn = '';
-    if (array_key_exists('template_result', $aResultHook)) {
-        $sReturn = join('', $aResultHook['template_result']);
-    }
 
-    if (!empty($aParams['assign'])) {
-        $oSmarty->assign($aParams['assign'], $sReturn);
+    if (strpos($aParams['run'], ',')) {
+        $aHooks = F::Array_Str2Array($aParams['run']);
+        unset($aParams['run']);
+        foreach($aHooks as $sHook) {
+            $aParams['run'] = $sHook;
+            $sReturn .= smarty_function_hook($aParams, $oSmarty);
+        }
     } else {
-        return $sReturn;
+        $sHookName = 'template_' . strtolower($aParams['run']);
+        unset($aParams['run']);
+        $aResultHook = E::ModuleHook()->Run($sHookName, $aParams);
+
+        if (array_key_exists('template_result', $aResultHook)) {
+            $sReturn = join('', $aResultHook['template_result']);
+        }
+
+        if (!empty($aParams['assign'])) {
+            $oSmarty->assign($aParams['assign'], $sReturn);
+            $sReturn = '';
+        }
     }
+    return $sReturn;
 }
 
 // EOF

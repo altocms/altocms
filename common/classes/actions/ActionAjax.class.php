@@ -250,6 +250,8 @@ class ActionAjax extends Action {
             $aResources['count'] = E::ModuleMresource()->GetMresourcesCountByTargetAndUserId('blog_avatar', E::UserId());
             // Получим блоги
             $aBlogsId = array();
+
+            /** @var ModuleMresource_EntityMresource $oResource */
             foreach ($aResources['collection'] as $oResource) {
                 $aBlogsId[] = $oResource->getTargetId();
             }

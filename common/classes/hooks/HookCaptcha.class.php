@@ -26,6 +26,8 @@ class HookCaptcha extends Hook {
     /**
      * Обработка хука
      *
+     * @param array $aData
+     *
      * @return string
      */
     public function TemplateCaptcha($aData) {
