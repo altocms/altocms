@@ -115,9 +115,20 @@ $config['data']['userbar'] = array(
     ),
     'description' => '{{menu_user_submenu_description}}',
     'list'  => array(
+        'pre' => false,
         'user'         => array(
             'text' => '{{user_menu_profile}}',
             'link' => '___path.root.url___',
+        ),
+        'create'  => array(
+            'text'    => '{{block_create}}',
+            'link'    => '#',
+            'options' => array(
+                'data'  => array(
+                    'toggle'       => 'modal',
+                    'target'       => '#modal-write',
+                ),
+            ),
         ),
         'talk'         => array(
             'text'    => '{{user_privat_messages}}',

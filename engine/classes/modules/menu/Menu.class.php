@@ -681,4 +681,38 @@ class ModuleMenu extends Module {
 
     }
 
+    /**
+     * Вызывается по строке "user_rating"
+     * @return bool
+     */
+    public function UserRating() {
+
+        if (!C::Get('rating.enabled')) {
+            return '';
+        }
+
+        if (E::IsUser()) {
+            return number_format(E::User()->getRating(), C::Get('view.rating_length'));
+        }
+
+        return '';
+
+    }
+
+
+    /**
+     * Вызывается по строке "count_track"
+     * @return bool
+     */
+    public function CountTrack() {
+
+        if (E::IsUser()) {
+            $sCount = E::ModuleUserfeed()->GetCountTrackNew(E::User()->getId());
+
+            return $sCount ? '+' . $sCount : '';
+        }
+
+        return '';
+
+    }
 }
