@@ -359,7 +359,7 @@ class ModuleGeo_MapperGeo extends Mapper {
             = "SELECT
 					gc.id AS ARRAY_KEY, gc.*
 				FROM
-					?_geo_city
+					?_geo_city as gc
 				WHERE
 					1 = 1
 					{ AND id = ?d }
