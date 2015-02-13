@@ -153,11 +153,11 @@ class Loader {
          * и include-файлы вида /plugins/[plugin_name]/include/*.php
          */
         $sPluginsDir = F::GetPluginsDir($nConfigLevel == Config::LEVEL_APP);
-        if ($aPluginsList = F::GetPluginsList()) {
-            $aPluginsList = array_map('trim', $aPluginsList);
-            foreach ($aPluginsList as $sPlugin) {
+        if ($aPluginsList = F::GetPluginsList(false, false)) {
+            //$aPluginsList = array_map('trim', $aPluginsList);
+            foreach ($aPluginsList as $sPlugin => $aPluginInfo) {
                 // Загружаем все конфиг-файлы плагина
-                $aConfigFiles = glob($sPluginsDir . '/' . $sPlugin . '/config/*.php');
+                $aConfigFiles = glob($sPluginsDir . '/' . $aPluginInfo['dirname'] . '/config/*.php');
                 if ($aConfigFiles) {
                     foreach ($aConfigFiles as $sConfigFile) {
                         $aConfig = F::IncludeFile($sConfigFile, true, true);
@@ -170,7 +170,7 @@ class Loader {
                                 // Если уже существуют привязанные к плагину ключи,
                                 // то сливаем старые и новое значения ассоциативно-комбинированно
                                 /** @see AltoFunc_Array::MergeCombo() */
-                                Config::Set($sKey, F::Array_MergeCombo(Config::Get($sKey), $aConfig), null, $nConfigLevel. $sConfigFile);
+                                Config::Set($sKey, F::Array_MergeCombo(Config::Get($sKey), $aConfig), null, $nConfigLevel, $sConfigFile);
                             }
                         }
                     }
@@ -187,11 +187,11 @@ class Loader {
     static protected function _loadIncludeFiles($nConfigLevel) {
 
         $sPluginsDir = F::GetPluginsDir($nConfigLevel == Config::LEVEL_APP);
-        if ($aPluginsList = F::GetPluginsList()) {
-            $aPluginsList = array_map('trim', $aPluginsList);
-            foreach ($aPluginsList as $sPlugin) {
+        if ($aPluginsList = F::GetPluginsList(false, false)) {
+            //$aPluginsList = array_map('trim', $aPluginsList);
+            foreach ($aPluginsList as $sPlugin => $aPluginInfo) {
                 // Подключаем include-файлы плагина
-                $aIncludeFiles = glob($sPluginsDir . '/' . $sPlugin . '/include/*.php');
+                $aIncludeFiles = glob($sPluginsDir . '/' . $aPluginInfo['dirname'] . '/include/*.php');
                 if ($aIncludeFiles) {
                     foreach ($aIncludeFiles as $sPath) {
                         F::IncludeFile($sPath);
@@ -275,6 +275,7 @@ class Loader {
     static public function SeekActionClass($sAction, $sEvent = null, $bFullPath = false) {
 
         $bOk = false;
+        $sActionClass = '';
         $sFileName = 'Action' . ucfirst($sAction) . '.class.php';
 
         // Сначала проверяем файл экшена среди стандартных
@@ -340,7 +341,7 @@ class Loader {
             $aInfo = E::GetClassInfo($sClassName, E::CI_CLASSPATH | E::CI_INHERIT);
             if ($aInfo[E::CI_INHERIT]) {
                 $sInheritClass = $aInfo[E::CI_INHERIT];
-                $sParentClass = E::getInstance()->Plugin_GetParentInherit($sInheritClass);
+                $sParentClass = E::ModulePlugin()->GetParentInherit($sInheritClass);
                 return self::_classAlias($sParentClass, $sClassName);
             } elseif ($aInfo[E::CI_CLASSPATH]) {
                 return self::_includeFile($aInfo[E::CI_CLASSPATH], $sClassName);
