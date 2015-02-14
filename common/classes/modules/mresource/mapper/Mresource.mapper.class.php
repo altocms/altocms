@@ -14,6 +14,11 @@
  */
 class ModuleMresource_MapperMresource extends Mapper {
 
+    /**
+     * @param ModuleMresource_EntityMresource $oMresource
+     *
+     * @return int|bool
+     */
     public function Add($oMresource) {
 
         $aParams = array(
@@ -70,18 +75,25 @@ class ModuleMresource_MapperMresource extends Mapper {
     }
 
     /**
-     * @param $sTargetTmp
-     * @param $sTargetId
-     * @return mixed
+     * @param string $sTargetTmp
+     * @param int    $iTargetId
+     *
+     * @return bool
      */
-    public function ResetTmpRelById($sTargetTmp, $sTargetId) {
+    public function ResetTmpRelById($sTargetTmp, $iTargetId) {
+
         return $this->oDb->query(
           'UPDATE ?_mresource_target SET target_tmp = null, target_id = ?d  where target_tmp = ?',
-          $sTargetId,
+          $iTargetId,
           $sTargetTmp
-        );
+        ) !== false;
     }
 
+    /**
+     * @param ModuleMresource_EntityMresource $oMresource
+     *
+     * @return bool
+     */
     public function AddTargetRel($oMresource) {
 
         $aParams = array(
@@ -140,6 +152,11 @@ class ModuleMresource_MapperMresource extends Mapper {
         return false;
     }
 
+    /**
+     * @param array $aCriteria
+     *
+     * @return array
+     */
     protected function _getMresourcesRelByCriteria($aCriteria) {
 
         $aFilter = (isset($aCriteria['filter']) ? $aCriteria['filter'] : array());
@@ -166,6 +183,7 @@ class ModuleMresource_MapperMresource extends Mapper {
                 {AND mrt.mresource_id IN (?a:mresource_ids)}
                 {AND mrt.target_type=?:target_type}
                 {AND mrt.target_id=?d:target_id}
+                {AND mrt.target_id IN (?a:target_ids)}
                 {AND mr.user_id=(?d:user_id)}
                 {AND mr.link=(?d:link)}
                 {AND (mr.type & ?d:type)>0}
@@ -181,7 +199,8 @@ class ModuleMresource_MapperMresource extends Mapper {
                  ':mresource_id' => (isset($aFilter['mresource_id']) && !is_array($aFilter['mresource_id'])) ? $aFilter['mresource_id'] : DBSIMPLE_SKIP,
                  ':mresource_ids' => (isset($aFilter['mresource_id']) && is_array($aFilter['mresource_id'])) ? $aFilter['mresource_id'] : DBSIMPLE_SKIP,
                  ':target_type' => isset($aFilter['target_type']) ? $aFilter['target_type'] : DBSIMPLE_SKIP,
-                 ':target_id' => isset($aFilter['target_id']) ? $aFilter['target_id'] : DBSIMPLE_SKIP,
+                 ':target_id' => (isset($aFilter['target_id']) && !is_array($aFilter['target_id'])) ? $aFilter['target_id'] : DBSIMPLE_SKIP,
+                 ':target_ids' => (isset($aFilter['target_id']) && is_array($aFilter['target_id'])) ? $aFilter['target_id'] : DBSIMPLE_SKIP,
                  ':user_id' => isset($aFilter['user_id']) ? $aFilter['user_id'] : DBSIMPLE_SKIP,
                  ':link' => isset($aFilter['link']) ? $aFilter['link'] : DBSIMPLE_SKIP,
                  ':type' => isset($aFilter['type']) ? $aFilter['type'] : DBSIMPLE_SKIP,
@@ -193,6 +212,11 @@ class ModuleMresource_MapperMresource extends Mapper {
         return array('data' => $aRows ? $aRows : array());
     }
 
+    /**
+     * @param array $aCriteria
+     *
+     * @return array
+     */
     public function GetMresourcesByCriteria($aCriteria) {
 
         $aFilter = (isset($aCriteria['filter']) ? $aCriteria['filter'] : array());
@@ -375,6 +399,13 @@ class ModuleMresource_MapperMresource extends Mapper {
         );
     }
 
+    /**
+     * @param $aFilter
+     * @param $nPage
+     * @param $nPerPage
+     *
+     * @return array
+     */
     public function GetMresourcesByFilter($aFilter, $nPage, $nPerPage) {
 
         $aCriteria = array(
@@ -388,6 +419,12 @@ class ModuleMresource_MapperMresource extends Mapper {
         return $aData;
     }
 
+    /**
+     * @param string[] $aUrls
+     * @param int|null $nUserId
+     *
+     * @return array
+     */
     public function GetMresourcesIdByUrl($aUrls, $nUserId = null) {
 
         if (!is_array($aUrls)) {
@@ -402,6 +439,12 @@ class ModuleMresource_MapperMresource extends Mapper {
         return $this->GetMresourcesIdByHashUrl($aHash, $nUserId);
     }
 
+    /**
+     * @param string[] $aHashUrls
+     * @param int|null $nUserId
+     *
+     * @return array
+     */
     public function GetMresourcesIdByHashUrl($aHashUrls, $nUserId = null) {
 
         if (!is_array($aHashUrls)) {
@@ -423,6 +466,12 @@ class ModuleMresource_MapperMresource extends Mapper {
         return array();
     }
 
+    /**
+     * @param string[] $aUrls
+     * @param int|null $nUserId
+     *
+     * @return array
+     */
     public function GetMresourcesByUrl($aUrls, $nUserId = null) {
 
         if (!is_array($aUrls)) {
@@ -435,6 +484,12 @@ class ModuleMresource_MapperMresource extends Mapper {
         return $this->GetMresourcesByHashUrl($aUrlHashs, $nUserId);
     }
 
+    /**
+     * @param string[] $aUrlHashs
+     * @param int|null $nUserId
+     *
+     * @return array
+     */
     public function GetMresourcesByHashUrl($aUrlHashs, $nUserId = null) {
 
         if (!is_array($aUrlHashs)) {
@@ -460,6 +515,11 @@ class ModuleMresource_MapperMresource extends Mapper {
         return $aResult;
     }
 
+    /**
+     * @param int[] $aId
+     *
+     * @return ModuleMresource_EntityMresource[]
+     */
     public function GetMresourcesById($aId) {
 
         $aCriteria = array(
@@ -540,17 +600,17 @@ class ModuleMresource_MapperMresource extends Mapper {
     /**
      * Returns media resources' relation entities by target
      *
-     * @param $sTargetType
-     * @param $nTargetId
+     * @param string    $sTargetType
+     * @param int|array $xTargetId
      *
      * @return array
      */
-    public function GetMresourcesRelByTarget($sTargetType, $nTargetId) {
+    public function GetMresourcesRelByTarget($sTargetType, $xTargetId) {
 
         $aCriteria = array(
             'filter' => array(
                 'target_type' => $sTargetType,
-                'target_id' => $nTargetId,
+                'target_id' => $xTargetId,
             ),
         );
 
@@ -667,12 +727,12 @@ class ModuleMresource_MapperMresource extends Mapper {
     /**
      * Deletes media resources' relations by target
      *
-     * @param $sTargetType
-     * @param $nTargetId
+     * @param string $sTargetType
+     * @param int    $iTargetId
      *
      * @return bool
      */
-    public function DeleteTargetRel($sTargetType, $nTargetId) {
+    public function DeleteTargetRel($sTargetType, $iTargetId) {
 
         $sql = "
             DELETE FROM ?_mresource_target
@@ -684,23 +744,25 @@ class ModuleMresource_MapperMresource extends Mapper {
         $xResult = $this->oDb->query(
             $sql,
             $sTargetType,
-            $nTargetId
+            $iTargetId
         );
         return $xResult !== false;
     }
 
     /**
      * Получает все типы целей
-     * @return $aResult
+     *
+     * @return string[]
      */
     public function GetTargetTypes() {
+
         return $this->oDb->selectCol("select DISTINCT target_type from ?_mresource_target");
     }
 
     /**
      * Получает количество ресурсов по типу
      *
-     * @param $sTargetType
+     * @param string $sTargetType
      *
      * @return int
      */
@@ -720,9 +782,10 @@ class ModuleMresource_MapperMresource extends Mapper {
     }
 
     /**
-     * Получает количество ресурсов по типу
+     * Получает количество ресурсов по типу и пользователю
      *
-     * @param $sTargetType
+     * @param string $sTargetType
+     * @param int    $iUserId
      *
      * @return int
      */
@@ -744,13 +807,13 @@ class ModuleMresource_MapperMresource extends Mapper {
     /**
      * Получает количество ресурсов по типу и ид.
      *
-     * @param $sTargetType
+     * @param string $sTargetType
+     * @param int    $iTargetId
+     * @param int    $iUserId
      *
-     * @param $sTargetId
-     * @param $iUserId
      * @return int
      */
-    public function GetMresourcesCountByTargetIdAndUserId($sTargetType, $sTargetId, $iUserId){
+    public function GetMresourcesCountByTargetIdAndUserId($sTargetType, $iTargetId, $iUserId){
 
         $sql = "select
                   count(t.target_type) as count
@@ -762,7 +825,7 @@ class ModuleMresource_MapperMresource extends Mapper {
                   and t.target_id = ?d
                   and t.target_type = ?";
 
-        $aRow =  $this->oDb->selectRow($sql, $iUserId, $sTargetId, $sTargetType);
+        $aRow =  $this->oDb->selectRow($sql, $iUserId, $iTargetId, $sTargetType);
 
 
         return isset($aRow['count'])?$aRow['count']:0;
@@ -772,6 +835,7 @@ class ModuleMresource_MapperMresource extends Mapper {
      * Обновляет параметры ресурса
      *
      * @param ModuleMresource_EntityMresource $oResource
+     *
      * @return bool
      */
     public function UpdateParams($oResource){
@@ -785,6 +849,7 @@ class ModuleMresource_MapperMresource extends Mapper {
      * Обновляет тип ресурса
      *
      * @param ModuleMresource_EntityMresource $oResource
+     *
      * @return bool
      */
     public function UpdateType($oResource){
@@ -795,22 +860,24 @@ class ModuleMresource_MapperMresource extends Mapper {
     }
 
     /**
-     * Устанавливает главный рисунок фотосета
+     * Устанавливает главное изображение фотосета
      *
      * @param ModuleMresource_EntityMresource $oResource
-     * @param $sTargetType
-     * @param $sTargetId
+     * @param string                          $sTargetType
+     * @param int                             $iTargetId
+     *
      * @return bool
      */
-    public function UpdatePrimary($oResource, $sTargetType, $sTargetId){
+    public function UpdatePrimary($oResource, $sTargetType, $iTargetId){
 
         $sql = "UPDATE ?_mresource SET type = ?d WHERE mresource_id IN (
           SELECT mresource_id FROM ?_mresource_target WHERE target_type = ? AND target_id = ?d
         )";
-        $this->oDb->query($sql, ModuleMresource::TYPE_PHOTO, $sTargetType, $sTargetId);
+        $bResult = $this->oDb->query($sql, ModuleMresource::TYPE_PHOTO, $sTargetType, $iTargetId);
 
-        $this->UpdateType($oResource);
+        $bResult = ($bResult !== false && $this->UpdateType($oResource));
 
+        return $bResult;
     }
 
     /**
@@ -818,9 +885,11 @@ class ModuleMresource_MapperMresource extends Mapper {
      *
      * @param $aOrder
      * @param $sTargetType
-     * @param $sTargetId
+     * @param $iTargetId
+     *
+     * @return mixed
      */
-    public function UpdateSort($aOrder, $sTargetType, $sTargetId) {
+    public function UpdateSort($aOrder, $sTargetType, $iTargetId) {
 
         $sData = '';
         foreach ($aOrder as $sId => $iSort) {
@@ -838,15 +907,20 @@ class ModuleMresource_MapperMresource extends Mapper {
                   target_type = ? AND target_id = ?d)";
 
 
-        return $this->oDb->query($sql, $sTargetType, $sTargetId);
+        return $this->oDb->query($sql, $sTargetType, $iTargetId);
 
     }
 
     /**
      * Возвращает категории изображения для пользователя
-     * @param $iUserId
+     *
+     * @param int $iUserId
+     * @param int $sTopicId
+     *
+     * @return mixed
      */
     public function GetImageCategoriesByUserId($iUserId, $sTopicId){
+
         $sql = "SELECT
                   IF(
                     ISNULL(t.target_tmp),
@@ -875,7 +949,14 @@ class ModuleMresource_MapperMresource extends Mapper {
 
     }
 
+    /**
+     * @param int $iUserId
+     * @param int $sTopicId
+     *
+     * @return mixed
+     */
     public function GetCurrentTopicResourcesId($iUserId, $sTopicId) {
+
         $sql = "select r.mresource_id FROM
                   (SELECT
                   t.mresource_id,
@@ -898,13 +979,15 @@ class ModuleMresource_MapperMresource extends Mapper {
     /**
      * Получает ид. топиков с картинками
      *
-     * @param $iUserId
-     * @param $iCount
-     * @param $iCurrPage
-     * @param $iPerPage
-     * @return mixed
+     * @param int $iUserId
+     * @param int $iCount
+     * @param int $iCurrPage
+     * @param int $iPerPage
+     *
+     * @return array
      */
     public function GetTopicInfo($iUserId, &$iCount, $iCurrPage, $iPerPage) {
+
         $sql = "SELECT
                   t.target_id        AS topic_id,
                   count(t.target_id) AS count
@@ -935,13 +1018,15 @@ class ModuleMresource_MapperMresource extends Mapper {
     /**
      * Получает ид. писем пользователя
      *
-     * @param $iUserId
-     * @param $iCount
-     * @param $iCurrPage
-     * @param $iPerPage
-     * @return mixed
+     * @param int $iUserId
+     * @param int $iCount
+     * @param int $iCurrPage
+     * @param int $iPerPage
+     *
+     * @return array
      */
     public function GetTalkInfo($iUserId, &$iCount, $iCurrPage, $iPerPage) {
+
         $sql = "SELECT
                   t.target_id        AS talk_id,
                   count(t.target_id) AS count

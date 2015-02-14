@@ -217,6 +217,11 @@ class ModuleMresource extends Module {
         return true;
     }
 
+    /**
+     * @param $iId
+     *
+     * @return ModuleMresource_EntityMresource|null
+     */
     public function GetMresourceById($iId) {
 
         $aData = $this->oMapper->GetMresourcesById(array($iId));
@@ -226,6 +231,11 @@ class ModuleMresource extends Module {
         return null;
     }
 
+    /**
+     * @param $xUuid
+     *
+     * @return array|mixed|ModuleMresource_EntityMresource|null
+     */
     public function GetMresourcesByUuid($xUuid) {
 
         $bSingleRec = !is_array($xUuid);
@@ -240,7 +250,11 @@ class ModuleMresource extends Module {
         return $bSingleRec ? null : array();
     }
 
-
+    /**
+     * @param $aCriteria
+     *
+     * @return array
+     */
     public function GetMresourcesByCriteria($aCriteria) {
 
         $aData = $this->oMapper->GetMresourcesByCriteria($aCriteria);
@@ -269,24 +283,50 @@ class ModuleMresource extends Module {
         return array('collection' => $aCollection, 'count' => 0);
     }
 
+    /**
+     * @param $aFilter
+     * @param $nPage
+     * @param $nPerPage
+     *
+     * @return array
+     */
     public function GetMresourcesByFilter($aFilter, $nPage, $nPerPage) {
 
         $aData = $this->oMapper->GetMresourcesByFilter($aFilter, $nPage, $nPerPage);
         return array('collection' => $aData['data'], 'count' => 0);
     }
 
+    /**
+     * @param $sTargetType
+     * @param $nTargetId
+     *
+     * @return mixed
+     */
     public function GetMresourcesByTarget($sTargetType, $nTargetId) {
 
         $aData = $this->oMapper->GetMresourcesByTarget($sTargetType, $nTargetId);
         return $aData;
     }
 
+    /**
+     * @param $sTargetType
+     * @param $nTargetId
+     *
+     * @return array
+     */
     public function GetMresourcesRelByTarget($sTargetType, $nTargetId) {
 
         $aData = $this->oMapper->GetMresourcesRelByTarget($sTargetType, $nTargetId);
         return $aData;
     }
 
+    /**
+     * @param $sTargetType
+     * @param $nTargetId
+     * @param $iUserId
+     *
+     * @return array
+     */
     public function GetMresourcesRelByTargetAndUser($sTargetType, $nTargetId, $iUserId) {
 
         $aData = $this->oMapper->GetMresourcesRelByTargetAndUser($sTargetType, $nTargetId, $iUserId);
@@ -344,6 +384,11 @@ class ModuleMresource extends Module {
         return $bResult;
     }
 
+    /**
+     * @param $aMresourceRel
+     *
+     * @return bool
+     */
     protected function _deleteMresourcesRel($aMresourceRel) {
 
         $aMresId = array();
@@ -404,6 +449,14 @@ class ModuleMresource extends Module {
         }
         return true;
     }
+
+    /**
+     * @param $sTargetType
+     * @param $nTargetId
+     * @param $iUserId
+     *
+     * @return bool
+     */
     public function DeleteMresourcesRelByTargetAndUser($sTargetType, $nTargetId, $iUserId) {
 
         $aMresourceRel = $this->oMapper->GetMresourcesRelByTargetAndUser($sTargetType, $nTargetId, $iUserId);
@@ -438,6 +491,14 @@ class ModuleMresource extends Module {
         return md5($sUrl);
     }
 
+    /**
+     * @param $sStorage
+     * @param $sFileName
+     * @param $sFileHash
+     * @param $iUserId
+     *
+     * @return string
+     */
     static public function CreateUuid($sStorage, $sFileName, $sFileHash, $iUserId) {
 
         $sUuid = '0u' . F::Crc32($iUserId . ':' . $sFileHash, true)
@@ -480,33 +541,60 @@ class ModuleMresource extends Module {
         $this->DeleteMresourcesRelByTargetAndUser($sTargetType, $sTargetId, E::UserId());
     }
 
+    /**
+     * @return string[]
+     */
     public function GetTargetTypes() {
+
         return $this->oMapper->GetTargetTypes();
     }
 
+    /**
+     * @param $sTargetType
+     *
+     * @return int
+     */
     public function GetMresourcesCountByTarget($sTargetType) {
+
         return $this->oMapper->GetMresourcesCountByTarget($sTargetType);
     }
 
+    /**
+     * @param $sTargetType
+     * @param $iUserId
+     *
+     * @return int
+     */
     public function GetMresourcesCountByTargetAndUserId($sTargetType, $iUserId) {
+
         return $this->oMapper->GetMresourcesCountByTargetAndUserId($sTargetType, $iUserId);
     }
 
+    /**
+     * @param $sTargetType
+     * @param $sTargetId
+     * @param $iUserId
+     *
+     * @return int
+     */
     public function GetMresourcesCountByTargetIdAndUserId($sTargetType, $sTargetId, $iUserId) {
+
         return $this->oMapper->GetMresourcesCountByTargetIdAndUserId($sTargetType, $sTargetId, $iUserId);
     }
 
     /**
-     * Проверяет картикнки комментариев
+     * Проверяет картинки комментариев
      * E::ModuleMresource()->CheckTargetTextForImages($sTarget, $sTargetId, $sTargetText);
      *
-     * @param $sTarget
-     * @param $sTargetId
-     * @param $sTargetText
+     * @param string $sTargetType
+     * @param int    $sTargetId
+     * @param string $sTargetText
+     *
      * @return bool
+     *
      * @internal param ModuleComment_EntityComment $oTarget
      */
-    public function CheckTargetTextForImages($sTarget, $sTargetId, $sTargetText) {
+    public function CheckTargetTextForImages($sTargetType, $sTargetId, $sTargetText) {
 
         // 1. Получим uuid рисунков из текста топика и создадим связь с объектом
         // если ее ещё нет.
@@ -535,14 +623,14 @@ class ModuleMresource extends Module {
 
             // Добавим связи, если нужно
             if ($aNewResources) {
-                E::ModuleMresource()->AddTargetRel($aNewResources, $sTarget, $sTargetId);
+                E::ModuleMresource()->AddTargetRel($aNewResources, $sTargetType, $sTargetId);
             }
 
 
             // 2. Пробежимся по ресурсам комментария и если ресурса нет в новых, тогда
             // удалим этот ресурс.
             // Читаем список ресурсов из базы
-            $aMresources = E::ModuleMresource()->GetMresourcesRelByTarget($sTarget, $sTargetId);
+            $aMresources = E::ModuleMresource()->GetMresourcesRelByTarget($sTargetType, $sTargetId);
 
             // Строим список ID ресурсов для удаления
             $aDeleteResources = array();
@@ -562,14 +650,15 @@ class ModuleMresource extends Module {
     }
 
     /**
-     * Прикрепляетвременный ресурс к вновь созданному объекту
+     * Прикрепляет временный ресурс к вновь созданному объекту
      *
-     * @param string $sTargetId
      * @param string $sTargetType
+     * @param string $sTargetId
      * @param $sTargetTmp
-     * @return bool|mixed|ModuleMresource_EntityMresource
+     *
+     * @return bool|ModuleMresource_EntityMresource
      */
-    public function LinkTempResource($sTargetId, $sTargetType, $sTargetTmp) {
+    public function LinkTempResource($sTargetType, $sTargetId, $sTargetTmp) {
 
         if ($sTargetTmp && E::IsUser()) {
 
@@ -605,9 +694,11 @@ class ModuleMresource extends Module {
      * Обновляет параметры ресурса
      *
      * @param ModuleMresource_EntityMresource $oResource
+     *
      * @return bool
      */
     public function UpdateParams($oResource){
+
         return $this->oMapper->UpdateParams($oResource);
     }
 
@@ -615,9 +706,11 @@ class ModuleMresource extends Module {
      * Обновляет тип ресурса
      *
      * @param ModuleMresource_EntityMresource $oResource
+     *
      * @return bool
      */
     public function UpdateType($oResource){
+
         return $this->oMapper->UpdateType($oResource);
     }
 
@@ -627,9 +720,11 @@ class ModuleMresource extends Module {
      * @param ModuleMresource_EntityMresource $oResource
      * @param $sTargetType
      * @param $sTargetId
+     *
      * @return bool
      */
     public function UpdatePrimary($oResource, $sTargetType, $sTargetId){
+
         return $this->oMapper->UpdatePrimary($oResource, $sTargetType, $sTargetId);
     }
 
@@ -639,8 +734,11 @@ class ModuleMresource extends Module {
      * @param $aOrder
      * @param $sTargetType
      * @param $sTargetId
+     *
+     * @return mixed
      */
     public function UpdateSort($aOrder, $sTargetType, $sTargetId) {
+
         return $this->oMapper->UpdateSort($aOrder, $sTargetType, $sTargetId);
     }
 
@@ -649,6 +747,7 @@ class ModuleMresource extends Module {
      *
      * @param $sTargetType
      * @param $sTargetId
+     *
      * @return array
      */
     public function GetPhotosetData($sTargetType, $sTargetId) {
@@ -680,11 +779,14 @@ class ModuleMresource extends Module {
 
     /**
      * Возвращает категории изображения для пользователя
+     *
      * @param $iUserId
      * @param bool $sTopicId
+     *
      * @return array
      */
     public function GetImageCategoriesByUserId($iUserId, $sTopicId = FALSE){
+
         $aRows = $this->oMapper->GetImageCategoriesByUserId($iUserId, $sTopicId);
         $aResult = array();
         if ($aRows) {
@@ -699,11 +801,25 @@ class ModuleMresource extends Module {
         return $aResult;
     }
 
+    /**
+     * @param $iUserId
+     * @param $sTopicId
+     *
+     * @return mixed
+     */
     public function GetCurrentTopicResourcesId($iUserId, $sTopicId) {
+
         return $this->oMapper->GetCurrentTopicResourcesId($iUserId, $sTopicId);
     }
 
+    /**
+     * @param      $iUserId
+     * @param bool $sTopicId
+     *
+     * @return bool|Entity
+     */
     public function GetCurrentTopicImageCategory($iUserId, $sTopicId = FALSE) {
+
         $aResourcesId = $this->oMapper->GetCurrentTopicResourcesId($iUserId, $sTopicId);
         if ($aResourcesId) {
             return E::GetEntity('Mresource_MresourceCategory', array(
@@ -716,8 +832,11 @@ class ModuleMresource extends Module {
         return FALSE;
     }
 
-
-
+    /**
+     * @param $iUserId
+     *
+     * @return bool|Entity
+     */
     public function GetTopicsImageCategory($iUserId) {
 
         $aTopicInfo = $this->oMapper->GetTopicInfo($iUserId, $iCount, 1, 100000);
@@ -734,8 +853,12 @@ class ModuleMresource extends Module {
 
     /**
      * Получает топики пользователя с картинками
+     *
      * @param $iUserId
-     * @return bool|array
+     * @param $iCurrPage
+     * @param $iPerPage
+     *
+     * @return array
      */
     public function GetTopicsPage($iUserId, $iCurrPage, $iPerPage)  {
         $iCount = 0;
@@ -762,7 +885,11 @@ class ModuleMresource extends Module {
         return $aResult;
     }
 
-
+    /**
+     * @param $iUserId
+     *
+     * @return bool|Mresource_MresourceCategory
+     */
     public function GetTalksImageCategory($iUserId) {
 
         $aTalkInfo = $this->oMapper->GetTalkInfo($iUserId, $iCount, 1, 100000);
@@ -776,12 +903,18 @@ class ModuleMresource extends Module {
 
         return FALSE;
     }
+
     /**
      * Получает топики пользователя с картинками
+     *
      * @param $iUserId
-     * @return bool|array
+     * @param $iCurrPage
+     * @param $iPerPage
+     *
+     * @return array
      */
     public function GetTalksPage($iUserId, $iCurrPage, $iPerPage)  {
+
         $iCount = 0;
         $aResult = array(
             'collection' => array(),
@@ -806,6 +939,11 @@ class ModuleMresource extends Module {
         return $aResult;
     }
 
+    /**
+     * @param int $iUserId
+     *
+     * @return bool|Entity
+     */
     public function GetCommentsImageCategory($iUserId) {
 
         $aImagesInCommentsCount = E::ModuleMresource()->GetMresourcesCountByTargetAndUserId(array(

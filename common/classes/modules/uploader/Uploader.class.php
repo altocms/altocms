@@ -650,15 +650,15 @@ class ModuleUploader extends Module {
     /**
      * Возвращает максимальное количество картинок для типа объекта
      *
-     * @param string $sTarget
+     * @param string $sTargetType
      * @param bool   $sTargetId
      *
      * @return bool
      */
-    public function GetAllowedCount($sTarget, $sTargetId = FALSE) {
+    public function GetAllowedCount($sTargetType, $sTargetId = FALSE) {
 
-        if ($sTarget == 'topic-multi-image-uploader') {
-            $aPhotoSetData = E::ModuleMresource()->GetPhotosetData($sTarget, (int)$sTargetId);
+        if ($sTargetType == 'topic-multi-image-uploader') {
+            $aPhotoSetData = E::ModuleMresource()->GetPhotosetData($sTargetType, (int)$sTargetId);
             return $aPhotoSetData['count'] < Config::Get('module.topic.photoset.count_photos_max');
         }
 
@@ -770,8 +770,8 @@ class ModuleUploader extends Module {
     /**
      * Получает URL цели
      *
-     * @param $sTargetType
-     * @param $iTargetId
+     * @param string $sTargetType
+     * @param int    $iTargetId
      *
      * @return string
      */
@@ -809,17 +809,17 @@ class ModuleUploader extends Module {
     /**
      * Получает урл изображения целевого объекта
      *
-     * @param string      $sTarget
+     * @param string      $sTargetType
      * @param int         $iTargetId
      * @param bool|string $xSize
      *
      * @return string
      */
-    public function GetTargetImageUrl($sTarget, $iTargetId, $xSize=FALSE) {
+    public function GetTargetImageUrl($sTargetType, $iTargetId, $xSize=FALSE) {
 
-        $aMResourceRel = E::ModuleMresource()->GetMresourcesRelByTarget($sTarget, $iTargetId);
+        $aMResourceRel = E::ModuleMresource()->GetMresourcesRelByTarget($sTargetType, $iTargetId);
         if ($aMResourceRel) {
-            $oMResource = array_shift($aMResourceRel);
+            $oMResource = reset($aMResourceRel);
 
             $sUrl = str_replace('@', Config::Get('path.root.web'), $oMResource->getPathUrl());
 
@@ -835,10 +835,10 @@ class ModuleUploader extends Module {
     }
 
     /**
-     * Возвращает урл изображения по новому размеру
+     * Возвращает URL изображения по новому размеру
      *
      * @param string $sOriginalPath
-     * @param string    $xSize
+     * @param string $xSize
      *
      * @return string
      */
@@ -858,7 +858,10 @@ class ModuleUploader extends Module {
 
     }
 
+    public function GetTargetImages($sTargetType, $iTargetId) {
 
+        $aMResourceRel = E::ModuleMresource()->GetMresourcesRelByTarget($sTargetType, $iTargetId);
+    }
 }
 
 // EOF
