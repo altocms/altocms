@@ -38,19 +38,19 @@ function smarty_function_img($aParams, &$oSmarty = NULL) {
 
 
     // Получим изображение по временному ключу, или создадим этот ключ
-    if (($sTargetTmp = E::Session_GetCookie('uploader_target_tmp')) && E::IsUser()) {
+    if (($sTargetTmp = E::ModuleSession()->GetCookie('uploader_target_tmp')) && E::IsUser()) {
 
         // Продлим куку
-        E::Session_SetCookie('uploader_target_tmp', $sTargetTmp, 'P1D', FALSE);
+        E::ModuleSession()->SetCookie('uploader_target_tmp', $sTargetTmp, 'P1D', FALSE);
         // Получим предыдущее изображение и если оно было, установим в качестве текущего
         // Получим и удалим все ресурсы
-        $aMresourceRel = E::Mresource_GetMresourcesRelByTargetAndUser($sTargetType, $sTargetId, E::UserId());
+        $aMresourceRel = E::ModuleMresource()->GetMresourcesRelByTargetAndUser($sTargetType, $sTargetId, E::UserId());
         if ($aMresourceRel) {
             /** @var ModuleMresource_EntityMresource $oResource */
             $oMresource = array_shift($aMresourceRel);
             if ($oMresource) {
                 if ($sCrop) {
-                    $aParams['attr']['src'] = E::Uploader_ResizeTargetImage($oMresource->GetUrl(), $sCrop);
+                    $aParams['attr']['src'] = E::ModuleUploader()->ResizeTargetImage($oMresource->GetUrl(), $sCrop);
                 } else {
                     $aParams['attr']['src'] = $oMresource->GetUrl();
                 }
@@ -63,10 +63,10 @@ function smarty_function_img($aParams, &$oSmarty = NULL) {
         // Куки нет, это значит, что пользователь первый раз создает этот тип
         // и старой картинки просто нет
         if ($sTargetId == '0') {
-            E::Session_SetCookie('uploader_target_tmp', F::RandomStr(), 'P1D', FALSE);
+            E::ModuleSession()->SetCookie('uploader_target_tmp', F::RandomStr(), 'P1D', FALSE);
         } else {
-            E::Session_DelCookie('uploader_target_tmp');
-            $sImage = E::Uploader_GetTargetImageUrl($sTargetId, $sTargetType, $sCrop);
+            E::ModuleSession()->DelCookie('uploader_target_tmp');
+            $sImage = E::ModuleUploader()->GetTargetImageUrl($sTargetType, $sTargetId, $sCrop);
             if ($sImage) {
                 $aParams['attr']['src'] = $sImage;
                 $oSmarty->assign("bImageIsTemporary", TRUE);
