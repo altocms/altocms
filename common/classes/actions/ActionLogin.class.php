@@ -190,7 +190,7 @@ class ActionLogin extends Action {
 
         if ($iShowTime) {
             $sUrl = F::RealUrl($sRedirect);
-            $sReferrer = Config::Get('path.root.web'). R::GetAction() . "/" . R::GetActionEvent() .'/?security_key=' . getRequest('security_key', '');
+            $sReferrer = Config::Get('path.root.web'). R::GetAction() . "/" . R::GetActionEvent() .'/?security_key=' . F::GetRequest('security_key', '');
             E::ModuleSession()->SetCookie('lgp', md5($sReferrer . 'logout'), 60);
             E::ModuleViewer()->SetHtmlHeadTag('meta', array('http-equiv' => 'Refresh', 'Content' => $iShowTime . '; url=' . $sUrl));
         } elseif ($sRedirect) {

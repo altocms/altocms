@@ -191,7 +191,7 @@ class ActionUploader extends Action {
                 }
 
                 $sFilePreview = $sFile;
-                if ($sSize = getRequest('crop_size', FALSE)) {
+                if ($sSize = F::GetRequest('crop_size', FALSE)) {
                     $sFilePreview = E::ModuleUploader()->ResizeTargetImage($sFile, $sSize);
                 }
 
@@ -310,8 +310,8 @@ class ActionUploader extends Action {
 
         // Проверяем, целевой объект и права на его редактирование
         if (!$oTarget = E::ModuleUploader()->CheckAccessAndGetTarget(
-            $sTarget = getRequest('target', FALSE),
-            $sTargetId = getRequest('target_id', FALSE))
+            $sTarget = F::GetRequest('target', FALSE),
+            $sTargetId = F::GetRequest('target_id', FALSE))
         ) {
             // Здесь два варианта, либо редактировать нельзя, либо можно, но топика еще нет
             if ($oTarget === TRUE) {
@@ -422,7 +422,7 @@ class ActionUploader extends Action {
         if ($sFileWeb = $this->UploadImageAfterResize($sTmpFile, $sTargetId, $sTarget, $aSize)) {
 
             $sFileWebPreview = $sFileWeb;
-            if ($sSize = getRequest('crop_size', FALSE)) {
+            if ($sSize = F::GetRequest('crop_size', FALSE)) {
                 $sFileWebPreview = E::ModuleUploader()->ResizeTargetImage($sFileWeb, $sSize);
             }
 
@@ -462,8 +462,8 @@ class ActionUploader extends Action {
 
         // Проверяем, целевой объект и права на его редактирование
         if (!$oTarget = E::ModuleUploader()->CheckAccessAndGetTarget(
-            $sTargetType = getRequest('target', FALSE),
-            $sTargetId = getRequest('target_id', FALSE))
+            $sTargetType = F::GetRequest('target', FALSE),
+            $sTargetId = F::GetRequest('target_id', FALSE))
         ) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
@@ -495,8 +495,8 @@ class ActionUploader extends Action {
 
         // Проверяем, целевой объект и права на его редактирование
         if (!$oTarget = E::ModuleUploader()->CheckAccessAndGetTarget(
-            $sTarget = getRequest('target', FALSE),
-            $sTargetId = getRequest('target_id', FALSE))
+            $sTarget = F::GetRequest('target', FALSE),
+            $sTargetId = F::GetRequest('target_id', FALSE))
         ) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
@@ -537,8 +537,8 @@ class ActionUploader extends Action {
             return;
         }
 
-        $sTarget = getRequest('target', FALSE);
-        $sTargetId = getRequest('target_id', FALSE);
+        $sTarget = F::GetRequest('target', FALSE);
+        $sTargetId = F::GetRequest('target_id', FALSE);
         $oTarget = E::ModuleUploader()->CheckAccessAndGetTarget($sTarget, $sTargetId);
 
         // Проверяем, целевой объект и права на его редактирование
@@ -569,8 +569,8 @@ class ActionUploader extends Action {
 
             // Проверим, проходит ли по количеству
             if (!E::ModuleUploader()->GetAllowedCount(
-                $sTarget = getRequest('target', FALSE),
-                $sTargetId = getRequest('target_id', FALSE))
+                $sTarget = F::GetRequest('target', FALSE),
+                $sTargetId = F::GetRequest('target_id', FALSE))
             ) {
                 E::ModuleMessage()->AddError(E::ModuleLang()->Get(
                     'uploader_photoset_error_count_photos',
@@ -619,7 +619,7 @@ class ActionUploader extends Action {
                 }
 
                 $sFilePreview = $sFile;
-                if ($sSize = getRequest('crop_size', FALSE)) {
+                if ($sSize = F::GetRequest('crop_size', FALSE)) {
                     $sFilePreview = E::ModuleUploader()->ResizeTargetImage($sFile, $sSize);
                 }
 
@@ -670,15 +670,15 @@ class ActionUploader extends Action {
 
         // Проверяем, целевой объект и права на его редактирование
         if (!$oTarget = E::ModuleUploader()->CheckAccessAndGetTarget(
-            $sTargetType = getRequest('target', FALSE),
-            $sTargetId = getRequest('target_id', FALSE))
+            $sTargetType = F::GetRequest('target', FALSE),
+            $sTargetId = F::GetRequest('target_id', FALSE))
         ) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
             return;
         }
 
-        if (!($sResourceId = getRequest('resource_id', FALSE))) {
+        if (!($sResourceId = F::GetRequest('resource_id', FALSE))) {
             E::ModuleMessage()->AddError(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
             return;
@@ -709,15 +709,15 @@ class ActionUploader extends Action {
 
         // Проверяем, целевой объект и права на его редактирование
         if (!$oTarget = E::ModuleUploader()->CheckAccessAndGetTarget(
-            $sTargetType = getRequest('target', FALSE),
-            $sTargetId = getRequest('target_id', FALSE))
+            $sTargetType = F::GetRequest('target', FALSE),
+            $sTargetId = F::GetRequest('target_id', FALSE))
         ) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
             return;
         }
 
-        if (!($sResourceId = getRequest('resource_id', FALSE))) {
+        if (!($sResourceId = F::GetRequest('resource_id', FALSE))) {
             E::ModuleMessage()->AddError(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
             return;
@@ -748,15 +748,15 @@ class ActionUploader extends Action {
 
         // Проверяем, целевой объект и права на его редактирование
         if (!$oTarget = E::ModuleUploader()->CheckAccessAndGetTarget(
-            $sTargetType = getRequest('target', FALSE),
-            $sTargetId = getRequest('target_id', FALSE))
+            $sTargetType = F::GetRequest('target', FALSE),
+            $sTargetId = F::GetRequest('target_id', FALSE))
         ) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
             return;
         }
 
-        if (!($sResourceId = getRequest('resource_id', FALSE))) {
+        if (!($sResourceId = F::GetRequest('resource_id', FALSE))) {
             E::ModuleMessage()->AddError(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
             return;
@@ -787,15 +787,15 @@ class ActionUploader extends Action {
 
         // Проверяем, целевой объект и права на его редактирование
         if (!$oTarget = E::ModuleUploader()->CheckAccessAndGetTarget(
-            $sTargetType = getRequest('target', FALSE),
-            $sTargetId = getRequest('target_id', FALSE))
+            $sTargetType = F::GetRequest('target', FALSE),
+            $sTargetId = F::GetRequest('target_id', FALSE))
         ) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
             return;
         }
 
-        if (!($aOrder = getRequest('order', FALSE))) {
+        if (!($aOrder = F::GetRequest('order', FALSE))) {
             E::ModuleMessage()->AddError(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
             return;
