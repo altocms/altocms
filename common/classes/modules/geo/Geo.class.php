@@ -144,6 +144,7 @@ class ModuleGeo extends Module {
      * @return bool
      */
     public function IsAllowTargetMulti($sTargetType) {
+
         if ($this->IsAllowTargetType($sTargetType)) {
             if (isset($this->aTargetTypes[$sTargetType]['allow_multi'])
                 && $this->aTargetTypes[$sTargetType]['allow_multi']
@@ -164,6 +165,7 @@ class ModuleGeo extends Module {
     public function AddTarget($oTarget) {
 
         if ($this->oMapper->AddTarget($oTarget)) {
+            E::ModuleCache()->CleanByTags(array('geo_target_update'));
             return $oTarget;
         }
         return false;
@@ -227,6 +229,7 @@ class ModuleGeo extends Module {
         } elseif ($oGeoObject->getType() == 'country') {
             $oTarget->setCountryId($oGeoObject->getId());
         }
+        E::ModuleCache()->CleanByTags(array('geo_target_update'));
         return $this->AddTarget($oTarget);
     }
 
@@ -241,8 +244,15 @@ class ModuleGeo extends Module {
      */
     public function GetTargets($aFilter, $iCurrPage, $iPerPage) {
 
-        return array('collection' => $this->oMapper->GetTargets($aFilter, $iCount, $iCurrPage, $iPerPage),
-                     'count'      => $iCount);
+        $sCacheKey = 'Geo_' . __FUNCTION__ . '-' . serialize(func_get_args());
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
+            $data = array(
+                'collection' => $this->oMapper->GetTargets($aFilter, $iCount, $iCurrPage, $iPerPage),
+                'count'      => $iCount
+            );
+            E::ModuleCache()->Set($data, $sCacheKey, array('geo_target_update'), 'P1D');
+        }
+        return $data;
     }
 
     /**
@@ -299,7 +309,9 @@ class ModuleGeo extends Module {
      */
     public function DeleteTargets($aFilter) {
 
-        return $this->oMapper->DeleteTargets($aFilter);
+        $xResult =  $this->oMapper->DeleteTargets($aFilter);
+        E::ModuleCache()->CleanByTags(array('geo_target_update'));
+        return $xResult;
     }
 
     /**
@@ -312,7 +324,9 @@ class ModuleGeo extends Module {
      */
     public function DeleteTargetsByTarget($sTargetType, $iTargetId) {
 
-        return $this->DeleteTargets(array('target_type' => $sTargetType, 'target_id' => $iTargetId));
+        $xResult = $this->DeleteTargets(array('target_type' => $sTargetType, 'target_id' => $iTargetId));
+        E::ModuleCache()->CleanByTags(array('geo_target_update'));
+        return $xResult;
     }
 
     /**
@@ -327,10 +341,15 @@ class ModuleGeo extends Module {
      */
     public function GetCountries($aFilter, $aOrder, $iCurrPage, $iPerPage) {
 
-        return array(
-            'collection' => $this->oMapper->GetCountries($aFilter, $aOrder, $iCount, $iCurrPage, $iPerPage),
-            'count'      => $iCount,
-        );
+        $sCacheKey = 'Geo_' . __FUNCTION__ . '-' . serialize(func_get_args());
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
+            $data = array(
+                'collection' => $this->oMapper->GetCountries($aFilter, $aOrder, $iCount, $iCurrPage, $iPerPage),
+                'count'      => $iCount
+            );
+            E::ModuleCache()->Set($data, $sCacheKey, array('geo_target_update'), 'P1D');
+        }
+        return $data;
     }
 
     /**
@@ -345,10 +364,15 @@ class ModuleGeo extends Module {
      */
     public function GetRegions($aFilter, $aOrder, $iCurrPage, $iPerPage) {
 
-        return array(
-            'collection' => $this->oMapper->GetRegions($aFilter, $aOrder, $iCount, $iCurrPage, $iPerPage),
-            'count'      => $iCount,
-        );
+        $sCacheKey = 'Geo_' . __FUNCTION__ . '-' . serialize(func_get_args());
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
+            $data = array(
+                'collection' => $this->oMapper->GetRegions($aFilter, $aOrder, $iCount, $iCurrPage, $iPerPage),
+                'count'      => $iCount
+            );
+            E::ModuleCache()->Set($data, $sCacheKey, array('geo_target_update'), 'P1D');
+        }
+        return $data;
     }
 
     /**
@@ -363,10 +387,15 @@ class ModuleGeo extends Module {
      */
     public function GetCities($aFilter, $aOrder, $iCurrPage, $iPerPage) {
 
-        return array(
-            'collection' => $this->oMapper->GetCities($aFilter, $aOrder, $iCount, $iCurrPage, $iPerPage),
-            'count'      => $iCount,
-        );
+        $sCacheKey = 'Geo_' . __FUNCTION__ . '-' . serialize(func_get_args());
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
+            $data = array(
+                'collection' => $this->oMapper->GetCities($aFilter, $aOrder, $iCount, $iCurrPage, $iPerPage),
+                'count'      => $iCount
+            );
+            E::ModuleCache()->Set($data, $sCacheKey, array('geo_target_update'), 'P1D');
+        }
+        return $data;
     }
 
     /**
@@ -474,7 +503,12 @@ class ModuleGeo extends Module {
      */
     public function GetGroupCountriesByTargetType($sTargetType, $iLimit) {
 
-        return $this->oMapper->GetGroupCountriesByTargetType($sTargetType, $iLimit);
+        $sCacheKey = 'Geo_' . __FUNCTION__ . '-' . serialize(func_get_args());
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
+            $data = $this->oMapper->GetGroupCountriesByTargetType($sTargetType, $iLimit);
+            E::ModuleCache()->Set($data, $sCacheKey, array('geo_target_update'), 'P1D');
+        }
+        return $data;
     }
 
     /**
@@ -487,7 +521,12 @@ class ModuleGeo extends Module {
      */
     public function GetGroupCitiesByTargetType($sTargetType, $iLimit) {
 
-        return $this->oMapper->GetGroupCitiesByTargetType($sTargetType, $iLimit);
+        $sCacheKey = 'Geo_' . __FUNCTION__ . '-' . serialize(func_get_args());
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
+            $data = $this->oMapper->GetGroupCitiesByTargetType($sTargetType, $iLimit);
+            E::ModuleCache()->Set($data, $sCacheKey, array('geo_target_update'), 'P1D');
+        }
+        return $data;
     }
 
     /**
