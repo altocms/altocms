@@ -858,9 +858,17 @@ class ModuleUploader extends Module {
 
     }
 
+    /**
+     * @param $sTargetType
+     * @param $iTargetId
+     *
+     * @return array
+     */
     public function GetTargetImages($sTargetType, $iTargetId) {
 
         $aMResourceRel = E::ModuleMresource()->GetMresourcesRelByTarget($sTargetType, $iTargetId);
+
+        return $aMResourceRel;
     }
 }
 

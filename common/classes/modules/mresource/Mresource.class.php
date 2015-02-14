@@ -153,13 +153,13 @@ class ModuleMresource extends Module {
     /**
      * Add relations between mresources and target
      *
-     * @param array  $aMresourcesRel
-     * @param string $sTargetType
-     * @param int    $nTargetId
+     * @param array|ModuleMresource_EntityMresource $aMresourcesRel
+     * @param string                                $sTargetType
+     * @param int                                   $iTargetId
      *
      * @return bool
      */
-    public function AddTargetRel($aMresourcesRel, $sTargetType, $nTargetId) {
+    public function AddTargetRel($aMresourcesRel, $sTargetType, $iTargetId) {
 
         if (!is_array($aMresourcesRel)) {
             $aMresourcesRel = array($aMresourcesRel);
@@ -209,7 +209,7 @@ class ModuleMresource extends Module {
                     $oMresource->SetTargetType($sTargetType);
                 }
                 if (!$oMresource->GetTargetid()) {
-                    $oMresource->SetTargetId($nTargetId);
+                    $oMresource->SetTargetId($iTargetId);
                 }
                 $this->oMapper->AddTargetRel($oMresource);
             }
@@ -285,51 +285,52 @@ class ModuleMresource extends Module {
 
     /**
      * @param $aFilter
-     * @param $nPage
-     * @param $nPerPage
+     * @param $iPage
+     * @param $iPerPage
      *
      * @return array
      */
-    public function GetMresourcesByFilter($aFilter, $nPage, $nPerPage) {
+    public function GetMresourcesByFilter($aFilter, $iPage, $iPerPage) {
 
-        $aData = $this->oMapper->GetMresourcesByFilter($aFilter, $nPage, $nPerPage);
+        $aData = $this->oMapper->GetMresourcesByFilter($aFilter, $iPage, $iPerPage);
         return array('collection' => $aData['data'], 'count' => 0);
     }
 
     /**
-     * @param $sTargetType
-     * @param $nTargetId
+     * @param string    $sTargetType
+     * @param int|array $xTargetId
      *
      * @return mixed
      */
-    public function GetMresourcesByTarget($sTargetType, $nTargetId) {
+    public function GetMresourcesByTarget($sTargetType, $xTargetId) {
 
-        $aData = $this->oMapper->GetMresourcesByTarget($sTargetType, $nTargetId);
+        $aData = $this->oMapper->GetMresourcesByTarget($sTargetType, $xTargetId);
         return $aData;
     }
 
     /**
-     * @param $sTargetType
-     * @param $nTargetId
+     * @param string    $sTargetType
+     * @param int|array $xTargetId
      *
-     * @return array
+     * @return Mresource_MresourceRel[]
      */
-    public function GetMresourcesRelByTarget($sTargetType, $nTargetId) {
+    public function GetMresourcesRelByTarget($sTargetType, $xTargetId) {
 
-        $aData = $this->oMapper->GetMresourcesRelByTarget($sTargetType, $nTargetId);
+        $aData = $this->oMapper->GetMresourcesRelByTarget($sTargetType, $xTargetId);
         return $aData;
     }
 
     /**
-     * @param $sTargetType
-     * @param $nTargetId
-     * @param $iUserId
+     * @param string    $sTargetType
+     * @param int|array $xTargetId
+     * @param int|array $xUserId
      *
      * @return array
      */
-    public function GetMresourcesRelByTargetAndUser($sTargetType, $nTargetId, $iUserId) {
+    public function GetMresourcesRelByTargetAndUser($sTargetType, $xTargetId, $xUserId) {
 
-        $aData = $this->oMapper->GetMresourcesRelByTargetAndUser($sTargetType, $nTargetId, $iUserId);
+        $aData = $this->oMapper->GetMresourcesRelByTargetAndUser($sTargetType, $xTargetId, $xUserId);
+
         return $aData;
     }
 
@@ -429,16 +430,16 @@ class ModuleMresource extends Module {
     /**
      * Deletes mresources' relations by target type & id
      *
-     * @param string $sTargetType
-     * @param int    $nTargetId
+     * @param string    $sTargetType
+     * @param int|array $xTargetId
      *
      * @return bool
      */
-    public function DeleteMresourcesRelByTarget($sTargetType, $nTargetId) {
+    public function DeleteMresourcesRelByTarget($sTargetType, $xTargetId) {
 
-        $aMresourceRel = $this->oMapper->GetMresourcesRelByTarget($sTargetType, $nTargetId);
+        $aMresourceRel = $this->oMapper->GetMresourcesRelByTarget($sTargetType, $xTargetId);
         if ($aMresourceRel) {
-            if ($this->oMapper->DeleteTargetRel($sTargetType, $nTargetId)) {
+            if ($this->oMapper->DeleteTargetRel($sTargetType, $xTargetId)) {
                 $aMresId = array();
                 foreach ($aMresourceRel as $oResourceRel) {
                     $aMresId[] = $oResourceRel->GetMresourceId();
@@ -451,17 +452,17 @@ class ModuleMresource extends Module {
     }
 
     /**
-     * @param $sTargetType
-     * @param $nTargetId
-     * @param $iUserId
+     * @param string    $sTargetType
+     * @param int|array $xTargetId
+     * @param int       $iUserId
      *
      * @return bool
      */
-    public function DeleteMresourcesRelByTargetAndUser($sTargetType, $nTargetId, $iUserId) {
+    public function DeleteMresourcesRelByTargetAndUser($sTargetType, $xTargetId, $iUserId) {
 
-        $aMresourceRel = $this->oMapper->GetMresourcesRelByTargetAndUser($sTargetType, $nTargetId, $iUserId);
+        $aMresourceRel = $this->oMapper->GetMresourcesRelByTargetAndUser($sTargetType, $xTargetId, $iUserId);
         if ($aMresourceRel) {
-            if ($this->oMapper->DeleteTargetRel($sTargetType, $nTargetId)) {
+            if ($this->oMapper->DeleteTargetRel($sTargetType, $xTargetId)) {
                 $aMresId = array();
                 foreach ($aMresourceRel as $oResourceRel) {
                     $aMresId[] = $oResourceRel->GetMresourceId();
@@ -509,24 +510,26 @@ class ModuleMresource extends Module {
 
     /**
      * Удаляет временную ссылку
+     *
      * @param $sTargetTmp
      * @param $sTargetId
      */
     public function ResetTmpRelById($sTargetTmp, $sTargetId) {
+
         $this->oMapper->ResetTmpRelById($sTargetTmp, $sTargetId);
     }
 
     /**
      * Удаление изображения
      *
-     * @param $sTargetType
-     * @param $sTargetId
-     * @param $sUserId
+     * @param string $sTargetType
+     * @param int    $iTargetId
+     * @param int    $iUserId
      */
-    public function UnlinkFile($sTargetType, $sTargetId, $sUserId) {
+    public function UnlinkFile($sTargetType, $iTargetId, $iUserId) {
 
         // Получим и удалим все ресурсы
-        $aMresourceRel = $this->GetMresourcesRelByTargetAndUser($sTargetType, $sTargetId, $sUserId);
+        $aMresourceRel = $this->GetMresourcesRelByTargetAndUser($sTargetType, $iTargetId, $iUserId);
         if ($aMresourceRel) {
             $aMresId = array();
             foreach ($aMresourceRel as $oResourceRel) {
@@ -538,7 +541,7 @@ class ModuleMresource extends Module {
         }
 
         // И связи
-        $this->DeleteMresourcesRelByTargetAndUser($sTargetType, $sTargetId, E::UserId());
+        $this->DeleteMresourcesRelByTargetAndUser($sTargetType, $iTargetId, E::UserId());
     }
 
     /**
@@ -855,19 +858,20 @@ class ModuleMresource extends Module {
      * Получает топики пользователя с картинками
      *
      * @param $iUserId
-     * @param $iCurrPage
+     * @param $iPage
      * @param $iPerPage
      *
      * @return array
      */
-    public function GetTopicsPage($iUserId, $iCurrPage, $iPerPage)  {
+    public function GetTopicsPage($iUserId, $iPage, $iPerPage)  {
+
         $iCount = 0;
         $aResult = array(
             'collection' => array(),
             'count' => 0
         );
 
-        $aTopicInfo = $this->oMapper->GetTopicInfo($iUserId, $iCount, $iCurrPage, $iPerPage);
+        $aTopicInfo = $this->oMapper->GetTopicInfo($iUserId, $iCount, $iPage, $iPerPage);
         if ($aTopicInfo) {
 
             $aTopics = E::ModuleTopic()->GetTopicsAdditionalData(array_keys($aTopicInfo));
@@ -908,12 +912,12 @@ class ModuleMresource extends Module {
      * Получает топики пользователя с картинками
      *
      * @param $iUserId
-     * @param $iCurrPage
+     * @param $iPage
      * @param $iPerPage
      *
      * @return array
      */
-    public function GetTalksPage($iUserId, $iCurrPage, $iPerPage)  {
+    public function GetTalksPage($iUserId, $iPage, $iPerPage)  {
 
         $iCount = 0;
         $aResult = array(
@@ -921,7 +925,7 @@ class ModuleMresource extends Module {
             'count' => 0
         );
 
-        $aTalkInfo = $this->oMapper->GetTalkInfo($iUserId, $iCount, $iCurrPage, $iPerPage);
+        $aTalkInfo = $this->oMapper->GetTalkInfo($iUserId, $iCount, $iPage, $iPerPage);
         if ($aTalkInfo) {
 
             $aTalks = E::ModuleTalk()->GetTalksAdditionalData(array_keys($aTalkInfo));

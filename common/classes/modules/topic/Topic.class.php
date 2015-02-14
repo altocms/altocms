@@ -2783,7 +2783,8 @@ class ModuleTopic extends Module {
     /**
      * Обработка дополнительных полей топика
      *
-     * @param ModuleTopic_EntityTopic $oTopic
+     * @param        $oTopic
+     * @param string $sType
      *
      * @return bool
      */
@@ -2895,7 +2896,7 @@ class ModuleTopic extends Module {
                         // Поле с изображением
                         if ($oField->getFieldType() == 'single-image-uploader') {
                             $sTargetType = $oField->getFieldType(). '-' . $oField->getFieldId();
-                            $sTargetId = $oTopic->getId();
+                            $iTargetId = $oTopic->getId();
 
                             // 1. Удалить значение target_tmp
                             // Нужно затереть временный ключ в ресурсах, что бы в дальнейшем картнка не
@@ -2909,7 +2910,7 @@ class ModuleTopic extends Module {
 
                                 // 3. Переместить фото
 
-                                $sNewPath = E::ModuleUploader()->GetUploadDir($sTargetType, $sTargetId) . '/';
+                                $sNewPath = E::ModuleUploader()->GetUploadDir($sTargetType, $iTargetId) . '/';
                                 $aMresourceRel = E::Mresource_GetMresourcesRelByTargetAndUser($sTargetType, 0, E::UserId());
 
                                 if ($aMresourceRel) {
@@ -2920,19 +2921,19 @@ class ModuleTopic extends Module {
                                     /** @var ModuleMresource_EntityMresource $oResource */
                                     $oResource = E::ModuleMresource()->GetMresourcesByUuid($xStoredFile->getUuid());
                                     if ($oResource) {
-                                        $oResource->setUrl(E::ModuleMresource()->NormalizeUrl(E::ModuleUploader()->GetTargetUrl($sTargetType, $sTargetId)));
+                                        $oResource->setUrl(E::ModuleMresource()->NormalizeUrl(E::ModuleUploader()->GetTargetUrl($sTargetType, $iTargetId)));
                                         $oResource->setType($sTargetType);
                                         $oResource->setUserId(E::UserId());
                                         // 4. В свойство поля записать адрес картинки
                                         $sData = $oResource->getMresourceId();
                                         $oResource = array($oResource);
                                         E::ModuleMresource()->UnlinkFile($sTargetType, 0, $oTopic->getUserId());
-                                        E::ModuleMresource()->AddTargetRel($oResource, $sTargetType, $sTargetId);
+                                        E::ModuleMresource()->AddTargetRel($oResource, $sTargetType, $iTargetId);
                                     }
                                 }
                             } else {
                                 // Топик редактируется, просто обновим поле
-                                $aMresourceRel = E::Mresource_GetMresourcesRelByTargetAndUser($sTargetType, $sTargetId, E::UserId());
+                                $aMresourceRel = E::Mresource_GetMresourcesRelByTargetAndUser($sTargetType, $iTargetId, E::UserId());
                                 if ($aMresourceRel) {
                                     $oResource = array_shift($aMresourceRel);
                                     $sData = $oResource->getMresourceId();
@@ -2966,6 +2967,7 @@ class ModuleTopic extends Module {
                 }
             }
         }
+        return true;
     }
 
     /**

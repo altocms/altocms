@@ -29,7 +29,7 @@ function smarty_function_img($aParams, &$oSmarty = NULL) {
     unset($aParams['attr']['target-type']);
 
     // Получим ид объекта
-    $sTargetId = $aParams['attr']['target-id'];
+    $iTargetId = intval($aParams['attr']['target-id']);
     unset($aParams['attr']['target-id']);
 
     // Получим ид объекта
@@ -44,7 +44,7 @@ function smarty_function_img($aParams, &$oSmarty = NULL) {
         E::ModuleSession()->SetCookie('uploader_target_tmp', $sTargetTmp, 'P1D', FALSE);
         // Получим предыдущее изображение и если оно было, установим в качестве текущего
         // Получим и удалим все ресурсы
-        $aMresourceRel = E::ModuleMresource()->GetMresourcesRelByTargetAndUser($sTargetType, $sTargetId, E::UserId());
+        $aMresourceRel = E::ModuleMresource()->GetMresourcesRelByTargetAndUser($sTargetType, $iTargetId, E::UserId());
         if ($aMresourceRel) {
             /** @var ModuleMresource_EntityMresource $oResource */
             $oMresource = array_shift($aMresourceRel);
@@ -62,11 +62,11 @@ function smarty_function_img($aParams, &$oSmarty = NULL) {
 
         // Куки нет, это значит, что пользователь первый раз создает этот тип
         // и старой картинки просто нет
-        if ($sTargetId == '0') {
+        if ($iTargetId == '0') {
             E::ModuleSession()->SetCookie('uploader_target_tmp', F::RandomStr(), 'P1D', FALSE);
         } else {
             E::ModuleSession()->DelCookie('uploader_target_tmp');
-            $sImage = E::ModuleUploader()->GetTargetImageUrl($sTargetType, $sTargetId, $sCrop);
+            $sImage = E::ModuleUploader()->GetTargetImageUrl($sTargetType, $iTargetId, $sCrop);
             if ($sImage) {
                 $aParams['attr']['src'] = $sImage;
                 $oSmarty->assign("bImageIsTemporary", TRUE);
@@ -92,3 +92,5 @@ function smarty_function_img($aParams, &$oSmarty = NULL) {
     return $sImageTag;
 
 }
+
+// EOF

@@ -184,7 +184,8 @@ class ModuleMresource_MapperMresource extends Mapper {
                 {AND mrt.target_type=?:target_type}
                 {AND mrt.target_id=?d:target_id}
                 {AND mrt.target_id IN (?a:target_ids)}
-                {AND mr.user_id=(?d:user_id)}
+                {AND mr.user_id=?d:user_id}
+                {AND mr.user_id IN (?a:user_ids)}
                 {AND mr.link=(?d:link)}
                 {AND (mr.type & ?d:type)>0}
                 {AND mr.hash_url=?:hash_url}
@@ -201,7 +202,8 @@ class ModuleMresource_MapperMresource extends Mapper {
                  ':target_type' => isset($aFilter['target_type']) ? $aFilter['target_type'] : DBSIMPLE_SKIP,
                  ':target_id' => (isset($aFilter['target_id']) && !is_array($aFilter['target_id'])) ? $aFilter['target_id'] : DBSIMPLE_SKIP,
                  ':target_ids' => (isset($aFilter['target_id']) && is_array($aFilter['target_id'])) ? $aFilter['target_id'] : DBSIMPLE_SKIP,
-                 ':user_id' => isset($aFilter['user_id']) ? $aFilter['user_id'] : DBSIMPLE_SKIP,
+                 ':user_id' => (isset($aFilter['user_id']) && !is_array($aFilter['user_id'])) ? $aFilter['user_id'] : DBSIMPLE_SKIP,
+                 ':user_ids' => (isset($aFilter['user_id']) && is_array($aFilter['user_id'])) ? $aFilter['user_id'] : DBSIMPLE_SKIP,
                  ':link' => isset($aFilter['link']) ? $aFilter['link'] : DBSIMPLE_SKIP,
                  ':type' => isset($aFilter['type']) ? $aFilter['type'] : DBSIMPLE_SKIP,
                  ':hash_url' => isset($aFilter['hash_url']) ? $aFilter['hash_url'] : DBSIMPLE_SKIP,
@@ -603,7 +605,7 @@ class ModuleMresource_MapperMresource extends Mapper {
      * @param string    $sTargetType
      * @param int|array $xTargetId
      *
-     * @return array
+     * @return Mresource_MresourceRel[]
      */
     public function GetMresourcesRelByTarget($sTargetType, $xTargetId) {
 
@@ -625,17 +627,18 @@ class ModuleMresource_MapperMresource extends Mapper {
     /**
      * Returns media resources' relation entities by target
      *
-     * @param $sTargetType
-     * @param $nTargetId
+     * @param string    $sTargetType
+     * @param int|array $xTargetId
+     * @param int       $iUserId
      *
-     * @return array
+     * @return Mresource_MresourceRel[]
      */
-    public function GetMresourcesRelByTargetAndUser($sTargetType, $nTargetId, $iUserId) {
+    public function GetMresourcesRelByTargetAndUser($sTargetType, $xTargetId, $iUserId) {
 
         $aCriteria = array(
             'filter' => array(
                 'target_type' => $sTargetType,
-                'target_id' => $nTargetId,
+                'target_id' => $xTargetId,
                 'user_id' => $iUserId,
             ),
         );

@@ -29,7 +29,7 @@ function smarty_function_imgs($aParams, &$oSmarty = NULL) {
     unset($aParams['target-type']);
 
     // Получим ид объекта
-    $sTargetId = $aParams['target-id'];
+    $iTargetId = intval($aParams['target-id']);
     unset($aParams['target-id']);
 
     // Получим параметры обрезки объекта
@@ -49,7 +49,7 @@ function smarty_function_imgs($aParams, &$oSmarty = NULL) {
     } else {
         // Куки нет, это значит, что пользователь первый раз создает этот тип
         // и старой картинки просто нет
-        if ($sTargetId == '0') {
+        if ($iTargetId == '0') {
             E::ModuleSession()->SetCookie('uploader_target_tmp', F::RandomStr(), 'P1D', FALSE);
         } else {
             E::ModuleSession()->DelCookie('uploader_target_tmp');
@@ -58,7 +58,7 @@ function smarty_function_imgs($aParams, &$oSmarty = NULL) {
 
     // Получим предыдущее изображение и если оно было, установим в качестве текущего
     // Получим и удалим все ресурсы
-    $aMresourceRel = E::ModuleMresource()->GetMresourcesRelByTargetAndUser($sTargetType, $sTargetId, E::UserId());
+    $aMresourceRel = E::ModuleMresource()->GetMresourcesRelByTargetAndUser($sTargetType, $iTargetId, E::UserId());
     if ($aMresourceRel && is_array($aMresourceRel)) {
         /** @var ModuleMresource_EntityMresource $oResource */
         foreach ($aMresourceRel as $oMresource) {
@@ -94,3 +94,5 @@ function smarty_function_imgs($aParams, &$oSmarty = NULL) {
     return $sItems;
 
 }
+
+// EOF
