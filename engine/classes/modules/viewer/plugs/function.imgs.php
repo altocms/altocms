@@ -43,28 +43,28 @@ function smarty_function_imgs($aParams, &$oSmarty = NULL) {
 
     // Получим изображение по временному ключу, или создадим этот ключ
     $aParams['src'] = array();
-    if (($sTargetTmp = E::Session_GetCookie('uploader_target_tmp')) && E::IsUser()) {
+    if (($sTargetTmp = E::ModuleSession()->GetCookie('uploader_target_tmp')) && E::IsUser()) {
         // Продлим куку
-        E::Session_SetCookie('uploader_target_tmp', $sTargetTmp, 'P1D', FALSE);
+        E::ModuleSession()->SetCookie('uploader_target_tmp', $sTargetTmp, 'P1D', FALSE);
     } else {
         // Куки нет, это значит, что пользователь первый раз создает этот тип
         // и старой картинки просто нет
         if ($sTargetId == '0') {
-            E::Session_SetCookie('uploader_target_tmp', F::RandomStr(), 'P1D', FALSE);
+            E::ModuleSession()->SetCookie('uploader_target_tmp', F::RandomStr(), 'P1D', FALSE);
         } else {
-            E::Session_DelCookie('uploader_target_tmp');
+            E::ModuleSession()->DelCookie('uploader_target_tmp');
         }
     }
 
     // Получим предыдущее изображение и если оно было, установим в качестве текущего
     // Получим и удалим все ресурсы
-    $aMresourceRel = E::Mresource_GetMresourcesRelByTargetAndUser($sTargetType, $sTargetId, E::UserId());
+    $aMresourceRel = E::ModuleMresource()->GetMresourcesRelByTargetAndUser($sTargetType, $sTargetId, E::UserId());
     if ($aMresourceRel && is_array($aMresourceRel)) {
         /** @var ModuleMresource_EntityMresource $oResource */
         foreach ($aMresourceRel as $oMresource) {
             if ($sCrop) {
                 $aParams['src'][$oMresource->getMresourceId()] = array(
-                    'url' => E::Uploader_ResizeTargetImage($oMresource->GetUrl(), $sCrop),
+                    'url' => E::ModuleUploader()->ResizeTargetImage($oMresource->GetUrl(), $sCrop),
                     'cover' => $oMresource->IsCover()
                 );
             } else {
@@ -84,8 +84,8 @@ function smarty_function_imgs($aParams, &$oSmarty = NULL) {
             $sItems .= str_replace(
                 array('ID', 'uploader_item_SRC', 'MARK_AS_PREVIEW'),
                 array($sID, $aData['url'], $aData['cover']
-                    ? E::Lang_Get('topic_photoset_is_preview')
-                    : E::Lang_Get('topic_photoset_mark_as_preview')),
+                    ? E::ModuleLang()->Get('topic_photoset_is_preview')
+                    : E::ModuleLang()->Get('topic_photoset_mark_as_preview')),
                 $sTemplate
             );
         }
