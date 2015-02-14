@@ -760,7 +760,7 @@ return array(
     'settings_profile_avatar_resize_title'      => 'Создание аватара',
     'settings_profile_avatar_resize_apply'      => 'Применить',
     'settings_profile_avatar_resize_cancel'     => 'Отменить',
-    'settings_profile_avatar_resize_text'       => 'Вы можете выбрать область изображения, которая будет использоваться в качестве аватары',
+    'settings_profile_avatar_resize_text'       => 'Вы можете выбрать область изображения, которая будет использоваться в качестве аватара',
     'settings_profile_photo'                    => 'Фото',
     'settings_profile_photo_error'              => 'Не удалось загрузить фото',
     'settings_profile_photo_delete'             => 'Удалить',
