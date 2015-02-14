@@ -179,7 +179,7 @@ class ModuleBlog_EntityBlog extends Entity {
     public function getAvatar() {
 
 //        return $this->getProp('blog_avatar');
-        return E::ModuleUploader()->GetTargetImageUrl($this->getId(), 'blog_avatar');
+        return E::ModuleUploader()->GetTargetImageUrl('blog_avatar', $this->getId());
     }
 
     /**
@@ -222,7 +222,7 @@ class ModuleBlog_EntityBlog extends Entity {
      */
     public function getAvatarUrl($xSize = 48) {
 
-        if ($sUrl = E::ModuleUploader()->GetTargetImageUrl($this->getId(), 'blog_avatar', $xSize)) {
+        if ($sUrl = E::ModuleUploader()->GetTargetImageUrl('blog_avatar', $this->getId(), $xSize)) {
             return $sUrl;
         } else {
             $sPath = E::ModuleUploader()->GetUserAvatarDir(0) . 'avatar_blog_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '.png';

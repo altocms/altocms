@@ -423,17 +423,17 @@ class ModuleUploader extends Module {
     /**
      * Path to user's upload dir
      *
-     * @param int    $nUserId
+     * @param int    $iUserId
      * @param string $sDir
      * @param bool   $bAutoMake
      *
      * @return string
      */
-    protected function _getUserUploadDir($nUserId, $sDir, $bAutoMake = true) {
+    protected function _getUserUploadDir($iUserId, $sDir, $bAutoMake = true) {
 
         $nMaxLen = 6;
         $nSplitLen = 2;
-        $sPath = join('/', str_split(str_pad($nUserId, $nMaxLen, '0', STR_PAD_LEFT), $nSplitLen));
+        $sPath = join('/', str_split(str_pad($iUserId, $nMaxLen, '0', STR_PAD_LEFT), $nSplitLen));
         $sResult = F::File_NormPath(F::File_RootDir() . $sDir . $sPath . '/');
         if ($bAutoMake) {
             F::File_CheckDir($sResult, $bAutoMake);
@@ -442,42 +442,43 @@ class ModuleUploader extends Module {
     }
 
     /**
-     * @param int $nUserId
+     * @param int  $iUserId
      * @param bool $bAutoMake
      *
      * @param bool $sType
+     *
      * @return string
      */
-    public function GetUserImagesUploadDir($nUserId, $bAutoMake = TRUE, $sType = FALSE) {
+    public function GetUserImagesUploadDir($iUserId, $bAutoMake = TRUE, $sType = FALSE) {
 
 //        return $this->_getUserUploadDir($nUserId, Config::Get('path.uploads.images'), $bAutoMake);
         $sDir = ($sType && ($sDir = Config::Get('path.uploads.' . $sType))) ? $sDir : Config::Get('path.uploads.images');
 
-        return $this->_getUserUploadDir($nUserId, $sDir, $bAutoMake);
+        return $this->_getUserUploadDir($iUserId, $sDir, $bAutoMake);
     }
 
     /**
-     * @param int  $nUserId
+     * @param int  $iUserId
      * @param bool $bAutoMake
      *
      * @return string
      */
-    public function GetUserFilesUploadDir($nUserId, $bAutoMake = true) {
+    public function GetUserFilesUploadDir($iUserId, $bAutoMake = true) {
 
-        return $this->_getUserUploadDir($nUserId, Config::Get('path.uploads.files'), $bAutoMake);
+        return $this->_getUserUploadDir($iUserId, Config::Get('path.uploads.files'), $bAutoMake);
     }
 
     /**
      * Path to user's dir for avatars
      *
-     * @param int  $nUserId
+     * @param int  $iUserId
      * @param bool $bAutoMake
      *
      * @return string
      */
-    public function GetUserAvatarDir($nUserId, $bAutoMake = true) {
+    public function GetUserAvatarDir($iUserId, $bAutoMake = true) {
 
-        $sResult = $this->GetUserImagesUploadDir($nUserId) . 'avatar/';
+        $sResult = $this->GetUserImagesUploadDir($iUserId) . 'avatar/';
         if ($bAutoMake) {
             F::File_CheckDir($sResult, $bAutoMake);
         }
@@ -487,8 +488,9 @@ class ModuleUploader extends Module {
     /**
      * Path to user's dir for uploaded images
      *
-     * @param int  $iUserId
-     * @param bool $bAutoMake
+     * @param int         $iUserId
+     * @param bool        $bAutoMake
+     * @param string|bool $sType
      *
      * @return string
      */
@@ -505,14 +507,14 @@ class ModuleUploader extends Module {
     }
 
     /**
-     * @param int  $nUserId
+     * @param int  $iUserId
      * @param bool $bAutoMake
      *
      * @return string
      */
-    public function GetUserFileDir($nUserId, $bAutoMake = true) {
+    public function GetUserFileDir($iUserId, $bAutoMake = true) {
 
-        $sResult = $this->GetUserFilesUploadDir($nUserId) . date('Y/m/d/');
+        $sResult = $this->GetUserFilesUploadDir($iUserId) . date('Y/m/d/');
         if ($bAutoMake) {
             F::File_CheckDir($sResult, $bAutoMake);
         }
@@ -648,9 +650,10 @@ class ModuleUploader extends Module {
     /**
      * Возвращает максимальное количество картинок для типа объекта
      *
-     * @param $sTarget
-     * @param bool $sTargetId
-     * @return bool|mixed
+     * @param string $sTarget
+     * @param bool   $sTargetId
+     *
+     * @return bool
      */
     public function GetAllowedCount($sTarget, $sTargetId = FALSE) {
 
@@ -740,11 +743,12 @@ class ModuleUploader extends Module {
     /**
      * Получает путь к картинкам брендинга
      *
-     * @param int    $sTargetId Идентификатор целевого объекта
-     * @param string $sType     Что за картинка
+     * @param string $sTargetType Что за картинка
+     * @param int    $sTargetId   Идентификатор целевого объекта
+     *
      * @return string
      */
-    public function GetUploadDir($sTargetId, $sType) {
+    public function GetUploadDir($sTargetType, $sTargetId) {
 
         if ($sTargetId == "0") {
             $sPath = '_tmp/';
@@ -756,7 +760,7 @@ class ModuleUploader extends Module {
         }
 
 
-        $sResult = F::File_NormPath(F::File_RootDir() . Config::Get('path.uploads.root') . "/{$sType}/" . $sPath);
+        $sResult = F::File_NormPath(F::File_RootDir() . Config::Get('path.uploads.root') . "/{$sTargetType}/" . $sPath);
         F::File_CheckDir($sResult, TRUE);
 
         return $sResult;
@@ -764,34 +768,35 @@ class ModuleUploader extends Module {
     }
 
     /**
-     * Получает урл цели
+     * Получает URL цели
      *
-     * @param $sTargetId
-     * @param $sTarget
+     * @param $sTargetType
+     * @param $iTargetId
+     *
      * @return string
      */
-    public function GetTargetUrl($sTargetId, $sTarget) {
+    public function GetTargetUrl($sTargetType, $iTargetId) {
 
-        if (mb_strpos($sTarget, 'single-image-uploader') === 0 || $sTarget = 'topic-multi-image-uploader') {
+        if (mb_strpos($sTargetType, 'single-image-uploader') === 0 || $sTargetType = 'topic-multi-image-uploader') {
             /** @var $oTopic ModuleTopic_EntityTopic */
-            if (!$oTopic = E::ModuleTopic()->GetTopicById($sTargetId)) {
+            if (!$oTopic = E::ModuleTopic()->GetTopicById($iTargetId)) {
                 return '';
             }
 
             return $oTopic->getUrl();
         }
 
-        if ($sTarget == 'profile_avatar') {
+        if ($sTargetType == 'profile_avatar') {
             return R::GetPath('settings');
         }
 
-        if ($sTarget == 'profile_photo') {
+        if ($sTargetType == 'profile_photo') {
             return R::GetPath('settings');
         }
 
-        if ($sTarget == 'blog_avatar') {
+        if ($sTargetType == 'blog_avatar') {
             /** @var ModuleBlog_EntityBlog $oBlog */
-            $oBlog = E::ModuleBlog()->GetBlogById($sTargetId);
+            $oBlog = E::ModuleBlog()->GetBlogById($iTargetId);
             if ($oBlog) {
                 return $oBlog->getUrlFull();
             }
@@ -804,14 +809,15 @@ class ModuleUploader extends Module {
     /**
      * Получает урл изображения целевого объекта
      *
-     * @param      $sTargetId
-     * @param      $sTarget
+     * @param string      $sTarget
+     * @param int         $iTargetId
      * @param bool|string $xSize
-     * @return mixed|string
+     *
+     * @return string
      */
-    public function GetTargetImageUrl($sTargetId, $sTarget, $xSize=FALSE) {
+    public function GetTargetImageUrl($sTarget, $iTargetId, $xSize=FALSE) {
 
-        $aMResourceRel = E::ModuleMresource()->GetMresourcesRelByTarget($sTarget, $sTargetId);
+        $aMResourceRel = E::ModuleMresource()->GetMresourcesRelByTarget($sTarget, $iTargetId);
         if ($aMResourceRel) {
             $oMResource = array_shift($aMResourceRel);
 

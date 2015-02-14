@@ -1250,11 +1250,12 @@ class ModuleTopic_EntityTopic extends Entity {
     }
 
     public function getSingleImage($nId, $sSize) {
+
         if ($this->getField($nId)) {
 
             return E::ModuleUploader()->GetTargetImageUrl(
-                $this->getField($nId)->getTargetId(),
                 $this->getField($nId)->getFieldType() . '-' . $nId,
+                $this->getField($nId)->getTargetId(),
                 $sSize);
 
         }

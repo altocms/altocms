@@ -2909,7 +2909,7 @@ class ModuleTopic extends Module {
 
                                 // 3. Переместить фото
 
-                                $sNewPath = E::ModuleUploader()->GetUploadDir($sTargetId, $sTargetType) . '/';
+                                $sNewPath = E::ModuleUploader()->GetUploadDir($sTargetType, $sTargetId) . '/';
                                 $aMresourceRel = E::Mresource_GetMresourcesRelByTargetAndUser($sTargetType, 0, E::UserId());
 
                                 if ($aMresourceRel) {
@@ -2920,7 +2920,7 @@ class ModuleTopic extends Module {
                                     /** @var ModuleMresource_EntityMresource $oResource */
                                     $oResource = E::ModuleMresource()->GetMresourcesByUuid($xStoredFile->getUuid());
                                     if ($oResource) {
-                                        $oResource->setUrl(E::ModuleMresource()->NormalizeUrl(E::ModuleUploader()->GetTargetUrl($sTargetId, $sTargetType)));
+                                        $oResource->setUrl(E::ModuleMresource()->NormalizeUrl(E::ModuleUploader()->GetTargetUrl($sTargetType, $sTargetId)));
                                         $oResource->setType($sTargetType);
                                         $oResource->setUserId(E::UserId());
                                         // 4. В свойство поля записать адрес картинки

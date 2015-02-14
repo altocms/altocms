@@ -418,9 +418,9 @@ class ActionContent extends Action {
 
                 // 2. Переместим фото из временной папки в рабочую
                 $sTargetType = 'topic-multi-image-uploader';
-                $sTargetId = $oTopic->getId();
+                $iTargetId = $oTopic->getId();
 
-                $sNewPath = E::ModuleUploader()->GetUploadDir($sTargetId, $sTargetType) . '/';
+                $sNewPath = E::ModuleUploader()->GetUploadDir($sTargetType, $iTargetId) . '/';
                 $aMresourceRel = E::Mresource_GetMresourcesRelByTargetAndUser($sTargetType, 0, E::UserId());
 
                 if ($aMresourceRel) {
@@ -431,11 +431,11 @@ class ActionContent extends Action {
                         /** @var ModuleMresource_EntityMresource $oResource */
                         $oResource = E::ModuleMresource()->GetMresourcesByUuid($xStoredFile->getUuid());
                         if ($oResource) {
-                            $oResource->setUrl(E::ModuleMresource()->NormalizeUrl(E::ModuleUploader()->GetTargetUrl($sTargetId, $sTargetType)));
+                            $oResource->setUrl(E::ModuleMresource()->NormalizeUrl(E::ModuleUploader()->GetTargetUrl($sTargetType, $iTargetId)));
                             $oResource->setType($sTargetType);
                             $oResource->setUserId(E::UserId());
                             $oResource = array($oResource);
-                            E::ModuleMresource()->AddTargetRel($oResource, $sTargetType, $sTargetId);
+                            E::ModuleMresource()->AddTargetRel($oResource, $sTargetType, $iTargetId);
                         }
                     }
                     E::ModuleMresource()->UnlinkFile($sTargetType, 0, $oTopic->getUserId());

@@ -552,7 +552,7 @@ class ModuleUser_EntityUser extends Entity {
             }
         }
 
-        if ($sUrl = E::ModuleUploader()->GetTargetImageUrl($this->getId(), 'profile_avatar', $xSize)) {
+        if ($sUrl = E::ModuleUploader()->GetTargetImageUrl('profile_avatar', $this->getId(), $xSize)) {
             return $sUrl;
         } else {
             return $this->getDefaultAvatarUrl($xSize);
@@ -598,7 +598,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return bool
      */
     public function hasAvatar() {
-        return (bool)E::ModuleUploader()->GetTargetImageUrl($this->getId(), 'profile_avatar');
+        return (bool)E::ModuleUploader()->GetTargetImageUrl('profile_avatar', $this->getId());
     }
 
     /**
@@ -626,7 +626,7 @@ class ModuleUser_EntityUser extends Entity {
             }
         }
 
-        if ($sUrl = E::ModuleUploader()->GetTargetImageUrl($this->getId(), 'profile_photo', $xSize)) {
+        if ($sUrl = E::ModuleUploader()->GetTargetImageUrl('profile_photo', $this->getId(), $xSize)) {
             return $sUrl;
         } else {
             return $this->GetDefaultPhotoUrl($xSize);
@@ -639,7 +639,7 @@ class ModuleUser_EntityUser extends Entity {
      * @return bool
      */
     public function hasPhoto() {
-        return (bool)E::ModuleUploader()->GetTargetImageUrl($this->getId(), 'profile_photo');
+        return (bool)E::ModuleUploader()->GetTargetImageUrl('profile_photo', $this->getId());
     }
 
     /**

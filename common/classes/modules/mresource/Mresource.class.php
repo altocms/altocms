@@ -573,7 +573,7 @@ class ModuleMresource extends Module {
 
         if ($sTargetTmp && E::IsUser()) {
 
-            $sNewPath = E::ModuleUploader()->GetUploadDir($sTargetId, $sTargetType) . '/';
+            $sNewPath = E::ModuleUploader()->GetUploadDir($sTargetType, $sTargetId) . '/';
             $aMresourceRel = E::Mresource_GetMresourcesRelByTargetAndUser($sTargetType, 0, E::UserId());
 
             if ($aMresourceRel) {
@@ -584,7 +584,7 @@ class ModuleMresource extends Module {
                 /** @var ModuleMresource_EntityMresource $oResource */
                 $oResource = E::ModuleMresource()->GetMresourcesByUuid($xStoredFile->getUuid());
                 if ($oResource) {
-                    $oResource->setUrl(E::ModuleMresource()->NormalizeUrl(E::ModuleUploader()->GetTargetUrl($sTargetId, $sTargetType)));
+                    $oResource->setUrl(E::ModuleMresource()->NormalizeUrl(E::ModuleUploader()->GetTargetUrl($sTargetType, $sTargetId)));
                     $oResource->setType($sTargetType);
                     $oResource->setUserId(E::UserId());
 

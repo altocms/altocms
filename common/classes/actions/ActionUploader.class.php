@@ -117,7 +117,7 @@ class ActionUploader extends Action {
         $oResource = E::ModuleMresource()->GetMresourcesByUuid($xStoredFile->getUuid());
         if ($oResource) {
 //            $oRel = Engine::GetEntity('Mresource_MresourceRel');
-            $oResource->setUrl(E::ModuleMresource()->NormalizeUrl(E::ModuleUploader()->GetTargetUrl($sTargetId, $sTargetType)));
+            $oResource->setUrl(E::ModuleMresource()->NormalizeUrl(E::ModuleUploader()->GetTargetUrl($sTargetType, $sTargetId)));
             $oResource->setType($sTargetType);
             $oResource->setUserId(E::UserId());
             if ($sTargetId == '0') {
@@ -176,7 +176,7 @@ class ActionUploader extends Action {
         if ($sTmpFile = $oImg->Save(F::File_UploadUniqname($sExtension))) {
 
             // Файл, куда будет записано фото
-            $sPhoto = E::ModuleUploader()->Uniqname(E::ModuleUploader()->GetUploadDir($sTargetId, $sTarget), $sExtension);
+            $sPhoto = E::ModuleUploader()->Uniqname(E::ModuleUploader()->GetUploadDir($sTarget, $sTargetId), $sExtension);
 
             // Окончательная запись файла только через модуль Uploader
             if ($xStoredFile = E::ModuleUploader()->Store($sTmpFile, $sPhoto)) {
@@ -267,7 +267,7 @@ class ActionUploader extends Action {
         if ($sTmpFile = $oImg->Save(F::File_UploadUniqname($sExtension))) {
 
             // Файл, куда будет записано фото
-            $sPhoto = E::ModuleUploader()->Uniqname(E::ModuleUploader()->GetUploadDir($sTargetId, $sTarget), $sExtension);
+            $sPhoto = E::ModuleUploader()->Uniqname(E::ModuleUploader()->GetUploadDir($sTarget, $sTargetId), $sExtension);
 
             // Окончательная запись файла только через модуль Uploader
             if ($xStoredFile = E::ModuleUploader()->Store($sTmpFile, $sPhoto)) {
@@ -339,7 +339,7 @@ class ActionUploader extends Action {
 
             // Ресайзим и сохраняем уменьшенную копию
             // Храним две копии - мелкую для показа пользователю и крупную в качестве исходной для ресайза
-            $sPreviewFile = E::ModuleUploader()->GetUploadDir($sTargetId, $sTarget) . '_preview.' . F::File_GetExtension($sTmpFile);
+            $sPreviewFile = E::ModuleUploader()->GetUploadDir($sTarget, $sTargetId) . '_preview.' . F::File_GetExtension($sTmpFile);
 
             if ($sPreviewFile = E::ModuleImg()->Copy($sTmpFile, $sPreviewFile, self::PREVIEW_RESIZE, self::PREVIEW_RESIZE)) {
 
@@ -598,7 +598,7 @@ class ActionUploader extends Action {
             }
 
             // Файл, куда будет записано фото
-            $sPhoto = E::ModuleUploader()->Uniqname(E::ModuleUploader()->GetUploadDir($sTargetId, $sTarget), $sExtension);
+            $sPhoto = E::ModuleUploader()->Uniqname(E::ModuleUploader()->GetUploadDir($sTarget, $sTargetId), $sExtension);
 
             // Окончательная запись файла только через модуль Uploader
             if ($xStoredFile = E::ModuleUploader()->Store($sTmpFile, $sPhoto)) {
