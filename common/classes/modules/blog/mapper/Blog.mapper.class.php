@@ -433,18 +433,23 @@ class ModuleBlog_MapperBlog extends Mapper {
         }
     }
 
+    public function GetBlogsByOwnerId($iUserId) {
+
+        return $this->GetBlogsIdByOwnerId($iUserId);
+    }
+
     /**
      * Получить список блогов по хозяину
      *
-     * @param   int $nUserId    - ID пользователя
+     * @param   int $iUserId    - ID пользователя
      *
      * @return  array
      */
-    public function GetBlogsByOwnerId($nUserId) {
+    public function GetBlogsIdByOwnerId($iUserId) {
 
         $aCriteria = array(
             'filter' => array(
-                'user_id'       => intval($nUserId),
+                'user_id'       => intval($iUserId),
                 'not_blog_type' => 'personal',
             ),
         );

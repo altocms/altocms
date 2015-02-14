@@ -578,14 +578,19 @@ class ModuleBlog extends Module {
     /**
      * Получает список блогов по хозяину
      *
-     * @param int  $sUserId          ID пользователя
+     * @param int  $iUserId          ID пользователя
      * @param bool $bReturnIdOnly    Возвращать только ID блогов или полные объекты
      *
      * @return array
      */
-    public function GetBlogsByOwnerId($sUserId, $bReturnIdOnly = false) {
+    public function GetBlogsByOwnerId($iUserId, $bReturnIdOnly = false) {
 
-        $data = $this->oMapper->GetBlogsByOwnerId($sUserId);
+        $iUserId = intval($iUserId);
+        if (!$iUserId) {
+            return array();
+        }
+
+        $data = $this->oMapper->GetBlogsIdByOwnerId($iUserId);
 
         // * Возвращаем только иденитификаторы
         if ($bReturnIdOnly) {
@@ -606,7 +611,12 @@ class ModuleBlog extends Module {
      */
     public function GetBlogs($bReturnIdOnly = false) {
 
-        $data = $this->oMapper->GetBlogs();
+        $sCacheKey = 'Blog_GetBlogsId';
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
+            $data = $this->oMapper->GetBlogs();
+            E::ModuleCache()->Set($data, $sCacheKey, array('blog_update', 'blog_new'), 'P1D');
+        }
+
         // * Возвращаем только иденитификаторы
         if ($bReturnIdOnly) {
             return $data;
@@ -1489,8 +1499,11 @@ class ModuleBlog extends Module {
         $aResult = array();
         $sCacheKey = 'blog_types';
         if (false === ($data = E::ModuleCache()->Get($sCacheKey, 'tmp'))) {
-            /** @var ModuleBlog_EntityBlogType[] $data */
-            $data = $this->oMapper->GetBlogTypes();
+            if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
+                /** @var ModuleBlog_EntityBlogType[] $data */
+                $data = $this->oMapper->GetBlogTypes();
+                E::ModuleCache()->Set($data, $sCacheKey, array('blog_update', 'blog_new'), 'P30D');
+            }
             E::ModuleCache()->Set($data, $sCacheKey, array('blog_update', 'blog_new'), 'P30D', 'tmp');
         }
         $aBlogTypes = array();

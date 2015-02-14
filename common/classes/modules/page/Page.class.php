@@ -48,7 +48,7 @@ class ModulePage extends Module {
             //чистим зависимые кеши
             E::ModuleCache()->Clean(
                 Zend_Cache::CLEANING_MODE_MATCHING_TAG,
-                array('page_change', "page_change_{$oPage->getId()}", "page_change_urlfull_{$oPage->getUrlFull()}")
+                array('page_new', 'page_update', "page_update_{$oPage->getId()}", "page_update_urlfull_{$oPage->getUrlFull()}")
             );
             return true;
         }
@@ -68,7 +68,7 @@ class ModulePage extends Module {
             //чистим зависимые кеши
             E::ModuleCache()->Clean(
                 Zend_Cache::CLEANING_MODE_MATCHING_TAG,
-                array('page_change', "page_change_{$oPage->getId()}", "page_change_urlfull_{$oPage->getUrlFull()}")
+                array('page_update', "page_update_{$oPage->getId()}", "page_update_urlfull_{$oPage->getUrlFull()}")
             );
             return true;
         }
@@ -89,11 +89,11 @@ class ModulePage extends Module {
             $data = $this->oMapper->GetPageByUrlFull($sUrlFull, $iActive);
             if ($data) {
                 E::ModuleCache()->Set(
-                    $data, "page_{$sUrlFull}_{$iActive}", array("page_change_{$data->getId()}"), 60 * 60 * 24 * 5
+                    $data, "page_{$sUrlFull}_{$iActive}", array("page_update_{$data->getId()}"), 60 * 60 * 24 * 5
                 );
             } else {
                 E::ModuleCache()->Set(
-                    $data, "page_{$sUrlFull}_{$iActive}", array("page_change_urlfull_{$sUrlFull}"), 60 * 60 * 24 * 5
+                    $data, "page_{$sUrlFull}_{$iActive}", array("page_update_urlfull_{$sUrlFull}"), 60 * 60 * 24 * 5
                 );
             }
         }
@@ -121,7 +121,12 @@ class ModulePage extends Module {
     public function GetPages($aFilter = array()) {
 
         $aPages = array();
-        $aPagesRow = $this->oMapper->GetPages($aFilter);
+        $sCacheKey = 'page_getpages' . serialize($aFilter);
+        if (false === ($aPagesRow = E::ModuleCache()->Get($sCacheKey))) {
+            $aPagesRow = $this->oMapper->GetPages($aFilter);
+            E::ModuleCache()->Set($aPagesRow, $sCacheKey, array('page_new', 'page_update'), 'P1D');
+        }
+
         if (count($aPagesRow)) {
             $aPages = $this->BuildPagesRecursive($aPagesRow);
         }
@@ -211,7 +216,7 @@ class ModulePage extends Module {
                 $this->SetPagesPidToNull($aPages);
             }
             //чистим зависимые кеши
-            E::ModuleCache()->Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array('page_change', "page_change_{$nId}"));
+            E::ModuleCache()->Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array('page_update', "page_update_{$nId}"));
             return true;
         }
         return false;
