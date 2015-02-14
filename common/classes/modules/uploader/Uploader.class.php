@@ -676,7 +676,7 @@ class ModuleUploader extends Module {
     public function CheckAccessAndGetTarget($sTarget, $sTargetId = FALSE) {
 
         // Проверяем право пользователя на прикрепление картинок к топику
-        if (mb_strpos($sTarget, 'single-image-uploader') === 0 || $sTarget = 'topic-multi-image-uploader') {
+        if (mb_strpos($sTarget, 'single-image-uploader') === 0 || $sTarget == 'topic-multi-image-uploader') {
 
             // Проверям, авторизован ли пользователь
             if (!E::IsUser()) {
