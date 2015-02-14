@@ -666,7 +666,7 @@ class ModuleMresource extends Module {
         if ($sTargetTmp && E::IsUser()) {
 
             $sNewPath = E::ModuleUploader()->GetUploadDir($sTargetType, $sTargetId) . '/';
-            $aMresourceRel = E::Mresource_GetMresourcesRelByTargetAndUser($sTargetType, 0, E::UserId());
+            $aMresourceRel = E::ModuleMresource()->GetMresourcesRelByTargetAndUser($sTargetType, 0, E::UserId());
 
             if ($aMresourceRel) {
                 $oResource = array_shift($aMresourceRel);

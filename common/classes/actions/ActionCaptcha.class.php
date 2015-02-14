@@ -31,7 +31,7 @@ class ActionCaptcha extends Action {
     public function EventRegistration() {
 
         /** @var ModuleCaptcha_EntityCaptcha $oCaptcha */
-        $oCaptcha = E::Captcha_GetCaptcha();
+        $oCaptcha = E::ModuleCaptcha()->GetCaptcha();
         $oCaptcha->Display();
         exit;
     }

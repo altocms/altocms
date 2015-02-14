@@ -470,7 +470,7 @@ class ModuleBlog extends Module {
             // 1. Удалить значение target_tmp
             // Нужно затереть временный ключ в ресурсах, что бы в дальнейшем картнка не
             // воспринималась как временная.
-            if ($sTargetTmp = E::Session_GetCookie('uploader_target_tmp')) {
+            if ($sTargetTmp = E::ModuleSession()->GetCookie('uploader_target_tmp')) {
                 // 2. Удалить куку.
                 // Если прозошло сохранение вновь созданного топика, то нужно
                 // удалить куку временной картинки. Если же сохранялся уже существующий топик,
@@ -481,7 +481,7 @@ class ModuleBlog extends Module {
                 $sTargetType = 'blog_avatar';
                 $sTargetId = $sId;
                 $sNewPath = E::ModuleUploader()->GetUploadDir($sTargetType, $sTargetId) . '/';
-                $aMresourceRel = E::Mresource_GetMresourcesRelByTargetAndUser($sTargetType, 0, E::UserId());
+                $aMresourceRel = E::ModuleMresource()->GetMresourcesRelByTargetAndUser($sTargetType, 0, E::UserId());
 
                 if ($aMresourceRel) {
                     $oResource = array_shift($aMresourceRel);

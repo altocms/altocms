@@ -963,7 +963,7 @@ class ModuleViewer extends Module {
                 }
             }
             $sMessage .= '. ';
-            $oSkin = E::Skin_GetSkin($sSkin);
+            $oSkin = E::ModuleSkin()->GetSkin($sSkin);
             if ((!$oSkin || $oSkin->GetCompatible() != 'alto') && !E::ActivePlugin('ls')) {
                 $sMessage .= 'Probably you need to activate plugin "Ls".';
             }

@@ -78,8 +78,8 @@ class ModuleCaptcha extends Module {
             if (!$sKeyName) {
                 $sKeyName = $this->sKeyName;
             }
-            $sSavedString = E::Session_Get($sKeyName);
-            E::Session_Drop($sKeyName);
+            $sSavedString = E::ModuleSession()->Get($sKeyName);
+            E::ModuleSession()->Drop($sKeyName);
             if (empty($sSavedString) || !is_string($sSavedString)) {
                 $iResult = static::ERR_KEYSTRING_NOT_DEFINED;
             } elseif ($sSavedString != $sKeyString) {

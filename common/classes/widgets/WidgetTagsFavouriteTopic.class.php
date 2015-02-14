@@ -26,29 +26,29 @@ class WidgetTagsFavouriteTopic extends Widget {
     public function Exec() {
 
         // * Пользователь авторизован?
-        if ($oUserCurrent = E::User_GetUserCurrent()) {
+        if ($oUserCurrent = E::ModuleUser()->GetUserCurrent()) {
             if (!($oUser = $this->getParam('user'))) {
                 $oUser = $oUserCurrent;
             }
 
             // * Получаем список тегов
-            $aTags = E::Favourite_GetGroupTags($oUser->getId(), 'topic', false, 70);
+            $aTags = E::ModuleFavourite()->GetGroupTags($oUser->getId(), 'topic', false, 70);
 
             // * Расчитываем логарифмическое облако тегов
-            E::Tools_MakeCloud($aTags);
+            E::ModuleTools()->MakeCloud($aTags);
 
             // * Устанавливаем шаблон вывода
-            E::Viewer_Assign('aFavouriteTopicTags', $aTags);
+            E::ModuleViewer()->Assign('aFavouriteTopicTags', $aTags);
 
             // * Получаем список тегов пользователя
-            $aTags = E::Favourite_GetGroupTags($oUser->getId(), 'topic', true, 70);
+            $aTags = E::ModuleFavourite()->GetGroupTags($oUser->getId(), 'topic', true, 70);
 
             // * Расчитываем логарифмическое облако тегов
-            E::Tools_MakeCloud($aTags);
+            E::ModuleTools()->MakeCloud($aTags);
 
             // * Устанавливаем шаблон вывода
-            E::Viewer_Assign('aFavouriteTopicUserTags', $aTags);
-            E::Viewer_Assign('oFavouriteUser', $oUser);
+            E::ModuleViewer()->Assign('aFavouriteTopicUserTags', $aTags);
+            E::ModuleViewer()->Assign('oFavouriteUser', $oUser);
         }
     }
 }

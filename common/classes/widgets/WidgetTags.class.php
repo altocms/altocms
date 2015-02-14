@@ -27,32 +27,25 @@ class WidgetTags extends Widget {
         /**
          * Получаем список тегов
          */
-        $aTags = E::Topic_GetOpenTopicTags(Config::Get('widgets.tags.params.limit'));
-        /**
-         * Расчитываем логарифмическое облако тегов
-         */
+        $aTags = E::ModuleTopic()->GetOpenTopicTags(Config::Get('widgets.tags.params.limit'));
+
+        // * Расчитываем логарифмическое облако тегов
         if ($aTags) {
             E::ModuleTools()->MakeCloud($aTags);
-            /**
-             * Устанавливаем шаблон вывода
-             */
+
+            // * Устанавливаем шаблон вывода
             E::ModuleViewer()->Assign('aTags', $aTags);
         }
-        /**
-         * Теги пользователя
-         */
+
+        // * Теги пользователя
         if ($oUserCurrent = E::ModuleUser()->GetUserCurrent()) {
-            $aTags = E::Topic_GetOpenTopicTags(
-                Config::Get('widgets.tags.params.limit'), $oUserCurrent->getId()
-            );
-            /**
-             * Расчитываем логарифмическое облако тегов
-             */
+            $aTags = E::ModuleTopic()->GetOpenTopicTags(Config::Get('widgets.tags.params.limit'), $oUserCurrent->getId());
+
+            // * Расчитываем логарифмическое облако тегов
             if ($aTags) {
                 E::ModuleTools()->MakeCloud($aTags);
-                /**
-                 * Устанавливаем шаблон вывода
-                 */
+
+                // * Устанавливаем шаблон вывода
                 E::ModuleViewer()->Assign('aTagsUser', $aTags);
             }
         }

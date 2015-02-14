@@ -1115,7 +1115,7 @@ class ModuleTopic_EntityTopic extends Entity {
             return array();
         }
 
-        $aPhotos = E::Mresource_GetMresourcesRelByTarget('topic-multi-image-uploader', $this->getId());
+        $aPhotos = E::ModuleMresource()->GetMresourcesRelByTarget('topic-multi-image-uploader', $this->getId());
         $aResult = array();
         if ($aPhotos && ($iFromId || $iCount)) {
             $iCntSet = -1;

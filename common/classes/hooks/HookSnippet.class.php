@@ -116,8 +116,8 @@ class HookSnippet extends Hook {
             }
 
             // Попытаемся найти фотосет
-            /** @var ModuleMresource_EntityMresource $aPhotos */
-            if (!(($aPhotos = E::Mresource_GetMresourcesRelByTarget('topic-multi-image-uploader', $oTopic->getId())) &&
+            /** @var ModuleMresource_EntityMresource[] $aPhotos */
+            if (!(($aPhotos = E::ModuleMresource()->GetMresourcesRelByTarget('topic-multi-image-uploader', $oTopic->getId())) &&
                 is_array($aPhotos) &&
                 count($aPhotos) > 0)
             ) {

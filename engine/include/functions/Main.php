@@ -639,7 +639,7 @@ class AltoFunc_Main {
 
         if ($xLang === true) {
             if (class_exists('ModuleLang', false)) {
-                $xLang = E::Lang_GetLang();
+                $xLang = E::ModuleLang()->GetLang();
             } elseif (class_exists('Config', false)) {
                 $xLang = Config::Get('lang.current');
             } else {

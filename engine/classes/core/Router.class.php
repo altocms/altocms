@@ -172,7 +172,7 @@ class Router extends LsObject {
         $this->oEngine->Init();
 
         // Подгружаем предыдущий URL, если он был
-        $sData = E::Session_GetCookie(static::BACKWARD_COOKIE);
+        $sData = E::ModuleSession()->GetCookie(static::BACKWARD_COOKIE);
         if ($sData) {
             $aData = F::Unserialize($sData);
             if (is_array($aData)) {
@@ -181,7 +181,7 @@ class Router extends LsObject {
         }
         // И сохраняем текущий, если это не ajax-запрос
         if (!F::AjaxRequest()) {
-            E::Session_SetCookie(static::BACKWARD_COOKIE, F::Serialize($this->aCurrentUrl, true));
+            E::ModuleSession()->SetCookie(static::BACKWARD_COOKIE, F::Serialize($this->aCurrentUrl, true));
         }
 
         $this->ExecAction();
@@ -197,7 +197,7 @@ class Router extends LsObject {
 
         $this->AssignVars();
         $this->oEngine->Shutdown();
-        E::Viewer_Display($this->oAction->GetTemplate());
+        E::ModuleViewer()->Display($this->oAction->GetTemplate());
         if ($bExit) {
             exit();
         }
@@ -393,10 +393,10 @@ class Router extends LsObject {
      */
     protected function AssignVars() {
 
-        E::Viewer_Assign('sAction', $this->Standart(static::$sAction));
-        E::Viewer_Assign('sEvent', static::$sActionEvent);
-        E::Viewer_Assign('aParams', static::$aParams);
-        E::Viewer_Assign('PATH_WEB_CURRENT', E::Tools_Urlspecialchars(static::$sPathWebCurrent));
+        E::ModuleViewer()->Assign('sAction', $this->Standart(static::$sAction));
+        E::ModuleViewer()->Assign('sEvent', static::$sActionEvent);
+        E::ModuleViewer()->Assign('aParams', static::$aParams);
+        E::ModuleViewer()->Assign('PATH_WEB_CURRENT', E::ModuleTools()->Urlspecialchars(static::$sPathWebCurrent));
     }
 
     /**
@@ -410,13 +410,13 @@ class Router extends LsObject {
         /**
          * Сначала запускаем инициализирующий евент
          */
-        E::Hook_Run('init_action');
+        E::ModuleHook()->Run('init_action');
 
         $sActionClass = $this->DefineActionClass();
         /**
          * Определяем наличие делегата экшена
          */
-        if ($aChain = E::Plugin_GetDelegationChain('action', $sActionClass)) {
+        if ($aChain = E::ModulePlugin()->GetDelegationChain('action', $sActionClass)) {
             if (!empty($aChain)) {
                 $sActionClass = $aChain[0];
             }
@@ -434,9 +434,9 @@ class Router extends LsObject {
         /**
          * Инициализируем экшен
          */
-        E::Hook_Run('action_init_' . strtolower($sActionClass) . '_before');
+        E::ModuleHook()->Run('action_init_' . strtolower($sActionClass) . '_before');
         $sInitResult = $this->oAction->Init();
-        E::Hook_Run('action_init_' . strtolower($sActionClass) . '_after');
+        E::ModuleHook()->Run('action_init_' . strtolower($sActionClass) . '_after');
 
         if ($sInitResult === 'next') {
             $this->ExecAction();
@@ -445,9 +445,9 @@ class Router extends LsObject {
             $res = $this->oAction->ExecEvent();
             static::$sActionEventName = $this->oAction->GetCurrentEventName();
 
-            E::Hook_Run('action_shutdown_' . strtolower($sActionClass) . '_before');
+            E::ModuleHook()->Run('action_shutdown_' . strtolower($sActionClass) . '_before');
             $this->oAction->EventShutdown();
-            E::Hook_Run('action_shutdown_' . strtolower($sActionClass) . '_after');
+            E::ModuleHook()->Run('action_shutdown_' . strtolower($sActionClass) . '_after');
 
             if ($res === 'next') {
                 $this->ExecAction();
@@ -925,7 +925,7 @@ class Router extends LsObject {
      */
     static public function ReturnBack($bSecurity = null) {
 
-        if (!$bSecurity || E::Security_ValidateSendForm(false)) {
+        if (!$bSecurity || E::ModuleSecurity()->ValidateSendForm(false)) {
             if (($sUrl = F::GetPost('return_url')) || ($sUrl = F::GetPost('return-path'))) {
                 static::Location($sUrl);
             }

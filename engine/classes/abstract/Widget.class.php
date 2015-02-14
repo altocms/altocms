@@ -74,7 +74,7 @@ abstract class Widget extends LsObject {
     protected function Fetch($sTemplate, $aVars = array()) {
 
         $aVars = F::Array_Merge(array('aWidgetParams' => $this->aParams), $aVars);
-        return E::Viewer_FetchWidget($sTemplate, $aVars);
+        return E::ModuleViewer()->FetchWidget($sTemplate, $aVars);
     }
 }
 

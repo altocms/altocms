@@ -180,7 +180,7 @@ abstract class Entity extends LsObject {
         if (!$sResult) {
             $sResult = $this->getProp($sKey);
             if (substr($sResult, 0, 2) == '{{' && substr($sResult, -2) == '}}') {
-                if (!is_null($sText = E::Lang_Get('[' . $sLang . ']' . substr($sResult, 2, strlen($sResult) - 4)))) {
+                if (!is_null($sText = E::ModuleLang()->Get('[' . $sLang . ']' . substr($sResult, 2, strlen($sResult) - 4)))) {
                     $sResult = $sText;
                 }
             }

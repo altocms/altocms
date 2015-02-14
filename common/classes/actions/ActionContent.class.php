@@ -421,7 +421,7 @@ class ActionContent extends Action {
                 $iTargetId = $oTopic->getId();
 
                 $sNewPath = E::ModuleUploader()->GetUploadDir($sTargetType, $iTargetId) . '/';
-                $aMresourceRel = E::Mresource_GetMresourcesRelByTargetAndUser($sTargetType, 0, E::UserId());
+                $aMresourceRel = E::ModuleMresource()->GetMresourcesRelByTargetAndUser($sTargetType, 0, E::UserId());
 
                 if ($aMresourceRel) {
                     foreach ($aMresourceRel as $oResource) {
@@ -596,7 +596,7 @@ class ActionContent extends Action {
         // Добавим картинки фотосета для вывода
         E::ModuleViewer()->Assign(
             'aPhotos',
-            E::Mresource_GetMresourcesRelByTarget('topic-multi-image-uploader', $oTopic->getId())
+            E::ModuleMresource()->GetMresourcesRelByTarget('topic-multi-image-uploader', $oTopic->getId())
         );
     }
 

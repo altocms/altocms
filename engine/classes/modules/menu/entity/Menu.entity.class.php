@@ -28,7 +28,7 @@ class ModuleMenu_EntityMenu extends Entity {
 
         return preg_replace_callback('~(\{\{\S*\}\})~', function ($sTextTemplatePart) {
             $sTextTemplatePart = array_shift($sTextTemplatePart);
-            if (!is_null($sText = E::Lang_Get(substr($sTextTemplatePart, 2, strlen($sTextTemplatePart) - 4)))) {
+            if (!is_null($sText = E::ModuleLang()->Get(substr($sTextTemplatePart, 2, strlen($sTextTemplatePart) - 4)))) {
                 return $sText;
             }
 

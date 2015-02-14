@@ -654,7 +654,7 @@ class Config extends Storage {
                 'storage_val' => serialize($sVal),
             );
         }
-        if ($bCacheOnly || ($bResult = E::Admin_UpdateCustomConfig($aData))) {
+        if ($bCacheOnly || ($bResult = E::ModuleAdmin()->UpdateCustomConfig($aData))) {
             self::_putCustomCfg($aConfig);
             return true;
         }
@@ -677,7 +677,7 @@ class Config extends Storage {
             if (!$bCacheOnly) {
                 // Перечитаем конфиг из базы
                 $sPrefix = self::CUSTOM_CONFIG_PREFIX . $sKeyPrefix;
-                $aData = E::Admin_GetCustomConfig($sPrefix);
+                $aData = E::ModuleAdmin()->GetCustomConfig($sPrefix);
                 if ($aData) {
                     $nPrefixLen = strlen($sPrefix);
                     $aConfig = array();
@@ -713,7 +713,7 @@ class Config extends Storage {
 
         $sPrefix = self::CUSTOM_CONFIG_PREFIX . $sKeyPrefix;
         // удаляем настройки конфига из базы
-        E::Admin_DelCustomConfig($sPrefix);
+        E::ModuleAdmin()->DelCustomConfig($sPrefix);
         // удаляем кеш-файл
         self::_deleteCustomCfg();
         // перестраиваем конфиг в кеш-файле

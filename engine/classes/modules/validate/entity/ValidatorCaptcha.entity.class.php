@@ -39,10 +39,10 @@ class ModuleValidate_EntityValidatorCaptcha extends ModuleValidate_EntityValidat
         if ($this->allowEmpty && $this->isEmpty($sValue)) {
             return true;
         }
-        if (E::Captcha_Verify(mb_strtolower($sValue)) !== 0) {
+        if (E::ModuleCaptcha()->Verify(mb_strtolower($sValue)) !== 0) {
             return $this->getMessage(E::ModuleLang()->Get('validate_captcha_not_valid', null, false), 'msg');
         }
-        return E::Captcha_Verify(mb_strtolower($sValue)) === 0;
+        return E::ModuleCaptcha()->Verify(mb_strtolower($sValue)) === 0;
     }
 }
 

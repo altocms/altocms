@@ -171,7 +171,7 @@ class Func {
 
         if (class_exists('ModuleLogger', false) || (class_exists('Loader', false) && Loader::Autoload('ModuleLogger'))) {
             // Если загружен модуль Logger, то логгируем ошибку с его помощью
-            return E::Logger_Dump($sLogFile, $sText, $sLevel);
+            return E::ModuleLogger()->Dump($sLogFile, $sText, $sLevel);
         } elseif (class_exists('Config', false)) {
             // Если логгера нет, но есть конфиг, то самостоятельно пишем в файл
             $sFile = Config::Get('sys.logs.dir') . $sLogFile;
