@@ -555,7 +555,7 @@
                 .off('click')
                 .live('click', function () {
                     var success = function (result) {
-                        $.markItUp({replaceWith: result.sText});
+                        ls.insertToEditor(result.sText);
                         $this.$pageUploadPc.find('input[type="file"]').val('');
                         $this.$pageUploadPc.find('.btn-file span').last().remove();
 
@@ -591,8 +591,7 @@
                 .off('click')
                 .live('click', function () {
                     var success = function (result) {
-                        $.markItUp({replaceWith: result.sText});
-
+                        ls.insertToEditor(result.sText);
                         this.$element.modal('hide');
                     };
                     var error = function () {
