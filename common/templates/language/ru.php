@@ -641,6 +641,7 @@ return array(
     'user_menu_publication_blog'                => 'Блог',
     'user_menu_publication_comment'             => 'Комментарии',
     'user_menu_publication_comment_rss'         => 'RSS лента',
+    'user_menu_publication_photos'              => 'Фотографии',
     /**
      * Профиль
      */
@@ -1149,6 +1150,8 @@ return array(
     'prev_page'           => 'Предыдущая страница',
     'insertimg_page'      => 'страница',
     'insertimg_from'      => 'из',
+    'insertimg_not_found'      => 'Изображения не найдены',
+    'insertimg_images'      => 'Изображения',
 
     'aim_target_type_blog_avatar'            => 'Блоги',
     'aim_target_type_user'                   => 'Аватары',

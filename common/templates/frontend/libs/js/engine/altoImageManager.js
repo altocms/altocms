@@ -28,9 +28,12 @@
         // Опции - типа объект
         this.options = $.extend({}, $.fn.altoImageManager.defaultOptions, options, this.$element.data());
 
+        this.profile = this.options.profile === undefined ? false : this.options.profile;
+
         this.page = 1;
         this.pages = 1;
-        this.category = 'insert-from-pc';
+        this.category = this.profile ? 'topic' : 'insert-from-pc';
+        this.prev_category = null;
         this.topicId = 0;
 
         // Элементы окна
@@ -56,8 +59,13 @@
         init: function () {
             var $this = this;
 
-            // Загрузка списка категорий
-            $this._refreshCategories();
+            if ($this.profile) {
+                // Если профиль, то сначала грузим топики
+                $this._loadPage(1, 'undefined');
+            } else {
+                // Загрузка списка категорий
+                $this._refreshCategories();
+            }
 
             // Инициализация списка категорий и элементов управления
             $this.elements.btnRefreshTree($this);                       // Кнопка обновления меню окна
@@ -103,7 +111,7 @@
          *
          * @param {int} page
          * @returns {altoImageManager}
-         * @param {int} topicId
+         * @param {string} topicId
          */
         _loadPage: function (page, topicId) {
             var $this = this;
@@ -126,6 +134,11 @@
                     });
                 $this.page = result.page;
                 $this.pages = result.pages;
+
+                // Загрузка списка категорий после загрузки картинок
+                if ($this.profile && $.trim($this.$ctrCategories.text()) == '') {
+                    $this._refreshCategories();
+                }
 
             };
 
@@ -184,7 +197,8 @@
              * @type {{}}
              */
             var data = {
-                topic_id: $('#topic_id').val()
+                topic_id: $('#topic_id').val(),
+                profile: $this.profile
             };
 
             $this.$element.trigger('aim-refresh-categories-start');
@@ -251,6 +265,8 @@
                 data = data.form;
                 queryType = 'ajaxSubmit';
             }
+
+            data.profile = $this.profile;
 
             // Отправим запрос
             ls[queryType](url, data,
@@ -340,15 +356,17 @@
             $this.$topicButtons
                 .off('click')
                 .on('click', function () {
-                    $this.category = 'topic';
+                    $this.prev_category = $this.category;
+                    $this.category = '_topic';
                     $this.topicId = $(this).data('topic-id');
                     $this._loadPage(1, $this.topicId);
+                    return false;
                 });
 
             $this.$element
                 .off('aim-load-page-success.topicButtons')
                 .on('aim-load-page-success.topicButtons', function (e, data) {
-                    if (data.category == 'topic') {
+                    if (data.category == '_topic') {
                         backButtons.fadeIn(200);
                     } else {
                         backButtons.fadeOut(200);
@@ -358,9 +376,11 @@
             backButtons
                 .off('click')
                 .on('click', function () {
-                    $this.category = 'topics';
+                    //$this.category = 'topics';
+                    $this.category = $this.prev_category;
                     $this.topicId = $this._getTopicId();
                     $this._loadPage(1, $this.topicId);
+                    return false;
                 });
 
             return $this.$topicButtons;
@@ -652,6 +672,10 @@
          * @private
          */
         pageImages: function ($this) {
+            if ($this.profile) {
+                return false;
+            }
+
             $this.$pageImages.find('a')
                 .off()
                 .on('click', function () {
@@ -685,7 +709,7 @@
          */
         blockCategoriesButtons: function ($this) {
 
-            $this.$ctrCategories.find('.image-categories-tree a')
+            $this.$ctrCategories.find('.js-image-categories-tree a')
                 .off('click')
                 .live('click', function () {
                     // Отрисуем кнопку
@@ -699,6 +723,8 @@
                     $this._loadPage(1, $this.topicId);
 
                     $this.$element.trigger('aim-category-select', $this.category);
+
+                    return false;
 
                 });
 

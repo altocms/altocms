@@ -950,11 +950,34 @@ class ModuleMresource_MapperMresource extends Mapper {
     }
 
     /**
-     * @param int $iUserId
+     * Возвращает категории изображения для пользователя
+     * @param $iUserId
      * @param int $sTopicId
      *
      * @return mixed
      */
+    public function GetAllImageCategoriesByUserId($iUserId){
+        $sql = "SELECT
+                  IF(
+                    ISNULL(t.target_tmp),
+                    IF((t.target_type LIKE 'topic%'), 'topic',
+                      IF(t.target_type = 'profile_avatar' OR t.target_type = 'profile_photo', 'user', t.target_type)),
+                    'tmp') AS ttype
+                  , count(t.target_id) AS count
+                FROM
+                  ?_mresource_target as t, ?_mresource as m
+                WHERE
+                  t.mresource_id = m.mresource_id
+                  AND m.user_id = ?d
+
+                GROUP  BY
+                  ttype                ORDER BY
+                 m.date_add desc";
+
+        return $this->oDb->select($sql, $iUserId);
+
+    }
+
     public function GetCurrentTopicResourcesId($iUserId, $sTopicId) {
 
         $sql = "select r.mresource_id FROM

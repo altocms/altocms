@@ -833,25 +833,6 @@ class ModuleMresource extends Module {
     }
 
     /**
-     * @param $iUserId
-     *
-     * @return bool|Entity
-     */
-    public function GetTopicsImageCategory($iUserId) {
-
-        $aTopicInfo = $this->oMapper->GetTopicInfo($iUserId, $iCount, 1, 100000);
-        if ($aTopicInfo) {
-            return E::GetEntity('Mresource_MresourceCategory', array(
-                'id' => 'topics',
-                'count' => count($aTopicInfo),
-                'label' => E::ModuleLang()->Get('aim_target_type_topics'),
-            ));
-        }
-
-        return FALSE;
-    }
-
-    /**
      * Получает топики пользователя с картинками
      *
      * @param $iUserId
@@ -959,6 +940,115 @@ class ModuleMresource extends Module {
         }
 
         return FALSE;
+    }
+    /**
+     * Возвращает категории изображения для пользователя
+     * @param $iUserId
+     * @return array
+     */
+    public function GetAllImageCategoriesByUserId($iUserId){
+        $aRows = $this->oMapper->GetAllImageCategoriesByUserId($iUserId);
+        $aResult = array();
+        if ($aRows) {
+            foreach ($aRows as $aRow) {
+                $aResult[] = E::GetEntity('Mresource_MresourceCategory', array(
+                    'id' => $aRow['ttype'],
+                    'count' => $aRow['count'],
+                    'label' => E::ModuleLang()->Get('aim_target_type_' . $aRow['ttype']),
+                ));
+            }
+        }
+        return $aResult;
+    }
+
+    /**
+     * Возвращает информацию о категориях изображений пользователя
+     * с разбивкой по типу контента
+     *
+     * @param $iUserId
+     * @return bool
+     */
+    public function GetTopicsImageCategory($iUserId) {
+
+        $aTopicInfo = $this->oMapper->GetTopicInfo($iUserId, $iCount, 1, 100000);
+        if ($aTopicInfo) {
+
+            // Получим все топики
+            /** @var ModuleTopic_EntityTopic[] $aTopics */
+            $aTopics = E::ModuleTopic()->GetTopicsAdditionalData(array_keys($aTopicInfo));
+
+            // Проверим топики на доступность и раскидаем их по виду контента
+            $aResultTmp = array();
+            $aTopicTypes = array();
+            if ($aTopics) {
+                foreach ($aTopics as $oTopic) {
+                    if (E::ModuleACL()->IsAllowShowBlog($oTopic->getBlog(), E::IsUser() ? E::User() : FALSE) && $oTopic->getPublish()) {
+                        if (isset($aResultTmp[$oTopic->getType()])) {
+                            $aResultTmp[$oTopic->getType()] += 1;
+                        } else {
+                            $aResultTmp[$oTopic->getType()] = 1;
+                            $aTopicTypes[$oTopic->getType()] = $oTopic->getContentType();
+                        }
+                    }
+                }
+            } else {
+                return FALSE;
+            }
+
+            if ($aResultTmp) {
+                $aResult = array();
+                foreach ($aResultTmp as $sTopicType => $iTopicCount) {
+                    /** @var ModuleTopic_EntityContentType $oContentType */
+                    $oContentType = isset($aTopicTypes[$sTopicType]) ? $aTopicTypes[$sTopicType] : FALSE;
+                    if ($oContentType && $oContentType->isAccessible()) {
+                        $aResult[] = E::GetEntity('Mresource_MresourceCategory', array(
+                            'id'    => $sTopicType,
+                            'count' => $iTopicCount,
+                            'label' => $oContentType ? $oContentType->getContentTitleDecl() : mb_strtoupper($sTopicType)
+                        ));
+                    }
+
+                }
+
+                return $aResult;
+            }
+
+        }
+
+        return FALSE;
+    }
+
+    /**
+     * Получает топики пользователя с картинками
+     * @param $iUserId
+     * @return bool|array
+     */
+    public function GetTopicsPageByType($iUserId, $sType, $iCurrPage, $iPerPage)  {
+        $iCount = 0;
+        $aResult = array(
+            'collection' => array(),
+            'count' => 0
+        );
+
+        $aTopicInfo = $this->oMapper->GetTopicInfo($iUserId, $iCount, $iCurrPage, $iPerPage);
+        if ($aTopicInfo) {
+
+            $aTopics = E::ModuleTopic()->GetTopicsByFilter(array(
+                'topic_id' => array_keys($aTopicInfo),
+                'topic_type' => $sType
+            ));
+
+            if ($aTopics) {
+                foreach ($aTopics['collection'] as $sTopicId => $oTopic) {
+                    $oTopic->setImagesCount($aTopicInfo[$sTopicId]);
+                    $aTopics[$sTopicId] = $oTopic;
+                }
+            }
+
+            return $aTopics;
+        }
+
+        return $aResult;
     }
 
 }

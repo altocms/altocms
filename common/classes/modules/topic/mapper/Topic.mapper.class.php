@@ -772,6 +772,9 @@ class ModuleTopic_MapperTopic extends Mapper {
             }
             $sWhere .= " AND t.blog_id IN ('" . join("','", $aFilter['blog_id']) . "')";
         }
+        if (isset($aFilter['topic_id']) && is_array($aFilter['topic_id'])) {
+            $sWhere .= " AND t.topic_id IN ('" . join("','", $aFilter['topic_id']) . "')";
+        }
         if (isset($aFilter['blog_type']) && is_array($aFilter['blog_type'])) {
             $aBlogTypes = array();
             $aOrClauses = array();
