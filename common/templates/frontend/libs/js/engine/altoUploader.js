@@ -282,9 +282,11 @@
 
             this.uploadImageCropDone();
 
-            $(cropImage).Jcrop($this.options.cropOptions, function () {
-                $this.jcropImage = this;
-            });
+            $(cropImage)
+                .removeData()
+                .Jcrop($this.options.cropOptions, function () {
+                    $this.jcropImage = this;
+                });
 
             return $this;
 
@@ -301,6 +303,7 @@
                 $this.jcropImage.release();
                 $this.jcropImage.destroy();
             }
+            $('.jcrop-holder').remove();
 
             return $this;
 
@@ -484,5 +487,7 @@
 //      АВТОМАТИЧЕСКАЯ ИНИЦИАЛИЗАЦИЯ ПЛАГИНА
 //====================================================================================================================
 jQuery(function () {
-    jQuery('.js-alto-uploader').altoUploader(false);
+    jQuery('.js-alto-uploader').each(function(){
+        jQuery(this).altoUploader(false);
+    });
 });
