@@ -78,6 +78,13 @@ abstract class Entity extends LsObject {
      */
     protected $sValidateScenario = '';
 
+    /**
+     * Типы медиаресурсов, связанные с сущностью
+     *
+     * @var array
+     */
+    protected $aMResourceTypes = array();
+
 
     /**
      * Если передать в конструктор ассоциативный массив свойств и их значений, то они автоматом загрузятся в сущность
@@ -382,7 +389,7 @@ abstract class Entity extends LsObject {
      */
     public function _setData($aData) {
 
-        return $this->setProps($aData);
+        $this->setProps($aData);
     }
 
     /**
@@ -580,7 +587,7 @@ abstract class Entity extends LsObject {
      *
      * @param null|string $sField    Поле сущности для которого необходимо вернуть валидаторы, если нет, то возвращается для всех полей
      *
-     * @return array
+     * @return ModuleValidate_EntityValidator[]
      */
     public function _getValidators($sField = null) {
 
@@ -588,10 +595,10 @@ abstract class Entity extends LsObject {
 
         $aValidatorsReturn = array();
         $sScenario = $this->_getValidateScenario();
+
+        /** @var ModuleValidate_EntityValidator $oValidator */
         foreach ($aValidators as $oValidator) {
-            /**
-             * Проверка на текущий сценарий
-             */
+            // * Проверка на текущий сценарий
             if ($oValidator->applyTo($sScenario)) {
                 if ($sField === null || in_array($sField, $oValidator->fields, true)) {
                     $aValidatorsReturn[] = $oValidator;
@@ -605,7 +612,7 @@ abstract class Entity extends LsObject {
      * Создает и возвращает список валидаторов для сущности
      * @see ModuleValidate::CreateValidator
      *
-     * @return array
+     * @return ModuleValidate_EntityValidator[]
      * @throws Exception
      */
     public function _createValidators() {
@@ -669,6 +676,7 @@ abstract class Entity extends LsObject {
         } else {
             return isset($this->aValidateErrors[$sField]) ? reset($this->aValidateErrors[$sField]) : null;
         }
+        return null;
     }
 
     /**
@@ -878,6 +886,64 @@ abstract class Entity extends LsObject {
 
         return $bResult;
 
+    }
+
+    /**
+     * @param string                               $sType
+     * @param ModuleMresource_EntityMresourceRel[] $data
+     */
+    public function setMediaResources($sType, $data) {
+
+        if (!is_array($data)) {
+            $data = array($data);
+        }
+        $aMedia = $this->getProp('_media');
+        if (is_null($aMedia)) {
+            $aMedia = array();
+        }
+        $aMedia[$sType] = $data;
+        $this->setProp('_media', $aMedia);
+    }
+
+    /**
+     * @param string $sType
+     *
+     * @return ModuleMresource_EntityMresourceRel[]
+     */
+    public function getMediaResources($sType = null) {
+
+        $iEntityId = intval($this->getId());
+        $aResult = array();
+        if ($iEntityId) {
+            $aMedia = $this->getProp('_media');
+            if (is_null($aMedia) && ($sType || $this->aMResourceTypes)) {
+                // Если медиаресурсы не загружены, то загружаем, включая требуемый тип
+                $aTargetTypes = $this->aMResourceTypes;
+                if (!in_array($sType, $aTargetTypes)) {
+                    $aTargetTypes[] = $sType;
+                }
+                $aImages = E::ModuleUploader()->GetImagesByUserAndTarget($iEntityId, $aTargetTypes);
+                $aMedia = array_fill_keys($aTargetTypes, array());
+                if (!empty($aImages[$iEntityId])) {
+                    /** @var ModuleMresource_EntityMresourceRel $oImage */
+                    foreach($aImages[$iEntityId] as $oImage) {
+                        $aMedia[$oImage->getTargetType()][$oImage->getId()] = $oImage;
+                    }
+                }
+                $this->setProp('_media', $aMedia);
+                $aResult = $aMedia;
+            } elseif ($sType && !array_key_exists($sType, $aMedia)) {
+                $aImages = E::ModuleUploader()->GetImagesByUserAndTarget($iEntityId, $sType);
+                if (!empty($aImages[$iEntityId])) {
+                    $aMedia[$sType] = $aImages[$iEntityId];
+                } else {
+                    $aMedia[$sType] = array();
+                }
+                $this->setProp('_media', $aMedia);
+                $aResult = $aMedia[$sType];
+            }
+        }
+        return $aResult;
     }
 
 }
