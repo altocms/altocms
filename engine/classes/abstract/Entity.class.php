@@ -941,6 +941,12 @@ abstract class Entity extends LsObject {
                 }
                 $this->setProp('_media', $aMedia);
                 $aResult = $aMedia[$sType];
+            } else {
+                if ($sType) {
+                    $aResult = $aMedia[$sType];
+                } else {
+                    $aResult = $aMedia;
+                }
             }
         }
         return $aResult;
