@@ -83,6 +83,7 @@ class ActionProfile extends Action {
         $this->AddEventPreg('/^.+$/i', '/^created/i', '/^(page([1-9]\d{0,5}))?$/i', 'EventCreatedTopics');
         $this->AddEventPreg('/^.+$/i', '/^created/i', '/^topics/i', '/^(page([1-9]\d{0,5}))?$/i', 'EventCreatedTopics');
         $this->AddEventPreg('/^.+$/i', '/^created/i', '/^comments$/i', '/^(page([1-9]\d{0,5}))?$/i', 'EventCreatedComments');
+        $this->AddEventPreg('/^.+$/i', '/^created/i', '/^photos$/i', '/^(page([1-9]\d{0,5}))?$/i', 'EventCreatedPhotos');
 
         $this->AddEventPreg('/^.+$/i', '/^friends/i', '/^(page([1-9]\d{0,5}))?$/i', 'EventFriends');
         $this->AddEventPreg('/^.+$/i', '/^stream/i', '/^$/i', 'EventStream');
@@ -267,6 +268,26 @@ class ActionProfile extends Action {
          * Устанавливаем шаблон вывода
          */
         $this->SetTemplateAction('created_comments');
+    }
+
+
+    /**
+     * Вывод фотографий пользователя пользователя.
+     * В шаблоне в переменной oUserImagesInfo уже есть группы фотографий
+     */
+    protected function EventCreatedPhotos() {
+
+        if (!$this->CheckUserProfile()) {
+            return parent::EventNotFound();
+        }
+        $this->sMenuSubItemSelect = 'photos';
+
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('user_menu_publication') . ' ' . $this->oUserProfile->getLogin());
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('insertimg_images'));
+        /**
+         * Устанавливаем шаблон вывода
+         */
+        $this->SetTemplateAction('created_photos');
     }
 
     /**
@@ -1440,6 +1461,17 @@ class ActionProfile extends Action {
         $iCountCommentFavourite = E::ModuleComment()->GetCountCommentsFavouriteByUserId($this->oUserProfile->getId());
         $iCountNoteUser = E::ModuleUser()->GetCountUserNotesByUserId($this->oUserProfile->getId());
 
+        // Получим информацию об изображениях пользовтеля
+        // И посчитаем общее количество картинок
+        /** @var ModuleMresource_EntityMresourceCategory[] $aUserImagesInfo */
+        $aUserImagesInfo = E::ModuleMresource()->GetAllImageCategoriesByUserId($this->oUserProfile->getId());
+        $iPhotoCount = 0;
+        if ($aUserImagesInfo) {
+            foreach ($aUserImagesInfo as $oUserImagesInfo) {
+                $iPhotoCount += $oUserImagesInfo->getCount();
+            }
+        }
+
         E::ModuleViewer()->Assign('oUserProfile', $this->oUserProfile);
         E::ModuleViewer()->Assign('iCountTopicUser', $iCountTopicUser);
         E::ModuleViewer()->Assign('iCountCommentUser', $iCountCommentUser);
@@ -1450,13 +1482,17 @@ class ActionProfile extends Action {
             'iCountWallUser',
             E::ModuleWall()->GetCountWall(array('wall_user_id' => $this->oUserProfile->getId(), 'pid' => null))
         );
+
+        E::ModuleViewer()->Assign('oUserImagesInfo', $aUserImagesInfo);
+        E::ModuleViewer()->Assign('iPhotoCount', $iPhotoCount);
+
         /**
          * Общее число публикаций и избранного
          */
         E::ModuleViewer()->Assign(
             'iCountCreated',
             (($this->oUserCurrent && $this->oUserCurrent->getId() == $this->oUserProfile->getId()) ? $iCountNoteUser
-                : 0) + $iCountTopicUser + $iCountCommentUser
+                : 0) + $iCountTopicUser + $iCountCommentUser + $iPhotoCount
         );
         E::ModuleViewer()->Assign('iCountFavourite', $iCountCommentFavourite + $iCountTopicFavourite);
         /**

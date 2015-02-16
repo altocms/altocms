@@ -359,9 +359,9 @@ class ModuleMenu extends Module {
         $aItems = array();
 
         // Только пользователь может смотреть своё дерево изображений
-        if (!E::IsUser()) {
-            return $aItems;
-        }
+//        if (!E::IsUser()) {
+//            return $aItems;
+//        }
 
         $sTopicId = getRequestStr('topic_id', FALSE);
         if ($sTopicId && !E::ModuleTopic()->GetTopicById($sTopicId)) {
@@ -369,38 +369,43 @@ class ModuleMenu extends Module {
         }
 
         /** @var ModuleMresource_EntityMresourceCategory[] $aResources Категории объектов пользователя */
-        $aCategories = E::ModuleMresource()->GetImageCategoriesByUserId(E::UserId(), $sTopicId);
+        $aCategories = E::ModuleMresource()->GetImageCategoriesByUserId(isset($aMenu['uid']) ? $aMenu['uid'] : E::UserId(), $sTopicId);
 
-        if ($oCurrentTopicCategory = E::ModuleMresource()->GetCurrentTopicImageCategory(E::UserId(), $sTopicId)) {
+        // Получим категорию топиков для пользователя
+        if ($aTopicsCategory = E::ModuleMresource()->GetTopicsImageCategory(isset($aMenu['uid']) ? $aMenu['uid'] : E::UserId())) {
+            foreach ($aTopicsCategory as $oTopicsCategory) {
+                $aCategories[] = $oTopicsCategory;
+            }
+        }
+
+        if ($oCurrentTopicCategory = E::ModuleMresource()->GetCurrentTopicImageCategory(isset($aMenu['uid']) ? $aMenu['uid'] : E::UserId(), $sTopicId)) {
             $aCategories[] = $oCurrentTopicCategory;
         }
 
-        if ($oTopicsCategory = E::ModuleMresource()->GetTopicsImageCategory(E::UserId())) {
-            $aCategories[] = $oTopicsCategory;
+        if (!isset($aMenu['protect']) && (!isset($aMenu['uid']) || $aMenu['uid'] == E::UserId())) {
+            if ($oTalksCategory = E::ModuleMresource()->GetTalksImageCategory(isset($aMenu['uid']) ? $aMenu['uid'] : E::UserId())) {
+                $aCategories[] = $oTalksCategory;
+            }
         }
 
-        if ($oTalksCategory = E::ModuleMresource()->GetTalksImageCategory(E::UserId())) {
-            $aCategories[] = $oTalksCategory;
-        }
-
-        if ($oCommentsCategory = E::ModuleMresource()->GetCommentsImageCategory(E::UserId())) {
+        if ($oCommentsCategory = E::ModuleMresource()->GetCommentsImageCategory(isset($aMenu['uid']) ? $aMenu['uid'] : E::UserId())) {
             $aCategories[] = $oCommentsCategory;
         }
 
         if ($aCategories) {
             /** @var ModuleMresource_EntityMresourceCategory $oCategory */
             foreach ($aCategories as $oCategory) {
-                $aItems['menu_insert_'.$oCategory->getId()] = $this->CreateMenuItem('menu_insert_'.$oCategory->getId(), array(
-                    'text'   => $oCategory->getLabel() . '<span>(' . $oCategory->getCount() . ')</span>',
+                $aItems['menu_insert_' . $oCategory->getId()] = $this->CreateMenuItem('menu_insert_' . $oCategory->getId(), array(
+                    'text'    => $oCategory->getLabel() . '<span>(' . $oCategory->getCount() . ')</span>',
                     'link'    => '#',
-                    'active'  => false,
+                    'active'  => FALSE,
                     'submenu' => array(),
                     'display' => TRUE,
                     'options' => array(
-                        'link_class'  => '',
+                        'link_class' => '',
                         'link_url'   => '#',
-                        'class'   =>  'category-show category-show-' . $oCategory->getId(),
-                        'link_data'   => array(
+                        'class'      => 'category-show category-show-' . $oCategory->getId(),
+                        'link_data'  => array(
                             'category' => $oCategory->getId(),
                         ),
                     ),
@@ -582,16 +587,17 @@ class ModuleMenu extends Module {
 
     /**
      * Вызывается по строке "new_talk_string"
+     * @param string $sIcon
      * @return bool
      */
-    public function NewTalkString() {
+    public function NewTalkString($sIcon = '') {
 
         $iCount = $this->NewTalk();
         if ($iCount) {
-            return '+' . $iCount;
+            return $sIcon . '+' . $iCount;
         }
 
-        return '';
+        return $sIcon ? ($sIcon . '0') : '';
     }
 
     /**
@@ -655,12 +661,17 @@ class ModuleMenu extends Module {
      * Вызывается по строке "new_topics_count"
      * @internal param $iParam
      * @internal param $sParamData
+     * @param string $newClass
      * @return bool
      */
-    public function NewTopicsCount() {
+    public function NewTopicsCount($newClass = '') {
 
         $iCountTopicsCollectiveNew = E::ModuleTopic()->GetCountTopicsCollectiveNew();
         $iCountTopicsPersonalNew = E::ModuleTopic()->GetCountTopicsPersonalNew();
+
+        if ($newClass) {
+            return '<span class="' . $newClass . '"> +' . ($iCountTopicsCollectiveNew + $iCountTopicsPersonalNew) . '</span>';
+        }
 
         return $iCountTopicsCollectiveNew + $iCountTopicsPersonalNew;
 
@@ -681,18 +692,25 @@ class ModuleMenu extends Module {
 
     }
 
+
     /**
      * Вызывается по строке "user_rating"
+     * @param string $sIcon
+     * @param string $sNegativeClass
      * @return bool
      */
-    public function UserRating() {
+    public function UserRating($sIcon = '', $sNegativeClass='') {
 
         if (!C::Get('rating.enabled')) {
             return '';
         }
 
         if (E::IsUser()) {
-            return number_format(E::User()->getRating(), C::Get('view.rating_length'));
+            $fRating = number_format(E::User()->getRating(), C::Get('view.rating_length'));
+            if ($sNegativeClass && $fRating < 0) {
+                $fRating = '<span class="'. $sNegativeClass .'">' . $fRating . '</span>';
+            }
+            return $sIcon . $fRating;
         }
 
         return '';
@@ -702,17 +720,19 @@ class ModuleMenu extends Module {
 
     /**
      * Вызывается по строке "count_track"
+     * @param string $sIcon
      * @return bool
      */
-    public function CountTrack() {
+    public function CountTrack($sIcon = '') {
 
         if (E::IsUser()) {
             $sCount = E::ModuleUserfeed()->GetCountTrackNew(E::User()->getId());
 
-            return $sCount ? '+' . $sCount : '';
+            return $sIcon . ($sCount ? '+' . $sCount : '0');
         }
 
         return '';
 
     }
+
 }

@@ -15,6 +15,7 @@ $config['allowed'] = array(
     'discussed',// Подменю обсуждаемых топиков
     'top',      // Подменю популярных топиков
     'image_insert',  // Меню добавления изображений
+    'profile_images',  // Меню изображений в профиле пользователя
 );
 
 /**
@@ -323,6 +324,22 @@ $config['data']['image_insert'] = array(
                 ),
             ),
         ),
+        'menu_image_insert_item' => '',
+    )
+);
+/**
+ *  Меню управления добавлением изображений
+ */
+$config['data']['profile_images'] = array(
+    'init' => array(
+        'fill' => array(
+            'list' => array('*'),
+            'insert_image' => array()
+        ),
+    ),
+    'protect' => true,
+    'description' => '{{user_menu_publication_photos}}',
+    'list' => array(
         'menu_image_insert_item' => '',
     )
 );

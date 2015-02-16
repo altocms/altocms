@@ -99,10 +99,18 @@ class ActionAjax extends Action {
      * Загрузка страницы картинок
      */
     protected function EventImageManagerLoadImages(){
-        // Только пользователь может смотреть своё дерево изображений
-        if (!E::IsUser()) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
-            return;
+
+        // Получим идентификатор пользователя, изображения которого нужно загрузить
+        $iUserId = (int)getRequest('profile', FALSE);
+        if ($iUserId && E::ModuleUser()->GetUserById($iUserId)) {
+            C::Set('menu.data.profile_images.uid', $iUserId);
+        } else {
+            // Только пользователь может смотреть своё дерево изображений
+            if (!E::IsUser()) {
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
+                return;
+            }
+            $iUserId = E::UserId();
         }
 
         $sCategory = getRequestStr('category', FALSE);
@@ -118,14 +126,14 @@ class ActionAjax extends Action {
 
         // Страница загрузки картинки с компьютера
         if ($sCategory == 'insert-from-pc') {
-            $sImages = $oLocalViewer->Fetch('modals/insert_img/inject.pc.tpl');
+            $sImages = $oLocalViewer->Fetch("modals/insert_img/inject.pc.tpl");
             E::ModuleViewer()->AssignAjax('images', $sImages);
             return;
         }
 
         // Страница загрузки из интернета
         if ($sCategory == 'insert-from-link') {
-            $sImages = $oLocalViewer->Fetch('modals/insert_img/inject.link.tpl');
+            $sImages = $oLocalViewer->Fetch("modals/insert_img/inject.link.tpl");
             E::ModuleViewer()->AssignAjax('images', $sImages);
             return;
         }
@@ -144,20 +152,20 @@ class ActionAjax extends Action {
                     'profile_avatar',
                     'profile_photo'
                 ),
-                'user_id'     => E::UserId(),
+                'user_id'     => $iUserId,
             ), $sPage, Config::Get('module.topic.images_per_page'));
             $sTemplateName = 'inject.images.user.tpl';
             $iPages = 0;
-        } elseif ($sCategory == 'topic') {
+        } elseif ($sCategory == '_topic') {
             /**
              * конкретный топик
              */
             $oTopic = E::ModuleTopic()->GetTopicById($sTopicId);
             if ($oTopic && E::ModuleACL()->IsAllowEditTopic($oTopic, E::User())) {
-                $aResourcesId = E::ModuleMresource()->GetCurrentTopicResourcesId(E::UserId(), $sTopicId);
+                $aResourcesId = E::ModuleMresource()->GetCurrentTopicResourcesId($iUserId, $sTopicId);
                 if ($aResourcesId) {
                     $aResources = E::ModuleMresource()->GetMresourcesByFilter(array(
-                        'user_id' => E::UserId(),
+                        'user_id' => $iUserId,
                         'mresource_id' => $aResourcesId,
                     ), $sPage, Config::Get('module.topic.images_per_page'));
                     $aResources['count'] = count($aResourcesId);
@@ -180,14 +188,14 @@ class ActionAjax extends Action {
              */
             /** @var ModuleTalk_EntityTalk $oTopic */
             $oTopic = E::ModuleTalk()->GetTalkById($sTopicId);
-            if ($oTopic && E::ModuleTalk()->GetTalkUser($sTopicId, E::UserId())) {
+            if ($oTopic && E::ModuleTalk()->GetTalkUser($sTopicId, $iUserId)) {
 
                 $aResources = E::ModuleMresource()->GetMresourcesByFilter(array(
-                    'user_id' => E::UserId(),
+                    'user_id' => $iUserId,
                     'target_type' => 'talk',
                     'target_id' => $sTopicId,
                 ), $sPage, Config::Get('module.topic.images_per_page'));
-                $aResources['count'] = E::ModuleMresource()->GetMresourcesCountByTargetIdAndUserId('talk', $sTopicId, E::UserId());
+                $aResources['count'] = E::ModuleMresource()->GetMresourcesCountByTargetIdAndUserId('talk', $sTopicId, $iUserId);
                 $iPages = ceil($aResources['count'] / Config::Get('module.topic.images_per_page'));
                 $oLocalViewer->Assign('oTopic', $oTopic);
 
@@ -204,7 +212,7 @@ class ActionAjax extends Action {
              */
 
             $aResources = E::ModuleMresource()->GetMresourcesByFilter(array(
-                'user_id'     => E::UserId(),
+                'user_id'     => $iUserId,
                 'target_type' => array(
                     'talk_comment',
                     'topic_comment'
@@ -213,7 +221,7 @@ class ActionAjax extends Action {
             $aResources['count'] = E::ModuleMresource()->GetMresourcesCountByTargetAndUserId(array(
                 'talk_comment',
                 'topic_comment'
-            ), E::UserId());
+            ), $iUserId);
             $iPages = ceil($aResources['count'] / Config::Get('module.topic.images_per_page'));
 
             $sTemplateName = 'inject.images.tpl';
@@ -222,10 +230,10 @@ class ActionAjax extends Action {
             /**
              * Картинки текущего топика (текст, фотосет, одиночные картинки)
              */
-            $aResourcesId = E::ModuleMresource()->GetCurrentTopicResourcesId(E::UserId(), $sTopicId);
+            $aResourcesId = E::ModuleMresource()->GetCurrentTopicResourcesId($iUserId, $sTopicId);
             if ($aResourcesId) {
                 $aResources = E::ModuleMresource()->GetMresourcesByFilter(array(
-                    'user_id' => E::UserId(),
+                    'user_id' => $iUserId,
                     'mresource_id' => $aResourcesId,
                 ), $sPage, Config::Get('module.topic.images_per_page'));
                 $aResources['count'] = count($aResourcesId);
@@ -245,13 +253,11 @@ class ActionAjax extends Action {
              */
             $aResources = E::ModuleMresource()->GetMresourcesByFilter(array(
                 'target_type' => 'blog_avatar',
-                'user_id' => E::UserId(),
+                'user_id' => $iUserId,
             ), $sPage, Config::Get('module.topic.group_images_per_page'));
-            $aResources['count'] = E::ModuleMresource()->GetMresourcesCountByTargetAndUserId('blog_avatar', E::UserId());
+            $aResources['count'] = E::ModuleMresource()->GetMresourcesCountByTargetAndUserId('blog_avatar', $iUserId);
             // Получим блоги
             $aBlogsId = array();
-
-            /** @var ModuleMresource_EntityMresource $oResource */
             foreach ($aResources['collection'] as $oResource) {
                 $aBlogsId[] = $oResource->getTargetId();
             }
@@ -268,7 +274,18 @@ class ActionAjax extends Action {
             /**
              * Страница топиков
              */
-            $aTopicsData = E::ModuleMresource()->GetTopicsPage(E::UserId(), $sPage, Config::Get('module.topic.group_images_per_page'));
+            $aTopicsData = E::ModuleMresource()->GetTopicsPage($iUserId, $sPage, Config::Get('module.topic.group_images_per_page'));
+
+            $oLocalViewer->Assign('aTopics', $aTopicsData['collection']);
+            $sTemplateName = 'inject.images.topic.tpl';
+            $iPages = ceil($aTopicsData['count'] / Config::Get('module.topic.group_images_per_page'));
+            $aResources= array('collection'=>array());
+
+        }  elseif (in_array($sCategory, E::ModuleTopic()->GetTopicTypes())) { // ок
+            /**
+             * Страница топиков
+             */
+            $aTopicsData = E::ModuleMresource()->GetTopicsPageByType($iUserId, $sCategory, $sPage, Config::Get('module.topic.group_images_per_page'));
 
             $oLocalViewer->Assign('aTopics', $aTopicsData['collection']);
             $sTemplateName = 'inject.images.topic.tpl';
@@ -279,7 +296,7 @@ class ActionAjax extends Action {
             /**
              * Страница писем
              */
-            $aTalksData = E::ModuleMresource()->GetTalksPage(E::UserId(), $sPage, Config::Get('module.topic.group_images_per_page'));
+            $aTalksData = E::ModuleMresource()->GetTalksPage($iUserId, $sPage, Config::Get('module.topic.group_images_per_page'));
 
             $oLocalViewer->Assign('aTalks', $aTalksData['collection']);
             $sTemplateName = 'inject.images.talk.tpl';
@@ -292,7 +309,7 @@ class ActionAjax extends Action {
              */
             $aResources = E::ModuleMresource()->GetMresourcesByFilter(array(
                 'target_type' => $sCategory,
-                'user_id' => E::UserId(),
+                'user_id' => $iUserId,
             ), $sPage, Config::Get('module.topic.images_per_page'));
             $iPages = ceil($aResources['count'] / Config::Get('module.topic.images_per_page'));
         }
@@ -301,7 +318,9 @@ class ActionAjax extends Action {
 
 
         $oLocalViewer->Assign('aResources', $aResources['collection']);
-        $sImages = $oLocalViewer->Fetch('modals/insert_img/' . $sTemplateName);
+
+        $sPath = getRequest('profile', FALSE) ? 'actions/profile/created_photos/' : 'modals/insert_img/';
+        $sImages = $oLocalViewer->Fetch($sPath . $sTemplateName);
 
         E::ModuleViewer()->AssignAjax('images', $sImages);
         E::ModuleViewer()->AssignAjax('category', $sCategory);
@@ -316,40 +335,21 @@ class ActionAjax extends Action {
      */
     protected function EventImageManagerLoadTree(){
 
-//        // Только пользователь может смотреть своё дерево изображений
-//        if (!E::IsUser()) {
-//            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
-//            return;
-//        }
-//
-//        $sTopicId = getRequestStr('topic_id', FALSE);
-//        if ($sTopicId && !E::ModuleTopic()->GetTopicById($sTopicId)) {
-//            $sTopicId = FALSE;
-//        }
-//
-//        /** @var ModuleMresource_EntityMresourceCategory[] $aResources Категории объектов пользователя */
-//        $aCategories = E::ModuleMresource()->GetImageCategoriesByUserId(E::UserId(), $sTopicId);
-//
-//        if ($oCurrentTopicCategory = E::ModuleMresource()->GetCurrentTopicImageCategory(E::UserId(), $sTopicId)) {
-//            $aCategories[] = $oCurrentTopicCategory;
-//        }
-//
-//        if ($oTopicsCategory = E::ModuleMresource()->GetTopicsImageCategory(E::UserId())) {
-//            $aCategories[] = $oTopicsCategory;
-//        }
-//
-//        if ($oTalksCategory = E::ModuleMresource()->GetTalksImageCategory(E::UserId())) {
-//            $aCategories[] = $oTalksCategory;
-//        }
-//
-//        if ($oCommentsCategory = E::ModuleMresource()->GetCommentsImageCategory(E::UserId())) {
-//            $aCategories[] = $oCommentsCategory;
-//        }
-//
+        $sPath = ($iUserId = (int)getRequest('profile', FALSE)) ? 'actions/profile/created_photos/' : 'modals/insert_img/';
+        if ($iUserId && E::ModuleUser()->GetUserById($iUserId)) {
+            C::Set('menu.data.profile_images.uid', $iUserId);
+        } else {
+            $iUserId = false;
+        }
+
         /** @var ModuleViewer $oLocalViewer */
         $oLocalViewer = E::ModuleViewer()->GetLocalViewer();
-//        $oLocalViewer->Assign('aCategories', $aCategories);
-        $sCategories = $oLocalViewer->Fetch('modals/insert_img/inject.categories.tpl');
+        if ($iUserId) {
+            $oLocalViewer->Assign('iUserId', $iUserId);
+            $sCategories = $oLocalViewer->Fetch("{$sPath}inject.categories.tpl");
+        } else {
+            $sCategories = $oLocalViewer->Fetch( "{$sPath}inject.categories.tpl");
+        }
 
         E::ModuleViewer()->AssignAjax('categories', $sCategories);
 

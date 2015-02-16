@@ -610,6 +610,7 @@ return array(
     'user_menu_publication_blog'                => 'Blog',
     'user_menu_publication_comment'             => 'Comments',
     'user_menu_publication_comment_rss'         => 'RSS feed',
+    'user_menu_publication_photos'              => 'Photos',
     /**
      * Profile
      */
@@ -1095,6 +1096,8 @@ return array(
     'select_category' => 'Select category',
     'next_page'       => 'Next page',
     'prev_page'       => 'Prev page',
+    'insertimg_not_found'      => 'Images isn`t found',
+    'insertimg_images'      => 'Images',
     /**
      * Notifications
      */
