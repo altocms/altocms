@@ -35,6 +35,8 @@ abstract class Entity extends LsObject {
     const EXP_KEY_MOD = '_mod';
     const EXP_STR_MAX = 250;
 
+    const MEDIARESOURCES_KEY = '_mediaresources';
+
     /**
      * Данные сущности, на этот массив мапятся методы set* и get*
      *
@@ -897,12 +899,12 @@ abstract class Entity extends LsObject {
         if (!is_array($data)) {
             $data = array($data);
         }
-        $aMedia = $this->getProp('_media');
+        $aMedia = $this->getProp(static::MEDIARESOURCES_KEY);
         if (is_null($aMedia)) {
             $aMedia = array();
         }
         $aMedia[$sType] = $data;
-        $this->setProp('_media', $aMedia);
+        $this->setProp(static::MEDIARESOURCES_KEY, $aMedia);
     }
 
     /**
@@ -915,7 +917,7 @@ abstract class Entity extends LsObject {
         $iEntityId = intval($this->getId());
         $aResult = array();
         if ($iEntityId) {
-            $aMedia = $this->getProp('_media');
+            $aMedia = $this->getProp(static::MEDIARESOURCES_KEY);
             if (is_null($aMedia) && ($sType || $this->aMResourceTypes)) {
                 // Если медиаресурсы не загружены, то загружаем, включая требуемый тип
                 $aTargetTypes = $this->aMResourceTypes;
@@ -930,7 +932,7 @@ abstract class Entity extends LsObject {
                         $aMedia[$oImage->getTargetType()][$oImage->getId()] = $oImage;
                     }
                 }
-                $this->setProp('_media', $aMedia);
+                $this->setProp(static::MEDIARESOURCES_KEY, $aMedia);
                 $aResult = $aMedia;
             } elseif ($sType && !array_key_exists($sType, $aMedia)) {
                 $aImages = E::ModuleUploader()->GetImagesByUserAndTarget($iEntityId, $sType);
@@ -939,7 +941,7 @@ abstract class Entity extends LsObject {
                 } else {
                     $aMedia[$sType] = array();
                 }
-                $this->setProp('_media', $aMedia);
+                $this->setProp(static::MEDIARESOURCES_KEY, $aMedia);
                 $aResult = $aMedia[$sType];
             } else {
                 if ($sType) {
