@@ -396,7 +396,7 @@ class ModuleMenu extends Module {
             /** @var ModuleMresource_EntityMresourceCategory $oCategory */
             foreach ($aCategories as $oCategory) {
                 $aItems['menu_insert_' . $oCategory->getId()] = $this->CreateMenuItem('menu_insert_' . $oCategory->getId(), array(
-                    'text'    => $oCategory->getLabel() . '<span>(' . $oCategory->getCount() . ')</span>',
+                    'text'    => $oCategory->getLabel() . '<span>' . $oCategory->getCount() . '</span>',
                     'link'    => '#',
                     'active'  => FALSE,
                     'submenu' => array(),
