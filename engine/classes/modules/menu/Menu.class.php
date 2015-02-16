@@ -577,11 +577,18 @@ class ModuleMenu extends Module {
 
     /**
      * Вызывается по строке "new_talk"
+     * @param bool $sTemplate
      * @return bool
      */
-    public function NewTalk() {
+    public function NewTalk($sTemplate = false) {
 
-        return (int)E::ModuleTalk()->GetCountTalkNew(E::UserId());
+        $iValue = (int)E::ModuleTalk()->GetCountTalkNew(E::UserId());
+        if ($sTemplate && $iValue) {
+            return str_replace('{{new_talk_count}}', $iValue, $sTemplate);
+        }
+
+
+        return $iValue ? $iValue : '';
 
     }
 
