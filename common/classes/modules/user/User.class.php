@@ -215,8 +215,10 @@ class ModuleUser extends Module {
         if (isset($aAllowData['note']) && $this->oUserCurrent) {
             $aNotes = $this->GetUserNotesByArray($aUsersId, $this->oUserCurrent->getId());
         }
+        $aAvatars = E::ModuleUploader()->GetImagesByUserAndTarget($aUsersId, 'profile_avatar');
 
         // * Добавляем данные к результату
+        /** @var ModuleUser_EntityUser $oUser */
         foreach ($aUsers as $oUser) {
             if (isset($aSessions[$oUser->getId()])) {
                 $oUser->setSession($aSessions[$oUser->getId()]);
@@ -246,6 +248,11 @@ class ModuleUser extends Module {
                 } else {
                     $oUser->setUserNote(false);
                 }
+            }
+            if (isset($aAvatars[$oUser->getId()])) {
+                $oUser->setProfileMedia('profile_avatar', $aAvatars[$oUser->getId()]);
+            } else {
+                $oUser->setAvatars(array());
             }
         }
 

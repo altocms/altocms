@@ -182,6 +182,7 @@ class ModuleMresource_MapperMresource extends Mapper {
                 {AND mrt.mresource_id=(?d:mresource_id)}
                 {AND mrt.mresource_id IN (?a:mresource_ids)}
                 {AND mrt.target_type=?:target_type}
+                {AND mrt.target_type IN (?a:target_types)}
                 {AND mrt.target_id=?d:target_id}
                 {AND mrt.target_id IN (?a:target_ids)}
                 {AND mr.user_id=?d:user_id}
@@ -193,24 +194,24 @@ class ModuleMresource_MapperMresource extends Mapper {
                 {AND mrt.target_tmp=?:target_tmp}
             ORDER BY mr.sort DESC, mr.mresource_id ASC
         ");
-        $aRows = $oSql->bind(
-            array(
-                 ':id' => (isset($aFilter['id']) && !is_array($aFilter['id'])) ? $aFilter['id'] : DBSIMPLE_SKIP,
-                 ':ids' => (isset($aFilter['id']) && is_array($aFilter['id'])) ? $aFilter['id'] : DBSIMPLE_SKIP,
-                 ':mresource_id' => (isset($aFilter['mresource_id']) && !is_array($aFilter['mresource_id'])) ? $aFilter['mresource_id'] : DBSIMPLE_SKIP,
-                 ':mresource_ids' => (isset($aFilter['mresource_id']) && is_array($aFilter['mresource_id'])) ? $aFilter['mresource_id'] : DBSIMPLE_SKIP,
-                 ':target_type' => isset($aFilter['target_type']) ? $aFilter['target_type'] : DBSIMPLE_SKIP,
-                 ':target_id' => (isset($aFilter['target_id']) && !is_array($aFilter['target_id'])) ? $aFilter['target_id'] : DBSIMPLE_SKIP,
-                 ':target_ids' => (isset($aFilter['target_id']) && is_array($aFilter['target_id'])) ? $aFilter['target_id'] : DBSIMPLE_SKIP,
-                 ':user_id' => (isset($aFilter['user_id']) && !is_array($aFilter['user_id'])) ? $aFilter['user_id'] : DBSIMPLE_SKIP,
-                 ':user_ids' => (isset($aFilter['user_id']) && is_array($aFilter['user_id'])) ? $aFilter['user_id'] : DBSIMPLE_SKIP,
-                 ':link' => isset($aFilter['link']) ? $aFilter['link'] : DBSIMPLE_SKIP,
-                 ':type' => isset($aFilter['type']) ? $aFilter['type'] : DBSIMPLE_SKIP,
-                 ':hash_url' => isset($aFilter['hash_url']) ? $aFilter['hash_url'] : DBSIMPLE_SKIP,
-                 ':hash_file' => isset($aFilter['hash_file']) ? $aFilter['hash_file'] : DBSIMPLE_SKIP,
-                 ':target_tmp' => isset($aFilter['target_tmp']) ? $aFilter['target_tmp'] : DBSIMPLE_SKIP,
-            )
-        )->select();
+        $aParams = array(
+                ':id' => (isset($aFilter['id']) && !is_array($aFilter['id'])) ? $aFilter['id'] : DBSIMPLE_SKIP,
+                ':ids' => (isset($aFilter['id']) && is_array($aFilter['id'])) ? $aFilter['id'] : DBSIMPLE_SKIP,
+                ':mresource_id' => (isset($aFilter['mresource_id']) && !is_array($aFilter['mresource_id'])) ? $aFilter['mresource_id'] : DBSIMPLE_SKIP,
+                ':mresource_ids' => (isset($aFilter['mresource_id']) && is_array($aFilter['mresource_id'])) ? $aFilter['mresource_id'] : DBSIMPLE_SKIP,
+                ':target_type' => (isset($aFilter['target_type']) && !is_array($aFilter['target_type'])) ? $aFilter['target_type'] : DBSIMPLE_SKIP,
+                ':target_types' => (isset($aFilter['target_type']) && is_array($aFilter['target_type'])) ? $aFilter['target_type'] : DBSIMPLE_SKIP,
+                ':target_id' => (isset($aFilter['target_id']) && !is_array($aFilter['target_id'])) ? $aFilter['target_id'] : DBSIMPLE_SKIP,
+                ':target_ids' => (isset($aFilter['target_id']) && is_array($aFilter['target_id'])) ? $aFilter['target_id'] : DBSIMPLE_SKIP,
+                ':user_id' => (isset($aFilter['user_id']) && !is_array($aFilter['user_id'])) ? $aFilter['user_id'] : DBSIMPLE_SKIP,
+                ':user_ids' => (isset($aFilter['user_id']) && is_array($aFilter['user_id'])) ? $aFilter['user_id'] : DBSIMPLE_SKIP,
+                ':link' => isset($aFilter['link']) ? $aFilter['link'] : DBSIMPLE_SKIP,
+                ':type' => isset($aFilter['type']) ? $aFilter['type'] : DBSIMPLE_SKIP,
+                ':hash_url' => isset($aFilter['hash_url']) ? $aFilter['hash_url'] : DBSIMPLE_SKIP,
+                ':hash_file' => isset($aFilter['hash_file']) ? $aFilter['hash_file'] : DBSIMPLE_SKIP,
+                ':target_tmp' => isset($aFilter['target_tmp']) ? $aFilter['target_tmp'] : DBSIMPLE_SKIP,
+            );
+        $aRows = $oSql->bind($aParams)->select();
         return array('data' => $aRows ? $aRows : array());
     }
 
@@ -605,7 +606,7 @@ class ModuleMresource_MapperMresource extends Mapper {
      * @param string    $sTargetType
      * @param int|array $xTargetId
      *
-     * @return Mresource_MresourceRel[]
+     * @return ModuleMresource_EntityMresourceRel[]
      */
     public function GetMresourcesRelByTarget($sTargetType, $xTargetId) {
 
@@ -629,20 +630,22 @@ class ModuleMresource_MapperMresource extends Mapper {
      *
      * @param string    $sTargetType
      * @param int|array $xTargetId
-     * @param int       $iUserId
+     * @param int|array $xUserId
      *
-     * @return Mresource_MresourceRel[]
+     * @return ModuleMresource_EntityMresourceRel[]
      */
-    public function GetMresourcesRelByTargetAndUser($sTargetType, $xTargetId, $iUserId) {
+    public function GetMresourcesRelByTargetAndUser($sTargetType, $xTargetId, $xUserId) {
 
         $aCriteria = array(
             'filter' => array(
                 'target_type' => $sTargetType,
-                'target_id' => $xTargetId,
-                'user_id' => $iUserId,
+                'user_id' => $xUserId,
             ),
         );
 
+        if (!empty($xTargetId)) {
+            $aCriteria['filter']['target_id'] = $xTargetId;
+        }
         $aData = $this->_getMresourcesRelByCriteria($aCriteria);
         $aResult = array();
         if ($aData['data']) {

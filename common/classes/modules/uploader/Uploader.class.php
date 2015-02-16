@@ -862,7 +862,7 @@ class ModuleUploader extends Module {
      * @param string    $sTargetType
      * @param int|array $xTargetId
      *
-     * @return Mresource_MresourceRel[]
+     * @return ModuleMresource_EntityMresourceRel[]
      */
     public function GetTargetImages($sTargetType, $xTargetId) {
 
@@ -870,6 +870,29 @@ class ModuleUploader extends Module {
 
         return $aMResourceRel;
     }
+
+    /**
+     * @param $xUsers
+     * @param $sTargetType
+     * @param $xTargetId
+     *
+     * @return array
+     */
+    public function GetImagesByUserAndTarget($xUsers, $sTargetType, $xTargetId = null) {
+
+        $aUserIds = $this->_entitiesId($xUsers);
+        $aMResourceRel = E::ModuleMresource()->GetMresourcesRelByTargetAndUser($sTargetType, $xTargetId, $aUserIds);
+
+        $aResult = array_fill_keys($aUserIds, array());
+        if ($aMResourceRel) {
+            foreach ($aMResourceRel as $oMResourseRel) {
+                $aResult[$oMResourseRel->getUserId()][$oMResourseRel->getId()] = $oMResourseRel;
+            }
+        }
+
+        return $aResult;
+    }
+
 }
 
 // EOF

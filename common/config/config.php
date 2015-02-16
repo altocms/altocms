@@ -533,7 +533,7 @@ $config['db']['tables']['engine'] = 'InnoDB';  // InnoDB или MyISAM
 /**
  * Настройка memcache
  */
-$config['memcache']['servers'][0]['host'] = 'localhost';
+$config['memcache']['servers'][0]['host'] = '127.0.0.1';
 $config['memcache']['servers'][0]['port'] = '11211';
 $config['memcache']['servers'][0]['persistent'] = true;
 $config['memcache']['compression'] = true;

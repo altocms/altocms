@@ -24,6 +24,9 @@ class ModuleUser_EntityUser extends Entity {
     const DEFAULT_AVATAR_SIZE = 100;
     const DEFAULT_PHOTO_SIZE = 250;
 
+    // Типы ресурсов, загружаемые в профайле пользователя
+    protected $aProfileTargetTypes = array('profile_avatar', 'profile_photo');
+
     /**
      * Определяем правила валидации
      * Правила валидации нужно определять только здесь!
@@ -535,13 +538,46 @@ class ModuleUser_EntityUser extends Entity {
     }
 
     /**
-     * Возвращает полный URL до аватары нужного размера
+     * @param string $sType
      *
-     * @param int|string $xSize - Размер (120 | '120x100')
-     *
-     * @return  string
+     * @return ModuleMresource_EntityMresourceRel[]
      */
-    public function getAvatarUrl($xSize = null) {
+    public function getProfileMedia($sType) {
+
+        $aMedia = $this->getProp('_media');
+        if (is_null($aMedia)) {
+            // Если медиаресурсы профайла не загружены, то загружаем, включая требуемый тип
+            $aTargetTypes = $this->aProfileTargetTypes;
+            if (!in_array($sType, $aTargetTypes)) {
+                $aTargetTypes[] = $sType;
+            }
+            $aImages = E::ModuleUploader()->GetImagesByUserAndTarget($this->getId(), $aTargetTypes);
+            $aMedia = array_fill_keys($aTargetTypes, array());
+            if (!empty($aImages[$this->getId()])) {
+                foreach($aImages[$this->getId()] as $oImage) {
+                    $aMedia[$oImage->getTargetType()][$oImage->getId()] = $oImage;
+                }
+            }
+            $this->setProp('_media', $aMedia);
+        } elseif (!array_key_exists($sType, $aMedia)) {
+            $aImages = E::ModuleUploader()->GetImagesByUserAndTarget($this->getId(), $sType);
+            if (!empty($aImages[$this->getId()])) {
+                $aMedia[$sType] = $aImages[$this->getId()];
+            } else {
+                $aMedia[$sType] = array();
+            }
+            $this->setProp('_media', $aMedia);
+        }
+        return $aMedia[$sType];
+    }
+
+    /**
+     * @param string $sType
+     * @param string $xSize
+     *
+     * @return string
+     */
+    public function getProfileImageUrl($sType, $xSize = null) {
 
         // Gets default size from config or sets it to 100
         if (!$xSize) {
@@ -552,19 +588,59 @@ class ModuleUser_EntityUser extends Entity {
             }
         }
 
-        if ($sUrl = E::ModuleUploader()->GetTargetImageUrl('profile_avatar', $this->getId(), $xSize)) {
-            return $sUrl;
-        } else {
-            return $this->getDefaultAvatarUrl($xSize);
+        $sUrl = '';
+        $aImages = $this->getProfileMedia($sType);
+        if (!empty($aImages)) {
+            /** @var ModuleMresource_EntityMresourceRel $oImage */
+            $oImage = reset($aImages);
+            $sUrl = $oImage->getImageUrl($xSize);
         }
+        return $sUrl;
+    }
 
+    /**
+     * Возвращает полный URL до аватары нужного размера
+     *
+     * @param int|string $xSize - Размер (120 | '120x100')
+     *
+     * @return  string
+     */
+    public function getAvatarUrl($xSize = null) {
+
+        $sPropKey = '_avatar_url_' . $xSize;
+        $sUrl = $this->getProp($sPropKey);
+        if (is_null($sUrl)) {
+            // Gets default size from config or sets it to 100
+            if (!$xSize) {
+                if (Config::Get('module.user.profile_avatar_size')) {
+                    $xSize = Config::Get('module.user.profile_avatar_size');
+                } else {
+                    $xSize = self::DEFAULT_AVATAR_SIZE;
+                }
+            }
+
+            $sUrl = $this->getProfileImageUrl('profile_avatar', $xSize);
+            if (!$sUrl) {
+                // Old version compatibility
+                $sUrl = $this->getProfileAvatar();
+                if ($sUrl) {
+                    if ($xSize) {
+                        $sUrl = E::ModuleUploader()->ResizeTargetImage($sUrl, $xSize);
+                    }
+                } else {
+                    $sUrl = $this->getDefaultAvatarUrl($xSize);
+                }
+            }
+            $this->setProp($sPropKey, $sUrl);
+        }
+        return $sUrl;
     }
 
     /**
      * Возвращает дефолтный аватар пользователя
      *
-     * @param null $xSize
-     * @return mixed
+     * @param int|string $xSize
+     * @return string
      */
     public function getDefaultAvatarUrl($xSize = null) {
 
@@ -595,10 +671,13 @@ class ModuleUser_EntityUser extends Entity {
 
     /**
      * Возвращает информацию о том, есть ли вообще у пользователя аватар
+     *
      * @return bool
      */
     public function hasAvatar() {
-        return (bool)E::ModuleUploader()->GetTargetImageUrl('profile_avatar', $this->getId());
+
+        $aImages = $this->getProfileMedia('profile_avatar');
+        return !empty($aImages);
     }
 
     /**
@@ -618,36 +697,51 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function GetPhotoUrl($xSize = null) {
 
-        if (!$xSize) {
-            if (Config::Get('module.user.profile_photo_size')) {
-                $xSize = Config::Get('module.user.profile_photo_size');
-            } else {
-                $xSize = self::DEFAULT_PHOTO_SIZE;
+        $sPropKey = '_avatar_url_' . $xSize;
+        $sUrl = $this->getProp($sPropKey);
+        if (is_null($sUrl)) {
+            if (!$xSize) {
+                if (Config::Get('module.user.profile_photo_size')) {
+                    $xSize = Config::Get('module.user.profile_photo_size');
+                } else {
+                    $xSize = self::DEFAULT_PHOTO_SIZE;
+                }
             }
-        }
 
-        if ($sUrl = E::ModuleUploader()->GetTargetImageUrl('profile_photo', $this->getId(), $xSize)) {
-            return $sUrl;
-        } else {
-            return $this->GetDefaultPhotoUrl($xSize);
+            $sUrl = $this->getProfileImageUrl('profile_photo', $xSize);
+            if (!$sUrl) {
+                // Old version compatibility
+                $sUrl = $this->getProfilePhoto();
+                if ($sUrl) {
+                    if ($xSize) {
+                        $sUrl = E::ModuleUploader()->ResizeTargetImage($sUrl, $xSize);
+                    }
+                } else {
+                    $sUrl = $this->GetDefaultPhotoUrl($xSize);
+                }
+            }
+            $this->setProp($sPropKey, $sUrl);
         }
-
+        return $sUrl;
     }
 
     /**
      * Возвращает информацию о том, есть ли вообще у пользователя аватар
+     *
      * @return bool
      */
     public function hasPhoto() {
-        return (bool)E::ModuleUploader()->GetTargetImageUrl('profile_photo', $this->getId());
+
+        $aImages = $this->getProfileMedia('profile_photo');
+        return !empty($aImages);
     }
 
     /**
      * Returns URL for default photo of current skin
      *
-     * @param null $xSize
+     * @param int|string $xSize
      *
-     * @return mixed
+     * @return string
      */
     public function GetDefaultPhotoUrl($xSize = null) {
 
@@ -1102,14 +1196,36 @@ class ModuleUser_EntityUser extends Entity {
      *
      * @param string $data
      */
-    public function setProfileFoto($data) {
+    public function setProfilePhoto($data) {
 
         $this->setProp('user_profile_foto', $data);
     }
 
-    public function setProfilePhoto($data) {
+    /**
+     * LS-compatibility
+     *
+     * @param $data
+     */
+    public function setProfileFoto($data) {
 
-        $this->setProfileFoto($data);
+        $this->setProfilePhoto($data);
+    }
+
+    /**
+     * @param string                               $sType
+     * @param ModuleMresource_EntityMresourceRel[] $data
+     */
+    public function setProfileMedia($sType, $data) {
+
+        if (!is_array($data)) {
+            $data = array($data);
+        }
+        $aMedia = $this->getProp('_media');
+        if (is_null($aMedia)) {
+            $aMedia = array();
+        }
+        $aMedia[$sType] = $data;
+        $this->setProp('_media', $aMedia);
     }
 
     /**
