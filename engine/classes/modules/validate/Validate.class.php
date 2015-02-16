@@ -73,19 +73,20 @@ class ModuleValidate extends Module {
      * Запускает валидацию данных
      *
      * @param string $sNameValidator    Имя валидатора или метода при использовании параметра $oObject
-     * @param mixed  $mValue            Валидируемое значение
+     * @param mixed  $xValue            Валидируемое значение
      * @param array  $aParams           Параметры валидации
      * @param null   $oObject           Объект в котором необходимо вызвать метод валидации
      *
      * @return bool
      */
-    public function Validate($sNameValidator, $mValue, $aParams = array(), $oObject = null) {
+    public function Validate($sNameValidator, $xValue, $aParams = array(), $oObject = null) {
+
         if (is_null($oObject)) {
             $oObject = $this;
         }
         $oValidator = $this->CreateValidator($sNameValidator, $oObject, null, $aParams);
 
-        if (($sMsg = $oValidator->validate($mValue)) !== true) {
+        if (($sMsg = $oValidator->validate($xValue)) !== true) {
             $sMsg = str_replace('%%field%%', is_null($oValidator->label) ? '' : $oValidator->label, $sMsg);
             $this->AddError($sMsg);
             return false;
@@ -102,15 +103,15 @@ class ModuleValidate extends Module {
      * @param null|array $aFields    Список полей сущности для которых необходимо провести валидацию
      * @param array      $aParams    Параметры
      *
-     * @return mixed
+     * @return ModuleValidate_EntityValidator
      */
     public function CreateValidator($sName, $oObject, $aFields = null, $aParams = array()) {
+
         if (is_string($aFields)) {
             $aFields = preg_split('/[\s,]+/', $aFields, -1, PREG_SPLIT_NO_EMPTY);
         }
-        /**
-         * Определяем список сценариев валидации
-         */
+
+        // * Определяем список сценариев валидации
         if (isset($aParams['on'])) {
             if (is_array($aParams['on'])) {
                 $aOn = $aParams['on'];
@@ -120,11 +121,12 @@ class ModuleValidate extends Module {
         } else {
             $aOn = array();
         }
-        /**
-         * Если в качестве имени валидатора указан метод объекта, то создаем специальный валидатор
-         */
+
+        // * Если в качестве имени валидатора указан метод объекта, то создаем специальный валидатор
         $sMethod = 'validate' . F::StrCamelize($sName);
         if (method_exists($oObject, $sMethod)) {
+
+            /** @var ModuleValidate_EntityValidator $oValidator */
             $oValidator = E::GetEntity('ModuleValidate_EntityValidatorInline');
             if (!is_null($aFields)) {
                 $oValidator->fields = $aFields;
@@ -136,19 +138,20 @@ class ModuleValidate extends Module {
                 $oValidator->skipOnError = $aParams['skipOnError'];
             }
         } else {
-            /**
-             * Иначе создаем валидатор по имени
-             */
+            // * Иначе создаем валидатор по имени
             if (!is_null($aFields)) {
                 $aParams['fields'] = $aFields;
             }
             $sValidateName = 'Validator' . F::StrCamelize($sName);
+
+            /** @var ModuleValidate_EntityValidator $oValidator */
             $oValidator = E::GetEntity('ModuleValidate_Entity' . $sValidateName);
             foreach ($aParams as $sNameParam => $sValue) {
                 $oValidator->$sNameParam = $sValue;
             }
         }
         $oValidator->on = empty($aOn) ? array() : array_combine($aOn, $aOn);
+
         return $oValidator;
     }
 
@@ -158,6 +161,7 @@ class ModuleValidate extends Module {
      * @return bool
      */
     public function HasErrors() {
+
         return count($this->aErrors) ? true : false;
     }
 
@@ -167,6 +171,7 @@ class ModuleValidate extends Module {
      * @return array
      */
     public function GetErrors() {
+
         return $this->aErrors;
     }
 
@@ -178,6 +183,7 @@ class ModuleValidate extends Module {
      * @return bool|string
      */
     public function GetErrorLast($bRemove = false) {
+
         if (!$this->HasErrors()) {
             return false;
         }
@@ -194,6 +200,7 @@ class ModuleValidate extends Module {
      * @param string $sError    Текст ошибки
      */
     public function AddError($sError) {
+
         $this->aErrors[] = $sError;
     }
 
@@ -201,8 +208,9 @@ class ModuleValidate extends Module {
      * Очищает список ошибок
      */
     public function ClearErrors() {
+
         $this->aErrors = array();
     }
 }
 
-?>
+// EOF
