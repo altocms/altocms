@@ -55,7 +55,7 @@
              <div class="row user-info-block">
                  <div class="col-lg-20">
                      {$oBlogType=$oBlog->getBlogType()}
-                     <img class="user-logo" src="{$oBlog->getAvatarPath(95)}" alt="avatar"/>
+                     <img class="user-logo" src="{$oBlog->getAvatarUrl(95)}" alt="avatar"/>
                      <div class="user-name">
                          <div class="user-login-block">
                             <span class="user-login">

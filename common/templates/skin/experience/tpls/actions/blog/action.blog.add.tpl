@@ -96,7 +96,7 @@
             {*{if $oBlogEdit AND $oBlogEdit->getAvatar()}*}
                 {*<div class="avatar-edit">*}
                     {*{foreach Config::Get('module.blog.avatar_size') as $iSize}*}
-                        {*{if $iSize}<img src="{$oBlogEdit->getAvatarPath({$iSize})}">{/if}*}
+                        {*{if $iSize}<img src="{$oBlogEdit->getAvatarUrl({$iSize})}">{/if}*}
                     {*{/foreach}*}
                 {*</div>*}
             {*{/if}*}
