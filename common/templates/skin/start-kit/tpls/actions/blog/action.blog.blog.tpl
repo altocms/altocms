@@ -19,7 +19,7 @@
 <div class="blog">
     <header class="blog-header">
         {$oBlogType=$oBlog->getBlogType()}
-        <img src="{$oBlog->getAvatarPath(64)}" class="avatar"/>
+        <img src="{$oBlog->getAvatarUrl(64)}" class="avatar"/>
 
         <h1>
             {$oBlog->getTitle()|escape:'html'}
