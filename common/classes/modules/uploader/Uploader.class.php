@@ -859,15 +859,44 @@ class ModuleUploader extends Module {
     }
 
     /**
-     * @param string    $sTargetType
-     * @param int|array $xTargetId
+     * @param string         $sTargetType
+     * @param int|array|null $xTargetId
+     * @param int|array|null $xUsers
+     * @param array|null     $aStructurize
      *
-     * @return ModuleMresource_EntityMresourceRel[]
+     * @return array
      */
-    public function GetTargetImages($sTargetType, $xTargetId) {
+    public function GetTargetImages($sTargetType, $xTargetId = null, $xUsers = null, $aStructurize = null) {
 
-        $aMResourceRel = E::ModuleMresource()->GetMresourcesRelByTarget($sTargetType, $xTargetId);
+        $aMResourceRel = E::ModuleMresource()->GetMresourcesRelByTargetAndUser($sTargetType, $xTargetId, $xUsers);
 
+        if ($aMResourceRel && $aStructurize) {
+            if (!is_array($aStructurize)) {
+                $aStructurize = array($aStructurize);
+            }
+            $aMResourceRel =  E::ModuleMresource()->Structurize($aMResourceRel, $aStructurize);
+        }
+        return $aMResourceRel;
+    }
+
+    /**
+     * @param string         $sTargetType
+     * @param int|array|null $xTargetId
+     * @param int|array|null $xUsers
+     * @param array|null     $aStructurize
+     *
+     * @return array
+     */
+    public function GetMediaObjects($sTargetType, $xTargetId = null, $xUsers = null, $aStructurize = null) {
+
+        $aMResourceRel = E::ModuleMresource()->GetMresourcesRelByTargetAndUser($sTargetType, $xTargetId, $xUsers);
+
+        if ($aMResourceRel && $aStructurize) {
+            if (!is_array($aStructurize)) {
+                $aStructurize = array($aStructurize);
+            }
+            $aMResourceRel =  E::ModuleMresource()->Structurize($aMResourceRel, $aStructurize);
+        }
         return $aMResourceRel;
     }
 
@@ -891,6 +920,10 @@ class ModuleUploader extends Module {
         }
 
         return $aResult;
+    }
+
+    public function GetImagesByCriteria() {
+
     }
 
 }

@@ -20,6 +20,12 @@
  * @since   1.0
  */
 class ModuleBlog_EntityBlog extends Entity {
+    
+    const DEFAULT_AVATAR_SIZE = 48;
+
+    // Типы ресурсов, загружаемые в профайле пользователя
+    protected $aMResourceTypes = array('blog_avatar');
+
     /**
      * Возвращает ID блога
      *
@@ -189,7 +195,7 @@ class ModuleBlog_EntityBlog extends Entity {
      */
     public function getAvatarType() {
 
-        return ($sPath = $this->getAvatarPath()) ? pathinfo($sPath, PATHINFO_EXTENSION) : null;
+        return ($sPath = $this->getAvatarUrl()) ? pathinfo($sPath, PATHINFO_EXTENSION) : null;
     }
 
 
@@ -214,6 +220,59 @@ class ModuleBlog_EntityBlog extends Entity {
     }
 
     /**
+     * @param string $sType
+     *
+     * @return ModuleMresource_EntityMresourceRel[]
+     */
+    public function getProfileMedia($sType) {
+
+        $aMedia = $this->getProp('_media');
+        if (is_null($aMedia)) {
+            // Если медиаресурсы профайла не загружены, то загружаем, включая требуемый тип
+            $aTargetTypes = $this->aMResourceTypes;
+            if (!in_array($sType, $aTargetTypes)) {
+                $aTargetTypes[] = $sType;
+            }
+            $aImages = E::ModuleUploader()->GetImagesByUserAndTarget($this->getId(), $aTargetTypes);
+            $aMedia = array_fill_keys($aTargetTypes, array());
+            if (!empty($aImages[$this->getId()])) {
+                /** @var ModuleMresource_EntityMresourceRel $oImage */
+                foreach($aImages[$this->getId()] as $oImage) {
+                    $aMedia[$oImage->getTargetType()][$oImage->getId()] = $oImage;
+                }
+            }
+            $this->setProp('_media', $aMedia);
+        } elseif (!array_key_exists($sType, $aMedia)) {
+            $aImages = E::ModuleUploader()->GetImagesByUserAndTarget($this->getId(), $sType);
+            if (!empty($aImages[$this->getId()])) {
+                $aMedia[$sType] = $aImages[$this->getId()];
+            } else {
+                $aMedia[$sType] = array();
+            }
+            $this->setProp('_media', $aMedia);
+        }
+        return $aMedia[$sType];
+    }
+
+    /**
+     * @param string $sType
+     * @param string $xSize
+     *
+     * @return string
+     */
+    public function getImageUrl($sType, $xSize = null) {
+
+        $sUrl = '';
+        $aImages = $this->getProfileMedia($sType);
+        if (!empty($aImages)) {
+            /** @var ModuleMresource_EntityMresourceRel $oImage */
+            $oImage = reset($aImages);
+            $sUrl = $oImage->getImageUrl($xSize);
+        }
+        return $sUrl;
+    }
+
+    /**
      * Возвращает полный серверный путь до аватара блога определенного размера
      *
      * @param int $xSize    Размер аватара
@@ -222,26 +281,81 @@ class ModuleBlog_EntityBlog extends Entity {
      */
     public function getAvatarUrl($xSize = 48) {
 
-        if ($sUrl = E::ModuleUploader()->GetTargetImageUrl('blog_avatar', $this->getId(), $xSize)) {
-            return $sUrl;
-        } else {
-            $sPath = E::ModuleUploader()->GetUserAvatarDir(0) . 'avatar_blog_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '.png';
-            if ($xSize) {
-                if (is_string($xSize) && $xSize[0] == 'x') {
-                    $xSize = substr($xSize, 1);
-                }
-                if ($nSize = intval($xSize)) {
-                    $sPath .= '-' . $nSize . 'x' . $nSize . '.' . strtolower(pathinfo($sPath, PATHINFO_EXTENSION));
-                }
+        if (!$xSize) {
+            if (Config::Get('module.user.profile_avatar_size')) {
+                $xSize = Config::Get('module.user.profile_avatar_size');
+            } else {
+                $xSize = self::DEFAULT_AVATAR_SIZE;
             }
-            if (Config::Get('module.image.autoresize') && !F::File_Exists($sPath)) {
-                E::ModuleImg()->AutoresizeSkinImage($sPath, 'avatar_blog', $xSize ? $xSize : null);
-            }
-            return E::ModuleUploader()->Dir2Url($sPath);
         }
 
+        $sPropKey = '_avatar_url_' . $xSize;
+        $sUrl = $this->getProp($sPropKey);
+        if (is_null($sUrl)) {
+            $aImages = $this->getMediaResources('blog_avatar');
+            if (!empty($aImages)) {
+
+                /** @var ModuleMresource_EntityMresourceRel $oImage */
+                $oImage = reset($aImages);
+                $sUrl = $oImage->getImageUrl($xSize);
+            } else {
+                $sUrl = null;
+            }
+            if (!$sUrl) {
+                // Old version compatibility
+                $sUrl = $this->getProp('blog_avatar');
+                if ($sUrl) {
+                    if ($xSize) {
+                        $sUrl = E::ModuleUploader()->ResizeTargetImage($sUrl, $xSize);
+                    }
+                } else {
+                    $sUrl = $this->getDefaultAvatarUrl($xSize);
+                }
+            }
+            $this->setProp($sPropKey, $sUrl);
+        }
+        return $sUrl;
     }
 
+    /**
+     * Returns default avatar of the blog
+     *
+     * @param int|string $xSize
+     *
+     * @return string
+     */
+    public function getDefaultAvatarUrl($xSize = null) {
+
+        if (!$xSize) {
+            if (Config::Get('module.user.profile_avatar_size')) {
+                $xSize = Config::Get('module.user.profile_avatar_size');
+            } else {
+                $xSize = self::DEFAULT_AVATAR_SIZE;
+            }
+        }
+
+        $sPath = E::ModuleUploader()->GetUserAvatarDir(0) . 'avatar_blog_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '.png';
+        if ($xSize) {
+            if (is_string($xSize) && $xSize[0] == 'x') {
+                $xSize = substr($xSize, 1);
+            }
+            if ($nSize = intval($xSize)) {
+                $sPath .= '-' . $nSize . 'x' . $nSize . '.' . strtolower(pathinfo($sPath, PATHINFO_EXTENSION));
+            }
+        }
+        if (Config::Get('module.image.autoresize') && !F::File_Exists($sPath)) {
+            E::ModuleImg()->AutoresizeSkinImage($sPath, 'avatar_blog', $xSize ? $xSize : null);
+        }
+        return E::ModuleUploader()->Dir2Url($sPath);
+    }
+
+    /**
+     * @deprecated LS-compatibility
+     *
+     * @param int $nSize
+     *
+     * @return string
+     */
     public function getAvatarPath($nSize = 48) {
 
         return $this->getAvatarUrl($nSize);
@@ -442,6 +556,23 @@ class ModuleBlog_EntityBlog extends Entity {
     public function setUrl($data) {
 
         $this->setProp('blog_url', $data);
+    }
+
+    /**
+     * @param string                               $sType
+     * @param ModuleMresource_EntityMresourceRel[] $data
+     */
+    public function setBlogMedia($sType, $data) {
+
+        if (!is_array($data)) {
+            $data = array($data);
+        }
+        $aMedia = $this->getProp('_media');
+        if (is_null($aMedia)) {
+            $aMedia = array();
+        }
+        $aMedia[$sType] = $data;
+        $this->setProp('_media', $aMedia);
     }
 
     /**

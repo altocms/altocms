@@ -170,8 +170,8 @@ class ModuleUser extends Module {
     /**
      * Получает дополнительные данные(объекты) для юзеров по их ID
      *
-     * @param array $aUsersId   - Список ID пользователей
-     * @param array $aAllowData - Список типоd дополнительных данных для подгрузки у пользователей
+     * @param array|int $aUsersId   - Список ID пользователей
+     * @param array     $aAllowData - Список типоd дополнительных данных для подгрузки у пользователей
      *
      * @return array
      */
@@ -215,7 +215,8 @@ class ModuleUser extends Module {
         if (isset($aAllowData['note']) && $this->oUserCurrent) {
             $aNotes = $this->GetUserNotesByArray($aUsersId, $this->oUserCurrent->getId());
         }
-        $aAvatars = E::ModuleUploader()->GetImagesByUserAndTarget($aUsersId, 'profile_avatar');
+
+        $aAvatars = E::ModuleUploader()->GetMediaObjects('profile_avatar', $aUsersId, null, array('target_id'));
 
         // * Добавляем данные к результату
         /** @var ModuleUser_EntityUser $oUser */
@@ -250,9 +251,9 @@ class ModuleUser extends Module {
                 }
             }
             if (isset($aAvatars[$oUser->getId()])) {
-                $oUser->setProfileMedia('profile_avatar', $aAvatars[$oUser->getId()]);
+                $oUser->setMediaResources('profile_avatar', $aAvatars[$oUser->getId()]);
             } else {
-                $oUser->setAvatars(array());
+                $oUser->setMediaResources('profile_avatar', array());
             }
         }
 

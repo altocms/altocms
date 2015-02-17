@@ -191,6 +191,7 @@ class ModuleBlog extends Module {
         $aUsers = (isset($aAllowData['owner']) && is_array($aAllowData['owner']))
             ? E::ModuleUser()->GetUsersAdditionalData($aUserId, $aAllowData['owner'])
             : E::ModuleUser()->GetUsersAdditionalData($aUserId);
+
         if (isset($aAllowData['relation_user']) && $this->oUserCurrent) {
             $aBlogUsers = $this->GetBlogUsersByArrayBlog($aBlogsId, $this->oUserCurrent->getId());
         }
@@ -200,7 +201,10 @@ class ModuleBlog extends Module {
 
         $aBlogTypes = $this->GetBlogTypes();
 
+        $aAvatars = E::ModuleUploader()->GetMediaObjects('blog_avatar', $aBlogsId, null, array('target_id'));
+
         // * Добавляем данные к результату - списку блогов
+        /** @var ModuleBlog_EntityBlog $oBlog */
         foreach ($aBlogs as $oBlog) {
             if (isset($aUsers[$oBlog->getOwnerId()])) {
                 $oBlog->setOwner($aUsers[$oBlog->getOwnerId()]);
@@ -223,6 +227,13 @@ class ModuleBlog extends Module {
             }
             if (isset($aBlogTypes[$oBlog->getType()])) {
                 $oBlog->setBlogType($aBlogTypes[$oBlog->getType()]);
+            }
+
+            // Sets blogs avatars
+            if (isset($aAvatars[$oBlog->getId()])) {
+                $oBlog->setMediaResources('blog_avatar', $aAvatars[$oBlog->getId()]);
+            } else {
+                $oBlog->setMediaResources('blog_avatar', array());
             }
         }
         return $aBlogs;
@@ -327,14 +338,14 @@ class ModuleBlog extends Module {
     /**
      * Получить персональный блог юзера
      *
-     * @param int $sUserId    ID пользователя
+     * @param int $iUserId    ID пользователя
      *
      * @return ModuleBlog_EntityBlog
      */
-    public function GetPersonalBlogByUserId($sUserId) {
+    public function GetPersonalBlogByUserId($iUserId) {
 
-        $id = $this->oMapper->GetPersonalBlogByUserId($sUserId);
-        return $this->GetBlogById($id);
+        $iBlogId = $this->oMapper->GetPersonalBlogByUserId($iUserId);
+        return $this->GetBlogById($iBlogId);
     }
 
     /**
@@ -631,29 +642,28 @@ class ModuleBlog extends Module {
      * Получает список пользователей блога.
      * Если роль не указана, то считаем что поиск производиться по положительным значениям (статусом выше GUEST).
      *
-     * @param int      $nBlogId     ID блога
+     * @param int      $iBlogId     ID блога
      * @param int|null $iRole       Роль пользователей в блоге
      * @param int      $iPage       Номер текущей страницы
      * @param int      $iPerPage    Количество элементов на одну страницу
      *
      * @return array
      */
-    public function GetBlogUsersByBlogId($nBlogId, $iRole = null, $iPage = 1, $iPerPage = 100) {
+    public function GetBlogUsersByBlogId($iBlogId, $iRole = null, $iPage = 1, $iPerPage = 100) {
 
         $aFilter = array(
-            'blog_id' => $nBlogId,
+            'blog_id' => $iBlogId,
         );
         if ($iRole !== null) {
             $aFilter['user_role'] = $iRole;
         }
-        $s = serialize($aFilter);
-        if (false === ($data = E::ModuleCache()->Get("blog_relation_user_by_filter_{$s}_{$iPage}_{$iPerPage}"))) {
-            $data = array('collection' => $this->oMapper->GetBlogUsers($aFilter, $iCount, $iPage, $iPerPage),
-                          'count'      => $iCount);
-            E::ModuleCache()->Set(
-                $data, "blog_relation_user_by_filter_{$s}_{$iPage}_{$iPerPage}",
-                array("blog_relation_change_blog_{$nBlogId}"), 60 * 60 * 24 * 3
+        $sCacheKey = 'blog_relation_user_by_filter_' . serialize($aFilter) . '_' . $iPage . '_' . $iPerPage;
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
+            $data = array(
+                'collection' => $this->oMapper->GetBlogUsers($aFilter, $iCount, $iPage, $iPerPage),
+                'count'      => $iCount,
             );
+            E::ModuleCache()->Set($data, $sCacheKey, array("blog_relation_change_blog_{$iBlogId}"), 'P3D');
         }
 
         // * Достаем дополнительные данные, для этого формируем список юзеров и делаем мульти-запрос
@@ -663,7 +673,7 @@ class ModuleBlog extends Module {
                 $aUserId[] = $oBlogUser->getUserId();
             }
             $aUsers = E::ModuleUser()->GetUsersAdditionalData($aUserId);
-            $aBlogs = E::ModuleBlog()->GetBlogsAdditionalData($nBlogId);
+            $aBlogs = E::ModuleBlog()->GetBlogsAdditionalData($iBlogId);
 
             $aResults = array();
             foreach ($data['collection'] as $oBlogUser) {
@@ -762,10 +772,10 @@ class ModuleBlog extends Module {
     /**
      * Получить список отношений блог-юзер по списку айдишников
      *
-     * @param array $aBlogId    Список ID блогов
-     * @param int   $iUserId    ID пользователя
+     * @param array|int $aBlogId Список ID блогов
+     * @param int       $iUserId ID пользователя
      *
-     * @return array
+     * @return ModuleBlog_EntityBlogUser[]
      */
     public function GetBlogUsersByArrayBlog($aBlogId, $iUserId) {
 
@@ -776,7 +786,7 @@ class ModuleBlog extends Module {
             return $this->GetBlogUsersByArrayBlogSolid($aBlogId, $iUserId);
         }
         if (!is_array($aBlogId)) {
-            $aBlogId = array($aBlogId);
+            $aBlogId = array(intval($aBlogId));
         }
         $aBlogId = array_unique($aBlogId);
         $aBlogUsers = array();
@@ -834,26 +844,26 @@ class ModuleBlog extends Module {
      * Получить список отношений блог-юзер по списку айдишников используя общий кеш
      *
      * @param array $aBlogId    Список ID блогов
-     * @param int   $sUserId    ID пользователя
+     * @param int   $iUserId    ID пользователя
      *
      * @return array
      */
-    public function GetBlogUsersByArrayBlogSolid($aBlogId, $sUserId) {
+    public function GetBlogUsersByArrayBlogSolid($aBlogId, $iUserId) {
 
         if (!is_array($aBlogId)) {
             $aBlogId = array($aBlogId);
         }
         $aBlogId = array_unique($aBlogId);
         $aBlogUsers = array();
-        $s = join(',', $aBlogId);
-        if (false === ($data = E::ModuleCache()->Get("blog_relation_user_{$sUserId}_id_{$s}"))) {
-            $data = $this->oMapper->GetBlogUsersByArrayBlog($aBlogId, $sUserId);
+        $sCacheKey = 'blog_relation_user_' . $iUserId . '_id_' . join(',', $aBlogId);
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
+            $data = $this->oMapper->GetBlogUsersByArrayBlog($aBlogId, $iUserId);
             foreach ($data as $oBlogUser) {
                 $aBlogUsers[$oBlogUser->getBlogId()] = $oBlogUser;
             }
             E::ModuleCache()->Set(
-                $aBlogUsers, "blog_relation_user_{$sUserId}_id_{$s}",
-                array('blog_update', "blog_relation_change_{$sUserId}"), 'P1D'
+                $aBlogUsers, $sCacheKey,
+                array('blog_update', "blog_relation_change_{$iUserId}"), 'P1D'
             );
             return $aBlogUsers;
         }
@@ -904,23 +914,23 @@ class ModuleBlog extends Module {
     /**
      * Возвращает список блогов по фильтру
      *
-     * @param array $aFilter         Фильтр выборки блогов
-     * @param array $aOrder          Сортировка блогов
-     * @param int   $nCurrPage       Номер текущей страницы
-     * @param int   $nPerPage        Количество элементов на одну страницу
-     * @param array $aAllowData      Список типов данных, которые нужно подтянуть к списку блогов
+     * @param array $aFilter    Фильтр выборки блогов
+     * @param array $aOrder     Сортировка блогов
+     * @param int   $iPage      Номер текущей страницы
+     * @param int   $iPerPage   Количество элементов на одну страницу
+     * @param array $aAllowData Список типов данных, которые нужно подтянуть к списку блогов
      *
      * @return array('collection'=>array,'count'=>int)
      */
-    public function GetBlogsByFilter($aFilter, $aOrder, $nCurrPage, $nPerPage, $aAllowData = null) {
+    public function GetBlogsByFilter($aFilter, $aOrder, $iPage, $iPerPage, $aAllowData = null) {
 
         if (is_null($aAllowData)) {
             $aAllowData = array('owner' => array(), 'relation_user');
         }
-        $sCacheKey = 'blog_filter_' . serialize($aFilter) . serialize($aOrder) . "_{$nCurrPage}_{$nPerPage}";
+        $sCacheKey = 'blog_filter_' . serialize($aFilter) . serialize($aOrder) . "_{$iPage}_{$iPerPage}";
         if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
             $data = array(
-                'collection' => $this->oMapper->GetBlogsIdByFilterPerPage($aFilter, $aOrder, $iCount, $nCurrPage, $nPerPage),
+                'collection' => $this->oMapper->GetBlogsIdByFilterPerPage($aFilter, $aOrder, $iCount, $iPage, $iPerPage),
                 'count'      => $iCount
             );
             E::ModuleCache()->Set($data, $sCacheKey, array('blog_update', 'blog_new'), 'P2D');
@@ -934,35 +944,35 @@ class ModuleBlog extends Module {
     /**
      * Получает список блогов по рейтингу
      *
-     * @param int $nCurrPage       Номер текущей страницы
-     * @param int $nPerPage        Количество элементов на одну страницу
+     * @param int $iPage       Номер текущей страницы
+     * @param int $iPerPage    Количество элементов на одну страницу
      *
      * @return array('collection'=>array,'count'=>int)
      */
-    public function GetBlogsRating($nCurrPage, $nPerPage) {
+    public function GetBlogsRating($iPage, $iPerPage) {
 
         return $this->GetBlogsByFilter(
             array('include_type' => $this->GetAllowBlogTypes($this->oUserCurrent, 'list', true)),
             array('blog_rating' => 'desc'),
-            $nCurrPage,
-            $nPerPage
+            $iPage,
+            $iPerPage
         );
     }
 
     /**
      * Список подключенных блогов по рейтингу
      *
-     * @param int $nUserId    ID пользователя
-     * @param int $nLimit     Ограничение на количество в ответе
+     * @param int $iUserId    ID пользователя
+     * @param int $iLimit     Ограничение на количество в ответе
      *
      * @return array
      */
-    public function GetBlogsRatingJoin($nUserId, $nLimit) {
+    public function GetBlogsRatingJoin($iUserId, $iLimit) {
 
-        $sCacheKey = "blog_rating_join_{$nUserId}_{$nLimit}";
+        $sCacheKey = "blog_rating_join_{$iUserId}_{$iLimit}";
         if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
-            $data = $this->oMapper->GetBlogsRatingJoin($nUserId, $nLimit);
-            E::ModuleCache()->Set($data, $sCacheKey, array('blog_update', "blog_relation_change_{$nUserId}"), 'P1D');
+            $data = $this->oMapper->GetBlogsRatingJoin($iUserId, $iLimit);
+            E::ModuleCache()->Set($data, $sCacheKey, array('blog_update', "blog_relation_change_{$iUserId}"), 'P1D');
         }
         return $data;
     }
@@ -970,16 +980,16 @@ class ModuleBlog extends Module {
     /**
      * Список своих блогов по рейтингу
      *
-     * @param int $nUserId    ID пользователя
-     * @param int $nLimit     Ограничение на количество в ответе
+     * @param int $iUserId    ID пользователя
+     * @param int $iLimit     Ограничение на количество в ответе
      *
      * @return array
      */
-    public function GetBlogsRatingSelf($nUserId, $nLimit) {
+    public function GetBlogsRatingSelf($iUserId, $iLimit) {
 
         $aResult = $this->GetBlogsByFilter(
-            array('exclude_type' => 'personal', 'user_owner_id' => $nUserId),
-            array('blog_rating' => 'desc'), 1, $nLimit
+            array('exclude_type' => 'personal', 'user_owner_id' => $iUserId),
+            array('blog_rating' => 'desc'), 1, $iLimit
         );
         return $aResult['collection'];
     }
@@ -1269,7 +1279,7 @@ class ModuleBlog extends Module {
     /**
      * Удаление блогов по ID владельцев
      *
-     * @param $aUsersId
+     * @param array $aUsersId
      *
      * @return bool
      */
@@ -1457,7 +1467,7 @@ class ModuleBlog extends Module {
     /**
      * Returns types of blogs which user cannot read (without personal subscriptions/membership)
      *
-     * @param $oUser
+     * @param ModuleUser_EntityUser $oUser
      *
      * @return array
      */
@@ -1601,15 +1611,15 @@ class ModuleBlog extends Module {
     /**
      * Получить объект типа блога по его ID
      *
-     * @param $nId
+     * @param int $iBlogTypeId
      *
      * @return null|ModuleBlog_EntityBlogType
      */
-    public function GetBlogTypeById($nId) {
+    public function GetBlogTypeById($iBlogTypeId) {
 
-        $sCacheKey = 'blog_type_' . $nId;
+        $sCacheKey = 'blog_type_' . $iBlogTypeId;
         if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
-            $data = $this->oMapper->GetBlogTypeById($nId);
+            $data = $this->oMapper->GetBlogTypeById($iBlogTypeId);
             E::ModuleCache()->Set($data, $sCacheKey, array('blog_update', 'blog_new'), 'PT30M');
         }
         return $data;
@@ -1618,7 +1628,7 @@ class ModuleBlog extends Module {
     /**
      * Получить объект типа блога по его коду
      *
-     * @param $sTypeCode
+     * @param string $sTypeCode
      *
      * @return null|ModuleBlog_EntityBlogType
      */
@@ -1631,6 +1641,9 @@ class ModuleBlog extends Module {
         return null;
     }
 
+    /**
+     * @return ModuleBlog_EntityBlogType|null
+     */
     public function GetBlogTypeDefault() {
 
         $oBlogType = $this->GetBlogTypeByCode('open');
@@ -1640,7 +1653,7 @@ class ModuleBlog extends Module {
     /**
      * Добавить тип блога
      *
-     * @param $oBlogType
+     * @param ModuleBlog_EntityBlogType$oBlogType
      *
      * @return bool
      */
@@ -1660,7 +1673,7 @@ class ModuleBlog extends Module {
     /**
      * Обновить тип блога
      *
-     * @param $oBlogType
+     * @param ModuleBlog_EntityBlogType$oBlogType
      *
      * @return bool
      */
@@ -1679,7 +1692,7 @@ class ModuleBlog extends Module {
     /**
      * Удалить тип блога
      *
-     * @param $oBlogType
+     * @param ModuleBlog_EntityBlogType$oBlogType
      *
      * @return bool
      */
@@ -1702,7 +1715,7 @@ class ModuleBlog extends Module {
     /**
      * Активен ли этот тип блога
      *
-     * @param $sBlogType
+     * @param string $sBlogType
      *
      * @return bool
      */
