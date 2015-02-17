@@ -87,6 +87,11 @@ class ActionBlogs extends Action {
         E::ModuleViewer()->AssignAjax('sText', $oViewer->Fetch('commons/common.blog_list.tpl'));
     }
 
+    protected function EventIndex() {
+
+        $this->EventShowBlogs();
+    }
+
     /**
      * Отображение списка блогов
      */
