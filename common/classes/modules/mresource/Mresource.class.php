@@ -37,14 +37,16 @@ class ModuleMresource extends Module {
     /**
      * Создание сущности медиа ресурса ссылки
      *
-     * @param $sLink
+     * @param string $sLink
      *
-     * @return Entity
+     * @return ModuleMresource_EntityMresource
      */
     public function BuildMresourceLink($sLink) {
 
+        /** @var ModuleMresource_EntityMresource $oMresource */
         $oMresource = E::GetEntity('Mresource');
         $oMresource->setUrl($this->NormalizeUrl($sLink));
+
         return $oMresource;
     }
 
@@ -75,7 +77,7 @@ class ModuleMresource extends Module {
     /**
      * Проверка, является ли массив хеш-списком ресурсов
      *
-     * @param $aMresources
+     * @param array $aMresources
      *
      * @return bool
      */
@@ -85,9 +87,7 @@ class ModuleMresource extends Module {
             // first element of array
             reset($aMresources);
             $aData = each($aMresources);
-            if (($aData['value'] instanceof ModuleMresource_EntityMresource)
-                && ($aData['value']->GetHash() === $aData['key'])
-            ) {
+            if (($aData['value'] instanceof ModuleMresource_EntityMresource) && ($aData['value']->GetHash() === $aData['key'])) {
                 return true;
             }
         }
@@ -107,20 +107,19 @@ class ModuleMresource extends Module {
 
         if (is_array($xUrl)) {
             foreach ($xUrl as $nI => $sUrl) {
-                $aUrls[$nI] = $this->NormalizeUrl((string)$sUrl, $sReplace, $sAdditional);
+                $xUrl[$nI] = $this->NormalizeUrl((string)$sUrl, $sReplace, $sAdditional);
             }
-            return $aUrls;
+            return $xUrl;
         }
-        $sUrl = str_replace(
-            array('http://@' . $sAdditional, 'https://@' . $sAdditional, 'ftp://@' . $sAdditional), $sReplace, $xUrl
-        );
+        $sUrl = str_replace(array('http://@' . $sAdditional, 'https://@' . $sAdditional, 'ftp://@' . $sAdditional), $sReplace, $xUrl);
+
         return F::File_NormPath($sUrl);
     }
 
     /**
      * Добавление ресурса
      *
-     * @param $oMediaResource
+     * @param ModuleMresource_EntityMresource $oMediaResource
      *
      * @return bool
      */
@@ -129,25 +128,25 @@ class ModuleMresource extends Module {
         if (!$oMediaResource) {
             return null;
         }
+        $iNewId = 0;
         if (is_array($oMediaResource)) {
             $aResources = $oMediaResource;
             // Групповое добавление
             foreach ($aResources as $nIdx => $oResource) {
-                if ($nId = $this->oMapper->Add($oMediaResource)) {
-                    $aResources[$nIdx] = $this->GetMresourceById($nId);
+                if ($iNewId = $this->oMapper->Add($oResource)) {
+                    $aResources[$nIdx] = $this->GetMresourceById($iNewId);
                 }
             }
         } else {
-            if ($nId = $this->oMapper->Add($oMediaResource)) {
-                $oMediaResource = $this->GetMresourceById($nId);
+            if ($iNewId = $this->oMapper->Add($oMediaResource)) {
+                $oMediaResource = $this->GetMresourceById($iNewId);
             }
         }
-        if ($nId) {
+        if ($iNewId) {
             //чистим зависимые кеши
             E::ModuleCache()->CleanByTags(array('mresource_update'));
-            return $nId;
         }
-        return 0;
+        return $iNewId;
     }
 
     /**
@@ -170,6 +169,7 @@ class ModuleMresource extends Module {
         // Проверяем, есть ли эти ресурсы в базе
         $aMresources = $this->oMapper->GetMresourcesByHashUrl(array_keys($aMresourcesRel));
         if ($aMresources) {
+            /** @var ModuleMresource_EntityMresource $oMresource */
             foreach($aMresources as $oMresource) {
                 if (isset($aMresourcesRel[$oMresource->GetHash()])) {
                     // Такой ресурс есть, удаляем из списка на добавление
@@ -181,6 +181,8 @@ class ModuleMresource extends Module {
 
         // Добавляем новые ресурсы, если есть
         if ($aNewMresources) {
+
+            /** @var ModuleMresource_EntityMresource $oMresource */
             foreach ($aNewMresources as $oMresource) {
                 $oSavedMresource = $this->GetMresourcesByUuid($oMresource->GetStorageUuid());
                 // Если ресурс в базе есть, но файла нет (если удален извне), то удаляем ресус из базы
@@ -204,6 +206,8 @@ class ModuleMresource extends Module {
 
         // Добавляем связь ресурса с сущностью
         if ($aMresourcesRel) {
+
+            /** @var ModuleMresource_EntityMresource $oMresource */
             foreach($aMresourcesRel as $oMresource) {
                 if (!$oMresource->GetTargetType()) {
                     $oMresource->SetTargetType($sTargetType);
@@ -234,7 +238,7 @@ class ModuleMresource extends Module {
     /**
      * @param $xUuid
      *
-     * @return array|mixed|ModuleMresource_EntityMresource|null
+     * @return array|ModuleMresource_EntityMresource
      */
     public function GetMresourcesByUuid($xUuid) {
 
@@ -251,7 +255,7 @@ class ModuleMresource extends Module {
     }
 
     /**
-     * @param $aCriteria
+     * @param array $aCriteria
      *
      * @return array
      */
@@ -268,6 +272,8 @@ class ModuleMresource extends Module {
                     if ($sRelEntity == 'user') {
                         $aUserId = array_values(array_unique(F::Array_Column($aData['data'], 'user_id')));
                         $aUsers = E::ModuleUser()->GetUsersByArrayId($aUserId);
+
+                        /** @var ModuleMresource_EntityMresource $oMresource */
                         foreach ($aCollection as $oMresource) {
                             if (isset($aUsers[$oMresource->getUserId()])) {
                                 $oMresource->setUser($aUsers[$oMresource->getUserId()]);
@@ -284,50 +290,38 @@ class ModuleMresource extends Module {
     }
 
     /**
-     * @param $aFilter
-     * @param $iPage
-     * @param $iPerPage
+     * @param array $aFilter
+     * @param int   $iPage
+     * @param int   $iPerPage
      *
      * @return array
      */
     public function GetMresourcesByFilter($aFilter, $iPage, $iPerPage) {
 
         $aData = $this->oMapper->GetMresourcesByFilter($aFilter, $iPage, $iPerPage);
+
         return array('collection' => $aData['data'], 'count' => 0);
     }
 
     /**
-     * @param string    $sTargetType
-     * @param int|array $xTargetId
+     * @param string         $sTargetType
+     * @param int|array|null $xTargetId
      *
-     * @return mixed
+     * @return ModuleMresource_EntityMresourceRel[]
      */
-    public function GetMresourcesByTarget($sTargetType, $xTargetId) {
+    public function GetMresourcesRelByTarget($sTargetType, $xTargetId = null) {
 
-        $aData = $this->oMapper->GetMresourcesByTarget($sTargetType, $xTargetId);
-        return $aData;
+        return $this->GetMresourcesRelByTargetAndUser($sTargetType, $xTargetId, null);
     }
 
     /**
-     * @param string    $sTargetType
-     * @param int|array $xTargetId
-     *
-     * @return Mresource_MresourceRel[]
-     */
-    public function GetMresourcesRelByTarget($sTargetType, $xTargetId) {
-
-        $aData = $this->oMapper->GetMresourcesRelByTarget($sTargetType, $xTargetId);
-        return $aData;
-    }
-
-    /**
-     * @param string    $sTargetType
-     * @param int|array $xTargetId
-     * @param int|array $xUserId
+     * @param string         $sTargetType
+     * @param int|array|null $xTargetId
+     * @param int|array|null $xUserId
      *
      * @return array
      */
-    public function GetMresourcesRelByTargetAndUser($sTargetType, $xTargetId, $xUserId) {
+    public function GetMresourcesRelByTargetAndUser($sTargetType, $xTargetId = null, $xUserId = null) {
 
         $aData = $this->oMapper->GetMresourcesRelByTargetAndUser($sTargetType, $xTargetId, $xUserId);
 
@@ -352,6 +346,7 @@ class ModuleMresource extends Module {
             if ($bDeleteFiles) {
                 $aMresources = $this->oMapper->GetMresourcesById($aId);
                 if (!$bNoCheckTargets && $aMresources) {
+                    /** @var ModuleMresource_EntityMresource $oMresource */
                     foreach ($aMresources as $oMresource) {
                         // Если число ссылок > 0, то не удаляем
                         if ($oMresource->getTargetsCount() > 0) {
@@ -386,7 +381,7 @@ class ModuleMresource extends Module {
     }
 
     /**
-     * @param $aMresourceRel
+     * @param ModuleMresource_EntityMresourceRel[] $aMresourceRel
      *
      * @return bool
      */
@@ -394,6 +389,10 @@ class ModuleMresource extends Module {
 
         $aMresId = array();
         if ($aMresourceRel) {
+            if (!is_array($aMresourceRel)) {
+                $aMresourceRel = array($aMresourceRel);
+            }
+            /** @var ModuleMresource_EntityMresourceRel $oResourceRel */
             foreach($aMresourceRel as $oResourceRel) {
                 $aMresId[] = $oResourceRel->GetMresourceId();
             }
@@ -411,18 +410,17 @@ class ModuleMresource extends Module {
     /**
      * Deletes media resources' relations by rel ID
      *
-     * @param $aId
+     * @param int[] $aId
      *
      * @return bool
      */
     public function DeleteMresourcesRel($aId) {
 
-        if (!$aId) {
-            return;
-        }
-        $aMresourceRel = $this->oMapper->GetMresourcesRelById($aId);
-        if ($aMresourceRel) {
-            return $this->_deleteMresourcesRel($aMresourceRel);
+        if ($aId) {
+            $aMresourceRel = $this->oMapper->GetMresourcesRelById($aId);
+            if ($aMresourceRel) {
+                return $this->_deleteMresourcesRel($aMresourceRel);
+            }
         }
         return true;
     }
@@ -439,14 +437,18 @@ class ModuleMresource extends Module {
 
         $aMresourceRel = $this->oMapper->GetMresourcesRelByTarget($sTargetType, $xTargetId);
         if ($aMresourceRel) {
+            $aMresId = array();
             if ($this->oMapper->DeleteTargetRel($sTargetType, $xTargetId)) {
-                $aMresId = array();
+
+                /** @var ModuleMresource_EntityMresourceRel $oResourceRel */
                 foreach ($aMresourceRel as $oResourceRel) {
                     $aMresId[] = $oResourceRel->GetMresourceId();
                 }
                 $aMresId = array_unique($aMresId);
             }
-            return $this->DeleteMresources($aMresId);
+            if ($aMresId) {
+                return $this->DeleteMresources($aMresId);
+            }
         }
         return true;
     }
@@ -462,14 +464,18 @@ class ModuleMresource extends Module {
 
         $aMresourceRel = $this->oMapper->GetMresourcesRelByTargetAndUser($sTargetType, $xTargetId, $iUserId);
         if ($aMresourceRel) {
+            $aMresId = array();
             if ($this->oMapper->DeleteTargetRel($sTargetType, $xTargetId)) {
-                $aMresId = array();
+
+                /** @var ModuleMresource_EntityMresourceRel $oResourceRel */
                 foreach ($aMresourceRel as $oResourceRel) {
                     $aMresId[] = $oResourceRel->GetMresourceId();
                 }
                 $aMresId = array_unique($aMresId);
             }
-            return $this->DeleteMresources($aMresId);
+            if ($aMresId) {
+                return $this->DeleteMresources($aMresId);
+            }
         }
         return true;
     }
@@ -493,10 +499,10 @@ class ModuleMresource extends Module {
     }
 
     /**
-     * @param $sStorage
-     * @param $sFileName
-     * @param $sFileHash
-     * @param $iUserId
+     * @param string $sStorage
+     * @param string $sFileName
+     * @param string $sFileHash
+     * @param int    $iUserId
      *
      * @return string
      */
@@ -532,6 +538,7 @@ class ModuleMresource extends Module {
         $aMresourceRel = $this->GetMresourcesRelByTargetAndUser($sTargetType, $iTargetId, $iUserId);
         if ($aMresourceRel) {
             $aMresId = array();
+            /** @var ModuleMresource_EntityMresourceRel $oResourceRel */
             foreach ($aMresourceRel as $oResourceRel) {
                 $aMresId[] = $oResourceRel->GetMresourceId();
             }
@@ -873,7 +880,7 @@ class ModuleMresource extends Module {
     /**
      * @param $iUserId
      *
-     * @return bool|Mresource_MresourceCategory
+     * @return bool|ModuleMresource_EntityMresourceCategory
      */
     public function GetTalksImageCategory($iUserId) {
 
@@ -1024,17 +1031,23 @@ class ModuleMresource extends Module {
 
     /**
      * Получает топики пользователя с картинками
-     * @param $iUserId
-     * @return bool|array
+     *
+     * @param int    $iUserId
+     * @param string $sType
+     * @param int    $iPage
+     * @param int    $iPerPage
+     *
+     * @return array
      */
-    public function GetTopicsPageByType($iUserId, $sType, $iCurrPage, $iPerPage)  {
+    public function GetTopicsPageByType($iUserId, $sType, $iPage, $iPerPage)  {
+
         $iCount = 0;
         $aResult = array(
             'collection' => array(),
             'count' => 0
         );
 
-        $aTopicInfo = $this->oMapper->GetTopicInfo($iUserId, $iCount, $iCurrPage, $iPerPage);
+        $aTopicInfo = $this->oMapper->GetTopicInfo($iUserId, $iCount, $iPage, $iPerPage);
         if ($aTopicInfo) {
 
             $aTopics = E::ModuleTopic()->GetTopicsByFilter(array(
@@ -1043,6 +1056,7 @@ class ModuleMresource extends Module {
             ));
 
             if ($aTopics) {
+                /** @var ModuleTopic_EntityTopic $oTopic */
                 foreach ($aTopics['collection'] as $sTopicId => $oTopic) {
                     $oTopic->setImagesCount($aTopicInfo[$sTopicId]);
                     $aTopics[$sTopicId] = $oTopic;

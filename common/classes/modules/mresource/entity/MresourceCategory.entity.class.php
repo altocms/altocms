@@ -23,3 +23,5 @@ class ModuleMresource_EntityMresourceCategory extends Entity {
         return $this->getProp('count');
     }
 }
+
+// EOF

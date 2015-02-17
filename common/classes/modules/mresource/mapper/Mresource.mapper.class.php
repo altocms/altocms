@@ -639,12 +639,14 @@ class ModuleMresource_MapperMresource extends Mapper {
         $aCriteria = array(
             'filter' => array(
                 'target_type' => $sTargetType,
-                'user_id' => $xUserId,
             ),
         );
 
         if (!empty($xTargetId)) {
             $aCriteria['filter']['target_id'] = $xTargetId;
+        }
+        if (!empty($xTargetId)) {
+            $aCriteria['filter']['user_id'] = $xUserId;
         }
         $aData = $this->_getMresourcesRelByCriteria($aCriteria);
         $aResult = array();
