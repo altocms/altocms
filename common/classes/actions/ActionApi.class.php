@@ -14,6 +14,12 @@
  */
 class ActionApi extends Action {
 
+
+    const ERROR_CMD_NOT_FOUND = "Error #1: 'cmd' param not found in query";
+    const ERROR_CMD_NOT_ALLOWED = "Error #2: 'cmd' is not allowed";
+    const ERROR_SYSTEM = 'Error #3: System error';
+    const ERROR_WRONG_PARAM_LIST = 'Error #4: Wrong param`s list';
+
     /**
      * Команда API
      * @var
@@ -33,6 +39,12 @@ class ActionApi extends Action {
     protected $bIsAjax = NULL;
 
     /**
+     * Текщая ошибка
+     * @var null
+     */
+    protected $sError = NULL;
+
+    /**
      * Инициализация
      */
     public function Init() {
@@ -45,17 +57,47 @@ class ActionApi extends Action {
         // Доступ к АПИ возможен как посредством аякса, так и меодом GET
         // пока имеем в виду, что реализованы только методы получения
         // данных.
-        if (F::AjaxRequest()) {
+        if (F::AjaxRequest() && C::Get('module.api.ajax')) {
             $this->bIsAjax = TRUE;
             E::ModuleViewer()->SetResponseAjax('json');
-        } else {
-            $this->SetTemplateAction('/../../../api/answer.tpl');
+
+            return TRUE;
         }
 
-        return TRUE;
+        // Если гет-запрос, то установим шаблона для ответа
+        if (C::Get('module.api.get')) {
+            $this->SetTemplateAction('/../../../api/answer.tpl');
+
+            return TRUE;
+        }
+
+
+        return FALSE;
 
     }
 
+    /**
+     * Метод выода ошибки
+     */
+    public function EventError() {
+        if ($this->bIsAjax) {
+            E::ModuleViewer()->AssignAjax('result', json_encode(array('error' => $this->sError)));
+        } else {
+            E::ModuleViewer()->Assign('result', json_encode(array('error' => $this->sError)));
+        }
+
+    }
+
+    public function Access($sEvent) {
+        // Получим текущие ошибки от основного метода проверки
+        $this->sError = $this->CheckAccess($sEvent);
+
+        if ($this->sError !== TRUE) {
+            return R::Action('api', 'error', array('error' => $this->sError));
+        }
+
+        return TRUE;
+    }
 
     /**
      * Метод проверки прав доступа пользователя к конкретному ивенту.
@@ -65,7 +107,7 @@ class ActionApi extends Action {
      *
      * @return bool
      */
-    public function Access($sEvent) {
+    public function CheckAccess($sEvent) {
 
         // Обнулим свойства
         $this->sCmd = NULL;
@@ -76,26 +118,24 @@ class ActionApi extends Action {
          */
         // Вызываемый метод АПИ должен быть передан
         if (!($this->sCmd = F::GetRequest('cmd', FALSE, 'get'))) {
-            return FALSE;
+            return self::ERROR_CMD_NOT_FOUND;
         }
         // Имя метода АПИ должно быть в списке разрешенных
         $sAllowedMethodsName = 'Allowed' . ucfirst($sEvent) . 'ApiMethods';
         if (!(method_exists($this, $sAllowedMethodsName))) {
-            return FALSE;
+            return self::ERROR_CMD_NOT_ALLOWED;
         }
         $aAllowedMethodsName = $this->$sAllowedMethodsName();
         if (!is_array($aAllowedMethodsName)) {
-            return FALSE;
+            return self::ERROR_CMD_NOT_ALLOWED;
         }
         if (!in_array($this->sCmd, array_values($aAllowedMethodsName))) {
-            return FALSE;
+            return self::ERROR_CMD_NOT_ALLOWED;
         }
 
 
         // Получим параметры запроса
-        if (!is_array($aParams = F::GetRequest('params', array(), 'get'))) {
-            return FALSE;
-        }
+        $aParams = F::GetRequest('params', array(), 'get');
         foreach ($aParams as $k => $v) {
             if ($v == 'true') $aParams[$k] = TRUE;
             if ($v == 'false') $aParams[$k] = FALSE;
@@ -103,11 +143,11 @@ class ActionApi extends Action {
         // Получим перечень разрешённых параметров
         $sAllowedParams = 'Allowed' . ucfirst($sEvent) . 'ApiParams';
         if (!method_exists($this, $sAllowedParams)) {
-            return FALSE;
+            return self::ERROR_SYSTEM;
         }
         // Проверим, что перечень разрешённых АПи всё таки есть, пусть даже и пустой
         if (($aAllowedParams = $this->$sAllowedParams($this->sCmd)) === FALSE) {
-            return FALSE;
+            return self::ERROR_SYSTEM;
         }
         // Проверим параметры и разобъём их на две группы, обязательные и не обяхательны
         $this->aParams['required'] = array();
@@ -148,7 +188,7 @@ class ActionApi extends Action {
         // Остался какой-то разрешенный параметр, может по типу не прошёл, а
         // может его вообще забыли указать...
         if ($bError) {
-            return FALSE;
+            return self::ERROR_WRONG_PARAM_LIST;
         }
 
 
@@ -174,6 +214,8 @@ class ActionApi extends Action {
      */
     protected function RegisterEvent() {
         $this->AddEventPreg('/^user$/i', 'EventApiUser');
+        $this->AddEventPreg('/^topic$/i', 'EventApiTopic');
+        $this->AddEventPreg('/^error/i', 'EventError');
     }
 
 
@@ -234,6 +276,52 @@ class ActionApi extends Action {
 
 
 
+
+
+
+    /******************************************************************************************************
+     *              МЕТОД TOPIC
+     ******************************************************************************************************/
+    /**
+     * Экшен обработки API вида topic/*
+     * @return bool
+     */
+    public function EventApiTopic() {
+
+        $this->_ApiResult($this->_GetFullApiKey($this->sCmd), $this->aParams);
+
+        return TRUE;
+    }
+
+    /**
+     * Возвращает перечень разрешённых методов АПИ для группы
+     * 'topic', метод может быть расширен сторонними плагинами
+     */
+    public function AllowedTopicApiMethods() {
+        return array(
+            'rating', // Общая информация о рейтинге топика
+        );
+    }
+
+    /**
+     * @param string $sMethod Метод АПИ, для которого возвращается список разрешённых параметров
+     * @return array|bool
+     */
+    public function AllowedTopicApiParams($sMethod) {
+        switch ($sMethod) {
+            case 'rating':
+                return array(
+                    'tid' => array(TRUE, 'int'),
+                    'tpl' => array(FALSE, array('bool', 'string')),
+                );
+                break;
+        }
+
+        return FALSE;
+    }
+
+
+
     /******************************************************************************************************
      *              ОБЩИЕ ЗАЩИЩЁННЫЕ И ПРИВАТНЫЕ МЕТОДЫ
      ******************************************************************************************************/
@@ -258,14 +346,14 @@ class ActionApi extends Action {
         }
 
         // Определим формат данных
-        if (isset($aParams['required']['tpl']) && $aParams['required']['tpl'] !== false) {
-            $sResult = array($this->_Fetch('user/info', $aResult['data'], $aParams['required']['tpl']));
+        if (isset($aParams['required']['tpl']) && $aParams['required']['tpl'] !== FALSE) {
+            $sResult = array($this->_Fetch($sCmd, $aResult['data'], $aParams['required']['tpl']));
         } else {
             $sResult = $aResult['json'];
         }
 
         $aResult = array(
-            'data' => $sResult,
+            'data'   => $sResult,
             'params' => $aParams['other'],
         );
 
@@ -288,7 +376,7 @@ class ActionApi extends Action {
     protected function _Fetch($sCmd, $aData, $sTemplate) {
 
         $sHtml = '';
-        if ($sTpl = 'api/' . $sCmd . '/' . str_replace('/', '.', $sCmd . '.' . (is_string($sTemplate) ? $sTemplate : 'default') . '.tpl')) {
+        if ($sTpl = $sCmd . '/' . str_replace('/', '.', $sCmd . '.' . (is_string($sTemplate) ? $sTemplate : 'default') . '.tpl')) {
             if (E::ModuleViewer()->TemplateExists($sTpl)) {
                 E::ModuleViewer()->Assign($aData);
                 $sHtml = E::ModuleViewer()->Fetch($sTpl);

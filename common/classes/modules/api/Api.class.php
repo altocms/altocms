@@ -75,6 +75,29 @@ class ModuleApi extends Module {
             'region'    => $oUser->getProfileRegion(),
         ));
 
-     }
+    }
+
+    /**
+     * Получение сведений о рейтинге топика
+     * @param string $aParams Идентификатор пользователя
+     * @return bool|array
+     */
+    public function ApiTopicRating($aParams) {
+
+        /** @var ModuleTopic_EntityTopic $oTopic */
+        if (!($oTopic = E::ModuleTopic()->GetTopicById($aParams['tid']))) {
+            return FALSE;
+        }
+
+        return $this->_PrepareResult(array('oTopic' => $oTopic), array(
+            'id'      => $oTopic->getId(),
+            'vote'    => $oTopic->getVote(),
+            'count'   => $oTopic->getCountVote(),
+            'up'      => $oTopic->getCountVoteUp(),
+            'down'    => $oTopic->getCountVoteDown(),
+            'abstain' => $oTopic->getCountVoteAbstain(),
+        ));
+
+    }
 }
 
