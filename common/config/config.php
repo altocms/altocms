@@ -509,7 +509,7 @@ $config['module']['_autoLoad_'] = array('Hook','Cache','Security','Session','Use
  * Настройки модуля API
  */
 $config['module']['api']['ajax'] = true;        // Не авторизованный аякс запрос клиента сайта
-$config['module']['api']['get'] = true;        // Сторонний get-запрос на получение данных
+$config['module']['api']['get'] = false;        // Сторонний get-запрос на получение данных
 $config['module']['api']['post'] = false;       // Сторонний post-зпрос на изменение данных
 
 
