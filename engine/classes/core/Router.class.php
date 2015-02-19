@@ -441,15 +441,22 @@ class Router extends LsObject {
         if ($sInitResult === 'next') {
             $this->ExecAction();
         } else {
+            // Если инициализация экшена прошла успешно и метод провеки доступа вернул
+            // положительный результат то запускаем запрошенный ивент на исполнение.
+            if ($sInitResult !== false && $this->oAction->Access(self::GetActionEvent()) !== false) {
+                $res = $this->oAction->ExecEvent();
+                static::$sActionEventName = $this->oAction->GetCurrentEventName();
 
-            $res = $this->oAction->ExecEvent();
-            static::$sActionEventName = $this->oAction->GetCurrentEventName();
+                E::ModuleHook()->Run('action_shutdown_' . strtolower($sActionClass) . '_before');
+                $this->oAction->EventShutdown();
+                E::ModuleHook()->Run('action_shutdown_' . strtolower($sActionClass) . '_after');
 
-            E::ModuleHook()->Run('action_shutdown_' . strtolower($sActionClass) . '_before');
-            $this->oAction->EventShutdown();
-            E::ModuleHook()->Run('action_shutdown_' . strtolower($sActionClass) . '_after');
-
-            if ($res === 'next') {
+                if ($res === 'next') {
+                    $this->ExecAction();
+                }
+            } else {
+                static::$sAction = $this->aConfigRoute['config']['action_not_found'];
+                static::$sActionEvent = '404';
                 $this->ExecAction();
             }
         }

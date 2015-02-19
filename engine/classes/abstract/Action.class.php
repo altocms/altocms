@@ -102,9 +102,9 @@ abstract class Action extends LsObject {
             $this->oEngine = $oEngine;
         }
         //Engine::getInstance();
-        $this->RegisterEvent();
         $this->sCurrentAction = $sAction;
         $this->aParams = R::GetParams();
+        $this->RegisterEvent();
 
         // load action's config if exists
         Config::ResetLevel(Config::LEVEL_ACTION);
@@ -455,7 +455,7 @@ abstract class Action extends LsObject {
 
     /**
      * Метод инициализации экшена
-     *
+     * @return bool|string
      */
     public function Init() {
 
@@ -543,6 +543,34 @@ abstract class Action extends LsObject {
         }
 
         return false;
+    }
+
+
+    /**
+     * Метод проверки прав доступа пользователя к конкретному ивенту
+     * @param string $sEvent Наименование ивента
+     * @return bool
+     */
+    public function Access($sEvent) {
+
+//        $sAccessMethodName = 'Access' . $sEvent;
+//
+//        if (method_exists($this, 'Access' . $sEvent)) {
+//            return call_user_func_array(array($this, $sAccessMethodName), array());
+//        }
+
+        return true;
+    }
+
+
+    /**
+     * Метод запрета доступа к ивенту
+     * @param string $sEvent Наименование ивента
+     * @return bool
+     */
+    public function AccessDenied($sEvent = null) {
+
+        return $this->EventNotFound();
     }
 
 }

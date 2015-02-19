@@ -28,6 +28,15 @@ class Decorator extends LsObject {
         $this->oComponent = $oComponent;
     }
 
+    /**
+     * Проверяет, есть ли метод в декорируемом объекте
+     * @param $sMethodName
+     * @return bool
+     */
+    public function MethodExists($sMethodName) {
+        return method_exists($this->oComponent, $sMethodName);
+    }
+
     public function CallMethod($sMethod, $aArgs) {
 
         $aArgsRef = array();

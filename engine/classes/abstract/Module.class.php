@@ -18,6 +18,8 @@
  *
  * @package engine
  * @since 1.0
+ *
+ * @method bool MethodExists
  */
 abstract class Module extends LsObject {
     const STATUS_INIT_BEFORE = 1;

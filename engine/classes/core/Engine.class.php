@@ -82,6 +82,7 @@ F::IncludeFile('ManyToManyRelation.class.php');
  * @method static ModuleViewer ModuleViewer()
  * @method static ModuleViewerasset ModuleViewerasset()
  * @method static ModuleWidget ModuleWidget()
+ * @method static ModuleApi ModuleApi()
  *
  * @package engine
  * @since 1.0
