@@ -744,6 +744,7 @@ $config['head']['default']['js'] = array(
     '___path.frontend.dir___/libs/vendor/jquery.fileapi/jquery.fileapi.js',
     '___path.frontend.dir___/libs/js/engine/altoMultiUploader.js',
     '___path.frontend.dir___/libs/js/engine/altoImageManager.js',
+    '___path.frontend.dir___/libs/js/engine/altoTooltip.js',
     '___path.frontend.dir___/libs/vendor/masonry.pkgd.js',
     '___path.frontend.dir___/libs/vendor/imagesloaded.pkgd.js',
 );

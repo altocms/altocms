@@ -81,6 +81,7 @@ class ActionApi extends Action {
      */
     public function EventError() {
         if ($this->bIsAjax) {
+            E::ModuleMessage()->AddErrorSingle('error');
             E::ModuleViewer()->AssignAjax('result', json_encode(array('error' => $this->sError)));
         } else {
             E::ModuleViewer()->Assign('result', json_encode(array('error' => $this->sError)));
@@ -347,7 +348,7 @@ class ActionApi extends Action {
 
         // Определим формат данных
         if (isset($aParams['required']['tpl']) && $aParams['required']['tpl'] !== FALSE) {
-            $sResult = array($this->_Fetch($sCmd, $aResult['data'], $aParams['required']['tpl']));
+            $sResult = $this->_Fetch($sCmd, $aResult['data'], $aParams['required']['tpl']);
         } else {
             $sResult = $aResult['json'];
         }
