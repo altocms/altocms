@@ -6,6 +6,12 @@
                 <a href="{$oUserProfile->getProfileUrl()}created/topics/">{$aLang.topic_title}  {if $iCountTopicUser} ({$iCountTopicUser}) {/if}</a>
             </li>
 
+
+            <li class="{if $sMenuSubItemSelect=='photos'}active{/if}">
+                <a href="{$oUserProfile->getProfileUrl()}created/photos/">{$aLang.user_menu_publication_photos}  {if $iPhotoCount} ({$iPhotoCount}) {/if}</a>
+            </li>
+
+
             <li {if $sMenuSubItemSelect=='comments'}class="active"{/if}>
                 <a href="{$oUserProfile->getProfileUrl()}created/comments/">{$aLang.user_menu_publication_comment}  {if $iCountCommentUser} ({$iCountCommentUser}) {/if}</a>
             </li>
