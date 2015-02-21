@@ -76,4 +76,6 @@ $config = array(
 
 );
 
+Config::Set('rating.enabled', true);
+
 return $config;

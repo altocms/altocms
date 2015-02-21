@@ -55,6 +55,7 @@ class PluginRating extends Plugin {
 
     // Инициализация плагина
     public function Init() {
+        E::ModuleViewer()->AppendStyle(Plugin::GetTemplateDir(__CLASS__)."assets/css/style.css");
         return TRUE;
     }
 }

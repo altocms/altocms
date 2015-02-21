@@ -124,7 +124,7 @@
             $this.$element
                 .popover({
                     animation: $this.options.animation,
-                    content: $this._getCachedData(),
+                    content: '<div class="alto-popover-content"><div class="loader"></div></div>',
                     delay: 0,
                     html: true,
                     placement: $this.options.placement,
@@ -152,7 +152,7 @@
                             $this.$element.popover('hide');
                             return;
                         }
-                        $this.cachedData = result.data;
+                        $this.cachedData = '<div class="alto-popover-content">' + result.data + '</div>';
                         var popover = $this.$element.attr('data-content', $this.cachedData).data('bs.popover');
                         popover.setContent();
                         popover.$tip.addClass(popover.options.placement);
@@ -162,23 +162,6 @@
 
 
             return $this;
-        },
-
-        /**
-         * Возвращает закэширвоанный тултип
-         *
-         * @returns {*}
-         * @private
-         */
-        _getCachedData: function () {
-            var $this = this;
-
-            if ($this.options.cache == false || !$this.cachedData) {
-                $this.cachedData = false;
-                return '<div class="alto-popover-content"><div class="loader"></div></div>';
-            }
-
-            return $this.cachedData;
         },
 
         /**
@@ -252,10 +235,10 @@
             $this.options.placement = $this._checkArray($this.options.placement, ['top', 'left', 'right', 'bottom'], 'top');
 
             // Анимация
-            $this.options.animation = $this.options.animation != 'false';
+            $this.options.animation = $this.options.animation != false;
 
             // Кэширование
-            $this.options.cache = $this.options.cache != 'false';
+            $this.options.cache = $this.options.cache != false;
 
             return true;
         },
