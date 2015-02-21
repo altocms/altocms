@@ -79,7 +79,13 @@ class ModuleCaptcha extends Module {
                 $sKeyName = $this->sKeyName;
             }
             $sSavedString = E::ModuleSession()->Get($sKeyName);
-            E::ModuleSession()->Drop($sKeyName);
+
+            // issue#342. При регистрации метод вызывается несколько раз в том
+            // числе и при проверки формы аяксом при первой проверке значение
+            // капчи сбрасывается и в дальнейшем проверка не проходит. Сброс капчи
+            // теперь происходит только после успешной регистрации
+            // E::ModuleSession()->Drop($sKeyName);
+
             if (empty($sSavedString) || !is_string($sSavedString)) {
                 $iResult = static::ERR_KEYSTRING_NOT_DEFINED;
             } elseif ($sSavedString != $sKeyString) {

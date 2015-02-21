@@ -174,6 +174,9 @@ class ActionRegistration extends Action {
 
         // * Запускаем валидацию
         if ($oUser->_Validate()) {
+            // Сбросим капчу // issue#342.
+            E::ModuleSession()->Drop(E::ModuleCaptcha()->GetKeyName());
+
             E::ModuleHook()->Run('registration_validate_after', array('oUser' => $oUser));
             $oUser->setPassword($oUser->getPassword(), true);
             if (E::ModuleUser()->Add($oUser)) {
