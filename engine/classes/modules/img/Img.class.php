@@ -788,10 +788,10 @@ class ModuleImg extends Module {
 
         $sImageFile = '';
         $sName = basename($sFile);
-        if (preg_match('/^' . preg_quote($sPrefix) . '([a-z0-9]+)?_([a-z0-9\-]+)(_(male|female))?([\-0-9a-z\.]+)?(\.[a-z]+)$/i', $sName, $aMatches)) {
-            $sName = $aMatches[1];
-            $sSkin = $aMatches[2];
-            $sType = $aMatches[4];
+        if (preg_match('/^' . preg_quote($sPrefix) . '_([a-z0-9-]+)?_([a-z0-9\-]+)(_(male|female))?([\-0-9a-z\.]+)?(\.[a-z]+)$/i', $sName, $aMatches)) {
+            $sName = $aMatches[0];
+            $sSkin = $aMatches[1];
+            $sType = $aMatches[2];
             $sExtension = $aMatches[6];
             if ($sExtension && substr($sSkin, -strlen($sExtension)) == $sExtension) {
                 $sSkin = substr($sSkin, 0, strlen($sSkin)-strlen($sExtension));
