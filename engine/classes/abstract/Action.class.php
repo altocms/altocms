@@ -526,7 +526,7 @@ abstract class Action extends LsObject {
      *
      * @param   string|null $sName
      *
-     * @return  bool
+     * @return  array|bool
      */
     protected function GetUploadedFile($sName = null) {
 

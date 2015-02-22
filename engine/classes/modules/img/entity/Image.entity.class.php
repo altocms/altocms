@@ -8,9 +8,24 @@
  *----------------------------------------------------------------------------
  */
 
+/**
+ * Class ModuleImg_EntityImage
+ *
+ * @method SetImage()
+ * @method SetWidth()
+ * @method SetHeight()
+ * @method SetMime()
+ * @method SetInfo()
+ * @method SetFilename()
+ *
+ * @method GetImage()
+ * @method GetFilename()
+ * @method GetDriver()
+ */
 class ModuleImg_EntityImage extends Entity {
 
     protected $_fResizeScaleLimit = 0.5;
+    protected $aOptions;
 
     public function __construct($aParams) {
 
@@ -52,6 +67,26 @@ class ModuleImg_EntityImage extends Entity {
     }
 
     /**
+     * @param DataArray|array $aOptions
+     *
+     * @return $this
+     */
+    public function SetOptions($aOptions) {
+
+        if (!($aOptions instanceof DataArray)) {
+            $this->aOptions = new DataArray($aOptions);
+        } else {
+            $this->aOptions = $aOptions;
+        }
+        return $this;
+    }
+
+    public function GetOptions() {
+
+        return $this->aOptions;
+    }
+
+    /**
      * Gets mime type of image
      *
      * @return string
@@ -73,6 +108,7 @@ class ModuleImg_EntityImage extends Entity {
     public function GetFormat() {
 
         $sMime = $this->getProp('mime');
+        $sFormat = '';
         if ($sMime) {
             list(, $sFormat) = explode('/', $sMime);
         } elseif ($sFile = $this->GetFilename()) {
@@ -94,6 +130,7 @@ class ModuleImg_EntityImage extends Entity {
         if ($oImage = $this->GetImage()) {
             return $oImage->width;
         }
+        return null;
     }
 
     /**
@@ -106,13 +143,30 @@ class ModuleImg_EntityImage extends Entity {
         if ($oImage = $this->GetImage()) {
             return $oImage->height;
         }
+        return null;
     }
 
+    /**
+     * @return bool
+     */
     public function IsMultiframe() {
 
         if (($oImage = $this->GetImage()) && (E::ModuleImg()->GetDriver() != 'GD')) {
             return $oImage->image->getImageIterations();
         }
+        return false;
+    }
+
+    public function KillAnimation($iFrame = 0) {
+
+        if (($oImage = $this->GetImage()) && ($this->IsMultiframe())) {
+            foreach ($oImage->image as $iIndex => $oFrame) {
+                if ($iIndex == $iFrame) {
+                    $oImage->image = $oFrame->getImage();
+                }
+            }
+        }
+        return $this;
     }
 
     /**

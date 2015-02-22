@@ -233,13 +233,13 @@ class ActionUploader extends Action {
      * Загрузка изображения после его ресайза
      *
      * @param  string $sFile - Серверный путь до временной фотографии
-     * @param  string $sTargetId - Ид. целевого объекта
      * @param  string $sTarget - Тип целевого объекта
+     * @param  string $sTargetId - ID целевого объекта
      * @param  array $aSize - Размер области из которой нужно вырезать картинку - array('x1'=>0,'y1'=>0,'x2'=>100,'y2'=>100)
      *
      * @return string|bool
      */
-    public function UploadImageAfterResize($sFile, $sTargetId, $sTarget, $aSize = array()) {
+    public function UploadImageAfterResize($sFile, $sTarget, $sTargetId, $aSize = array()) {
 
         if ($sTargetId == '0') {
             if (!E::ModuleSession()->GetCookie('uploader_target_tmp')) {
@@ -250,6 +250,7 @@ class ActionUploader extends Action {
         if (!F::File_Exists($sFile)) {
             return FALSE;
         }
+        $aConfig = E::ModuleUploader()->GetConfig($sFile, $sTarget);
         if (!$aSize) {
             $oImg = E::ModuleImg()->CropSquare($sFile, TRUE);
         } else {
@@ -261,24 +262,30 @@ class ActionUploader extends Action {
             }
             $oImg = E::ModuleImg()->Crop($sFile, $aSize['w'], $aSize['h'], $aSize['x1'], $aSize['y1']);
         }
+
+        if (!$oImg) {
+            // Возникла ошибка, надо обработать
+            /** TODO Обработка ошибки */
+        } elseif ($aConfig['transform']) {
+            E::ModuleImg()->Transform($oImg, $aConfig['transform']);
+        }
+
         $sExtension = strtolower(pathinfo($sFile, PATHINFO_EXTENSION));
 
-        // Сохраняем фото во временный файл
+        // Сохраняем изображение во временный файл
         if ($sTmpFile = $oImg->Save(F::File_UploadUniqname($sExtension))) {
 
-            // Файл, куда будет записано фото
-            $sPhoto = E::ModuleUploader()->Uniqname(E::ModuleUploader()->GetUploadDir($sTarget, $sTargetId), $sExtension);
+            // Файл, куда будет записано изображение
+            $sImageFile = E::ModuleUploader()->Uniqname(E::ModuleUploader()->GetUploadDir($sTarget, $sTargetId), $sExtension);
 
             // Окончательная запись файла только через модуль Uploader
-            if ($xStoredFile = E::ModuleUploader()->Store($sTmpFile, $sPhoto)) {
+            if ($xStoredFile = E::ModuleUploader()->Store($sTmpFile, $sImageFile)) {
 
                 if (is_object($xStoredFile)) {
-
                     $this->AddUploadedFileRelationInfo($xStoredFile, $sTargetId, $sTarget);
                     $sFile = $xStoredFile->GetUrl();
-
                 } else {
-                    $sFile = $xStoredFile->GetUrl();
+                    $sFile = (string)$xStoredFile;
                 }
 
                 return $sFile;
@@ -308,11 +315,11 @@ class ActionUploader extends Action {
             return;
         }
 
+        $sTarget = F::GetRequest('target', FALSE);
+        $sTargetId = F::GetRequest('target_id', FALSE);
+
         // Проверяем, целевой объект и права на его редактирование
-        if (!$oTarget = E::ModuleUploader()->CheckAccessAndGetTarget(
-            $sTarget = F::GetRequest('target', FALSE),
-            $sTargetId = F::GetRequest('target_id', FALSE))
-        ) {
+        if (!$oTarget = E::ModuleUploader()->CheckAccessAndGetTarget($sTarget, $sTargetId)) {
             // Здесь два варианта, либо редактировать нельзя, либо можно, но топика еще нет
             if ($oTarget === TRUE) {
                 // Будем делать временную картинку
@@ -329,10 +336,10 @@ class ActionUploader extends Action {
         $sError = '';
 
         // Сделаем временный файд
-        $sTmpFile = E::ModuleUploader()->UploadLocal($aUploadedFile);
+        $sTmpFile = E::ModuleUploader()->UploadLocal($aUploadedFile, $sTarget);
 
         // Вызовем хук перед началом загрузки картинки
-        E::ModuleHook()->Run('uploader_upload_before', array('oTarget' => $oTarget, 'sTmpFile' => $sTmpFile, 'sTarget' => $sTarget));
+        E::ModuleHook()->Run('uploader_upload_before', array('oTarget' => $oTarget, 'sTmpFile' => $sTmpFile, 'sTarget' => $sTarget, 'sTargetId' => $sTargetId));
 
         // Если все ок, и по миме проходит, то
         if ($sTmpFile && E::ModuleImg()->MimeType($sTmpFile)) {
@@ -419,7 +426,7 @@ class ActionUploader extends Action {
         }
 
         // * Вырезаем и сохраняем фото
-        if ($sFileWeb = $this->UploadImageAfterResize($sTmpFile, $sTargetId, $sTarget, $aSize)) {
+        if ($sFileWeb = $this->UploadImageAfterResize($sTmpFile, $sTarget, $sTargetId, $aSize)) {
 
             $sFileWebPreview = $sFileWeb;
             if ($sSize = F::GetRequest('crop_size', FALSE)) {

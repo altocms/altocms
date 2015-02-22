@@ -327,52 +327,53 @@ $config['module']['uploader']['files']['default'] = array(
 
 $config['module']['uploader']['images']['default'] = array(
     '$extends$' => '___module.uploader.files.default___',
-    'libs'      => 'Imagick,GD', // 'GD', 'Imagick' or 'Gmagick', or several libs separated by comma
     'image_extensions' => array('gif', 'png', 'jpg', 'jpeg'),
     'max_width'  => 8000, // максимальная ширина загружаемых изображений в пикселях
     'max_height' => 6000, // максимальная высота загружаемых изображений в пикселях
-    'url_maxsize' => '500Kb', // максимальный размер изображения в kB для загрузки по URL
+    'url_maxsize' => '2Mb', // максимальный размер изображения в kB для загрузки по URL
     // параметры сохранения при загрузке
     'transform' => array(
-        'max_width'  => 800,        // максимаьная ширина сохраняеого изображения
-        'max_height' => 600,        // максимаьная высота сохраняеого изображения
+        'max_width'  => 800,        // максимальная ширина сохраняемого изображения
+        'max_height' => 600,        // максимальная высота сохраняемого изображения
         'bg_color'  => '#cccccc',   // цвет фона при преобразовании изображений
-        //'output' => 'jpg',
-        'mime-jpeg' => array(
+        //'save_as' => 'jpg',
+        'watermark' => array(
+            'enable' => false,
+            'image' => array(
+                'path' => '___path.static.dir___/___path.uploads.root___',
+                'file' => 'altocms.png',
+                'topleft' => false,
+                'position' => '0,0',
+            ),
+        ),
+        '@mime(jpeg)' => array(
             'quality' => 80,
         ),
-        'mime-png'  => array(
-            'output' => 'jpg',
+        '@mime(gif)'  => array(
+            'animation' => false,
+            'save_as' => 'jpg',
+        ),
+    ),
+);
+
+$config['module']['uploader']['images']['profile_avatar'] = array(
+    '$extends$' => '___module.uploader.images.default___',
+    'transform' => array(
+        'max_width'  => 250,        // максимальная ширина сохраняемой аватары
+        'max_height' => 250,        // максимальная высота сохраняемой аватары
+        'watermark' => array(
+            'enable' => false,
+        ),
+        '@mime(gif)'  => array(
+            'animation' => true,
         ),
     ),
 );
 
 // Модуль Image
-
-// Параметры для загружаемых изображений по умолчанию
 $config['module']['image']['preset']['default'] = array(
-    'driver' => 'Imagick,GD', // 'GD', 'Imagick' or 'Gmagick', or several libs separated by comma
-    'jpg_quality' => 80,
-    'watermark' => array(
-        'enable' => false,
-        'image' => array(
-            'path' => '___path.static.dir___/___path.uploads.root___',
-            'file' => 'altocms.png',
-            'topleft' => false,
-            'position' => '0,0',
-        ),
-    ),
-    'size' => array(
-        'width' => 700,
-        'height' => 700,
-    ),
-);
-// Параметры для изображений, загружаемых в фотосет
-$config['module']['image']['preset']['photoset'] = array(
-    'size' => array(
-        'width' => 1280,
-        'height' => 1024,
-    ),
+    '$extends$' => '___module.uploader.images.default___',
+    'libs'      => 'Imagick,GD', // 'GD', 'Imagick' or 'Gmagick', or several libs separated by comma
 );
 
 $config['module']['image']['autoresize'] = true;

@@ -441,6 +441,45 @@ class ModuleImg extends Module {
     }
 
     /**
+     * @param ModuleImg_EntityImage $oImg
+     * @param DataArray $aOptions
+     *
+     * @return bool
+     */
+    public function Transform($oImg, $aOptions) {
+
+        $bChanged = false;
+        if (is_object($oImg) && $aOptions) {
+            if (is_array($aOptions)) {
+                $aOptions = new DataArray($aOptions);
+            }
+            if ($aOptions['animation'] === false) {
+                $oImg->KillAnimation();
+            }
+            $iW = $aOptions['max_width'];
+            $iH = $aOptions['max_height'];
+            if (($iW && $iW < $oImg->GetWidth()) || ($iH && $iH < $oImg->GetHeight())) {
+                $oImg->Resize($iW, $iH, true);
+                $bChanged = true;
+            }
+            if ($aOptions['watermark.enable'] && $aOptions['watermark.image']) {
+                $sMarkImg = F::File_Exists($aOptions['watermark.image.file'], $aOptions['watermark.image.path']);
+                $bTopLeft = (bool)$aOptions['watermark.image.topleft'];
+                if ($aOptions['watermark.image.position']) {
+                    list($iCoordX, $iCoordY) = explode(',', $aOptions['watermark.image.position']);
+                } else {
+                    $iCoordX = $iCoordY = 0;
+                }
+                if ($oImg = $this->WatermarkImg($oImg, $iCoordX, $iCoordY, $sMarkImg, $bTopLeft)) {
+                    $bChanged = true;
+                }
+            }
+        }
+
+        return $bChanged;
+    }
+
+    /**
      * Duplicates image file with other sizes
      *
      * @param string $sFile
@@ -608,29 +647,13 @@ class ModuleImg extends Module {
             $aParams = array();
         }
         if ($aOptions) {
+            /** @var DataArray $aParams */
             $aParams = F::Array_Merge($aParams, $aOptions);
         }
         $bResult = false;
 
         if ($oImg = $this->Read($sFile)) {
-            $bChanged = false;
-            $iW = $aParams['size.width'];
-            $iH = $aParams['size.height'];
-            if (($iW && $iW < $oImg->GetWidth()) || ($iH && $iH < $oImg->GetHeight())) {
-                $oImg->Resize($iW, $iH, true);
-                $bChanged = true;
-            }
-            if ($aParams['watermark.enable'] && $aParams['watermark.image']) {
-                $sMarkImg = F::File_Exists($aParams['watermark.image.file'], $aParams['watermark.image.path']);
-                $bTopLeft = (bool)$aParams['watermark.image.topleft'];
-                if ($aParams['watermark.image.position']) {
-                    list($iCoordX, $iCoordY) = explode(',', $aParams['watermark.image.position']);
-                } else {
-                    $iCoordX = $iCoordY = 0;
-                }
-                $oImg = $this->WatermarkImg($oImg, $iCoordX, $iCoordY, $sMarkImg, $bTopLeft);
-                $bChanged = true;
-            }
+            $bChanged = $this->Transform($oImg, $aParams);
             if ($bChanged) {
                 $oImg->Save($sFile);
             }

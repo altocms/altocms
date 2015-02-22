@@ -638,7 +638,7 @@ class ModuleUser_EntityUser extends Entity {
     }
 
     /**
-     * DEPRECATED
+     * @deprecated Deprecated since 1.0
      */
     public function getProfileAvatarPath($xSize = null) {
 
@@ -723,7 +723,7 @@ class ModuleUser_EntityUser extends Entity {
     }
 
     /**
-     * DEPRECATED
+     * @deprecated Deprecated since 1.0
      */
     public function getProfileFotoPath() {
 
@@ -731,7 +731,7 @@ class ModuleUser_EntityUser extends Entity {
     }
 
     /**
-     * DEPRECATED
+     * @deprecated Deprecated since 1.0
      */
     public function getProfileFotoDefault() {
 
@@ -761,7 +761,7 @@ class ModuleUser_EntityUser extends Entity {
     /**
      * Возвращает статус администратора сайта
      *
-     * @return bool|null
+     * @return bool
      */
     public function isAdministrator() {
 
@@ -771,7 +771,7 @@ class ModuleUser_EntityUser extends Entity {
     /**
      * Возвращает статус модкратора сайта
      *
-     * @return bool|null
+     * @return bool
      */
     public function isModerator() {
 
@@ -781,13 +781,17 @@ class ModuleUser_EntityUser extends Entity {
     /**
      * Возвращает веб путь до профиля пользователя
      *
+     * @deprecated Deprecated since 1.0
      * @return string
      */
     public function getUserWebPath() {
 
-        return $this->getUserUrl();
+        return $this->getProfileUrl();
     }
 
+    /**
+     * @return string
+     */
     public function getUserUrl() {
 
         return $this->getProfileUrl();
