@@ -642,10 +642,10 @@ class ModuleMresource_MapperMresource extends Mapper {
             ),
         );
 
-        if (!empty($xTargetId)) {
+        if (!is_null($xTargetId)) {
             $aCriteria['filter']['target_id'] = $xTargetId;
         }
-        if (!empty($xTargetId)) {
+        if (!is_null($xUserId)) {
             $aCriteria['filter']['user_id'] = $xUserId;
         }
         $aData = $this->_getMresourcesRelByCriteria($aCriteria);
