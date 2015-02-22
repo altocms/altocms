@@ -1109,15 +1109,20 @@ class AltoFunc_File {
      * @var int
      */
     static protected $nMimeTypeSignaturesMax = 0;
+    static protected $aMimeFiles = array();
 
     /**
-     * Определение MimeType файлов
+     * Defines of MimeType of the file
      *
      * @param string $sFile
      *
-     * @return string|null
+     * @return string
      */
     static public function MimeType($sFile) {
+
+        if (isset(self::$aMimeFiles[$sFile])) {
+            return self::$aMimeFiles[$sFile];
+        }
 
         $sMimeType = '';
         if (function_exists('finfo_fopen')) {
@@ -1135,6 +1140,7 @@ class AltoFunc_File {
             if ($n = strpos($sMimeType, ';')) {
                 $sMimeType = substr($sMimeType, 0, $n);
             }
+            self::$aMimeFiles[$sFile] = $sMimeType;
             return $sMimeType;
         }
 
@@ -1170,12 +1176,14 @@ class AltoFunc_File {
             foreach (self::$aMimeTypeSignatures as $sMimeType => $aSignsCollect) {
                 foreach ($aSignsCollect as $aSign) {
                     if (substr($sBuffer, $aSign['offset'], strlen($aSign['signature'])) == $aSign['signature']) {
+                        self::$aMimeFiles[$sFile] = $sMimeType;
                         return $sMimeType;
                     }
                 }
             }
         }
-        return null;
+        self::$aMimeFiles[$sFile] = '';
+        return '';
     }
 
     /**
