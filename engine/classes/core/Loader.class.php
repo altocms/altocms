@@ -452,7 +452,12 @@ class Loader {
      */
     static protected function _classAlias($sOriginal, $sAlias, $bAutoload = TRUE) {
 
-        $bResult = class_alias($sOriginal, $sAlias, $bAutoload);
+        if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
+            $bResult = class_alias($sOriginal, $sAlias, $bAutoload);
+        } else {
+            $bResult = class_alias($sOriginal, $sAlias);
+        }
+
         if (defined('DEBUG') && DEBUG) {
             self::$_aClassAliases[$sAlias] = array(
                 'original' => $sOriginal,
