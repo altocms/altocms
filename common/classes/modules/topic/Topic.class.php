@@ -2527,7 +2527,11 @@ class ModuleTopic extends Module {
      */
     protected function _saveTopicImage($sImageFile, $oUser, $sType, $aOptions = array()) {
 
-        $sFileTmp = E::ModuleImg()->TransformFile($sImageFile, $sType, $aOptions);
+        $aConfig = E::ModuleUploader()->GetConfig($sImageFile, $sType);
+        if ($aOptions) {
+            $aConfig['transform'] = F::Array_Merge($aConfig['transform'], $aOptions);
+        }
+        $sFileTmp = E::ModuleImg()->TransformFile($sImageFile, $aConfig['transform']);
         if ($sFileTmp) {
             $sDirUpload = E::ModuleUploader()->GetUserImageDir($oUser->getId(), true, $sType);
             $sFileImage = E::ModuleUploader()->Uniqname($sDirUpload, F::File_GetExtension($sFileTmp, true));
