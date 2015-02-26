@@ -28,14 +28,6 @@ class ActionUploader extends Action {
     const ERROR = 500;
 
     /**
-     * Абстрактный метод инициализации экшена
-     *
-     */
-    public function Init() {
-        // TODO: Implement Init() method.
-    }
-
-    /**
      * Абстрактный метод регистрации евентов.
      * В нём необходимо вызывать метод AddEvent($sEventName,$sEventFunction)
      * Например:

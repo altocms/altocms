@@ -1422,7 +1422,11 @@ class ActionAjax extends Action {
             }
         } elseif (($sUrl = $this->GetPost('img_url')) && ($sUrl != 'http://')) {
             // * Загрузка файла по URL
-            $sFile = E::ModuleTopic()->UploadTopicImageUrl($sUrl, $this->oUserCurrent);
+            if (preg_match('~(https?:\/\/)(\w([\w]+)?\.[\w\.\-\/]+.*)$~i', $sUrl, $aM)) {
+                // Иногда перед нормальным адресом встречается лишний 'http://' и прочий "мусор"
+                $sUrl = $aM[1] . $aM[2];
+                $sFile = $this->Topic_UploadTopicImageUrl($sUrl, $this->oUserCurrent);
+            }
         } else {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('uploadimg_file_error'));
             return;
