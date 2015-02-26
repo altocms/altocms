@@ -95,6 +95,12 @@ class ModuleHook extends Module {
      */
     protected $aHooksObject = array();
 
+    protected $bStopHandle = false;
+
+    protected $sCurrentHookName;
+
+    protected $aCurrentHookOptions = array();
+
     /**
      * Инициализация модуля
      *
@@ -113,6 +119,29 @@ class ModuleHook extends Module {
     public function IsEnabled($sHookName) {
 
         return isset($this->aHooks[$sHookName]);
+    }
+
+    /**
+     * Adds handler for hook
+     * Call format:
+     *   AddHandler($sHookName, $xCallBack [, $iPriority] [, $aParams])
+     *
+     * @param string $sHookName Hook name
+     * @param string $xCallBack Callback function to run for the hook
+     * @param int    $iPriority
+     * @param array  $aParams
+     *
+     * @return bool
+     *
+     * @since   1.1
+     */
+    public function AddHandler($sHookName, $xCallBack, $iPriority = 1, $aParams = array()) {
+
+        if (is_array($iPriority) && func_num_args() == 3) {
+            $aParams = $iPriority;
+            $iPriority = null;
+        }
+        return $this->Add($sHookName, 'function', $xCallBack, $iPriority, $aParams);
     }
 
     /**
@@ -211,31 +240,37 @@ class ModuleHook extends Module {
 
         $xResult = array();
         $sName = strtolower($sName);
-        $bTemplateHook = strpos($sName, 'template_') === 0 ? true : false;
 
         if (isset($this->aHooks[$sName])) {
-            if (empty($this->aHooksOrders[$sName])) {
+            $this->sCurrentHookName = strtolower($sName);
+            $bTemplateHook = (strpos($this->sCurrentHookName, 'template_') === 0 ? true : false);
+            if (empty($this->aHooksOrders[$this->sCurrentHookName])) {
                 $this->aHooksOrders = array();
-                $iCount = count($this->aHooks[$sName]);
+                $iCount = count($this->aHooks[$this->sCurrentHookName]);
                 for ($iHookNum = 0; $iHookNum < $iCount; $iHookNum++) {
-                    $this->aHooksOrders[$sName][$iHookNum] = $this->aHooks[$sName][$iHookNum]['priority'];
+                    $this->aHooksOrders[$this->sCurrentHookName][$iHookNum] = $this->aHooks[$this->sCurrentHookName][$iHookNum]['priority'];
                 }
-                arsort($this->aHooksOrders[$sName], SORT_NUMERIC);
+                arsort($this->aHooksOrders[$this->sCurrentHookName], SORT_NUMERIC);
             }
 
+            $this->bStopHandle = false;
             // Runs hooks in priority order
-            foreach ($this->aHooksOrders[$sName] as $iHookNum => $iPr) {
-                $aHook = $this->aHooks[$sName][$iHookNum];
-                if ($bTemplateHook || $aHook['type'] == 'template') {
-                    if (isset($aHook['params']['template']) && !isset($aVars['template'])) {
-                        $aVars['template'] = $aHook['params']['template'];
+            foreach ($this->aHooksOrders[$this->sCurrentHookName] as $iHookNum => $iPr) {
+                $this->aCurrentHookOptions = $this->aHooks[$this->sCurrentHookName][$iHookNum];
+                if ($bTemplateHook || $this->aCurrentHookOptions['type'] == 'template') {
+                    if (isset($this->aCurrentHookOptions['params']['template']) && !isset($aVars['template'])) {
+                        $aVars['template'] = $this->aCurrentHookOptions['params']['template'];
                     }
                     // * Если это шаблонный хук то сохраняем результат
-                    $xResult['template_result'][] = $this->RunType($aHook, $aVars);
+                    $xResult['template_result'][] = $this->RunType($this->aCurrentHookOptions, $aVars);
                 } else {
-                    $xResult = $this->RunType($aHook, $aVars);
+                    $xResult = $this->RunType($this->aCurrentHookOptions, $aVars);
+                }
+                if ($this->bStopHandle) {
+                    break;
                 }
             }
+            $this->sCurrentHookName = null;
         }
         return $xResult;
     }
@@ -243,23 +278,29 @@ class ModuleHook extends Module {
     /**
      * Запускает обработчик хука в зависимости от типа обработчика
      *
-     * @param array $aHook    Данные хука
-     * @param array $aVars    Параметры переданные в хук
+     * @param array $aHookOptions Данные хука
+     * @param array $aVars        Параметры переданные в хук
      *
-     * @return mixed|null
+     * @return mixed
      */
-    protected function RunType($aHook, &$aVars) {
+    protected function RunType($aHookOptions, &$aVars) {
 
         $xResult = null;
-        switch ($aHook['type']) {
+        switch ($aHookOptions['type']) {
             case 'module':
-                $xResult = call_user_func_array(array($this, $aHook['callback']), array(&$aVars));
+                $xResult = call_user_func_array(array($this, $aHookOptions['callback']), array(&$aVars));
                 break;
             case 'function':
-                $xResult = call_user_func_array($aHook['callback'], array(&$aVars));
+                $oObject = ((!empty($aHookOptions['callback'][0]) && is_object($aHookOptions['callback'][0])) ? $aHookOptions['callback'][0] : null);
+                if ($oObject && !empty($aHookOptions['callback'][1]) && is_string($aHookOptions['callback'][1])) {
+                    $sMethod = $aHookOptions['callback'][1];
+                    $xResult = $oObject->$sMethod($aVars);
+                } else {
+                    $xResult = call_user_func_array($aHookOptions['callback'], array(&$aVars));
+                }
                 break;
             case 'hook':
-                $sHookClass = isset($aHook['params']['sClassName']) ? $aHook['params']['sClassName'] : null;
+                $sHookClass = isset($aHookOptions['params']['sClassName']) ? $aHookOptions['params']['sClassName'] : null;
                 if ($sHookClass && class_exists($sHookClass)) {
                     if (isset($this->aHooksObject[$sHookClass])) {
                         $oHook = $this->aHooksObject[$sHookClass];
@@ -267,17 +308,57 @@ class ModuleHook extends Module {
                         $oHook = new $sHookClass;
                         $this->aHooksObject[$sHookClass] = $oHook;
                     }
-                    $xResult = call_user_func_array(array($oHook, $aHook['callback']), array(&$aVars));
+                    //$xResult = call_user_func_array(array($oHook, $aHookOptions['callback']), array(&$aVars));
+                    $sMethod = $aHookOptions['callback'];
+                    $xResult = $oHook->$sMethod($aVars);
                 }
                 break;
             default:
-                if (is_callable($aHook['callback'])) {
-                    $xResult = call_user_func_array($aHook['callback'], array(&$aVars));
+                if (is_callable($aHookOptions['callback'])) {
+                    $xResult = call_user_func_array($aHookOptions['callback'], array(&$aVars));
                 }
                 break;
         }
         return $xResult;
     }
+
+    /**
+     * Returns current hook name
+     *
+     * @return string
+     *
+     * @since   1.1
+     */
+    public function GetHookName() {
+
+        return $this->sCurrentHookName;
+    }
+
+    /**
+     * Returns parameters of current hook handler
+     *
+     * @return array
+     *
+     * @since   1.1
+     */
+    public function GetHookParams() {
+
+        if (isset($this->aCurrentHookOptions['params'])) {
+            return $this->aCurrentHookOptions['params'];
+        }
+        return array();
+    }
+
+    /**
+     * Sets stop handle flag
+     *
+     * @since   1.1
+     */
+    public function StopHookHandle() {
+
+        $this->bStopHandle = true;
+    }
+
 }
 
 // EOF

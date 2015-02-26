@@ -100,6 +100,40 @@ abstract class Hook extends LsObject {
 
         return E::getInstance()->_CallModule($sName, $aArgs);
     }
+
+    /**
+     * Sets stop handle flag
+     *
+     * @since   1.1
+     */
+    public function StopHookHandle() {
+
+        E::ModuleHook()->StopHookHandle();
+    }
+
+    /**
+     * Returns current hook name
+     *
+     * @return string
+     *
+     * @since   1.1
+     */
+    public function GetHookName() {
+
+        E::ModuleHook()->GetHookName();
+    }
+
+    /**
+     * Returns parameters of current hook handler
+     *
+     * @return array
+     *
+     * @since   1.1
+     */
+    public function GetHookParams() {
+
+        E::ModuleHook()->GetHookParams();
+    }
 }
 
 // EOF
