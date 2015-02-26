@@ -187,7 +187,7 @@
                         <li class="footer-list-header word-wrap">{E::User()->getDisplayName()}</li>
                         <li><a href="{E::User()->getProfileUrl()}">{$aLang.footer_menu_user_profile}</a></li>
                         <li><a href="{router page='settings'}profile/">{$aLang.user_settings}</a></li>
-                        <li><a href="{router page='topic'}add/" class="js-write-window-show">{$aLang.block_create}</a>
+                        <li><a href="{router page='content'}topic/add/" class="js-write-window-show">{$aLang.block_create}</a>
                         </li>
                         {hook run='footer_menu_user_item' oUser=$oUserCurrent}
                         <li><a href="{router page='login'}exit/?security_key={$ALTO_SECURITY_KEY}">{$aLang.exit}</a>
