@@ -277,6 +277,9 @@ class ModuleUploader extends Module {
     public function GetConfig($sFile, $sConfigKey = 'default') {
 
         $sExtension = $this->_extensionMime($sFile);
+        if (!$sExtension) {
+            $sExtension = '*';
+        }
         $sTmpConfigKey = '_' . $sExtension . '_' . $sConfigKey;
         $aConfig = $this->aModConfig[$sTmpConfigKey];
 
@@ -287,7 +290,7 @@ class ModuleUploader extends Module {
             // Gets local config
             if ($sConfigKey && $sConfigKey != 'default') {
                 // Checks key 'images.<type>' and valid image extension
-                if ($aConfig = $this->aModConfig['images.' . $sConfigKey]) {
+                if (($sExtension != '*') && ($aConfig = $this->aModConfig['images.' . $sConfigKey])) {
                     $aImageExtensions = (array)$aConfig['image_extensions'];
                     if (!$aImageExtensions || !in_array($sExtension, $aImageExtensions)) {
                         $aConfig = array();
@@ -331,7 +334,7 @@ class ModuleUploader extends Module {
              *     ),
              * );
              */
-            if ($aConfig && $aImageExtensions && $aConfig['transform']) {
+            if (($sExtension != '*') && $aConfig && $aImageExtensions && $aConfig['transform']) {
                 foreach($aConfig['transform'] as $sKey => $aVal) {
                     if (strpos($sKey, '@mime(') === 0) {
                         $sMimeFound = null;
