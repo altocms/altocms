@@ -335,8 +335,7 @@ $config['module']['uploader']['images']['default'] = array(
     'transform' => array(
         'max_width'  => 800,        // максимальная ширина сохраняемого изображения
         'max_height' => 600,        // максимальная высота сохраняемого изображения
-        'bg_color'  => '#cccccc',   // цвет фона при преобразовании изображений
-        //'save_as' => 'jpg',
+        'bg_color'  => '#ffffff',   // цвет фона при преобразовании изображений
         'watermark' => array(
             'enable' => false,
             'image' => array(
@@ -351,7 +350,9 @@ $config['module']['uploader']['images']['default'] = array(
         ),
         '@mime(gif)'  => array(
             'animation' => false,
-            'save_as' => 'jpg',
+        ),
+        '@mime(png)'  => array(
+            //'save_as' => 'jpg',
         ),
     ),
 );
@@ -370,20 +371,32 @@ $config['module']['uploader']['images']['profile_avatar'] = array(
     ),
 );
 
-// Модуль Image
-$config['module']['image']['preset']['default'] = array(
+$config['module']['uploader']['images']['profile_photo'] = array(
     '$extends$' => '___module.uploader.images.default___',
-    'libs'      => 'Imagick,GD', // 'GD', 'Imagick' or 'Gmagick', or several libs separated by comma
 );
 
+$config['module']['uploader']['images']['topic'] = array(
+    '$extends$' => '___module.uploader.images.default___',
+    'transform' => array(
+        'watermark' => array(
+            'enable' => false,
+        ),
+    ),
+);
+
+$config['module']['uploader']['images']['photoset'] = array(
+    '$extends$' => '___module.uploader.images.default___',
+    'transform' => array(
+        'watermark' => array(
+            'enable' => true,
+        ),
+    ),
+);
+
+// Модуль Image
 $config['module']['image']['autoresize'] = true;
 
-// Нужно ли использовать водяной знак для изображений в топике
-$config['module']['image']['preset']['topic']['watermark']['enable']  = false;
-
-// Нужно ли использовать водяной знак для изображений в фотосете
-$config['module']['image']['preset']['photoset']['watermark']['enable']  = false;
-
+$config['module']['image']['libs'] = 'Gmagick,Imagick,GD'; // 'GD', 'Imagick' or 'Gmagick', or several libs separated by comma
 
 // Модуль Menu
 $config['module']['menu']['default_length'] = 20;
@@ -646,7 +659,7 @@ $config['head']['default']['js'] = array(
     //'___path.frontend.dir___/libs/vendor/bootbox/bootbox.min.js' => array('asset' => 'mini'),
     '___path.frontend.dir___/libs/vendor/bootbox/bootbox.js',
 
-    '___path.frontend.dir___/libs/vendor/swfobject/swfobject.js',
+    //'___path.frontend.dir___/libs/vendor/swfobject/swfobject.js',
 
     /* swfupload */
     '___path.frontend.dir___/libs/vendor/swfobject/plugin/swfupload.js' => array(
