@@ -170,8 +170,10 @@ class GD extends Driver{
 	}
 	
 	public function destroy() {
-		imagedestroy($this->image);
-		$this->image = null;
+		if($this->image !== null) {
+			imagedestroy($this->image);
+			$this->image = null;
+		}
 	}
 	
 	public function crop($width, $height, $x = 0, $y = 0) {
@@ -191,12 +193,16 @@ class GD extends Driver{
 		$width = ceil($this->width*$scale);
 		$height = ceil($this->height*$scale);
 		
+		return $this->resize($width, $height);
+	}
+
+	public function resize($width, $height, $fit = true) {
 		$resized = $this->create_gd($width, $height);
 		imagecopyresampled($resized, $this->image, 0, 0, 0, 0, $width, $height, $this->width, $this->height);
 		$this->set_image($resized, $width, $height);
 		return $this;
 	}
-	
+
 	public function rotate($angle, $bg_color = 0xffffff, $bg_opacity = 0) {
 		$rotated = imagerotate($this->image, $angle, $this->get_color($bg_color, $bg_opacity));
 		imagealphablending($rotated, false);
