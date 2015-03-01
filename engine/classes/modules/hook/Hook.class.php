@@ -291,7 +291,10 @@ class ModuleHook extends Module {
                 $xResult = call_user_func_array(array($this, $aHookOptions['callback']), array(&$aVars));
                 break;
             case 'function':
-                $oObject = ((!empty($aHookOptions['callback'][0]) && is_object($aHookOptions['callback'][0])) ? $aHookOptions['callback'][0] : null);
+                $oObject = null;
+                if (is_array($aHookOptions['callback']) && !empty($aHookOptions['callback'][0]) && is_object($aHookOptions['callback'][0])) {
+                    $oObject = $aHookOptions['callback'][0];
+                }
                 if ($oObject && !empty($aHookOptions['callback'][1]) && is_string($aHookOptions['callback'][1])) {
                     $sMethod = $aHookOptions['callback'][1];
                     $xResult = $oObject->$sMethod($aVars);
