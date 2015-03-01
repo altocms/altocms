@@ -596,8 +596,6 @@ class ModuleTalk extends Module {
         if ($data['collection']) {
             $aTalks = $this->GetTalksAdditionalData($data['collection']);
 
-            $aTalkUsers = array();
-
             // * Добавляем данные об участниках разговора
             /** @var ModuleTalk_EntityTalk $oTalk */
             foreach ($aTalks as $oTalk) {
