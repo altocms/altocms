@@ -196,7 +196,7 @@ class GD extends Driver{
 		return $this->resize($width, $height);
 	}
 
-	public function resize($width, $height, $fit = true) {
+	public function resize($width = null, $height = null, $fit = true) {
 		$resized = $this->create_gd($width, $height);
 		imagecopyresampled($resized, $this->image, 0, 0, 0, 0, $width, $height, $this->width, $this->height);
 		$this->set_image($resized, $width, $height);

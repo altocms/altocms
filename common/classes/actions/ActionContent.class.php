@@ -222,6 +222,8 @@ class ActionContent extends Action {
             $_REQUEST['topic_id'] = '';
         }
 
+        $_REQUEST['topic_show_photoset'] = 1;
+
         // * Если нет временного ключа для нового топика, то генерируем; если есть, то загружаем фото по этому ключу
         if ($sTargetTmp = E::ModuleSession()->GetCookie('ls_photoset_target_tmp')) {
             E::ModuleSession()->SetCookie('ls_photoset_target_tmp', $sTargetTmp, 'P1D', false);
@@ -249,6 +251,7 @@ class ActionContent extends Action {
         if (!F::isPost('submit_topic_publish') && !F::isPost('submit_topic_draft') && !F::isPost('submit_topic_save')) {
             return false;
         }
+        /** @var ModuleTopic_EntityTopic $oTopic */
         $oTopic = E::GetEntity('Topic');
         $oTopic->_setValidateScenario('topic');
 
@@ -367,6 +370,8 @@ class ActionContent extends Action {
             // ...если нет, то индексацию разрешаем
             $oTopic->setTopicIndexIgnore(false);
         }
+
+        $oTopic->setShowPhotoset(F::GetRequest('topic_show_photoset', 0));
 
         // * Запускаем выполнение хуков
         E::ModuleHook()->Run('topic_add_before', array('oTopic' => $oTopic, 'oBlog' => $oBlog));
@@ -543,6 +548,7 @@ class ActionContent extends Action {
 
             $_REQUEST['topic_field_question'] = $oTopic->getQuestionTitle();
             $_REQUEST['topic_field_answers'] = array();
+            $_REQUEST['topic_show_photoset'] = $oTopic->getShowPhotoset();
             $aAnswers = $oTopic->getQuestionAnswers();
             foreach ($aAnswers as $aAnswer) {
                 $_REQUEST['topic_field_answers'][] = $aAnswer['text'];
@@ -739,6 +745,8 @@ class ActionContent extends Action {
         } else {
             $oTopic->setTopicIndexIgnore(false);
         }
+
+        $oTopic->setShowPhotoset(F::GetRequest('topic_show_photoset', 0));
 
         E::ModuleHook()->Run('topic_edit_before', array('oTopic' => $oTopic, 'oBlog' => $oBlog));
 

@@ -1249,6 +1249,28 @@ class ModuleTopic_EntityTopic extends Entity {
         return $bResult;
     }
 
+    public function isShowPhotoset() {
+        /** @var ModuleTopic_EntityContentType $oContentType */
+        $oContentType = $this->getContentType();
+        return $this->getShowPhotoset() && $oContentType && $oContentType->isAllow('photoset') && $this->getPhotosetCount();
+    }
+
+    public function isShowPoll() {
+        /** @var ModuleTopic_EntityContentType $oContentType */
+        $oContentType = $this->getContentType();
+        return $oContentType && $oContentType->isAllow('poll') && $this->getQuestionAnswers();
+    }
+
+    public function isShowSourceLink() {
+        /** @var ModuleTopic_EntityContentType $oContentType */
+        $oContentType = $this->getContentType();
+        return $oContentType && $oContentType->isAllow('link') && $this->getSourceLink();
+    }
+
+    public function getShowPhotoset() {
+        return (bool)$this->getExtraValue('show_photoset');
+    }
+
     public function getSingleImage($nId, $sSize) {
 
         if ($this->getField($nId)) {
@@ -1607,6 +1629,10 @@ class ModuleTopic_EntityTopic extends Entity {
     public function setIndexIgnoreLock() {
 
         $this->setTopicIndexIgnore(self::INDEX_IGNORE_LOCK);
+    }
+
+    public function setShowPhotoset($data){
+        $this->setExtraValue('show_photoset', (bool)$data);
     }
 
     /**

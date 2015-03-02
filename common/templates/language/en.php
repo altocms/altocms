@@ -324,6 +324,8 @@ return array(
 
     'topic_field_poll_add'                      => 'Add poll',
 
+    'topic_show_photoset'                       => 'Show photoset',
+    'topic_show_photoset_notice'                => 'If you check, the photoset will be fully displayed after the text topic',
     /**
      * Link-topic
      */

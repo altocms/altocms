@@ -72,9 +72,9 @@
         {include file="fields/field.poll-show.tpl"}
     {/if}
 
-    {*{if $oContentType AND $oContentType->isAllow('photoset') AND $oTopic->getPhotosetCount()}*}
-        {*{include file="fields/field.photoset-show.tpl"}*}
-    {*{/if}*}
+    {if $oTopic->isShowPhotoset()}
+        {include file="fields/field.photoset-show.tpl"}
+    {/if}
 
     {if $oContentType}
         {foreach from=$oContentType->getFields() item=oField}

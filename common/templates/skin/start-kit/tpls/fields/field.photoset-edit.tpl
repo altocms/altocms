@@ -103,6 +103,17 @@
 
             </div>
 
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" id="topic_show_photoset" name="topic_show_photoset" value="1"
+                           {if $_aRequest.topic_show_photoset==1}checked{/if} />
+                    {$aLang.topic_show_photoset}
+                </label>
+
+                <p class="help-block">
+                    <small>{$aLang.topic_show_photoset_notice}</small>
+                </p>
+            </div>
         </div>
     </div>
 </div>
