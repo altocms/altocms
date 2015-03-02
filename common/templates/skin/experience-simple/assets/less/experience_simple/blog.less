@@ -1,0 +1,70 @@
+//@import "../var.experience_simple.less";
+@import "../bootstrap/mixins";
+@import "mixins";
+
+
+
+/** ВИДЖЕТ ИНФОРМАЦИИ О БЛОГЕ
+______________________________________________________*/
+.widget-blog-about {
+    .panel-header {
+        font-size: @blog-widget-header-font-size !important;
+        padding-bottom: 18px !important;
+        border-bottom: 1px solid @blog-widget-header-line-color !important;
+        a {
+            text-decoration: none;
+        }
+        .sized();
+        i {
+            color: @main-color;
+        }
+    }
+    .panel-navigation {
+        font-size: @blog-widget-nav-font-size !important;
+    }
+    .panel-content {
+        margin-bottom: 18px;
+        a {
+            text-align: center;
+            display: block;
+            img {
+                width: 100%;
+                border-radius: 200px;
+            }
+        }
+
+    }
+}
+
+.blogs-list {
+    img {
+        border-radius: 32px;
+        margin-right: 6px;
+    }
+}
+.panel-content .blogs-list li {
+    height: 36px;
+}
+.panel-content .blogs-list li .blog-name img {
+    top: 0;
+}
+
+.blog-submenu {
+    margin-bottom: 12px;
+
+    ul {
+        border-radius: 0 !important;
+        top: 38px !important;
+        background-color: @light-gray !important;
+        background-image: none !important;
+
+        a {
+            &:hover {
+                background-color: @light !important;
+            }
+        }
+    }
+    .open .dropdown-menu {
+        display: block !important;
+    }
+}

@@ -1,0 +1,88 @@
+@import "../var.bootstrap.less";
+@import "../var.experience.less";
+
+.modal.modal-write .modal-dialog {
+    width: 440px;
+}
+
+.modal-write-list li {
+    text-align: center;
+    float: left;
+
+    &:last-child {
+        padding-right: 0;
+    }
+
+    .modal-body {
+        margin-top: 10px;
+    }
+
+    .write-item-image {
+        display: block;
+        width: 92px;
+        height: 92px;
+        //noinspection CssUnknownTarget
+        margin-bottom: 10px;
+        background: url(../images/write.png) no-repeat -5px -5px;
+    }
+    &.write-item-type-topic .write-item-image {
+        background-position: -5px -5px;
+    }
+    &.write-item-type-poll .write-item-image {
+        background-position: -105px -5px;
+    }
+    &.write-item-type-link .write-item-image {
+        background-position: -205px -5px;
+    }
+    &.write-item-type-photoset .write-item-image {
+        background-position: -305px -5px;
+    }
+    &.write-item-type-blog .write-item-image {
+        background-position: -405px -5px;
+    }
+    &.write-item-type-draft .write-item-image {
+        background-position: -505px -5px;
+    }
+
+}
+
+.content-logo {
+    display: block;
+    width: 92px;
+    height: 92px;
+    font-size: 74px;
+    margin-bottom: 10px;
+    color: @color-65;
+}
+
+.modal-write-list li:nth-child(4) {
+    padding-right: 0;
+}
+
+.modal-write-list li:nth-child(5) {
+    clear: left;
+}
+
+.modal-write-list li:nth-child(5) {
+    margin-top: 14px;
+}
+
+.modal-write-list li:nth-child(6) {
+    margin-top: 14px;
+}
+
+.modal-write-list li:nth-child(7) {
+    margin-top: 14px;
+}
+
+.modal-write-list li:nth-child(8) {
+    margin-top: 14px;
+}
+
+.modal-write-list li:nth-child(9) {
+    margin-top: 14px;
+}
+
+.modal-write-list li:nth-child(10) {
+    margin-top: 14px;
+}

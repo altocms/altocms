@@ -1,0 +1,187 @@
+@import "../var.bootstrap.less";
+@import "../bootstrap/mixins";
+@import "../var.experience.less";
+
+.topic-news {
+
+    .left-column {
+
+
+        h3, h3 a {
+            color:  #1c1c1c;
+            font-weight: 500;
+            font-size: 18px;
+            line-height: 18px;
+            margin-top: 0;
+        }
+
+        .topic-preview {
+
+            img {
+                width: 100%;
+                margin-bottom: 14px;
+            }
+        }
+
+        .topic-info {
+            margin-bottom: 14px;
+
+            .topic-date-block {
+                float: right;
+            }
+        }
+
+        .topic-text {
+            margin-bottom: 0;
+            padding-bottom: 16px;
+            border-bottom: 1px solid @color-90;
+        }
+
+        .topic-footer {
+            background-color: @color-100;
+            margin-bottom: 24px;
+            ul {
+                padding: 0;
+            }
+        }
+    }
+
+    .right-column {
+        .topic-list-container {
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid @color-90;
+            position: relative;
+            cursor: pointer;
+
+            &:last-child {
+                margin-bottom: 48px;
+            }
+
+            &:hover {
+                background-color: @color-94;
+                border-radius: 2px;
+                cursor: pointer;
+
+                .topic-list {
+                    .topic-list-title-container {
+                        & > span {
+                            display: block;
+                        }
+                    }
+                }
+            }
+        }
+        .topic-list {
+            width: 100%;
+
+            .topic-list-preview-container {
+                width: @topic-preview-size;
+                vertical-align: top;
+            }
+
+            .topic-list-preview {
+                display: block;
+                width: @topic-preview-size;
+                margin-left: 10px;
+                img {
+                    max-width: @topic-preview-size;
+                    width: @topic-preview-size;
+                }
+            }
+
+            .topic-list-content {
+                margin-right: 84px;
+            }
+
+            .topic-list-rating-container {
+                vertical-align: top;
+            }
+
+            .topic-list-rating {
+                display: block;
+                float: left;
+                clear: left;
+                font-size: @font-size-small;
+                color: @green;
+                font-weight: 500;
+            }
+
+            .topic-list-title-container {
+                vertical-align: top;
+
+                & > span {
+                    position: absolute;
+                    right: 1px;
+                    top: 4px;
+                    width: 36px;
+                    text-align: center;
+                    display: none;
+                }
+            }
+
+            .topic-list-title {
+                display: block;
+//                margin-left: 8px;
+                line-height: 16px;
+                a {
+                    font-weight: 500;
+                    line-height: 16px;
+                }
+            }
+
+            .topic-list-info {
+                margin: 0;
+
+
+                .topic-date-block {
+                    float: right;
+
+                    .topic-date {
+                        font-size: 11px;
+                        color: @color-50;
+                    }
+
+                    .topic-time {
+                        font-size: 11px;
+                        color: @blue;
+                    }
+                }
+
+                .topic-user {
+                    img {
+                        float: left;
+                        max-width: 20px;
+                        width: 20px;
+                        position: relative;
+                        top: -2px;
+                    }
+                    a {
+                        margin-left: 10px;
+                        line-height: 12px;
+                        font-size: @font-size-base;
+                        font-weight: 500;
+                    }
+                }
+            }
+        }
+    }
+
+    .topic-footer {
+        ul li {
+            &.topic-blog {
+                a {
+                    font-size: @font-size-large;
+                }
+            }
+            &.topic-blog-subscribe {
+                float: right;
+                margin-right: 0;
+
+                a {
+                    font-size: @font-size-base;
+                }
+            }
+        }
+    }
+}

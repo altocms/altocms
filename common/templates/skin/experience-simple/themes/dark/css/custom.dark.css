@@ -1,0 +1,62 @@
+/* Цвет левой полоски активного элемента меню */
+.hvr-leftline-reveal:before {
+    background: white;
+}
+/* Цвет левой полоски активного элемента меню контента */
+.navbar-content .hvr-leftline-reveal:before {
+    background: #1c374c;
+}
+
+/* Ссылка выпадающего меню пользователя*/
+.navbar-main .dropdown-menu.dropdown-user-menu > li > a:hover,
+.navbar-main .dropdown-menu.dropdown-user-menu > li > a:hover i {
+    color: white !important;
+}
+
+/* Ссылка в быстрых иконках выпадающего меню пользвоателя */
+.navbar-main .navbar-nav li a:hover, .navbar-main .navbar-nav .menu-item-user-comments a {
+    color: #1499cb !important;
+}
+.navbar-main .navbar-nav li a:hover, .navbar-main .navbar-nav .menu-item-user-talks a {
+    color: #e68f12 !important;
+}
+.navbar-main .navbar-nav li a:hover, .navbar-main .navbar-nav .menu-item-user-rating a,
+.navbar-main .navbar-nav li a:hover, .navbar-main .navbar-nav .menu-item-user-rating a i {
+    color: #548c40 !important;
+}
+.navbar-main .navbar-nav li a:hover, .navbar-main .navbar-nav a:hover,
+.navbar-main .navbar-nav li a:hover, .navbar-main .navbar-nav a:hover i {
+    background: transparent;
+    color: white !important;
+}
+
+/* Кнопка меню пользователя */
+.user-button {
+    color: white !important;
+}
+
+/* Ссылка в быстрых иконках выпадающего меню тулбара */
+.toolbar-user li.user_activity_items ul li.menu-item-user-rating a i {
+    color: #548c40 !important;
+}
+.toolbar-user li.user_activity_items ul li.menu-item-user-rating a:hover {
+    color: #548c40 !important;
+}
+.toolbar-user li.user_activity_items ul li.menu-item-user-rating a:hover i {
+    color: #d25151 !important
+}
+
+
+.toolbar-user li.user_activity_items ul li.menu-item-user-comments  a  {
+    color: #1499cb !important;
+}
+
+.toolbar-user li.user_activity_items ul li.menu-item-user-talks   a  {
+    color: #e68f12 !important;
+}
+
+
+/* Лейбл количества в прояиле */
+.user-panel .user-nav li a span {
+    background-color: #1c374c;
+}

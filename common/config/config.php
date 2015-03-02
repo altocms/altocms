@@ -27,7 +27,7 @@
 /*
  * Базовые настройки внешнего вида
  */
-$config['view']['skin']             = 'start-kit';                  // скин
+$config['view']['skin']             = 'experience-simple';          // скин
 $config['view']['theme']            = 'default';                    // тема
 $config['view']['name']             = 'Your Site Name';             // название сайта
 $config['view']['wysiwyg']          = false;    // использовать или нет визуальный редактор

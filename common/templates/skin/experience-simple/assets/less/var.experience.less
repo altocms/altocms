@@ -1,0 +1,189 @@
+/** Базовые цвета темы
+----------------------------------------------------------------------------------------------------------*/
+// Цвета сайта
+// Основной цвет сайта. Представлен в формате HLS для удобства подбора гаммы сайта. Все оттенки цветов, которые
+// используются на сайте получаются на основе изменения L-компоненты цвета. S-компонента задает насыщенность цвета
+// Рекоммендуется устанавливать ее в диапазоне 0%-20%. H-компонента, собственно и определяет цветовой тон сайта.
+@main-color: hsl(0, 0%, 50%);
+// Прочие цвета
+@red:                rgb(210, 81, 81);
+@yellow:             rgb(255, 204, 0);
+@yellow-dark:        rgb(233, 171, 23);
+@yellow-gray:        rgb(228, 224, 211);
+@yellow-light:       rgb(254, 253, 229);
+@green:              rgb(84, 140, 64);
+@light-green:        rgb(242, 254, 234);
+@blue:               rgb(20, 153, 203);
+@blue-light:         rgb(133, 160, 195);
+@blue-menu:          rgb(47, 146, 183);
+@blue-menu-hover:    rgb(99, 193, 228);
+@light-gray:    #f2f6f7;
+
+
+/** Метрика сайта
+----------------------------------------------------------------------------------------------------------*/
+@site-content-desktop-width:            65%;    // Ширина контента на экране меньшем десктопа, остальное занимает сайдбар
+@site-content-md-width:                 58%;    // Ширина контента на Medium screen и меньне, остальное занимает сайдбар
+
+
+/** Другое
+----------------------------------------------------------------------------------------------------------*/
+@tooltip-opacity:                       .9;     // Прозрачность тултипа
+
+/** Кнопки - 5
+----------------------------------------------------------------------------------------------------------*/
+@button-padding-vertical:               6px;                // Вертикальные отступы в кнопке
+@button-padding-horizontal:             14px;               // Горизонтальные отступы в кнопке
+@button-font-size:                      @font-size-small;   // Шрифт кнопки
+@button-line-height:                    12px;               // Высота строки текста кнопки
+@button-border-radius:                  4px;                // Радиус скругления углов кнопки
+
+
+/** МЕНЮ ПЕРВОГО УРОВНЯ - 20
+----------------------------------------------------------------------------------------------------------*/
+// Метрика меню
+@menu-level-1-font-size:                @font-size-small;   // Базовый размер шрифта меню
+@menu-level-1-vertical-padding:         6px;                // Отступы сверху и снизу до кнопок меню
+@menu-level-1-space-small:              2px;                // Расстояние между элементами меню
+@menu-level-1-space-big:                42px;               // Расстояние от кнопок до подменю
+@menu-level-1-buttons-side-padding:     10px;               // боковой отступ кнопок
+@menu-level-1-buttons-height:           24px;               // Высота кнопки
+// Метрика подменю
+@menu-level-1-submenu-min-width:        180px;              // Минимальная ширина подменю
+@menu-level-1-caret-width:              3px;                // Размер каретки подменю
+@menu-level-1-border-radius:            2px;                // Радиус скругления углов подменю и счетчиков
+@menu-level-1-counter-top-padding:      4px;                // Вертикальное положение счетчика в подменю
+// Цвета
+@menu-level-1-background-color:         @color-30;          // Цвет фона
+@menu-level-1-border-color:             @color-50;          // Цвет границы активных кнопок
+@menu-level-1-link-color:               @color-73;          // Цвет шрифта кнопок (цвет наведенного заголовка подменю)
+@menu-level-1-hover-color:              @color-36;          // Цвет наведенной кнопки
+@menu-level-1-marker-color:             @color-50;          // Цвет маркера активного/выделенного подменю
+@menu-level-1-link-mail-color:          @yellow;            // Цвет кнопки личных сообщений
+@menu-level-1-link-user-color:          @color-88;          // Цвет кнопки пользовательского меню
+@menu-level-1-menu-link-color:          @color-50;          // Цвет шрифта подменю
+@menu-level-1-submenu-hover-color:      @color-36;          // Цвет наведенного элемента подменю
+@menu-level-1-submenu-divider-color:    @color-36;          // Цвет разделителя подменю
+
+/** МЕТРИКА ПОИСКА
+----------------------------------------------------------------------------------------------------------*/
+@search-width:                 172px;                              // Высота текстового поля
+@search-border-radius:         3px;                                // Радиус скругления краев
+@search-side-padding:          10px;                                // Правый-левый отступ
+@search-line-height:           14px;                               // Высота строки поиска
+// Цвета поиска
+@search-border-color:          @color-78;                           // Цвет границы строки поиска
+@search-border-active-color:   @color-65;                          // Цвет активной границы строки поиска
+@search-text-color:            @color-65;                          // Цвет текста строки поиска
+
+
+
+/** МЕНЮ ТРЕТЬЕГО УРОВНЯ - 7
+----------------------------------------------------------------------------------------------------------*/
+// Метрика
+@menu-level-3-height:                       36px;           // Высота меню
+@menu-level-3-button-margin:                32px;           // Расстояние между кнопками
+@menu-level-3-button-font-size:             16px;           // Размер шрифта кнопок
+// Цвета
+@menu-level-3-background-color:             @color-87;      // Цвет фона меню
+@menu-level-3-border-bottom-color:          @color-100;     // Цвет нижней линии
+@menu-level-3-button-font-color:            @color-0;      // Цвет шрифта кнопок меню
+@menu-level-3-button-marker-color:          @color-78;      // Цвет маркера выделенного элемента меню
+
+
+/** КОНТЕНТ САЙТА
+----------------------------------------------------------------------------------------------------------*/
+@content-margin-top:                        48px;           // Верхний отступ контента от меню
+@content-panel-border-radius:               0;              // Радиус скругления углов панелей контента
+@content-panel-padding:                     24px;           // Внутренний отступ панелей
+@content-margin-bottom:                     58px;           // Нижний отсуп контента
+
+/** ТОПИК
+----------------------------------------------------------------------------------------------------------*/
+@topic-header-bottom-margin:                26px;           // Расстояние от заголовка до контента топика
+@topic-preview-max-width:                   278px;          // Ширина картинки превью
+@topic-preview-margin-right:                15px;           // Правый отступ от превью до текста
+@topic-preview-margin-bottom:               12px;           // Нижний отступ от превью до текста
+
+@topic-text-margin-bottom:                  20px;           // Отступ от текста до кнопки далее
+@topic-footer-margin-top:                   20px;           // Отступ от кнопки далее до подвала
+@topic-footer-height:                       32px;           // Высота подвала
+@topic-footer-element-padding:              24px;           // Рассточние между элементами футера
+
+
+
+/** ПАДЖИНАТОР
+----------------------------------------------------------------------------------------------------------*/
+// Метрика
+@paginator-height:                          32px;           // Высота кнопок
+@paginator-side-padding:                    11px;           // Внутренние отступы по краям
+@paginator-next-margin:                     36px;           // Отступ кнопки "Далее"
+@paginator-margin:                          4px;            // Отступ между кнопками
+@paginator-font-size:                       @font-size-base;// Размер шрифта
+// Цвета
+@paginator-font-color:                      @color-36;      // Цвет шрифта
+@paginator-border-color:                    @color-88;      // Цвет обводки
+@paginator-gradient-start-color:            @color-98;      // Начальный цвет градиента
+@paginator-gradient-end-color:              @color-94;      // Конечный цвет градиента
+@paginator-hover-gradient-start-color:      @color-100;     // Начальный цвет градиента наведенной кнопки
+@paginator-hover-gradient-end-color:        @color-94;      // Конечный цвет градиента наведенной кнопки
+@paginator-background-color:                @color-98;      // Цвет фона
+
+
+
+/** ПОДВАЛ
+----------------------------------------------------------------------------------------------------------*/
+// Первый подвал
+@footer-background-color:                   @color-90;      // Цвет фона
+@footer-top-padding:                        24px;           // Верхний внутренний отступ
+@footer-min-height:                         144px;          // Минимальная высота футера
+@footer-header-margin:                      16px;           // Отступ от заголовка
+@footer-social-font-size:                   16px;           // Размер шрифта социальных иконок
+@footer-social-margin:                      12px;           // Расстояние между социальными иконками
+@footer-counter-top-margin:                 24px;           // Отступ счетчика
+@footer-font-color:                         @color-50;      // Цвет шрифта футера
+// Второй подвал
+@footer-2-background-color:                 @color-85;      // Цвет фона
+@footer-2-height:                           40px;           // Высота футера
+@footer-2-font-color:                       @color-50;      // Цвет шрифта второго подвала
+
+/** САЙДБАР
+----------------------------------------------------------------------------------------------------------*/
+@sidebar-header-font-size:                  18px;           // Размер шрифта заголовка
+@sidebar-header-margin-bottom:              18px;           // Отступ от заголовка до пнели навигации
+@sidebar-navigation-margin-bottom:          24px;           // Отступ от навигации до содержимого
+
+
+/** ТОПИК-НОВОСТЬ (наследует настройки основного топкиа)
+----------------------------------------------------------------------------------------------------------*/
+@topic-preview-size:                        74px;           // Размер картинки превью
+
+
+/** КОММЕНТАРИИ
+----------------------------------------------------------------------------------------------------------*/
+@comment-level-margin:                      38px;           // Уровень отступа комментария
+
+/**-------------------------------------------------------------------------------------------------------*/
+/** РАЧЕТНЫЕ ДАННЫЕ. НЕ МЕНЯТЬ!
+----------------------------------------------------------------------------------------------------------*/
+
+// Автоматически рассчитываемые цвета. Их менять не рекоммендуется. Создаются на основе @main-color изменением светлоты
+@color-0:          hsl(hue(@main-color), saturation(@main-color), 0%);
+@color-10:          hsl(hue(@main-color), saturation(@main-color), 10%);
+@color-11:          hsl(hue(@main-color), saturation(@main-color), 11%);
+@color-30:          hsl(hue(@main-color), saturation(@main-color), 30%);
+@color-36:          hsl(hue(@main-color), saturation(@main-color), 36%);
+@color-45:          hsl(hue(@main-color), saturation(@main-color), 45%);
+@color-50:          hsl(hue(@main-color), saturation(@main-color), 50%);
+@color-65:          hsl(hue(@main-color), saturation(@main-color), 65%);
+@color-73:          hsl(hue(@main-color), saturation(@main-color), 73%);
+@color-78:          hsl(hue(@main-color), saturation(@main-color), 78%);
+@color-82:          hsl(hue(@main-color), saturation(@main-color), 82%);
+@color-85:          hsl(hue(@main-color), saturation(@main-color), 85%);
+@color-87:          hsl(hue(@main-color), saturation(@main-color), 87%);
+@color-88:          hsl(hue(@main-color), saturation(@main-color), 88%);
+@color-90:          hsl(hue(@main-color), saturation(@main-color), 90%);
+@color-94:          hsl(hue(@main-color), saturation(@main-color), 94%);
+@color-98:          hsl(hue(@main-color), saturation(@main-color), 98%);
+@color-100:         hsl(hue(@main-color), saturation(@main-color), 100%);
+@blue-dark:     darken(@blue, 15%);

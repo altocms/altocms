@@ -1,0 +1,52 @@
+.colorPickerPane {
+    position: absolute;
+    top: 0;
+    z-index: 3;
+    display: inline-block;
+    padding: 0;
+    width: 214px;
+    height: 82px;
+    border: 0;
+    border-radius: 6px;
+    background: #F0F0F0;
+    font-weight: bold;
+    cursor: pointer;
+
+    .Lightness {
+        margin: 0;
+        padding: 0;
+        width: 23px;
+        height: 202px;
+        display: none;
+    }
+
+    .HueSaturationWrapper {
+        display: inline-block;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        border-radius: 6px;
+    }
+
+    .HueSaturation {
+        height: 82px;
+        width: 214px;
+        margin-bottom: 0 !important;
+        .thumbnail {
+            padding: 0 !important;
+        }
+    }
+
+    .colorPicker {
+        width: 45px;
+        color: transparent;
+        border: 4px solid white;
+        outline: 1px solid silver;
+        cursor: pointer;
+
+        &::-moz-selection, &::selection {
+            background-color: transparent;
+            display: none;
+        }
+    }
+}

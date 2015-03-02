@@ -1,0 +1,142 @@
+//@import "../var.experience_simple.less";
+@import "../bootstrap/mixins";
+@import "mixins";
+
+
+
+.modal-header {
+    button {
+        position: relative;
+        opacity: 1;
+        right: -10px;
+        cursor: pointer;
+        color: @color-94;
+        &:hover {
+            color: @color-94;
+        }
+
+        &:before, &:after {
+            color: @white;
+            content: "|";
+            font-weight: 100;
+            display: block;
+            font-size: 38.5px;
+        }
+        &:before {
+            -moz-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            -webkit-transform: rotate(45deg);
+            -o-transform: rotate(45deg);
+            transform: rotate(45deg);
+            position: absolute;
+            left: 43.8px;
+            top: 1px;
+        }
+        &:after {
+            -moz-transform: rotate(-45deg);
+            -ms-transform: rotate(-45deg);
+            -webkit-transform: rotate(-45deg);
+            -o-transform: rotate(-45deg);
+            transform: rotate(-45deg);
+            top: 0;
+            left: 40px;
+            position: absolute;
+        }
+    }
+
+    .image-categories-nav {
+        position: absolute;
+        right: 18px;
+        top: 20px;
+        i {
+            color: @main-gray !important;
+        }
+    }
+
+    li {
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+    }
+}
+
+//.image-categories-tree .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.category-show.active > a:focus {
+//    background: @white !important;
+//    background-color: @white !important;
+//    color: @blue !important;
+//}
+//
+//.category-show.active a {
+//    background: @white !important;
+//    background-color: @white !important;
+//    color: @blue !important;
+//}
+//.category-show a {
+//    background: @white !important;
+//    background-color: @white !important;
+//}
+#image-categories-tree-container .image-categories-tree li.active a {
+    background: @white !important;
+    background-color: @white !important;
+    color: @blue !important;
+}
+
+#image-categories-tree-container {
+    .menu-sub {
+        font-size: @font-size-small;
+        color: @dark-blue;
+        text-align: left;
+        margin-bottom: 12px;
+    }
+    .btn {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+    .image-categories-tree {
+        li {
+            &:hover {
+                background-color: @white !important;
+            }
+        }
+        li.active a {
+            color: @blue !important;
+            span {
+                color: @blue !important;
+            }
+        }
+        a {
+            .link-dark();
+            padding: 3px 0;
+            &:hover {
+                color: @blue !important;
+                span {
+                    color: @blue !important;
+                }
+            }
+            span {
+                display: inline-block;
+                min-width: 24px;
+                padding: 3px 7px;
+                font-size: 13px;
+                font-weight: normal;
+                color: @dark-blue;
+                line-height: 1;
+                vertical-align: baseline;
+                white-space: nowrap;
+                text-align: center;
+                background-color: @lighten-gray;
+                border-radius: 10px;
+            }
+        }
+    }
+}
+
+.modal {
+    #image-container {
+        .caption, .media-text {
+            font-size: @font-size-small !important;
+        }
+    }
+    h5 {
+        font-weight: bold;
+    }
+}

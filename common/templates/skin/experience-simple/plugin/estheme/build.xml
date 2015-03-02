@@ -1,0 +1,105 @@
+<project name="estheme" basedir="." default="default">
+    <property name="plugin.name" value="${phing.project.name}" override="true"/>
+    <property name="package" value="${phing.project.name}" override="true"/>
+    <property name="build.dir" value="${project.basedir}/templates/skin" override="true"/>
+    <property name="src.dir" value="${project.basedir}/templates/skin" override="true"/>
+
+    <!-- Очередность выполнения сценария сборки -->
+    <target name="default"
+            depends="make"
+            description="Основной сценарий">
+    <echo msg="ЗАКОНЧИЛИ"/>
+    </target>
+
+    <!--===========================================================================================================-->
+    <!--                                                УТИЛИТЫ                                                    -->
+    <!--===========================================================================================================-->
+
+    <!-- Сжимает js и укладывает рядом с файлом  -->
+    <target name="compress.js.file">
+        <echo msg="Сжатие файла ${absfilename}"/>
+        <echo msg="java -jar ${src.dir}/../../../../../yuicompressor-2.4.8.jar --line-break 150 ${absfilename}  -o .js$:.min.js"/>
+        <exec command="java -jar ${src.dir}/../../../../../yuicompressor-2.4.8.jar --line-break 150 ${absfilename}  -o .js$:.min.js"/>
+    </target>
+
+    <!-- Сжимае js-файлы  в директории и перемещает их -->
+    <target name="compress.js.dir">
+        <echo msg="Сжатие директории ${js.source.dir} JS с помощью YUI Compressor"/>
+
+        <foreach param="filename" absparam="absfilename" target="compress.js.file">
+            <fileset id="compress_list" dir="${js.source.dir}">
+                <include name="**/*.js"/>
+                <exclude name="**/*.min.js"/>
+            </fileset>
+        </foreach>
+
+        <move todir="${js.build.dir}" overwrite="true">
+            <fileset id="compressed_js_list" dir="${js.source.dir}">
+                <include name="**/*.min.js"/>
+            </fileset>
+        </move>
+    </target>
+
+    <target name="process.dir">
+        <echo>ПОДГОТОВКА ДИРЕКТОРИЙ ДЛЯ СБОРКИ</echo>
+
+        <echo>ОЧИЩАЕМ ДИРЕКТОРИЮ СЖАТЫХ СКРИПТОВ ТЕМЫ</echo>
+        <delete includeemptydirs="true">
+            <fileset dir="${build.dir}/${theme.name}/assets/js/minify/" includes="**/**"/>
+            <fileset dir="${build.dir}/${theme.name}/assets/js/" includes="script.min.js" />
+        </delete>
+
+        <mkdir dir="${build.dir}/${theme.name}/assets/js/minify/" />
+
+        <!-- ПЕРЕНОСИМ JS-ФАЙЛЫ ТЕМЫ -->
+        <echo>ПЕРЕНОСИМ JS-ФАЙЛЫ ТЕМЫ</echo>
+        <phingcall target="compress.js.dir">
+            <property name="js.source.dir" value="${src.dir}/${theme.name}/assets/js/develop"/>
+            <property name="js.build.dir" value="${build.dir}/${theme.name}/assets/js/minify"/>
+        </phingcall>
+
+        <echo>ОБЪЕДИНЯЕМ СЖАТЫЕ ФАЙЛЫ В ОДИН</echo>
+        <echo msg="Combining all js files into one…" />
+        <append destFile="${src.dir}/${theme.name}/assets/js/script.min.js">
+            <fileset dir="${build.dir}/${theme.name}/assets/js/minify/" includes="**/**"/>
+        </append>
+
+        <delete includeemptydirs="true">
+            <fileset dir="${build.dir}/${theme.name}/assets/js/minify/" includes="**/**"/>
+        </delete>
+
+    </target>
+
+    <!-- УПАКОВКА РЕЛИЗА -->
+    <target name="pack">
+        <echo>УПАКОВКА РЕЛИЗА</echo>
+        <copy todir="${project.basedir}/release/plugin-${plugin.name}-${version}/files" overwrite="true">
+            <fileset dir="${project.basedir}">
+                <include name="**" />
+                <exclude name="build.xml" />
+                <exclude name="release/**" />
+            </fileset>
+        </copy>
+        <zip destfile="${project.basedir}/release/plugin-${plugin.name}-${version}.zip" basedir="${project.basedir}/release/plugin-${plugin.name}-${version}"/>
+        <delete includeemptydirs="true">
+            <fileset dir="${project.basedir}/release/plugin-${plugin.name}-${version}/files" includes="**/**"/>
+            <fileset dir="${project.basedir}/release" includes="plugin-${plugin.name}-${version}"/>
+        </delete>
+    </target>
+
+    <!--===========================================================================================================-->
+
+    <target name="make">
+        <!-- СЖАТИЕ JS-ФАЙЛОВ -->
+        <phingcall target="process.dir">
+            <property name="theme.name" value="default"/>
+        </phingcall>
+
+        <!-- УПАКОВКА РЕЛИЗА -->
+        <phingcall target="pack">
+            <property name="version" value="0.0.1"/>
+        </phingcall>
+    </target>
+
+
+</project>
