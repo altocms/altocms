@@ -10,28 +10,12 @@
  * @version     0.0.1 от 27.02.2015 08:56
  */
 class PluginEstheme_ModuleEstheme extends Module {
-    /**
-     * Маппер модуля
-     * @var
-     */
-    protected $oEsthemeMapper;
-
-    /**
-     * Текущий пользователь
-     * @var ModuleUser_EntityUser
-     */
-    protected $oUserCurrent = NULL;
 
     /**
      * Инициализация модуля
      */
     public function Init() {
 
-        // Получение текущего пользователя
-//        $this->oUserCurrent = $this->User_GetUserCurrent();
-
-        // Получение мапперов
-        $this->oEsthemeMapper = Engine::GetMapper('PluginEstheme_ModuleEstheme', 'Estheme');
     }
 
     /**
@@ -82,38 +66,21 @@ class PluginEstheme_ModuleEstheme extends Module {
             return FALSE;
         }
 
-        F::IncludeFile(__DIR__ . '/../../../libs/Less.php');
+        $sCompiledStyle = E::ModuleLess()->CompileFile(
+            array(C::Get('path.skins.dir') . 'experience-simple/themes/custom/less/theme.less' => C::Get('path.root.web')),
+            __DIR__ . '/../../../cache/',
+            C::Get('path.skins.dir') . 'experience-simple/themes/custom/css/theme.custom.css.map',
+            $aParams,
+            $bDownload
+        );
 
-        try {
-            $sMapPath = C::Get('path.skins.dir') . 'experience-simple/themes/custom/css/theme.custom.css.map';
-            $options = array(
-                'sourceMap'        => TRUE,
-                'sourceMapWriteTo' => $sMapPath,
-                'sourceMapURL'     => E::ModuleViewerAsset()->AssetFileUrl($sMapPath),
-                'cache_dir'        => __DIR__ . '/../../../libs/cache'
-            );
-
-            if ($bDownload) {
-                $options = array_merge($options, array('compress' => TRUE));
-            }
-
-
-            $sCssFileName = Less_Cache::Get(
-                array(C::Get('path.skins.dir') . 'experience-simple/themes/custom/less/theme.less' => C::Get('path.root.web')),
-                $options,
-                $aParams
-            );
-
-            $sCompiledStyle = file_get_contents(__DIR__ . '/../../../libs/cache/' . $sCssFileName);
+        if ($sCompiledStyle) {
             if (!$bDownload || E::IsAdmin()) {
                 F::File_PutContents(C::Get('path.skins.dir') . 'experience-simple/themes/custom/css/theme.custom.css', $sCompiledStyle);
             } else {
                 $sPath = C::Get('plugin.estheme.path_for_download') . E::UserId() . '/theme.custom.css';
                 F::File_PutContents($sPath, $sCompiledStyle);
             }
-
-        } catch (Exception $e) {
-            E::ModuleMessage()->AddErrorSingle($e->getMessage());
         }
 
     }
