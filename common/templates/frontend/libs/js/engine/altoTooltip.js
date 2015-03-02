@@ -12,9 +12,7 @@
  * Пример:
  * <a
  *      data-alto-role="popover"
- *      data-api="user"
- *      data-api-cmd="info"
- *      data-api-param-uid="{$oUser->getId()}"
+ *      data-api="user/{$oUser->getId()}"
  *      data-api-param-tpl="default"
  *      data-trigger="click"
  *      data-placement="top"
@@ -166,7 +164,7 @@
 
         /**
          * Возвращает параметры API-метода
-         * @returns {{cmd: *}}
+         * @returns
          * @private
          */
         _loadParams: function () {
@@ -174,9 +172,7 @@
             var $this = this;
 
             var data = {
-                cmd: $this.options['apiCmd'],
-                params: {}
-            };
+              };
             var key;
             var currentParam;
             for (key in $this.options) {
@@ -184,7 +180,7 @@
                 currentParam = key.match(/apiParam(\S+)/);
                 if (currentParam !== null && currentParam[1] !== undefined) {
                     //noinspection JSUnfilteredForInLoop
-                    data.params[currentParam[1].toLowerCase()] = $this.options[key];
+                    data[currentParam[1].toLowerCase()] = $this.options[key];
                 }
             }
 

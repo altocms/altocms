@@ -9,28 +9,30 @@
  */
 
 /**
+ * Экшен Api
+ * REST API для Alto CMS
+ *
+ * Экшен принимает запрос к АПИ в виде http://example.com/api/method/cmd/[?param1=val1[&...]]
+ * Здесь
+ *      - method, определяет метод API (объект запроса, идентификатор ресурса), например user, blog, comment
+ *      - cmd, команда, требуемое действие над объектом запроса
+ *      - params, парметры запроса, его конкретизация
+ *
+ * Примеры API для работы с объектом пользователя:
+ *      - GET: http://example.com/api/user/list           - список всех пользователей
+ *      - GET: http://example.com/api/user/1/info         - информация о пользователе с ид. 1
+ *      - GET: http://example.com/api/user/1/friends      - друзья пользователя с ид. 1
+ *      - GET: http://example.com/api/user/1/comments     - комментарии пользователя с ид. 1
+ *      - GET: http://example.com/api/user/1/publications - публикации пользователя с ид. 1
+ *      - GET: http://example.com/api/user/1/blogs/       - блоги пользователя с ид. 1
+ *      - GET: http://example.com/api/user/1/images       - изображения пользователя с ид. 1
+ *      - GET: http://example.com/api/user/1/activity     - активность пользователя с ид. 1
+ *
+ *
  * @package actions
  * @since 1.0
  */
 class ActionApi extends Action {
-
-
-    const ERROR_CMD_NOT_FOUND = "Error #1: 'cmd' param not found in query";
-    const ERROR_CMD_NOT_ALLOWED = "Error #2: 'cmd' is not allowed";
-    const ERROR_SYSTEM = 'Error #3: System error';
-    const ERROR_WRONG_PARAM_LIST = 'Error #4: Wrong param`s list';
-
-    /**
-     * Команда API
-     * @var
-     */
-    protected $sCmd = NULL;
-
-    /**
-     * Параметры API
-     * @var
-     */
-    protected $aParams = NULL;
 
     /**
      * Текущий метод обращения к АПИ
@@ -39,171 +41,212 @@ class ActionApi extends Action {
     protected $bIsAjax = NULL;
 
     /**
-     * Текщая ошибка
-     * @var null
+     * Массив параметров PUT-запроса
+     * @var array
      */
-    protected $sError = NULL;
+    protected $_PUT = array();
+
+    /**
+     * Метод считывает PUT параметры и заполняет ими свойство $this->_PUT
+     * Работает только для этого вида запроса.
+     */
+    private function _LoadPutRequest() {
+        if (isset($_SERVER['REQUEST_METHOD']) && ($_SERVER['REQUEST_METHOD'] == 'PUT')) {
+            $sPutData = file_get_contents('php://input');
+            $aExplodedData = explode('&', $sPutData);
+            foreach ($aExplodedData as $aPair) {
+                $item = explode('=', $aPair);
+                if (count($item) == 2) {
+                    $this->_PUT[urldecode($item[0])] = urldecode($item[1]);
+                }
+            }
+        }
+    }
+
+    /**
+     * Получение параметров запроса с учётом типа запроса PUT
+     *
+     * @param string $sParamName Имя параметра
+     * @param mixed $xDefaultValue Дефолтное значение
+     * @param [PUT|GET|POST] $sRequestMethod Метод запроса
+     *
+     * @return bool|mixed
+     */
+    private function _GetRequest($sParamName, $xDefaultValue, $sRequestMethod = NULL) {
+
+        if (!$sRequestMethod) {
+            return isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : NULL;
+        }
+
+        $sRequestMethod = mb_strtoupper($sRequestMethod);
+
+        if ($sRequestMethod == 'PUT') {
+            return isset($this->_PUT[$sParamName]) ? $this->_PUT[$sParamName] : $xDefaultValue;
+        }
+
+        return getRequest($sParamName, $xDefaultValue, $sRequestMethod);
+
+    }
+
+    /**
+     * Проверяет метод запроса на соответствие
+     *
+     * @param string $sRequestMethod
+     * @return bool
+     */
+    private function _CheckRequestMethod($sRequestMethod) {
+
+        $sRequestMethod = mb_strtoupper($sRequestMethod);
+
+        if (!in_array($sRequestMethod, array('GET', 'POST', 'PUT', 'DELETE'))) {
+            return FALSE;
+        }
+
+        return isset($_SERVER['REQUEST_METHOD']) && ($_SERVER['REQUEST_METHOD'] == $sRequestMethod) ? TRUE : FALSE;
+
+    }
+
+    /**
+     * Выводит ошибку
+     *
+     * @param $aError
+     * @return string
+     */
+    private function _Error($aError) {
+        E::ModuleApi()->SetLastError($aError);
+
+        return R::Action('api', 'error');
+    }
 
     /**
      * Инициализация
      */
     public function Init() {
 
-        // Закрываем POST запросы
-        if ($this->IsPost()) {
-            return $this->AccessDenied();
-        }
+        /**
+         * Установим шаблон вывода
+         */
+        $this->SetTemplateAction('/../../../api/answer.tpl');
 
-        // Доступ к АПИ возможен как посредством аякса, так и меодом GET
-        // пока имеем в виду, что реализованы только методы получения
-        // данных.
-        if (F::AjaxRequest() && C::Get('module.api.ajax')) {
-            $this->bIsAjax = TRUE;
-            E::ModuleViewer()->SetResponseAjax('json');
-
-            return TRUE;
-        }
-
-        // Если гет-запрос, то установим шаблона для ответа
-        if (C::Get('module.api.get')) {
-            $this->SetTemplateAction('/../../../api/answer.tpl');
-
-            return TRUE;
-        }
+        /**
+         * Возможно это PUT-запрос, получим его данные
+         */
+        $this->_LoadPutRequest();
 
 
-        return FALSE;
+        return TRUE;
 
+    }
+
+    /**
+     * Ошибочные экшены отдаём как ошибку неизвестного API метода
+     * @return string
+     */
+    protected function EventNotFound() {
+        E::ModuleApi()->SetLastError(E::ModuleApi()->ERROR_CODE_0002);
+
+        return R::Action('api', 'error');
     }
 
     /**
      * Метод выода ошибки
      */
     public function EventError() {
+
+        // Запретим прямой доступ
+        if (!($aError = E::ModuleApi()->GetLastError())) {
+            $aError = E::ModuleApi()->ERROR_CODE_0002;
+        }
+
+        // Установим код ошики - Bad Request
+        F::HttpResponseCode(400);
+
+        // Отправим ошибку пользователю
         if ($this->bIsAjax) {
             E::ModuleMessage()->AddErrorSingle('error');
-            E::ModuleViewer()->AssignAjax('result', json_encode(array('error' => $this->sError)));
+            E::ModuleViewer()->AssignAjax('result', json_encode(array('error' => $aError)));
         } else {
-            E::ModuleViewer()->Assign('result', json_encode(array('error' => $this->sError)));
+            E::ModuleViewer()->Assign('result', json_encode(array('error' => $aError)));
         }
 
-    }
+        E::ModuleApi()->SetLastError(NULL);
 
-    public function Access($sEvent) {
-        // Получим текущие ошибки от основного метода проверки
-        $this->sError = $this->CheckAccess($sEvent);
-
-        if ($this->sError !== TRUE) {
-            return R::Action('api', 'error', array('error' => $this->sError));
-        }
-
-        return TRUE;
+        return FALSE;
     }
 
     /**
-     * Метод проверки прав доступа пользователя к конкретному ивенту.
-     * Кроме того, если всё в порядке, то данный метод устанавливает
-     * свойства $sCmd и $aParams
-     * @param string $sEvent Наименование ивента, он же - группа API
+     * Проверка на право доступа к методу API
      *
-     * @return bool
+     * @param string $sEvent
+     * @return bool|string
      */
-    public function CheckAccess($sEvent) {
-
-        // Обнулим свойства
-        $this->sCmd = NULL;
-        $this->aParams = NULL;
+    public function Access($sEvent) {
 
         /**
-         * ОБЩИЙ БЛОК ПРОВЕРОК
+         * Возможно это ajax-запрос, тогда нужно проверить разрешены ли
+         * вообще такие запросы к нашему API
          */
-        // Вызываемый метод АПИ должен быть передан
-        if (!($this->sCmd = F::GetRequest('cmd', FALSE, 'get'))) {
-            return self::ERROR_CMD_NOT_FOUND;
-        }
-        // Имя метода АПИ должно быть в списке разрешенных
-        $sAllowedMethodsName = 'Allowed' . ucfirst($sEvent) . 'ApiMethods';
-        if (!(method_exists($this, $sAllowedMethodsName))) {
-            return self::ERROR_CMD_NOT_ALLOWED;
-        }
-        $aAllowedMethodsName = $this->$sAllowedMethodsName();
-        if (!is_array($aAllowedMethodsName)) {
-            return self::ERROR_CMD_NOT_ALLOWED;
-        }
-        if (!in_array($this->sCmd, array_values($aAllowedMethodsName))) {
-            return self::ERROR_CMD_NOT_ALLOWED;
-        }
-
-
-        // Получим параметры запроса
-        $aParams = F::GetRequest('params', array(), 'get');
-        foreach ($aParams as $k => $v) {
-            if ($v == 'true') $aParams[$k] = TRUE;
-            if ($v == 'false') $aParams[$k] = FALSE;
-        }
-        // Получим перечень разрешённых параметров
-        $sAllowedParams = 'Allowed' . ucfirst($sEvent) . 'ApiParams';
-        if (!method_exists($this, $sAllowedParams)) {
-            return self::ERROR_SYSTEM;
-        }
-        // Проверим, что перечень разрешённых АПи всё таки есть, пусть даже и пустой
-        if (($aAllowedParams = $this->$sAllowedParams($this->sCmd)) === FALSE) {
-            return self::ERROR_SYSTEM;
-        }
-        // Проверим параметры и разобъём их на две группы, обязательные и не обяхательны
-        $this->aParams['required'] = array();
-        $this->aParams['other'] = array();
-        foreach ($aParams as $sParamName => $sParamValue) {
-
-            // Параметра нет в списке разрешенных, значит он пользовательский
-            if (!in_array($sParamName, array_keys($aAllowedParams))) {
-                $this->aParams['other'][$sParamName] = (string)$sParamValue; // Пользовательские параметры толко строковые
-                continue;
+        if (F::AjaxRequest()) {
+            if (C::Get('module.api.ajax')) {
+                $this->bIsAjax = TRUE;
+                E::ModuleViewer()->SetResponseAjax('json');
+            } else {
+                return $this->_Error(E::ModuleApi()->ERROR_CODE_0014);
             }
+        }
 
-            // Если в списке разрешённых, то проверим тип
-            $aParamData = $aAllowedParams[$sParamName];
-            if (!is_array($aParamData[1])) {
-                $aParamData[1] = array($aParamData[1]);
+
+        /**
+         * Проверим, разрешённые типы запросов к АПИ
+         */
+        foreach (array(
+                     'post'   => E::ModuleApi()->ERROR_CODE_0010,
+                     'get'    => E::ModuleApi()->ERROR_CODE_0011,
+                     'put'    => E::ModuleApi()->ERROR_CODE_0012,
+                     'delete' => E::ModuleApi()->ERROR_CODE_0013
+                 ) as $sRequestMethod => $aErrorDescription) {
+            if ($this->_CheckRequestMethod($sRequestMethod) && !C::Get("module.api.{$sRequestMethod}")) {
+                return $this->_Error($aErrorDescription);
             }
-            $bAllowedType = TRUE;
-            foreach ($aParamData[1] as $sDataType) {
-                $bAllowedType = $bAllowedType || $this->_CheckTypes($sParamValue, $sDataType);
-            }
-            if ($bAllowedType) {
-                $this->aParams['required'][$sParamName] = $sParamValue;
-                // Удалим из разрешённых параметр, который уже обработали.
-                // Таким образом на выходе из цикла в этом массие останутся
-                // только Не обязательные параметры, которые и не были указаны
-                // вот по этому признаку и проверим успешность проверки
-                // параметров
-                unset($aAllowedParams[$sParamName]);
-            }
-
-        }
-        // Проверим все ли параметры прошли
-        $bError = FALSE;
-        foreach ($aAllowedParams as $aAllowedParam) {
-            $bError = $bError || $aAllowedParam[0];
-        }
-        // Остался какой-то разрешенный параметр, может по типу не прошёл, а
-        // может его вообще забыли указать...
-        if ($bError) {
-            return self::ERROR_WRONG_PARAM_LIST;
         }
 
-
-        switch ($sEvent) {
-
-            // Проверка экшена 'user' на правильность переданных параметров
-            // Для этого метода достаточно общей проверки параметров, которая
-            // была проведена ниже
-            case 'user':
-                return TRUE;
-                break;
-        }
 
         return TRUE;
+
+    }
+
+    /**
+     * Получает все параметры указанного метода запроса вместе с требуемым действием
+     *
+     * @param $aData
+     * @param string $sRequestMethod Метод запроса
+     * @return array
+     */
+    protected function _GetParams($aData, $sRequestMethod) {
+
+        $sRequestMethod = strtoupper($sRequestMethod);
+
+        switch ($sRequestMethod) {
+            case 'GET':
+                $aParams = $_GET;
+                break;
+            case 'POST':
+                $aParams = $_POST;
+                break;
+            case 'PUT':
+                $aParams = $this->_PUT;
+                break;
+            default:
+                $aParams = array();
+        }
+
+        foreach ($aParams as $k => $v) {
+            if (strtoupper($aParams[$k]) == 'TRUE') $aParams[$k] = TRUE;
+            if (strtoupper($aParams[$k]) == 'FALSE') $aParams[$k] = FALSE;
+        }
+
+        return array_merge($aData, array('params' => $aParams));
+
     }
 
     /**
@@ -214,9 +257,14 @@ class ActionApi extends Action {
      *      $this->AddEventPreg('/^admin$/i', '/^\d+$/i', '/^(page([1-9]\d{0,5}))?$/i', 'EventAdminBlog');
      */
     protected function RegisterEvent() {
-        $this->AddEventPreg('/^user$/i', 'EventApiUser');
-        $this->AddEventPreg('/^topic$/i', 'EventApiTopic');
+
+        // Установим экшены ресурсов
+        $this->AddEventPreg('/^user$/i', '/^\d+$/i', '/^info$/i', 'EventApiUserIdInfo');
+        $this->AddEventPreg('/^topic$/i', '/^\d+$/i', '/^info$/i', 'EventApiTopicIdInfo');
+
+        // И экшен ошибки
         $this->AddEventPreg('/^error/i', 'EventError');
+
     }
 
 
@@ -225,56 +273,23 @@ class ActionApi extends Action {
      *              МЕТОД USER
      ******************************************************************************************************/
     /**
-     * Экшен обработки API вида user/*
+     * Экшен обработки API вида 'api/user/id/info'
      * @return bool
      */
-    public function EventApiUser() {
+    public function EventApiUserIdInfo() {
 
-        $this->_ApiResult($this->_GetFullApiKey($this->sCmd), $this->aParams);
-
-        return TRUE;
-    }
-
-    /**
-     * Возвращает перечень разрешённых методов АПИ для группы
-     * 'user', метод может быть расширен сторонними плагинами
-     */
-    public function AllowedUserApiMethods() {
-        return array(
-            'info', // Общая информация о конкретном пользователе
+        $sErrorDescription = $this->_ApiResult(
+            'api/user/id/info',
+            $this->_GetParams(array('uid' => R::GetParam(0), 'cmd' => R::GetParam(1)), 'GET')
         );
-    }
 
-    /**
-     * Возвращает перечень разрешённых параметров метода АПИ.
-     * Это необходимо для того, что бы в обработке метода участвовали
-     * только разрешённые параметры, а все остальные передавались назад
-     * клиенту без изменений, например для реализации защиты от XSS, когда
-     * вместе с разрешенными параметрами передаётся хэш и потом он же
-     * проверяе6тся клиентом как показатель того, что результат пришёл
-     * от нас, а не от другого сервера
-     *
-     * В возвращаемом массиве ключ - имя разрешенного параметра, а значение -
-     * тип данных и флаг обязательности этого параметра. При его отсутствии
-     * запрос будет воспринят как ошибочный
-     *
-     *
-     * @param string $sMethod Метод АПИ, для которого возвращается список разрешённых параметров
-     * @return array|bool
-     */
-    public function AllowedUserApiParams($sMethod) {
-        switch ($sMethod) {
-            case 'info':
-                return array(
-                    'uid' => array(TRUE, 'int'),
-                    'tpl' => array(FALSE, array('bool', 'string')),
-                );
-                break;
+        if ($sErrorDescription !== FALSE) {
+            return $this->_Error($sErrorDescription);
         }
 
-        return FALSE;
-    }
+        return TRUE;
 
+    }
 
 
 
@@ -287,39 +302,23 @@ class ActionApi extends Action {
      * Экшен обработки API вида topic/*
      * @return bool
      */
-    public function EventApiTopic() {
+    public function EventApiTopicIdInfo() {
 
-        $this->_ApiResult($this->_GetFullApiKey($this->sCmd), $this->aParams);
 
-        return TRUE;
-    }
-
-    /**
-     * Возвращает перечень разрешённых методов АПИ для группы
-     * 'topic', метод может быть расширен сторонними плагинами
-     */
-    public function AllowedTopicApiMethods() {
-        return array(
-            'rating', // Общая информация о рейтинге топика
+        $sErrorDescription = $this->_ApiResult(
+            'api/topic/id/rating',
+            $this->_GetParams(array('tid' => R::GetParam(0), 'cmd' => R::GetParam(1)), 'GET')
         );
-    }
 
-    /**
-     * @param string $sMethod Метод АПИ, для которого возвращается список разрешённых параметров
-     * @return array|bool
-     */
-    public function AllowedTopicApiParams($sMethod) {
-        switch ($sMethod) {
-            case 'rating':
-                return array(
-                    'tid' => array(TRUE, 'int'),
-                    'tpl' => array(FALSE, array('bool', 'string')),
-                );
-                break;
+        if ($sErrorDescription !== FALSE) {
+            return $this->_Error($sErrorDescription);
         }
 
-        return FALSE;
+        return TRUE;
+
     }
+
+
 
 
 
@@ -328,34 +327,36 @@ class ActionApi extends Action {
      ******************************************************************************************************/
     /**
      * Получение результата от модуля API
+     * @param string $sResourceName Имя объекта ресурса
+     * @param array $aData Данные для формировния ресурса
+     * @return string
      */
-    protected function _ApiResult($sCmd, $aParams) {
+    protected function _ApiResult($sResourceName, $aData) {
 
         $sApiMethod = '';
-        foreach (explode('/', $sCmd) as $sPart) {
+        foreach (explode('/', $sResourceName) as $sPart) {
             $sApiMethod .= ucfirst($sPart);
         }
 
-        // Если результата нет, выведем ошибку
-        if (!E::ModuleApi()->MethodExists($sApiMethod) || !($aResult = E::ModuleApi()->$sApiMethod($aParams['required']))) {
-            E::ModuleMessage()->AddErrorSingle(
-                E::ModuleLang()->Get('system_error'),
-                E::ModuleLang()->Get('error')
-            );
-
-            return;
+        // Если результата нет, выведем ошибку плохого ресурса
+        if (!E::ModuleApi()->MethodExists($sApiMethod)) {
+            return E::ModuleApi()->ERROR_CODE_0001;
+        }
+        // Или отсутствие ресурса
+        if (!($aResult = E::ModuleApi()->$sApiMethod($aData))) {
+            return E::ModuleApi()->ERROR_CODE_0003;
         }
 
         // Определим формат данных
-        if (isset($aParams['required']['tpl']) && $aParams['required']['tpl'] !== FALSE) {
-            $sResult = $this->_Fetch($sCmd, $aResult['data'], $aParams['required']['tpl']);
+        if (isset($aData['params']['tpl']) && $aData['params']['tpl'] !== FALSE) {
+            $sResult = $this->_Fetch($sResourceName, $aResult['data'], $aData['params']['tpl']);
         } else {
             $sResult = $aResult['json'];
         }
 
         $aResult = array(
             'data'   => $sResult,
-            'params' => $aParams['other'],
+            'params' => $aData['params'],
         );
 
         $sResult = json_encode($aResult);
@@ -365,6 +366,8 @@ class ActionApi extends Action {
         } else {
             E::ModuleViewer()->Assign('result', $sResult);
         }
+
+        return FALSE;
 
     }
 
@@ -378,46 +381,15 @@ class ActionApi extends Action {
 
         $sHtml = '';
         if ($sTpl = $sCmd . '/' . str_replace('/', '.', $sCmd . '.' . (is_string($sTemplate) ? $sTemplate : 'default') . '.tpl')) {
-            if (E::ModuleViewer()->TemplateExists($sTpl)) {
-                E::ModuleViewer()->Assign($aData);
-                $sHtml = E::ModuleViewer()->Fetch($sTpl);
+            if (!E::ModuleViewer()->TemplateExists($sTpl)) {
+                $sTpl = $sCmd . '/' . str_replace('/', '.', $sCmd . '.' . 'default.tpl');
             }
+            E::ModuleViewer()->Assign($aData);
+            $sHtml = E::ModuleViewer()->Fetch($sTpl);
         }
 
         return $sHtml;
 
     }
 
-    /**
-     * Проверяет значение на соответствие типу
-     *
-     * @param $sValue
-     * @param $sType
-     * @return bool
-     */
-    protected function _CheckTypes($sValue, $sType) {
-        if ($sType == 'bool' || $sType == 'boolean') {
-            return is_bool($sValue);
-        }
-        if ($sType == 'int' || $sType == 'integer') {
-            return preg_match('/^[\-]?\d+$/', $sValue);
-        }
-        if ($sType == 'str' || $sType == 'string') {
-            return is_string($sValue);
-        }
-        if ($sType == 'scalar' || $sType == 'number') {
-            return is_scalar($sValue);
-        }
-
-        return FALSE;
-    }
-
-    /**
-     * Возвращает полный путь команды API
-     * @param $sCmd
-     * @return string
-     */
-    protected function _GetFullApiKey($sCmd) {
-        return 'api/' . $this->sCurrentEvent . '/' . $sCmd;
-    }
 }

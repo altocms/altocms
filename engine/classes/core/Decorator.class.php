@@ -90,6 +90,10 @@ class Decorator extends LsObject {
         return $this->CallMethod($sMethod, $aArgs);
     }
 
+    public function __get($sFieldName) {
+        return isset($this->oComponent->$sFieldName) ? $this->oComponent->$sFieldName : null;
+    }
+
     protected function hookBeforeAction() {
 
     }

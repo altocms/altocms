@@ -21,12 +21,41 @@
  */
 class ModuleApi extends Module {
 
+    // Неизвестные ошибки
+    public $ERROR_CODE_0001 = array('code' => '0001', 'description' => 'Unknown error');
+    public $ERROR_CODE_0002 = array('code' => '0002', 'description' => 'Unknown resource');
+
+    // Ошибка отсутствия ресурса
+    public $ERROR_CODE_0003 = array('code' => '0003', 'description' => 'Resource is not found');
+
+    // Ошибки типа запроса
+    public $ERROR_CODE_0010 = array('code' => '0010', 'description' => 'Request method POST is not allowed');
+    public $ERROR_CODE_0011 = array('code' => '0011', 'description' => 'Request method GET is not allowed');
+    public $ERROR_CODE_0012 = array('code' => '0012', 'description' => 'Request method PUT is not allowed');
+    public $ERROR_CODE_0013 = array('code' => '0013', 'description' => 'Request method DELETE is not allowed');
+    public $ERROR_CODE_0014 = array('code' => '0014', 'description' => 'Ajax request is not allowed');
+
     /**
      * Инициализация модуля
      */
     public function Init() {
 
         return TRUE;
+    }
+
+    /**
+     * Сохранение последней ошибки
+     * @param $aError
+     */
+    public function SetLastError($aError) {
+        E::ModuleCache()->SetLife($aError, 'MODULE_API_LAST_ERROR');
+    }
+
+    /**
+     * Получение последней ошибки
+     */
+    public function GetLastError() {
+        return E::ModuleCache()->GetLife('MODULE_API_LAST_ERROR');
     }
 
     /**
@@ -48,7 +77,7 @@ class ModuleApi extends Module {
      * @param string $aParams Идентификатор пользователя
      * @return bool|array
      */
-    public function ApiUserInfo($aParams) {
+    public function ApiUserIdInfo($aParams) {
 
         /** @var ModuleUser_EntityUser $oUser */
         if (!($oUser = E::ModuleUser()->GetUserById($aParams['uid']))) {
@@ -82,7 +111,7 @@ class ModuleApi extends Module {
      * @param string $aParams Идентификатор пользователя
      * @return bool|array
      */
-    public function ApiTopicRating($aParams) {
+    public function ApiTopicIdRating($aParams) {
 
         /** @var ModuleTopic_EntityTopic $oTopic */
         if (!($oTopic = E::ModuleTopic()->GetTopicById($aParams['tid']))) {
