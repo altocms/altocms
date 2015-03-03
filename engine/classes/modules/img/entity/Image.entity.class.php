@@ -500,7 +500,7 @@ class ModuleImg_EntityImage extends Entity {
         if ($oImage = $this->GetImage()) {
             $sFormat = (isset($aOptions['save_as']) ? $aOptions['save_as'] : $this->GetFormat($sFile));
             if ($sFormat == 'jpeg') {
-                $nQuality = (isset($aOptions['quality']) ? $aOptions['quality'] : null);
+                $nQuality = (isset($aOptions['quality']) ? $aOptions['quality'] : 100);
                 $oImage->save($sFile, $sFormat, $nQuality);
             } else {
                 $oImage->save($sFile, $sFormat);
