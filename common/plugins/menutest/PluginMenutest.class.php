@@ -39,6 +39,10 @@ class PluginMenutest extends Plugin {
      * @return bool
      */
     public function Deactivate() {
+        $aMenuList = C::Get('menu.data.user.list');
+        unset($aMenuList['plugin_menutest_my_menu']);
+        C::WriteCustomConfig(array('menu.data.user.list' => $aMenuList));
+        C::ResetCustomConfig('menu.data.user.list.plugin_menutest_my_menu');
         return TRUE;
     }
 
