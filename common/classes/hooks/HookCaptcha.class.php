@@ -19,17 +19,24 @@ class HookCaptcha extends Hook {
      * Регистрируем хуки
      */
     public function RegisterHook() {
-        $this->AddHook('template_registration_captcha', 'TemplateCaptcha', __CLASS__);
+
+        $this->AddHookTemplate('registration_captcha', 'TemplateCaptcha', __CLASS__);
     }
 
     /**
      * Обработка хука
      *
+     * @param array $aData
+     *
      * @return string
      */
-    public function TemplateCaptcha() {
-        return $this->Viewer_Fetch('inc.captcha.tpl');
+    public function TemplateCaptcha($aData) {
+
+        $sType = isset($aData['type']) ? $aData['type'] : 'registration';
+
+        return E::ModuleViewer()->Fetch("tpls/commons/common.captcha.$sType.tpl");
     }
+
 }
 
 // EOF

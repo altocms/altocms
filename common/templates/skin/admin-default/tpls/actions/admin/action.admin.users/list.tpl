@@ -115,6 +115,13 @@
                                    class="link tip-top" title="{$aLang.action.admin.exclude}"><i class="icon icon-close"></i></a>&nbsp;
                             {/if}
                         </td>
+                    {elseif $sMode=='moderators'}
+                        <td class="center">
+                            {if $oUser->GetLogin()!='admin'}
+                                <a href="#" onclick="admin.user.unsetModerator('{$oUser->GetLogin()}')"
+                                   class="link tip-top" title="{$aLang.action.admin.exclude_moderator}"><i class="icon icon-close"></i></a>&nbsp;
+                            {/if}
+                        </td>
                     {else}
                         <td class="center">
                             {if $oUser->isBanned()}

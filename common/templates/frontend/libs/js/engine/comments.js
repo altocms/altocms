@@ -103,6 +103,9 @@ ls.comments = (function ($) {
             textarea.val(arguments[0]);
             if (this.options.wysiwyg && tinyMCE.activeEditor) {
                 tinyMCE.activeEditor.setContent(arguments[0]);
+                if (arguments[0] === '') {
+                    tinyMCE.activeEditor.isNotDirty = true;
+                }
             }
         } else {
             if (this.options.wysiwyg && tinyMCE.activeEditor) {

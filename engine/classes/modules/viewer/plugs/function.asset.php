@@ -35,13 +35,13 @@ function smarty_function_asset($aParams, $oSmartyTemplate) {
             } else {
                 // Need URL to asset file
                 if (empty($aParams['skin'])) {
-                    $sSkin = E::Viewer_GetConfigSkin();
+                    $sSkin = E::ModuleViewer()->GetConfigSkin();
                 } else {
                     $sSkin = $aParams['skin'];
                 }
                 if (isset($aParams['theme'])) {
                     if (is_bool($aParams['theme'])) {
-                        $sTheme = E::Viewer_GetConfigTheme();
+                        $sTheme = E::ModuleViewer()->GetConfigTheme();
                     } else {
                         $sTheme = $aParams['theme'];
                     }
@@ -61,7 +61,7 @@ function smarty_function_asset($aParams, $oSmartyTemplate) {
         }
     } else {
         // Need URL to asset dir
-        $sUrl = E::Viewer_GetAssetUrl() . 'skin/' . $aParams['skin'] . '/';
+        $sUrl = E::ModuleViewer()->GetAssetUrl() . 'skin/' . $aParams['skin'] . '/';
     }
 
     return $sUrl;

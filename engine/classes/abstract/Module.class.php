@@ -18,6 +18,8 @@
  *
  * @package engine
  * @since 1.0
+ *
+ * @method bool MethodExists
  */
 abstract class Module extends LsObject {
     const STATUS_INIT_BEFORE = 1;
@@ -25,26 +27,14 @@ abstract class Module extends LsObject {
     const STATUS_DONE_BEFORE = 3;
     const STATUS_DONE = 4;
 
-    /**
-     * Объект ядра
-     *
-     * @var Engine
-     */
-    protected $oEngine = null;
-
     /** @var int Статус модуля */
     protected $nStatus = 0;
 
     /** @var bool Признак предзагрузки */
     protected $bPreloaded = false;
 
-    /**
-     * При создании модуля передаем объект ядра
-     *
-     * @param Engine $oEngine
-     */
-    final public function __construct(Engine $oEngine) {
-        $this->oEngine = $oEngine;
+    final public function __construct() {
+
     }
 
     /**
@@ -77,7 +67,7 @@ abstract class Module extends LsObject {
             $aEntities = array($aEntities);
         }
         foreach ($aEntities as $oEntity) {
-            if ($nId = is_object($oEntity) ? intval($oEntity->GetId()) : intval($oEntity)) {
+            if ($nId = is_object($oEntity) ? intval($oEntity->getId()) : intval($oEntity)) {
                 if ($nId || !$bSkipZero) {
                     $aIds[] = $nId;
                 }
@@ -122,6 +112,7 @@ abstract class Module extends LsObject {
      * @param   int $nStatus
      */
     public function SetStatus($nStatus) {
+
         $this->nStatus = $nStatus;
     }
 
@@ -131,22 +122,27 @@ abstract class Module extends LsObject {
      * @return int
      */
     public function GetStatus() {
+
         return $this->nStatus;
     }
 
     public function SetPreloaded($bVal) {
+
         $this->bPreloaded = (bool)$bVal;
     }
 
     public function GetPreloaded() {
+
         return $this->bPreloaded;
     }
 
     /**
      * Устанавливает признак начала и завершения инициализации модуля
      *
+     * @param bool $bBefore
      */
     public function SetInit($bBefore = false) {
+
         if ($bBefore) {
             $this->SetStatus(self::STATUS_INIT_BEFORE);
         } else {
@@ -157,8 +153,10 @@ abstract class Module extends LsObject {
     /**
      * Устанавливает признак начала и завершения шатдауна модуля
      *
+     * @param bool $bBefore
      */
     public function SetDone($bBefore = false) {
+
         if ($bBefore) {
             $this->SetStatus(self::STATUS_DONE_BEFORE);
         } else {
@@ -172,6 +170,7 @@ abstract class Module extends LsObject {
      * @return bool
      */
     public function InInitProgress() {
+
         return $this->GetStatus() == self::STATUS_INIT_BEFORE;
     }
 
@@ -181,6 +180,7 @@ abstract class Module extends LsObject {
      * @return bool
      */
     public function isInit() {
+
         return $this->GetStatus() >= self::STATUS_INIT;
     }
 
@@ -190,6 +190,7 @@ abstract class Module extends LsObject {
      * @return bool
      */
     public function InShudownProgress() {
+
         return $this->GetStatus() == self::STATUS_DONE_BEFORE;
     }
 
@@ -199,12 +200,69 @@ abstract class Module extends LsObject {
      * @return bool
      */
     public function isDone() {
+
         return $this->GetStatus() >= self::STATUS_DONE;
     }
 
+    /**
+     * @param string $sMsg
+     *
+     * @return bool
+     */
     public function LogError($sMsg) {
+
         return F::LogError(get_class($this) . ': ' . $sMsg);
     }
+
+    /**
+     * Структурирует массив сущностей - возвращает многомерный массив по заданным ключам
+     * <pre>
+     * Structurize($aEntities, key1, key2, ...);
+     * Structurize($aEntities, array(key1, key2, ...));
+     * </pre>
+     *
+     * @return array
+     */
+    public function Structurize() {
+
+        $iArgsNum = func_num_args();
+        $aAargs = func_get_args();
+        if ($iArgsNum == 0) {
+            return array();
+        } elseif ($iArgsNum == 1) {
+            return $aAargs[0];
+        }
+        $aResult = array();
+        $aEntities = $aAargs[0];
+        $oEntity = reset($aEntities);
+        unset($aAargs[0]);
+        if (sizeof($aAargs) == 1 && is_array($aAargs[1])) {
+            $aAargs = $aAargs[1];
+        }
+        foreach($aAargs as $iIdx => $sPropKey) {
+            if (!$oEntity->isProp($sPropKey)) {
+                unset($aAargs[$iIdx]);
+            }
+        }
+        if ($aAargs) {
+            /** @var Entity $oEntity */
+            foreach($aEntities as $oEntity) {
+                $aItems =& $aResult;
+                foreach($aAargs as $sPropKey) {
+                    $xKey = $oEntity->getProp($sPropKey);
+                    if (!isset($aItems[$xKey])) {
+                        $aItems[$xKey] = array();
+                    }
+                    $aItems =& $aItems[$xKey];
+                }
+                $aItems[$oEntity->getId()] = $oEntity;
+            }
+        } else {
+            $aResult = $aEntities;
+        }
+        return $aResult;
+    }
+
 }
 
 // EOF

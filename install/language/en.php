@@ -63,6 +63,7 @@ return array(
     'php_params_utf8'                  => 'UTF8 support in PCRE',
     'php_params_mbstring'              => 'Mbstring support',
     'php_params_simplexml'             => 'SimpleXML support',
+    'php_params_graphic_packages'      => 'Graphick packages (Gmagick, Imagick or GD)',
 
     'local_config'                     => 'Local Configuration',
     'local_config_file'                => 'File /app/config/config.local.php exists and writable',

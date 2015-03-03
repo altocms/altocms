@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+	<id>recaptcha</id>
+    <name>
+        <lang name="default">Recaptcha</lang>
+        <lang name="russian">Recaptcha</lang>
+    </name>
+    <author>
+        <lang name="default">andreyv</lang>
+        <lang name="russian">andreyv</lang>
+    </author>
+    <homepage>http://altocms.ru</homepage>
+    <version>0.0.1</version>
+    <dirname>recaptcha</dirname>
+    <requires>
+        <alto>
+             <version>1.1</version>
+        </alto>
+		<system>
+            <php>5.3.0</php>
+        </system>
+    </requires>
+    <description>
+        <lang name="default">Plugin replaced the standard captcha to Recaptcha</lang>
+        <lang name="russian">Плагин заменяет стандартную капчу на Recaptcha</lang>
+    </description>
+</plugin>

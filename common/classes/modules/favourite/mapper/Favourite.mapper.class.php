@@ -93,7 +93,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
 					target_type = ? ";
         $aFavourites = array();
         if ($aRows = $this->oDb->select($sql, $sUserId, $aTargetId, $sTargetType)) {
-            $aFavourites = Engine::GetEntityRows('Favourite', $aRows);
+            $aFavourites = E::GetEntityRows('Favourite', $aRows);
         }
         return $aFavourites;
     }
@@ -294,7 +294,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      */
     public function GetFavouriteOpenCommentsByUserId($iUserId, &$iCount, $iCurrPage, $iPerPage) {
 
-        $aOpenBlogTypes = $this->Blog_GetOpenBlogTypes();
+        $aOpenBlogTypes = E::ModuleBlog()->GetOpenBlogTypes();
         $sql = "
 			SELECT f.target_id
 			FROM 
@@ -343,7 +343,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      */
     public function GetCountFavouriteOpenCommentsByUserId($sUserId) {
 
-        $aOpenBlogTypes = $this->Blog_GetOpenBlogTypes();
+        $aOpenBlogTypes = E::ModuleBlog()->GetOpenBlogTypes();
         $sql = "SELECT
 					COUNT(f.target_id) as cnt
 				FROM 
@@ -386,7 +386,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      */
     public function GetFavouriteOpenTopicsByUserId($iUserId, &$iCount, $iCurrPage, $iPerPage) {
 
-        $aOpenBlogTypes = $this->Blog_GetOpenBlogTypes();
+        $aOpenBlogTypes = E::ModuleBlog()->GetOpenBlogTypes();
         $sql = "
 			SELECT f.target_id
 			FROM 
@@ -432,7 +432,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
      */
     public function GetCountFavouriteOpenTopicsByUserId($iUserId) {
 
-        $aOpenBlogTypes = $this->Blog_GetOpenBlogTypes();
+        $aOpenBlogTypes = E::ModuleBlog()->GetOpenBlogTypes();
         $sql = "SELECT
 					COUNT(f.target_id) as cnt
 				FROM 
@@ -539,7 +539,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
                 $aData[mb_strtolower($aRow['text'], 'UTF-8')] = $aRow;
             }
             ksort($aData);
-            $aResult = Engine::GetEntityRows('ModuleFavourite_EntityTag', $aData);
+            $aResult = E::GetEntityRows('ModuleFavourite_EntityTag', $aData);
         }
         return $aResult;
     }
@@ -596,9 +596,7 @@ class ModuleFavourite_MapperFavourite extends Mapper {
             ($iCurrPage - 1) * $iPerPage, $iPerPage
         );
         if ($aRows) {
-            foreach ($aRows as $aRow) {
-                $aResult[] = Engine::GetEntity('ModuleFavourite_EntityTag', $aRow);
-            }
+            $aResult = E::GetEntityRows('ModuleFavourite_EntityTag', $aRows);
         }
         return $aResult;
     }

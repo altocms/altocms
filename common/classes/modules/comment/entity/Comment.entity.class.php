@@ -531,14 +531,14 @@ class ModuleComment_EntityComment extends Entity {
      */
     public function isEditable($bByAuthor = null) {
 
-        if ($this->getTargetType() != 'talk' && ($oUser = $this->User_GetUserCurrent())) {
+        if ($this->getTargetType() != 'talk' && ($oUser = E::ModuleUser()->GetUserCurrent())) {
             if ($bByAuthor === false || is_null($bByAuthor)) {
                 // Administrator or user who have rights to edit
                 if ($oUser->isAdministrator()) {
                     return true;
                 }
                 // User who has rights to edit in this blog
-                if (($oBlog = $this->getTargetBlog()) && $this->ACL_CheckBlogEditComment($oBlog, $oUser)) {
+                if (($oBlog = $this->getTargetBlog()) && E::ModuleACL()->CheckBlogEditComment($oBlog, $oUser)) {
                     return true;
                 }
             }
@@ -559,11 +559,11 @@ class ModuleComment_EntityComment extends Entity {
      */
     public function isDeletable() {
 
-        if ($this->getTargetType() != 'talk' && ($oUser = $this->User_GetUserCurrent())) {
+        if ($this->getTargetType() != 'talk' && ($oUser = E::ModuleUser()->GetUserCurrent())) {
             if ($oUser->isAdministrator()) {
                 return true;
             }
-            if (($oBlog = $this->getTargetBlog()) && $this->ACL_CheckBlogDeleteComment($oBlog, $oUser)) {
+            if (($oBlog = $this->getTargetBlog()) && E::ModuleACL()->CheckBlogDeleteComment($oBlog, $oUser)) {
                 return true;
             }
         }

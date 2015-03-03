@@ -11,18 +11,7 @@
             <th class="cell-date">
                 <small>{$aLang.user_date_last}</small>
             </th>
-            <th class="cell-skill">
-                <small>
-                    <a href="{$sUsersRootPage}?order=user_skill&order_way={if $sUsersOrder=='user_skill'}{$sUsersOrderWayNext}{else}{$sUsersOrderWay}{/if}"
-                       {if $sUsersOrder=='user_skill'}class="{$sUsersOrderWay}"{/if}><span>{$aLang.user_skill}</span></a>
-                </small>
-            </th>
-            <th class="cell-rating">
-                <small>
-                    <a href="{$sUsersRootPage}?order=user_rating&order_way={if $sUsersOrder=='user_rating'}{$sUsersOrderWayNext}{else}{$sUsersOrderWay}{/if}"
-                       {if $sUsersOrder=='user_rating'}class="{$sUsersOrderWay}"{/if}><span>{$aLang.user_rating}</span></a>
-                </small>
-            </th>
+            {hook run='user_list_header' bUsersUseOrder=$bUsersUseOrder sUsersRootPage=$sUsersRootPage sUsersOrderWay=$sUsersOrderWay sUsersOrder=$sUsersOrder}
         </tr>
         </thead>
     {else}
@@ -34,12 +23,7 @@
             <th class="cell-date">
                 <small>{$aLang.user_date_last}</small>
             </th>
-            <th class="cell-skill">
-                <small>{$aLang.user_skill}</small>
-            </th>
-            <th class="cell-rating">
-                <small>{$aLang.user_rating}</small>
-            </th>
+            {hook run='user_list_header' bUsersUseOrder=$bUsersUseOrder sUsersRootPage=$sUsersRootPage sUsersOrderWay=$sUsersOrderWay sUsersOrder=$sUsersOrder}
         </tr>
         </thead>
     {/if}
@@ -73,8 +57,7 @@
                         {date_format date=$oSession->getDateLast() hours_back="12" minutes_back="60" now="60" day="day H:i" format="d.m.y, H:i"}
                     {/if}
                 </td>
-                <td class="small text-info cell-skill">{$oUserList->getSkill()}</td>
-                <td class="small cell-rating{if $oUserList->getRating() < 0} text-danger negative{else} text-success{/if}">{$oUserList->getRating()}</td>
+                {hook run='user_list_line' oUserList=$oUserList}
             </tr>
         {/foreach}
     {else}

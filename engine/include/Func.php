@@ -171,12 +171,16 @@ class Func {
 
         if (class_exists('ModuleLogger', false) || (class_exists('Loader', false) && Loader::Autoload('ModuleLogger'))) {
             // Если загружен модуль Logger, то логгируем ошибку с его помощью
-            return E::Logger_Dump($sLogFile, $sText, $sLevel);
+            return E::ModuleLogger()->Dump($sLogFile, $sText, $sLevel);
         } elseif (class_exists('Config', false)) {
             // Если логгера нет, но есть конфиг, то самостоятельно пишем в файл
             $sFile = Config::Get('sys.logs.dir') . $sLogFile;
-            $sText = '[' . date('Y-m-d H:i:s') . ']' . "\n" . $sText;
-            return F::File_PutContents($sFile, $sText, FILE_APPEND | LOCK_EX);
+            if (!$sFile) {
+                // Непонятно, куда писать
+            } else {
+                $sText = '[' . date('Y-m-d H:i:s') . ']' . "\n" . $sText;
+                return F::File_PutContents($sFile, $sText, FILE_APPEND | LOCK_EX);
+            }
         }
         return false;
     }
@@ -384,6 +388,11 @@ class Func {
                 static::_FatalError('Cannot found functions set (extension) "' . $sExtension . '"');
             }
         }
+    }
+
+    static public function _getExtensions() {
+
+        return static::$aExtsions;
     }
 
     /**
@@ -736,39 +745,70 @@ class Func {
     /**
      * Получить список плагинов
      *
-     * @param   bool    $bAll   - все плагины (иначе - только активные)
+     * @param   bool $bAll     - все плагины (иначе - только активные)
+     * @param   bool $bIdOnly  - только Id плагинов (иначе - вся строка с информацией о плагине)
+     *
      * @return  array
      */
-    static public function GetPluginsList($bAll = false) {
+    static public function GetPluginsList($bAll = false, $bIdOnly = true) {
 
         $sPluginsDatFile = static::GetPluginsDatFile();
         if (isset(self::$_aPluginList[$sPluginsDatFile][$bAll])) {
             $aPlugins = self::$_aPluginList[$sPluginsDatFile][$bAll];
         } else {
-            $sPluginsDir = static::GetPluginsDir();
+            $sCommonPluginsDir = static::GetPluginsDir();
             $aPlugins = array();
             $aPluginsRaw = array();
             if ($bAll) {
-                $aPaths = glob($sPluginsDir . '*', GLOB_ONLYDIR);
-                if ($aPaths)
-                    foreach ($aPaths as $sPath) {
-                        $aPluginsRaw[] = basename($sPath);
+                $aFiles = glob($sCommonPluginsDir . '{*,*/*}/plugin.xml', GLOB_BRACE);
+                if ($aFiles)
+                    foreach ($aFiles as $sXmlFile) {
+                        $aPluginInfo = array();
+                        $sXmlText = F::File_GetContents($sXmlFile);
+                        $sDirName = dirname(F::File_LocalPath($sXmlFile, $sCommonPluginsDir));
+                        if (preg_match('/\<id\>([\w\.\/]+)\<\/id\>/', $sXmlText, $aMatches)) {
+                            $aPluginInfo['id'] = $aMatches[1];
+                        } else {
+                            $aPluginInfo['id'] = $sDirName;
+                        }
+                        $aPluginInfo['dirname'] = $sDirName;
+                        $aPluginInfo['manifest'] = $sXmlFile;
+                        $aPlugins[$aPluginInfo['id']] = $aPluginInfo;
                     }
             } else {
                 if (is_file($sPluginsDatFile) && ($aPluginsRaw = @file($sPluginsDatFile))) {
                     $aPluginsRaw = array_map('trim', $aPluginsRaw);
                     $aPluginsRaw = array_unique($aPluginsRaw);
                 }
-            }
-            if ($aPluginsRaw) {
-                foreach ($aPluginsRaw as $sPlugin) {
-                    $sPluginXML = "$sPluginsDir/$sPlugin/plugin.xml";
-                    if (is_file($sPluginXML)) {
-                        $aPlugins[] = $sPlugin;
+                if ($aPluginsRaw) {
+                    foreach ($aPluginsRaw as $sPluginStr) {
+                        if (($n = strpos($sPluginStr, ';')) !== false) {
+                            if ($n === 0) {
+                                continue;
+                            }
+                            $sPluginStr = trim(substr($sPluginStr, 0, $n));
+                        }
+                        if ($sPluginStr) {
+                            $aPluginInfo = str_word_count($sPluginStr, 1, '/_');
+                            $aPluginInfo['id'] = $aPluginInfo[0];
+                            if (empty($aPluginInfo[1])) {
+                                $aPluginInfo['dirname'] = $aPluginInfo[0];
+                            } else {
+                                $aPluginInfo['dirname'] = $aPluginInfo[1];
+                            }
+                            $sXmlFile = $sCommonPluginsDir . '/' . $aPluginInfo['dirname'] . '/plugin.xml';
+                            if (is_file($sXmlFile)) {
+                                $aPluginInfo['manifest'] = $sXmlFile;
+                                $aPlugins[$aPluginInfo['id']] = $aPluginInfo;
+                            }
+                        }
                     }
                 }
             }
             self::$_aPluginList[$sPluginsDatFile][$bAll] = $aPlugins;
+        }
+        if ($bIdOnly) {
+            $aPlugins = array_keys($aPlugins);
         }
         return $aPlugins;
     }
@@ -960,6 +1000,98 @@ class Func {
         }
 
         return F::File_NormPath($sUrl);
+    }
+
+    /**
+     * $url = 'http://username:password@hostname.com/path?arg=value#anchor';
+     *
+     * @param null $sUrl
+     * @param int  $iComponent
+     *
+     * @return array|string
+     */
+    static function ParseUrl($sUrl = null, $iComponent = -1) {
+
+        if (is_null($sUrl) && isset($_SERVER['HTTP_HOST'])) {
+            $sUrl = F::UrlScheme(true) . $_SERVER['HTTP_HOST'];
+        }
+        $xResult = array(
+            'scheme' => null,
+            'host' => null,
+            'port' => null,
+            'user' => null,
+            'pass' => null,
+            'path' => null,
+            'query' => null,
+            'fragment' => null,
+            'base' => null,
+        );
+        if ($sUrl) {
+            $xResult = array_merge($xResult, parse_url($sUrl));
+            if ($xResult['host']) {
+                $xResult['base'] = $xResult['host'];
+                if ($xResult['scheme']) {
+                    $xResult['base'] = $xResult['scheme'] . '://' . $xResult['base'];
+                }
+                if ($xResult['port']) {
+                    $xResult['base'] .= ':' . $xResult['port'];
+                }
+            }
+        }
+        if ($iComponent != -1) {
+            if ($iComponent == PHP_URL_SCHEME) {
+                $xResult = $xResult['scheme'];
+            } elseif($iComponent == PHP_URL_HOST) {
+                $xResult = $xResult['host'];
+            } elseif($iComponent == PHP_URL_PORT) {
+                $xResult = $xResult['port'];
+            } elseif($iComponent == PHP_URL_USER) {
+                $xResult = $xResult['user'];
+            } elseif($iComponent == PHP_URL_PASS) {
+                $xResult = $xResult['pass'];
+            } elseif($iComponent == PHP_URL_PATH) {
+                $xResult = $xResult['path'];
+            } elseif($iComponent == PHP_URL_QUERY) {
+                $xResult = $xResult['query'];
+            } elseif($iComponent == PHP_URL_FRAGMENT) {
+                $xResult = $xResult['fragment'];
+            } else {
+                $xResult = false;
+            }
+        }
+        return $xResult;
+    }
+
+    /**
+     * @param bool $bAddSlash
+     *
+     * @return string
+     */
+    static public function UrlScheme($bAddSlash = false) {
+
+        $sResult = 'http';
+        if(isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'https') {
+            $sResult = 'https';
+        } elseif (isset($_SERVER['HTTP_SCHEME']) && strtolower($_SERVER['HTTP_SCHEME']) == 'https') {
+            $sResult = 'https';
+        } elseif(isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') {
+            $sResult = 'https';
+        }
+        if ($bAddSlash) {
+            $sResult .= '://';
+        }
+        return $sResult;
+    }
+
+    /**
+     * Returns base part of current URL request - scheme, host and port (if exists)
+     *
+     * @return string
+     */
+    static function UrlBase() {
+
+        $aUrlParts = F::ParseUrl();
+        return !empty($aUrlParts['base']) ? $aUrlParts['base'] : null;
     }
 
     /**
@@ -1157,10 +1289,6 @@ Redirect to <a href="' . $sUrl . '">' . $sUrl . '</a>
 
 }
 
-class F extends Func {
-
-}
-
 /***
  * Аналоги ф-ций preg_*, корректно обрабатывающие нелатиницу в UTF-8 при использовании флага PREG_OFFSET_CAPTURE
  */
@@ -1214,6 +1342,9 @@ if (!function_exists('mb_preg_match_all')) {
     }
 
 }
+
+//class_alias('Func', 'F');
+class F extends Func { }
 
 F::init();
 

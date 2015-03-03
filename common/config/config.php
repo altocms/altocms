@@ -13,7 +13,7 @@
  *
  * All changes of settings you need to do in application
  * configuration file, which usually placed here:
- * /app/config/config.php
+ * /app/config/config.local.php
  ********************************************************/
 
 /********************************************************
@@ -21,41 +21,37 @@
  *
  * Все изменения настроек нужно выполнять в файле
  * конфигурации приложения, который обычно находится здесь:
- * /app/config/config.php
+ * /app/config/config.local.php
  ********************************************************/
 
-/**
- * Настройки HTML вида
+/*
+ * Базовые настройки внешнего вида
  */
-$config['view']['skin']             = 'start-kit';                  // скин
+$config['view']['skin']             = 'experience-simple';          // скин
 $config['view']['theme']            = 'default';                    // тема
 $config['view']['name']             = 'Your Site Name';             // название сайта
 $config['view']['wysiwyg']          = false;    // использовать или нет визуальный редактор
 $config['view']['noindex']          = true;     // "прятать" или нет ссылки от поисковиков, оборачивая их в тег <noindex> и добавляя rel="nofollow"
+
+/* Obsolete from Alto CMS 1.1.0
+ * @see $config['module']['uploader']['images']['default']
 $config['view']['img_resize_width'] = 570;      // до какого размера в пикселях ужимать картинку по ширине при загрузки её в топики и комменты
 $config['view']['img_max_width']    = 5000;     // максимальная ширина загружаемых изображений в пикселях
 $config['view']['img_max_height']   = 5000;     // максимальная высота загружаемых изображений в пикселях
 $config['view']['img_max_size_url'] = 500;      // максимальный размер картинки в kB для загрузки по URL
+*/
 
-$config['view']['html']['description']      = 'Description of your site';   // meta tag description
-$config['view']['html']['keywords']         = 'site, google, internet';     // meta tag keywords
-//$config['view']['html']['title']            = '___view.name___';  // строка, которая всегда добавляется в конец тега <title>
-$config['view']['html']['title_max']        = 0;       // максимальное число частей, из которых состоит тег <title>
-$config['view']['html']['title_sep']        = ' / ';   // разделитель для формирования тега <title>
+$config['view']['html']['description'] = 'Description of your site';   // meta tag description
+$config['view']['html']['keywords']    = 'site, google, internet';     // meta tag keywords
 
-/**
- * Настройки СЕО для вывода топиков
- */
-$config['seo']['description_words_count'] = 20;               // количество слов из топика для вывода в метатег description
+$config['view']['html']['description_max_words'] = 20; // количество слов из топика для вывода в метатег description
 
-/**
- * Настройка основных блоков
- */
-$config['block']['stream']['row'] = 20;                       // сколько записей выводить в блоке "Прямой эфир"
-$config['block']['stream']['show_tip'] = true;                // выводить или нет всплывающие сообщения в блоке "Прямой эфир"
-$config['block']['blogs']['row']  = 10;                       // сколько записей выводить в блоке "Блоги"
-$config['block']['tags']['tags_count'] = 70;                  // сколько тегов выводить в блоке "теги"
-$config['block']['tags']['personal_tags_count'] = 70;         // сколько тегов пользователя выводить в блоке "теги"
+//$config['view']['html']['title']       = '___view.name___';  // строка, которая всегда добавляется в конец тега <title>
+$config['view']['html']['title_max']   = 0;       // максимальное число частей, из которых состоит тег <title>
+$config['view']['html']['title_sep']   = ' / ';   // разделитель для формирования тега <title>
+
+$config['view']['skill_length'] = 2;// Длинна представления силы пользователя 0, 1, 2 или 3 знака после запятой. Округление идёт в большую сторону.
+$config['view']['rating_length'] = 2;// Длинна представления рейтинга пользователя 0, 1, или 2 знака после запятой. Округление идёт в большую сторону.
 
 /**
  * Настройка пагинации
@@ -63,30 +59,23 @@ $config['block']['tags']['personal_tags_count'] = 70;         // сколько 
 $config['pagination']['pages']['count'] = 9;                  // количество ссылок на другие страницы в пагинации
 
 
-/**
+/* ----------------------------------------------------------------------------
  * Настройка путей
- * Если необходимо установить движек в директорию(не корень сайта) то следует сделать так:
- * $config['path']['root']['web']    = 'http://'.$_SERVER['HTTP_HOST'].'/subdir';
- * $config['path']['root']['server'] = $_SERVER['DOCUMENT_ROOT'].'/subdir';
- * и возможно придётся увеличить значение $config['path']['offset_request_url'] на число вложенных директорий,
- * например, для директории первой вложенности www.site.ru/community/ поставить значение равное 1
  *
  * Как правило полный путь до папки или файла содержит в названии 'dir'
  * URL-путь содержит в названии 'url'
  */
-if (isset($_SERVER['HTTP_HOST'])) {
-    $config['path']['root']['url']      = 'http://'. $_SERVER['HTTP_HOST'] . '/';   // полный WEB адрес сайта
-} else {
-    // for CLI scripts. or you can append "HTTP_HOST=http://yoursite.url" before script run command
-    $config['path']['root']['url']      = null;
-}
+
+$config['path']['root']['url'] = F::UrlBase() . '/';
 $config['path']['root']['dir'] = ALTO_DIR . '/';
+
+$config['path']['offset_request_url']   = 0;                                   // иногда помогает если сервер использует внутренние реврайты
 
 /**
  * Параметры сервера для статики. По умолчанию совпадают с основным сервером
  */
-$config['path']['static']['url']        = '___path.root.url___';        // Полный URL до static-сервера
-$config['path']['static']['dir']        = '___path.root.dir___';        // Полный путь до static-сервера в файловой системе
+$config['path']['static']['url']        = '___path.root.url___';               // Полный URL до static-сервера
+$config['path']['static']['dir']        = '___path.root.dir___';               // Полный путь до static-сервера в файловой системе
 
 $config['path']['root']['engine_lib']   = '___path.root.web___/engine/libs/';  // Путь до библиотек в файловой системе
 
@@ -94,11 +83,9 @@ $config['path']['uploads']['root']      = '/uploads';                          /
 $config['path']['uploads']['images']    = '___path.uploads.root___/images/';
 $config['path']['uploads']['files']     = '___path.uploads.root___/files/';
 
-$config['path']['offset_request_url']   = 0;                                   // иногда помогает если сервер использует внутренние реврайты
-
-$config['path']['tmp']['dir']           = '___path.root.dir___/_tmp/';           // путь к папке для временных файлов
-$config['path']['runtime']['dir']       = '___path.root.dir___/_run/';           // путь к папке для runtime-файлов
-$config['path']['runtime']['url']       = '___path.root.url___/_run/';              // путь к папке для runtime-файлов
+$config['path']['tmp']['dir']           = '___path.root.dir___/_tmp/';         // путь к папке для временных файлов
+$config['path']['runtime']['dir']       = '___path.root.dir___/_run/';         // путь к папке для runtime-файлов
+$config['path']['runtime']['url']       = '___path.root.url___/_run/';         // URL для runtime-файлов
 
 $config['path']['templates']['dir']     = '___path.dir.common___/templates/';
 $config['path']['frontend']['dir']      = '___path.dir.common___/templates/frontend/';
@@ -112,7 +99,7 @@ $config['path']['skin']['assets']['dir']= '___path.runtime.dir___assets/skin/___
 
 /**
  * Следующие параметры определяем для совместимости с LS
- * LS-compatible
+ * LS-compatibility
  */
 $config['path']['root']['web']          = '___path.root.url___';        // Определяем для совместимости с LS
 $config['path']['root']['server']       = '___path.root.dir___';        // Определяем для совместимости с LS
@@ -231,15 +218,11 @@ $config['sys']['logs']['sql_error']      = true;            // логирова�
 $config['sys']['logs']['sql_error_file'] = 'sql_error.log'; // файл лога ошибок SQL
 $config['sys']['logs']['cron']           = true;            // логировать или нет cron скрипты
 $config['sys']['logs']['cron_file']      = 'cron.log';      // файл лога запуска крон-процессов
-$config['sys']['logs']['profiler']       = false;           // логировать или нет профилирование процессов
-$config['sys']['logs']['profiler_file']  = 'profiler.log';  // файл лога профилирования процессов
 
 $config['sys']['logs']['error_file']        = 'error.log';  // файл лога ошибок
 $config['sys']['logs']['error_extinfo']     = false;        // выводить ли дополнительную информацию в лог ошибок
 $config['sys']['logs']['error_callstack']   = false;        // выводить стек вызовов в лог ошибок
 $config['sys']['logs']['error_norepeat']    = true;         // не повторять вывод одинаковых ошибок
-
-$config['sys']['logs']['hacker_console']  = false;          // позволяет удобно выводить логи дебага через функцию dump(), использя "хакерскую" консоль Дмитрия Котерова
 
 $config['sys']['logs']['size_for_rotate'] = 1000000;        // максимальный размер для ротации логов (если 0 - без ротации)
 $config['sys']['logs']['count_for_rotate'] = 99;            // максимальное число файлов в ротации (если 0 - без ограничений)
@@ -254,13 +237,13 @@ $config['sys']['logs']['count_for_rotate'] = 99;            // максимал�
  *   'exclude_private'  - исключать IP частных сетей
  *   'default'          - если IP так и не определен
  */
-$config['sys']['ip']['trusted'] = array('REMOTE_ADDR', 'HTTP_X_REAL_IP', 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_VIA');
-$config['sys']['ip']['non_trusted'] = array();
-$config['sys']['ip']['backward'] = true;
-$config['sys']['ip']['exclude'] = array('127.0.0.1', 'fe80::1', '::1');
-$config['sys']['ip']['exclude_server'] = true;
+$config['sys']['ip']['trusted']         = array('REMOTE_ADDR', 'HTTP_X_REAL_IP', 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_VIA');
+$config['sys']['ip']['non_trusted']     = array();
+$config['sys']['ip']['backward']        = true;
+$config['sys']['ip']['exclude']         = array('127.0.0.1', 'fe80::1', '::1');
+$config['sys']['ip']['exclude_server']  = true;
 $config['sys']['ip']['exclude_private'] = true;
-$config['sys']['ip']['default'] = '127.0.0.1';
+$config['sys']['ip']['default']         = '127.0.0.1';
 
 /**
  * Общие настройки
@@ -311,18 +294,114 @@ $config['module']['blog']['avatar_size'] = array(100,64,48,24,0);   // Спис�
 // Модуль Topic
 $config['module']['topic']['new_time']   = 60*60*24*1;              // Время в секундах в течении которого топик считается новым
 $config['module']['topic']['per_page']   = 10;                      // Число топиков на одну страницу
+$config['module']['topic']['images_per_page']   = 12;               // Число картинок на одну страницу
+$config['module']['topic']['group_images_per_page']   = 6;          // Число картинок группы на одну страницу
 $config['module']['topic']['max_length'] = 15000;                   // Максимальное количество символов в одном топике
 $config['module']['topic']['link_max_length'] = 500;                // Максимальное количество символов в одном топике-ссылке
 $config['module']['topic']['question_max_length'] = 500;            // Максимальное количество символов в одном топике-опросе
 $config['module']['topic']['allow_empty_tags'] = true;              // Разрешать или нет не заполнять теги
-$config['module']['topic']['max_filesize_limit'] = 5*1024*1024;     // максимальный размер загружаемого файла в байтах (по умолчанию 5мб)
-$config['module']['topic']['upload_mime_types'] = array('zip','rar','gz','mp3','png', 'doc', 'docx', 'pdf','djv','djvu'); //расширения файлов, которые можно прикреплять к топикам
+//$config['module']['topic']['max_filesize_limit'] = 5*1024*1024;     // максимальный размер загружаемого файла в байтах (по умолчанию 5мб)
+//$config['module']['topic']['upload_mime_types'] = array('zip','rar','gz','mp3','png', 'doc', 'docx', 'pdf','djv','djvu'); //расширения файлов, которые можно прикреплять к топикам
 $config['module']['topic']['draft_link'] = false;                   // разрешить показывать черновик по прямой ссылке
 $config['module']['topic']['on_duplicate_url'] = 1;                 // 0 - игнорировать; 1 - добавлять порядковый номер;
 
-// Модуль Upload
-$config['module']['upload']['max_filesize'] = '5M';     // максимальный размер загружаемого файла в байтах (по умолчанию 5МБ)
-$config['module']['upload']['file_extensions'] = array('gif','png','jpg','jpeg'); //расширения файлов, которые можно загружать + 'module.topic.upload_mime_types'
+// Модуль Uploader
+/*
+ * Obsolete from Alto CMS 1.1.0
+ */
+//$config['module']['upload']['max_filesize'] = '5M';     // максимальный размер загружаемого файла в байтах (по умолчанию 5МБ)
+//$config['module']['upload']['file_extensions'] = array('gif','png','jpg','jpeg'); //расширения файлов, которые можно загружать + 'module.topic.upload_mime_types'
+
+// Default options for file uploading
+$config['module']['uploader']['files']['default'] = array(
+    'file_maxsize'    => '5Mb', // максимальный размер загружаемого файла
+    'file_extensions' => array( //расширения файлов, которые можно прикреплять к топикам
+        'zip','rar','gz','mp3',
+        'doc', 'docx', 'xls', 'xlsx', 'pdf','djv','djvu',
+        'gif', 'png', 'jpg', 'jpeg',
+    ),
+    'upload'          => array( // параметры сохранения при загрузке
+        'return_url' => true,   // возвращает URL загруженного файла
+    ),
+);
+
+$config['module']['uploader']['images']['default'] = array(
+    '$extends$' => '___module.uploader.files.default___',
+    'image_extensions' => array('gif', 'png', 'jpg', 'jpeg'),
+    'max_width'  => 8000, // максимальная ширина загружаемых изображений в пикселях
+    'max_height' => 6000, // максимальная высота загружаемых изображений в пикселях
+    'url_maxsize' => '2Mb', // максимальный размер изображения в kB для загрузки по URL
+    // параметры сохранения при загрузке
+    'transform' => array(
+        'max_width'  => 800,        // максимальная ширина сохраняемого изображения
+        'max_height' => 600,        // максимальная высота сохраняемого изображения
+        'bg_color'  => '#ffffff',   // цвет фона при преобразовании изображений
+        'watermark' => array(
+            'enable' => false,
+            'image' => array(
+                'path' => '___path.static.dir___/___path.uploads.root___',
+                'file' => 'altocms.png',
+                'topleft' => false,
+                'position' => '0,0',
+            ),
+        ),
+        '@mime(jpeg)' => array(
+            'quality' => 80,
+        ),
+        '@mime(gif)'  => array(
+            'animation' => false,
+        ),
+        '@mime(png)'  => array(
+            //'save_as' => 'jpg',
+        ),
+    ),
+);
+
+$config['module']['uploader']['images']['profile_avatar'] = array(
+    '$extends$' => '___module.uploader.images.default___',
+    'transform' => array(
+        'max_width'  => 250,        // максимальная ширина сохраняемой аватары
+        'max_height' => 250,        // максимальная высота сохраняемой аватары
+        'watermark' => array(
+            'enable' => false,
+        ),
+        '@mime(gif)'  => array(
+            'animation' => true,
+        ),
+    ),
+);
+
+$config['module']['uploader']['images']['profile_photo'] = array(
+    '$extends$' => '___module.uploader.images.default___',
+);
+
+$config['module']['uploader']['images']['topic'] = array(
+    '$extends$' => '___module.uploader.images.default___',
+    'transform' => array(
+        'watermark' => array(
+            'enable' => false,
+        ),
+    ),
+);
+
+$config['module']['uploader']['images']['photoset'] = array(
+    '$extends$' => '___module.uploader.images.default___',
+    'transform' => array(
+        'watermark' => array(
+            'enable' => true,
+        ),
+    ),
+);
+
+// Модуль Image
+$config['module']['image']['autoresize'] = true;
+
+$config['module']['image']['libs'] = 'Gmagick,Imagick,GD'; // 'GD', 'Imagick' or 'Gmagick', or several libs separated by comma
+
+// Модуль Menu
+$config['module']['menu']['default_length'] = 20;
+$config['module']['menu']['blog_logo_size'] = '24x24crop';
+$config['module']['menu']['admin'] = array( 'main', 'user', 'topics', 'login', 'image_insert');
 
 /*
  * Настройка ЧПУ топика
@@ -384,7 +463,7 @@ $config['module']['comment']['use_nested'] = false;     // Использова�
 $config['module']['comment']['nested_per_page'] = 0;    // Число комментов на одну страницу в топике, актуально только при use_nested = true
 $config['module']['comment']['nested_page_reverse'] = true;     // Определяет порядок вывода страниц. true - последние комментарии на первой странице, false - последние комментарии на последней странице
 $config['module']['comment']['favourite_target_allow'] = array('topic'); // Список типов комментов, которые разрешено добавлять в избранное
-$config['module']['comment']['edit']['enable'] = '5 minutes';   // В течение какого времени можно редактировать комментарии
+$config['module']['comment']['edit']['enable'] = '500 minutes';   // В течение какого времени можно редактировать комментарии
 $config['module']['comment']['edit']['rest_time'] = true;       // Показывать ли оставшееся время для редактирования комментария
 $config['module']['comment']['min_length'] = 2;             // Min length of comments
 $config['module']['comment']['max_length'] = 16000;         // Max length of comments (0 - no limit)
@@ -405,42 +484,6 @@ $config['module']['notify']['insert_single']= false;    // Если опция �
 $config['module']['notify']['per_process']  = 10;       // Количество отложенных заданий, обрабатываемых одним крон-процессом
 $config['module']['notify']['dir']          = 'emails'; // Относительный (относительно папки скина) путь до папки с шаблонами писем
 $config['module']['notify']['prefix']       = 'email.'; // Префикс шаблонов емэйлов
-
-// Модуль Image
-
-// Параметры для загружаемых изображений по умолчанию
-$config['module']['image']['preset']['default'] = array(
-    'driver' => 'Imagick,GD', // 'GD', 'Imagick' or 'Gmagick', or several libs separated by comma
-    'jpg_quality' => 80,
-    'watermark' => array(
-        'enable' => false,
-        'image' => array(
-            'path' => '___path.static.dir___/___path.uploads.root___',
-            'file' => 'altocms.png',
-            'topleft' => false,
-            'position' => '0,0',
-        ),
-    ),
-    'size' => array(
-        'width' => 700,
-        'height' => 700,
-    ),
-);
-// Параметры для изображений, загружаемых в фотосет
-$config['module']['image']['preset']['photoset'] = array(
-    'size' => array(
-        'width' => 1280,
-        'height' => 1024,
-    ),
-);
-
-$config['module']['image']['autoresize'] = true;
-
-// Нужно ли использовать водяной знак для изображений в топике
-$config['module']['image']['preset']['topic']['watermark']['enable']  = false;
-
-// Нужно ли использовать водяной знак для изображений в фотосете
-$config['module']['image']['preset']['photoset']['watermark']['enable']  = false;
 
 // Модуль Security
 $config['module']['security']['hash']  = 'alto_security_key'; // "примесь" к строке, хешируемой в качестве security-кода
@@ -475,6 +518,15 @@ $config['module']['topic']['photoset']['per_page'] = 20;            // числ�
 // Какие модули должны быть загружены на старте
 $config['module']['_autoLoad_'] = array('Hook','Cache','Security','Session','User');
 
+
+/**
+ * Настройки модуля API
+ */
+$config['module']['api']['ajax'] = true;        // Не авторизованный аякс запрос клиента сайта
+$config['module']['api']['get'] = false;        // Сторонний get-запрос на получение данных
+$config['module']['api']['post'] = false;       // Сторонний post-зпрос на изменение данных
+
+
 /**
  * Настройка базы данных
  */
@@ -504,7 +556,7 @@ $config['db']['tables']['engine'] = 'InnoDB';  // InnoDB или MyISAM
 /**
  * Настройка memcache
  */
-$config['memcache']['servers'][0]['host'] = 'localhost';
+$config['memcache']['servers'][0]['host'] = '127.0.0.1';
 $config['memcache']['servers'][0]['port'] = '11211';
 $config['memcache']['servers'][0]['persistent'] = true;
 $config['memcache']['compression'] = true;
@@ -581,6 +633,7 @@ $config['head']['default']['js'] = array(
     '___path.frontend.dir___/libs/vendor/jquery-migrate-1.2.1.min.js' => array('asset' => 'mini'),
     '___path.frontend.dir___/libs/vendor/jquery-ui/js/jquery-ui-1.10.2.custom.min.js' => array('name' => 'jquery-ui', 'asset' => 'mini'),
     '___path.frontend.dir___/libs/vendor/jquery-ui/js/localization/jquery-ui-datepicker-ru.js',
+    '___path.frontend.dir___/libs/vendor/jquery-ui/js/jquery.ui.autocomplete.html.js',
     '___path.frontend.dir___/libs/vendor/jquery.browser.js',
     '___path.frontend.dir___/libs/vendor/jquery.scrollto.js',
     '___path.frontend.dir___/libs/vendor/jquery.rich-array.min.js',
@@ -592,6 +645,7 @@ $config['head']['default']['js'] = array(
     '___path.frontend.dir___/libs/vendor/jquery.placeholder.min.js',
     '___path.frontend.dir___/libs/vendor/jquery.charcount.js',
     '___path.frontend.dir___/libs/vendor/jquery.imagesloaded.js',
+    '___path.frontend.dir___/libs/vendor/jquery.montage.min.js',
     '___path.frontend.dir___/libs/vendor/jcrop/jquery.Jcrop.js',
     '___path.frontend.dir___/libs/vendor/markitup/jquery.markitup.js',
     '___path.frontend.dir___/libs/vendor/notifier/jquery.notifier.js',
@@ -605,7 +659,7 @@ $config['head']['default']['js'] = array(
     //'___path.frontend.dir___/libs/vendor/bootbox/bootbox.min.js' => array('asset' => 'mini'),
     '___path.frontend.dir___/libs/vendor/bootbox/bootbox.js',
 
-    '___path.frontend.dir___/libs/vendor/swfobject/swfobject.js',
+    //'___path.frontend.dir___/libs/vendor/swfobject/swfobject.js',
 
     /* swfupload */
     '___path.frontend.dir___/libs/vendor/swfobject/plugin/swfupload.js' => array(
@@ -660,6 +714,10 @@ $config['head']['default']['js'] = array(
         'compress' => false,
         'merge'    => false,
     ),
+    '___path.frontend.dir___/libs/vendor/jquery.fileapi/FileAPI/*'       => array(
+        'dir_from'  => '___path.frontend.dir___/libs/vendor/jquery.fileapi/FileAPI/',
+        'prepare'   => true,
+    ),
 
     /* Core */
     '___path.frontend.dir___/libs/js/core/main.js',
@@ -693,6 +751,16 @@ $config['head']['default']['js'] = array(
     //'___path.frontend.dir___/libs/js/engine/admin.js',
     '___path.frontend.dir___/libs/js/engine/userfield.js',
     '___path.frontend.dir___/libs/js/engine/init.js',
+    '___path.frontend.dir___/libs/js/engine/altoUploader.js',
+
+    '___path.frontend.dir___/libs/vendor/jquery.fileapi/FileAPI/FileAPI.min.js',
+//    '___path.frontend.dir___/libs/vendor/jquery.fileapi/FileAPI/FileAPI.exif.js',
+    '___path.frontend.dir___/libs/vendor/jquery.fileapi/jquery.fileapi.js',
+    '___path.frontend.dir___/libs/js/engine/altoMultiUploader.js',
+    '___path.frontend.dir___/libs/js/engine/altoImageManager.js',
+    '___path.frontend.dir___/libs/js/engine/altoTooltip.js',
+    '___path.frontend.dir___/libs/vendor/masonry.pkgd.js',
+    '___path.frontend.dir___/libs/vendor/imagesloaded.pkgd.js',
 );
 
 //потенциально проблемные файлы выводим в футере
@@ -797,7 +865,20 @@ $config['config_load'] = array(
     'classes',      // Определения классов
     'jevix',        // Настройки типографа текста Jevix
     'widgets',      // Виджеты
+    'menu',         // Меню
 );
+
+/**
+ * Настройки автокомплита пользователей
+ */
+$config['autocomplete']['user']['show_avatar'] = true;  // Добавлять аватар?
+$config['autocomplete']['user']['avatar_size'] = 24;    // Размер аватара
+
+/**
+ * Доступна ли стстема рейтинга. Эту настройку менять НЕ нужно,
+ * она устанавливается в true только плагинами рейтинга
+ */
+$config['rating']['enabled'] = false;
 
 return $config;
 

@@ -63,8 +63,8 @@ function smarty_function_wgroup_add($aParams, $oSmartyTemplate) {
         }
     }
 
-    E::Viewer_AddWidget($aParams['group'], $aParams['widget'], $aWidgetParams, $nPriority);
-    $aWidgets = E::Viewer_GetWidgets();
+    E::ModuleViewer()->AddWidget($aParams['group'], $aParams['widget'], $aWidgetParams, $nPriority);
+    $aWidgets = E::ModuleViewer()->GetWidgets();
 
     $oSmartyTemplate->assign('aWidgets', $aWidgets);
     $oSmartyTemplate->parent->assign('aWidgets', $aWidgets);

@@ -46,25 +46,25 @@ class ModuleTopic_EntityTopic extends Entity {
         $this->aValidateRules[] = array(
             'topic_title', 'string', 'max' => 200, 'min' => 2,
             'allowEmpty' => false,
-            'label' => $this->Lang_Get('topic_create_title'),
+            'label' => E::ModuleLang()->Get('topic_create_title'),
             'on' => array('topic'),
         );
         $this->aValidateRules[] = array(
             'question_title', 'string', 'max' => 200, 'min' => 2,
             'allowEmpty' => true,
-            'label' => $this->Lang_Get('topic_create_question_title'),
+            'label' => E::ModuleLang()->Get('topic_create_question_title'),
             'on' => array('topic'),
         );
         $this->aValidateRules[] = array(
             'topic_text_source', 'string', 'max' => Config::Get('module.topic.max_length'), 'min' => 2,
             'allowEmpty' => false,
-            'label' => $this->Lang_Get('topic_create_text'),
+            'label' => E::ModuleLang()->Get('topic_create_text'),
             'on' => array('topic'),
         );
         $this->aValidateRules[] = array(
             'topic_tags', 'tags', 'count' => 15,
             'allowEmpty' => Config::Get('module.topic.allow_empty_tags'),
-            'label' => $this->Lang_Get('topic_create_tags'),
+            'label' => E::ModuleLang()->Get('topic_create_tags'),
             'on' => array('topic'),
         );
         $this->aValidateRules[] = array(
@@ -82,7 +82,7 @@ class ModuleTopic_EntityTopic extends Entity {
         $this->aValidateRules[] = array(
             'link_url', 'url',
             'allowEmpty' => true,
-            'label' => $this->Lang_Get('topic_link_create_url'),
+            'label' => E::ModuleLang()->Get('topic_link_create_url'),
             'on' => array('topic'),
         );
     }
@@ -97,10 +97,10 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function ValidateTopicType($sValue, $aParams) {
 
-        if ($this->Topic_IsAllowTopicType($sValue)) {
+        if (E::ModuleTopic()->IsAllowTopicType($sValue)) {
             return true;
         }
-        return $this->Lang_Get('topic_create_type_error');
+        return E::ModuleLang()->Get('topic_create_type_error');
     }
 
     /**
@@ -114,11 +114,11 @@ class ModuleTopic_EntityTopic extends Entity {
     public function ValidateTopicUnique($sValue, $aParams) {
 
         $this->setTextHash(md5($this->getType() . $sValue . $this->getTitle()));
-        if ($oTopicEquivalent = $this->Topic_GetTopicUnique($this->getUserId(), $this->getTextHash())) {
+        if ($oTopicEquivalent = E::ModuleTopic()->GetTopicUnique($this->getUserId(), $this->getTextHash())) {
             if ($iId = $this->getId() and $oTopicEquivalent->getId() == $iId) {
                 return true;
             }
-            return $this->Lang_Get('topic_create_text_error_unique');
+            return E::ModuleLang()->Get('topic_create_text_error_unique');
         }
         return true;
     }
@@ -136,10 +136,10 @@ class ModuleTopic_EntityTopic extends Entity {
         if ($sValue == 0) {
             return true; // персональный блог
         }
-        if ($this->Blog_GetBlogById((string)$sValue)) {
+        if (E::ModuleBlog()->GetBlogById((string)$sValue)) {
             return true;
         }
-        return $this->Lang_Get('topic_create_blog_error_unknown');
+        return E::ModuleLang()->Get('topic_create_blog_error_unknown');
     }
 
     /**
@@ -185,7 +185,7 @@ class ModuleTopic_EntityTopic extends Entity {
 
         $oContentType = $this->getProp('_content_type');
         if (is_null($oContentType)) {
-            $oContentType = $this->Topic_GetContentType($this->getType());
+            $oContentType = E::ModuleTopic()->GetContentType($this->getType());
             $this->setProp('_content_type', $oContentType);
         }
         return $oContentType;
@@ -531,7 +531,7 @@ class ModuleTopic_EntityTopic extends Entity {
     public function getUser() {
 
         if (!$this->getProp('user')) {
-            $this->setProp('user', $this->User_GetUserById($this->getUserId()));
+            $this->setProp('user', E::ModuleUser()->GetUserById($this->getUserId()));
         }
         return $this->getProp('user');
     }
@@ -547,7 +547,7 @@ class ModuleTopic_EntityTopic extends Entity {
         if (!$oBlog) {
             $iBlogId = $this->getBlogId();
             if ($iBlogId) {
-                $oBlog = $this->Blog_GetBlogById($iBlogId);
+                $oBlog = E::ModuleBlog()->GetBlogById($iBlogId);
             } elseif ($iBlogId === 0 || $iBlogId === '0') {
                 $oUser = $this->getUser();
                 $oBlog = $oUser->getBlog();
@@ -573,14 +573,14 @@ class ModuleTopic_EntityTopic extends Entity {
         }
 
         if (!$sUrlMask) {
-            $sUrlMask = Router::GetTopicUrlMask();
+            $sUrlMask = R::GetTopicUrlMask();
         }
         if (!$sUrlMask) {
             // формирование URL по умолчанию в LS-стиле
             if ($this->getBlog()->getType() == 'personal') {
-                return Router::GetPath('blog') . $this->getId() . '.html';
+                return R::GetPath('blog') . $this->getId() . '.html';
             } else {
-                return Router::GetPath('blog') . $this->getBlog()->getUrl() . '/' . $this->getId() . '.html';
+                return R::GetPath('blog') . $this->getBlog()->getUrl() . '/' . $this->getId() . '.html';
             }
         }
         // ЧПУ по маске
@@ -634,7 +634,7 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function getUrlShort() {
 
-        return Router::GetPath('t') . $this->getId() . '/';
+        return R::GetPath('t') . $this->getId() . '/';
     }
 
     /**
@@ -644,7 +644,7 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function getUrlEdit() {
 
-        return Router::GetPath('content') . 'edit/' . $this->getId() . '/';
+        return R::GetPath('content') . 'edit/' . $this->getId() . '/';
     }
 
     /**
@@ -687,8 +687,8 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function getIsAllowDelete() {
 
-        if ($oUser = $this->User_GetUserCurrent()) {
-            return $this->ACL_IsAllowDeleteTopic($this, $oUser);
+        if ($oUser = E::ModuleUser()->GetUserCurrent()) {
+            return E::ModuleACL()->IsAllowDeleteTopic($this, $oUser);
         }
         return false;
     }
@@ -700,8 +700,8 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function getIsAllowEdit() {
 
-        if ($oUser = $this->User_GetUserCurrent()) {
-            return $this->ACL_IsAllowEditTopic($this, $oUser);
+        if ($oUser = E::ModuleUser()->GetUserCurrent()) {
+            return E::ModuleACL()->IsAllowEditTopic($this, $oUser);
         }
         return false;
     }
@@ -713,7 +713,7 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function getIsAllowAction() {
 
-        if ($this->User_GetUserCurrent()) {
+        if (E::ModuleUser()->GetUserCurrent()) {
             return $this->getIsAllowEdit() || $this->getIsAllowDelete();
         }
         return false;
@@ -736,10 +736,10 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function getSubscribeNewComment() {
 
-        if (!($oUserCurrent = $this->User_GetUserCurrent())) {
+        if (!($oUserCurrent = E::ModuleUser()->GetUserCurrent())) {
             return null;
         }
-        return $this->Subscribe_GetSubscribeByTargetAndMail(
+        return E::ModuleSubscribe()->GetSubscribeByTargetAndMail(
             'topic_new_comment', $this->getId(), $oUserCurrent->getMail()
         );
     }
@@ -751,10 +751,10 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function getTrackNewComment() {
 
-        if (!($oUserCurrent = $this->User_GetUserCurrent())) {
+        if (!($oUserCurrent = E::ModuleUser()->GetUserCurrent())) {
             return null;
         }
-        return $this->Subscribe_GetTrackByTargetAndUser('topic_new_comment', $this->getId(), $oUserCurrent->getId());
+        return E::ModuleSubscribe()->GetTrackByTargetAndUser('topic_new_comment', $this->getId(), $oUserCurrent->getId());
     }
 
     /**
@@ -767,7 +767,7 @@ class ModuleTopic_EntityTopic extends Entity {
     public function getFieldFile($nId) {
 
         if ($this->getField($nId)) {
-            return Engine::GetEntity(
+            return E::GetEntity(
                 'ModuleTopic_EntityTopicFile', unserialize($this->getField($nId)->getValueSource())
             );
         }
@@ -787,17 +787,15 @@ class ModuleTopic_EntityTopic extends Entity {
         $aResources = array();
         $aPhotos = $this->getPhotosetPhotos();
         if ($aPhotos) {
-            foreach($aPhotos as $oPhoto) {
-                $oMresource = $oPhoto->BuildMresource();
-                $oMresource->setUserId($this->getUserId());
+            foreach($aPhotos as $oMresource) {
                 $aResources[] = $oMresource;
             }
         }
         $aTextLinks = $this->GetTextLinks();
         if ($aTextLinks) {
             foreach($aTextLinks as $aLink) {
-                $oMresource = Engine::GetEntity('Mresource_MresourceRel');
-                $oMresource->setUrl($this->Mresource_NormalizeUrl($aLink['link']));
+                $oMresource = E::GetEntity('Mresource_MresourceRel');
+                $oMresource->setUrl(E::ModuleMresource()->NormalizeUrl($aLink['link']));
                 $oMresource->setType($aLink['type']);
                 $oMresource->setUserId($this->getUserId());
                 $aResources[] = $oMresource;
@@ -806,15 +804,15 @@ class ModuleTopic_EntityTopic extends Entity {
                     // get original path and make one more mresorce
                     $sOriginal = $oMresource->GetOriginalPathUrl();
 
-                    $oMresource = Engine::GetEntity('Mresource_MresourceRel');
-                    $oMresource->setUrl($this->Mresource_NormalizeUrl($sOriginal));
+                    $oMresource = E::GetEntity('Mresource_MresourceRel');
+                    $oMresource->setUrl(E::ModuleMresource()->NormalizeUrl($sOriginal));
                     $oMresource->setType($aLink['type']);
                     $oMresource->setUserId($this->getUserId());
                     $aResources[] = $oMresource;
                 }
             }
         }
-        return $this->Mresource_BuildMresourceHashList($aResources);
+        return E::ModuleMresource()->BuildMresourceHashList($aResources);
     }
 
     public function setTextLinks($xData) {
@@ -1117,11 +1115,7 @@ class ModuleTopic_EntityTopic extends Entity {
             return array();
         }
 
-        $aPhotos = $this->getProp('_photoset_photos');
-        if (is_null($aPhotos)) {
-            $aPhotos = $this->Topic_GetPhotosByTopicId($this->getId(), null, $iPhotosCount);
-            $this->setProp('_photoset_photos', $aPhotos);
-        }
+        $aPhotos = E::ModuleMresource()->GetMresourcesRelByTarget('topic-multi-image-uploader', $this->getId());
         $aResult = array();
         if ($aPhotos && ($iFromId || $iCount)) {
             $iCntSet = -1;
@@ -1164,14 +1158,27 @@ class ModuleTopic_EntityTopic extends Entity {
      *
      * @return ModuleTopic_EntityTopicPhoto|null
      */
-    public function getPhotosetMainPhoto() {
+    public function getPhotosetMainPhoto($bFirst = false) {
 
         $iPhotoId = $this->getPhotosetMainPhotoId();
-        if ($iPhotoId) {
+        if ($iPhotoId || $bFirst) {
             $aPhotos = $this->getPhotosetPhotos($iPhotoId, 1);
             if (isset($aPhotos[$iPhotoId])) {
                 return $aPhotos[$iPhotoId];
+            } else {
+                if ($aPhotos && $bFirst) {
+                    return array_shift($aPhotos);
+                }
             }
+        }
+        return null;
+    }
+
+    public function getPhotosetMainPhotoUrl($bFirst = false, $sSize='' ) {
+
+        $oMresource = $this->getPhotosetMainPhoto($bFirst);
+        if ($oMresource) {
+            return E::ModuleUploader()->ResizeTargetImage($oMresource->getWebPath(), $sSize);
         }
         return null;
     }
@@ -1240,6 +1247,41 @@ class ModuleTopic_EntityTopic extends Entity {
 
         $bResult = $this->getVote() || E::UserId()==$this->getUserId() || (strtotime($this->getDateAdd())<time()-Config::Get('acl.vote.topic.limit_time'));
         return $bResult;
+    }
+
+    public function isShowPhotoset() {
+        /** @var ModuleTopic_EntityContentType $oContentType */
+        $oContentType = $this->getContentType();
+        return $this->getShowPhotoset() && $oContentType && $oContentType->isAllow('photoset') && $this->getPhotosetCount();
+    }
+
+    public function isShowPoll() {
+        /** @var ModuleTopic_EntityContentType $oContentType */
+        $oContentType = $this->getContentType();
+        return $oContentType && $oContentType->isAllow('poll') && $this->getQuestionAnswers();
+    }
+
+    public function isShowSourceLink() {
+        /** @var ModuleTopic_EntityContentType $oContentType */
+        $oContentType = $this->getContentType();
+        return $oContentType && $oContentType->isAllow('link') && $this->getSourceLink();
+    }
+
+    public function getShowPhotoset() {
+        return (bool)$this->getExtraValue('show_photoset');
+    }
+
+    public function getSingleImage($nId, $sSize) {
+
+        if ($this->getField($nId)) {
+
+            return E::ModuleUploader()->GetTargetImageUrl(
+                $this->getField($nId)->getFieldType() . '-' . $nId,
+                $this->getField($nId)->getTargetId(),
+                $sSize);
+
+        }
+        return null;
     }
 
     //***************************************************************************************************************
@@ -1589,6 +1631,10 @@ class ModuleTopic_EntityTopic extends Entity {
         $this->setTopicIndexIgnore(self::INDEX_IGNORE_LOCK);
     }
 
+    public function setShowPhotoset($data){
+        $this->setExtraValue('show_photoset', (bool)$data);
+    }
+
     /**
      * Can this topic be edited by the user?
      *
@@ -1598,7 +1644,7 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function CanEditedBy($oUser) {
 
-        return $this->ACL_IsAllowEditTopic($this, $oUser);
+        return E::ModuleACL()->IsAllowEditTopic($this, $oUser);
     }
 
     /**
@@ -1610,7 +1656,7 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function CanDeletedBy($oUser) {
 
-        return $this->ACL_IsAllowDeleteTopic($this, $oUser);
+        return E::ModuleACL()->IsAllowDeleteTopic($this, $oUser);
     }
 }
 

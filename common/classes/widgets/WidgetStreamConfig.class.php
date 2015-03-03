@@ -26,16 +26,16 @@ class WidgetStreamConfig extends Widget {
     public function Exec() {
 
         // * пользователь авторизован?
-        if ($oUserCurrent = $this->User_GetUserCurrent()) {
+        if ($oUserCurrent = E::ModuleUser()->GetUserCurrent()) {
 
             // * Получаем и прогружаем необходимые переменные в шаблон
-            $aTypesList = $this->Stream_GetTypesList($oUserCurrent->getId());
-            $aUserSubscribes = $this->Stream_GetUserSubscribes($oUserCurrent->getId());
-            $aFriends = $this->User_GetUsersFriend($oUserCurrent->getId());
+            $aTypesList = E::ModuleStream()->GetTypesList($oUserCurrent->getId());
+            $aUserSubscribes = E::ModuleStream()->GetUserSubscribes($oUserCurrent->getId());
+            $aFriends = E::ModuleUser()->GetUsersFriend($oUserCurrent->getId());
 
-            $this->Viewer_Assign('aStreamTypesList', $aTypesList);
-            $this->Viewer_Assign('aStreamSubscribedUsers', $aUserSubscribes);
-            $this->Viewer_Assign('aStreamFriends', $aFriends['collection']);
+            E::ModuleViewer()->Assign('aStreamTypesList', $aTypesList);
+            E::ModuleViewer()->Assign('aStreamSubscribedUsers', $aUserSubscribes);
+            E::ModuleViewer()->Assign('aStreamFriends', $aFriends['collection']);
         }
     }
 }

@@ -179,7 +179,7 @@ class ModuleUser_EntitySession extends Entity {
     public function setUserAgentHash($data = null) {
 
         if (is_null($data)) {
-            $data = $this->Security_GetUserAgentHash();
+            $data = E::ModuleSecurity()->GetUserAgentHash();
         }
         $this->setProp('session_agent_hash', $data);
     }

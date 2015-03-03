@@ -31,7 +31,7 @@ class ActionBlogs extends Action {
     public function Init() {
 
         // * Загружаем в шаблон JS текстовки
-        $this->Lang_AddLangJs(
+        E::ModuleLang()->AddLangJs(
             array(
                  'blog_join', 'blog_leave'
             )
@@ -60,14 +60,14 @@ class ActionBlogs extends Action {
     protected function EventAjaxSearch() {
 
         // * Устанавливаем формат Ajax ответа
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
 
         // * Получаем из реквеста первые буквы блога
         if ($sTitle = F::GetRequestStr('blog_title')) {
             $sTitle = str_replace('%', '', $sTitle);
         }
         if (!$sTitle) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
             return;
         }
 
@@ -77,14 +77,19 @@ class ActionBlogs extends Action {
         } else {
             $aFilter = array('exclude_type' => 'personal', 'title' => "%{$sTitle}%");
         }
-        $aResult = $this->Blog_GetBlogsByFilter($aFilter, array('blog_title' => 'asc'), 1, 100);
+        $aResult = E::ModuleBlog()->GetBlogsByFilter($aFilter, array('blog_title' => 'asc'), 1, 100);
 
         // * Формируем и возвращает ответ
-        $oViewer = $this->Viewer_GetLocalViewer();
+        $oViewer = E::ModuleViewer()->GetLocalViewer();
         $oViewer->Assign('aBlogs', $aResult['collection']);
-        $oViewer->Assign('oUserCurrent', $this->User_GetUserCurrent());
-        $oViewer->Assign('sBlogsEmptyList', $this->Lang_Get('blogs_search_empty'));
-        $this->Viewer_AssignAjax('sText', $oViewer->Fetch('commons/common.blog_list.tpl'));
+        $oViewer->Assign('oUserCurrent', E::ModuleUser()->GetUserCurrent());
+        $oViewer->Assign('sBlogsEmptyList', E::ModuleLang()->Get('blogs_search_empty'));
+        E::ModuleViewer()->AssignAjax('sText', $oViewer->Fetch('commons/common.blog_list.tpl'));
+    }
+
+    protected function EventIndex() {
+
+        $this->EventShowBlogs();
     }
 
     /**
@@ -100,35 +105,35 @@ class ActionBlogs extends Action {
 
         // * Фильтр поиска блогов
         $aFilter = array(
-            'include_type' => $this->Blog_GetAllowBlogTypes($this->User_GetUserCurrent(), 'list', true),
+            'include_type' => E::ModuleBlog()->GetAllowBlogTypes(E::ModuleUser()->GetUserCurrent(), 'list', true),
         );
 
         // * Передан ли номер страницы
         $iPage = preg_match("/^\d+$/i", $this->GetEventMatch(2)) ? $this->GetEventMatch(2) : 1;
 
         // * Получаем список блогов
-        $aResult = $this->Blog_GetBlogsByFilter(
+        $aResult = E::ModuleBlog()->GetBlogsByFilter(
             $aFilter, array($sOrder => $sOrderWay), $iPage, Config::Get('module.blog.per_page')
         );
         $aBlogs = $aResult['collection'];
 
         // * Формируем постраничность
-        $aPaging = $this->Viewer_MakePaging(
+        $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $iPage, Config::Get('module.blog.per_page'), Config::Get('pagination.pages.count'),
-            Router::GetPath('blogs'), array('order' => $sOrder, 'order_way' => $sOrderWay)
+            R::GetPath('blogs'), array('order' => $sOrder, 'order_way' => $sOrderWay)
         );
 
         //  * Загружаем переменные в шаблон
-        $this->Viewer_Assign('aPaging', $aPaging);
-        $this->Viewer_Assign('aBlogs', $aBlogs);
-        $this->Viewer_Assign('sBlogOrder', htmlspecialchars($sOrder));
-        $this->Viewer_Assign('sBlogOrderWay', htmlspecialchars($sOrderWay));
-        $this->Viewer_Assign('sBlogOrderWayNext', htmlspecialchars($sOrderWay == 'desc' ? 'asc' : 'desc'));
-        $this->Viewer_Assign('sShow', 'collective');
-        $this->Viewer_Assign('sBlogsRootPage', Router::GetPath('blogs'));
+        E::ModuleViewer()->Assign('aPaging', $aPaging);
+        E::ModuleViewer()->Assign('aBlogs', $aBlogs);
+        E::ModuleViewer()->Assign('sBlogOrder', htmlspecialchars($sOrder));
+        E::ModuleViewer()->Assign('sBlogOrderWay', htmlspecialchars($sOrderWay));
+        E::ModuleViewer()->Assign('sBlogOrderWayNext', htmlspecialchars($sOrderWay == 'desc' ? 'asc' : 'desc'));
+        E::ModuleViewer()->Assign('sShow', 'collective');
+        E::ModuleViewer()->Assign('sBlogsRootPage', R::GetPath('blogs'));
 
         // * Устанавливаем title страницы
-        $this->Viewer_AddHtmlTitle($this->Lang_Get('blog_menu_all_list'));
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('blog_menu_all_list'));
 
         // * Устанавливаем шаблон вывода
         $this->SetTemplateAction('index');
@@ -154,28 +159,28 @@ class ActionBlogs extends Action {
         $iPage = preg_match("/^\d+$/i", $this->GetParamEventMatch(0, 2)) ? $this->GetParamEventMatch(0, 2) : 1;
 
         // * Получаем список блогов
-        $aResult = $this->Blog_GetBlogsByFilter(
+        $aResult = E::ModuleBlog()->GetBlogsByFilter(
             $aFilter, array($sOrder => $sOrderWay), $iPage, Config::Get('module.blog.per_page')
         );
         $aBlogs = $aResult['collection'];
 
         // * Формируем постраничность
-        $aPaging = $this->Viewer_MakePaging(
+        $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $iPage, Config::Get('module.blog.per_page'), Config::Get('pagination.pages.count'),
-            Router::GetPath('blogs') . 'personal/', array('order' => $sOrder, 'order_way' => $sOrderWay)
+            R::GetPath('blogs') . 'personal/', array('order' => $sOrder, 'order_way' => $sOrderWay)
         );
 
         // * Загружаем переменные в шаблон
-        $this->Viewer_Assign('aPaging', $aPaging);
-        $this->Viewer_Assign('aBlogs', $aBlogs);
-        $this->Viewer_Assign('sBlogOrder', htmlspecialchars($sOrder));
-        $this->Viewer_Assign('sBlogOrderWay', htmlspecialchars($sOrderWay));
-        $this->Viewer_Assign('sBlogOrderWayNext', htmlspecialchars($sOrderWay == 'desc' ? 'asc' : 'desc'));
-        $this->Viewer_Assign('sShow', 'personal');
-        $this->Viewer_Assign('sBlogsRootPage', Router::GetPath('blogs') . 'personal/');
+        E::ModuleViewer()->Assign('aPaging', $aPaging);
+        E::ModuleViewer()->Assign('aBlogs', $aBlogs);
+        E::ModuleViewer()->Assign('sBlogOrder', htmlspecialchars($sOrder));
+        E::ModuleViewer()->Assign('sBlogOrderWay', htmlspecialchars($sOrderWay));
+        E::ModuleViewer()->Assign('sBlogOrderWayNext', htmlspecialchars($sOrderWay == 'desc' ? 'asc' : 'desc'));
+        E::ModuleViewer()->Assign('sShow', 'personal');
+        E::ModuleViewer()->Assign('sBlogsRootPage', R::GetPath('blogs') . 'personal/');
 
         // * Устанавливаем title страницы
-        $this->Viewer_AddHtmlTitle($this->Lang_Get('blog_menu_all_list'));
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('blog_menu_all_list'));
 
         // * Устанавливаем шаблон вывода
         $this->SetTemplateAction('index');
@@ -183,7 +188,7 @@ class ActionBlogs extends Action {
 
     public function EventShutdown() {
 
-        $this->Viewer_Assign('sMenuHeadItemSelect', $this->sMenuHeadItemSelect);
+        E::ModuleViewer()->Assign('sMenuHeadItemSelect', $this->sMenuHeadItemSelect);
     }
 }
 

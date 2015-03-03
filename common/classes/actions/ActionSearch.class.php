@@ -48,7 +48,7 @@ class ActionSearch extends Action {
     public function Init() {
 
         $this->SetDefaultEvent('index');
-        $this->Viewer_AddHtmlTitle($this->Lang_Get('search'));
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('search'));
 
         $this->nModeOutList = Config::Get('module.search.out_mode');
 
@@ -144,8 +144,8 @@ class ActionSearch extends Action {
             $sLogFile = 'search.log';
         }
         if (!$this->oUser) {
-            if (($sUserId = $this->Session_Get('user_id'))) {
-                $this->oUser = $this->User_GetUserById($sUserId);
+            if (($sUserId = E::ModuleSession()->Get('user_id'))) {
+                $this->oUser = E::ModuleUser()->GetUserById($sUserId);
             }
         }
         if (!$this->oUser) {
@@ -154,7 +154,7 @@ class ActionSearch extends Action {
             $sUserLogin = $this->oUser->GetLogin();
         }
 
-        $path = Router::GetPathWebCurrent();
+        $path = R::GetPathWebCurrent();
         $uri = $_SERVER['REQUEST_URI'];
 
         $sStrLog = 'user=>"' . $sUserLogin . '" ip=>"' . $_SERVER['REMOTE_ADDR'] . '"' . "\n" .
@@ -166,7 +166,7 @@ class ActionSearch extends Action {
             }
         }
 
-        $this->Logger_Dump($sLogFile, $sStrLog);
+        E::ModuleLogger()->Dump($sLogFile, $sStrLog);
     }
 
     /**
@@ -363,7 +363,7 @@ class ActionSearch extends Action {
      */
     public function EventIndex() {
 
-        $sEvent = Router::GetActionEvent();
+        $sEvent = R::GetActionEvent();
 
         if ($sEvent == 'comments') {
             return $this->EventComments();
@@ -403,14 +403,14 @@ class ActionSearch extends Action {
         $this->aReq = $this->PrepareRequest('topics');
         $this->OutLog();
         if ($this->aReq['regexp']) {
-            $aResult = $this->Search_GetTopicsIdByRegexp(
+            $aResult = E::ModuleSearch()->GetTopicsIdByRegexp(
                 $this->aReq['regexp'], $this->aReq['iPage'],
                 $this->nItemsPerPage, $this->aReq['params']
             );
 
             $aTopics = array();
             if ($aResult['count'] > 0) {
-                $aTopicsFound = $this->Topic_GetTopicsAdditionalData($aResult['collection']);
+                $aTopicsFound = E::ModuleTopic()->GetTopicsAdditionalData($aResult['collection']);
 
                 // * Подсветка поисковой фразы в тексте или формирование сниппета
                 foreach ($aTopicsFound AS $oTopic) {
@@ -439,7 +439,7 @@ class ActionSearch extends Action {
             $this->oLogs->RecordEnd('search', true);
         }
 
-        $aPaging = $this->Viewer_MakePaging(
+        $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $this->aReq['iPage'], $this->nItemsPerPage, 4,
             Config::Get('path.root.url') . '/search/topics', array('q' => $this->aReq['q'])
         );
@@ -447,12 +447,12 @@ class ActionSearch extends Action {
         $this->SetTemplateAction('results');
 
         // *  Отправляем данные в шаблон
-        $this->Viewer_AddHtmlTitle($this->aReq['q']);
-        $this->Viewer_Assign('bIsResults', $aResult['count']);
-        $this->Viewer_Assign('aReq', $this->aReq);
-        $this->Viewer_Assign('aRes', $aResult);
-        $this->Viewer_Assign('aTopics', $aTopics);
-        $this->Viewer_Assign('aPaging', $aPaging);
+        E::ModuleViewer()->AddHtmlTitle($this->aReq['q']);
+        E::ModuleViewer()->Assign('bIsResults', $aResult['count']);
+        E::ModuleViewer()->Assign('aReq', $this->aReq);
+        E::ModuleViewer()->Assign('aRes', $aResult);
+        E::ModuleViewer()->Assign('aTopics', $aTopics);
+        E::ModuleViewer()->Assign('aPaging', $aPaging);
     }
 
     /**
@@ -464,7 +464,7 @@ class ActionSearch extends Action {
 
         $this->OutLog();
         if ($this->aReq['regexp']) {
-            $aResult = $this->Search_GetCommentsIdByRegexp(
+            $aResult = E::ModuleSearch()->GetCommentsIdByRegexp(
                 $this->aReq['regexp'], $this->aReq['iPage'],
                 $this->nItemsPerPage, $this->aReq['params']
             );
@@ -474,7 +474,7 @@ class ActionSearch extends Action {
             } else {
 
                 // * Получаем объекты по списку идентификаторов
-                $aComments = $this->Comment_GetCommentsAdditionalData($aResult['collection']);
+                $aComments = E::ModuleComment()->GetCommentsAdditionalData($aResult['collection']);
 
                 //подсветка поисковой фразы
                 foreach ($aComments AS $oComment) {
@@ -498,7 +498,7 @@ class ActionSearch extends Action {
             $this->oLogs->RecordEnd('search', true);
         }
 
-        $aPaging = $this->Viewer_MakePaging(
+        $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $this->aReq['iPage'], $this->nItemsPerPage, 4,
             Config::Get('path.root.url') . '/search/comments', array('q' => $this->aReq['q'])
         );
@@ -506,12 +506,12 @@ class ActionSearch extends Action {
         $this->SetTemplateAction('results');
 
         // *  Отправляем данные в шаблон
-        $this->Viewer_AddHtmlTitle($this->aReq['q']);
-        $this->Viewer_Assign('bIsResults', $aResult['count']);
-        $this->Viewer_Assign('aReq', $this->aReq);
-        $this->Viewer_Assign('aRes', $aResult);
-        $this->Viewer_Assign('aComments', $aComments);
-        $this->Viewer_Assign('aPaging', $aPaging);
+        E::ModuleViewer()->AddHtmlTitle($this->aReq['q']);
+        E::ModuleViewer()->Assign('bIsResults', $aResult['count']);
+        E::ModuleViewer()->Assign('aReq', $this->aReq);
+        E::ModuleViewer()->Assign('aRes', $aResult);
+        E::ModuleViewer()->Assign('aComments', $aComments);
+        E::ModuleViewer()->Assign('aPaging', $aPaging);
     }
 
     /**
@@ -523,7 +523,7 @@ class ActionSearch extends Action {
 
         $this->OutLog();
         if ($this->aReq['regexp']) {
-            $aResult = $this->Search_GetBlogsIdByRegexp(
+            $aResult = E::ModuleSearch()->GetBlogsIdByRegexp(
                 $this->aReq['regexp'], $this->aReq['iPage'],
                 $this->nItemsPerPage, $this->aReq['params']
             );
@@ -531,7 +531,7 @@ class ActionSearch extends Action {
 
             if ($aResult['count'] > 0) {
                 // * Получаем объекты по списку идентификаторов
-                $aBlogs = $this->Blog_GetBlogsAdditionalData($aResult['collection']);
+                $aBlogs = E::ModuleBlog()->GetBlogsAdditionalData($aResult['collection']);
                 //подсветка поисковой фразы
                 foreach ($aBlogs AS $oBlog) {
                     if ($this->nModeOutList != 'snippet') {
@@ -555,7 +555,7 @@ class ActionSearch extends Action {
             $this->oLogs->RecordEnd('search', true);
         }
 
-        $aPaging = $this->Viewer_MakePaging(
+        $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $this->aReq['iPage'], $this->nItemsPerPage, 4,
             Config::Get('path.root.url') . '/search/blogs', array('q' => $this->aReq['q'])
         );
@@ -563,12 +563,12 @@ class ActionSearch extends Action {
         $this->SetTemplateAction('results');
 
         // *  Отправляем данные в шаблон
-        $this->Viewer_AddHtmlTitle($this->aReq['q']);
-        $this->Viewer_Assign('bIsResults', $aResult['count']);
-        $this->Viewer_Assign('aReq', $this->aReq);
-        $this->Viewer_Assign('aRes', $aResult);
-        $this->Viewer_Assign('aBlogs', $aBlogs);
-        $this->Viewer_Assign('aPaging', $aPaging);
+        E::ModuleViewer()->AddHtmlTitle($this->aReq['q']);
+        E::ModuleViewer()->Assign('bIsResults', $aResult['count']);
+        E::ModuleViewer()->Assign('aReq', $this->aReq);
+        E::ModuleViewer()->Assign('aRes', $aResult);
+        E::ModuleViewer()->Assign('aBlogs', $aBlogs);
+        E::ModuleViewer()->Assign('aPaging', $aPaging);
     }
 
     /**
@@ -605,8 +605,8 @@ class ActionSearch extends Action {
             Config::Get('module.search.max_length_req')
         )
         ) {
-            $this->Message_AddError(
-                $this->Lang_Get(
+            E::ModuleMessage()->AddError(
+                E::ModuleLang()->Get(
                     'search_err_length', array('min' => Config::Get('module.search.min_length_req'),
                                                'max' => Config::Get('module.search.max_length_req'))
                 )
@@ -638,8 +638,8 @@ class ActionSearch extends Action {
                 }
             }
             if ($nErr == sizeof($aWords)) {
-                $this->Message_AddError(
-                    $this->Lang_Get(
+                E::ModuleMessage()->AddError(
+                    E::ModuleLang()->Get(
                         'search_err_length_word', array('min' => Config::Get('module.search.min_length_req'),
                                                         'max' => Config::Get('module.search.max_length_req'))
                     )
@@ -698,7 +698,7 @@ class ActionSearch extends Action {
             $aReq['iPage'] = 1;
         }
         // *  Передача данных в шаблонизатор
-        $this->Viewer_Assign('aReq', $aReq);
+        E::ModuleViewer()->Assign('aReq', $aReq);
 
         return $aReq;
     }

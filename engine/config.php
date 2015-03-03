@@ -7,6 +7,10 @@
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
  */
+/*
+ *  ALTO_DIR    - root directory of current site
+ *  ALTO_CORE   - root directory of Alto CMS scripts
+ */
 defined('ALTO_CORE') || define('ALTO_CORE', ALTO_DIR);
 
 /**

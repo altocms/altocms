@@ -665,6 +665,7 @@ class Install {
         $aParams['password'] = $this->GetRequest('install_db_password', '');
         $aParams['create'] = $this->GetRequest('install_db_create', 0);
         $aParams['convert_from_097'] = $this->GetRequest('install_db_convert_from_alto_097', 0);
+        $aParams['convert_to_alto_11'] = $this->GetRequest('install_db_convert_to_alto_11', 0);
         $aParams['convert_to_alto'] = $this->GetRequest('install_db_convert_to_alto', 0);
         $aParams['prefix'] = $this->GetRequest('install_db_prefix', 'prefix_');
         $aParams['engine'] = $this->GetRequest('install_db_engine', 'InnoDB');
@@ -683,6 +684,10 @@ class Install {
         );
         $this->Assign(
             'install_db_convert_from_alto_097_check', (($aParams['convert_from_097']) ? 'checked="checked"' : ''),
+            self::SET_VAR_IN_SESSION
+        );
+        $this->Assign(
+            'install_db_convert_to_alto_11_check', (($aParams['convert_to_alto_11']) ? 'checked="checked"' : ''),
             self::SET_VAR_IN_SESSION
         );
         $this->Assign('install_db_prefix', $aParams['prefix'], self::SET_VAR_IN_SESSION);
@@ -766,7 +771,7 @@ class Install {
                     return false;
                 }
 
-                if (!$aParams['convert_from_097'] && !$aParams['convert_to_alto']) {
+                if (!$aParams['convert_from_097'] && !$aParams['convert_to_alto'] && !$aParams['convert_to_alto_11']) {
 					$bResult = $this->CreateTables('sql.sql', array_merge($aParams, array('check_table' => 'topic')));
                     if (!$bResult) {
                         foreach ($this->aErrors as $sError) {
@@ -797,6 +802,20 @@ class Install {
                      */
                     list($bResult, $aErrors) = array_values(
                         $this->ConvertDatabaseToAlto10('convert_0.9.7_to_1.0.sql', $aParams)
+                    );
+                    if (!$bResult) {
+                        foreach ($aErrors as $sError) {
+                            $this->aMessages[] = array('type' => 'error', 'text' => $sError);
+                        }
+                        $this->Layout('steps/db.tpl');
+                        return false;
+                    }
+                } elseif ($aParams['convert_to_alto_11']) {
+                    /**
+                     * Если указана конвертация AltoCMS 1.1 в Alto CMS 1.1
+                     */
+                    list($bResult, $aErrors) = array_values(
+                        $this->ConvertDatabaseToAlto11('convert_1.0_to_1.1.sql', $aParams)
                     );
                     if (!$bResult) {
                         foreach ($aErrors as $sError) {
@@ -960,6 +979,15 @@ class Install {
         } else {
             $bOk = false;
             $this->Assign('validate_simplexml', '<span style="color:red;">' . $this->Lang('no') . '</span>');
+        }
+
+        if ($aGraphicPackages = array_diff(array('Gmagick' => @extension_loaded('Gmagick'), 'Imagick' => @extension_loaded('Imagick'), 'GD' => @extension_loaded('GD')), array(''))) {
+            $this->Assign('validate_graphic_packages', '<span style="color:green;">' . $this->Lang('yes') . '</span>');
+            $this->Assign('validate_graphic_packages_name', '<small style="color:green;">(' . implode(',', array_keys($aGraphicPackages)) . ')</small>');
+        } else {
+            $bOk = FALSE;
+            $this->Assign('validate_graphic_packages', '<span style="color:red;">' . $this->Lang('no') . '</span>');
+            $this->Assign('validate_graphic_packages_name', '');
         }
 
         $sLocalConfigPath = $this->sConfigDir . '/config.local.php';
@@ -1126,9 +1154,10 @@ class Install {
 
         // * Если указано проверить наличие таблицы и она уже существует, то выполнять SQL-дамп не нужно
         if (in_array($aParams['prefix'] . $aParams['check_table'], $aDbTables)) {
-            return false;
+            return true;
         }
 
+        $bResult = true;
         // * Выполняем запросы по очереди
         foreach ($aQuery as $sQuery) {
             $sQuery = trim($sQuery);
@@ -1200,6 +1229,32 @@ class Install {
     }
 
     /**
+     * Проверяем, нуждается ли база в конвертации из 1.0 в 1.1 или нет
+     *
+     * @param array $aParams
+     *
+     * @return bool
+     */
+    protected function ValidateConvertDatabaseToAlto11($aParams) {
+        /**
+         * Проверяем, нуждается ли база в конвертации или нет
+         * Смотрим, какие таблицы существуют в базе данных
+         */
+        $aDbTables = array();
+        $aResult = @mysql_query('SHOW TABLES');
+        if (!$aResult) {
+            return array('result' => false, 'errors' => array($this->Lang('error_db_no_data')));
+        }
+        while ($aRow = mysql_fetch_array($aResult, MYSQL_NUM)) {
+            $aDbTables[] = $aRow[0];
+        }
+        /**
+         * Смотрим на наличие в базе таблицы prefix_content
+         */
+        return !in_array($aParams['prefix'] . 'prefix_blog_type_content', $aDbTables);
+    }
+
+    /**
      * Конвертирует базу данных версии 0.9.7 в базу данных версии 1.0
      *
      * @param $sFileName
@@ -1210,6 +1265,52 @@ class Install {
     protected function ConvertDatabaseToAlto10($sFileName, $aParams) {
 
         if (!$this->ValidateConvertDatabaseToAlto10($aParams)) {
+            return array('result' => false, 'errors' => array($this->Lang('error_database_converted_already')));
+        }
+
+        $aQuery = $this->_loadQueries($sFileName, $aParams);
+        /**
+         * Массив для сбора ошибок
+         */
+        $aErrors = array();
+
+        /**
+         * Выполняем запросы по очереди
+         */
+        foreach ($aQuery as $sQuery) {
+            $sQuery = trim($sQuery);
+            /**
+             * Заменяем движок, если таковой указан в запросе
+             */
+            if (isset($aParams['engine'])) {
+                $sQuery = str_ireplace('ENGINE=InnoDB', "ENGINE={$aParams['engine']}", $sQuery);
+            }
+
+            if ($sQuery != '') {
+                $bResult = mysql_query($sQuery);
+                if (!$bResult) {
+                    $aErrors[] = mysql_error();
+                }
+            }
+        }
+
+        if (count($aErrors) == 0) {
+            return array('result' => true, 'errors' => null);
+        }
+        return array('result' => false, 'errors' => $aErrors);
+    }
+
+    /**
+     * Конвертирует базу данных версии 0.9.7 в базу данных версии 1.0
+     *
+     * @param $sFileName
+     * @param $aParams
+     *
+     * @return array
+     */
+    protected function ConvertDatabaseToAlto11($sFileName, $aParams) {
+
+        if (!$this->ValidateConvertDatabaseToAlto11($aParams)) {
             return array('result' => false, 'errors' => array($this->Lang('error_database_converted_already')));
         }
 

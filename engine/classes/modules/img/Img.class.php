@@ -22,7 +22,9 @@ class ModuleImg extends Module {
         );
     protected $sDefaultDriver = 'GD';
     protected $aAvailableDrivers = array();
-    protected $aParams = array();
+    protected $aInitDrivers = array();
+
+    protected $aOptions = array();
 
     public function Init() {
 
@@ -92,76 +94,73 @@ class ModuleImg extends Module {
     /**
      * Returns driver name by key
      *
-     * @param string $sConfigKey
-     *
      * @return string
      */
-    public function GetDriver($sConfigKey = null) {
+    public function GetDriver() {
 
-        $aParams = $this->GetParams($sConfigKey);
-        if (isset($aParams['driver'])) {
-            $sDriver = strtolower($aParams['driver']);
-        } else {
-            $sDriver = strtolower($this->sDefaultDriver);
-        }
-        $aDrivers = F::Str2Array($sDriver);
-        foreach($aDrivers as $sDriver) {
-            if (isset($this->aDrivers[$sDriver])) {
-                $sDriver = $this->aDrivers[$sDriver];
+        $sResult = '';
+
+        $aDrivers = F::Str2Array(Config::Get('module.image.libs'));
+        if ($aDrivers) {
+            foreach($aDrivers as $sDriver) {
+                if (isset($this->aDrivers[$sDriver])) {
+                    $sDriver = $this->aDrivers[$sDriver];
+                }
+                if (isset($this->aAvailableDrivers[$sDriver])) {
+                    $sResult = $sDriver;
+                    break;
+                }
             }
-            if (isset($this->aAvailableDrivers[$sDriver])) {
-                return $sDriver;
-            }
         }
-        return $this->sDefaultDriver;
-    }
-
-    /**
-     * @param string $sConfigKey
-     */
-    public function SetConfig($sConfigKey) {
-
-        if (Config::Get('module.image.preset.' . $sConfigKey)) {
-            $this->sConfig = $sConfigKey;
+        if (!$sResult) {
+            $sResult = $this->sDefaultDriver;
         }
+        if (!isset($this->aInitDrivers[$sResult])) {
+            $this->InitDriver($sResult);
+            $this->aInitDrivers[$sResult] = true;
+        }
+
+        return $sResult;
     }
 
     /**
-     * @return string
+     * @param $sDriver
      */
-    public function GetConfigKey() {
+    public function InitDriver($sDriver) {
 
-        return $this->sConfig;
+        // nothing
     }
 
     /**
-     * @param string $sConfigKey
+     * @param string $sFileExtension
+     * @param array  $aOptions
      *
      * @return array
      */
-    public function LoadParams($sConfigKey) {
+    public function GetOptions($sFileExtension = '*', $aOptions = array()) {
 
-        $aParams = Config::Get('module.image.preset.default');
-        if ($sConfigKey != 'default') {
-            $aParams = F::Array_Merge($aParams, Config::Get('module.image.preset.' . $sConfigKey));
+        $aConfigOptions = E::ModuleUploader()->GetConfig($sFileExtension);
+        if ($aConfigOptions && $aOptions) {
+            /** @var DataArray $aParams */
+            $aOptions = F::Array_Merge($aConfigOptions, $aOptions);
+        } elseif (!$aOptions) {
+            $aOptions = $aConfigOptions;
         }
-        return new DataArray($aParams);
+        return $aOptions;
     }
 
     /**
-     * @param string $sConfigKey
+     * @param string $sFile
      *
-     * @return array
+     * @return string
      */
-    public function GetParams($sConfigKey = null) {
+    public function GetFormat($sFile) {
 
-        if (!$sConfigKey) {
-            $sConfigKey = $this->GetConfigKey();
+        $sFormat = strtolower(pathinfo($sFile, PATHINFO_EXTENSION));
+        if ($sFormat == 'jpg') {
+            $sFormat = 'jpeg';
         }
-        if (!Config::Get('module.image.preset.' . $sConfigKey)) {
-            $sConfigKey = 'default';
-        }
-        return $this->LoadParams($sConfigKey);
+        return $sFormat;
     }
 
     /* ********************************************************************************
@@ -190,27 +189,29 @@ class ModuleImg extends Module {
 
         /** @var ModuleImg_EntityImage $oImage */
         $oImage  = Engine::GetEntity('Img_Image', $aParams);
-        return $oImage->Create($iWidth, $iHeight, $sColor, $fOpacity);
+        $oImage->Create($iWidth, $iHeight, $sColor, $fOpacity);
+        $oImage->SetOptions($this->GetOptions());
+
+        return $oImage;
     }
 
     /**
      * Read image
      *
      * @param string $sFile
-     * @param string $sConfigKey
+     * @param array  $aOptions
      *
      * @return ModuleImg_EntityImage
      */
-    public function Read($sFile, $sConfigKey = null) {
+    public function Read($sFile, $aOptions = array()) {
 
-        if (!$sConfigKey) {
-            $sConfigKey = $this->GetConfigKey();
-        }
-        $aParams = $this->GetParams($sConfigKey);
+        $aOptions = $this->GetOptions($sFile, $aOptions);
 
         /** @var ModuleImg_EntityImage $oImage */
-        $oImage  = Engine::GetEntity('Img_Image', $aParams);
-        $oImage->Read($sFile, $sConfigKey);
+        $oImage  = Engine::GetEntity('Img_Image', isset($aOptions['params']) ? (array)$aOptions['params'] : array());
+        $oImage->Read($sFile);
+        $oImage->SetOptions($aOptions);
+
         return $oImage;
     }
 
@@ -441,48 +442,98 @@ class ModuleImg extends Module {
     }
 
     /**
+     * @param ModuleImg_EntityImage $oImg
+     * @param DataArray|array       $aOptions
+     *
+     * @return bool
+     */
+    public function Transform($oImg, $aOptions) {
+
+        $bChanged = false;
+        if (is_object($oImg) && $aOptions) {
+            if (is_array($aOptions)) {
+                $aOptions = new DataArray($aOptions);
+            }
+            if ($aOptions['animation'] === false) {
+                $oImg->KillAnimation();
+            }
+            $iW = $aOptions['max_width'];
+            $iH = $aOptions['max_height'];
+            if (($iW && $iW < $oImg->GetWidth()) || ($iH && $iH < $oImg->GetHeight())) {
+                $oImg->Resize($iW, $iH, true);
+                $bChanged = true;
+            }
+            if ($aOptions['watermark.enable'] && $aOptions['watermark.image']) {
+                $sMarkImg = F::File_Exists($aOptions['watermark.image.file'], $aOptions['watermark.image.path']);
+                $bTopLeft = (bool)$aOptions['watermark.image.topleft'];
+                if ($aOptions['watermark.image.position']) {
+                    list($iCoordX, $iCoordY) = explode(',', $aOptions['watermark.image.position']);
+                } else {
+                    $iCoordX = $iCoordY = 0;
+                }
+                if ($oImg = $this->WatermarkImg($oImg, $iCoordX, $iCoordY, $sMarkImg, $bTopLeft)) {
+                    $bChanged = true;
+                }
+            }
+        }
+
+        return $bChanged;
+    }
+
+    /**
      * Duplicates image file with other sizes
      *
      * @param string $sFile
      * @param bool   $bForceRewrite
+     * @param array  $aOptions
      *
      * @return string|bool
      */
-    public function Duplicate($sFile, $bForceRewrite = false) {
+    public function Duplicate($sFile, $bForceRewrite = false, $aOptions = null) {
 
+        if (func_num_args() == 2 && is_array($bForceRewrite)) {
+            $aOptions = $bForceRewrite;
+            $bForceRewrite = false;
+        }
         $this->nError = 0;
         if (!F::File_Exists($sFile) || $bForceRewrite) {
             $sOriginal = $this->OriginalFile($sFile, $aOptions);
             if ($aOptions) {
                 $sResultFile = false;
                 if (F::File_Exists($sOriginal)) {
-                    $nW = $aOptions['width'];
-                    $nH = $aOptions['height'];
-                    $sModifier = $aOptions['mod'];
+                    $iW = $aOptions['width'];
+                    $iH = $aOptions['height'];
+                    $sModifier = $aOptions['modifier'];
+                    $aOptions['save_as'] = (isset($aOptions['save_as']) ? $aOptions['save_as'] : $this->GetFormat($sFile));
                     if ($sModifier == 'fit') {
-                        $sResultFile = $this->Copy($sOriginal, $sFile, $nW, $nH, true);
+                        $sResultFile = $this->Copy($sOriginal, $sFile, $iW, $iH, true);
                     } elseif ($sModifier == 'pad') {
-                        $sResultFile = $this->Copy($sOriginal, $sFile, $nW, $nH, false);
+                        $sResultFile = $this->Copy($sOriginal, $sFile, $iW, $iH, false);
                     } elseif ($sModifier == 'crop') {
-                        if ($oImg = $this->Resize($sOriginal, $nW, $nH, false)) {
-                            $oImg = $this->CropCenter($oImg, $nW, $nH);
-                            $sResultFile = $oImg->Save($sFile);
+                        if ($oImg = $this->Resize($sOriginal, $iW, $iH, false)) {
+                            $oImg = $this->CropCenter($oImg, $iW, $iH);
+                            $sResultFile = $oImg->Save($sFile, $aOptions);
                         }
                     } else {
-                        $oImg = $this->Resize($sOriginal, $nW, $nH, true);
+                        $oImg = $this->Resize($sOriginal, $iW, $iH, true);
                         // real size can differ from request size, so we need change canvas size
-                        $nDX = ($nW ? $nW - $oImg->GetWidth() : 0);
-                        $nDY = ($nH ? $nH - $oImg->GetHeight() : 0);
-                        if ($nDX < 0 || $nDY < 0) {
-                            $oImg = $this->CropCenter($oImg, $oImg->GetWidth() + $nDX, $oImg->GetHeight() + $nDY);
-                            $nDX = ($nW ? $nW - $oImg->GetWidth() : 0);
-                            $nDY = ($nH ? $nH - $oImg->GetHeight() : 0);
+                        $iDX = ($iW ? $iW - $oImg->GetWidth() : 0);
+                        $iDY = ($iH ? $iH - $oImg->GetHeight() : 0);
+                        if ($iDX < 0 || $iDY < 0) {
+                            $oImg = $this->CropCenter($oImg, $oImg->GetWidth() + $iDX, $oImg->GetHeight() + $iDY);
+                            $iDX = ($iW ? $iW - $oImg->GetWidth() : 0);
+                            $iDY = ($iH ? $iH - $oImg->GetHeight() : 0);
                         }
-                        if ($nDX || $nDY) {
-                            $oImg->CanvasSize($nW, $nH);
-                            $sResultFile = $oImg->Save($sFile);
+                        if ($iDX || $iDY) {
+                            $xBgColor = (isset($aOptions['bg_color']) ? $aOptions['bg_color'] : null);
+                            if ($xBgColor) {
+                                $oImg->CanvasSize($iW, $iH, $xBgColor, 1);
+                            } else {
+                                $oImg->CanvasSize($iW, $iH);
+                            }
+                            $sResultFile = $oImg->Save($sFile, $aOptions);
                         } else {
-                            $sResultFile = $oImg->Save($sFile);
+                            $sResultFile = $oImg->Save($sFile, $aOptions);
                         }
                     }
                 }
@@ -503,10 +554,11 @@ class ModuleImg extends Module {
      * @param int    $iWidth       - new width
      * @param int    $iHeight      - new height
      * @param bool   $bFit         - to fit image's sizes into new sizes
+     * @param array  $aOptions     - to fit image's sizes into new sizes
      *
      * @return string|bool
      */
-    public function Copy($sFile, $sDestination, $iWidth = null, $iHeight = null, $bFit = true) {
+    public function Copy($sFile, $sDestination, $iWidth = null, $iHeight = null, $bFit = true, $aOptions = array()) {
 
         if (basename($sDestination) == $sDestination) {
             $sDestination = dirname($sFile) . '/' . $sDestination;
@@ -514,7 +566,7 @@ class ModuleImg extends Module {
         try {
             if (F::File_Exists($sFile) && ($oImg = $this->Read($sFile))) {
                 $oImg->Resize($iWidth, $iHeight, $bFit);
-                $oImg->Save($sDestination);
+                $oImg->Save($sDestination, $aOptions);
                 return $sDestination;
             }
         } catch(ErrorException $oE) {
@@ -600,44 +652,24 @@ class ModuleImg extends Module {
             $sPreset = null;
         }
         if ($sPreset) {
-            $sOldKey = $this->GetConfigKey();
-            $this->SetConfig($sPreset);
-            $aParams = $this->GetParams();
+            $aPresetOptions = $this->GetOptions($sFile, $sPreset, $aOptions);
         } else {
-            $sOldKey = null;
-            $aParams = array();
+            $aPresetOptions = array();
         }
-        if ($aOptions) {
-            $aParams = F::Array_Merge($aParams, $aOptions);
+        if ($aPresetOptions && $aOptions) {
+            /** @var DataArray $aParams */
+            $aOptions = F::Array_Merge($aPresetOptions, $aOptions);
+        } elseif (!$aOptions) {
+            $aOptions = $aPresetOptions;
         }
         $bResult = false;
 
         if ($oImg = $this->Read($sFile)) {
-            $bChanged = false;
-            $iW = $aParams['size.width'];
-            $iH = $aParams['size.height'];
-            if (($iW && $iW < $oImg->GetWidth()) || ($iH && $iH < $oImg->GetHeight())) {
-                $oImg->Resize($iW, $iH, true);
-                $bChanged = true;
-            }
-            if ($aParams['watermark.enable'] && $aParams['watermark.image']) {
-                $sMarkImg = F::File_Exists($aParams['watermark.image.file'], $aParams['watermark.image.path']);
-                $bTopLeft = (bool)$aParams['watermark.image.topleft'];
-                if ($aParams['watermark.image.position']) {
-                    list($iCoordX, $iCoordY) = explode(',', $aParams['watermark.image.position']);
-                } else {
-                    $iCoordX = $iCoordY = 0;
-                }
-                $oImg = $this->WatermarkImg($oImg, $iCoordX, $iCoordY, $sMarkImg, $bTopLeft);
-                $bChanged = true;
-            }
+            $bChanged = $this->Transform($oImg, $aOptions);
             if ($bChanged) {
-                $oImg->Save($sFile);
+                $oImg->Save($sFile, $aOptions);
             }
             $bResult = true;
-        }
-        if ($sOldKey) {
-            $this->SetConfig($sOldKey);
         }
 
         return $bResult ? $sFile : false;
@@ -673,17 +705,17 @@ class ModuleImg extends Module {
      */
     public function OriginalFile($sFile, &$aOptions) {
 
+        if (!$aOptions) {
+            $aOptions = array();
+        }
         if (preg_match('~^(.+)-(\d*x\d*)(\-([a-z]+))?\.[a-z]+$~i', $sFile, $aMatches)) {
             $sOriginal = $aMatches[1];
             list($nW, $nH) = explode('x', $aMatches[2]);
             $sModifier = (isset($aMatches[4]) ? $aMatches[4] : '');
-            $aOptions = array(
-                'width' => ($nW ? intval($nW) : null),
-                'height' => ($nH ? intval($nH) : null),
-                'mod' => $sModifier,
-            );
+            $aOptions['width'] = ($nW ? intval($nW) : null);
+            $aOptions['height'] = ($nH ? intval($nH) : null);
+            $aOptions['modifier'] = $sModifier;
         } else {
-            $aOptions = array();
             $sOriginal = $sFile;
         }
         return $sOriginal;
@@ -711,6 +743,11 @@ class ModuleImg extends Module {
                 $aParams['alt'] = $aParams['title'];
             }
         }
+
+        if (isset($aParams['img_width']) && is_numeric($aParams['img_width'])) {
+            $sText .= " width=\"{$aParams['img_width']}%\"";
+        }
+
         if (isset($aParams['align']) && in_array($aParams['align'], array('left', 'right', 'center'))) {
             if ($aParams['align'] == 'center') {
                 $sText .= ' class="image-center"';
@@ -783,10 +820,10 @@ class ModuleImg extends Module {
 
         $sImageFile = '';
         $sName = basename($sFile);
-        if (preg_match('/^' . preg_quote($sPrefix) . '([a-z0-9]+)?_([a-z0-9\-]+)(_(male|female))?([\-0-9a-z\.]+)?(\.[a-z]+)$/i', $sName, $aMatches)) {
-            $sName = $aMatches[1];
-            $sSkin = $aMatches[2];
-            $sType = $aMatches[4];
+        if (preg_match('/^' . preg_quote($sPrefix) . '_([a-z0-9-]+)(_[a-z0-9\-]+)?(_(male|female))?([\-0-9a-z\.]+)?(\.[a-z]+)$/i', $sName, $aMatches)) {
+            $sName = $aMatches[0];
+            $sSkin = $aMatches[1];
+            $sType = $aMatches[2];
             $sExtension = $aMatches[6];
             if ($sExtension && substr($sSkin, -strlen($sExtension)) == $sExtension) {
                 $sSkin = substr($sSkin, 0, strlen($sSkin)-strlen($sExtension));

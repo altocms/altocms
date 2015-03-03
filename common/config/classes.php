@@ -1,7 +1,21 @@
 <?php
+/*-------------------------------------------------------
+ * @Project: Alto CMS
+ * @Project URI: http://altocms.com
+ * @Description: Advanced Community Engine
+ * @Copyright: Alto CMS Team
+ * @License: GNU GPL v2 & MIT
+ *-------------------------------------------------------
+ */
 
 return array(
-    'class' => array(
+    'alias'  => array(
+        'R' => 'Router',
+        'C' => 'Config',
+        'E' => 'Engine',
+        'App' => 'Application',
+    ),
+    'class'  => array(
         'LsObject' => '___path.dir.engine___/classes/abstract/LsObject.class.php',
     ),
     'prefix' => array(

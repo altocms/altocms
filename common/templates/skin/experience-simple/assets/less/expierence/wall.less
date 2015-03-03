@@ -1,0 +1,90 @@
+@import "../var.bootstrap.less";
+@import "../bootstrap/mixins";
+@import "../var.experience.less";
+
+
+.panel-wall {
+
+    .editor {
+        margin-top: 16px;
+    }
+
+    .wall-controls {
+        margin-bottom: 32px;
+    }
+
+    .wall-user-logo {
+        float: left;
+    }
+
+    .comment {
+        margin-bottom: 12px;
+        border-bottom: 1px solid @color-90;
+        padding-bottom: 12px;
+    }
+
+    .wall-container {
+        margin-top: 24px;
+    }
+
+    .wall-userlogo {
+        width: 50px;
+        padding-right: 18px;
+        vertical-align: top;
+
+        a {
+            display: block;
+        }
+    }
+
+    .wall-username {
+        font-size: @font-size-base;
+        font-weight: bold;
+        margin-right: 12px;
+    }
+
+    .wall-date {
+        color: @color-50;
+        position: relative;
+        font-size: @font-size-small;
+
+        &:before {
+            content: ".";
+            position: absolute;
+            left: -8px;
+            line-height: 14px;
+            font-size: 12px;
+            font-weight: bold;
+            font-family: "Arial";
+        }
+    }
+
+    .wall-content {
+        margin-left: 62px;
+    }
+
+    .wall-header {
+        line-height: 18px;
+    }
+
+    .wall-text {
+        font-family: @font-family-serif;
+        font-size: @font-size-base;
+        line-height: 18px;
+    }
+
+    .wall-footer a {
+        font-size: @font-size-small;
+        line-height: 18px;
+
+        &:first-child {
+            margin-right: 16px;
+        }
+    }
+
+    .wall-level-1 {
+       margin-left: 68px;
+        padding-bottom: 0;
+    }
+
+}

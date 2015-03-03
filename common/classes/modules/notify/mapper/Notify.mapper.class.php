@@ -139,13 +139,11 @@ class ModuleNotify_MapperNotify extends Mapper {
 				FROM ?_notify_task
 				ORDER BY date_created ASC
 				LIMIT ?d";
-        $aTasks = array();
+        $aResult = array();
         if ($aRows = $this->oDb->select($sql, $iLimit)) {
-            foreach ($aRows as $aTask) {
-                $aTasks[] = Engine::GetEntity('Notify_Task', $aTask);
-            }
+            $aResult = E::GetEntityRows('Notify_Task', $aRows);
         }
-        return $aTasks;
+        return $aResult;
     }
 
 }

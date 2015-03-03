@@ -47,21 +47,21 @@ class ActionTalk extends Action {
         /**
          * Проверяем авторизован ли юзер
          */
-        if (!$this->User_IsAuthorization()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('not_access'));
-            return Router::Action('error');
+        if (!E::ModuleUser()->IsAuthorization()) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'));
+            return R::Action('error');
         }
         /**
          * Получаем текущего юзера
          */
-        $this->oUserCurrent = $this->User_GetUserCurrent();
+        $this->oUserCurrent = E::ModuleUser()->GetUserCurrent();
         $this->SetDefaultEvent('inbox');
-        $this->Viewer_AddHtmlTitle($this->Lang_Get('talk_menu_inbox'));
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('talk_menu_inbox'));
 
         /**
          * Загружаем в шаблон JS текстовки
          */
-        $this->Lang_AddLangJs(
+        E::ModuleLang()->AddLangJs(
             array(
                  'delete',
                  'talk_inbox_delete_confirm'
@@ -98,25 +98,25 @@ class ActionTalk extends Action {
      * Удаление письма
      */
     protected function EventDelete() {
-        $this->Security_ValidateSendForm();
+        E::ModuleSecurity()->ValidateSendForm();
         /**
          * Получаем номер сообщения из УРЛ и проверяем существует ли оно
          */
         $sTalkId = $this->GetParam(0);
-        if (!($oTalk = $this->Talk_GetTalkById($sTalkId))) {
+        if (!($oTalk = E::ModuleTalk()->GetTalkById($sTalkId))) {
             return parent::EventNotFound();
         }
         /**
          * Пользователь входит в переписку?
          */
-        if (!($oTalkUser = $this->Talk_GetTalkUser($oTalk->getId(), $this->oUserCurrent->getId()))) {
+        if (!($oTalkUser = E::ModuleTalk()->GetTalkUser($oTalk->getId(), $this->oUserCurrent->getId()))) {
             return parent::EventNotFound();
         }
         /**
          * Обработка удаления сообщения
          */
-        $this->Talk_DeleteTalkUserByArray($sTalkId, $this->oUserCurrent->getId());
-        Router::Location(Router::GetPath('talk'));
+        E::ModuleTalk()->DeleteTalkUserByArray($sTalkId, $this->oUserCurrent->getId());
+        R::Location(R::GetPath('talk'));
     }
 
     /**
@@ -126,31 +126,31 @@ class ActionTalk extends Action {
 
         // * Обработка удаления сообщений
         if (F::GetRequest('submit_talk_del')) {
-            $this->Security_ValidateSendForm();
+            E::ModuleSecurity()->ValidateSendForm();
 
             $aTalksIdDel = F::GetRequest('talk_select');
             if (is_array($aTalksIdDel)) {
-                $this->Talk_DeleteTalkUserByArray(array_keys($aTalksIdDel), $this->oUserCurrent->getId());
+                E::ModuleTalk()->DeleteTalkUserByArray(array_keys($aTalksIdDel), $this->oUserCurrent->getId());
             }
         }
 
         // * Обработка отметки о прочтении
         if (F::GetRequest('submit_talk_read')) {
-            $this->Security_ValidateSendForm();
+            E::ModuleSecurity()->ValidateSendForm();
 
             $aTalksIdDel = F::GetRequest('talk_select');
             if (is_array($aTalksIdDel)) {
-                $this->Talk_MarkReadTalkUserByArray(array_keys($aTalksIdDel), $this->oUserCurrent->getId());
+                E::ModuleTalk()->MarkReadTalkUserByArray(array_keys($aTalksIdDel), $this->oUserCurrent->getId());
             }
         }
 
         // * Обработка отметки непрочтенных сообщений
         if (F::GetRequest('submit_talk_unread')) {
-            $this->Security_ValidateSendForm();
+            E::ModuleSecurity()->ValidateSendForm();
 
             $aTalksIdDel = F::GetRequest('talk_select');
             if (is_array($aTalksIdDel)) {
-                $this->Talk_MarkUnreadTalkUserByArray(array_keys($aTalksIdDel), $this->oUserCurrent->getId());
+                E::ModuleTalk()->MarkUnreadTalkUserByArray(array_keys($aTalksIdDel), $this->oUserCurrent->getId());
             }
         }
         $this->sMenuSubItemSelect = 'inbox';
@@ -172,14 +172,14 @@ class ActionTalk extends Action {
         $iPage = preg_match("/^page([1-9]\d{0,5})$/i", $this->getParam(0), $aMatch) ? $aMatch[1] : 1;
 
         // * Получаем список писем
-        $aResult = $this->Talk_GetTalksByFilter($aFilter, $iPage, $iPerPage);
+        $aResult = E::ModuleTalk()->GetTalksByFilter($aFilter, $iPage, $iPerPage);
 
         $aTalks = $aResult['collection'];
 
         // * Формируем постраничность
-        $aPaging = $this->Viewer_MakePaging(
+        $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $iPage, $iPerPage, Config::Get('pagination.pages.count'),
-            Router::GetPath('talk') . $this->sCurrentEvent,
+            R::GetPath('talk') . $this->sCurrentEvent,
             array_intersect_key(
                 $_REQUEST,
                 array_fill_keys(
@@ -191,16 +191,16 @@ class ActionTalk extends Action {
 
         // * Показываем сообщение, если происходит поиск по фильтру
         if (F::GetRequest('submit_talk_filter')) {
-            $this->Message_AddNotice(
+            E::ModuleMessage()->AddNotice(
                 ($aResult['count'])
-                    ? $this->Lang_Get('talk_filter_result_count', array('count' => $aResult['count']))
-                    : $this->Lang_Get('talk_filter_result_empty')
+                    ? E::ModuleLang()->Get('talk_filter_result_count', array('count' => $aResult['count']))
+                    : E::ModuleLang()->Get('talk_filter_result_empty')
             );
         }
 
         // * Загружаем переменные в шаблон
-        $this->Viewer_Assign('aPaging', $aPaging);
-        $this->Viewer_Assign('aTalks', $aTalks);
+        E::ModuleViewer()->Assign('aPaging', $aPaging);
+        E::ModuleViewer()->Assign('aTalks', $aTalks);
     }
 
     /**
@@ -222,16 +222,16 @@ class ActionTalk extends Action {
                 if (@checkdate($m, $d, $y)) {
                     $aFilter['date_min'] = "{$y}-{$m}-{$d}";
                 } else {
-                    $this->Message_AddError(
-                        $this->Lang_Get('talk_filter_error_date_format'),
-                        $this->Lang_Get('talk_filter_error')
+                    E::ModuleMessage()->AddError(
+                        E::ModuleLang()->Get('talk_filter_error_date_format'),
+                        E::ModuleLang()->Get('talk_filter_error')
                     );
                     unset($_REQUEST['start']);
                 }
             } else {
-                $this->Message_AddError(
-                    $this->Lang_Get('talk_filter_error_date_format'),
-                    $this->Lang_Get('talk_filter_error')
+                E::ModuleMessage()->AddError(
+                    E::ModuleLang()->Get('talk_filter_error_date_format'),
+                    E::ModuleLang()->Get('talk_filter_error')
                 );
                 unset($_REQUEST['start']);
             }
@@ -244,16 +244,16 @@ class ActionTalk extends Action {
                 if (@checkdate($m, $d, $y)) {
                     $aFilter['date_max'] = "{$y}-{$m}-{$d} 23:59:59";
                 } else {
-                    $this->Message_AddError(
-                        $this->Lang_Get('talk_filter_error_date_format'),
-                        $this->Lang_Get('talk_filter_error')
+                    E::ModuleMessage()->AddError(
+                        E::ModuleLang()->Get('talk_filter_error_date_format'),
+                        E::ModuleLang()->Get('talk_filter_error')
                     );
                     unset($_REQUEST['end']);
                 }
             } else {
-                $this->Message_AddError(
-                    $this->Lang_Get('talk_filter_error_date_format'),
-                    $this->Lang_Get('talk_filter_error')
+                E::ModuleMessage()->AddError(
+                    E::ModuleLang()->Get('talk_filter_error_date_format'),
+                    E::ModuleLang()->Get('talk_filter_error')
                 );
                 unset($_REQUEST['end']);
             }
@@ -294,7 +294,7 @@ class ActionTalk extends Action {
 
         // * Искать только в избранных письмах
         if (F::GetRequest('favourite')) {
-            $aTalkIdResult = $this->Favourite_GetFavouritesByUserId(
+            $aTalkIdResult = E::ModuleFavourite()->GetFavouritesByUserId(
                 $this->oUserCurrent->getId(), 'talk', 1, 500
             ); // ограничиваем
             $aFilter['id'] = $aTalkIdResult['collection'];
@@ -310,8 +310,8 @@ class ActionTalk extends Action {
      */
     protected function EventBlacklist() {
         $this->sMenuSubItemSelect = 'blacklist';
-        $aUsersBlacklist = $this->Talk_GetBlacklistByUserId($this->oUserCurrent->getId());
-        $this->Viewer_Assign('aUsersBlacklist', $aUsersBlacklist);
+        $aUsersBlacklist = E::ModuleTalk()->GetBlacklistByUserId($this->oUserCurrent->getId());
+        E::ModuleViewer()->Assign('aUsersBlacklist', $aUsersBlacklist);
     }
 
     /**
@@ -326,7 +326,7 @@ class ActionTalk extends Action {
         /**
          * Получаем список писем
          */
-        $aResult = $this->Talk_GetTalksFavouriteByUserId(
+        $aResult = E::ModuleTalk()->GetTalksFavouriteByUserId(
             $this->oUserCurrent->getId(),
             $iPage, Config::Get('module.talk.per_page')
         );
@@ -334,16 +334,16 @@ class ActionTalk extends Action {
         /**
          * Формируем постраничность
          */
-        $aPaging = $this->Viewer_MakePaging(
+        $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $iPage, Config::Get('module.talk.per_page'), Config::Get('pagination.pages.count'),
-            Router::GetPath('talk') . $this->sCurrentEvent
+            R::GetPath('talk') . $this->sCurrentEvent
         );
         /**
          * Загружаем переменные в шаблон
          */
-        $this->Viewer_Assign('aPaging', $aPaging);
-        $this->Viewer_Assign('aTalks', $aTalks);
-        $this->Viewer_AddHtmlTitle($this->Lang_Get('talk_favourite_inbox'));
+        E::ModuleViewer()->Assign('aPaging', $aPaging);
+        E::ModuleViewer()->Assign('aTalks', $aTalks);
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('talk_favourite_inbox'));
     }
 
     /**
@@ -351,13 +351,13 @@ class ActionTalk extends Action {
      */
     protected function EventAdd() {
         $this->sMenuSubItemSelect = 'add';
-        $this->Viewer_AddHtmlTitle($this->Lang_Get('talk_menu_inbox_create'));
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('talk_menu_inbox_create'));
         /**
          * Получаем список друзей
          */
-        $aUsersFriend = $this->User_GetUsersFriend($this->oUserCurrent->getId());
+        $aUsersFriend = E::ModuleUser()->GetUsersFriend($this->oUserCurrent->getId());
         if ($aUsersFriend['collection']) {
-            $this->Viewer_Assign('aUsersFriend', $aUsersFriend['collection']);
+            E::ModuleViewer()->Assign('aUsersFriend', $aUsersFriend['collection']);
         }
         /**
          * Проверяем отправлена ли форма с данными
@@ -374,22 +374,25 @@ class ActionTalk extends Action {
         /**
          * Проверяем разрешено ли отправлять инбокс по времени
          */
-        if (!$this->ACL_CanSendTalkTime($this->oUserCurrent)) {
-            $this->Message_AddErrorSingle($this->Lang_Get('talk_time_limit'), $this->Lang_Get('error'));
+        if (!E::ModuleACL()->CanSendTalkTime($this->oUserCurrent)) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('talk_time_limit'), E::ModuleLang()->Get('error'));
             return false;
         }
         /**
          * Отправляем письмо
          */
-        if ($oTalk = $this->Talk_SendTalk(
-            $this->Text_Parser(strip_tags(F::GetRequestStr('talk_title'))), $this->Text_Parser(F::GetRequestStr('talk_text')),
+        if ($oTalk = E::ModuleTalk()->SendTalk(
+            E::ModuleText()->Parser(strip_tags(F::GetRequestStr('talk_title'))), E::ModuleText()->Parser(F::GetRequestStr('talk_text')),
             $this->oUserCurrent, $this->aUsersId
         )
         ) {
-            Router::Location(Router::GetPath('talk') . 'read/' . $oTalk->getId() . '/');
+
+            E::ModuleMresource()->CheckTargetTextForImages('talk', $oTalk->getId(), $oTalk->getText());
+
+            R::Location(R::GetPath('talk') . 'read/' . $oTalk->getId() . '/');
         } else {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
-            return Router::Action('error');
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
+            return R::Action('error');
         }
     }
 
@@ -402,13 +405,13 @@ class ActionTalk extends Action {
          * Получаем номер сообщения из УРЛ и проверяем существует ли оно
          */
         $sTalkId = $this->GetParam(0);
-        if (!($oTalk = $this->Talk_GetTalkById($sTalkId))) {
+        if (!($oTalk = E::ModuleTalk()->GetTalkById($sTalkId))) {
             return parent::EventNotFound();
         }
         /**
          * Пользователь есть в переписке?
          */
-        if (!($oTalkUser = $this->Talk_GetTalkUser($oTalk->getId(), $this->oUserCurrent->getId()))) {
+        if (!($oTalkUser = E::ModuleTalk()->GetTalkUser($oTalk->getId(), $this->oUserCurrent->getId()))) {
             return parent::EventNotFound();
         }
         /**
@@ -426,7 +429,7 @@ class ActionTalk extends Action {
         /**
          * Достаём комменты к сообщению
          */
-        $aReturn = $this->Comment_GetCommentsByTargetId($oTalk, 'talk');
+        $aReturn = E::ModuleComment()->GetCommentsByTargetId($oTalk, 'talk');
         $iMaxIdComment = $aReturn['iMaxIdComment'];
         $aComments = $aReturn['comments'];
         /**
@@ -435,12 +438,12 @@ class ActionTalk extends Action {
         $oTalkUser->setDateLast(F::Now());
         $oTalkUser->setCommentIdLast($iMaxIdComment);
         $oTalkUser->setCommentCountNew(0);
-        $this->Talk_UpdateTalkUser($oTalkUser);
+        E::ModuleTalk()->UpdateTalkUser($oTalkUser);
 
-        $this->Viewer_AddHtmlTitle($oTalk->getTitle());
-        $this->Viewer_Assign('oTalk', $oTalk);
-        $this->Viewer_Assign('aComments', $aComments);
-        $this->Viewer_Assign('iMaxIdComment', $iMaxIdComment);
+        E::ModuleViewer()->AddHtmlTitle($oTalk->getTitle());
+        E::ModuleViewer()->Assign('oTalk', $oTalk);
+        E::ModuleViewer()->Assign('aComments', $aComments);
+        E::ModuleViewer()->Assign('iMaxIdComment', $iMaxIdComment);
         /**
          * Подсчитываем нужно ли отображать комментарии.
          * Комментарии не отображаются, если у вестки только один читатель
@@ -457,11 +460,11 @@ class ActionTalk extends Action {
                 }
             }
             if ($iActiveSpeakers == 0) {
-                $this->Viewer_Assign('bNoComments', true);
+                E::ModuleViewer()->Assign('bNoComments', true);
             }
         }
 
-        $this->Viewer_Assign('bAllowToComment', true);
+        E::ModuleViewer()->Assign('bAllowToComment', true);
         $this->SetTemplateAction('message');
     }
 
@@ -471,14 +474,14 @@ class ActionTalk extends Action {
      * @return bool
      */
     protected function checkTalkFields() {
-        $this->Security_ValidateSendForm();
+        E::ModuleSecurity()->ValidateSendForm();
 
         $bOk = true;
         /**
          * Проверяем есть ли заголовок
          */
         if (!F::CheckVal(F::GetRequestStr('talk_title'), 'text', 2, 200)) {
-            $this->Message_AddError($this->Lang_Get('talk_create_title_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('talk_create_title_error'), E::ModuleLang()->Get('error'));
             $bOk = false;
         }
         /**
@@ -488,9 +491,9 @@ class ActionTalk extends Action {
         $iMax = intval(Config::Get('module.talk.max_length'));
         if (!F::CheckVal(F::GetRequestStr('talk_text'), 'text', $iMin, $iMax)) {
             if ($iMax) {
-                $this->Message_AddError($this->Lang_Get('talk_create_text_error_min', array('min'=>$iMin)), $this->Lang_Get('error'));
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get('talk_create_text_error_min', array('min'=>$iMin)), E::ModuleLang()->Get('error'));
             } else {
-                $this->Message_AddError($this->Lang_Get('talk_create_text_error_len', array('min'=>$iMin, 'max'=>$iMax)), $this->Lang_Get('error'));
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get('talk_create_text_error_len', array('min'=>$iMin, 'max'=>$iMax)), E::ModuleLang()->Get('error'));
             }
             $bOk = false;
         }
@@ -500,7 +503,7 @@ class ActionTalk extends Action {
         $sUsers = F::GetRequest('talk_users');
         $aUsers = explode(',', (string)$sUsers);
         $aUsersNew = array();
-        $aUserInBlacklist = $this->Talk_GetBlacklistByTargetId($this->oUserCurrent->getId());
+        $aUserInBlacklist = E::ModuleTalk()->GetBlacklistByTargetId($this->oUserCurrent->getId());
 
         $this->aUsersId = array();
         foreach ($aUsers as $sUser) {
@@ -508,40 +511,40 @@ class ActionTalk extends Action {
             if ($sUser == '' || strtolower($sUser) == strtolower($this->oUserCurrent->getLogin())) {
                 continue;
             }
-            if (($oUser = $this->User_GetUserByLogin($sUser)) && $oUser->getActivate() == 1) {
+            if (($oUser = E::ModuleUser()->GetUserByLogin($sUser)) && $oUser->getActivate() == 1) {
                 // Проверяем, попал ли отправиль в блек лист
                 if (!in_array($oUser->getId(), $aUserInBlacklist)) {
                     $this->aUsersId[] = $oUser->getId();
                 } else {
-                    $this->Message_AddError(
+                    E::ModuleMessage()->AddError(
                         str_replace(
                             'login',
                             $oUser->getLogin(),
-                            $this->Lang_Get(
+                            E::ModuleLang()->Get(
                                 'talk_user_in_blacklist', array('login' => htmlspecialchars($oUser->getLogin()))
                             )
                         ),
-                        $this->Lang_Get('error')
+                        E::ModuleLang()->Get('error')
                     );
                     $bOk = false;
                     continue;
                 }
             } else {
-                $this->Message_AddError(
-                    $this->Lang_Get('talk_create_users_error_not_found') . ' «' . htmlspecialchars($sUser) . '»',
-                    $this->Lang_Get('error')
+                E::ModuleMessage()->AddError(
+                    E::ModuleLang()->Get('talk_create_users_error_not_found') . ' «' . htmlspecialchars($sUser) . '»',
+                    E::ModuleLang()->Get('error')
                 );
                 $bOk = false;
             }
             $aUsersNew[] = $sUser;
         }
         if (!count($aUsersNew)) {
-            $this->Message_AddError($this->Lang_Get('talk_create_users_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('talk_create_users_error'), E::ModuleLang()->Get('error'));
             $_REQUEST['talk_users'] = '';
             $bOk = false;
         } else {
             if (count($aUsersNew) > Config::Get('module.talk.max_users') && !$this->oUserCurrent->isAdministrator()) {
-                $this->Message_AddError($this->Lang_Get('talk_create_users_error_many'), $this->Lang_Get('error'));
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get('talk_create_users_error_many'), E::ModuleLang()->Get('error'));
                 $bOk = false;
             }
             $_REQUEST['talk_users'] = join(',', $aUsersNew);
@@ -549,7 +552,7 @@ class ActionTalk extends Action {
         /**
          * Выполнение хуков
          */
-        $this->Hook_Run('check_talk_fields', array('bOk' => &$bOk));
+        E::ModuleHook()->Run('check_talk_fields', array('bOk' => &$bOk));
 
         return $bOk;
     }
@@ -562,30 +565,30 @@ class ActionTalk extends Action {
         /**
          * Устанавливаем формат Ajax ответа
          */
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
         $idCommentLast = F::GetRequestStr('idCommentLast');
         /**
          * Проверям авторизован ли пользователь
          */
-        if (!$this->User_IsAuthorization()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+        if (!E::ModuleUser()->IsAuthorization()) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
         /**
          * Проверяем разговор
          */
-        if (!($oTalk = $this->Talk_GetTalkById(F::GetRequestStr('idTarget')))) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        if (!($oTalk = E::ModuleTalk()->GetTalkById(F::GetRequestStr('idTarget')))) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
-        if (!($oTalkUser = $this->Talk_GetTalkUser($oTalk->getId(), $this->oUserCurrent->getId()))) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        if (!($oTalkUser = E::ModuleTalk()->GetTalkUser($oTalk->getId(), $this->oUserCurrent->getId()))) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
         /**
          * Получаем комментарии
          */
-        $aReturn = $this->Comment_GetCommentsNewByTargetId($oTalk->getId(), 'talk', $idCommentLast);
+        $aReturn = E::ModuleComment()->GetCommentsNewByTargetId($oTalk->getId(), 'talk', $idCommentLast);
         $iMaxIdComment = $aReturn['iMaxIdComment'];
         /**
          * Отмечаем дату прочтения письма
@@ -595,7 +598,7 @@ class ActionTalk extends Action {
             $oTalkUser->setCommentIdLast($iMaxIdComment);
         }
         $oTalkUser->setCommentCountNew(0);
-        $this->Talk_UpdateTalkUser($oTalkUser);
+        E::ModuleTalk()->UpdateTalkUser($oTalkUser);
 
         $aComments = array();
         $aCmts = $aReturn['comments'];
@@ -608,8 +611,8 @@ class ActionTalk extends Action {
                 );
             }
         }
-        $this->Viewer_AssignAjax('aComments', $aComments);
-        $this->Viewer_AssignAjax('iMaxIdComment', $iMaxIdComment);
+        E::ModuleViewer()->AssignAjax('aComments', $aComments);
+        E::ModuleViewer()->AssignAjax('iMaxIdComment', $iMaxIdComment);
     }
 
     /**
@@ -620,7 +623,7 @@ class ActionTalk extends Action {
         /**
          * Устанавливаем формат Ajax ответа
          */
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
         $this->SubmitComment();
     }
 
@@ -632,34 +635,34 @@ class ActionTalk extends Action {
         /**
          * Проверям авторизован ли пользователь
          */
-        if (!$this->User_IsAuthorization()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+        if (!E::ModuleUser()->IsAuthorization()) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
         /**
          * Проверяем разговор
          */
-        if (!($oTalk = $this->Talk_GetTalkById(F::GetRequestStr('cmt_target_id')))) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        if (!($oTalk = E::ModuleTalk()->GetTalkById(F::GetRequestStr('cmt_target_id')))) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
-        if (!($oTalkUser = $this->Talk_GetTalkUser($oTalk->getId(), $this->oUserCurrent->getId()))) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        if (!($oTalkUser = E::ModuleTalk()->GetTalkUser($oTalk->getId(), $this->oUserCurrent->getId()))) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
         /**
          * Проверяем разрешено ли отправлять инбокс по времени
          */
-        if (!$this->ACL_CanPostTalkCommentTime($this->oUserCurrent)) {
-            $this->Message_AddErrorSingle($this->Lang_Get('talk_time_limit'), $this->Lang_Get('error'));
+        if (!E::ModuleACL()->CanPostTalkCommentTime($this->oUserCurrent)) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('talk_time_limit'), E::ModuleLang()->Get('error'));
             return false;
         }
         /**
          * Проверяем текст комментария
          */
-        $sText = $this->Text_Parser(F::GetRequestStr('comment_text'));
+        $sText = E::ModuleText()->Parser(F::GetRequestStr('comment_text'));
         if (!F::CheckVal($sText, 'text', 2, 3000)) {
-            $this->Message_AddErrorSingle($this->Lang_Get('talk_comment_add_text_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('talk_comment_add_text_error'), E::ModuleLang()->Get('error'));
             return;
         }
         /**
@@ -667,7 +670,7 @@ class ActionTalk extends Action {
          */
         $sParentId = (int)F::GetRequest('reply');
         if (!F::CheckVal($sParentId, 'id')) {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
         $oCommentParent = null;
@@ -675,15 +678,15 @@ class ActionTalk extends Action {
             /**
              * Проверяем существует ли комментарий на который отвечаем
              */
-            if (!($oCommentParent = $this->Comment_GetCommentById($sParentId))) {
-                $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            if (!($oCommentParent = E::ModuleComment()->GetCommentById($sParentId))) {
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
                 return;
             }
             /**
              * Проверяем из одного топика ли новый коммент и тот на который отвечаем
              */
             if ($oCommentParent->getTargetId() != $oTalk->getId()) {
-                $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
                 return;
             }
         } else {
@@ -695,14 +698,14 @@ class ActionTalk extends Action {
         /**
          * Проверка на дублирующий коммент
          */
-        if ($this->Comment_GetCommentUnique($oTalk->getId(), 'talk', $this->oUserCurrent->getId(), $sParentId, md5($sText))) {
-            $this->Message_AddErrorSingle($this->Lang_Get('topic_comment_spam'), $this->Lang_Get('error'));
+        if (E::ModuleComment()->GetCommentUnique($oTalk->getId(), 'talk', $this->oUserCurrent->getId(), $sParentId, md5($sText))) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_comment_spam'), E::ModuleLang()->Get('error'));
             return;
         }
-        /**
-         * Создаём коммент
-         */
-        $oCommentNew = Engine::GetEntity('Comment');
+
+        // * Создаём комментарий
+        /** @var ModuleComment_EntityComment $oCommentNew */
+        $oCommentNew = E::GetEntity('Comment');
         $oCommentNew->setTargetId($oTalk->getId());
         $oCommentNew->setTargetType('talk');
         $oCommentNew->setUserId($this->oUserCurrent->getId());
@@ -715,38 +718,38 @@ class ActionTalk extends Action {
         /**
          * Добавляем коммент
          */
-        $this->Hook_Run(
+        E::ModuleHook()->Run(
             'talk_comment_add_before',
             array('oCommentNew' => $oCommentNew, 'oCommentParent' => $oCommentParent, 'oTalk' => $oTalk)
         );
-        if ($this->Comment_AddComment($oCommentNew)) {
-            $this->Hook_Run(
+        if (E::ModuleComment()->AddComment($oCommentNew)) {
+            E::ModuleHook()->Run(
                 'talk_comment_add_after',
                 array('oCommentNew' => $oCommentNew, 'oCommentParent' => $oCommentParent, 'oTalk' => $oTalk)
             );
 
-            $this->Viewer_AssignAjax('sCommentId', $oCommentNew->getId());
+            E::ModuleViewer()->AssignAjax('sCommentId', $oCommentNew->getId());
             $oTalk->setDateLast(F::Now());
             $oTalk->setUserIdLast($oCommentNew->getUserId());
             $oTalk->setCommentIdLast($oCommentNew->getId());
             $oTalk->setCountComment($oTalk->getCountComment() + 1);
-            $this->Talk_UpdateTalk($oTalk);
+            E::ModuleTalk()->UpdateTalk($oTalk);
             /**
              * Отсылаем уведомления всем адресатам
              */
-            $aUsersTalk = $this->Talk_GetUsersTalk($oTalk->getId(), ModuleTalk::TALK_USER_ACTIVE);
+            $aUsersTalk = E::ModuleTalk()->GetUsersTalk($oTalk->getId(), ModuleTalk::TALK_USER_ACTIVE);
 
             foreach ($aUsersTalk as $oUserTalk) {
                 if ($oUserTalk->getId() != $oCommentNew->getUserId()) {
-                    $this->Notify_SendTalkCommentNew($oUserTalk, $this->oUserCurrent, $oTalk, $oCommentNew);
+                    E::ModuleNotify()->SendTalkCommentNew($oUserTalk, $this->oUserCurrent, $oTalk, $oCommentNew);
                 }
             }
             /**
              * Увеличиваем число новых комментов
              */
-            $this->Talk_IncreaseCountCommentNew($oTalk->getId(), $oCommentNew->getUserId());
+            E::ModuleTalk()->IncreaseCountCommentNew($oTalk->getId(), $oCommentNew->getUserId());
         } else {
-            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
         }
     }
 
@@ -758,20 +761,20 @@ class ActionTalk extends Action {
         /**
          * Устанавливаем формат Ajax ответа
          */
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
         $sUsers = F::GetRequestStr('users', null, 'post');
         /**
          * Если пользователь не авторизирован, возвращаем ошибку
          */
-        if (!$this->User_IsAuthorization()) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+        if (!E::ModuleUser()->IsAuthorization()) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
         $aUsers = explode(',', $sUsers);
         /**
          * Получаем блекслист пользователя
          */
-        $aUserBlacklist = $this->Talk_GetBlacklistByUserId($this->oUserCurrent->getId());
+        $aUserBlacklist = E::ModuleTalk()->GetBlacklistByUserId($this->oUserCurrent->getId());
 
         $aResult = array();
         /**
@@ -789,21 +792,21 @@ class ActionTalk extends Action {
             if (strtolower($sUser) == strtolower($this->oUserCurrent->getLogin())) {
                 $aResult[] = array(
                     'bStateError' => true,
-                    'sMsgTitle'   => $this->Lang_Get('error'),
-                    'sMsg'        => $this->Lang_Get('talk_blacklist_add_self')
+                    'sMsgTitle'   => E::ModuleLang()->Get('error'),
+                    'sMsg'        => E::ModuleLang()->Get('talk_blacklist_add_self')
                 );
                 continue;
             }
             /**
              * Если пользователь не найден или неактивен, возвращаем ошибку
              */
-            if (($oUser = $this->User_GetUserByLogin($sUser)) && $oUser->getActivate() == 1) {
+            if (($oUser = E::ModuleUser()->GetUserByLogin($sUser)) && $oUser->getActivate() == 1) {
                 if (!isset($aUserBlacklist[$oUser->getId()])) {
-                    if ($this->Talk_AddUserToBlackList($oUser->getId(), $this->oUserCurrent->getId())) {
+                    if (E::ModuleTalk()->AddUserToBlackList($oUser->getId(), $this->oUserCurrent->getId())) {
                         $aResult[] = array(
                             'bStateError'   => false,
-                            'sMsgTitle'     => $this->Lang_Get('attention'),
-                            'sMsg'          => $this->Lang_Get(
+                            'sMsgTitle'     => E::ModuleLang()->Get('attention'),
+                            'sMsg'          => E::ModuleLang()->Get(
                                 'talk_blacklist_add_ok', array('login' => htmlspecialchars($sUser))
                             ),
                             'sUserId'       => $oUser->getId(),
@@ -817,8 +820,8 @@ class ActionTalk extends Action {
                     } else {
                         $aResult[] = array(
                             'bStateError' => true,
-                            'sMsgTitle'   => $this->Lang_Get('error'),
-                            'sMsg'        => $this->Lang_Get('system_error'),
+                            'sMsgTitle'   => E::ModuleLang()->Get('error'),
+                            'sMsg'        => E::ModuleLang()->Get('system_error'),
                             'sUserLogin'  => htmlspecialchars($sUser)
                         );
                     }
@@ -828,8 +831,8 @@ class ActionTalk extends Action {
                      */
                     $aResult[] = array(
                         'bStateError' => true,
-                        'sMsgTitle'   => $this->Lang_Get('error'),
-                        'sMsg'        => $this->Lang_Get(
+                        'sMsgTitle'   => E::ModuleLang()->Get('error'),
+                        'sMsg'        => E::ModuleLang()->Get(
                             'talk_blacklist_user_already_have', array('login' => htmlspecialchars($sUser))
                         ),
                         'sUserLogin'  => htmlspecialchars($sUser)
@@ -839,8 +842,8 @@ class ActionTalk extends Action {
             } else {
                 $aResult[] = array(
                     'bStateError' => true,
-                    'sMsgTitle'   => $this->Lang_Get('error'),
-                    'sMsg'        => $this->Lang_Get('user_not_found', array('login' => htmlspecialchars($sUser))),
+                    'sMsgTitle'   => E::ModuleLang()->Get('error'),
+                    'sMsg'        => E::ModuleLang()->Get('user_not_found', array('login' => htmlspecialchars($sUser))),
                     'sUserLogin'  => htmlspecialchars($sUser)
                 );
             }
@@ -848,7 +851,7 @@ class ActionTalk extends Action {
         /**
          * Передаем во вьевер массив с результатами обработки по каждому пользователю
          */
-        $this->Viewer_AssignAjax('aUsers', $aResult);
+        E::ModuleViewer()->AssignAjax('aUsers', $aResult);
     }
 
     /**
@@ -859,61 +862,61 @@ class ActionTalk extends Action {
         /**
          * Устанавливаем формат Ajax ответа
          */
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
         $idTarget = F::GetRequestStr('idTarget', null, 'post');
         /**
          * Если пользователь не авторизирован, возвращаем ошибку
          */
-        if (!$this->User_IsAuthorization()) {
-            $this->Message_AddErrorSingle(
-                $this->Lang_Get('need_authorization'),
-                $this->Lang_Get('error')
+        if (!E::ModuleUser()->IsAuthorization()) {
+            E::ModuleMessage()->AddErrorSingle(
+                E::ModuleLang()->Get('need_authorization'),
+                E::ModuleLang()->Get('error')
             );
             return;
         }
         /**
          * Если пользователь не существуем, возращаем ошибку
          */
-        if (!$oUserTarget = $this->User_GetUserById($idTarget)) {
-            $this->Message_AddErrorSingle(
-                $this->Lang_Get('user_not_found_by_id', array('id' => htmlspecialchars($idTarget))),
-                $this->Lang_Get('error')
+        if (!$oUserTarget = E::ModuleUser()->GetUserById($idTarget)) {
+            E::ModuleMessage()->AddErrorSingle(
+                E::ModuleLang()->Get('user_not_found_by_id', array('id' => htmlspecialchars($idTarget))),
+                E::ModuleLang()->Get('error')
             );
             return;
         }
         /**
          * Получаем блеклист пользователя
          */
-        $aBlacklist = $this->Talk_GetBlacklistByUserId($this->oUserCurrent->getId());
+        $aBlacklist = E::ModuleTalk()->GetBlacklistByUserId($this->oUserCurrent->getId());
         /**
          * Если указанный пользователь не найден в блекслисте, возвращаем ошибку
          */
         if (!isset($aBlacklist[$oUserTarget->getId()])) {
-            $this->Message_AddErrorSingle(
-                $this->Lang_Get(
+            E::ModuleMessage()->AddErrorSingle(
+                E::ModuleLang()->Get(
                     'talk_blacklist_user_not_found',
                     array('login' => $oUserTarget->getLogin())
                 ),
-                $this->Lang_Get('error')
+                E::ModuleLang()->Get('error')
             );
             return;
         }
         /**
          * Производим удаление пользователя из блекслиста
          */
-        if (!$this->Talk_DeleteUserFromBlacklist($idTarget, $this->oUserCurrent->getId())) {
-            $this->Message_AddErrorSingle(
-                $this->Lang_Get('system_error'),
-                $this->Lang_Get('error')
+        if (!E::ModuleTalk()->DeleteUserFromBlacklist($idTarget, $this->oUserCurrent->getId())) {
+            E::ModuleMessage()->AddErrorSingle(
+                E::ModuleLang()->Get('system_error'),
+                E::ModuleLang()->Get('error')
             );
             return;
         }
-        $this->Message_AddNoticeSingle(
-            $this->Lang_Get(
+        E::ModuleMessage()->AddNoticeSingle(
+            E::ModuleLang()->Get(
                 'talk_blacklist_delete_ok',
                 array('login' => $oUserTarget->getLogin())
             ),
-            $this->Lang_Get('attention')
+            E::ModuleLang()->Get('attention')
         );
     }
 
@@ -925,38 +928,38 @@ class ActionTalk extends Action {
         /**
          * Устанавливаем формат Ajax ответа
          */
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
         $idTarget = F::GetRequestStr('idTarget', null, 'post');
         $idTalk = F::GetRequestStr('idTalk', null, 'post');
         /**
          * Если пользователь не авторизирован, возвращаем ошибку
          */
-        if (!$this->User_IsAuthorization()) {
-            $this->Message_AddErrorSingle(
-                $this->Lang_Get('need_authorization'),
-                $this->Lang_Get('error')
+        if (!E::ModuleUser()->IsAuthorization()) {
+            E::ModuleMessage()->AddErrorSingle(
+                E::ModuleLang()->Get('need_authorization'),
+                E::ModuleLang()->Get('error')
             );
             return;
         }
         /**
          * Если удаляемый участник не существует в базе данных, возвращаем ошибку
          */
-        if (!$oUserTarget = $this->User_GetUserById($idTarget)) {
-            $this->Message_AddErrorSingle(
-                $this->Lang_Get('user_not_found_by_id', array('id' => htmlspecialchars($idTarget))),
-                $this->Lang_Get('error')
+        if (!$oUserTarget = E::ModuleUser()->GetUserById($idTarget)) {
+            E::ModuleMessage()->AddErrorSingle(
+                E::ModuleLang()->Get('user_not_found_by_id', array('id' => htmlspecialchars($idTarget))),
+                E::ModuleLang()->Get('error')
             );
             return;
         }
         /**
          * Если разговор не найден, или пользователь не является его автором (либо админом), возвращаем ошибку
          */
-        if ((!$oTalk = $this->Talk_GetTalkById($idTalk))
+        if ((!$oTalk = E::ModuleTalk()->GetTalkById($idTalk))
             || (($oTalk->getUserId() != $this->oUserCurrent->getId()) && !$this->oUserCurrent->isAdministrator())
         ) {
-            $this->Message_AddErrorSingle(
-                $this->Lang_Get('talk_not_found'),
-                $this->Lang_Get('error')
+            E::ModuleMessage()->AddErrorSingle(
+                E::ModuleLang()->Get('talk_not_found'),
+                E::ModuleLang()->Get('error')
             );
             return;
         }
@@ -970,31 +973,31 @@ class ActionTalk extends Action {
         if (!isset($aTalkUsers[$idTarget])
             || $aTalkUsers[$idTarget]->getUserActive() == ModuleTalk::TALK_USER_DELETE_BY_SELF
         ) {
-            $this->Message_AddErrorSingle(
-                $this->Lang_Get(
+            E::ModuleMessage()->AddErrorSingle(
+                E::ModuleLang()->Get(
                     'talk_speaker_user_not_found',
                     array('login' => $oUserTarget->getLogin())
                 ),
-                $this->Lang_Get('error')
+                E::ModuleLang()->Get('error')
             );
             return;
         }
         /**
          * Удаляем пользователя из разговора,  если удаление прошло неудачно - возвращаем системную ошибку
          */
-        if (!$this->Talk_DeleteTalkUserByArray($idTalk, $idTarget, ModuleTalk::TALK_USER_DELETE_BY_AUTHOR)) {
-            $this->Message_AddErrorSingle(
-                $this->Lang_Get('system_error'),
-                $this->Lang_Get('error')
+        if (!E::ModuleTalk()->DeleteTalkUserByArray($idTalk, $idTarget, ModuleTalk::TALK_USER_DELETE_BY_AUTHOR)) {
+            E::ModuleMessage()->AddErrorSingle(
+                E::ModuleLang()->Get('system_error'),
+                E::ModuleLang()->Get('error')
             );
             return;
         }
-        $this->Message_AddNoticeSingle(
-            $this->Lang_Get(
+        E::ModuleMessage()->AddNoticeSingle(
+            E::ModuleLang()->Get(
                 'talk_speaker_delete_ok',
                 array('login' => $oUserTarget->getLogin())
             ),
-            $this->Lang_Get('attention')
+            E::ModuleLang()->Get('attention')
         );
     }
 
@@ -1006,28 +1009,28 @@ class ActionTalk extends Action {
         /**
          * Устанавливаем формат Ajax ответа
          */
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
         $sUsers = F::GetRequestStr('users', null, 'post');
         $idTalk = F::GetRequestStr('idTalk', null, 'post');
         /**
          * Если пользователь не авторизирован, возвращаем ошибку
          */
-        if (!$this->User_IsAuthorization()) {
-            $this->Message_AddErrorSingle(
-                $this->Lang_Get('need_authorization'),
-                $this->Lang_Get('error')
+        if (!E::ModuleUser()->IsAuthorization()) {
+            E::ModuleMessage()->AddErrorSingle(
+                E::ModuleLang()->Get('need_authorization'),
+                E::ModuleLang()->Get('error')
             );
             return;
         }
         /**
          * Если разговор не найден, или пользователь не является его автором (или админом), возвращаем ошибку
          */
-        if ((!$oTalk = $this->Talk_GetTalkById($idTalk))
+        if ((!$oTalk = E::ModuleTalk()->GetTalkById($idTalk))
             || (($oTalk->getUserId() != $this->oUserCurrent->getId()) && !$this->oUserCurrent->isAdministrator())
         ) {
-            $this->Message_AddErrorSingle(
-                $this->Lang_Get('talk_not_found'),
-                $this->Lang_Get('error')
+            E::ModuleMessage()->AddErrorSingle(
+                E::ModuleLang()->Get('talk_not_found'),
+                E::ModuleLang()->Get('error')
             );
             return;
         }
@@ -1039,12 +1042,12 @@ class ActionTalk extends Action {
         /**
          * Получаем список пользователей, которые не принимают письма
          */
-        $aUserInBlacklist = $this->Talk_GetBlacklistByTargetId($this->oUserCurrent->getId());
+        $aUserInBlacklist = E::ModuleTalk()->GetBlacklistByTargetId($this->oUserCurrent->getId());
         /**
          * Ограничения на максимальное число участников разговора
          */
         if (count($aTalkUsers) >= Config::Get('module.talk.max_users') && !$this->oUserCurrent->isAdministrator()) {
-            $this->Message_AddError($this->Lang_Get('talk_create_users_error_many'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('talk_create_users_error_many'), E::ModuleLang()->Get('error'));
             return;
         }
         /**
@@ -1061,12 +1064,12 @@ class ActionTalk extends Action {
             if (strtolower($sUser) == strtolower($this->oUserCurrent->getLogin())) {
                 $aResult[] = array(
                     'bStateError' => true,
-                    'sMsgTitle'   => $this->Lang_Get('error'),
-                    'sMsg'        => $this->Lang_Get('talk_speaker_add_self')
+                    'sMsgTitle'   => E::ModuleLang()->Get('error'),
+                    'sMsg'        => E::ModuleLang()->Get('talk_speaker_add_self')
                 );
                 continue;
             }
-            if (($oUser = $this->User_GetUserByLogin($sUser))
+            if (($oUser = E::ModuleUser()->GetUserByLogin($sUser))
                 && ($oUser->getActivate() == 1)
             ) {
                 if (!in_array($oUser->getId(), $aUserInBlacklist)) {
@@ -1077,8 +1080,8 @@ class ActionTalk extends Action {
                              */
                             case ModuleTalk::TALK_USER_DELETE_BY_AUTHOR:
                                 if (
-                                    $this->Talk_AddTalkUser(
-                                        Engine::GetEntity(
+                                    E::ModuleTalk()->AddTalkUser(
+                                        E::GetEntity(
                                             'Talk_TalkUser',
                                             array(
                                                  'talk_id'          => $idTalk,
@@ -1089,11 +1092,11 @@ class ActionTalk extends Action {
                                         )
                                     )
                                 ) {
-                                    $this->Notify_SendTalkNew($oUser, $this->oUserCurrent, $oTalk);
+                                    E::ModuleNotify()->SendTalkNew($oUser, $this->oUserCurrent, $oTalk);
                                     $aResult[] = array(
                                         'bStateError'   => false,
-                                        'sMsgTitle'     => $this->Lang_Get('attention'),
-                                        'sMsg'          => $this->Lang_Get(
+                                        'sMsgTitle'     => E::ModuleLang()->Get('attention'),
+                                        'sMsg'          => E::ModuleLang()->Get(
                                             'talk_speaker_add_ok', array('login', htmlspecialchars($sUser))
                                         ),
                                         'sUserId'       => $oUser->getId(),
@@ -1106,8 +1109,8 @@ class ActionTalk extends Action {
                                 } else {
                                     $aResult[] = array(
                                         'bStateError' => true,
-                                        'sMsgTitle'   => $this->Lang_Get('error'),
-                                        'sMsg'        => $this->Lang_Get('system_error')
+                                        'sMsgTitle'   => E::ModuleLang()->Get('error'),
+                                        'sMsg'        => E::ModuleLang()->Get('system_error')
                                     );
                                 }
                                 break;
@@ -1117,8 +1120,8 @@ class ActionTalk extends Action {
                             case ModuleTalk::TALK_USER_ACTIVE:
                                 $aResult[] = array(
                                     'bStateError' => true,
-                                    'sMsgTitle'   => $this->Lang_Get('error'),
-                                    'sMsg'        => $this->Lang_Get(
+                                    'sMsgTitle'   => E::ModuleLang()->Get('error'),
+                                    'sMsg'        => E::ModuleLang()->Get(
                                         'talk_speaker_user_already_exist', array('login' => htmlspecialchars($sUser))
                                     )
                                 );
@@ -1129,8 +1132,8 @@ class ActionTalk extends Action {
                             case ModuleTalk::TALK_USER_DELETE_BY_SELF:
                                 $aResult[] = array(
                                     'bStateError' => true,
-                                    'sMsgTitle'   => $this->Lang_Get('error'),
-                                    'sMsg'        => $this->Lang_Get(
+                                    'sMsgTitle'   => E::ModuleLang()->Get('error'),
+                                    'sMsg'        => E::ModuleLang()->Get(
                                         'talk_speaker_delete_by_self', array('login' => htmlspecialchars($sUser))
                                     )
                                 );
@@ -1139,13 +1142,13 @@ class ActionTalk extends Action {
                             default:
                                 $aResult[] = array(
                                     'bStateError' => true,
-                                    'sMsgTitle'   => $this->Lang_Get('error'),
-                                    'sMsg'        => $this->Lang_Get('system_error')
+                                    'sMsgTitle'   => E::ModuleLang()->Get('error'),
+                                    'sMsg'        => E::ModuleLang()->Get('system_error')
                                 );
                         }
                     } elseif (
-                        $this->Talk_AddTalkUser(
-                            Engine::GetEntity(
+                        E::ModuleTalk()->AddTalkUser(
+                            E::GetEntity(
                                 'Talk_TalkUser',
                                 array(
                                      'talk_id'          => $idTalk,
@@ -1156,11 +1159,11 @@ class ActionTalk extends Action {
                             )
                         )
                     ) {
-                        $this->Notify_SendTalkNew($oUser, $this->oUserCurrent, $oTalk);
+                        E::ModuleNotify()->SendTalkNew($oUser, $this->oUserCurrent, $oTalk);
                         $aResult[] = array(
                             'bStateError'   => false,
-                            'sMsgTitle'     => $this->Lang_Get('attention'),
-                            'sMsg'          => $this->Lang_Get(
+                            'sMsgTitle'     => E::ModuleLang()->Get('attention'),
+                            'sMsg'          => E::ModuleLang()->Get(
                                 'talk_speaker_add_ok', array('login', htmlspecialchars($sUser))
                             ),
                             'sUserId'       => $oUser->getId(),
@@ -1173,8 +1176,8 @@ class ActionTalk extends Action {
                     } else {
                         $aResult[] = array(
                             'bStateError' => true,
-                            'sMsgTitle'   => $this->Lang_Get('error'),
-                            'sMsg'        => $this->Lang_Get('system_error')
+                            'sMsgTitle'   => E::ModuleLang()->Get('error'),
+                            'sMsg'        => E::ModuleLang()->Get('system_error')
                         );
                     }
                 } else {
@@ -1183,8 +1186,8 @@ class ActionTalk extends Action {
                      */
                     $aResult[] = array(
                         'bStateError' => true,
-                        'sMsgTitle'   => $this->Lang_Get('error'),
-                        'sMsg'        => $this->Lang_Get(
+                        'sMsgTitle'   => E::ModuleLang()->Get('error'),
+                        'sMsg'        => E::ModuleLang()->Get(
                             'talk_user_in_blacklist', array('login' => htmlspecialchars($sUser))
                         )
                     );
@@ -1195,15 +1198,15 @@ class ActionTalk extends Action {
                  */
                 $aResult[] = array(
                     'bStateError' => true,
-                    'sMsgTitle'   => $this->Lang_Get('error'),
-                    'sMsg'        => $this->Lang_Get('user_not_found', array('login' => htmlspecialchars($sUser)))
+                    'sMsgTitle'   => E::ModuleLang()->Get('error'),
+                    'sMsg'        => E::ModuleLang()->Get('user_not_found', array('login' => htmlspecialchars($sUser)))
                 );
             }
         }
         /**
          * Передаем во вьевер массив результатов обработки по каждому пользователю
          */
-        $this->Viewer_AssignAjax('aUsers', $aResult);
+        E::ModuleViewer()->AssignAjax('aUsers', $aResult);
     }
 
     /**
@@ -1213,14 +1216,14 @@ class ActionTalk extends Action {
         /**
          * Устанавливаем формат Ajax ответа
          */
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
 
         if (!$this->oUserCurrent) {
-            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
-        $iCountTalkNew = $this->Talk_GetCountTalkNew($this->oUserCurrent->getId());
-        $this->Viewer_AssignAjax('iCountTalkNew', $iCountTalkNew);
+        $iCountTalkNew = E::ModuleTalk()->GetCountTalkNew($this->oUserCurrent->getId());
+        E::ModuleViewer()->AssignAjax('iCountTalkNew', $iCountTalkNew);
     }
 
     /**
@@ -1230,34 +1233,34 @@ class ActionTalk extends Action {
         if (!$this->oUserCurrent) {
             return;
         }
-        $iCountTalkFavourite = $this->Talk_GetCountTalksFavouriteByUserId($this->oUserCurrent->getId());
-        $this->Viewer_Assign('iCountTalkFavourite', $iCountTalkFavourite);
+        $iCountTalkFavourite = E::ModuleTalk()->GetCountTalksFavouriteByUserId($this->oUserCurrent->getId());
+        E::ModuleViewer()->Assign('iCountTalkFavourite', $iCountTalkFavourite);
 
-        $iCountTopicFavourite = $this->Topic_GetCountTopicsFavouriteByUserId($this->oUserCurrent->getId());
-        $iCountTopicUser = $this->Topic_GetCountTopicsPersonalByUser($this->oUserCurrent->getId(), 1);
-        $iCountCommentUser = $this->Comment_GetCountCommentsByUserId($this->oUserCurrent->getId(), 'topic');
-        $iCountCommentFavourite = $this->Comment_GetCountCommentsFavouriteByUserId($this->oUserCurrent->getId());
-        $iCountNoteUser = $this->User_GetCountUserNotesByUserId($this->oUserCurrent->getId());
+        $iCountTopicFavourite = E::ModuleTopic()->GetCountTopicsFavouriteByUserId($this->oUserCurrent->getId());
+        $iCountTopicUser = E::ModuleTopic()->GetCountTopicsPersonalByUser($this->oUserCurrent->getId(), 1);
+        $iCountCommentUser = E::ModuleComment()->GetCountCommentsByUserId($this->oUserCurrent->getId(), 'topic');
+        $iCountCommentFavourite = E::ModuleComment()->GetCountCommentsFavouriteByUserId($this->oUserCurrent->getId());
+        $iCountNoteUser = E::ModuleUser()->GetCountUserNotesByUserId($this->oUserCurrent->getId());
 
-        $this->Viewer_Assign('oUserProfile', $this->oUserCurrent);
-        $this->Viewer_Assign(
+        E::ModuleViewer()->Assign('oUserProfile', $this->oUserCurrent);
+        E::ModuleViewer()->Assign(
             'iCountWallUser',
-            $this->Wall_GetCountWall(array('wall_user_id' => $this->oUserCurrent->getId(), 'pid' => null))
+            E::ModuleWall()->GetCountWall(array('wall_user_id' => $this->oUserCurrent->getId(), 'pid' => null))
         );
         /**
          * Общее число публикация и избранного
          */
-        $this->Viewer_Assign('iCountCreated', $iCountNoteUser + $iCountTopicUser + $iCountCommentUser);
-        $this->Viewer_Assign('iCountFavourite', $iCountCommentFavourite + $iCountTopicFavourite);
-        $this->Viewer_Assign('iCountFriendsUser', $this->User_GetCountUsersFriend($this->oUserCurrent->getId()));
+        E::ModuleViewer()->Assign('iCountCreated', $iCountNoteUser + $iCountTopicUser + $iCountCommentUser);
+        E::ModuleViewer()->Assign('iCountFavourite', $iCountCommentFavourite + $iCountTopicFavourite);
+        E::ModuleViewer()->Assign('iCountFriendsUser', E::ModuleUser()->GetCountUsersFriend($this->oUserCurrent->getId()));
 
-        $this->Viewer_Assign('sMenuSubItemSelect', $this->sMenuSubItemSelect);
+        E::ModuleViewer()->Assign('sMenuSubItemSelect', $this->sMenuSubItemSelect);
         /**
          * Передаем во вьевер константы состояний участников разговора
          */
-        $this->Viewer_Assign('TALK_USER_ACTIVE', ModuleTalk::TALK_USER_ACTIVE);
-        $this->Viewer_Assign('TALK_USER_DELETE_BY_SELF', ModuleTalk::TALK_USER_DELETE_BY_SELF);
-        $this->Viewer_Assign('TALK_USER_DELETE_BY_AUTHOR', ModuleTalk::TALK_USER_DELETE_BY_AUTHOR);
+        E::ModuleViewer()->Assign('TALK_USER_ACTIVE', ModuleTalk::TALK_USER_ACTIVE);
+        E::ModuleViewer()->Assign('TALK_USER_DELETE_BY_SELF', ModuleTalk::TALK_USER_DELETE_BY_SELF);
+        E::ModuleViewer()->Assign('TALK_USER_DELETE_BY_AUTHOR', ModuleTalk::TALK_USER_DELETE_BY_AUTHOR);
     }
 }
 

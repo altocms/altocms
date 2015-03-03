@@ -62,7 +62,7 @@
       </script>
       {hook run='layout_head_end'}
       {/block}
-      <link href='http://fonts.googleapis.com/css?family=Roboto:400,300italic,300,400italic,500,500italic,700,700italic,900,900italic&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+      <link href='//fonts.googleapis.com/css?family=Roboto:400,300italic,300,400italic,500,500italic,700,700italic,900,900italic&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
    </head>
    <body class="{$body_classes}">
       {block name="layout_body"}

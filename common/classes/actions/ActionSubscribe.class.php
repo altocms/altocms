@@ -32,7 +32,7 @@ class ActionSubscribe extends Action {
      *
      */
     public function Init() {
-        $this->oUserCurrent = $this->User_GetUserCurrent();
+        $this->oUserCurrent = E::ModuleUser()->GetUserCurrent();
     }
 
     /**
@@ -59,24 +59,24 @@ class ActionSubscribe extends Action {
         /**
          * Получаем подписку по ключу
          */
-        $oSubscribe = $this->Subscribe_GetSubscribeByKey($this->getParam(0));
+        $oSubscribe = E::ModuleSubscribe()->GetSubscribeByKey($this->getParam(0));
         if ($oSubscribe && $oSubscribe->getStatus() == 1) {
             /**
              * Отписываем пользователя
              */
             $oSubscribe->setStatus(0);
             $oSubscribe->setDateRemove(F::Now());
-            $this->Subscribe_UpdateSubscribe($oSubscribe);
+            E::ModuleSubscribe()->UpdateSubscribe($oSubscribe);
 
-            $this->Message_AddNotice($this->Lang_Get('subscribe_change_ok'), null, true);
+            E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('subscribe_change_ok'), null, true);
         }
         /**
          * Получаем URL для редиректа
          */
-        if ((!$sUrl = $this->Subscribe_GetUrlTarget($oSubscribe->getTargetType(), $oSubscribe->getTargetId()))) {
-            $sUrl = Router::GetPath('index');
+        if ((!$sUrl = E::ModuleSubscribe()->GetUrlTarget($oSubscribe->getTargetType(), $oSubscribe->getTargetId()))) {
+            $sUrl = R::GetPath('index');
         }
-        Router::Location($sUrl);
+        R::Location($sUrl);
     }
 
     /**
@@ -86,7 +86,7 @@ class ActionSubscribe extends Action {
         /**
          * Устанавливаем формат Ajax ответа
          */
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
         /**
          * Получаем емайл подписки и проверяем его на валидность
          */
@@ -95,15 +95,15 @@ class ActionSubscribe extends Action {
             $sMail = $this->oUserCurrent->getMail();
         }
         if (!F::CheckVal($sMail, 'mail')) {
-            $this->Message_AddError($this->Lang_Get('registration_mail_error'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('registration_mail_error'), E::ModuleLang()->Get('error'));
             return;
         }
         /**
          * Получаем тип объекта подписки
          */
         $sTargetType = F::GetRequestStr('target_type');
-        if (!$this->Subscribe_IsAllowTargetType($sTargetType)) {
-            $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        if (!E::ModuleSubscribe()->IsAllowTargetType($sTargetType)) {
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
         $sTargetId = F::GetRequestStr('target_id') ? F::GetRequestStr('target_id') : null;
@@ -113,30 +113,30 @@ class ActionSubscribe extends Action {
         /**
          * Есть ли доступ к подписке гостям?
          */
-        if (!$this->oUserCurrent && !$this->Subscribe_IsAllowTargetForGuest($sTargetType)) {
-            $this->Message_AddError($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+        if (!$this->oUserCurrent && !E::ModuleSubscribe()->IsAllowTargetForGuest($sTargetType)) {
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
         /**
          * Проверка объекта подписки
          */
-        if (!$this->Subscribe_CheckTarget($sTargetType, $sTargetId, $iValue)) {
-            $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        if (!E::ModuleSubscribe()->CheckTarget($sTargetType, $sTargetId, $iValue)) {
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
         /**
          * Если подписка еще не существовала, то создаем её
          */
-        if ($oSubscribe = $this->Subscribe_AddSubscribeSimple(
+        if ($oSubscribe = E::ModuleSubscribe()->AddSubscribeSimple(
             $sTargetType, $sTargetId, $sMail, $this->oUserCurrent ? $this->oUserCurrent->getId() : null
         )
         ) {
             $oSubscribe->setStatus($iValue);
-            $this->Subscribe_UpdateSubscribe($oSubscribe);
-            $this->Message_AddNotice($this->Lang_Get('subscribe_change_ok'), $this->Lang_Get('attention'));
+            E::ModuleSubscribe()->UpdateSubscribe($oSubscribe);
+            E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('subscribe_change_ok'), E::ModuleLang()->Get('attention'));
             return;
         }
-        $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
         return;
     }
 
@@ -147,18 +147,18 @@ class ActionSubscribe extends Action {
         /**
          * Устанавливаем формат Ajax ответа
          */
-        $this->Viewer_SetResponseAjax('json');
+        E::ModuleViewer()->SetResponseAjax('json');
 
         if (!$this->oUserCurrent) {
-            $this->Message_AddError($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
             return;
         }
         /**
          * Получаем тип объекта подписки
          */
         $sTargetType = F::GetRequestStr('target_type');
-        if (!$this->Subscribe_IsAllowTargetType($sTargetType)) {
-            $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        if (!E::ModuleSubscribe()->IsAllowTargetType($sTargetType)) {
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
         $sTargetId = F::GetRequestStr('target_id') ? F::GetRequestStr('target_id') : null;
@@ -168,20 +168,20 @@ class ActionSubscribe extends Action {
         /**
          * Проверка объекта подписки
          */
-        if (!$this->Subscribe_CheckTarget($sTargetType, $sTargetId, $iValue)) {
-            $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        if (!E::ModuleSubscribe()->CheckTarget($sTargetType, $sTargetId, $iValue)) {
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
         /**
          * Если подписка еще не существовала, то создаем её
          */
-        if ($oTrack = $this->Subscribe_AddTrackSimple($sTargetType, $sTargetId, $this->oUserCurrent->getId())) {
+        if ($oTrack = E::ModuleSubscribe()->AddTrackSimple($sTargetType, $sTargetId, $this->oUserCurrent->getId())) {
             $oTrack->setStatus($iValue);
-            $this->Subscribe_UpdateTrack($oTrack);
-            $this->Message_AddNotice($this->Lang_Get('subscribe_change_ok'), $this->Lang_Get('attention'));
+            E::ModuleSubscribe()->UpdateTrack($oTrack);
+            E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('subscribe_change_ok'), E::ModuleLang()->Get('attention'));
             return;
         }
-        $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+        E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
         return;
     }
 }

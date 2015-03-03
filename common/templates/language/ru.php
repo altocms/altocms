@@ -107,6 +107,16 @@ return array(
     'blog_leave_ok'                             => 'Вы отписались от блога',
     'blog_leave_error_banned'                   => 'Вы не можете отписаться, так как вы забанены в данном блоге',
     'blog_join_leave'                           => 'Подписаться/Отписаться',
+    'blog_join_request_already'                 => 'Вы уже отправляли запрос на подписку, подождите, пока модераторы блога ее одобрят.',
+    'blog_join_request_leave'                   => 'Ваш запрос на подписку на рассмотрении, подождите, пока модераторы блога ее одобрят и после этого сможете отписаться от блога.',
+    'blog_join_request_send'                    => 'Запрос на вступление в блог отправлен, скоро модераторы блога ее рассмотрят',
+    'blog_user_request_title'                   => 'Запрос на вступление в блог "%%blog_title%%"',
+    'blog_user_request_text'                    => 'Пользователь <a href="%%user_profile%%">%%login%%</a> отправил запрос на вступление в блог "%%blog_title%%".<br/><br/><a href="%%accept_path%%">Принять</a> - <a href="%%reject_path%%">Отклонить</a>',
+    'blog_user_request_already_done'            => 'Пользователь уже является подписчиком блога',
+    'blog_user_request_accept'                  => 'Пользователь стал читателем блога',
+    'blog_user_request_no_accept'               => 'Просьба пользователя отклонена',
+    'notify_subject_blog_request_new'           => 'Запрос на вступление в блог',
+
     /**
      * Меню блогов
      */
@@ -185,6 +195,7 @@ return array(
     'blog_admin_users_submit_notice'            => 'После нажатия на кнопку «Сохранить» права пользователей будут сохранены',
     'blog_admin_users_submit_ok'                => 'Права сохранены',
     'blog_admin_users_submit_error'             => 'Что-то не так',
+    'blog_admin_users_bun_for_comment'          => 'не комментирует',
     'blog_admin_delete_title'                   => 'Удаление блога',
     'blog_admin_delete_confirm'                 => 'Вы уверены, что хотите удалить блог?',
     'blog_admin_delete_move'                    => 'Удалить статьи или переместить в другой блог',
@@ -333,6 +344,9 @@ return array(
     'topic_field_file_upload_err_size'          => 'Файл не загружен - недопустимый размер. Максимально допустимый размер: %%size%%',
     'topic_field_file_upload_err_type'          => 'Файл не загружен - недопустимый тип файла. Допустимые типы: %%types%%',
 
+    'topic_show_photoset'                       => 'Отображать фотосет',
+    'topic_show_photoset_notice'                => 'Если отметить эту галку, то фотосет будет полностью отображён после текста топика',
+
     /**
      * Топик-ссылка
      */
@@ -399,6 +413,7 @@ return array(
     'topic_photoset_edit'                       => 'Редактирование фотосета',
     'topic_photoset_upload_title'               => 'Загрузка изображений',
     'topic_photoset_upload_choose'              => 'Загрузить фото',
+    'topic_photoset_upload_add'                 => 'Добавить',
     'topic_photoset_upload_close'               => 'Закрыть',
     'topic_photoset_upload_rules'               => 'Доступна загрузка изображений в формат JPG, PNG, GIF<br />Размер изображений не должен превышать %%SIZE%% Kб<br />Максимальное число загружаемых изображений: %%COUNT%%',
     'topic_photoset_choose_image'               => 'Выберите изображение для загрузки',
@@ -629,6 +644,7 @@ return array(
     'user_menu_publication_blog'                => 'Блог',
     'user_menu_publication_comment'             => 'Комментарии',
     'user_menu_publication_comment_rss'         => 'RSS лента',
+    'user_menu_publication_photos'              => 'Фотографии',
     /**
      * Профиль
      */
@@ -748,7 +764,7 @@ return array(
     'settings_profile_avatar_resize_title'      => 'Создание аватара',
     'settings_profile_avatar_resize_apply'      => 'Применить',
     'settings_profile_avatar_resize_cancel'     => 'Отменить',
-    'settings_profile_avatar_resize_text'       => 'Вы можете выбрать область изображения, которая будет использоваться в качестве аватары',
+    'settings_profile_avatar_resize_text'       => 'Вы можете выбрать область изображения, которая будет использоваться в качестве аватара',
     'settings_profile_photo'                    => 'Фото',
     'settings_profile_photo_error'              => 'Не удалось загрузить фото',
     'settings_profile_photo_delete'             => 'Удалить',
@@ -834,6 +850,8 @@ return array(
     'panel_clear_tags'                          => 'очистить от тегов',
     'panel_user'                                => 'вставить пользователя',
     'panel_user_promt'                          => 'Введите логин пользователя',
+    'panel_photoset'                            => 'вставить фотосет',
+    'panel_spoiler'                             => 'вставить спойлер',
 
     /**
      * Виджеты
@@ -845,6 +863,8 @@ return array(
     'widget_blogs_self'                         => 'Мои',
     'widget_blogs_self_error'                   => 'У вас нет своих блогов',
     'widget_blogs_all'                          => 'Все блоги',
+
+    'widget_blog_avatar_block' => 'Аватар блога',
 
     'widget_tags'                               => 'Теги',
     'widget_tags_empty'                         => 'Нет тегов',
@@ -1122,6 +1142,40 @@ return array(
     'uploadimg_size_width_max_text'             => 'Макс. размер изображения в процентах относительно ширины текста',
     'uploadimg_title'                           => 'Описание',
     /**
+     * Втавка изображений
+     */
+    'insertimg'           => 'Добавить изображение',
+    'insertimg_from_pc'   => 'C этого компьютера',
+    'insertimg_from_link' => 'Из интернета',
+    'insertimg_size'      => 'Размер',
+    'select_category'     => 'Выберите категорию изображений',
+    'next_page'           => 'Следущая страница',
+    'prev_page'           => 'Предыдущая страница',
+    'insertimg_page'      => 'страница',
+    'insertimg_from'      => 'из',
+    'insertimg_not_found'      => 'Изображения не найдены',
+    'insertimg_images'      => 'Изображения',
+
+    'aim_target_type_blog_avatar'            => 'Блоги',
+    'aim_target_type_user'                   => 'Аватары',
+    'aim_target_type_profile_photo'          => 'Фото',
+    'aim_target_type_profile_avatar'         => 'Аватар',
+    'aim_target_type_tmp'                    => 'Временные',
+    'aim_target_type_current'                => 'Этот топик',
+    'aim_target_type_topics'                 => 'Топики',
+    'aim_target_type_talks'                  => 'Письма',
+    'aim_target_type_comments'               => 'Комментарии',
+    'menu_image_insert_description'          => 'Меню добавления изображения',
+
+    'target_type_topic'                      => 'Топики',
+    'target_type_talk'                       => 'Переписка',
+    'target_type_topic_comment'              => 'Комментарии топиков',
+    'target_type_talk_comment'               => 'Комментарии переписки',
+    'target_type_single-image-uploader'      => 'Поле контента',
+    'target_type_all'                        => 'Все',
+    'target_type_topic-multi-image-uploader' => 'Фотосет топика',
+
+    /**
      * Уведомления
      */
     'notify_subject_comment_new'                => 'Новый комментарий к статье',
@@ -1326,6 +1380,18 @@ return array(
     'text_yes'                                  => 'Да',
     'text_no'                                   => 'Нет',
 
+    'menu_main_description' => 'Главное меню сайта',
+    'menu_main_index_description' => 'Главная страница сайта',
+    'menu_main_blogs_description' => 'Страница списков блогов',
+    'menu_main_people_description' => 'Страница списка пользователей сайта',
+    'menu_main_stream_description' => 'Лента событий сайта',
+
+    'menu_user_description' => 'Меню авторизованного пользователя',
+    'menu_empty_user_name' => '[[ИМЯ ПОЛЬЗОВАТЕЛЯ]]',
+    'menu_user_submenu_description' => 'Подменю пользователя',
+    'menu_topics_submenu_description' => 'Меню топиков',
+    'menu_login_submenu_description' => 'Меню не авторизованного пользователя',
+
     'timezone_list'                             => array(
         '-12'   => '[UTC − 12] Меридиан смены дат (запад)',
         '-11'   => '[UTC − 11] о. Мидуэй, Самоа',
@@ -1367,7 +1433,50 @@ return array(
         '12.75' => '[UTC + 12:45] Острова Чатем',
         '13'    => '[UTC + 13] Острова Феникс, Тонга',
         '14'    => '[UTC + 14] Остров Лайн'
-    )
+    ),
+
+    'uploader_single_upload_resize_title' => 'Выбор области изображения',
+    'uploader_single_upload_resize_help'  => 'Выберите область изображения, которую нужно загрузить. Если обрезать изображение не нужно, просто нажмите кнопку "Применить"',
+    'uploader_image_change'               => 'Изменить изображение',
+    'uploader_image_upload'               => 'Загрузить изображение',
+    'uploader_image_delete'               => 'Удалить изображение',
+    'error_upload_image'                  => 'Ошибка загрузки изображения',
+    'uploader_upload_success'             => 'Изображение загружено',
+    'uploader_photoset_error_count_photos'         => 'Разрешено загружать до %%MAX%% изображений',
+    'uploader_picker'               => '- Перенесите нужные изображения в это область',
+    'uploader_sort_notice'          => '- Порядок изображений можно изменить просто <br>переместив мышью изображение на нужное место.',
+    'uploader_sort_changed'         => 'Очерёдность изображений изменена',
+
+
+
+    'target_type_blog_avatar'           => 'Блоги',
+    'target_type_topic'                 => 'Топики',
+    'target_type_talk'                  => 'Переписка',
+    'target_type_topic_comment'         => 'Комментарии топиков',
+    'target_type_talk_comment'          => 'Комментарии переписки',
+    'target_type_profile_avatar'        => 'Аватары',
+    'target_type_profile_photo'         => 'Фото',
+    'target_type_single-image-uploader' => 'Поле контента',
+    'target_type_all'                   => 'Все',
+    'target_type_topic-multi-image-uploader' => 'Фотосет топика',
+    'target_type_tmp' => 'Временные',
+    'target_type_current' => 'Этот топик',
+
+    'spoiler_toggle_show' => 'показать',
+
+    'panel_photoset_from' => 'Начальный номер изображения',
+    'panel_photoset_to' => 'Конечный номер изображения',
+    'panel_photoset_align' => 'Выравнивание',
+    'panel_photoset_align_left' => 'слева',
+    'panel_photoset_align_right' => 'справа',
+    'panel_photoset_align_both' => 'по центру',
+    'panel_photoset_topic' => 'Ид. топика-источника фотосета ',
+
+    'panel_user_login' => 'Логин',
+    'panel_spoiler_text' => 'Текст спойлера',
+    'panel_spoiler_title' => 'Спойлер',
+
+
 );
 
 // EOF

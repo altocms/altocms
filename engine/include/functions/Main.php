@@ -14,7 +14,7 @@
 class AltoFunc_Main {
 
     static protected $sRandChars = '0123456789_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-    static protected $aMemSizeUnits = array('B', 'K', 'M', 'G', 'T', 'P');
+    static protected $sMemSizeUnits = 'BKMGTP';
 
     static public function StrUnderscore($sStr) {
 
@@ -84,7 +84,7 @@ class AltoFunc_Main {
      */
     static public function MemSizeFormat($nValue, $nDecimal = 0) {
 
-        $aUnits = self::$aMemSizeUnits;
+        $aUnits = self::$sMemSizeUnits;
         $nIndex = 0;
         $nResult = intval($nValue);
         while ($nResult >= 1024) {
@@ -112,11 +112,10 @@ class AltoFunc_Main {
     static public function MemSize2Int($sNum) {
 
         $nValue = floatval($sNum);
-        if (!is_numeric($sChar = strtoupper(substr($sNum, -1)))) {
-            if ($sChar == 'B') {
-                $sChar = substr($sNum, -1);
-            }
-            if (($nIdx = array_search(strtoupper($sChar), self::$aMemSizeUnits)) !== false) {
+        if (!is_numeric($sNum)) {
+            // string has a non-numeric suffix
+            $sSuffix = strpbrk(strtoupper($sNum), self::$sMemSizeUnits);
+            if ($sSuffix && ($nIdx = strpos(self::$sMemSizeUnits, $sSuffix[0]))) {
                 $nValue *= pow(1024, $nIdx);
             }
         }
@@ -640,7 +639,7 @@ class AltoFunc_Main {
 
         if ($xLang === true) {
             if (class_exists('ModuleLang', false)) {
-                $xLang = E::Lang_GetLang();
+                $xLang = E::ModuleLang()->GetLang();
             } elseif (class_exists('Config', false)) {
                 $xLang = Config::Get('lang.current');
             } else {

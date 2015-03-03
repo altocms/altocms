@@ -1,0 +1,1 @@
+<td class="small text-success cell-rating">{$oBlog->getRating()}</td>

@@ -24,7 +24,7 @@
     {$aHtmlHeadFiles.css}
 
     {if {Config::Get('view.theme')} == 'light'}
-        <link href='http://fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700&subset=latin,cyrillic'
+        <link href='//fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700&subset=latin,cyrillic'
               rel='stylesheet' type='text/css'>
     {/if}
 
@@ -74,6 +74,9 @@
 
     {if $oUserCurrent->isAdministrator()}
         {$body_classes=$body_classes|cat:' ls-user-role-admin'}
+    {/if}
+    {if $oUserCurrent->isModerator()}
+        {$body_classes=$body_classes|cat:' ls-user-role-moderator'}
     {/if}
 {else}
     {$body_classes=$body_classes|cat:' ls-user-role-guest'}

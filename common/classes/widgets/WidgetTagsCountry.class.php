@@ -27,15 +27,15 @@ class WidgetTagsCountry extends Widget {
         /**
          * Получаем страны
          */
-        $aCountries = $this->Geo_GetGroupCountriesByTargetType('user', 20);
+        $aCountries = E::ModuleGeo()->GetGroupCountriesByTargetType('user', 20);
         /**
          * Формируем облако тегов
          */
-        $this->Tools_MakeCloud($aCountries);
+        E::ModuleTools()->MakeCloud($aCountries);
         /**
          * Выводим в шаблон
          */
-        $this->Viewer_Assign('aCountryList', $aCountries);
+        E::ModuleViewer()->Assign('aCountryList', $aCountries);
     }
 }
 

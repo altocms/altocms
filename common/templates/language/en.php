@@ -97,6 +97,16 @@ return array(
     'blog_leave_ok'                             => "You're unjoined this blog",
     'blog_leave_error_banned'                   => "You can't unjoin, because you are banned in this blog",
     'blog_join_leave'                           => 'Join/Unjoin',
+    'blog_join_request_already'                 => 'You have already sent a subscription request , wait for the blog moderators will approve it.',
+    'blog_join_request_leave'                   => 'Your subscription request pending, wait until the blog moderators will approve it and then be able to unsubscribe from the blog.',
+    'blog_join_request_send'                    => 'Request to join the blog sent soon blog moderators will check it',
+    'blog_user_request_title'                   => 'Request for entry into the blog "%%blog_title%%"',
+    'blog_user_request_text'                    => 'User <a href="%%user_profile%%">%%login%%</a> has sent a request to join the blog "%%blog_title%%".<br/><br/><a href="%%accept_path%%">Join</a> - <a href="%%reject_path%%">Unjoin</a>',
+    'blog_user_request_already_done'            => 'The user is already subscribed to the blog',
+    'blog_user_request_accept'                  => 'The user become a reader of the blog',
+    'blog_user_request_no_accept'               => 'User unjoined this blog',
+    'notify_subject_blog_request_new'           => 'Request for join into the blog',
+
     /**
      * Blog menu
      */
@@ -186,6 +196,7 @@ return array(
     'blog_admin_user_add_label'                 => 'Add users',
     'blog_admin_user_invited'                   => 'List of invitees',
     'blog_admin_user_add_header'                => 'Invite users',
+    'blog_admin_users_bun_for_comment'          => 'Disabled for comment',
     'blog_admin_user_add_empty'                 => 'No invited users',
     'blog_close_show'                           => "It's a 'close blog', you don't have enought rights to see it's content",
     'blog_user_invite_add_self'                 => "Can't send invitation to yourself",
@@ -313,6 +324,8 @@ return array(
 
     'topic_field_poll_add'                      => 'Add poll',
 
+    'topic_show_photoset'                       => 'Show photoset',
+    'topic_show_photoset_notice'                => 'If you check, the photoset will be fully displayed after the text topic',
     /**
      * Link-topic
      */
@@ -599,6 +612,7 @@ return array(
     'user_menu_publication_blog'                => 'Blog',
     'user_menu_publication_comment'             => 'Comments',
     'user_menu_publication_comment_rss'         => 'RSS feed',
+    'user_menu_publication_photos'              => 'Photos',
     /**
      * Profile
      */
@@ -806,6 +820,8 @@ return array(
     'widget_blog_info'                           => 'Blog description',
     'widget_blog_info_note'                      => 'Tip',
     'widget_blog_info_note_text'                 => '<strong>Tag &lt;cut&gt; shortens long articles</strong>, hiding them totally or partially under the link («read more»). Hidden part is not visible in the blog but will be available on the full Topic\'s page.',
+
+    'widget_blog_avatar_block'                   => 'Blog avatar',
 
     'widget_blogs'                               => 'Blogs',
     'widget_blogs_top'                           => 'Top',
@@ -1075,6 +1091,15 @@ return array(
     'uploadimg_link_submit_paste'               => 'Insert as external link',
     'uploadimg_cancel'                          => 'Cancel',
     'uploadimg_title'                           => 'Title',
+    /**
+     * Insert image
+     */
+    'insertimg'       => 'Add image',
+    'select_category' => 'Select category',
+    'next_page'       => 'Next page',
+    'prev_page'       => 'Prev page',
+    'insertimg_not_found'      => 'Images isn`t found',
+    'insertimg_images'      => 'Images',
     /**
      * Notifications
      */
@@ -1349,7 +1374,34 @@ return array(
         '12.75' => '[UTC + 12:45] Chatham Islands Time',
         '13'    => '[UTC + 13] Tonga Time, Phoenix Islands Time',
         '14'    => '[UTC + 14] Line Island Time'
-    )
+    ),
+
+
+
+
+    'target_type_blog_avatar'           => 'Blog avatars',
+    'target_type_topic'                 => 'Topic images',
+    'target_type_comment'               => 'Comment images',
+    'target_type_profile_avatar'        => 'User avatars',
+    'target_type_profile_photo'         => 'User photos',
+    'target_type_single-image-uploader' => 'Content images',
+    'target_type_all'                   => 'All types',
+    'target_type_topic-multi-image-uploader' => 'Topic photoset',
+    'target_type_tmp' => 'Temporary',
+    'target_type_current' => 'This topic',
+
+    'panel_photoset_from' => 'First image',
+    'panel_photoset_to' => 'Last image',
+    'panel_photoset_align' => 'Align',
+    'panel_photoset_align_left' => 'left',
+    'panel_photoset_align_right' => 'right',
+    'panel_photoset_align_both' => 'justify',
+    'panel_photoset_topic' => 'Topic-source id',
+
+
+    'panel_user_login' => 'login',
+    'panel_spoiler_text' => 'Spoiler text',
+    'panel_spoiler_title' => 'Spoiler',
 );
 
 // EOF

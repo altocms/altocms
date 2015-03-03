@@ -24,6 +24,9 @@ class ModuleUser_EntityUser extends Entity {
     const DEFAULT_AVATAR_SIZE = 100;
     const DEFAULT_PHOTO_SIZE = 250;
 
+    // Типы ресурсов, загружаемые в профайле пользователя
+    protected $aMResourceTypes = array('profile_avatar', 'profile_photo');
+
     /**
      * Определяем правила валидации
      * Правила валидации нужно определять только здесь!
@@ -96,27 +99,27 @@ class ModuleUser_EntityUser extends Entity {
 
         $xResult = true;
         if ($sValue) {
-            $nError = $this->User_InvalidLogin($sValue);
+            $nError = E::ModuleUser()->InvalidLogin($sValue);
             if (!$nError) {
                 return $xResult;
             } else {
                 if ($nError == ModuleUser::USER_LOGIN_ERR_MIN) {
-                    $xResult = $this->Lang_Get('registration_login_error_min', array(
+                    $xResult = E::ModuleLang()->Get('registration_login_error_min', array(
                             'min' => intval(Config::Get('module.user.login.min_size')),
                         ));
                 } elseif ($nError == ModuleUser::USER_LOGIN_ERR_LEN) {
-                    $xResult = $this->Lang_Get('registration_login_error_len', array(
+                    $xResult = E::ModuleLang()->Get('registration_login_error_len', array(
                             'min' => intval(Config::Get('module.user.login.min_size')),
                             'max' => intval(Config::Get('module.user.login.max_size')),
                         ));
                 } elseif ($nError == ModuleUser::USER_LOGIN_ERR_CHARS) {
-                    $xResult = $this->Lang_Get('registration_login_error_chars');
+                    $xResult = E::ModuleLang()->Get('registration_login_error_chars');
                 } else {
-                    $xResult = $this->Lang_Get('registration_login_error');
+                    $xResult = E::ModuleLang()->Get('registration_login_error');
                 }
             }
         } else {
-            $xResult = $this->Lang_Get('registration_login_error');
+            $xResult = E::ModuleLang()->Get('registration_login_error');
         }
         return $xResult;
     }
@@ -131,10 +134,10 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function ValidateLoginExists($sValue, $aParams) {
 
-        if (!$this->User_GetUserByLogin($sValue)) {
+        if (!E::ModuleUser()->GetUserByLogin($sValue)) {
             return true;
         }
-        return $this->Lang_Get('registration_login_error_used');
+        return E::ModuleLang()->Get('registration_login_error_used');
     }
 
     /**
@@ -147,10 +150,10 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function ValidateMailExists($sValue, $aParams) {
 
-        if (!$this->User_GetUserByMail($sValue)) {
+        if (!E::ModuleUser()->GetUserByMail($sValue)) {
             return true;
         }
-        return $this->Lang_Get('registration_mail_error_used');
+        return E::ModuleLang()->Get('registration_mail_error_used');
     }
 
     /**
@@ -200,7 +203,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function getSkill() {
 
-        return number_format(round($this->getProp('user_skill'), 2), 2, '.', '');
+        return number_format(round($this->getProp('user_skill'), 3), 3, '.', '');
     }
 
     /**
@@ -488,7 +491,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function getUserFieldValues($bOnlyNoEmpty = true, $sType = '') {
 
-        return $this->User_GetUserFieldsValues($this->getId(), $bOnlyNoEmpty, $sType);
+        return E::ModuleUser()->GetUserFieldsValues($this->getId(), $bOnlyNoEmpty, $sType);
     }
 
     /**
@@ -499,9 +502,19 @@ class ModuleUser_EntityUser extends Entity {
     public function getSession() {
 
         if (!$this->getProp('session')) {
-            $this->_aData['session'] = $this->User_GetSessionByUserId($this->getId());
+            $this->_aData['session'] = E::ModuleUser()->GetSessionByUserId($this->getId());
         }
         return $this->getProp('session');
+    }
+
+    /**
+     * Возвращает роль пользователя
+     *
+     * @return int|null
+     */
+    public function getRole() {
+
+        return $this->getProp('user_role');
     }
 
     /**
@@ -524,6 +537,25 @@ class ModuleUser_EntityUser extends Entity {
         return false;
     }
 
+
+    /**
+     * @param string $sType
+     * @param string $xSize
+     *
+     * @return string
+     */
+    protected function _getProfileImageUrl($sType, $xSize = null) {
+
+        $sUrl = '';
+        $aImages = $this->getMediaResources($sType);
+        if (!empty($aImages)) {
+            /** @var ModuleMresource_EntityMresourceRel $oImage */
+            $oImage = reset($aImages);
+            $sUrl = $oImage->getImageUrl($xSize);
+        }
+        return $sUrl;
+    }
+
     /**
      * Возвращает полный URL до аватары нужного размера
      *
@@ -535,48 +567,78 @@ class ModuleUser_EntityUser extends Entity {
 
         // Gets default size from config or sets it to 100
         if (!$xSize) {
+            $xSize = Config::Get('module.user.profile_avatar_size');
+            if (!$xSize) {
+                $xSize = self::DEFAULT_AVATAR_SIZE;
+            }
+        }
+
+        $sPropKey = '_avatar_url_' . $xSize;
+        $sUrl = $this->getProp($sPropKey);
+        if (is_null($sUrl)) {
+            $sUrl = $this->_getProfileImageUrl('profile_avatar', $xSize);
+            if (!$sUrl) {
+                // Old version compatibility
+                $sUrl = $this->getProfileAvatar();
+                if ($sUrl) {
+                    if ($xSize) {
+                        $sUrl = E::ModuleUploader()->ResizeTargetImage($sUrl, $xSize);
+                    }
+                } else {
+                    $sUrl = $this->getDefaultAvatarUrl($xSize);
+                }
+            }
+            $this->setProp($sPropKey, $sUrl);
+        }
+        return $sUrl;
+    }
+
+    /**
+     * Возвращает дефолтный аватар пользователя
+     *
+     * @param int|string $xSize
+     * @return string
+     */
+    public function getDefaultAvatarUrl($xSize = null) {
+
+        $sPath = E::ModuleUploader()->GetUserAvatarDir(0)
+            . 'avatar_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '_' . ($this->getProfileSex() == 'woman' ? 'female' : 'male')
+            . '.png';
+
+        if (!$xSize) {
             if (Config::Get('module.user.profile_avatar_size')) {
                 $xSize = Config::Get('module.user.profile_avatar_size');
             } else {
                 $xSize = self::DEFAULT_AVATAR_SIZE;
             }
         }
+
         if (is_string($xSize) && strpos($xSize, 'x')) {
             list($nW, $nH) = array_map('intval', explode('x', $xSize));
         } else {
             $nW = $nH = intval($xSize);
         }
 
-        if ($sUrl = $this->getProfileAvatar()) {
-            if ($sUrl[0] == '@') {
-                $sUrl = F::File_RootUrl() . substr($sUrl, 1);
-            }
-
-            if (Config::Get('module.image.autoresize')) {
-                $sFile = $this->Uploader_Url2Dir($sUrl);
-                if (F::File_Exists($sFile)) {
-                    $sModSuffix = F::File_ImgModSuffix($xSize, pathinfo($sFile, PATHINFO_EXTENSION));
-                    $sFile .= $sModSuffix;
-                    if (F::File_Exists($sFile) || ($sFile = $this->Img_Duplicate($sFile))) {
-                        $sUrl = $this->Uploader_Dir2Url($sFile);
-                    }
-                }
-            }
-            return $sUrl;
-        } else {
-            $sPath = $this->Uploader_GetUserAvatarDir(0)
-                . 'avatar_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '_' . ($this->getProfileSex() == 'woman' ? 'female' : 'male')
-                . '.png';
-            $sPath .= '-' . $nW . 'x' . $nH . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
-            if (Config::Get('module.image.autoresize') && !F::File_Exists($sPath)) {
-                $this->Img_AutoresizeSkinImage($sPath, 'avatar', max($nH, $nW));
-            }
-            return $this->Uploader_Dir2Url($sPath);
+        $sPath .= '-' . $nW . 'x' . $nH . '.' . pathinfo($sPath, PATHINFO_EXTENSION);
+        if (Config::Get('module.image.autoresize') && !F::File_Exists($sPath)) {
+            E::ModuleImg()->AutoresizeSkinImage($sPath, 'avatar', max($nH, $nW));
         }
+        return E::ModuleUploader()->Dir2Url($sPath);
     }
 
     /**
-     * DEPRECATED
+     * Возвращает информацию о том, есть ли вообще у пользователя аватар
+     *
+     * @return bool
+     */
+    public function hasAvatar() {
+
+        $aImages = $this->getMediaResources('profile_avatar');
+        return !empty($aImages);
+    }
+
+    /**
+     * @deprecated Deprecated since 1.0
      */
     public function getProfileAvatarPath($xSize = null) {
 
@@ -592,7 +654,9 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function GetPhotoUrl($xSize = null) {
 
-        if ($sUrl = $this->getProfilePhoto()) {
+        $sPropKey = '_avatar_url_' . $xSize;
+        $sUrl = $this->getProp($sPropKey);
+        if (is_null($sUrl)) {
             if (!$xSize) {
                 if (Config::Get('module.user.profile_photo_size')) {
                     $xSize = Config::Get('module.user.profile_photo_size');
@@ -600,29 +664,45 @@ class ModuleUser_EntityUser extends Entity {
                     $xSize = self::DEFAULT_PHOTO_SIZE;
                 }
             }
-            $sModSuffix = F::File_ImgModSuffix($xSize, pathinfo($sUrl, PATHINFO_EXTENSION));
-            $sUrl = $sUrl . $sModSuffix;
-            if (Config::Get('module.image.autoresize')) {
-                $sFile = $this->Uploader_Url2Dir($sUrl);
-                if (!F::File_Exists($sFile)) {
-                    $this->Img_Duplicate($sFile);
+
+            $sUrl = $this->_getProfileImageUrl('profile_photo', $xSize);
+            if (!$sUrl) {
+                // Old version compatibility
+                $sUrl = $this->getProfilePhoto();
+                if ($sUrl) {
+                    if ($xSize) {
+                        $sUrl = E::ModuleUploader()->ResizeTargetImage($sUrl, $xSize);
+                    }
+                } else {
+                    $sUrl = $this->GetDefaultPhotoUrl($xSize);
                 }
             }
-            return $sUrl;
+            $this->setProp($sPropKey, $sUrl);
         }
-        return $this->GetDefaultPhotoUrl($xSize);
+        return $sUrl;
+    }
+
+    /**
+     * Возвращает информацию о том, есть ли вообще у пользователя аватар
+     *
+     * @return bool
+     */
+    public function hasPhoto() {
+
+        $aImages = $this->getMediaResources('profile_photo');
+        return !empty($aImages);
     }
 
     /**
      * Returns URL for default photo of current skin
      *
-     * @param null $xSize
+     * @param int|string $xSize
      *
-     * @return mixed
+     * @return string
      */
     public function GetDefaultPhotoUrl($xSize = null) {
 
-        $sPath = $this->Uploader_GetUserAvatarDir(0)
+        $sPath = E::ModuleUploader()->GetUserAvatarDir(0)
             . 'user_photo_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '_'
             . ($this->getProfileSex() == 'woman' ? 'female' : 'male')
             . '.png';
@@ -637,13 +717,13 @@ class ModuleUser_EntityUser extends Entity {
             $nW = $nH = self::DEFAULT_PHOTO_SIZE;
         }
         if (Config::Get('module.image.autoresize') && !F::File_Exists($sPath)) {
-            $this->Img_AutoresizeSkinImage($sPath, 'user_photo', max($nH, $nW));
+            E::ModuleImg()->AutoresizeSkinImage($sPath, 'user_photo', max($nH, $nW));
         }
-        return $this->Uploader_Dir2Url($sPath);
+        return E::ModuleUploader()->Dir2Url($sPath);
     }
 
     /**
-     * DEPRECATED
+     * @deprecated Deprecated since 1.0
      */
     public function getProfileFotoPath() {
 
@@ -651,7 +731,7 @@ class ModuleUser_EntityUser extends Entity {
     }
 
     /**
-     * DEPRECATED
+     * @deprecated Deprecated since 1.0
      */
     public function getProfileFotoDefault() {
 
@@ -681,23 +761,37 @@ class ModuleUser_EntityUser extends Entity {
     /**
      * Возвращает статус администратора сайта
      *
-     * @return bool|null
+     * @return bool
      */
     public function isAdministrator() {
 
-        return $this->getProp('user_is_administrator');
+        return E::ModuleUser()->HasRole($this, ModuleUser::USER_ROLE_ADMINISTRATOR);
+    }
+
+    /**
+     * Возвращает статус модкратора сайта
+     *
+     * @return bool
+     */
+    public function isModerator() {
+
+        return E::ModuleUser()->HasRole($this, ModuleUser::USER_ROLE_MODERATOR);
     }
 
     /**
      * Возвращает веб путь до профиля пользователя
      *
+     * @deprecated Deprecated since 1.0
      * @return string
      */
     public function getUserWebPath() {
 
-        return $this->getUserUrl();
+        return $this->getProfileUrl();
     }
 
+    /**
+     * @return string
+     */
     public function getUserUrl() {
 
         return $this->getProfileUrl();
@@ -719,11 +813,11 @@ class ModuleUser_EntityUser extends Entity {
         }
 
         if (!$sUrlMask) {
-            $sUrlMask = Router::GetUserUrlMask();
+            $sUrlMask = R::GetUserUrlMask();
         }
         if (!$sUrlMask) {
             // формирование URL по умолчанию
-            return Router::GetPath('profile') . $this->getLogin() . '/';
+            return R::GetPath('profile') . $this->getLogin() . '/';
         }
         $aReplace = array(
             '%user_id%' => $this->GetId(),
@@ -732,7 +826,7 @@ class ModuleUser_EntityUser extends Entity {
         $sUrl = strtr($sUrlMask, $aReplace);
         if (strpos($sUrl, '/')) {
             list($sAction, $sPath) = explode('/', $sUrl, 2);
-            $sUrl = Router::GetPath($sAction) . $sPath;
+            $sUrl = R::GetPath($sAction) . $sPath;
         } else {
             $sUrl = F::File_RootUrl() . $sUrl;
         }
@@ -761,8 +855,8 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function isFollow() {
 
-        if ($oUserCurrent = $this->User_GetUserCurrent()) {
-            return $this->Stream_IsSubscribe($oUserCurrent->getId(), $this->getId());
+        if ($oUserCurrent = E::ModuleUser()->GetUserCurrent()) {
+            return E::ModuleStream()->IsSubscribe($oUserCurrent->getId(), $this->getId());
         }
     }
 
@@ -773,9 +867,9 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function getUserNote() {
 
-        $oUserCurrent = $this->User_GetUserCurrent();
+        $oUserCurrent = E::ModuleUser()->GetUserCurrent();
         if ($this->getProp('user_note') === null && $oUserCurrent) {
-            $this->_aData['user_note'] = $this->User_GetUserNote($this->getId(), $oUserCurrent->getId());
+            $this->_aData['user_note'] = E::ModuleUser()->GetUserNote($this->getId(), $oUserCurrent->getId());
         }
         return $this->getProp('user_note');
     }
@@ -788,7 +882,7 @@ class ModuleUser_EntityUser extends Entity {
     public function getBlog() {
 
         if (!$this->getProp('blog')) {
-            $this->_aData['blog'] = $this->Blog_GetPersonalBlogByUserId($this->getId());
+            $this->_aData['blog'] = E::ModuleBlog()->GetPersonalBlogByUserId($this->getId());
         }
         return $this->getProp('blog');
     }
@@ -821,7 +915,7 @@ class ModuleUser_EntityUser extends Entity {
         // issue 258 {@link https://github.com/altocms/altocms/issues/258}
         $bResult = $this->GetProp('ban_ip');
         if (is_null($bResult)) {
-            $bResult = (bool)$this->User_IpIsBanned(F::GetUserIp());
+            $bResult = (bool)E::ModuleUser()->IpIsBanned(F::GetUserIp());
             $this->setProp('ban_ip', $bResult);
         }
         return $bResult;
@@ -862,7 +956,7 @@ class ModuleUser_EntityUser extends Entity {
     public function setPassword($sPassword, $bEncrypt = false) {
 
         if ($bEncrypt) {
-            $this->_aData['user_password'] = $this->Security_Salted($sPassword, 'pass');
+            $this->_aData['user_password'] = E::ModuleSecurity()->Salted($sPassword, 'pass');
         } else {
             $this->setProp('user_password', $sPassword);
         }
@@ -1063,14 +1157,19 @@ class ModuleUser_EntityUser extends Entity {
      *
      * @param string $data
      */
-    public function setProfileFoto($data) {
+    public function setProfilePhoto($data) {
 
         $this->setProp('user_profile_foto', $data);
     }
 
-    public function setProfilePhoto($data) {
+    /**
+     * LS-compatibility
+     *
+     * @param $data
+     */
+    public function setProfileFoto($data) {
 
-        $this->setProfileFoto($data);
+        $this->setProfilePhoto($data);
     }
 
     /**
@@ -1166,6 +1265,16 @@ class ModuleUser_EntityUser extends Entity {
     public function setLastSession($data) {
 
         $this->setProp('user_last_session', $data);
+    }
+
+    /**
+     * Устанавливает рль пользователя
+     *
+     * @param $data
+     */
+    public function setRole($data) {
+
+        $this->setProp('user_role', $data);
     }
 
 }

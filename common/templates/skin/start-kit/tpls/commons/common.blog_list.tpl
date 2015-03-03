@@ -19,12 +19,7 @@
                 <a href="{$sBlogsRootPage}?order=blog_count_user&order_way={if $sBlogOrder=='blog_count_user'}{$sBlogOrderWayNext}{else}{$sBlogOrderWay}{/if}"
                    {if $sBlogOrder=='blog_count_user'}class="{$sBlogOrderWay}"{/if}><span>{$aLang.blogs_readers}</span></a>
             </th>
-            <th class="cell-rating align-center">
-                <small>
-                    <a href="{$sBlogsRootPage}?order=blog_rating&order_way={if $sBlogOrder=='blog_rating'}{$sBlogOrderWayNext}{else}{$sBlogOrderWay}{/if}"
-                       {if $sBlogOrder=='blog_rating'}class="{$sBlogOrderWay}"{/if}><span>{$aLang.blogs_rating}</span></a>
-                </small>
-            </th>
+            {hook run='blog_list_header' bBlogsUseOrder=$bBlogsUseOrder sBlogsRootPage=$sBlogsRootPage sBlogOrder=$sBlogOrder sBlogOrderWayNext=$sBlogOrderWayNext sBlogOrderWay=$sBlogOrderWay}
         </tr>
         </thead>
     {else}
@@ -43,9 +38,7 @@
             <th class="cell-readers">
                 <small>{$aLang.blogs_readers}</small>
             </th>
-            <th class="cell-rating align-center">
-                <small>{$aLang.blogs_rating}</small>
-            </th>
+            {hook run='blog_list_header' sBlogsRootPage=$sBlogsRootPage sBlogOrder=$sBlogOrder sBlogOrderWayNext=$sBlogOrderWayNext sBlogOrderWay=$sBlogOrderWay}
         </tr>
         </thead>
     {/if}
@@ -58,7 +51,7 @@
             <tr>
                 <td class="cell-name">
                     <a href="{$oBlog->getUrlFull()}">
-                        <img src="{$oBlog->getAvatarPath(48)}" width="48" height="48" class="avatar visible-lg"/>
+                        <img src="{$oBlog->getAvatarUrl(48)}" width="48" height="48" class="avatar visible-lg"/>
                     </a>
 
                     <h4>
@@ -93,7 +86,7 @@
                 {/if}
 
                 <td class="small cell-readers" id="blog_user_count_{$oBlog->getId()}">{$oBlog->getCountUser()}</td>
-                <td class="small text-success cell-rating">{$oBlog->getRating()}</td>
+                {hook run='blog_list_line' oBlog=$oBlog}
             </tr>
         {/foreach}
     {else}

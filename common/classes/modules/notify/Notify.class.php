@@ -65,8 +65,8 @@ class ModuleNotify extends Module {
      */
     public function Init() {
 
-        $this->oViewerLocal = $this->Viewer_GetLocalViewer();
-        $this->oMapper = Engine::GetMapper(__CLASS__);
+        $this->oViewerLocal = E::ModuleViewer()->GetLocalViewer();
+        $this->oMapper = E::GetMapper(__CLASS__);
         $this->sDir = Config::Get('module.notify.dir');
         $this->sPrefix = Config::Get('module.notify.prefix');
     }
@@ -94,7 +94,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $oUserTo,
             'comment_new.tpl',
-            $this->Lang_Get('notify_subject_comment_new'),
+            E::ModuleLang()->Get('notify_subject_comment_new'),
             array(
                  'oUserTo'      => $oUserTo,
                  'oTopic'       => $oTopic,
@@ -127,7 +127,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $oUserTo,
             'comment_reply.tpl',
-            $this->Lang_Get('notify_subject_comment_reply'),
+            E::ModuleLang()->Get('notify_subject_comment_reply'),
             array(
                  'oUserTo'      => $oUserTo,
                  'oTopic'       => $oTopic,
@@ -160,7 +160,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $oUserTo,
             'topic_new.tpl',
-            $this->Lang_Get('notify_subject_topic_new') . ' «' . htmlspecialchars($oBlog->getTitle()) . '»',
+            E::ModuleLang()->Get('notify_subject_topic_new') . ' «' . htmlspecialchars($oBlog->getTitle()) . '»',
             array(
                  'oUserTo'    => $oUserTo,
                  'oTopic'     => $oTopic,
@@ -182,7 +182,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $oUser,
             'reactivation.tpl',
-            $this->Lang_Get('notify_subject_reactvation'),
+            E::ModuleLang()->Get('notify_subject_reactvation'),
             array(
                  'oUser' => $oUser,
             ), null, true
@@ -202,7 +202,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $oUser,
             'registration_activate.tpl',
-            $this->Lang_Get('notify_subject_registration_activate'),
+            E::ModuleLang()->Get('notify_subject_registration_activate'),
             array(
                  'oUser'     => $oUser,
                  'sPassword' => $sPassword,
@@ -223,7 +223,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $oUser,
             'registration.tpl',
-            $this->Lang_Get('notify_subject_registration'),
+            E::ModuleLang()->Get('notify_subject_registration'),
             array(
                  'oUser'     => $oUser,
                  'sPassword' => $sPassword,
@@ -245,7 +245,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $sMailTo,
             'invite.tpl',
-            $this->Lang_Get('notify_subject_invite'),
+            E::ModuleLang()->Get('notify_subject_invite'),
             array(
                  'sMailTo'   => $sMailTo,
                  'oUserFrom' => $oUserFrom,
@@ -273,7 +273,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $oUserTo,
             'talk_new.tpl',
-            $this->Lang_Get('notify_subject_talk_new'),
+            E::ModuleLang()->Get('notify_subject_talk_new'),
             array(
                  'oUserTo'   => $oUserTo,
                  'oUserFrom' => $oUserFrom,
@@ -305,7 +305,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $oUserTo,
             'talk_comment_new.tpl',
-            $this->Lang_Get('notify_subject_talk_comment_new'),
+            E::ModuleLang()->Get('notify_subject_talk_comment_new'),
             array(
                  'oUserTo'      => $oUserTo,
                  'oUserFrom'    => $oUserFrom,
@@ -335,7 +335,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $oUserTo,
             'user_friend_new.tpl',
-            $this->Lang_Get('notify_subject_user_friend_new'),
+            E::ModuleLang()->Get('notify_subject_user_friend_new'),
             array(
                  'oUserTo'   => $oUserTo,
                  'oUserFrom' => $oUserFrom,
@@ -360,7 +360,33 @@ class ModuleNotify extends Module {
         return $this->Send(
             $oUserTo,
             'blog_invite_new.tpl',
-            $this->Lang_Get('notify_subject_blog_invite_new'),
+            E::ModuleLang()->Get('notify_subject_blog_invite_new'),
+            array(
+                 'oUserTo'   => $oUserTo,
+                 'oUserFrom' => $oUserFrom,
+                 'oBlog'     => $oBlog,
+                 'sPath'     => $sPath,
+            )
+        );
+    }
+
+    /**
+     * Отправляет пользователю сообщение о том, что ему нужно промодерировать запрос
+     * пользовтаеля на вступление в блог, владельцем/админом/модератором которого он является
+     *
+     * @param ModuleUser_EntityUser $oUserTo      Объект пользователя, который отправляет приглашение
+     * @param ModuleUser_EntityUser $oUserFrom    Объект пользователя, которого приглашаем
+     * @param ModuleBlog_EntityBlog $oBlog        Объект блога
+     * @param                       $sPath
+     *
+     * @return bool
+     */
+    public function SendBlogUserRequest(ModuleUser_EntityUser $oUserTo, ModuleUser_EntityUser $oUserFrom, ModuleBlog_EntityBlog $oBlog, $sPath) {
+
+        return $this->Send(
+            $oUserTo,
+            'blog_request_new.tpl',
+            E::ModuleLang()->Get('notify_subject_blog_request_new'),
             array(
                  'oUserTo'   => $oUserTo,
                  'oUserFrom' => $oUserFrom,
@@ -383,7 +409,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $oUser,
             'reminder_code.tpl',
-            $this->Lang_Get('notify_subject_reminder_code'),
+            E::ModuleLang()->Get('notify_subject_reminder_code'),
             array(
                  'oUser'     => $oUser,
                  'oReminder' => $oReminder,
@@ -404,7 +430,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $oUser,
             'reminder_password.tpl',
-            $this->Lang_Get('notify_subject_reminder_password'),
+            E::ModuleLang()->Get('notify_subject_reminder_password'),
             array(
                  'oUser'        => $oUser,
                  'sNewPassword' => $sNewPassword,
@@ -426,7 +452,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $oWallParent->getUser(),
             'wall_reply.tpl',
-            $this->Lang_Get('notify_subject_wall_reply'),
+            E::ModuleLang()->Get('notify_subject_wall_reply'),
             array(
                  'oWallParent' => $oWallParent,
                  'oUserTo'     => $oWallParent->getUser(),
@@ -450,7 +476,7 @@ class ModuleNotify extends Module {
         return $this->Send(
             $oWall->getWallUser(),
             'wall_new.tpl',
-            $this->Lang_Get('notify_subject_wall_new'),
+            E::ModuleLang()->Get('notify_subject_wall_new'),
             array(
                  'oUserTo'   => $oWall->getWallUser(),
                  'oWall'     => $oWall,
@@ -499,7 +525,7 @@ class ModuleNotify extends Module {
          * сразу отсылаем на email
          */
         if (Config::Get('module.notify.delayed') && !$bForceSend) {
-            $oNotifyTask = Engine::GetEntity(
+            $oNotifyTask = E::GetEntity(
                 'Notify_Task',
                 array(
                      'user_mail'          => $sMail,
@@ -518,11 +544,11 @@ class ModuleNotify extends Module {
             }
         } else {
             // * Отправляем e-mail
-            $this->Mail_SetAdress($sMail, $sName);
-            $this->Mail_SetSubject($sSubject);
-            $this->Mail_SetBody($sBody);
-            $this->Mail_SetHTML();
-            $bResult = $this->Mail_Send();
+            E::ModuleMail()->SetAdress($sMail, $sName);
+            E::ModuleMail()->SetSubject($sSubject);
+            E::ModuleMail()->SetBody($sBody);
+            E::ModuleMail()->SetHTML();
+            $bResult = E::ModuleMail()->Send();
         }
         return $bResult;
     }
@@ -561,11 +587,11 @@ class ModuleNotify extends Module {
      */
     public function SendTask($oTask) {
 
-        $this->Mail_SetAdress($oTask->getUserMail(), $oTask->getUserLogin());
-        $this->Mail_SetSubject($oTask->getNotifySubject());
-        $this->Mail_SetBody($oTask->getNotifyText());
-        $this->Mail_SetHTML();
-        $this->Mail_Send();
+        E::ModuleMail()->SetAdress($oTask->getUserMail(), $oTask->getUserLogin());
+        E::ModuleMail()->SetSubject($oTask->getNotifySubject());
+        E::ModuleMail()->SetBody($oTask->getNotifyText());
+        E::ModuleMail()->SetHTML();
+        E::ModuleMail()->Send();
     }
 
     /**
@@ -608,16 +634,16 @@ class ModuleNotify extends Module {
             $sPluginName = '';
         }
         $sCacheKey = 'template_path_' . $sName . '-' . $sPluginName;
-        if (false === ($sResult = $this->Cache_Get($sCacheKey, 'tmp'))) {
+        if (false === ($sResult = E::ModuleCache()->Get($sCacheKey, 'tmp'))) {
             $bFound = false;
             if ($sPluginName) {
                 $sDir = Plugin::GetTemplateDir($sPluginName) . $this->sDir . '/';
             } else {
-                $sDir = F::File_NormPath($this->Viewer_GetTemplateDir() . '/' . $this->sDir . '/');
+                $sDir = F::File_NormPath(E::ModuleViewer()->GetTemplateDir() . '/' . $this->sDir . '/');
             }
 
             // Find template by current language
-            $sLangDir = $sDir . $this->Lang_GetLang();
+            $sLangDir = $sDir . E::ModuleLang()->GetLang();
             if (is_dir($sLangDir)) {
                 $sResult = $sLangDir . '/' . $sName;
                 $bFound = true;
@@ -625,7 +651,7 @@ class ModuleNotify extends Module {
 
             if (!$bFound) {
                 // Find by aliases of current language
-                if ($aAliases = $this->Lang_GetLangAliases()) {
+                if ($aAliases = E::ModuleLang()->GetLangAliases()) {
                     foreach ($aAliases as $sAlias) {
                         if (is_dir($sLangDir = $sDir . $sAlias)) {
                             $sResult = $sLangDir . '/' . $sName;
@@ -638,7 +664,7 @@ class ModuleNotify extends Module {
 
             if (!$bFound) {
                 // Find template by default language
-                $sLangDir = $sDir . $this->Lang_GetDefaultLang();
+                $sLangDir = $sDir . E::ModuleLang()->GetDefaultLang();
                 if (is_dir($sLangDir)) {
                     $sResult = $sLangDir . '/' . $sName;
                     $bFound = true;
@@ -647,7 +673,7 @@ class ModuleNotify extends Module {
 
             if (!$bFound) {
                 // Find by aliases of default language
-                if ($aAliases = $this->Lang_GetDefaultLangAliases()) {
+                if ($aAliases = E::ModuleLang()->GetDefaultLangAliases()) {
                     foreach ($aAliases as $sAlias) {
                         if (is_dir($sLangDir = $sDir . $sAlias)) {
                             $sResult = $sLangDir . '/' . $sName;
@@ -659,11 +685,11 @@ class ModuleNotify extends Module {
             }
 
             if (!$bFound) {
-                $sResult = $sDir . $this->Lang_GetLangDefault() . '/' . $sName;
+                $sResult = $sDir . E::ModuleLang()->GetLangDefault() . '/' . $sName;
             }
 
             if (is_dir($sResult)) {
-                $this->Cache_Set($sResult, $sCacheKey, array(), 'P30D', 'tmp');
+                E::ModuleCache()->Set($sResult, $sCacheKey, array(), 'P30D', 'tmp');
             }
         }
 

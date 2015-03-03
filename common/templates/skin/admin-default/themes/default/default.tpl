@@ -84,8 +84,8 @@
 }
 	</style>
 
-	<link href='http://fonts.googleapis.com/css?family=Cuprum:400,400italic,700,700italic&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
-	<link href='http://fonts.googleapis.com/css?family=Ubuntu:400,700,400italic,700italic&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+	<link href='//fonts.googleapis.com/css?family=Cuprum:400,400italic,700,700italic&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+	<link href='//fonts.googleapis.com/css?family=Ubuntu:400,700,400italic,700italic&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
 {$aHtmlHeadFiles.js}
     <script>
@@ -194,6 +194,9 @@
     <div id="breadcrumb" class="b-content-breadcrumb">
         <a href="#" ><i class="icon icon-magic-wand"></i> {$aLang.action.admin.title}</a>
         <a href="#" class="current">{$sPageTitle}</a>
+        {if isset($sPageSubMenu)}
+            <a href="#" class="current">{$sPageSubMenu}</a>
+        {/if}
     </div>
 
     {block name="sysmessage"}{/block}

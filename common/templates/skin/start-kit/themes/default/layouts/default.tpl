@@ -26,7 +26,7 @@
 
     {$aHtmlHeadFiles.css}
 
-    <link href='http://fonts.googleapis.com/css?family=Roboto:300,400,500,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Roboto:300,400,500,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
     <link href="{asset file="img/favicon.png" theme=true}?v1" rel="shortcut icon"/>
     <link rel="search" type="application/opensearchdescription+xml" href="{router page='search'}opensearch/"
@@ -62,6 +62,13 @@
         {foreach from=$aRouter key=sPage item=sPath}
         aRouter['{$sPage}'] = '{$sPath}';
         {/foreach}
+
+        {$SWF_DIR_NAME=E::ViewerAsset_AssetFileHashDir("{Config::Get('path.root.dir')}common/templates/frontend/libs/vendor/jquery.fileapi/FileAPI/")}
+        window.FileAPI = {
+            debug: false, // debug mode
+            media: true,
+            staticPath: "{F::File_GetAssetUrl()}{$SWF_DIR_NAME}" // path to *.swf
+        };
 
     </script>
 

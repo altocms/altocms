@@ -54,8 +54,9 @@ class ModuleTalk extends Module {
      *
      */
     public function Init() {
-        $this->oMapper = Engine::GetMapper(__CLASS__);
-        $this->oUserCurrent = $this->User_GetUserCurrent();
+
+        $this->oMapper = E::GetMapper(__CLASS__);
+        $this->oUserCurrent = E::ModuleUser()->GetUserCurrent();
     }
 
     /**
@@ -89,7 +90,7 @@ class ModuleTalk extends Module {
         }
         $aUserIdTo = array_unique($aUserIdTo);
         if (!empty($aUserIdTo)) {
-            $oTalk = Engine::GetEntity('Talk');
+            $oTalk = E::GetEntity('Talk');
             $oTalk->setUserId($iUserIdFrom);
             $oTalk->setTitle($sTitle);
             $oTalk->setText($sText);
@@ -99,7 +100,7 @@ class ModuleTalk extends Module {
             $oTalk->setUserIp(F::GetUserIp());
             if ($oTalk = $this->AddTalk($oTalk)) {
                 foreach ($aUserIdTo as $iUserId) {
-                    $oTalkUser = Engine::GetEntity('Talk_TalkUser');
+                    $oTalkUser = E::GetEntity('Talk_TalkUser');
                     $oTalkUser->setTalkId($oTalk->getId());
                     $oTalkUser->setUserId($iUserId);
                     if ($iUserId == $iUserIdFrom) {
@@ -111,9 +112,9 @@ class ModuleTalk extends Module {
 
                     if ($bSendNotify) {
                         if ($iUserId != $iUserIdFrom) {
-                            $oUserFrom = $this->User_GetUserById($iUserIdFrom);
-                            $oUserToMail = $this->User_GetUserById($iUserId);
-                            $this->Notify_SendTalkNew($oUserToMail, $oUserFrom, $oTalk);
+                            $oUserFrom = E::ModuleUser()->GetUserById($iUserIdFrom);
+                            $oUserToMail = E::ModuleUser()->GetUserById($iUserId);
+                            E::ModuleNotify()->SendTalkNew($oUserToMail, $oUserFrom, $oTalk);
                         }
                     }
                 }
@@ -132,12 +133,11 @@ class ModuleTalk extends Module {
      */
     public function AddTalk($oTalk) {
 
-        if ($nId = $this->oMapper->AddTalk($oTalk)) {
-            $oTalk->setId($nId);
+        if ($nTalkId = $this->oMapper->AddTalk($oTalk)) {
+            $oTalk->setId($nTalkId);
             //чистим зависимые кеши
-            $this->Cache_Clean(
-                Zend_Cache::CLEANING_MODE_MATCHING_TAG, array('talk_new', "talk_new_user_{$oTalk->getUserId()}")
-            );
+            E::ModuleCache()->Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array('talk_new', "talk_new_user_{$oTalk->getUserId()}"));
+
             return $oTalk;
         }
         return false;
@@ -152,8 +152,10 @@ class ModuleTalk extends Module {
      */
     public function UpdateTalk($oTalk) {
 
-        $this->Cache_Delete("talk_{$oTalk->getId()}");
-        return $this->oMapper->UpdateTalk($oTalk);
+        $xResult = $this->oMapper->UpdateTalk($oTalk);
+        E::ModuleCache()->Delete("talk_{$oTalk->getId()}");
+
+        return $xResult;
     }
 
     /**
@@ -182,7 +184,7 @@ class ModuleTalk extends Module {
 
         // * Формируем ID дополнительных данных, которые нужно получить
         if (isset($aAllowData['favourite']) && $this->oUserCurrent) {
-            $aFavouriteTalks = $this->Favourite_GetFavouritesByArray($aTalkId, 'talk', $this->oUserCurrent->getId());
+            $aFavouriteTalks = E::ModuleFavourite()->GetFavouritesByArray($aTalkId, 'talk', $this->oUserCurrent->getId());
         }
 
         $aUserId = array();
@@ -199,18 +201,21 @@ class ModuleTalk extends Module {
         // * Получаем дополнительные данные
         $aTalkUsers = array();
         $aCommentLast = array();
-        $aUsers = isset($aAllowData['user']) && is_array($aAllowData['user']) ? $this->User_GetUsersAdditionalData(
-            $aUserId, $aAllowData['user']
-        ) : $this->User_GetUsersAdditionalData($aUserId);
+        if (isset($aAllowData['user']) && is_array($aAllowData['user'])) {
+            $aUsers = E::ModuleUser()->GetUsersAdditionalData($aUserId, $aAllowData['user']);
+        } else {
+            $aUsers = E::ModuleUser()->GetUsersAdditionalData($aUserId);
+        }
 
         if (isset($aAllowData['talk_user']) && $this->oUserCurrent) {
             $aTalkUsers = $this->GetTalkUsersByArray($aTalkId, $this->oUserCurrent->getId());
         }
         if (isset($aAllowData['comment_last'])) {
-            $aCommentLast = $this->Comment_GetCommentsAdditionalData($aCommentLastId, array());
+            $aCommentLast = E::ModuleComment()->GetCommentsAdditionalData($aCommentLastId, array());
         }
 
-        // * Добавляем данные к результату - списку разговоров
+        // Добавляем данные к результату - списку разговоров
+        /** @var ModuleTalk_EntityTalk $oTalk */
         foreach ($aTalks as $oTalk) {
             if (isset($aUsers[$oTalk->getUserId()])) {
                 $oTalk->setUser($aUsers[$oTalk->getUserId()]);
@@ -257,14 +262,12 @@ class ModuleTalk extends Module {
         $aTalkId = array_unique($aTalkId);
         $aTalks = array();
         $aTalkIdNotNeedQuery = array();
-        /**
-         * Делаем мульти-запрос к кешу
-         */
+
+        // Делаем мульти-запрос к кешу
         $aCacheKeys = F::Array_ChangeValues($aTalkId, 'talk_');
-        if (false !== ($data = $this->Cache_Get($aCacheKeys))) {
-            /**
-             * проверяем что досталось из кеша
-             */
+        if (false !== ($data = E::ModuleCache()->Get($aCacheKeys))) {
+
+            // проверяем что досталось из кеша
             foreach ($aCacheKeys as $sValue => $sKey) {
                 if (array_key_exists($sKey, $data)) {
                     if ($data[$sKey]) {
@@ -275,32 +278,30 @@ class ModuleTalk extends Module {
                 }
             }
         }
-        /**
-         * Смотрим каких разговоров не было в кеше и делаем запрос в БД
-         */
+
+        // Смотрим каких разговоров не было в кеше и делаем запрос в БД
         $aTalkIdNeedQuery = array_diff($aTalkId, array_keys($aTalks));
         $aTalkIdNeedQuery = array_diff($aTalkIdNeedQuery, $aTalkIdNotNeedQuery);
         $aTalkIdNeedStore = $aTalkIdNeedQuery;
         if ($data = $this->oMapper->GetTalksByArrayId($aTalkIdNeedQuery)) {
+            /** @var ModuleTalk_EntityTalk $oTalk */
             foreach ($data as $oTalk) {
-                /**
-                 * Добавляем к результату и сохраняем в кеш
-                 */
+
+                // Добавляем к результату и сохраняем в кеш
                 $aTalks[$oTalk->getId()] = $oTalk;
-                $this->Cache_Set($oTalk, "talk_{$oTalk->getId()}", array(), 60 * 60 * 24 * 4);
+                E::ModuleCache()->Set($oTalk, "talk_{$oTalk->getId()}", array(), 60 * 60 * 24 * 4);
                 $aTalkIdNeedStore = array_diff($aTalkIdNeedStore, array($oTalk->getId()));
             }
         }
-        /**
-         * Сохраняем в кеш запросы не вернувшие результата
-         */
+
+        // Сохраняем в кеш запросы не вернувшие результата
         foreach ($aTalkIdNeedStore as $sId) {
-            $this->Cache_Set(null, "talk_{$sId}", array(), 60 * 60 * 24 * 4);
+            E::ModuleCache()->Set(null, "talk_{$sId}", array(), 60 * 60 * 24 * 4);
         }
-        /**
-         * Сортируем результат согласно входящему массиву
-         */
+
+        // Сортируем результат согласно входящему массиву
         $aTalks = F::Array_SortByKeysArray($aTalks, $aTalkId);
+
         return $aTalks;
     }
 
@@ -318,13 +319,14 @@ class ModuleTalk extends Module {
         }
         $aTalkId = array_unique($aTalkId);
         $aTalks = array();
-        $s = join(',', $aTalkId);
-        if (false === ($data = $this->Cache_Get("talk_id_{$s}"))) {
+        $sCacheKey = 'talk_id_' . join(',', $aTalkId);
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
             $data = $this->oMapper->GetTalksByArrayId($aTalkId);
             foreach ($data as $oTalk) {
                 $aTalks[$oTalk->getId()] = $oTalk;
             }
-            $this->Cache_Set($aTalks, "talk_id_{$s}", array("update_talk_user", "talk_new"), 60 * 60 * 24 * 1);
+            E::ModuleCache()->Set($aTalks, $sCacheKey, array("update_talk_user", "talk_new"), 'P1D');
+
             return $aTalks;
         }
         return $data;
@@ -346,14 +348,12 @@ class ModuleTalk extends Module {
         $aTalkId = array_unique($aTalkId);
         $aTalkUsers = array();
         $aTalkIdNotNeedQuery = array();
-        /**
-         * Делаем мульти-запрос к кешу
-         */
+
+        // Делаем мульти-запрос к кешу
         $aCacheKeys = F::Array_ChangeValues($aTalkId, 'talk_user_', '_' . $nUserId);
-        if (false !== ($data = $this->Cache_Get($aCacheKeys))) {
-            /**
-             * проверяем что досталось из кеша
-             */
+        if (false !== ($data = E::ModuleCache()->Get($aCacheKeys))) {
+
+            // проверяем что досталось из кеша
             foreach ($aCacheKeys as $sValue => $sKey) {
                 if (array_key_exists($sKey, $data)) {
                     if ($data[$sKey]) {
@@ -364,64 +364,61 @@ class ModuleTalk extends Module {
                 }
             }
         }
-        /**
-         * Смотрим чего не было в кеше и делаем запрос в БД
-         */
+
+        // Смотрим чего не было в кеше и делаем запрос в БД
         $aTalkIdNeedQuery = array_diff($aTalkId, array_keys($aTalkUsers));
         $aTalkIdNeedQuery = array_diff($aTalkIdNeedQuery, $aTalkIdNotNeedQuery);
         $aTalkIdNeedStore = $aTalkIdNeedQuery;
         if ($data = $this->oMapper->GetTalkUserByArray($aTalkIdNeedQuery, $nUserId)) {
             foreach ($data as $oTalkUser) {
-                /**
-                 * Добавляем к результату и сохраняем в кеш
-                 */
+                // Добавляем к результату и сохраняем в кеш
                 $aTalkUsers[$oTalkUser->getTalkId()] = $oTalkUser;
-                $this->Cache_Set(
+                E::ModuleCache()->Set(
                     $oTalkUser, "talk_user_{$oTalkUser->getTalkId()}_{$oTalkUser->getUserId()}",
                     array("update_talk_user_{$oTalkUser->getTalkId()}"), 60 * 60 * 24 * 4
                 );
                 $aTalkIdNeedStore = array_diff($aTalkIdNeedStore, array($oTalkUser->getTalkId()));
             }
         }
-        /**
-         * Сохраняем в кеш запросы не вернувшие результата
-         */
+
+        // Сохраняем в кеш запросы не вернувшие результата
         foreach ($aTalkIdNeedStore as $sId) {
-            $this->Cache_Set(null, "talk_user_{$sId}_{$nUserId}", array("update_talk_user_{$sId}"), 60 * 60 * 24 * 4);
+            E::ModuleCache()->Set(null, "talk_user_{$sId}_{$nUserId}", array("update_talk_user_{$sId}"), 60 * 60 * 24 * 4);
         }
-        /**
-         * Сортируем результат согласно входящему массиву
-         */
+
+        // Сортируем результат согласно входящему массиву
         $aTalkUsers = F::Array_SortByKeysArray($aTalkUsers, $aTalkId);
+
         return $aTalkUsers;
     }
 
     /**
      * Получает тему разговора по айдишнику
      *
-     * @param int $nId    ID сообщения
+     * @param int $nTalkId    ID сообщения
      *
      * @return ModuleTalk_EntityTalk|null
      */
-    public function GetTalkById($nId) {
+    public function GetTalkById($nTalkId) {
 
-        if (!intval($nId)) {
+        if (!intval($nTalkId)) {
             return null;
         }
-        $aTalks = $this->GetTalksAdditionalData($nId);
-        if (isset($aTalks[$nId])) {
-            $aResult = $this->GetTalkUsersByTalkId($nId);
-            foreach ((array)$aResult as $oTalkUser) {
+        $aTalks = $this->GetTalksAdditionalData($nTalkId);
+        if (isset($aTalks[$nTalkId])) {
+            $aResult = (array)$this->GetTalkUsersByTalkId($nTalkId);
+            foreach ($aResult as $oTalkUser) {
                 $aTalkUsers[$oTalkUser->getUserId()] = $oTalkUser;
             }
-            $aTalks[$nId]->setTalkUsers($aTalkUsers);
-            return $aTalks[$nId];
+            $aTalks[$nTalkId]->setTalkUsers($aTalkUsers);
+
+            return $aTalks[$nTalkId];
         }
         return null;
     }
 
     /**
-     * Добавляет юзера к разговору(теме)
+     * Добавляет юзера к разговору (теме)
      *
      * @param ModuleTalk_EntityTalkUser $oTalkUser    Объект связи пользователя и сообщения(разговора)
      *
@@ -429,14 +426,13 @@ class ModuleTalk extends Module {
      */
     public function AddTalkUser($oTalkUser) {
 
-        $this->Cache_Delete("talk_{$oTalkUser->getTalkId()}");
-        $this->Cache_Clean(
-            Zend_Cache::CLEANING_MODE_MATCHING_TAG,
-            array(
-                 "update_talk_user_{$oTalkUser->getTalkId()}"
-            )
-        );
-        return $this->oMapper->AddTalkUser($oTalkUser);
+        $xResult = $this->oMapper->AddTalkUser($oTalkUser);
+
+        $iTalkId = is_object($oTalkUser) ? $oTalkUser->getTalkId() : 0;
+        E::ModuleCache()->Delete("talk_{$iTalkId}");
+        E::ModuleCache()->Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("update_talk_user_{$iTalkId}"));
+
+        return $xResult;
     }
 
     /**
@@ -451,14 +447,14 @@ class ModuleTalk extends Module {
             $aTalkId = array($aTalkId);
         }
         foreach ($aTalkId as $sTalkId) {
-            if ($oTalk = $this->Talk_GetTalkById((string)$sTalkId)) {
-                if ($oTalkUser = $this->Talk_GetTalkUser($oTalk->getId(), $nUserId)) {
+            if ($oTalk = $this->GetTalkById((string)$sTalkId)) {
+                if ($oTalkUser = $this->GetTalkUser($oTalk->getId(), $nUserId)) {
                     $oTalkUser->setDateLast(date('Y-m-d H:i:s'));
                     if ($oTalk->getCommentIdLast()) {
                         $oTalkUser->setCommentIdLast($oTalk->getCommentIdLast());
                     }
                     $oTalkUser->setCommentCountNew(0);
-                    $this->Talk_UpdateTalkUser($oTalkUser);
+                    $this->UpdateTalkUser($oTalkUser);
                 }
             }
         }
@@ -473,15 +469,15 @@ class ModuleTalk extends Module {
     public function MarkUnreadTalkUserByArray($aTalkId, $nUserId) {
 
         if (!is_array($aTalkId)) {
-            $aTalkId = array($aTalkId);
+            $aTalkId = array((int)$aTalkId);
         }
-        foreach ($aTalkId as $sTalkId) {
-            if ($oTalk = $this->Talk_GetTalkById((string)$sTalkId)) {
-                if ($oTalkUser = $this->Talk_GetTalkUser($oTalk->getId(), $nUserId)) {
+        foreach ($aTalkId as $nTalkId) {
+            if (intval($nTalkId) && ($oTalk = $this->GetTalkById($nTalkId))) {
+                if ($oTalkUser = $this->GetTalkUser($oTalk->getId(), $nUserId)) {
                     $oTalkUser->setDateLast($oTalk->getTalkDate());
                     $oTalkUser->setCommentIdLast('0');
                     $oTalkUser->setCommentCountNew($oTalk->getCountComment());
-                    $this->Talk_UpdateTalkUser($oTalkUser);
+                    $this->UpdateTalkUser($oTalkUser);
                 }
             }
         }
@@ -502,52 +498,49 @@ class ModuleTalk extends Module {
             $aTalkId = array($aTalkId);
         }
         // Удаляем для каждого отметку избранного
-        foreach ($aTalkId as $sTalkId) {
+        foreach ($aTalkId as $nTalkId) {
             $this->DeleteFavouriteTalk(
-                Engine::GetEntity(
+                E::GetEntity(
                     'Favourite',
                     array(
-                         'target_id'   => (string)$sTalkId,
+                         'target_id'   => intval($nTalkId),
                          'target_type' => 'talk',
                          'user_id'     => $nUserId
                     )
                 )
             );
         }
+        $xResult = $this->oMapper->DeleteTalkUserByArray($aTalkId, $nUserId, $iActive);
+
         // Нужно почистить зависимые кеши
-        foreach ($aTalkId as $sTalkId) {
-            $sTalkId = (string)$sTalkId;
-            $this->Cache_Clean(
-                Zend_Cache::CLEANING_MODE_MATCHING_TAG,
-                array("update_talk_user_{$sTalkId}")
-            );
+        foreach ($aTalkId as $nTalkId) {
+            E::ModuleCache()->Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG,array("update_talk_user_{$nTalkId}"));
         }
-        $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("update_talk_user"));
-        $ret = $this->oMapper->DeleteTalkUserByArray($aTalkId, $nUserId, $iActive);
+        E::ModuleCache()->Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("update_talk_user"));
 
         // Удаляем пустые беседы, если в них нет пользователей
-        foreach ($aTalkId as $sTalkId) {
-            $sTalkId = (string)$sTalkId;
-            if (!count($this->GetUsersTalk($sTalkId, array(self::TALK_USER_ACTIVE)))) {
-                $this->DeleteTalk($sTalkId);
+        foreach ($aTalkId as $nTalkId) {
+            $nTalkId = (string)$nTalkId;
+            if (!count($this->GetUsersTalk($nTalkId, array(self::TALK_USER_ACTIVE)))) {
+                $this->DeleteTalk($nTalkId);
             }
         }
-        return $ret;
+        return $xResult;
     }
 
     /**
      * Есть ли юзер в этом разговоре
      *
-     * @param int $sTalkId    ID разговора
+     * @param int $nTalkId    ID разговора
      * @param int $nUserId    ID пользователя
      *
      * @return ModuleTalk_EntityTalkUser|null
      */
-    public function GetTalkUser($sTalkId, $nUserId) {
+    public function GetTalkUser($nTalkId, $nUserId) {
 
-        $aTalkUser = $this->GetTalkUsersByArray($sTalkId, $nUserId);
-        if (isset($aTalkUser[$sTalkId])) {
-            return $aTalkUser[$sTalkId];
+        $aTalkUser = $this->GetTalkUsersByArray($nTalkId, $nUserId);
+        if (isset($aTalkUser[$nTalkId])) {
+            return $aTalkUser[$nTalkId];
         }
         return null;
     }
@@ -570,10 +563,12 @@ class ModuleTalk extends Module {
         if ($data['collection']) {
             $aTalks = $this->GetTalksAdditionalData($data['collection']);
 
-            // * Добавляем данные об участниках разговора
+            // Добавляем данные об участниках разговора
+            /** @var ModuleTalk_EntityTalk $oTalk */
             foreach ($aTalks as $oTalk) {
-                $aResult = $this->GetTalkUsersByTalkId($oTalk->getId());
-                foreach ((array)$aResult as $oTalkUser) {
+                $aResult = (array)$this->GetTalkUsersByTalkId($oTalk->getId());
+                $aTalkUsers = array();
+                foreach ($aResult as $oTalkUser) {
                     $aTalkUsers[$oTalkUser->getUserId()] = $oTalkUser;
                 }
                 $oTalk->setTalkUsers($aTalkUsers);
@@ -603,10 +598,11 @@ class ModuleTalk extends Module {
             $aTalks = $this->GetTalksAdditionalData($data['collection']);
 
             // * Добавляем данные об участниках разговора
+            /** @var ModuleTalk_EntityTalk $oTalk */
             foreach ($aTalks as $oTalk) {
-                $aResult = $this->GetTalkUsersByTalkId($oTalk->getId());
+                $aResult = (array)$this->GetTalkUsersByTalkId($oTalk->getId());
                 $aTalkUsers = array();
-                foreach ((array)$aResult as $oTalkUser) {
+                foreach ($aResult as $oTalkUser) {
                     $aTalkUsers[$oTalkUser->getUserId()] = $oTalkUser;
                 }
                 $oTalk->setTalkUsers($aTalkUsers);
@@ -625,27 +621,30 @@ class ModuleTalk extends Module {
      */
     public function UpdateTalkUser($oTalkUser) {
 
+        $xResult = $this->oMapper->UpdateTalkUser($oTalkUser);
+
         //чистим зависимые кеши
-        $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("talk_read_user_{$oTalkUser->getUserId()}"));
-        $this->Cache_Delete("talk_user_{$oTalkUser->getTalkId()}_{$oTalkUser->getUserId()}");
-        return $this->oMapper->UpdateTalkUser($oTalkUser);
+        E::ModuleCache()->Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("talk_read_user_{$oTalkUser->getUserId()}"));
+        E::ModuleCache()->Delete("talk_user_{$oTalkUser->getTalkId()}_{$oTalkUser->getUserId()}");
+
+        return $xResult;
     }
 
     /**
      * Получает число новых тем и комментов где есть юзер
      *
-     * @param int $nUserId    ID пользователя
+     * @param int|object $xUser    ID пользователя
      *
      * @return int
      */
-    public function GetCountTalkNew($nUserId) {
+    public function GetCountTalkNew($xUser) {
 
-        if (false === ($data = $this->Cache_Get("talk_count_all_new_user_{$nUserId}"))) {
+        $nUserId = is_object($xUser) ? $xUser->getId() : intval($xUser);
+
+        $sCacheKey = "talk_count_all_new_user_{$nUserId}";
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
             $data = $this->oMapper->GetCountCommentNew($nUserId) + $this->oMapper->GetCountTalkNew($nUserId);
-            $this->Cache_Set(
-                $data, "talk_count_all_new_user_{$nUserId}",
-                array("talk_new", "update_talk_user", "talk_read_user_{$nUserId}"), 60 * 60 * 24
-            );
+            E::ModuleCache()->Set($data, $sCacheKey, array("talk_new", "update_talk_user", "talk_read_user_{$nUserId}"), 'P1D');
         }
         return $data;
     }
@@ -665,7 +664,8 @@ class ModuleTalk extends Module {
         }
 
         $data = $this->oMapper->GetUsersTalk($nTalkId, $aActive);
-        return $this->User_GetUsersAdditionalData($data);
+
+        return E::ModuleUser()->GetUsersAdditionalData($data);
     }
 
     /**
@@ -677,12 +677,10 @@ class ModuleTalk extends Module {
      */
     public function GetTalkUsersByTalkId($nTalkId) {
 
-        if (false === ($aTalkUsers = $this->Cache_Get("talk_relation_user_by_talk_id_{$nTalkId}"))) {
+        $sCacheKey = "talk_relation_user_by_talk_id_{$nTalkId}";
+        if (false === ($aTalkUsers = E::ModuleCache()->Get($sCacheKey))) {
             $aTalkUsers = $this->oMapper->GetTalkUsers($nTalkId);
-            $this->Cache_Set(
-                $aTalkUsers, "talk_relation_user_by_talk_id_{$nTalkId}", array("update_talk_user_{$nTalkId}"),
-                60 * 60 * 24 * 1
-            );
+            E::ModuleCache()->Set($aTalkUsers, $sCacheKey, array("update_talk_user_{$nTalkId}"), 'P1D');
         }
 
         if ($aTalkUsers) {
@@ -690,7 +688,7 @@ class ModuleTalk extends Module {
             foreach ($aTalkUsers as $oTalkUser) {
                 $aUserId[] = $oTalkUser->getUserId();
             }
-            $aUsers = $this->User_GetUsersAdditionalData($aUserId);
+            $aUsers = E::ModuleUser()->GetUsersAdditionalData($aUserId);
 
             foreach ($aTalkUsers as $oTalkUser) {
                 if (isset($aUsers[$oTalkUser->getUserId()])) {
@@ -713,9 +711,12 @@ class ModuleTalk extends Module {
      */
     public function increaseCountCommentNew($nTalkId, $aExcludeId = null) {
 
-        $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("update_talk_user_{$nTalkId}"));
-        $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("update_talk_user"));
-        return $this->oMapper->increaseCountCommentNew($nTalkId, $aExcludeId);
+        $xResult = $this->oMapper->increaseCountCommentNew($nTalkId, $aExcludeId);
+
+        E::ModuleCache()->Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("update_talk_user_{$nTalkId}"));
+        E::ModuleCache()->Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("update_talk_user"));
+
+        return $xResult;
     }
 
     /**
@@ -728,7 +729,7 @@ class ModuleTalk extends Module {
      */
     public function GetFavouriteTalk($sTalkId, $nUserId) {
 
-        return $this->Favourite_GetFavourite($sTalkId, 'talk', $nUserId);
+        return E::ModuleFavourite()->GetFavourite($sTalkId, 'talk', $nUserId);
     }
 
     /**
@@ -741,7 +742,7 @@ class ModuleTalk extends Module {
      */
     public function GetFavouriteTalkByArray($aTalkId, $nUserId) {
 
-        return $this->Favourite_GetFavouritesByArray($aTalkId, 'talk', $nUserId);
+        return E::ModuleFavourite()->GetFavouritesByArray($aTalkId, 'talk', $nUserId);
     }
 
     /**
@@ -754,7 +755,7 @@ class ModuleTalk extends Module {
      */
     public function GetFavouriteTalksByArraySolid($aTalkId, $nUserId) {
 
-        return $this->Favourite_GetFavouritesByArraySolid($aTalkId, 'talk', $nUserId);
+        return E::ModuleFavourite()->GetFavouritesByArraySolid($aTalkId, 'talk', $nUserId);
     }
 
     /**
@@ -769,13 +770,14 @@ class ModuleTalk extends Module {
     public function GetTalksFavouriteByUserId($nUserId, $iCurrPage, $iPerPage) {
 
         // Получаем список идентификаторов избранных комментов
-        $data = $this->Favourite_GetFavouritesByUserId($nUserId, 'talk', $iCurrPage, $iPerPage);
+        $data = E::ModuleFavourite()->GetFavouritesByUserId($nUserId, 'talk', $iCurrPage, $iPerPage);
 
         if ($data['collection']) {
             // Получаем комменты по переданому массиву айдишников
             $aTalks = $this->GetTalksAdditionalData($data['collection']);
 
             // * Добавляем данные об участниках разговора
+            /** @var ModuleTalk_EntityTalk $oTalk */
             foreach ($aTalks as $oTalk) {
                 $aResult = $this->GetTalkUsersByTalkId($oTalk->getId());
                 $aTalkUsers = array();
@@ -798,7 +800,7 @@ class ModuleTalk extends Module {
      */
     public function GetCountTalksFavouriteByUserId($nUserId) {
 
-        return $this->Favourite_GetCountFavouritesByUserId($nUserId, 'talk');
+        return E::ModuleFavourite()->GetCountFavouritesByUserId($nUserId, 'talk');
     }
 
     /**
@@ -811,7 +813,7 @@ class ModuleTalk extends Module {
     public function AddFavouriteTalk(ModuleFavourite_EntityFavourite $oFavourite) {
 
         return ($oFavourite->getTargetType() == 'talk')
-            ? $this->Favourite_AddFavourite($oFavourite)
+            ? E::ModuleFavourite()->AddFavourite($oFavourite)
             : false;
     }
 
@@ -825,7 +827,7 @@ class ModuleTalk extends Module {
     public function DeleteFavouriteTalk(ModuleFavourite_EntityFavourite $oFavourite) {
 
         return ($oFavourite->getTargetType() == 'talk')
-            ? $this->Favourite_DeleteFavourite($oFavourite)
+            ? E::ModuleFavourite()->DeleteFavourite($oFavourite)
             : false;
     }
 
@@ -839,7 +841,7 @@ class ModuleTalk extends Module {
     public function GetBlacklistByUserId($nUserId) {
 
         $data = $this->oMapper->GetBlacklistByUserId($nUserId);
-        return $this->User_GetUsersAdditionalData($data);
+        return E::ModuleUser()->GetUsersAdditionalData($data);
     }
 
     /**
@@ -929,7 +931,7 @@ class ModuleTalk extends Module {
          * Удаляем комментарии к письму.
          * При удалении комментариев они удаляются из избранного,прямого эфира и голоса за них
          */
-        $this->Comment_DeleteCommentByTargetId($iTalkId, 'talk');
+        E::ModuleComment()->DeleteCommentByTargetId($iTalkId, 'talk');
     }
 }
 

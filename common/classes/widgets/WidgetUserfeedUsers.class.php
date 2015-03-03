@@ -27,14 +27,14 @@ class WidgetUserfeedUsers extends Widget {
         /**
          * Пользователь авторизован?
          */
-        if ($oUserCurrent = $this->User_GetUserCurrent()) {
+        if ($oUserCurrent = E::ModuleUser()->GetUserCurrent()) {
             /**
              * Получаем необходимые переменные и передаем в шаблон
              */
-            $aUserSubscribes = $this->Userfeed_GetUserSubscribes($oUserCurrent->getId());
-            $aFriends = $this->User_GetUsersFriend($oUserCurrent->getId());
-            $this->Viewer_Assign('aUserfeedSubscribedUsers', $aUserSubscribes['users']);
-            $this->Viewer_Assign('aUserfeedFriends', $aFriends['collection']);
+            $aUserSubscribes = E::ModuleUserfeed()->GetUserSubscribes($oUserCurrent->getId());
+            $aFriends = E::ModuleUser()->GetUsersFriend($oUserCurrent->getId());
+            E::ModuleViewer()->Assign('aUserfeedSubscribedUsers', $aUserSubscribes['users']);
+            E::ModuleViewer()->Assign('aUserfeedFriends', $aFriends['collection']);
         }
     }
 }

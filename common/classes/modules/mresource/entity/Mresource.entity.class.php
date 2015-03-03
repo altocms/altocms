@@ -8,7 +8,37 @@
  *----------------------------------------------------------------------------
  */
 
+/**
+ * Class ModuleMresource_EntityMresource
+ *
+ * @method setUserId(int)
+ * @method setTargetId(int)
+ * @method setLink(string)
+ * @method setHashFile(string)
+ * @method setHashUrl(string)
+ * @method setPathFile(string)
+ * @method setPathUrl(string)
+ * @method setType(int)
+ * @method setStorage(string)
+ *
+ * @method int getUserId()
+ * @method int getTargetId()
+ * @method string getLink()
+ * @method string getHashFile()
+ * @method string getHashUrl()
+ * @method string getPathFile()
+ * @method string getPathUrl()
+ * @method int getType()
+ * @method string getStorage()
+ */
 class ModuleMresource_EntityMresource extends Entity {
+
+    /**
+     * Массив параметров ресурса
+     *
+     * @var array
+     */
+    protected $aParams = null;
 
     public function __construct($aParam = null) {
 
@@ -213,7 +243,7 @@ class ModuleMresource_EntityMresource extends Entity {
             $sHashFile = null;
         }
         if ($sPathUrl = $this->GetPathUrl()) {
-            $sHashUrl = $this->Mresource_CalcUrlHash($sPathUrl);
+            $sHashUrl = E::ModuleMresource()->CalcUrlHash($sPathUrl);
         } else {
             $sHashUrl = null;
         }
@@ -253,7 +283,7 @@ class ModuleMresource_EntityMresource extends Entity {
             $sUrl = $this->GetPathUrl();
             if (!$this->IsLink() && $this->IsImage() && $sUrl) {
                 $aOptions = array();
-                $sOriginal = $this->Img_OriginalFile($sUrl, $aOptions);
+                $sOriginal = E::ModuleImg()->OriginalFile($sUrl, $aOptions);
                 if ($sOriginal !== $sUrl) {
                     $sUrl = $sOriginal;
                 }
@@ -276,7 +306,7 @@ class ModuleMresource_EntityMresource extends Entity {
             $sHash = $this->GetHash();
             if (($sPathUrl = $this->GetPathUrl()) && ($sOriginalUrl = $this->GetOriginalPathUrl())) {
                 if ($sOriginalUrl !== $sPathUrl) {
-                    $sHash = $this->Mresource_CalcUrlHash($sOriginalUrl);
+                    $sHash = E::ModuleMresource()->CalcUrlHash($sOriginalUrl);
                 }
             }
             $this->setProp($sPropKey, $sHash);
@@ -304,9 +334,9 @@ class ModuleMresource_EntityMresource extends Entity {
             if (F::File_IsLocalUrl($sUrl) && ($sModSuffix = F::File_ImgModSuffix($xSize, pathinfo($sUrl, PATHINFO_EXTENSION)))) {
                 $sUrl = $sUrl . $sModSuffix;
                 if (Config::Get('module.image.autoresize')) {
-                    $sFile = $this->Uploader_Url2Dir($sUrl);
+                    $sFile = E::ModuleUploader()->Url2Dir($sUrl);
                     if (!F::File_Exists($sFile)) {
-                        $this->Img_Duplicate($sFile);
+                        E::ModuleImg()->Duplicate($sFile);
                     }
                 }
             }
@@ -330,9 +360,106 @@ class ModuleMresource_EntityMresource extends Entity {
         } else {
             $sCheckUuid = $this->GetStorageUuid();
         }
-        return $this->Uploader_Exists($sCheckUuid);
+        return E::ModuleUploader()->Exists($sCheckUuid);
     }
 
+    public function getWebPath($xSize=FALSE) {
+
+        $sUrl = str_replace('@', Config::Get('path.root.web'), $this->getPathUrl());
+
+        if (!$xSize) {
+            return $sUrl;
+        }
+
+        return E::ModuleUploader()->ResizeTargetImage($sUrl, $xSize);
+
+    }
+
+    /**
+     * Возвращает сериализованную строку дополнительных данных ресурса
+     *
+     * @return string
+     */
+    public function getParams() {
+
+        $sResult = $this->getProp('params');
+        return !is_null($sResult) ? $sResult : serialize('');
+    }
+
+    /**
+     * Устанавливает сериализованную строчку дополнительных данных
+     *
+     * @param string $data
+     */
+    public function setParams($data) {
+
+        $this->setProp('params', serialize($data));
+    }
+
+    /**
+     * Получает описание ресурса
+     *
+     * @return mixed|null
+     */
+    public function getDescription() {
+        return $this->getParamValue('description');
+    }
+
+    /**
+     * Устанавливает описание ресурса
+     * @param $sValue
+     */
+    public function setDescription($sValue) {
+        $this->setParamValue('description', $sValue);
+    }
+
+
+    public function IsCover() {
+        return $this->getType() == ModuleMresource::TYPE_PHOTO_PRIMARY;
+    }
+    /* ****************************************************************************************************************
+ * методы расширения типов топика
+ * ****************************************************************************************************************
+ */
+
+    /**
+     * Извлекает сериализованные данные топика
+     */
+    protected function extractParams() {
+
+        if (is_null($this->aParams)) {
+            $this->aParams = @unserialize($this->getParams());
+        }
+    }
+
+    /**
+     * Устанавливает значение нужного параметра
+     *
+     * @param string $sName    Название параметра/данных
+     * @param mixed  $data     Данные
+     */
+    protected function setParamValue($sName, $data) {
+
+        $this->extractParams();
+        $this->aParams[$sName] = $data;
+        $this->setParams($this->aParams);
+    }
+
+    /**
+     * Извлекает значение параметра
+     *
+     * @param string $sName    Название параметра
+     *
+     * @return null|mixed
+     */
+    protected function getParamValue($sName) {
+
+        $this->extractParams();
+        if (isset($this->aParams[$sName])) {
+            return $this->aParams[$sName];
+        }
+        return null;
+    }
 }
 
 // EOF

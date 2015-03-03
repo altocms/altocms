@@ -24,5 +24,20 @@
         ls.insertToEditor = function(markup) {
             $.markItUp({ replaceWith: markup });
         }
+
+        {if Config::Get('view.float_editor')}
+        $(function(){
+            ls.editor.float({
+                topStep: {if Config::Get('view.fix_menu')}43{else}0{/if},
+                dif: -1,
+                css: {
+                    borderBottom: '1px'
+                },
+                textareaClass: '.js-editor-markitup',
+                editorClass: '.markItUp',
+                headerClass: '.markItUpHeader'
+            });
+        })
+        {/if}
     });
 </script>

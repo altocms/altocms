@@ -50,7 +50,7 @@ function smarty_function_date_format($aParams, &$oSmarty) {
             $iTz = $aParams['tz'];
         }
         if ($iTz === false) {
-            if (($oUserCurrent = E::User_GetUserCurrent()) && $oUserCurrent->getSettingsTimezone()) {
+            if (($oUserCurrent = E::ModuleUser()->GetUserCurrent()) && $oUserCurrent->getSettingsTimezone()) {
                 $iTz = $oUserCurrent->getSettingsTimezone();
             }
         }
@@ -70,11 +70,11 @@ function smarty_function_date_format($aParams, &$oSmarty) {
     /**
      * Если указан другой язык, подгружаем его
      */
-    if (isset($aParams['lang']) && $aParams['lang'] != E::Lang_GetLang()) {
-        E::Lang_SetLang($aParams['lang']);
+    if (isset($aParams['lang']) && $aParams['lang'] != E::ModuleLang()->GetLang()) {
+        E::ModuleLang()->SetLang($aParams['lang']);
     }
 
-    $aMonth = E::Lang_Get('month_array');
+    $aMonth = E::ModuleLang()->Get('month_array');
     $iDate = (preg_match("/^\d+$/", $sDate)) ? $sDate : strtotime($sDate);
     $iDate += $iDiff;
 
@@ -83,7 +83,7 @@ function smarty_function_date_format($aParams, &$oSmarty) {
      */
     if (isset($aParams['now'])) {
         if ($iDate + $aParams['now'] > $iNow) {
-            return E::Lang_Get('date_now');
+            return E::ModuleLang()->Get('date_now');
         }
     }
 
@@ -98,10 +98,10 @@ function smarty_function_date_format($aParams, &$oSmarty) {
             return ($iTimeDelta != 0)
                 ? smarty_modifier_declension(
                     $iTimeDelta,
-                    E::Lang_Get('date_minutes_back', array('minutes' => $iTimeDelta)),
-                    E::Lang_GetLang()
+                    E::ModuleLang()->Get('date_minutes_back', array('minutes' => $iTimeDelta)),
+                    E::ModuleLang()->GetLang()
                 )
-                : E::Lang_Get('date_minutes_back_less');
+                : E::ModuleLang()->Get('date_minutes_back_less');
         }
     }
 
@@ -116,10 +116,10 @@ function smarty_function_date_format($aParams, &$oSmarty) {
             return ($iTimeDelta != 0)
                 ? smarty_modifier_declension(
                     $iTimeDelta,
-                    E::Lang_Get('date_hours_back', array('hours' => $iTimeDelta)),
-                    E::Lang_GetLang()
+                    E::ModuleLang()->Get('date_hours_back', array('hours' => $iTimeDelta)),
+                    E::ModuleLang()->GetLang()
                 )
-                : E::Lang_Get('date_hours_back_less');
+                : E::ModuleLang()->Get('date_hours_back_less');
         }
     }
 
@@ -132,19 +132,19 @@ function smarty_function_date_format($aParams, &$oSmarty) {
              * Если дата совпадает с сегодняшней
              */
             case date('Y-m-d'):
-                $sDay = E::Lang_Get('date_today');
+                $sDay = E::ModuleLang()->Get('date_today');
                 break;
             /**
              * Если дата совпадает со вчерашней
              */
             case date('Y-m-d', mktime(0, 0, 0, date("m"), date("d") - 1, date("Y"))):
-                $sDay = E::Lang_Get('date_yesterday');
+                $sDay = E::ModuleLang()->Get('date_yesterday');
                 break;
             /**
              * Если дата совпадает с завтрашней
              */
             case date('Y-m-d', mktime(0, 0, 0, date("m"), date("d") + 1, date("Y"))):
-                $sDay = E::Lang_Get('date_tomorrow');
+                $sDay = E::ModuleLang()->Get('date_tomorrow');
                 break;
 
             default:

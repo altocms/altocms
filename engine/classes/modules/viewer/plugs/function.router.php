@@ -30,7 +30,7 @@ function smarty_function_router($aParams, &$oSmarty) {
     }
     //require_once(Config::Get('path.root.engine').'/classes/Router.class.php');
 
-    if (!$sPath = Router::GetPath($aParams['page'])) {
+    if (!$sPath = R::GetPath($aParams['page'])) {
         trigger_error("Router: unknown 'page' given", E_USER_WARNING);
         return;
     }

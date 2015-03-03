@@ -1,0 +1,51 @@
+@import "../bootstrap/variables";
+@import "../bootstrap/mixins";
+@import "../style.experience.less";
+
+
+#notifier {
+    width: 270px;
+    position: fixed;
+    top: 32px;
+    right: 8px;
+    font-size: 12px;
+    line-height: 16px;
+    z-index: 9999;
+
+    .n-box {
+        position: relative;
+        padding: 15px 20px 16px;
+        margin-bottom: 10px;
+        color: @color-100;
+        background: @blue;
+        border-radius: @border-radius-small;
+        cursor: pointer;
+
+        &.n-notice {
+            background: @green;
+            color: @color-100;
+        }
+        &.n-error {
+            background: @red;
+            color: @color-100;
+        }
+
+        h3 {
+            color: @color-100;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 3px;
+            margin-top: 0 !important;
+        }
+        p {
+            margin: 0;
+            span {
+                font-size: 12px;
+            }
+        }
+    }
+
+    .glyphicon {
+        margin-right: 12px;
+    }
+}

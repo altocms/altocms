@@ -92,44 +92,15 @@
 
 
 
-        <p>
-            {if $oBlogEdit AND $oBlogEdit->getAvatar()}
-
-        <div class="avatar-edit">
-            {foreach Config::Get('module.blog.avatar_size') as $iSize}
-                {if $iSize}<img src="{$oBlogEdit->getAvatarPath({$iSize})}">{/if}
-            {/foreach}
-
-            <div class="checkbox">
-                <label for="topic_delete_file_{$iFieldId}">
-                    <input type="checkbox" id="avatar_delete"
-                           name="avatar_delete"
-                           class="avatar_delete mal0"
-                           value="on"> {$aLang.blog_create_avatar_delete}
-                </label>
-            </div>
-        </div>
-        {/if}
-
-        <div class="form-group">
-            <div class="input-group">
-                <label class="input-group-addon" for="avatar">{$aLang.blog_create_avatar}</label>
-                <div class="fileinput fileinput-new input-group" data-provides="fileinput">
-                    <div class="form-control" data-trigger="fileinput">
-                        <i class="fa fa-file fileinput-exists"></i>
-                        <span class="fileinput-filename"></span>
-                    </div>
-                <span class="input-group-addon btn btn-default btn-file">
-                    <span class="fileinput-new">{$aLang.select}</span>
-                    <span class="fileinput-exists">{$aLang.change}</span>
-                    <input class="form-control" type="file" name="avatar" id="avatar">
-                </span>
-                    <a href="#" class="input-group-addon btn btn-default fileinput-exists" data-dismiss="fileinput">{$aLang.remove}</a>
-                </div>
-            </div>
-        </div>
-
-        </p>
+        {*<div>*}
+            {*{if $oBlogEdit AND $oBlogEdit->getAvatar()}*}
+                {*<div class="avatar-edit">*}
+                    {*{foreach Config::Get('module.blog.avatar_size') as $iSize}*}
+                        {*{if $iSize}<img src="{$oBlogEdit->getAvatarUrl({$iSize})}">{/if}*}
+                    {*{/foreach}*}
+                {*</div>*}
+            {*{/if}*}
+        {*</div>*}
 
 
         {hook run='form_add_blog_end'}

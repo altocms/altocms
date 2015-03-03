@@ -135,11 +135,11 @@ class ModuleViewerAsset extends Module {
         if (!isset($this->aAssets[$sType])) {
             if (in_array($sType, $this->aAssetTypes)) {
                 $aParams = array('asset_type' => $sType);
-                $this->aAssets[$sType] = Engine::GetEntity('ViewerAsset_Package' . ucfirst($sType), $aParams);
+                $this->aAssets[$sType] = E::GetEntity('ViewerAsset_Package' . ucfirst($sType), $aParams);
                 $oResult = $this->aAssets[$sType];
             } else {
                 if (!isset($this->aAssets['*'])) {
-                    $this->aAssets['*'] = Engine::GetEntity('ViewerAsset_Package');
+                    $this->aAssets['*'] = E::GetEntity('ViewerAsset_Package');
                 }
                 $oResult = $this->aAssets['*'];
             }

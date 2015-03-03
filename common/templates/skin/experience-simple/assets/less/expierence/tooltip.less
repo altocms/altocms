@@ -1,0 +1,51 @@
+@import "../var.bootstrap.less";
+@import "../bootstrap/mixins";
+@import "../var.experience.less";
+
+//
+// Tooltips
+// --------------------------------------------------
+
+// Base class
+.tooltip {
+    font-size: @font-size-base;
+}
+
+// Wrapper for the tooltip content
+.tooltip-inner {
+    padding: 8px 18px;
+    color: @color-100;
+    line-height: 14px;
+    background-color: @blue;
+}
+
+.tooltip.right {
+    margin-left: 6px;
+}
+
+.tooltip {
+    &.top .tooltip-arrow {
+        border-top-color: @blue;
+    }
+    &.top-left .tooltip-arrow {
+        border-top-color: @blue;
+    }
+    &.top-right .tooltip-arrow {
+        border-top-color: @blue;
+    }
+    &.right .tooltip-arrow {
+        border-right-color: @blue;
+    }
+    &.left .tooltip-arrow {
+        border-left-color: @blue;
+    }
+    &.bottom .tooltip-arrow {
+        border-bottom-color: @blue;
+    }
+    &.bottom-left .tooltip-arrow {
+        border-bottom-color: @blue;
+    }
+    &.bottom-right .tooltip-arrow {
+        border-bottom-color: @blue;
+    }
+}

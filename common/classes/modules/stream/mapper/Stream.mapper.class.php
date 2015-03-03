@@ -53,7 +53,7 @@ class ModuleStream_MapperStream extends Mapper {
 				WHERE target_id = ?d AND event_type = ? { AND user_id = ?d } ";
         $aRow = $this->oDb->selectRow($sql, $iTargetId, $sEventType, is_null($iUserId) ? DBSIMPLE_SKIP : $iUserId);
         if ($aRow) {
-            return Engine::GetEntity('ModuleStream_EntityEvent', $aRow);
+            return E::GetEntity('ModuleStream_EntityEvent', $aRow);
         }
         return null;
     }
@@ -120,17 +120,18 @@ class ModuleStream_MapperStream extends Mapper {
 				ORDER BY id DESC
 				{ LIMIT 0,?d }';
 
-        $aReturn = array();
-        if ($aRows = $this->oDb->select(
-            $sql, $aEventTypes, (!is_null($aUsersList) and count($aUsersList)) ? $aUsersList : DBSIMPLE_SKIP,
-            !is_null($iFromId) ? $iFromId : DBSIMPLE_SKIP, !is_null($iCount) ? $iCount : DBSIMPLE_SKIP
-        )
-        ) {
-            foreach ($aRows as $aRow) {
-                $aReturn[] = Engine::GetEntity('Stream_Event', $aRow);
-            }
+        $aResult = array();
+        $aRows = $this->oDb->select(
+            $sql,
+            $aEventTypes,
+            (!is_null($aUsersList) and count($aUsersList)) ? $aUsersList : DBSIMPLE_SKIP,
+            !is_null($iFromId) ? $iFromId : DBSIMPLE_SKIP,
+            !is_null($iCount) ? $iCount : DBSIMPLE_SKIP
+        );
+        if ($aRows) {
+            $aResult = E::GetEntityRows('Stream_Event', $aRows);
         }
-        return $aReturn;
+        return $aResult;
     }
 
     /**

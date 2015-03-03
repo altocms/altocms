@@ -38,6 +38,7 @@ return array (
     'menu_settings_contenttypes' => 'Content\'s types',
     'menu_settings_userrights'   => 'Users\' rights',
     'menu_settings_userfields'   => 'Users\' fields',
+    'menu_menu_manager'          => 'Menu manager',
 
     'menu_site'         => 'Site',
     'menu_site_skins'   => 'Appearance',
@@ -213,6 +214,46 @@ return array (
 
     'user_show_all' => 'Show all friends',
     'user_ban' => 'Banned',
+
+    'all_users' => 'All users',
+    'admins' => 'Admins',
+    'moderators' => 'Moderators',
+    'include_moderator' => 'Add moderator',
+    'exclude_moderator' => 'Remove moderator',
+
+    /* MENU */
+    'menu_manager'                        => 'Menu Manager',
+    'menu_manager_id'                     => 'Type',
+    'menu_manager_description'            => 'Description',
+    'menu_manager_actions'                => 'Actions',
+    'menu_manager_edit'                   => 'Edit',
+    'menu_manager_edit_menu'              => 'Edit menu',
+    'menu_manager_title'                  => 'Link text',
+    'menu_manager_link'                   => 'Link address',
+    'menu_manager_submenu'                => 'Submenu',
+    'menu_manager_no_items'               => 'There is no menu item',
+    'menu_manager_save_link_ok'           => 'The new link is saved',
+    'menu_manager_remove_link_ok'         => 'Menu item is deleted',
+    'menu_manager_save_text_ok'           => 'Item text is stored',
+    'menu_manager_edit_instruction'       => 'To change the order of the menu items, move the rows in the table with the mouse',
+    'menu_manager_edit_instruction_1'     => 'To change the text links or addresses, click the desired item',
+    'menu_manager_edit_instruction_2'     => 'To change the order of the menu items, move the rows in the table with the mouse',
+    'menu_manager_remove'                 => 'Remove this menu item',
+    'menu_manager_actions_add'            => 'Add a new menu item',
+    'menu_manager_actions_reset'          => 'Reset the menu to the initial state',
+    'menu_manager_item_title'             => 'Link text',
+    'menu_manager_item_link'              => 'Link address',
+    'menu_manager_item_place'             => 'Location',
+    'menu_manager_item_root'              => 'Add as a root link',
+    'menu_manager_as_submenu'             => 'As submenu item',
+    'menu_manager_actions_create'         => 'Create a new menu item',
+    'menu_manager_as_save'                => 'Save',
+    'menu_manager_item_add_error'         => 'The new element is added',
+    'menu_manager_edit_submenu'           => 'Edit submenu',
+    'menu_manager_actions_remove_submenu' => 'Delete submenu',
+    'menu_manager_change_display'         => 'Change visibility',
+    'menu_manager_display_link_ok'        => 'Visibility element changed',
+    'menu_manager_hook'                   => 'Hook place',
 
     /* INVITES */
     'invites_title'      => 'Invitations',
@@ -482,8 +523,6 @@ return array (
     'set_sys_logs_sql_query_file' => 'Log file of SQL requests',
     'set_sys_logs_sql_error' => 'Turn on of  logging of SQL errors',
     'set_sys_logs_sql_error_file' => 'Log file of SQL errors',
-    'set_sys_logs_profiler' => 'Turn on of  profiling of processes',
-    'set_sys_logs_profiler_file' => 'Log file of profiling ',
     'set_sys_logs_cron_file' => 'Log file of cron processes',
 
     'set_section_css' => 'Settings of processing of CSS files',
@@ -926,6 +965,9 @@ return array (
     'contenttypes_dao_link_view_type_obj' => 'The list of objects in DAO registration',
 
     'contenttypes_role_topiccck' => 'Article addition',
+
+    'contenttypes_field_image_notice'    => 'Field for upload image',
+    'contenttypes_field_image'           => 'Image',
 
 );
 

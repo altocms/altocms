@@ -65,8 +65,8 @@ class ActionIndex extends Action {
         /**
          * Подсчитываем новые топики
          */
-        $this->iCountTopicsCollectiveNew=$this->Topic_GetCountTopicsCollectiveNew();
-        $this->iCountTopicsPersonalNew=$this->Topic_GetCountTopicsPersonalNew();
+        $this->iCountTopicsCollectiveNew=E::ModuleTopic()->GetCountTopicsCollectiveNew();
+        $this->iCountTopicsPersonalNew=E::ModuleTopic()->GetCountTopicsPersonalNew();
         $this->iCountTopicsNew=$this->iCountTopicsCollectiveNew+$this->iCountTopicsPersonalNew;
     }
 
@@ -79,7 +79,9 @@ class ActionIndex extends Action {
         $this->AddEventPreg('/^new$/i', '/^(page([1-9]\d{0,5}))?$/i', 'EventNew');
         $this->AddEventPreg('/^newall$/i', '/^(page([1-9]\d{0,5}))?$/i', 'EventNewAll');
         $this->AddEventPreg('/^discussed/i', '/^(page([1-9]\d{0,5}))?$/i', 'EventDiscussed');
-        $this->AddEventPreg('/^top/i', '/^(page([1-9]\d{0,5}))?$/i', 'EventTop');
+        if (C::Get('rating.enabled')) {
+            $this->AddEventPreg('/^top/i', '/^(page([1-9]\d{0,5}))?$/i', 'EventTop');
+        }
     }
 
 
@@ -105,12 +107,12 @@ class ActionIndex extends Action {
          */
         $iPage = $this->GetParamEventMatch(0, 2) ? $this->GetParamEventMatch(0, 2) : 1;
         if ($iPage == 1 && !F::GetRequest('period')) {
-            $this->Viewer_SetHtmlCanonical(Router::GetPath('index') . 'top/');
+            E::ModuleViewer()->SetHtmlCanonical(R::GetPath('index') . 'top/');
         }
         /**
          * Получаем список топиков
          */
-        $aResult = $this->Topic_GetTopicsTop(
+        $aResult = E::ModuleTopic()->GetTopicsTop(
             $iPage, Config::Get('module.topic.per_page'), $sPeriod == 'all' ? null : $sPeriod * 60 * 60 * 24
         );
         /**
@@ -118,7 +120,7 @@ class ActionIndex extends Action {
          */
         if (!$aResult['count'] && $iPage == 1 && !F::GetRequest('period')) {
             $sPeriod = 7;
-            $aResult = $this->Topic_GetTopicsTop(
+            $aResult = E::ModuleTopic()->GetTopicsTop(
                 $iPage, Config::Get('module.topic.per_page'), $sPeriod == 'all' ? null : $sPeriod * 60 * 60 * 24
             );
         }
@@ -126,23 +128,23 @@ class ActionIndex extends Action {
         /**
          * Вызов хуков
          */
-        $this->Hook_Run('topics_list_show', array('aTopics' => $aTopics));
+        E::ModuleHook()->Run('topics_list_show', array('aTopics' => $aTopics));
         /**
          * Формируем постраничность
          */
-        $aPaging = $this->Viewer_MakePaging(
+        $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
-            Router::GetPath('index') . 'top', array('period' => $sPeriod)
+            R::GetPath('index') . 'top', array('period' => $sPeriod)
         );
 
-        $this->Viewer_AddHtmlTitle($this->Lang_Get('blog_menu_all_top') . ($iPage>1 ? (' (' . $iPage . ')') : ''));
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('blog_menu_all_top') . ($iPage>1 ? (' (' . $iPage . ')') : ''));
         /**
          * Загружаем переменные в шаблон
          */
-        $this->Viewer_Assign('aTopics', $aTopics);
-        $this->Viewer_Assign('aPaging', $aPaging);
-        $this->Viewer_Assign('sPeriodSelectCurrent', $sPeriod);
-        $this->Viewer_Assign('sPeriodSelectRoot', Router::GetPath('index') . 'top/');
+        E::ModuleViewer()->Assign('aTopics', $aTopics);
+        E::ModuleViewer()->Assign('aPaging', $aPaging);
+        E::ModuleViewer()->Assign('sPeriodSelectCurrent', $sPeriod);
+        E::ModuleViewer()->Assign('sPeriodSelectRoot', R::GetPath('index') . 'top/');
         /**
          * Устанавливаем шаблон вывода
          */
@@ -166,12 +168,12 @@ class ActionIndex extends Action {
          */
         $iPage = $this->GetParamEventMatch(0, 2) ? $this->GetParamEventMatch(0, 2) : 1;
         if ($iPage == 1 && !F::GetRequest('period')) {
-            $this->Viewer_SetHtmlCanonical(Router::GetPath('index') . 'discussed/');
+            E::ModuleViewer()->SetHtmlCanonical(R::GetPath('index') . 'discussed/');
         }
         /**
          * Получаем список топиков
          */
-        $aResult = $this->Topic_GetTopicsDiscussed(
+        $aResult = E::ModuleTopic()->GetTopicsDiscussed(
             $iPage, Config::Get('module.topic.per_page'), $sPeriod == 'all' ? null : $sPeriod * 60 * 60 * 24
         );
         /**
@@ -179,7 +181,7 @@ class ActionIndex extends Action {
          */
         if (!$aResult['count'] && $iPage == 1 && !F::GetRequest('period')) {
             $sPeriod = 7;
-            $aResult = $this->Topic_GetTopicsDiscussed(
+            $aResult = E::ModuleTopic()->GetTopicsDiscussed(
                 $iPage, Config::Get('module.topic.per_page'), $sPeriod == 'all' ? null : $sPeriod * 60 * 60 * 24
             );
         }
@@ -187,23 +189,23 @@ class ActionIndex extends Action {
         /**
          * Вызов хуков
          */
-        $this->Hook_Run('topics_list_show', array('aTopics' => $aTopics));
+        E::ModuleHook()->Run('topics_list_show', array('aTopics' => $aTopics));
         /**
          * Формируем постраничность
          */
-        $aPaging = $this->Viewer_MakePaging(
+        $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
-            Router::GetPath('index') . 'discussed', array('period' => $sPeriod)
+            R::GetPath('index') . 'discussed', array('period' => $sPeriod)
         );
 
-        $this->Viewer_AddHtmlTitle($this->Lang_Get('blog_menu_collective_discussed') . ($iPage>1 ? (' (' . $iPage . ')') : ''));
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('blog_menu_collective_discussed') . ($iPage>1 ? (' (' . $iPage . ')') : ''));
         /**
          * Загружаем переменные в шаблон
          */
-        $this->Viewer_Assign('aTopics', $aTopics);
-        $this->Viewer_Assign('aPaging', $aPaging);
-        $this->Viewer_Assign('sPeriodSelectCurrent', $sPeriod);
-        $this->Viewer_Assign('sPeriodSelectRoot', Router::GetPath('index') . 'discussed/');
+        E::ModuleViewer()->Assign('aTopics', $aTopics);
+        E::ModuleViewer()->Assign('aPaging', $aPaging);
+        E::ModuleViewer()->Assign('sPeriodSelectCurrent', $sPeriod);
+        E::ModuleViewer()->Assign('sPeriodSelectRoot', R::GetPath('index') . 'discussed/');
         /**
          * Устанавливаем шаблон вывода
          */
@@ -214,7 +216,7 @@ class ActionIndex extends Action {
      * Вывод новых топиков
      */
     protected function EventNew() {
-        $this->Viewer_SetHtmlRssAlternate(Router::GetPath('rss') . 'new/', Config::Get('view.name'));
+        E::ModuleViewer()->SetHtmlRssAlternate(R::GetPath('rss') . 'new/', Config::Get('view.name'));
         /**
          * Меню
          */
@@ -226,24 +228,24 @@ class ActionIndex extends Action {
         /**
          * Получаем список топиков
          */
-        $aResult = $this->Topic_GetTopicsNew($iPage, Config::Get('module.topic.per_page'));
+        $aResult = E::ModuleTopic()->GetTopicsNew($iPage, Config::Get('module.topic.per_page'));
         $aTopics = $aResult['collection'];
         /**
          * Вызов хуков
          */
-        $this->Hook_Run('topics_list_show', array('aTopics' => $aTopics));
+        E::ModuleHook()->Run('topics_list_show', array('aTopics' => $aTopics));
         /**
          * Формируем постраничность
          */
-        $aPaging = $this->Viewer_MakePaging(
+        $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
-            Router::GetPath('index') . 'new'
+            R::GetPath('index') . 'new'
         );
         /**
          * Загружаем переменные в шаблон
          */
-        $this->Viewer_Assign('aTopics', $aTopics);
-        $this->Viewer_Assign('aPaging', $aPaging);
+        E::ModuleViewer()->Assign('aTopics', $aTopics);
+        E::ModuleViewer()->Assign('aPaging', $aPaging);
         /**
          * Устанавливаем шаблон вывода
          */
@@ -254,7 +256,7 @@ class ActionIndex extends Action {
      * Вывод ВСЕХ новых топиков
      */
     protected function EventNewAll() {
-        $this->Viewer_SetHtmlRssAlternate(Router::GetPath('rss') . 'new/', Config::Get('view.name'));
+        E::ModuleViewer()->SetHtmlRssAlternate(R::GetPath('rss') . 'new/', Config::Get('view.name'));
         /**
          * Меню
          */
@@ -266,26 +268,26 @@ class ActionIndex extends Action {
         /**
          * Получаем список топиков
          */
-        $aResult = $this->Topic_GetTopicsNewAll($iPage, Config::Get('module.topic.per_page'));
+        $aResult = E::ModuleTopic()->GetTopicsNewAll($iPage, Config::Get('module.topic.per_page'));
         $aTopics = $aResult['collection'];
         /**
          * Вызов хуков
          */
-        $this->Hook_Run('topics_list_show', array('aTopics' => $aTopics));
+        E::ModuleHook()->Run('topics_list_show', array('aTopics' => $aTopics));
         /**
          * Формируем постраничность
          */
-        $aPaging = $this->Viewer_MakePaging(
+        $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
-            Router::GetPath('index') . 'newall'
+            R::GetPath('index') . 'newall'
         );
 
-        $this->Viewer_AddHtmlTitle($this->Lang_Get('blog_menu_all_new')  . ($iPage>1 ? (' (' . $iPage . ')') : ''));
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('blog_menu_all_new')  . ($iPage>1 ? (' (' . $iPage . ')') : ''));
         /**
          * Загружаем переменные в шаблон
          */
-        $this->Viewer_Assign('aTopics', $aTopics);
-        $this->Viewer_Assign('aPaging', $aPaging);
+        E::ModuleViewer()->Assign('aTopics', $aTopics);
+        E::ModuleViewer()->Assign('aPaging', $aPaging);
         /**
          * Устанавливаем шаблон вывода
          */
@@ -297,7 +299,7 @@ class ActionIndex extends Action {
      *
      */
     protected function EventIndex() {
-        $this->Viewer_SetHtmlRssAlternate(Router::GetPath('rss') . 'index/', Config::Get('view.name'));
+        E::ModuleViewer()->SetHtmlRssAlternate(R::GetPath('rss') . 'index/', Config::Get('view.name'));
         /**
          * Меню
          */
@@ -310,29 +312,29 @@ class ActionIndex extends Action {
          * Устанавливаем основной URL для поисковиков
          */
         if ($iPage == 1) {
-            $this->Viewer_SetHtmlCanonical(trim(Config::Get('path.root.url'), '/') . '/');
+            E::ModuleViewer()->SetHtmlCanonical(trim(Config::Get('path.root.url'), '/') . '/');
         }
         /**
          * Получаем список топиков
          */
-        $aResult = $this->Topic_GetTopicsGood($iPage, Config::Get('module.topic.per_page'));
+        $aResult = E::ModuleTopic()->GetTopicsGood($iPage, Config::Get('module.topic.per_page'));
         $aTopics = $aResult['collection'];
         /**
          * Вызов хуков
          */
-        $this->Hook_Run('topics_list_show', array('aTopics' => $aTopics));
+        E::ModuleHook()->Run('topics_list_show', array('aTopics' => $aTopics));
         /**
          * Формируем постраничность
          */
-        $aPaging = $this->Viewer_MakePaging(
+        $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $iPage, Config::Get('module.topic.per_page'), Config::Get('pagination.pages.count'),
-            Router::GetPath('index')
+            R::GetPath('index')
         );
         /**
          * Загружаем переменные в шаблон
          */
-        $this->Viewer_Assign('aTopics', $aTopics);
-        $this->Viewer_Assign('aPaging', $aPaging);
+        E::ModuleViewer()->Assign('aTopics', $aTopics);
+        E::ModuleViewer()->Assign('aPaging', $aPaging);
         /**
          * Устанавливаем шаблон вывода
          */
@@ -344,12 +346,12 @@ class ActionIndex extends Action {
      *
      */
     public function EventShutdown() {
-        $this->Viewer_Assign('sMenuHeadItemSelect', $this->sMenuHeadItemSelect);
-        $this->Viewer_Assign('sMenuItemSelect', $this->sMenuItemSelect);
-        $this->Viewer_Assign('sMenuSubItemSelect', $this->sMenuSubItemSelect);
-        $this->Viewer_Assign('iCountTopicsNew', $this->iCountTopicsNew);
-        $this->Viewer_Assign('iCountTopicsCollectiveNew', $this->iCountTopicsCollectiveNew);
-        $this->Viewer_Assign('iCountTopicsPersonalNew', $this->iCountTopicsPersonalNew);
+        E::ModuleViewer()->Assign('sMenuHeadItemSelect', $this->sMenuHeadItemSelect);
+        E::ModuleViewer()->Assign('sMenuItemSelect', $this->sMenuItemSelect);
+        E::ModuleViewer()->Assign('sMenuSubItemSelect', $this->sMenuSubItemSelect);
+        E::ModuleViewer()->Assign('iCountTopicsNew', $this->iCountTopicsNew);
+        E::ModuleViewer()->Assign('iCountTopicsCollectiveNew', $this->iCountTopicsCollectiveNew);
+        E::ModuleViewer()->Assign('iCountTopicsPersonalNew', $this->iCountTopicsPersonalNew);
     }
 }
 

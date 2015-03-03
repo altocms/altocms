@@ -82,7 +82,7 @@ class Loader {
         Config::ResetLevel(Config::LEVEL_CUSTOM);
         $aConfig = Config::ReadCustomConfig(null, true);
         if ($aConfig) {
-            Config::Load($aConfig, false);
+            Config::Load($aConfig, false, null, null, 'custom');
         }
 
         // Задаем локаль по умолчанию
@@ -127,12 +127,12 @@ class Loader {
         $sDirConfig = $sConfigDir . '/modules/';
         $aFiles = glob($sDirConfig . '*/config.php');
         if ($aFiles) {
-            foreach ($aFiles as $sFileConfig) {
-                $sDirModule = basename(dirname($sFileConfig));
-                $aConfig = F::IncludeFile($sFileConfig, true, true);
+            foreach ($aFiles as $sConfigFile) {
+                $sDirModule = basename(dirname($sConfigFile));
+                $aConfig = F::IncludeFile($sConfigFile, true, true);
                 if (!empty($aConfig) && is_array($aConfig)) {
                     $sKey = 'module.' . $sDirModule;
-                    Config::Load(array($sKey => $aConfig), false, null, $nConfigLevel);
+                    Config::Load(array($sKey => $aConfig), false, null, $nConfigLevel, $sConfigFile);
                 }
             }
         }
@@ -141,10 +141,10 @@ class Loader {
          * LS-compatible
          * Подгружаем файлы локального и продакшн-конфига
          */
-        $sFile = $sConfigDir . '/config.local.php';
-        if (F::File_Exists($sFile)) {
-            if ($aConfig = F::File_IncludeFile($sFile, true, Config::Get())) {
-                Config::Load($aConfig, true, null, $nConfigLevel);
+        $sConfigFile = $sConfigDir . '/config.local.php';
+        if (F::File_Exists($sConfigFile)) {
+            if ($aConfig = F::File_IncludeFile($sConfigFile, true, Config::Get())) {
+                Config::Load($aConfig, true, null, $nConfigLevel, $sConfigFile);
             }
         }
 
@@ -153,23 +153,24 @@ class Loader {
          * и include-файлы вида /plugins/[plugin_name]/include/*.php
          */
         $sPluginsDir = F::GetPluginsDir($nConfigLevel == Config::LEVEL_APP);
-        if ($aPluginsList = F::GetPluginsList()) {
-            $aPluginsList = array_map('trim', $aPluginsList);
-            foreach ($aPluginsList as $sPlugin) {
+        if ($aPluginsList = F::GetPluginsList(false, false)) {
+            //$aPluginsList = array_map('trim', $aPluginsList);
+            foreach ($aPluginsList as $sPlugin => $aPluginInfo) {
                 // Загружаем все конфиг-файлы плагина
-                $aConfigFiles = glob($sPluginsDir . '/' . $sPlugin . '/config/*.php');
+                $aConfigFiles = glob($sPluginsDir . '/' . $aPluginInfo['dirname'] . '/config/*.php');
                 if ($aConfigFiles) {
-                    foreach ($aConfigFiles as $sPath) {
-                        $aConfig = F::IncludeFile($sPath, true, true);
+                    foreach ($aConfigFiles as $sConfigFile) {
+                        $aConfig = F::IncludeFile($sConfigFile, true, true);
                         if (!empty($aConfig) && is_array($aConfig)) {
                             // Если конфиг этого плагина пуст, то загружаем массив целиком
                             $sKey = 'plugin.' . $sPlugin;
                             if (!Config::isExist($sKey)) {
-                                Config::Set($sKey, $aConfig, null, $nConfigLevel);
+                                Config::Set($sKey, $aConfig, null, $nConfigLevel, $sConfigFile);
                             } else {
-                                // Если уже существую привязанные к плагину ключи,
-                                // то сливаем старые и новое значения ассоциативно
-                                Config::Set($sKey, F::Array_MergeCombo(Config::Get($sKey), $aConfig), null, $nConfigLevel);
+                                // Если уже существуют привязанные к плагину ключи,
+                                // то сливаем старые и новое значения ассоциативно-комбинированно
+                                /** @see AltoFunc_Array::MergeCombo() */
+                                Config::Set($sKey, F::Array_MergeCombo(Config::Get($sKey), $aConfig), null, $nConfigLevel, $sConfigFile);
                             }
                         }
                     }
@@ -186,11 +187,11 @@ class Loader {
     static protected function _loadIncludeFiles($nConfigLevel) {
 
         $sPluginsDir = F::GetPluginsDir($nConfigLevel == Config::LEVEL_APP);
-        if ($aPluginsList = F::GetPluginsList()) {
-            $aPluginsList = array_map('trim', $aPluginsList);
-            foreach ($aPluginsList as $sPlugin) {
+        if ($aPluginsList = F::GetPluginsList(false, false)) {
+            //$aPluginsList = array_map('trim', $aPluginsList);
+            foreach ($aPluginsList as $sPlugin => $aPluginInfo) {
                 // Подключаем include-файлы плагина
-                $aIncludeFiles = glob($sPluginsDir . '/' . $sPlugin . '/include/*.php');
+                $aIncludeFiles = glob($sPluginsDir . '/' . $aPluginInfo['dirname'] . '/include/*.php');
                 if ($aIncludeFiles) {
                     foreach ($aIncludeFiles as $sPath) {
                         F::IncludeFile($sPath);
@@ -209,7 +210,9 @@ class Loader {
 
         foreach ($aConfigSections as $sName) {
             $sFile = $sConfigDir . '/' . $sName . '.php';
-            self::_loadSectionFile($sFile, $sName, $nConfigLevel);
+            if (F::File_Exists($sFile)) {
+                self::_loadSectionFile($sFile, $sName, $nConfigLevel);
+            }
 
             $sFile = $sConfigDir . '/' . $sName . '.local.php';
             if (F::File_Exists($sFile)) {
@@ -227,7 +230,6 @@ class Loader {
      */
     static protected function _loadSectionFile($sFile, $sName, $nConfigLevel = 0) {
 
-        $aConfig = array();
         if (F::File_Exists($sFile)) {
             $aCfg = F::File_IncludeFile($sFile, true, true);
             if ($aCfg) {
@@ -236,9 +238,9 @@ class Loader {
                 } else {
                     $aConfig = $aCfg;
                 }
+                Config::Load(array($sName => $aConfig), false, null, $nConfigLevel, $sFile);
             }
         }
-        Config::Load(array($sName => $aConfig), false, null, $nConfigLevel);
     }
 
     /**
@@ -273,6 +275,7 @@ class Loader {
     static public function SeekActionClass($sAction, $sEvent = null, $bFullPath = false) {
 
         $bOk = false;
+        $sActionClass = '';
         $sFileName = 'Action' . ucfirst($sAction) . '.class.php';
 
         // Сначала проверяем файл экшена среди стандартных
@@ -282,10 +285,9 @@ class Loader {
             $bOk = true;
         } else {
             // Если нет, то проверяем файл экшена среди плагинов
-            $aPlugins = F::GetPluginsList();
-            foreach ($aPlugins as $sPlugin) {
-                if ($sActionFile = F::File_Exists('plugins/' . $sPlugin . '/classes/actions/' . $sFileName, $aSeekDirs)
-                ) {
+            $aPlugins = F::GetPluginsList(false, false);
+            foreach ($aPlugins as $sPlugin => $aPluginInfo) {
+                if ($sActionFile = F::File_Exists('plugins/' . $aPluginInfo['dirname'] . '/classes/actions/' . $sFileName, $aSeekDirs)) {
                     $sActionClass = 'Plugin' . F::StrCamelize($sPlugin) . '_Action' . ucfirst($sAction);
                     $bOk = true;
                     break;
@@ -326,21 +328,23 @@ class Loader {
      */
     static public function Autoload($sClassName) {
 
-        if (Config::Get('classes') && self::_autoloadDefinedClass($sClassName)) {
-            return true;
+        if (Config::Get('classes')) {
+            if ($sParentClass = Config::Get('classes.alias.' . $sClassName)) {
+                return self::_classAlias($sParentClass, $sClassName);
+            }
+            if (self::_autoloadDefinedClass($sClassName)) {
+                return true;
+            }
         }
-        if (class_exists('Engine', false) && (Engine::GetStage() >= Engine::STAGE_INIT)) {
-            $aInfo = Engine::GetClassInfo($sClassName, Engine::CI_CLASSPATH | Engine::CI_INHERIT);
-            if ($aInfo[Engine::CI_INHERIT]) {
-                $sInheritClass = $aInfo[Engine::CI_INHERIT];
-                $sParentClass = Engine::getInstance()->Plugin_GetParentInherit($sInheritClass);
-                if (!class_alias($sParentClass, $sClassName)) {
-                    return false;
-                } else {
-                    return true;
-                }
-            } elseif ($aInfo[Engine::CI_CLASSPATH]) {
-                return self::_includeFile($aInfo[Engine::CI_CLASSPATH], $sClassName);
+
+        if (class_exists('Engine', false) && (E::GetStage() >= E::STAGE_INIT)) {
+            $aInfo = E::GetClassInfo($sClassName, E::CI_CLASSPATH | E::CI_INHERIT);
+            if ($aInfo[E::CI_INHERIT]) {
+                $sInheritClass = $aInfo[E::CI_INHERIT];
+                $sParentClass = E::ModulePlugin()->GetParentInherit($sInheritClass);
+                return self::_classAlias($sParentClass, $sClassName);
+            } elseif ($aInfo[E::CI_CLASSPATH]) {
+                return self::_includeFile($aInfo[E::CI_CLASSPATH], $sClassName);
             }
         }
         if (self::_autoloadPSR0($sClassName)) {
@@ -432,6 +436,48 @@ class Loader {
         return false;
     }
 
+    /**
+     * @var array Array of class aliases
+     */
+    static protected $_aClassAliases = array();
+
+    /**
+     * Creates an alias for a class
+     *
+     * @param string $sOriginal
+     * @param string $sAlias
+     * @param bool   $bAutoload
+     *
+     * @return bool
+     */
+    static protected function _classAlias($sOriginal, $sAlias, $bAutoload = TRUE) {
+
+        if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
+            $bResult = class_alias($sOriginal, $sAlias, $bAutoload);
+        } else {
+            $bResult = class_alias($sOriginal, $sAlias);
+        }
+
+        if (defined('DEBUG') && DEBUG) {
+            self::$_aClassAliases[$sAlias] = array(
+                'original' => $sOriginal,
+                'autoload' => $bAutoload,
+                'result' => $bResult,
+            );
+        }
+
+        return $bResult;
+    }
+
+    /**
+     * Returns of class aliases
+     *
+     * @return array
+     */
+    static public function GetAliases() {
+
+        return self::$_aClassAliases;
+    }
 }
 
 // EOF

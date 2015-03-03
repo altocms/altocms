@@ -20,7 +20,7 @@ $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/m
 $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/menu-l2.min.js";
 $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/script.min.js";
 $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/toolbar.min.js";
-if ($config['view']['fix_menu']) {
+if (isset($config['view']['fix_menu']) && $config['view']['fix_menu']) {
     $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/fix-menu.min.js";
 }
 

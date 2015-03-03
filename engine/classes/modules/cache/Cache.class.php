@@ -40,11 +40,11 @@ define('SYS_CACHE_TYPE_XCACHE', 'xcache');
  *    // Получает пользователя по его логину
  *    public function GetUserByLogin($sLogin) {
  *        // Пытаемся получить значение из кеша
- *        if (false === ($oUser = $this->Cache_Get("user_login_{$sLogin}"))) {
+ *        if (false === ($oUser = E::ModuleCache()->Get("user_login_{$sLogin}"))) {
  *            // Если значение из кеша получить не удалось, то обращаемся к базе данных
  *            $oUser = $this->oMapper->GetUserByLogin($sLogin);
  *            // Записываем значение в кеш
- *            $this->Cache_Set($oUser, "user_login_{$sLogin}", array(), 60*60*24*5);
+ *            E::ModuleCache()->Set($oUser, "user_login_{$sLogin}", array(), 60*60*24*5);
  *        }
  *        return $oUser;
  *    }
@@ -52,9 +52,9 @@ define('SYS_CACHE_TYPE_XCACHE', 'xcache');
  *    // Обновляет пользовател в БД
  *    public function UpdateUser($oUser) {
  *        // Удаляем кеш конкретного пользователя
- *        $this->Cache_Delete("user_login_{$oUser->getLogin()}");
+ *        E::ModuleCache()->Delete("user_login_{$oUser->getLogin()}");
  *        // Удалем кеш со списком всех пользователей
- *        $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG,array('user_update'));
+ *        E::ModuleCache()->Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG,array('user_update'));
  *        // Обновлем пользовател в базе данных
  *        return $this->oMapper->UpdateUser($oUser);
  *    }
@@ -62,11 +62,11 @@ define('SYS_CACHE_TYPE_XCACHE', 'xcache');
  *    // Получает список всех пользователей
  *    public function GetUsers() {
  *        // Пытаемся получить значение из кеша
- *        if (false === ($aUserList = $this->Cache_Get("users"))) {
+ *        if (false === ($aUserList = E::ModuleCache()->Get("users"))) {
  *            // Если значение из кеша получить не удалось, то обращаемся к базе данных
  *            $aUserList = $this->oMapper->GetUsers();
  *            // Записываем значение в кеш
- *            $this->Cache_Set($aUserList, "users", array('user_update'), 60*60*24*5);
+ *            E::ModuleCache()->Set($aUserList, "users", array('user_update'), 60*60*24*5);
  *        }
  *        return $aUserList;
  *    }
@@ -81,6 +81,14 @@ class ModuleCache extends Module {
     const CACHE_MODE_AUTO       = 1; // включено автокеширование
     const CACHE_MODE_REQUEST    = 2; // кеширование только по запросу
     const CACHE_MODE_FORCE      = 4; // только принудительное кеширование
+
+    const DISABLED_NONE     = 0;
+    const DISABLED_SET      = 1;
+    const DISABLED_GET      = 2;
+    const DISABLED_ALL      = 3;
+
+    /** @var int Запрет кеширования */
+    protected $iDisabled = 0;
 
     /**
      * Доступные механизмы кеширования
@@ -441,8 +449,13 @@ class ModuleCache extends Module {
             return false;
         }
 
+        /*
         // Если модуль завершил свою работу и не включено принудительное кеширование, то ничего не кешируется
         if ($this->isDone() && ($nMode != self::CACHE_MODE_FORCE)) {
+            return false;
+        }
+        */
+        if (($this->iDisabled & self::DISABLED_SET) && ($nMode != self::CACHE_MODE_FORCE)) {
             return false;
         }
 
@@ -473,7 +486,7 @@ class ModuleCache extends Module {
             $nTimeLife += $nConcurentDaley;
         } else {
             $aData = array(
-                'time' => false,   // контрольное время не сохраняем, конкурирующие запросу к кешу игнорируем
+                'time' => false,   // контрольное время не сохраняем, конкурирующие запросы к кешу игнорируем
                 'tags' => $aTags,
                 'data' => $xData,
             );
@@ -484,20 +497,20 @@ class ModuleCache extends Module {
     /**
      * Получить значение из кеша
      *
-     * @param   string      $sCacheKey  - Имя ключа кеширования
-     * @param   string|null $sCacheType - Механизм используемого кеширования
+     * @param   string|array $xCacheKey  - Имя ключа кеширования
+     * @param   string|null  $sCacheType - Механизм используемого кеширования
      *
      * @return mixed|bool
      */
-    public function Get($sCacheKey, $sCacheType = null) {
+    public function Get($xCacheKey, $sCacheType = null) {
 
-        // Проверяем возможность кеширования
-        if (!$this->_cacheOn($sCacheType)) {
+        // Checks the possibility of caching and prohibition of caching
+        if (!$this->_cacheOn($sCacheType) || ($this->iDisabled & self::DISABLED_GET)) {
             return false;
         }
 
-        if (!is_array($sCacheKey)) {
-            $aData = $this->_backendLoad($sCacheType, $this->_hash($sCacheKey));
+        if (!is_array($xCacheKey)) {
+            $aData = $this->_backendLoad($sCacheType, $this->_hash($xCacheKey));
             if (is_array($aData) && array_key_exists('data', $aData)) {
                 // Если необходимо разрешение конкурирующих запросов...
                 if (isset($aData['time']) && ($nConcurentDaley = $this->_backendIsConcurent($sCacheType))) {
@@ -505,14 +518,14 @@ class ModuleCache extends Module {
                         // Если данные кеша по факту "протухли", то пересохраняем их с доп.задержкой и без метки времени
                         // За время задержки кеш должен пополниться свежими данными
                         $aData['time'] = false;
-                        $this->_backendSave($sCacheType, $aData, $this->_hash($sCacheKey), $aData['tags'], $nConcurentDaley);
+                        $this->_backendSave($sCacheType, $aData, $this->_hash($xCacheKey), $aData['tags'], $nConcurentDaley);
                         return false;
                     }
                 }
                 return $aData['data'];
             }
         } else {
-            return $this->multiGet($sCacheKey, $sCacheType);
+            return $this->MultiGet($xCacheKey, $sCacheType);
         }
         return false;
     }
@@ -677,20 +690,41 @@ class ModuleCache extends Module {
     }
 
     /**
+     * Сохраняет значение в сверхбыстром временном кеше (кеш времени исполнения скрипта)
+     *
+     * @param mixed $data
+     * @param string $sCacheKey
+     */
+    public function SetTmp($data, $sCacheKey) {
+
+        $this->Set($data, $sCacheKey, array(), false, 'tmp');
+    }
+
+    /**
+     * Получает значение из сверхбыстрого временного кеша (кеш времени исполнения скрипта)
+     *
+     * @param string $sCacheKey    - Имя ключа кеширования
+     *
+     * @return mixed
+     */
+    public function GetTmp($sCacheKey) {
+
+        return $this->Get($sCacheKey, 'tmp');
+    }
+
+    /**
      * LS-compatible
-     * Сохраняет значение в кеше на время исполнения скрипта(сессии), некий аналог Registry
      *
      * @param mixed  $data         - Данные для сохранения в кеше
      * @param string $sCacheKey    - Имя ключа кеширования
      */
     public function SetLife($data, $sCacheKey) {
 
-        $this->Set($data, $sCacheKey, array(), false, 'tmp');
+        $this->SetTmp($data, $sCacheKey);
     }
 
     /**
      * LS-compatible
-     * Получает значение из текущего кеша сессии
      *
      * @param string $sCacheKey    - Имя ключа кеширования
      *
@@ -698,8 +732,26 @@ class ModuleCache extends Module {
      */
     public function GetLife($sCacheKey) {
 
-        return $this->Get($sCacheKey, 'tmp');
+        return $this->GetTmp($sCacheKey);
     }
+
+
+    public function SetDesabled($xFlag) {
+
+        if ($xFlag === true) {
+            $this->iDisabled = self::DISABLED_ALL;
+        } elseif ($xFlag === false) {
+            $this->iDisabled = self::DISABLED_NONE;
+        } else {
+            $this->iDisabled = intval($xFlag);
+        }
+    }
+
+    public function GetDisabled() {
+
+        return $this->iDisabled;
+    }
+
 }
 
 // EOF

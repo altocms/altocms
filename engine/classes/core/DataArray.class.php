@@ -42,7 +42,7 @@ class DataArray extends ArrayObject {
     public function __construct($aData = array()) {
 
         //parent::__construct($aData, ArrayObject::ARRAY_AS_PROPS);
-        parent::__construct($aData, ArrayObject::STD_PROP_LIST);
+        parent::__construct((array)$aData, ArrayObject::STD_PROP_LIST);
     }
 
     /**

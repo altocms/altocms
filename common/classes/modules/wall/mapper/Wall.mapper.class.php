@@ -210,7 +210,7 @@ class ModuleWall_MapperWall extends Mapper {
             LIMIT $nLimit";
         $aResult = array();
         if ($aRows = $this->oDb->select($sql, $aMessagesId)) {
-            $aResult = Engine::GetEntityRows('Wall', $aRows, $aMessagesId);
+            $aResult = E::GetEntityRows('Wall', $aRows, $aMessagesId);
         }
         return $aResult;
     }

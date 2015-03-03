@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+    <id>simplerating</id>
+    <name>
+        <lang name="default">Простая рейтинговая система</lang>
+        <lang name="english">Simple rating system</lang>
+    </name>
+    <author>
+        <lang name="default">Alto CMS Team</lang>
+        <lang name="english">Alto CMS Team</lang>
+    </author>
+    <homepage>http://altocms.com</homepage>
+    <version>0.0.1</version>
+    <dirname>simplerating</dirname>
+    <requires>
+        <alto>
+            <version>1.1.0-alpha</version>
+        </alto>
+        <system>
+            <php>5.3.0</php>
+        </system>
+    </requires>
+    <description>
+        <lang name="default">Плагин простой рейтинговой системы</lang>
+        <lang name="default">The plugin of the simple rating system</lang>
+    </description>
+</plugin>

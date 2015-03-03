@@ -26,10 +26,10 @@ class WidgetActivityUsers extends Widget {
     public function Exec() {
 
         // * пользователь авторизован?
-        if ($oUserCurrent = $this->User_GetUserCurrent()) {
+        if ($oUserCurrent = E::ModuleUser()->GetUserCurrent()) {
             // * Получаем и прогружаем необходимые переменные в шаблон
-            $aUserSubscribes = $this->Stream_GetUserSubscribes($oUserCurrent->getId());
-            $this->Viewer_Assign('aStreamSubscribedUsers', $aUserSubscribes ? $aUserSubscribes : array());
+            $aUserSubscribes = E::ModuleStream()->GetUserSubscribes($oUserCurrent->getId());
+            E::ModuleViewer()->Assign('aStreamSubscribedUsers', $aUserSubscribes ? $aUserSubscribes : array());
         }
     }
 }

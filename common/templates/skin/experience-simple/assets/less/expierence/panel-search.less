@@ -1,0 +1,103 @@
+.panel-search {
+
+    ul.abc {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+
+        li {
+            display: inline-block;
+            margin-right: 6px;
+
+            a {
+                font-size: @font-size-large;
+            }
+        }
+    }
+
+    form {
+        label {
+            border: 0;
+            width: 100%;
+            margin-bottom: 0;
+
+            input {
+                margin-top: 14px;
+                width: 100%;
+                line-height: @search-line-height;
+                background-color: @color-100;
+                border: 1px solid @search-border-color;
+                color: @search-text-color;
+                border-radius: @search-border-radius;
+                font-size: @font-size-base;
+                padding: 8px @search-side-padding;
+                outline: none;
+                font-weight: normal;
+
+                &:focus {
+                    box-shadow: none;
+                    -webkit-box-shadow: none;
+                    -moz-box-shadow: none;
+                    border: 1px solid @search-border-active-color;
+                }
+            }
+        }
+    }
+
+
+    .panel-footer {
+        font-size: @font-size-large;
+
+        a {
+            margin-right: 10px;
+        }
+    }
+
+}
+
+.panel-footer {
+
+    a {
+        font-size: @font-size-base !important;
+    }
+
+    height: auto;
+
+    ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+
+        li {
+            display: inline-block;
+            margin-right: 22px;
+
+            a {
+
+
+                i {
+                    color: inherit;
+                }
+
+                &:hover {
+                    color: inherit;
+                }
+            }
+
+            &:last-child {
+                margin-right: 0;
+                float: right;
+            }
+        }
+
+        &.mobile {
+            li {
+                //                    display: block;
+
+                &:last-child {
+                    float: none !important;
+                }
+            }
+        }
+    }
+}

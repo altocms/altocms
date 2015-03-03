@@ -55,10 +55,10 @@ class ModuleUser_EntityNote extends Entity {
      */
     public function ValidateTarget($sValue, $aParams) {
 
-        if (($oUserTarget = $this->User_GetUserById($sValue)) && $this->getUserId() != $oUserTarget->getId()) {
+        if (($oUserTarget = E::ModuleUser()->GetUserById($sValue)) && $this->getUserId() != $oUserTarget->getId()) {
             return true;
         }
-        return $this->Lang_Get('user_note_target_error');
+        return E::ModuleLang()->Get('user_note_target_error');
     }
 
 }

@@ -27,15 +27,15 @@ class WidgetTagsCity extends Widget {
         /**
          * Получаем города
          */
-        $aCities = $this->Geo_GetGroupCitiesByTargetType('user', 20);
+        $aCities = E::ModuleGeo()->GetGroupCitiesByTargetType('user', 20);
         /**
          * Формируем облако тегов
          */
-        $this->Tools_MakeCloud($aCities);
+        E::ModuleTools()->MakeCloud($aCities);
         /**
          * Выводим в шаблон
          */
-        $this->Viewer_Assign('aCityList', $aCities);
+        E::ModuleViewer()->Assign('aCityList', $aCities);
     }
 }
 

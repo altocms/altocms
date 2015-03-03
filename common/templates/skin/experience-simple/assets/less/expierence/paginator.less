@@ -1,0 +1,57 @@
+@import "../var.bootstrap.less";
+@import "../bootstrap/mixins";
+@import "../var.experience.less";
+
+.paginator {
+
+    &.masonry-paginator {
+        margin-top: 14px;
+    }
+
+    margin-left: @content-panel-padding;
+    margin-bottom: 24px;
+
+    ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+
+        li {
+//            float: left;
+            display: inline-block;
+            height: @paginator-height;
+            line-height: @paginator-height;
+            background: @paginator-background-color;
+            margin-right: @paginator-margin;
+            border: 1px solid @paginator-border-color;
+            #gradient > .vertical(@paginator-gradient-start-color, @paginator-gradient-end-color);
+            cursor: pointer;
+
+            &:hover {
+                #gradient > .vertical(@paginator-hover-gradient-start-color, @paginator-hover-gradient-end-color);
+            }
+
+            &.active {
+                a {
+                    color: @color-36;
+                }
+            }
+
+            a, & > span {
+                font-weight: 600 !important;
+                font-size: @paginator-font-size;
+                color: @paginator-font-color;
+                padding: 0 @paginator-side-padding;
+                display: block;
+            }
+
+            &.next {
+                margin-left: @paginator-next-margin - @paginator-margin;
+            }
+
+            &.prev {
+                margin-right: @paginator-next-margin - @paginator-margin;
+            }
+        }
+    }
+}

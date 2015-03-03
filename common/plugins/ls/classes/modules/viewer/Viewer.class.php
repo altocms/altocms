@@ -335,7 +335,7 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
                         $sResult = Config::Get('path.smarty.template') . '/actions/ActionTopic/add.tpl';
                     }
                     if (!in_array(Config::Get('view.skin'), $this->aAdaptedSkins)) {
-                        $this->Hook_AddExecFunction('template_form_add_topic_topic_end', array($this, 'TemplateFormAddTopic'));
+                        E::ModuleHook()->AddExecFunction('template_form_add_topic_topic_end', array($this, 'TemplateFormAddTopic'));
                     }
                     $oContentType = $oSmarty->getTemplateVars('oContentType');
                     $oType = $oSmarty->getTemplateVars('oType');
@@ -527,7 +527,7 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
 
     protected function _initSkin() {
 
-        $oSkin = $this->Skin_GetSkin($this->GetConfigSkin());
+        $oSkin = E::ModuleSkin()->GetSkin($this->GetConfigSkin());
         $sCompatible = ($oSkin ? $oSkin->GetCompatible() : '');
 
         if (!$sCompatible || $sCompatible == 'ls') {

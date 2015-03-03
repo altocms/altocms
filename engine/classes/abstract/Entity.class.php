@@ -35,6 +35,8 @@ abstract class Entity extends LsObject {
     const EXP_KEY_MOD = '_mod';
     const EXP_STR_MAX = 250;
 
+    const MEDIARESOURCES_KEY = '_mediaresources';
+
     /**
      * Данные сущности, на этот массив мапятся методы set* и get*
      *
@@ -78,6 +80,13 @@ abstract class Entity extends LsObject {
      */
     protected $sValidateScenario = '';
 
+    /**
+     * Типы медиаресурсов, связанные с сущностью
+     *
+     * @var array
+     */
+    protected $aMResourceTypes = array();
+
 
     /**
      * Если передать в конструктор ассоциативный массив свойств и их значений, то они автоматом загрузятся в сущность
@@ -111,13 +120,13 @@ abstract class Entity extends LsObject {
      *
      * @param   string $sKey
      * @param   mixed $xVal
-     * @return  mixed|null
+     *
+     * @return  object
      */
     public function setProp($sKey, $xVal) {
 
-        $xOldVal = $this->getProp($sKey);
         $this->_aData[$sKey] = $xVal;
-        return $xOldVal;
+        return $this;
     }
 
     /**
@@ -129,7 +138,7 @@ abstract class Entity extends LsObject {
      */
     public function getProp($sKey, $xDefault = null) {
 
-        if ($this->isProp($sKey)) {
+        if (isset($this->_aData[$sKey]) || array_key_exists($sKey, $this->_aData)) {
             return $this->_aData[$sKey];
         }
         return $xDefault;
@@ -147,11 +156,11 @@ abstract class Entity extends LsObject {
     public function getLangSuffixProp($sKey, $sLang = null, $xDefault = null) {
 
         if (is_null($sLang)) {
-            $sLang = $this->Lang_GetLang();
+            $sLang = E::ModuleLang()->GetLang();
         }
         $sResult = $this->getProp($sKey . '_' . $sLang);
         if (is_null($sResult)) {
-            $sResult = $this->getProp($sKey . '_' . $this->Lang_GetDefaultLang());
+            $sResult = $this->getProp($sKey . '_' . E::ModuleLang()->GetDefaultLang());
             if (is_null($sResult) && !is_null($sVal = $this->getProp($sKey . '_en'))) {
                 return $sVal;
             }
@@ -180,7 +189,7 @@ abstract class Entity extends LsObject {
         if (!$sResult) {
             $sResult = $this->getProp($sKey);
             if (substr($sResult, 0, 2) == '{{' && substr($sResult, -2) == '}}') {
-                if (!is_null($sText = E::Lang_Get('[' . $sLang . ']' . substr($sResult, 2, strlen($sResult) - 4)))) {
+                if (!is_null($sText = E::ModuleLang()->Get('[' . $sLang . ']' . substr($sResult, 2, strlen($sResult) - 4)))) {
                     $sResult = $sText;
                 }
             }
@@ -196,7 +205,7 @@ abstract class Entity extends LsObject {
      */
     public function delProp($sKey) {
 
-        if ($this->isProp($sKey)) {
+        if (isset($this->_aData[$sKey]) || array_key_exists($sKey, $this->_aData)) {
             unset($this->_aData[$sKey]);
         }
     }
@@ -374,7 +383,7 @@ abstract class Entity extends LsObject {
      */
     public function isProp($sKey) {
 
-        return array_key_exists($sKey, $this->_aData);
+        return isset($this->_aData[$sKey]) || array_key_exists($sKey, $this->_aData);
     }
 
     /**
@@ -382,7 +391,7 @@ abstract class Entity extends LsObject {
      */
     public function _setData($aData) {
 
-        return $this->setProps($aData);
+        $this->setProps($aData);
     }
 
     /**
@@ -484,7 +493,7 @@ abstract class Entity extends LsObject {
      */
     public function getEntityName() {
 
-        $aInfo = Engine::getInstance()->GetClassInfo($this, Engine::CI_ENTITY);
+        $aInfo = E::getInstance()->GetClassInfo($this, Engine::CI_ENTITY);
         if (isset($aInfo[Engine::CI_ENTITY])) {
             return $aInfo[Engine::CI_ENTITY];
         }
@@ -509,19 +518,19 @@ abstract class Entity extends LsObject {
                 if ($this->isProp($sKey)) {
                     return $this->getProp($sKey);
                 } else {
-                    if (preg_match('/Entity([^_]+)/', get_class($this), $sModulePrefix)) {
-                        $sModulePrefix = F::StrUnderscore($sModulePrefix[1]) . '_';
+                    if (preg_match('/Entity([^_]+)/', get_class($this), $aMatches)) {
+                        $sModulePrefix = F::StrUnderscore($aMatches[1]) . '_';
                         if ($this->isProp($sModulePrefix . $sKey)) {
                             return $this->getProp($sModulePrefix . $sKey);
                         }
                     }
                 }
                 return null;
-            } elseif ($sType == 'set' && array_key_exists(0, $aArgs)) {
+            } elseif ($sType == 'set' && (isset($aArgs[0]) || array_key_exists(0, $aArgs))) {
                 $this->setProp($sKey, $aArgs[0]);
             }
         } else {
-            return Engine::getInstance()->_CallModule($sName, $aArgs);
+            return E::getInstance()->_CallModule($sName, $aArgs);
         }
     }
 
@@ -580,7 +589,7 @@ abstract class Entity extends LsObject {
      *
      * @param null|string $sField    Поле сущности для которого необходимо вернуть валидаторы, если нет, то возвращается для всех полей
      *
-     * @return array
+     * @return ModuleValidate_EntityValidator[]
      */
     public function _getValidators($sField = null) {
 
@@ -588,10 +597,10 @@ abstract class Entity extends LsObject {
 
         $aValidatorsReturn = array();
         $sScenario = $this->_getValidateScenario();
+
+        /** @var ModuleValidate_EntityValidator $oValidator */
         foreach ($aValidators as $oValidator) {
-            /**
-             * Проверка на текущий сценарий
-             */
+            // * Проверка на текущий сценарий
             if ($oValidator->applyTo($sScenario)) {
                 if ($sField === null || in_array($sField, $oValidator->fields, true)) {
                     $aValidatorsReturn[] = $oValidator;
@@ -605,7 +614,7 @@ abstract class Entity extends LsObject {
      * Создает и возвращает список валидаторов для сущности
      * @see ModuleValidate::CreateValidator
      *
-     * @return array
+     * @return ModuleValidate_EntityValidator[]
      * @throws Exception
      */
     public function _createValidators() {
@@ -613,7 +622,7 @@ abstract class Entity extends LsObject {
         $aValidators = array();
         foreach ($this->aValidateRules as $aRule) {
             if (isset($aRule[0], $aRule[1])) {
-                $aValidators[] = $this->Validate_CreateValidator($aRule[1], $this, $aRule[0], array_slice($aRule, 2));
+                $aValidators[] = E::ModuleValidate()->CreateValidator($aRule[1], $this, $aRule[0], array_slice($aRule, 2));
             } else {
                 throw new Exception(get_class($this) . ' has an invalid validation rule');
             }
@@ -669,6 +678,7 @@ abstract class Entity extends LsObject {
         } else {
             return isset($this->aValidateErrors[$sField]) ? reset($this->aValidateErrors[$sField]) : null;
         }
+        return null;
     }
 
     /**
@@ -766,6 +776,182 @@ abstract class Entity extends LsObject {
     public function deleteExpanded($sName) {
 
         $this->delPropExpanded($sName);
+    }
+
+    /**
+     * Проверяет массив правил. В качестве правил может быть задана колбэк-функция
+     * или указан метод владельца сущности, который должен быть реализован заранее
+     *
+     * @param $aRules
+     * @param bool $bConcatenateResult
+     * @param bool $sOwnerClassName
+     * @return bool
+     */
+    public function checkCustomRules($aRules, $bConcatenateResult = FALSE, $sOwnerClassName = FALSE) {
+
+        // Ключ кэша
+        $sCacheKey = md5(serialize($aRules) . (string)$bConcatenateResult . (string)$sOwnerClassName);
+        if (!(FALSE === ($data = E::ModuleCache()->GetLife($sCacheKey)))) {
+            return $data;
+        }
+
+        // Правило жёстко задано - вернем его
+        if (is_bool($aRules)) {
+            return $aRules;
+        }
+        // Правило жёстко задано - вернем его
+        if (is_string($aRules)) {
+            return $aRules;
+        }
+
+        /** @var callable[]|[][] $aActiveRule Правило вычисления активности */
+        // Нет правила, кнопка вообще не активна будет
+        if (!$aRules) {
+            return FALSE;
+        }
+
+        // Правило задается методаом меню
+        if (!is_array($aRules)) {
+            return FALSE;
+        }
+
+        if (!$sOwnerClassName) {
+            $aOwnerClassName = E::getInstance()->GetClassInfo($this, Engine::CI_MODULE);
+            $sOwnerClassName = reset($aOwnerClassName);
+        }
+
+        // Все проверки пройдены, запускаем вычисление активности
+        $bResult = FALSE;
+        foreach ($aRules as $sMethodName => $xRule) {
+
+            if (is_bool($xRule)) {
+                if ($bConcatenateResult) {
+                    $bResult .= $xRule;
+                } else {
+                    $bResult = $bResult || $xRule;
+                }
+
+                if ($bResult && !$bConcatenateResult) {
+                    break;
+                }
+                continue;
+            }
+
+            if (is_string($xRule) && $bConcatenateResult) {
+                $bResult .= $xRule;
+                continue;
+            }
+
+            // Передан колбэк
+            if (is_callable($xRule)) {
+                $bResult = $bResult || $xRule();
+                if ($bResult && !$bConcatenateResult) {
+                    break;
+                }
+                continue;
+            }
+
+            /**
+             * Передан вызов функции, например
+             * $xRule = array('compare_action' => array('index'))
+             */
+            $sTmpMethodName = FALSE;
+            $aTmpMethodParams = FALSE;
+            // Метод передан строкой
+            if (is_int($sMethodName) && is_string($xRule)) {
+                $sTmpMethodName = $xRule;
+                $aTmpMethodParams = array();
+            }
+            // Метод передан массивом
+            if (is_string($sMethodName) && is_array($xRule)) {
+                $sTmpMethodName = $sMethodName;
+                $aTmpMethodParams = $xRule;
+            }
+            // Вызовем метод
+            if ($sTmpMethodName && $aTmpMethodParams !== FALSE) {
+                $sTmpMethodName = $sOwnerClassName . '_' . F::StrCamelize($sTmpMethodName);
+                if ($bConcatenateResult) {
+                    $bResult .= call_user_func_array(array($this, $sTmpMethodName), $aTmpMethodParams);
+                } else {
+                    $bResult = $bResult || call_user_func_array(array($this, $sTmpMethodName), $aTmpMethodParams);
+                }
+
+                if ($bResult && !$bConcatenateResult) {
+                    break;
+                }
+                continue;
+            }
+        }
+
+        // Закэшируем результат
+        E::ModuleCache()->SetLife($bResult, $sCacheKey);
+
+        return $bResult;
+
+    }
+
+    /**
+     * @param string                               $sType
+     * @param ModuleMresource_EntityMresourceRel[] $data
+     */
+    public function setMediaResources($sType, $data) {
+
+        if (!is_array($data)) {
+            $data = array($data);
+        }
+        $aMedia = $this->getProp(static::MEDIARESOURCES_KEY);
+        if (is_null($aMedia)) {
+            $aMedia = array();
+        }
+        $aMedia[$sType] = $data;
+        $this->setProp(static::MEDIARESOURCES_KEY, $aMedia);
+    }
+
+    /**
+     * @param string $sType
+     *
+     * @return ModuleMresource_EntityMresourceRel[]
+     */
+    public function getMediaResources($sType = null) {
+
+        $iEntityId = intval($this->getId());
+        $aResult = array();
+        if ($iEntityId) {
+            $aMedia = $this->getProp(static::MEDIARESOURCES_KEY);
+            if (is_null($aMedia) && ($sType || $this->aMResourceTypes)) {
+                // Если медиаресурсы не загружены, то загружаем, включая требуемый тип
+                $aTargetTypes = $this->aMResourceTypes;
+                if (!in_array($sType, $aTargetTypes)) {
+                    $aTargetTypes[] = $sType;
+                }
+                $aImages = E::ModuleUploader()->GetImagesByUserAndTarget($iEntityId, $aTargetTypes);
+                $aMedia = array_fill_keys($aTargetTypes, array());
+                if (!empty($aImages[$iEntityId])) {
+                    /** @var ModuleMresource_EntityMresourceRel $oImage */
+                    foreach($aImages[$iEntityId] as $oImage) {
+                        $aMedia[$oImage->getTargetType()][$oImage->getId()] = $oImage;
+                    }
+                }
+                $this->setProp(static::MEDIARESOURCES_KEY, $aMedia);
+                $aResult = $aMedia;
+            } elseif ($sType && !array_key_exists($sType, $aMedia)) {
+                $aImages = E::ModuleUploader()->GetImagesByUserAndTarget($iEntityId, $sType);
+                if (!empty($aImages[$iEntityId])) {
+                    $aMedia[$sType] = $aImages[$iEntityId];
+                } else {
+                    $aMedia[$sType] = array();
+                }
+                $this->setProp(static::MEDIARESOURCES_KEY, $aMedia);
+                $aResult = $aMedia[$sType];
+            } else {
+                if ($sType) {
+                    $aResult = $aMedia[$sType];
+                } else {
+                    $aResult = $aMedia;
+                }
+            }
+        }
+        return $aResult;
     }
 
 }

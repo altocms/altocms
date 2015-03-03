@@ -756,10 +756,12 @@ ls = (function ($) {
             url = form.find('[name=img_url]').val(),
             align = form.find('[name=align]').val(),
             title = form.find('[name=title]').val(),
+            size = parseInt(form.find('[name=img_width]').val(), 10),
             html = '';
 
         align = (align == 'center') ? 'class="image-center"' : 'align="' + align + '"';
-        html = '<img src="' + url + '" title="' + title + '" ' + align + ' />';
+        size = (size == 0) ? '' : 'width="' + size + '%"';
+        html = '<img src="' + url + '" title="' + title + '" ' + align + ' ' + size + ' />';
         form.find('[name=img_url]').val('');
         title = form.find('[name=title]').val('');
 
@@ -936,6 +938,11 @@ ls = (function ($) {
  * Автокомплитер
  */
 ls.autocomplete = (function ($) {
+
+    this.stripHTML = function(oldString) {
+        return oldString.replace(/<\/?[^>]+>/g,'');
+    };
+
     /**
      * Добавляет автокомплитер к полю ввода
      */
@@ -969,7 +976,11 @@ ls.autocomplete = (function ($) {
                         this.value = terms.join(", ");
                         return false;
                     }
-                });
+                }).bind(
+                    'autocompleteclose',
+                    function(){
+                        $(this).val(ls.autocomplete.stripHTML($(this).val()));
+                    });
         } else {
             obj.autocomplete({
                 source: function (request, response) {
@@ -977,7 +988,11 @@ ls.autocomplete = (function ($) {
                         response(data.aItems);
                     });
                 }
-            });
+            }).bind(
+                'autocompleteclose',
+                function(){
+                    $(this).val(ls.autocomplete.stripHTML($(this).val()));
+                });
         }
     };
 

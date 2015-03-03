@@ -87,7 +87,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
     public function AddLink($sOutType, $sLink, $aParams = array()) {
 
         if ($sOutType != $this->sOutType) {
-            $this->ViewerAsset_AddLinksToAssets('*', array($sLink => $aParams));
+            E::ModuleViewerAsset()->AddLinksToAssets('*', array($sLink => $aParams));
         } else {
             $this->aLinks[] = array_merge($aParams, array('link' => $sLink));
         }

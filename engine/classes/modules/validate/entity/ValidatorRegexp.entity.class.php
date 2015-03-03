@@ -58,14 +58,14 @@ class ModuleValidate_EntityValidatorRegexp extends ModuleValidate_EntityValidato
     public function validate($sValue) {
 
         if (is_array($sValue)) {
-            return $this->getMessage($this->Lang_Get('validate_regexp_invalid_pattern', null, false), 'msg');
+            return $this->getMessage(E::ModuleLang()->Get('validate_regexp_invalid_pattern', null, false), 'msg');
         }
         if ($this->allowEmpty && $this->isEmpty($sValue)) {
             return true;
         }
 
         if ($this->pattern === null) {
-            return $this->getMessage($this->Lang_Get('validate_regexp_invalid_pattern', null, false), 'msg');
+            return $this->getMessage(E::ModuleLang()->Get('validate_regexp_invalid_pattern', null, false), 'msg');
         }
         if ((!$this->not && !preg_match($this->pattern, $sValue))
             || ($this->not
@@ -73,7 +73,7 @@ class ModuleValidate_EntityValidatorRegexp extends ModuleValidate_EntityValidato
                     $this->pattern, $sValue
                 ))
         ) {
-            return $this->getMessage($this->Lang_Get('validate_regexp_not_valid', null, false), 'msg');
+            return $this->getMessage(E::ModuleLang()->Get('validate_regexp_not_valid', null, false), 'msg');
         }
         return true;
     }

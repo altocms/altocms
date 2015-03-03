@@ -29,7 +29,7 @@ class MapperORM extends Mapper {
      */
     public function AddEntity($oEntity) {
 
-        $sTableName = self::GetTableName($oEntity);
+        $sTableName = static::GetTableName($oEntity);
 
         $sql = "INSERT INTO " . $sTableName . " (?#) VALUES (?a)";
         return $this->oDb->query($sql, $oEntity->getKeyProps(), $oEntity->getValProps());
@@ -44,7 +44,7 @@ class MapperORM extends Mapper {
      */
     public function UpdateEntity($oEntity) {
 
-        $sTableName = self::GetTableName($oEntity);
+        $sTableName = static::GetTableName($oEntity);
 
         if ($aPrimaryKey = $oEntity->_getPrimaryKey()) {
             // Возможен составной ключ
@@ -57,7 +57,7 @@ class MapperORM extends Mapper {
                     . $this->oDb->escape($oEntity->getProp($sField));
             }
             $sql = "UPDATE " . $sTableName . " SET ?a WHERE {$sWhere}";
-            return $this->oDb->query($sql, $oEntity->_getData());
+            return $this->oDb->query($sql, $oEntity->getAllProps());
         } else {
             $aOriginalData = $oEntity->_getOriginalData();
             $sWhere = implode(
@@ -70,7 +70,7 @@ class MapperORM extends Mapper {
                 )
             );
             $sql = "UPDATE " . $sTableName . " SET ?a WHERE 1=1 AND " . $sWhere;
-            return $this->oDb->query($sql, $oEntity->_getData());
+            return $this->oDb->query($sql, $oEntity->getAllProps());
         }
     }
 
@@ -83,7 +83,7 @@ class MapperORM extends Mapper {
      */
     public function DeleteEntity($oEntity) {
 
-        $sTableName = self::GetTableName($oEntity);
+        $sTableName = static::GetTableName($oEntity);
 
         if ($aPrimaryKey = $oEntity->_getPrimaryKey()) {
             // Возможен составной ключ
@@ -124,8 +124,8 @@ class MapperORM extends Mapper {
      */
     public function GetByFilter($aFilter, $sEntityFull) {
 
-        $oEntitySample = Engine::GetEntity($sEntityFull);
-        $sTableName = self::GetTableName($sEntityFull);
+        $oEntitySample = E::GetEntity($sEntityFull);
+        $sTableName = static::GetTableName($sEntityFull);
 
         list($aFilterFields, $sFilterFields) = $this->BuildFilter($aFilter, $oEntitySample);
 
@@ -133,7 +133,7 @@ class MapperORM extends Mapper {
         $aQueryParams = array_merge(array($sql), array_values($aFilterFields));
 
         if ($aRow = call_user_func_array(array($this->oDb, 'selectRow'), $aQueryParams)) {
-            $oEntity = Engine::GetEntity($sEntityFull, $aRow);
+            $oEntity = E::GetEntity($sEntityFull, $aRow);
             $oEntity->_SetIsNew(false);
             return $oEntity;
         }
@@ -150,8 +150,8 @@ class MapperORM extends Mapper {
      */
     public function GetItemsByFilter($aFilter, $sEntityFull) {
 
-        $oEntitySample = Engine::GetEntity($sEntityFull);
-        $sTableName = self::GetTableName($sEntityFull);
+        $oEntitySample = E::GetEntity($sEntityFull);
+        $sTableName = static::GetTableName($sEntityFull);
 
         list($aFilterFields, $sFilterFields) = $this->BuildFilter($aFilter, $oEntitySample);
         list($sOrder, $sLimit) = $this->BuildFilterMore($aFilter, $oEntitySample);
@@ -161,7 +161,7 @@ class MapperORM extends Mapper {
         $aItems = array();
         if ($aRows = call_user_func_array(array($this->oDb, 'select'), $aQueryParams)) {
             foreach ($aRows as $aRow) {
-                $oEntity = Engine::GetEntity($sEntityFull, $aRow);
+                $oEntity = E::GetEntity($sEntityFull, $aRow);
                 $oEntity->_SetIsNew(false);
                 $aItems[] = $oEntity;
             }
@@ -179,8 +179,8 @@ class MapperORM extends Mapper {
      */
     public function GetCountItemsByFilter($aFilter, $sEntityFull) {
 
-        $oEntitySample = Engine::GetEntity($sEntityFull);
-        $sTableName = self::GetTableName($sEntityFull);
+        $oEntitySample = E::GetEntity($sEntityFull);
+        $sTableName = static::GetTableName($sEntityFull);
 
         list($aFilterFields, $sFilterFields) = $this->BuildFilter($aFilter, $oEntitySample);
 
@@ -202,8 +202,8 @@ class MapperORM extends Mapper {
      */
     public function GetItemsByJoinTable($aFilter, $sEntityFull) {
 
-        $oEntitySample = Engine::GetEntity($sEntityFull);
-        $sTableName = self::GetTableName($sEntityFull);
+        $oEntitySample = E::GetEntity($sEntityFull);
+        $sTableName = static::GetTableName($sEntityFull);
         $sPrimaryKey = $oEntitySample->_getPrimaryKey();
 
         list($aFilterFields, $sFilterFields) = $this->BuildFilter($aFilter, $oEntitySample);
@@ -219,7 +219,7 @@ class MapperORM extends Mapper {
         $aItems = array();
         if ($aRows = call_user_func_array(array($this->oDb, 'select'), $aQueryParams)) {
             foreach ($aRows as $aRow) {
-                $oEntity = Engine::GetEntity($sEntityFull, $aRow);
+                $oEntity = E::GetEntity($sEntityFull, $aRow);
                 $oEntity->_SetIsNew(false);
                 $aItems[] = $oEntity;
             }
@@ -237,7 +237,7 @@ class MapperORM extends Mapper {
      */
     public function GetCountItemsByJoinTable($aFilter, $sEntityFull) {
 
-        $oEntitySample = Engine::GetEntity($sEntityFull);
+        $oEntitySample = E::GetEntity($sEntityFull);
         list($aFilterFields, $sFilterFields) = $this->BuildFilter($aFilter, $oEntitySample);
 
         $sql = "SELECT count(*) as c FROM ?# a  WHERE a.?#=? {$sFilterFields}";
@@ -365,7 +365,7 @@ class MapperORM extends Mapper {
      */
     public function ShowColumnsFrom($oEntity) {
 
-        $sTableName = self::GetTableName($oEntity);
+        $sTableName = static::GetTableName($oEntity);
         return $this->ShowColumnsFromTable($sTableName);
     }
 
@@ -378,7 +378,7 @@ class MapperORM extends Mapper {
      */
     public function ShowColumnsFromTable($sTableName) {
 
-        if (false === ($aItems = Engine::getInstance()->Cache_GetLife("columns_table_{$sTableName}"))) {
+        if (false === ($aItems = E::getInstance()->Cache_GetLife("columns_table_{$sTableName}"))) {
             $sql = "SHOW COLUMNS FROM " . $sTableName;
             $aItems = array();
             if ($aRows = $this->oDb->select($sql)) {
@@ -389,7 +389,7 @@ class MapperORM extends Mapper {
                     }
                 }
             }
-            Engine::getInstance()->Cache_SetLife($aItems, "columns_table_{$sTableName}");
+            E::getInstance()->Cache_SetLife($aItems, "columns_table_{$sTableName}");
         }
         return $aItems;
     }
@@ -403,7 +403,7 @@ class MapperORM extends Mapper {
      */
     public function ShowPrimaryIndexFrom($oEntity) {
 
-        $sTableName = self::GetTableName($oEntity);
+        $sTableName = static::GetTableName($oEntity);
         return $this->ShowPrimaryIndexFromTable($sTableName);
     }
 
@@ -416,7 +416,7 @@ class MapperORM extends Mapper {
      */
     public function ShowPrimaryIndexFromTable($sTableName) {
 
-        if (false === ($aItems = Engine::getInstance()->Cache_GetLife("index_table_{$sTableName}"))) {
+        if (false === ($aItems = E::getInstance()->Cache_GetLife("index_table_{$sTableName}"))) {
             $sql = "SHOW INDEX FROM " . $sTableName;
             $aItems = array();
             if ($aRows = $this->oDb->select($sql)) {
@@ -426,7 +426,7 @@ class MapperORM extends Mapper {
                     }
                 }
             }
-            Engine::getInstance()->Cache_SetLife($aItems, "index_table_{$sTableName}");
+            E::getInstance()->Cache_SetLife($aItems, "index_table_{$sTableName}");
         }
         return $aItems;
     }
@@ -444,11 +444,11 @@ class MapperORM extends Mapper {
          *    prefix_user -> если модуль совпадает с сущностью
          *    prefix_user_invite -> если модуль не сопадает с сущностью
          */
-        $sClass = Engine::getInstance()->Plugin_GetDelegater(
+        $sClass = E::getInstance()->Plugin_GetDelegater(
             'entity', is_object($oEntity) ? get_class($oEntity) : $oEntity
         );
-        $sModuleName = F::StrUnderscore(Engine::GetModuleName($sClass));
-        $sEntityName = F::StrUnderscore(Engine::GetEntityName($sClass));
+        $sModuleName = F::StrUnderscore(E::GetModuleName($sClass));
+        $sEntityName = F::StrUnderscore(E::GetEntityName($sClass));
         if (strpos($sEntityName, $sModuleName) === 0) {
             $sTable = F::StrUnderscore($sEntityName);
         } else {

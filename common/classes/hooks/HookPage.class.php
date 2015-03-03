@@ -23,9 +23,9 @@ class HookPage extends Hook {
     }
 
     public function Menu() {
-        $aPages = $this->Page_GetPages(array('pid' => null, 'main' => 1, 'active' => 1));
-        $this->Viewer_Assign('aPagesMain', $aPages);
-        return $this->Viewer_Fetch('menus/menu.main_pages.tpl');
+        $aPages = E::ModulePage()->GetPages(array('pid' => null, 'main' => 1, 'active' => 1));
+        E::ModuleViewer()->Assign('aPagesMain', $aPages);
+        return E::ModuleViewer()->Fetch('menus/menu.main_pages.tpl');
     }
 }
 

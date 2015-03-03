@@ -57,12 +57,12 @@ class ModuleWall_EntityWall extends Entity {
      */
     public function ValidateTimeLimit($sValue, $aParams) {
 
-        if ($oUser = $this->User_GetUserById($this->getUserId())) {
-            if ($this->ACL_CanAddWallTime($oUser, $this)) {
+        if ($oUser = E::ModuleUser()->GetUserById($this->getUserId())) {
+            if (E::ModuleACL()->CanAddWallTime($oUser, $this)) {
                 return true;
             }
         }
-        return $this->Lang_Get('wall_add_time_limit');
+        return E::ModuleLang()->Get('wall_add_time_limit');
     }
 
     /**
@@ -86,7 +86,7 @@ class ModuleWall_EntityWall extends Entity {
                 return true;
             }
         }
-        return $this->Lang_Get('wall_add_pid_error');
+        return E::ModuleLang()->Get('wall_add_pid_error');
     }
 
     /**
@@ -97,7 +97,7 @@ class ModuleWall_EntityWall extends Entity {
     public function GetPidWall() {
 
         if ($this->getPid()) {
-            return $this->Wall_GetWallById($this->getPid());
+            return E::ModuleWall()->GetWallById($this->getPid());
         }
         return null;
     }
@@ -109,7 +109,7 @@ class ModuleWall_EntityWall extends Entity {
      */
     public function isAllowDelete() {
 
-        if ($oUserCurrent = $this->User_GetUserCurrent()) {
+        if ($oUserCurrent = E::ModuleUser()->GetUserCurrent()) {
             if ($oUserCurrent->getId() == $this->getWallUserId() or $oUserCurrent->isAdministrator()) {
                 return true;
             }
@@ -125,7 +125,7 @@ class ModuleWall_EntityWall extends Entity {
     public function getWallUser() {
 
         if (!$this->getProp('wall_user')) {
-            $this->_aData['wall_user'] = $this->User_GetUserById($this->getWallUserId());
+            $this->_aData['wall_user'] = E::ModuleUser()->GetUserById($this->getWallUserId());
         }
         return $this->getProp('wall_user');
     }

@@ -15,6 +15,28 @@ class ModuleMresource_EntityMresourceRel extends ModuleMresource_EntityMresource
         return $this->getProp('id');
     }
 
+    /**
+     * @param null $xSize
+     *
+     * @return string|null
+     */
+    public function getImageUrl($xSize = null) {
+
+        $sUrl = $this->getPathUrl();
+        if ($sUrl) {
+            if (strpos($sUrl, '@') === 0) {
+                $sUrl = Config::Get('path.root.url') . substr($sUrl, 1);
+            }
+
+            if (!$xSize) {
+                return $sUrl;
+            }
+
+            return E::ModuleUploader()->ResizeTargetImage($sUrl, $xSize);
+        }
+        return null;
+    }
+
 }
 
 // EOF

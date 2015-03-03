@@ -119,7 +119,7 @@ class ModuleTalk_MapperTalk extends Mapper {
                 LIMIT $nLimit";
         $aTalks = array();
         if ($aRows = $this->oDb->select($sql, $aTalkId)) {
-            $aTalks = Engine::GetEntityRows('Talk', $aRows, $aTalkId);
+            $aTalks = E::GetEntityRows('Talk', $aRows, $aTalkId);
         }
         return $aTalks;
     }
@@ -150,7 +150,7 @@ class ModuleTalk_MapperTalk extends Mapper {
 				";
         $aTalkUsers = array();
         if ($aRows = $this->oDb->select($sql, $aTalkId, $sUserId)) {
-            $aTalkUsers = Engine::GetEntityRows('Talk_TalkUser', $aRows);
+            $aTalkUsers = E::GetEntityRows('Talk_TalkUser', $aRows);
         }
         return $aTalkUsers;
     }
@@ -178,7 +178,7 @@ class ModuleTalk_MapperTalk extends Mapper {
 					";
 
         if ($aRow = $this->oDb->selectRow($sql, $iTalkId)) {
-            return Engine::GetEntity('Talk', $aRow);
+            return E::GetEntity('Talk', $aRow);
         }
         return null;
     }
@@ -449,7 +449,7 @@ class ModuleTalk_MapperTalk extends Mapper {
 			";
         $aResult = array();
         if ($aRows = $this->oDb->select($sql, $iTalkId)) {
-            $aResult = Engine::GetEntityRows('Talk_TalkUser', $aRows);;
+            $aResult = E::GetEntityRows('Talk_TalkUser', $aRows);;
         }
 
         return $aResult;

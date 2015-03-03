@@ -33,7 +33,7 @@ class ModuleVote extends Module {
      */
     public function Init() {
 
-        $this->oMapper = Engine::GetMapper(__CLASS__);
+        $this->oMapper = E::GetMapper(__CLASS__);
     }
 
     /**
@@ -49,8 +49,8 @@ class ModuleVote extends Module {
             $oVote->setIp(F::GetUserIp());
         }
         if ($this->oMapper->AddVote($oVote)) {
-            $this->Cache_Delete("vote_{$oVote->getTargetType()}_{$oVote->getTargetId()}_{$oVote->getVoterId()}");
-            $this->Cache_CleanByTags(
+            E::ModuleCache()->Delete("vote_{$oVote->getTargetType()}_{$oVote->getTargetId()}_{$oVote->getVoterId()}");
+            E::ModuleCache()->CleanByTags(
                 array(
                     "vote_update_{$oVote->getTargetType()}_{$oVote->getVoterId()}",
                     "vote_update_{$oVote->getTargetType()}_{$oVote->getTargetId()}",
@@ -84,9 +84,9 @@ class ModuleVote extends Module {
     /**
      * Получить список голосований по списку айдишников
      *
-     * @param array|int $aTargetId   Список ID владельцев
-     * @param string    $sTargetType Тип владельца
-     * @param int       $iUserId     ID пользователя
+     * @param array  $aTargetId      Список ID владельцев
+     * @param string $sTargetType    Тип владельца
+     * @param int    $sUserId        ID пользователя
      *
      * @return array
      */
@@ -107,7 +107,7 @@ class ModuleVote extends Module {
 
         // * Делаем мульти-запрос к кешу
         $aCacheKeys = F::Array_ChangeValues($aTargetId, "vote_{$sTargetType}_", '_' . $iUserId);
-        if (false !== ($data = $this->Cache_Get($aCacheKeys))) {
+        if (false !== ($data = E::ModuleCache()->Get($aCacheKeys))) {
             // * проверяем что досталось из кеша
             foreach ($aCacheKeys as $sValue => $sKey) {
                 if (array_key_exists($sKey, $data)) {
@@ -127,13 +127,13 @@ class ModuleVote extends Module {
             foreach ($data as $oVote) {
                 // * Добавляем к результату и сохраняем в кеш
                 $aVote[$oVote->getTargetId()] = $oVote;
-                $this->Cache_Set($oVote, "vote_{$oVote->getTargetType()}_{$oVote->getTargetId()}_{$oVote->getVoterId()}", array(), 'P7D');
+                E::ModuleCache()->Set($oVote, "vote_{$oVote->getTargetType()}_{$oVote->getTargetId()}_{$oVote->getVoterId()}", array(), 'P7D');
                 $aIdNeedStore = array_diff($aIdNeedStore, array($oVote->getTargetId()));
             }
         }
         // * Сохраняем в кеш запросы не вернувшие результата
         foreach ($aIdNeedStore as $iTargetId) {
-            $this->Cache_Set(null, "vote_{$sTargetType}_{$iTargetId}_{$iUserId}", array(), 'P7D');
+            E::ModuleCache()->Set(null, "vote_{$sTargetType}_{$iTargetId}_{$iUserId}", array(), 'P7D');
         }
 
         // * Сортируем результат согласно входящему массиву
@@ -159,12 +159,12 @@ class ModuleVote extends Module {
         $aVote = array();
 
         $sCacheKey = "vote_{$sTargetType}_{$iUserId}_id_" . join(',', $aTargetId);
-        if (false === ($data = $this->Cache_Get($sCacheKey))) {
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
             $data = $this->oMapper->GetVoteByArray($aTargetId, $sTargetType, $iUserId);
             foreach ($data as $oVote) {
                 $aVote[$oVote->getTargetId()] = $oVote;
             }
-            $this->Cache_Set(
+            E::ModuleCache()->Set(
                 $aVote, $sCacheKey,
                 array("vote_update_{$sTargetType}_{$iUserId}", "vote_update_{$sTargetType}"),
                 'P1D'
@@ -190,7 +190,7 @@ class ModuleVote extends Module {
         $aTargetId = array_unique($aTargetId);
         $bResult = $this->oMapper->DeleteVoteByTarget($aTargetId, $sTargetType);
         // * Чистим зависимые кеши
-        $this->Cache_Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("vote_update_{$sTargetType}"));
+        E::ModuleCache()->Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array("vote_update_{$sTargetType}"));
 
         return $bResult;
     }
@@ -205,8 +205,8 @@ class ModuleVote extends Module {
     public function Update($oVote) {
 
         if ($this->oMapper->Update($oVote)) {
-            $this->Cache_Delete("vote_{$oVote->getTargetType()}_{$oVote->getTargetId()}_{$oVote->getVoterId()}");
-            $this->Cache_CleanByTags(array("vote_update_{$oVote->getTargetType()}_{$oVote->getVoterId()}"));
+            E::ModuleCache()->Delete("vote_{$oVote->getTargetType()}_{$oVote->getTargetId()}_{$oVote->getVoterId()}");
+            E::ModuleCache()->CleanByTags(array("vote_update_{$oVote->getTargetType()}_{$oVote->getVoterId()}"));
 
             return true;
         }
@@ -229,9 +229,9 @@ class ModuleVote extends Module {
     public function GetUserVoteStats($iUserId) {
 
         $sCacheKey = 'user_vote_stats_' . $iUserId;
-        if (false === ($aResult = $this->Cache_Get($sCacheKey))) {
+        if (false === ($aResult = E::ModuleCache()->Get($sCacheKey))) {
             $aResult = $this->oMapper->GetUserVoteStats($iUserId);
-            $this->Cache_Set(
+            E::ModuleCache()->Set(
                 $aResult, $sCacheKey,
                 array(
                     "vote_update_topic_{$iUserId}",

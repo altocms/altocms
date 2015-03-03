@@ -62,6 +62,8 @@ function selectfield(f){
                             {$aLang.action.admin.contenttypes_field_link}</option>
                         <option value="file" {if $_aRequest.field_type=='file'}selected{/if} title="{$aLang.action.admin.contenttypes_field_file_notice}">
                             {$aLang.action.admin.contenttypes_field_file}</option>
+                        <option value="single-image-uploader" {if $_aRequest.field_type=='single-image-uploader'}selected{/if} title="{$aLang.action.admin.contenttypes_field_image_notice}">
+                            {$aLang.action.admin.contenttypes_field_image}</option>
                         {hook run='admin_content_add_field_list'}
 					</select>
                 </div>

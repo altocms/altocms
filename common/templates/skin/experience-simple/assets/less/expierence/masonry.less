@@ -1,0 +1,63 @@
+@import "../var.bootstrap.less";
+@import "../bootstrap/mixins";
+@import "../var.experience.less";
+
+.content {
+
+//    .masonry-item {
+//        padding: 12px;
+//    }
+//
+//    .topic.masonry-lead {
+//        margin-bottom: 0;
+//    }
+
+    .masonry-container {
+
+    }
+
+    .masonry.topic {
+
+        .panel-body {
+            padding: 20px;
+        }
+
+        & > img {
+            width: 100%;
+        }
+
+        .topic-title {
+            a {
+                font-weight: 500;
+            }
+        }
+
+        .topic-info {
+            margin-bottom: 0;
+
+            .topic-blog {
+                font-size: @font-size-base;
+
+                a {
+                    font-size: inherit;
+                }
+            }
+        }
+
+        .topic-text {
+            margin-bottom: 0;
+        }
+
+        .topic-footer {
+            ul {
+
+                li {
+
+                    margin-right: 12px;
+                }
+
+            }
+        }
+
+    }
+}

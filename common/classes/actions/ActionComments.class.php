@@ -38,7 +38,7 @@ class ActionComments extends Action {
      */
     public function Init() {
 
-        $this->oUserCurrent = $this->User_GetUserCurrent();
+        $this->oUserCurrent = E::ModuleUser()->GetUserCurrent();
     }
 
     /**
@@ -69,32 +69,32 @@ class ActionComments extends Action {
          * Исключаем из выборки идентификаторы закрытых блогов (target_parent_id)
          */
         $aCloseBlogs = ($this->oUserCurrent)
-            ? $this->Blog_GetInaccessibleBlogsByUser($this->oUserCurrent)
-            : $this->Blog_GetInaccessibleBlogsByUser();
+            ? E::ModuleBlog()->GetInaccessibleBlogsByUser($this->oUserCurrent)
+            : E::ModuleBlog()->GetInaccessibleBlogsByUser();
         /**
          * Получаем список комментов
          */
-        $aResult = $this->Comment_GetCommentsAll(
+        $aResult = E::ModuleComment()->GetCommentsAll(
             'topic', $iPage, Config::Get('module.comment.per_page'), array(), $aCloseBlogs
         );
         $aComments = $aResult['collection'];
         /**
          * Формируем постраничность
          */
-        $aPaging = $this->Viewer_MakePaging(
+        $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $iPage, Config::Get('module.comment.per_page'), Config::Get('pagination.pages.count'),
-            Router::GetPath('comments')
+            R::GetPath('comments')
         );
         /**
          * Загружаем переменные в шаблон
          */
-        $this->Viewer_Assign('aPaging', $aPaging);
-        $this->Viewer_Assign("aComments", $aComments);
+        E::ModuleViewer()->Assign('aPaging', $aPaging);
+        E::ModuleViewer()->Assign("aComments", $aComments);
         /**
          * Устанавливаем title страницы
          */
-        $this->Viewer_AddHtmlTitle($this->Lang_Get('comments_all'));
-        $this->Viewer_SetHtmlRssAlternate(Router::GetPath('rss') . 'allcomments/', $this->Lang_Get('comments_all'));
+        E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('comments_all'));
+        E::ModuleViewer()->SetHtmlRssAlternate(R::GetPath('rss') . 'allcomments/', E::ModuleLang()->Get('comments_all'));
         /**
          * Устанавливаем шаблон вывода
          */
@@ -111,7 +111,7 @@ class ActionComments extends Action {
         /**
          * Проверяем к чему относится комментарий
          */
-        if (!($oComment = $this->Comment_GetCommentById($iCommentId))) {
+        if (!($oComment = E::ModuleComment()->GetCommentById($iCommentId))) {
             return parent::EventNotFound();
         }
         if ($oComment->getTargetType() != 'topic' || !($oTopic = $oComment->getTarget())) {
@@ -121,15 +121,15 @@ class ActionComments extends Action {
          * Определяем необходимую страницу для отображения комментария
          */
         if (!Config::Get('module.comment.use_nested') || !Config::Get('module.comment.nested_per_page')) {
-            Router::Location($oTopic->getUrl() . '#comment' . $oComment->getId());
+            R::Location($oTopic->getUrl() . '#comment' . $oComment->getId());
         }
-        $iPage = $this->Comment_GetPageCommentByTargetId(
+        $iPage = E::ModuleComment()->GetPageCommentByTargetId(
             $oComment->getTargetId(), $oComment->getTargetType(), $oComment
         );
         if ($iPage == 1) {
-            Router::Location($oTopic->getUrl() . '#comment' . $oComment->getId());
+            R::Location($oTopic->getUrl() . '#comment' . $oComment->getId());
         } else {
-            Router::Location($oTopic->getUrl() . "?cmtpage={$iPage}#comment" . $oComment->getId());
+            R::Location($oTopic->getUrl() . "?cmtpage={$iPage}#comment" . $oComment->getId());
         }
         exit();
     }
@@ -142,7 +142,7 @@ class ActionComments extends Action {
         /**
          * Загружаем в шаблон необходимые переменные
          */
-        $this->Viewer_Assign('sMenuHeadItemSelect', $this->sMenuHeadItemSelect);
+        E::ModuleViewer()->Assign('sMenuHeadItemSelect', $this->sMenuHeadItemSelect);
     }
 }
 

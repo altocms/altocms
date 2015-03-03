@@ -1,0 +1,98 @@
+@import "../var.bootstrap.less";
+@import "../bootstrap/mixins";
+@import "../var.experience.less";
+
+.modal {
+
+    .modal-header {
+        //noinspection CssUnknownTarget
+//        background: url('../images/background.png');
+        background-color: @color-94;
+        button {
+            outline: none;
+            line-height: 26px;
+        }
+
+        h4 {
+            margin: 0;
+        }
+    }
+
+    .modal-write-list {
+        a.link-light-gray {
+            color: @color-82;
+
+            &:hover, &:active {
+                color: @color-65;
+            }
+        }
+    }
+
+    .modal-body {
+
+        .nav-tabs li a {
+            line-height: 16px;
+            padding: 6px 20px;
+        }
+
+        .nav > li > a:hover, .nav > li > a:focus {
+            background-color: @color-98;
+        }
+
+        img {
+            border-radius: 0 !important;
+        }
+    }
+
+    label {
+        background: white;
+        width: 38px;
+        text-align: center;
+        font-size: 14px;
+    }
+
+    input {
+        outline: none;
+        width: 100%
+    }
+
+    .input-group {
+        width: 100%;
+    }
+
+    .modal-dialog {
+        width: 440px;
+    }
+
+    .checkbox {
+        padding-left: 0;
+    }
+
+    input[type="submit"] {
+        margin-top: 6px;
+    }
+
+    .has-feedback {
+
+        .form-control {
+            padding-right: 60px;
+        }
+
+        .form-control-feedback {
+            font-size: 16px;
+            z-index: 4;
+            top: 0;
+        }
+
+        .form-control-feedback.form-control-feedback-ok {
+            right: 24px;
+            padding-top: 1px;
+            color: green;
+        }
+        .form-control-feedback.form-control-feedback-help {
+            cursor: pointer;
+        }
+
+    }
+
+}

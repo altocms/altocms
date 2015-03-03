@@ -316,7 +316,7 @@ class ModuleUser_MapperUser extends Mapper {
 			";
         $aResult = array();
         if ($aRows = $this->oDb->select($sql, $aUserId)) {
-            $aResult = Engine::GetEntityRows('User_Session', $aRows);
+            $aResult = E::GetEntityRows('User_Session', $aRows);
         }
         return $aResult;
     }
@@ -339,11 +339,9 @@ class ModuleUser_MapperUser extends Mapper {
             SELECT
                 u.user_id AS ARRAY_KEY,
 				u.*,
-				IF(ua.user_id IS NULL,0,1) as user_is_administrator,
 				ab.banline, ab.banunlim, ab.banactive, ab.bancomment
 			FROM
 				?_user as u
-				LEFT JOIN ?_user_administrator AS ua ON u.user_id=ua.user_id
 				LEFT JOIN ?_adminban AS ab ON u.user_id=ab.user_id AND ab.banactive=1
 			WHERE
 				u.user_id IN(?a)
@@ -351,7 +349,7 @@ class ModuleUser_MapperUser extends Mapper {
 			";
         $aUsers = array();
         if ($aRows = $this->oDb->select($sql, $aUsersId, count($aUsersId))) {
-            $aUsers = Engine::GetEntityRows('User', $aRows, $aUsersId);
+            $aUsers = E::GetEntityRows('User', $aRows, $aUsersId);
         }
         return $aUsers;
     }
@@ -493,21 +491,32 @@ class ModuleUser_MapperUser extends Mapper {
         return $aResult ? $aResult : array();
     }
 
+//    /**
+//     * Возвращает общее количество пользователй
+//     *
+//     * @return int
+//     */
+//    public function GetCountUsers() {
+
+//        $sql = "SELECT count(*) as count FROM ?_user";
+//        return $this->oDb->selectCell($sql);
+//    }
+
+//    public function GetCountAdmins() {
+
+//        $sql = "SELECT count(*) as count FROM ?_user_administrator ";
+//        return $this->oDb->selectCell($sql);
+//    }
+
     /**
-     * Возвращает общее количество пользователй
-     *
-     * @return int
+     * Возвращает количество пользователей по роли
+     * @param $iRole
      */
-    public function GetCountUsers() {
+    public function GetCountByRole($iRole) {
 
-        $sql = "SELECT count(*) as count FROM ?_user";
-        return $this->oDb->selectCell($sql);
-    }
+        $sql = "SELECT count(user_id) as count FROM ?_user WHERE user_role & ?d";
+        return $this->oDb->selectCell($sql, $iRole);
 
-    public function GetCountAdmins() {
-
-        $sql = "SELECT count(*) as count FROM ?_user_administrator ";
-        return $this->oDb->selectCell($sql);
     }
 
     /**
@@ -679,7 +688,7 @@ class ModuleUser_MapperUser extends Mapper {
         if ($aRows) {
             foreach ($aRows as $aRow) {
                 $aRow['user'] = $nUserId;
-                $aRes[] = Engine::GetEntity('User_Friend', $aRow);
+                $aRes[] = E::GetEntity('User_Friend', $aRow);
             }
         }
         return $aRes;
@@ -858,7 +867,7 @@ class ModuleUser_MapperUser extends Mapper {
 
         $sql = "SELECT * FROM ?_invite WHERE invite_code = ? AND invite_used = ?d ";
         if ($aRow = $this->oDb->selectRow($sql, $sCode, $iUsed)) {
-            return Engine::GetEntity('User_Invite', $aRow);
+            return E::GetEntity('User_Invite', $aRow);
         }
         return null;
     }
@@ -1061,7 +1070,7 @@ class ModuleUser_MapperUser extends Mapper {
 				LIMIT 1
 				";
         if ($aRow = $this->oDb->selectRow($sql, $sCode)) {
-            return Engine::GetEntity('User_Reminder', $aRow);
+            return E::GetEntity('User_Reminder', $aRow);
         }
         return null;
     }
@@ -1085,7 +1094,7 @@ class ModuleUser_MapperUser extends Mapper {
         }
         $aResult = array();
         foreach ($aFields as $aField) {
-            $aResult[$aField['id']] = Engine::GetEntity('User_Field', $aField);
+            $aResult[$aField['id']] = E::GetEntity('User_Field', $aField);
         }
         return $aResult;
     }
@@ -1155,7 +1164,7 @@ class ModuleUser_MapperUser extends Mapper {
                 if ($bOnlyNoEmpty && !$aRow['value']) {
                     continue;
                 }
-                $aResult[] = Engine::GetEntity('User_Field', $aRow);
+                $aResult[] = E::GetEntity('User_Field', $aRow);
             }
         }
         return $aResult;
@@ -1350,7 +1359,7 @@ class ModuleUser_MapperUser extends Mapper {
 			LIMIT ?d, ?d ";
         $aResult = array();
         if ($aRows = $this->oDb->selectPage($iCount, $sql, $iUserId, ($iCurrPage - 1) * $iPerPage, $iPerPage)) {
-            $aResult = Engine::GetEntityRows('ModuleUser_EntityNote', $aRows);
+            $aResult = E::GetEntityRows('ModuleUser_EntityNote', $aRows);
         }
         return $aResult;
     }
@@ -1388,7 +1397,7 @@ class ModuleUser_MapperUser extends Mapper {
 
         $sql = "SELECT * FROM ?_user_note WHERE target_user_id = ?d AND user_id = ?d ";
         if ($aRow = $this->oDb->selectRow($sql, $iTargetUserId, $iUserId)) {
-            return Engine::GetEntity('ModuleUser_EntityNote', $aRow);
+            return E::GetEntity('ModuleUser_EntityNote', $aRow);
         }
         return null;
     }
@@ -1409,7 +1418,7 @@ class ModuleUser_MapperUser extends Mapper {
             LIMIT 1
             ";
         if ($aRow = $this->oDb->selectRow($sql, $iId)) {
-            return Engine::GetEntity('ModuleUser_EntityNote', $aRow);
+            return E::GetEntity('ModuleUser_EntityNote', $aRow);
         }
         return null;
     }
@@ -1435,13 +1444,11 @@ class ModuleUser_MapperUser extends Mapper {
 				WHERE target_user_id IN (?a) AND user_id = ?d
 				";
         $aRows = $this->oDb->select($sql, $aArrayId, $nUserId);
-        $aRes = array();
+        $aResult = array();
         if ($aRows) {
-            foreach ($aRows as $aRow) {
-                $aRes[] = Engine::GetEntity('ModuleUser_EntityNote', $aRow);
-            }
+            $aResult = E::GetEntityRows('ModuleUser_EntityNote', $aRows);
         }
-        return $aRes;
+        return $aResult;
     }
 
     /**
@@ -1544,7 +1551,7 @@ class ModuleUser_MapperUser extends Mapper {
             LIMIT 1
             ";
         if ($aRow = $this->oDb->selectRow($sql, $sCode)) {
-            return Engine::GetEntity('ModuleUser_EntityChangemail', $aRow);
+            return E::GetEntity('ModuleUser_EntityChangemail', $aRow);
         }
         return null;
     }
@@ -1565,7 +1572,7 @@ class ModuleUser_MapperUser extends Mapper {
             LIMIT 1
             ";
         if ($aRow = $this->oDb->selectRow($sql, $sCode)) {
-            return Engine::GetEntity('ModuleUser_EntityChangemail', $aRow);
+            return E::GetEntity('ModuleUser_EntityChangemail', $aRow);
         }
         return null;
     }
@@ -1618,7 +1625,7 @@ class ModuleUser_MapperUser extends Mapper {
 					u.user_id
 				FROM
 					?_user AS u
-				    LEFT JOIN ?_user_administrator AS a ON a.user_id=u.user_id
+				    -- LEFT JOIN ?_user_administrator AS a ON a.user_id=u.user_id
 				WHERE
 					1 = 1
 					{ AND u.user_id = ?d }
@@ -1632,8 +1639,11 @@ class ModuleUser_MapperUser extends Mapper {
 					{ AND user_login IN (?a) }
 					{ AND user_date_register LIKE ? }
 					{ AND user_profile_name LIKE ? }
-					{ AND NOT a.user_id IS NULL AND ?d > -1}
-					{ AND a.user_id IS NULL AND ?d > -1}
+					{ AND user_role & ?d}
+					{ AND user_role & ~ ?d}
+					{ AND user_role & ?d}
+					{ AND user_role & ~ ?d}
+					{ AND user_role & ?d}
 				ORDER by {$sOrder}
 				LIMIT ?d, ?d ;
 					";
@@ -1652,8 +1662,11 @@ class ModuleUser_MapperUser extends Mapper {
             (isset($aFilter['login']) && is_array($aFilter['login'])) ? $aFilter['login'] : DBSIMPLE_SKIP,
             (isset($aFilter['regdate']) && $aFilter['regdate']) ? $aFilter['regdate'] : DBSIMPLE_SKIP,
             isset($aFilter['profile_name']) ? $aFilter['profile_name'] : DBSIMPLE_SKIP,
-            (isset($aFilter['admin']) && $aFilter['admin']) ? $aFilter['admin'] : DBSIMPLE_SKIP,
-            (isset($aFilter['admin']) && !$aFilter['admin']) ? $aFilter['admin'] : DBSIMPLE_SKIP,
+            (isset($aFilter['admin']) && $aFilter['admin']) ? ModuleUser::USER_ROLE_ADMINISTRATOR : DBSIMPLE_SKIP,
+            (isset($aFilter['admin']) && !$aFilter['admin']) ? ModuleUser::USER_ROLE_ADMINISTRATOR : DBSIMPLE_SKIP,
+            (isset($aFilter['moderator']) && $aFilter['moderator']) ? ModuleUser::USER_ROLE_MODERATOR : DBSIMPLE_SKIP,
+            (isset($aFilter['moderator']) && !$aFilter['moderator']) ? ModuleUser::USER_ROLE_MODERATOR : DBSIMPLE_SKIP,
+            (isset($aFilter['role']) && $aFilter['role']) ? $aFilter['role'] : DBSIMPLE_SKIP,
             ($iCurrPage - 1) * $iPerPage, $iPerPage
         );
         if ($aRows) {

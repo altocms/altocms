@@ -62,6 +62,7 @@ return array(
     'php_params_utf8'                  => 'Поддержка UTF8 в PCRE',
     'php_params_mbstring'              => 'Поддержка Mbstring',
     'php_params_simplexml'             => 'Поддержка SimpleXML',
+    'php_params_graphic_packages'      => 'Графические пакеты (Gmagick, Imagick или GD)',
 
     'local_config'                     => 'Локальная конфигурация',
     'local_file_is_writable'           => 'Файл %%file%% существует и доступен для записи',
@@ -82,6 +83,7 @@ return array(
     'db_params_convert'                => 'Конвертировать базу LiveStreet 0.5.1 в 1.0.3',
     'db_params_convert_from_10'        => 'Конвертировать базу LiveStreet 1.0 в 1.0.3',
     'db_params_convert_to_alto'        => 'Конвертировать базу LiveStreet 1.0.3 в Alto CMS 1.0',
+    'db_params_convert_to_11'          => 'Конвертировать базу Alto CMS 1.0 в Alto CMS 1.1',
     'db_params_convert_from_alto_097'  => 'Конвертировать базу Alto CMS 0.9.7 в Alto CMS 1.0',
     'db_params_user'                   => 'Имя пользователя',
     'db_params_password'               => 'Пароль',

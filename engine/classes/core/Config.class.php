@@ -13,6 +13,9 @@
  *----------------------------------------------------------------------------
  */
 
+F::IncludeFile('Storage.class.php');
+F::IncludeFile('DataArray.class.php');
+
 /**
  * Управление простым конфигом в виде массива
  *
@@ -37,6 +40,9 @@ class Config extends Storage {
 
     const KEY_LINK_STR = '___';
     const KEY_LINK_PREG = '~___([\S|\.]+)(___/|___)~Ui';
+    const KEY_ROOT = '$root$';
+    const KEY_EXTENDS = '$extends$';
+    const KEY_REPLACE = '$replace$';
 
     const CUSTOM_CONFIG_PREFIX = 'custom.config.';
 
@@ -99,7 +105,7 @@ class Config extends Storage {
      *
      * @return  bool|Config
      */
-    static public function LoadFromFile($sFile, $bReset = true, $sRootKey = null, $nLevel = null) {
+    static public function LoadFromFile($sConfigFile, $bReset = true, $sRootKey = null, $nLevel = null) {
 
         if (is_integer($sRootKey) && is_null($nLevel)) {
             $nLevel = $sRootKey;
@@ -107,13 +113,13 @@ class Config extends Storage {
         }
 
         // Check if file exists
-        if (!F::File_Exists($sFile)) {
-            return false;
+        if (F::File_Exists($sConfigFile)) {
+            // Get config from file
+            if ($aConfig = F::File_IncludeFile($sConfigFile, true, true)) {
+                return static::Load($aConfig, $bReset, $sRootKey, $nLevel, $sConfigFile);
+            }
         }
-        // Get config from file
-        if ($aConfig = F::File_IncludeFile($sFile, true, true)) {
-            return static::Load($aConfig, $bReset, $sRootKey, $nLevel);
-        }
+        return false;
     }
 
     /**
@@ -137,10 +143,11 @@ class Config extends Storage {
      * @param bool   $bReset   - Сбросить старые значения
      * @param string $sRootKey - Корневой ключ конфига
      * @param int    $nLevel   - Уровень конфига
+     * @param string $sSource  - Источник
      *
      * @return  bool|Config
      */
-    static public function Load($aConfig, $bReset = true, $sRootKey = null, $nLevel = null) {
+    static public function Load($aConfig, $bReset = true, $sRootKey = null, $nLevel = null, $sSource = null) {
 
         if (is_integer($sRootKey) && is_null($nLevel)) {
             $nLevel = $sRootKey;
@@ -152,8 +159,7 @@ class Config extends Storage {
             return false;
         }
         // Set config to current or handle instance
-        static::getInstance()->SetConfig($aConfig, $bReset, $sRootKey, $nLevel);
-        return static::getInstance();
+        return static::Set($aConfig, $bReset, $sRootKey, $nLevel, $sSource);
     }
 
     /**
@@ -220,23 +226,17 @@ class Config extends Storage {
         }
         $sStorageKey = $this->_storageKey($sRootKey, $nLevel);
 
-        $aRootSection = array();
-        if ($bReset && isset($aConfig[static::ROOT_KEY])) {
-            if (is_array($aConfig[static::ROOT_KEY])) {
-                $aRootSection = $aConfig[static::ROOT_KEY];
-            } else {
-                $aRootSection = array();
-            }
-            unset($aConfig[static::ROOT_KEY]);
-        }
-        if ($aRootSection) {
-            parent::SetStorage($sStorageKey, $aConfig, $bReset);
-            return parent::SetStorage($sStorageKey, $aRootSection, false);
-        } else {
-            return parent::SetStorage($sStorageKey, $aConfig, $bReset);
-        }
+        return parent::SetStorage($sStorageKey, $aConfig, $bReset);
     }
 
+    /**
+     * Checks if the key exists
+     *
+     * @param string $sKey
+     * @param string $sRoot
+     *
+     * @return array|bool|null
+     */
     public function _isExists($sKey, $sRoot = self::DEFAULT_CONFIG_ROOT) {
 
         $sStorageKey = $this->_storageKey($sRoot);
@@ -365,6 +365,17 @@ class Config extends Storage {
     }
 
     /**
+     * @param string $sKey
+     *
+     * @return DataArray
+     */
+    static public function GetData($sKey = '') {
+
+        $xData = Config::Get($sKey);
+        return new DataArray($xData);
+    }
+
+    /**
      * As a method Get() but with default value
      *
      * @param string $sKey
@@ -394,17 +405,19 @@ class Config extends Storage {
             // Return config by path (separator=".")
             $aKeys = explode('.', $sKey);
 
-            $cfg = $this->GetConfig($sRootKey, $nLevel);
+            $xConfigData = $this->GetConfig($sRootKey, $nLevel);
             foreach ((array)$aKeys as $sK) {
-                if (isset($cfg[$sK])) {
-                    $cfg = $cfg[$sK];
+                if (isset($xConfigData[$sK])) {
+                    $xConfigData = $xConfigData[$sK];
                 } else {
                     return null;
                 }
             }
 
-            $cfg = static::KeyReplace($cfg, $sRootKey);
-            $this->aQuickMap[$sKeyMap] = $cfg;
+            if (is_array($xConfigData) || is_string($xConfigData)) {
+                $xConfigData = static::KeyReplace($xConfigData, $sRootKey);
+            }
+            $this->aQuickMap[$sKeyMap] = $xConfigData;
         }
 
         return $this->aQuickMap[$sKeyMap];
@@ -415,30 +428,37 @@ class Config extends Storage {
      *
      * @static
      *
-     * @param string|array $xCfg  - Значения конфига
+     * @param string|array $xConfigData  - Значения конфига
      * @param string       $sRoot - Корневой ключ конфига
      *
      * @return array|mixed
      */
-    static public function KeyReplace($xCfg, $sRoot = self::DEFAULT_CONFIG_ROOT) {
+    static public function KeyReplace($xConfigData, $sRoot = self::DEFAULT_CONFIG_ROOT) {
 
-        if (is_array($xCfg)) {
+        $xResult = $xConfigData;
+        if (is_array($xConfigData)) {
             $xResult = array();
-            foreach ($xCfg as $k => $v) {
-                if (strpos($k, self::KEY_LINK_STR) !== false) {
-                    $sNewKey = static::KeyReplace($k, $sRoot);
-                } else {
-                    $sNewKey = $k;
-                }
-                $xResult[$sNewKey] = static::KeyReplace($v, $sRoot);
-                unset($xCfg[$k]);
+            if (isset($xConfigData[self::KEY_EXTENDS])) {
+                $aParentData = Config::KeyReplace($xConfigData[self::KEY_EXTENDS]);
+                unset($xConfigData[self::KEY_EXTENDS]);
+                $xConfigData = F::Array_MergeCombo($aParentData, $xConfigData);
             }
-        } else {
-            $xResult = $xCfg;
-            if (strpos($xCfg, self::KEY_LINK_STR) !== false
-                && preg_match_all(self::KEY_LINK_PREG, $xCfg, $aMatch, PREG_SET_ORDER)
-            ) {
-                if (count($aMatch) == 1 && $aMatch[0][0] == $xCfg) {
+            foreach ($xConfigData as $xKey => $xData) {
+                if (is_string($xKey) && strpos($xKey, self::KEY_LINK_STR) !== false) {
+                    $sNewKey = static::KeyReplace($xKey, $sRoot);
+                } else {
+                    $sNewKey = $xKey;
+                }
+                // Changes placeholders for array or string only
+                if (is_array($xData) || (is_string($xData) && strpos($xData, self::KEY_LINK_STR) !== false)) {
+                    $xResult[$sNewKey] = static::KeyReplace($xData, $sRoot);
+                } else {
+                    $xResult[$sNewKey] = $xData;
+                }
+            }
+        } elseif (is_string($xConfigData) && !is_numeric($xConfigData)) {
+            if (strpos($xConfigData, self::KEY_LINK_STR) !== false && preg_match_all(self::KEY_LINK_PREG, $xConfigData, $aMatch, PREG_SET_ORDER)) {
+                if (count($aMatch) == 1 && $aMatch[0][0] == $xConfigData) {
                     $xResult = Config::Get($aMatch[0][1], $sRoot);
                 } else {
                     foreach ($aMatch as $aItem) {
@@ -471,36 +491,134 @@ class Config extends Storage {
     }
 
     /**
-     * Add information in config array by handle path
+     * Set config value(s)
+     * Usage:
+     *   Config::Set('key', $xData, ...);
+     * or
+     *   Config::Set(array('key', $xData), $bReplace, ...);
      *
-     * @param string $sKey   - Ключ
-     * @param mixed  $xValue - Значение
-     * @param string $sRoot  - Корневой ключ конфига
-     * @param int    $nLevel
+     * @param string|array $sKey    - Key or Config data array
+     * @param mixed        $xValue  - Value(s) or Replace flag
+     * @param string       $sRoot   - Root key
+     * @param int          $nLevel  - Level of config
+     * @param string       $sSource - Source of data
      *
      * @return bool
      */
-    static public function Set($sKey, $xValue, $sRoot = self::DEFAULT_CONFIG_ROOT, $nLevel = null) {
+    static public function Set($sKey, $xValue, $sRoot = self::DEFAULT_CONFIG_ROOT, $nLevel = null, $sSource = null) {
 
-        if (is_integer($sRoot) && is_null($nLevel)) {
-            $nLevel = $sRoot;
-            $sRoot = self::DEFAULT_CONFIG_ROOT;
+        if (is_array($sKey) && is_bool($xValue)) {
+            $aConfigData = $sKey;
+            $bReplace = $xValue;
+            $xValue = reset($aConfigData);
+        } else {
+            $aConfigData = array($sKey => $xValue);
+            $bReplace = false;
         }
-        if (isset($xValue[static::ROOT_KEY]) && is_array($xValue[static::ROOT_KEY])) {
-            $aRoot = $xValue[static::ROOT_KEY];
-            unset($xValue[static::ROOT_KEY]);
-            foreach ($aRoot as $sRootKey => $xVal) {
-                if (static::isExist($sRootKey)) {
-                    static::Set($sRootKey, F::Array_MergeCombo(Config::Get($sRootKey, $sRoot), $xVal), $sRoot, $nLevel);
-                } else {
-                    static::Set($sRootKey, $xVal, $sRoot, $nLevel);
+
+        if ($aConfigData) {
+            if (is_integer($sRoot) && (is_null($nLevel) || is_string($nLevel))) {
+                if (is_string($nLevel)) {
+                    $sSource = $nLevel;
                 }
+                $nLevel = $sRoot;
+                $sRoot = self::DEFAULT_CONFIG_ROOT;
+            }
+
+            // Check for KEY_ROOT in config data
+            if (isset($xValue[self::KEY_ROOT]) && is_array($xValue[self::KEY_ROOT])) {
+                $aRoot = $xValue[self::KEY_ROOT];
+                unset($xValue[self::KEY_ROOT]);
+                foreach ($aRoot as $sRootKey => $xVal) {
+                    if (static::isExist($sRootKey)) {
+                        static::Set($sRootKey, F::Array_MergeCombo(Config::Get($sRootKey, $sRoot), $xVal), $sRoot, $nLevel, $sSource);
+                    } else {
+                        static::Set($sRootKey, $xVal, $sRoot, $nLevel, $sSource);
+                    }
+                }
+            }
+
+            $oConfig = static::getInstance();
+
+            // Check for KEY_REPLACE in config data
+            $aClearConfig = self::_extractForReplacement($aConfigData);
+            if ($aClearConfig) {
+                $oConfig->SetConfig($aClearConfig, false, $sRoot, $nLevel, $sSource);
+            }
+
+            $oConfig->SetConfig($aConfigData, $bReplace, $sRoot, $nLevel, $sSource);
+        }
+
+        return true;
+    }
+
+    static protected $bKeyReplace = false;
+
+    static public function _checkForReplacement(&$xItem, $xKey) {
+
+        if (!self::$bKeyReplace) {
+            self::$bKeyReplace = ($xKey === Config::KEY_REPLACE);
+        }
+    }
+
+    /**
+     * Filters config array and extract structure data for replacement
+     *
+     * @param $aConfig
+     *
+     * @return array|bool
+     */
+    static protected function _extractForReplacement(&$aConfig) {
+
+            self::$bKeyReplace = false;
+            array_walk_recursive($aConfig, 'Config::_checkForReplacement');
+
+            if (!self::$bKeyReplace) {
+                // Has no KEY_REPLACE in data
+                return array();
+            }
+
+        return self::_extractForReplacementData($aConfig);
+    }
+
+    /**
+     * Filters array and extract structure data for replacement
+     *
+     * @param array $aConfig
+     * @param int   $iDataLevel
+     *
+     * @return array|bool
+     */
+    static protected function _extractForReplacementData(&$aConfig, $iDataLevel = 0) {
+
+        $aResult = array();
+
+        if ($iDataLevel) {
+            // KEY_REPLACE on this level
+            if (isset($aConfig[self::KEY_REPLACE])) {
+                if (is_array($aConfig[self::KEY_REPLACE])) {
+                    unset($aConfig[self::KEY_REPLACE]);
+                    $aResult = array_fill_keys($aConfig[self::KEY_REPLACE], null);
+                } else {
+                    unset($aConfig[self::KEY_REPLACE]);
+                    $aResult = true;
+                }
+                return $aResult;
             }
         }
 
-        static::getInstance()->SetConfig(array($sKey => $xValue), false, $sRoot, $nLevel);
-
-        return true;
+        // KEY_REPLACE on deeper levels
+        foreach($aConfig as $xKey => &$xVal) {
+            if(is_array($xVal)) {
+                $xSubResult = self::_extractForReplacementData($xVal, ++$iDataLevel);
+                if ($xSubResult === true) {
+                    $aResult[$xKey] = null;
+                } elseif (!empty($xSubResult)) {
+                    $aResult[$xKey] = (array)$xSubResult;
+                }
+            }
+        }
+        return $aResult;
     }
 
     /**
@@ -536,7 +654,7 @@ class Config extends Storage {
                 'storage_val' => serialize($sVal),
             );
         }
-        if ($bCacheOnly || ($bResult = E::Admin_UpdateCustomConfig($aData))) {
+        if ($bCacheOnly || ($bResult = E::ModuleAdmin()->UpdateCustomConfig($aData))) {
             self::_putCustomCfg($aConfig);
             return true;
         }
@@ -559,7 +677,7 @@ class Config extends Storage {
             if (!$bCacheOnly) {
                 // Перечитаем конфиг из базы
                 $sPrefix = self::CUSTOM_CONFIG_PREFIX . $sKeyPrefix;
-                $aData = E::Admin_GetCustomConfig($sPrefix);
+                $aData = E::ModuleAdmin()->GetCustomConfig($sPrefix);
                 if ($aData) {
                     $nPrefixLen = strlen($sPrefix);
                     $aConfig = array();
@@ -595,7 +713,7 @@ class Config extends Storage {
 
         $sPrefix = self::CUSTOM_CONFIG_PREFIX . $sKeyPrefix;
         // удаляем настройки конфига из базы
-        E::Admin_DelCustomConfig($sPrefix);
+        E::ModuleAdmin()->DelCustomConfig($sPrefix);
         // удаляем кеш-файл
         self::_deleteCustomCfg();
         // перестраиваем конфиг в кеш-файле

@@ -146,7 +146,7 @@ input.wide, textarea.wide, select.wide, .jq-selectbox.wide { width: 100%; }
 }
 .jq-selectbox__dropdown {
 	top: 33px;
-	width: 100%;
+	width: 100% !important;
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
@@ -366,4 +366,15 @@ input.wide, textarea.wide, select.wide, .jq-selectbox.wide { width: 100%; }
 	background: #ECECEC;
 	font-weight: normal;
 	color: #212121;
+}
+
+.inline-checkbox {
+	display: inline !important;
+	margin-right: 18px;
+}
+
+.btn-inline {
+	top: 10px;
+	position: relative;
+	left: 12px;
 }

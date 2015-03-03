@@ -24,13 +24,13 @@ class ModuleWidget_EntityWidget extends Entity {
         if ($this->GetId()) {
             $aCfgData = Config::Get('widget.' . $this->GetId() . '.config');
             if ($aCfgData) {
-                $aCfgData = F::Array_Merge($this->_getData(), $aCfgData);
+                $aCfgData = F::Array_Merge($this->getAllProps(), $aCfgData);
                 $this->setProps($aCfgData);
             }
         }
 
         if ($sName && is_null($this->getType())) {
-            $aTypeData = $this->Viewer_DefineWidgetType($sName, $this->GetDir(), $this->GetPluginId());
+            $aTypeData = E::ModuleViewer()->DefineWidgetType($sName, $this->GetDir(), $this->GetPluginId());
             if (isset($aTypeData['type'])) {
                 $this->setType($aTypeData['type']);
 
@@ -403,9 +403,9 @@ class ModuleWidget_EntityWidget extends Entity {
             if (!$aActions) {
                 $bResult = true;
             } else {
-                $sCurrentAction = strtolower(Router::GetAction());
-                $sCurrentEvent = strtolower(Router::GetActionEvent());
-                $sCurrentEventName = strtolower(Router::GetActionEventName());
+                $sCurrentAction = strtolower(R::GetAction());
+                $sCurrentEvent = strtolower(R::GetActionEvent());
+                $sCurrentEventName = strtolower(R::GetActionEventName());
 
                 foreach ($aActions as $sAction => $aEvents) {
                     // приводим к виду action=>array(events)

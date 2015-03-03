@@ -27,33 +27,26 @@ class WidgetTags extends Widget {
         /**
          * Получаем список тегов
          */
-        $aTags = $this->oEngine->Topic_GetOpenTopicTags(Config::Get('block.tags.tags_count'));
-        /**
-         * Расчитываем логарифмическое облако тегов
-         */
+        $aTags = E::ModuleTopic()->GetOpenTopicTags(Config::Get('widgets.tags.params.limit'));
+
+        // * Расчитываем логарифмическое облако тегов
         if ($aTags) {
-            $this->Tools_MakeCloud($aTags);
-            /**
-             * Устанавливаем шаблон вывода
-             */
-            $this->Viewer_Assign('aTags', $aTags);
+            E::ModuleTools()->MakeCloud($aTags);
+
+            // * Устанавливаем шаблон вывода
+            E::ModuleViewer()->Assign('aTags', $aTags);
         }
-        /**
-         * Теги пользователя
-         */
-        if ($oUserCurrent = $this->User_GetUserCurrent()) {
-            $aTags = $this->oEngine->Topic_GetOpenTopicTags(
-                Config::Get('block.tags.personal_tags_count'), $oUserCurrent->getId()
-            );
-            /**
-             * Расчитываем логарифмическое облако тегов
-             */
+
+        // * Теги пользователя
+        if ($oUserCurrent = E::ModuleUser()->GetUserCurrent()) {
+            $aTags = E::ModuleTopic()->GetOpenTopicTags(Config::Get('widgets.tags.params.limit'), $oUserCurrent->getId());
+
+            // * Расчитываем логарифмическое облако тегов
             if ($aTags) {
-                $this->Tools_MakeCloud($aTags);
-                /**
-                 * Устанавливаем шаблон вывода
-                 */
-                $this->Viewer_Assign('aTagsUser', $aTags);
+                E::ModuleTools()->MakeCloud($aTags);
+
+                // * Устанавливаем шаблон вывода
+                E::ModuleViewer()->Assign('aTagsUser', $aTags);
             }
         }
     }

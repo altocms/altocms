@@ -27,10 +27,10 @@ class WidgetActivitySettings extends Widget {
         /**
          * пользователь авторизован?
          */
-        if ($oUserCurrent = $this->User_GetUserCurrent()) {
+        if ($oUserCurrent = E::ModuleUser()->GetUserCurrent()) {
             // * Получаем и прогружаем необходимые переменные в шаблон
-            $aTypesList = $this->Stream_GetTypesList($oUserCurrent->getId());
-            $this->Viewer_Assign('aStreamTypesList', $aTypesList ? $aTypesList : array());
+            $aTypesList = E::ModuleStream()->GetTypesList($oUserCurrent->getId());
+            E::ModuleViewer()->Assign('aStreamTypesList', $aTypesList ? $aTypesList : array());
         }
     }
 }

@@ -11,15 +11,12 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-header('Content-Type: text/html; charset=utf-8');
-header('X-Powered-By: Alto CMS');
-
 defined('ALTO_DIR') || define('ALTO_DIR', dirname(__FILE__));
 
 // Run engine loader
 require_once(ALTO_DIR . '/engine/loader.php');
 
-$oRouter = Router::getInstance();
-$oRouter->Exec();
+// Creates and executes application
+App::Create()->Exec();
 
 // EOF

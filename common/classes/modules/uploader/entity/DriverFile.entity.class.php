@@ -25,7 +25,7 @@ class ModuleUploader_EntityDriverFile extends Entity {
     public function Store($sFile, $sDestination = null) {
 
         if (!$sDestination) {
-            $oUser = $this->User_GetUserCurrent();
+            $oUser = E::ModuleUser()->GetUserCurrent();
             if ($oUser) {
                 return false;
             }
@@ -45,8 +45,8 @@ class ModuleUploader_EntityDriverFile extends Entity {
             $sUuid = ModuleMresource::CreateUuid('file', $sFile, md5_file($sFile), $iUserId);
             $sDestination = $sDestinationDir . $sUuid . '.' . $sExtension;
 
-            if ($sStoredFile = $this->Uploader_Move($sFile, $sDestination, true)) {
-                $oStoredItem = Engine::GetEntity(
+            if ($sStoredFile = E::ModuleUploader()->Move($sFile, $sDestination, true)) {
+                $oStoredItem = E::GetEntity(
                     'Uploader_Item',
                     array(
                          'storage'           => 'file',

@@ -132,6 +132,9 @@
                 <li class="menu-item_userfields {if $sEvent=='settings-userfields'}active{/if}">
                     <a href="{router page="admin"}settings-userfields/">{$aLang.action.admin.menu_settings_userfields}</a>
                 </li>
+                <li class="menu-item_menumanager {if $sEvent=='settings-menumanager'}active{/if}">
+                    <a href="{router page="admin"}settings-menumanager/">{$aLang.action.admin.menu_menu_manager}</a>
+                </li>
                 {hook run='admin_menu_settings'}
             </ul>
 
@@ -203,9 +206,11 @@
                 <li class="menu-item_recalctopics {if $sEvent=='tools-recalctopics'}active{/if}">
                     <a href="{router page="admin"}tools-recalctopics/">{$aLang.action.admin.menu_tools_recalctopics}</a>
                 </li>
-                <li class="menu-item_recalcblograting {if $sEvent=='tools-recalcblograting'}active{/if}">
-                    <a href="{router page="admin"}tools-recalcblograting/">{$aLang.action.admin.menu_tools_recalcblograting}</a>
-                </li>
+                {if (C::Get('rating.enabled'))}
+                    <li class="menu-item_recalcblograting {if $sEvent=='tools-recalcblograting'}active{/if}">
+                        <a href="{router page="admin"}tools-recalcblograting/">{$aLang.action.admin.menu_tools_recalcblograting}</a>
+                    </li>
+                {/if}
                 <li class="menu-item_checkdb {if $sEvent=='tools-checkdb'}active{/if}">
                     <a href="{router page="admin"}tools-checkdb/">{$aLang.action.admin.menu_tools_checkdb}</a>
                 </li>

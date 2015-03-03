@@ -2,12 +2,15 @@
  {* @licence     CC Attribution-ShareAlike   *}
 
 <div class="row">
-    <div class="col-lg-12 user-toggle-publication-block">
+    <div class="col-lg-24 user-toggle-publication-block">
 
         <a href="{$oUserProfile->getProfileUrl()}created/topics/"
            class="btn btn-light-gray {if $sMenuSubItemSelect=='topics'}active{/if}">
             {$aLang.topic_title}  {if $iCountTopicUser} ({$iCountTopicUser}) {/if}
         </a>
+
+        <a class="btn btn-light-gray {if $sMenuSubItemSelect=='photos'}active{/if}"
+           href="{$oUserProfile->getProfileUrl()}created/photos/">{$aLang.user_menu_publication_photos}  {if $iPhotoCount} ({$iPhotoCount}) {/if}</a>
 
         <a class="btn btn-light-gray {if $sMenuSubItemSelect=='comments'}active{/if}"
            href="{$oUserProfile->getProfileUrl()}created/comments/">{$aLang.user_menu_publication_comment}  {if $iCountCommentUser} ({$iCountCommentUser}) {/if}</a>

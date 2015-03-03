@@ -13,22 +13,17 @@
  *----------------------------------------------------------------------------
  */
 
-set_include_path(get_include_path() . PATH_SEPARATOR . __DIR__);
-F::IncludeLib('ProfilerSimple/Profiler.class.php');
+F::IncludeFile('../abstract/Plugin.class.php');
+F::IncludeFile('../abstract/Hook.class.php');
+F::IncludeFile('../abstract/Module.class.php');
+F::IncludeFile('Decorator.class.php');
 
-F::IncludeFile('../abstract/LsObject.class.php');
+F::IncludeFile('../abstract/Entity.class.php');
+F::IncludeFile('../abstract/Mapper.class.php');
 
-F::IncludeFile('Plugin.class.php');
-F::IncludeFile('Hook.class.php');
-F::IncludeFile('Module.class.php');
-F::IncludeFile('Router.class.php');
-
-F::IncludeFile('Entity.class.php');
-F::IncludeFile('Mapper.class.php');
-
-F::IncludeFile('ModuleORM.class.php');
-F::IncludeFile('EntityORM.class.php');
-F::IncludeFile('MapperORM.class.php');
+F::IncludeFile('../abstract/ModuleORM.class.php');
+F::IncludeFile('../abstract/EntityORM.class.php');
+F::IncludeFile('../abstract/MapperORM.class.php');
 
 F::IncludeFile('ManyToManyRelation.class.php');
 
@@ -37,13 +32,57 @@ F::IncludeFile('ManyToManyRelation.class.php');
  * Основной класс движка. Ядро.
  *
  * Производит инициализацию плагинов, модулей, хуков.
- * Через этот класс происходит выполнение методов всех модулей, которые вызываются как <pre>$this->Module_Method();</pre>
+ * Через этот класс происходит выполнение методов всех модулей, которые вызываются как <pre>E::ModuleModule()->Method();</pre>
  * Также отвечает за автозагрузку остальных классов движка.
  *
  * В произвольном месте (не в классах движка у которых нет обработки метода __call() на выполнение модулей) метод модуля можно вызвать так:
  * <pre>
  * Engine::getInstance()->Module_Method();
  * </pre>
+ *
+ * @method static ModuleAcl ModuleAcl()
+ * @method static ModuleAdmin ModuleAdmin()
+ * @method static ModuleBlog ModuleBlog()
+ * @method static ModuleCaptcha ModuleCaptcha()
+ * @method static ModuleComment ModuleComment()
+ * @method static ModuleFavourite ModuleFavourite()
+ * @method static ModuleGeo ModuleGeo()
+ * @method static ModuleMresource ModuleMresource()
+ * @method static ModuleNotify ModuleNotify()
+ * @method static ModulePage ModulePage()
+ * @method static ModuleRating ModuleRating()
+ * @method static ModuleSearch ModuleSearch()
+ * @method static ModuleStream ModuleStream()
+ * @method static ModuleSubscribe ModuleSubscribe()
+ * @method static ModuleTalk ModuleTalk()
+ * @method static ModuleTools ModuleTools()
+ * @method static ModuleTopic ModuleTopic()
+ * @method static ModuleUploader ModuleUploader()
+ * @method static ModuleUser ModuleUser()
+ * @method static ModuleUserfeed ModuleUserfeed()
+ * @method static ModuleVote ModuleVote()
+ * @method static ModuleWall ModuleWall()
+ * @method static ModuleCache ModuleCache()
+ * @method static ModuleDatabase ModuleDatabase()
+ * @method static ModuleHook ModuleHook()
+ * @method static ModuleImg ModuleImg()
+ * @method static ModuleLang ModuleLang()
+ * @method static ModuleLess ModuleLess()
+ * @method static ModuleLogger ModuleLogger()
+ * @method static ModuleMail ModuleMail()
+ * @method static ModuleMenu ModuleMenu()
+ * @method static ModuleMessage ModuleMessage()
+ * @method static ModulePlugin ModulePlugin()
+ * @method static ModuleRequest ModuleRequest()
+ * @method static ModuleSecurity ModuleSecurity()
+ * @method static ModuleSession ModuleSession()
+ * @method static ModuleSkin ModuleSkin()
+ * @method static ModuleText ModuleText()
+ * @method static ModuleValidate ModuleValidate()
+ * @method static ModuleViewer ModuleViewer()
+ * @method static ModuleViewerasset ModuleViewerasset()
+ * @method static ModuleWidget ModuleWidget()
+ * @method static ModuleApi ModuleApi()
  *
  * @package engine
  * @since 1.0
@@ -236,13 +275,6 @@ class Engine extends LsObject {
     public function __construct() {
 
         $this->nTimeInit = microtime(true);
-        /* DEPRECATED in PHP 5.3 or more */
-        if (get_magic_quotes_gpc()) {
-            F::StripSlashes($_REQUEST);
-            F::StripSlashes($_GET);
-            F::StripSlashes($_POST);
-            F::StripSlashes($_COOKIE);
-        }
     }
 
     /**
@@ -258,12 +290,10 @@ class Engine extends LsObject {
      */
     static public function getInstance() {
 
-        if (isset(self::$oInstance) && (self::$oInstance instanceof self)) {
-            return self::$oInstance;
-        } else {
-            self::$oInstance = new self();
-            return self::$oInstance;
+        if (empty(self::$oInstance)) {
+            self::$oInstance = new static();
         }
+        return self::$oInstance;
     }
 
     /**
@@ -298,7 +328,9 @@ class Engine extends LsObject {
         /**
          * Запускаем хуки для события завершения инициализации Engine
          */
-        $this->Hook_Run('engine_init_complete');
+        //E::ModuleHook()->Run('engine_init_complete');
+        $aArgs = array('engine_init_complete');
+        $this->_CallModule('Hook_Run', $aArgs);
         self::$nStage = self::STAGE_RUN;
     }
 
@@ -327,6 +359,7 @@ class Engine extends LsObject {
      */
     protected function InitModules() {
 
+        /** @var Module $oModule */
         foreach ($this->aModules as $oModule) {
             if (!$oModule->isInit()) {
                 $this->InitModule($oModule);
@@ -350,9 +383,9 @@ class Engine extends LsObject {
         if ($this->isInitModule('ModuleHook')) {
             $bRunHooks = true;
             if ($bHookParent) {
-                while (self::GetPluginName($sClassName)) {
+                while (static::GetPluginName($sClassName)) {
                     $sParentClassName = get_parent_class($sClassName);
-                    if (!self::GetClassInfo($sParentClassName, self::CI_MODULE, true)) {
+                    if (!static::GetClassInfo($sParentClassName, self::CI_MODULE, true)) {
                         break;
                     }
                     $sClassName = $sParentClassName;
@@ -361,13 +394,16 @@ class Engine extends LsObject {
         }
         if ($bRunHooks || $sClassName == 'ModuleHook') {
             $sHookPrefix = 'module_';
-            if ($sPluginName = self::GetPluginName($sClassName)) {
+            if ($sPluginName = static::GetPluginName($sClassName)) {
                 $sHookPrefix .= "plugin{$sPluginName}_";
             }
-            $sHookPrefix .= self::GetModuleName($sClassName) . '_init_';
+            $sHookPrefix .= static::GetModuleName($sClassName) . '_init_';
         }
         if ($bRunHooks) {
-            $this->Hook_Run($sHookPrefix . 'before');
+            //E::ModuleHook()->Run($sHookPrefix . 'before');
+            $aArgs = array($sHookPrefix . 'before');
+            //$this->_CallModule('Hook_Run', $aArgs);
+            //static::Module('Hook')->Run($aArgs);
         }
         if ($oModule->InInitProgress()) {
             // Нельзя запускать инициализацию модуля в процессе его инициализации
@@ -377,7 +413,9 @@ class Engine extends LsObject {
         $oModule->Init();
         $oModule->SetInit();
         if ($bRunHooks || $sClassName == 'ModuleHook') {
-            $this->Hook_Run($sHookPrefix . 'after');
+            //E::ModuleHook()->Run($sHookPrefix . 'after');
+            $aArgs = array($sHookPrefix . 'after');
+            //$this->_CallModule('Hook_Run', $aArgs);
         }
     }
 
@@ -389,8 +427,9 @@ class Engine extends LsObject {
      */
     public function isInitModule($sModuleClass) {
 
-        if (!in_array($sModuleClass, array('ModulePlugin', 'ModuleHook'))) {
-            $sModuleClass = $this->Plugin_GetDelegate('module', $sModuleClass);
+        if ($sModuleClass !== 'ModulePlugin' && $sModuleClass !== 'ModuleHook') {
+            //$sModuleClass = E::ModulePlugin()->GetDelegate('module', $sModuleClass);
+            $sModuleClass = $this->GetModule('Plugin')->GetDelegate('module', $sModuleClass);
         }
         if (isset($this->aModules[$sModuleClass]) && $this->aModules[$sModuleClass]->isInit()) {
             return true;
@@ -407,6 +446,7 @@ class Engine extends LsObject {
         $aModules = $this->aModules;
         array_reverse($aModules);
         // Сначала shutdown модулей, загруженных в процессе работы
+        /** @var Module $oModule */
         foreach ($aModules as $oModule) {
             if (!$oModule->GetPreloaded()) {
                 $this->ShutdownModule($oModule);
@@ -420,6 +460,11 @@ class Engine extends LsObject {
         }
     }
 
+    /**
+     * @param Module $oModule
+     *
+     * @throws Exception
+     */
     protected function ShutdownModule($oModule) {
 
         if ($oModule->InShudownProgress()) {
@@ -448,22 +493,22 @@ class Engine extends LsObject {
         if (!class_exists($sModuleClass)) {
             throw new RuntimeException(sprintf('Class "%s" not found!', $sModuleClass));
         }
-        /**
-         * Создаем объект модуля
-         */
-        $oModule = new $sModuleClass($this);
-        $this->aModules[$sModuleClass] = $oModule;
+
+        // * Создаем объект модуля
+        $oModule = new $sModuleClass();
         if ($bInit || $sModuleClass == 'ModuleCache') {
             $this->InitModule($oModule);
         }
+        $oModuleDecorator = Decorator::Create($oModule);
+        $this->aModules[$sModuleClass] = $oModuleDecorator;
         $tm2 = microtime(true);
         $this->nTimeLoadModule += $tm2 - $tm1;
-        dump("load $sModuleClass - \t\t" . ($tm2 - $tm1) . "");
-        return $oModule;
+
+        return $oModuleDecorator;
     }
 
     /**
-     * Загружает модули из авто-загрузки и передает им в конструктор ядро
+     * Загружает модули из авто-загрузки
      *
      */
     protected function LoadModules() {
@@ -471,7 +516,10 @@ class Engine extends LsObject {
         $this->LoadConfig();
         foreach ($this->aConfigModule['_autoLoad_'] as $sModuleName) {
             $sModuleClass = 'Module' . $sModuleName;
-            if (!in_array($sModuleName, array('Plugin', 'Hook'))) $sModuleClass = $this->Plugin_GetDelegate('module', $sModuleClass);
+            if ($sModuleName !== 'Plugin' && $sModuleName !== 'Hook') {
+                //$sModuleClass = E::ModulePlugin()->GetDelegate('module', $sModuleClass);
+                $sModuleClass = $this->GetModule('Plugin')->GetDelegate('module', $sModuleClass);
+            }
 
             if (!isset($this->aModules[$sModuleClass])) {
                 $this->LoadModule($sModuleClass);
@@ -481,6 +529,11 @@ class Engine extends LsObject {
                 }
             }
         }
+    }
+
+    public function GetLoadedModules() {
+
+        return $this->aModules;
     }
 
     /**
@@ -511,8 +564,9 @@ class Engine extends LsObject {
 
         if ($aHookFiles) {
             foreach ($aHookFiles as $sFile) {
-                if (preg_match("/Hook([^_]+)\.class\.php$/i", basename($sFile), $aMatch)) {
+                if (preg_match('/Hook([^_]+)\.class\.php$/i', basename($sFile), $aMatch)) {
                     $sClassName = 'Hook' . $aMatch[1];
+                    /** @var Hook $oHook */
                     $oHook = new $sClassName;
                     $oHook->RegisterHook();
                 }
@@ -536,10 +590,11 @@ class Engine extends LsObject {
                 $aFiles = glob($sPluginsDir . $sPluginName . '/classes/hooks/Hook*.class.php');
                 if ($aFiles && count($aFiles)) {
                     foreach ($aFiles as $sFile) {
-                        if (preg_match("/Hook([^_]+)\.class\.php$/i", basename($sFile), $aMatch)) {
+                        if (preg_match('/Hook([^_]+)\.class\.php$/i', basename($sFile), $aMatch)) {
                             //require_once($sFile);
                             $sPluginName = F::StrCamelize($sPluginName);
                             $sClassName = "Plugin{$sPluginName}_Hook{$aMatch[1]}";
+                            /** @var Hook $oHook */
                             $oHook = new $sClassName;
                             $oHook->RegisterHook();
                         }
@@ -558,6 +613,7 @@ class Engine extends LsObject {
         if ($aPluginList = F::GetPluginsList()) {
             foreach ($aPluginList as $sPluginName) {
                 $sClassName = 'Plugin' . F::StrCamelize($sPluginName);
+                /** @var Plugin $oPlugin */
                 $oPlugin = new $sClassName;
                 $oPlugin->Delegate();
                 $this->aPlugins[$sPluginName] = $oPlugin;
@@ -571,6 +627,7 @@ class Engine extends LsObject {
      */
     protected function InitPlugins() {
 
+        /** @var Plugin $oPlugin */
         foreach ($this->aPlugins as $oPlugin) {
             $oPlugin->Init();
         }
@@ -587,19 +644,6 @@ class Engine extends LsObject {
     }
 
     /**
-     * Проверяет файл на существование
-     *
-     * @param  string $sFile    Полный путь до файла
-     * @param  int $iTime    Время жизни кеша
-     * @return bool
-     */
-    public function isFileExists($sFile, $iTime = 3600) {
-
-        // пока так
-        return F::File_Exists($sFile);
-    }
-
-    /**
      * Вызывает метод нужного модуля
      *
      * @param string $sName    Название метода в полном виде.
@@ -609,38 +653,57 @@ class Engine extends LsObject {
      */
     public function _CallModule($sName, &$aArgs) {
 
-        list($oModule, $sModuleName, $sMethod) = $this->GetModule($sName);
+        list($oModule, $sModuleName, $sMethod) = $this->GetModuleMethod($sName);
+        $aArgsRef = array();
+        foreach ($aArgs as $iKey => $xVal) {
+            $aArgsRef[] =& $aArgs[$iKey];
+        }
+        if ($oModule instanceof Decorator) {
+            $xResult = $oModule->CallMethod($sMethod, $aArgsRef);
+        } else {
+            $xResult = call_user_func_array(array($oModule, $sMethod), $aArgsRef);
+        }
+        return $xResult;
+    }
 
-        if (!method_exists($oModule, $sMethod)) {
-            // comment for ORM testing
-            //throw new Exception("The module has no required method: ".$sModuleName.'->'.$sMethod.'()');
+    public function _CallModule0($sName, &$aArgs) {
+
+        list($oModule, $sModuleName, $sMethod) = $this->GetModuleMethod($sName);
+
+        if ($sModuleName !== 'Plugin' && $sModuleName !== 'Hook') {
+            $sHookName = 'module_' . strtolower($sModuleName . '_' . $sMethod);
+        } else {
+            $sHookName = '';
         }
 
-        $sModuleName = strtolower($sModuleName);
         $aResultHook = array();
-        if (!in_array($sModuleName, array('plugin', 'hook'))) {
-            $aArgsHook = array('module_' . $sModuleName . '_' . strtolower($sMethod) . '_before', &$aArgs);
-            $aResultHook = $this->_CallModule('Hook_Run', $aArgsHook);
+        if ($sHookName) {
+            $aHookArgs = array($sHookName . '_before', &$aArgs);
+            list($oHookModule, $sHookModuleName, $sHookMethod) = $this->GetModuleMethod('Hook_Run');
+            $aResultHook = call_user_func_array(array($oHookModule, $sHookMethod), $aHookArgs);
         }
+
         /**
          * Хук может делегировать результат выполнения метода модуля,
          * сам метод при этом не выполняется, происходит только подмена результата
          */
-        if (array_key_exists('delegate_result', $aResultHook)) {
-            $result = $aResultHook['delegate_result'];
+        if ($aResultHook && array_key_exists('delegate_result', $aResultHook)) {
+            $xResult = $aResultHook['delegate_result'];
         } else {
             $aArgsRef = array();
-            foreach ($aArgs as $key => $v) {
-                $aArgsRef[] =& $aArgs[$key];
+            foreach ($aArgs as $iKey => $xVal) {
+                $aArgsRef[] =& $aArgs[$iKey];
             }
-            $result = call_user_func_array(array($oModule, $sMethod), $aArgsRef);
+            $xResult = call_user_func_array(array($oModule, $sMethod), $aArgsRef);
         }
 
-        if (!in_array($sModuleName, array('plugin', 'hook'))) {
-            $this->Hook_Run('module_' . $sModuleName . '_' . strtolower($sMethod) . '_after', array('result' => &$result, 'params' => &$aArgs));
+        if ($sHookName) {
+            $aHookParams = array('result' => &$xResult, 'params' => &$aArgs);
+            $aHookArgs = array($sHookName . '_after', &$aHookParams);
+            call_user_func_array(array($oHookModule, $sHookMethod), $aHookArgs);
         }
 
-        return $result;
+        return $xResult;
     }
 
     /**
@@ -652,43 +715,49 @@ class Engine extends LsObject {
      * @return array
      * @throws Exception
      */
-    public function GetModule($sCallName) {
+    public function GetModuleMethod($sCallName) {
 
         if (isset($this->aModulesMap[$sCallName])) {
             list($sModuleClass, $sModuleName, $sMethod) = $this->aModulesMap[$sCallName];
         } else {
             $sName = $sCallName;
-            // * Поддержка полного синтаксиса при вызове метода модуля
-            $aInfo = self::GetClassInfo(
-                $sName,
-                self::CI_MODULE
-                | self::CI_PPREFIX
-                | self::CI_METHOD
-            );
-            if ($aInfo[self::CI_MODULE] && $aInfo[self::CI_METHOD]) {
-                $sName = $aInfo[self::CI_MODULE] . '_' . $aInfo[self::CI_METHOD];
-                if ($aInfo[self::CI_PPREFIX]) {
-                    $sName = $aInfo[self::CI_PPREFIX] . $sName;
+            if (strpos($sCallName, 'Module') !== false || strpos($sCallName, 'Plugin') !== false || substr_count($sCallName, '_') > 1) {
+                // * Поддержка полного синтаксиса при вызове метода модуля
+                $aInfo = static::GetClassInfo($sName, self::CI_MODULE | self::CI_PPREFIX | self::CI_METHOD);
+                if ($aInfo[self::CI_MODULE]) {
+                    $sName = $aInfo[self::CI_MODULE] . '_' . ($aInfo[self::CI_METHOD] ? $aInfo[self::CI_METHOD] : '');
+                    if ($aInfo[self::CI_PPREFIX]) {
+                        $sName = $aInfo[self::CI_PPREFIX] . $sName;
+                    }
                 }
             }
 
-            $aName = explode("_", $sName);
+            $aName = explode('_', $sName);
 
-            if (count($aName) == 2) {
-                $sModuleName = $aName[0];
-                $sModuleClass = 'Module' . $aName[0];
-                $sMethod = $aName[1];
-            } elseif (count($aName) == 3) {
-                $sModuleName = $aName[0] . '_' . $aName[1];
-                $sModuleClass = $aName[0] . '_Module' . $aName[1];
-                $sMethod = $aName[2];
-            } else {
-                throw new Exception("Undefined method module: " . $sName);
+            switch (count($aName)) {
+                case 1:
+                    $sModuleName = $sName;
+                    $sModuleClass = 'Module' . $sName;
+                    $sMethod = null;
+                    break;
+                case 2:
+                    $sModuleName = $aName[0];
+                    $sModuleClass = 'Module' . $aName[0];
+                    $sMethod = $aName[1];
+                    break;
+                case 3:
+                    $sModuleName = $aName[0] . '_' . $aName[1];
+                    $sModuleClass = $aName[0] . '_Module' . $aName[1];
+                    $sMethod = $aName[2];
+                    break;
+                default:
+                    throw new Exception('Undefined method module: ' . $sName);
             }
 
-            // * Подхватыем делегат модуля (в случае наличия такового)
-            if (!in_array($sModuleName, array('Plugin', 'Hook'))) {
-                $sModuleClass = $this->Plugin_GetDelegate('module', $sModuleClass);
+            // * Получаем делегат модуля (в случае наличия такового)
+            if ($sModuleName !== 'Plugin' && $sModuleName !== 'Hook') {
+                //$sModuleClass = E::ModulePlugin()->GetDelegate('module', $sModuleClass);
+                $sModuleClass = $this->GetModule('Plugin')->GetDelegate('module', $sModuleClass);
             }
             $this->aModulesMap[$sCallName] = array($sModuleClass, $sModuleName, $sMethod);
         }
@@ -705,21 +774,26 @@ class Engine extends LsObject {
     /**
      * Возвращает объект модуля
      *
-     * @param string $sName Имя модуля
+     * @param string $sModuleName Имя модуля
+     *
+     * @return object|null
+     * @throws Exception
      */
-    public function GetModuleObject($sName) {
+    public function GetModule($sModuleName) {
 
-        if (self::GetPluginPrefix($sName)) {
-            if (substr_count($sName, '_') < 2) {
-                $sName .= '_x';
-            }
-        } else {
-            if (substr_count($sName, '_') < 1) {
-                $sName .= '_x';
-            }
+        // $sCallName === 'User' or $sCallName === 'ModuleUser' or $sCallName === 'PluginUser\User' or $sCallName === 'PluginUser\ModuleUser'
+        $sPrefix = substr($sModuleName, 0, 6);
+        if ($sPrefix == 'Module' && preg_match('/^(Module)?([A-Z].*)$/', $sModuleName, $aMatches)) {
+            $sModuleName = $aMatches[2];
+        } elseif ($sPrefix === 'Plugin' && preg_match('/^Plugin([A-Z][\w]*)\\\\(Module)?([A-Z].*)$/', $sModuleName, $aMatches)) {
+            $sModuleName = 'Plugin' . $aMatches[1] . '_Module' . $aMatches[3];
         }
-        $aCallArray = $this->GetModule($sName);
-        return $aCallArray[0];
+        if ($sModuleName) {
+            $aData = $this->GetModuleMethod($sModuleName);
+
+            return $aData[0];
+        }
+        return null;
     }
 
     /**
@@ -739,8 +813,8 @@ class Engine extends LsObject {
             $nExecTime = 0;
         }
         return array(
-            'sql' => $this->Database_GetStats(),
-            'cache' => $this->Cache_GetStats(),
+            'sql' => $this->GetModule('Database')->GetStats(),
+            'cache' => $this->GetModule('Cache')->GetStats(),
             'engine' => array(
                 'time_load_module' => number_format(round($this->nTimeLoadModule, 3), 3),
                 'full_time' => number_format(round($nTimeFull, 3), 3),
@@ -783,32 +857,29 @@ class Engine extends LsObject {
 
     /**
      * Получает объект маппера
-     *
-     * @param string $sClassName Класс модуля маппера
-     * @param string|null $sName    Имя маппера
-     * @param DbSimple_Mysql|null $oConnect    Объект коннекта к БД
-     * Можно получить так:
      * <pre>
      * Engine::getInstance()->Database_GetConnect($aConfig);
      * </pre>
+     *
+     * @param string                      $sClassName Класс модуля маппера
+     * @param string|null                 $sName      Имя маппера
+     * @param DbSimple_Driver_Mysqli|null $oConnect   Объект коннекта к БД
+     *                                                Можно получить так:
+     *
      * @return mixed
      */
     public static function GetMapper($sClassName, $sName = null, $oConnect = null) {
 
-        $sModuleName = self::GetClassInfo(
-            $sClassName,
-            self::CI_MODULE,
-            true
-        );
+        $sModuleName = static::GetClassInfo($sClassName, self::CI_MODULE, true);
         if ($sModuleName) {
             if (!$sName) {
                 $sName = $sModuleName;
             }
             $sClass = $sClassName . '_Mapper' . $sName;
             if (!$oConnect) {
-                $oConnect = Engine::getInstance()->Database_GetConnect();
+                $oConnect = static::Module('Database')->GetConnect();
             }
-            $sClass = self::getInstance()->Plugin_GetDelegate('mapper', $sClass);
+            $sClass = static::Module('Plugin')->GetDelegate('mapper', $sClass);
             return new $sClass($oConnect);
         }
         return null;
@@ -836,7 +907,7 @@ class Engine extends LsObject {
 
                 case 1:
                     // * Поддержка полного синтаксиса при вызове сущности
-                    $aInfo = self::GetClassInfo($sName, self::CI_ENTITY | self::CI_MODULE | self::CI_PLUGIN);
+                    $aInfo = static::GetClassInfo($sName, self::CI_ENTITY | self::CI_MODULE | self::CI_PLUGIN);
                     if ($aInfo[self::CI_MODULE] && $aInfo[self::CI_ENTITY]) {
                         $sName = $aInfo[self::CI_MODULE] . '_' . $aInfo[self::CI_ENTITY];
                     }
@@ -854,7 +925,7 @@ class Engine extends LsObject {
 
                 case 2:
                     // * Поддержка полного синтаксиса при вызове сущности плагина
-                    $aInfo = self::GetClassInfo($sName, self::CI_ENTITY | self::CI_MODULE | self::CI_PLUGIN);
+                    $aInfo = static::GetClassInfo($sName, self::CI_ENTITY | self::CI_MODULE | self::CI_PLUGIN);
                     if ($aInfo[self::CI_PLUGIN] && $aInfo[self::CI_MODULE] && $aInfo[self::CI_ENTITY]) {
                         $sName = 'Plugin' . $aInfo[self::CI_PLUGIN]
                             . '_' . $aInfo[self::CI_MODULE]
@@ -878,18 +949,16 @@ class Engine extends LsObject {
                 : 'Module' . $sModule . '_Entity' . $sEntity;
 
             // * If Plugin Entity doesn't exist, search among it's Module delegates
-            if (isset($sPlugin) && !self::GetClassPath($sClass)) {
-                $aModulesChain = Engine::GetInstance()->Plugin_GetDelegationChain(
-                    'module', 'Plugin' . $sPlugin . '_Module' . $sModule
-                );
+            if (isset($sPlugin) && !static::GetClassPath($sClass)) {
+                $aModulesChain = static::Module('Plugin')->GetDelegationChain('module', 'Plugin' . $sPlugin . '_Module' . $sModule);
                 foreach ($aModulesChain as $sModuleName) {
                     $sClassTest = $sModuleName . '_Entity' . $sEntity;
-                    if (self::GetClassPath($sClassTest)) {
+                    if (static::GetClassPath($sClassTest)) {
                         $sClass = $sClassTest;
                         break;
                     }
                 }
-                if (!self::GetClassPath($sClass)) {
+                if (!static::GetClassPath($sClass)) {
                     $sClass = 'Module' . $sModule . '_Entity' . $sEntity;
                 }
             }
@@ -898,7 +967,10 @@ class Engine extends LsObject {
              * Определяем наличие делегата сущности
              * Делегирование указывается только в полной форме!
              */
-            $sClass = self::getInstance()->Plugin_GetDelegate('entity', $sClass);
+            //$sClass = static::getInstance()->Plugin_GetDelegate('entity', $sClass);
+            if ($sClass != 'ModulePlugin_EntityPlugin') {
+                $sClass = static::Module('Plugin')->GetDelegate('entity', $sClass);
+            }
 
             self::$aClasses[$sName] = $sClass;
         } else {
@@ -918,9 +990,11 @@ class Engine extends LsObject {
      */
     public static function GetEntity($sName, $aParams = array()) {
 
-        $sClass = self::GetEntityClass($sName);
+        $sClass = static::GetEntityClass($sName);
+        /** @var Entity $oEntity */
         $oEntity = new $sClass($aParams);
         $oEntity->Init();
+
         return $oEntity;
     }
 
@@ -937,10 +1011,11 @@ class Engine extends LsObject {
 
         $aResult = array();
         if ($aRows) {
-            $sClass = self::GetEntityClass($sName);
+            $sClass = static::GetEntityClass($sName);
             if (is_array($aOrderIdx) && sizeof($aOrderIdx)) {
                 foreach ($aOrderIdx as $iIndex) {
                     if (isset($aRows[$iIndex])) {
+                        /** @var Entity $oEntity */
                         $oEntity = new $sClass($aRows[$iIndex]);
                         $oEntity->Init();
                         $aResult[$iIndex] = $oEntity;
@@ -948,6 +1023,7 @@ class Engine extends LsObject {
                 }
             } else {
                 foreach ($aRows as $nI => $aRow) {
+                    /** @var Entity $oEntity */
                     $oEntity = new $sClass($aRow);
                     $oEntity->Init();
                     $aResult[$nI] = $oEntity;
@@ -963,13 +1039,13 @@ class Engine extends LsObject {
      *
      * @static
      *
-     * @param Module|string $oModule - Объект модуля
+     * @param Module|string $xModule - Объект модуля
      *
      * @return string|null
      */
-    public static function GetPluginName($oModule) {
+    public static function GetPluginName($xModule) {
 
-        return self::GetClassInfo($oModule, self::CI_PLUGIN, true);
+        return static::GetClassInfo($xModule, self::CI_PLUGIN, true);
     }
 
     /**
@@ -977,48 +1053,56 @@ class Engine extends LsObject {
      * Например <pre>PluginOpenid_</pre>
      *
      * @static
-     * @param Module $oModule Объект модуля
+     *
+     * @param Module|string $xModule Объект модуля
+     *
      * @return string    Если плагина нет, возвращает пустую строку
      */
-    public static function GetPluginPrefix($oModule) {
+    public static function GetPluginPrefix($xModule) {
 
-        return self::GetClassInfo($oModule, self::CI_PPREFIX, true);
+        return static::GetClassInfo($xModule, self::CI_PPREFIX, true);
     }
 
     /**
      * Возвращает имя модуля
      *
      * @static
-     * @param Module $oModule Объект модуля
+     *
+     * @param Module|string $xModule Объект модуля
+     *
      * @return string|null
      */
-    public static function GetModuleName($oModule) {
+    public static function GetModuleName($xModule) {
 
-        return self::GetClassInfo($oModule, self::CI_MODULE, true);
+        return static::GetClassInfo($xModule, self::CI_MODULE, true);
     }
 
     /**
      * Возвращает имя сущности
      *
      * @static
-     * @param Entity $oEntity Объект сущности
+     *
+     * @param Entity|string $xEntity Объект сущности
+     *
      * @return string|null
      */
-    public static function GetEntityName($oEntity) {
+    public static function GetEntityName($xEntity) {
 
-        return self::GetClassInfo($oEntity, self::CI_ENTITY, true);
+        return static::GetClassInfo($xEntity, self::CI_ENTITY, true);
     }
 
     /**
      * Возвращает имя экшена
      *
      * @static
-     * @param $oAction    Объект экшена
+     *
+     * @param Action|string $xAction    Объект экшена
+     *
      * @return string|null
      */
-    public static function GetActionName($oAction) {
+    public static function GetActionName($xAction) {
 
-        return self::GetClassInfo($oAction, self::CI_ACTION, true);
+        return static::GetClassInfo($xAction, self::CI_ACTION, true);
     }
 
     /**
@@ -1036,9 +1120,18 @@ class Engine extends LsObject {
      */
     public static function GetClassInfo($oObject, $iFlag = self::CI_DEFAULT, $bSingle = false) {
 
-        $sClassName = is_string($oObject) ? $oObject : get_class($oObject);
         $aResult = array();
+        $sClassName = is_string($oObject) ? $oObject : get_class($oObject);
         $aInfo = (!empty(self::$aClassesInfo[$sClassName]) ? self::$aClassesInfo[$sClassName] : array());
+
+        // The first call because it sets other parts in self::$aClassesInfo
+        if ($iFlag & self::CI_CLASSPATH) {
+            if (!isset($aInfo[self::CI_CLASSPATH])) {
+                $aInfo[self::CI_CLASSPATH] = static::GetClassPath($sClassName);
+                self::$aClassesInfo[$sClassName][self::CI_CLASSPATH] = $aInfo[self::CI_CLASSPATH];
+            }
+            $aResult[self::CI_CLASSPATH] = $aInfo[self::CI_CLASSPATH];
+        }
         if ($iFlag & self::CI_PLUGIN) {
             if (!isset($aInfo[self::CI_PLUGIN])) {
                 $aInfo[self::CI_PLUGIN] = preg_match('/^Plugin([^_]+)/', $sClassName, $aMatches)
@@ -1115,12 +1208,9 @@ class Engine extends LsObject {
             if (!isset($aInfo[self::CI_METHOD])) {
                 $sModuleName = isset($aInfo[self::CI_MODULE])
                     ? $aInfo[self::CI_MODULE]
-                    : self::GetClassInfo($sClassName, self::CI_MODULE, true);
+                    : static::GetClassInfo($sClassName, self::CI_MODULE, true);
                 $aInfo[self::CI_METHOD] = preg_match('/_([^_]+)$/', $sClassName, $aMatches)
-                    ? ($sModuleName && strtolower($aMatches[1]) == strtolower('module' . $sModuleName)
-                        ? null
-                        : $aMatches[1]
-                    )
+                    ? ($sModuleName && strtolower($aMatches[1]) == strtolower('module' . $sModuleName) ? null : $aMatches[1])
                     : false;
                 self::$aClassesInfo[$sClassName][self::CI_METHOD] = $aInfo[self::CI_METHOD];
             }
@@ -1130,7 +1220,7 @@ class Engine extends LsObject {
             if (!isset($aInfo[self::CI_PPREFIX])) {
                 $sPluginName = isset($aInfo[self::CI_PLUGIN])
                     ? $aInfo[self::CI_PLUGIN]
-                    : self::GetClassInfo($sClassName, self::CI_PLUGIN, true);
+                    : static::GetClassInfo($sClassName, self::CI_PLUGIN, true);
                 $aInfo[self::CI_PPREFIX] = $sPluginName
                     ? "Plugin{$sPluginName}_"
                     : '';
@@ -1151,26 +1241,16 @@ class Engine extends LsObject {
             if (!isset($aInfo[self::CI_INHERITS])) {
                 $sInherit = isset($aInfo[self::CI_INHERIT])
                     ? $aInfo[self::CI_INHERIT]
-                    : self::GetClassInfo($sClassName, self::CI_INHERIT, true);
+                    : static::GetClassInfo($sClassName, self::CI_INHERIT, true);
                 $aInfo[self::CI_INHERITS] = $sInherit
-                    ? self::GetClassInfo(
-                        $sInherit,
-                        self::CI_OBJECT,
-                        false)
+                    ? static::GetClassInfo($sInherit, self::CI_OBJECT, false)
                     : false;
                 self::$aClassesInfo[$sClassName][self::CI_INHERITS] = $aInfo[self::CI_INHERITS];
             }
             $aResult[self::CI_INHERITS] = $aInfo[self::CI_INHERITS];
         }
-        if ($iFlag & self::CI_CLASSPATH) {
-            if (!isset($aInfo[self::CI_CLASSPATH])) {
-                $aInfo[self::CI_CLASSPATH] = self::GetClassPath($sClassName);
-                self::$aClassesInfo[$sClassName][self::CI_CLASSPATH] = $aInfo[self::CI_CLASSPATH];
-            }
-            $aResult[self::CI_CLASSPATH] = $aInfo[self::CI_CLASSPATH];
-        }
 
-        return $bSingle ? array_pop($aResult) : $aResult;
+        return $bSingle ? end($aResult) : $aResult;
     }
 
     /**
@@ -1185,16 +1265,22 @@ class Engine extends LsObject {
      */
     public static function GetClassPath($oObject) {
 
-        $aInfo = self::GetClassInfo(
-            $oObject,
-            self::CI_OBJECT
-        );
+        $aInfo = static::GetClassInfo($oObject, self::CI_OBJECT);
+        if ($aInfo[self::CI_PLUGIN]) {
+            $sPlugin = F::StrUnderscore($aInfo[self::CI_PLUGIN]);
+            $aPlugins = F::GetPluginsList(true, false);
+            if (isset($aPlugins[$sPlugin]['dirname'])) {
+                $sPluginDir = $aPlugins[$sPlugin]['dirname'];
+            } else {
+                $sPluginDir = $sPlugin;
+            }
+        }
         $aPathSeek = Config::Get('path.root.seek');
         if ($aInfo[self::CI_ENTITY]) {
             // Сущность
             if ($aInfo[self::CI_PLUGIN]) {
                 // Сущность модуля плагина
-                $sFile = 'plugins/' . F::StrUnderscore($aInfo[self::CI_PLUGIN])
+                $sFile = 'plugins/' . $sPluginDir
                     . '/classes/modules/' . strtolower($aInfo[self::CI_MODULE])
                     . '/entity/' . $aInfo[self::CI_ENTITY] . '.entity.class.php';
             } else {
@@ -1206,7 +1292,7 @@ class Engine extends LsObject {
             // Маппер
             if ($aInfo[self::CI_PLUGIN]) {
                 // Маппер модуля плагина
-                $sFile = 'plugins/' . F::StrUnderscore($aInfo[self::CI_PLUGIN])
+                $sFile = 'plugins/' . $sPluginDir
                     . '/classes/modules/' . strtolower($aInfo[self::CI_MODULE])
                     . '/mapper/' . $aInfo[self::CI_MAPPER] . '.mapper.class.php';
             } else {
@@ -1218,7 +1304,7 @@ class Engine extends LsObject {
             // Экшн
             if ($aInfo[self::CI_PLUGIN]) {
                 // Экшн плагина
-                $sFile = 'plugins/' . F::StrUnderscore($aInfo[self::CI_PLUGIN])
+                $sFile = 'plugins/' . $sPluginDir
                     . '/classes/actions/Action' . $aInfo[self::CI_ACTION] . '.class.php';
             } else {
                 // Экшн ядра
@@ -1228,7 +1314,7 @@ class Engine extends LsObject {
             // Модуль
             if ($aInfo[self::CI_PLUGIN]) {
                 // Модуль плагина
-                $sFile = 'plugins/' . F::StrUnderscore($aInfo[self::CI_PLUGIN])
+                $sFile = 'plugins/' . $sPluginDir
                     . '/classes/modules/' . strtolower($aInfo[self::CI_MODULE])
                     . '/' . $aInfo[self::CI_MODULE] . '.class.php';
                 ;
@@ -1241,7 +1327,7 @@ class Engine extends LsObject {
             // Хук
             if ($aInfo[self::CI_PLUGIN]) {
                 // Хук плагина
-                $sFile = 'plugins/' . F::StrUnderscore($aInfo[self::CI_PLUGIN])
+                $sFile = 'plugins/' . $sPluginDir
                     . '/classes/hooks/Hook' . $aInfo[self::CI_HOOK]
                     . '.class.php';
             } else {
@@ -1252,7 +1338,7 @@ class Engine extends LsObject {
             // LS-compatible
             if ($aInfo[self::CI_PLUGIN]) {
                 // Блок плагина
-                $sFile = 'plugins/' . F::StrUnderscore($aInfo[self::CI_PLUGIN])
+                $sFile = 'plugins/' . $sPluginDir
                     . '/classes/blocks/Block' . $aInfo[self::CI_BLOCK]
                     . '.class.php';
             } else {
@@ -1263,7 +1349,7 @@ class Engine extends LsObject {
             // Виджет
             if ($aInfo[self::CI_PLUGIN]) {
                 // Виджет плагина
-                $sFile = 'plugins/' . F::StrUnderscore($aInfo[self::CI_PLUGIN])
+                $sFile = 'plugins/' . $sPluginDir
                     . '/classes/widgets/Widget' . $aInfo[self::CI_WIDGET]
                     . '.class.php';
             } else {
@@ -1272,7 +1358,7 @@ class Engine extends LsObject {
             }
         } elseif ($aInfo[self::CI_PLUGIN]) {
             // Плагин
-            $sFile = 'plugins/' . F::StrUnderscore($aInfo[self::CI_PLUGIN])
+            $sFile = 'plugins/' . $sPluginDir
                 . '/Plugin' . $aInfo[self::CI_PLUGIN]
                 . '.class.php';
         } else {
@@ -1284,18 +1370,35 @@ class Engine extends LsObject {
             );
         }
         $sPath = F::File_Exists($sFile, $aPathSeek);
+
         return $sPath ? $sPath : null;
     }
 
-
-}
-
-/**
- * Альтернативные алиасы функций движка
- */
-class E extends LsObject {
+    /**
+     * @param string $sName
+     * @param array  $aArgs
+     *
+     * @return mixed
+     */
     public static function __callStatic($sName, $aArgs = array()) {
+
+        if (substr($sName, 0, 6) == 'Module') {
+            $oModule = static::Module($sName);
+            if ($oModule) {
+                return $oModule;
+            }
+        }
         return call_user_func_array(array(Engine::getInstance(), $sName), $aArgs);
+    }
+
+    /**
+     * @param $sModuleName
+     *
+     * @return null|object
+     */
+    public static function Module($sModuleName) {
+
+        return Engine::getInstance()->GetModule($sModuleName);
     }
 
     /**
@@ -1304,7 +1407,8 @@ class E extends LsObject {
      * @return ModuleUser_EntityUser
      */
     public static function User() {
-        return E::User_GetUserCurrent();
+
+        return static::ModuleUser()->GetUserCurrent();
     }
 
     /**
@@ -1313,7 +1417,9 @@ class E extends LsObject {
      * @return bool
      */
     public static function IsUser() {
-        return (bool)E::User();
+
+        $oUser = static::User();
+        return $oUser;
     }
 
     /**
@@ -1322,8 +1428,31 @@ class E extends LsObject {
      * @return bool
      */
     public static function IsAdmin() {
-        $oUser = E::User();
+
+        $oUser = static::User();
         return ($oUser && $oUser->isAdministrator());
+    }
+
+    /**
+     * If user is authorized && moderator
+     *
+     * @return bool
+     */
+    public static function IsModerator() {
+
+        $oUser = static::User();
+        return ($oUser && $oUser->isModerator());
+    }
+
+    /**
+     * Is the user an administrator or a moderator?
+     *
+     * @return bool
+     */
+    public static function IsAdminOrModerator() {
+
+        $oUser = static::User();
+        return ($oUser && ($oUser->isAdministrator() || $oUser->isModerator()));
     }
 
     /**
@@ -1332,7 +1461,8 @@ class E extends LsObject {
      * @return bool
      */
     public static function IsNotAdmin() {
-        $oUser = E::User();
+
+        $oUser = static::User();
         return ($oUser && !$oUser->isAdministrator());
     }
 
@@ -1342,7 +1472,8 @@ class E extends LsObject {
      * @return int|null
      */
     public static function UserId() {
-        if ($oUser = E::User()) {
+
+        if ($oUser = static::User()) {
             return $oUser->GetId();
         }
         return null;
@@ -1355,9 +1486,14 @@ class E extends LsObject {
      * @return  bool
      */
     public static function ActivePlugin($sPlugin) {
-        return E::Plugin_IsActivePlugin($sPlugin);
+
+        return static::Module('Plugin')->IsActivePlugin($sPlugin);
     }
 
+    public static function GetActivePlugins() {
+
+        return static::getInstance()->GetPlugins();
+    }
 }
 
 // EOF

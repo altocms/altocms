@@ -55,7 +55,7 @@ class ActionPage extends Action {
         }
 
         // * Ищем страницу в БД
-        $oPage = $this->Page_GetPageByUrlFull($sUrlFull, 1);
+        $oPage = E::ModulePage()->GetPageByUrlFull($sUrlFull, 1);
 
         return $oPage;
     }
@@ -78,15 +78,15 @@ class ActionPage extends Action {
         }
 
         // * Заполняем HTML теги и SEO
-        $this->Viewer_AddHtmlTitle($this->oCurrentPage->getTitle());
+        E::ModuleViewer()->AddHtmlTitle($this->oCurrentPage->getTitle());
         if ($this->oCurrentPage->getSeoKeywords()) {
-            $this->Viewer_SetHtmlKeywords($this->oCurrentPage->getSeoKeywords());
+            E::ModuleViewer()->SetHtmlKeywords($this->oCurrentPage->getSeoKeywords());
         }
         if ($this->oCurrentPage->getSeoDescription()) {
-            $this->Viewer_SetHtmlDescription($this->oCurrentPage->getSeoDescription());
+            E::ModuleViewer()->SetHtmlDescription($this->oCurrentPage->getSeoDescription());
         }
 
-        $this->Viewer_Assign('oPage', $this->oCurrentPage);
+        E::ModuleViewer()->Assign('oPage', $this->oCurrentPage);
 
         // * Устанавливаем шаблон для вывода
         $this->SetTemplateAction('show');

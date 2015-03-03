@@ -15,35 +15,16 @@ $config['view']['theme'] = 'light';
 //$config['view']['header']['top'] = 'static'; // static or fixed
 $config['view']['header']['top'] = 'fixed'; // static or fixed
 
+
+// Использовать или нет плавающую шапку редактора
+$config['view']['float_editor'] = true;
+
 /* Banner under top bar - turn on/off */
 $config['view']['header']['banner'] = true;
 
 // Relative path from skin dir OR absolute path on disk OR URL
 $config['view']['header']['logo'] = Config::Get('path.skin.url') . 'themes/___view.theme___/img/favicon.png';
 $config['view']['header']['name'] = 'START<span>KIT</span>';
-
-/* Main menu in top bar */
-$config['view']['menu']['main'] = array(
-    'options' => array(),
-    'items' => array(
-            'index' => array(
-                'lang' => 'topic_title',
-                'url' => Config::Get('path.root.url'),
-            ),
-            'blogs' => array(
-                'lang' => 'blogs',
-                'url' => Router::GetPath('blogs'),
-            ),
-            'people' => array(
-                'lang' => 'people',
-                'url' => Router::GetPath('people'),
-            ),
-            'stream' => array(
-                'lang' => 'stream_menu',
-                'url' => Router::GetPath('stream'),
-            ),
-    ),
-);
 
 $config['head']['default']['js'] = Config::Get('head.default.js');
 $config['head']['default']['js'][] = '___path.skin.dir___/assets/js/template.js';

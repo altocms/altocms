@@ -24,7 +24,7 @@
             </div>
         </div>
 
-        <div class="control-group">
+        <!-- div class="control-group">
             <label class="control-label">{$aLang.action.admin.set_view_img_resize_width}</label>
 
             <div class="controls">
@@ -33,14 +33,14 @@
                     <span class="input-group-addon">px</span>
                 </div>
             </div>
-        </div>
+        </div -->
 
         <div class="control-group">
             <label class="control-label">{$aLang.action.admin.set_view_img_max_width}</label>
 
             <div class="controls">
                 <div class="input-group">
-                    <input type="text" name="view--img_max_width" value="{Config::Get('view.img_max_width')}" />
+                    <input type="text" name="view--img_max_width" value="{Config::Get('module.uploader.images.default.max_width')}" />
                     <span class="input-group-addon">px</span>
                 </div>
             </div>
@@ -51,7 +51,7 @@
 
             <div class="controls">
                 <div class="input-group">
-                    <input type="text" name="view--img_max_height" value="{Config::Get('view.img_max_height')}" />
+                    <input type="text" name="view--img_max_height" value="{Config::Get('module.uploader.images.default.max_height')}" />
                     <span class="input-group-addon">px</span>
                 </div>
             </div>

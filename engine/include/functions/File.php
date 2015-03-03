@@ -94,8 +94,7 @@ class AltoFunc_File {
      */
     static public function RootUrl($xAddLang = false) {
 
-        if (class_exists('Config', false)) {
-            $sUrl = Config::Get('path.root.url');
+        if (class_exists('Config', false) && ($sUrl = Config::Get('path.root.url'))) {
 
             // Если требуется, то добавляем в URL язык
             if ($xAddLang && Config::Get('lang.in_url') && class_exists('Router', false)) {
@@ -104,14 +103,14 @@ class AltoFunc_File {
                     $sLang = $xAddLang;
                 } else {
                     // иначе язык берем из роутера
-                    $sLang = Router::GetLang();
+                    $sLang = R::GetLang();
                 }
                 if ($sLang) {
                     $sUrl = static::NormPath($sUrl . '/' . $sLang . '/');
                 }
             }
         } elseif (isset($_SERVER['HTTP_HOST'])) {
-            $sUrl = 'http://' . $_SERVER['HTTP_HOST'];
+            $sUrl = F::UrlScheme(true) . $_SERVER['HTTP_HOST'];
         } else {
             $sUrl = null;
         }
@@ -356,14 +355,14 @@ class AltoFunc_File {
         }
 
         if ($bRecursively || ($nFlag & GLOB_ONLYDIR)) {
-            $aSubDirs = glob($sDir . '/{,.}*', $nFlag | GLOB_BRACE | GLOB_ONLYDIR);
+            $aSubDirs = glob($sDir . ((substr($sDir, -1) !== '/') ? '/' : '') . '{,.}*', $nFlag | GLOB_BRACE | GLOB_ONLYDIR);
             // исключаем из выдачи '.' и '..'
             $aSubDirs = static::_excludeDotted($aSubDirs);
         } else {
             $aSubDirs = array();
         }
 
-        if ($nFlag & GLOB_ONLYDIR) {
+        if ($nFlag & GLOB_ONLYDIR && !$bRecursively) {
             return $aSubDirs;
         }
 
@@ -730,7 +729,7 @@ class AltoFunc_File {
      */
     static public function PutContents($sFile, $sData, $nFlags = 0) {
 
-        if (static::CheckDir(dirname($sFile))) {
+        if ($sFile && static::CheckDir(dirname($sFile))) {
             return file_put_contents($sFile, $sData, $nFlags);
         }
         return false;
@@ -936,8 +935,7 @@ class AltoFunc_File {
             self::$nIncludedTime += (microtime(true) - self::$_time);
             self::$nIncludedCount++;
             if (F::IsDebug()) {
-                self::$aIncludedFiles[]
-                    = $sFile . '; result: ' . (is_scalar(self::$_temp) ? self::$_temp : gettype(self::$_temp));
+                self::$aIncludedFiles[] = $sFile . '; result: ' . (is_scalar(self::$_temp) ? self::$_temp : gettype(self::$_temp));
             }
         } catch (ErrorException $oException) {
             if ($oException->getFile() !== __FILE__) {
@@ -1111,15 +1109,20 @@ class AltoFunc_File {
      * @var int
      */
     static protected $nMimeTypeSignaturesMax = 0;
+    static protected $aMimeFiles = array();
 
     /**
-     * Определение MimeType файлов
+     * Defines of MimeType of the file
      *
      * @param string $sFile
      *
-     * @return string|null
+     * @return string
      */
     static public function MimeType($sFile) {
+
+        if (isset(self::$aMimeFiles[$sFile])) {
+            return self::$aMimeFiles[$sFile];
+        }
 
         $sMimeType = '';
         if (function_exists('finfo_fopen')) {
@@ -1137,6 +1140,7 @@ class AltoFunc_File {
             if ($n = strpos($sMimeType, ';')) {
                 $sMimeType = substr($sMimeType, 0, $n);
             }
+            self::$aMimeFiles[$sFile] = $sMimeType;
             return $sMimeType;
         }
 
@@ -1172,12 +1176,14 @@ class AltoFunc_File {
             foreach (self::$aMimeTypeSignatures as $sMimeType => $aSignsCollect) {
                 foreach ($aSignsCollect as $aSign) {
                     if (substr($sBuffer, $aSign['offset'], strlen($aSign['signature'])) == $aSign['signature']) {
+                        self::$aMimeFiles[$sFile] = $sMimeType;
                         return $sMimeType;
                     }
                 }
             }
         }
-        return null;
+        self::$aMimeFiles[$sFile] = '';
+        return '';
     }
 
     /**

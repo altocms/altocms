@@ -38,29 +38,7 @@
             {/if}
             <li class="goto-comment-child"><a href="#" title="{$aLang.comment_goto_child}">↓</a></li>
 
-            {if $oComment->getTargetType() != 'talk'}
-                {$sVoteClass = ""}
-                {if $oComment->getRating() > 0}
-                    {$sVoteClass = " vote-count-positive"}
-                {elseif $oComment->getRating() < 0}
-                    {$sVoteClass = " vote-count-negative"}
-                {/if}
-                {if $oVote}
-                    {$sVoteClass = " voted"}
-                    {if $oVote->getDirection() > 0}
-                        {$sVoteClass = " voted-up"}
-                    {else}
-                        {$sVoteClass = " voted-down"}
-                    {/if}
-                {/if}
-                <li class="vote js-vote {$sVoteClass}" data-target-type="comment" data-target-id="{$oComment->getId()}">
-                    <div class="vote-up js-vote-up"><span class="glyphicon glyphicon-plus-sign"></span></div>
-
-                    <span class="vote-count js-vote-rating">{if $oComment->getRating() > 0}+{/if}{$oComment->getRating()}</span>
-
-                    <div class="vote-down js-vote-down"><span class="glyphicon glyphicon-minus-sign"></span></div>
-                </li>
-            {/if}
+            {hook run="comment_info" oComment=$oComment}
 
             {if E::IsUser() AND !$bNoCommentFavourites}
                 <li class="comment-favourite">

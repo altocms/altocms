@@ -1,20 +1,26 @@
 {extends file='./blogs.tpl'}
 
 {block name="content-bar"}
-    {*<div class="btn-group">*}
-        {*<a href="#" class="btn btn-primary disabled"><i class="icon icon-plus"></i></a>*}
-    {*</div>*}
-    {*<div class="btn-group">*}
-        {*<a class="btn btn-default {if $sMode=='all' || $sMode==''}active{/if}" href="{router page='admin'}content-blogs/list/">*}
-            {*{$aLang.action.admin.blogs_all_types} <span class="badge badge-up">{$nBlogsTotal}</span>*}
-        {*</a>*}
-        {*{foreach $aBlogTypes as $oBlogType}*}
-            {*<a class="btn {if $sMode==$oBlogType->GetTypeCode()}active{/if}"*}
-               {*href="{router page='admin'}content-blogs/list/{$oBlogType->GetTypeCode()}/">*}
-                {*{$oBlogType->GetName()} <span class="badge badge-up">{$oBlogType->GetBlogsCount()}</span>*}
-            {*</a>*}
-        {*{/foreach}*}
-    {*</div>*}
+    <div class="btn-group">
+        <a class="btn btn-default {if $sMode=='all' || $sMode==''}active{/if}" href="{router page='admin'}content-mresources/list/all/">
+            {$aLang.target_type_all}
+        </a>
+        {foreach $aTargetTypes as $sTargetType}
+            <a class="btn btn-default {if $sMode==$sTargetType}active{/if}"
+               href="{router page='admin'}content-mresources/list/{$sTargetType}/">
+                {if (strpos($sTargetType, 'single-image-uploader') === 0)}
+                    {$sTargetType = str_replace('single-image-uploader', $aLang['target_type_single-image-uploader'], $sTargetType)}
+                {else}
+                    {if (strpos($sTargetType, 'plugin.') === 0)}
+                        {$sTargetType=E::Lang_Get("{$sTargetType}")}
+                    {else}
+                        {$sTargetType=$aLang["target_type_{$sTargetType}"]}
+                    {/if}
+                {/if}
+                {$sTargetType}
+            </a>
+        {/foreach}
+    </div>
 {/block}
 
 {block name="content-body"}

@@ -29,22 +29,24 @@
         </ul>
     </li>
 
-    <li class="dropdown{if $sMenuSubItemSelect=='top'} active{/if}">
-        <a href="{router page='index'}top/" class="dropdown-toggle" data-toggle="dropdown">
-            {$aLang.blog_menu_all_top}
-            <b class="caret"></b>
-        </a>
-        <ul class="dropdown-menu">
-            <li {if $sMenuSubItemSelect=='top' & $sPeriodSelectCurrent=='1'}class="active"{/if}><a
-                        href="{router page='index'}top/?period=1">{$aLang.blog_menu_top_period_24h}</a></li>
-            <li {if $sMenuSubItemSelect=='top' & $sPeriodSelectCurrent=='7'}class="active"{/if}><a
-                        href="{router page='index'}top/?period=7">{$aLang.blog_menu_top_period_7d}</a></li>
-            <li {if $sMenuSubItemSelect=='top' & $sPeriodSelectCurrent=='30'}class="active"{/if}><a
-                        href="{router page='index'}top/?period=30">{$aLang.blog_menu_top_period_30d}</a></li>
-            <li {if $sMenuSubItemSelect=='top' & $sPeriodSelectCurrent=='all'}class="active"{/if}><a
-                        href="{router page='index'}top/?period=all">{$aLang.blog_menu_top_period_all}</a></li>
-        </ul>
-    </li>
+    {if C::Get('rating.enabled')}
+        <li class="dropdown{if $sMenuSubItemSelect=='top'} active{/if}">
+            <a href="{router page='index'}top/" class="dropdown-toggle" data-toggle="dropdown">
+                {$aLang.blog_menu_all_top}
+                <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+                <li {if $sMenuSubItemSelect=='top' & $sPeriodSelectCurrent=='1'}class="active"{/if}><a
+                            href="{router page='index'}top/?period=1">{$aLang.blog_menu_top_period_24h}</a></li>
+                <li {if $sMenuSubItemSelect=='top' & $sPeriodSelectCurrent=='7'}class="active"{/if}><a
+                            href="{router page='index'}top/?period=7">{$aLang.blog_menu_top_period_7d}</a></li>
+                <li {if $sMenuSubItemSelect=='top' & $sPeriodSelectCurrent=='30'}class="active"{/if}><a
+                            href="{router page='index'}top/?period=30">{$aLang.blog_menu_top_period_30d}</a></li>
+                <li {if $sMenuSubItemSelect=='top' & $sPeriodSelectCurrent=='all'}class="active"{/if}><a
+                            href="{router page='index'}top/?period=all">{$aLang.blog_menu_top_period_all}</a></li>
+            </ul>
+        </li>
+    {/if}
 
     {if E::IsUser()}
         <li {if $sMenuItemSelect=='feed'}class="active"{/if}>

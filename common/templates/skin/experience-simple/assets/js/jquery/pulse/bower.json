@@ -1,0 +1,15 @@
+{
+  "name": "jquery-pulse",
+  "version": "1.0.0",
+  "main": "jquery.pulse.js",
+  "ignore": [
+    "LICENSE",
+    "README.md",
+    "gh-pages",
+    "index.html"
+  ],
+  "dependencies": {
+    "jquery": ">= 1.7.2"
+  }
+}
+

@@ -48,7 +48,7 @@ abstract class Driver {
 		if ($width && $height) {
 			$wscale = $width / $this->width;
 			$hscale = $height / $this-> height;
-			$scale = ($fit && $wscale>$hscale) ? $hscale : $wscale;
+			$scale = $fit ? min($wscale, $hscale) : max($wscale, $hscale);
 		}elseif($width) {
 			$scale = $width/$this->width;
 		}elseif($height) {
@@ -196,7 +196,7 @@ abstract class Driver {
 	 * 
 	 * @return \PHPixie\Image\Driver Returns self
 	 */
-	public function text($text, $size, $font_file, $x, $y, $color = 0x000000, $opacity = 1, $wrap_width = null, $line_spacing = 1, $angle = 0) {
+	public function text($text, $size, $font_file, $x, $y, $color = 0x000000, $opacity = 1.0, $wrap_width = null, $line_spacing = 1, $angle = 0.0) {
 		if ($wrap_width != null)
 			$text = $this->wrap_text($text, $size, $font_file, $wrap_width);
 			
@@ -216,14 +216,14 @@ abstract class Driver {
 	/**
 	 * Creates a blank image and fill it with specified color.
 	 *
-	 * @param int   $width  Image width
-	 * @param int   $height Image height
-	 * @param int   $color  Image color
-	 * @param float $float  Color opacity
+	 * @param int   $width   Image width
+	 * @param int   $height  Image height
+	 * @param int   $color   Image color
+	 * @param float $opacity Color opacity
 	 * 
 	 * @return \PHPixie\Image\Driver Returns self
 	 */
-	public abstract function create($width, $height, $color = 0xffffff, $opacity = 0);
+	public abstract function create($width, $height, $color = 0xffffff, $opacity = 0.0);
 	
 	/**
 	 * Reads image from file.

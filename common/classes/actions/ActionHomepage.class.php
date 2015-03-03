@@ -39,13 +39,13 @@ class ActionHomepage extends Action {
      */
     public function EventDefault() {
 
-        $this->Viewer_Assign('sMenuHeadItemSelect', 'homepage');
+        E::ModuleViewer()->Assign('sMenuHeadItemSelect', 'homepage');
         $sHomepage = Config::Get('router.config.homepage');
         if ($sHomepage) {
             $sHomepageSelect = Config::Get('router.config.homepage_select');
             if ($sHomepageSelect == 'page') {
                 // if page not active or deleted then this homepage is off
-                $oPage = $this->Page_GetPageByUrlFull($sHomepage, 1);
+                $oPage = E::ModulePage()->GetPageByUrlFull($sHomepage, 1);
                 if ($oPage) {
                     $sHomepage = $oPage->getUrlPath();
                 } else {
@@ -64,15 +64,15 @@ class ActionHomepage extends Action {
                 }
             }
             if ($sHomepage == 'home') {
-                if ($this->Viewer_TemplateExists('actions/homepage/action.homepage.index.tpl')) {
+                if (E::ModuleViewer()->TemplateExists('actions/homepage/action.homepage.index.tpl')) {
                     $this->SetTemplateAction('index');
                     return;
                 }
             } elseif ($sHomepage) {
-                return Router::Action($sHomepage);
+                return R::Action($sHomepage);
             }
         }
-        return Router::Action('index');
+        return R::Action('index');
     }
 
 }
