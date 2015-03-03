@@ -577,6 +577,7 @@ class ModuleTalk extends Module {
                     $aTalkUsers[$oTalkUser->getUserId()] = $oTalkUser;
                 }
                 $oTalk->setTalkUsers($aTalkUsers);
+                unset($aTalkUsers);
             }
             $data['collection'] = $aTalks;
         }
