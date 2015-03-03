@@ -122,7 +122,7 @@
                         }
                     }
                 })
-                .disableSelection();
+                //.disableSelection(); // issue#349, в firefox текстовое поле описания не было доступно
 
             return $this;
         },
