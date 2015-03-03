@@ -49,9 +49,10 @@ class ActionAjax extends Action {
             $this->AddEventPreg('/^vote$/i', '/^topic$/', 'EventVoteTopic');
             $this->AddEventPreg('/^vote$/i', '/^blog$/', 'EventVoteBlog');
             $this->AddEventPreg('/^vote$/i', '/^user$/', 'EventVoteUser');
-            $this->AddEventPreg('/^vote$/i', '/^poll$/', 'EventVotePoll');
-            $this->AddEventPreg('/^vote$/i', '/^question$/', 'EventVoteQuestion');
         }
+
+        $this->AddEventPreg('/^vote$/i', '/^poll$/', 'EventVotePoll');
+        $this->AddEventPreg('/^vote$/i', '/^question$/', 'EventVoteQuestion');
 
         $this->AddEventPreg('/^favourite$/i', '/^save-tags/', 'EventFavouriteSaveTags');
         $this->AddEventPreg('/^favourite$/i', '/^topic$/', 'EventFavouriteTopic');
