@@ -6,8 +6,8 @@
         <lang name="russian">Estheme</lang>
     </name>
     <author>
-        <lang name="default">author</lang>
-        <lang name="russian">автор</lang>
+        <lang name="default">Alto CMS Team</lang>
+        <lang name="russian">Alto CMS Team</lang>
     </author>
     <homepage>http://altocms.com</homepage>
     <version>1.0.0</version>
