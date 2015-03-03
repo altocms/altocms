@@ -305,6 +305,6 @@ li.active.category-show {
     font-weight: bold;
     text-decoration: underline;
 }
-.topic-text img {
+.topic-text img, .topic-text a[data-url] {
     max-width: 100%;
 }

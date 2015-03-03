@@ -499,6 +499,10 @@ _______________________________________________________________*/
 .uploader-actions:hover a {
   color: #de8443 !important;
 }
+.topic-text img,
+.topic-text a[data-url] {
+  max-width: 100%;
+}
 /* МЕНЮ КОНТЕНТА
 _________________________________________________________*/
 .navbar-content.navbar-default {

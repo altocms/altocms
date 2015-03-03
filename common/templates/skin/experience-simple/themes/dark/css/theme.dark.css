@@ -395,6 +395,12 @@ h5.accent a,
 h6.accent a {
   font-family: tahoma, verdana, arial, sans-serif !important;
 }
+h1,
+h1 a {
+  color: #1c374c;
+  font-size: 24px;
+  line-height: 26px;
+}
 h2,
 h2 a {
   color: #1c374c;
@@ -492,6 +498,10 @@ _______________________________________________________________*/
 }
 .uploader-actions:hover a {
   color: #2a5271 !important;
+}
+.topic-text img,
+.topic-text a[data-url] {
+  max-width: 100%;
 }
 /* МЕНЮ КОНТЕНТА
 _________________________________________________________*/
@@ -598,10 +608,10 @@ _________________________________________________________________*/
 }
 .panel .panel-body #user-prefix-filter a:hover,
 .panel .panel-body #user-prefix-filter a.active {
-  color: #d25151 !important;
+  color: #2a5271 !important;
 }
 .panel .panel-body #user-prefix-filter li.active a {
-  color: #d25151 !important;
+  color: #2a5271 !important;
 }
 .panel .panel-body #search-user-login,
 .panel .panel-body #form-blogs-search input {
@@ -768,16 +778,16 @@ _________________________________________________________________*/
 }
 .panel.widget .panel-content,
 .panel.widget .widget-content {
-  font-size: 13px;
+  font-size: 13px !important;
 }
 .panel.widget .panel-content a,
 .panel.widget .widget-content a {
-  color: #1c374c !important;
+  color: #1c374c;
   text-decoration: none;
 }
 .panel.widget .panel-content a:hover,
 .panel.widget .widget-content a:hover {
-  color: #d25151 !important;
+  color: #2a5271;
 }
 .panel.widget .panel-content .text-muted,
 .panel.widget .widget-content .text-muted {
@@ -796,7 +806,7 @@ _________________________________________________________________*/
 }
 .tag-cloud a:hover,
 .tag-cloud a:hover span {
-  color: #d25151 !important;
+  color: #2a5271 !important;
 }
 .topic-info .topic-user {
   height: 34px !important;
@@ -1078,7 +1088,7 @@ input,
 textarea,
 .input-group-addon {
   font-size: 13px !important;
-  color: #1c374c !important;
+  color: #1c374c;
   background-color: #f5f6f8;
   border-color: #e6ebee !important;
   border-radius: 3px;
@@ -1116,7 +1126,7 @@ ____________________________*/
 .input-group-addon,
 .markItUpHeader {
   font-size: 13px !important;
-  color: #1c374c !important;
+  color: #1c374c;
   background-color: #f5f6f8;
   border-color: #e6ebee !important;
   border-radius: 3px;
@@ -1124,7 +1134,7 @@ ____________________________*/
 .selecter.bottom.open .selecter-selected,
 .selecter .selecter-options {
   font-size: 13px !important;
-  color: #1c374c !important;
+  color: #1c374c;
   background-color: #f5f6f8;
   border-color: #e6ebee !important;
   border-radius: 3px;
@@ -1134,7 +1144,7 @@ ____________________________*/
 .selecter.cover.open .selecter-selected,
 .selecter.bottom.open .selecter-options {
   font-size: 13px !important;
-  color: #1c374c !important;
+  color: #1c374c;
   background-color: #f5f6f8;
   border-color: #e6ebee !important;
   border-radius: 3px;
@@ -1145,7 +1155,7 @@ ____________________________*/
 .selecter .selecter-selected,
 .selecter.multiple .selecter-options {
   font-size: 13px !important;
-  color: #1c374c !important;
+  color: #1c374c;
   background-color: #f5f6f8;
   border-color: #e6ebee !important;
   border-radius: 3px;
@@ -1500,7 +1510,7 @@ fieldset[disabled] .btn-gray.active {
 }
 .topic-text {
   margin-bottom: 6px !important;
-  font-size: 13px;
+  font-size: 13px !important;
 }
 .topic-text:before,
 .topic-text:after {
@@ -1511,7 +1521,7 @@ fieldset[disabled] .btn-gray.active {
   clear: both;
 }
 .topic-text * {
-  font-size: 13px;
+  font-size: 13px !important;
 }
 .content .topic .topic-footer ul,
 .content .panel .panel-footer ul {
@@ -2293,6 +2303,9 @@ span.counter {
 .blogs-table td:first-child,
 .blogs-table th:first-child {
   text-align: left;
+}
+.panel-table table.peoples-table .user-logo {
+  width: 38px;
 }
 .user-toggle-publication-block {
   margin-top: 24px;
