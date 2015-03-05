@@ -499,9 +499,12 @@ _______________________________________________________________*/
 .uploader-actions:hover a {
   color: #2a5271 !important;
 }
-.topic-text img,
-.topic-text a[data-url] {
-  max-width: 100%;
+.js-alto-multi-uploader-form input {
+  font-size: 62px !important;
+  cursor: pointer;
+}
+.js-fileapi-wrapper {
+  cursor: pointer !important;
 }
 /* МЕНЮ КОНТЕНТА
 _________________________________________________________*/
@@ -2783,4 +2786,3 @@ body {
 .panel-footer {
   background-color: #f5f6f8;
 }
-/*# sourceMappingURL=common/templates/skin/experience-simple/themes/dark/css/theme.dark.css.map */

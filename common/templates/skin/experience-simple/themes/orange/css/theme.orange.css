@@ -499,9 +499,12 @@ _______________________________________________________________*/
 .uploader-actions:hover a {
   color: #de8443 !important;
 }
-.topic-text img,
-.topic-text a[data-url] {
-  max-width: 100%;
+.js-alto-multi-uploader-form input {
+  font-size: 62px !important;
+  cursor: pointer;
+}
+.js-fileapi-wrapper {
+  cursor: pointer !important;
 }
 /* МЕНЮ КОНТЕНТА
 _________________________________________________________*/
@@ -2925,4 +2928,3 @@ li.active a.link-dual {
 .topic-time {
   color: #1499cb !important;
 }
-/*# sourceMappingURL=common/templates/skin/experience-simple/css/theme.orange.css.map */
