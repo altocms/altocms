@@ -130,6 +130,11 @@ ls.settings = (function ($) {
             media_strict: false,
             language: 'ru',
             inline_styles: false,
+            setup: function (editor) {
+                editor.on('change', function() {
+                    tinyMCE.triggerSave();
+                });
+            },
             formats: {
                 underline:      {inline: 'u', exact: true},
                 strikethrough:  {inline: 's', exact: true}
