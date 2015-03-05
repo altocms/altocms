@@ -247,50 +247,53 @@ class ModuleTalk extends Module {
     /**
      * Получить список разговоров по списку айдишников
      *
-     * @param array $aTalkId    Список ID сообщений
+     * @param array $aTalksId    Список ID сообщений
      *
      * @return array
      */
-    public function GetTalksByArrayId($aTalkId) {
+    public function GetTalksByArrayId($aTalksId) {
 
         if (Config::Get('sys.cache.solid')) {
-            return $this->GetTalksByArrayIdSolid($aTalkId);
+            return $this->GetTalksByArrayIdSolid($aTalksId);
         }
-        if (!is_array($aTalkId)) {
-            $aTalkId = array($aTalkId);
+        if (!is_array($aTalksId)) {
+            $aTalksId = array($aTalksId);
         }
-        $aTalkId = array_unique($aTalkId);
+        $aTalksId = array_unique($aTalksId);
         $aTalks = array();
         $aTalkIdNotNeedQuery = array();
 
         // Делаем мульти-запрос к кешу
-        $aCacheKeys = F::Array_ChangeValues($aTalkId, 'talk_');
+        $aCacheKeys = F::Array_ChangeValues($aTalksId, 'talk_');
         if (false !== ($data = E::ModuleCache()->Get($aCacheKeys))) {
 
             // проверяем что досталось из кеша
-            foreach ($aCacheKeys as $sValue => $sKey) {
+            foreach ($aCacheKeys as $iIndex => $sKey) {
                 if (array_key_exists($sKey, $data)) {
                     if ($data[$sKey]) {
                         $aTalks[$data[$sKey]->getId()] = $data[$sKey];
                     } else {
-                        $aTalkIdNotNeedQuery[] = $sValue;
+                        $aTalkIdNotNeedQuery[] = $aTalksId[$iIndex];
                     }
                 }
             }
         }
 
         // Смотрим каких разговоров не было в кеше и делаем запрос в БД
-        $aTalkIdNeedQuery = array_diff($aTalkId, array_keys($aTalks));
+        $aTalkIdNeedQuery = array_diff($aTalksId, array_keys($aTalks));
         $aTalkIdNeedQuery = array_diff($aTalkIdNeedQuery, $aTalkIdNotNeedQuery);
         $aTalkIdNeedStore = $aTalkIdNeedQuery;
-        if ($data = $this->oMapper->GetTalksByArrayId($aTalkIdNeedQuery)) {
-            /** @var ModuleTalk_EntityTalk $oTalk */
-            foreach ($data as $oTalk) {
 
-                // Добавляем к результату и сохраняем в кеш
-                $aTalks[$oTalk->getId()] = $oTalk;
-                E::ModuleCache()->Set($oTalk, "talk_{$oTalk->getId()}", array(), 60 * 60 * 24 * 4);
-                $aTalkIdNeedStore = array_diff($aTalkIdNeedStore, array($oTalk->getId()));
+        if ($aTalkIdNeedQuery) {
+            if ($data = $this->oMapper->GetTalksByArrayId($aTalkIdNeedQuery)) {
+                /** @var ModuleTalk_EntityTalk $oTalk */
+                foreach ($data as $oTalk) {
+
+                    // Добавляем к результату и сохраняем в кеш
+                    $aTalks[$oTalk->getId()] = $oTalk;
+                    E::ModuleCache()->Set($oTalk, "talk_{$oTalk->getId()}", array(), 60 * 60 * 24 * 4);
+                    $aTalkIdNeedStore = array_diff($aTalkIdNeedStore, array($oTalk->getId()));
+                }
             }
         }
 
@@ -300,7 +303,7 @@ class ModuleTalk extends Module {
         }
 
         // Сортируем результат согласно входящему массиву
-        $aTalks = F::Array_SortByKeysArray($aTalks, $aTalkId);
+        $aTalks = F::Array_SortByKeysArray($aTalks, $aTalksId);
 
         return $aTalks;
     }
@@ -335,59 +338,62 @@ class ModuleTalk extends Module {
     /**
      * Получить список отношений разговор-юзер по списку айдишников
      *
-     * @param array $aTalkId    Список ID сообщений
-     * @param int   $nUserId    ID пользователя
+     * @param array $aTalksId    Список ID сообщений
+     * @param int   $iUserId    ID пользователя
      *
      * @return array
      */
-    public function GetTalkUsersByArray($aTalkId, $nUserId) {
+    public function GetTalkUsersByArray($aTalksId, $iUserId) {
 
-        if (!is_array($aTalkId)) {
-            $aTalkId = array($aTalkId);
+        if (!is_array($aTalksId)) {
+            $aTalksId = array($aTalksId);
         }
-        $aTalkId = array_unique($aTalkId);
+        $aTalksId = array_unique($aTalksId);
         $aTalkUsers = array();
         $aTalkIdNotNeedQuery = array();
 
         // Делаем мульти-запрос к кешу
-        $aCacheKeys = F::Array_ChangeValues($aTalkId, 'talk_user_', '_' . $nUserId);
+        $aCacheKeys = F::Array_ChangeValues($aTalksId, 'talk_user_', '_' . $iUserId);
         if (false !== ($data = E::ModuleCache()->Get($aCacheKeys))) {
 
             // проверяем что досталось из кеша
-            foreach ($aCacheKeys as $sValue => $sKey) {
+            foreach ($aCacheKeys as $iIndex => $sKey) {
                 if (array_key_exists($sKey, $data)) {
                     if ($data[$sKey]) {
                         $aTalkUsers[$data[$sKey]->getTalkId()] = $data[$sKey];
                     } else {
-                        $aTalkIdNotNeedQuery[] = $sValue;
+                        $aTalkIdNotNeedQuery[] = $aTalksId[$iIndex];
                     }
                 }
             }
         }
 
         // Смотрим чего не было в кеше и делаем запрос в БД
-        $aTalkIdNeedQuery = array_diff($aTalkId, array_keys($aTalkUsers));
+        $aTalkIdNeedQuery = array_diff($aTalksId, array_keys($aTalkUsers));
         $aTalkIdNeedQuery = array_diff($aTalkIdNeedQuery, $aTalkIdNotNeedQuery);
         $aTalkIdNeedStore = $aTalkIdNeedQuery;
-        if ($data = $this->oMapper->GetTalkUserByArray($aTalkIdNeedQuery, $nUserId)) {
-            foreach ($data as $oTalkUser) {
-                // Добавляем к результату и сохраняем в кеш
-                $aTalkUsers[$oTalkUser->getTalkId()] = $oTalkUser;
-                E::ModuleCache()->Set(
-                    $oTalkUser, "talk_user_{$oTalkUser->getTalkId()}_{$oTalkUser->getUserId()}",
-                    array("update_talk_user_{$oTalkUser->getTalkId()}"), 60 * 60 * 24 * 4
-                );
-                $aTalkIdNeedStore = array_diff($aTalkIdNeedStore, array($oTalkUser->getTalkId()));
+
+        if ($aTalkIdNeedQuery) {
+            if ($data = $this->oMapper->GetTalkUserByArray($aTalkIdNeedQuery, $iUserId)) {
+                foreach ($data as $oTalkUser) {
+                    // Добавляем к результату и сохраняем в кеш
+                    $aTalkUsers[$oTalkUser->getTalkId()] = $oTalkUser;
+                    E::ModuleCache()->Set(
+                        $oTalkUser, "talk_user_{$oTalkUser->getTalkId()}_{$oTalkUser->getUserId()}",
+                        array("update_talk_user_{$oTalkUser->getTalkId()}"), 60 * 60 * 24 * 4
+                    );
+                    $aTalkIdNeedStore = array_diff($aTalkIdNeedStore, array($oTalkUser->getTalkId()));
+                }
             }
         }
 
         // Сохраняем в кеш запросы не вернувшие результата
         foreach ($aTalkIdNeedStore as $sId) {
-            E::ModuleCache()->Set(null, "talk_user_{$sId}_{$nUserId}", array("update_talk_user_{$sId}"), 60 * 60 * 24 * 4);
+            E::ModuleCache()->Set(null, "talk_user_{$sId}_{$iUserId}", array("update_talk_user_{$sId}"), 60 * 60 * 24 * 4);
         }
 
         // Сортируем результат согласно входящему массиву
-        $aTalkUsers = F::Array_SortByKeysArray($aTalkUsers, $aTalkId);
+        $aTalkUsers = F::Array_SortByKeysArray($aTalkUsers, $aTalksId);
 
         return $aTalkUsers;
     }

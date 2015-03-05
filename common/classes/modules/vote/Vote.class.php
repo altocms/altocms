@@ -84,60 +84,64 @@ class ModuleVote extends Module {
     /**
      * Получить список голосований по списку айдишников
      *
-     * @param array  $aTargetId      Список ID владельцев
+     * @param array  $aTargetsId      Список ID владельцев
      * @param string $sTargetType    Тип владельца
-     * @param int    $sUserId        ID пользователя
+     * @param int    $iUserId        ID пользователя
      *
      * @return array
      */
-    public function GetVoteByArray($aTargetId, $sTargetType, $iUserId) {
+    public function GetVoteByArray($aTargetsId, $sTargetType, $iUserId) {
 
-        if (!$aTargetId) {
+        if (!$aTargetsId) {
             return array();
         }
         if (Config::Get('sys.cache.solid')) {
-            return $this->GetVoteByArraySolid($aTargetId, $sTargetType, $iUserId);
+            return $this->GetVoteByArraySolid($aTargetsId, $sTargetType, $iUserId);
         }
-        if (!is_array($aTargetId)) {
-            $aTargetId = array($aTargetId);
+        if (!is_array($aTargetsId)) {
+            $aTargetsId = array($aTargetsId);
         }
-        $aTargetId = array_unique($aTargetId);
+        $aTargetsId = array_unique($aTargetsId);
         $aVote = array();
         $aIdNotNeedQuery = array();
 
         // * Делаем мульти-запрос к кешу
-        $aCacheKeys = F::Array_ChangeValues($aTargetId, "vote_{$sTargetType}_", '_' . $iUserId);
+        $aCacheKeys = F::Array_ChangeValues($aTargetsId, "vote_{$sTargetType}_", '_' . $iUserId);
         if (false !== ($data = E::ModuleCache()->Get($aCacheKeys))) {
             // * проверяем что досталось из кеша
-            foreach ($aCacheKeys as $sValue => $sKey) {
+            foreach ($aCacheKeys as $iIndex => $sKey) {
                 if (array_key_exists($sKey, $data)) {
                     if ($data[$sKey]) {
                         $aVote[$data[$sKey]->getTargetId()] = $data[$sKey];
                     } else {
-                        $aIdNotNeedQuery[] = $sValue;
+                        $aIdNotNeedQuery[] = $aTargetsId[$iIndex];
                     }
                 }
             }
         }
         // * Смотрим, каких элементов не было в кеше, и делаем запрос в БД
-        $aIdNeedQuery = array_diff($aTargetId, array_keys($aVote));
+        $aIdNeedQuery = array_diff($aTargetsId, array_keys($aVote));
         $aIdNeedQuery = array_diff($aIdNeedQuery, $aIdNotNeedQuery);
         $aIdNeedStore = $aIdNeedQuery;
-        if ($data = $this->oMapper->GetVoteByArray($aIdNeedQuery, $sTargetType, $iUserId)) {
-            foreach ($data as $oVote) {
-                // * Добавляем к результату и сохраняем в кеш
-                $aVote[$oVote->getTargetId()] = $oVote;
-                E::ModuleCache()->Set($oVote, "vote_{$oVote->getTargetType()}_{$oVote->getTargetId()}_{$oVote->getVoterId()}", array(), 'P7D');
-                $aIdNeedStore = array_diff($aIdNeedStore, array($oVote->getTargetId()));
+
+        if ($aIdNeedQuery) {
+            if ($data = $this->oMapper->GetVoteByArray($aIdNeedQuery, $sTargetType, $iUserId)) {
+                foreach ($data as $oVote) {
+                    // * Добавляем к результату и сохраняем в кеш
+                    $aVote[$oVote->getTargetId()] = $oVote;
+                    E::ModuleCache()->Set($oVote, "vote_{$oVote->getTargetType()}_{$oVote->getTargetId()}_{$oVote->getVoterId()}", array(), 'P7D');
+                    $aIdNeedStore = array_diff($aIdNeedStore, array($oVote->getTargetId()));
+                }
             }
         }
+
         // * Сохраняем в кеш запросы не вернувшие результата
         foreach ($aIdNeedStore as $iTargetId) {
             E::ModuleCache()->Set(null, "vote_{$sTargetType}_{$iTargetId}_{$iUserId}", array(), 'P7D');
         }
 
         // * Сортируем результат согласно входящему массиву
-        $aVote = F::Array_SortByKeysArray($aVote, $aTargetId);
+        $aVote = F::Array_SortByKeysArray($aVote, $aTargetsId);
         return $aVote;
     }
 

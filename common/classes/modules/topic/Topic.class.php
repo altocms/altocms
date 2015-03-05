@@ -1048,50 +1048,47 @@ class ModuleTopic extends Module {
         $aTopicsId = array_unique($aTopicsId);
         $aTopics = array();
         $aTopicIdNotNeedQuery = array();
-        /**
-         * Делаем мульти-запрос к кешу
-         */
+
+        // * Делаем мульти-запрос к кешу
         $aCacheKeys = F::Array_ChangeValues($aTopicsId, 'topic_');
         if (false !== ($data = E::ModuleCache()->Get($aCacheKeys))) {
-            /**
-             * проверяем что досталось из кеша
-             */
-            foreach ($aCacheKeys as $sValue => $sKey) {
+
+            // * проверяем что досталось из кеша
+            foreach ($aCacheKeys as $iIndex => $sKey) {
                 if (array_key_exists($sKey, $data)) {
                     if ($data[$sKey]) {
                         $aTopics[$data[$sKey]->getId()] = $data[$sKey];
                     } else {
-                        $aTopicIdNotNeedQuery[] = $sValue;
+                        $aTopicIdNotNeedQuery[] = $aTopicsId[$iIndex];
                     }
                 }
             }
         }
-        /**
-         * Смотрим каких топиков не было в кеше и делаем запрос в БД
-         */
+
+        // * Смотрим каких топиков не было в кеше и делаем запрос в БД
         $aTopicIdNeedQuery = array_diff($aTopicsId, array_keys($aTopics));
         $aTopicIdNeedQuery = array_diff($aTopicIdNeedQuery, $aTopicIdNotNeedQuery);
         $aTopicIdNeedStore = $aTopicIdNeedQuery;
-        if ($data = $this->oMapper->GetTopicsByArrayId($aTopicIdNeedQuery)) {
-            foreach ($data as $oTopic) {
-                /**
-                 * Добавляем к результату и сохраняем в кеш
-                 */
-                $aTopics[$oTopic->getId()] = $oTopic;
-                E::ModuleCache()->Set($oTopic, "topic_{$oTopic->getId()}", array(), 60 * 60 * 24 * 4);
-                $aTopicIdNeedStore = array_diff($aTopicIdNeedStore, array($oTopic->getId()));
+
+        if ($aTopicIdNeedQuery) {
+            if ($data = $this->oMapper->GetTopicsByArrayId($aTopicIdNeedQuery)) {
+                foreach ($data as $oTopic) {
+                    // * Добавляем к результату и сохраняем в кеш
+                    $aTopics[$oTopic->getId()] = $oTopic;
+                    E::ModuleCache()->Set($oTopic, "topic_{$oTopic->getId()}", array(), 60 * 60 * 24 * 4);
+                    $aTopicIdNeedStore = array_diff($aTopicIdNeedStore, array($oTopic->getId()));
+                }
             }
         }
-        /**
-         * Сохраняем в кеш запросы не вернувшие результата
-         */
+
+        // * Сохраняем в кеш запросы не вернувшие результата
         foreach ($aTopicIdNeedStore as $nId) {
             E::ModuleCache()->Set(null, "topic_{$nId}", array(), 60 * 60 * 24 * 4);
         }
-        /**
-         * Сортируем результат согласно входящему массиву
-         */
+
+        // * Сортируем результат согласно входящему массиву
         $aTopics = F::Array_SortByKeysArray($aTopics, $aTopicsId);
+
         return $aTopics;
     }
 
@@ -2117,17 +2114,17 @@ class ModuleTopic extends Module {
      * Получить список просмотром/чтения топиков по списку айдишников
      *
      * @param array $aTopicsId    - Список ID топиков
-     * @param int   $nUserId      - ID пользователя
+     * @param int   $iUserId      - ID пользователя
      *
      * @return array
      */
-    public function GetTopicsReadByArray($aTopicsId, $nUserId) {
+    public function GetTopicsReadByArray($aTopicsId, $iUserId) {
 
         if (!$aTopicsId) {
             return array();
         }
         if (Config::Get('sys.cache.solid')) {
-            return $this->GetTopicsReadByArraySolid($aTopicsId, $nUserId);
+            return $this->GetTopicsReadByArraySolid($aTopicsId, $iUserId);
         }
         if (!is_array($aTopicsId)) {
             $aTopicsId = array($aTopicsId);
@@ -2135,53 +2132,49 @@ class ModuleTopic extends Module {
         $aTopicsId = array_unique($aTopicsId);
         $aTopicsRead = array();
         $aTopicIdNotNeedQuery = array();
-        /**
-         * Делаем мульти-запрос к кешу
-         */
-        $aCacheKeys = F::Array_ChangeValues($aTopicsId, 'topic_read_', '_' . $nUserId);
+
+        // * Делаем мульти-запрос к кешу
+        $aCacheKeys = F::Array_ChangeValues($aTopicsId, 'topic_read_', '_' . $iUserId);
         if (false !== ($data = E::ModuleCache()->Get($aCacheKeys))) {
-            /**
-             * проверяем что досталось из кеша
-             */
-            foreach ($aCacheKeys as $sValue => $sKey) {
+            // * проверяем что досталось из кеша
+            foreach ($aCacheKeys as $iIndex => $sKey) {
                 if (array_key_exists($sKey, $data)) {
                     if ($data[$sKey]) {
                         $aTopicsRead[$data[$sKey]->getTopicId()] = $data[$sKey];
                     } else {
-                        $aTopicIdNotNeedQuery[] = $sValue;
+                        $aTopicIdNotNeedQuery[] = $aTopicsId[$iIndex];
                     }
                 }
             }
         }
-        /**
-         * Смотрим каких топиков не было в кеше и делаем запрос в БД
-         */
+
+        // * Смотрим каких топиков не было в кеше и делаем запрос в БД
         $aTopicIdNeedQuery = array_diff($aTopicsId, array_keys($aTopicsRead));
         $aTopicIdNeedQuery = array_diff($aTopicIdNeedQuery, $aTopicIdNotNeedQuery);
         $aTopicIdNeedStore = $aTopicIdNeedQuery;
-        if ($data = $this->oMapper->GetTopicsReadByArray($aTopicIdNeedQuery, $nUserId)) {
-            foreach ($data as $oTopicRead) {
-                /**
-                 * Добавляем к результату и сохраняем в кеш
-                 */
-                $aTopicsRead[$oTopicRead->getTopicId()] = $oTopicRead;
-                E::ModuleCache()->Set(
-                    $oTopicRead, "topic_read_{$oTopicRead->getTopicId()}_{$oTopicRead->getUserId()}", array(),
-                    60 * 60 * 24 * 4
-                );
-                $aTopicIdNeedStore = array_diff($aTopicIdNeedStore, array($oTopicRead->getTopicId()));
+
+        if ($aTopicIdNeedQuery) {
+            if ($data = $this->oMapper->GetTopicsReadByArray($aTopicIdNeedQuery, $iUserId)) {
+                foreach ($data as $oTopicRead) {
+                    // * Добавляем к результату и сохраняем в кеш
+                    $aTopicsRead[$oTopicRead->getTopicId()] = $oTopicRead;
+                    E::ModuleCache()->Set(
+                        $oTopicRead, "topic_read_{$oTopicRead->getTopicId()}_{$oTopicRead->getUserId()}", array(),
+                        60 * 60 * 24 * 4
+                    );
+                    $aTopicIdNeedStore = array_diff($aTopicIdNeedStore, array($oTopicRead->getTopicId()));
+                }
             }
         }
-        /**
-         * Сохраняем в кеш запросы не вернувшие результата
-         */
+
+        // * Сохраняем в кеш запросы не вернувшие результата
         foreach ($aTopicIdNeedStore as $sId) {
-            E::ModuleCache()->Set(null, "topic_read_{$sId}_{$nUserId}", array(), 60 * 60 * 24 * 4);
+            E::ModuleCache()->Set(null, "topic_read_{$sId}_{$iUserId}", array(), 60 * 60 * 24 * 4);
         }
-        /**
-         * Сортируем результат согласно входящему массиву
-         */
+
+        // * Сортируем результат согласно входящему массиву
         $aTopicsRead = F::Array_SortByKeysArray($aTopicsRead, $aTopicsId);
+
         return $aTopicsRead;
     }
 
@@ -2294,17 +2287,17 @@ class ModuleTopic extends Module {
      * Получить список голосований в топике-опросе по списку ID
      *
      * @param array $aTopicsId    - Список ID топиков
-     * @param int   $nUserId      - ID пользователя
+     * @param int   $iUserId      - ID пользователя
      *
      * @return array
      */
-    public function GetTopicsQuestionVoteByArray($aTopicsId, $nUserId) {
+    public function GetTopicsQuestionVoteByArray($aTopicsId, $iUserId) {
 
         if (!$aTopicsId) {
             return array();
         }
         if (Config::Get('sys.cache.solid')) {
-            return $this->GetTopicsQuestionVoteByArraySolid($aTopicsId, $nUserId);
+            return $this->GetTopicsQuestionVoteByArraySolid($aTopicsId, $iUserId);
         }
         if (!is_array($aTopicsId)) {
             $aTopicsId = array($aTopicsId);
@@ -2312,53 +2305,49 @@ class ModuleTopic extends Module {
         $aTopicsId = array_unique($aTopicsId);
         $aTopicsQuestionVote = array();
         $aTopicIdNotNeedQuery = array();
-        /**
-         * Делаем мульти-запрос к кешу
-         */
-        $aCacheKeys = F::Array_ChangeValues($aTopicsId, 'topic_question_vote_', '_' . $nUserId);
+
+        // * Делаем мульти-запрос к кешу
+        $aCacheKeys = F::Array_ChangeValues($aTopicsId, 'topic_question_vote_', '_' . $iUserId);
         if (false !== ($data = E::ModuleCache()->Get($aCacheKeys))) {
-            /**
-             * проверяем что досталось из кеша
-             */
-            foreach ($aCacheKeys as $sValue => $sKey) {
+            // * проверяем что досталось из кеша
+            foreach ($aCacheKeys as $iIndex => $sKey) {
                 if (array_key_exists($sKey, $data)) {
                     if ($data[$sKey]) {
                         $aTopicsQuestionVote[$data[$sKey]->getTopicId()] = $data[$sKey];
                     } else {
-                        $aTopicIdNotNeedQuery[] = $sValue;
+                        $aTopicIdNotNeedQuery[] = $aTopicsId[$iIndex];
                     }
                 }
             }
         }
-        /**
-         * Смотрим каких топиков не было в кеше и делаем запрос в БД
-         */
+
+        // * Смотрим каких топиков не было в кеше и делаем запрос в БД
         $aTopicIdNeedQuery = array_diff($aTopicsId, array_keys($aTopicsQuestionVote));
         $aTopicIdNeedQuery = array_diff($aTopicIdNeedQuery, $aTopicIdNotNeedQuery);
         $aTopicIdNeedStore = $aTopicIdNeedQuery;
-        if ($data = $this->oMapper->GetTopicsQuestionVoteByArray($aTopicIdNeedQuery, $nUserId)) {
-            foreach ($data as $oTopicVote) {
-                /**
-                 * Добавляем к результату и сохраняем в кеш
-                 */
-                $aTopicsQuestionVote[$oTopicVote->getTopicId()] = $oTopicVote;
-                E::ModuleCache()->Set(
-                    $oTopicVote, "topic_question_vote_{$oTopicVote->getTopicId()}_{$oTopicVote->getVoterId()}", array(),
-                    60 * 60 * 24 * 4
-                );
-                $aTopicIdNeedStore = array_diff($aTopicIdNeedStore, array($oTopicVote->getTopicId()));
+
+        if ($aTopicIdNeedQuery) {
+            if ($data = $this->oMapper->GetTopicsQuestionVoteByArray($aTopicIdNeedQuery, $iUserId)) {
+                foreach ($data as $oTopicVote) {
+                    // * Добавляем к результату и сохраняем в кеш
+                    $aTopicsQuestionVote[$oTopicVote->getTopicId()] = $oTopicVote;
+                    E::ModuleCache()->Set(
+                        $oTopicVote, "topic_question_vote_{$oTopicVote->getTopicId()}_{$oTopicVote->getVoterId()}", array(),
+                        60 * 60 * 24 * 4
+                    );
+                    $aTopicIdNeedStore = array_diff($aTopicIdNeedStore, array($oTopicVote->getTopicId()));
+                }
             }
         }
-        /**
-         * Сохраняем в кеш запросы не вернувшие результата
-         */
+
+        // * Сохраняем в кеш запросы не вернувшие результата
         foreach ($aTopicIdNeedStore as $sId) {
-            E::ModuleCache()->Set(null, "topic_question_vote_{$sId}_{$nUserId}", array(), 60 * 60 * 24 * 4);
+            E::ModuleCache()->Set(null, "topic_question_vote_{$sId}_{$iUserId}", array(), 60 * 60 * 24 * 4);
         }
-        /**
-         * Сортируем результат согласно входящему массиву
-         */
+
+        // * Сортируем результат согласно входящему массиву
         $aTopicsQuestionVote = F::Array_SortByKeysArray($aTopicsQuestionVote, $aTopicsId);
+
         return $aTopicsQuestionVote;
     }
 

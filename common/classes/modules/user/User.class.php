@@ -289,12 +289,12 @@ class ModuleUser extends Module {
         if (false !== ($data = E::ModuleCache()->Get($aCacheKeys))) {
 
             // * Проверяем что досталось из кеша
-            foreach ($aCacheKeys as $sValue => $sKey) {
+            foreach ($aCacheKeys as $iIndex => $sKey) {
                 if (array_key_exists($sKey, $data)) {
                     if ($data[$sKey]) {
                         $aUsers[$data[$sKey]->getId()] = $data[$sKey];
                     } else {
-                        $aUserIdNotNeedQuery[] = $sValue;
+                        $aUserIdNotNeedQuery[] = $aUsersId[$iIndex];
                     }
                 }
             }
@@ -304,13 +304,16 @@ class ModuleUser extends Module {
         $aUserIdNeedQuery = array_diff($aUsersId, array_keys($aUsers));
         $aUserIdNeedQuery = array_diff($aUserIdNeedQuery, $aUserIdNotNeedQuery);
         $aUserIdNeedStore = $aUserIdNeedQuery;
-        if ($data = $this->oMapper->GetUsersByArrayId($aUserIdNeedQuery)) {
-            foreach ($data as $oUser) {
 
-                // * Добавляем к результату и сохраняем в кеш
-                $aUsers[$oUser->getId()] = $oUser;
-                E::ModuleCache()->Set($oUser, "user_{$oUser->getId()}", array(), 'P4D');
-                $aUserIdNeedStore = array_diff($aUserIdNeedStore, array($oUser->getId()));
+        if ($aUserIdNeedQuery) {
+            if ($data = $this->oMapper->GetUsersByArrayId($aUserIdNeedQuery)) {
+                foreach ($data as $oUser) {
+
+                    // * Добавляем к результату и сохраняем в кеш
+                    $aUsers[$oUser->getId()] = $oUser;
+                    E::ModuleCache()->Set($oUser, "user_{$oUser->getId()}", array(), 'P4D');
+                    $aUserIdNeedStore = array_diff($aUserIdNeedStore, array($oUser->getId()));
+                }
             }
         }
 
@@ -321,6 +324,7 @@ class ModuleUser extends Module {
 
         // * Сортируем результат согласно входящему массиву
         $aUsers = F::Array_SortByKeysArray($aUsers, $aUsersId);
+
         return $aUsers;
     }
 
@@ -393,14 +397,13 @@ class ModuleUser extends Module {
         // * Делаем мульти-запрос к кешу
         $aCacheKeys = F::Array_ChangeValues($aUsersId, 'user_session_');
         if (false !== ($data = E::ModuleCache()->Get($aCacheKeys))) {
-
             // * проверяем что досталось из кеша
-            foreach ($aCacheKeys as $sValue => $sKey) {
+            foreach ($aCacheKeys as $iIndex => $sKey) {
                 if (array_key_exists($sKey, $data)) {
                     if ($data[$sKey] && $data[$sKey]['session']) {
                         $aSessions[$data[$sKey]['session']->getUserId()] = $data[$sKey]['session'];
                     } else {
-                        $aUserIdNotNeedQuery[] = $sValue;
+                        $aUserIdNotNeedQuery[] = $aUsersId[$iIndex];
                     }
                 }
             }
@@ -411,16 +414,18 @@ class ModuleUser extends Module {
         $aUserIdNeedQuery = array_diff($aUserIdNeedQuery, $aUserIdNotNeedQuery);
         $aUserIdNeedStore = $aUserIdNeedQuery;
 
-        if ($data = $this->oMapper->GetSessionsByArrayId($aUserIdNeedQuery)) {
-            foreach ($data as $oSession) {
-                // * Добавляем к результату и сохраняем в кеш
-                $aSessions[$oSession->getUserId()] = $oSession;
-                E::ModuleCache()->Set(
-                    array('time' => time(), 'session' => $oSession),
-                    "user_session_{$oSession->getUserId()}", array(),
-                    'P4D'
-                );
-                $aUserIdNeedStore = array_diff($aUserIdNeedStore, array($oSession->getUserId()));
+        if ($aUserIdNeedQuery) {
+            if ($data = $this->oMapper->GetSessionsByArrayId($aUserIdNeedQuery)) {
+                foreach ($data as $oSession) {
+                    // * Добавляем к результату и сохраняем в кеш
+                    $aSessions[$oSession->getUserId()] = $oSession;
+                    E::ModuleCache()->Set(
+                        array('time' => time(), 'session' => $oSession),
+                        "user_session_{$oSession->getUserId()}", array(),
+                        'P4D'
+                    );
+                    $aUserIdNeedStore = array_diff($aUserIdNeedStore, array($oSession->getUserId()));
+                }
             }
         }
 
@@ -431,6 +436,7 @@ class ModuleUser extends Module {
 
         // * Сортируем результат согласно входящему массиву
         $aSessions = F::Array_SortByKeysArray($aSessions, $aUsersId);
+
         return $aSessions;
     }
 
@@ -978,14 +984,14 @@ class ModuleUser extends Module {
      * Получить список отношений друзей
      *
      * @param   int|array $aUsersId - Список ID пользователей проверяемых на дружбу
-     * @param   int       $nUserId  - ID пользователя у которого проверяем друзей
+     * @param   int       $iUserId  - ID пользователя у которого проверяем друзей
      *
      * @return array
      */
-    public function GetFriendsByArray($aUsersId, $nUserId) {
+    public function GetFriendsByArray($aUsersId, $iUserId) {
 
         if (Config::Get('sys.cache.solid')) {
-            return $this->GetFriendsByArraySolid($aUsersId, $nUserId);
+            return $this->GetFriendsByArraySolid($aUsersId, $iUserId);
         }
 
         if (!$aUsersId) {
@@ -1000,15 +1006,15 @@ class ModuleUser extends Module {
         $aUserIdNotNeedQuery = array();
 
         // * Делаем мульти-запрос к кешу
-        $aCacheKeys = F::Array_ChangeValues($aUsersId, 'user_friend_', '_' . $nUserId);
+        $aCacheKeys = F::Array_ChangeValues($aUsersId, 'user_friend_', '_' . $iUserId);
         if (false !== ($data = E::ModuleCache()->Get($aCacheKeys))) {
             // * проверяем что досталось из кеша
-            foreach ($aCacheKeys as $sValue => $sKey) {
+            foreach ($aCacheKeys as $iIndex => $sKey) {
                 if (array_key_exists($sKey, $data)) {
                     if ($data[$sKey]) {
                         $aFriends[$data[$sKey]->getFriendId()] = $data[$sKey];
                     } else {
-                        $aUserIdNotNeedQuery[] = $sValue;
+                        $aUserIdNotNeedQuery[] = $aUsersId[$iIndex];
                     }
                 }
             }
@@ -1018,29 +1024,33 @@ class ModuleUser extends Module {
         $aUserIdNeedQuery = array_diff($aUsersId, array_keys($aFriends));
         $aUserIdNeedQuery = array_diff($aUserIdNeedQuery, $aUserIdNotNeedQuery);
         $aUserIdNeedStore = $aUserIdNeedQuery;
-        if ($data = $this->oMapper->GetFriendsByArrayId($aUserIdNeedQuery, $nUserId)) {
-            foreach ($data as $oFriend) {
-                // * Добавляем к результату и сохраняем в кеш
-                $aFriends[$oFriend->getFriendId($nUserId)] = $oFriend;
-                /**
-                 * Тут кеш нужно будет продумать как-то по другому.
-                 * Пока не трогаю, ибо этот код все равно не выполняется.
-                 * by Kachaev
-                 */
-                E::ModuleCache()->Set(
-                    $oFriend, "user_friend_{$oFriend->getFriendId()}_{$oFriend->getUserId()}", array(), 'P4D'
-                );
-                $aUserIdNeedStore = array_diff($aUserIdNeedStore, array($oFriend->getFriendId()));
+
+        if ($aUserIdNeedQuery) {
+            if ($data = $this->oMapper->GetFriendsByArrayId($aUserIdNeedQuery, $iUserId)) {
+                foreach ($data as $oFriend) {
+                    // * Добавляем к результату и сохраняем в кеш
+                    $aFriends[$oFriend->getFriendId($iUserId)] = $oFriend;
+                    /**
+                     * Тут кеш нужно будет продумать как-то по другому.
+                     * Пока не трогаю, ибо этот код все равно не выполняется.
+                     * by Kachaev
+                     */
+                    E::ModuleCache()->Set(
+                        $oFriend, "user_friend_{$oFriend->getFriendId()}_{$oFriend->getUserId()}", array(), 'P4D'
+                    );
+                    $aUserIdNeedStore = array_diff($aUserIdNeedStore, array($oFriend->getFriendId()));
+                }
             }
         }
 
         // * Сохраняем в кеш запросы не вернувшие результата
         foreach ($aUserIdNeedStore as $sId) {
-            E::ModuleCache()->Set(null, "user_friend_{$sId}_{$nUserId}", array(), 'P4D');
+            E::ModuleCache()->Set(null, "user_friend_{$sId}_{$iUserId}", array(), 'P4D');
         }
 
         // * Сортируем результат согласно входящему массиву
         $aFriends = F::Array_SortByKeysArray($aFriends, $aUsersId);
+
         return $aFriends;
     }
 

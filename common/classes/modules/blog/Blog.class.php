@@ -242,69 +242,62 @@ class ModuleBlog extends Module {
     /**
      * Возвращает список блогов по ID
      *
-     * @param array      $aBlogId    Список ID блогов
+     * @param array      $aBlogsId    Список ID блогов
      * @param array|null $aOrder     Порядок сортировки
      *
      * @return array
      */
-    public function GetBlogsByArrayId($aBlogId, $aOrder = null) {
+    public function GetBlogsByArrayId($aBlogsId, $aOrder = null) {
 
-        if (!$aBlogId) {
+        if (!$aBlogsId) {
             return array();
         }
         if (Config::Get('sys.cache.solid')) {
-            return $this->GetBlogsByArrayIdSolid($aBlogId, $aOrder);
+            return $this->GetBlogsByArrayIdSolid($aBlogsId, $aOrder);
         }
-        if (!is_array($aBlogId)) {
-            $aBlogId = array($aBlogId);
+        if (!is_array($aBlogsId)) {
+            $aBlogsId = array($aBlogsId);
         }
-        $aBlogId = array_unique($aBlogId);
+        $aBlogsId = array_unique($aBlogsId);
         $aBlogs = array();
         $aBlogIdNotNeedQuery = array();
-        /**
-         * Делаем мульти-запрос к кешу
-         */
-        $aCacheKeys = F::Array_ChangeValues($aBlogId, 'blog_');
+
+        // * Делаем мульти-запрос к кешу
+        $aCacheKeys = F::Array_ChangeValues($aBlogsId, 'blog_');
         if (false !== ($data = E::ModuleCache()->Get($aCacheKeys))) {
-            /**
-             * проверяем что досталось из кеша
-             */
-            foreach ($aCacheKeys as $sValue => $sKey) {
+            // * проверяем что досталось из кеша
+            foreach ($aCacheKeys as $iIndex => $sKey) {
                 if (array_key_exists($sKey, $data)) {
                     if ($data[$sKey]) {
                         $aBlogs[$data[$sKey]->getId()] = $data[$sKey];
                     } else {
-                        $aBlogIdNotNeedQuery[] = $sValue;
+                        $aBlogIdNotNeedQuery[] = $aBlogsId[$iIndex];
                     }
                 }
             }
         }
-        /**
-         * Смотрим каких блогов не было в кеше и делаем запрос в БД
-         */
-        $aBlogIdNeedQuery = array_diff($aBlogId, array_keys($aBlogs));
+        // * Смотрим каких блогов не было в кеше и делаем запрос в БД
+        $aBlogIdNeedQuery = array_diff($aBlogsId, array_keys($aBlogs));
         $aBlogIdNeedQuery = array_diff($aBlogIdNeedQuery, $aBlogIdNotNeedQuery);
         $aBlogIdNeedStore = $aBlogIdNeedQuery;
-        if ($data = $this->oMapper->GetBlogsByArrayId($aBlogIdNeedQuery)) {
-            foreach ($data as $oBlog) {
-                /**
-                 * Добавляем к результату и сохраняем в кеш
-                 */
-                $aBlogs[$oBlog->getId()] = $oBlog;
-                E::ModuleCache()->Set($oBlog, "blog_{$oBlog->getId()}", array(), 'P4D');
-                $aBlogIdNeedStore = array_diff($aBlogIdNeedStore, array($oBlog->getId()));
+
+        if ($aBlogIdNeedQuery) {
+            if ($data = $this->oMapper->GetBlogsByArrayId($aBlogIdNeedQuery)) {
+                foreach ($data as $oBlog) {
+                    // * Добавляем к результату и сохраняем в кеш
+                    $aBlogs[$oBlog->getId()] = $oBlog;
+                    E::ModuleCache()->Set($oBlog, "blog_{$oBlog->getId()}", array(), 'P4D');
+                    $aBlogIdNeedStore = array_diff($aBlogIdNeedStore, array($oBlog->getId()));
+                }
             }
         }
-        /**
-         * Сохраняем в кеш запросы не вернувшие результата
-         */
+
+        // * Сохраняем в кеш запросы не вернувшие результата
         foreach ($aBlogIdNeedStore as $sId) {
             E::ModuleCache()->Set(null, "blog_{$sId}", array(), 'P4D');
         }
-        /**
-         * Сортируем результат согласно входящему массиву
-         */
-        $aBlogs = F::Array_SortByKeysArray($aBlogs, $aBlogId);
+        // * Сортируем результат согласно входящему массиву
+        $aBlogs = F::Array_SortByKeysArray($aBlogs, $aBlogsId);
         return $aBlogs;
     }
 
@@ -792,52 +785,47 @@ class ModuleBlog extends Module {
         $aBlogId = array_unique($aBlogId);
         $aBlogUsers = array();
         $aBlogIdNotNeedQuery = array();
-        /**
-         * Делаем мульти-запрос к кешу
-         */
+
+        // * Делаем мульти-запрос к кешу
         $aCacheKeys = F::Array_ChangeValues($aBlogId, 'blog_relation_user_', '_' . $iUserId);
         if (false !== ($data = E::ModuleCache()->Get($aCacheKeys))) {
-            /**
-             * проверяем что досталось из кеша
-             */
-            foreach ($aCacheKeys as $sValue => $sKey) {
+            // * проверяем что досталось из кеша
+            foreach ($aCacheKeys as $iIndex => $sKey) {
                 if (array_key_exists($sKey, $data)) {
                     if ($data[$sKey]) {
                         $aBlogUsers[$data[$sKey]->getBlogId()] = $data[$sKey];
                     } else {
-                        $aBlogIdNotNeedQuery[] = $sValue;
+                        $aBlogIdNotNeedQuery[] = $aBlogId[$iIndex];
                     }
                 }
             }
         }
-        /**
-         * Смотрим каких блогов не было в кеше и делаем запрос в БД
-         */
+        // * Смотрим каких блогов не было в кеше и делаем запрос в БД
         $aBlogIdNeedQuery = array_diff($aBlogId, array_keys($aBlogUsers));
         $aBlogIdNeedQuery = array_diff($aBlogIdNeedQuery, $aBlogIdNotNeedQuery);
         $aBlogIdNeedStore = $aBlogIdNeedQuery;
-        if ($data = $this->oMapper->GetBlogUsersByArrayBlog($aBlogIdNeedQuery, $iUserId)) {
-            foreach ($data as $oBlogUser) {
-                /**
-                 * Добавляем к результату и сохраняем в кеш
-                 */
-                $aBlogUsers[$oBlogUser->getBlogId()] = $oBlogUser;
-                E::ModuleCache()->Set(
-                    $oBlogUser, "blog_relation_user_{$oBlogUser->getBlogId()}_{$oBlogUser->getUserId()}", array(), 'P4D'
-                );
-                $aBlogIdNeedStore = array_diff($aBlogIdNeedStore, array($oBlogUser->getBlogId()));
+
+        if ($aBlogIdNeedQuery) {
+            if ($data = $this->oMapper->GetBlogUsersByArrayBlog($aBlogIdNeedQuery, $iUserId)) {
+                foreach ($data as $oBlogUser) {
+                    // * Добавляем к результату и сохраняем в кеш
+                    $aBlogUsers[$oBlogUser->getBlogId()] = $oBlogUser;
+                    E::ModuleCache()->Set(
+                        $oBlogUser, "blog_relation_user_{$oBlogUser->getBlogId()}_{$oBlogUser->getUserId()}", array(), 'P4D'
+                    );
+                    $aBlogIdNeedStore = array_diff($aBlogIdNeedStore, array($oBlogUser->getBlogId()));
+                }
             }
         }
-        /**
-         * Сохраняем в кеш запросы не вернувшие результата
-         */
+
+        // * Сохраняем в кеш запросы не вернувшие результата
         foreach ($aBlogIdNeedStore as $sId) {
             E::ModuleCache()->Set(null, "blog_relation_user_{$sId}_{$iUserId}", array(), 'P4D');
         }
-        /**
-         * Сортируем результат согласно входящему массиву
-         */
+
+        // * Сортируем результат согласно входящему массиву
         $aBlogUsers = F::Array_SortByKeysArray($aBlogUsers, $aBlogId);
+
         return $aBlogUsers;
     }
 

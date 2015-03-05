@@ -214,68 +214,61 @@ class ModuleComment extends Module {
     /**
      * Список комментов по ID
      *
-     * @param array|int $aCommentId    Список ID комментариев
+     * @param array|int $aCommentsId    Список ID комментариев
      *
      * @return array
      */
-    public function GetCommentsByArrayId($aCommentId) {
+    public function GetCommentsByArrayId($aCommentsId) {
 
-        if (!$aCommentId) {
+        if (!$aCommentsId) {
             return array();
         }
         if (Config::Get('sys.cache.solid')) {
-            return $this->GetCommentsByArrayIdSolid($aCommentId);
+            return $this->GetCommentsByArrayIdSolid($aCommentsId);
         }
-        if (!is_array($aCommentId)) {
-            $aCommentId = array($aCommentId);
+        if (!is_array($aCommentsId)) {
+            $aCommentsId = array($aCommentsId);
         }
-        $aCommentId = array_unique($aCommentId);
+        $aCommentsId = array_unique($aCommentsId);
         $aComments = array();
         $aCommentIdNotNeedQuery = array();
-        /**
-         * Делаем мульти-запрос к кешу
-         */
-        $aCacheKeys = F::Array_ChangeValues($aCommentId, 'comment_');
+
+        // * Делаем мульти-запрос к кешу
+        $aCacheKeys = F::Array_ChangeValues($aCommentsId, 'comment_');
         if (false !== ($data = E::ModuleCache()->Get($aCacheKeys))) {
-            /**
-             * Проверяем что досталось из кеша
-             */
-            foreach ($aCacheKeys as $sValue => $sKey) {
+            // * Проверяем что досталось из кеша
+            foreach ($aCacheKeys as $iIndex => $sKey) {
                 if (array_key_exists($sKey, $data)) {
                     if ($data[$sKey]) {
                         $aComments[$data[$sKey]->getId()] = $data[$sKey];
                     } else {
-                        $aCommentIdNotNeedQuery[] = $sValue;
+                        $aCommentIdNotNeedQuery[] = $aCommentsId[$iIndex];
                     }
                 }
             }
         }
-        /**
-         * Смотрим каких комментов не было в кеше и делаем запрос в БД
-         */
-        $aCommentIdNeedQuery = array_diff($aCommentId, array_keys($aComments));
+        // * Смотрим каких комментов не было в кеше и делаем запрос в БД
+        $aCommentIdNeedQuery = array_diff($aCommentsId, array_keys($aComments));
         $aCommentIdNeedQuery = array_diff($aCommentIdNeedQuery, $aCommentIdNotNeedQuery);
         $aCommentIdNeedStore = $aCommentIdNeedQuery;
-        if ($data = $this->oMapper->GetCommentsByArrayId($aCommentIdNeedQuery)) {
-            foreach ($data as $oComment) {
-                /**
-                 * Добавляем к результату и сохраняем в кеш
-                 */
-                $aComments[$oComment->getId()] = $oComment;
-                E::ModuleCache()->Set($oComment, "comment_{$oComment->getId()}", array(), 'P4D');
-                $aCommentIdNeedStore = array_diff($aCommentIdNeedStore, array($oComment->getId()));
+
+        if ($aCommentIdNeedQuery) {
+            if ($data = $this->oMapper->GetCommentsByArrayId($aCommentIdNeedQuery)) {
+                foreach ($data as $oComment) {
+                    // * Добавляем к результату и сохраняем в кеш
+                    $aComments[$oComment->getId()] = $oComment;
+                    E::ModuleCache()->Set($oComment, "comment_{$oComment->getId()}", array(), 'P4D');
+                    $aCommentIdNeedStore = array_diff($aCommentIdNeedStore, array($oComment->getId()));
+                }
             }
         }
-        /**
-         * Сохраняем в кеш запросы не вернувшие результата
-         */
+
+        // * Сохраняем в кеш запросы не вернувшие результата
         foreach ($aCommentIdNeedStore as $nId) {
             E::ModuleCache()->Set(null, "comment_{$nId}", array(), 'P4D');
         }
-        /**
-         * Сортируем результат согласно входящему массиву
-         */
-        $aComments = F::Array_SortByKeysArray($aComments, $aCommentId);
+        // * Сортируем результат согласно входящему массиву
+        $aComments = F::Array_SortByKeysArray($aComments, $aCommentsId);
 
         return $aComments;
     }

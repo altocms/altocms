@@ -54,73 +54,68 @@ class ModuleFavourite extends Module {
     /**
      * Получить список избранного по списку айдишников
      *
-     * @param  array  $aTargetId      Список ID владельцев
+     * @param  array  $aTargetsId      Список ID владельцев
      * @param  string $sTargetType    Тип владельца
-     * @param  int    $nUserId        ID пользователя
+     * @param  int    $iUserId        ID пользователя
      *
      * @return array
      */
-    public function GetFavouritesByArray($aTargetId, $sTargetType, $nUserId) {
+    public function GetFavouritesByArray($aTargetsId, $sTargetType, $iUserId) {
 
-        if (!$aTargetId) {
+        if (!$aTargetsId) {
             return array();
         }
         if (Config::Get('sys.cache.solid')) {
-            return $this->GetFavouritesByArraySolid($aTargetId, $sTargetType, $nUserId);
+            return $this->GetFavouritesByArraySolid($aTargetsId, $sTargetType, $iUserId);
         }
-        if (!is_array($aTargetId)) {
-            $aTargetId = array($aTargetId);
+        if (!is_array($aTargetsId)) {
+            $aTargetsId = array($aTargetsId);
         }
-        $aTargetId = array_unique($aTargetId);
+        $aTargetsId = array_unique($aTargetsId);
         $aFavourite = array();
         $aIdNotNeedQuery = array();
-        /**
-         * Делаем мульти-запрос к кешу
-         */
-        $aCacheKeys = F::Array_ChangeValues($aTargetId, "favourite_{$sTargetType}_", '_' . $nUserId);
+
+        // * Делаем мульти-запрос к кешу
+        $aCacheKeys = F::Array_ChangeValues($aTargetsId, "favourite_{$sTargetType}_", '_' . $iUserId);
         if (false !== ($data = E::ModuleCache()->Get($aCacheKeys))) {
-            /**
-             * проверяем что досталось из кеша
-             */
-            foreach ($aCacheKeys as $sValue => $sKey) {
+            // * проверяем что досталось из кеша
+            foreach ($aCacheKeys as $iIndex => $sKey) {
                 if (array_key_exists($sKey, $data)) {
                     if ($data[$sKey]) {
                         $aFavourite[$data[$sKey]->getTargetId()] = $data[$sKey];
                     } else {
-                        $aIdNotNeedQuery[] = $sValue;
+                        $aIdNotNeedQuery[] = $aTargetsId[$iIndex];
                     }
                 }
             }
         }
-        /**
-         * Смотрим чего не было в кеше и делаем запрос в БД
-         */
-        $aIdNeedQuery = array_diff($aTargetId, array_keys($aFavourite));
+        // * Смотрим чего не было в кеше и делаем запрос в БД
+        $aIdNeedQuery = array_diff($aTargetsId, array_keys($aFavourite));
         $aIdNeedQuery = array_diff($aIdNeedQuery, $aIdNotNeedQuery);
         $aIdNeedStore = $aIdNeedQuery;
-        if ($data = $this->oMapper->GetFavouritesByArray($aIdNeedQuery, $sTargetType, $nUserId)) {
-            foreach ($data as $oFavourite) {
-                /**
-                 * Добавляем к результату и сохраняем в кеш
-                 */
-                $aFavourite[$oFavourite->getTargetId()] = $oFavourite;
-                E::ModuleCache()->Set(
-                    $oFavourite, "favourite_{$oFavourite->getTargetType()}_{$oFavourite->getTargetId()}_{$nUserId}",
-                    array(), 60 * 60 * 24 * 7
-                );
-                $aIdNeedStore = array_diff($aIdNeedStore, array($oFavourite->getTargetId()));
+
+        if ($aIdNeedQuery) {
+            if ($data = $this->oMapper->GetFavouritesByArray($aIdNeedQuery, $sTargetType, $iUserId)) {
+                foreach ($data as $oFavourite) {
+                    // * Добавляем к результату и сохраняем в кеш
+                    $aFavourite[$oFavourite->getTargetId()] = $oFavourite;
+                    E::ModuleCache()->Set(
+                        $oFavourite, "favourite_{$oFavourite->getTargetType()}_{$oFavourite->getTargetId()}_{$iUserId}",
+                        array(), 60 * 60 * 24 * 7
+                    );
+                    $aIdNeedStore = array_diff($aIdNeedStore, array($oFavourite->getTargetId()));
+                }
             }
         }
-        /**
-         * Сохраняем в кеш запросы не вернувшие результата
-         */
+
+        // * Сохраняем в кеш запросы не вернувшие результата
         foreach ($aIdNeedStore as $sId) {
-            E::ModuleCache()->Set(null, "favourite_{$sTargetType}_{$sId}_{$nUserId}", array(), 60 * 60 * 24 * 7);
+            E::ModuleCache()->Set(null, "favourite_{$sTargetType}_{$sId}_{$iUserId}", array(), 60 * 60 * 24 * 7);
         }
-        /**
-         * Сортируем результат согласно входящему массиву
-         */
-        $aFavourite = F::Array_SortByKeysArray($aFavourite, $aTargetId);
+
+        // * Сортируем результат согласно входящему массиву
+        $aFavourite = F::Array_SortByKeysArray($aFavourite, $aTargetsId);
+
         return $aFavourite;
     }
 
