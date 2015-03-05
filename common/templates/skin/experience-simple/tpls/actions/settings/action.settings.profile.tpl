@@ -88,7 +88,7 @@
                                 <div class="input-group">
                                     <span class="input-group-addon">{$aLang.settings_profile_name}</span>
                                     <input type="text"
-                                           placeholder="{$aLang.settings_profile_name_notice}"
+                                           placeholder="{$aLang.settings_profile_name_notice|ls_lang:"name_max%%{C::Get('module.user.name_max')}"}"
                                            name="profile_name" id="profile_name"
                                            value="{E::User()->getProfileName()|escape:'html'}" class="form-control">
                                 </div>
