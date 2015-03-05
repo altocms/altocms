@@ -767,9 +767,7 @@ class ModuleUploader extends Module {
                 if (!$this->AddRelationResourceTarget($oResource, $sTarget, $sTargetId)) {
                     // TODO Возможная ошибка
                 }
-                $sFile = $oStoredFile->GetUrl();
-
-                return $sFile;
+                return $oStoredFile;
             }
         }
         return false;

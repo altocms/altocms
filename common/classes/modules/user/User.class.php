@@ -1411,8 +1411,8 @@ class ModuleUser extends Module {
             } else {
                 $iUserId = intval($xUser);
             }
-            if ($iUserId) {
-                return E::ModuleUploader()->StoreImage($sFile, 'profile_avatar', $iUserId, $aSize);
+            if ($iUserId && ($oStoredFile = E::ModuleUploader()->StoreImage($sFile, 'profile_avatar', $iUserId, $aSize))) {
+                return $oStoredFile->GetUrl();
             }
         }
         return false;
@@ -1467,8 +1467,8 @@ class ModuleUser extends Module {
             } else {
                 $iUserId = intval($xUser);
             }
-            if ($iUserId) {
-                return E::ModuleUploader()->StoreImage($sFile, 'profile_photo', $iUserId, $aSize);
+            if ($iUserId && ($oStoredFile = E::ModuleUploader()->StoreImage($sFile, 'profile_photo', $iUserId, $aSize))) {
+                return $oStoredFile->GetUrl();
             }
         }
         return false;

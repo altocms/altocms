@@ -216,9 +216,9 @@ class ActionUploader extends Action {
         if (!F::File_Exists($sFile)) {
             return FALSE;
         }
-        $xResult = E::ModuleUploader()->StoreImage($sFile, $sTarget, $sTargetId, $aSize);
-        if ($xResult) {
-            return $xResult;
+        $oStoredFile = E::ModuleUploader()->StoreImage($sFile, $sTarget, $sTargetId, $aSize);
+        if ($oStoredFile) {
+            return $oStoredFile;
         } else {
             $sError = E::ModuleUploader()->GetErrorMsg();
             if ($sError) {
