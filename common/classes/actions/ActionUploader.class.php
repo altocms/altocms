@@ -92,34 +92,17 @@ class ActionUploader extends Action {
      * Добавляет связь между объектом и ресурсом
      *
      * @param $xStoredFile
-     * @param $sTargetId
      * @param $sTargetType
+     * @param $sTargetId
      * @param bool $bMulti
      * @return bool
      */
-    public function AddUploadedFileRelationInfo($xStoredFile, $sTargetId, $sTargetType, $bMulti = FALSE) {
-
-        // Если одиночная загрузка, то предыдущий файл затрем
-        // Иначе просто добавляем еще один.
-        if (!$bMulti) {
-            E::ModuleMresource()->UnlinkFile($sTargetType, $sTargetId, E::UserId());
-        }
+    public function AddUploadedFileRelationInfo($xStoredFile, $sTargetType, $sTargetId, $bMulti = FALSE) {
 
         /** @var ModuleMresource_EntityMresource $oResource */
         $oResource = E::ModuleMresource()->GetMresourcesByUuid($xStoredFile->getUuid());
         if ($oResource) {
-//            $oRel = Engine::GetEntity('Mresource_MresourceRel');
-            $oResource->setUrl(E::ModuleMresource()->NormalizeUrl(E::ModuleUploader()->GetTargetUrl($sTargetType, $sTargetId)));
-            $oResource->setType($sTargetType);
-            $oResource->setUserId(E::UserId());
-            if ($sTargetId == '0') {
-                $oResource->setTargetTmp(E::ModuleSession()->GetCookie('uploader_target_tmp'));
-            }
-            $oResource = array($oResource);
-
-            E::ModuleMresource()->AddTargetRel($oResource, $sTargetType, $sTargetId);
-
-            return $oResource;
+            return E::ModuleUploader()->AddRelationResourceTarget($oResource, $sTargetType, $sTargetId, $bMulti);
         }
 
         return FALSE;
@@ -127,6 +110,8 @@ class ActionUploader extends Action {
 
     /**
      * Прямая загрузка изображения без открытия окна ресайза
+     *
+     * @return bool
      */
     public function EventDirectImage() {
 
@@ -140,7 +125,7 @@ class ActionUploader extends Action {
         $sPreviewFile = E::ModuleSession()->Get("sPreview-{$sTarget}-{$sTargetId}");
 
         if ($sTargetId == '0') {
-            if (!E::ModuleSession()->GetCookie('uploader_target_tmp')) {
+            if (!E::ModuleSession()->GetCookie(ModuleUploader::COOKIE_TARGET_TMP)) {
                 return FALSE;
             }
         }
@@ -148,14 +133,14 @@ class ActionUploader extends Action {
         if (!F::File_Exists($sTmpFile)) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
 
-            return;
+            return false;
         }
 
         // Проверяем, целевой объект и права на его редактирование
         if (!$oTarget = E::ModuleUploader()->CheckAccessAndGetTarget($sTarget, $sTargetId)) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
-            return;
+            return false;
         }
 
         E::ModuleMresource()->UnlinkFile($sTarget, $sTargetId, E::UserId());
@@ -175,7 +160,7 @@ class ActionUploader extends Action {
 
                 if (is_object($xStoredFile)) {
 
-                    $this->AddUploadedFileRelationInfo($xStoredFile, $sTargetId, $sTarget);
+                    $this->AddUploadedFileRelationInfo($xStoredFile, $sTarget, $sTargetId);
                     $sFile = $xStoredFile->GetUrl();
 
                 } else {
@@ -211,14 +196,14 @@ class ActionUploader extends Action {
                 E::ModuleSession()->Drop("sTmp-{$sTarget}-{$sTargetId}");
                 E::ModuleSession()->Drop("sPreview-{$sTarget}-{$sTargetId}");
 
-                return;
+                return true;
             }
         }
 
         // * В случае ошибки, возвращаем false
         E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
 
-        return;
+        return false;
     }
 
     /**
@@ -234,7 +219,7 @@ class ActionUploader extends Action {
     public function UploadImageAfterResize($sFile, $sTarget, $sTargetId, $aSize = array()) {
 
         if ($sTargetId == '0') {
-            if (!E::ModuleSession()->GetCookie('uploader_target_tmp')) {
+            if (!E::ModuleSession()->GetCookie(ModuleUploader::COOKIE_TARGET_TMP)) {
                 return FALSE;
             }
         }
@@ -242,45 +227,14 @@ class ActionUploader extends Action {
         if (!F::File_Exists($sFile)) {
             return FALSE;
         }
-        $aConfig = E::ModuleUploader()->GetConfig($sFile, $sTarget);
-        if (!$aSize) {
-            $oImg = E::ModuleImg()->CropSquare($sFile, TRUE);
+        $xResult = E::ModuleUploader()->StoreImage($sFile, $sTarget, $sTargetId, $aSize);
+        if ($xResult) {
+            return $xResult;
         } else {
-            if (!isset($aSize['w'])) {
-                $aSize['w'] = $aSize['x2'] - $aSize['x1'];
-            }
-            if (!isset($aSize['h'])) {
-                $aSize['h'] = $aSize['y2'] - $aSize['y1'];
-            }
-            $oImg = E::ModuleImg()->Crop($sFile, $aSize['w'], $aSize['h'], $aSize['x1'], $aSize['y1']);
-        }
-
-        if (!$oImg) {
-            // Возникла ошибка, надо обработать
-            /** TODO Обработка ошибки */
-        } elseif ($aConfig['transform']) {
-            E::ModuleImg()->Transform($oImg, $aConfig['transform']);
-        }
-
-        $sExtension = strtolower(pathinfo($sFile, PATHINFO_EXTENSION));
-
-        // Сохраняем изображение во временный файл
-        if ($sTmpFile = $oImg->Save(F::File_UploadUniqname($sExtension))) {
-
-            // Файл, куда будет записано изображение
-            $sImageFile = E::ModuleUploader()->Uniqname(E::ModuleUploader()->GetUploadDir($sTarget, $sTargetId), $sExtension);
-
-            // Окончательная запись файла только через модуль Uploader
-            if ($xStoredFile = E::ModuleUploader()->Store($sTmpFile, $sImageFile)) {
-
-                if (is_object($xStoredFile)) {
-                    $this->AddUploadedFileRelationInfo($xStoredFile, $sTargetId, $sTarget);
-                    $sFile = $xStoredFile->GetUrl();
-                } else {
-                    $sFile = (string)$xStoredFile;
-                }
-
-                return $sFile;
+            $sError = E::ModuleUploader()->GetErrorMsg();
+            if ($sError) {
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get($sError));
+                return false;
             }
         }
 
@@ -533,7 +487,7 @@ class ActionUploader extends Action {
         if (!($aUploadedFile = $this->GetUploadedFile('uploader-upload-image'))) {
             E::ModuleMessage()->AddError(E::ModuleLang()->Get('error_upload_image'), E::ModuleLang()->Get('error'));
 
-            return;
+            return false;
         }
 
         $sTarget = F::GetRequest('target', FALSE);
@@ -549,7 +503,7 @@ class ActionUploader extends Action {
             } else {
                 E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('not_access'), E::ModuleLang()->Get('error'));
 
-                return;
+                return false;
             }
 
         }
@@ -580,7 +534,7 @@ class ActionUploader extends Action {
             }
 
             // Определим, существует ли объект или он будет создан позже
-            if (!($sTmpKey = E::ModuleSession()->GetCookie('uploader_target_tmp')) && $sTargetId == '0') {
+            if (!($sTmpKey = E::ModuleSession()->GetCookie(ModuleUploader::COOKIE_TARGET_TMP)) && $sTargetId == '0') {
                 E::ModuleMessage()->AddError(E::ModuleLang()->Get('error_upload_image'), E::ModuleLang()->Get('error'));
 
                 return FALSE;
@@ -604,7 +558,7 @@ class ActionUploader extends Action {
 
                 if (is_object($xStoredFile)) {
                     /** @var ModuleMresource_EntityMresource $oResource */
-                    $oResource = $this->AddUploadedFileRelationInfo($xStoredFile, $sTargetId, $sTarget, TRUE);
+                    $oResource = $this->AddUploadedFileRelationInfo($xStoredFile, $sTarget, $sTargetId, TRUE);
                     $sFile = $xStoredFile->GetUrl();
                     if ($oResource) {
                         $oResource = array_shift($oResource);

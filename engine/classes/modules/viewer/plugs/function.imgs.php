@@ -43,16 +43,16 @@ function smarty_function_imgs($aParams, &$oSmarty = NULL) {
 
     // Получим изображение по временному ключу, или создадим этот ключ
     $aParams['src'] = array();
-    if (($sTargetTmp = E::ModuleSession()->GetCookie('uploader_target_tmp')) && E::IsUser()) {
+    if (($sTargetTmp = E::ModuleSession()->GetCookie(ModuleUploader::COOKIE_TARGET_TMP)) && E::IsUser()) {
         // Продлим куку
-        E::ModuleSession()->SetCookie('uploader_target_tmp', $sTargetTmp, 'P1D', FALSE);
+        E::ModuleSession()->SetCookie(ModuleUploader::COOKIE_TARGET_TMP, $sTargetTmp, 'P1D', FALSE);
     } else {
         // Куки нет, это значит, что пользователь первый раз создает этот тип
         // и старой картинки просто нет
         if ($iTargetId == '0') {
-            E::ModuleSession()->SetCookie('uploader_target_tmp', F::RandomStr(), 'P1D', FALSE);
+            E::ModuleSession()->SetCookie(ModuleUploader::COOKIE_TARGET_TMP, F::RandomStr(), 'P1D', FALSE);
         } else {
-            E::ModuleSession()->DelCookie('uploader_target_tmp');
+            E::ModuleSession()->DelCookie(ModuleUploader::COOKIE_TARGET_TMP);
         }
     }
 

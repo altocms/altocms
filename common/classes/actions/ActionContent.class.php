@@ -416,10 +416,10 @@ class ActionContent extends Action {
             E::ModuleSession()->DelCookie('ls_photoset_target_tmp');
 
             // Обработаем фотосет
-            if ($this->oContentType->isAllow('photoset') && ($sTargetTmp = E::ModuleSession()->GetCookie('uploader_target_tmp'))) {
+            if ($this->oContentType->isAllow('photoset') && ($sTargetTmp = E::ModuleSession()->GetCookie(ModuleUploader::COOKIE_TARGET_TMP))) {
                 // А вот здесь ничего сохранять не будем,
                 // 1. Просто уберем у ресурса флаг временного размещения и удалим из куки target_tmp
-                E::ModuleSession()->DelCookie('uploader_target_tmp');
+                E::ModuleSession()->DelCookie(ModuleUploader::COOKIE_TARGET_TMP);
 
                 // 2. Переместим фото из временной папки в рабочую
                 $sTargetType = 'topic-multi-image-uploader';

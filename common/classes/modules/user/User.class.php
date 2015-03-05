@@ -1397,49 +1397,24 @@ class ModuleUser extends Module {
     /**
      * Загрузка аватара пользователя
      *
-     * @param  string                $sFile - Путь до оригинального файла
-     * @param  ModuleUser_EntityUser $oUser - Объект пользователя
-     * @param  array                 $aSize - Размер области из которой нужно вырезать картинку - array('x1'=>0,'y1'=>0,'x2'=>100,'y2'=>100)
+     * @param  string     $sFile - Путь до оригинального файла
+     * @param  object|int $xUser - Сущность пользователя или ID пользователя
+     * @param  array      $aSize - Размер области из которой нужно вырезать картинку - array('x1'=>0,'y1'=>0,'x2'=>100,'y2'=>100)
      *
      * @return string|bool
      */
-    public function UploadAvatar($sFile, $oUser, $aSize = array()) {
+    public function UploadAvatar($sFile, $xUser, $aSize = array()) {
 
-        if (!F::File_Exists($sFile)) {
-            return false;
-        }
-        if (!$aSize) {
-            $oImg = E::ModuleImg()->CropSquare($sFile, true);
-        } else {
-            if (!isset($aSize['w'])) {
-                $aSize['w'] = $aSize['x2'] - $aSize['x1'];
+        if ($sFile && $xUser) {
+            if (is_object($xUser)) {
+                $iUserId = $xUser->getId();
+            } else {
+                $iUserId = intval($xUser);
             }
-            if (!isset($aSize['h'])) {
-                $aSize['h'] = $aSize['y2'] - $aSize['y1'];
-            }
-            $oImg = E::ModuleImg()->Crop($sFile, $aSize['w'], $aSize['h'], $aSize['x1'], $aSize['y1']);
-        }
-        $sExtension = strtolower(pathinfo($sFile, PATHINFO_EXTENSION));
-        $sName = pathinfo($sFile, PATHINFO_FILENAME);
-
-        // Сохраняем аватар во временный файл
-        if ($sTmpFile = $oImg->Save(F::File_UploadUniqname($sExtension))) {
-
-            // Файл, куда будет записан аватар
-            $sAvatar = E::ModuleUploader()->GetUserAvatarDir($oUser->GetId()) . $sName . '.' . $sExtension;
-
-            // Окончательная запись файла только через модуль Uploader
-            if ($xStoredFile = E::ModuleUploader()->Store($sTmpFile, $sAvatar)) {
-                if (is_object($xStoredFile)) {
-                    return $xStoredFile->GetUrl();
-                } else {
-                    return E::ModuleUploader()->Dir2Url($xStoredFile);
-                }
+            if ($iUserId) {
+                return E::ModuleUploader()->StoreImage($sFile, 'profile_avatar', $iUserId, $aSize);
             }
         }
-
-        // * В случае ошибки, возвращаем false
-        E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
         return false;
     }
 
@@ -1476,50 +1451,26 @@ class ModuleUser extends Module {
     }
 
     /**
-     * загрузка фотографии пользователя
+     * Загрузка фотографии пользователя
      *
-     * @param  string                $sFile - Серверный путь до временной фотографии
-     * @param  ModuleUser_EntityUser $oUser - Объект пользователя
-     * @param  array                 $aSize - Размер области из которой нужно вырезать картинку - array('x1'=>0,'y1'=>0,'x2'=>100,'y2'=>100)
+     * @param  string     $sFile - Серверный путь до временной фотографии
+     * @param  object|int $xUser - Сущность пользователя или ID пользователя
+     * @param  array      $aSize - Размер области из которой нужно вырезать картинку - array('x1'=>0,'y1'=>0,'x2'=>100,'y2'=>100)
      *
      * @return string|bool
      */
-    public function UploadPhoto($sFile, $oUser, $aSize = array()) {
+    public function UploadPhoto($sFile, $xUser, $aSize = array()) {
 
-        if (!F::File_Exists($sFile)) {
-            return false;
-        }
-        if (!$aSize) {
-            $oImg = E::ModuleImg()->CropSquare($sFile, true);
-        } else {
-            if (!isset($aSize['w'])) {
-                $aSize['w'] = $aSize['x2'] - $aSize['x1'];
+        if ($sFile && $xUser) {
+            if (is_object($xUser)) {
+                $iUserId = $xUser->getId();
+            } else {
+                $iUserId = intval($xUser);
             }
-            if (!isset($aSize['h'])) {
-                $aSize['h'] = $aSize['y2'] - $aSize['y1'];
-            }
-            $oImg = E::ModuleImg()->Crop($sFile, $aSize['w'], $aSize['h'], $aSize['x1'], $aSize['y1']);
-        }
-        $sExtension = strtolower(pathinfo($sFile, PATHINFO_EXTENSION));
-
-        // Сохраняем фото во временный файл
-        if ($sTmpFile = $oImg->Save(F::File_UploadUniqname($sExtension))) {
-
-            // Файл, куда будет записано фото
-            $sPhoto = E::ModuleUploader()->Uniqname(E::ModuleUploader()->GetUserImageDir($oUser->GetId()), $sExtension);
-
-            // Окончательная запись файла только через модуль Uploader
-            if ($xStoredFile = E::ModuleUploader()->Store($sTmpFile, $sPhoto)) {
-                if (is_object($xStoredFile)) {
-                    return $xStoredFile->GetUrl();
-                } else {
-                    return E::ModuleUploader()->Dir2Url($xStoredFile);
-                }
+            if ($iUserId) {
+                return E::ModuleUploader()->StoreImage($sFile, 'profile_photo', $iUserId, $aSize);
             }
         }
-
-        // * В случае ошибки, возвращаем false
-        E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'));
         return false;
     }
 

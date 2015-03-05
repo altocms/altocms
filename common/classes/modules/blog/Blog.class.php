@@ -481,12 +481,12 @@ class ModuleBlog extends Module {
             // 1. Удалить значение target_tmp
             // Нужно затереть временный ключ в ресурсах, что бы в дальнейшем картнка не
             // воспринималась как временная.
-            if ($sTargetTmp = E::ModuleSession()->GetCookie('uploader_target_tmp')) {
+            if ($sTargetTmp = E::ModuleSession()->GetCookie(ModuleUploader::COOKIE_TARGET_TMP)) {
                 // 2. Удалить куку.
                 // Если прозошло сохранение вновь созданного топика, то нужно
                 // удалить куку временной картинки. Если же сохранялся уже существующий топик,
                 // то удаление куки ни на что влиять не будет.
-                E::ModuleSession()->DelCookie('uploader_target_tmp');
+                E::ModuleSession()->DelCookie(ModuleUploader::COOKIE_TARGET_TMP);
 
                 // 3. Переместить фото
                 $sTargetType = 'blog_avatar';

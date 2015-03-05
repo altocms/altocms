@@ -10,6 +10,8 @@
 
 class ModuleUploader extends Module {
 
+    const COOKIE_TARGET_TMP         = 'uploader_target_tmp';
+
     const ERR_NOT_POST_UPLOADED     = 10001;
     const ERR_NOT_FILE_VARIABLE     = 10002;
     const ERR_MAKE_UPLOAD_DIR       = 10003;
@@ -24,6 +26,7 @@ class ModuleUploader extends Module {
     const ERR_IMG_NO_INFO           = 10061;
     const ERR_IMG_LARGE_WIDTH       = 10062;
     const ERR_IMG_LARGE_HEIGHT      = 10063;
+    const ERR_TRANSFORM_IMAGE       = 10101;
 
     protected $aUploadErrors
         = array(
@@ -49,6 +52,7 @@ class ModuleUploader extends Module {
             self::ERR_IMG_NO_INFO           => 'Cannot get info about image (may be file is corrupted)',
             self::ERR_IMG_LARGE_WIDTH       => 'Width of image is too large',
             self::ERR_IMG_LARGE_HEIGHT      => 'Height of image is too large',
+            self::ERR_TRANSFORM_IMAGE       => 'Error during transform image',
         );
 
     protected $nLastError = 0;
@@ -663,6 +667,8 @@ class ModuleUploader extends Module {
     }
 
     /**
+     * Stores uploaded file
+     *
      * @param string $sFile
      * @param string $sDestination
      *
@@ -688,6 +694,102 @@ class ModuleUploader extends Module {
             }
         }
         return false;
+    }
+
+    /**
+     * Stores uploaded image with optional cropping
+     *
+     * @param  string $sFile - The server path to the temporary image file
+     * @param  string $sTarget - Target type
+     * @param  string $sTargetId - Target ID
+     * @param  array $aSize - The size of the area to cut the picture - array('x1'=>0,'y1'=>0,'x2'=>100,'y2'=>100)
+     *
+     * @return bool|string
+     */
+    public function StoreImage($sFile, $sTarget, $sTargetId, $aSize = array()) {
+
+        $aConfig = $this->GetConfig($sFile, $sTarget);
+        if (!$aSize) {
+            $oImg = E::ModuleImg()->CropSquare($sFile, TRUE);
+        } else {
+            if (!isset($aSize['w'])) {
+                $aSize['w'] = $aSize['x2'] - $aSize['x1'];
+            }
+            if (!isset($aSize['h'])) {
+                $aSize['h'] = $aSize['y2'] - $aSize['y1'];
+            }
+            $oImg = E::ModuleImg()->Crop($sFile, $aSize['w'], $aSize['h'], $aSize['x1'], $aSize['y1']);
+        }
+
+        if (!$oImg) {
+            // Возникла ошибка, надо обработать
+            /** TODO Обработка ошибки */
+            $this->nLastError = self::ERR_TRANSFORM_IMAGE;
+            return false;
+        } elseif ($aConfig['transform']) {
+            E::ModuleImg()->Transform($oImg, $aConfig['transform']);
+        }
+
+        $sExtension = strtolower(pathinfo($sFile, PATHINFO_EXTENSION));
+
+        // Сохраняем изображение во временный файл
+        if ($sTmpFile = $oImg->Save(F::File_UploadUniqname($sExtension))) {
+
+            // Файл, куда будет записано изображение
+            $sImageFile = $this->Uniqname($this->GetUploadDir($sTarget, $sTargetId), $sExtension);
+
+            // Окончательная запись файла
+            if ($xStoredFile = $this->Store($sTmpFile, $sImageFile)) {
+
+                if (is_object($xStoredFile)) {
+                    $oResource = E::ModuleMresource()->GetMresourcesByUuid($xStoredFile->getUuid());
+                    if (!$this->AddRelationResourceTarget($oResource, $sTarget, $sTargetId)) {
+                        // TODO Возможная ошибка
+                    }
+                    $sFile = $xStoredFile->GetUrl();
+                } else {
+                    $sFile = (string)$xStoredFile;
+                }
+
+                return $sFile;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Добавляет связь между ресурсом и целевым объектом
+     *
+     * @param ModuleMresource_EntityMresource $oResource
+     * @param string $sTargetType
+     * @param string $sTargetId
+     * @param bool   $bMulti
+     *
+     * @return bool
+     */
+    public function AddRelationResourceTarget($oResource, $sTargetType, $sTargetId, $bMulti = FALSE) {
+
+        if ($oResource) {
+            // Если одиночная загрузка, то предыдущий файл затрем
+            // Иначе просто добавляем еще один.
+            if (!$bMulti) {
+                E::ModuleMresource()->UnlinkFile($sTargetType, $sTargetId, E::UserId());
+            }
+
+            $oResource->setUrl(E::ModuleMresource()->NormalizeUrl($this->GetTargetUrl($sTargetType, $sTargetId)));
+            $oResource->setType($sTargetType);
+            $oResource->setUserId(E::UserId());
+            if ($sTargetId == '0') {
+                $oResource->setTargetTmp(E::ModuleSession()->GetCookie(self::COOKIE_TARGET_TMP));
+            }
+            $oResource = array($oResource);
+
+            E::ModuleMresource()->AddTargetRel($oResource, $sTargetType, $sTargetId);
+
+            return $oResource;
+        }
+
+        return FALSE;
     }
 
     /**
@@ -945,7 +1047,7 @@ class ModuleUploader extends Module {
         $sUrl = $sOriginalPath . $sModSuffix;
 
         if (Config::Get('module.image.autoresize')) {
-            $sFile = E::ModuleUploader()->Url2Dir($sUrl);
+            $sFile = $this->Url2Dir($sUrl);
             if (!F::File_Exists($sFile)) {
                 E::ModuleImg()->Duplicate($sFile);
             }
