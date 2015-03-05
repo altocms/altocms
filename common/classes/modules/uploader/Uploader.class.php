@@ -702,31 +702,53 @@ class ModuleUploader extends Module {
      * @param  string $sFile - The server path to the temporary image file
      * @param  string $sTarget - Target type
      * @param  string $sTargetId - Target ID
-     * @param  array $aSize - The size of the area to cut the picture - array('x1'=>0,'y1'=>0,'x2'=>100,'y2'=>100)
+     * @param  array|int|bool $xSize - The size of the area to cut the picture:
+     *                               array('x1'=>0,'y1'=>0,'x2'=>100,'y2'=>100)
+     *                               100 - crop 100x100 by center
+     *                               true - crop square by min side
      *
      * @return bool|string
      */
-    public function StoreImage($sFile, $sTarget, $sTargetId, $aSize = array()) {
+    public function StoreImage($sFile, $sTarget, $sTargetId, $xSize = null) {
 
-        $aConfig = $this->GetConfig($sFile, $sTarget);
-        if (!$aSize) {
-            $oImg = E::ModuleImg()->CropSquare($sFile, TRUE);
-        } else {
-            if (!isset($aSize['w'])) {
-                $aSize['w'] = $aSize['x2'] - $aSize['x1'];
-            }
-            if (!isset($aSize['h'])) {
-                $aSize['h'] = $aSize['y2'] - $aSize['y1'];
-            }
-            $oImg = E::ModuleImg()->Crop($sFile, $aSize['w'], $aSize['h'], $aSize['x1'], $aSize['y1']);
-        }
-
+        $oImg = E::ModuleImg()->Read($sFile);
         if (!$oImg) {
             // Возникла ошибка, надо обработать
             /** TODO Обработка ошибки */
             $this->nLastError = self::ERR_TRANSFORM_IMAGE;
             return false;
-        } elseif ($aConfig['transform']) {
+        }
+
+        $aConfig = $this->GetConfig($sFile, $sTarget);
+        if (!is_null($xSize)) {
+            if ($xSize === true) {
+                // crop square by min side
+                $oImg = E::ModuleImg()->CropSquare($oImg, TRUE);
+            } elseif(is_numeric($xSize)) {
+                // crop square in center
+                $oImg = E::ModuleImg()->CropCenter($oImg, intval($xSize), intval($xSize));
+            } elseif (is_array($xSize)) {
+                if (!isset($xSize['w']) && isset($xSize['x1']) && isset($xSize['x2'])) {
+                    $xSize['w'] = $xSize['x2'] - $xSize['x1'];
+                }
+                if (!isset($xSize['h']) && isset($xSize['y1']) && isset($xSize['y2'])) {
+                    $xSize['h'] = $xSize['y2'] - $xSize['y1'];
+                }
+                if (isset($xSize['w']) && !isset($xSize['h'])) {
+                    $xSize['h'] = $oImg->getHeight();
+                }
+                if (!isset($xSize['w']) && isset($xSize['h'])) {
+                    $xSize['h'] = $oImg->getWeight();
+                }
+                if (array_key_exists('x1', $xSize) || array_key_exists('x1', $xSize)) {
+                    $oImg = E::ModuleImg()->CropCenter($oImg, $xSize['w'], $xSize['h']);
+                } else {
+                    $oImg = E::ModuleImg()->Crop($oImg, $xSize['w'], $xSize['h'], $xSize['x1'], $xSize['y1']);
+                }
+            }
+        }
+
+        if ($aConfig['transform']) {
             E::ModuleImg()->Transform($oImg, $aConfig['transform']);
         }
 
