@@ -731,9 +731,10 @@ class ModuleUploader extends Module {
      *                               100 - crop 100x100 by center
      *                               true - crop square by min side
      *
+     * @param bool $bMulti - Target has many images
      * @return bool|string
      */
-    public function StoreImage($sFile, $sTarget, $sTargetId, $xSize = null) {
+    public function StoreImage($sFile, $sTarget, $sTargetId, $xSize = null, $bMulti = FALSE) {
 
         $oImg = E::ModuleImg()->Read($sFile);
         if (!$oImg) {
@@ -788,7 +789,7 @@ class ModuleUploader extends Module {
             if ($oStoredFile = $this->Store($sTmpFile, $sImageFile)) {
 
                 $oResource = E::ModuleMresource()->GetMresourcesByUuid($oStoredFile->getUuid());
-                if (!$this->AddRelationResourceTarget($oResource, $sTarget, $sTargetId)) {
+                if (!$this->AddRelationResourceTarget($oResource, $sTarget, $sTargetId, $bMulti)) {
                     // TODO Возможная ошибка
                 }
                 return $oStoredFile;

@@ -361,16 +361,16 @@ class ActionUploader extends Action {
         }
 
         // * Вырезаем и сохраняем фото
-        if ($sFileWeb = $this->UploadImageAfterResize($sTmpFile, $sTarget, $sTargetId, $aSize)) {
+        if ($oFileWeb = $this->UploadImageAfterResize($sTmpFile, $sTarget, $sTargetId, $aSize)) {
 
-            $sFileWebPreview = $sFileWeb;
+            $sFileWebPreview = $oFileWeb->getUrl();
             if ($sSize = F::GetRequest('crop_size', FALSE)) {
-                $sFileWebPreview = E::ModuleUploader()->ResizeTargetImage($sFileWeb, $sSize);
+                $sFileWebPreview = E::ModuleUploader()->ResizeTargetImage($oFileWeb->getUrl(), $sSize);
             }
 
             // Запускаем хук на действия после загрузки картинки
             E::ModuleHook()->Run('uploader_upload_image_after', array(
-                'sFile'        => $sFileWeb,
+                'sFile'        => $oFileWeb,
                 'sFilePreview' => $sFileWebPreview,
                 'sTargetId'    => $sTargetId,
                 'sTarget'      => $sTarget,
@@ -386,7 +386,7 @@ class ActionUploader extends Action {
             E::ModuleSession()->Drop("sTmp-{$sTarget}-{$sTargetId}");
             E::ModuleSession()->Drop("sPreview-{$sTarget}-{$sTargetId}");
 
-            E::ModuleViewer()->AssignAjax('sFile', $sFileWeb);
+            E::ModuleViewer()->AssignAjax('sFile', $oFileWeb->getUrl());
             E::ModuleViewer()->AssignAjax('sFilePreview', $sFileWebPreview);
             E::ModuleViewer()->AssignAjax('sTitleUpload', E::ModuleLang()->Get('uploader_upload_success'));
         } else {
@@ -540,14 +540,13 @@ class ActionUploader extends Action {
             }
 
             // Окончательная запись файла только через модуль Uploader
-            if ($oStoredFile = E::ModuleUploader()->StoreImage($sTmpFile, $sTarget, $sTargetId)) {
+            if ($oStoredFile = E::ModuleUploader()->StoreImage($sTmpFile, $sTarget, $sTargetId, null, true)) {
 
                 /** @var ModuleMresource_EntityMresource $oResource */
                 //$oResource = $this->AddUploadedFileRelationInfo($oStoredFile, $sTarget, $sTargetId, TRUE);
                 $oResource = E::ModuleMresource()->GetMresourcesByUuid($oStoredFile->getUuid());
                 $sFile = $oStoredFile->GetUrl();
                 if ($oResource) {
-                    $oResource = array_shift($oResource);
                     $oResource->setType(ModuleMresource::TYPE_PHOTO);
                     E::ModuleMresource()->UpdateType($oResource);
                 }
