@@ -362,6 +362,7 @@ $config['module']['uploader']['images']['profile_avatar'] = array(
     'transform' => array(
         'max_width'  => 250,        // максимальная ширина сохраняемой аватары
         'max_height' => 250,        // максимальная высота сохраняемой аватары
+        'aspect_ratio' => '1:1',    // соотношение ширины и высоты
         'watermark' => array(
             'enable' => false,
         ),
@@ -509,7 +510,7 @@ $config['module']['rating']['blog']['topic_count']      =0.15;  //Коэффиц
 /**
  * Настройка фотосета топика
  */
-$config['module']['image']['photoset']['jpg_quality'] = 100;        // настройка модуля Image, качество обработки фото
+//$config['module']['image']['photoset']['jpg_quality'] = 100;        // настройка модуля Image, качество обработки фото
 $config['module']['topic']['photoset']['photo_max_size'] = 6*1024;  // максимально допустимый размер фото, Kb
 $config['module']['topic']['photoset']['count_photos_min'] = 2;     // минимальное количество фоток
 $config['module']['topic']['photoset']['count_photos_max'] = 30;    // максимальное количество фоток (если 0, то без ограничений)

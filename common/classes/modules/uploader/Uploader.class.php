@@ -370,6 +370,30 @@ class ModuleUploader extends Module {
     }
 
     /**
+     * Returns aspect ration from section 'transform'
+     *
+     * @param string $sFile
+     * @param string $sConfigKey
+     *
+     * @return float|null
+     */
+    public function GetConfigAspectRatio($sFile, $sConfigKey = 'default') {
+
+        $aConfig = $this->GetConfig($sFile, $sConfigKey);
+        $nResult = null;
+        if (isset($aConfig['transform']['aspect_ration'])) {
+            $sAspectRatio = $aConfig['transform']['aspect_ration'];
+            if (strpos($sAspectRatio, ':')) {
+                list($nW, $nH) = explode(':', $sAspectRatio, 2);
+                $nResult = floatval($nW) / float($nH);
+            } else {
+                $nResult = floatval($sAspectRatio);
+            }
+        }
+        return $nResult;
+    }
+
+    /**
      * Upload file from client via HTTP POST
      *
      * @param array  $aFile
