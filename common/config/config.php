@@ -362,7 +362,7 @@ $config['module']['uploader']['images']['profile_avatar'] = array(
     'transform' => array(
         'max_width'  => 250,        // максимальная ширина сохраняемой аватары
         'max_height' => 250,        // максимальная высота сохраняемой аватары
-        'aspect_ratio' => '1:1',    // соотношение ширины и высоты
+        'aspect_ratio' => '1',      // соотношение ширины и высоты
         'watermark' => array(
             'enable' => false,
         ),
@@ -374,6 +374,9 @@ $config['module']['uploader']['images']['profile_avatar'] = array(
 
 $config['module']['uploader']['images']['profile_photo'] = array(
     '$extends$' => '___module.uploader.images.default___',
+    'transform' => array(
+        'aspect_ratio' => '1',      // соотношение ширины и высоты
+    )
 );
 
 $config['module']['uploader']['images']['topic'] = array(

@@ -10,6 +10,7 @@
                  data-target-id     ="{E::User()->getId()}"
                  data-title         ="{$aLang.settings_profile_photo_resize_title}"
                  data-help          ="{$aLang.settings_profile_photo_resize_text}"
+                 data-aspect-ratio  = "{C::Get('module.uploader.images.profile_photo.transform.aspect_ratio')}"
                  data-empty         ="{E::User()->getDefaultPhotoUrl('250crop')}"
                  data-preview-crop  ="250crop"
                  data-crop          ="yes"

@@ -381,8 +381,8 @@ class ModuleUploader extends Module {
 
         $aConfig = $this->GetConfig($sFile, $sConfigKey);
         $nResult = null;
-        if (isset($aConfig['transform']['aspect_ration'])) {
-            $sAspectRatio = $aConfig['transform']['aspect_ration'];
+        if (isset($aConfig['transform']['aspect_ratio'])) {
+            $sAspectRatio = $aConfig['transform']['aspect_ratio'];
             if (strpos($sAspectRatio, ':')) {
                 list($nW, $nH) = explode(':', $sAspectRatio, 2);
                 $nResult = floatval($nW) / float($nH);
