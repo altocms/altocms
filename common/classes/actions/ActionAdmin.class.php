@@ -1026,7 +1026,7 @@ class ActionAdmin extends Action {
                     $_REQUEST['page_title'] = $oPageEdit->getTitle();
                     $_REQUEST['page_pid'] = $oPageEdit->getPid();
                     $_REQUEST['page_url'] = $oPageEdit->getUrl();
-                    $_REQUEST['page_text'] = $oPageEdit->getText();
+                    $_REQUEST['page_text'] = $oPageEdit->getTextSource();
                     $_REQUEST['page_seo_keywords'] = $oPageEdit->getSeoKeywords();
                     $_REQUEST['page_seo_description'] = $oPageEdit->getSeoDescription();
                     $_REQUEST['page_active'] = $oPageEdit->getActive();
@@ -1085,7 +1085,8 @@ class ActionAdmin extends Action {
         }
         $oPageEdit->setSeoDescription(F::GetRequest('page_seo_description'));
         $oPageEdit->setSeoKeywords(F::GetRequest('page_seo_keywords'));
-        $oPageEdit->setText(F::GetRequest('page_text'));
+        $oPageEdit->setText(E::ModuleText()->SnippetParser(F::GetRequest('page_text')));
+        $oPageEdit->setTextSource(F::GetRequest('page_text'));
         $oPageEdit->setTitle(F::GetRequest('page_title'));
         $oPageEdit->setUrl(F::GetRequest('page_url'));
         $oPageEdit->setSort(F::GetRequest('page_sort'));
@@ -1128,7 +1129,8 @@ class ActionAdmin extends Action {
         }
         $oPage->setSeoDescription(F::GetRequest('page_seo_description'));
         $oPage->setSeoKeywords(F::GetRequest('page_seo_keywords'));
-        $oPage->setText(F::GetRequest('page_text'));
+        $oPage->setText(E::ModuleText()->SnippetParser(F::GetRequest('page_text')));
+        $oPage->setTextSource(F::GetRequest('page_text'));
         $oPage->setTitle(F::GetRequest('page_title'));
         $oPage->setUrl(F::GetRequest('page_url'));
         if (F::GetRequest('page_sort')) {

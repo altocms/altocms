@@ -314,7 +314,7 @@
             });
     } else {
         $container
-            .css('width', '100.1%');
+            .css('width', $container.hasClass('page-photoset') ? '100%': '100.1%');
     }
 
     $container

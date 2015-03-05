@@ -967,6 +967,7 @@ CREATE TABLE IF NOT EXISTS `prefix_page` (
   `page_url_full` varchar(254) NOT NULL,
   `page_title` varchar(200) NOT NULL,
   `page_text` text NOT NULL,
+  `page_text_source` text NOT NULL,
   `page_date_add` datetime NOT NULL,
   `page_date_edit` datetime DEFAULT NULL,
   `page_seo_keywords` varchar(250) DEFAULT NULL,

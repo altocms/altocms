@@ -29,6 +29,7 @@ class ModulePage_MapperPage extends Mapper {
 			page_url_full,
 			page_title,
 			page_text,
+			page_text_source,
 			page_date_add,
 			page_seo_keywords,
 			page_seo_description,
@@ -37,10 +38,10 @@ class ModulePage_MapperPage extends Mapper {
 			page_sort,
 			page_auto_br
 			)
-			VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?d,  ?d,  ?d,  ?d)
+			VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?d,  ?d,  ?d,  ?d)
 		";
         $nId = $this->oDb->query(
-            $sql, $oPage->getPid(), $oPage->getUrl(), $oPage->getUrlFull(), $oPage->getTitle(), $oPage->getText(),
+            $sql, $oPage->getPid(), $oPage->getUrl(), $oPage->getUrlFull(), $oPage->getTitle(), $oPage->getText(), $oPage->getTextSource(),
             $oPage->getDateAdd(), $oPage->getSeoKeywords(), $oPage->getSeoDescription(), $oPage->getActive(),
             $oPage->getMain(), $oPage->getSort(), $oPage->getAutoBr()
         );
@@ -56,6 +57,7 @@ class ModulePage_MapperPage extends Mapper {
 			page_url_full = ? ,
 			page_title = ? ,
 			page_text = ? ,
+			page_text_source = ?,
 			page_date_edit = ? ,
 			page_seo_keywords = ? ,
 			page_seo_description = ? ,
@@ -66,7 +68,7 @@ class ModulePage_MapperPage extends Mapper {
 			WHERE page_id = ?d
 		";
         $bResult = $this->oDb->query(
-            $sql, $oPage->getPid(), $oPage->getUrl(), $oPage->getUrlFull(), $oPage->getTitle(), $oPage->getText(),
+            $sql, $oPage->getPid(), $oPage->getUrl(), $oPage->getUrlFull(), $oPage->getTitle(), $oPage->getText(), $oPage->getTextSource(),
             $oPage->getDateEdit(), $oPage->getSeoKeywords(), $oPage->getSeoDescription(), $oPage->getActive(),
             $oPage->getMain(), $oPage->getSort(), $oPage->getAutoBr(), $oPage->getId()
         );
