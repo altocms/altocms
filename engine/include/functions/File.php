@@ -120,6 +120,9 @@ class AltoFunc_File {
         return $sUrl;
     }
 
+    /**
+     * @return array
+     */
     static function RootUrlAliases() {
 
         $aResult = array(static::RootUrl());

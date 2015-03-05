@@ -16,6 +16,11 @@ class AltoFunc_Main {
     static protected $sRandChars = '0123456789_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
     static protected $sMemSizeUnits = 'BKMGTP';
 
+    /**
+     * @param string $sStr
+     *
+     * @return string
+     */
     static public function StrUnderscore($sStr) {
 
         return strtolower(preg_replace('/([^A-Z])([A-Z])/', "$1_$2", $sStr));
@@ -31,16 +36,37 @@ class AltoFunc_Main {
         return $sCamelized;
     }
 
+    /**
+     * @param string $sStr
+     * @param string $sSeparator
+     * @param bool   $bSkipEmpty
+     *
+     * @return array
+     */
     static public function Str2Array($sStr, $sSeparator = ',', $bSkipEmpty = false) {
 
         return F::Array_Str2Array($sStr, $sSeparator, $bSkipEmpty);
     }
 
+    /**
+     * @param string $sStr
+     * @param string $sSeparator
+     * @param bool   $bUnique
+     *
+     * @return array
+     */
     static public function Str2ArrayInt($sStr, $sSeparator = ',', $bUnique = true) {
 
         return F::Array_Str2ArrayInt($sStr, $sSeparator, $bUnique);
     }
 
+    /**
+     * @param mixes  $xVal
+     * @param string $sSeparator
+     * @param bool   $bSkipEmpty
+     *
+     * @return array
+     */
     static public function Val2Array($xVal, $sSeparator = ',', $bSkipEmpty = false) {
 
         return F::Array_Val2Array($xVal, $sSeparator, $bSkipEmpty);
@@ -296,6 +322,14 @@ class AltoFunc_Main {
         return $sIp;
     }
 
+    /**
+     * @param string $sValue
+     * @param string $sParam
+     * @param int    $nMin
+     * @param int    $nMax
+     *
+     * @return bool
+     */
     static public function CheckVal($sValue, $sParam, $nMin = 1, $nMax = 100) {
 
         if (!is_scalar($sValue)) {
@@ -613,6 +647,12 @@ class AltoFunc_Main {
         return $date->format('Y-m-d H:i:s');
     }
 
+    /**
+     * @param string $sDate1
+     * @param string $sDate2
+     *
+     * @return int
+     */
     static public function DateDiffSeconds($sDate1, $sDate2) {
         $oDatetime1 = date_create($sDate1);
         $oDatetime2 = date_create($sDate2);
@@ -620,6 +660,9 @@ class AltoFunc_Main {
         return intval($nDiff);
     }
 
+    /**
+     * @return string
+     */
     static public function Now() {
 
         return date('Y-m-d H:i:s');
@@ -663,11 +706,17 @@ class AltoFunc_Main {
         return $sResult;
     }
 
+    /**
+     * @param string $sText
+     * @param bool   $xLang
+     *
+     * @return string
+     */
     static public function TranslitUrl($sText, $xLang = true) {
 
         $aSymbols = array(
             "_" => "-", "'" => "", "`" => "", "^" => "", " " => "-", '.' => '', ',' => '', ':' => '', '"' => '',
-            "'" => '', '<' => '', '>' => '', '«' => '', '»' => '', ' ' => '-', '(' => '-', ')' => '-'
+            '<' => '', '>' => '', '«' => '', '»' => '', '(' => '-', ')' => '-'
         );
         $sText = mb_strtolower(static::Translit($sText, $xLang), 'utf-8');
         $sText = str_replace(array_keys($aSymbols), array_values($aSymbols), $sText);
