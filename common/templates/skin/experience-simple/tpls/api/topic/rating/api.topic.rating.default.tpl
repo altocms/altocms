@@ -1,1 +1,0 @@
-{$oTopic->getTitle()}

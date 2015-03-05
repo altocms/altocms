@@ -193,22 +193,24 @@ class ActionApi extends Action {
             } else {
                 return $this->_Error(E::ModuleApi()->ERROR_CODE_0014);
             }
-        }
-
-
-        /**
-         * Проверим, разрешённые типы запросов к АПИ
-         */
-        foreach (array(
-                     'post'   => E::ModuleApi()->ERROR_CODE_0010,
-                     'get'    => E::ModuleApi()->ERROR_CODE_0011,
-                     'put'    => E::ModuleApi()->ERROR_CODE_0012,
-                     'delete' => E::ModuleApi()->ERROR_CODE_0013
-                 ) as $sRequestMethod => $aErrorDescription) {
-            if ($this->_CheckRequestMethod($sRequestMethod) && !C::Get("module.api.{$sRequestMethod}")) {
-                return $this->_Error($aErrorDescription);
+        } else {
+            /**
+             * Проверим, разрешённые типы запросов к АПИ
+             */
+            foreach (array(
+                         'post'   => E::ModuleApi()->ERROR_CODE_0010,
+                         'get'    => E::ModuleApi()->ERROR_CODE_0011,
+                         'put'    => E::ModuleApi()->ERROR_CODE_0012,
+                         'delete' => E::ModuleApi()->ERROR_CODE_0013
+                     ) as $sRequestMethod => $aErrorDescription) {
+                if ($this->_CheckRequestMethod($sRequestMethod) && !C::Get("module.api.{$sRequestMethod}")) {
+                    return $this->_Error($aErrorDescription);
+                }
             }
         }
+
+
+
 
 
         return TRUE;
