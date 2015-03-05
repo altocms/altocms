@@ -681,7 +681,7 @@ return array(
     'settings_profile_section_base'             => 'Base info',
     'settings_profile_section_contacts'         => 'Contacts',
     'settings_profile_name'                     => 'Name',
-    'settings_profile_name_notice'              => 'Name should consist of 2 upto 20 chars.',
+    'settings_profile_name_notice'              => 'Name should consist of 2 upto %%name_max%% chars.',
     'settings_profile_mail'                     => 'E-mail',
     'settings_profile_mail_error'               => 'Wrong e-mail format',
     'settings_profile_mail_error_used'          => 'This e-mail is already in use',

@@ -712,7 +712,7 @@ return array(
     'settings_profile_section_contacts'         => 'Контакты',
     'settings_profile_section_blog'             => 'Название личного блога',
     'settings_profile_name'                     => 'Имя',
-    'settings_profile_name_notice'              => 'Длина имени не может быть меньше 2 и больше 20 символов.',
+    'settings_profile_name_notice'              => 'Длина имени не может быть меньше 2 и больше %%name_max%% символов.',
     'settings_profile_mail'                     => 'E-mail',
     'settings_profile_mail_error'               => 'Неверный формат e-mail',
     'settings_profile_mail_error_used'          => 'Этот емайл уже занят',
