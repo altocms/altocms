@@ -16,7 +16,7 @@
     </div>
 
     <div class="panel-footer par0">
-        <ul>
+        <ul class="pa0">
         <li><a class="link link-light-gray link-lead link-clear {if $sMenuSubItemSelect=='inbox'}active{/if}" href="{router page='talk'}">{$aLang.talk_menu_inbox}</a></li>
         {if $iUserCurrentCountTalkNew}
             <li><a class="link link-light-gray link-lead link-clear{if $sMenuSubItemSelect=='new'}active{/if}" href="{router page='talk'}inbox/new/">{$aLang.talk_menu_inbox_new}</a></li>
@@ -26,7 +26,7 @@
         <li><a class="link link-light-gray link-lead link-clear {if $sMenuSubItemSelect=='blacklist'}active{/if}" href="{router page='talk'}blacklist/">{$aLang.talk_menu_inbox_blacklist}</a></li>
         {hook run='menu_talk_talk_item'}
 
-        <li class="pull-right marr0"><a href="#" class="link link-light-gray link-lead link-clear btn btn-gray"
+        <li class="pull-right marr0 pa0"><a href="#" class="link link-light-gray link-lead link-clear btn btn-gray"
            onclick="jQuery('#block_talk_search_content').toggle(); return false;">
                 <i class="fa fa-search"></i>{$aLang.talk_filter_title}
            </a></li> </ul>
