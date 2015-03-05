@@ -672,7 +672,7 @@ class ModuleUploader extends Module {
      * @param string $sFile
      * @param string $sDestination
      *
-     * @return string|bool
+     * @return ModuleUploader_EntityItem|bool
      */
     public function Store($sFile, $sDestination = null) {
 
@@ -739,17 +739,13 @@ class ModuleUploader extends Module {
             $sImageFile = $this->Uniqname($this->GetUploadDir($sTarget, $sTargetId), $sExtension);
 
             // Окончательная запись файла
-            if ($xStoredFile = $this->Store($sTmpFile, $sImageFile)) {
+            if ($oStoredFile = $this->Store($sTmpFile, $sImageFile)) {
 
-                if (is_object($xStoredFile)) {
-                    $oResource = E::ModuleMresource()->GetMresourcesByUuid($xStoredFile->getUuid());
-                    if (!$this->AddRelationResourceTarget($oResource, $sTarget, $sTargetId)) {
-                        // TODO Возможная ошибка
-                    }
-                    $sFile = $xStoredFile->GetUrl();
-                } else {
-                    $sFile = (string)$xStoredFile;
+                $oResource = E::ModuleMresource()->GetMresourcesByUuid($oStoredFile->getUuid());
+                if (!$this->AddRelationResourceTarget($oResource, $sTarget, $sTargetId)) {
+                    // TODO Возможная ошибка
                 }
+                $sFile = $oStoredFile->GetUrl();
 
                 return $sFile;
             }

@@ -156,16 +156,10 @@ class ActionUploader extends Action {
             $sPhoto = E::ModuleUploader()->Uniqname(E::ModuleUploader()->GetUploadDir($sTarget, $sTargetId), $sExtension);
 
             // Окончательная запись файла только через модуль Uploader
-            if ($xStoredFile = E::ModuleUploader()->Store($sTmpFile, $sPhoto)) {
+            if ($oStoredFile = E::ModuleUploader()->Store($sTmpFile, $sPhoto)) {
 
-                if (is_object($xStoredFile)) {
-
-                    $this->AddUploadedFileRelationInfo($xStoredFile, $sTarget, $sTargetId);
-                    $sFile = $xStoredFile->GetUrl();
-
-                } else {
-                    $sFile = $xStoredFile->GetUrl();
-                }
+                $this->AddUploadedFileRelationInfo($oStoredFile, $sTarget, $sTargetId);
+                $sFile = $oStoredFile->GetUrl();
 
                 $sFilePreview = $sFile;
                 if ($sSize = F::GetRequest('crop_size', FALSE)) {
@@ -554,21 +548,15 @@ class ActionUploader extends Action {
             $sPhoto = E::ModuleUploader()->Uniqname(E::ModuleUploader()->GetUploadDir($sTarget, $sTargetId), $sExtension);
 
             // Окончательная запись файла только через модуль Uploader
-            if ($xStoredFile = E::ModuleUploader()->Store($sTmpFile, $sPhoto)) {
+            if ($oStoredFile = E::ModuleUploader()->Store($sTmpFile, $sPhoto)) {
 
-                if (is_object($xStoredFile)) {
-                    /** @var ModuleMresource_EntityMresource $oResource */
-                    $oResource = $this->AddUploadedFileRelationInfo($xStoredFile, $sTarget, $sTargetId, TRUE);
-                    $sFile = $xStoredFile->GetUrl();
-                    if ($oResource) {
-                        $oResource = array_shift($oResource);
-                        $oResource->setType(ModuleMresource::TYPE_PHOTO);
-                        E::ModuleMresource()->UpdateType($oResource);
-                    }
-                } else {
-                    E::ModuleMessage()->AddError(E::ModuleLang()->Get('error_upload_image'), E::ModuleLang()->Get('error'));
-
-                    return FALSE;
+                /** @var ModuleMresource_EntityMresource $oResource */
+                $oResource = $this->AddUploadedFileRelationInfo($oStoredFile, $sTarget, $sTargetId, TRUE);
+                $sFile = $oStoredFile->GetUrl();
+                if ($oResource) {
+                    $oResource = array_shift($oResource);
+                    $oResource->setType(ModuleMresource::TYPE_PHOTO);
+                    E::ModuleMresource()->UpdateType($oResource);
                 }
 
                 $sFilePreview = $sFile;

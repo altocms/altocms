@@ -2535,12 +2535,8 @@ class ModuleTopic extends Module {
         if ($sFileTmp) {
             $sDirUpload = E::ModuleUploader()->GetUserImageDir($oUser->getId(), true, $sType);
             $sFileImage = E::ModuleUploader()->Uniqname($sDirUpload, F::File_GetExtension($sFileTmp, true));
-            if ($xStoredFile = E::ModuleUploader()->Store($sFileTmp, $sFileImage)) {
-                if (is_object($xStoredFile)) {
-                    return $xStoredFile->GetUrl();
-                } else {
-                    return E::ModuleUploader()->Dir2Url($xStoredFile);
-                }
+            if ($oStoredFile = E::ModuleUploader()->Store($sFileTmp, $sFileImage)) {
+                return $oStoredFile->GetUrl();
             }
         }
         return false;
@@ -2921,9 +2917,9 @@ class ModuleTopic extends Module {
                                     $oResource = array_shift($aMresourceRel);
                                     $sOldPath = $oResource->GetFile();
 
-                                    $xStoredFile = E::ModuleUploader()->Store($sOldPath, $sNewPath);
+                                    $oStoredFile = E::ModuleUploader()->Store($sOldPath, $sNewPath);
                                     /** @var ModuleMresource_EntityMresource $oResource */
-                                    $oResource = E::ModuleMresource()->GetMresourcesByUuid($xStoredFile->getUuid());
+                                    $oResource = E::ModuleMresource()->GetMresourcesByUuid($oStoredFile->getUuid());
                                     if ($oResource) {
                                         $oResource->setUrl(E::ModuleMresource()->NormalizeUrl(E::ModuleUploader()->GetTargetUrl($sTargetType, $iTargetId)));
                                         $oResource->setType($sTargetType);

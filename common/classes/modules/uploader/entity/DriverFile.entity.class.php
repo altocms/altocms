@@ -20,7 +20,7 @@ class ModuleUploader_EntityDriverFile extends Entity {
      * @param string $sFile
      * @param string $sDestination
      *
-     * @return bool|string
+     * @return bool|ModuleUploader_EntityItem
      */
     public function Store($sFile, $sDestination = null) {
 
@@ -62,6 +62,7 @@ class ModuleUploader_EntityDriverFile extends Entity {
                 return $oStoredItem;
             }
         }
+        return false;
     }
 
     /**

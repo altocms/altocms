@@ -432,9 +432,9 @@ class ActionContent extends Action {
                     foreach ($aMresourceRel as $oResource) {
                         $sOldPath = $oResource->GetFile();
 
-                        $xStoredFile = E::ModuleUploader()->Store($sOldPath, $sNewPath);
+                        $oStoredFile = E::ModuleUploader()->Store($sOldPath, $sNewPath);
                         /** @var ModuleMresource_EntityMresource $oResource */
-                        $oResource = E::ModuleMresource()->GetMresourcesByUuid($xStoredFile->getUuid());
+                        $oResource = E::ModuleMresource()->GetMresourcesByUuid($oStoredFile->getUuid());
                         if ($oResource) {
                             $oResource->setUrl(E::ModuleMresource()->NormalizeUrl(E::ModuleUploader()->GetTargetUrl($sTargetType, $iTargetId)));
                             $oResource->setType($sTargetType);
