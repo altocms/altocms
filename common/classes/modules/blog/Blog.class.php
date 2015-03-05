@@ -491,14 +491,15 @@ class ModuleBlog extends Module {
                 // 3. Переместить фото
                 $sTargetType = 'blog_avatar';
                 $sTargetId = $sId;
-                $sNewPath = E::ModuleUploader()->GetUploadDir($sTargetType, $sTargetId) . '/';
+                //$sNewPath = E::ModuleUploader()->GetUploadDir($sTargetType, $sTargetId) . '/';
                 $aMresourceRel = E::ModuleMresource()->GetMresourcesRelByTargetAndUser($sTargetType, 0, E::UserId());
 
                 if ($aMresourceRel) {
                     $oResource = array_shift($aMresourceRel);
                     $sOldPath = $oResource->GetFile();
 
-                    $oStoredFile = E::ModuleUploader()->Store($sOldPath, $sNewPath);
+                    //$oStoredFile = E::ModuleUploader()->Store($sOldPath, $sNewPath);
+                    $oStoredFile = E::ModuleUploader()->StoreImage($sOldPath, $sTargetType, $sTargetId);
                     /** @var ModuleMresource_EntityMresource $oResource */
                     $oResource = E::ModuleMresource()->GetMresourcesByUuid($oStoredFile->getUuid());
                     if ($oResource) {

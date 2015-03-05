@@ -152,13 +152,8 @@ class ActionUploader extends Action {
         // Сохраняем фото во временный файл
         if ($sTmpFile = $oImg->Save(F::File_UploadUniqname($sExtension))) {
 
-            // Файл, куда будет записано фото
-            $sPhoto = E::ModuleUploader()->Uniqname(E::ModuleUploader()->GetUploadDir($sTarget, $sTargetId), $sExtension);
-
             // Окончательная запись файла только через модуль Uploader
-            if ($oStoredFile = E::ModuleUploader()->Store($sTmpFile, $sPhoto)) {
-
-                $this->AddUploadedFileRelationInfo($oStoredFile, $sTarget, $sTargetId);
+            if ($oStoredFile = E::ModuleUploader()->StoreImage($sTmpFile, $sTarget, $sTargetId)) {
                 $sFile = $oStoredFile->GetUrl();
 
                 $sFilePreview = $sFile;
@@ -544,14 +539,12 @@ class ActionUploader extends Action {
                 return FALSE;
             }
 
-            // Файл, куда будет записано фото
-            $sPhoto = E::ModuleUploader()->Uniqname(E::ModuleUploader()->GetUploadDir($sTarget, $sTargetId), $sExtension);
-
             // Окончательная запись файла только через модуль Uploader
-            if ($oStoredFile = E::ModuleUploader()->Store($sTmpFile, $sPhoto)) {
+            if ($oStoredFile = E::ModuleUploader()->StoreImage($sTmpFile, $sTarget, $sTargetId)) {
 
                 /** @var ModuleMresource_EntityMresource $oResource */
-                $oResource = $this->AddUploadedFileRelationInfo($oStoredFile, $sTarget, $sTargetId, TRUE);
+                //$oResource = $this->AddUploadedFileRelationInfo($oStoredFile, $sTarget, $sTargetId, TRUE);
+                $oResource = E::ModuleMresource()->GetMresourcesByUuid($oStoredFile->getUuid());
                 $sFile = $oStoredFile->GetUrl();
                 if ($oResource) {
                     $oResource = array_shift($oResource);
