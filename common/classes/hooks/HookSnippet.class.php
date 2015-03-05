@@ -99,10 +99,14 @@ class HookSnippet extends Hook {
 
         // Редактируется топик.
         // Получим его ид. и по нему поднимем необходимый фотосет
-        if (preg_match('~content\/edit\/(\d+)\/~', R::GetControllerPath(), $aMatches)) {
+        $aAdminMatches = array();
+        if (preg_match('~content\/edit\/(\d+)\/~', R::GetControllerPath(), $aMatches)
+            || preg_match('~admin\/content-pages\/edit\/(\d+)\/~', R::GetControllerPath(), $aAdminMatches)
+        ) {
 
             // Найдем топик, из которого будем брать фотосет
-            $iTopicId = (int)isset($aData['params']['topic']) ? $aData['params']['topic'] : $aMatches[1];
+            $iTopicId = (int)isset($aData['params']['topic']) ? $aData['params']['topic'] : ($aAdminMatches ? FALSE : $aMatches[1]);
+
 
             // Странно, но топик не нашли - завернём сниппет
             if (!($oTopic = E::ModuleTopic()->GetTopicById($iTopicId))) {
