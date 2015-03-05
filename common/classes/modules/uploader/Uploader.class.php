@@ -294,10 +294,12 @@ class ModuleUploader extends Module {
             // Gets local config
             if ($sConfigKey && $sConfigKey != 'default') {
                 // Checks key 'images.<type>' and valid image extension
-                if (($sExtension != '*') && ($aConfig = $this->aModConfig['images.' . $sConfigKey])) {
-                    $aImageExtensions = (array)$aConfig['image_extensions'];
-                    if (!$aImageExtensions || !in_array($sExtension, $aImageExtensions)) {
-                        $aConfig = array();
+                if ($aConfig = $this->aModConfig['images.' . $sConfigKey]) {
+                    if ($sExtension != '*') {
+                        $aImageExtensions = (array)$aConfig['image_extensions'];
+                        if (!$aImageExtensions || !in_array($sExtension, $aImageExtensions)) {
+                            $aConfig = array();
+                        }
                     }
                 }
                 // If this is not image then checks config for file specified type
@@ -381,11 +383,11 @@ class ModuleUploader extends Module {
 
         $aConfig = $this->GetConfig($sFile, $sConfigKey);
         $nResult = null;
-        if (isset($aConfig['transform']['aspect_ration'])) {
-            $sAspectRatio = $aConfig['transform']['aspect_ration'];
+        if (isset($aConfig['transform']['aspect_ratio'])) {
+            $sAspectRatio = $aConfig['transform']['aspect_ratio'];
             if (strpos($sAspectRatio, ':')) {
                 list($nW, $nH) = explode(':', $sAspectRatio, 2);
-                $nResult = floatval($nW) / float($nH);
+                $nResult = floatval($nW) / floatval($nH);
             } else {
                 $nResult = floatval($sAspectRatio);
             }
