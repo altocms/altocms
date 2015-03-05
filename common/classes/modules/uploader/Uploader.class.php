@@ -733,9 +733,10 @@ class ModuleUploader extends Module {
      *                               100 - crop 100x100 by center
      *                               true - crop square by min side
      *
+     * @param bool $bMulti - Target has many images
      * @return bool|string
      */
-    public function StoreImage($sFile, $sTarget, $sTargetId, $xSize = null) {
+    public function StoreImage($sFile, $sTarget, $sTargetId, $xSize = null, $bMulti = FALSE) {
 
         $oImg = E::ModuleImg()->Read($sFile);
         if (!$oImg) {
@@ -766,7 +767,7 @@ class ModuleUploader extends Module {
                 if (!isset($xSize['w']) && isset($xSize['h'])) {
                     $xSize['h'] = $oImg->getWeight();
                 }
-                if (array_key_exists('x1', $xSize) || array_key_exists('x1', $xSize)) {
+                if ((isset($xSize['w']) && isset($xSize['h'])) && !(isset($xSize['x1']) && isset($xSize['y1']))) {
                     $oImg = E::ModuleImg()->CropCenter($oImg, $xSize['w'], $xSize['h']);
                 } else {
                     $oImg = E::ModuleImg()->Crop($oImg, $xSize['w'], $xSize['h'], $xSize['x1'], $xSize['y1']);
@@ -790,7 +791,7 @@ class ModuleUploader extends Module {
             if ($oStoredFile = $this->Store($sTmpFile, $sImageFile)) {
 
                 $oResource = E::ModuleMresource()->GetMresourcesByUuid($oStoredFile->getUuid());
-                if (!$this->AddRelationResourceTarget($oResource, $sTarget, $sTargetId)) {
+                if (!$this->AddRelationResourceTarget($oResource, $sTarget, $sTargetId, $bMulti)) {
                     // TODO Возможная ошибка
                 }
                 return $oStoredFile;

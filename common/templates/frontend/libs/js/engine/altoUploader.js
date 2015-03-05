@@ -28,6 +28,10 @@
 
         // Опции - типа объект
         this.options = $.extend({}, $.fn.altoUploader.defaultOptions, options, this.$element.data());
+        if (this.options.aspectRatio !== undefined) {
+            this.options.cropOptions.aspectRatio = this.options.aspectRatio;
+            delete this.options.aspectRatio;
+        }
 
         // Картинка, на странице, над которой проводится операция
         this.$image = this.$element.find('img.js-uploader-image');
