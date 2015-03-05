@@ -765,7 +765,7 @@ class ModuleUploader extends Module {
                 if (!isset($xSize['w']) && isset($xSize['h'])) {
                     $xSize['h'] = $oImg->getWeight();
                 }
-                if (array_key_exists('x1', $xSize) || array_key_exists('x1', $xSize)) {
+                if ((isset($xSize['w']) && isset($xSize['h'])) && !(isset($xSize['x1']) && isset($xSize['y1']))) {
                     $oImg = E::ModuleImg()->CropCenter($oImg, $xSize['w'], $xSize['h']);
                 } else {
                     $oImg = E::ModuleImg()->Crop($oImg, $xSize['w'], $xSize['h'], $xSize['x1'], $xSize['y1']);
