@@ -1,3 +1,8 @@
+<script>
+    jQuery(function () {
+        jQuery('#js-alto-image-manager').altoImageManager(false);
+    });
+</script>
 <div id="js-alto-image-manager" class="modal fade in">
     <div class="modal-dialog">
         <div class="modal-content">

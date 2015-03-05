@@ -1,16 +1,8 @@
-{*<script>*}
-    {*$(function(){*}
-        {*// Очистим параметры формы настроек изображения*}
-        {*$('#js-alto-image-manager').on('hidden.bs.modal aim-load-page-success', function () {*}
-            {*$(this).find('input').val('').end();*}
-            {*$(this).find('select :first').attr("selected", "selected");*}
-            {*$(this).find('select').selecter("refresh").end();*}
-            {*$(this).find('.selecter-selected').text(t.find('select :first').text());*}
-            {*$(this).find('span.fileinput-filename').html("").end();*}
-            {*$(this).find('[name="img_width"]').val("100").end()*}
-        {*});*}
-    {*})*}
-{*</script>*}
+<script>
+    jQuery(function () {
+        jQuery('#js-alto-image-manager').altoImageManager(false);
+    });
+</script>
 <div id="js-alto-image-manager" class="modal fade in">
     <div class="modal-dialog">
         <div class="modal-content">

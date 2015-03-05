@@ -15,7 +15,7 @@
     {if !$sImgToLoad}
         {assign var="sImgToLoad" value="topic_text"}
     {/if}
-    {include_once file="modals/modal.upload_img.tpl" sToLoad=$sImgToLoad}
+    {*{include_once file="modals/modal.upload_img.tpl" sToLoad=$sImgToLoad}*}
 
     {if !$sSettingsTinymce}
         {$sSettingsMarkitup="ls.settings.getMarkitup()"}
@@ -27,3 +27,5 @@
         });
     </script>
 {/if}
+
+{include_once file="modals/modal.insert_img.tpl" sToLoad=$sImgToLoad}

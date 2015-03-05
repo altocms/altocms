@@ -1,9 +1,11 @@
 <script>
     jQuery(function () {
-        jQuery('#js-alto-image-manager').altoImageManager(false);
+        jQuery('#js-alto-image-manager').altoImageManager({
+            admin: "admin-default"
+        });
     });
 </script>
-<div id="js-alto-image-manager" class="modal fade in">
+<div id="js-alto-image-manager" data-admin="admin-default" class="modal fade in">
     <div class="modal-dialog">
         <div class="modal-content">
 
@@ -23,22 +25,22 @@
                         <ul class="image-categories-nav list-unstyled list-inline list-no-border ">
                             <li>
                                 <a class="image-categories-nav-refresh" href="#">
-                                    <i class="glyphicon glyphicon-refresh"></i>
+                                    <i class="icon icon-refresh"></i>
                                 </a>
                             </li>
                             <li>
                                 <a class="image-categories-nav-trigger" href="#">
-                                    <i class="glyphicon glyphicon-eye-close"></i>
+                                    <i class="icon icon-eye"></i>
                                 </a>
                             </li>
                             <li id="backTopics" style="display: none;">
                                 <a class="image-categories-nav-back-topics" href="#">
-                                    <i class="glyphicon glyphicon-arrow-left"></i>
+                                    <i class="icon icon-action-undo"></i>
                                 </a>
                             </li>
                             <li id="backTalks" style="display: none;">
                                 <a class="image-categories-nav-back-talks" href="#">
-                                    <i class="glyphicon glyphicon-arrow-left"></i>
+                                    <i class="icon icon-action-undo"></i>
                                 </a>
                             </li>
                         </ul>

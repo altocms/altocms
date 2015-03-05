@@ -101,6 +101,13 @@ class ActionAjax extends Action {
      */
     protected function EventImageManagerLoadImages(){
 
+        // Менеджер изображений может запускаться в том числе и из админки
+        // Если передано название скина админки, то используем его, если же
+        // нет, то ту тему, которая установлена для сайта
+        if (($sAdminTheme = getRequest('admin')) && E::IsAdmin()) {
+            C::Set('view.skin', $sAdminTheme);
+        }
+
         // Получим идентификатор пользователя, изображения которого нужно загрузить
         $iUserId = (int)getRequest('profile', FALSE);
         if ($iUserId && E::ModuleUser()->GetUserById($iUserId)) {
@@ -335,6 +342,13 @@ class ActionAjax extends Action {
      * Загрузка дерева изображений пользователя
      */
     protected function EventImageManagerLoadTree(){
+
+        // Менеджер изображений может запускаться в том числе и из админки
+        // Если передано название скина админки, то используем его, если же
+        // нет, то ту тему, которая установлена для сайта
+        if (($sAdminTheme = getRequest('admin')) && E::IsAdmin()) {
+            C::Set('view.skin', $sAdminTheme);
+        }
 
         $sPath = ($iUserId = (int)getRequest('profile', FALSE)) ? 'actions/profile/created_photos/' : 'modals/insert_img/';
         if ($iUserId && E::ModuleUser()->GetUserById($iUserId)) {
