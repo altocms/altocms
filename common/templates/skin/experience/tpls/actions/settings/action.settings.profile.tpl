@@ -40,7 +40,7 @@
                              data-target-id     ="{E::User()->getId()}"
                              data-title         ="{$aLang.settings_profile_avatar_resize_title}"
                              data-help          ="{$aLang.settings_profile_avatar_resize_text}"
-                             data-aspect-ratio  = "{C::Get('module.uploader.images.profile_avatar.transform.aspect_ratio')}"
+                             data-aspect-ratio  = "{E::ModuleUploader()->GetConfigAspectRatio('*', 'profile_avatar')}"
                              data-empty         ="{E::User()->getDefaultAvatarUrl(100)}"
                              data-preview-crop  ="100x100"
                              data-crop          ="yes">
