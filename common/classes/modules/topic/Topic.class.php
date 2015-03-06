@@ -518,9 +518,8 @@ class ModuleTopic extends Module {
             if (isset($aAllowData['blog'])) {
                 $aBlogId[] = $oTopic->getBlogId();
             }
-            //if ($oTopic->getType()=='question')	{
+
             $aTopicId[] = $oTopic->getId();
-            //}
             if ($oTopic->getPhotosetMainPhotoId()) {
                 $aPhotoMainId[] = $oTopic->getPhotosetMainPhotoId();
             }
@@ -961,15 +960,15 @@ class ModuleTopic extends Module {
      */
     public function GetTopicByUrl($sUrl) {
 
-        $nTopicId = $this->GetTopicIdByUrl($sUrl);
-        if ($nTopicId) {
-            return $this->GetTopicById($nTopicId);
+        $iTopicId = $this->GetTopicIdByUrl($sUrl);
+        if ($iTopicId) {
+            return $this->GetTopicById($iTopicId);
         }
         return null;
     }
 
     /**
-     * Returns topic ID of it exists
+     * Returns topic ID by URL if it exists
      *
      * @param string $sUrl
      *
@@ -977,8 +976,17 @@ class ModuleTopic extends Module {
      */
     public function GetTopicIdByUrl($sUrl) {
 
-        $nTopicId = $this->oMapper->GetTopicIdByUrl($sUrl);
-        return $nTopicId;
+        $sCacheKey = 'topic_url_' . $sUrl;
+        if (false === ($iTopicId = E::ModuleCache()->Get($sCacheKey))) {
+            $iTopicId = $this->oMapper->GetTopicIdByUrl($sUrl);
+            if ($iTopicId) {
+                E::ModuleCache()->Set($iTopicId, $sCacheKey, array("topic_update_{$iTopicId}"), 'P30D');
+            } else {
+                E::ModuleCache()->Set(null, $sCacheKey, array('topic_update', 'topic_new'), 'P30D');
+            }
+        }
+
+        return $iTopicId;
     }
 
     /**
@@ -2067,30 +2075,53 @@ class ModuleTopic extends Module {
     public function SetTopicRead($oTopicRead) {
 
         if ($this->GetTopicRead($oTopicRead->getTopicId(), $oTopicRead->getUserId())) {
-            E::ModuleCache()->Delete("topic_read_{$oTopicRead->getTopicId()}_{$oTopicRead->getUserId()}");
-            E::ModuleCache()->CleanByTags(array("topic_read_user_{$oTopicRead->getUserId()}"));
-            $this->oMapper->UpdateTopicRead($oTopicRead);
+            return $this->UpdateTopicRead($oTopicRead);
         } else {
-            E::ModuleCache()->Delete("topic_read_{$oTopicRead->getTopicId()}_{$oTopicRead->getUserId()}");
-            E::ModuleCache()->CleanByTags(array("topic_read_user_{$oTopicRead->getUserId()}"));
-            $this->oMapper->AddTopicRead($oTopicRead);
+            return $this->AddTopicRead($oTopicRead);
         }
-        return true;
+    }
+
+    /**
+     * @param $oTopicRead
+     *
+     * @return bool
+     */
+    public function AddTopicRead($oTopicRead) {
+
+        $xResult = $this->oMapper->AddTopicRead($oTopicRead);
+        E::ModuleCache()->Delete("topic_read_{$oTopicRead->getTopicId()}_{$oTopicRead->getUserId()}");
+        E::ModuleCache()->CleanByTags(array("topic_read_user_{$oTopicRead->getUserId()}"));
+
+        return $xResult;
+    }
+
+    /**
+     * @param $oTopicRead
+     *
+     * @return int
+     */
+    public function UpdateTopicRead($oTopicRead) {
+
+        $xResult = $this->oMapper->UpdateTopicRead($oTopicRead);
+        E::ModuleCache()->Delete("topic_read_{$oTopicRead->getTopicId()}_{$oTopicRead->getUserId()}");
+        E::ModuleCache()->CleanByTags(array("topic_read_user_{$oTopicRead->getUserId()}"));
+
+        return $xResult;
     }
 
     /**
      * Получаем дату прочтения топика юзером
      *
-     * @param int $nTopicId    - ID топика
-     * @param int $nUserId     - ID пользователя
+     * @param int $iTopicId    - ID топика
+     * @param int $iUserId     - ID пользователя
      *
      * @return ModuleTopic_EntityTopicRead|null
      */
-    public function GetTopicRead($nTopicId, $nUserId) {
+    public function GetTopicRead($iTopicId, $iUserId) {
 
-        $data = $this->GetTopicsReadByArray($nTopicId, $nUserId);
-        if (isset($data[$nTopicId])) {
-            return $data[$nTopicId];
+        $data = $this->GetTopicsReadByArray(array($iTopicId), $iUserId);
+        if (isset($data[$iTopicId])) {
+            return $data[$iTopicId];
         }
         return null;
     }
