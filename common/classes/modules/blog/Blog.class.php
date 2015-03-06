@@ -607,7 +607,11 @@ class ModuleBlog extends Module {
             return array();
         }
 
-        $data = $this->oMapper->GetBlogsIdByOwnerId($iUserId);
+        $sCacheKey = 'blogs_by_owner' . $iUserId;
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
+            $data = $this->oMapper->GetBlogsIdByOwnerId($iUserId);
+            E::ModuleCache()->Set($data, $sCacheKey, array('blog_update', 'blog_new', "user_update_{$iUserId}"), 'P30D');
+        }
 
         // * Возвращаем только иденитификаторы
         if ($bReturnIdOnly) {

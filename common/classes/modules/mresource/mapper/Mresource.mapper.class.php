@@ -960,11 +960,11 @@ class ModuleMresource_MapperMresource extends Mapper {
     /**
      * Возвращает категории изображения для пользователя
      * @param $iUserId
-     * @param int $sTopicId
      *
      * @return mixed
      */
     public function GetAllImageCategoriesByUserId($iUserId){
+
         $sql = "SELECT
                   IF(
                     ISNULL(t.target_tmp),
@@ -986,6 +986,12 @@ class ModuleMresource_MapperMresource extends Mapper {
 
     }
 
+    /**
+     * @param $iUserId
+     * @param $sTopicId
+     *
+     * @return mixed
+     */
     public function GetCurrentTopicResourcesId($iUserId, $sTopicId) {
 
         $sql = "select r.mresource_id FROM

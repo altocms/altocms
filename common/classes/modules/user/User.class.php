@@ -1573,17 +1573,26 @@ class ModuleUser extends Module {
      *
      * @param int   $nUserId      - ID пользователя
      * @param bool  $bOnlyNoEmpty - Загружать только непустые поля
-     * @param array $aType        - Типы полей, null - все типы
+     * @param array|string $xType        - Типы полей, null - все типы
      *
      * @return array
      */
-    public function getUserFieldsValues($nUserId, $bOnlyNoEmpty = true, $aType = array('')) {
+    public function getUserFieldsValues($nUserId, $bOnlyNoEmpty = true, $xType = array()) {
 
-        return $this->oMapper->getUserFieldsValues($nUserId, $bOnlyNoEmpty, $aType);
+        if (!is_array($xType)) {
+            $xType = array($xType);
+        }
+        $sCacheKey = 'user_fields_values_' . serialize(array($nUserId, $bOnlyNoEmpty, $xType));
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
+            $data = $this->oMapper->getUserFieldsValues($nUserId, $bOnlyNoEmpty, $xType);
+            E::ModuleCache()->Set($data, $sCacheKey, array('user_fields_update', "user_update_{$nUserId}"), 'P10D');
+        }
+
+        return $data;
     }
 
     /**
-     * Получить по имени поля его значение дял определённого пользователя
+     * Получить по имени поля его значение для определённого пользователя
      *
      * @param int    $nUserId - ID пользователя
      * @param string $sName   - Имя поля
@@ -1606,7 +1615,10 @@ class ModuleUser extends Module {
      */
     public function setUserFieldsValues($nUserId, $aFields, $nCountMax = 1) {
 
-        return $this->oMapper->setUserFieldsValues($nUserId, $aFields, $nCountMax);
+        $xResult = $this->oMapper->setUserFieldsValues($nUserId, $aFields, $nCountMax);
+        E::ModuleCache()->CleanByTags("user_update_{$nUserId}");
+
+        return $xResult;
     }
 
     /**
@@ -1618,7 +1630,10 @@ class ModuleUser extends Module {
      */
     public function addUserField($oField) {
 
-        return $this->oMapper->addUserField($oField);
+        $xResult = $this->oMapper->addUserField($oField);
+        E::ModuleCache()->CleanByTags('user_fields_update');
+
+        return $xResult;
     }
 
     /**
@@ -1630,7 +1645,10 @@ class ModuleUser extends Module {
      */
     public function updateUserField($oField) {
 
-        return $this->oMapper->updateUserField($oField);
+        $xResult = $this->oMapper->updateUserField($oField);
+        E::ModuleCache()->CleanByTags('user_fields_update');
+
+        return $xResult;
     }
 
     /**
@@ -1642,7 +1660,10 @@ class ModuleUser extends Module {
      */
     public function deleteUserField($nId) {
 
-        return $this->oMapper->deleteUserField($nId);
+        $xResult = $this->oMapper->deleteUserField($nId);
+        E::ModuleCache()->CleanByTags('user_fields_update');
+
+        return $xResult;
     }
 
     /**
@@ -1673,14 +1694,17 @@ class ModuleUser extends Module {
     /**
      * Удаляет у пользователя значения полей
      *
-     * @param   int|array  $aUsersId   ID пользователя
-     * @param   array|null $aTypes     Список типов для удаления
+     * @param  int|array  $aUsersId   ID пользователя
+     * @param  array|null $aTypes     Список типов для удаления
      *
      * @return bool
      */
     public function DeleteUserFieldValues($aUsersId, $aTypes = null) {
 
-        return $this->oMapper->DeleteUserFieldValues($aUsersId, $aTypes);
+        $xResult = $this->oMapper->DeleteUserFieldValues($aUsersId, $aTypes);
+        E::ModuleCache()->CleanByTags('user_fields_update');
+
+        return $xResult;
     }
 
     /**

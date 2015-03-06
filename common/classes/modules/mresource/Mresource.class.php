@@ -218,11 +218,13 @@ class ModuleMresource extends Module {
                 $this->oMapper->AddTargetRel($oMresource);
             }
         }
+        E::ModuleCache()->CleanByTags(array('mresource_rel_update'));
+
         return true;
     }
 
     /**
-     * @param $iId
+     * @param int $iId
      *
      * @return ModuleMresource_EntityMresource|null
      */
@@ -323,7 +325,11 @@ class ModuleMresource extends Module {
      */
     public function GetMresourcesRelByTargetAndUser($sTargetType, $xTargetId = null, $xUserId = null) {
 
-        $aData = $this->oMapper->GetMresourcesRelByTargetAndUser($sTargetType, $xTargetId, $xUserId);
+        $sCacheKey = 'mresource_rel_' . serialize(array($sTargetType, $xTargetId, $xUserId));
+        if (false === ($aData = E::ModuleCache()->Get($sCacheKey))) {
+            $aData = $this->oMapper->GetMresourcesRelByTargetAndUser($sTargetType, $xTargetId, $xUserId);
+            E::ModuleCache()->Set($aData, $sCacheKey, array('mresource_rel_update'), 'P1D');
+        }
 
         return $aData;
     }
@@ -376,6 +382,7 @@ class ModuleMresource extends Module {
                 }
             }
         }
+        E::ModuleCache()->CleanByTags(array('mresource_update', 'mresource_rel_update'));
 
         return $bResult;
     }
@@ -404,6 +411,8 @@ class ModuleMresource extends Module {
             //  $this->DeleteMresources($aMresId);
             $this->DeleteMresources($aMresId, false);
         }
+        E::ModuleCache()->CleanByTags(array('mresource_update', 'mresource_rel_update'));
+
         return true;
     }
 
@@ -450,6 +459,8 @@ class ModuleMresource extends Module {
                 return $this->DeleteMresources($aMresId);
             }
         }
+        E::ModuleCache()->CleanByTags(array('mresource_rel_update'));
+
         return true;
     }
 
@@ -477,6 +488,8 @@ class ModuleMresource extends Module {
                 return $this->DeleteMresources($aMresId);
             }
         }
+        E::ModuleCache()->CleanByTags(array('mresource_rel_update'));
+
         return true;
     }
 
@@ -608,14 +621,14 @@ class ModuleMresource extends Module {
 
         // 1. Получим uuid рисунков из текста топика и создадим связь с объектом
         // если ее ещё нет.
-        if (preg_match_all("~0u\w{8}-\w{8}-\w{8}~", $sTargetText, $aUuid) && isset($aUuid[0])) {
+        if (preg_match_all('~0u\w{8}-\w{8}-\w{8}~', $sTargetText, $aUuid) && isset($aUuid[0])) {
 
             // Получим uuid ресурсов
             $aUuid = array_unique($aUuid[0]);
 
             // Найдем ресурсы
             /** @var ModuleMresource_EntityMresource[] $aResult */
-            $aResult = E::ModuleMresource()->GetMresourcesByUuid($aUuid);
+            $aResult = $this->GetMresourcesByUuid($aUuid);
             if (!$aResult) {
                 return FALSE;
             }
@@ -633,14 +646,14 @@ class ModuleMresource extends Module {
 
             // Добавим связи, если нужно
             if ($aNewResources) {
-                E::ModuleMresource()->AddTargetRel($aNewResources, $sTargetType, $sTargetId);
+                $this->AddTargetRel($aNewResources, $sTargetType, $sTargetId);
             }
 
 
             // 2. Пробежимся по ресурсам комментария и если ресурса нет в новых, тогда
             // удалим этот ресурс.
             // Читаем список ресурсов из базы
-            $aMresources = E::ModuleMresource()->GetMresourcesRelByTarget($sTargetType, $sTargetId);
+            $aMresources = $this->GetMresourcesRelByTarget($sTargetType, $sTargetId);
 
             // Строим список ID ресурсов для удаления
             $aDeleteResources = array();
@@ -651,8 +664,8 @@ class ModuleMresource extends Module {
                 }
             }
             if ($aDeleteResources) {
-                E::ModuleMresource()->DeleteMresources(array_values($aDeleteResources));
-                E::ModuleMresource()->DeleteMresourcesRel(array_keys($aDeleteResources));
+                $this->DeleteMresources(array_values($aDeleteResources));
+                $this->DeleteMresourcesRel(array_keys($aDeleteResources));
             }
         }
 
@@ -673,7 +686,7 @@ class ModuleMresource extends Module {
         if ($sTargetTmp && E::IsUser()) {
 
             $sNewPath = E::ModuleUploader()->GetUploadDir($sTargetType, $sTargetId) . '/';
-            $aMresourceRel = E::ModuleMresource()->GetMresourcesRelByTargetAndUser($sTargetType, 0, E::UserId());
+            $aMresourceRel = $this->GetMresourcesRelByTargetAndUser($sTargetType, 0, E::UserId());
 
             if ($aMresourceRel) {
                 $oResource = array_shift($aMresourceRel);
@@ -681,15 +694,15 @@ class ModuleMresource extends Module {
 
                 $oStoredFile = E::ModuleUploader()->Store($sOldPath, $sNewPath);
                 /** @var ModuleMresource_EntityMresource $oResource */
-                $oResource = E::ModuleMresource()->GetMresourcesByUuid($oStoredFile->getUuid());
+                $oResource = $this->GetMresourcesByUuid($oStoredFile->getUuid());
                 if ($oResource) {
-                    $oResource->setUrl(E::ModuleMresource()->NormalizeUrl(E::ModuleUploader()->GetTargetUrl($sTargetType, $sTargetId)));
+                    $oResource->setUrl($this->NormalizeUrl(E::ModuleUploader()->GetTargetUrl($sTargetType, $sTargetId)));
                     $oResource->setType($sTargetType);
                     $oResource->setUserId(E::UserId());
 
                     // 4. В свойство поля записать адрес картинки
-                    E::ModuleMresource()->UnlinkFile($sTargetType, 0, E::UserId());
-                    E::ModuleMresource()->AddTargetRel($oResource, $sTargetType, $sTargetId);
+                    $this->UnlinkFile($sTargetType, 0, E::UserId());
+                    $this->AddTargetRel($oResource, $sTargetType, $sTargetId);
 
                     return $oResource;
 
@@ -823,7 +836,7 @@ class ModuleMresource extends Module {
     }
 
     /**
-     * @param      $iUserId
+     * @param int $iUserId
      * @param bool $sTopicId
      *
      * @return bool|Entity
@@ -845,9 +858,9 @@ class ModuleMresource extends Module {
     /**
      * Получает топики пользователя с картинками
      *
-     * @param $iUserId
-     * @param $iPage
-     * @param $iPerPage
+     * @param int $iUserId
+     * @param int $iPage
+     * @param int $iPerPage
      *
      * @return array
      */
@@ -878,7 +891,7 @@ class ModuleMresource extends Module {
     }
 
     /**
-     * @param $iUserId
+     * @param int $iUserId
      *
      * @return bool|ModuleMresource_EntityMresourceCategory
      */
@@ -899,9 +912,9 @@ class ModuleMresource extends Module {
     /**
      * Получает топики пользователя с картинками
      *
-     * @param $iUserId
-     * @param $iPage
-     * @param $iPerPage
+     * @param int $iUserId
+     * @param int $iPage
+     * @param int $iPerPage
      *
      * @return array
      */
@@ -938,7 +951,7 @@ class ModuleMresource extends Module {
      */
     public function GetCommentsImageCategory($iUserId) {
 
-        $aImagesInCommentsCount = E::ModuleMresource()->GetMresourcesCountByTargetAndUserId(array(
+        $aImagesInCommentsCount = $this->GetMresourcesCountByTargetAndUserId(array(
             'talk_comment',
             'topic_comment'
         ), $iUserId);
@@ -954,10 +967,11 @@ class ModuleMresource extends Module {
     }
     /**
      * Возвращает категории изображения для пользователя
-     * @param $iUserId
+     * @param int $iUserId
      * @return array
      */
     public function GetAllImageCategoriesByUserId($iUserId){
+
         $aRows = $this->oMapper->GetAllImageCategoriesByUserId($iUserId);
         $aResult = array();
         if ($aRows) {
@@ -976,7 +990,7 @@ class ModuleMresource extends Module {
      * Возвращает информацию о категориях изображений пользователя
      * с разбивкой по типу контента
      *
-     * @param $iUserId
+     * @param int $iUserId
      * @return bool
      */
     public function GetTopicsImageCategory($iUserId) {

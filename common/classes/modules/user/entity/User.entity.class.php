@@ -485,13 +485,29 @@ class ModuleUser_EntityUser extends Entity {
      * Возвращает значения пользовательских полей
      *
      * @param bool   $bOnlyNoEmpty    Возвращать или нет только не пустые
-     * @param string $sType           Тип полей
+     * @param string|array $xType           Тип полей
      *
      * @return array
      */
-    public function getUserFieldValues($bOnlyNoEmpty = true, $sType = '') {
+    public function getUserFieldValues($bOnlyNoEmpty = true, $xType = array()) {
 
-        return E::ModuleUser()->GetUserFieldsValues($this->getId(), $bOnlyNoEmpty, $sType);
+        $aUserFields = $this->getProp('_user_fields');
+        if (is_null($aUserFields)) {
+            $aUserFields = E::ModuleUser()->GetUserFieldsValues($this->getId(), false);
+            $this->setProp('_user_fields', $aUserFields);
+        }
+        $aResult = array();
+        if ($aUserFields) {
+            foreach($aUserFields as $iIndex => $oUserField) {
+                if (!$bOnlyNoEmpty || $oUserField->getValue()) {
+                    if (!$xType || (!is_array($xType) && $xType == $oUserField->getType()) || (is_array($xType) && in_array($oUserField->getType(), $xType))) {
+                        $aResult[$iIndex] = $oUserField;
+                    }
+                }
+            }
+        }
+
+        return $aResult;
     }
 
     /**
