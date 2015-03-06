@@ -57,7 +57,15 @@ function smarty_function_asset($aParams, $oSmartyTemplate) {
                     $sFile = Config::Get('path.skins.dir') . '/' . $sSkin . '/' . $sTheme . $aParams['file'];
                 }
             }
-            $sUrl = E::ViewerAsset_File2Link($sFile, 'skin/' . $sSkin . '/');
+            if (isset($aParams['prepare'])) {
+                /** @var ModuleViewerAsset $oLocalViewerAsset */
+                $oLocalViewerAsset = new ModuleViewerAsset();
+                $oLocalViewerAsset->AddFiles('*', array($sFile));
+                $oLocalViewerAsset->Prepare();
+                $sUrl = $oLocalViewerAsset->AssetFileUrl(F::File_NormPath($sFile));
+            } else {
+                $sUrl = E::ViewerAsset_File2Link($sFile, 'skin/' . $sSkin . '/');
+            }
         }
     } else {
         // Need URL to asset dir
