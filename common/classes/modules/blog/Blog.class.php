@@ -333,12 +333,24 @@ class ModuleBlog extends Module {
      *
      * @param int $iUserId    ID пользователя
      *
-     * @return ModuleBlog_EntityBlog
+     * @return ModuleBlog_EntityBlog|null
      */
     public function GetPersonalBlogByUserId($iUserId) {
 
-        $iBlogId = $this->oMapper->GetPersonalBlogByUserId($iUserId);
-        return $this->GetBlogById($iBlogId);
+        $sCacheKey = 'blog_personal_' . $iUserId;
+        if (false === ($iBlogId = E::ModuleCache()->Get($sCacheKey))) {
+            $iBlogId = $this->oMapper->GetPersonalBlogByUserId($iUserId);
+            if ($iBlogId) {
+                E::ModuleCache()->Set($iBlogId, $sCacheKey, array("blog_update_{$iBlogId}", "user_update_{$iUserId}"), 'P30D');
+            } else {
+                E::ModuleCache()->Set(null, $sCacheKey, array('blog_update', 'blog_new', "user_update_{$iUserId}"), 'P30D');
+            }
+        }
+
+        if ($iBlogId) {
+            return $this->GetBlogById($iBlogId);
+        }
+        return null;
     }
 
     /**

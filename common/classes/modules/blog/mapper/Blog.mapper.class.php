@@ -338,20 +338,21 @@ class ModuleBlog_MapperBlog extends Mapper {
     /**
      * Получает ID персонального блога пользователя
      *
-     * @param   int     $nUserId ID пользователя
+     * @param   int     $iUserId ID пользователя
      *
      * @return  int|null
      */
-    public function GetPersonalBlogByUserId($nUserId) {
+    public function GetPersonalBlogByUserId($iUserId) {
 
         $aCriteria = array(
             'filter' => array(
-                'user_id' => intval($nUserId),
+                'user_id' => intval($iUserId),
                 'blog_type' => 'personal',
             ),
             'limit' => 1,
         );
         $aResult = $this->GetBlogsIdByCriteria($aCriteria);
+
         return $aResult['data'] ? $aResult['data'][0] : null;
     }
 
