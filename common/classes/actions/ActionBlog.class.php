@@ -868,15 +868,26 @@ class ActionBlog extends Action {
             $bAllowToComment = false;
         }
 
-        // Отмечаем дату прочтения топика
+        // Отмечаем прочтение топика
         if ($this->oUserCurrent) {
-            $oTopicRead = E::GetEntity('Topic_TopicRead');
-            $oTopicRead->setTopicId($oTopic->getId());
-            $oTopicRead->setUserId($this->oUserCurrent->getId());
-            $oTopicRead->setCommentCountLast($oTopic->getCountComment());
-            $oTopicRead->setCommentIdLast($iMaxIdComment);
-            $oTopicRead->setDateRead(F::Now());
-            E::ModuleTopic()->SetTopicRead($oTopicRead);
+            $oTopicRead = E::ModuleTopic()->GetTopicRead($oTopic->getId(), $this->oUserCurrent->getid());
+            if (!$oTopicRead) {
+                $oTopicRead = E::GetEntity('Topic_TopicRead');
+                $oTopicRead->setTopicId($oTopic->getId());
+                $oTopicRead->setUserId($this->oUserCurrent->getId());
+                $oTopicRead->setCommentCountLast($oTopic->getCountComment());
+                $oTopicRead->setCommentIdLast($iMaxIdComment);
+                $oTopicRead->setDateRead(F::Now());
+                E::ModuleTopic()->AddTopicRead($oTopicRead);
+            } else {
+                if (($oTopicRead->getCommentCountLast() != $oTopic->getCountComment())
+                    || ($oTopicRead->getCommentIdLast() != $iMaxIdComment)) {
+                    $oTopicRead->setCommentCountLast($oTopic->getCountComment());
+                    $oTopicRead->setCommentIdLast($iMaxIdComment);
+                    E::ModuleTopic()->UpdateTopicRead($oTopicRead);
+                }
+            }
+            //E::ModuleTopic()->SetTopicRead($oTopicRead);
         }
 
         // Выставляем SEO данные
