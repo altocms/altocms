@@ -257,6 +257,9 @@ class ModuleImg extends Module {
         } else {
             $oImg = $xImage;
         }
+        if (!$iWidth && !$iHeight) {
+            return $oImg;
+        }
         $nW = $oImg->getWidth();
         $nH = $oImg->getHeight();
 
@@ -299,6 +302,9 @@ class ModuleImg extends Module {
             $oImg = $this->Read($xImage);
         } else {
             $oImg = $xImage;
+        }
+        if (!$iWidth && !$iHeight) {
+            return $oImg;
         }
         $nW = $oImg->getWidth();
         $nH = $oImg->getHeight();

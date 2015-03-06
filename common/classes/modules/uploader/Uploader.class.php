@@ -754,7 +754,7 @@ class ModuleUploader extends Module {
             } elseif(is_numeric($xSize)) {
                 // crop square in center
                 $oImg = E::ModuleImg()->CropCenter($oImg, intval($xSize), intval($xSize));
-            } elseif (is_array($xSize)) {
+            } elseif (is_array($xSize) && !empty($xSize)) {
                 if (!isset($xSize['w']) && isset($xSize['x1']) && isset($xSize['x2'])) {
                     $xSize['w'] = $xSize['x2'] - $xSize['x1'];
                 }
