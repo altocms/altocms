@@ -506,6 +506,11 @@ _______________________________________________________________*/
 .js-fileapi-wrapper {
   cursor: pointer !important;
 }
+.topic-text img,
+.topic-text a[data-url],
+.topic-text a[prettyPhoto] {
+  max-width: 100%;
+}
 /* МЕНЮ КОНТЕНТА
 _________________________________________________________*/
 .navbar-content.navbar-default {
