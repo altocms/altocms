@@ -508,7 +508,7 @@ _______________________________________________________________*/
 }
 .topic-text img,
 .topic-text a[data-url],
-.topic-text a[prettyPhoto] {
+.topic-text a[rel^="prettyPhoto"] {
   max-width: 100%;
 }
 /* МЕНЮ КОНТЕНТА
