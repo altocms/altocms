@@ -59,7 +59,7 @@ function smarty_function_asset($aParams, $oSmartyTemplate) {
             }
             if (isset($aParams['prepare'])) {
                 /** @var ModuleViewerAsset $oLocalViewerAsset */
-                $oLocalViewerAsset = new ModuleViewerAsset();
+                $oLocalViewerAsset = new ModuleViewerAsset(Engine::getInstance());
                 $oLocalViewerAsset->AddFiles('*', array($sFile));
                 $oLocalViewerAsset->Prepare();
                 $sUrl = $oLocalViewerAsset->AssetFileUrl(F::File_NormPath($sFile));
