@@ -397,6 +397,19 @@ $config['module']['uploader']['images']['photoset'] = array(
     ),
 );
 
+$config['module']['uploader']['images']['video'] = array(
+    '$extends$' => '___module.uploader.images.default___',
+    'transform' => array(
+        'max_width'  => 640,        // максимальная ширина сохраняемой аватары
+        'max_height' => 360,        // максимальная высота сохраняемой аватары
+        'aspect_ratio' => '16:9',      // соотношение ширины и высоты
+        'watermark' => array(
+            'enable' => false,
+        ),
+    ),
+);
+
+
 // Модуль Image
 $config['module']['image']['autoresize'] = true;
 

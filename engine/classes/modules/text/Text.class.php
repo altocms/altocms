@@ -152,8 +152,27 @@ class ModuleText extends Module {
      * @return string
      */
     public function VideoParser($sText) {
-        $iWidth = Config::Get('module.image.preset.default.size.width');
-        $iHeight = $iWidth / 1.777;
+
+        $aConfig = E::ModuleUploader()->GetConfig('*', 'video');
+        if (!empty($aConfig['transform']['max_width'])) {
+            $iWidth = intval($aConfig['transform']['max_width']);
+        } else {
+            $iWidth = 640;
+        }
+        $nRatio = E::ModuleUploader()->GetConfigAspectRatio('*', 'video');
+        if ($nRatio) {
+            $iHeight = $iWidth / $nRatio;
+        } else {
+            $iHeight = intval($aConfig['transform']['max_width']);
+        }
+        if (!empty($aConfig['transform']['max_height'])) {
+            if ($iHeight > intval($aConfig['transform']['max_width'])) {
+                $iHeight = intval($aConfig['transform']['max_width']);
+            }
+        }
+        if (!$iHeight) {
+            $iHeight = 380;
+        }
 
         $sIframeAttr = 'frameborder="0" webkitAllowFullScreen mozallowfullscreen allowfullscreen="allowfullscreen"';
         /**
