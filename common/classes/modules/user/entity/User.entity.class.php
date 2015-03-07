@@ -200,7 +200,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function getSkill() {
 
-        return number_format(round($this->getProp('user_skill'), 2), 2, '.', '');
+        return number_format(round($this->getProp('user_skill'), 3), 3, '.', '');
     }
 
     /**
