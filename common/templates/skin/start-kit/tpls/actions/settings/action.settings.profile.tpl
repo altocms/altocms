@@ -30,7 +30,7 @@
                                    value="{E::User()->getProfileName()|escape:'html'}" class="form-control">
 
                             <p class="help-block">
-                                <small>{$aLang.settings_profile_name_notice|ls_lang:"name_max%%{C::Get('module.user.name_max')}"}</small>
+                                <small>{$aLang.settings_profile_name_notice|ls_lang:"name_max%%{Config::Get('module.user.name_max')}"}</small>
                             </p>
                         </div>
 
