@@ -16,16 +16,16 @@
                  data-target        ="blog_avatar"
                  data-target-id     ="{$sTarget_id}"
                  data-empty         ="{asset file="images/empty_image.png" theme=true}"
-                 data-preview-crop  ="222x222crop"
+                 data-preview-crop  ="252x252crop"
                  data-crop          ="no">
 
                 {* Картинка фона блога *}
                 {img attr=[
                     'src'           => "{asset file="images/empty_image.png" theme=true}",
                     'alt'           => "image",
-                    'class'         => "thumbnail js-uploader-image",
+                    'class'         => "thumbnail js-uploader-image fill-width",
                     'target-type'   => "blog_avatar",
-                    'crop'          => '222x222crop',
+                    'crop'          => '252x252crop',
                     'target-id'     => "{$sTarget_id}"
                 ]}
 
