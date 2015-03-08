@@ -388,6 +388,7 @@ return array(
     'topic_vote_error_time'                     => 'Срок голосования за статью истёк!',
     'topic_vote_error_acl'                      => 'У вас не хватает рейтинга и силы для голосования!',
     'topic_vote_error_banned'                   => 'Извините, вы забанены и не можете голосовать',
+    'topic_vote_error_is_not_published'         => 'Нельзя голосовать за черновик',
     'topic_vote_no'                             => 'пока никто не голосовал',
     'topic_vote_ok'                             => 'Ваш голос учтен',
     'topic_vote_ok_abstain'                     => 'Вы воздержались для просмотра рейтинга статьи',
