@@ -600,6 +600,11 @@ class ActionAjax extends Action {
                 E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_vote_error_acl'), E::ModuleLang()->Get('attention'));
                 return;
                 break;
+
+            case ModuleACL::CAN_VOTE_TOPIC_NOT_IS_PUBLISHED:
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_vote_error_is_not_published'), E::ModuleLang()->Get('attention'));
+                return;
+                break;
         }
 
         // * Голосуем

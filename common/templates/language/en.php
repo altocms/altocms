@@ -381,6 +381,7 @@ return array(
     'topic_vote_error_time'                     => 'Voting period for this topic is expired!',
     'topic_vote_error_acl'                      => "You don't have enough rating or power to vote!",
     'topic_vote_error_banned'                   => "Sorry you are banned, you can't vote!",
+    'topic_vote_error_is_not_published'         => 'You can not vote for the draft',
     'topic_vote_no'                             => 'No one voted yet',
     'topic_vote_ok'                             => 'Your vote counted',
     'topic_vote_ok_abstain'                     => 'You\'ve abstained in order to view topic raiting',

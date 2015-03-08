@@ -36,6 +36,7 @@ class ModuleACL extends Module {
     const CAN_VOTE_TOPIC_FALSE = 0;
     const CAN_VOTE_TOPIC_TRUE = 1;
     const CAN_VOTE_TOPIC_ERROR_BAN = 2;
+    const CAN_VOTE_TOPIC_NOT_IS_PUBLISHED = 3;
     /**
      * Коды ответов на запрос о возможности
      * пользователя голосовать за комментарий
@@ -308,6 +309,9 @@ class ModuleACL extends Module {
     public function CanVoteTopic(ModuleUser_EntityUser $oUser, ModuleTopic_EntityTopic $oTopic) {
         if (!C::Get('rating.enabled')) {
             return self::CAN_VOTE_TOPIC_FALSE;
+        }
+        if (!$oTopic->getPublish()) {
+            return self::CAN_VOTE_TOPIC_NOT_IS_PUBLISHED;
         }
         $oBlog = $oTopic->getBlog();
         if ($oBlog && $oBlog->getBlogType()) {
