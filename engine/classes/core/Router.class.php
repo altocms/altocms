@@ -326,7 +326,7 @@ class Router extends LsObject {
     /**
      * Применяет к реквесту правила реврайта из конфига Config::Get('router.uri')
      *
-     * @param $aRequestUrl    Массив реквеста
+     * @param array $aRequestUrl    Массив реквеста
      * @return array
      */
     protected function RewriteRequest($aRequestUrl) {
@@ -350,7 +350,7 @@ class Router extends LsObject {
     /**
      * Специальное действие по REQUEST_URI
      *
-     * @param $sReq
+     * @param string $sReq
      */
     protected function SpecialAction($sReq) {
 
@@ -407,33 +407,25 @@ class Router extends LsObject {
     public function ExecAction() {
 
         $this->DefineActionClass();
-        /**
-         * Сначала запускаем инициализирующий евент
-         */
+
+        // * Сначала запускаем инициализирующий евент
         E::ModuleHook()->Run('init_action');
 
         $sActionClass = $this->DefineActionClass();
-        /**
-         * Определяем наличие делегата экшена
-         */
+
+        // * Определяем наличие делегата экшена
         if ($aChain = E::ModulePlugin()->GetDelegationChain('action', $sActionClass)) {
             if (!empty($aChain)) {
                 $sActionClass = $aChain[0];
             }
         }
         static::$sActionClass = $sActionClass;
-        /**
-         * Автозагрузка класса перенесена в автозагрузчик
-         */
-
-        //$sClassName = $sActionClass;
         if (!class_exists($sActionClass)) {
             throw new Exception('Cannot load class "' . $sActionClass . '"');
         }
         $this->oAction = new $sActionClass(static::$sAction);
-        /**
-         * Инициализируем экшен
-         */
+
+        // * Инициализируем экшен
         E::ModuleHook()->Run('action_init_' . strtolower($sActionClass) . '_before');
         $sInitResult = $this->oAction->Init();
         E::ModuleHook()->Run('action_init_' . strtolower($sActionClass) . '_after');
@@ -571,7 +563,7 @@ class Router extends LsObject {
     }
 
     /**
-     * Возвращает реальный URL (или локальный путь на сайте) без реврайтов
+     * Returns real URL (or path of URL) without rewrites
      *
      * @param bool $bPathOnly
      *
@@ -587,7 +579,7 @@ class Router extends LsObject {
     }
 
     /**
-     * Возвращает текущий язык
+     * Returns current language
      *
      * @return string
      */
@@ -597,9 +589,9 @@ class Router extends LsObject {
     }
 
     /**
-     * Устанавливает текущий язык
+     * Sets language
      *
-     * @param   string  $sLang
+     * @param string $sLang
      */
     static public function SetLang($sLang) {
 
@@ -607,7 +599,7 @@ class Router extends LsObject {
     }
 
     /**
-     * Возвращает текущий экшен
+     * Returns current action
      *
      * @return string
      */
@@ -617,7 +609,7 @@ class Router extends LsObject {
     }
 
     /**
-     * Возвращает текущий евент
+     * Returns current action's event
      *
      * @return string
      */
@@ -627,7 +619,17 @@ class Router extends LsObject {
     }
 
     /**
-     * Возвращает имя текущего евента
+     * Sets event
+     *
+     * @param string $sEvent
+     */
+    static public function SetActionEvent($sEvent) {
+
+        static::$sActionEvent = $sEvent;
+    }
+
+    /**
+     * Returns current event name
      *
      * @return string
      */
@@ -637,23 +639,13 @@ class Router extends LsObject {
     }
 
     /**
-     * Возвращает класс текущего экшена
+     * Returns class name of current action
      *
      * @return string
      */
     static public function GetActionClass() {
 
         return static::$sActionClass;
-    }
-
-    /**
-     * Устанавливает новый текущий евент
-     *
-     * @param string $sEvent    Евент
-     */
-    static public function SetActionEvent($sEvent) {
-
-        static::$sActionEvent = $sEvent;
     }
 
     /**
@@ -671,19 +663,20 @@ class Router extends LsObject {
      * Нумерация параметров начинается нуля
      *
      * @param int $iOffset
-     * @param mixed|null $def
+     * @param string $sDefault
+     *
      * @return string
      */
-    static public function GetParam($iOffset, $def = null) {
+    static public function GetParam($iOffset, $sDefault = null) {
 
         $iOffset = (int)$iOffset;
-        return isset(static::$aParams[$iOffset]) ? static::$aParams[$iOffset] : $def;
+        return isset(static::$aParams[$iOffset]) ? static::$aParams[$iOffset] : $sDefault;
     }
 
     /**
      * Возвращает текущий обрабатывемый путь контроллера
      *
-     * @return  string
+     * @return string
      */
     static public function GetControllerPath() {
 
@@ -698,12 +691,12 @@ class Router extends LsObject {
     /**
      * Устанавливает значение параметра
      *
-     * @param int $iOffset Номер параметра, по идеи может быть не только числом
-     * @param mixed $value
+     * @param int $iOffset Номер параметра, по идее может быть не только числом
+     * @param string $sValue
      */
-    static public function SetParam($iOffset, $value) {
+    static public function SetParam($iOffset, $sValue) {
 
-        static::$aParams[$iOffset] = $value;
+        static::$aParams[$iOffset] = $sValue;
     }
 
     /**
@@ -738,19 +731,6 @@ class Router extends LsObject {
     }
 
     /**
-     * Ставим хук на вызов неизвестного метода и считаем что хотели вызвать метод какого либо модуля
-     * @see Engine::_CallModule
-     *
-     * @param string $sName Имя метода
-     * @param array $aArgs Аргументы
-     * @return mixed
-     */
-    public function __call($sName, $aArgs) {
-
-        return $this->oEngine->_CallModule($sName, $aArgs);
-    }
-
-    /**
      * Блокируем копирование/клонирование объекта роутинга
      *
      */
@@ -779,7 +759,7 @@ class Router extends LsObject {
 
     /**
      * Try to find rewrite rule for given page.
-     * On success return rigth page, else return given param.
+     * On success returns right page, otherwise returns given param.
      *
      * @param  string $sPage
      * @return string
@@ -839,7 +819,7 @@ class Router extends LsObject {
 
     /**
      * @param   array $aData
-     * @param   string $sPart  'url', 'link', 'root', 'path', 'action', 'event', 'params'
+     * @param   string $sPart  One of values: 'url', 'link', 'root', 'path', 'action', 'event', 'params'
      * @return  string
      */
     protected function _getUrlPart($aData, $sPart) {
@@ -876,6 +856,11 @@ class Router extends LsObject {
         return $sResult;
     }
 
+    /**
+     * @param string|null $sPart
+     *
+     * @return array|string
+     */
     public function GetCurrentUrlInfo($sPart = null) {
 
         if (!$sPart) {
@@ -884,6 +869,11 @@ class Router extends LsObject {
         return $this->_getUrlPart($this->aCurrentUrl, $sPart);
     }
 
+    /**
+     * @param string|null $sPart
+     *
+     * @return array|string
+     */
     public function GetBackwardUrlInfo($sPart = null) {
 
         if (!$sPart) {
@@ -1085,6 +1075,7 @@ class Router extends LsObject {
             }
             return F::File_InPath($sControllerPath, $aPaths);
         }
+        return null;
     }
 
 }
