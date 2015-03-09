@@ -10,6 +10,7 @@
     {foreach $aComments as $oComment}
         {$oUser=$oComment->getUser()}
         {$oTopic=$oComment->getTarget()}
+        {if !$oTopic}{continue}{/if}
         {*{$oBlog=$oTopic->getBlog()}*}
         <!-- Комментарий -->
         <div id="js-title-comment-{$oComment->getId()}" class="feed-comment js-title-comment"
