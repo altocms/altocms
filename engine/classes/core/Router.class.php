@@ -83,16 +83,20 @@ class Router extends LsObject {
     static protected $sLang = null;
 
     /**
-     * Список параметров ЧПУ url
+     * Список параметров ЧПУ URL
      * <pre>/action/event/param0/param1/../paramN/</pre>
      *
      * @var array
      */
     static protected $aParams = array();
 
+    static protected $aRequestURI = array();
+
     protected $aCurrentUrl = array();
 
     protected $aBackwardUrl = array();
+
+    protected $aDefinedClasses = array();
 
     /**
      * Объект текущего экшена
@@ -229,7 +233,7 @@ class Router extends LsObject {
             }
         }
 
-        $aRequestUrl = $this->RewriteRequest($aRequestUrl);
+        static::$aRequestURI = $aRequestUrl = $this->RewriteRequest($aRequestUrl);
 
         static::$sAction = array_shift($aRequestUrl);
         static::$sActionEvent = array_shift($aRequestUrl);
@@ -308,6 +312,7 @@ class Router extends LsObject {
     protected function GetRouterUriRules() {
 
         $aRewrite = (array)Config::Get('router.uri');
+        /*
         $sTopicUrlPattern = static::GetTopicUrlPattern();
         if ($sTopicUrlPattern) {
             $aRewrite = array_merge($aRewrite, array($sTopicUrlPattern => 'blog/$1.html'));
@@ -320,13 +325,15 @@ class Router extends LsObject {
                 $aRewrite = array_merge($aRewrite, array($sUserUrlPattern => 'profile/login-$1'));
             }
         }
+        */
         return $aRewrite;
     }
 
     /**
-     * Применяет к реквесту правила реврайта из конфига Config::Get('router.uri')
+     * Applies config rewrite rules to request URI array, uses Config::Get('router.uri')
      *
-     * @param array $aRequestUrl    Массив реквеста
+     * @param array $aRequestUrl Request URI array
+     *
      * @return array
      */
     protected function RewriteRequest($aRequestUrl) {
@@ -345,6 +352,40 @@ class Router extends LsObject {
             $this->SpecialAction($sReq);
         }
         return (trim($sReq, '/') == '') ? array() : explode('/', $sReq);
+    }
+
+    /**
+     * Applies internal rewrite rules to request URI array, uses topics' and profiles' patterns
+     *
+     * @param array $aRequestUrl Request URI array
+     *
+     * @return array
+     */
+    protected function RewriteInternal($aRequestUrl) {
+
+        $aRewrite = array();
+        if ($sTopicUrlPattern = static::GetTopicUrlPattern()) {
+            $aRewrite = array_merge($aRewrite, array($sTopicUrlPattern => 'blog/$1.html'));
+        }
+        if ($sUserUrlPattern = static::GetUserUrlPattern()) {
+            if (strpos(static::GetUserUrlMask(), '%user_id%')) {
+                $aRewrite = array_merge($aRewrite, array($sUserUrlPattern => 'profile/id-$1'));
+            } elseif (strpos(static::GetUserUrlMask(), '%login%')) {
+                $aRewrite = array_merge($aRewrite, array($sUserUrlPattern => 'profile/login-$1'));
+            }
+        }
+        // * Правила Rewrite для REQUEST_URI
+        if ($aRewrite) {
+            $sReq = implode('/', $aRequestUrl);
+            foreach($aRewrite as $sPattern => $sReplace) {
+                if (preg_match($sPattern, $sReq)) {
+                    $sReq = preg_replace($sPattern, $sReplace, $sReq);
+                    break;
+                }
+            }
+            return (trim($sReq, '/') == '') ? array() : explode('/', $sReq);
+        }
+        return $aRequestUrl;
     }
 
     /**
@@ -455,11 +496,11 @@ class Router extends LsObject {
     }
 
     /**
-     * Определяет какой класс соответствует текущему экшену
+     * Tries to define action class in config and plugins
      *
-     * @return string
+     * @return null|string
      */
-    protected function DefineActionClass() {
+    protected function FindActionClass() {
 
         if (!static::$sAction) {
             $sActionClass = $this->DetermineClass($this->aConfigRoute['config']['action_default'], static::$sActionEvent);
@@ -469,28 +510,55 @@ class Router extends LsObject {
         } else {
             $sActionClass = $this->DetermineClass(static::$sAction, static::$sActionEvent);
         }
-        if (!$sActionClass) {
-            //Если не находим нужного класса то отправляем на страницу ошибки
-            static::$sAction = $this->aConfigRoute['config']['action_not_found'];
-            static::$sActionEvent = '404';
-            $sActionClass = $this->DetermineClass(static::$sAction, static::$sActionEvent);
-        }
-        if ($sActionClass) {
-            static::$sActionClass = $sActionClass;
-        } elseif (!$sActionClass && static::$sAction && isset($this->aConfigRoute['page'][static::$sAction])) {
-            static::$sActionClass = $this->aConfigRoute['page'][static::$sAction];
-        }
+        return $sActionClass;
+    }
 
-        // Если класс экшена не определен, то аварийное завершение
-        if (!static::$sActionClass) {
-            die('Action class does not define');
+    /**
+     * Определяет какой класс соответствует текущему экшену
+     *
+     * @return string
+     */
+    protected function DefineActionClass() {
+
+        if (isset($this->aDefinedClasses[static::$sAction][static::$sActionEvent])) {
+            static::$sActionClass = $this->aDefinedClasses[static::$sAction][static::$sActionEvent];
+        } else {
+            $sActionClass = $this->FindActionClass();
+            if (!$sActionClass && static::$aRequestURI) {
+                //Если не находим нужного класса, то проверяем внутренний реврайтинг по паттернам, напр., топики
+                $aRequestUrl = $this->RewriteInternal(static::$aRequestURI);
+                if (static::$aRequestURI !== $aRequestUrl) {
+                    static::$aRequestURI = $aRequestUrl;
+                    static::$sAction = array_shift($aRequestUrl);
+                    static::$sActionEvent = array_shift($aRequestUrl);
+                    static::$aParams = $aRequestUrl;
+                    $sActionClass = $this->FindActionClass();
+                }
+            }
+            if (!$sActionClass) {
+                //Если не находим нужного класса, то определяем класс экшена-обработчика ошибки
+                static::$sAction = $this->aConfigRoute['config']['action_not_found'];
+                static::$sActionEvent = '404';
+                $sActionClass = $this->DetermineClass(static::$sAction, static::$sActionEvent);
+            }
+            if ($sActionClass) {
+                static::$sActionClass = $sActionClass;
+            } elseif (!$sActionClass && static::$sAction && isset($this->aConfigRoute['page'][static::$sAction])) {
+                static::$sActionClass = $this->aConfigRoute['page'][static::$sAction];
+            }
+
+            // Если класс экшена так и не определен, то аварийное завершение
+            if (!static::$sActionClass) {
+                die('Action class does not define');
+            }
+            $this->aDefinedClasses[static::$sAction][static::$sActionEvent] = static::$sActionClass;
         }
 
         return static::$sActionClass;
     }
 
     /**
-     * Determines action class by action (and event)
+     * Determines action class by action (and optionally by event)
      *
      * @param string $sAction
      * @param string $sEvent
