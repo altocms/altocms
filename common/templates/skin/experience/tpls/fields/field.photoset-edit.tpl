@@ -84,7 +84,8 @@
                     <div class="js-files row">
                         <div class="js-file-tpl js-autoremove col-md-6" data-id="<%=uid%>" title="<%-name%>, <%-sizeText%>">
                             <div class="thumbnail">
-                                <div data-fileapi="file.remove" class="js-file-delete">✖</div>
+                                <div data-fileapi="file.remove" class="js-file-delete"><i class="fa fa-times"></i></div>
+                                <div class="js-file-reload"><i class="fa fa-refresh"></i></div>
                                 <div class="js-file-preview">
                                     <div class="js-file-image"></div>
                                 </div>

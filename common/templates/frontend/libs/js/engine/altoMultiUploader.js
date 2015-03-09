@@ -52,7 +52,11 @@
         init: function () {
 
             var $this = this;
-
+            var previewConfig = {
+                el: '.js-file-preview',
+                width: 140,
+                height: 140
+            };
 
             $('.js-alto-multi-uploader-form').fileapi({
                 url: $this.options.url.upload,
@@ -75,11 +79,7 @@
                     list: '.js-files',
                     file: {
                         tpl: '.js-file-tpl',
-                        preview: {
-                            el: '.js-file-preview',
-                            width: 140,
-                            height: 140
-                        },
+                        preview: previewConfig,
                         upload: {show: '.progress', hide: '.js-file-rotate'},
                         complete: {hide: '.progress', remove: 'js-autoremove'},
                         progress: '.progress .progress-bar'
@@ -90,7 +90,13 @@
                         fallback: '.js-uploader-picker-supported'
                     }
                 }
-            });
+            }).on('click', '.js-file-reload', function (evt) {
+                    var tpl = $('.js-alto-multi-uploader-form'),
+                        uid = $(evt.currentTarget).parents('.js-file-tpl').data('id'),
+                        file = tpl.fileapi("_getFile", uid);
+                    tpl.fileapi("_makeFilePreview", uid, file, previewConfig);
+                }
+            );
 
             // Добавим сортировку изображений в фотосете
             $this.$list

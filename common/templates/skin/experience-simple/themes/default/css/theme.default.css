@@ -1222,6 +1222,19 @@ _________________________________________________*/
   -moz-transition: opacity 0.1s ease-in;
   transition: opacity 0.1s ease-in;
 }
+.js-alto-multi-uploader-form .js-file-reload {
+  position: absolute;
+  top: -6px;
+  left: 17px;
+  z-index: 999;
+  color: #548c40;
+  font-size: 20px;
+  opacity: 0;
+  cursor: pointer;
+  -webkit-transition: opacity 0.1s ease-in;
+  -moz-transition: opacity 0.1s ease-in;
+  transition: opacity 0.1s ease-in;
+}
 .js-alto-multi-uploader-form .progress {
   margin-bottom: 0;
 }
@@ -1230,7 +1243,8 @@ _________________________________________________*/
   text-align: center;
   font-size: 10px;
 }
-.js-alto-multi-uploader-form .js-file-tpl:hover .js-file-delete {
+.js-alto-multi-uploader-form .js-file-tpl:hover .js-file-delete,
+.js-alto-multi-uploader-form .js-file-tpl:hover .js-file-reload {
   opacity: 1;
 }
 .js-alto-multi-uploader-form .js-file-rotate {

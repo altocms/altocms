@@ -64,6 +64,7 @@
                         <div class="js-file-tpl js-autoremove col-md-3" data-id="<%=uid%>" title="<%-name%>, <%-sizeText%>">
                             <div class="thumbnail">
                                 <div data-fileapi="file.remove" class="js-file-delete">✖</div>
+                                <div class="js-file-reload"><i class="glyphicon glyphicon-refresh"></i></div>
                                 <div class="js-file-preview">
                                     <div class="js-file-image"></div>
                                 </div>
