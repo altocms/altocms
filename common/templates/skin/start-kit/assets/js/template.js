@@ -334,7 +334,7 @@
                         min	: 60,
                         max	: 120
                     },
-                    margin : 0
+                    margin : 1
                 });
                 $container.find('a').each(function(){
                     $(this).attr('rel', $(this).find('img').data('rel'))
