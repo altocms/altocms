@@ -819,6 +819,9 @@ _________________________________________________________________*/
 .topic-info .topic-user {
   height: 34px !important;
 }
+.widget-blog-info img {
+  max-width: 100%;
+}
 .tooltip {
   font-size: 14px;
   border-radius: 0;
