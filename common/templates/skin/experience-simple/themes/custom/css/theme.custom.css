@@ -1115,7 +1115,11 @@ ____________________________*/
   color: #1a1a1a;
 }
 textarea {
-  white-space: normal !important;
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
 }
 .info-container {
   margin-bottom: 8px;
