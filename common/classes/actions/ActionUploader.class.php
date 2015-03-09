@@ -702,10 +702,18 @@ class ActionUploader extends Action {
             return;
         }
 
-        $oResource->setType(ModuleMresource::TYPE_PHOTO_PRIMARY);
-        E::ModuleMresource()->UpdatePrimary($oResource, $sTargetType, $sTargetId);
+        // Если картинка и так превьюшка, то отключим её
+        if ($oResource->getType() == ModuleMresource::TYPE_PHOTO) {
+            $oResource->setType(ModuleMresource::TYPE_PHOTO_PRIMARY);
+            E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('topic_photoset_is_preview'));
+            E::ModuleViewer()->AssignAjax('bPreview', true);
+        } else {
+            $oResource->setType(ModuleMresource::TYPE_PHOTO);
+            E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('topic_photoset_mark_is_not_preview'));
+            E::ModuleViewer()->AssignAjax('bPreview', false);
+        }
 
-        E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('topic_photoset_is_preview'));
+        E::ModuleMresource()->UpdatePrimary($oResource, $sTargetType, $sTargetId);
 
     }
 

@@ -200,7 +200,7 @@
                 },
                 /**
                  * Обработчик результата, пришедшего от сервера
-                 * @param {{bStateError: {boolean}, sMsg: {string}}} result
+                 * @param {{bStateError: {boolean}, sMsg: {string}, bPreview: {boolean}}} result
                  */
                 function (result) {
 
@@ -214,7 +214,9 @@
                     } else {
                         ls.msg.notice(null, result.sMsg);
                         $this.$list.find('.js-uploader-item-cover').text($this.options.langCoverNeed);
-                        $('#uploader_item_' + id).find('.js-uploader-item-cover').text($this.options.langCoverDone);
+                        if (result.bPreview) {
+                            $('#uploader_item_' + id).find('.js-uploader-item-cover').text($this.options.langCoverDone);
+                        }
                         ls.hook.run('uploader_set_cover_after', [$this.options, result]);
                     }
 

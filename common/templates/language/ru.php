@@ -419,6 +419,7 @@ return array(
     'topic_photoset_upload_rules'               => 'Доступна загрузка изображений в формат JPG, PNG, GIF<br />Размер изображений не должен превышать %%SIZE%% Kб<br />Максимальное число загружаемых изображений: %%COUNT%%',
     'topic_photoset_choose_image'               => 'Выберите изображение для загрузки',
     'topic_photoset_is_preview'                 => 'Отмечено как превью к статье',
+    'topic_photoset_mark_is_not_preview'        => 'Это изображение больше не превью к статье',
     'topic_photoset_description_done'           => 'Обновлено описание',
     'topic_photoset_mark_as_preview'            => 'Отметить как превью',
     'topic_photoset_show_all'                   => 'Показать все %%COUNT%% фото',

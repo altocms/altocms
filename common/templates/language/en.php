@@ -397,6 +397,7 @@ return array(
     'topic_photoset_upload_rules'               => 'Download images available in format JPG, PNG, GIF <br/> Image size should not exceed %%SIZE%% Kb <br /> Maximum number of uploaded images: %%COUNT%%',
     'topic_photoset_choose_image'               => 'Select the image to download',
     'topic_photoset_is_preview'                 => 'Marked as a preview to topic',
+    'topic_photoset_mark_is_not_preview'        => 'Marked as not a preview to topic',
     'topic_photoset_mark_as_preview'            => 'Mark as preview',
     'topic_photoset_show_all'                   => 'Display all %%COUNT%% count',
     'topic_photoset_count_images'               => 'image;images;images',
