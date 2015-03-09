@@ -51,15 +51,34 @@
          */
         init: function () {
 
-            var $this = this;
-            var previewConfig = {
-                el: '.js-file-preview',
-                width: 140,
-                height: 140
-            };
+            var $this = this,
+                previewConfig = {
+                    el: '.js-file-preview',
+                    width: 140,
+                    height: 140
+                },
+                onCheckFiles = function (evt, data) {
+                    if (data.other.length) {
+                        var errors = data.other[0].errors;
+                        if (errors) {
+                            if (errors.maxSize !== undefined) {
+                                ls.msg.error(null, $this.options.maxSizeError);
+                            } else if (errors.maxWidth !== undefined) {
+                                ls.msg.error(null, $this.options.maxWidthError);
+                            } else if (errors.maxHeight !== undefined) {
+                                ls.msg.error(null, $this.options.maxHeightError);
+                            }
+                        }
+                    }
+                };
 
             $('.js-alto-multi-uploader-form').fileapi({
                 url: $this.options.url.upload,
+                maxSize: $this.options.maxSize * FileAPI.MB,
+                imageSize: {
+                    maxWidth: $this.options.maxWidth,
+                    maxHeight: $this.options.maxHeight
+                },
                 data: {
                     'security_key': ls.cfg.security_key,
                     'direct': true,
@@ -89,7 +108,9 @@
                         hover: 'js-uploader-picker-hover',
                         fallback: '.js-uploader-picker-supported'
                     }
-                }
+                },
+                onDrop: onCheckFiles,
+                onSelect: onCheckFiles
             }).on('click', '.js-file-reload', function (evt) {
                     var tpl = $('.js-alto-multi-uploader-form'),
                         uid = $(evt.currentTarget).parents('.js-file-tpl').data('id'),
@@ -353,6 +374,12 @@
      * @type {object}
      */
     $.fn.altoMultiUploader.defaultOptions = {
+        maxSize: 6,
+        maxWidth: 8000,
+        maxHeight: 6000,
+        maxSizeError: 'Wrong file size',
+        maxWidthError: 'Wrong file width',
+        maxHeightError: 'Wrong file height',
         url: {
             upload: ls.routerUrl('uploader') + 'multi-image/',
             remove: ls.routerUrl('uploader') + 'remove-image-by-id/',
@@ -364,11 +391,3 @@
     };
 
 }(window.jQuery, ls));
-
-
-//====================================================================================================================
-//      АВТОМАТИЧЕСКАЯ ИНИЦИАЛИЗАЦИЯ ПЛАГИНА
-//====================================================================================================================
-jQuery(function () {
-    jQuery('.js-alto-multi-uploader').altoMultiUploader(false);
-});

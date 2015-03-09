@@ -1,3 +1,16 @@
+<script>
+    $(function () {
+        $('.js-alto-multi-uploader')
+                .altoMultiUploader({
+                    maxSize: '{C::Get("module.topic.photoset.photo_max_size")/1024}',
+                    maxWidth: '{C::Get("module.uploader.images.default.max_width")}',
+                    maxHeight: '{C::Get("module.uploader.images.default.max_height")}',
+                    maxSizeError: '{$aLang.topic_field_file_upload_err_size|ls_lang:"size%%{C::Get('module.topic.photoset.photo_max_size')/1024}Mb"}',
+                    maxWidthError: '{$aLang.topic_field_file_upload_err_size|ls_lang:"size%%{C::Get('module.uploader.images.default.max_width')}x{C::Get('module.uploader.images.default.max_height')}px"}',
+                    maxHeightError: '{$aLang.topic_field_file_upload_err_size|ls_lang:"size%%{C::Get('module.uploader.images.default.max_width')}x{C::Get('module.uploader.images.default.max_height')}px"}'
+                });
+    });
+</script>
 {if isset($_aRequest.topic_id) && $_aRequest.topic_id}{$sTargetId=$_aRequest.topic_id}{else}{$sTargetId=0}{/if}
 {$sTargetType="topic-multi-image-uploader"}
 
