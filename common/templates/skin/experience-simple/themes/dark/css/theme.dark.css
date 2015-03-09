@@ -957,7 +957,7 @@ _________________________________________________________________*/
   min-width: 208px;
   border: 1px solid #93a6ad;
   border-radius: 0;
-  margin-top: 106px;
+  margin-top: 82px;
 }
 .toolbar-write > .popover .arrow {
   top: 20px;
@@ -1224,18 +1224,17 @@ _________________________________________________*/
 }
 .js-alto-multi-uploader-form .js-file-reload {
   position: absolute;
-  top: -2px;
+  top: -6px;
   left: 17px;
   z-index: 999;
   color: #548c40;
-  font-size: 18px;
+  font-size: 20px;
   opacity: 0;
   cursor: pointer;
   -webkit-transition: opacity 0.1s ease-in;
   -moz-transition: opacity 0.1s ease-in;
   transition: opacity 0.1s ease-in;
 }
-
 .js-alto-multi-uploader-form .progress {
   margin-bottom: 0;
 }
