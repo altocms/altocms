@@ -30,7 +30,7 @@
 /* MIXINS */
 /* COMMON */
 body {
-  background: #eaeaea url("colors-light.less/img/bg.jpg");
+  background: #eaeaea url("img/bg.jpg");
 }
 a {
   color: #00afd1;
