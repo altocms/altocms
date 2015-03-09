@@ -330,7 +330,7 @@ $config['module']['uploader']['images']['default'] = array(
     'image_extensions' => array('gif', 'png', 'jpg', 'jpeg'),
     'max_width'  => 8000, // максимальная ширина загружаемых изображений в пикселях
     'max_height' => 6000, // максимальная высота загружаемых изображений в пикселях
-    'url_maxsize' => '2Mb', // максимальный размер изображения в kB для загрузки по URL
+    'url_maxsize' => '2Mb', // максимальный размер изображения для загрузки по URL
     // параметры сохранения при загрузке
     'transform' => array(
         'max_width'  => 800,        // максимальная ширина сохраняемого изображения
@@ -400,9 +400,9 @@ $config['module']['uploader']['images']['photoset'] = array(
 $config['module']['uploader']['images']['video'] = array(
     '$extends$' => '___module.uploader.images.default___',
     'transform' => array(
-        'max_width'  => 640,        // максимальная ширина сохраняемой аватары
-        'max_height' => 360,        // максимальная высота сохраняемой аватары
-        'aspect_ratio' => '16:9',      // соотношение ширины и высоты
+        'max_width'  => 640,        // максимальная ширина фрейма
+        'max_height' => 360,        // максимальная высота фрейма
+        'aspect_ratio' => '16:9',   // соотношение ширины и высоты фрейма
         'watermark' => array(
             'enable' => false,
         ),
