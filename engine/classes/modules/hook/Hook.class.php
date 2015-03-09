@@ -95,11 +95,38 @@ class ModuleHook extends Module {
      */
     protected $aHooksObject = array();
 
+    protected $aObservers = array();
+
     protected $bStopHandle = false;
 
     protected $sCurrentHookName;
 
     protected $aCurrentHookOptions = array();
+
+    protected function _parseCallback($xCallback) {
+
+        $aResult = array(
+            'function' => $xCallback,
+            'class' => null,
+            'object' => null,
+            'method' => null,
+        );
+        if (is_array($xCallback) && sizeof($xCallback) == 2) {
+            list($oObject, $sMethod) = $xCallback;
+            if (is_object($oObject) && is_string($sMethod)) {
+                $aResult['function'] = null;
+                $aResult['class'] = null;
+                $aResult['object'] = $oObject;
+                $aResult['method'] = $sMethod;
+            } elseif (is_string($oObject) && is_string($sMethod)) {
+                $aResult['function'] = null;
+                $aResult['object'] = null;
+                $aResult['class'] = $oObject;
+                $aResult['method'] = $sMethod;
+            }
+        }
+        return $aResult;
+    }
 
     /**
      * Инициализация модуля
@@ -141,13 +168,69 @@ class ModuleHook extends Module {
             $aParams = $iPriority;
             $iPriority = null;
         }
-        return $this->Add($sHookName, 'function', $xCallBack, $iPriority, $aParams);
+        $bResult = $this->Add($sHookName, 'function', $xCallBack, $iPriority, $aParams);
+        $aHook = end($this->aHooks[$sHookName]);
+        $this->_notifyObserver(array($aHook), $this->aObservers);
+        return $bResult;
+    }
+
+    /**
+     * Adds observer to be notified of new handlers
+     *
+     * @param string       $sHookName
+     * @param string|array $xCallBack
+     * @param bool         $bStrict
+     */
+    public function AddObserver($sHookName, $xCallBack, $bStrict = false) {
+
+        $this->aObservers[] = array(
+            'hook' => $sHookName,
+            'callback' => $this->_parseCallback($xCallBack),
+            'strict' => $bStrict,
+        );
+        $aObserver = end($this->aObservers);
+        if ($this->aHooks) {
+            $this->_notifyObserver($this->aHooks, array($aObserver));
+        }
+    }
+
+    /**
+     * Notifies observers about hooks
+     *
+     * @param array $aHooks
+     * @param array $aObservers
+     */
+    protected function _notifyObserver($aHooks, $aObservers) {
+
+        foreach ($aObservers as $aObserver) {
+            foreach ($aHooks as $sHookName => $aHookParams) {
+                if ($aObserver['strict']) {
+                    $bNotify = ($sHookName === $aObserver['hook']);
+                } else {
+                    $bNotify = (strpos($sHookName, $aObserver['hook']) === 0);
+                }
+                if ($bNotify) {
+                    if (!empty($aObserver['callback']['object'])) {
+                        $oObject = $aObserver['callback']['object'];
+                        $sMethod = $aObserver['callback']['method'];
+                        $oObject->$sMethod($sHookName);
+                    } elseif (!empty($aObserver['callback']['class'])) {
+                        $sClass = $aObserver['callback']['class'];
+                        $sMethod = $aObserver['callback']['method'];
+                        $oObject = new $sClass();
+                        $oObject->$sMethod($sHookName);
+                    } elseif (!empty($aObserver['callback']['function'])) {
+                        call_user_func($aObserver['callback']['function'], $sHookName);
+                    }
+                }
+            }
+        }
     }
 
     /**
      * Добавление обработчика на хук
      *
-     * @param string $sName        Имя хука
+     * @param string $sHookName    Имя хука
      * @param string $sType        Тип хука, возможны: module, function, hook
      * @param string $sCallBack    Функция/метод обработки хука
      * @param int    $iPriority    Приоритер обработки, чем выше, тем раньше сработает хук относительно других
@@ -155,14 +238,14 @@ class ModuleHook extends Module {
      *
      * @return bool
      */
-    public function Add($sName, $sType, $sCallBack, $iPriority = 1, $aParams = array()) {
+    public function Add($sHookName, $sType, $sCallBack, $iPriority = 1, $aParams = array()) {
 
-        $sName = strtolower($sName);
+        $sHookName = strtolower($sHookName);
         $sType = strtolower($sType);
         if (!in_array($sType, array('module', 'hook', 'function', 'template'))) {
             return false;
         }
-        $this->aHooks[$sName][] = array(
+        $this->aHooks[$sHookName][] = array(
             'type' => $sType,
             'callback' => $sCallBack,
             'params' => $aParams,
@@ -171,6 +254,12 @@ class ModuleHook extends Module {
         if (!empty($this->aHooksOrders)) {
             $this->aHooksOrders = array();
         }
+
+        if ($this->aObservers) {
+            $aHook = end($this->aHooks[$sHookName]);
+            $this->_notifyObserver(array($aHook), $this->aObservers);
+        }
+
         return true;
     }
 

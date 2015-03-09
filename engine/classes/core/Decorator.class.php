@@ -21,11 +21,30 @@ class Decorator extends LsObject {
     protected $bHookEnable = true;
     protected $sHookPrefix;
     protected $oComponent;
+
+    /** @var  ModuleHook */
     protected $oModuleHook;
+
+    protected $aRegisteredHooks = array();
 
     public function __construct($oComponent) {
 
         $this->oComponent = $oComponent;
+    }
+
+    public function __destruct() {
+        // Nothing
+    }
+
+    protected function _initHooks() {
+
+        $this->oModuleHook = E::Module('Hook');
+        $this->oModuleHook->AddObserver($this->sHookPrefix, array($this, 'HookObserver'));
+    }
+
+    public function HookObserver($sHookName) {
+
+        $this->aRegisteredHooks[$sHookName] = true;
     }
 
     /**
@@ -37,35 +56,71 @@ class Decorator extends LsObject {
         return method_exists($this->oComponent, $sMethodName);
     }
 
+    /**
+     * Calls method of injected object
+     *
+     * @param string $sMethod
+     * @param array $aArgs
+     *
+     * @return mixed
+     */
     public function CallMethod($sMethod, $aArgs) {
 
-        $aArgsRef = array();
-        foreach ($aArgs as $iKey => $xVal) {
-            $aArgsRef[] =& $aArgs[$iKey];
-        }
-        $sHookName = '';
+        $sHookMethod = $this->sHookPrefix . strtolower($sMethod);
         if ($this->bHookEnable) {
             if (!$this->oModuleHook) {
-                $this->oModuleHook = E::Module('Hook');
+                $this->_initHooks();
             }
             switch ($this->sType) {
                 case 'action':
                     $this->hookBeforeAction();
                     break;
                 case 'module':
-                    $sHookName = $this->sHookPrefix . strtolower($sMethod);
-                    $aHookArgs = array($sHookName . '_before', &$aArgs);
-                    $xResultHook = call_user_func_array(array($this->oModuleHook, 'Run'), $aHookArgs);
-                    /*
-                     * if ($xResultHook === false) { return $xResultHook; }
-                     */
+                    $sHookName = $sHookMethod . '_before';
+                    if (isset($this->aRegisteredHooks[$sHookName])) {
+                        $this->oModuleHook->Run($sHookName, $aArgs);
+                    }
                     break;
                 default:
                     break;
             }
         }
 
-        $xResult = call_user_func_array(array($this->oComponent, $sMethod), $aArgsRef);
+        //$xResult = call_user_func_array(array($this->oComponent, $sMethod), $aArgsRef);
+        switch (count($aArgs)) {
+            case 0:
+                $xResult = $this->oComponent->$sMethod();
+                break;
+            case 1:
+                $xResult = $this->oComponent->$sMethod($aArgs[0]);
+                break;
+            case 2:
+                $xResult = $this->oComponent->$sMethod($aArgs[0], $aArgs[1]);
+                break;
+            case 3:
+                $xResult = $this->oComponent->$sMethod($aArgs[0], $aArgs[1], $aArgs[2]);
+                break;
+            case 4:
+                $xResult = $this->oComponent->$sMethod($aArgs[0], $aArgs[1], $aArgs[2], $aArgs[3]);
+                break;
+            case 5:
+                $xResult = $this->oComponent->$sMethod($aArgs[0], $aArgs[1], $aArgs[2], $aArgs[3], $aArgs[4]);
+                break;
+            case 6:
+                $xResult = $this->oComponent->$sMethod($aArgs[0], $aArgs[1], $aArgs[2], $aArgs[3], $aArgs[4], $aArgs[5]);
+                break;
+            case 7:
+                $xResult = $this->oComponent->$sMethod($aArgs[0], $aArgs[1], $aArgs[2], $aArgs[3], $aArgs[4], $aArgs[5], $aArgs[6]);
+                break;
+            case 8:
+                $xResult = $this->oComponent->$sMethod($aArgs[0], $aArgs[1], $aArgs[2], $aArgs[3], $aArgs[4], $aArgs[5], $aArgs[6], $aArgs[7]);
+                break;
+            case 9:
+                $xResult = $this->oComponent->$sMethod($aArgs[0], $aArgs[1], $aArgs[2], $aArgs[3], $aArgs[4], $aArgs[5], $aArgs[6], $aArgs[7], $aArgs[8]);
+                break;
+            default:
+                $xResult = call_user_func_array(array($this->oComponent, $sMethod), $aArgsRef);
+        }
 
         if ($this->bHookEnable) {
             switch ($this->sType) {
@@ -73,9 +128,11 @@ class Decorator extends LsObject {
                     $this->hookAfterAction();
                     break;
                 case 'module':
-                    $aHookParams = array('result' => &$xResult, 'params' => &$aArgs);
-                    $aHookArgs = array($sHookName . '_after', &$aHookParams);
-                    call_user_func_array(array($this->oModuleHook, 'Run'), $aHookArgs);
+                    $sHookName = $sHookMethod . '_after';
+                    if (isset($this->aRegisteredHooks[$sHookName])) {
+                        $aHookParams = array('result' => &$xResult, 'params' => &$aArgs);
+                        $this->oModuleHook->Run($sHookName, $aHookParams);
+                    }
                     break;
                 default:
                     break;
@@ -85,12 +142,24 @@ class Decorator extends LsObject {
         return $xResult;
     }
 
+    /**
+     * @param string $sMethod
+     * @param array $aArgs
+     *
+     * @return mixed
+     */
     public function __call($sMethod, $aArgs) {
 
         return $this->CallMethod($sMethod, $aArgs);
     }
 
+    /**
+     * @param string $sFieldName
+     *
+     * @return null
+     */
     public function __get($sFieldName) {
+
         return isset($this->oComponent->$sFieldName) ? $this->oComponent->$sFieldName : null;
     }
 
@@ -99,14 +168,6 @@ class Decorator extends LsObject {
     }
 
     protected function hookAfterAction() {
-
-    }
-
-    protected function hookBeforeModule($sHookName, $aArgs) {
-
-    }
-
-    protected function hookAfterModule($sHookName, $aArgs) {
 
     }
 
@@ -124,7 +185,7 @@ class Decorator extends LsObject {
     public function setName($sName) {
 
         $this->sName = $sName;
-        $this->sHookPrefix = 'module_' . strtolower($this->sName) . '_';
+        $this->sHookPrefix = $this->sType . '_' . strtolower($this->sName) . '_';
     }
 
     /**
