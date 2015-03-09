@@ -80,10 +80,10 @@
             <div class="topic-text">
                 {hook run='topic_content_begin' topic=$oTopic bTopicList=true}
 
-                {$sImagePath=$oTopic->getPhotosetMainPhotoUrl(true)}
+                {$sImagePath=$oTopic->getPhotosetMainPhotoUrl(false, '682pad')}
                 {if $sImagePath}
                     <a href="#" class="pull-left" data-url="{$sImagePath}" onclick="return false;">
-                        <img src="{$oTopic->getPhotosetMainPhotoUrl(true, '682pad')}" alt="image" align="left"/>
+                        <img src="{$sImagePath}" alt="image" align="left"/>
                     </a>
                     <br/>
                 {/if}

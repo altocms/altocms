@@ -1118,7 +1118,7 @@ class ActionContent extends Action {
                     // * Если удаляем главную фотографию. топика, то её необходимо сменить
                     if ($oPhoto->getId() == $oTopic->getPhotosetMainPhotoId() && $oTopic->getPhotosetCount() > 1) {
                         $aPhotos = $oTopic->getPhotosetPhotos(0, 1);
-                        $oTopic->setPhotosetMainPhotoId($aPhotos[0]->getId());
+                        $oTopic->setPhotosetMainPhotoId($aPhotos[0]->getMresourceId());
                     } elseif ($oTopic->getPhotosetCount() == 1) {
                         $oTopic->setPhotosetMainPhotoId(null);
                     }

@@ -1119,12 +1119,14 @@ class ModuleTopic_EntityTopic extends Entity {
         $aResult = array();
         if ($aPhotos && ($iFromId || $iCount)) {
             $iCntSet = -1;
-            foreach($aPhotos as $iPhotoId => $oPhoto) {
-                if ($iPhotoId >= $iFromId) {
+            // Сравнение должно идти по ид. ресурса, а не по ид.
+            // картинки
+            foreach($aPhotos as $oPhoto) {
+                if ($oPhoto->getMresourceId() >= $iFromId) {
                     if (++$iCntSet >= $iCount) {
                         break;
                     }
-                    $aResult[$iPhotoId] = $oPhoto;
+                    $aResult[$oPhoto->getMresourceId()] = $oPhoto;
                 }
             }
         } else {
@@ -1160,16 +1162,10 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function getPhotosetMainPhoto($bFirst = false) {
 
-        $iPhotoId = $this->getPhotosetMainPhotoId();
-        if ($iPhotoId || $bFirst) {
-            $aPhotos = $this->getPhotosetPhotos($iPhotoId, 1);
-            if (isset($aPhotos[$iPhotoId])) {
-                return $aPhotos[$iPhotoId];
-            } else {
-                if ($aPhotos && $bFirst) {
-                    return array_shift($aPhotos);
-                }
-            }
+        $iMresourceId = $this->getPhotosetMainPhotoId();
+        if ($iMresourceId || $bFirst) {
+            $aPhotos = $this->getPhotosetPhotos($iMresourceId, 1);
+            return array_shift($aPhotos);
         }
         return null;
     }
