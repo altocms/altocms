@@ -2979,7 +2979,12 @@ class ActionAdmin extends Action {
                 // Теперь здесь null будет всегда...
 //                $oBlogType->SetContentType($this->GetPost('blogtypes_contenttype'));
                 $oBlogType->SetContentType(NULL);
-                $oBlogType->setContentTypes(array_unique(array_keys($this->GetPost('blogtypes_contenttype'))));
+                $aBlogContentypes = (array)$this->GetPost('blogtypes_contenttype');
+                if (!$aBlogContentypes) {
+                    $oBlogType->setContentTypes(array());
+                } else {
+                    $oBlogType->setContentTypes(array_unique(array_keys($this->GetPost('blogtypes_contenttype'))));
+                }
 
                 // Установка прав на запись
                 $nAclValue = intval($this->GetPost('blogtypes_acl_write'));
@@ -3069,7 +3074,12 @@ class ActionAdmin extends Action {
 
 //        $oBlogType->SetContentType($this->GetPost('blogtypes_contenttype'));
         $oBlogType->SetContentType(NULL);
-        $oBlogType->setContentTypes(array_unique(array_keys($this->GetPost('blogtypes_contenttype'))));
+        $aBlogContentypes = (array)$this->GetPost('blogtypes_contenttype');
+        if (!$aBlogContentypes) {
+            $oBlogType->setContentTypes(array());
+        } else {
+            $oBlogType->setContentTypes(array_unique(array_keys($this->GetPost('blogtypes_contenttype'))));
+        }
 
         // Установка прав на запись
         $nAclValue = intval($this->GetPost('blogtypes_acl_write'));

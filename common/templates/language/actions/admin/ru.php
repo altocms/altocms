@@ -856,7 +856,7 @@ return array(
     'blogtypes_index_content'       => 'Индексировать контент',
     'blogtypes_index_content_notice'=> 'Контент блогов будет индексироваться и выдаваться при поиске',
     'blogtypes_contenttypes'        => 'Тип контента',
-    'blogtypes_contenttypes_notice' => 'Допустимый тип контента, который может быть в блоге',
+    'blogtypes_contenttypes_notice' => 'Допустимый тип контента, который может быть в блоге. Если не отмечен ни один тип, то допустимы все',
     'blogtypes_contenttypes_any'    => 'Любой',
 
     'blogtypes_err_id_notfound'     => 'Тип блога с заданным ID не найден',
