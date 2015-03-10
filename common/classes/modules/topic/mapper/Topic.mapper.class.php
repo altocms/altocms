@@ -1866,6 +1866,28 @@ class ModuleTopic_MapperTopic extends Mapper {
         return $aFields;
     }
 
+    /**
+     * Получает количество значений у конкретного поля
+     *
+     * @param $sFieldId
+     * @return int|bool
+     */
+    public function GetFieldValuesCount($sFieldId) {
+
+        $sql
+            = "SELECT
+					count(id) as count
+				FROM
+					?_content_values
+				WHERE
+					field_id = ?d
+				";
+        if ($aRow = $this->oDb->selectRow($sql, $sFieldId)) {
+            return intval($aRow['count']);
+        }
+        return false;
+    }
+
 }
 
 // EOF

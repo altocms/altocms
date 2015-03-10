@@ -418,6 +418,17 @@ class ModuleTopic extends Module {
     }
 
     /**
+     * Получает количество значений у конкретного поля
+     *
+     * @param $sFieldId
+     * @return int|bool
+     */
+    public function GetFieldValuesCount($sFieldId) {
+
+        return $this->oMapper->GetFieldValuesCount($sFieldId);
+    }
+
+    /**
      * Возвращает список типов топика
      *
      * @return array
