@@ -167,7 +167,9 @@ abstract class ModuleValidate_EntityValidator extends Entity {
         /**
          * Получаем значение поля у сущности через геттер
          */
-        $sValue = call_user_func_array(array($oEntity, 'get' . F::StrCamelize($sField)), array());
+        //$sValue = call_user_func_array(array($oEntity, 'get' . F::StrCamelize($sField)), array());
+        $sMethod = 'get' . F::StrCamelize($sField);
+        $sValue = $oEntity->$sMethod();
 
         if (($sMsg = $this->validate($sValue)) !== true) {
             /**
@@ -190,7 +192,9 @@ abstract class ModuleValidate_EntityValidator extends Entity {
      */
     protected function getValueOfCurrentEntity($sField) {
         if ($this->oEntityCurrent) {
-            return call_user_func_array(array($this->oEntityCurrent, 'get' . F::StrCamelize($sField)), array());
+            //return call_user_func_array(array($this->oEntityCurrent, 'get' . F::StrCamelize($sField)), array());
+            $sMethod = 'get' . F::StrCamelize($sField);
+            return $this->oEntityCurrent->$sMethod();
         }
         return null;
     }
@@ -203,7 +207,9 @@ abstract class ModuleValidate_EntityValidator extends Entity {
      */
     protected function setValueOfCurrentEntity($sField, $sValue) {
         if ($this->oEntityCurrent) {
-            call_user_func_array(array($this->oEntityCurrent, 'set' . F::StrCamelize($sField)), array($sValue));
+            //call_user_func_array(array($this->oEntityCurrent, 'set' . F::StrCamelize($sField)), array($sValue));
+            $sMethod = 'set' . F::StrCamelize($sField);
+            $this->oEntityCurrent->$sMethod($sValue);
         }
     }
 }

@@ -32,13 +32,13 @@ F::IncludeFile('ManyToManyRelation.class.php');
  * Основной класс движка. Ядро.
  *
  * Производит инициализацию плагинов, модулей, хуков.
- * Через этот класс происходит выполнение методов всех модулей, которые вызываются как <pre>E::ModuleModule()->Method();</pre>
+ * Через этот класс происходит выполнение методов всех модулей,
+ * которые вызываются так:
+ * <pre>
+ * E::ModuleName()->Method();
+ * </pre>
  * Также отвечает за автозагрузку остальных классов движка.
  *
- * В произвольном месте (не в классах движка у которых нет обработки метода __call() на выполнение модулей) метод модуля можно вызвать так:
- * <pre>
- * Engine::getInstance()->Module_Method();
- * </pre>
  *
  * @method static ModuleAcl ModuleAcl()
  * @method static ModuleAdmin ModuleAdmin()
@@ -281,11 +281,6 @@ class Engine extends LsObject {
      * Ограничиваем объект только одним экземпляром.
      * Функционал синглтона.
      *
-     * Используется так:
-     * <pre>
-     * Engine::getInstance()->Module_Method();
-     * </pre>
-     *
      * @return Engine
      */
     static public function getInstance() {
@@ -329,8 +324,9 @@ class Engine extends LsObject {
          * Запускаем хуки для события завершения инициализации Engine
          */
         //E::ModuleHook()->Run('engine_init_complete');
-        $aArgs = array('engine_init_complete');
-        $this->_CallModule('Hook_Run', $aArgs);
+        //$aArgs = array('engine_init_complete');
+        //$this->_CallModule('Hook_Run', $aArgs);
+        $this->GetModule('Hook')->Run('engine_init_complete');
         self::$nStage = self::STAGE_RUN;
     }
 
@@ -371,40 +367,11 @@ class Engine extends LsObject {
      * Инициализирует модуль
      *
      * @param Module $oModule     - Объект модуля
-     * @param bool   $bHookParent - Вызывает хук на родительском модуле, от которого наследуется текущий
      *
      * @throws Exception
      */
-    protected function InitModule($oModule, $bHookParent = true) {
+    protected function InitModule($oModule) {
 
-        $sClassName = get_class($oModule);
-        $bRunHooks = false;
-
-        if ($this->isInitModule('ModuleHook')) {
-            $bRunHooks = true;
-            if ($bHookParent) {
-                while (static::GetPluginName($sClassName)) {
-                    $sParentClassName = get_parent_class($sClassName);
-                    if (!static::GetClassInfo($sParentClassName, self::CI_MODULE, true)) {
-                        break;
-                    }
-                    $sClassName = $sParentClassName;
-                }
-            }
-        }
-        if ($bRunHooks || $sClassName == 'ModuleHook') {
-            $sHookPrefix = 'module_';
-            if ($sPluginName = static::GetPluginName($sClassName)) {
-                $sHookPrefix .= "plugin{$sPluginName}_";
-            }
-            $sHookPrefix .= static::GetModuleName($sClassName) . '_init_';
-        }
-        if ($bRunHooks) {
-            //E::ModuleHook()->Run($sHookPrefix . 'before');
-            $aArgs = array($sHookPrefix . 'before');
-            //$this->_CallModule('Hook_Run', $aArgs);
-            //static::Module('Hook')->Run($aArgs);
-        }
         if ($oModule->InInitProgress()) {
             // Нельзя запускать инициализацию модуля в процессе его инициализации
             throw new Exception('Recursive initialization of module "' . get_class($oModule) . '"');
@@ -412,11 +379,6 @@ class Engine extends LsObject {
         $oModule->SetInit(true);
         $oModule->Init();
         $oModule->SetInit();
-        if ($bRunHooks || $sClassName == 'ModuleHook') {
-            //E::ModuleHook()->Run($sHookPrefix . 'after');
-            $aArgs = array($sHookPrefix . 'after');
-            //$this->_CallModule('Hook_Run', $aArgs);
-        }
     }
 
     /**
@@ -583,16 +545,16 @@ class Engine extends LsObject {
      */
     protected function InitPluginHooks() {
 
-        if ($aPluginList = F::GetPluginsList()) {
+        if ($aPluginList = F::GetPluginsList(false, false)) {
             $sPluginsDir = F::GetPluginsDir();
 
-            foreach ($aPluginList as $sPluginName) {
-                $aFiles = glob($sPluginsDir . $sPluginName . '/classes/hooks/Hook*.class.php');
+            foreach ($aPluginList as $aPluginInfo) {
+                $aFiles = glob($sPluginsDir . $aPluginInfo['dirname'] . '/classes/hooks/Hook*.class.php');
                 if ($aFiles && count($aFiles)) {
                     foreach ($aFiles as $sFile) {
                         if (preg_match('/Hook([^_]+)\.class\.php$/i', basename($sFile), $aMatch)) {
                             //require_once($sFile);
-                            $sPluginName = F::StrCamelize($sPluginName);
+                            $sPluginName = F::StrCamelize($aPluginInfo['id']);
                             $sClassName = "Plugin{$sPluginName}_Hook{$aMatch[1]}";
                             /** @var Hook $oHook */
                             $oHook = new $sClassName;
@@ -663,46 +625,6 @@ class Engine extends LsObject {
         } else {
             $xResult = call_user_func_array(array($oModule, $sMethod), $aArgsRef);
         }
-        return $xResult;
-    }
-
-    public function _CallModule0($sName, &$aArgs) {
-
-        list($oModule, $sModuleName, $sMethod) = $this->GetModuleMethod($sName);
-
-        if ($sModuleName !== 'Plugin' && $sModuleName !== 'Hook') {
-            $sHookName = 'module_' . strtolower($sModuleName . '_' . $sMethod);
-        } else {
-            $sHookName = '';
-        }
-
-        $aResultHook = array();
-        if ($sHookName) {
-            $aHookArgs = array($sHookName . '_before', &$aArgs);
-            list($oHookModule, $sHookModuleName, $sHookMethod) = $this->GetModuleMethod('Hook_Run');
-            $aResultHook = call_user_func_array(array($oHookModule, $sHookMethod), $aHookArgs);
-        }
-
-        /**
-         * Хук может делегировать результат выполнения метода модуля,
-         * сам метод при этом не выполняется, происходит только подмена результата
-         */
-        if ($aResultHook && array_key_exists('delegate_result', $aResultHook)) {
-            $xResult = $aResultHook['delegate_result'];
-        } else {
-            $aArgsRef = array();
-            foreach ($aArgs as $iKey => $xVal) {
-                $aArgsRef[] =& $aArgs[$iKey];
-            }
-            $xResult = call_user_func_array(array($oModule, $sMethod), $aArgsRef);
-        }
-
-        if ($sHookName) {
-            $aHookParams = array('result' => &$xResult, 'params' => &$aArgs);
-            $aHookArgs = array($sHookName . '_after', &$aHookParams);
-            call_user_func_array(array($oHookModule, $sHookMethod), $aHookArgs);
-        }
-
         return $xResult;
     }
 
@@ -836,18 +758,6 @@ class Engine extends LsObject {
     }
 
     /**
-     * Ставим хук на вызов неизвестного метода и считаем что хотели вызвать метод какого либо модуля
-     *
-     * @param string $sName    Имя метода
-     * @param array $aArgs    Аргументы
-     * @return mixed
-     */
-    public function __call($sName, $aArgs) {
-
-        return $this->_CallModule($sName, $aArgs);
-    }
-
-    /**
      * Блокируем копирование/клонирование объекта ядра
      *
      */
@@ -857,16 +767,13 @@ class Engine extends LsObject {
 
     /**
      * Получает объект маппера
-     * <pre>
-     * Engine::getInstance()->Database_GetConnect($aConfig);
-     * </pre>
      *
-     * @param string                      $sClassName Класс модуля маппера
-     * @param string|null                 $sName      Имя маппера
-     * @param DbSimple_Driver_Mysqli|null $oConnect   Объект коннекта к БД
-     *                                                Можно получить так:
+     * @param string                 $sClassName Класс модуля маппера
+     * @param string|null            $sName      Имя маппера
+     * @param DbSimple_Driver_Mysqli $oConnect   Объект коннекта к БД,
+     *                                           который может быть получен так <pre>E::ModuleDatabase()->GetConnect($aConfig);</pre>
      *
-     * @return mixed
+     * @return null|Mapper
      */
     public static function GetMapper($sClassName, $sName = null, $oConnect = null) {
 
@@ -888,8 +795,10 @@ class Engine extends LsObject {
     /**
      * Возвращает класс сущности, контролируя варианты кастомизации
      *
-     * @param  string $sName    Имя сущности, возможны сокращенные варианты.
-     * Например <pre>ModuleUser_EntityUser</pre> эквивалентно <pre>User_User</pre> и эквивалентно <pre>User</pre> т.к. имя сущности совпадает с именем модуля
+     * @param  string $sName Имя сущности, возможны сокращенные варианты.
+     *                       Например, <pre>ModuleUser_EntityUser</pre> эквивалентно <pre>User_User</pre>
+     *                       и эквивалентно <pre>User</pre>, т.к. имя сущности совпадает с именем модуля
+     *
      * @return string
      * @throws Exception
      */
@@ -982,9 +891,12 @@ class Engine extends LsObject {
     /**
      * Создает объект сущности, контролируя варианты кастомизации
      *
-     * @param  string $sName    Имя сущности, возможны сокращенные варианты.
-     * Например <pre>ModuleUser_EntityUser</pre> эквивалентно <pre>User_User</pre> и эквивалентно <pre>User</pre> т.к. имя сущности совпадает с именем модуля
+     * @param  string $sName Имя сущности, возможны сокращенные варианты.
+     *                       Например, <pre>ModuleUser_EntityUser</pre> эквивалентно <pre>User_User</pre>
+     *                       и эквивалентно <pre>User</pre> т.к. имя сущности совпадает с именем модуля
+     *
      * @param  array  $aParams
+     *
      * @return Entity
      * @throws Exception
      */
@@ -1035,7 +947,7 @@ class Engine extends LsObject {
 
     /**
      * Возвращает имя плагина модуля, если модуль принадлежит плагину
-     * Например <pre>Openid</pre>
+     * Например, <pre>Openid</pre>
      *
      * @static
      *
@@ -1050,7 +962,7 @@ class Engine extends LsObject {
 
     /**
      * Возвращает префикс плагина
-     * Например <pre>PluginOpenid_</pre>
+     * Например, <pre>PluginOpenid_</pre>
      *
      * @static
      *
@@ -1109,13 +1021,15 @@ class Engine extends LsObject {
      * Возвращает информацию об объекта или классе
      *
      * @static
-     * @param LsObject|string $oObject    Объект или имя класса
-     * @param int $iFlag    Маска по которой нужно вернуть рузультат. Доступные маски определены в константах CI_*
-     * Например, получить информацию о плагине и модуле:
-     * <pre>
-     * Engine::GetClassInfo($oObject,Engine::CI_PLUGIN | Engine::CI_MODULE);
-     * </pre>
-     * @param bool $bSingle    Возвращать полный результат или только первый элемент
+     *
+     * @param LsObject|string $oObject Объект или имя класса
+     * @param int             $iFlag   Маска по которой нужно вернуть рузультат. Доступные маски определены в константах CI_*
+     *                                 Например, получить информацию о плагине и модуле:
+     *                                 <pre>
+     *                                 Engine::GetClassInfo($oObject,Engine::CI_PLUGIN | Engine::CI_MODULE);
+     *                                 </pre>
+     * @param bool            $bSingle Возвращать полный результат или только первый элемент
+     *
      * @return array|string|null
      */
     public static function GetClassInfo($oObject, $iFlag = self::CI_DEFAULT, $bSingle = false) {
@@ -1266,6 +1180,7 @@ class Engine extends LsObject {
     public static function GetClassPath($oObject) {
 
         $aInfo = static::GetClassInfo($oObject, self::CI_OBJECT);
+        $sPluginDir = '';
         if ($aInfo[self::CI_PLUGIN]) {
             $sPlugin = F::StrUnderscore($aInfo[self::CI_PLUGIN]);
             $aPlugins = F::GetPluginsList(true, false);

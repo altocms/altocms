@@ -525,13 +525,12 @@ abstract class Entity extends LsObject {
                         }
                     }
                 }
-                return null;
             } elseif ($sType == 'set' && (isset($aArgs[0]) || array_key_exists(0, $aArgs))) {
                 $this->setProp($sKey, $aArgs[0]);
             }
-        } else {
-            return E::getInstance()->_CallModule($sName, $aArgs);
+            return null;
         }
+        return E::getInstance()->_CallModule($sName, $aArgs);
     }
 
     /**

@@ -194,16 +194,15 @@ abstract class Action extends LsObject {
                     }
                 }
                 $this->sCurrentEventName = $aEvent['name'];
-                E::ModuleHook()->Run(
-                    'action_event_' . strtolower($this->sCurrentAction) . '_before',
-                    array('event' => $this->sCurrentEvent, 'params' => $this->GetParams())
-                );
-                $result = call_user_func_array(array($this, $aEvent['method']), array());
-                E::ModuleHook()->Run(
-                    'action_event_' . strtolower($this->sCurrentAction) . '_after',
-                    array('event' => $this->sCurrentEvent, 'params' => $this->GetParams())
-                );
-                return $result;
+                $sMethod = $aEvent['method'];
+                $sHook = 'action_event_' . strtolower($this->sCurrentAction);
+
+                E::ModuleHook()->Run($sHook . '_before', array('event' => $this->sCurrentEvent, 'params' => $this->GetParams()));
+                //$result = call_user_func_array(array($this, $aEvent['method']), array());
+                $xResult = $this->$sMethod();
+                E::ModuleHook()->Run($sHook . '_after', array('event' => $this->sCurrentEvent, 'params' => $this->GetParams()));
+
+                return $xResult;
             }
         }
         return $this->EventNotFound();

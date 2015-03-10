@@ -88,20 +88,6 @@ abstract class Hook extends LsObject {
     }
 
     /**
-     * Ставим хук на вызов неизвестного метода и считаем что хотели вызвать метод какого либо модуля
-     * @see Engine::_CallModule
-     *
-     * @param string $sName Имя метода
-     * @param array  $aArgs Аргументы
-     *
-     * @return mixed
-     */
-    public function __call($sName, $aArgs) {
-
-        return E::getInstance()->_CallModule($sName, $aArgs);
-    }
-
-    /**
      * Sets stop handle flag
      *
      * @since   1.1
