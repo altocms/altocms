@@ -1969,6 +1969,9 @@ ______________________________________________________*/
 .blog-submenu .open .dropdown-menu {
   display: block !important;
 }
+#blog-more-content img {
+  max-width: 100%;
+}
 /** ФОТОГРАФИИ ПОЛЬЗОВАТЕЛЯ
 ______________________________________________________*/
 #js-profile-user-photos #image-categories-tree-container {
