@@ -31,7 +31,7 @@ class ModuleSkin extends Module {
      * @param string $sSkin
      * @param string $sSkinDir
      *
-     * @return mixed
+     * @return string|bool
      */
     public function GetSkinManifest($sSkin, $sSkinDir = null) {
 
@@ -51,10 +51,10 @@ class ModuleSkin extends Module {
     }
 
     /**
-     * Returns array of skin enities
+     * Returns array of skin entities
      *
      * @param   array   $aFilter    - array('type' => 'site'|'admin')
-     * @return  array(ModuleSkin_EntitySkin)
+     * @return  ModuleSkin_EntitySkin[]
      */
     public function GetSkinsList($aFilter = array()) {
 
@@ -92,8 +92,8 @@ class ModuleSkin extends Module {
     /**
      * Returns array of skin names
      *
-     * @param   string|null $sType
-     * @return  array(string)
+     * @param   string $sType
+     * @return  string[]
      */
     public function GetSkinsArray($sType = null) {
 
@@ -109,7 +109,7 @@ class ModuleSkin extends Module {
     /**
      * Returns skin entity
      *
-     * @param $sName
+     * @param string $sName
      *
      * @return ModuleSkin_EntitySkin
      */
@@ -119,6 +119,7 @@ class ModuleSkin extends Module {
         if (isset($aSkins[$sName])) {
             return $aSkins[$sName];
         }
+        return null;
     }
 
 }

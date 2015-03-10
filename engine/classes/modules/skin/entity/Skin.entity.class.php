@@ -8,6 +8,11 @@
  *----------------------------------------------------------------------------
  */
 
+/**
+ * Class ModuleSkin_EntitySkin
+ *
+ * @method GetId()
+ */
 class ModuleSkin_EntitySkin extends Entity {
 
     public function __construct($aParams = false) {
@@ -22,6 +27,10 @@ class ModuleSkin_EntitySkin extends Entity {
         $this->Init();
     }
 
+    /**
+     * @param string $sSkinId
+     * @param array $aData
+     */
     public function LoadFromXmlFile($sSkinId, $aData = null) {
 
         if (isset($aData['dir'])) {
@@ -40,6 +49,10 @@ class ModuleSkin_EntitySkin extends Entity {
         $this->LoadFromXml($sSkinXML, $aData);
     }
 
+    /**
+     * @param string $sSkinXML
+     * @param array $aData
+     */
     public function LoadFromXml($sSkinXML, $aData = null) {
 
         if (Is_null($aData)) {
@@ -86,6 +99,11 @@ class ModuleSkin_EntitySkin extends Entity {
         $oXml->$sProperty->data = E::ModuleText()->Parser(trim((string)array_shift($data)));
     }
 
+    /**
+     * @param string $sKey
+     *
+     * @return string|null
+     */
     protected function _getDataItem($sKey) {
 
         if (isset($this->_aData[$sKey]))
@@ -94,6 +112,11 @@ class ModuleSkin_EntitySkin extends Entity {
             return null;
     }
 
+    /**
+     * @param string $sProp
+     *
+     * @return mixed
+     */
     public function _getDataProperty($sProp = null) {
 
         if (is_null($sProp)) {
@@ -103,6 +126,9 @@ class ModuleSkin_EntitySkin extends Entity {
         }
     }
 
+    /**
+     * @return string
+     */
     public function GetName() {
 
         $xProp = $this->_getDataProperty('name');
@@ -112,6 +138,9 @@ class ModuleSkin_EntitySkin extends Entity {
             return $xProp->lang;
     }
 
+    /**
+     * @return string
+     */
     public function GetDescription() {
 
         $xProp = $this->_getDataProperty('description');
@@ -121,6 +150,9 @@ class ModuleSkin_EntitySkin extends Entity {
             return $xProp->lang;
     }
 
+    /**
+     * @return string
+     */
     public function GetAuthor() {
 
         $xProp = $this->_getDataProperty('author');
@@ -130,21 +162,33 @@ class ModuleSkin_EntitySkin extends Entity {
             return $xProp->lang;
     }
 
+    /**
+     * @return string
+     */
     public function GetVersion() {
 
         return (string)$this->_getDataProperty('version');
     }
 
+    /**
+     * @return string
+     */
     public function GetHomepage() {
 
         return (string)$this->_getDataProperty('homepage');
     }
 
+    /**
+     * @return string
+     */
     public function GetEmail() {
 
         return (string)$this->_getDataProperty('author')->email;
     }
 
+    /**
+     * @return bool
+     */
     public function IsActive() {
 
         return (bool)$this->_getDataItem('is_active');

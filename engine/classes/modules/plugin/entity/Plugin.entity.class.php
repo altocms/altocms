@@ -8,6 +8,15 @@
  *----------------------------------------------------------------------------
  */
 
+/**
+ * Class ModulePlugin_EntityPlugin
+ *
+ * @method string GetId()
+ * @method bool GetIsActive()
+ *
+ * @method SetNum()
+ * @method SetIsActive()
+ */
 class ModulePlugin_EntityPlugin extends Entity {
 
     protected $oXml = null;

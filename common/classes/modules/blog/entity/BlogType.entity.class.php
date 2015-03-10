@@ -12,6 +12,25 @@
  * @package modules.blog
  * @since 1.0
  */
+
+/**
+ * Class ModuleBlog_EntityBlogType
+ *
+ * @method SetAllowAdd()
+ * @method SetMinRateAdd()
+ * @method SetMaxNum()
+ * @method SetAllowList()
+ * @method SetIndexIgnore()
+ * @method SetMembership()
+ * @method SetMinRateWrite()
+ * @method SetMinRateRead()
+ * @method SetMinRateComment()
+ * @method SetActive()
+ * @method SetContentType()
+ * @method SetAclWrite()
+ * @method SetAclRead()
+ * @method SetAclComment()
+ */
 class ModuleBlog_EntityBlogType extends Entity {
 
     protected $aDefaults = array(

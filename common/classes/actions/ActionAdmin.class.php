@@ -209,6 +209,9 @@ class ActionAdmin extends Action {
         E::ModuleViewer()->Assign('aDashboardWidgets', $aDashboardWidgets);
     }
 
+    /**
+     *
+     */
     public function EventReport() {
 
         $this->sMainMenuItem = 'info';
@@ -3102,6 +3105,7 @@ class ActionAdmin extends Action {
             E::ModuleMessage()->AddError($oBlogType->_getValidateError(), E::ModuleLang()->Get('error'));
             E::ModuleViewer()->Assign('aFormErrors', $oBlogType->_getValidateErrors());
         }
+        return true;
     }
 
     /**

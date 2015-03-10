@@ -35,8 +35,6 @@ class ModulePlugin extends Module {
      */
     protected $sPluginsCommonDir;
 
-    protected $sPluginsAppDir;
-
     /** @var  ModulePlugin_EntityPlugin[] List of plugins' enities */
     protected $aPluginsList;
 
@@ -72,7 +70,6 @@ class ModulePlugin extends Module {
     public function Init() {
 
         $this->sPluginsCommonDir = F::GetPluginsDir();
-        $this->sPluginsAppDir = F::GetPluginsDir(true);
     }
 
     /**
@@ -88,7 +85,7 @@ class ModulePlugin extends Module {
     /**
      * Возвращает XML-манифест плагина
      *
-     * @param $sPluginId
+     * @param string $sPluginId
      *
      * @return string|bool
      */
@@ -130,7 +127,7 @@ class ModulePlugin extends Module {
     }
 
     /**
-     * @param $sPluginXmlFile
+     * @param string $sPluginXmlFile
      *
      * @return string|bool
      */
@@ -215,7 +212,7 @@ class ModulePlugin extends Module {
      *
      * @param   bool|null   - $bActive
      *
-     * @return  array
+     * @return  ModulePlugin_EntityPlugin[]
      */
     public function GetPluginsList($bActive = null) {
 
@@ -227,6 +224,12 @@ class ModulePlugin extends Module {
         return $aPlugins;
     }
 
+    /**
+     * @param $aPlugin1
+     * @param $aPlugin2
+     *
+     * @return int
+     */
     public function _PluginCompareByName($aPlugin1, $aPlugin2) {
 
         if ((string)$aPlugin1['property']->name->data == (string)$aPlugin2['property']->name->data) {
@@ -235,6 +238,12 @@ class ModulePlugin extends Module {
         return ((string)$aPlugin1['property']->name->data < (string)$aPlugin2['property']->name->data) ? -1 : 1;
     }
 
+    /**
+     * @param ModulePlugin_EntityPlugin|array $aPlugin1
+     * @param ModulePlugin_EntityPlugin|array $aPlugin2
+     *
+     * @return int
+     */
     public function _PluginCompareByPriority($aPlugin1, $aPlugin2) {
 
         if (is_object($aPlugin1)) {
@@ -378,6 +387,7 @@ class ModulePlugin extends Module {
                                 $sReqCondition = 'eq';
                             }
                             $sClassName = "Plugin{$sReqPlugin}";
+                            /** @var ModulePlugin_EntityPlugin $oReqPlugin */
                             $oReqPlugin = new $sClassName;
 
                             // Получаем версию требуемого плагина
@@ -470,7 +480,7 @@ class ModulePlugin extends Module {
             // Переопределяем список активированных пользователем плагинов
             if (!$this->_addActivePlugins($oPluginEntity)) {
                 E::ModuleMessage()->AddError(
-                    E::ModuleLang()->Get('action.admin.plugin_write_error', array('file' => $this->sPluginsDatFile)),
+                    E::ModuleLang()->Get('action.admin.plugin_write_error', array('file' => F::GetPluginsDatFile())),
                     E::ModuleLang()->Get('error'), true
                 );
                 $bResult = false;
@@ -480,6 +490,11 @@ class ModulePlugin extends Module {
 
     } // function Activate(...)
 
+    /**
+     * @param ModulePlugin_EntityPlugin $oPluginEntity
+     *
+     * @return ModulePlugin_EntityPlugin[]
+     */
     protected function _addActivePlugins($oPluginEntity) {
 
         $aPluginsList = $this->GetPluginsList(true);
@@ -623,7 +638,7 @@ class ModulePlugin extends Module {
                 . (!empty($aPluginInfo['name']) ? ' ;' . $aPluginInfo['name'] : '');
         }
         // * Записываем данные в файл PLUGINS.DAT
-        $sFile = $this->sPluginsAppDir . Config::Get('sys.plugins.activation_file');
+        $sFile = F::GetPluginsDatDir() . F::GetPluginsDatFile();
         if (F::File_PutContents($sFile, implode(PHP_EOL, $aSaveData)) !== false) {
             return true;
         }
@@ -929,14 +944,12 @@ class ModulePlugin extends Module {
      * @return bool
      */
     public function isDelegated($sType, $sTo) {
-        /**
-         * Фильтруем маппер делегатов/наследников
-         * @var array
-         */
+
+        // * Фильтруем маппер делегатов/наследников
         $aDelegateMapper = array();
-        foreach ($this->aDelegates[$sType] as $kk => $vv) {
-            if ($vv['delegate'] == $sTo) {
-                $aDelegateMapper[$kk] = $vv;
+        foreach ($this->aDelegates[$sType] as $sKey => $xVal) {
+            if ($xVal['delegate'] == $sTo) {
+                $aDelegateMapper[$sKey] = $xVal;
             }
         }
         if (is_array($aDelegateMapper) && count($aDelegateMapper)) {
@@ -944,9 +957,9 @@ class ModulePlugin extends Module {
         }
         foreach ($this->aInherits as $k => $v) {
             $aInheritMapper = array();
-            foreach ($v['items'] as $kk => $vv) {
-                if ($vv['inherit'] == $sTo) {
-                    $aInheritMapper[$kk] = $vv;
+            foreach ($v['items'] as $sKey => $xVal) {
+                if ($xVal['inherit'] == $sTo) {
+                    $aInheritMapper[$sKey] = $xVal;
                 }
             }
             if (is_array($aInheritMapper) && count($aInheritMapper)) {
@@ -959,7 +972,7 @@ class ModulePlugin extends Module {
     /**
      * Возвращает список объектов, доступных для делегирования
      *
-     * @return array
+     * @return string[]
      */
     public function GetDelegateObjectList() {
 
@@ -971,7 +984,7 @@ class ModulePlugin extends Module {
      *
      * @param   string  $sDir
      *
-     * @return  string|null
+     * @return  string|bool
      */
     protected function _seekManifest($sDir) {
 
@@ -1051,6 +1064,7 @@ class ModulePlugin extends Module {
         } else {
             E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.err_open_zip_file'), E::ModuleLang()->Get('error'));
         }
+        return true;
     }
 }
 
