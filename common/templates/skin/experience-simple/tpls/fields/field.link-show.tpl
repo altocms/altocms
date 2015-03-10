@@ -1,5 +1,5 @@
  {* Тема оформления Experience v.1.0  для Alto CMS      *}
- {* @licence     CC Attribution-ShareAlike   *}
+ {* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
 
 <div class="topic-url">
     <p><b>{$aLang.topic_link_create_url}:</b>

@@ -1688,6 +1688,9 @@ fieldset[disabled] .btn-gray.active {
 .comment-text {
   font-size: 13px !important;
 }
+.comment-deleted * {
+  background-color: #f7dfdf !important;
+}
 .comment-tools ul {
   display: block;
   width: 100%;
@@ -1965,6 +1968,9 @@ ______________________________________________________*/
 }
 .blog-submenu .open .dropdown-menu {
   display: block !important;
+}
+#blog-more-content img {
+  max-width: 100%;
 }
 /** ФОТОГРАФИИ ПОЛЬЗОВАТЕЛЯ
 ______________________________________________________*/

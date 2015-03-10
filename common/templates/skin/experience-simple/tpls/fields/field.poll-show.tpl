@@ -1,5 +1,5 @@
  {* Тема оформления Experience v.1.0  для Alto CMS      *}
- {* @licence     CC Attribution-ShareAlike   *}
+ {* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
 
 <div id="topic_question_area_{$oTopic->getId()}" class="poll js-poll" data-poll-id="{$oTopic->getId()}">
     <h4 class="accent">

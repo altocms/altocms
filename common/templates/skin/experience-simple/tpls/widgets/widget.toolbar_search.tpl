@@ -1,5 +1,5 @@
 {* Тема оформления Experience v.1.0  для Alto CMS      *}
-{* @licence     CC Attribution-ShareAlike   *}
+{* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
 
 <div class="toolbar-button toolbar-search toolbar-menu-popover">
     <div id="hidden-toolbar-search-content" style="display: none;">

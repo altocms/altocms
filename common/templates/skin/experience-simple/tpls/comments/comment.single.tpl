@@ -1,5 +1,5 @@
  {* Тема оформления Experience v.1.0  для Alto CMS      *}
- {* @licence     CC Attribution-ShareAlike   *}
+ {* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
 
 {$oUser=$oComment->getUser()}
 {$oVote=$oComment->getVote()}
@@ -161,7 +161,7 @@
                                         <a href="#"
                                                  class="comment-repair link link-gray link-clear"
                                                  onclick="ls.comments.toggle(this,{$oComment->getId()}); return false;">
-                                            <i class="fa fa-recycle"></i>
+                                            <i class="fa fa-refresh"></i>
                                         </a>
                                     </li>
                                 {/if}

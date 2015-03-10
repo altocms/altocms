@@ -1,5 +1,5 @@
  {* Тема оформления Experience v.1.0  для Alto CMS      *}
- {* @licence     CC Attribution-ShareAlike   *}
+ {* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
 
 <div class="panel-footer">
     <a class="link link-light-gray link-lead link-clear {if $sMenuItemSelect=='all'}active{/if}" href="{router page='people'}">{$aLang.people_menu_users_all}</a>

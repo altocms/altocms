@@ -4284,6 +4284,13 @@ class ActionAdmin extends Action {
 
     }
 
+    /**
+     * Редактирование поля контента
+     *
+     * @param ModuleTopic_EntityContentType $oContentType
+     * @param ModuleTopic_EntityField $oField
+     * @return bool
+     */
     protected function SubmitEditField($oContentType, $oField) {
 
         // * Проверяем отправлена ли форма с данными
@@ -4296,6 +4303,10 @@ class ActionAdmin extends Action {
             return false;
         }
 
+        if (!E::ModuleTopic()->GetFieldValuesCount($oField->getFieldId())) {
+            // Нет ещё ни одного значения этого поля, тогда можно сменить ещё и тип
+            $oField->setFieldType(F::GetRequest('field_type'));
+        }
         $oField->setFieldName(F::GetRequest('field_name'));
         $oField->setFieldDescription(F::GetRequest('field_description'));
         $oField->setFieldRequired(F::GetRequest('field_required'));

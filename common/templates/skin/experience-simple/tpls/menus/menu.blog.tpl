@@ -1,5 +1,5 @@
  {* Тема оформления Experience v.1.0  для Alto CMS      *}
- {* @licence     CC Attribution-ShareAlike   *}
+ {* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
 
 <ul class="nav nav-pills context-menu">
     <li {if $sMenuSubItemSelect=='good'}class="active"{/if}><a

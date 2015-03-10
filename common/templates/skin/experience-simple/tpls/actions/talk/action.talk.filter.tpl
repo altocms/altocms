@@ -1,5 +1,5 @@
  {* Тема оформления Experience v.1.0  для Alto CMS      *}
- {* @licence     CC Attribution-ShareAlike   *}
+ {* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
 
  <div class="widget-content" id="block_talk_search_content"
       {if !$_aRequest.submit_talk_filter}style="display:none;"{/if}>

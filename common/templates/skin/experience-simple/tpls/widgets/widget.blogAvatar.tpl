@@ -1,5 +1,5 @@
 {* Тема оформления Experience v.1.0  для Alto CMS      *}
-{* @licence     CC Attribution-ShareAlike   *}
+{* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
 
 {if $_aRequest.blog_id}{$sTarget_id=$_aRequest.blog_id}{else}{$sTarget_id=0}{/if}
 

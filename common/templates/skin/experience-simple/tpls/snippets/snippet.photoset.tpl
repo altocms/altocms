@@ -1,5 +1,5 @@
 {* Тема оформления Experience v.1.0  для Alto CMS      *}
-{* @licence     CC Attribution-ShareAlike   *}
+{* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
 
 {if count($aPhotos)}
     <div class="alto-photoset js-topic-photoset-list" {if $sPosition=='left' || $sPosition=='right'}data-width="{$sPosition}"{/if}>{strip}
