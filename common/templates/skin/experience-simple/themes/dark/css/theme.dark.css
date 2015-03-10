@@ -958,7 +958,6 @@ _________________________________________________________________*/
   border: 1px solid #93a6ad;
   border-radius: 0;
   margin-top: 54px;
-
 }
 .toolbar-write > .popover .arrow {
   top: 20px;
@@ -1688,6 +1687,9 @@ fieldset[disabled] .btn-gray.active {
 }
 .comment-text {
   font-size: 13px !important;
+}
+.comment-deleted * {
+  background-color: #f7dfdf !important;
 }
 .comment-tools ul {
   display: block;

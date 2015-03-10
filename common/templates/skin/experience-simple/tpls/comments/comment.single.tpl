@@ -161,7 +161,7 @@
                                         <a href="#"
                                                  class="comment-repair link link-gray link-clear"
                                                  onclick="ls.comments.toggle(this,{$oComment->getId()}); return false;">
-                                            <i class="fa fa-recycle"></i>
+                                            <i class="fa fa-refresh"></i>
                                         </a>
                                     </li>
                                 {/if}
