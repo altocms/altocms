@@ -1,5 +1,5 @@
 {* Тема оформления Experience v.1.0  для Alto CMS      *}
-{* @licence     CC Attribution-ShareAlike   *}
+{* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
 
 <div class="topic-photoset">
     {$aPhotos=$oTopic->getPhotosetPhotos(0, Config::Get('module.topic.photoset.per_page'))}

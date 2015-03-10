@@ -1,5 +1,5 @@
  {* Тема оформления Experience v.1.0  для Alto CMS      *}
- {* @licence     CC Attribution-ShareAlike   *}
+ {* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
 
     <ul>
         <li><a class="link link-light-gray link-lead link-clear {if $sMenuSubItemSelect=='profile'}active{/if}" href="{router page='settings'}profile/">{$aLang.settings_menu_profile}</a></li>

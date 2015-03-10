@@ -1,5 +1,5 @@
  {* Тема оформления Experience v.1.0  для Alto CMS      *}
- {* @licence     CC Attribution-ShareAlike   *}
+ {* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
 
 <OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"> 
 	<ShortName>{Config::Get('view.name')}</ShortName>
