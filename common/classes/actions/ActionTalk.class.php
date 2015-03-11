@@ -386,6 +386,7 @@ class ActionTalk extends Action {
             $this->oUserCurrent, $this->aUsersId
         )
         ) {
+            $this->Mresource_CheckTargetTextForImages('talk', $oTalk->getId(), $oTalk->getText());
             Router::Location(Router::GetPath('talk') . 'read/' . $oTalk->getId() . '/');
         } else {
             $this->Message_AddErrorSingle($this->Lang_Get('system_error'));
