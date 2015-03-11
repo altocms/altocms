@@ -317,21 +317,27 @@ class ModuleMresource_EntityMresource extends Entity {
     /**
      * Returns image URL with requested size
      *
-     * @param $xSize
+     * @param string|int $xSize
      *
      * @return string
      */
-    public function GetImgUrl($xSize) {
+    public function GetImgUrl($xSize = null) {
 
-        $sPropKey = '-img-url-' . $xSize;
-        $sUrl = $this->getProp($sPropKey);
-        if ($sUrl) {
+        $sUrl = $this->GetUrl();
+        if (!$xSize) {
             return $sUrl;
         }
 
-        if (!$this->IsLink() && $this->IsType(ModuleMresource::TYPE_IMAGE)) {
-            $sUrl = $this->GetUrl();
-            if (F::File_IsLocalUrl($sUrl) && ($sModSuffix = F::File_ImgModSuffix($xSize, pathinfo($sUrl, PATHINFO_EXTENSION)))) {
+        $sModSuffix = F::File_ImgModSuffix($xSize, pathinfo($sUrl, PATHINFO_EXTENSION));
+
+        $sPropKey = '_img-url-' . ($sModSuffix ? $sModSuffix : $xSize);
+        $sResultUrl = $this->getProp($sPropKey);
+        if ($sResultUrl) {
+            return $sResultUrl;
+        }
+
+        if (!$this->IsLink() && $this->IsType(ModuleMresource::TYPE_IMAGE | ModuleMresource::TYPE_PHOTO)) {
+            if (F::File_IsLocalUrl($sUrl) && $sModSuffix) {
                 $sUrl = $sUrl . $sModSuffix;
                 if (Config::Get('module.image.autoresize')) {
                     $sFile = E::ModuleUploader()->Url2Dir($sUrl);
@@ -340,8 +346,6 @@ class ModuleMresource_EntityMresource extends Entity {
                     }
                 }
             }
-        } else {
-            $sUrl = $this->GetUrl();
         }
         $this->setProp($sPropKey, $sUrl);
 

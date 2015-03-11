@@ -1226,6 +1226,8 @@ class AltoFunc_File {
                     $aResult['mod'] = 'crop';
                 } else if (strpos($sSize, 'pad')) {
                     $aResult['mod'] = 'pad';
+                } else if (strpos($sSize, 'max')) {
+                    $aResult['mod'] = 'max';
                 }
             }
         }

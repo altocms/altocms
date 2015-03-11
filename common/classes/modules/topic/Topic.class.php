@@ -2558,15 +2558,27 @@ class ModuleTopic extends Module {
      */
     protected function _saveTopicImage($sImageFile, $oUser, $sType, $aOptions = array()) {
 
+        $sExtension = F::File_GetExtension($sImageFile, true);
         $aConfig = E::ModuleUploader()->GetConfig($sImageFile, $sType);
         if ($aOptions) {
             $aConfig['transform'] = F::Array_Merge($aConfig['transform'], $aOptions);
         }
+        // Check whether to save the original
+        if (isset($aConfig['original']['save']) && $aConfig['original']['save']) {
+            $sSuffix = (isset($aConfig['original']['suffix']) ? $aConfig['original']['suffix'] : '-original');
+            $sOriginalFile = F::File_Copy($sImageFile, $sImageFile . $sSuffix . '.' . $sExtension);
+        } else {
+            $sOriginalFile = null;
+        }
+        // Transform image before saving
         $sFileTmp = E::ModuleImg()->TransformFile($sImageFile, $aConfig['transform']);
         if ($sFileTmp) {
             $sDirUpload = E::ModuleUploader()->GetUserImageDir($oUser->getId(), true, $sType);
-            $sFileImage = E::ModuleUploader()->Uniqname($sDirUpload, F::File_GetExtension($sFileTmp, true));
+            $sFileImage = E::ModuleUploader()->Uniqname($sDirUpload, $sExtension);
             if ($oStoredFile = E::ModuleUploader()->Store($sFileTmp, $sFileImage)) {
+                if ($sOriginalFile) {
+                    E::ModuleUploader()->Move($sOriginalFile, $oStoredFile->GetFile() . $sSuffix . '.' . $sExtension);
+                }
                 return $oStoredFile->GetUrl();
             }
         }

@@ -746,7 +746,17 @@ class ModuleUploader extends Module {
             return false;
         }
 
+        $sExtension = strtolower(pathinfo($sFile, PATHINFO_EXTENSION));
         $aConfig = $this->GetConfig($sFile, $sTarget);
+
+        // Check whether to save the original
+        if (isset($aConfig['original']['save']) && $aConfig['original']['save']) {
+            $sSuffix = (isset($aConfig['original']['suffix']) ? $aConfig['original']['suffix'] : '-original');
+            $sOriginalFile = F::File_Copy($sFile, $sFile . $sSuffix . '.' . $sExtension);
+        } else {
+            $sOriginalFile = null;
+        }
+
         if (!is_null($xSize)) {
             if ($xSize === true) {
                 // crop square by min side
@@ -778,8 +788,6 @@ class ModuleUploader extends Module {
         if ($aConfig['transform']) {
             E::ModuleImg()->Transform($oImg, $aConfig['transform']);
         }
-
-        $sExtension = strtolower(pathinfo($sFile, PATHINFO_EXTENSION));
 
         // Сохраняем изображение во временный файл
         if ($sTmpFile = $oImg->Save(F::File_UploadUniqname($sExtension))) {

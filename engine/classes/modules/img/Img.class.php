@@ -511,17 +511,28 @@ class ModuleImg extends Module {
                     $iH = $aOptions['height'];
                     $sModifier = $aOptions['modifier'];
                     $aOptions['save_as'] = (isset($aOptions['save_as']) ? $aOptions['save_as'] : $this->GetFormat($sFile));
-                    if ($sModifier == 'fit') {
+
+                    if (!F::File_Exists($sOriginal) || !($oImg = $this->Read($sOriginal))) {
+                        return false;
+                    }
+
+                    if ($sModifier == 'max') {
+                        if ($iW >= $oImg->GetWidth() && $iH >= $oImg->GetHeight()) {
+                            $sResultFile = $this->Copy($sOriginal, $sFile, $oImg->GetWidth(), $oImg->GetHeight(), true);
+                        } else {
+                            $sResultFile = $this->Copy($sOriginal, $sFile, $iW, $iH, true);
+                        }
+                    } elseif ($sModifier == 'fit') {
                         $sResultFile = $this->Copy($sOriginal, $sFile, $iW, $iH, true);
                     } elseif ($sModifier == 'pad') {
                         $sResultFile = $this->Copy($sOriginal, $sFile, $iW, $iH, false);
                     } elseif ($sModifier == 'crop') {
-                        if ($oImg = $this->Resize($sOriginal, $iW, $iH, false)) {
+                        if ($oImg = $this->Resize($oImg, $iW, $iH, false)) {
                             $oImg = $this->CropCenter($oImg, $iW, $iH);
                             $sResultFile = $oImg->Save($sFile, $aOptions);
                         }
                     } else {
-                        $oImg = $this->Resize($sOriginal, $iW, $iH, true);
+                        $oImg = $this->Resize($oImg, $iW, $iH, true);
                         // real size can differ from request size, so we need change canvas size
                         $iDX = ($iW ? $iW - $oImg->GetWidth() : 0);
                         $iDY = ($iH ? $iH - $oImg->GetHeight() : 0);
@@ -571,7 +582,9 @@ class ModuleImg extends Module {
         }
         try {
             if (F::File_Exists($sFile) && ($oImg = $this->Read($sFile))) {
-                $oImg->Resize($iWidth, $iHeight, $bFit);
+                if ($iWidth || $iHeight) {
+                    $oImg->Resize($iWidth, $iHeight, $bFit);
+                }
                 $oImg->Save($sDestination, $aOptions);
                 return $sDestination;
             }
