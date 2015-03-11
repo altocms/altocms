@@ -511,6 +511,13 @@ _______________________________________________________________*/
 .topic-text a[rel^="prettyPhoto"] {
   max-width: 100%;
 }
+.comment-text,
+.topic-text,
+.feed-comment-text *,
+.topic-title,
+.topic-title * {
+  word-wrap: break-word;
+}
 /* МЕНЮ КОНТЕНТА
 _________________________________________________________*/
 .navbar-content.navbar-default {
@@ -957,7 +964,7 @@ _________________________________________________________________*/
   min-width: 208px;
   border: 1px solid #0d0d0d;
   border-radius: 0;
-  margin-top: 54px;
+  margin-top: 82px;
 }
 .toolbar-write > .popover .arrow {
   top: 20px;
@@ -1516,6 +1523,17 @@ fieldset[disabled] .btn-gray.active {
   border-radius: 0 3px 3px 0 !important;
   border-left: 0 !important;
 }
+.fileinput .form-control {
+  white-space: nowrap;
+  position: relative;
+  line-height: 19px;
+  overflow: hidden;
+}
+.fileinput .form-control .fileinput-filename {
+  width: 100%;
+  text-overflow: ellipsis;
+  padding-right: 12px;
+}
 .topic-title {
   margin-bottom: 4px;
 }
@@ -1690,6 +1708,10 @@ fieldset[disabled] .btn-gray.active {
 }
 .comment-deleted * {
   background-color: #f7dfdf !important;
+}
+.comment-reply,
+.comment-reply * {
+  white-space: normal;
 }
 .comment-tools ul {
   display: block;
@@ -1949,7 +1971,42 @@ ______________________________________________________*/
   margin-right: 6px;
 }
 .panel-content .blogs-list li {
-  height: 36px;
+  height: 42px;
+  line-height: 42px;
+  padding-bottom: 0;
+  display: table !important;
+  table-layout: fixed;
+  width: 100%;
+  max-width: 100%;
+}
+.panel-content .blogs-list li .blog-line-image {
+  max-width: 40px;
+  width: 40px;
+}
+.panel-content .blogs-list li .blog-line-title {
+  white-space: nowrap;
+  overflow: hidden;
+  position: relative;
+  text-overflow: ellipsis;
+  /* Градиент */
+  width: auto;
+}
+.panel-content .blogs-list li .blog-line-rating {
+  color: #548c40;
+  max-width: 40px;
+  width: 40px;
+  text-align: center;
+}
+.panel-content .blogs-list li a {
+  display: table-row !important;
+  line-height: 42px;
+  margin: 0;
+  padding: 0;
+}
+.panel-content .blogs-list li a > * {
+  margin: 0;
+  padding: 0;
+  display: table-cell !important;
 }
 .panel-content .blogs-list li .blog-name img {
   top: 0;

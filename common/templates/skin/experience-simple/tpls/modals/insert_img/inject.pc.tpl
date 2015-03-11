@@ -9,7 +9,7 @@
                     <span class="input-group-addon">{$aLang.uploadimg_file}</span>
                     <div class="fileinput fileinput-new input-group" data-provides="fileinput">
                         <div class="form-control" data-trigger="fileinput">
-                            <i class="fa fa-file fileinput-exists"></i>
+                            <i class="fa fa-file-o fileinput-exists"></i>
                             <span class="fileinput-filename"></span>
                         </div>
                     <span class="input-group-addon btn btn-default btn-file" >

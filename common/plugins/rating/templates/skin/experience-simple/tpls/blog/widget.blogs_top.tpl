@@ -2,15 +2,17 @@
     {foreach $aBlogs as $oBlog}
         <li>
             <a href="{$oBlog->getUrlFull()}" class="blog-name link link-dual link-lead link-clear">
-                {$sPath = $oBlog->getAvatarPath('32x32crop')}
-                {if $sPath}
-                    <img src="{$oBlog->getAvatarPath('32x32crop')}" class="avatar uppercase"/>
+                <span class="blog-line-image">
+                    {$sPath = $oBlog->getAvatarPath('32x32crop')}
+                    {if $sPath}
+                        <img src="{$oBlog->getAvatarPath('32x32crop')}" class="avatar uppercase"/>
                 {else}
                     <i class="fa fa-folder"></i>
-                {/if}
+                    {/if}
+                </span>
 
-                {$oBlog->getTitle()|escape:'html'}
-                <span class="topic-count">{$oBlog->getRating()}</span>
+                <span class="blog-line-title">{$oBlog->getTitle()|escape:'html'}</span>
+                <span class="blog-line-rating">{$oBlog->getRating()}</span>
             </a>
         </li>
     {/foreach}
