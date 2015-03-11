@@ -1523,6 +1523,17 @@ fieldset[disabled] .btn-gray.active {
   border-radius: 0 3px 3px 0 !important;
   border-left: 0 !important;
 }
+.fileinput .form-control {
+  white-space: nowrap;
+  position: relative;
+  line-height: 19px;
+  overflow: hidden;
+}
+.fileinput .form-control .fileinput-filename {
+  width: 100%;
+  text-overflow: ellipsis;
+  padding-right: 12px;
+}
 .topic-title {
   margin-bottom: 4px;
 }
