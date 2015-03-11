@@ -88,6 +88,16 @@ class ModuleTopic_EntityTopic extends Entity {
     }
 
     /**
+     * Типы ресурсов, загружаемые в профайле пользователя
+     *
+     * @return array
+     */
+    protected function _getDefaultMediaTypes() {
+
+        return array('topic', 'topic-multi-image-uploader');
+    }
+
+    /**
      * Проверка типа топика
      *
      * @param string $sValue     Проверяемое значение

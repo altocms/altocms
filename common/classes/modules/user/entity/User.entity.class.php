@@ -24,9 +24,6 @@ class ModuleUser_EntityUser extends Entity {
     const DEFAULT_AVATAR_SIZE = 100;
     const DEFAULT_PHOTO_SIZE = 250;
 
-    // Типы ресурсов, загружаемые в профайле пользователя
-    protected $aMResourceTypes = array('profile_avatar', 'profile_photo');
-
     /**
      * Определяем правила валидации
      * Правила валидации нужно определять только здесь!
@@ -85,6 +82,16 @@ class ModuleUser_EntityUser extends Entity {
     public function __construct($aParam = null) {
 
         parent::__construct($aParam);
+    }
+
+    /**
+     * Типы ресурсов, загружаемые в профайле пользователя
+     *
+     * @return array
+     */
+    protected function _getDefaultMediaTypes() {
+
+        return array('profile_avatar', 'profile_photo');
     }
 
     /**

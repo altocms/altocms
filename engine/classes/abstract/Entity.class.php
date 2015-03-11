@@ -85,7 +85,7 @@ abstract class Entity extends LsObject {
      *
      * @var array
      */
-    protected $aMResourceTypes = array();
+    protected $aMResourceTypes;
 
 
     /**
@@ -890,6 +890,57 @@ abstract class Entity extends LsObject {
     }
 
     /**
+     * @return array
+     */
+    protected function _getDefaultMediaTypes() {
+
+        return array();
+    }
+
+    /**
+     * @return array
+     */
+    public function getMediaTypes() {
+
+        if (is_null($this->aMResourceTypes)) {
+            $this->aMResourceTypes = $this->_getDefaultMediaTypes();
+        }
+        return $this->aMResourceTypes;
+    }
+
+    /**
+     * @param $aMediaTypes
+     */
+    public function setMediaTypes($aMediaTypes) {
+
+        $this->aMResourceTypes = (array)$aMediaTypes;
+    }
+
+    /**
+     * @param $sMediaType
+     */
+    public function addMediaTypes($sMediaType) {
+
+        if (is_null($this->aMResourceTypes)) {
+            $this->aMResourceTypes = array();
+        }
+        $this->aMResourceTypes = (string)$sMediaType;
+    }
+
+    /**
+     * @param $sMediaType
+     */
+    public function delMediaTypes($sMediaType) {
+
+        if (is_array($this->aMResourceTypes)) {
+            $iKey = array_search($sMediaType, $this->aMResourceTypes);
+            if ($iKey !== false) {
+                unset($this->aMResourceTypes[$iKey]);
+            }
+        }
+    }
+
+    /**
      * @param string                               $sType
      * @param ModuleMresource_EntityMresourceRel[] $data
      */
@@ -917,26 +968,28 @@ abstract class Entity extends LsObject {
         $aResult = array();
         if ($iEntityId) {
             $aMedia = $this->getProp(static::MEDIARESOURCES_KEY);
-            if (is_null($aMedia) && ($sType || $this->aMResourceTypes)) {
+            if (is_null($aMedia) && ($sType || $this->getMediaTypes())) {
                 // Если медиаресурсы не загружены, то загружаем, включая требуемый тип
-                $aTargetTypes = $this->aMResourceTypes;
-                if (!in_array($sType, $aTargetTypes)) {
+                $aTargetTypes = $this->getMediaTypes();
+                if ($sType && !in_array($sType, $aTargetTypes)) {
                     $aTargetTypes[] = $sType;
                 }
-                $aImages = E::ModuleUploader()->GetImagesByUserAndTarget($iEntityId, $aTargetTypes);
+                $aImages = E::ModuleUploader()->GetTargetImages($aTargetTypes, $iEntityId);
                 $aMedia = array_fill_keys($aTargetTypes, array());
-                if (!empty($aImages[$iEntityId])) {
-                    /** @var ModuleMresource_EntityMresourceRel $oImage */
-                    foreach($aImages[$iEntityId] as $oImage) {
-                        $aMedia[$oImage->getTargetType()][$oImage->getId()] = $oImage;
-                    }
+                /** @var ModuleMresource_EntityMresourceRel $oImage */
+                foreach($aImages as $oImage) {
+                    $aMedia[$oImage->getTargetType()][$oImage->getId()] = $oImage;
                 }
                 $this->setProp(static::MEDIARESOURCES_KEY, $aMedia);
-                $aResult = $aMedia;
+                if ($sType) {
+                    $aResult = $aMedia[$sType];
+                } else {
+                    $aResult = $aMedia;
+                }
             } elseif ($sType && !array_key_exists($sType, $aMedia)) {
-                $aImages = E::ModuleUploader()->GetImagesByUserAndTarget($iEntityId, $sType);
-                if (!empty($aImages[$iEntityId])) {
-                    $aMedia[$sType] = $aImages[$iEntityId];
+                $aImages = E::ModuleUploader()->GetTargetImages($sType, $iEntityId);
+                if (!empty($aImages)) {
+                    $aMedia[$sType] = $aImages;
                 } else {
                     $aMedia[$sType] = array();
                 }
