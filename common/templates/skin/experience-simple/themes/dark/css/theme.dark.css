@@ -1960,7 +1960,42 @@ ______________________________________________________*/
   margin-right: 6px;
 }
 .panel-content .blogs-list li {
-  height: 36px;
+  height: 42px;
+  line-height: 42px;
+  padding-bottom: 0;
+  display: table !important;
+  table-layout: fixed;
+  width: 100%;
+  max-width: 100%;
+}
+.panel-content .blogs-list li .blog-line-image {
+  max-width: 40px;
+  width: 40px;
+}
+.panel-content .blogs-list li .blog-line-title {
+  white-space: nowrap;
+  overflow: hidden;
+  position: relative;
+  text-overflow: ellipsis;
+  /* Градиент */
+  width: auto;
+}
+.panel-content .blogs-list li .blog-line-rating {
+  color: #548c40;
+  max-width: 40px;
+  width: 40px;
+  text-align: center;
+}
+.panel-content .blogs-list li a {
+  display: table-row !important;
+  line-height: 42px;
+  margin: 0;
+  padding: 0;
+}
+.panel-content .blogs-list li a > * {
+  margin: 0;
+  padding: 0;
+  display: table-cell !important;
 }
 .panel-content .blogs-list li .blog-name img {
   top: 0;
