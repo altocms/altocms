@@ -638,7 +638,7 @@ class ModulePlugin extends Module {
                 . (!empty($aPluginInfo['name']) ? ' ;' . $aPluginInfo['name'] : '');
         }
         // * Записываем данные в файл PLUGINS.DAT
-        $sFile = F::GetPluginsDatDir() . F::GetPluginsDatFile();
+        $sFile = F::GetPluginsDatFile();
         if (F::File_PutContents($sFile, implode(PHP_EOL, $aSaveData)) !== false) {
             return true;
         }
