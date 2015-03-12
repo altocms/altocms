@@ -2894,7 +2894,7 @@ class ModuleTopic extends Module {
 
                             if (isset($_FILES['fields_' . $oField->getFieldId()]) && is_uploaded_file( $_FILES['fields_' . $oField->getFieldId()]['tmp_name'])) {
                                 $iMaxFileSize = F::MemSize2Int(Config::Get('module.uploader.files.default.file_maxsize'));
-                                $aFileExtensions = F::MemSize2Int(Config::Get('module.uploader.files.default.file_extensions'));
+                                $aFileExtensions = Config::Get('module.uploader.files.default.file_extensions');
                                 if (!$iMaxFileSize || filesize($_FILES['fields_' . $oField->getFieldId()]['tmp_name']) <= $iMaxFileSize) {
                                     $aPathInfo = pathinfo($_FILES['fields_' . $oField->getFieldId()]['name']);
 
