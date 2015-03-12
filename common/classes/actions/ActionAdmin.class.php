@@ -630,7 +630,7 @@ class ActionAdmin extends Action {
                 $aConfig['view.noindex'] = false;
             }
 
-            $aConfig['view.img_resize_width'] = intval($this->GetPost('view--img_resize_width'));
+            $aConfig['module.image.preset.default.size.width'] = intval($this->GetPost('view--img_resize_width'));
             $aConfig['view.img_max_width'] = intval($this->GetPost('view--img_max_width'));
             $aConfig['view.img_max_height'] = intval($this->GetPost('view--img_max_height'));
 

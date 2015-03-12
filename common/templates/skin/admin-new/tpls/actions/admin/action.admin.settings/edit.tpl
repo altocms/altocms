@@ -24,7 +24,7 @@
   <label class="col-sm-4 control-label">{$aLang.action.admin.set_view_img_resize_width}</label>
   <div class="col-sm-2">
     <div class="input-group">
-      <input class="form-control" type="text" name="view--img_resize_width" value="{Config::Get('view.img_resize_width')}" />
+      <input class="form-control" type="text" name="view--img_resize_width" value="{Config::Get('module.image.preset.default.size.width')}" />
       <span class="input-group-addon">px</span>
     </div>
   </div>

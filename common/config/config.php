@@ -423,7 +423,7 @@ $config['module']['image']['preset']['default'] = array(
     ),
     'size' => array(
         'width' => 700,
-        'height' => 700,
+        'height' => '',
     ),
 );
 // Параметры для изображений, загружаемых в фотосет

@@ -29,7 +29,7 @@
 
             <div class="controls">
                 <div class="input-group">
-                    <input type="text" name="view--img_resize_width" value="{Config::Get('view.img_resize_width')}" />
+                    <input type="text" name="view--img_resize_width" value="{Config::Get('module.image.preset.default.size.width')}" />
                     <span class="input-group-addon">px</span>
                 </div>
             </div>
