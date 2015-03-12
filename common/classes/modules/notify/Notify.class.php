@@ -86,6 +86,13 @@ class ModuleNotify extends Module {
         ModuleUser_EntityUser $oUserComment
     ) {
         /**
+         * Автор топика не должен получать уведомлений о своём комментарии
+         * к своему же топику
+         */
+        if ($oUserTo->getId() == $oComment->getUserId()) {
+            return false;
+        }
+        /**
          * Проверяем можно ли юзеру рассылать уведомление
          */
         if (!$oUserTo->getSettingsNoticeNewComment()) {

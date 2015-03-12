@@ -399,7 +399,8 @@ class ModuleSubscribe extends Module {
                 );
             }
             $aSubscribes = $this->Subscribe_GetSubscribes(
-                array('target_type' => $sTargetType, 'target_id' => $iTargetId, 'status' => 1), array(), $iPage, 20
+                array('target_type' => $sTargetType, 'target_id' => $iTargetId, 'status' => 1,
+                      'exclude_mail' => $aExcludeMail), array(), $iPage, 20
             );
         }
     }
