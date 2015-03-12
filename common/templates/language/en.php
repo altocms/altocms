@@ -97,6 +97,16 @@ return array(
     'blog_leave_ok'                             => "You're unjoined this blog",
     'blog_leave_error_banned'                   => "You can't unjoin, because you are banned in this blog",
     'blog_join_leave'                           => 'Join/Unjoin',
+    'blog_join_request_already'                 => 'You have already sent a subscription request , wait for the blog moderators will approve it.',
+    'blog_join_request_leave'                   => 'Your subscription request pending, wait until the blog moderators will approve it and then be able to unsubscribe from the blog.',
+    'blog_join_request_send'                    => 'Request to join the blog sent soon blog moderators will check it',
+    'blog_user_request_title'                   => 'Request for entry into the blog "%%blog_title%%"',
+    'blog_user_request_text'                    => 'User <a href="%%user_profile%%">%%login%%</a> has sent a request to join the blog "%%blog_title%%".<br/><br/><a href="%%accept_path%%">Join</a> - <a href="%%reject_path%%">Unjoin</a>',
+    'blog_user_request_already_done'            => 'The user is already subscribed to the blog',
+    'blog_user_request_accept'                  => 'The user become a reader of the blog',
+    'blog_user_request_no_accept'               => 'User unjoined this blog',
+    'notify_subject_blog_request_new'           => 'Request for join into the blog',
+
     /**
      * Blog menu
      */

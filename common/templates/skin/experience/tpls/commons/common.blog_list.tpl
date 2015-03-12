@@ -113,7 +113,7 @@
                         {$oBlog->getDescription()|strip_tags|trim|truncate:150:'...'|escape:'html'}
                     </div>
 
-                    {if (E::UserId() != $oBlog->getOwnerId()) && $oBlogType->GetMembership(ModuleBlog::BLOG_USER_JOIN_FREE)}
+                    {if (E::UserId() != $oBlog->getOwnerId()) && ($oBlogType->GetMembership(ModuleBlog::BLOG_USER_JOIN_FREE) || $oBlogType->GetMembership(ModuleBlog::BLOG_USER_JOIN_REQUEST))}
                         <script>
                             $(function(){
                                 ls.lang.load({lang_load name="ex_blog_leave,ex_blog_join"});
@@ -144,7 +144,7 @@
                 </td>
                 {if Router::GetActionEvent()!='personal'}
                 <td class="blog-options hidden-xxs last-td">
-                    {if (E::UserId() != $oBlog->getOwnerId()) && $oBlogType->GetMembership(ModuleBlog::BLOG_USER_JOIN_FREE)}
+                    {if (E::UserId() != $oBlog->getOwnerId()) && ($oBlogType->GetMembership(ModuleBlog::BLOG_USER_JOIN_FREE) || $oBlogType->GetMembership(ModuleBlog::BLOG_USER_JOIN_REQUEST))}
                         <a href="#"  onclick="ls.blog.toggleJoin(this, {$oBlog->getId()}); return false;"
                            class="link {if $oBlog->getUserIsJoin()}link-dark{else}link-blue{/if} link-lead link-clear">
                             {if $oBlog->getUserIsJoin()}

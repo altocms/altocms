@@ -77,7 +77,7 @@
 
                 {if E::IsUser()}
                     <td class="small cell-join">
-                        {if (E::UserId() != $oBlog->getOwnerId()) && $oBlogType->GetMembership(ModuleBlog::BLOG_USER_JOIN_FREE)}
+                        {if (E::UserId() != $oBlog->getOwnerId()) && ($oBlogType->GetMembership(ModuleBlog::BLOG_USER_JOIN_FREE) || $oBlogType->GetMembership(ModuleBlog::BLOG_USER_JOIN_REQUEST))}
                             <a href="#" onclick="ls.blog.toggleJoin(this, {$oBlog->getId()}); return false;"
                                class="link-dotted">
                                 {if $oBlog->getUserIsJoin()}

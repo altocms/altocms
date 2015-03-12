@@ -84,7 +84,7 @@ class ActionBlog extends Action {
             'new', 'good', 'bad', 'discussed', 'top', 'edit', 'add', 'admin', 'delete', 'invite',
             'ajaxaddcomment', 'ajaxresponsecomment', 'ajaxgetcomment', 'ajaxupdatecomment',
             'ajaxaddbloginvite', 'ajaxrebloginvite', 'ajaxremovebloginvite',
-            'ajaxbloginfo', 'ajaxblogjoin',
+            'ajaxbloginfo', 'ajaxblogjoin', 'request',
         );
 
     /**
@@ -138,6 +138,7 @@ class ActionBlog extends Action {
         $this->AddEvent('delete', 'EventDeleteBlog');
         $this->AddEventPreg('/^admin$/i', '/^\d+$/i', '/^(page([1-9]\d{0,5}))?$/i', 'EventAdminBlog');
         $this->AddEvent('invite', 'EventInviteBlog');
+        $this->AddEvent('request', 'EventRequestBlog');
 
         $this->AddEvent('ajaxaddcomment', 'AjaxAddComment');
         $this->AddEvent('ajaxresponsecomment', 'AjaxResponseComment');
@@ -1829,6 +1830,53 @@ class ActionBlog extends Action {
     }
 
     /**
+     * Выполняет отправку письма модераторам и администратору блога о том, что
+     * конкретный пользователь запросил приглашение в блог
+     * (по внутренней почте и на email)
+     *
+     * @param ModuleBlog_EntityBlog $oBlog Блог, в который хочет вступить пользователь
+     * @param ModuleUser_EntityUser[] $oBlogOwnerUser Модератор/админ, которому отправляем письмо
+     * @param ModuleUser_EntityUser $oGuestUser Пользователь, который хочет вступить в блог
+     */
+    protected function SendBlogRequest($oBlog, $oBlogOwnerUser, $oGuestUser) {
+
+        $sTitle = $this->Lang_Get('blog_user_request_title', array('blog_title' => $oBlog->getTitle()));
+
+        F::IncludeLib('XXTEA/encrypt.php');
+        /**
+         * Формируем код подтверждения в URL
+         */
+        $sCode = $oBlog->getId() . '_' . $oGuestUser->getId();
+        $sCode = rawurlencode(base64_encode(xxtea_encrypt($sCode, Config::Get('module.blog.encrypt'))));
+
+        $aPath = array(
+            'accept' => Router::GetPath('blog') . 'request/accept/?code=' . $sCode,
+            'reject' => Router::GetPath('blog') . 'request/reject/?code=' . $sCode
+        );
+
+        $sText = $this->Lang_Get(
+            'blog_user_request_text',
+            array(
+                'login'        => $oGuestUser->getLogin(),
+                'user_profile' => $oGuestUser->getProfileUrl(),
+                'accept_path'  => $aPath['accept'],
+                'reject_path'  => $aPath['reject'],
+                'blog_title'   => $oBlog->getTitle()
+            )
+        );
+        $oTalk = $this->Talk_SendTalk($sTitle, $sText, $oGuestUser, $oBlogOwnerUser, FALSE, FALSE);
+
+        $this->Notify_SendBlogUserRequest(
+            $oBlogOwnerUser, $this->oUserCurrent, $oBlog,
+            Router::GetPath('talk') . 'read/' . $oTalk->getId() . '/'
+        );
+        /**
+         * Удаляем отправляющего юзера из переписки
+         */
+        $this->Talk_DeleteTalkUserByArray($oTalk->getId(), $oGuestUser->getId());
+    }
+
+    /**
      * Выполняет отправку приглашения в блог
      * (по внутренней почте и на email)
      *
@@ -1943,6 +1991,90 @@ class ActionBlog extends Action {
             $this->Stream_Write($oBlogUser->getUserId(), 'join_blog', $oBlog->getId());
         } else {
             $sMessage = $this->Lang_Get('blog_user_invite_reject');
+        }
+        $this->Message_AddNotice($sMessage, $this->Lang_Get('attention'), true);
+
+        // * Перенаправляем на страницу личной почты
+        Router::Location(Router::GetPath('talk'));
+    }
+
+    /**
+     * Обработка отправленого админу запроса на вступление в блог
+     *
+     * @return string|null
+     */
+    protected function EventRequestBlog() {
+
+        F::IncludeLib('XXTEA/encrypt.php');
+
+        // * Получаем код подтверждения из ревеста и дешефруем его
+        $sCode = xxtea_decrypt(base64_decode(rawurldecode(F::GetRequestStr('code'))), Config::Get('module.blog.encrypt'));
+        if (!$sCode) {
+            return $this->EventNotFound();
+        }
+        list($sBlogId, $sUserId) = explode('_', $sCode, 2);
+
+        $sAction = $this->GetParam(0);
+
+        // * Получаем текущего пользователя
+        if (!$this->User_IsAuthorization()) {
+            return $this->EventNotFound();
+        }
+        $this->oUserCurrent = $this->User_GetUserCurrent();
+
+        // Получаем блог
+        /** @var ModuleBlog_EntityBlog $oBlog */
+        $oBlog = $this->Blog_GetBlogById($sBlogId);
+        if (!$oBlog || !$oBlog->getBlogType() || !($oBlog->getBlogType()->IsPrivate()||$oBlog->getBlogType()->IsReadOnly())) {
+            return $this->EventNotFound();
+        }
+
+        // Проверим, что текущий пользователь имеет право принимать решение
+        if (!($oBlog->getUserIsAdministrator() || $oBlog->getUserIsModerator() || $oBlog->getOwnerId() == E::UserId())) {
+            return $this->EventNotFound();
+        }
+
+        // Получим пользователя, который запрашивает приглашение
+        if (!($oGuestUser = $this->User_GetUserById($sUserId))) {
+            return $this->EventNotFound();
+        }
+
+        // * Получаем связь "блог-пользователь" и проверяем, чтобы ее тип был REQUEST
+        if (!$oBlogUser = $this->Blog_GetBlogUserByBlogIdAndUserId($oBlog->getId(), $oGuestUser->getId())) {
+            return $this->EventNotFound();
+        }
+
+        // Пользователь уже принят в ряды
+        if ($oBlogUser->getUserRole() >= ModuleBlog::BLOG_USER_ROLE_USER) {
+            $sMessage = $this->Lang_Get('blog_user_request_already_done');
+            $this->Message_AddError($sMessage, $this->Lang_Get('error'), true);
+            Router::Location(Router::GetPath('talk'));
+            return;
+        }
+
+        // У пользователя непонятный флаг
+        if ($oBlogUser->getUserRole() != ModuleBlog::BLOG_USER_ROLE_WISHES) {
+            return $this->EventNotFound();
+        }
+
+        // * Обновляем роль пользователя до читателя
+        $oBlogUser->setUserRole(($sAction == 'accept') ? ModuleBlog::BLOG_USER_ROLE_USER : ModuleBlog::BLOG_USER_ROLE_NOTMEMBER);
+        if (!$this->Blog_UpdateRelationBlogUser($oBlogUser)) {
+            $this->Message_AddError($this->Lang_Get('system_error'), $this->Lang_Get('error'), true);
+            Router::Location(Router::GetPath('talk'));
+            return;
+        }
+        if ($sAction == 'accept') {
+
+            // * Увеличиваем число читателей блога
+            $oBlog->setCountUser($oBlog->getCountUser() + 1);
+            $this->Blog_UpdateBlog($oBlog);
+            $sMessage = $this->Lang_Get('blog_user_request_accept');
+
+            // * Добавляем событие в ленту
+            $this->Stream_Write($oBlogUser->getUserId(), 'join_blog', $oBlog->getId());
+        } else {
+            $sMessage = $this->Lang_Get('blog_user_request_no_accept');
         }
         $this->Message_AddNotice($sMessage, $this->Lang_Get('attention'), true);
 
@@ -2102,51 +2234,103 @@ class ActionBlog extends Action {
         $oBlogUser = $this->Blog_GetBlogUserByBlogIdAndUserId($oBlog->getId(), $this->oUserCurrent->getId());
 
         if (!$oBlogUser || ($oBlogUser->getUserRole() < ModuleBlog::BLOG_USER_ROLE_GUEST && (!$oBlogType || $oBlogType->IsPrivate()))) {
-            // * Проверяем тип блога на возможность свободного вступления
-            if ($oBlogType && !$oBlogType->GetMembership(ModuleBlog::BLOG_USER_JOIN_FREE)) {
+            // * Проверяем тип блога на возможность свободного вступления или вступления по запросу
+            if ($oBlogType && !$oBlogType->GetMembership(ModuleBlog::BLOG_USER_JOIN_FREE) && !$oBlogType->GetMembership(ModuleBlog::BLOG_USER_JOIN_REQUEST)) {
                 $this->Message_AddErrorSingle($this->Lang_Get('blog_join_error_invite'), $this->Lang_Get('error'));
                 return;
             }
             if ($oBlog->getOwnerId() != $this->oUserCurrent->getId()) {
                 // Subscribe user to the blog
-                $bResult = false;
-                if ($oBlogUser) {
-                    $oBlogUser->setUserRole(ModuleBlog::BLOG_USER_ROLE_USER);
-                    $bResult = $this->Blog_UpdateRelationBlogUser($oBlogUser);
-                } elseif ($oBlogType->GetMembership(ModuleBlog::BLOG_USER_JOIN_FREE)) {
-                    // User can free subsribe to blog
+                if ($oBlogType->GetMembership(ModuleBlog::BLOG_USER_JOIN_FREE)) {
+                    $bResult = false;
+                    if ($oBlogUser) {
+                        $oBlogUser->setUserRole(ModuleBlog::BLOG_USER_ROLE_USER);
+                        $bResult = $this->Blog_UpdateRelationBlogUser($oBlogUser);
+                    } elseif ($oBlogType->GetMembership(ModuleBlog::BLOG_USER_JOIN_FREE)) {
+                        // User can free subsribe to blog
+                        $oBlogUserNew = Engine::GetEntity('Blog_BlogUser');
+                        $oBlogUserNew->setBlogId($oBlog->getId());
+                        $oBlogUserNew->setUserId($this->oUserCurrent->getId());
+                        $oBlogUserNew->setUserRole(ModuleBlog::BLOG_USER_ROLE_USER);
+                        $bResult = $this->Blog_AddRelationBlogUser($oBlogUserNew);
+                    }
+                    if ($bResult) {
+                        $this->Message_AddNoticeSingle($this->Lang_Get('blog_join_ok'), $this->Lang_Get('attention'));
+                        $this->Viewer_AssignAjax('bState', true);
+                        /**
+                         * Увеличиваем число читателей блога
+                         */
+                        $oBlog->setCountUser($oBlog->getCountUser() + 1);
+                        $this->Blog_UpdateBlog($oBlog);
+                        $this->Viewer_AssignAjax('iCountUser', $oBlog->getCountUser());
+                        /**
+                         * Добавляем событие в ленту
+                         */
+                        $this->Stream_Write($this->oUserCurrent->getId(), 'join_blog', $oBlog->getId());
+                        /**
+                         * Добавляем подписку на этот блог в ленту пользователя
+                         */
+                        $this->Userfeed_SubscribeUser(
+                            $this->oUserCurrent->getId(), ModuleUserfeed::SUBSCRIBE_TYPE_BLOG, $oBlog->getId()
+                        );
+                    } else {
+                        $sMsg = ($oBlogType->IsPrivate())
+                            ? $this->Lang_Get('blog_join_error_invite')
+                            : $this->Lang_Get('system_error');
+                        $this->Message_AddErrorSingle($sMsg, $this->Lang_Get('error'));
+                        return;
+                    }
+                }
+
+                // Подписываем по запросу
+                if ($oBlogType->GetMembership(ModuleBlog::BLOG_USER_JOIN_REQUEST)) {
+
+                    // Подписка уже была запрошена, но результатов пока нет
+                    /** @var ModuleBlog_EntityBlogUser $oBlogUser */
+                    /** @var ModuleBlog_EntityBlog $oBlog */
+                    if ($oBlogUser && $oBlogUser->getUserRole() == ModuleBlog::BLOG_USER_ROLE_WISHES) {
+                        $this->Message_AddNoticeSingle($this->Lang_Get('blog_join_request_already'), $this->Lang_Get('attention'));
+                        $this->Viewer_AssignAjax('bState', true);
+                        return;
+                    }
+
+                    // Подписки ещё не было - оформим ее
                     $oBlogUserNew = Engine::GetEntity('Blog_BlogUser');
                     $oBlogUserNew->setBlogId($oBlog->getId());
                     $oBlogUserNew->setUserId($this->oUserCurrent->getId());
-                    $oBlogUserNew->setUserRole(ModuleBlog::BLOG_USER_ROLE_USER);
+                    $oBlogUserNew->setUserRole(ModuleBlog::BLOG_USER_ROLE_WISHES);
                     $bResult = $this->Blog_AddRelationBlogUser($oBlogUserNew);
+                    if ($bResult) {
+                        // Отправим сообщение модераторам и администраторам блога о том, что
+                        // этот пользоватлеь захотел присоединиться к нашему блогу
+                        $aBlogUsersResult = $this->Blog_GetBlogUsersByBlogId(
+                            $oBlog->getId(),
+                            array(
+                                ModuleBlog::BLOG_USER_ROLE_MODERATOR,
+                                ModuleBlog::BLOG_USER_ROLE_ADMINISTRATOR
+                            ), null
+                        );
+                        /** @var ModuleUser_EntityUser[] $aBlogModerators */
+                        $aBlogModerators = $aBlogUsersResult['collection'];
+
+                        // Добавим владельца блога к списку
+                        $aBlogModerators = array_merge(
+                            $aBlogModerators,
+                            array($oBlog->getOwner())
+                        );
+
+                        if ($aBlogUsersResult) {
+                            $this->SendBlogRequest($oBlog, $aBlogModerators, $this->oUserCurrent);
+                        }
+
+
+                        $this->Message_AddNoticeSingle($this->Lang_Get('blog_join_request_send'), $this->Lang_Get('attention'));
+                        $this->Viewer_AssignAjax('bState', true);
+                        return;
+                    }
+
                 }
-                if ($bResult) {
-                    $this->Message_AddNoticeSingle($this->Lang_Get('blog_join_ok'), $this->Lang_Get('attention'));
-                    $this->Viewer_AssignAjax('bState', true);
-                    /**
-                     * Увеличиваем число читателей блога
-                     */
-                    $oBlog->setCountUser($oBlog->getCountUser() + 1);
-                    $this->Blog_UpdateBlog($oBlog);
-                    $this->Viewer_AssignAjax('iCountUser', $oBlog->getCountUser());
-                    /**
-                     * Добавляем событие в ленту
-                     */
-                    $this->Stream_Write($this->oUserCurrent->getId(), 'join_blog', $oBlog->getId());
-                    /**
-                     * Добавляем подписку на этот блог в ленту пользователя
-                     */
-                    $this->Userfeed_SubscribeUser(
-                        $this->oUserCurrent->getId(), ModuleUserfeed::SUBSCRIBE_TYPE_BLOG, $oBlog->getId()
-                    );
-                } else {
-                    $sMsg = ($oBlogType->IsPrivate())
-                        ? $this->Lang_Get('blog_join_error_invite')
-                        : $this->Lang_Get('system_error');
-                    $this->Message_AddErrorSingle($sMsg, $this->Lang_Get('error'));
-                    return;
-                }
+
             } else {
                 $this->Message_AddErrorSingle($this->Lang_Get('blog_join_error_self'), $this->Lang_Get('attention'));
                 return;
@@ -2176,7 +2360,13 @@ class ActionBlog extends Action {
             $this->Message_AddErrorSingle($this->Lang_Get('blog_leave_error_banned'), $this->Lang_Get('error'));
             return;
         }
+        if ($oBlogUser && ($oBlogUser->getUserRole() == ModuleBlog::BLOG_USER_ROLE_WISHES)) {
+            $this->Message_AddNoticeSingle($this->Lang_Get('blog_join_request_leave'), $this->Lang_Get('attention'));
+            $this->Viewer_AssignAjax('bState', true);
+            return;
+        }
     }
+
 
     /**
      * Выполняется при завершении работы экшена
