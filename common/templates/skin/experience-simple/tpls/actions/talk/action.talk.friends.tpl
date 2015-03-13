@@ -42,10 +42,10 @@
     </div>
 
     <div class="panel-footer par0">
-        <ul>
+        <ul class="pa0">
             <li><a href="#" id="friend_check_all"   onclick="$('#friends input:checkbox').iCheck('check')" style="display: none;" class="link link-light-gray link-lead link-clear">{$aLang.widget_friends_check}</a></li>
             <li><a href="#" id="friend_uncheck_all" onclick="$('#friends input:checkbox').iCheck('uncheck')" style="display: none;" class="link link-light-gray link-lead link-clear">{$aLang.widget_friends_uncheck}</a></li>
-            <li class="pull-right marr0"><a href="#" class="link link-light-gray link-lead link-clear btn btn-gray" onclick="jQuery('#widget_talk_friends_content').add('#friend_check_all').add('#friend_uncheck_all').toggle(); return false; "><i class="fa fa-bars"></i>{$aLang.show_list}</a></li>
+            <li class="pull-right marr0 pa0"><a href="#" class="link link-light-gray link-lead link-clear btn btn-gray" onclick="jQuery('#widget_talk_friends_content').add('#friend_check_all').add('#friend_uncheck_all').toggle(); return false; "><i class="fa fa-bars"></i>{$aLang.show_list}</a></li>
         </ul>
 
     </div>
