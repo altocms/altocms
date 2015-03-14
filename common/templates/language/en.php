@@ -205,7 +205,7 @@ return array(
     'blog_user_already_exists'                  => 'User %%login%% already member of this blog',
     'blog_user_already_reject'                  => 'User %%login%% rejected invitation',
     'blog_user_invite_title'                    => "Invitation to become a reader of '%%blog_title%% blog'",
-    'blog_user_invite_text'                     => "User %%login%% invites you to become a reader of a 'close' '%%blog_title%% blog'.<br/><br/><a href='%%accept_path%%'>Accept</a> - <a href='%%reject_path%%'>Reject</a>",
+    'blog_user_invite_text'                     => "User %%login%% invites you to become a reader of a %%blog_type%% '%%blog_title%% blog'.<br/><br/><a href='%%accept_path%%'>Accept</a> - <a href='%%reject_path%%'>Reject</a>",
     'blog_user_invite_already_done'             => 'You already a member of this blog',
     'blog_user_invite_accept'                   => 'Invitation accepted',
     'blog_user_invite_reject'                   => 'Invitation rejected',

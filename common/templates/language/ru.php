@@ -218,7 +218,7 @@ return array(
     'blog_user_already_exists'                  => 'Пользователь %%login%% уже подписан на блог',
     'blog_user_already_reject'                  => 'Пользователь %%login%% отклонил инвайт',
     'blog_user_invite_title'                    => 'Приглашение стать читателем блога "%%blog_title%%"',
-    'blog_user_invite_text'                     => 'Пользователь %%login%% приглашает вас подписаться на закрытый блог "%%blog_title%%".<br/><br/><a href="%%accept_path%%">Принять</a> - <a href="%%reject_path%%">Отклонить</a>',
+    'blog_user_invite_text'                     => 'Пользователь %%login%% приглашает вас подписаться на %%blog_type%% блог "%%blog_title%%".<br/><br/><a href="%%accept_path%%">Принять</a> - <a href="%%reject_path%%">Отклонить</a>',
     'blog_user_invite_already_done'             => 'Вы уже подписаны на этот блог',
     'blog_user_invite_accept'                   => 'Приглашение принято',
     'blog_user_invite_reject'                   => 'Приглашение отклонено',
