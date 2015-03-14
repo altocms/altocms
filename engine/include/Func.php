@@ -20,7 +20,7 @@ class Func {
 
     static protected $nFatalErrors;
 
-    static protected $aExtsions = array();
+    static protected $aExtensions = array();
 
     /**
      * Errors for logging
@@ -202,10 +202,10 @@ class Func {
     /**
      * Push error info into internal collection
      *
-     * @param $nErrNo
-     * @param $sErrMsg
-     * @param $sErrFile
-     * @param $nErrLine
+     * @param int    $nErrNo
+     * @param string $sErrMsg
+     * @param string $sErrFile
+     * @param int    $nErrLine
      *
      * @return bool
      */
@@ -284,7 +284,7 @@ class Func {
     }
 
     /**
-     * @param $oException
+     * @param Exception $oException
      */
     static public function _exceptionHandler($oException) {
 
@@ -333,11 +333,11 @@ class Func {
 
     /**
      * @param string $sName
-     * @param array  $aArguments
+     * @param array  $aArgs
      *
      * @return mixed
      */
-    static public function __callStatic($sName, $aArguments) {
+    static public function __callStatic($sName, $aArgs) {
 
         if ($nPos = strpos($sName, '_')) {
             $sExtension = substr($sName, 0, $nPos);
@@ -346,11 +346,47 @@ class Func {
             $sExtension = 'Main';
             $sMethod = $sName;
         }
-        if (!isset(static::$aExtsions[$sExtension])) {
+        if (!isset(static::$aExtensions[$sExtension])) {
             static::_loadExtension($sExtension);
         }
-        if (isset(static::$aExtsions[$sExtension]) && method_exists(static::$aExtsions[$sExtension], $sMethod)) {
-            return call_user_func_array(static::$aExtsions[$sExtension] . '::' . $sMethod, $aArguments);
+        if (isset(static::$aExtensions[$sExtension]) && method_exists(static::$aExtensions[$sExtension], $sMethod)) {
+            //return call_user_func_array(static::$aExtsions[$sExtension] . '::' . $sMethod, $aArgs);
+            $sClass = static::$aExtensions[$sExtension];
+            switch (count($aArgs)) {
+                case 0:
+                    $xResult = $sClass::$sMethod();
+                    break;
+                case 1:
+                    $xResult = $sClass::$sMethod($aArgs[0]);
+                    break;
+                case 2:
+                    $xResult = $sClass::$sMethod($aArgs[0], $aArgs[1]);
+                    break;
+                case 3:
+                    $xResult = $sClass::$sMethod($aArgs[0], $aArgs[1], $aArgs[2]);
+                    break;
+                case 4:
+                    $xResult = $sClass::$sMethod($aArgs[0], $aArgs[1], $aArgs[2], $aArgs[3]);
+                    break;
+                case 5:
+                    $xResult = $sClass::$sMethod($aArgs[0], $aArgs[1], $aArgs[2], $aArgs[3], $aArgs[4]);
+                    break;
+                case 6:
+                    $xResult = $sClass::$sMethod($aArgs[0], $aArgs[1], $aArgs[2], $aArgs[3], $aArgs[4], $aArgs[5]);
+                    break;
+                case 7:
+                    $xResult = $sClass::$sMethod($aArgs[0], $aArgs[1], $aArgs[2], $aArgs[3], $aArgs[4], $aArgs[5], $aArgs[6]);
+                    break;
+                case 8:
+                    $xResult = $sClass::$sMethod($aArgs[0], $aArgs[1], $aArgs[2], $aArgs[3], $aArgs[4], $aArgs[5], $aArgs[6], $aArgs[7]);
+                    break;
+                case 9:
+                    $xResult = $sClass::$sMethod($aArgs[0], $aArgs[1], $aArgs[2], $aArgs[3], $aArgs[4], $aArgs[5], $aArgs[6], $aArgs[7], $aArgs[8]);
+                    break;
+                default:
+                    $xResult = call_user_func_array($sClass . '::' . $sMethod, $aArgs);
+            }
+            return $xResult;
         }
 
         // Function not found
@@ -376,14 +412,14 @@ class Func {
      */
     static protected function _loadExtension($sExtension) {
 
-        if (!isset(static::$aExtsions[$sExtension])) {
+        if (!isset(static::$aExtensions[$sExtension])) {
             // сначала проверяем кастомные функции
             if (is_file($sFile = dirname(dirname(__DIR__)) . '/include/functions/' . $sExtension . '.php')) {
                 static::IncludeFile($sFile);
-                static::$aExtsions[$sExtension] = 'AppFunc_' . $sExtension;
+                static::$aExtensions[$sExtension] = 'AppFunc_' . $sExtension;
             } elseif (is_file($sFile = __DIR__ . '/functions/' . $sExtension . '.php')) {
                 static::IncludeFile($sFile);
-                static::$aExtsions[$sExtension] = 'AltoFunc_' . $sExtension;
+                static::$aExtensions[$sExtension] = 'AltoFunc_' . $sExtension;
             } else {
                 static::_FatalError('Cannot found functions set (extension) "' . $sExtension . '"');
             }
@@ -392,7 +428,7 @@ class Func {
 
     static public function _getExtensions() {
 
-        return static::$aExtsions;
+        return static::$aExtensions;
     }
 
     /**
@@ -640,10 +676,11 @@ class Func {
     /**
      * Includes PHP-file with statistics
      *
-     * @param   string  $sFile      - file name and path
-     * @param   bool    $bOnce      - once include
-     * @param   bool    $bConfig    - include as config-file
-     * @return  mixed
+     * @param string  $sFile      - file name and path
+     * @param bool    $bOnce      - once include
+     * @param bool    $bConfig    - include as config-file
+     *
+     * @return mixed
      */
     static public function IncludeFile($sFile, $bOnce = true, $bConfig = false) {
 
@@ -661,9 +698,9 @@ class Func {
         if ($sRealPath) {
             $sFile = $sRealPath;
         }
-        if (isset(static::$aExtsions['File']) && is_callable($sFunc = static::$aExtsions['File'] . '::IncludeFile')) {
+        if (isset(static::$aExtensions['File']) && is_callable($sFunc = static::$aExtensions['File'] . '::IncludeFile')) {
             //return call_user_func_array($sFunc, array($sFile, $bOnce, $bConfig));
-            $sFuncClass = static::$aExtsions['File'];
+            $sFuncClass = static::$aExtensions['File'];
             return $sFuncClass::IncludeFile($sFile, $bOnce, $bConfig);
         } else {
             if ($bOnce) {
@@ -677,8 +714,9 @@ class Func {
     /**
      * Includes PHP-file from library dir
      *
-     * @param   string  $sFile
-     * @param   bool $bOnce
+     * @param string $sFile
+     * @param bool   $bOnce
+     *
      * @return  mixed
      */
     static public function IncludeLib($sFile, $bOnce = true) {
@@ -747,10 +785,10 @@ class Func {
     /**
      * Получить список плагинов
      *
-     * @param   bool $bAll     - все плагины (иначе - только активные)
-     * @param   bool $bIdOnly  - только Id плагинов (иначе - вся строка с информацией о плагине)
+     * @param bool $bAll     - все плагины (иначе - только активные)
+     * @param bool $bIdOnly  - только Id плагинов (иначе - вся строка с информацией о плагине)
      *
-     * @return  array
+     * @return array
      */
     static public function GetPluginsList($bAll = false, $bIdOnly = true) {
 
@@ -818,10 +856,11 @@ class Func {
     /**
      * функция доступа к REQUEST/GET/POST параметрам
      *
-     * @param   string  $sName
-     * @param   mixed   $xDefault
-     * @param   string  $sType
-     * @return  mixed
+     * @param string $sName
+     * @param mixed  $xDefault
+     * @param string $sType
+     *
+     * @return mixed
      */
     static public function GetRequest($sName, $xDefault = null, $sType = null) {
         /**
@@ -851,9 +890,9 @@ class Func {
     }
 
     /**
-     * @param      $sName
-     * @param null $xDefault
-     * @param null $sType
+     * @param string $sName
+     * @param mixed  $xDefault
+     * @param string $sType
      *
      * @return string
      */
@@ -866,9 +905,10 @@ class Func {
     /**
      * Возвращает значение параметра, переданого методом POST
      *
-     * @param   string  $sName
-     * @param   mixed   $xDefault
-     * @return  bool
+     * @param string  $sName
+     * @param mixed   $xDefault
+     *
+     * @return bool
      */
     static function GetPost($sName, $xDefault = null) {
 
@@ -878,8 +918,9 @@ class Func {
     /**
      * Возвращает значение параметра, переданого методом POST
      *
-     * @param   string  $sName
-     * @param   string  $sDefault
+     * @param string  $sName
+     * @param string  $sDefault
+     *
      * @return  bool
      */
     static function GetPostStr($sName, $sDefault = null) {
@@ -895,8 +936,9 @@ class Func {
     /**
      * Определяет, был ли передан указанный параметр методом POST
      *
-     * @param   string  $sName
-     * @return  bool
+     * @param string  $sName
+     *
+     * @return bool
      */
     static function isPost($sName) {
 
@@ -924,7 +966,7 @@ class Func {
     /**
      * Аналог ф-ции stripslashes, умеющая обрабатывать массивы
      *
-     * @param   string|array    $xData
+     * @param string|array $xData
      */
     static public function StripSlashes(&$xData) {
 
@@ -938,8 +980,7 @@ class Func {
     /**
      * Аналог ф-ции htmlspecialchars, умеющая обрабатывать массивы
      *
-     * @param   mixed   $xData
-     * @return  void
+     * @param mixed $xData
      */
     static public function HtmlSpecialChars(&$xData) {
 
@@ -960,10 +1001,10 @@ class Func {
      * Если $bRealHost == false (по умолчанию), то за основу берется root-адрес сайта, который задан в конфигурации.
      * В противном случае основа адреса - это реальный адрес хоста из $_SERVER['SERVER_NAME']
      *
-     * @param   string  $sLocation  - адрес перехода (напр., 'http://ya.ru/demo/', '/123.html', 'blog/add/')
-     * @param   bool    $bRealHost  - в случае относительной адресации брать адрес хоста из конфига или реальный
+     * @param string  $sLocation  - адрес перехода (напр., 'http://ya.ru/demo/', '/123.html', 'blog/add/')
+     * @param bool    $bRealHost  - в случае относительной адресации брать адрес хоста из конфига или реальный
      *
-     * @return  string
+     * @return string
      */
     static public function RealUrl($sLocation, $bRealHost = false) {
 
@@ -1197,8 +1238,8 @@ class Func {
      * Если $bRealHost == false (по умолчанию), то за основу берется root-адрес сайта, который задан в конфигурации.
      * В противном случае основа адреса - это реальный адрес хоста из $_SERVER['SERVER_NAME']
      *
-     * @param   string  $sLocation  - адрес перехода (напр., 'http://ya.ru/demo/', '/123.html', 'blog/add/')
-     * @param   bool    $bRealHost  - в случае относительной адресации брать адрес хоста из конфига или реальный
+     * @param string  $sLocation  - адрес перехода (напр., 'http://ya.ru/demo/', '/123.html', 'blog/add/')
+     * @param bool    $bRealHost  - в случае относительной адресации брать адрес хоста из конфига или реальный
      */
     static public function HttpLocation($sLocation, $bRealHost = false) {
 
