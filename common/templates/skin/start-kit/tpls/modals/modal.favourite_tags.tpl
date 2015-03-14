@@ -24,7 +24,7 @@
                     <div class="modal-footer">
                         <button type="submit" name="" class="btn btn-success">
                         {$aLang.favourite_form_tags_button_save}</button>
-                        <button type="submit" name="" class="btn btn-default">
+                        <button type="submit" name="" class="btn btn-default" data-dismiss="modal" aria-hidden="true">
                         {$aLang.favourite_form_tags_button_cancel}</button>
                     </div>
                 </form>
