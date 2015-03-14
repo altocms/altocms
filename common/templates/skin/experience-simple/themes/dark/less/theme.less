@@ -44,3 +44,23 @@ body {
 .content .topic .topic-footer, .panel-footer {
     background-color: @light;
 }
+
+/** АДАПТИВНАЯ ЧАСТЬ
+_________________________________________________________*/
+@media only screen and (max-width: @screen-sm) {
+
+    .navbar-default .navbar-nav .open .dropdown-menu > li > a {
+        color: @white;
+    }
+
+    .dropdown-menu.dropdown-user-menu & > li & > a:hover {
+        color: @white !important;
+        background-color: @dark-blue-l-10 !important;
+    }
+
+    .user-button {
+        &:hover {
+            color: @white !important;
+        }
+    }
+}

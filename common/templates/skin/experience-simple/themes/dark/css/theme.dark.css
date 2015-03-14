@@ -273,7 +273,7 @@ _________________________________________________________*/
     margin-left: 0;
   }
   .navbar-main .main li a {
-    padding: 14px 12px;
+    padding: 18px 12px;
   }
   .navbar-main .navbar-header a span {
     font-size: 20px;
@@ -294,7 +294,7 @@ _________________________________________________________*/
     margin-left: 0;
   }
   .navbar-main .main li a {
-    padding: 14px 10px;
+    padding: 18px 10px;
   }
   .navbar-main .navbar-header a span {
     font-size: 18px;
@@ -2877,4 +2877,18 @@ body {
 .content .topic .topic-footer,
 .panel-footer {
   background-color: #f5f6f8;
+}
+/** АДАПТИВНАЯ ЧАСТЬ
+_________________________________________________________*/
+@media only screen and (max-width: 768px) {
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a {
+    color: #ffffff;
+  }
+  .dropdown-menu.dropdown-user-menu  > li  > a:hover {
+    color: #ffffff !important;
+    background-color: #2a5271 !important;
+  }
+  .user-button:hover {
+    color: #ffffff !important;
+  }
 }
