@@ -280,14 +280,14 @@ class ModuleUser extends Module {
 
                 // * Добавляем к результату и сохраняем в кеш
                 $aUsers[$oUser->getId()] = $oUser;
-                $this->Cache_Set($oUser, "user_{$oUser->getId()}", array(), 'P4D');
+                $this->Cache_Set($oUser, "user_{$oUser->getId()}", array('user_session_update'), 'P4D');
                 $aUserIdNeedStore = array_diff($aUserIdNeedStore, array($oUser->getId()));
             }
         }
 
         // * Сохраняем в кеш запросы не вернувшие результата
         foreach ($aUserIdNeedStore as $sId) {
-            $this->Cache_Set(null, "user_{$sId}", array(), 'P4D');
+            $this->Cache_Set(null, "user_{$sId}", array('user_session_update'), 'P4D');
         }
 
         // * Сортируем результат согласно входящему массиву
@@ -758,8 +758,7 @@ class ModuleUser extends Module {
             $data['time'] = time() + 600;
             $this->oMapper->UpdateSession($this->oSession);
         }
-        $this->Cache_Set($data, $sCacheKey, array(), 'PT20M', true);
-        $this->Cache_CleanByTags(array('user_session_update'));
+        $this->Cache_Set($data, $sCacheKey, array('user_session_update'), 'PT20M', true);
     }
 
     /**
