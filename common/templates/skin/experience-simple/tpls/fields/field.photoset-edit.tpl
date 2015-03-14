@@ -94,6 +94,7 @@
 
                 {* Форма загрузки изображений *}
                 <div class="js-alto-multi-uploader-form clearfix">
+                    {literal}
                     <div class="js-files row">
                         <div class="js-file-tpl js-autoremove col-md-6" data-id="<%=uid%>" title="<%-name%>, <%-sizeText%>">
                             <div class="thumbnail">
@@ -114,6 +115,7 @@
                             </div>
                         </div>
                     </div>
+                    {/literal}
                     <div>
                         <div class="col-md-24 js-uploader-picker">
                             <div class="small text-muted topic-photo-upload-rules pull-right">
