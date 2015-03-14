@@ -1917,13 +1917,23 @@ class ActionBlog extends Action {
             'reject' => R::GetPath('blog') . 'invite/reject/?code=' . $sCode
         );
 
-        $sText = E::ModuleLang()->Get(
+        // Сформируем название типа блога на языке приложения.
+        // Это может быть либо название, либо текстовка.
+        $sBlogType = mb_strtolower(
+            preg_match('~^\{\{(.*)\}\}$~', $sBlogType = $oBlog->getBlogType()->getTypeName(), $aMatches)
+                ? E::ModuleLang()->Get($aMatches[1])
+                : $sBlogType, 'UTF-8'
+        );
+
+
+        $sText = $this->Lang_Get(
             'blog_user_invite_text',
             array(
                  'login'       => $this->oUserCurrent->getLogin(),
                  'accept_path' => $aPath['accept'],
                  'reject_path' => $aPath['reject'],
-                 'blog_title'  => $oBlog->getTitle()
+                 'blog_title'  => $oBlog->getTitle(),
+                 'blog_type'   => $sBlogType,
             )
         );
         $oTalk = E::ModuleTalk()->SendTalk($sTitle, $sText, $this->oUserCurrent, array($oUser), false, false);
