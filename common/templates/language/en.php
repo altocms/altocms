@@ -1388,7 +1388,7 @@ return array(
     'target_type_profile_photo'         => 'User photos',
     'target_type_single-image-uploader' => 'Content images',
     'target_type_all'                   => 'All types',
-    'target_type_topic-multi-image-uploader' => 'Topic photoset',
+    'target_type_photoset' => 'Topic photoset',
     'target_type_tmp' => 'Temporary',
     'target_type_current' => 'This topic',
 

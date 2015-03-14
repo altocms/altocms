@@ -12,7 +12,7 @@
     });
 </script>
 {if isset($_aRequest.topic_id) && $_aRequest.topic_id}{$sTargetId=$_aRequest.topic_id}{else}{$sTargetId=0}{/if}
-{$sTargetType="topic-multi-image-uploader"}
+{$sTargetType="photoset"}
 
 <script type="text/template" class="js-alto-multi-uploader-template">
     {var name="sTemplate"}

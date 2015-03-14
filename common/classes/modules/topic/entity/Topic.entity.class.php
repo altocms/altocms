@@ -94,7 +94,7 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     protected function _getDefaultMediaTypes() {
 
-        return array('topic', 'topic-multi-image-uploader');
+        return array('topic', 'photoset');
     }
 
     /**
@@ -1125,7 +1125,7 @@ class ModuleTopic_EntityTopic extends Entity {
             return array();
         }
 
-        $aPhotos = E::ModuleMresource()->GetMresourcesRelByTarget('topic-multi-image-uploader', $this->getId());
+        $aPhotos = E::ModuleMresource()->GetMresourcesRelByTarget('photoset', $this->getId());
         $aResult = array();
         if ($aPhotos && ($iFromId || $iCount)) {
             $iCntSet = -1;

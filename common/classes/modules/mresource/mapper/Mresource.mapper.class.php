@@ -1006,7 +1006,7 @@ class ModuleMresource_MapperMresource extends Mapper {
                 GROUP BY t.mresource_id  ORDER BY
                  m.date_add desc) as r";
         $aData = $this->oDb->selectCol($sql, $iUserId, array(
-            'topic-multi-image-uploader',
+            'photoset',
             'topic'
         ), (int)$sTopicId);
 
@@ -1041,7 +1041,7 @@ class ModuleMresource_MapperMresource extends Mapper {
         $aResult = array();
 
         if ($aRows = $this->oDb->selectPage($iCount, $sql, $iUserId, array(
-            'topic-multi-image-uploader',
+            'photoset',
             'topic'
         ), ($iCurrPage - 1) * $iPerPage, $iPerPage)) {
             foreach ($aRows as $aRow) {
