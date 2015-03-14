@@ -114,7 +114,6 @@
                         </div>
                     {/if}
                     {$oComment->getText()}
-                    {hook run='comment_action' comment=$oComment}
                 </div>
 
                 <div class="comment-footer">
@@ -177,6 +176,7 @@
 
                             {/if}
                         {/if}
+                        {hook run='comment_action' comment=$oComment commentlist=$bCommentList}
                     </ul>
                 </div>
 
