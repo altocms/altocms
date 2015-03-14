@@ -538,6 +538,7 @@ class Config extends Storage {
                 }
             }
 
+            /** @var Config $oConfig */
             $oConfig = static::getInstance();
 
             // Check for KEY_REPLACE in config data

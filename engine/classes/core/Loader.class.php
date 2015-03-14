@@ -138,13 +138,17 @@ class Loader {
         }
 
         /*
-         * LS-compatible
-         * Подгружаем файлы локального и продакшн-конфига
+         * Подгружаем файлы локального конфига
          */
         $sConfigFile = $sConfigDir . '/config.local.php';
         if (F::File_Exists($sConfigFile)) {
+            /*
             if ($aConfig = F::File_IncludeFile($sConfigFile, true, Config::Get())) {
                 Config::Load($aConfig, true, null, $nConfigLevel, $sConfigFile);
+            }
+            */
+            if ($aConfig = F::File_IncludeFile($sConfigFile, true)) {
+                Config::Set($aConfig, false, null, $nConfigLevel, $sConfigFile);
             }
         }
 
