@@ -62,7 +62,7 @@
 
                             {hook run="uploadimg_additional"}
 
-                            <button type="submit" class="btn btn-default">{$aLang.uploadimg_cancel}</button>
+                            <button type="submit" class="btn btn-default" data-dismiss="modal" aria-hidden="true">{$aLang.uploadimg_cancel}</button>
                             <button type="submit" class="btn btn-success" onclick="ls.ajaxUploadImg(this,'{$sToLoad}');">
                                 {$aLang.uploadimg_submit}
                             </button>
@@ -101,7 +101,7 @@
                             <button type="submit" class="btn btn-success" onclick="ls.ajaxUploadImg(this,'{$sToLoad}');">
                                 {$aLang.uploadimg_link_submit_load}
                             </button>
-                            <button type="submit" class="btn btn-default">{$aLang.uploadimg_cancel}</button>
+                            <button type="submit" class="btn btn-default" data-dismiss="modal" aria-hidden="true">{$aLang.uploadimg_cancel}</button>
                         </form>
                     </div>
                 </div>
