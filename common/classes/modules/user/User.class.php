@@ -421,7 +421,7 @@ class ModuleUser extends Module {
                     $aSessions[$oSession->getUserId()] = $oSession;
                     E::ModuleCache()->Set(
                         array('time' => time(), 'session' => $oSession),
-                        "user_session_{$oSession->getUserId()}", array(),
+                        "user_session_{$oSession->getUserId()}", array('user_session_update'),
                         'P4D'
                     );
                     $aUserIdNeedStore = array_diff($aUserIdNeedStore, array($oSession->getUserId()));
@@ -431,7 +431,7 @@ class ModuleUser extends Module {
 
         // * Сохраняем в кеш запросы не вернувшие результата
         foreach ($aUserIdNeedStore as $sId) {
-            E::ModuleCache()->Set(array('time' => time(), 'session' => null), "user_session_{$sId}", array(), 'P4D');
+            E::ModuleCache()->Set(array('time' => time(), 'session' => null), "user_session_{$sId}", array('user_session_update'), 'P4D');
         }
 
         // * Сортируем результат согласно входящему массиву
@@ -810,8 +810,7 @@ class ModuleUser extends Module {
             $data['time'] = time() + 600;
             $this->oMapper->UpdateSession($this->oSession);
         }
-        E::ModuleCache()->Set($data, $sCacheKey, array(), 'PT20M', true);
-        E::ModuleCache()->CleanByTags(array('user_session_update'));
+        E::ModuleCache()->Set($data, $sCacheKey, array('user_session_update'), 'PT20M', true);
     }
 
     /**
