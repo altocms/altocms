@@ -910,7 +910,7 @@ class Func {
      *
      * @return bool
      */
-    static function GetPost($sName, $xDefault = null) {
+    static public function GetPost($sName, $xDefault = null) {
 
         return static::GetRequest($sName, $xDefault, 'post');
     }
@@ -923,7 +923,7 @@ class Func {
      *
      * @return  bool
      */
-    static function GetPostStr($sName, $sDefault = null) {
+    static public function GetPostStr($sName, $sDefault = null) {
 
         if (is_array($sDefault)) {
             $sDefault = '';
@@ -940,7 +940,7 @@ class Func {
      *
      * @return bool
      */
-    static function isPost($sName) {
+    static public function isPost($sName) {
 
         return (static::GetPost($sName) !== null);
     }
@@ -1053,7 +1053,7 @@ class Func {
      *
      * @return array|string
      */
-    static function ParseUrl($sUrl = null, $iComponent = -1) {
+    static public function ParseUrl($sUrl = null, $iComponent = -1) {
 
         if (is_null($sUrl) && isset($_SERVER['HTTP_HOST'])) {
             $sUrl = F::UrlScheme(true) . $_SERVER['HTTP_HOST'];
@@ -1131,7 +1131,7 @@ class Func {
      *
      * @return string
      */
-    static function UrlBase() {
+    static public function UrlBase() {
 
         $aUrlParts = F::ParseUrl();
         return !empty($aUrlParts['base']) ? $aUrlParts['base'] : null;
@@ -1329,6 +1329,14 @@ Redirect to <a href="' . $sUrl . '">' . $sUrl . '</a>
         }
         exit;
     }
+
+    static public function StrMatch($xPatterns, $sString, $bCaseInsensitive = false, &$aMatches = array()) {
+
+        $sFuncClass = static::$aExtensions['Main'];
+        return $sFuncClass::StrMatch($xPatterns, $sString, $bCaseInsensitive, $aMatches);
+    }
+
+
 
 }
 
