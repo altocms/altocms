@@ -169,7 +169,7 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
                     $aUrls[$sPath] = array(
                         'source'      => $sRealPath,
                         'destination' => $sDestination,
-                        'url'         => F::File_Dir2Url($sDestination) . $sFileParam,
+                        'url'         => E::ModuleViewerAsset()->AssetFileDir2Url($sDestination) . $sFileParam,
                     );
                     F::File_Copy($sRealPath, $sDestination);
                 }

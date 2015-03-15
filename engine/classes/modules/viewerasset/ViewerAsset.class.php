@@ -102,6 +102,18 @@ class ModuleViewerAsset extends Module {
         return F::File_GetAssetUrl() . $this->AssetFilePath($sLocalFile, $sParentDir);
     }
 
+    public function AssetFileDir2Url($sAssetFile) {
+
+        $sFilePath = F::File_LocalPath($sAssetFile, F::File_GetAssetDir());
+        return F::File_GetAssetUrl() . $sFilePath;
+    }
+
+    public function AssetFileUrl2Dir($sAssetFile) {
+
+        $sFilePath = F::File_LocalPathUrl($sAssetFile, F::File_GetAssetUrl());
+        return F::File_GetAssetDir() . $sFilePath;
+    }
+
     /**
      * @param  string $sLocalFile
      * @param  string $sParentDir

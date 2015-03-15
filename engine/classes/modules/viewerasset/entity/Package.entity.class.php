@@ -161,13 +161,13 @@ class ModuleViewerAsset_EntityPackage extends Entity {
         $aFileParams['asset_file'] = $sDestination;
         if (!$this->CheckDestination($sDestination)) {
             if ($sDestination = $this->PrepareFile($sFile, $sDestination)) {
-                $this->AddLink($aFileParams['info']['extension'], F::File_Dir2Url($sDestination), $aFileParams);
+                $this->AddLink($aFileParams['info']['extension'], E::ModuleViewerAsset()->AssetFileDir2Url($sDestination), $aFileParams);
             } else {
                 F::SysWarning('Can not prepare asset file "' . $sFile . '"');
                 return false;
             }
         } else {
-            $this->AddLink($aFileParams['info']['extension'], F::File_Dir2Url($sDestination), $aFileParams);
+            $this->AddLink($aFileParams['info']['extension'], E::ModuleViewerAsset()->AssetFileDir2Url($sDestination), $aFileParams);
         }
         return true;
     }
@@ -206,7 +206,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
                     'compress' => $bCompress,
                     'prepare' => is_null($bPrepare) ? false : $bPrepare,
                 );
-                $this->AddLink($this->sOutType, F::File_Dir2Url($sDestination), $aParams);
+                $this->AddLink($this->sOutType, E::ModuleViewerAsset()->AssetFileDir2Url($sDestination), $aParams);
             } else {
                 F::SysWarning('Can not write asset file "' . $sDestination . '"');
                 return false;
@@ -219,7 +219,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
                 'compress' => $this->bCompress,
                 'prepare' => false,
             );
-            $this->AddLink($this->sOutType, F::File_Dir2Url($sDestination), $aParams);
+            $this->AddLink($this->sOutType, E::ModuleViewerAsset()->AssetFileDir2Url($sDestination), $aParams);
         }
         return true;
     }
