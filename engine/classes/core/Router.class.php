@@ -194,12 +194,6 @@ class Router extends LsObject {
      */
     public function Shutdown($bExit = true) {
 
-        //var_dump(R::GetPath('blog'));
-        //var_dump(R::GetPath('profile'));
-        //var_dump(R::GetPath('profile/aaa'));
-        //;exit;
-
-
         $this->AssignVars();
         $this->oEngine->Shutdown();
         E::ModuleViewer()->Display($this->oAction->GetTemplate());
@@ -254,16 +248,13 @@ class Router extends LsObject {
             }
         }
 
-        $this->aCurrentUrl = parse_url($_SERVER['REQUEST_URI']);
-        if (isset($_SERVER['SERVER_PROTOCOL'])) {
-            list($this->aCurrentUrl['protocol']) = explode('/', $_SERVER['SERVER_PROTOCOL'], 1);
-        } else {
-            $this->aCurrentUrl['protocol'] = 'http';
-        }
+        $this->aCurrentUrl = parse_url(static::$sCurrentFullUrl);
+        $this->aCurrentUrl['protocol'] = F::UrlScheme();
         if (!isset($this->aCurrentUrl['scheme']) && $this->aCurrentUrl['protocol']) {
             $this->aCurrentUrl['scheme'] = $this->aCurrentUrl['protocol'];
         }
         $this->aCurrentUrl['root'] = F::File_RootUrl();
+        $this->aCurrentUrl['base'] = F::UrlBase() . '/';
         $this->aCurrentUrl['lang'] = static::$sLang;
         $this->aCurrentUrl['action'] = static::$sAction;
         $this->aCurrentUrl['event'] = static::$sActionEvent;
@@ -347,18 +338,21 @@ class Router extends LsObject {
      */
     protected function RewriteRequest($aRequestUrl) {
 
-        if (!empty($this->aConfigRoute['domains']['forward'])) {
-            $sHost = parse_url(self::$sCurrentFullUrl, PHP_URL_HOST);
-            if (isset($this->aConfigRoute['domains']['forward'][$sHost])) {
-                $aRequestUrl = array_merge(explode('/', $this->aConfigRoute['domains']['forward'][$sHost]), $aRequestUrl);
-            } else {
-                $aMatches = array();
-                $sPattern = F::StrMatch($this->aConfigRoute['domains']['forward_keys'], $sHost, true, $aMatches);
-                if ($sPattern) {
-                    $sNewUrl = $this->aConfigRoute['domains']['forward'][$sPattern];
-                    if (!empty($aMatches[1])) {
-                        $sNewUrl = str_replace('*', $aMatches[1], $sNewUrl);
-                        $aRequestUrl = array_merge(explode('/', $sNewUrl), $aRequestUrl);
+        if (!empty($this->aConfigRoute['domains']['forward']) && !F::AjaxRequest()) {
+            // если в запросе есть контроллер и он есть в списке страниц, то доменный маппинг не выполняется
+            if (empty($aRequestUrl[0]) || empty($this->aConfigRoute['page'][$aRequestUrl[0]])) {
+                $sHost = parse_url(self::$sCurrentFullUrl, PHP_URL_HOST);
+                if (isset($this->aConfigRoute['domains']['forward'][$sHost])) {
+                    $aRequestUrl = array_merge(explode('/', $this->aConfigRoute['domains']['forward'][$sHost]), $aRequestUrl);
+                } else {
+                    $aMatches = array();
+                    $sPattern = F::StrMatch($this->aConfigRoute['domains']['forward_keys'], $sHost, true, $aMatches);
+                    if ($sPattern) {
+                        $sNewUrl = $this->aConfigRoute['domains']['forward'][$sPattern];
+                        if (!empty($aMatches[1])) {
+                            $sNewUrl = str_replace('*', $aMatches[1], $sNewUrl);
+                            $aRequestUrl = array_merge(explode('/', $sNewUrl), $aRequestUrl);
+                        }
                     }
                 }
             }
@@ -683,13 +677,13 @@ class Router extends LsObject {
 
     /**
      * LS-compatible
-     * Возвращает текущий ЧПУ url
+     * Возвращает текущий URL
      *
      * @return string
      */
     static public function GetPathWebCurrent() {
 
-        return static::$sCurrentFullUrl;
+        return static::RealUrl(false);
     }
 
     /**

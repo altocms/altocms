@@ -608,7 +608,7 @@ $config['router']['page']['error']         = 'ActionError';
 $config['router']['page']['registration']  = 'ActionRegistration';
 $config['router']['page']['profile']       = 'ActionProfile';
 $config['router']['page']['my']            = 'ActionMy';
-$config['router']['page']['blog']          = 'ActionBlog';
+//$config['router']['page']['blog']          = 'ActionBlog';
 $config['router']['page']['page']          = 'ActionPage';
 $config['router']['page']['index']         = 'ActionIndex';
 $config['router']['page']['content']       = 'ActionContent';
@@ -629,6 +629,7 @@ $config['router']['page']['stream']        = 'ActionStream';
 $config['router']['page']['subscribe']     = 'ActionSubscribe';
 $config['router']['page']['img']           = 'ActionImg';
 $config['router']['page']['homepage']      = 'ActionHomepage';
+$config['router']['page']['captcha']       = 'ActionCaptcha';
 
 // Глобальные настройки роутинга
 $config['router']['config']['action_default']   = 'homepage';

@@ -807,11 +807,14 @@ ls = (function ($) {
      * @param action
      */
     this.routerUrl = function(action) {
+        /*
         if (window.aRouter && window.aRouter[action]) {
             return window.aRouter[action];
         } else {
             return ls.cfg.url.root + action + '/';
         }
+        */
+        return ls.cfg.url.ajax + action + '/';
     };
 
     /**

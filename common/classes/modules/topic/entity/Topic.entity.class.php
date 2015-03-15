@@ -26,7 +26,7 @@ class ModuleTopic_EntityTopic extends Entity {
     const INDEX_IGNORE_LOCK = 2;
 
     /**
-     * Массив объектов(не всегда) для дополнительных типов топиков(линки, опросы, подкасты и т.п.)
+     * Массив для дополнительных параметров топика, которые сериализуются при его сохранении
      *
      * @var array
      */
@@ -165,10 +165,10 @@ class ModuleTopic_EntityTopic extends Entity {
         return null;
     }
 
-    /*
+    /**
      * Обрабатывает поле ссылки
      *
-     * @param int $id
+     * @param int $iFieldId
      * @param bool $bHtml
      *
      * @return null|string
@@ -186,11 +186,17 @@ class ModuleTopic_EntityTopic extends Entity {
         return null;
     }
 
+    /**
+     * @param $data
+     */
     public function setTopicValues($data) {
 
         $this->aValues = $data;
     }
 
+    /**
+     * @return mixed|null
+     */
     public function getContentType() {
 
         $oContentType = $this->getProp('_content_type');
@@ -577,9 +583,10 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function getUrl($sUrlMask = null, $bFullUrl = true) {
 
-        $sKey = '-url-' . ($sUrlMask ? $sUrlMask : '') . ($bFullUrl ? '-1' : '-0');
-        if ($this->isProp($sKey)) {
-            return $this->getProp($sKey);
+        $sKey = '_url-' . ($sUrlMask ? $sUrlMask : '') . ($bFullUrl ? '-1' : '-0');
+        $sUrl = $this->getProp($sKey);
+        if (!is_null($sUrl)) {
+            return $sUrl;
         }
 
         if (!$sUrlMask) {
@@ -588,10 +595,12 @@ class ModuleTopic_EntityTopic extends Entity {
         if (!$sUrlMask) {
             // формирование URL по умолчанию в LS-стиле
             if ($this->getBlog()->getType() == 'personal') {
-                return R::GetPath('blog') . $this->getId() . '.html';
+                $sUrl = R::GetPath('blog') . $this->getId() . '.html';
             } else {
-                return R::GetPath('blog') . $this->getBlog()->getUrl() . '/' . $this->getId() . '.html';
+                $sUrl = $this->getBlog()->getLink() . $this->getId() . '.html';
             }
+            $this->setProp($sKey, $sUrl);
+            return $sUrl;
         }
         // ЧПУ по маске
         $sCreateDate = strtotime($this->GetDateAdd());
@@ -628,6 +637,9 @@ class ModuleTopic_EntityTopic extends Entity {
         return F::TranslitUrl($this->getTitle());
     }
 
+    /**
+     * @return string
+     */
     public function MakeTopicUrl() {
 
         $sUrl = $this->GetTitleTranslit();
@@ -770,7 +782,7 @@ class ModuleTopic_EntityTopic extends Entity {
     /**
      * Возвращает объект файла, привязанного к топику
      *
-     * @param $nId
+     * @param int $nId
      *
      * @return ModuleTopic_EntityTopicFile|null
      */
@@ -784,6 +796,9 @@ class ModuleTopic_EntityTopic extends Entity {
         return null;
     }
 
+    /**
+     * @return string
+     */
     public function getDraftUrl() {
 
         return $this->GetUrl() . '?draft=' . $this->GetUserId() . ':' . $this->getTextHash();
@@ -825,6 +840,9 @@ class ModuleTopic_EntityTopic extends Entity {
         return E::ModuleMresource()->BuildMresourceHashList($aResources);
     }
 
+    /**
+     * @param array|string $xData
+     */
     public function setTextLinks($xData) {
 
         if (!is_array($xData)) {
@@ -833,6 +851,9 @@ class ModuleTopic_EntityTopic extends Entity {
         $this->setExtraValue('intext_links', $xData);
     }
 
+    /**
+     * @return array
+     */
     public function getTextLinks() {
 
         return (array)$this->getExtraValue('intext_links');

@@ -1671,7 +1671,7 @@ class ModuleViewer extends Module {
         $aCfg = array(
             'url' => array(
                 'root' => Config::Get('path.root.url'), // реальный рут сайта
-                'ajax' => R::RealUrl(), // адрес для ajax-запросов
+                'ajax' => R::Url('base'), // адрес для ajax-запросов
             ),
             'assets' => E::ModuleViewerAsset()->GetPreparedAssetLinks(),
             'lang' => Config::Get('lang.current'),

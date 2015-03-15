@@ -652,20 +652,20 @@ class ModuleBlog extends Module {
      * Получает список пользователей блога.
      * Если роль не указана, то считаем что поиск производиться по положительным значениям (статусом выше GUEST).
      *
-     * @param int      $iBlogId     ID блога
-     * @param int|null $iRole       Роль пользователей в блоге
-     * @param int      $iPage       Номер текущей страницы
-     * @param int      $iPerPage    Количество элементов на одну страницу
+     * @param int       $iBlogId  ID блога
+     * @param int|array $xRole    Роль пользователей в блоге
+     * @param int       $iPage    Номер текущей страницы
+     * @param int       $iPerPage Количество элементов на одну страницу
      *
      * @return array
      */
-    public function GetBlogUsersByBlogId($iBlogId, $iRole = null, $iPage = 1, $iPerPage = 100) {
+    public function GetBlogUsersByBlogId($iBlogId, $xRole = null, $iPage = 1, $iPerPage = 100) {
 
         $aFilter = array(
             'blog_id' => $iBlogId,
         );
-        if ($iRole !== null) {
-            $aFilter['user_role'] = $iRole;
+        if ($xRole !== null) {
+            $aFilter['user_role'] = $xRole;
         }
         $sCacheKey = 'blog_relation_user_by_filter_' . serialize($aFilter) . '_' . $iPage . '_' . $iPerPage;
         if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {

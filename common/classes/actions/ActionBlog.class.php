@@ -507,7 +507,7 @@ class ActionBlog extends Action {
          */
         $aPaging = E::ModuleViewer()->MakePaging(
             $aResult['count'], $iPage, Config::Get('module.blog.users_per_page'), Config::Get('pagination.pages.count'),
-            R::GetPath('blog') . "admin/{$oBlog->getId()}"
+            R::GetPath('blog/admin') . $oBlog->getId()
         );
         E::ModuleViewer()->Assign('aPaging', $aPaging);
         /**
