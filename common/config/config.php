@@ -85,7 +85,8 @@ $config['path']['uploads']['files']     = '___path.uploads.root___/files/';
 
 $config['path']['tmp']['dir']           = '___path.root.dir___/_tmp/';         // путь к папке для временных файлов
 $config['path']['runtime']['dir']       = '___path.root.dir___/_run/';         // путь к папке для runtime-файлов
-$config['path']['runtime']['url']       = '___path.root.url___/_run/';         // URL для runtime-файлов
+//$config['path']['runtime']['url']       = '___path.root.url___/_run/';         // URL для runtime-файлов
+$config['path']['runtime']['url']       = '/_run/';         // URL для runtime-файлов
 
 $config['path']['templates']['dir']     = '___path.dir.common___/templates/';
 $config['path']['frontend']['dir']      = '___path.dir.common___/templates/frontend/';
@@ -473,7 +474,7 @@ $config['module']['user']['max_session_history'] = 50;          // число х
 
 $config['module']['user']['pass_recovery_delay'] = 60 * 60 * 24 * 7;  // Время, в течение которого действует ссылка на восстановление пароля
 
-$config['module']['user']['logout']['show_exit'] = 3;           // Время, в течение которого показывается страница выхода (0 - не показывается)
+$config['module']['user']['logout']['show_exit'] = 0;           // Время, в течение которого показывается страница выхода (0 - не показывается)
 //$config['module']['user']['logout']['redirect'] = '/';        // Безусловный редирект после выхода
 
 // Модуль Comment
@@ -585,19 +586,21 @@ $config['memcache']['compression'] = true;
 /**
  * Настройки роутинга
  */
+$config['router']['domain'] = array();
+
 $config['router']['rewrite'] = array();
 
 // Правила реврайта для REQUEST_URI
+// Регулярные выражения необходимо заключать в квадратные скобки
 $config['router']['uri'] = array(
-    //'~^(uploads/images/[\w\/\_\-\.]+\.(png|jpg|jpeg|gif)\/?$)~i' => 'img/$1',
-    '~^_run/assets/([\w\-\.]+/.+)$~i' => 'asset/$1',
+    '[~^_run/assets/([\w\-\.]+/.+)$~i]' => 'asset/$1',
     // запрет обработки статичных файлов с заданными расширениями
     /* допустимые значения:
      *  - @ignore   - запрос игнорируется и его обработка прекращается
      *  - @die(msg) - обработка запроса прекращается с выдачей сообщения msg
      *  - @404      - обработка прекращается с выдачей кода 404
      */
-    '~.+\.(js|css|png|jpg|gif|swf|ico|pdf|mov|fla|zip|rar)\/?$~i' => '@404',
+    '[~.+\.(js|css|png|jpg|gif|swf|ico|pdf|mov|fla|zip|rar)\/?$~i]' => '@404',
 );
 
 // Распределение action
