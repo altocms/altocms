@@ -880,6 +880,11 @@ class Router extends LsObject {
         return static::getInstance()->_getPath($sAction);
     }
 
+    /**
+     * @param string $sAction
+     *
+     * @return string
+     */
     public function _getPath($sAction) {
 
         // Если пользователь запросил action по умолчанию
@@ -890,7 +895,16 @@ class Router extends LsObject {
         // Маппинг доменов
         if (!empty($this->aConfigRoute['domains']['backward'])) {
             if (isset($this->aConfigRoute['domains']['backward'][$sPage])) {
-                return $this->aConfigRoute['domains']['backward'][$sPage];
+                $sResult = $this->aConfigRoute['domains']['backward'][$sPage];
+                if ($sResult[1] != '/') {
+                    $sResult = '//' . $sResult;
+                    if (substr($sResult, -1) !== '/') {
+                        $sResult .= '/';
+                    }
+                }
+                // Кешируем
+                $this->aConfigRoute['domains']['backward'][$sPage] = $sResult;
+                return $sResult;
             }
             $sPattern = F::StrMatch($this->aConfigRoute['domains']['backward_keys'], $sPage, true, $aMatches);
             if ($sPattern) {
@@ -912,8 +926,8 @@ class Router extends LsObject {
     /**
      * Returns rewrite rule for "from" or for "to" or for both
      *
-     * @param $sFrom
-     * @param $sTo
+     * @param string $sFrom
+     * @param string $sTo
      *
      * @return array
      */
@@ -960,7 +974,6 @@ class Router extends LsObject {
      * Пытается по переданому экшену найти rewrite rule и
      * вернуть стандартное название ресусрса.
      *
-     * @see    Rewrite
      * @param  string $sPath
      * @return string
      */
