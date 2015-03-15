@@ -335,7 +335,7 @@ class ActionContent extends Action {
             }
         }
 
-        $aPhotoSetData = E::ModuleMresource()->GetPhotosetData('topic-multi-image-uploader', 0);
+        $aPhotoSetData = E::ModuleMresource()->GetPhotosetData('photoset', 0);
         $oTopic->setPhotosetCount($aPhotoSetData['count']);
         if ($aPhotoSetData['cover']) {
             $oTopic->setPhotosetMainPhotoId($aPhotoSetData['cover']);
@@ -422,7 +422,7 @@ class ActionContent extends Action {
                 E::ModuleSession()->DelCookie(ModuleUploader::COOKIE_TARGET_TMP);
 
                 // 2. Переместим фото из временной папки в рабочую
-                $sTargetType = 'topic-multi-image-uploader';
+                $sTargetType = 'photoset';
                 $iTargetId = $oTopic->getId();
 
                 $sNewPath = E::ModuleUploader()->GetUploadDir($sTargetType, $iTargetId) . '/';
@@ -602,7 +602,7 @@ class ActionContent extends Action {
         // Добавим картинки фотосета для вывода
         E::ModuleViewer()->Assign(
             'aPhotos',
-            E::ModuleMresource()->GetMresourcesRelByTarget('topic-multi-image-uploader', $oTopic->getId())
+            E::ModuleMresource()->GetMresourcesRelByTarget('photoset', $oTopic->getId())
         );
     }
 
@@ -703,7 +703,7 @@ class ActionContent extends Action {
             }
         }
 
-        $aPhotoSetData = E::ModuleMresource()->GetPhotosetData('topic-multi-image-uploader', $oTopic->getId());
+        $aPhotoSetData = E::ModuleMresource()->GetPhotosetData('photoset', $oTopic->getId());
         $oTopic->setPhotosetCount($aPhotoSetData['count']);
         if ($aPhotoSetData['cover']) {
             $oTopic->setPhotosetMainPhotoId($aPhotoSetData['cover']);

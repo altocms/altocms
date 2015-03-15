@@ -1175,7 +1175,7 @@ return array(
     'target_type_talk_comment'               => 'Комментарии переписки',
     'target_type_single-image-uploader'      => 'Поле контента',
     'target_type_all'                        => 'Все',
-    'target_type_topic-multi-image-uploader' => 'Фотосет топика',
+    'target_type_photoset' => 'Фотосет топика',
 
     /**
      * Уведомления
@@ -1452,15 +1452,8 @@ return array(
 
 
     'target_type_blog_avatar'           => 'Блоги',
-    'target_type_topic'                 => 'Топики',
-    'target_type_talk'                  => 'Переписка',
-    'target_type_topic_comment'         => 'Комментарии топиков',
-    'target_type_talk_comment'          => 'Комментарии переписки',
     'target_type_profile_avatar'        => 'Аватары',
     'target_type_profile_photo'         => 'Фото',
-    'target_type_single-image-uploader' => 'Поле контента',
-    'target_type_all'                   => 'Все',
-    'target_type_topic-multi-image-uploader' => 'Фотосет топика',
     'target_type_tmp' => 'Временные',
     'target_type_current' => 'Этот топик',
 

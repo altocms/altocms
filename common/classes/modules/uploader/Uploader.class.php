@@ -907,7 +907,7 @@ class ModuleUploader extends Module {
      */
     public function GetAllowedCount($sTargetType, $sTargetId = FALSE) {
 
-        if ($sTargetType == 'topic-multi-image-uploader') {
+        if ($sTargetType == 'photoset') {
             $aPhotoSetData = E::ModuleMresource()->GetPhotosetData($sTargetType, (int)$sTargetId);
             return $aPhotoSetData['count'] < Config::Get('module.topic.photoset.count_photos_max');
         }
@@ -929,7 +929,7 @@ class ModuleUploader extends Module {
     public function CheckAccessAndGetTarget($sTarget, $iTargetId = null) {
 
         // Проверяем право пользователя на прикрепление картинок к топику
-        if (mb_strpos($sTarget, 'single-image-uploader') === 0 || $sTarget == 'topic-multi-image-uploader') {
+        if (mb_strpos($sTarget, 'single-image-uploader') === 0 || $sTarget == 'photoset') {
 
             // Проверям, авторизован ли пользователь
             if (!E::IsUser()) {
@@ -1027,7 +1027,7 @@ class ModuleUploader extends Module {
      */
     public function GetTargetUrl($sTargetType, $iTargetId) {
 
-        if (mb_strpos($sTargetType, 'single-image-uploader') === 0 || $sTargetType = 'topic-multi-image-uploader') {
+        if (mb_strpos($sTargetType, 'single-image-uploader') === 0 || $sTargetType = 'photoset') {
             /** @var $oTopic ModuleTopic_EntityTopic */
             if (!$oTopic = E::ModuleTopic()->GetTopicById($iTargetId)) {
                 return '';

@@ -12,7 +12,7 @@
     });
 </script>
 {if isset($_aRequest.topic_id) && $_aRequest.topic_id}{$sTargetId=$_aRequest.topic_id}{else}{$sTargetId=0}{/if}
-{$sTargetType="topic-multi-image-uploader"}
+{$sTargetType="photoset"}
 
 <script type="text/template" class="js-alto-multi-uploader-template">
     {var name="sTemplate"}
@@ -73,6 +73,7 @@
 
                 {* Форма загрузки изображений *}
                 <div class="js-alto-multi-uploader-form">
+                    {literal}
                     <div class="js-files row">
                         <div class="js-file-tpl js-autoremove col-md-3" data-id="<%=uid%>" title="<%-name%>, <%-sizeText%>">
                             <div class="thumbnail">
@@ -93,6 +94,7 @@
                             </div>
                         </div>
                     </div>
+                    {/literal}
                     <div class="row">
                         <div class="col-md-12 js-uploader-picker">
                             <div class="small text-muted topic-photo-upload-rules pull-right">
