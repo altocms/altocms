@@ -123,7 +123,7 @@ class AltoFunc_File {
     /**
      * @return array
      */
-    static function RootUrlAliases() {
+    static public function RootUrlAliases() {
 
         $aResult = array(static::RootUrl());
         if (class_exists('Config', false)) {
@@ -345,7 +345,7 @@ class AltoFunc_File {
      *
      * @return array
      */
-    static function ReadDir($sDir, $nFlag = 0, $bRecursively = false) {
+    static public function ReadDir($sDir, $nFlag = 0, $bRecursively = false) {
 
         if (substr($sDir, -2) == '/*') {
             $sMask = '*';
@@ -424,7 +424,7 @@ class AltoFunc_File {
      *
      * @return bool
      */
-    static function CopyDir($sDirSrc, $sDirTrg) {
+    static public function CopyDir($sDirSrc, $sDirTrg) {
 
         $sDirTrg = static::NormPath($sDirTrg . '/');
         $aSource = static::ReadDir($sDirSrc, 0, true);
@@ -490,7 +490,7 @@ class AltoFunc_File {
      * Из абсолютного пути выделяет относительный (локальный) относительно рута
      *
      * @param string $sPath
-     * @param string $xRoot
+     * @param string|array $xRoot
      *
      * @return string|bool
      */
@@ -525,6 +525,18 @@ class AltoFunc_File {
         return $xResult;
     }
 
+    static public function LocalPathUrl($sPath, $xRoot, $bSaveParams = false) {
+
+        if (!$bSaveParams) {
+            if ($iPos = strpos($sPath, '?')) {
+                $sPath = substr($sPath, 0, $iPos);
+            } elseif (($iPos = strpos($sPath, '#'))) {
+                $sPath = substr($sPath, 0, $iPos);
+            }
+        }
+        return static::LocalPath($sPath, $xRoot);
+    }
+
     /**
      * Из абсолютного пути выделяет локальный относительно корневой папки проекта
      *
@@ -542,10 +554,11 @@ class AltoFunc_File {
      *
      * @param string $sPath
      * @param bool   $bCheckAliases
+     * @param bool   $bSaveParams
      *
      * @return string|bool
      */
-    static public function LocalUrl($sPath, $bCheckAliases = true) {
+    static public function LocalUrl($sPath, $bCheckAliases = true, $bSaveParams = false) {
 
         if (!$sPath) {
             return null;
@@ -553,9 +566,9 @@ class AltoFunc_File {
             return $sPath;
         }
         if ($bCheckAliases) {
-            return static::LocalPath($sPath, static::RootUrlAliases());
+            return static::LocalPath($sPath, static::RootUrlAliases(), $bSaveParams);
         }
-        return static::LocalPath($sPath, static::RootUrl());
+        return static::LocalPath($sPath, static::RootUrl(), $bSaveParams);
     }
 
     /**
@@ -676,7 +689,7 @@ class AltoFunc_File {
      *
      * @return bool
      */
-    static function DeleteAs($sPattern, $bRecursively = false, $bNoCheck = false) {
+    static public function DeleteAs($sPattern, $bRecursively = false, $bNoCheck = false) {
 
         $bResult = true;
         $aFiles = glob($sPattern);

@@ -734,7 +734,7 @@ class AltoFunc_Main {
      *
      * @return string
      */
-    static function UrlEncode($sStr) {
+    static public function UrlEncode($sStr) {
 
         return str_replace(array('%2F', '%5C'), array('%252F', '%255C'), urlencode($sStr));
     }
@@ -746,7 +746,7 @@ class AltoFunc_Main {
      *
      * @return string
      */
-    static function UrlDecode($sStr) {
+    static public function UrlDecode($sStr) {
 
         return urldecode(str_replace(array('%252F', '%255C'), array('%2F', '%5C'), $sStr));
     }
@@ -755,61 +755,65 @@ class AltoFunc_Main {
      * Compare string with simple pattern - symbol, '?', '*'
      *
      * @param string|array $xPatterns
-     * @param string $sString
-     * @param bool $bCaseInsensitive
+     * @param string       $sString
+     * @param bool         $bCaseInsensitive
+     * @param array        $aMatches
      *
      * @return bool
      */
-    static function StrMatch($xPatterns, $sString, $bCaseInsensitive = false) {
+    static public function StrMatch($xPatterns, $sString, $bCaseInsensitive = false, &$aMatches = array()) {
 
-        $bResult = true;
+        $xResult = false;
         if ($xPatterns) {
             if (is_array($xPatterns)) {
                 foreach($xPatterns as $sPattern) {
-                    $bResult = static::StrMatch($sPattern, $sString);
-                    if ($bResult) {
-                        break;
+                    $xResult = static::StrMatch($sPattern, $sString, $bCaseInsensitive, $aMatches);
+                    if ($xResult) {
+                        return $xResult;
                     }
                 }
             } else {
                 $sPattern = (string)$xPatterns;
-                $bResult = (!$sPattern || ($sPattern === $sString));
-                if (!$bResult) {
-                    if (strpos($sPattern, '?') !== false) {
-                        $sCharQ = '_' . uniqid() . '_';
+                if ($sPattern === $sString) {
+                    return $xPatterns;
+                }
+                if (strpos($sPattern, '?') !== false) {
+                    $sCharQ = '_' . uniqid() . '_';
+                } else {
+                    $sCharQ = '';
+                }
+                if (strpos($sPattern, '*') !== false) {
+                    $sCharW = '_' . uniqid() . '_';
+                } else {
+                    $sCharW = '';
+                }
+                if (!$sCharQ && !$sCharW) {
+                    if ($bCaseInsensitive) {
+                        return (strcasecmp($sPattern, $sString) === 0) ? $xPatterns : false;
                     } else {
-                        $sCharQ = '';
+                        return (strcmp($sPattern, $sString) === 0) ? $xPatterns : false;
                     }
-                    if (strpos($sPattern, '*') !== false) {
-                        $sCharW = '_' . uniqid() . '_';
-                    } else {
-                        $sCharW = '';
-                    }
-                    if (!$sCharQ && !$sCharW) {
-                        if ($bCaseInsensitive) {
-                            $bResult = (strcasecmp($sPattern, $sString) === 0);
-                        }
-                    } else {
-                        if ($sCharQ) {
-                            $sPattern = str_replace('?', $sCharQ, $sPattern);
-                        }
-                        if ($sCharW) {
-                            $sPattern = str_replace('*', $sCharW, $sPattern);
-                        }
-                        $sPattern = preg_quote($sPattern, '/');
-                        if ($sCharQ) {
-                            $sPattern = str_replace($sCharQ, '.', $sPattern);
-                        }
-                        if ($sCharW) {
-                            $sPattern = str_replace($sCharW, '.*', $sPattern);
-                        }
-                        $sPattern = '/^' . $sPattern . '$/' . ($bCaseInsensitive ? 'i' : '');
-                        $bResult = preg_match($sPattern, $sString);
-                    }
+                }
+                if ($sCharQ) {
+                    $sPattern = str_replace('?', $sCharQ, $sPattern);
+                }
+                if ($sCharW) {
+                    $sPattern = str_replace('*', $sCharW, $sPattern);
+                }
+                $sPattern = preg_quote($sPattern, '/');
+                if ($sCharQ) {
+                    $sPattern = str_replace($sCharQ, '(.)', $sPattern);
+                }
+                if ($sCharW) {
+                    $sPattern = str_replace($sCharW, '(.*)', $sPattern);
+                }
+                $sPattern = '/^' . $sPattern . '$/' . ($bCaseInsensitive ? 'i' : '');
+                if (preg_match($sPattern, $sString, $aMatches)) {
+                    return $xPatterns;
                 }
             }
         }
-        return (bool)$bResult;
+        return false;
     }
 }
 
