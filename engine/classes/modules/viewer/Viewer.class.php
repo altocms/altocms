@@ -918,6 +918,30 @@ class ModuleViewer extends Module {
         }
     }
 
+    /**
+     * Returns template variable(s)
+     *
+     * @param string|null $sVarName
+     *
+     * @return mixed
+     */
+    public function getTemplateVars($sVarName = null) {
+
+        $xResult = null;
+        if ($this->oSmarty) {
+            $xResult = $this->oSmarty->getTemplateVars($sVarName);
+        } else {
+            if ($sVarName) {
+                if (isset($this->aVarsTemplate[$sVarName])) {
+                    $xResult = $this->aVarsTemplate[$sVarName];
+                }
+            } else {
+                $xResult = $this->aVarsTemplate;
+            }
+        }
+        return $xResult;
+    }
+
     protected function _muteErrors() {
 
         if ($this->nMuteErrorsCnt <= 0) {
@@ -1646,7 +1670,8 @@ class ModuleViewer extends Module {
 
         $aCfg = array(
             'url' => array(
-                'root' => Config::Get('path.root.url'),
+                'root' => Config::Get('path.root.url'), // реальный рут сайта
+                'ajax' => R::RealUrl(), // адрес для ajax-запросов
             ),
             'assets' => E::ModuleViewerAsset()->GetPreparedAssetLinks(),
             'lang' => Config::Get('lang.current'),
