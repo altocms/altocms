@@ -831,8 +831,9 @@ class ModuleUser_EntityUser extends Entity {
     public function getProfileUrl($sUrlMask = null, $bFullUrl = true) {
 
         $sKey = '-url-' . ($sUrlMask ? $sUrlMask : '') . ($bFullUrl ? '-1' : '-0');
-        if ($this->isProp($sKey)) {
-            return $this->getProp($sKey);
+        $sUrl = $this->getProp($sKey);
+        if (!is_null($sUrl)) {
+            return $sUrl;
         }
 
         if (!$sUrlMask) {
@@ -840,7 +841,9 @@ class ModuleUser_EntityUser extends Entity {
         }
         if (!$sUrlMask) {
             // формирование URL по умолчанию
-            return R::GetPath('profile') . $this->getLogin() . '/';
+            $sUrl = R::GetPath('profile/' . $this->getLogin());
+            $this->setProp($sKey, $sUrl);
+            return $sUrl;
         }
         $aReplace = array(
             '%user_id%' => $this->GetId(),
