@@ -582,13 +582,21 @@ class ModuleMenu extends Module {
      */
     public function NewTalk($sTemplate = false) {
 
-        $iValue = (int)E::ModuleTalk()->GetCountTalkNew(E::UserId());
-        if ($sTemplate && $iValue) {
-            return str_replace('{{new_talk_count}}', $iValue, $sTemplate);
+        $sKeyString = 'menu_new_talk_' . E::UserId() . '_' . (int)$sTemplate;
+
+        if (FALSE === ($sData = E::ModuleCache()->GetTmp($sKeyString))) {
+
+            $iValue = (int)E::ModuleTalk()->GetCountTalkNew(E::UserId());
+            if ($sTemplate && $iValue) {
+                $sData = str_replace('{{new_talk_count}}', $iValue, $sTemplate);
+            } else {
+                $sData = $iValue ? $iValue : '';
+            }
+
+            E::ModuleCache()->SetTmp($sData, $sKeyString);
         }
 
-
-        return $iValue ? $iValue : '';
+        return $sData;
 
     }
 
@@ -673,14 +681,24 @@ class ModuleMenu extends Module {
      */
     public function NewTopicsCount($newClass = '') {
 
-        $iCountTopicsCollectiveNew = E::ModuleTopic()->GetCountTopicsCollectiveNew();
-        $iCountTopicsPersonalNew = E::ModuleTopic()->GetCountTopicsPersonalNew();
+        $sKeyString = 'menu_new_topics_count_' . E::UserId() . '_' . $newClass;
 
-        if ($newClass) {
-            return '<span class="' . $newClass . '"> +' . ($iCountTopicsCollectiveNew + $iCountTopicsPersonalNew) . '</span>';
+        if (FALSE === ($sData = E::ModuleCache()->GetTmp($sKeyString))) {
+
+            $iCountTopicsCollectiveNew = E::ModuleTopic()->GetCountTopicsCollectiveNew();
+            $iCountTopicsPersonalNew = E::ModuleTopic()->GetCountTopicsPersonalNew();
+
+            if ($newClass) {
+                $sData = '<span class="' . $newClass . '"> +' . ($iCountTopicsCollectiveNew + $iCountTopicsPersonalNew) . '</span>';
+            } else {
+                $sData =  $iCountTopicsCollectiveNew + $iCountTopicsPersonalNew;
+            }
+
+            E::ModuleCache()->SetTmp($sData, $sKeyString);
+
         }
 
-        return $iCountTopicsCollectiveNew + $iCountTopicsPersonalNew;
+        return $sData;
 
     }
 
@@ -692,10 +710,20 @@ class ModuleMenu extends Module {
      */
     public function NoNewTopics() {
 
-        $iCountTopicsCollectiveNew = E::ModuleTopic()->GetCountTopicsCollectiveNew();
-        $iCountTopicsPersonalNew = E::ModuleTopic()->GetCountTopicsPersonalNew();
+        $sKeyString = 'menu_no_new_topics';
 
-        return $iCountTopicsCollectiveNew + $iCountTopicsPersonalNew == 0;
+        if (FALSE === ($xData = E::ModuleCache()->GetTmp($sKeyString))) {
+
+            $iCountTopicsCollectiveNew = E::ModuleTopic()->GetCountTopicsCollectiveNew();
+            $iCountTopicsPersonalNew = E::ModuleTopic()->GetCountTopicsPersonalNew();
+
+            $xData = $iCountTopicsCollectiveNew + $iCountTopicsPersonalNew == 0;
+
+            E::ModuleCache()->SetTmp($xData, $sKeyString);
+
+        }
+
+        return $xData;
 
     }
 
@@ -732,13 +760,22 @@ class ModuleMenu extends Module {
      */
     public function CountTrack($sIcon = '') {
 
-        if (E::IsUser()) {
-            $sCount = E::ModuleUserfeed()->GetCountTrackNew(E::User()->getId());
-
-            return $sIcon . ($sCount ? '+' . $sCount : '0');
+        if (!E::IsUser()) {
+            return '';
         }
 
-        return '';
+        $sKeyString = 'menu_count_track_' . E::User()->getId() . '_' . $sIcon;
+
+        if (FALSE === ($xData = E::ModuleCache()->GetTmp($sKeyString))) {
+
+            $sCount = E::ModuleUserfeed()->GetCountTrackNew(E::User()->getId());
+            $xData = $sIcon . ($sCount ? '+' . $sCount : '0');
+
+            E::ModuleCache()->SetTmp($xData, $sKeyString);
+
+        }
+
+        return $xData;
 
     }
 

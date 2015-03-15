@@ -113,7 +113,7 @@ class ActionBlogs extends Action {
 
         // * Получаем список блогов
         $aResult = E::ModuleBlog()->GetBlogsByFilter(
-            $aFilter, array($sOrder => $sOrderWay), $iPage, Config::Get('module.blog.per_page')
+            $aFilter, array($sOrder => $sOrderWay, 'blog_title' => 'asc'), $iPage, Config::Get('module.blog.per_page')
         );
         $aBlogs = $aResult['collection'];
 
