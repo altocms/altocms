@@ -2,7 +2,7 @@
 {* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
 
 {if count($aPhotos)}
-    <div class="alto-photoset js-topic-photoset-list" {if $sPosition=='left' || $sPosition=='right'}data-width="{$sPosition}"{/if}>{strip}
+    <div class="alto-photoset js-topic-photoset-list {$sClass}" {if $sPosition=='left' || $sPosition=='right'}data-width="{$sPosition}"{/if}>{strip}
         {foreach $aPhotos as $oPhoto}
             <a href="{$oPhoto->getWebPath()}" class="topic-photoset-item">
                 <img src="{$oPhoto->getWebPath('x240')}"

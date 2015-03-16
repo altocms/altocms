@@ -1071,7 +1071,7 @@ class ActionContent extends Action {
             // * Формируем данные для ajax ответа
             foreach ($aPhotos as $oPhoto) {
                 $aResult[] = array(
-                    'id'          => $oPhoto->getId(),
+                    'id'          => $oPhoto->getMresourceId(),
                     'path_thumb'  => $oPhoto->getUrl($sThumbSize),
                     'path'        => $oPhoto->getUrl(),
                     'description' => $oPhoto->getDescription(),

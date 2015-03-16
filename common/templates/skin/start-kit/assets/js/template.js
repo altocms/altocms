@@ -300,54 +300,54 @@
     }
 
 
-    var $container 	= $('.alto-photoset'),
-        $imgs		= $container.find('img').hide(),
-        totalImgs	= $imgs.length,
-        cnt			= 0;
+    ls.photoset.prepareLastImages = function($container) {
+        var $imgs = $container.find('img').hide(),
+            totalImgs	= $imgs.length,
+            cnt			= 0;
 
-    var cw = $container.data('width');
-    if (cw) {
+        var cw = $container.data('width');
+        if (cw) {
+            $container
+                .css({
+                    width: '280px',
+                    float: cw
+                });
+        }
+
         $container
-            .css({
-                width: '280px',
-                float: cw
-            });
-    } else {
-        $container
-            .css('width', $container.hasClass('page-photoset') ? '100%': '100.1%');
-    }
-
-    $container
-        .find('a').removeAttr('rel').find('br').remove();
+            .find('a').removeAttr('rel').find('br').remove();
 
 
-    $imgs.each(function() {
-        var $img	= $(this);
-        $('<img/>').load(function() {
-            ++cnt;
-            if( cnt === totalImgs ) {
-                $imgs.show();
-                $container.montage({
-                    fillLastRow	: true,
-                    alternateHeight	: true,
-                    alternateHeightRange : {
-                        min	: 60,
-                        max	: 120
-                    },
-                    margin : 1
-                });
-                $container.find('a').each(function(){
-                    $(this).attr('rel', $(this).find('img').data('rel'))
-                });
-                $container.find("a[rel^='prettyPhoto']").prettyPhoto({
-                    social_tools:'',
-                    show_title: false,
-                    slideshow:true,
-                    deeplinking: false
-                });
-            }
-        }).attr('src',$img.attr('src'));
-    });
+        $imgs.each(function() {
+            var $img	= $(this);
+            $('<img/>').load(function() {
+                ++cnt;
+                if( cnt === totalImgs ) {
+                    $imgs.show();
+                    $container.montage({
+                        fillLastRow	: true,
+                        alternateHeight	: true,
+                        alternateHeightRange : {
+                            min	: 60,
+                            max	: 120
+                        },
+                        margin : 1
+                    });
+                    $container.find('a').each(function(){
+                        $(this).attr('rel', $(this).find('img').data('rel'))
+                    });
+                    $("a[rel^='prettyPhoto']").prettyPhoto({
+                        social_tools:'',
+                        show_title: false,
+                        slideshow:true,
+                        deeplinking: false
+                    });
+                }
+            }).attr('src',$img.attr('src'));
+        });
+    };
+
+    ls.photoset.prepareLastImages($('.alto-photoset'));
 
 
     // Хук конца инициализации javascript-составляющих шаблона

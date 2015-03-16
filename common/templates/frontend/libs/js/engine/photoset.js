@@ -19,6 +19,8 @@ ls.photoset = ( function ($) {
     this.idLast = 0;
     this.isLoading = false;
     this.swfu = null;
+    this.nextImagesContainerSelecter = null;
+    this.itemSelecter = null;
 
     /**
      * Инициализация
@@ -326,13 +328,16 @@ ls.photoset = ( function ($) {
             } else {
                 if (response.photos) {
                     var photoset = $('.js-topic-photoset-list');
-                    var item = photoset.find('.topic-photoset-item').last().clone(true);
+                    var item = ls.photoset.itemSelecter
+                        ? $($(ls.photoset.itemSelecter).html())
+                        : photoset.find('.topic-photoset-item').last().clone(true);
+
                     item.find('img').attr('src', '');
                     $.each(response.photos, function (index, photo) {
                         var newItem = item.clone(true);
-                        newItem.find('a').attr('href', photo.path).attr('title', photo.description);
+                        newItem.add(newItem.find('a')).attr('href', photo.path).attr('title', photo.description);
                         newItem.find('img').attr('src', photo.path_thumb).attr('alt', photo.description);
-                        newItem.appendTo(photoset);
+                        newItem.appendTo(ls.photoset.nextImagesContainerSelecter ? $(ls.photoset.nextImagesContainerSelecter).last() : photoset);
                         ls.photoset.idLast = parseInt(photo.id) + 1;
                     }.bind(this));
                     $('body').trigger('ls_photoset_update');

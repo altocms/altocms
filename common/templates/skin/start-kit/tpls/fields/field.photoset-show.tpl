@@ -6,17 +6,29 @@
     <a name="photoset"></a>
 
     <div class="clearfix">
-        {include file="snippets/snippet.photoset.tpl" aPhotos=$aPhotos}
+        {include file="snippets/snippet.photoset.tpl" aPhotos=$aPhotos sClass='clearfix'}
     </div>
-    <script type="text/javascript">
-        ls.photoset.idLast='{$iLastPhotoId+1}';
-        ls.photoset.thumbSize='{$sThumbneilSize}';
-    </script>
-
-
     {if count($aPhotos)<$oTopic->getPhotosetCount()}
     <div class="clearfix">
-        <br/>
+        {$oLastResource = end($aPhotos)}
+        <script type="text/javascript">
+            $(function(){
+                ls.photoset.idLast='{$oLastResource->getMresourceId()+1}';
+                ls.photoset.nextImagesContainerSelecter='.js-topic-photoset-list';
+                ls.photoset.itemSelecter='#js-topic-photoset-item';
+                ls.photoset.thumbSize='x240';
+                $('body').on('ls_photoset_update', function() {
+                    var $currentContainer = $('.js-topic-photoset-list').last();
+                    ls.photoset.prepareLastImages($currentContainer);
+                    var $nextContainer = $('<div class="js-topic-photoset-list clearfix"></div>');
+                    $nextContainer.insertAfter($currentContainer.last());
+                });
+            });
+        </script>
+        <div class="js-topic-photoset-list"></div>
+        <script id="js-topic-photoset-item" type="text/template">
+            <a href="#" class="topic-photoset-item"><img data-rel="prettyPhoto[pp_gal_]" src="" alt=""/></a>
+        </script>
         <a href="#" id="topic-photo-more" class="btn btn-info btn-large btn-block topic-photo-more" onclick="ls.photoset.getMore('{$oTopic->getId()}'); return false;">
             {$aLang.topic_photoset_show_more} &darr;
         </a>
