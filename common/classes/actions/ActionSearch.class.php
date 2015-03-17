@@ -383,16 +383,9 @@ class ActionSearch extends Action {
     public function EventOpensearch() {
 
         header('Content-type: text/xml; charset=utf-8');
-        $sOutText
-            = '<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
-                    <ShortName>' . str_replace('http://', '', Config::Get('path.root.url')) . '</ShortName>
-                    <Image height="16" width="16" type="image/vnd.microsoft.icon">' . Config::Get('path.static.skin') . '/images/favicon.ico</Image>
-                    <InputEncoding>utf-8</InputEncoding>
-                    <Url type="text/html" method="get" template="http://site.ru/search/?q={searchTerms}"/>
-                </OpenSearchDescription>
-        ';
-        echo $sOutText;
+        echo $this->Viewer_Fetch("tpls/actions/search/action.search.opensearch.tpl");
         exit;
+
     }
 
     /**
