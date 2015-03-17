@@ -655,9 +655,9 @@ _________________________________________________________________*/
 .panel .right-placed-menu {
   list-style: none;
   display: block;
-  margin: 0;
   padding: 0;
   border: 0;
+  margin: 0 0 18px 0;
 }
 .panel .right-placed-menu li {
   display: inline-block;
