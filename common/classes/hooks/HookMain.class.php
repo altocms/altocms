@@ -25,7 +25,7 @@ class HookMain extends Hook {
      */
     public function RegisterHook() {
 
-        $this->AddHook('module_Session_init_after', 'SessionInitAfter', __CLASS__, PHP_INT_MAX);
+        $this->AddHook('module_session_init_after', 'SessionInitAfter', __CLASS__, PHP_INT_MAX);
         $this->AddHook('init_action', 'InitAction', __CLASS__, PHP_INT_MAX);
         $this->AddHook('render_init_done', 'RenderInitDone', __CLASS__, PHP_INT_MAX);
 
