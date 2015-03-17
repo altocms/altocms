@@ -103,6 +103,9 @@
 //@navbar-main-default-submenu-font-size:     @navbar-sub-menu-font-size; // Размер шрифта основного меню (default = 13px)
 
 .toolbar-write {
+    & >a {
+        position: relative;
+    }
 
     li {
         border-bottom: 1px solid @white;
@@ -116,11 +119,15 @@
         }
     }
 
-    > .popover {
+    .popover {
         min-width: 208px;
         border: 1px solid @main-gray;
         border-radius: 0;
-        margin-top: 82px;
+        top: 0 !important;
+
+        .popover-content {
+            padding: 0;
+        }
 
         .arrow {
             top: 20px;

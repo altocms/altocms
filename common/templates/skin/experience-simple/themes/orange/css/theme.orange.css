@@ -942,6 +942,9 @@ _________________________________________________________________*/
 .toolbar-menu-popover > .popover .arrow:after {
   border-left-color: #f5f6f8;
 }
+.toolbar-write > a {
+  position: relative;
+}
 .toolbar-write li {
   border-bottom: 1px solid #ffffff;
 }
@@ -960,16 +963,19 @@ _________________________________________________________________*/
 .toolbar-write li a:hover i.fa {
   color: #de8443 !important;
 }
-.toolbar-write > .popover {
+.toolbar-write .popover {
   min-width: 208px;
   border: 1px solid #894718;
   border-radius: 0;
-  margin-top: 82px;
+  top: 0 !important;
 }
-.toolbar-write > .popover .arrow {
+.toolbar-write .popover .popover-content {
+  padding: 0;
+}
+.toolbar-write .popover .arrow {
   top: 20px;
 }
-.toolbar-write > .popover .arrow::after {
+.toolbar-write .popover .arrow::after {
   border-left-color: #f5f6f8;
 }
 .toolbar-menu > li > a span:nth-child(2) {
