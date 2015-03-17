@@ -83,7 +83,7 @@
 
 	<script type="text/javascript">
 		jQuery(document).ready(function($){
-			ls.stream.dateLast = {json var=$sDateLast};
+			ls.stream.sDateLast = {json var=$sDateLast};
 		});
 	</script>
 {/if}
