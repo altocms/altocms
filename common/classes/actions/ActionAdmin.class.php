@@ -4431,45 +4431,24 @@ class ActionAdmin extends Action {
 
         $nValue = $this->GetPost('value');
 
-        if (!($oUserVote = E::ModuleVote()->GetVote($oUser->getId(), 'user', $this->oUserCurrent->getId()))) {
-            // первичное голосование
-            $oUserVote = E::GetEntity('Vote');
-            $oUserVote->setTargetId($oUser->getId());
-            $oUserVote->setTargetType('user');
-            $oUserVote->setVoterId($this->oUserCurrent->getId());
-            $oUserVote->setDirection($nValue);
-            $oUserVote->setDate(F::Now());
-            $iVal = (float)E::ModuleRating()->VoteUser($this->oUserCurrent, $oUser, $nValue);
-            $oUserVote->setValue($iVal);
-            $oUser->setCountVote($oUser->getCountVote() + 1);
-            if (E::ModuleVote()->AddVote($oUserVote) && E::ModuleUser()->Update($oUser)) {
-                E::ModuleViewer()->AssignAjax('iRating', $oUser->getRating());
-                E::ModuleViewer()->AssignAjax('iSkill', $oUser->getSkill());
-                E::ModuleViewer()->AssignAjax('iCountVote', $oUser->getCountVote());
-
-                // * Добавляем событие в ленту
-                //E::ModuleStream()->Write($oUserVote->getVoterId(), 'vote_user', $oUser->getId());
-                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('user_vote_ok'), E::ModuleLang()->Get('attention'));
-            } else {
-                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('action.admin.vote_error'), E::ModuleLang()->Get('error'));
-            }
+        $oUserVote = E::GetEntity('Vote');
+        $oUserVote->setTargetId($oUser->getId());
+        $oUserVote->setTargetType('user');
+        $oUserVote->setVoterId($this->oUserCurrent->getId());
+        $oUserVote->setDirection($nValue);
+        $oUserVote->setDate(F::Now());
+        $iVal = (float)E::ModuleRating()->VoteUser($this->oUserCurrent, $oUser, $nValue);
+        $oUserVote->setValue($iVal);
+        $oUser->setCountVote($oUser->getCountVote() + 1);
+        if (E::ModuleVote()->AddVote($oUserVote) && E::ModuleUser()->Update($oUser)) {
+            E::ModuleViewer()->AssignAjax('iRating', $oUser->getRating());
+            E::ModuleViewer()->AssignAjax('iSkill', $oUser->getSkill());
+            E::ModuleViewer()->AssignAjax('iCountVote', $oUser->getCountVote());
+            E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('user_vote_ok'), E::ModuleLang()->Get('attention'));
         } else {
-            // * Повторное голосование админа
-            $iNewValue = $oUserVote->getValue() + $nValue;
-            $oUserVote->setDirection($iNewValue);
-            $oUserVote->setDate(F::Now());
-            $iVal = (float)E::ModuleRating()->VoteUser($this->oUserCurrent, $oUser, $nValue);
-            $oUserVote->setValue($oUserVote->getValue() + $iVal);
-            $oUser->setCountVote($oUser->getCountVote() + 1);
-            if (E::ModuleVote()->Update($oUserVote) && E::ModuleUser()->Update($oUser)) {
-                E::ModuleViewer()->AssignAjax('iRating', $oUser->getRating());
-                E::ModuleViewer()->AssignAjax('iSkill', $oUser->getSkill());
-                E::ModuleViewer()->AssignAjax('iCountVote', $oUser->getCountVote());
-                E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('user_vote_ok'), E::ModuleLang()->Get('attention'));
-            } else {
-                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('action.admin.repeat_vote_error'), E::ModuleLang()->Get('error'));
-            }
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('action.admin.vote_error'), E::ModuleLang()->Get('error'));
         }
+
     }
 
     public function EventAjaxSetProfile() {
