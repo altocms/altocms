@@ -3332,14 +3332,15 @@ class ActionAdmin extends Action {
         /** @var ModuleMenu_EntityItem $oItem */
         $oItem = $oMenu->GetItemById(F::GetRequest('item_id'));
         if ($oItem) {
-            $sItemTextKey = "menu.data.{$oMenu->getId()}.list.{$oItem->getId()}.text";
-            if ($sText = trim(F::GetRequest('text'))) {
-                Config::WriteCustomConfig(array($sItemTextKey=> $sText), false);
-
+            // Удалим старую текстовку из конфига
+            $sMenuListKey = 'menu.data.' . F::GetRequest('menu_id') . '.list';
+            $aMenu = C::Get($sMenuListKey);
+            if ($aMenu && isset($aMenu[F::GetRequest('item_id')]['text']) && ($sText = trim(F::GetRequest('text')))) {
+                $sItemTextKey = "menu.data.{$oMenu->getId()}.list.{$oItem->getId()}.text"; // Ключ конфига текстовки меню
+                $aMenu[F::GetRequest('item_id')]['text'] = $sText;
+                C::WriteCustomConfig(array($sMenuListKey => $aMenu), false);
                 E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('action.admin.menu_manager_save_text_ok'));
-
                 E::ModuleViewer()->AssignAjax('text', $sText);
-
                 return;
             }
         }
@@ -3384,15 +3385,17 @@ class ActionAdmin extends Action {
 
         /** @var ModuleMenu_EntityItem $oItem */
         $oItem = $oMenu->GetItemById(F::GetRequest('item_id'));
+
         if ($oItem) {
-            $sItemTextKey = "menu.data.{$oMenu->getId()}.list.{$oItem->getId()}.link";
-            if ($sText = trim(F::GetRequest('text'))) {
-                Config::WriteCustomConfig(array($sItemTextKey=> $sText), false);
-
+            // Удалим старую текстовку из конфига
+            $sMenuListKey = 'menu.data.' . F::GetRequest('menu_id') . '.list';
+            $aMenu = C::Get($sMenuListKey);
+            if ($aMenu && isset($aMenu[F::GetRequest('item_id')]['link']) && ($sText = trim(F::GetRequest('text')))) {
+                $sItemTextKey = "menu.data.{$oMenu->getId()}.list.{$oItem->getId()}.link"; // Ключ конфига текстовки меню
+                $aMenu[F::GetRequest('item_id')]['link'] = $sText;
+                C::WriteCustomConfig(array($sMenuListKey => $aMenu), false);
                 E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('action.admin.menu_manager_save_link_ok'));
-
                 E::ModuleViewer()->AssignAjax('text', $sText);
-
                 return;
             }
         }

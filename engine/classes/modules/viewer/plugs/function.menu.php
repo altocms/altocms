@@ -60,6 +60,7 @@ function smarty_function_menu($aParams, &$oSmarty = NULL) {
         }
 
         // Сформируем подменю если нужно
+        $oMenuItem->setMenuId($aParams['id']);
         if (strpos($oMenuItemHtml = $oMenuItem->getHtml(), "[[submenu_") !== FALSE) {
             $oMenuItemHtml = preg_replace_callback('~\[\[submenu_(\S*)\]\]~', function ($sSubmenuId) {
                 if (isset($sSubmenuId[1])) {

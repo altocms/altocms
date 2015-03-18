@@ -283,6 +283,10 @@ if (E::IsUser()) {
 /**
  *  Меню топиков
  */
+C::Set('menu.data.topics.discussed.text', array(
+    '{{blog_menu_all_discussed}}',
+    '&nbsp;<i class="caret"></i>',
+));
 $config['menu']['data']['topics'] = array(
     'list' => array(
         'homepage'  => array(
@@ -319,10 +323,10 @@ $config['menu']['data']['topics'] = array(
 
 
         'discussed' => array(
-            'text'    => array(
-                '{{blog_menu_all_discussed}}',
-                '&nbsp;<i class="caret"></i>',
-            ),
+//            'text'    => array(
+//                '{{blog_menu_all_discussed}}',
+//                '&nbsp;<i class="caret"></i>',
+//            ),
             'submenu' => 'discussed',
             'options' => array(
                 'class'     => 'dropdown',
