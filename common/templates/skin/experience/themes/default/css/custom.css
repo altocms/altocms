@@ -31,6 +31,8 @@
     }
 }
 
+.searched-item { background: #fffaaa; }
+
 /* UPLOADER */
 .uploader-actions {
     position: relative;
