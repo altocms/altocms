@@ -30,3 +30,5 @@
         width: 1030px; /* 1000px - container + 30px */
     }
 }
+
+.searched-item { background: #fffaaa; }
