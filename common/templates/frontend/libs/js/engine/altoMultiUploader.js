@@ -30,9 +30,10 @@
         this.options = $.extend({}, $.fn.altoMultiUploader.defaultOptions, options, this.$element.data());
 
         this.$link = this.$element.find('.js-alto-multi-uploader-link');
-        this.templateHTML = $('.js-alto-multi-uploader-template').html();
+        this.templateHTML = $(this.options.result_template).html();
         this.$list = this.$element.find('.js-alto-multi-uploader-list');
         this.$preview = this.$element.find('.js-alto-multi-uploader-target-preview');
+        this.uploaded = [];
 
 
         this.init();
@@ -54,8 +55,8 @@
             var $this = this,
                 previewConfig = {
                     el: '.js-file-preview',
-                    width: 140,
-                    height: 140
+                    width: $this.options.preview_width,
+                    height: $this.options.preview_height
                 },
                 onCheckFiles = function (evt, data) {
                     if (data.other.length) {
@@ -72,8 +73,9 @@
                     }
                 };
 
-            $('.js-alto-multi-uploader-form').fileapi({
+            $($this.options.form).fileapi({
                 url: $this.options.url.upload,
+                clearOnComplete: true,
                 maxSize: $this.options.maxSize * FileAPI.MB,
                 imageSize: {
                     maxWidth: $this.options.maxWidth,
@@ -92,12 +94,13 @@
                     evt.widget.remove(evt.widget.__fileId);
                     $this.addPhoto(uiEvt.result);
                 },
+                onComplete: $this.options.onComplete,
                 elements: {
-                    ctrl: {upload: '.js-upload'}, // Кнопка загрузки
-                    emptyQueue: {hide: '.js-upload'},
-                    list: '.js-files',
+                    ctrl: {upload: $this.options.upload}, // Кнопка загрузки
+                    emptyQueue: {hide: $this.options.upload},
+                    list: $this.options.list,
                     file: {
-                        tpl: '.js-file-tpl',
+                        tpl: $this.options.tpl,
                         preview: previewConfig,
                         upload: {show: '.progress', hide: '.js-file-rotate'},
                         complete: {hide: '.progress', remove: 'js-autoremove'},
@@ -111,9 +114,9 @@
                 },
                 onDrop: onCheckFiles,
                 onSelect: onCheckFiles
-            }).on('click', '.js-file-reload', function (evt) {
-                    var tpl = $('.js-alto-multi-uploader-form'),
-                        uid = $(evt.currentTarget).parents('.js-file-tpl').data('id'),
+            }).on('click', this.$element.attr('class') + ' ' + '.js-file-reload', function (evt) {
+                    var tpl = $($this.options.from),
+                        uid = $(evt.currentTarget).parents($this.options.tpl).data('id'),
                         file = tpl.fileapi("_getFile", uid);
                     tpl.fileapi("_makeFilePreview", uid, file, previewConfig);
                 }
@@ -167,6 +170,7 @@
                     html = $(html.replace(/ID/g, data.id).replace(/MARK_AS_PREVIEW/g, $this.options.langCoverNeed)).show();
                     html.find('img').prop('src', data.file);
                     html = $(html);
+                    $this.uploaded.push(data.file.replace(new RegExp('-' + $this.options.previewCrop + '.*'), ''));
                     //html.find('js-uploader-item-cover').on('click', function(){
                     //   return $this.setCover(data.id);
                     //});
@@ -313,6 +317,12 @@
 
             return $this;
 
+        },
+
+        getUploaded: function(){
+            var uploaded = this.uploaded;
+            this.uploaded = [];
+            return uploaded;
         }
 
     };
@@ -333,33 +343,38 @@
             option = {};
         }
 
-        return this.each(function () {
-            var $this = $(this);
-            var data = $this.data('alto.altoMultiUploader');
-            var options = typeof option === 'object' && option;
+        if (typeof option === 'getUploaded') {
+            data[option]();
+        }
 
-            if (!data) {
-                $this.data('alto.altoMultiUploader', (data = new altoMultiUploader(this, options)));
+
+        var $this = $(this);
+        var data = $this.data('alto.altoMultiUploader');
+        var options = typeof option === 'object' && option;
+        var funcResult = false;
+
+        if (!data) {
+            $this.data('alto.altoMultiUploader', (data = new altoMultiUploader(this, options)));
+        }
+
+        if (typeof option === 'string') {
+            funcResult = data[option]();
+        }
+
+        if (typeof option === 'object') {
+            if (typeof option['cover'] === 'string') {
+                return data.setCover(option['cover']);
             }
-
-            if (typeof option === 'string') {
-                data[option]();
+            if (typeof option['remove'] === 'string') {
+                return data.remove(option['remove']);
             }
-
-            if (typeof option === 'object') {
-                if (typeof option['cover'] === 'string') {
-                    return data.setCover(option['cover']);
-                }
-                if (typeof option['remove'] === 'string') {
-                    return data.remove(option['remove']);
-                }
-                if (typeof option['description'] === 'string') {
-                    return data.setDescription(option['description']);
-                }
+            if (typeof option['description'] === 'string') {
+                return data.setDescription(option['description']);
             }
+        }
 
-            return $this;
-        });
+        return funcResult || $this;
+
 
     };
 
@@ -382,6 +397,15 @@
         maxSizeError: 'Wrong file size',
         maxWidthError: 'Wrong file width',
         maxHeightError: 'Wrong file height',
+        tpl: '.js-file-tpl',
+        list: '.js-files',
+        upload: '.js-upload',
+        form: '.js-alto-multi-uploader-form',
+        result_template: '.js-alto-multi-uploader-template',
+        preview_width: 140,
+        preview_height: 140,
+        onComplete: function (evt, uiEvt) {
+        },
         url: {
             upload: ls.routerUrl('uploader') + 'multi-image/',
             remove: ls.routerUrl('uploader') + 'remove-image-by-id/',

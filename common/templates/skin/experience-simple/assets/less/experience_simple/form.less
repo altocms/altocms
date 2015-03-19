@@ -112,85 +112,102 @@ _________________________________________________*/
 
 /** Аплоадер фотографий
 _________________________________________________*/
-.js-alto-multi-uploader-form .js-add {
-    position: relative;
-    overflow: hidden;
+.js-alto-topic-uploader .js-alto-multi-uploader-list:last-child {
+    margin-bottom: 12px;
 }
-
-.js-alto-multi-uploader-form canvas {
-    width: 100%;
+.js-alto-topic-uploader .js-files-container {
+    max-height: 373px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    margin-bottom: 6px;
 }
-
-.js-alto-multi-uploader-form .js-file-delete {
-    position: absolute;
-    top: -6px;
-    right: 17px;
-    z-index: 999;
-    color: @red;
-    font-size: 20px;
-    opacity: 0;
-    cursor: pointer;
-    -webkit-transition: opacity .1s ease-in;
-    -moz-transition: opacity .1s ease-in;
-    transition: opacity .1s ease-in;
-}
-.js-alto-multi-uploader-form .js-file-reload {
-    position: absolute;
-    top: -6px;
-    left: 17px;
-    z-index: 999;
-    color: @green;
-    font-size: 20px;
-    opacity: 0;
-    cursor: pointer;
-    -webkit-transition: opacity .1s ease-in;
-    -moz-transition: opacity .1s ease-in;
-    transition: opacity .1s ease-in;
-}
-
-.js-alto-multi-uploader-form .progress {
-    margin-bottom: 0;
-}
-
-.js-alto-multi-uploader-form .js-file-name {
+.js-alto-multi-uploader-list .js-file-name {
     overflow: hidden;
     text-align: center;
     font-size: 10px;
 }
-
-.js-alto-multi-uploader-form .js-file-tpl:hover .js-file-delete,
-.js-alto-multi-uploader-form .js-file-tpl:hover .js-file-reload {
-    opacity: 1;
+.js-alto-multi-uploader-list .progress {
+    margin-bottom: 0 !important;
 }
-
-.js-alto-multi-uploader-form .js-file-rotate {
-    position: absolute;
-    top: 33%;
-    left: 50%;
-    margin: -16px 0 0 -16px;
-    width: 32px;
-    height: 32px;
-    cursor: pointer;
-}
-
-.js-alto-multi-uploader-form .js-file-rotate i {
-    font-size: 36px;
-}
-
-.js-alto-multi-uploader-form {
+.js-alto-multi-uploader-form, .js-alto-topic-uploader-form {
     position: relative;
-}
 
-.js-alto-multi-uploader-form input {
-    position: absolute;
-    top: -10px;
-    left: -10px;
-    z-index: 2;
-    overflow: hidden;
-    font-size: 30px;
-    opacity: 0;
-    cursor: pointer;
-    -moz-opacity: 0;
+    .js-add {
+        position: relative;
+        overflow: hidden;
+    }
+
+    canvas {
+        width: 100%;
+    }
+
+    .js-file-delete {
+        position: absolute;
+        top: -6px;
+        right: 17px;
+        z-index: 999;
+        color: @red;
+        font-size: 20px;
+        opacity: 0;
+        cursor: pointer;
+        -webkit-transition: opacity .1s ease-in;
+        -moz-transition: opacity .1s ease-in;
+        transition: opacity .1s ease-in;
+    }
+    .js-file-reload {
+        position: absolute;
+        top: -6px;
+        left: 17px;
+        z-index: 999;
+        color: @green;
+        font-size: 20px;
+        opacity: 0;
+        cursor: pointer;
+        -webkit-transition: opacity .1s ease-in;
+        -moz-transition: opacity .1s ease-in;
+        transition: opacity .1s ease-in;
+    }
+
+    .progress {
+        margin-bottom: 0;
+    }
+
+    .js-file-name {
+        overflow: hidden;
+        text-align: center;
+        font-size: 10px;
+    }
+
+    .js-file-tpl:hover .js-file-delete,
+    .js-file-tpl:hover .js-file-reload {
+        opacity: 1;
+    }
+
+    .js-file-rotate {
+        position: absolute;
+        top: 33%;
+        left: 50%;
+        margin: -16px 0 0 -16px;
+        width: 32px;
+        height: 32px;
+        cursor: pointer;
+    }
+
+    .js-file-rotate i {
+        font-size: 36px;
+    }
+
+    input {
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        z-index: 2;
+        overflow: hidden;
+        font-size: 50px !important;
+        opacity: 0;
+        cursor: pointer;
+        -moz-opacity: 0;
+    }
 }
 
 .js-uploader-picker {

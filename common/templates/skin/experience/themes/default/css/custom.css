@@ -45,8 +45,32 @@
 }
 
 /* MULTI-UPLOADER */
-.js-alto-multi-uploader-form .js-add { position: relative; overflow: hidden; }
-.js-alto-multi-uploader-form canvas { width: 100%; }
+.js-alto-topic-uploader .js-alto-multi-uploader-list:last-child {
+    margin-bottom: 12px;
+}
+.js-alto-topic-uploader .js-files-container {
+    max-height: 373px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    margin-bottom: 6px;
+}
+.js-alto-multi-uploader-list .js-file-name {
+    overflow: hidden;
+    text-align: center;
+    font-size: 10px;
+}
+.js-alto-multi-uploader-list .progress {
+    margin-bottom: 0 !important;
+}
+
+
+
+.js-alto-topic-uploader-form .js-add, .js-alto-multi-uploader-form .js-add {
+    position: relative; overflow: hidden;
+}
+.js-alto-topic-uploader-form canvas, .js-alto-multi-uploader-form canvas {
+    width: 100%;
+}
 .js-alto-multi-uploader-form .js-file-delete {
     top: -6px;
     right: 17px;
@@ -74,19 +98,21 @@
     transition: opacity .1s ease-in;
 }
 
-.js-alto-multi-uploader-form .progress {
+.js-alto-topic-uploader-form .progress, .js-alto-multi-uploader-form .progress {
     margin-bottom: 0;
 }
-.js-alto-multi-uploader-form .js-file-name {
+.js-alto-topic-uploader-form .js-file-name, .js-alto-multi-uploader-form .js-file-name {
     font-size: 10px;
     text-align: center;
     overflow: hidden;
 }
 .js-alto-multi-uploader-form .js-file-tpl:hover .js-file-delete,
-.js-alto-multi-uploader-form .js-file-tpl:hover .js-file-reload {
+.js-alto-topic-uploader-form .js-file-tpl:hover .js-file-delete,
+.js-alto-topic-uploader-form .js-alto-multi-uploader-form .js-file-tpl:hover .js-file-reload,
+.js-alto-topic-uploader-form .js-alto-topic-uploader-form .js-file-tpl:hover .js-file-reload {
     opacity: 1;
 }
-.js-alto-multi-uploader-form .js-file-rotate {
+.js-alto-topic-uploader-form .js-file-rotate, .js-alto-multi-uploader-form .js-file-rotate {
     top: 33%;
     left: 50%;
     width: 32px;
@@ -95,9 +121,9 @@
     margin: -16px 0 0 -16px;
     position: absolute;
 }
-.js-alto-multi-uploader-form .js-file-rotate i { font-size: 36px; }
-.js-alto-multi-uploader-form { position: relative; }
-.js-alto-multi-uploader-form input {
+.js-alto-topic-uploader-form .js-file-rotate i, .js-alto-multi-uploader-form .js-file-rotate i { font-size: 36px; }
+.js-alto-topic-uploader-form, .js-alto-multi-uploader-form { position: relative; }
+.js-alto-topic-uploader-form input, .js-alto-multi-uploader-form input {
     position: absolute;
     overflow: hidden;
     -moz-opacity: 0;

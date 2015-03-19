@@ -1215,14 +1215,38 @@ _________________________________________________*/
 }
 /** Аплоадер фотографий
 _________________________________________________*/
-.js-alto-multi-uploader-form .js-add {
+.js-alto-topic-uploader .js-alto-multi-uploader-list:last-child {
+  margin-bottom: 12px;
+}
+.js-alto-topic-uploader .js-files-container {
+  max-height: 373px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  margin-bottom: 6px;
+}
+.js-alto-multi-uploader-list .js-file-name {
+  overflow: hidden;
+  text-align: center;
+  font-size: 10px;
+}
+.js-alto-multi-uploader-list .progress {
+  margin-bottom: 0 !important;
+}
+.js-alto-multi-uploader-form,
+.js-alto-topic-uploader-form {
+  position: relative;
+}
+.js-alto-multi-uploader-form .js-add,
+.js-alto-topic-uploader-form .js-add {
   position: relative;
   overflow: hidden;
 }
-.js-alto-multi-uploader-form canvas {
+.js-alto-multi-uploader-form canvas,
+.js-alto-topic-uploader-form canvas {
   width: 100%;
 }
-.js-alto-multi-uploader-form .js-file-delete {
+.js-alto-multi-uploader-form .js-file-delete,
+.js-alto-topic-uploader-form .js-file-delete {
   position: absolute;
   top: -6px;
   right: 17px;
@@ -1235,7 +1259,8 @@ _________________________________________________*/
   -moz-transition: opacity 0.1s ease-in;
   transition: opacity 0.1s ease-in;
 }
-.js-alto-multi-uploader-form .js-file-reload {
+.js-alto-multi-uploader-form .js-file-reload,
+.js-alto-topic-uploader-form .js-file-reload {
   position: absolute;
   top: -6px;
   left: 17px;
@@ -1248,19 +1273,24 @@ _________________________________________________*/
   -moz-transition: opacity 0.1s ease-in;
   transition: opacity 0.1s ease-in;
 }
-.js-alto-multi-uploader-form .progress {
+.js-alto-multi-uploader-form .progress,
+.js-alto-topic-uploader-form .progress {
   margin-bottom: 0;
 }
-.js-alto-multi-uploader-form .js-file-name {
+.js-alto-multi-uploader-form .js-file-name,
+.js-alto-topic-uploader-form .js-file-name {
   overflow: hidden;
   text-align: center;
   font-size: 10px;
 }
 .js-alto-multi-uploader-form .js-file-tpl:hover .js-file-delete,
-.js-alto-multi-uploader-form .js-file-tpl:hover .js-file-reload {
+.js-alto-topic-uploader-form .js-file-tpl:hover .js-file-delete,
+.js-alto-multi-uploader-form .js-file-tpl:hover .js-file-reload,
+.js-alto-topic-uploader-form .js-file-tpl:hover .js-file-reload {
   opacity: 1;
 }
-.js-alto-multi-uploader-form .js-file-rotate {
+.js-alto-multi-uploader-form .js-file-rotate,
+.js-alto-topic-uploader-form .js-file-rotate {
   position: absolute;
   top: 33%;
   left: 50%;
@@ -1269,19 +1299,18 @@ _________________________________________________*/
   height: 32px;
   cursor: pointer;
 }
-.js-alto-multi-uploader-form .js-file-rotate i {
+.js-alto-multi-uploader-form .js-file-rotate i,
+.js-alto-topic-uploader-form .js-file-rotate i {
   font-size: 36px;
 }
-.js-alto-multi-uploader-form {
-  position: relative;
-}
-.js-alto-multi-uploader-form input {
+.js-alto-multi-uploader-form input,
+.js-alto-topic-uploader-form input {
   position: absolute;
   top: -10px;
   left: -10px;
   z-index: 2;
   overflow: hidden;
-  font-size: 30px;
+  font-size: 50px !important;
   opacity: 0;
   cursor: pointer;
   -moz-opacity: 0;

@@ -911,6 +911,9 @@ class ModuleUploader extends Module {
             $aPhotoSetData = E::ModuleMresource()->GetPhotosetData($sTargetType, (int)$sTargetId);
             return $aPhotoSetData['count'] < Config::Get('module.topic.photoset.count_photos_max');
         }
+        if ($sTargetType == 'topic') {
+            return TRUE;
+        }
 
         return FALSE;
     }
@@ -987,6 +990,25 @@ class ModuleUploader extends Module {
             return '';
         }
 
+        if ($sTarget == 'topic') {
+            if (!E::IsUser()) {
+                return false;
+            }
+            /** @var ModuleTopic_EntityTopic $oTopic */
+            $oTopic = E::ModuleTopic()->GetTopicById($iTargetId);
+
+            if (!$oTopic) {
+                // Топик еще не создан
+                return TRUE;
+            }
+
+            if ($oTopic && (E::ModuleACL()->IsAllowEditTopic($oTopic, E::User()) || E::IsAdminOrModerator())) {
+                return $oTopic;
+            }
+
+            return '';
+        }
+
         return FALSE;
     }
 
@@ -1027,7 +1049,7 @@ class ModuleUploader extends Module {
      */
     public function GetTargetUrl($sTargetType, $iTargetId) {
 
-        if (mb_strpos($sTargetType, 'single-image-uploader') === 0 || $sTargetType = 'photoset') {
+        if (mb_strpos($sTargetType, 'single-image-uploader') === 0 || $sTargetType = 'photoset' || $sTargetType = 'topic') {
             /** @var $oTopic ModuleTopic_EntityTopic */
             if (!$oTopic = E::ModuleTopic()->GetTopicById($iTargetId)) {
                 return '';
