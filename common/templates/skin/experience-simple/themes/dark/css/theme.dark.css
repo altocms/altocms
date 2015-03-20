@@ -521,6 +521,9 @@ _______________________________________________________________*/
 .searched-item {
   background-color: #ffeb99;
 }
+.has-feedback .form-control-feedback {
+  z-index: 2;
+}
 /* МЕНЮ КОНТЕНТА
 _________________________________________________________*/
 .navbar-content.navbar-default {
