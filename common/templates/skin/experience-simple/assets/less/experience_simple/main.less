@@ -192,6 +192,22 @@ _______________________________________________________________*/
     }
 }
 
+.blog-uploader-actions {
+    & > div {
+        display: block;
+        overflow: hidden;
+        cursor: pointer;
+        position: relative;
+        &:hover a {
+            color: @active-link-color !important;
+        }
+        & > input {
+            display: block;
+            position: absolute;
+        }
+    }
+}
+
 .js-alto-multi-uploader-form {
     input {
         font-size: 62px !important;

@@ -499,6 +499,19 @@ _______________________________________________________________*/
 .uploader-actions:hover a {
   color: #d25151 !important;
 }
+.blog-uploader-actions > div {
+  display: block;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+}
+.blog-uploader-actions > div:hover a {
+  color: #d25151 !important;
+}
+.blog-uploader-actions > div > input {
+  display: block;
+  position: absolute;
+}
 .js-alto-multi-uploader-form input {
   font-size: 62px !important;
   cursor: pointer;

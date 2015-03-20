@@ -30,24 +30,28 @@
                 ]}
 
                 {* Меню управления аватаром блога *}
+                <div class="uploader-actions blog-uploader-actions tac">
+
+                    <div>
+                        {* Кнопка загрузки картинки *}
+                        <a class="js-uploader-button-upload" href="#" onclick="return false">
+                            <i class="fa fa-upload"></i>&nbsp;
+                            {$aLang.uploader_image_upload}
+                            {* Файл для загрузки *}
+
+                        </a>
+                        <input type="file" name="uploader-upload-image" class="uploader-actions-file js-uploader-file">
+                    </div>
+
+                </div>
+
+
                 <div class="uploader-actions tac">
-
-                    {* Кнопка загрузки картинки *}
-                    <a class="js-uploader-button-upload" href="#" onclick="return false">
-                        <i class="fa fa-upload"></i>&nbsp;
-                        {$aLang.uploader_image_upload}
-                    </a>
-
                     {* Кнопка удаления картинки *}
-                    <br/>
                     <a href="#" onclick="return false;" class="js-uploader-button-remove"
                        {if !$bImageIsTemporary}style="display: none;"{/if}>
                         <i class="fa fa-times"></i>&nbsp;{$aLang.uploader_image_delete}
                     </a>
-
-                    {* Файл для загрузки *}
-                    <input type="file" name="uploader-upload-image" class="uploader-actions-file js-uploader-file">
-
                 </div>
 
                 {* Форма обрезки картинки при ее загрузке *}
