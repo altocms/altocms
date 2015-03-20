@@ -2452,11 +2452,16 @@ span.counter {
 .modal-header button {
   position: relative;
   opacity: 1;
-  right: -10px;
+  font-size: 1px;
+  width: 40px;
+  height: 40px;
+  right: -64px;
   cursor: pointer;
   color: #f0f0f0;
 }
-.modal-header button:hover {
+.modal-header button:hover,
+.modal-header button:hover::after,
+.modal-header button:hover::before {
   color: #f0f0f0;
 }
 .modal-header button:before,
@@ -2474,7 +2479,7 @@ span.counter {
   -o-transform: rotate(45deg);
   transform: rotate(45deg);
   position: absolute;
-  left: 43.8px;
+  left: 19.8px;
   top: 1px;
 }
 .modal-header button:after {
@@ -2483,8 +2488,8 @@ span.counter {
   -webkit-transform: rotate(-45deg);
   -o-transform: rotate(-45deg);
   transform: rotate(-45deg);
-  top: 0;
-  left: 40px;
+  top: 1px;
+  left: 16px;
   position: absolute;
 }
 .modal-header .image-categories-nav {
