@@ -790,7 +790,7 @@ $config['head']['default']['js'] = array(
 
 //потенциально проблемные файлы выводим в футере
 $config['footer']['default']['js'] = array(
-    'http://yandex.st/share/share.js',
+    '//yandex.st/share/share.js',
 );
 
 $config['head']['default']['css'] = array(
