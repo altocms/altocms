@@ -1295,7 +1295,9 @@ class ModuleTopic_EntityTopic extends Entity {
     }
 
     public function getShowPhotoset() {
-        return (bool)$this->getExtraValue('show_photoset');
+        // По умолчанию включаем фотосет. поскольку при переносе топиков
+        // и переходе со старых версий в экстре такой записи нет
+        return ($this->getExtraValue('show_photoset')===null) ? TRUE : (bool)$this->getExtraValue('show_photoset');
     }
 
     public function getSingleImage($nId, $sSize) {
