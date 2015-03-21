@@ -45,6 +45,7 @@ $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/e
 $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/jquery/pulse/jquery.pulse.js";
 $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/theme.js";
 $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/menu.min.js";
+$config['head']['default']['js'][] = "___path.skin.dir___/assets/js/bootstrap/dropdowns-enhancement.js";
 
 $config['head']['default']['css'] = array(
     '___path.skin.dir___/assets/css/style.bootstrap.min.css',

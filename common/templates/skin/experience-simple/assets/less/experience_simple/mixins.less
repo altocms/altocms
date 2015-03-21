@@ -69,3 +69,19 @@
         border-bottom: 1px dotted @active-link-color;
     }
 }
+
+.bullet() {
+    width: 0;
+    height: 0;
+    content: '';
+    display: inline-block;
+    position: absolute;
+    -webkit-transform: rotate(450deg);
+    border-color: transparent;
+    border-style: solid;
+    border-width: 0 6px 6px;
+    border-bottom-color: #cccccc;
+    border-bottom-color: rgba(0, 0, 0, 0.15);
+    top: 46%;
+    right: 6px;
+}

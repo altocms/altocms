@@ -67,14 +67,17 @@ function smarty_function_menu($aParams, &$oSmarty = NULL) {
                     $sSubmenuId = $sSubmenuId[1];
                 } else {
                     return '';
-            }
-                if (!is_null($sSubmenuHtml = smarty_function_menu(array('id' => $sSubmenuId)))) {
+                }
+                $aSettings = array('id' => $sSubmenuId);
+                if (preg_match('~[a-f0-9]{10}~', $sSubmenuId)) {
+                    $aSettings = array_merge($aSettings, array('class' => Config::Get('menu.submenu.class')));
+                }
+                if (!is_null($sSubmenuHtml = smarty_function_menu($aSettings))) {
                     return $sSubmenuHtml;
-        }
-
+                }
                 return '';
             }, $oMenuItemHtml);
-            }
+        }
 
         // Добавим html в вывод
         $sMenu .= $oMenuItemHtml;

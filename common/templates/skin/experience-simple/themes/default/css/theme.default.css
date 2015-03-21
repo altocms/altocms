@@ -307,6 +307,50 @@ _________________________________________________________*/
     font-size: 11px !important;
   }
 }
+.dropdown .dropdown-submenu {
+  position: relative;
+}
+.dropdown .dropdown-submenu > .dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-top-left-radius: 0;
+}
+.dropdown .dropdown-submenu > a:after {
+  width: 0;
+  height: 0;
+  content: '';
+  display: inline-block;
+  position: absolute;
+  -webkit-transform: rotate(450deg);
+  border-color: transparent;
+  border-style: solid;
+  border-width: 0 6px 6px;
+  border-bottom-color: #cccccc;
+  border-bottom-color: rgba(0, 0, 0, 0.15);
+  top: 46%;
+  right: 6px;
+}
+.nav > .dropdown-submenu > a {
+  padding-right: 22px !important;
+}
+.nav > .dropdown-submenu > a:after {
+  width: 0;
+  height: 0;
+  content: '';
+  display: inline-block;
+  position: absolute;
+  -webkit-transform: rotate(450deg);
+  border-color: transparent;
+  border-style: solid;
+  border-width: 0 6px 6px;
+  border-bottom-color: #cccccc;
+  border-bottom-color: rgba(0, 0, 0, 0.15);
+  top: 46%;
+  right: 6px;
+  -webkit-transform: rotate(540deg);
+}
 body {
   background-color: #f5f6f8;
 }

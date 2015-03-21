@@ -7,6 +7,19 @@
 //    )
 //);
 
+$config['menu']['submenu'] = array(
+    'class' => 'dropdown-menu animated fadeIn dropdown-content-menu',
+    'options' => array(
+        'class'       => 'dropdown dropdown-submenu',
+        'link_class'  => 'dropdown-toggle',
+        'link_data'   => array(
+            'toggle' => 'dropdown',
+            'role'   => 'button',
+            'target' => '#',
+        ),
+    ),
+);
+
 /**
  * Главное меню сайта  + experience
  * Настройки берутся из главного конфига меню common/config/menu.php
