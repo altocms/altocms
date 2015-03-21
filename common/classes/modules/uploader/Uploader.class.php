@@ -874,6 +874,10 @@ class ModuleUploader extends Module {
      */
     public function Dir2Url($sFilePath) {
 
+        if ($sFilePath[0] == '@') {
+            return Config::Get('path.root.url') . substr($sFilePath, 1);
+        }
+
         $sDriverName = $this->DefineDriver($sFilePath);
         $oDriver = $this->GetDriver($sDriverName);
         return $oDriver->Dir2Url($sFilePath);
@@ -885,6 +889,10 @@ class ModuleUploader extends Module {
      * @return string|bool
      */
     public function Url2Dir($sUrl) {
+
+        if ($sUrl[0] == '@') {
+            return Config::Get('path.root.dir') . substr($sUrl, 1);
+        }
 
         $aDrivers = $this->GetRegisteredDrivers();
         foreach ($aDrivers as $sDriver) {
@@ -1126,6 +1134,9 @@ class ModuleUploader extends Module {
             }
         }
 
+        if ($sUrl[0] == '@') {
+            $sUrl = Config::Get('path.root.url') . substr($sUrl, 1);
+        }
         return $sUrl;
 
     }
