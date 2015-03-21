@@ -17,6 +17,13 @@
                 {if $menu}
                     {if in_array($menu,$aMenuContainers)}{$aMenuFetch.$menu}{else}{include file="menus/menu.$menu.tpl"}{/if}
                 {/if}
+                <li class="dropdown right menu-hidden-container hidden">
+                    <a data-toggle="dropdown" href="#" class="menu-hidden-trigger">
+                        {$aLang.more}<span class="caret"></span>
+                    </a>
+                    <!-- контейнер скрытых элементов -->
+                    <ul class="header-menu-hidden dropdown-menu animated fadeIn dropdown-content-menu"></ul>
+                </li>
             </ul>
         </div>
     </div>

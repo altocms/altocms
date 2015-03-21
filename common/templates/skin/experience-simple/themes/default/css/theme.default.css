@@ -71,9 +71,6 @@ ________________________________________________________________________________
   /** ПОДМЕНЮ ПОЛЬЗОВАТЕЛЯ
     __________________________________________________*/
 }
-.navbar-main .navbar-collapse {
-  max-height: 1000px;
-}
 .navbar-main .navbar-brand {
   padding: 15px 16px;
   height: 52px;
@@ -585,7 +582,7 @@ _________________________________________________________*/
   border: 0;
   border-radius: 0;
   background: #e6ebee;
-  box-shadow: none;
+  box-shadow: 0 14px 11px rgba(0, 0, 0, 0.1);
 }
 .dropdown-menu.dropdown-content-menu > li {
   width: 100%;
@@ -601,6 +598,14 @@ _________________________________________________________*/
 .dropdown-menu.dropdown-content-menu > li > a:focus {
   background-color: #f5f6f8;
   color: #d25151;
+}
+.dropdown-menu.dropdown-content-menu a {
+  margin: 0 !important;
+  border-bottom: 0 !important;
+}
+.right-placed-menu .dropdown-menu {
+  left: auto;
+  right: 0;
 }
 /* МЕНЮ В СВЁРНУТОМ СОСТОЯНИИ
 _________________________________________________________*/

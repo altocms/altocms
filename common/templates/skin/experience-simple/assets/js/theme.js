@@ -507,7 +507,29 @@ $(function () {
     $('.spoiler-slider')
         .on('click', function(){
             $(this).parent().next().slideToggle();
-        })
+        });
 
+    $('.navbar-main>.container').altoCollapsedMenu({
+        collapse: '.main.nav.nav-content',
+        hidden: '.menu-hidden',
+        widthCorrect: 60,
+        other: [
+            '.navbar-header',
+            '.navbar-user'
+        ]
+    });
 
+    $('.content-write .right-placed-menu').parent().altoCollapsedMenu({
+        collapse: '.right-placed-menu',
+        hidden: '.topic-menu-hidden',
+        widthCorrect: 20,
+        other: [        ]
+    });
+
+    $('#navbar-content').altoCollapsedMenu({
+        collapse: '>ul',
+        hidden: '.header-menu-hidden',
+        widthCorrect: 20,
+        other: [        ]
+    });
 });

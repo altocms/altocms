@@ -104,7 +104,7 @@ _________________________________________________________*/
     border: 0;
     border-radius: 0;
     background: @navbar-content-default-background;
-    box-shadow: none;
+    box-shadow: 0 14px 11px rgba(0,0,0,.1);
 
     & > li {
         width: 100%;
@@ -112,6 +112,17 @@ _________________________________________________________*/
 
         .dropdown-content-menu-link();
     }
+
+    a {
+        margin: 0 !important;
+        border-bottom: 0 !important;
+    }
+
+}
+
+.right-placed-menu .dropdown-menu {
+    left: auto;
+    right: 0;
 }
 
 

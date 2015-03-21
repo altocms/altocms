@@ -49,6 +49,14 @@
                             </a>
                         </li>
                     {/if}
+
+                    <li class="dropdown right menu-hidden-container hidden">
+                        <a data-toggle="dropdown" href="#" class="menu-hidden-trigger">
+                            {$aLang.more}<span class="caret"></span>
+                        </a>
+                        <!-- контейнер скрытых элементов -->
+                        <ul class="topic-menu-hidden dropdown-menu animated fadeIn dropdown-content-menu"></ul>
+                    </li>
                 </ul>
             </div>
         </div>

@@ -3,17 +3,6 @@
 
  <script>
      $(function(){
-//         function isBreakpoint( alias ) {
-//             return $('.device-' + alias).is(':visible');
-//         }
-//         if (isBreakpoint('lg') || isBreakpoint('md')) {
-//             $('#navbar-main > .nav a').not('.user-button').not('.user_activity_items a').addClass('hvr-overline-reveal');
-//             $('#navbar-main > .nav a').not('.user-button').not('.user_activity_items a').removeClass('hvr-leftline-reveal');
-//         } else {
-//             $('#navbar-main > .nav a').not('.user-button').not('.user_activity_items a').addClass('hvr-leftline-reveal');
-//             $('#navbar-main > .nav a').not('.user-button').not('.user_activity_items a').removeClass('hvr-overline-reveal');
-//         }
-
          $('.dropdown-user-menu a').not('.user_activity_items a').addClass('hvr-leftline-reveal');
      })
  </script>
@@ -40,24 +29,33 @@
             </a>
         </div>
 
+
+
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="navbar-main">
-            <ul class="main nav navbar-nav">
+            <ul class="main nav navbar-nav nav-content">
                 {hook run='header_top_begin'}
                 {menu id='main' class='nav navbar-nav' hideul=true}
                 {hook run='header_top_end'}
+                <li class="dropdown right menu-hidden-container hidden">
+                    <a data-toggle="dropdown" href="#" class="menu-hidden-trigger">
+                        {$aLang.more}<span class="caret"></span>
+                    </a>
+                    <!-- контейнер скрытых элементов -->
+                    <ul class="menu-hidden dropdown-menu animated fadeIn dropdown-content-menu"></ul>
+                </li>
             </ul>
-            <ul class="nav navbar-nav navbar-right">
+
+
+            <ul class="nav navbar-nav navbar-right navbar-user">
                 <li class="dropdown">
 
                     {hook run='menu_blog'}
 
                     {if E::IsUser()}
                         {menu id='user' class='nav navbar-nav navbar-right' hideul=true}
-
                     {else}
                         {menu id='login' class='nav navbar-nav navbar-right' hideul=true}
-
                     {/if}
 
                 </li>

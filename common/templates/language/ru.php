@@ -1365,7 +1365,7 @@ return array(
     'date_hours_back'                           => '%%hours%% час назад; %%hours%% часа назад; %%hours%% часов назад',
     'date_hours_back_less'                      => 'Менее часа назад',
     'today'                                     => 'Сегодня',
-    'more'                                      => 'еще',
+    'more'                                      => 'ещё',
 
     'userbar_hello'                             => 'Привет',
     'userbar_messages_you_have'                 => 'У вас',
