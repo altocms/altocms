@@ -891,11 +891,21 @@ _________________________________________________________________*/
   border-bottom-color: #1c374c;
 }
 .toolbar {
+  position: fixed;
   right: 24px;
   top: 154px;
   width: 42px;
+  z-index: 2;
 }
-.toolbar div.toolbar-button > a {
+.toolbar > div.toolbar-button {
+  margin-bottom: 8px;
+}
+.toolbar .toolbar-menu-popover > a,
+.toolbar .toolbar-menu-popover > .menu-container {
+  border: 1px solid #e0e0e0 !important;
+}
+.toolbar div.toolbar-button > a,
+.toolbar div.toolbar-button > .menu-container {
   height: 42px;
   width: 42px;
   border: 0 !important;
@@ -903,11 +913,31 @@ _________________________________________________________________*/
   font-size: 24px;
   line-height: 34px;
   background-color: #f2f6f7;
+  background: #fafafa;
+  margin-right: 4px;
+  text-align: center;
+  vertical-align: bottom;
+  padding: 3px 0 0 0;
+  display: block;
+  border-bottom: 0;
+  cursor: pointer;
+}
+.toolbar div.toolbar-button > a:last-child,
+.toolbar div.toolbar-button > .menu-container:last-child,
+.toolbar div.toolbar-button > a.last,
+.toolbar div.toolbar-button > .menu-container.last {
+  border-bottom: 1px solid #e0e0e0;
 }
 .toolbar div.toolbar-button > a:hover,
-.toolbar div.toolbar-button > a.active {
+.toolbar div.toolbar-button > .menu-container:hover,
+.toolbar div.toolbar-button > a.active,
+.toolbar div.toolbar-button > .menu-container.active {
   color: #ffffff !important;
   background-color: #1c374c !important;
+}
+.toolbar div.toolbar-button > a.next,
+.toolbar div.toolbar-button > .menu-container.next {
+  margin-left: 32px;
 }
 .toolbar-menu {
   background-color: #f5f6f8;
@@ -961,7 +991,7 @@ _________________________________________________________________*/
 .toolbar-menu-popover > .popover .arrow:after {
   border-left-color: #f5f6f8;
 }
-.toolbar-write > a {
+.toolbar-write > .menu-container {
   position: relative;
 }
 .toolbar-write li {

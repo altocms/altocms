@@ -43,9 +43,7 @@
                 {/if}
         </ul>
     </div>
-    <a href="#"
-       onclick="return false;"
-       data-toggle="popover"
-       class="toolbar-exit-button link link-light-gray"><span class="fa fa-pencil"></span></a>
+    <div data-toggle="popover"
+         class="toolbar-exit-button link link-light-gray menu-container"><span class="fa fa-pencil"></span></div>
 </div>
 {/if}

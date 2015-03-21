@@ -1,13 +1,21 @@
 //@import "../var.experience_simple.less";
-
-
 .toolbar {
-
+    position: fixed;
     right: @toolbar-right;
     top: @toolbar-top;
     width: @toolbar-width;
+    z-index: 2;
 
-    div.toolbar-button > a {
+    & > div.toolbar-button {
+        margin-bottom: 8px;
+    }
+
+    .toolbar-menu-popover > a, .toolbar-menu-popover > .menu-container {
+        border: 1px solid @paginator-border-color !important;
+
+    }
+
+    div.toolbar-button > a, div.toolbar-button > .menu-container {
         height: @toolbar-width;
         width: @toolbar-width;
         border: 0 !important;
@@ -16,14 +24,35 @@
         line-height: @toolbar-width - 8;
         background-color: @toolbar-background;
 
+        background: @paginator-background-color;
+        margin-right: @paginator-margin;
+        text-align: center;
+        vertical-align: bottom;
+        padding: 3px 0 0 0;
+        display: block;
+        border-bottom: 0;
+
+        &:last-child, &.last {
+            border-bottom: 1px solid @paginator-border-color;
+        }
+
+        cursor: pointer;
+
         &:hover, &.active {
             color: @toolbar-active-color !important;
             background-color: @toolbar-active-background-color !important;
         }
 
+
+
+        &.next {
+            margin-left: @paginator-next-margin - @paginator-margin;
+        }
+
     }
 
 }
+
 
 .toolbar-menu {
     background-color: @toolbar-popover-color;
@@ -103,7 +132,7 @@
 //@navbar-main-default-submenu-font-size:     @navbar-sub-menu-font-size; // Размер шрифта основного меню (default = 13px)
 
 .toolbar-write {
-    & >a {
+    & >.menu-container {
         position: relative;
     }
 
