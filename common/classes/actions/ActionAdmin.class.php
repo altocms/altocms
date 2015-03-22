@@ -3628,9 +3628,13 @@ class ActionAdmin extends Action {
                 $sSubMenuName = Config::Get("menu.data.{$oMenu->getId()}.list.{$sRoot}.submenu");
                 if (!$sSubMenuName) {
                     $sSubMenuName = 'submenu_' . F::RandomStr(10);
-                    // Сохраним указатьль на подменю
-                    Config::WriteCustomConfig(array("menu.data.{$oMenu->getId()}.list.{$sRoot}.submenu" => $sSubMenuName));
-                    Config::Set("menu.data.{$oMenu->getId()}.list.{$sRoot}.submenu", $sSubMenuName);
+                    // Сохраним указатель на подменю
+                    $sMenuListKey = "menu.data.{$oMenu->getId()}.list";
+                    $aMenu = C::Get($sMenuListKey);
+                    if ($aMenu) {
+                        $aMenu[$sRoot]['submenu'] = $sSubMenuName;
+                        C::WriteCustomConfig(array($sMenuListKey => $aMenu), false);
+                    }
                     // Сохраним само пордменю
                     $aSubmenu = array(
                         'init'        => array(

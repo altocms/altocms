@@ -314,6 +314,10 @@ class ModuleMenu extends Module {
         // Результирующий набор меню
         $aItems = array();
 
+        if (!$aFillSet) {
+            return $aItems;
+        }
+
         //
         if (isset($aFillSet[0]) && $aFillSet[0] == '*') {
             $aFillSet = (isset($aMenu['list']) && $aMenu['list']) ? array_keys($aMenu['list']) : array();

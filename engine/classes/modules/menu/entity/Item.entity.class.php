@@ -234,7 +234,7 @@ class ModuleMenu_EntityItem extends Entity {
      */
     public function getOptions() {
         $aOptions = isset($this->_aData['item_options']) ? $this->_aData['item_options'] : NULL;
-        if (preg_match('~submenu_[a-f0-9]{10}~', (string)$this->getSubMenuId())) {
+        if ($this->getSubMenuId() && preg_match('~submenu_[a-f0-9]{10}~', $this->getSubMenuId())) {
             $aOptions = E::GetEntity('Menu_ItemOptions', Config::Get('menu.submenu.options'));
         }
         return $aOptions;
