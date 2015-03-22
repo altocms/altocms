@@ -44,7 +44,7 @@ $config['view']['show_rating'] = false;
  *      - collapsed: элементы располагаются в строку, но "лишние" при этом сворачиваются в выпадающее меню;
  *      - select: элементы выводятся в виде выпадающего списка.
  */
-$config['view']['content_type_menu'] = 'collapsed';
+$config['view']['content_type_menu'] = 'simple';
 
 /*
  * Настройка логотипа, который будет показываться в "шапке" сайта
