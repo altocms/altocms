@@ -519,13 +519,6 @@ $(function () {
         ]
     });
 
-    $('.content-write .right-placed-menu').parent().altoCollapsedMenu({
-        collapse: '.right-placed-menu',
-        hidden: '.topic-menu-hidden',
-        widthCorrect: 20,
-        other: [        ]
-    });
-
     $('#navbar-content').altoCollapsedMenu({
         collapse: '>ul',
         hidden: '.header-menu-hidden',
@@ -533,12 +526,4 @@ $(function () {
         other: [        ]
     });
 
-    $('body').on('click', function (e) {
-        if (!$('li.dropdown').is(e.target)
-            && $('li.dropdown').has(e.target).length === 0
-            && $('.open').has(e.target).length === 0
-        ) {
-            $('li.dropdown').removeClass('open');
-        }
-    });
 });

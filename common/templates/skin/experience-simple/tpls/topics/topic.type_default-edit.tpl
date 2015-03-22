@@ -8,8 +8,24 @@
 <div class="panel panel-default content-write flat">
     <div class="panel-body">
 
+        {$sMenuType=C::Get('view.content_type_menu')}
+        {if $sMenuType=='collapsed'}
+            <script>
+                $(function() {
+                    $('.js-content-type-menu-container').altoCollapsedMenu({
+                        collapse: '.right-placed-menu',
+                        hidden: '.topic-menu-hidden',
+                        widthCorrect: 20,
+                        other: []
+                    });
+                })
+            </script>
+        {/if}
+
+
+
         <div class="panel-header-container">
-            <div class="col-md-6">
+            <div class="col-md-{if $sMenuType=='select'}12{else}6{/if}">
                 <h2 class="panel-header">
                     {if $sMode == 'add'}
                         {$aLang.topic_add}
@@ -18,46 +34,73 @@
                     {/if}
                 </h2>
             </div>
-            <div class="col-md-18">
-                <ul class="right-placed-menu pull-right">
-                    {foreach from=$aContentTypes item=oContentTypeItem}
-                        {if $oContentTypeItem->isAccessible()}
-                            <li {if Router::GetActionEvent() == {$oContentTypeItem->getContentUrl()}} class="active" {/if}>
-                                <a href="{router page='content'}{$oContentTypeItem->getContentUrl()}/add/">
+            <div class="js-content-type-menu-container col-md-{if $sMenuType=='select'}12{else}18{/if}">
+                {if $sMenuType=='select'}
+                    <div class="form-group">
+                        <select name="blog_id" id="blog_id" onchange="location = this.options[this.selectedIndex].value;" class="form-control">
+                        {foreach from=$aContentTypes item=oContentTypeItem}
+                            {if $oContentTypeItem->isAccessible()}
+                                <option value="{router page='content'}{$oContentTypeItem->getContentUrl()}/add/" {if Router::GetActionEvent() == {$oContentTypeItem->getContentUrl()}} class="active" {/if}>
                                     {$oContentTypeItem->getContentTitle()|escape:'html'}
+                                </option>
+                            {/if}
+                        {/foreach}
+                            <option value="{router page='blog'}add">
+                                {$aLang.block_create_blog}
+                            </option>
+                            <option value="{router page='talk'}add">
+                                {$aLang.block_create_talk}
+                            </option>
+                            {hook run='write_item' isPopup=true}
+                            {if $iUserCurrentCountTopicDraft}
+                                <option value="{router page='content'}drafts/" {if Router::GetActionEvent() == 'drafts'} class="active" {/if}>
+                                    {$iUserCurrentCountTopicDraft} {$iUserCurrentCountTopicDraft|declension:$aLang.draft_declension:$sLang}
+                                </option>
+                            {/if}
+                        </select>
+                    </div>
+                {else}
+                    <ul class="right-placed-menu pull-right">
+                        {foreach from=$aContentTypes item=oContentTypeItem}
+                            {if $oContentTypeItem->isAccessible()}
+                                <li {if Router::GetActionEvent() == {$oContentTypeItem->getContentUrl()}} class="active" {/if}>
+                                    <a href="{router page='content'}{$oContentTypeItem->getContentUrl()}/add/">
+                                        {$oContentTypeItem->getContentTitle()|escape:'html'}
+                                    </a>
+                                </li>
+                            {/if}
+                        {/foreach}
+                        <li>
+                            <a href="{router page='blog'}add">
+                                {$aLang.block_create_blog}
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{router page='talk'}add">
+                                {$aLang.block_create_talk}
+                            </a>
+                        </li>
+                        {hook run='write_item' isPopup=true}
+                        {if $iUserCurrentCountTopicDraft}
+                            <li class="divider"></li>
+                            <li {if Router::GetActionEvent() == 'drafts'} class="active" {/if}>
+                                <a href="{router page='content'}drafts/"
+                                   class="write-item-link">
+                                    {$iUserCurrentCountTopicDraft} {$iUserCurrentCountTopicDraft|declension:$aLang.draft_declension:$sLang}
                                 </a>
                             </li>
                         {/if}
-                    {/foreach}
-                    <li>
-                        <a href="{router page='blog'}add">
-                            {$aLang.block_create_blog}
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{router page='talk'}add">
-                            {$aLang.block_create_talk}
-                        </a>
-                    </li>
-                    {hook run='write_item' isPopup=true}
-                    {if $iUserCurrentCountTopicDraft}
-                        <li class="divider"></li>
-                        <li {if Router::GetActionEvent() == 'drafts'} class="active" {/if}>
-                            <a href="{router page='content'}drafts/"
-                               class="write-item-link">
-                                {$iUserCurrentCountTopicDraft} {$iUserCurrentCountTopicDraft|declension:$aLang.draft_declension:$sLang}
-                            </a>
-                        </li>
-                    {/if}
-
-                    <li class="dropdown right menu-hidden-container hidden">
-                        <a data-toggle="dropdown" href="#" class="menu-hidden-trigger">
-                            {$aLang.more}<span class="caret"></span>
-                        </a>
-                        <!-- контейнер скрытых элементов -->
-                        <ul class="topic-menu-hidden dropdown-menu animated fadeIn dropdown-content-menu"></ul>
-                    </li>
-                </ul>
+                        {if $sMenuType=='collapsed'}
+                            <li class="dropdown right menu-hidden-container hidden">
+                                <a data-toggle="dropdown" href="#" class="menu-hidden-trigger">
+                                    {$aLang.more}<span class="caret"></span>
+                                </a>
+                                <!-- контейнер скрытых элементов -->
+                                <ul class="topic-menu-hidden dropdown-menu animated fadeIn dropdown-content-menu"></ul>
+                            </li>
+                        {/if}
+                    </ul>
+                {/if}
             </div>
         </div>
 
