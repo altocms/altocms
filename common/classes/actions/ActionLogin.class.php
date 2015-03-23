@@ -203,7 +203,10 @@ class ActionLogin extends Action {
             R::Location($sRedirect);
             exit;
         } else {
-            E::ModuleViewer()->Assign('bRefreshToHome', true);
+            // E::ModuleViewer()->Assign('bRefreshToHome', true);
+            // Время показа страницы выхода не задано, поэтому просто редирект
+            R::Location(Config::Get('path.root.web'));
+            exit;
         }
     }
 
