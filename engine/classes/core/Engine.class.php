@@ -459,10 +459,10 @@ class Engine extends LsObject {
         // * Создаем объект модуля
         $oModule = new $sModuleClass();
         $oModuleDecorator = Decorator::Create($oModule);
+        $this->aModules[$sModuleClass] = $oModuleDecorator;
         if ($bInit || $sModuleClass == 'ModuleCache') {
             $this->InitModule($oModuleDecorator);
         }
-        $this->aModules[$sModuleClass] = $oModuleDecorator;
         $tm2 = microtime(true);
         $this->nTimeLoadModule += $tm2 - $tm1;
 

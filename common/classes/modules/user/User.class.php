@@ -85,25 +85,22 @@ class ModuleUser extends Module {
         $this->oMapper = E::GetMapper(__CLASS__);
 
         // * Проверяем есть ли у юзера сессия, т.е. залогинен или нет
-        $nUserId = intval(E::ModuleSession()->Get('user_id'));
-        if ($nUserId && ($oUser = $this->GetUserById($nUserId)) && $oUser->getActivate()) {
+        $iUserId = intval(E::ModuleSession()->Get('user_id'));
+        if ($iUserId && ($oUser = $this->GetUserById($iUserId)) && $oUser->getActivate()) {
             if ($this->oSession = $oUser->getSession()) {
                 if ($this->oSession->GetSessionExit()) {
                     // Сессия была закрыта
                     $this->Logout();
                     return;
                 }
-                /**
-                 * Сюда можно вставить условие на проверку айпишника сессии
-                 */
                 $this->oUserCurrent = $oUser;
             }
         }
-        /**
-         * Запускаем автозалогинивание
-         * В куках стоит время на сколько запоминать юзера
-         */
-        $this->AutoLogin();
+        // Если сессия оборвалась по таймауту (не сам пользователь ее завершил),
+        // то пытаемся автоматически авторизоваться
+        if (!$this->oUserCurrent) {
+            $this->AutoLogin();
+        }
 
         // * Обновляем сессию
         if (isset($this->oSession)) {
