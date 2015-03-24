@@ -414,8 +414,8 @@ class Config extends Storage {
                 }
             }
 
-            if (is_array($xConfigData) || is_string($xConfigData)) {
-                $xConfigData = static::KeyReplace($xConfigData, $sRootKey);
+            if (is_array($xConfigData) || (is_string($xConfigData) && strpos($xConfigData, self::KEY_LINK_STR) !== false)) {
+                $xConfigData = $this->_keyReplace($xConfigData, $sRootKey);
             }
             $this->aQuickMap[$sKeyMap] = $xConfigData;
         }
@@ -435,23 +435,28 @@ class Config extends Storage {
      */
     static public function KeyReplace($xConfigData, $sRoot = self::DEFAULT_CONFIG_ROOT) {
 
+        return static::getInstance()->_keyReplace($xConfigData, $sRoot);
+    }
+
+    public function _keyReplace($xConfigData, $sRoot = self::DEFAULT_CONFIG_ROOT) {
+
         $xResult = $xConfigData;
         if (is_array($xConfigData)) {
             $xResult = array();
             if (isset($xConfigData[self::KEY_EXTENDS])) {
-                $aParentData = Config::KeyReplace($xConfigData[self::KEY_EXTENDS]);
+                $aParentData = $this->_keyReplace($xConfigData[self::KEY_EXTENDS]);
                 unset($xConfigData[self::KEY_EXTENDS]);
                 $xConfigData = F::Array_MergeCombo($aParentData, $xConfigData);
             }
             foreach ($xConfigData as $xKey => $xData) {
                 if (is_string($xKey) && strpos($xKey, self::KEY_LINK_STR) !== false) {
-                    $sNewKey = static::KeyReplace($xKey, $sRoot);
+                    $sNewKey = $this->_keyReplace($xKey, $sRoot);
                 } else {
                     $sNewKey = $xKey;
                 }
                 // Changes placeholders for array or string only
                 if (is_array($xData) || (is_string($xData) && strpos($xData, self::KEY_LINK_STR) !== false)) {
-                    $xResult[$sNewKey] = static::KeyReplace($xData, $sRoot);
+                    $xResult[$sNewKey] = $this->_keyReplace($xData, $sRoot);
                 } else {
                     $xResult[$sNewKey] = $xData;
                 }
@@ -459,10 +464,10 @@ class Config extends Storage {
         } elseif (is_string($xConfigData) && !is_numeric($xConfigData)) {
             if (strpos($xConfigData, self::KEY_LINK_STR) !== false && preg_match_all(self::KEY_LINK_PREG, $xConfigData, $aMatch, PREG_SET_ORDER)) {
                 if (count($aMatch) == 1 && $aMatch[0][0] == $xConfigData) {
-                    $xResult = Config::Get($aMatch[0][1], $sRoot);
+                    $xResult = $this->GetValue($aMatch[0][1], $sRoot);
                 } else {
                     foreach ($aMatch as $aItem) {
-                        $sReplacement = Config::Get($aItem[1], $sRoot);
+                        $sReplacement = $this->GetValue($aItem[1], $sRoot);
                         if ($aItem[2] == '___/' && substr($sReplacement, -1) != '/' && substr($sReplacement, -1) != '\\') {
                             $sReplacement .= '/';
                         }
