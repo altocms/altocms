@@ -253,8 +253,20 @@ class Router extends LsObject {
         if (!isset($this->aCurrentUrl['scheme']) && $this->aCurrentUrl['protocol']) {
             $this->aCurrentUrl['scheme'] = $this->aCurrentUrl['protocol'];
         }
+
+        $iPathOffset = intval(C::Get('path.offset_request_url'));
+        $aUrlParts = F::ParseUrl();
+        $sBase = !empty($aUrlParts['base']) ? $aUrlParts['base'] : null;
+        if ($sBase && $iPathOffset) {
+            $aPath = explode('/', trim($aUrlParts['path'], '/'));
+            $iPathOffset = min($iPathOffset, sizeof($aPath));
+            for($i = 0; $i < $iPathOffset; $i++) {
+                $sBase .= '/' . $aPath[$i];
+            }
+        }
+
         $this->aCurrentUrl['root'] = F::File_RootUrl();
-        $this->aCurrentUrl['base'] = F::UrlBase() . '/';
+        $this->aCurrentUrl['base'] = $sBase . '/';
         $this->aCurrentUrl['lang'] = static::$sLang;
         $this->aCurrentUrl['action'] = static::$sAction;
         $this->aCurrentUrl['event'] = static::$sActionEvent;
