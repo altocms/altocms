@@ -45,6 +45,9 @@
         // Кэш тултипа
         this.cachedData = false;
 
+        // Мышь на активном popover-е
+        this.over = false;
+
         // Опции плагина
         this.options = $.extend({}, $.fn.altoPopover.defaultOptions, options, this.$element.data());
 
@@ -98,11 +101,18 @@
 
                 // Поповер выводится при событии на гиперссылке и контейнере
                 $this.$element[jQuery().hoverIntent ? 'hoverIntent' : 'hover'](
-                    function () {
-                        if ($this.$element.next('.popover').hasClass('in')) {
+                    function (event) {
+                        event.preventDefault();
+                        if ($this.$element.next('.popover').css('display') === 'block') {
                             return $this;
                         }
                         // Сформируем поповер и, если нужно, получим его контент аяксом
+                        //noinspection JSCheckFunctionSignatures
+                        jQuery('[data-alto-role="popover"]').not($this.$element).each(function () {
+                            if ($(this).data('bs.popover') !== undefined) {
+                                $(this).popover('hide');
+                            }
+                        });
                         $this._preparePopover();
                         $this.$element.popover('show');
                     }
@@ -116,6 +126,11 @@
                 $('body').on('click', function () {
                     hidePopover();
                 });
+
+                //$this.$element.next('.popover').mouseout(function () {
+                //    event.stopImmediatePropagation();
+                //    hidePopover();
+                //});
             }
 
             return $this;
@@ -146,6 +161,13 @@
                     title: '',
                     trigger: 'manual'
                 });
+
+            $this.$element.data('bs.popover').tip().mouseenter(function () {
+                $this.over = true;
+            }).mouseleave(function () {
+                $this.over = false;
+                $this.$element.popover('hide');
+            });
 
             if (!$this.cachedData || $this.options.cache === false) {
                 // При открытии, если нужно, то отправим запрос аяксом
