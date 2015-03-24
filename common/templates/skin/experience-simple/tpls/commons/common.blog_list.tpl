@@ -86,7 +86,7 @@
                             {/if}
                         </div>
                     </td>
-                    {if Router::GetActionEvent()!='personal'}
+                    {if E::IsUser() && Router::GetActionEvent()!='personal'}
                     <td>
                         {if (E::UserId() != $oBlog->getOwnerId())}
                         {*{if (E::UserId() != $oBlog->getOwnerId()) && $oBlogType->GetMembership(ModuleBlog::BLOG_USER_JOIN_FREE) || }*}
