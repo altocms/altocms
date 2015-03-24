@@ -263,6 +263,7 @@ class ActionApi extends Action {
         // Установим экшены ресурсов
         $this->AddEventPreg('/^user$/i', '/^\d+$/i', '/^info$/i', 'EventApiUserIdInfo');
         $this->AddEventPreg('/^topic$/i', '/^\d+$/i', '/^info$/i', 'EventApiTopicIdInfo');
+        $this->AddEventPreg('/^blog$/i', '/^\d+$/i', '/^info$/i', 'EventApiBlogIdInfo');
 
         // И экшен ошибки
         $this->AddEventPreg('/^error/i', 'EventError');
@@ -310,6 +311,33 @@ class ActionApi extends Action {
         $sErrorDescription = $this->_ApiResult(
             'api/topic/id/rating',
             $this->_GetParams(array('tid' => R::GetParam(0), 'cmd' => R::GetParam(1)), 'GET')
+        );
+
+        if ($sErrorDescription !== FALSE) {
+            return $this->_Error($sErrorDescription);
+        }
+
+        return TRUE;
+
+    }
+
+
+
+
+
+    /******************************************************************************************************
+     *              МЕТОД BLOG
+     ******************************************************************************************************/
+    /**
+     * Экшен обработки API вида topic/*
+     * @return bool
+     */
+    public function EventApiBlogIdInfo() {
+
+
+        $sErrorDescription = $this->_ApiResult(
+            'api/blog/id/info',
+            $this->_GetParams(array('uid' => R::GetParam(0), 'cmd' => R::GetParam(1)), 'GET')
         );
 
         if ($sErrorDescription !== FALSE) {

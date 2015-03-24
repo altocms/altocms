@@ -56,7 +56,15 @@
                 <tr>
                     <td>
                         <div class="blog-name-container">
-                            <a href="{$oBlog->getUrlFull()}" class="blog-name">
+                            <a data-alto-role="popover"
+                               data-type="blog"
+                               data-api="blog/{$oBlog->getId()}/info"
+                               data-api-param-tpl="default"
+                               data-trigger="hover"
+                               data-placement="top"
+                               data-animation="true"
+                               data-cache="false"
+                               href="{$oBlog->getUrlFull()}" class="blog-name">
                                 {if Router::GetActionEvent()=='personal'}
                                     <img src="{$oUserOwner->getAvatarUrl('48x48crop')}" class="mar6" alt="{$oUserOwner->getDisplayName()}"/>
                                 {else}

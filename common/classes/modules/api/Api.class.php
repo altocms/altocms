@@ -107,6 +107,34 @@ class ModuleApi extends Module {
     }
 
     /**
+     * Получение сведений о блоге
+     * @param string $aParams Идентификатор пользователя
+     * @return bool|array
+     */
+    public function ApiBlogIdInfo($aParams) {
+
+        /** @var ModuleBlog_EntityBlog $oBlog */
+        if (!($oBlog = E::ModuleBlog()->GetBlogById($aParams['uid']))) {
+            return FALSE;
+        }
+
+        return $this->_PrepareResult(array('oBlog' => $oBlog), array(
+            'id'          => $oBlog->getId(),
+            'title'       => $oBlog->getTitle(),
+            'description' => $oBlog->getDescription(),
+            'logo'        => $oBlog->getAvatarUrl(),
+            'date'        => $oBlog->getDateAdd(),
+            'users'       => $oBlog->getCountUser(),
+            'topics'      => $oBlog->getCountTopic(),
+            'rating'      => $oBlog->getRating(),
+            'votes'       => $oBlog->getCountVote(),
+            'link'        => $oBlog->getUrl(),
+            'rss'         => C::Get('path.root.web') . "rss/blog/{$oBlog->getUrl()}/",
+        ));
+
+    }
+
+    /**
      * Получение сведений о рейтинге топика
      * @param string $aParams Идентификатор пользователя
      * @return bool|array

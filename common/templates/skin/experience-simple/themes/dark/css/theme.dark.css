@@ -2479,6 +2479,7 @@ span.counter {
   position: relative;
   text-overflow: ellipsis;
   /* Градиент */
+  position: inherit;
 }
 .panel-table td {
   padding: 15px 0;
@@ -2666,6 +2667,9 @@ span.counter {
 [data-alto-role="popover"] + .popover * {
   font-weight: normal !important;
 }
+[data-alto-role="popover"][data-type="blog"] + .popover .alto-popover-content {
+  height: 308px !important;
+}
 .topic-info .popover-content,
 [data-alto-role="popover"] + .popover .popover-content {
   padding: 0 !important;
@@ -2843,6 +2847,48 @@ span.counter {
   border-radius: 100px;
   top: 8px;
   left: 8px;
+}
+.topic-info .blog-info-default-container,
+[data-alto-role="popover"] + .popover .blog-info-default-container {
+  padding: 12px;
+  height: 285px !important;
+  max-height: 285px !important;
+}
+.topic-info .blog-info-default-container h1.popover-header,
+[data-alto-role="popover"] + .popover .blog-info-default-container h1.popover-header {
+  white-space: nowrap;
+  overflow: hidden;
+  position: relative;
+  text-overflow: ellipsis;
+  /* Градиент */
+  font-size: 18px !important;
+  text-align: center !important;
+  margin-bottom: 6px !important;
+  margin-top: 0;
+}
+.topic-info .blog-info-default-container img,
+[data-alto-role="popover"] + .popover .blog-info-default-container img {
+  max-width: 150px;
+  border-radius: 150px;
+  margin-bottom: 6px;
+}
+.topic-info .blog-info-default-container td,
+[data-alto-role="popover"] + .popover .blog-info-default-container td {
+  padding: 0;
+}
+.topic-info .blog-info-default-container .text-right,
+[data-alto-role="popover"] + .popover .blog-info-default-container .text-right {
+  text-align: right !important;
+}
+.topic-info .blog-info-default-container .blog-description,
+[data-alto-role="popover"] + .popover .blog-info-default-container .blog-description {
+  margin-bottom: 12px;
+  height: 108px !important;
+  max-height: 108px !important;
+}
+.topic-info .blog-info-default-container table *,
+[data-alto-role="popover"] + .popover .blog-info-default-container table * {
+  font-size: 12px !important;
 }
 [data-alto-role="popover"][data-placement="bottom"] + .popover {
   left: 17px !important;
