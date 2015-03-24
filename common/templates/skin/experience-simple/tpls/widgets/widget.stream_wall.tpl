@@ -2,6 +2,13 @@
  {* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
 
 {if $aWall}
+    <script>
+        $(function(){
+            $('.js-title-comment').tooltip();
+            jQuery('.feed-topic [data-alto-role="popover"]')
+                    .altoPopover(false);
+        })
+    </script>
     {foreach $aWall as $oWall}
         {$oUser=$oWall->getUser()}
         {$oWallUser=$oWall->getWallUser()}
@@ -9,7 +16,14 @@
         <div id="js-title-comment-{$oWall->getId()}" class="feed-topic"
              title="{$oWall->getText()|strip_tags|trim|truncate:150:'...'|escape:'html'}">
             <ul>
-                <li class="user-block">
+                <li data-alto-role="popover"
+                    data-api="user/{$oUser->getId()}/info"
+                    data-api-param-tpl="default"
+                    data-trigger="hover"
+                    data-placement="top"
+                    data-animation="true"
+                    data-cache="true"
+                    class="user-block">
                     <img src="{$oUser->getAvatarUrl('20x20crop')}" alt="{$oUser->getDisplayName()}"/>
                     <a class="userlogo link link-dual link-lead link-clear" href="{$oUser->getProfileUrl()}">
                         {$oUser->getDisplayName()}

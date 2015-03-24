@@ -91,7 +91,14 @@
                                  <td class="bot0">{$aLang.blog_user_administrators} ({$iCountBlogAdministrators}):</td>
                                  <td class="bot0">
                                 <span class="avatar">
-                                    <a class="link link-clear" href="{$oUserOwner->getProfileUrl()}">
+                                    <a data-alto-role="popover"
+                                       data-api="user/{$oUserOwner->getId()}/info"
+                                       data-api-param-tpl="default"
+                                       data-trigger="hover"
+                                       data-placement="top"
+                                       data-animation="true"
+                                       data-cache="true"
+                                       class="link link-clear" href="{$oUserOwner->getProfileUrl()}">
                                         <img src="{$oUserOwner->getAvatarUrl('24x24crop')}" class="bor32" alt="avatar"/>
                                     </a>
                                     <a href="{$oUserOwner->getProfileUrl()}">{$oUserOwner->getDisplayName()}</a>
@@ -102,7 +109,14 @@
                                              <br/>
                                              <span class="user-avatar">
                                             <a class="link link-clear" href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl('24x24crop')}"  class="bor32" alt="avatar"/></a>
-                                            <a href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
+                                            <a data-alto-role="popover"
+                                               data-api="user/{$oUser->getId()}/info"
+                                               data-api-param-tpl="default"
+                                               data-trigger="hover"
+                                               data-placement="top"
+                                               data-animation="true"
+                                               data-cache="true"
+                                               href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
                                         </span>
                                          {/foreach}
                                      {/if}
@@ -118,7 +132,14 @@
                                              {$oUser=$oBlogUser->getUser()}
                                              <span class="user-avatar">
                                                 <a href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl('24x24crop')}"  class="bor32" alt="avatar"/></a>
-                                                <a href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
+                                                <a data-alto-role="popover"
+                                                   data-api="user/{$oUser->getId()}/info"
+                                                   data-api-param-tpl="default"
+                                                   data-trigger="hover"
+                                                   data-placement="top"
+                                                   data-animation="true"
+                                                   data-cache="true"
+                                                   href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
                                             </span>
                                          {/foreach}
                                      {else}

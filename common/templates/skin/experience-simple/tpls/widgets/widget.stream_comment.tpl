@@ -5,6 +5,8 @@
     <script>
         $(function(){
             $('.js-title-comment').tooltip();
+            jQuery('.comment-info [data-alto-role="popover"]')
+                    .altoPopover(false);
         })
     </script>
     {foreach $aComments as $oComment}
@@ -18,7 +20,14 @@
              data-container="body"
              data-original-title="{$oComment->getText()|strip_tags|trim|truncate:100:'...'|escape:'html'}">
             <ul class="comment-info">
-                <li class="user-block">
+                <li data-alto-role="popover"
+                    data-api="user/{$oUser->getId()}/info"
+                    data-api-param-tpl="default"
+                    data-trigger="hover"
+                    data-placement="top"
+                    data-animation="true"
+                    data-cache="true"
+                    class="user-block">
                     <img src="{$oUser->getAvatarUrl('32x32crop')}" alt="{$oUser->getDisplayName()}"/>
                     <a class="userlogo link link-dual link-lead link-clear" href="{$oUser->getProfileUrl()}">
                         {$oUser->getDisplayName()}

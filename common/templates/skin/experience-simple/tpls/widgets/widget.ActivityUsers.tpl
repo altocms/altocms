@@ -9,6 +9,9 @@
             $(this).trigger('change');
         })
 
+        jQuery('.widget-userfeed-activity [data-alto-role="popover"]')
+                .altoPopover(false);
+
         ls.stream.options.elements.userItem = function(el) {
             var t = $('<li class="checkbox pal0">'+
             '<label>' +
@@ -63,17 +66,26 @@
                     {foreach $aStreamSubscribedUsers as $oUser}
                         {$iUserId=$oUser->getId()}
                         {if !isset($aStreamFriends.$iUserId)}
-                            <li class="checkbox pal0">
+                            <li data-alto-role="popover"
+                                data-api="user/{$oUser->getId()}/info"
+                                data-api-param-tpl="default"
+                                data-trigger="hover"
+                                data-placement="left"
+                                data-animation="true"
+                                data-cache="true"
+                                class="checkbox pal0">
                                 <label>
                                     <input class="streamUserCheckbox"
                                            type="checkbox"
                                            id="strm_u_{$iUserId}"
                                            checked="checked"
                                            onchange="if (jQuery(this).prop('checked')) { ls.stream.subscribe({$iUserId}) } else { ls.stream.unsubscribe({$iUserId}) } "/>&nbsp;
-                                    <a href="{$oUser->getProfileUrl()}" title="{$oUser->getDisplayName()}"><img
+                                    <a
+                                       href="{$oUser->getProfileUrl()}" title="{$oUser->getDisplayName()}"><img
                                                 src="{$oUser->getAvatarUrl('24x24crop')}" alt="avatar"
                                                 class="avatar"/></a>
-                                    <a href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
+                                    <a
+                                       href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
                                 </label>
                             </li>
                         {/if}

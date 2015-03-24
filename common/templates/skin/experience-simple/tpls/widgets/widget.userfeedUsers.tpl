@@ -7,7 +7,9 @@
         $(function(){
             $('.widget-userfeed input:checkbox').off('ifChanged').on('ifChanged', function(e) {
                 $(this).trigger('change');
-            })
+            });
+            jQuery('.widget-userfeed [data-alto-role="popover"]')
+                    .altoPopover(false);
         })
     </script>
 
@@ -38,7 +40,14 @@
                                 {$iUserId=$oUser->getId()}
 
                                 {if !isset($aUserfeedFriends.$iUserId)}
-                                    <li class="checkbox pal0 js-userfeed-item" data-user-id="{$iUserId}">
+                                    <li data-alto-role="popover"
+                                        data-api="user/{$oUser->getId()}/info"
+                                        data-api-param-tpl="default"
+                                        data-trigger="hover"
+                                        data-placement="left"
+                                        data-animation="true"
+                                        data-cache="true"
+                                        class="checkbox pal0 js-userfeed-item" data-user-id="{$iUserId}">
                                         <label>
                                             <input type="checkbox" checked="checked" />&nbsp;
                                             <a href="{$oUser->getProfileUrl()}" title="{$oUser->getDisplayName()}"><img
@@ -98,7 +107,14 @@
                     <ul class="list-unstyled max-height-200 js-userfeed-friendlist">
                         {foreach $aUserfeedFriends as $oUser}
                             {$iUserId=$oUser->getId()}
-                            <li class="checkbox pal0 js-userfeed-item" data-user-id="{$iUserId}">
+                            <li data-alto-role="popover"
+                                data-api="user/{$oUser->getId()}/info"
+                                data-api-param-tpl="default"
+                                data-trigger="hover"
+                                data-placement="left"
+                                data-animation="true"
+                                data-cache="true"
+                                class="checkbox pal0 js-userfeed-item" data-user-id="{$iUserId}">
                                 <label>
                                     <input type="checkbox" {if isset($aUserfeedSubscribedUsers.$iUserId)} checked="checked"{/if}/>&nbsp;
                                     <a href="{$oUser->getProfileUrl()}" title="{$oUser->getDisplayName()}"><img

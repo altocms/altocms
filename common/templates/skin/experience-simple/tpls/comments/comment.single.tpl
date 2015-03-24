@@ -32,7 +32,14 @@
             <div class="comment-content">
                 <div class="comment-tools">
                     <ul>
-                        <li class="comment-user">
+                        <li data-alto-role="popover"
+                            data-api="user/{$oUser->getId()}/info"
+                            data-api-param-tpl="default"
+                            data-trigger="hover"
+                            data-placement="top"
+                            data-animation="true"
+                            data-cache="true"
+                            class="comment-user">
                             <a href="{$oUser->getProfileUrl()}" class="mal0 js-popup-user-{$oUser->getId()}">
                                 <img src="{$oUser->getAvatarUrl(32)}" alt="{$oUser->getDisplayName()}"/>
                             </a>

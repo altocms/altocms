@@ -85,7 +85,14 @@
                                 {foreach $aTalkUserOther as $oTalkUser}
                                     {$oUser=$oTalkUser->getUser()}
                                     {if !$oTalkUser@first}, {/if}
-                                    <span class="nowrap">
+                                    <span data-alto-role="popover"
+                                          data-api="user/{$oUser->getId()}/info"
+                                          data-api-param-tpl="default"
+                                          data-trigger="hover"
+                                          data-placement="right"
+                                          data-animation="true"
+                                          data-cache="true"
+                                          class="nowrap">
                                         <img src="{$oUser->getAvatarUrl(16)}" alt="{$oUser->getDisplayName()}"/>&nbsp;
                                     <a href="{$oUser->getProfileUrl()}" class="user {if $oTalkUser->getUserActive()!=$TALK_USER_ACTIVE}inactive{/if}">{$oUser->getDisplayName()}</a>
                                     </span>

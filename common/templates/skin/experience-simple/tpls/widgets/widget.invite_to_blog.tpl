@@ -31,7 +31,14 @@
                     <ul id="invited_list" class="list-unstyled text-muted">
                         {foreach $aBlogUsersInvited as $oBlogUser}
                             {$oUser=$oBlogUser->getUser()}
-                            <li id="blog-invite-remove-item-{$oBlogEdit->getId()}-{$oUser->getId()}">
+                            <li data-alto-role="popover"
+                                data-api="user/{$oUser->getId()}/info"
+                                data-api-param-tpl="default"
+                                data-trigger="hover"
+                                data-placement="left"
+                                data-animation="true"
+                                data-cache="true"
+                                    id="blog-invite-remove-item-{$oBlogEdit->getId()}-{$oUser->getId()}">
                                 <span>
                                     <a class="link-clear" href="{$oUser->getProfileUrl()}" title="{$oUser->getDisplayName()}"><img
                                                 src="{$oUser->getAvatarUrl(16)}" alt="{$oUser->getDisplayName()}"

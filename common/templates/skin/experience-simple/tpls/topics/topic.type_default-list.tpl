@@ -32,7 +32,7 @@
                     <li data-alto-role="popover"
                         data-api="user/{$oUser->getId()}/info"
                         data-api-param-tpl="default"
-                        data-trigger="click"
+                        data-trigger="hover"
                         data-placement="bottom"
                         data-animation="true"
                         data-cache="true"

@@ -50,7 +50,14 @@
                             </a>
                         </td>
                         <td class="user-name {if !$oUserList->getProfileName()}no-realname{/if}">
-                            <a href="{$oUserList->getProfileUrl()}"  style="font-weight: normal;" class="link link-lead link-blue link-clear">
+                            <a data-alto-role="popover"
+                               data-api="user/{$oUserList->getId()}/info"
+                               data-api-param-tpl="default"
+                               data-trigger="hover"
+                               data-placement="right"
+                               data-animation="true"
+                               data-cache="true"
+                               href="{$oUserList->getProfileUrl()}"  style="font-weight: normal;" class="link link-lead link-blue link-clear">
                                 {if $oUserNote}<i class="fa fa-globe"></i>&nbsp;
                                 <span class="fa fa-comment-o cup"
                                                   data-toggle="tooltip"

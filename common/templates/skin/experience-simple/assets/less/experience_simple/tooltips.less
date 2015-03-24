@@ -2,18 +2,27 @@
 @import "../bootstrap/mixins";
 @import "mixins";
 
+[data-alto-role="popover"] + .popover {
+    max-width: 340px !important;
+    border-radius: 0 !important;
+    //        border: 0 !important;
+    padding: 0 !important;
+    * {
+        font-weight: normal !important;
+    }
+}
 
-.topic-info {
-    .popover {
-        left: 17px !important;
-        max-width: 340px !important;
-        border-radius: 0 !important;
-//        border: 0 !important;
-        padding: 0 !important;
-    }
-    .arrow {
-        left: 50px !important;
-    }
+.topic-info, [data-alto-role="popover"] + .popover {
+//    .popover {
+//        left: 17px !important;
+//        max-width: 340px !important;
+//        border-radius: 0 !important;
+////        border: 0 !important;
+//        padding: 0 !important;
+//    }
+//    .arrow {
+//        left: 50px !important;
+//    }
     .popover-content {
         padding: 0 !important;
     }
@@ -24,7 +33,7 @@
         .loader {
             width: 100%;
             height: 100%;
-            background: url(../images/loader.gif) 45% 50% no-repeat;
+            //background: url(../images/loader.gif) 45% 50% no-repeat;
         }
     }
     .user-info-default-container {
@@ -50,6 +59,8 @@
                     li {
                         line-height: 30px;
                         vertical-align: baseline;
+                        float: left;
+                        padding: 0 !important;
                     }
                     a {
                         font-size: 13px;
@@ -60,12 +71,13 @@
                 }
 
                 .user-info-default-rss {
+                    margin-right: 0 !important;
                     * {
                         color: @main-gray !important;
                     }
                     i {
                         font-size: 14px !important;
-                        margin-right: 8px;
+                        margin-right: 8px !important;
                     }
                 }
                 .user-info-default-username {
@@ -114,7 +126,11 @@
                     li {
                         display: block;
                         width: 100%;
+                        padding: 0 !important;
                         height: 24px !important;
+                        &:before {
+                            content: '' !important;
+                        }
                     }
                     a {
                         font-size: 13px;
@@ -135,4 +151,30 @@
         }
     }
 
+}
+
+[data-alto-role="popover"][data-placement="bottom"] + .popover {
+    left: 17px !important;
+    .arrow {
+        left: 50px !important;
+    }
+}
+[data-alto-role="popover"][data-placement="left"] + .popover {
+    //top: 124px !important;
+    max-width: 341px !important;
+    .arrow {
+        left: auto !important;
+        //top: 32px !important;
+
+    }
+}
+[data-alto-role="popover"][data-placement="right"] + .popover {
+    max-width: 340px !important;
+    .arrow {
+    }
+}
+[data-alto-role="popover"][data-placement="top"] + .popover {
+    .arrow:after {
+        border-top-color: @lighten-gray !important;;
+    }
 }

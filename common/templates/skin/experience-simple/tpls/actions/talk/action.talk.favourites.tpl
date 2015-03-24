@@ -46,7 +46,14 @@
                             {/foreach}
                             {foreach $aTalkUserOther as $oTalkUser}
                                 {$oUser=$oTalkUser->getUser()}
-                                {if !$oTalkUser@first}, {/if}<a href="{$oUser->getProfileUrl()}"
+                                {if !$oTalkUser@first}, {/if}<a data-alto-role="popover"
+                                                                data-api="user/{$oUser->getId()}/info"
+                                                                data-api-param-tpl="default"
+                                                                data-trigger="hover"
+                                                                data-placement="right"
+                                                                data-animation="true"
+                                                                data-cache="true"
+                                                                href="{$oUser->getProfileUrl()}"
                                                                 class="user {if $oTalkUser->getUserActive()!=$TALK_USER_ACTIVE}inactive{/if}">{$oUser->getDisplayName()}</a>
                             {/foreach}
                         {/strip}
