@@ -1846,6 +1846,9 @@ fieldset[disabled] .btn-gray.active {
 .comment-reply * {
   white-space: normal;
 }
+.comment-tools {
+  margin-bottom: 8px;
+}
 .comment-tools ul {
   display: block;
   width: 100%;

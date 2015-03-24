@@ -29,7 +29,7 @@
         <div class="panel-body">
         {if !$oComment->getDelete() OR $bOneComment OR E::IsAdmin() OR $oComment->isDeletable()}
             <a name="comment{$oComment->getId()}"></a>
-            <div class="comment-content">
+            <div>
                 <div class="comment-tools">
                     <ul>
                         <li data-alto-role="popover"
@@ -112,7 +112,7 @@
                 </div>
 
 
-                <div id="comment_content_id_{$oComment->getId()}" class="comment-text">
+                <div id="comment_content_id_{$oComment->getId()}" class="comment-text comment-content">
                     {if $bCommentList == true}
                         <div class="small text-muted comment-path">
                             <a href="{$oBlog->getUrlFull()}" class="blog-name">{$oBlog->getTitle()|escape:'html'}</a>,&nbsp;
