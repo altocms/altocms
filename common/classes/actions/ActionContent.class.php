@@ -705,9 +705,7 @@ class ActionContent extends Action {
 
         $aPhotoSetData = E::ModuleMresource()->GetPhotosetData('photoset', $oTopic->getId());
         $oTopic->setPhotosetCount($aPhotoSetData['count']);
-        if ($aPhotoSetData['cover']) {
-            $oTopic->setPhotosetMainPhotoId($aPhotoSetData['cover']);
-        }
+        $oTopic->setPhotosetMainPhotoId($aPhotoSetData['cover']);
 
         // * Publish or save as a draft
         $bSendNotify = false;

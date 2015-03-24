@@ -29,7 +29,7 @@
         // Опции - типа объект
         this.options = $.extend({}, $.fn.altoMultiUploader.defaultOptions, options, this.$element.data());
 
-        this.$link = this.$element.find('.js-alto-multi-uploader-link');
+        this.$photoset = this.$element.find(this.options.photoset);
         this.templateHTML = $(this.options.result_template).html();
         this.$list = this.$element.find('.js-alto-multi-uploader-list');
         this.$preview = this.$element.find('.js-alto-multi-uploader-target-preview');
@@ -217,7 +217,7 @@
                         ls.msg.error(null, result.sMsg);
                     } else {
                         ls.msg.notice(null, result.sMsg);
-                        $this.$list.find('.js-uploader-item-cover').text($this.options.langCoverNeed);
+                        $this.$photoset.find('.js-uploader-item-cover').text($this.options.langCoverNeed);
                         if (result.bPreview) {
                             $('#uploader_item_' + id).find('.js-uploader-item-cover').text($this.options.langCoverDone);
                         }
@@ -394,6 +394,7 @@
         maxSize: 6,
         maxWidth: 8000,
         maxHeight: 6000,
+        photoset: '.js-alto-multi-photoset-list',
         maxSizeError: 'Wrong file size',
         maxWidthError: 'Wrong file width',
         maxHeightError: 'Wrong file height',

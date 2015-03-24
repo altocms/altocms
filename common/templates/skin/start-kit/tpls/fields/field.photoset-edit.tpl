@@ -2,6 +2,7 @@
     $(function () {
         $('.js-alto-multi-uploader')
                 .altoMultiUploader({
+                    photoset: '.js-alto-multi-photoset-list',
                     maxSize: '{C::Get("module.topic.photoset.photo_max_size")/1024}',
                     maxWidth: '{C::Get("module.uploader.images.default.max_width")}',
                     maxHeight: '{C::Get("module.uploader.images.default.max_height")}',
@@ -18,9 +19,9 @@
     {var name="sTemplate"}
         <li id="uploader_item_ID">
             <img src="uploader_item_SRC" width="100px" alt="image"/>
-            <textarea class="form-control" onblur="$('.js-topic-photoset').altoMultiUploader({ description: 'ID' }); return false;"></textarea>
-            <a href="#" class="js-uploader-item-delete" onclick="$('.js-topic-photoset').altoMultiUploader({ remove: 'ID' }); return false;">{$aLang.topic_photoset_photo_delete}</a>
-            <a href="#" class="js-uploader-item-cover" onclick="$('.js-topic-photoset').altoMultiUploader({ cover: 'ID' }); return false;">MARK_AS_PREVIEW</a>
+            <textarea class="form-control" onblur="$('.js-alto-multi-uploader').altoMultiUploader({ description: 'ID' }); return false;"></textarea>
+            <a href="#" class="js-uploader-item-delete" onclick="$('.js-alto-multi-uploader').altoMultiUploader({ remove: 'ID' }); return false;">{$aLang.topic_photoset_photo_delete}</a>
+            <a href="#" class="js-uploader-item-cover" onclick="$('.js-alto-multi-uploader').altoMultiUploader({ cover: 'ID' }); return false;">MARK_AS_PREVIEW</a>
         </li>
     {/var}
 </script>
@@ -31,9 +32,9 @@
         {var name="sPhotosetItem" cache=true}
             <li id="uploader_item_{$oPhoto->getMResourceId()}">
                 <img src="{$oPhoto->getWebPath('100crop')}" width="100px" alt="image"/>
-                <textarea class="form-control" onblur="$('.js-topic-photoset').altoMultiUploader({ description: '{$oPhoto->getMResourceId()}' }); return false;">{$oPhoto->getDescription()}</textarea>
-                <a href="#" class="js-uploader-item-delete" onclick="$('.js-topic-photoset').altoMultiUploader({ remove: '{$oPhoto->getMResourceId()}' }); return false;">{$aLang.topic_photoset_photo_delete}</a>
-                <a href="#" class="js-uploader-item-cover" onclick="$('.js-topic-photoset').altoMultiUploader({ cover: '{$oPhoto->getMResourceId()}' }); return false;">
+                <textarea class="form-control" onblur="$('.js-alto-multi-uploader').altoMultiUploader({ description: '{$oPhoto->getMResourceId()}' }); return false;">{$oPhoto->getDescription()}</textarea>
+                <a href="#" class="js-uploader-item-delete" onclick="$('.js-alto-multi-uploader').altoMultiUploader({ remove: '{$oPhoto->getMResourceId()}' }); return false;">{$aLang.topic_photoset_photo_delete}</a>
+                <a href="#" class="js-uploader-item-cover" onclick="$('.js-alto-multi-uploader').altoMultiUploader({ cover: '{$oPhoto->getMResourceId()}' }); return false;">
                     {if $oPhoto->IsCover()}{$aLang.topic_photoset_is_preview}{else}{$aLang.topic_photoset_mark_as_preview}{/if}
                 </a>
             </li>
@@ -67,7 +68,7 @@
 
                 <input class="js-alto-multi-uploader-target-preview"  name="target_preview" type="hidden"/>
 
-                <ul class="js-alto-multi-uploader-list list-unstyled" {if !$ImagesList}style="display: none;"{/if}>
+                <ul class="js-alto-multi-photoset-list js-alto-multi-uploader-list list-unstyled" {if !$ImagesList}style="display: none;"{/if}>
                     {$ImagesList}
                 </ul>
 
