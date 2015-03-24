@@ -1057,6 +1057,9 @@ class Func {
 
         if (is_null($sUrl) && isset($_SERVER['HTTP_HOST'])) {
             $sUrl = F::UrlScheme(true) . $_SERVER['HTTP_HOST'];
+            if (!empty($_SERVER['REQUEST_URI'])) {
+                $sUrl .= $_SERVER['REQUEST_URI'];
+            }
         }
         $xResult = array(
             'scheme' => null,
