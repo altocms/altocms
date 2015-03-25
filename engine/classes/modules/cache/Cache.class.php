@@ -443,6 +443,15 @@ class ModuleCache extends Module {
      */
     public function Set($xData, $sCacheKey, $aTags = array(), $nTimeLife = false, $sCacheType = null) {
 
+        if ($sCacheType && strpos($sCacheType, ',') !== false) {
+            $aCacheTypes = explode(',', $sCacheType);
+            $bResult = false;
+            foreach($aCacheTypes as $sCacheType) {
+                $bResult = $bResult || $this->Set($xData, $sCacheKey, $aTags, $nTimeLife, $sCacheType ? $sCacheType : null);
+            }
+            return $bResult;
+        }
+
         // Проверяем возможность кеширования
         $nMode = $this->_cacheOn($sCacheType);
         if (!$nMode) {
@@ -503,6 +512,18 @@ class ModuleCache extends Module {
      * @return mixed|bool
      */
     public function Get($xCacheKey, $sCacheType = null) {
+
+        if ($sCacheType && strpos($sCacheType, ',') !== false) {
+            $aCacheTypes = explode(',', $sCacheType);
+            $xResult = false;
+            foreach($aCacheTypes as $sCacheType) {
+                $xResult = $this->Get($xCacheKey, $sCacheType ? $sCacheType : null);
+                if ($xResult !== false) {
+                    return $xResult;
+                }
+            }
+            return $xResult;
+        }
 
         // Checks the possibility of caching and prohibition of caching
         if (!$this->_cacheOn($sCacheType) || ($this->iDisabled & self::DISABLED_GET)) {
@@ -616,6 +637,15 @@ class ModuleCache extends Module {
      */
     public function Delete($sCacheKey, $sCacheType = null) {
 
+        if ($sCacheType && strpos($sCacheType, ',') !== false) {
+            $aCacheTypes = explode(',', $sCacheType);
+            $bResult = false;
+            foreach($aCacheTypes as $sCacheType) {
+                $bResult = $bResult || $this->Delete($sCacheKey, $sCacheType ? $sCacheType : null);
+            }
+            return $bResult;
+        }
+
         if (!$this->bUseCache) {
             return false;
         }
@@ -659,6 +689,16 @@ class ModuleCache extends Module {
         if (!is_array($aTags)) {
             $aTags = array((string)$aTags);
         }
+
+        if ($sCacheType && strpos($sCacheType, ',') !== false) {
+            $aCacheTypes = explode(',', $sCacheType);
+            $bResult = false;
+            foreach($aCacheTypes as $sCacheType) {
+                $bResult = $bResult || $this->CleanByTags($aTags, $sCacheType ? $sCacheType : null);
+            }
+            return $bResult;
+        }
+
         return $this->Clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, $aTags, $sCacheType);
     }
 
