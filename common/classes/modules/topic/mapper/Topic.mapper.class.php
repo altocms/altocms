@@ -361,7 +361,7 @@ class ModuleTopic_MapperTopic extends Mapper {
             = "SELECT
 					COUNT(t.topic_id) AS cnt
 				FROM 
-					?_topic AS t,
+					?_topic AS t
 					LEFT JOIN ?_blog AS b ON t.blog_id=b.blog_id
 				WHERE 
 					1=1
