@@ -33,8 +33,8 @@ class ModuleMenu extends Module {
         // очистим по тегу.
 
         $sCacheKey = md5(serialize($aMenu));
-        if (FALSE === ($data = E::ModuleCache()->Get($sCacheKey))) {
-            E::ModuleCache()->CleanByTags(array($sMenuId));
+        if (FALSE === ($data = E::ModuleCache()->Get($sCacheKey, ',file'))) {
+            E::ModuleCache()->CleanByTags(array($sMenuId), ',file');
 
             return array();
         }
@@ -135,7 +135,8 @@ class ModuleMenu extends Module {
             $aItems,
             md5(serialize($aMenu)),
             array($sMenuId),
-            isset($aMenu['init']['cache']) ? $aMenu['init']['cache'] : 'P30D'
+            isset($aMenu['init']['cache']) ? $aMenu['init']['cache'] : 'P30D',
+            ',file'
         );
 
         // Добавим сформированные данные к конфигу меню
