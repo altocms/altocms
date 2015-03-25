@@ -710,29 +710,32 @@ class ModuleTopic extends Module {
 
         if ($oTopicId instanceof ModuleTopic_EntityTopic) {
             $oTopic = $oTopicId;
-            $nTopicId = $oTopic->getId();
-            $nUserId = $oTopic->getUserId();
+            $iTopicId = $oTopic->getId();
+            $iUserId = $oTopic->getUserId();
         } else {
-            $nTopicId = intval($oTopicId);
-            $oTopic = $this->GetTopicById($nTopicId);
+            $iTopicId = intval($oTopicId);
+            $oTopic = $this->GetTopicById($iTopicId);
             if (!$oTopic) {
                 return false;
             }
-            $nUserId = $oTopic->getUserId();
+            $iUserId = $oTopic->getUserId();
         }
         $oTopicId = null;
 
         $oBlog = $oTopic->GetBlog();
         // * Если топик успешно удален, удаляем связанные данные
-        if ($bResult = $this->oMapper->DeleteTopic($nTopicId)) {
-            $bResult = $this->DeleteTopicAdditionalData($nTopicId);
+        if ($bResult = $this->oMapper->DeleteTopic($iTopicId)) {
+            $bResult = $this->DeleteTopicAdditionalData($iTopicId);
             $this->DeleteMresources($oTopic);
-            E::ModuleBlog()->RecalculateCountTopicByBlogId($oBlog->GetId());
+            if ($oBlog) {
+                // Блог может быть удален до удаления топика
+                E::ModuleBlog()->RecalculateCountTopicByBlogId($oBlog->GetId());
+            }
         }
 
         // * Чистим зависимые кеши
-        E::ModuleCache()->CleanByTags(array('topic_update', 'topic_update_user_' . $nUserId));
-        E::ModuleCache()->Delete("topic_{$nTopicId}");
+        E::ModuleCache()->CleanByTags(array('topic_update', 'topic_update_user_' . $iUserId));
+        E::ModuleCache()->Delete("topic_{$iTopicId}");
 
         return $bResult;
     }
