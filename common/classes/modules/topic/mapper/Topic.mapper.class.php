@@ -393,7 +393,11 @@ class ModuleTopic_MapperTopic extends Mapper {
 					" . $sWhere . "
                 GROUP BY b.blog_type";
         if ($aRows = $this->oDb->select($sql)) {
-            return $aRows;
+            $aResult = array();
+            foreach($aRows as $sBlogType => $aData) {
+                $aResult[$sBlogType] = $aData['cnt'];
+            }
+            return $aResult;
         }
         return array();
     }
