@@ -1392,13 +1392,17 @@ class ModuleBlog_MapperBlog extends Mapper {
             'total' => -1,
         );
         if ($nCalcTotal) {
-            $sLastQuery = trim(E::ModuleDatabase()->GetLastQuery());
-            $n = strpos($sLastQuery, ' LIMIT ');
-            if ($n) {
-                $sql = str_replace('SELECT b.blog_id', 'SELECT COUNT(*) AS cnt', substr($sLastQuery, 0, $n));
-                $aData = $this->oDb->select($sql);
-                if ($aData) {
-                    $aResult['total'] = $aData[0]['cnt'];
+            if (($nOffset == 0) && ($nLimit > 0) && (sizeof($aResult['data']) < $nLimit)) {
+                $aResult['total'] = sizeof($aResult['data']);
+            } else {
+                $sLastQuery = trim(E::ModuleDatabase()->GetLastQuery());
+                $n = strpos($sLastQuery, ' LIMIT ');
+                if ($n) {
+                    $sql = str_replace('SELECT b.blog_id', 'SELECT COUNT(*) AS cnt', substr($sLastQuery, 0, $n));
+                    $aData = $this->oDb->select($sql);
+                    if ($aData) {
+                        $aResult['total'] = $aData[0]['cnt'];
+                    }
                 }
             }
         }

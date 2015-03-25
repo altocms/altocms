@@ -213,10 +213,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 				{AND user_id = ?d}
 			LIMIT 0,1
 				";
-        if ($aRow = $this->oDb->selectRow($sql, $sHash, $nUserId ? $nUserId : DBSIMPLE_SKIP)) {
-            return $aRow['topic_id'];
-        }
-        return null;
+        return intval($this->oDb->selectSell($sql, $sHash, $nUserId ? $nUserId : DBSIMPLE_SKIP));
     }
 
     /**
@@ -362,21 +359,43 @@ class ModuleTopic_MapperTopic extends Mapper {
         $sWhere = $this->buildFilter($aFilter);
         $sql
             = "SELECT
-					count(t.topic_id) as count
+					COUNT(t.topic_id) AS cnt
 				FROM 
-					?_topic as t,
-					?_blog as b
+					?_topic AS t,
+					LEFT JOIN ?_blog AS b ON t.blog_id=b.blog_id
 				WHERE 
 					1=1
-					
 					" . $sWhere . "
-					
-					AND
-					t.blog_id=b.blog_id;";
-        if ($aRow = $this->oDb->selectRow($sql)) {
-            return intval($aRow['count']);
+					;";
+        $xResult = $this->oDb->selectCell($sql);
+        return intval($xResult);
+    }
+
+    /**
+     * Count topics and group them by blog type
+     *
+     * @param array $aFilter
+     *
+     * @return array
+     */
+    public function GetCountTopicsByBlogtype($aFilter) {
+
+        $sWhere = $this->buildFilter($aFilter);
+        $sql
+            = "SELECT
+                    b.blog_type AS ARRAY_KEY,
+					COUNT(t.topic_id) AS cnt
+				FROM
+					?_topic AS t
+					LEFT JOIN ?_blog AS b ON t.blog_id=b.blog_id
+				WHERE
+					1=1
+					" . $sWhere . "
+                GROUP BY b.blog_type";
+        if ($aRows = $this->oDb->select($sql)) {
+            return $aRows;
         }
-        return false;
+        return array();
     }
 
     /**
@@ -401,22 +420,19 @@ class ModuleTopic_MapperTopic extends Mapper {
             = "SELECT
 						t.topic_id
 					FROM 
-						?_topic as t,
-						?_blog as b
+						?_topic AS t,
+						?_blog AS b
 					WHERE 
 						1=1
 						" . $sWhere . "
 						AND
 						t.blog_id=b.blog_id
-					ORDER by " . implode(', ', $aFilter['order']) . " ";
-        $aTopics = array();
-        if ($aRows = $this->oDb->select($sql)) {
-            foreach ($aRows as $aTopic) {
-                $aTopics[] = $aTopic['topic_id'];
-            }
+					ORDER BY " . implode(', ', $aFilter['order']) . " ";
+        if ($aTopicsId = $this->oDb->selectCol($sql)) {
+            return $aTopicsId;
         }
 
-        return $aTopics;
+        return array();
     }
 
     /**
@@ -444,7 +460,7 @@ class ModuleTopic_MapperTopic extends Mapper {
             ORDER BY topic_id DESC
             LIMIT ?d, ?d ";
 
-        $aTopics = array();
+        $aTopicsId = array();
         $aRows = $this->oDb->selectPage(
             $iCount, $sql, $sTag,
             (is_array($aExcludeBlog) && count($aExcludeBlog)) ? $aExcludeBlog : DBSIMPLE_SKIP,
@@ -452,10 +468,10 @@ class ModuleTopic_MapperTopic extends Mapper {
         );
         if ($aRows) {
             foreach ($aRows as $aTopic) {
-                $aTopics[] = $aTopic['topic_id'];
+                $aTopicsId[] = $aTopic['topic_id'];
             }
         }
-        return $aTopics;
+        return $aTopicsId;
     }
 
     /**
@@ -481,7 +497,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 						AND
 						t.topic_rating >= 0
 						{ AND t.blog_id NOT IN(?a) }
-					ORDER by t.topic_rating desc, t.topic_id desc
+					ORDER BY t.topic_rating DESC, t.topic_id DESC
 					LIMIT 0, ?d ";
         $aTopics = array();
         $aRows = $this->oDb->select(
@@ -507,10 +523,10 @@ class ModuleTopic_MapperTopic extends Mapper {
      */
     public function GetTopicTags($iLimit, $aExcludeTopic = array()) {
 
-        $sql
-            = "SELECT
-			tt.topic_tag_text,
-			count(tt.topic_tag_text) as count
+        $sql = "
+            SELECT
+			  tt.topic_tag_text,
+			  COUNT(tt.topic_tag_text) as cnt
 			FROM 
 				?_topic_tag as tt
 			WHERE 
@@ -519,7 +535,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 			GROUP BY 
 				tt.topic_tag_text
 			ORDER BY 
-				count desc
+				cnt DESC
 			LIMIT 0, ?d
 				";
 

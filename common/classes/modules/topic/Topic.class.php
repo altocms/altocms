@@ -95,8 +95,8 @@ class ModuleTopic extends Module {
         if (is_null($aAllowData)) {
             $aAllowData = $this->aAdditionalDataContentType;
         }
-        $s = serialize($aFilter);
-        if (false === ($data = E::ModuleCache()->Get("content_types_{$s}"))) {
+        $sCacheKey = 'content_types_' . serialize(array($aFilter, $aAllowData)) ;
+        if (false === ($data = E::ModuleCache()->Get($sCacheKey, 'tmp,'))) {
             $data = $this->oMapper->getContentTypes($aFilter);
             $aTypesId = array();
             foreach ($data as $oType) {
@@ -111,7 +111,7 @@ class ModuleTopic extends Module {
                     $oType->setFields($aTopicFieldValues[$oType->getContentId()]);
                 }
             }
-            E::ModuleCache()->Set($data, "content_types_{$s}", array('content_update', 'content_new'), 60 * 60 * 24 * 1);
+            E::ModuleCache()->Set($data, $sCacheKey, array('content_update', 'content_new'), 'P1D', 'tmp,');
         }
         return $data;
     }
@@ -534,6 +534,12 @@ class ModuleTopic extends Module {
             if ($oTopic->getPhotosetMainPhotoId()) {
                 $aPhotoMainId[] = $oTopic->getPhotosetMainPhotoId();
             }
+        }
+        if ($aUserId) {
+            $aUserId = array_unique($aUserId);
+        }
+        if ($aBlogId) {
+            $aBlogId = array_unique($aBlogId);
         }
         /**
          * Получаем дополнительные данные
@@ -1237,12 +1243,32 @@ class ModuleTopic extends Module {
      */
     public function GetCountTopicsByFilter($aFilter) {
 
-        $sCacheKey = "topic_count_" . serialize($aFilter);
-        if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
-            $data = $this->oMapper->GetCountTopics($aFilter);
-            E::ModuleCache()->Set($data, $sCacheKey, array('topic_update', 'topic_new'), 'P1D');
+        if (isset($aFilter['blog_type'])) {
+            $aBlogTypes = (array)$aFilter['blog_type'];
+            unset($aFilter['blog_type']);
+            $sCacheKey = 'topic_count_by_blog_type_' . serialize($aFilter);
+            if (false === ($aData = E::ModuleCache()->Get($sCacheKey, 'tmp,'))) {
+                $aData = $this->oMapper->GetCountTopicsByBlogtype($aFilter);
+                E::ModuleCache()->Set($aData, $sCacheKey, array('topic_update', 'topic_new', 'blog_update', 'blog_new'), 'P1D', 'tmp,');
+            }
+            if (!$aData) {
+                return 0;
+            }
+            $iResult = 0;
+            foreach($aBlogTypes as $sBlogType) {
+                if (isset($aData[$sBlogType])) {
+                    $iResult += $aData[$sBlogType];
+                }
+            }
+            return $iResult;
+        } else {
+            $sCacheKey = 'topic_count_' . serialize($aFilter);
+            if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
+                $data = $this->oMapper->GetCountTopics($aFilter);
+                E::ModuleCache()->Set($data, $sCacheKey, array('topic_update', 'topic_new'), 'P1D');
+            }
+            return $data;
         }
-        return $data;
     }
 
     /**

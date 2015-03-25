@@ -176,10 +176,19 @@ class ModuleUser extends Module {
 
         if (!$aUsersId) {
             return array();
-        } elseif (!is_array($aUsersId)) {
+        }
+
+        if (!is_array($aUsersId)) {
             $aUsersId = array($aUsersId);
         } else {
             $aUsersId = array_unique($aUsersId);
+        }
+
+        if (sizeof($aUsersId) == 1) {
+            $iUserId = reset($aUsersId);
+            if ($this->oUserCurrent && ($this->oUserCurrent->getId() == $iUserId)) {
+                return array($iUserId => $this->oUserCurrent);
+            }
         }
 
         if (is_null($aAllowData)) {

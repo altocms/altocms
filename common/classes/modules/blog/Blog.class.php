@@ -77,7 +77,7 @@ class ModuleBlog extends Module {
      */
     protected $oUserCurrent = null;
 
-    protected $aAdditionalData = array('vote', 'owner' => array(), 'relation_user');
+    protected $aAdditionalData = array('vote', 'owner' => array(), 'relation_user', 'media');
 
     /**
      * Инициализация
@@ -173,8 +173,14 @@ class ModuleBlog extends Module {
 
         // * Получаем блоги
         $aBlogs = $this->GetBlogsByArrayId($aBlogsId, $aOrder);
-        if (!$aBlogs) {
+        if (!$aBlogs || (is_array($aAllowData) && empty($aAllowData))) {
+            // additional data not required
             return $aBlogs;
+        }
+
+        $sCacheKey = 'Blog_GetBlogsAdditionalData_' . md5(serialize(array($aBlogsId, $aAllowData, $aOrder)));
+        if (false !== ($data = E::ModuleCache()->Get($sCacheKey, 'tmp'))) {
+            return $data;
         }
 
         // * Формируем ID дополнительных данных, которые нужно получить
@@ -201,7 +207,9 @@ class ModuleBlog extends Module {
 
         $aBlogTypes = $this->GetBlogTypes();
 
-        $aAvatars = E::ModuleUploader()->GetMediaObjects('blog_avatar', $aBlogsId, null, array('target_id'));
+        if (isset($aAllowData['media'])) {
+            $aAvatars = E::ModuleUploader()->GetMediaObjects('blog_avatar', $aBlogsId, null, array('target_id'));
+        }
 
         // * Добавляем данные к результату - списку блогов
         /** @var ModuleBlog_EntityBlog $oBlog */
@@ -229,13 +237,18 @@ class ModuleBlog extends Module {
                 $oBlog->setBlogType($aBlogTypes[$oBlog->getType()]);
             }
 
-            // Sets blogs avatars
-            if (isset($aAvatars[$oBlog->getId()])) {
-                $oBlog->setMediaResources('blog_avatar', $aAvatars[$oBlog->getId()]);
-            } else {
-                $oBlog->setMediaResources('blog_avatar', array());
+            if (isset($aAllowData['media'])) {
+                // Sets blogs avatars
+                if (isset($aAvatars[$oBlog->getId()])) {
+                    $oBlog->setMediaResources('blog_avatar', $aAvatars[$oBlog->getId()]);
+                } else {
+                    $oBlog->setMediaResources('blog_avatar', array());
+                }
             }
         }
+        // Saves only for executing session, so any additional tags no required
+        E::ModuleCache()->Set($aBlogs, $sCacheKey, array(), 'P1D', 'tmp');
+
         return $aBlogs;
     }
 
@@ -626,11 +639,11 @@ class ModuleBlog extends Module {
     /**
      * Получает список всех НЕ персональных блогов
      *
-     * @param bool $bReturnIdOnly    Возвращать только ID блогов или полные объекты
+     * @param bool|array $xReturnOptions  true - Возвращать только ID блогов, array - Доп.данные блога
      *
      * @return array
      */
-    public function GetBlogs($bReturnIdOnly = false) {
+    public function GetBlogs($xReturnOptions = null) {
 
         $sCacheKey = 'Blog_GetBlogsId';
         if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
@@ -639,11 +652,16 @@ class ModuleBlog extends Module {
         }
 
         // * Возвращаем только иденитификаторы
-        if ($bReturnIdOnly) {
+        if ($xReturnOptions === true) {
             return $data;
         }
         if ($data) {
-            $data = $this->GetBlogsAdditionalData($data);
+            if (is_array($xReturnOptions)) {
+                $aAdditionalData = $xReturnOptions;
+            } else {
+                $aAdditionalData = null;
+            }
+            $data = $this->GetBlogsAdditionalData($data, $aAdditionalData);
         }
         return $data;
     }
@@ -1043,7 +1061,8 @@ class ModuleBlog extends Module {
             if ($iBlog) {
                 return $iBlog;
             }
-            $aAllowBlogs = $this->GetBlogs();
+            $aAdditionalData = array('relation_user');
+            $aAllowBlogs = $this->GetBlogs($aAdditionalData);
             if ($iBlog) {
                 return isset($aAllowBlogs[$iBlog]) ? $aAllowBlogs[$iBlog] : array();
             }
