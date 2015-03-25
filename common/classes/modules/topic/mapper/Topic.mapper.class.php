@@ -213,7 +213,7 @@ class ModuleTopic_MapperTopic extends Mapper {
 				{AND user_id = ?d}
 			LIMIT 0,1
 				";
-        return intval($this->oDb->selectSell($sql, $sHash, $nUserId ? $nUserId : DBSIMPLE_SKIP));
+        return intval($this->oDb->selectCell($sql, $sHash, $nUserId ? $nUserId : DBSIMPLE_SKIP));
     }
 
     /**
@@ -818,6 +818,9 @@ class ModuleTopic_MapperTopic extends Mapper {
             if ($aOrClauses) {
                 $sWhere .= ' AND (' . join(' OR ', $aOrClauses ) . ')';
             }
+        }
+        if (isset($aFilter['blog_type_exclude']) && is_array($aFilter['blog_type_exclude'])) {
+            $sWhere .= " AND (b.blog_type NOT IN ('" . join("','", $aFilter['blog_type_exclude']) . "'))";
         }
         if (isset($aFilter['topic_type'])) {
             if (!is_array($aFilter['topic_type'])) {

@@ -243,6 +243,11 @@ class ModuleBlog_EntityBlogType extends Entity {
         }
 
         $aAllowContentTypes = $this->getContentTypes();
+        if (!$aAllowContentTypes) {
+            // Если типы контента не заданы явно, то разрешены любые
+            return true;
+        }
+
         foreach ($aAllowContentTypes as $oAllowType) {
             if ($sContentTypeName == $oAllowType->getContentUrl()) {
                 return TRUE;
@@ -250,16 +255,6 @@ class ModuleBlog_EntityBlogType extends Entity {
         }
 
         return FALSE;
-
-//        $xAllowContentTypes = $this->getContentType();
-//        if ($xAllowContentTypes) {
-//            if (is_array($xAllowContentTypes)) {
-//                return in_array($sContentTypeName, $xAllowContentTypes);
-//            } else {
-//                return $xAllowContentTypes == $sContentTypeName;
-//            }
-//        }
-//        return true;
     }
 
     /**
