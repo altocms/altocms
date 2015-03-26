@@ -108,11 +108,11 @@ admin.user = (function ($) {
 
     this.selectAll = function (element) {
         if ($(element).prop('checked')) {
-            $('tr.selectable td.checkbox input[type=checkbox]').prop('checked', true);
-            $('tr.selectable').addClass('info');
+            $('tr.selectable td.check-row input[type=checkbox]').prop('checked', true);
+            $('tr.selectable').addClass('info').find('.jq-checkbox').addClass('checked');
         } else {
-            $('tr.selectable td.checkbox input[type=checkbox]').prop('checked', false);
-            $('tr.selectable').removeClass('info');
+            $('tr.selectable td.check-row input[type=checkbox]').prop('checked', false);
+            $('tr.selectable').removeClass('info').find('.jq-checkbox').removeClass('checked');
         }
         admin.user.select();
     };

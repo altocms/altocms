@@ -587,7 +587,7 @@ class ModuleMenu extends Module {
      */
     public function NewTalk($sTemplate = false) {
 
-        $sKeyString = 'menu_new_talk_' . E::UserId() . '_' . (int)$sTemplate;
+        $sKeyString = 'menu_new_talk_' . E::UserId() . '_' . (string)$sTemplate;
 
         if (FALSE === ($sData = E::ModuleCache()->GetTmp($sKeyString))) {
 
