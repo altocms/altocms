@@ -573,3 +573,7 @@ a.user-friends:hover { color: #ff4136; text-decoration: none; }
 .pagination-comments { margin-bottom: 30px; }
 
 #users-list-original .paging { border: 1px solid #e6e6e6; }
+
+.js-userfeed-userlist li:nth-child(2){
+    margin-top: 10px;
+}
