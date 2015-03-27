@@ -24,7 +24,7 @@
                         <li>
                             <div class="checkbox">
                                 <label onclick=" $(this).find('input').trigger('change'); console.log('hello')">
-                                    <input id="talk_friend_{$oFriend->getId()}" determinate="false" type="checkbox" name="friend[{$oFriend->getId()}]" class="input-checkbox"/>
+                                    <input id="talk_friend_{$oFriend->getId()}" determinate="false"  value="{$oFriend->getLogin()}" type="checkbox" name="friend[{$oFriend->getId()}]" class="input-checkbox"/>
                                     <label for="talk_friend_{$oFriend->getId()}" id="talk_friend_{$oFriend->getId()}_label">{$oFriend->getDisplayName()}</label>
                                 </label>
                             </div>
