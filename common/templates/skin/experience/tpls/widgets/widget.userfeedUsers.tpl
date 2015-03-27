@@ -30,49 +30,32 @@
                         <a href="#" onclick="ls.userfeed.appendUser(); return false;" class="btn btn-default">{$aLang.userfeed_block_users_append}</a>
                     </span>
                 </div>
-                {if count($aUserfeedSubscribedUsers)}
-                    {*<br/>*}
-                    <div>
-                        <ul class="list-unstyled max-height-200 js-userfeed-userlist">
-                            {foreach $aUserfeedSubscribedUsers as $oUser}
-                                {$iUserId=$oUser->getId()}
+                <div>
+                    <ul class="list-unstyled max-height-200 js-userfeed-userlist">
+                        {foreach $aUserfeedSubscribedUsers as $oUser}
+                            {$iUserId=$oUser->getId()}
 
-                                {if !isset($aUserfeedFriends.$iUserId)}
-                                    <li class="checkbox pal0 js-userfeed-item" data-user-id="{$iUserId}">
-                                        <label>
-                                            <input type="checkbox" checked="checked" />&nbsp;
-                                            <a href="{$oUser->getProfileUrl()}" title="{$oUser->getDisplayName()}"><img
-                                                        src="{$oUser->getAvatarUrl(24)}" alt="avatar"
-                                                        class="avatar"/></a>
-                                            <a href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
-                                        </label>
-                                    </li>
-                                {/if}
-                            {/foreach}
-                        </ul>
-                        <li class="checkbox pal0 js-userfeed-item-empty" style="display: none;">
-                            <label>
-                                <input type="checkbox" checked="checked" />&nbsp;
-                                <a href="" title=""><img src="" alt="avatar" class="avatar"/></a>
-                                <a href=""></a>
-                            </label>
-                        </li>
-                    </div>
-                {else}
-                    {*<br/>*}
-                    <div>
-                        <ul id="js-userfeed-userlist" class="list-unstyled max-height-200">
-
-                        </ul>
-                        <li class="checkbox pal0 js-userfeed-item-empty" style="display: none;">
-                            <label>
-                                <input type="checkbox" checked="checked" />&nbsp;
-                                <a href="" title=""><img src="" alt="avatar" class="avatar"/></a>
-                                <a href=""></a>
-                            </label>
-                        </li>
-                    </div>
-                {/if}
+                            {if !isset($aUserfeedFriends.$iUserId)}
+                                <li class="checkbox pal0 js-userfeed-item" data-user-id="{$iUserId}">
+                                    <label>
+                                        <input type="checkbox" checked="checked" />&nbsp;
+                                        <a href="{$oUser->getProfileUrl()}" title="{$oUser->getDisplayName()}"><img
+                                                    src="{$oUser->getAvatarUrl(24)}" alt="avatar"
+                                                    class="avatar"/></a>
+                                        <a href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
+                                    </label>
+                                </li>
+                            {/if}
+                        {/foreach}
+                    </ul>
+                    <li class="checkbox pal0 js-userfeed-item-empty" style="display: none;">
+                        <label>
+                            <input type="checkbox" checked="checked" />&nbsp;
+                            <a href="" title=""><img src="" alt="avatar" class="avatar"/></a>
+                            <a href=""></a>
+                        </label>
+                    </li>
+                </div>
             </div>
         </div>
 

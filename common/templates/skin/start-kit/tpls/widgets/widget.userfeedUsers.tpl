@@ -19,11 +19,17 @@
                         </span>
                     </div>
 
-                    {if count($aUserfeedSubscribedUsers)}
+                    {*{if count($aUserfeedSubscribedUsers)}*}
                         <ul class="list-unstyled max-height-200 js-userfeed-userlist">
+                            <li class="checkbox js-userfeed-item-empty" style="display: none;">
+                                <label>
+                                    <input type="checkbox" checked="checked" />
+                                    <a href="" title=""><img src="" alt="avatar" class="avatar"/></a>
+                                    <a href=""></a>
+                                </label>
+                            </li>
                             {foreach $aUserfeedSubscribedUsers as $oUser}
                                 {$iUserId=$oUser->getId()}
-
                                 {if !isset($aUserfeedFriends.$iUserId)}
                                     <li class="checkbox js-userfeed-item" data-user-id="{$iUserId}">
                                         <label>
@@ -36,17 +42,11 @@
                                     </li>
                                 {/if}
                             {/foreach}
-                            <li class="checkbox js-userfeed-item-empty" style="display: none;">
-                                <label>
-                                    <input type="checkbox" checked="checked" />
-                                    <a href="" title=""><img src="" alt="avatar" class="avatar"/></a>
-                                    <a href=""></a>
-                                </label>
-                            </li>
+
                         </ul>
-                    {else}
-                        <ul id="userfeed_block_users_list" class="list-unstyled max-height-200"></ul>
-                    {/if}
+                    {*{else}*}
+                        {*<ul id="userfeed_block_users_list" class="list-unstyled max-height-200 "></ul>*}
+                    {*{/if}*}
                 </div>
             </div>
 

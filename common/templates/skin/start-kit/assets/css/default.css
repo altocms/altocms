@@ -949,3 +949,8 @@ li.active.category-show {
     font-weight: bold;
     text-decoration: underline;
 }
+
+
+.js-userfeed-userlist li:nth-child(2){
+    margin-top: 10px;
+}
