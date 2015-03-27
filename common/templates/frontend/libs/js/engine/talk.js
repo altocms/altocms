@@ -11,13 +11,13 @@ ls.talk = (function ($) {
     this.init = function () {
         // Добавляем или удаляем друга из списка получателей
         $('#friends input:checkbox').change(function () {
-            ls.talk.toggleRecipient($('#' + $(this).attr('id') + '_label').text(), $(this).prop('checked'));
+            ls.talk.toggleRecipient($('#' + $(this).attr('id')).val(), $(this).prop('checked'));
         });
 
         // Добавляем всех друзей в список получателей
         $('#friend_check_all').click(function () {
             $('#friends input:checkbox').each(function (index, item) {
-                ls.talk.toggleRecipient($('#' + $(item).attr('id') + '_label').text(), true);
+                ls.talk.toggleRecipient($('#' + $(item).attr('id')).val(), true);
                 $(item).attr('checked', true);
             });
             return false;
@@ -26,7 +26,7 @@ ls.talk = (function ($) {
         // Удаляем всех друзей из списка получателей
         $('#friend_uncheck_all').click(function () {
             $('#friends input:checkbox').each(function (index, item) {
-                ls.talk.toggleRecipient($('#' + $(item).attr('id') + '_label').text(), false);
+                ls.talk.toggleRecipient($('#' + $(item).attr('id')).val(), false);
                 $(item).attr('checked', false);
             });
             return false;
