@@ -661,6 +661,8 @@ class ActionProfile extends Action {
             'oUserCurrent', $this->oUserCurrent
         ); // хак, т.к. к этому моменту текущий юзер не загружен в шаблон
 
+        $this->Viewer_Assign('aLang', $this->Lang_GetLangMsg());
+
         $this->Viewer_AssignAjax('sText', $this->Viewer_Fetch('actions/profile/action.profile.wall_items.tpl'));
         $this->Viewer_AssignAjax('iCountWall', $aWallItems['count']);
         $this->Viewer_AssignAjax('iCountWallReturn', count($aWallItems['collection']));
@@ -699,6 +701,7 @@ class ActionProfile extends Action {
         // * Получаем сообщения и формируем ответ. Необходимо вернуть все ответы, но ставим "разумное" ограничение
         $aWall = $this->Wall_GetWall($aFilter, array('id' => 'asc'), 1, 300);
         $this->Viewer_Assign('aReplyWall', $aWall['collection']);
+        $this->Viewer_Assign('aLang', $this->Lang_GetLangMsg());
         $this->Viewer_AssignAjax('sText', $this->Viewer_Fetch('actions/profile/action.profile.wall_items_reply.tpl'));
         $this->Viewer_AssignAjax('iCountWall', $aWall['count']);
         $this->Viewer_AssignAjax('iCountWallReturn', count($aWall['collection']));
