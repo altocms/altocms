@@ -69,7 +69,7 @@
                                            type="checkbox"
                                            id="strm_u_{$iUserId}"
                                            checked="checked"
-                                           onchange="if (jQuery(this).prop('checked')) { ls.stream.subscribe({$iUserId}) } else { ls.stream.unsubscribe({$iUserId}) } "/>&nbsp;
+                                           onchange="if (jQuery(this).prop('checked')) { ls.stream.subscribe({$iUserId}) } else { ls.stream.unsubscribe({$iUserId}, true) } "/>&nbsp;
                                     <a href="{$oUser->getProfileUrl()}" title="{$oUser->getDisplayName()}"><img
                                                 src="{$oUser->getAvatarUrl(24)}" alt="avatar"
                                                 class="avatar"/></a>
