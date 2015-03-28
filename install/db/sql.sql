@@ -1049,7 +1049,7 @@ CREATE TABLE IF NOT EXISTS `prefix_content` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `prefix_content` (`content_id`, `content_title`, `content_title_decl`, `content_sort`, `content_url`, `content_active`, `content_candelete`, `content_config`) VALUES
-(1, 'Топик','Топики','1',  'topic', '1', '0', 'a:3:{s:8:"photoset";i:1;s:8:"question";i:1;s:4:"link";i:1;}');
+(1, 'Статья','Статьи','1',  'topic', '1', '0', 'a:3:{s:8:"photoset";i:1;s:8:"question";i:1;s:4:"link";i:1;}');
 
 -- --------------------------------------------------------
 
