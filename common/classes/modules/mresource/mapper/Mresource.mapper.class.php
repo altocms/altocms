@@ -1004,16 +1004,18 @@ class ModuleMresource_MapperMresource extends Mapper {
 
         $sql = "select r.mresource_id FROM
                   (SELECT
-                  t.mresource_id,
-                  IF(NOT ISNULL(t.target_tmp), 'tmp', t.target_type) AS ttype
+                  t.mresource_id
 
                 FROM ?_mresource_target AS t, ?_mresource AS m
                 WHERE t.mresource_id = m.mresource_id AND m.user_id = ?d
-                      AND (NOT ISNULL(t.target_tmp) OR ((t.target_type in ( ?a ) || t.target_type LIKE 'single-image-uploader%')  AND t.target_id = ?d))
+                      AND ({1 = ?d AND t.target_tmp IS NOT NULL}{1 = ?d AND t.target_tmp IS NULL} AND ((t.target_type in ( ?a ) || t.target_type LIKE 'single-image-uploader%')  AND t.target_id = ?d))
 
                 GROUP BY t.mresource_id  ORDER BY
                  m.date_add desc) as r";
-        $aData = $this->oDb->selectCol($sql, $iUserId, array(
+        $aData = $this->oDb->selectCol($sql, $iUserId,
+            $sTopicId == FALSE ? 1 : DBSIMPLE_SKIP,
+            $sTopicId != FALSE ? 1 : DBSIMPLE_SKIP,
+            array(
             'photoset',
             'topic'
         ), (int)$sTopicId);
@@ -1035,7 +1037,7 @@ class ModuleMresource_MapperMresource extends Mapper {
 
         $sql = "SELECT
                   t.target_id        AS topic_id,
-                  count(t.target_id) AS count
+                  count(DISTINCT t.mresource_id) AS count
                 FROM ?_mresource_target t, ?_mresource m
                 WHERE
                   m.mresource_id = t.mresource_id
