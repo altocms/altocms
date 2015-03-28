@@ -1,3 +1,6 @@
+-- Уменьшение длины поля (было DATETIME)
+ALTER TABLE  prefix_user CHANGE  `user_profile_birthday`  `user_profile_birthday` DATE NULL DEFAULT NULL ;
+
 -- Таблица связей типов блогов и типов контента
 CREATE TABLE prefix_blog_type_content
 (
@@ -71,3 +74,12 @@ WHERE
             t.mresource_id = r.mresource_id) n
     WHERE n.path LIKE CONCAT('%', n.uuid, '%')
 );
+
+UPDATE
+  prefix_mresource_target AS mt
+  LEFT JOIN prefix_mresource AS m ON m.mresource_id = mt.mresource_id
+  JOIN prefix_topic_photo AS tp ON tp.path = m.path_file
+SET
+  mt.target_type = 'photoset'
+WHERE
+  mt.target_type != 'photoset';

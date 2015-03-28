@@ -733,7 +733,7 @@ CREATE TABLE IF NOT EXISTS `prefix_user` (
   `user_profile_country` varchar(30) DEFAULT NULL,
   `user_profile_region` varchar(30) DEFAULT NULL,
   `user_profile_city` varchar(30) DEFAULT NULL,
-  `user_profile_birthday` datetime DEFAULT NULL,
+  `user_profile_birthday` date DEFAULT NULL,
   `user_profile_about` text,
   `user_profile_date` datetime DEFAULT NULL,
   `user_profile_avatar` varchar(250) DEFAULT NULL,
