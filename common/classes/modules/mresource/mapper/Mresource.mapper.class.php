@@ -628,19 +628,27 @@ class ModuleMresource_MapperMresource extends Mapper {
     /**
      * Returns media resources' relation entities by target
      *
-     * @param string    $sTargetType
+     * @param string|array  $xTargetType
      * @param int|array $xTargetId
      * @param int|array $xUserId
      *
      * @return ModuleMresource_EntityMresourceRel[]
      */
-    public function GetMresourcesRelByTargetAndUser($sTargetType, $xTargetId, $xUserId) {
+    public function GetMresourcesRelByTargetAndUser($xTargetType, $xTargetId, $xUserId) {
 
-        $aCriteria = array(
-            'filter' => array(
-                'target_type' => $sTargetType,
-            ),
-        );
+        if (is_array($xTargetType)) {
+            $aCriteria = array(
+                'filter' => array(
+                    'target_types' => $xTargetType,
+                ),
+            );
+        } else {
+            $aCriteria = array(
+                'filter' => array(
+                    'target_type' => $xTargetType,
+                ),
+            );
+        }
 
         if (!is_null($xTargetId)) {
             $aCriteria['filter']['target_id'] = $xTargetId;

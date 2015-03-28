@@ -3067,7 +3067,7 @@ class ModuleTopic extends Module {
         $aList = $oTopic->BuildMresourcesList();
 
         // Читаем список ресурсов из базы
-        $aMresources = E::ModuleMresource()->GetMresourcesRelByTarget('topic', $oTopic->GetId());
+        $aMresources = E::ModuleMresource()->GetMresourcesRelByTarget(array('topic', 'photoset'), $oTopic->GetId());
 
         // Строим список ID ресурсов для удаления
         $aDeleteResources = array();
