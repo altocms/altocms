@@ -682,6 +682,7 @@ class ActionProfile extends Action {
         E::ModuleViewer()->Assign(
             'oUserCurrent', $this->oUserCurrent
         ); // хак, т.к. к этому моменту текущий юзер не загружен в шаблон
+        E::ModuleViewer()->Assign('aLang', E::ModuleLang()->GetLangMsg());
 
         E::ModuleViewer()->AssignAjax('sText', E::ModuleViewer()->Fetch('actions/profile/action.profile.wall_items.tpl'));
         E::ModuleViewer()->AssignAjax('iCountWall', $aWallItems['count']);
@@ -720,6 +721,7 @@ class ActionProfile extends Action {
 
         // * Получаем сообщения и формируем ответ. Необходимо вернуть все ответы, но ставим "разумное" ограничение
         $aWall = E::ModuleWall()->GetWall($aFilter, array('id' => 'asc'), 1, 300);
+        E::ModuleViewer()->Assign('aLang', E::ModuleLang()->GetLangMsg());
         E::ModuleViewer()->Assign('aReplyWall', $aWall['collection']);
         E::ModuleViewer()->AssignAjax('sText', E::ModuleViewer()->Fetch('actions/profile/action.profile.wall_items_reply.tpl'));
         E::ModuleViewer()->AssignAjax('iCountWall', $aWall['count']);
