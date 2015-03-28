@@ -144,7 +144,7 @@ return array(
     'blogs_all_types' => 'Все типы',
 
     /* TOPICS */
-    'topics_title' => 'Топики',
+    'topics_title' => 'Статьи',
 
     /* COMMENTS */
     'comments_title' => 'Комментарии',
@@ -974,7 +974,7 @@ return array(
     'contenttypes_standart'   => 'стандартный',
     'contenttypes_for'        => 'для',
 
-    'contenttypes_by_type'    => 'Топики по типу',
+    'contenttypes_by_type'    => 'Статьи по типу',
     'contenttypes_nocomments' => 'Нет комментариев',
 
     'contenttypes_topic_edit' => 'Редактирование статьи',
