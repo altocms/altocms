@@ -23,7 +23,7 @@
             '</li>')
                     t.find('input.streamUserCheckbox')
                     .on('change', function() {
-                if (jQuery(this).prop('checked')) { ls.stream.subscribe(el.uid) } else { ls.stream.unsubscribe(el.uid) }
+                if (jQuery(this).prop('checked')) { ls.stream.subscribe(el.uid) } else { ls.stream.unsubscribe(el.uid, true) }
             }).iCheck({
                 checkboxClass: 'icheckbox_square-blue',
                 radioClass: 'iradio_square-blue'
@@ -79,7 +79,7 @@
                                            type="checkbox"
                                            id="strm_u_{$iUserId}"
                                            checked="checked"
-                                           onchange="if (jQuery(this).prop('checked')) { ls.stream.subscribe({$iUserId}) } else { ls.stream.unsubscribe({$iUserId}) } "/>&nbsp;
+                                           onchange="if (jQuery(this).prop('checked')) { ls.stream.subscribe({$iUserId}) } else { ls.stream.unsubscribe({$iUserId}, true) } "/>&nbsp;
                                     <a
                                        href="{$oUser->getProfileUrl()}" title="{$oUser->getDisplayName()}"><img
                                                 src="{$oUser->getAvatarUrl('24x24crop')}" alt="avatar"

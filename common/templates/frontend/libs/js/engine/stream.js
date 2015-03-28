@@ -80,8 +80,9 @@ ls.stream = ( function ($) {
     /**
      * Отписаться от пользователя
      * @param  {Number} iUserId ID пользователя
+     * @param bRemove Удалять строку с пользователем или нет (друзей из списка не удаляем)
      */
-    this.unsubscribe = function (iUserId) {
+    this.unsubscribe = function (iUserId, bRemove) {
         var self = this,
             url = ls.routerUrl('stream') + 'unsubscribe/',
             params = { 'id': iUserId };
@@ -92,9 +93,11 @@ ls.stream = ( function ($) {
             if (result && !result.bStateError) {
                 ls.msg.notice(result.sMsgTitle, result.sMsg);
                 var el = $('#strm_u_' + iUserId).parents('li');
-                el.fadeOut(300, function(){
-                   el.remove();
-                });
+                if (bRemove === true) {
+                    el.fadeOut(300, function(){
+                        el.remove();
+                    });
+                }
                 ls.hook.run('ls_stream_unsubscribe_after', [params, result]);
             }
         });
