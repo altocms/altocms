@@ -1467,12 +1467,7 @@ class ActionProfile extends Action {
         // И посчитаем общее количество картинок
         /** @var ModuleMresource_EntityMresourceCategory[] $aUserImagesInfo */
         $aUserImagesInfo = E::ModuleMresource()->GetAllImageCategoriesByUserId($this->oUserProfile->getId());
-        $iPhotoCount = 0;
-        if ($aUserImagesInfo) {
-            foreach ($aUserImagesInfo as $oUserImagesInfo) {
-                $iPhotoCount += $oUserImagesInfo->getCount();
-            }
-        }
+        $iPhotoCount = E::ModuleMresource()->GetCountImagesByUserId($this->oUserProfile->getId());
 
         E::ModuleViewer()->Assign('oUserProfile', $this->oUserProfile);
         E::ModuleViewer()->Assign('iCountTopicUser', $iCountTopicUser);

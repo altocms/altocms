@@ -296,7 +296,7 @@ if (C::Get('rating.enabled')) {
  */
 $config['data']['image_insert'] = array(
     'init' => array(
-        'user_cache' => true,
+        'cache' => false,
         'fill' => array(
             'list' => array('*'),
             'insert_image' => array()
@@ -339,6 +339,7 @@ $config['data']['image_insert'] = array(
  */
 $config['data']['profile_images'] = array(
     'init' => array(
+        'cache' => false,
         'fill' => array(
             'list' => array('*'),
             'insert_image' => array()

@@ -130,14 +130,17 @@ class ModuleMenu extends Module {
             $aItems = array_slice($aItems, 0, $iTotal);
         }
 
-        // Кэшируем результат
-        $sUserCache = ((isset($aMenu['init']['user_cache']) && $aMenu['init']['user_cache']) ? ('_' . E::UserId()) : '');
-        E::ModuleCache()->Set(            $aItems,
-            md5(serialize($aMenu)) . $sUserCache,
-            array('menu_' . $sMenuId . $sUserCache),
-            isset($aMenu['init']['cache']) ? $aMenu['init']['cache'] : 'P30D',
-            ',file'
-        );
+        // Кэшируем результат, если нужно
+        if (!(isset($aMenu['init']['cache']) && $aMenu['init']['cache'] == false)) {
+            $sUserCache = ((isset($aMenu['init']['user_cache']) && $aMenu['init']['user_cache']) ? ('_' . E::UserId()) : '');
+            E::ModuleCache()->Set(
+                $aItems,
+                md5(serialize($aMenu)) . $sUserCache,
+                array('menu_' . $sMenuId . $sUserCache),
+                isset($aMenu['init']['cache']) ? $aMenu['init']['cache'] : 'P30D',
+                ',file'
+            );
+        }
 
         // Добавим сформированные данные к конфигу меню
         $aMenu['items'] = $aItems;
@@ -368,7 +371,7 @@ class ModuleMenu extends Module {
 //            return $aItems;
 //        }
 
-        $sTopicId = getRequestStr('topic_id', FALSE);
+        $sTopicId = getRequestStr('topic_id', getRequestStr('target_id', FALSE));
         if ($sTopicId && !E::ModuleTopic()->GetTopicById($sTopicId)) {
             $sTopicId = FALSE;
         }
@@ -381,6 +384,11 @@ class ModuleMenu extends Module {
             foreach ($aTopicsCategory as $oTopicsCategory) {
                 $aCategories[] = $oTopicsCategory;
             }
+        }
+
+        // Временные изображения
+        if ($oTmpTopicCategory = E::ModuleMresource()->GetCurrentTopicImageCategory(isset($aMenu['uid']) ? $aMenu['uid'] : E::UserId(), false)) {
+            $aCategories[] = $oTmpTopicCategory;
         }
 
         if ($oCurrentTopicCategory = E::ModuleMresource()->GetCurrentTopicImageCategory(isset($aMenu['uid']) ? $aMenu['uid'] : E::UserId(), $sTopicId)) {

@@ -995,6 +995,28 @@ class ModuleMresource_MapperMresource extends Mapper {
     }
 
     /**
+     * Возвращает категории изображения для пользователя
+     * @param $iUserId
+     *
+     * @return mixed
+     */
+    public function GetCountImagesByUserId($iUserId){
+
+        $sql = "SELECT
+                  count(mresource_id) AS count
+                FROM
+                  ?_mresource
+                WHERE
+                  user_id = ?d";
+
+        if ($aRow = $this->oDb->selectRow($sql, $iUserId)) {
+            return intval($aRow['count']);
+        }
+        return 0;
+
+    }
+
+    /**
      * @param $iUserId
      * @param $sTopicId
      *

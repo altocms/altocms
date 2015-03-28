@@ -145,14 +145,6 @@ class ModuleMresource extends Module {
         if ($iNewId) {
             //чистим зависимые кеши
             E::ModuleCache()->CleanByTags(array('mresource_update'));
-            // Обновим меню изображений пользователя
-            if (in_array($oMediaResource->getType(), array(
-                static::TYPE_IMAGE,
-                static::TYPE_PHOTO,
-                static::TYPE_PHOTO_PRIMARY,
-            ))) {
-                E::ModuleCache()->CleanByTags(array('menu_image_insert_' . E::UserId()), ',file');
-            }
         }
         return $iNewId;
     }
@@ -852,12 +844,20 @@ class ModuleMresource extends Module {
     public function GetCurrentTopicImageCategory($iUserId, $sTopicId = FALSE) {
 
         $aResourcesId = $this->oMapper->GetCurrentTopicResourcesId($iUserId, $sTopicId);
-        if ($aResourcesId) {
-            return E::GetEntity('Mresource_MresourceCategory', array(
-                'id' => 'current',
-                'count' => count($aResourcesId),
-                'label' => E::ModuleLang()->Get('aim_target_type_current'),
-            ));
+       if ($aResourcesId) {
+           if ($sTopicId) {
+               return E::GetEntity('Mresource_MresourceCategory', array(
+                   'id' => 'current',
+                   'count' => count($aResourcesId),
+                   'label' => E::ModuleLang()->Get('aim_target_type_current'),
+               ));
+           } else {
+               return E::GetEntity('Mresource_MresourceCategory', array(
+                   'id' => 'tmp',
+                   'count' => count($aResourcesId),
+                   'label' => E::ModuleLang()->Get('target_type_tmp'),
+               ));
+           }
         }
 
         return FALSE;
@@ -1089,6 +1089,18 @@ class ModuleMresource extends Module {
         }
 
         return $aResult;
+    }
+
+    /**
+     * Возвращает категории изображения для пользователя
+     * @param $iUserId
+     *
+     * @return mixed
+     */
+    public function GetCountImagesByUserId($iUserId){
+
+        return $this->oMapper->GetCountImagesByUserId($iUserId);
+
     }
 
 }
