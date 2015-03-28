@@ -823,11 +823,13 @@ class ModuleComment extends Module {
         $aCommentsHtml = array();
 
         $bAllowToComment = false;
-        if ($oUserCurrent = E::User()) {
+        if ($sTargetType == 'talk') {
+            $bAllowToComment = TRUE;
+        } elseif ($oUserCurrent = E::User()) {
             $oComment = reset($aComments);
             if ($oComment->getTarget() && $oComment->getTarget()->getBlog()) {
                 $iBlogId = $oComment->getTarget()->getBlog()->GetId();
-                $bAllowToComment = E::ModuleBlog()->GetBlogsAllowTo('comment', $oUserCurrent, $iBlogId, true);
+                $bAllowToComment = E::ModuleBlog()->GetBlogsAllowTo('comment', $oUserCurrent, $iBlogId, TRUE);
             }
         }
         foreach ($aComments as $oComment) {
