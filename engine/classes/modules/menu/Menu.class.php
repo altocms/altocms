@@ -32,7 +32,7 @@ class ModuleMenu extends Module {
         // добавим идентификатор этого меню. И если кэша не будет, то на всякий случай
         // очистим по тегу.
 
-        $sCacheKey = md5(serialize($aMenu));
+        $sCacheKey = md5(serialize($aMenu)) . ((isset($aMenu['init']['user_cache']) && $aMenu['init']['user_cache']) ? ('_' . E::UserId()) : '');
         if (FALSE === ($data = E::ModuleCache()->Get($sCacheKey, ',file'))) {
             E::ModuleCache()->CleanByTags(array($sMenuId), ',file');
 
@@ -131,10 +131,10 @@ class ModuleMenu extends Module {
         }
 
         // Кэшируем результат
-        E::ModuleCache()->Set(
-            $aItems,
-            md5(serialize($aMenu)),
-            array($sMenuId),
+        $sUserCache = ((isset($aMenu['init']['user_cache']) && $aMenu['init']['user_cache']) ? ('_' . E::UserId()) : '');
+        E::ModuleCache()->Set(            $aItems,
+            md5(serialize($aMenu)) . $sUserCache,
+            array('menu_' . $sMenuId . $sUserCache),
             isset($aMenu['init']['cache']) ? $aMenu['init']['cache'] : 'P30D',
             ',file'
         );

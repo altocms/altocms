@@ -145,6 +145,14 @@ class ModuleMresource extends Module {
         if ($iNewId) {
             //чистим зависимые кеши
             E::ModuleCache()->CleanByTags(array('mresource_update'));
+            // Обновим меню изображений пользователя
+            if (in_array($oMediaResource->getType(), array(
+                static::TYPE_IMAGE,
+                static::TYPE_PHOTO,
+                static::TYPE_PHOTO_PRIMARY,
+            ))) {
+                E::ModuleCache()->CleanByTags(array('menu_image_insert_' . E::UserId()), ',file');
+            }
         }
         return $iNewId;
     }

@@ -670,7 +670,8 @@ class ModuleCache extends Module {
      */
     public function Clean($sMode = Zend_Cache::CLEANING_MODE_ALL, $aTags = array(), $sCacheType = null) {
 
-        if (!$this->bUseCache) {
+        // Проверим разрешено ли кэширование
+        if (!$this->_cacheOn($sCacheType)) {
             return false;
         }
         return $this->_backendClean($sCacheType, $sMode, $aTags);

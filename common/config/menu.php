@@ -296,6 +296,7 @@ if (C::Get('rating.enabled')) {
  */
 $config['data']['image_insert'] = array(
     'init' => array(
+        'user_cache' => true,
         'fill' => array(
             'list' => array('*'),
             'insert_image' => array()
