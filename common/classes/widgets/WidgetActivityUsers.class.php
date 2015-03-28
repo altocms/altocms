@@ -32,8 +32,8 @@ class WidgetActivityUsers extends Widget {
             $this->Viewer_Assign('aStreamSubscribedUsers', $aUserSubscribes ? $aUserSubscribes : array());
 
             // issue#449, список друзей пользователя не передавался в шаблон
-            $aStreamFriends = E::ModuleUser()->GetUsersFriend($oUserCurrent->getId());
-            E::ModuleViewer()->Assign('aStreamFriends', $aStreamFriends['collection']);
+            $aStreamFriends = $this->User_GetUsersFriend($oUserCurrent->getId());
+            $this->Viewer_Assign('aStreamFriends', $aStreamFriends['collection']);
         }
 
     }
