@@ -20,7 +20,7 @@
             '</li>')
                     t.find('input.streamUserCheckbox')
                     .on('change', function() {
-                if (jQuery(this).prop('checked')) { ls.stream.subscribe(el.uid) } else { ls.stream.unsubscribe(el.uid) }
+                if (jQuery(this).prop('checked')) { ls.stream.subscribe(el.uid) } else { ls.stream.unsubscribe(el.uid, true) }
             }).iCheck({
                 checkboxClass: 'icheckbox_square-blue',
                 radioClass: 'iradio_square-blue'

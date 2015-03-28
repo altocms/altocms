@@ -5,7 +5,7 @@
             return $('<li class="checkbox">'+
                     '<label>'+
                         '<input class="streamUserCheckbox" type="checkbox" id="strm_u_' + el.uid  + '" checked="checked" '+
-                        'onClick="if (jQuery(this).prop(\'checked\')) { ls.stream.subscribe(' + el.uid  + ') } else { ls.stream.unsubscribe(' + el.uid  + ') } "/>'+
+                        'onClick="if (jQuery(this).prop(\'checked\')) { ls.stream.subscribe(' + el.uid  + ') } else { ls.stream.unsubscribe(' + el.uid  + ', true) } "/>'+
                         '<a href="'+el.user_web_path+'" title="' + el.user_login + '">'+
                     '<img src="'+el.user_avatar_48+'" alt="avatar" class="avatar" style="height:24px;" /></a>'+
                     '<a href="' + el.user_web_path + '">' + el.user_login + '</a>'+
