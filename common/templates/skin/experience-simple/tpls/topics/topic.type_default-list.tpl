@@ -82,9 +82,7 @@
 
                 {$sImagePath=$oTopic->getPhotosetMainPhotoUrl(false, '682pad')}
                 {if $sImagePath}
-                    <a href="#" class="pull-left" data-url="{$sImagePath}" onclick="return false;">
-                        <img src="{$sImagePath}" alt="image" align="left"/>
-                    </a>
+                    <img src="{$sImagePath}" alt="image" align="left"/>
                     <br/>
                 {/if}
 
