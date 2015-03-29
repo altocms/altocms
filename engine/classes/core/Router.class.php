@@ -87,6 +87,8 @@ class Router extends LsObject {
 
     static protected $aRequestURI = array();
 
+    static protected $aActionPaths = array();
+
     protected $aCurrentUrl = array();
 
     protected $aBackwardUrl = array();
@@ -883,7 +885,11 @@ class Router extends LsObject {
      */
     static public function GetPath($sAction) {
 
-        return static::getInstance()->_getPath($sAction);
+        if (empty(static::$aActionPaths[$sAction])) {
+            $sAction = trim($sAction, '/');
+            static::$aActionPaths[$sAction] = static::getInstance()->_getPath($sAction);
+        }
+        return static::$aActionPaths[$sAction];
     }
 
     /**
