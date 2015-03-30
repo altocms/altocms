@@ -11,7 +11,7 @@
     {include file="snippets/snippet.photoset.tpl" aPhotos=$aPhotos sClass='clearfix'}
 
     <div class="clearfix">
-        {if count($aPhotos)<$oTopic->getPhotosetCount() && count($aPhotos) > 0}
+        {if count($aPhotos) > 0 AND count($aPhotos) < $oTopic->getPhotosetCount()}
             {$oLastResource = end($aPhotos)}
             <script type="text/javascript">
                 $(function(){

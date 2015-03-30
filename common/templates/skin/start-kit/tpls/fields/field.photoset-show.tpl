@@ -8,7 +8,7 @@
     <div class="clearfix">
         {include file="snippets/snippet.photoset.tpl" aPhotos=$aPhotos sClass='clearfix'}
     </div>
-    {if count($aPhotos)<$oTopic->getPhotosetCount()}
+    {if count($aPhotos) > 0 AND count($aPhotos) < $oTopic->getPhotosetCount()}
     <div class="clearfix">
         {$oLastResource = end($aPhotos)}
         <script type="text/javascript">
