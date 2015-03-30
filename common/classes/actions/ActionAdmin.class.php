@@ -3710,13 +3710,23 @@ class ActionAdmin extends Action {
         // Это подменю, удалим его
         if (strpos($oMenu->getId(), 'submenu_') === 0) {
             $aMenus = Config::Get('menu.data');
+            $bFound = false;
             foreach ($aMenus as $k=>$v) {
                 foreach ($v['list'] as $sItemKey => $aItemData) {
-                    if ($aItemData['submenu'] == $sMenuId) {
-                        Config::WriteCustomConfig(array("menu.data.{$k}.list.{$sItemKey}.submenu" => ''));
+                    if (isset($aItemData['submenu']) && $aItemData['submenu'] == $sMenuId) {
+                        $sMenuListKey = 'menu.data.' . $k . '.list';
+                        $aMenu = C::Get($sMenuListKey);
+                        if ($aMenu && isset($aMenu[$sItemKey]['submenu'])) {
+                            $aMenu[$sItemKey]['submenu'] = '';
+                            C::WriteCustomConfig(array($sMenuListKey => $aMenu), false);
+                            $bFound = true;
+                            break;
+                        }
                     }
                 }
-                $aMenus[$k] = $v;
+                if ($bFound) {
+                    break;
+                }
             }
 
             R::Location("admin/settings-menumanager/");
