@@ -19,8 +19,8 @@ ls.photoset = ( function ($) {
     this.idLast = 0;
     this.isLoading = false;
     this.swfu = null;
-    this.nextImagesContainerSelecter = null;
-    this.itemSelecter = null;
+    this.nextImagesContainerSelector = null;
+    this.itemSelector = null;
 
     /**
      * Инициализация
@@ -328,8 +328,8 @@ ls.photoset = ( function ($) {
             } else {
                 if (response.photos) {
                     var photoset = $('.js-topic-photoset-list');
-                    var item = ls.photoset.itemSelecter
-                        ? $($(ls.photoset.itemSelecter).html())
+                    var item = ls.photoset.itemSelector
+                        ? $($(ls.photoset.itemSelector).html())
                         : photoset.find('.topic-photoset-item').last().clone(true);
 
                     item.find('img').attr('src', '');
@@ -337,7 +337,7 @@ ls.photoset = ( function ($) {
                         var newItem = item.clone(true);
                         newItem.add(newItem.find('a')).attr('href', photo.path).attr('title', photo.description);
                         newItem.find('img').attr('src', photo.path_thumb).attr('alt', photo.description);
-                        newItem.appendTo(ls.photoset.nextImagesContainerSelecter ? $(ls.photoset.nextImagesContainerSelecter).last() : photoset);
+                        newItem.appendTo(ls.photoset.nextImagesContainerSelector ? $(ls.photoset.nextImagesContainerSelector).last() : photoset);
                         ls.photoset.idLast = parseInt(photo.id) + 1;
                     }.bind(this));
                     $('body').trigger('ls_photoset_update');

@@ -16,8 +16,8 @@
             <script type="text/javascript">
                 $(function(){
                     ls.photoset.idLast='{$oLastResource->getMresourceId()+1}';
-                    ls.photoset.nextImagesContainerSelecter='.js-topic-photoset-list';
-                    ls.photoset.itemSelecter='#js-topic-photoset-item';
+                    ls.photoset.nextImagesContainerSelector='.js-topic-photoset-list';
+                    ls.photoset.itemSelector='#js-topic-photoset-item';
                     ls.photoset.thumbSize='x240';
                     $('body').on('ls_photoset_update', function() {
                         var $currentContainer = $('.js-topic-photoset-list').last();
