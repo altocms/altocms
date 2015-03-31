@@ -783,6 +783,33 @@ class Func {
     static protected $_aPluginList = array();
 
     /**
+     * Проверяет плагины на соответствие маске разрешённых url и,
+     * если нужно исключает из списка активных
+     *
+     * @param $aPlugins
+     * @return array
+     */
+    static protected function ExcludeByEnabledMask($aPlugins) {
+
+        $aResult = array();
+        foreach ($aPlugins as $sPluginName => $aPluginData) {
+            $sXmlText = F::File_GetContents($aPluginData['manifest']);
+            if (preg_match('~<enabled\>(.*)<\/enabled\>~', $sXmlText, $aMatches)) {
+                $sReq = preg_replace('/\/+/', '/', $_SERVER['REQUEST_URI']);
+                $sReq = preg_replace('/^\/(.*)\/?$/U', '$1', $sReq);
+                $sReq = preg_replace('/^(.*)\?.*$/U', '$1', $sReq);
+                if (preg_match($aMatches[1], $sReq)) {
+                    $aResult[$sPluginName] = $aPluginData;
+                }
+            } else {
+                $aResult[$sPluginName] = $aPluginData;
+            }
+        }
+
+        return $aResult;
+    }
+
+    /**
      * Получить список плагинов
      *
      * @param bool $bAll     - все плагины (иначе - только активные)
@@ -845,6 +872,7 @@ class Func {
                     }
                 }
             }
+            $aPlugins = self::ExcludeByEnabledMask($aPlugins);
             self::$_aPluginList[$sPluginsDatFile][$bAll] = $aPlugins;
         }
         if ($bIdOnly) {
