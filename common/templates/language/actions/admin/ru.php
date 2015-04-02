@@ -59,7 +59,7 @@ return array(
     'menu_tools_recalcblograting' => 'Пересчет рейтинга блогов',
     'menu_tools_checkdb' => 'Контроль БД',
 
-    /* DASHBOARD */
+    /*** DASHBOARD */
     'dashboard_updates_title' => 'Обновления',
     'dashboard_news_title' => 'Новости Alto CMS',
     'dashboard_turn_title' => 'Отключение консоли',
@@ -67,7 +67,7 @@ return array(
     'dashboard_turn_off_text' => 'Вы отключили получение информации с сервера Alto CMS.<br/><br/>Если Вы хотите получать информацию о новостях Alto CMS и о новых версиях плагинов, Вы можете включить эту функцию',
     'dashboard_main' => 'Главная',
 
-    /* common texts */
+    /*** common texts */
     'word_yes' => 'Да',
     'word_no' => 'Нет',
     'include' => 'Добавить',
@@ -115,7 +115,7 @@ return array(
     'menu_plugins' => 'Плагины',
     'menu_delegates' => 'Делегирование',
 
-    /* INFO & REPORTS */
+    /*** INFO & REPORTS */
     'info_versions' => 'Версии',
 
     'info_version_php' => 'Версия PHP',
@@ -138,25 +138,25 @@ return array(
     'button_report' => 'Сформировать отчет',
     'button_checkin' => 'Включить в отчет',
 
-    /* BLOGS */
+    /*** BLOGS */
     'blogs_title' => 'Блоги',
     'blogs_list' => 'Список',
     'blogs_all_types' => 'Все типы',
 
-    /* TOPICS */
+    /*** TOPICS */
     'topics_title' => 'Статьи',
 
-    /* COMMENTS */
+    /*** COMMENTS */
     'comments_title' => 'Комментарии',
 
-    /* MRESOURCES */
+    /*** MRESOURCES */
     'mresources_title' => 'Медиаресурсы',
     'mresource_delete_confirm' => 'Удалить этот медиаресурс?',
     'mresource_will_be_delete' => 'Медиаресурс будет удален. Продолжить?',
     'mresource_deleted' => 'Медиаресурс удален',
     'mresource_not_deleted' => 'Медиаресурс не удален',
 
-    /* USERS */
+    /*** USERS */
     'users_title' => 'Пользователи',
     'menu_users_profile' => 'Профиль пользователя',
     'menu_users_list' => 'Список',
@@ -234,7 +234,7 @@ return array(
     'include_moderator' => 'Добавить модератора',
     'exclude_moderator' => 'Удалить модератора',
 
-    /* MENU */
+    /*** MENU */
     'menu_manager'                        => 'Менеджер меню',
     'menu_manager_id'                     => 'Тип',
     'menu_manager_description'            => 'Описание',
@@ -273,7 +273,7 @@ return array(
     'user_show_all' => 'Показать всех друзей',
     'user_ban' => 'Забанен',
 
-    /* INVITES */
+    /*** INVITES */
     'invites_title'       => 'Приглашения',
     'invites_all'         => 'Все приглашения',
     'invites_used'        => 'Использованные',
@@ -297,7 +297,7 @@ return array(
     'invaite_mail_err'     => 'Ошибочных адресов: %%num%%',
     'invaite_text_done'    => 'Создано новых приглашений: %%num%%',
 
-    /* BANLIST */
+    /*** BANLIST */
     'banlist_title' => 'Бан-лист',
     'banlist_ids' => 'Пользователи',
     'banlist_ips' => 'IP-адреса',
@@ -364,7 +364,7 @@ return array(
     'send_common_notice' => 'Пользователи получат общее сообщение и любой ответ на него будут видеть все остальные получатели',
     'send_separate_notice' => 'Каждый пользователь получит отдельное персональное сообщение',
 
-    /* LOGS */
+    /*** LOGS */
     'logs_errors_title' => 'Журналы: Ошибки системы',
     'logs_sql_errors_title' => 'Журналы: Ошибки SQL',
     'logs_sql_title' => 'Журналы: SQL-запросы',
@@ -420,7 +420,7 @@ return array(
     'admin_list_recalcvote' => 'Пересчитать счетчики голосований',
     'admin_list_recalctopic' => 'Пересчитать количество статей в блогах',
 
-    /* CONFIG */
+    /*** CONFIG */
     'config_title' => 'Настройки сайта',
     'menu_close_site' => 'Закрыть сайт',
     'menu_cache' => 'Кеширование',
@@ -588,14 +588,14 @@ return array(
     'set_acl_vote_topic_limit_time' => 'Ограничение времени голосования за статью (сек)',
     'set_acl_vote_comment_limit_time' => 'Ограничение времени голосования за комментарий (сек)',
 
-    /* SKINS */
+    /*** SKINS */
     'skins_title' => 'Оформление (скины)',
     'active_skin' => 'Активный скин',
     'available_skins' => 'Доступные скины',
     'skin_settings' => 'Настройки скина',
     'skin_themes' => 'Темы',
 
-    /* WIDGETS */
+    /*** WIDGETS */
     'widgets_title' => 'Виджеты',
     'menu_widgets' => 'Виджеты',
     'widget_edit_title' => 'Редактирование виджета',
@@ -618,7 +618,7 @@ return array(
 
     'widget_active' => 'Включен',
 
-    /* PLUGINS */
+    /*** PLUGINS */
     'plugins_title' => 'Управление плагинами',
     'all_plugins' => 'Все плагины',
     'active_plugins' => 'Активные плагины',
@@ -661,7 +661,7 @@ return array(
     'plugin_added_ok' => 'Плагин был успешно добавлен в список неактивных',
     'plugin_added_err' => 'Ошибка копирования плагина в общую папку плагинов',
 
-    /* USERFIELDS */
+    /*** USERFIELDS */
     'user_fields_title' => 'Поля контактов пользователей',
     'user_field_admin_title_add' => 'Добавить поле',
     'user_field_admin_title_edit' => 'Изменить поле',
@@ -682,7 +682,7 @@ return array(
     'user_field_error_add_no_title' => 'Необходимо указать заголовок поля',
     'user_field_error_name_exists' => 'Поле с таким именем уже существует',
 
-    /* TOOLS */
+    /*** TOOLS */
     'reset_title' => 'Сброс данных',
     'menu_reset_cache' => 'Сброс кеша',
     'menu_reset_config' => 'Сброс конфигурации',
@@ -792,7 +792,7 @@ return array(
     'menu_pages_new' => 'Новая',
     'menu_pages_options' => 'Опции',
 
-    /*
+    /***
      * Blog types
      */
     'blogtypes_menu'                 => 'Типы блогов',
@@ -844,7 +844,7 @@ return array(
     'blog_user_role_member'          => 'Участник',
     'blog_user_role_notmember'       => 'Любой',
 
-    // Подписка на блоги
+    /*** Подписка на блоги */
     'blog_membership_none'          => 'Нет',
     'blog_membership_free'          => 'Свободная',
     'blog_membership_request'       => 'По запросу',
@@ -861,7 +861,7 @@ return array(
 
     'blogtypes_err_id_notfound'     => 'Тип блога с заданным ID не найден',
 
-    /*
+    /***
      * User rights
      */
     'userrights_menu'                 => 'Права пользователей',
@@ -873,7 +873,7 @@ return array(
     'userrights_blogs_edit_comment'   => 'Редактировать комментарии',
     'userrights_blogs_delete_comment' => 'Удалять комментарии',
 
-    /*
+    /***
      * Content types
      */
     'contenttypes_menu'               => 'Типы контента',
@@ -906,7 +906,7 @@ return array(
     'contenttypes_del_err_text'       => 'Ошибка удаления типа контента <strong>%%name%%</strong>',
     'contenttypes_del_err_notempty'   => 'Есть статьи этого типа (<strong>%%count%%</strong>)',
 
-    /*
+    /***
      * Поля
      */
     'contenttypes_field'                 => 'Поле',
@@ -956,7 +956,7 @@ return array(
     'contenttypes_additional_link'       => 'Ссылка на оригинал',
 
 
-    /*
+    /***
      * Администрирование
      */
     'contenttypes_actions'    => 'Действия',
@@ -983,7 +983,7 @@ return array(
     'contenttypes_afteradd'   => 'Добавление дополнительных полей станет доступно после добавления нового типа',
 
 
-    //ошибки
+    /*** ОШИБКИ */
     'contenttypes_error_noallow_type'      => 'Вам запрещено добавлять статьи данного типа',
     'contenttypes_type_title_error'        => 'Поле название может быть от 2 до 200 символов',
     'contenttypes_type_title_decl_error'   => 'Поле название(множ числа) может быть от 2 до 200 символов',

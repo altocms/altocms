@@ -729,7 +729,9 @@ class Engine extends LsObject {
          */
         $nTimeInit = $this->GetTimeInit();
         $nTimeFull = microtime(true) - $nTimeInit;
-        if (isset($_SERVER['REQUEST_TIME'])) {
+        if (!empty($_SERVER['REQUEST_TIME_FLOAT'])) {
+            $nExecTime = round(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'], 3);
+        } elseif (!empty($_SERVER['REQUEST_TIME'])) {
             $nExecTime = round(microtime(true) - $_SERVER['REQUEST_TIME'], 3);
         } else {
             $nExecTime = 0;

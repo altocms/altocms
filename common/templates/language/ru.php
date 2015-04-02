@@ -25,7 +25,7 @@ return array(
 
     'noscript_message'                          => 'В Вашем браузере отключен javascript, поэтому сайт будет работать некорректно (если вообще будет)',
 
-    /**
+    /***
      * Блоги
      */
     'blogs'                                     => 'Блоги',
@@ -49,7 +49,7 @@ return array(
     'blog_can_add'                              => 'Вы можете создать свой блог!',
     'blog_cant_add'                             => 'Для возможности создавать блоги, ваш рейтинг должен быть больше %%rating%%.',
 
-    /*
+    /***
      * Эти определения используются для именования и описания блогов разных типов
      */
     'blogtypes_type_personal_name'              => 'Персональный',
@@ -62,19 +62,21 @@ return array(
     'blogtypes_type_hidden_name'                => 'Тайный',
     'blogtypes_type_hidden_description'         => 'Тайный — подписаться можно только по приглашению администрации блога, статьи и любую информацию о блоге видят только подписчики',
 
-    /**
-     * Declensions
+    /***
+     * Склонения
      */
     'reader_declension'                         => 'читатель;читателя;читателей',
     'topic_declension'                          => 'статья;статьи;статей',
     'draft_declension'                          => 'черновик;черновика;черновиков',
-    /**
+
+    /***
      * Популярные блоги
      */
     'blog_popular'                              => 'Популярные блоги',
     'blog_popular_rating'                       => 'Рейтинг',
     'blog_popular_all'                          => 'все блоги',
-    /**
+
+    /***
      * Пользователи блога
      */
     'blog_user_count'                           => 'подписчиков',
@@ -84,7 +86,8 @@ return array(
     'blog_user_readers'                         => 'Читатели',
     'blog_user_readers_all'                     => 'Все читатели блога',
     'blog_user_readers_empty'                   => 'Читателей здесь не замечено',
-    /**
+
+    /***
      * Голосование за блог
      */
     'blog_vote_up'                              => 'нравится',
@@ -96,8 +99,9 @@ return array(
     'blog_vote_error_banned'                    => 'Извините, вы забанены и не можете голосовать',
     'blog_vote_error_close'                     => 'Вы не можете голосовать за закрытый блог',
     'blog_vote_ok'                              => 'Ваш голос учтен',
-    /**
-     * Вступление и выход из блога
+
+    /***
+     * Подписка на блог
      */
     'blog_join'                                 => 'подписаться на блог',
     'blog_join_ok'                              => 'Вы подписались на блог',
@@ -117,7 +121,7 @@ return array(
     'blog_user_request_no_accept'               => 'Просьба пользователя отклонена',
     'notify_subject_blog_request_new'           => 'Запрос на вступление в блог',
 
-    /**
+    /***
      * Меню блогов
      */
     'blog_menu_all'                             => 'Главная',
@@ -145,7 +149,8 @@ return array(
     'blog_menu_edit'                            => 'Редактировать',
     'blog_menu_admin'                           => 'Администрировать',
     'blog_menu_delete'                          => 'Удалить',
-    /**
+
+    /***
      * Создание/редактирование блога
      */
     'blog_edit'                                 => 'Редактировать',
@@ -178,7 +183,8 @@ return array(
     'blog_create_avatar_delete'                 => 'удалить',
     'blog_create_submit'                        => 'Сохранить',
     'blog_create_submit_notice'                 => 'После нажатия на кнопку «Сохранить» блог будет создан',
-    /**
+
+    /***
      * Управление блогом
      */
     'blog_admin'                                => 'Управление блогом',
@@ -225,8 +231,9 @@ return array(
     'blog_user_invite_reject'                   => 'Приглашение отклонено',
     'blog_user_invite_readd'                    => 'повторить',
     'blog_user_invite_remove'                   => 'удалить',
-    /**
-     * Топики
+
+    /***
+     * Топики/Статьи
      */
     'topic_title'                               => 'Статьи',
     'topic_read_more'                           => 'Читать дальше',
@@ -268,7 +275,8 @@ return array(
     'topic_draft_link'                          => 'Прямая ссылка на черновик',
     'topic_add'                                 => 'Создать',
     'topic_add_title'                           => 'Добавьте свою статью!',
-    /**
+
+    /***
      * Меню топиков
      */
     'topic_menu_add'                            => 'Статья',
@@ -278,7 +286,8 @@ return array(
     'topic_menu_add_photoset'                   => 'Фотосет',
     'topic_menu_drafts'                         => 'Черновики',
     'topic_menu_published'                      => 'Опубликованные',
-    /**
+
+    /***
      * Создание топика
      */
     'topic_topic_create'                        => 'Добавить',
@@ -347,7 +356,7 @@ return array(
     'topic_show_photoset'                       => 'Отображать фотосет',
     'topic_show_photoset_notice'                => 'Если отметить эту галку, то фотосет будет полностью отображён после текста топика',
 
-    /**
+    /***
      * Топик-ссылка
      */
     'topic_link'                                => 'топик-ссылка',
@@ -363,7 +372,8 @@ return array(
     'topic_link_create_text'                    => 'Краткое описание (максимум 500 символов)',
     'topic_link_create_text_notice'             => 'HTML-теги запрещены',
     'topic_link_create_text_error'              => 'Описание ссылки должно быть от 10 до 500 символов',
-    /**
+
+    /***
      * Топик-опрос
      */
     'topic_question_title'                      => 'Опросы',
@@ -391,7 +401,8 @@ return array(
     'topic_question_create_text'                => 'Краткое описание (максимум 500 символов)',
     'topic_question_create_text_notice'         => 'HTML-теги запрещены',
     'topic_question_create_text_error'          => 'Описание опроса должно быть не более 500 символов',
-    /**
+
+    /***
      * Голосование за топик
      */
     'topic_vote_up'                             => 'нравится',
@@ -407,7 +418,8 @@ return array(
     'topic_vote_ok'                             => 'Ваш голос учтен',
     'topic_vote_ok_abstain'                     => 'Вы воздержались для просмотра рейтинга статьи',
     'topic_vote_count'                          => 'всего проголосовало',
-    /**
+
+    /***
      * Фотосет
      */
     'topic_photoset_create'                     => 'Создание фотосета',
@@ -438,7 +450,8 @@ return array(
     'topic_photoset_title_create'               => 'Создание фотосета',
     'topic_photoset_error_bad_filesize'         => 'Размер фото должен быть не более %%MAX%% Кб',
     'topic_photoset_photos'                     => 'фото',
-    /**
+
+    /***
      * Комментарии
      */
     'comments'                                  => 'Комментарии',
@@ -472,7 +485,8 @@ return array(
     'comment_track'                             => 'в ленте',
     'comment_subscribe'                         => 'по почте',
     'comment_declension'                        => 'комментарий;комментария;комментариев',
-    /**
+
+    /***
      * Голосование за комментарий
      */
     'comment_vote_error'                        => 'Попробуйте проголосовать позже',
@@ -490,11 +504,13 @@ return array(
     'comment_favourite_add_already'             => 'Этот комментарий уже есть в вашем избранном',
     'comment_favourite_del'                     => 'удалить из избранного',
     'comment_favourite_del_ok'                  => 'Комментарий удален из избранного',
-    /**
+
+    /***
      * Люди
      */
     'people'                                    => 'Люди',
-    /**
+
+    /***
      * Пользователь
      */
     'user'                                      => 'Пользователь',
@@ -568,14 +584,15 @@ return array(
     'user_banned_unlim'                         => 'Вам закрыт доступ к этому сайту',
     'user_ip_banned'                            => 'Закрыт доступ к этому сайту с вашего IP-адреса',
 
-    /**
+    /***
      * Меню профиля пользователя
      */
     'people_menu_users'                         => 'Пользователи',
     'people_menu_users_all'                     => 'Все',
     'people_menu_users_online'                  => 'Онлайн',
     'people_menu_users_new'                     => 'Новые',
-    /**
+
+    /***
      * Регистрация
      */
     'registration_invite'                       => 'Регистрация по приглашению',
@@ -611,14 +628,14 @@ return array(
     'registration_submit'                       => 'Зарегистрироваться',
     'registration_ok'                           => 'Поздравляем! Регистрация прошла успешно',
 
-    /**
+    /***
      * Повторный запрос активации
      */
     "reactivation"                              => "Повторный запрос активации",
     "reactivation_submit"                       => "Получить ссылку на активацию",
     "reactivation_send_link"                    => "Ссылка для активации отправлена на ваш адрес электронной почты.",
 
-    /**
+    /***
      * Голосование за пользователя
      */
     'user_vote_up'                              => 'нравится',
@@ -629,7 +646,8 @@ return array(
     'user_vote_error_acl'                       => 'У вас не хватает рейтинга и силы для голосования!',
     'user_vote_ok'                              => 'Ваш голос учтен',
     'user_vote_count'                           => 'голосов',
-    /**
+
+    /***
      * Меню профиля пользователя
      */
     'user_menu_profile'                         => 'Профиль',
@@ -647,7 +665,8 @@ return array(
     'user_menu_publication_comment'             => 'Комментарии',
     'user_menu_publication_comment_rss'         => 'RSS лента',
     'user_menu_publication_photos'              => 'Фотографии',
-    /**
+
+    /***
      * Профиль
      */
     'profile_privat'                            => 'Личное',
@@ -675,7 +694,8 @@ return array(
     'profile_add_friend'                        => 'Добавить друга',
     'profile_user_follow'                       => 'Подписаться',
     'profile_user_unfollow'                     => 'Отписаться',
-    /**
+
+    /***
      * UserFields
      */
     'user_field_admin_title'                    => 'Поля контактов пользователей',
@@ -695,7 +715,8 @@ return array(
     'user_field_error_add_no_name'              => 'Необходимо указать название поля',
     'user_field_error_add_no_title'             => 'Необходимо указать заголовок поля',
     'user_field_error_name_exists'              => 'Поле с таким именем уже существует',
-    /**
+
+    /***
      * Заметка пользователя
      */
     'user_note_form_edit'                       => 'Редактировать',
@@ -706,7 +727,8 @@ return array(
     'user_note_save_error'                      => 'Ошибка сохранения заметки',
     'user_note_target_error'                    => 'Неверный пользователь для заметки',
     'user_note_list_empty'                      => 'Тут ничего нет',
-    /**
+
+    /***
      * Стена
      */
     'wall_add_pid_error'                        => 'На данное сообщение невозможно ответить',
@@ -722,7 +744,8 @@ return array(
     'wall_action_reply'                         => 'Ответить',
     'wall_reply_placeholder'                    => 'Ответить...',
     'wall_reply_submit'                         => 'Отправить',
-    /**
+
+    /***
      * Настройки
      */
     'settings_profile_edit'                     => 'Изменение профиля',
@@ -805,7 +828,8 @@ return array(
     'settings_account_password_notice'          => 'Оставьте поля пустыми если не хотите изменять пароль.',
     'settings_account_submit'                   => 'Сохранить изменения',
     'settings_account_submit_ok'                => 'Аккаунт сохранен',
-    /**
+
+    /***
      * Меню настроек
      */
     'settings_menu'                             => 'Настройки',
@@ -813,7 +837,8 @@ return array(
     'settings_menu_tuning'                      => 'Настройки сайта',
     'settings_menu_invite'                      => 'Инвайты',
     'settings_menu_account'                     => 'Аккаунт',
-    /**
+
+    /***
      * Восстановление пароля
      */
     'password_reminder'                         => 'Восстановление пароля',
@@ -825,7 +850,8 @@ return array(
     'password_reminder_bad_code'                => 'Неверный код на восстановление пароля',
     'password_reminder_bad_code_txt'            => 'Возможно, вы уже использовали этот код, и вам нужно повторить процедуру восстановления пароля',
     'password_reminder_bad_email'               => 'Пользователь с таким e-mail не найден',
-    /**
+
+    /***
      * Панель
      */
     'panel_b'                                   => 'жирный',
@@ -855,7 +881,7 @@ return array(
     'panel_photoset'                            => 'вставить фотосет',
     'panel_spoiler'                             => 'вставить спойлер',
 
-    /**
+    /***
      * Виджеты
      */
     'widget_blogs'                              => 'Блоги',
@@ -897,7 +923,7 @@ return array(
     'site_history_back'                         => 'Вернуться назад',
     'site_go_main'                              => 'перейти на главную',
 
-    /* LS-compatibility - Blocks*/
+    /*** LS-compatibility - Blocks*/
     'block_tags'                                => 'Теги',
     'block_tags_empty'                          => 'Нет тегов',
     'block_tags_search'                         => 'Поиск тегов',
@@ -928,7 +954,7 @@ return array(
     'block_friends_uncheck'                     => 'Снять отметку',
     'block_friends_empty'                       => 'Список ваших друзей пуст',
 
-    /**
+    /***
      * Поиск
      */
     'search'                                    => 'Поиск',
@@ -946,7 +972,7 @@ return array(
     'search_err_length'                         => 'Длина запроса не может быть меньше %%min%% и больше %%max%% знаков',
     'search_err_length_word'                    => 'Длина каждого слова в запросе не может быть меньше %%min%% и больше %%max%% знаков',
 
-    /**
+    /***
      * Почта
      */
     'talk_menu_inbox'                           => 'Сообщения',
@@ -1026,7 +1052,8 @@ return array(
     'talk_speaker_delete_by_self'               => 'Участник <b>%%login%%</b> удалил этот разговор',
     'talk_speaker_add_self'                     => 'Нельзя добавлять в участники себя',
     'talk_not_found'                            => 'Разговор не найден',
-    /**
+
+    /***
      * Userfeed
      */
     'userfeed_block_blogs_title'                => 'Блоги',
@@ -1044,7 +1071,8 @@ return array(
     'userfeed_no_subscribed_users'              => 'Вы ещё не подписались на пользователей, чьи статьи хотите видеть',
     'userfeed_no_blogs'                         => 'Вы не вступили ни в один блог',
     'userfeed_error_subscribe_to_yourself'      => 'Вы не можете подписаться на себя',
-    /**
+
+    /***
      * Stream
      */
     'stream_block_config_title'                 => 'Настройка событий',
@@ -1097,18 +1125,20 @@ return array(
     'stream_settings_note_follow_user'          => 'Добавьте людей за активностью которых вы хотели бы следить',
     'stream_settings_note_follow_friend'        => 'Выберите друзей за активностью которых вы хотели бы следить',
 
-    /**
+    /***
      * Рейтинг TOP
      */
     'top'                                       => 'Рейтинг',
     'top_blogs'                                 => 'TOP Блогов',
     'top_topics'                                => 'TOP статей',
     'top_comments'                              => 'TOP комментариев',
-    /**
+
+    /***
      * Поиск по тегам
      */
     'tag_title'                                 => 'Поиск по тегам',
-    /**
+
+    /***
      * Постраничность
      */
     'paging_next'                               => 'следующая',
@@ -1116,7 +1146,8 @@ return array(
     'paging_last'                               => 'последняя',
     'paging_first'                              => 'первая',
     'paging'                                    => 'Страницы',
-    /**
+
+    /***
      * Загрузка изображений
      */
     'uploadimg'                                 => 'Вставка изображения',
@@ -1143,7 +1174,8 @@ return array(
     'uploadimg_size_width_max'                  => 'Макс. размер изображения',
     'uploadimg_size_width_max_text'             => 'Макс. размер изображения в процентах относительно ширины текста',
     'uploadimg_title'                           => 'Описание',
-    /**
+
+    /***
      * Втавка изображений
      */
     'insertimg'           => 'Добавить изображение',
@@ -1177,7 +1209,7 @@ return array(
     'target_type_all'                        => 'Все',
     'target_type_photoset' => 'Фотосет топика',
 
-    /**
+    /***
      * Уведомления
      */
     'notify_subject_comment_new'                => 'Новый комментарий к статье',
@@ -1197,7 +1229,7 @@ return array(
     'notify_subject_reactvation'                => 'Повторный запрос активации',
     'notify_subject_user_changemail'            => 'Подтверждение смены емайла',
 
-    /**
+    /***
      * Валидация данных
      */
     'validate_string_too_long'                  => 'Поле %%field%% слишком длинное (максимально допустимо %%max%% символов)',
@@ -1226,32 +1258,37 @@ return array(
     'validate_regexp_invalid_pattern'           => 'У поля %%field%% неверное регулярное выражение',
     'validate_tags_count_more'                  => 'Поле %%field%% содержит слишком много тегов (максимально допустимо %%count%%)',
     'validate_tags_empty'                       => 'Поле %%field%% не содержит тегов, либо содержит неверные теги (размер тега допустим от %%min%% до %%max%% символов)',
-    /**
+
+    /***
      * Подписка
      */
     'subscribe_change_ok'                       => 'Изменение подписки прошло успешно',
     'subscribe_tracking_menu'                   => 'Отслеживаемые комментарии',
     'subscribe_tracking_menu_new'               => 'Новые',
     'subscribe_menu'                            => 'Подписки',
-    /**
+
+    /***
      * Toolbar
      */
     'toolbar_scrollup_go'                       => 'Вверх',
     'toolbar_topic_next'                        => 'Следующая статья',
     'toolbar_topic_prev'                        => 'Предыдущая статья',
-    /**
+
+    /***
      * География
      */
     'geo_select_country'                        => 'Выберите страну',
     'geo_select_region'                         => 'Укажите регион',
     'geo_select_city'                           => 'Укажите город',
-    /**
+
+    /***
      * Избранное, общее
      */
     'favourite_form_tags_button_save'           => 'Сохранить',
     'favourite_form_tags_button_cancel'         => 'Отмена',
     'favourite_form_tags_button_show'           => 'изменить свои теги',
-    /**
+
+    /***
      * Инфо-блоки
      */
     'infobox_blog_create'                       => 'Создан',
@@ -1262,7 +1299,8 @@ return array(
     'infobox_blog_topic_last'                   => 'Последняя статья',
     'infobox_blog_url'                          => 'Читать блог',
     'infobox_blog_rss'                          => 'Подписаться на RSS',
-    /**
+
+    /***
      * Создание
      */
     'block_create'                              => 'Создать',
@@ -1277,7 +1315,7 @@ return array(
     'topic_add_poll'                            => 'Создать опрос',
     'topic_add_link'                            => 'Создать ссылку на источник',
 
-    /**
+    /***
      * Поля
      */
     'content_count_downloads'                   => 'Скачиваний',
@@ -1285,7 +1323,7 @@ return array(
     'content_file_replace'                      => 'Заменить',
     'content_download_file_error'               => 'Ошибка при скачивании файла',
 
-    /**
+    /***
      * Описание HTML тегов
      */
     'tags_help_link_show'                       => 'Доступны html-теги',
@@ -1311,13 +1349,13 @@ return array(
     'tags_help_standart_ul'                     => 'Ненумерованный список; каждый элемент списка задается тегом &lt;li&gt;, набор элементов списка помещайте в тег &lt;ul&gt;.',
     'tags_help_standart_ol'                     => 'Нумерованный список; каждый элемент списка задается тегом &lt;li&gt;, набор элементов списка помещайте в тег &lt;ol&gt;.',
 
-    /**
+    /***
      * Права доступа
      */
     'acl_cannot_show_content'                   => 'У Вас нет прав на просмотр контента',
     'acl_cannot_comment'                        => 'У Вас нет прав на добавление комментариев',
 
-    /**
+    /***
      * Системные сообщения
      */
     'system_error_event_args'                   => 'Некорректное число аргументов при добавлении евента',

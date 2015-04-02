@@ -20,6 +20,11 @@ if (version_compare(phpversion(), ALTO_PHP_REQUIRED) < 0) {
     die ('PHP version ' . ALTO_PHP_REQUIRED . ' or more requires for Alto CMS');
 }
 
+// Available since PHP 5.4.0, so fix it
+if (empty($_SERVER['REQUEST_TIME_FLOAT'])) {
+    $_SERVER['REQUEST_TIME_FLOAT'] = microtime(true);
+}
+
 define('ALTO_DEBUG_PROFILE', 1);
 define('ALTO_DEBUG_FILES', 2);
 
