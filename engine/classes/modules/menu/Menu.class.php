@@ -220,8 +220,8 @@ class ModuleMenu extends Module {
         // И конфиг сохраним
         $aNewConfigData = array();
         /** @var ModuleMenu_EntityItem $oMenuItem */
-        foreach ($oMenu->GetItems() as $oMenuItem) {
-            $aNewConfigData[$oMenuItem->getId()] = $oMenuItem->getItemConfig();
+        foreach ($oMenu->GetItems() as $sMenuId => $oMenuItem) {
+            $aNewConfigData[$sMenuId] = $oMenuItem ? $oMenuItem->getItemConfig() : "";
         }
         Config::WriteCustomConfig(array("menu.data.{$oMenu->getId()}.list" => $aNewConfigData));
         Config::Set("menu.data.{$oMenu->getId()}.list", $aNewConfigData);
