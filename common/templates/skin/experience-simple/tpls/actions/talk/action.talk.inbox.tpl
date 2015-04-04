@@ -30,7 +30,7 @@
             <div class="panel panel-default panel-table flat">
                 <div class="panel-body">
 
-                    <table class="table table-talk">
+                <table class="table table-talk">
                 <thead>
                 <tr>
                     <script>
@@ -74,7 +74,7 @@
                                 {if $oTalk->getIsFavourite()}<i class="fa fa-star"></i>{else}<i class="fa fa-star-o"></i>{/if}
                             </a>
                         </td>
-                        <td class="text-muted">
+                        <td class="table-talk-addressee text-muted">
                             {strip}
                                 {$aTalkUserOther=[]}
                                 {foreach $oTalk->getTalkUsers() as $oTalkUser}
@@ -100,15 +100,15 @@
                             {/strip}
                         </td>
 
-                        <td>
+                        <td class="table-talk-content">
 
                             {strip}
                                 <a href="{router page='talk'}read/{$oTalk->getId()}/" class="js-title-talk link link-lead link-clear"
                                    title="{$oTalk->getTextLast()|strip_tags|truncate:100:'...'|escape:'html'}">
                                     {if $oTalkUserAuthor->getCommentCountNew() OR !$oTalkUserAuthor->getDateLast()}
-                                        <strong>{$oTalk->getTitle()|escape:'html'}</strong>
+                                        <i class="fa fa-envelope"></i> <strong>{$oTalk->getTitle()|escape:'html'}</strong>
                                     {else}
-                                        {$oTalk->getTitle()|escape:'html'}
+                                        <i class="fa fa-envelope-o"></i> {$oTalk->getTitle()|escape:'html'}
                                     {/if}
                                 </a>
                             {/strip}

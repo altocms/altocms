@@ -100,7 +100,13 @@
                 <li {if $sAction=='profile' AND $aParams[0]=='stream'}class="active"{/if}><a class="link link-lead link-dual link-clear" href="{$oUserProfile->getProfileUrl()}stream/"><i class="fa fa-bar-chart-o"></i>{$aLang.user_menu_profile_stream}</a></li>
                 <li {if $sAction=='profile' AND $aParams[0]=='friends'}class="active"{/if}><a class="link link-lead link-dual link-clear" href="{$oUserProfile->getProfileUrl()}friends/"><i class="fa fa-users"></i>{$aLang.user_menu_profile_friends}{if ($iCountFriendsUser)>0} <span class="badge pull-right">{$iCountFriendsUser}</span>{/if}</a></li>
                 {if E::UserId() == $oUserProfile->getId()}
-                <li {if $sAction=='talk'}class="active"{/if}><a class="link link-lead link-dual link-clear" href="{router page='talk'}"><i class="fa fa-envelope-o"></i>{$aLang.talk_menu_inbox}{if $iUserCurrentCountTalkNew}<span class="badge pull-right"> {$iUserCurrentCountTalkNew}</span>{/if}</a></li>
+                <li {if $sAction=='talk'}class="active"{/if}><a class="link link-lead link-dual link-clear" href="{router page='talk'}">
+                    {if $iUserCurrentCountTalkNew}
+                    <i class="fa fa-envelope"></i>{$aLang.talk_menu_inbox} <span class="badge pull-right"> {$iUserCurrentCountTalkNew}</span></a>
+                    {else}
+                    <i class="fa fa-envelope-o"></i>{$aLang.talk_menu_inbox}</a>
+                    {/if}
+                </li>
                 <li {if $sAction=='settings'}class="active"{/if}><a class="link link-lead link-dual link-clear" href="{router page='settings'}"><i class="fa fa-cogs"></i>{$aLang.settings_menu}</a></li>
                 {/if}
                 {hook run='profile_sidebar_menu_item_last' oUserProfile=$oUserProfile}
