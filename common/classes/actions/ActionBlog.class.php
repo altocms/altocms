@@ -2320,16 +2320,17 @@ class ActionBlog extends Action {
                                 ModuleBlog::BLOG_USER_ROLE_ADMINISTRATOR
                             ), null
                         );
-                        /** @var ModuleUser_EntityUser[] $aBlogModerators */
-                        $aBlogModerators = $aBlogUsersResult['collection'];
-
-                        // Добавим владельца блога к списку
-                        $aBlogModerators = array_merge(
-                            $aBlogModerators,
-                            array($oBlog->getOwner())
-                        );
-
                         if ($aBlogUsersResult) {
+                            /** @var ModuleUser_EntityUser[] $aBlogModerators */
+                            $aBlogModerators = array();
+                            foreach ($aBlogUsersResult['collection'] as $oCurrentBlogUser) {
+                                $aBlogModerators[] = $oCurrentBlogUser->getUser();
+                            }
+                            // Добавим владельца блога к списку
+                            $aBlogModerators = array_merge(
+                                $aBlogModerators,
+                                array($oBlog->getOwner())
+                            );
                             $this->SendBlogRequest($oBlog, $aBlogModerators, $this->oUserCurrent);
                         }
 
