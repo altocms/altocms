@@ -742,6 +742,7 @@ $config['head']['default']['js'] = array(
     '___path.frontend.dir___/libs/vendor/jquery.fileapi/FileAPI/*'       => array(
         'dir_from'  => '___path.frontend.dir___/libs/vendor/jquery.fileapi/FileAPI/',
         'prepare'   => true,
+        'merge'    => false,
     ),
 
     /* Core */
