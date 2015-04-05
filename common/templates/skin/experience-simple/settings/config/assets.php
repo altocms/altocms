@@ -18,6 +18,8 @@ $config['head']['default']['js'] = Config::Get('head.default.js');
 //$config['head']['default']['js']["___path.skin.dir___/assets/js/experience/dropdown.min.js"] = array('name' => 'bootstrap');
 //$config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/menu.min.js";
 //$config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/menu-l2.min.js";
+$config['head']['default']['js'][] = "___path.skin.dir___/assets/js/selecter/jquery.fs.selecter.min.js";
+$config['head']['default']['js'][] = "___path.skin.dir___/assets/js/icheck/icheck.min.js";
 $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/script.min.js";
 $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/toolbar.min.js";
 if (isset($config['view']['fix_menu']) && $config['view']['fix_menu']) {
@@ -34,9 +36,7 @@ $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/c
 //$config['head']['default']['js'][] = "___path.frontend.dir___/bootstrap-3/js/carousel.min.js";
 //$config['head']['default']['js'][] = "___path.frontend.dir___/bootstrap-3/js/collapse.min.js";
 //$config['head']['default']['js'][] = "___path.frontend.dir___/bootstrap-3/js/modal.min.js";
-$config['head']['default']['js'][] = "___path.frontend.dir___/bootstrap-3/js/bootstrap.min.js";
-$config['head']['default']['js'][] = "___path.skin.dir___/assets/js/icheck/icheck.min.js";
-$config['head']['default']['js'][] = "___path.skin.dir___/assets/js/selecter/jquery.fs.selecter.min.js";
+//$config['head']['default']['js'][] = "___path.frontend.dir___/bootstrap-3/js/bootstrap.min.js";
 $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/moment/moment.min.js";
 $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/moment/moment.lang.ru.min.js";
 $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/jasny/fileinput.min.js";
