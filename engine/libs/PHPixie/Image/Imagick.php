@@ -145,6 +145,7 @@ class Imagick extends Driver{
 		}
 
 		if ($format == 'gif' && $this->multiframe()) {
+            $image = $image->deconstructImages();
 			$image->writeImages($file, true);
 		} else {
 			$this->set_quality($quality);
