@@ -231,7 +231,12 @@ class ActionAdmin extends Action {
         $aPlugins = E::ModulePlugin()->GetList(null, false);
         $aActivePlugins = E::ModulePlugin()->GetActivePlugins();
         $aPluginList = array();
-        foreach ($aActivePlugins as $sPlugin) {
+        foreach ($aActivePlugins as $aPlugin) {
+            if (is_array($aPlugin)) {
+                $sPlugin = $aPlugin['id'];
+            } else {
+                $sPlugin = (string)$aPlugin;
+            }
             if (isset($aPlugins[$sPlugin])) {
                 $oPluginEntity = $aPlugins[$sPlugin];
                 $sPluginName = $oPluginEntity->GetName();
