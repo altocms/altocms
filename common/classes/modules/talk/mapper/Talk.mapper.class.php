@@ -483,6 +483,7 @@ class ModuleTalk_MapperTalk extends Mapper {
 					{ AND tui.user_id = ?d }
 					{ AND tui.talk_id IN (?a) }
 					{ AND ( tu.comment_count_new > ?d OR tu.date_last IS NULL ) }
+					{ AND ( tu.user_id = ?d ) }
 					{ AND t.talk_date <= ? }
 					{ AND t.talk_date >= ? }
 					{ AND t.talk_title LIKE ? }
@@ -502,6 +503,7 @@ class ModuleTalk_MapperTalk extends Mapper {
             (!empty($aFilter['user_id']) ? $aFilter['user_id'] : DBSIMPLE_SKIP),
             ((isset($aFilter['id']) && count($aFilter['id'])) ? $aFilter['id'] : DBSIMPLE_SKIP),
             (!empty($aFilter['only_new']) ? 0 : DBSIMPLE_SKIP),
+            (!empty($aFilter['user_id']) ? $aFilter['user_id'] : DBSIMPLE_SKIP),
             (!empty($aFilter['date_max']) ? $aFilter['date_max'] : DBSIMPLE_SKIP),
             (!empty($aFilter['date_min']) ? $aFilter['date_min'] : DBSIMPLE_SKIP),
             (!empty($aFilter['keyword']) ? $aFilter['keyword'] : DBSIMPLE_SKIP),
