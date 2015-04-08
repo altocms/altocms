@@ -55,12 +55,12 @@ abstract class Module extends LsObject {
      * Returns array if entity IDs
      *
      * @param mixed $aEntities
-     * @param bool  $bUnuque
+     * @param bool  $bUnique
      * @param bool  $bSkipZero
      *
      * @return array
      */
-    protected function _entitiesId($aEntities, $bUnuque = true, $bSkipZero = true) {
+    protected function _entitiesId($aEntities, $bUnique = true, $bSkipZero = true) {
 
         $aIds = array();
         if (!is_array($aEntities)) {
@@ -73,7 +73,7 @@ abstract class Module extends LsObject {
                 }
             }
         }
-        if ($aIds && $bUnuque) {
+        if ($aIds && $bUnique) {
             $aIds = array_unique($aIds);
         }
         return $aIds;
@@ -82,15 +82,16 @@ abstract class Module extends LsObject {
     /**
      * Возвращает ID сущности, если передан объект, либо просто ID
      *
-     * @param $oEntityId
-     * @return int|mixed
+     * @param $xEntity
+     *
+     * @return int|null
      */
-    protected function _entityId($oEntityId) {
+    protected function _entityId($xEntity) {
 
-        if (is_scalar($oEntityId)) {
-            return intval($oEntityId);
+        if (is_scalar($xEntity)) {
+            return intval($xEntity);
         } else {
-            $aIds = $this->_entitiesId($oEntityId);
+            $aIds = $this->_entitiesId($xEntity);
             if ($aIds) {
                 return intval(reset($aIds));
             }
