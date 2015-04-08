@@ -208,7 +208,15 @@ class ModuleViewer extends Module {
      */
     protected $bLocal = false;
 
-    protected $sSkin;
+    /** @var  string Current skin */
+    protected $sViewSkin;
+
+    /** @var  string Current theme */
+    protected $sViewTheme;
+
+    protected $sForcedSkin;
+
+    protected $sForcedTheme;
 
     protected $bAssetInit = false;
 
@@ -349,7 +357,7 @@ class ModuleViewer extends Module {
      */
     protected function _initSkin() {
 
-        $this->sSkin = $this->GetConfigSkin();
+        $this->sViewSkin = $this->GetConfigSkin();
 
         // Load skin's config
         $aConfig = array();
@@ -377,7 +385,7 @@ class ModuleViewer extends Module {
             $aConfig = F::Array_MergeCombo($aConfig, F::IncludeFile($sFile, false, true));
         }
         // Checks skin's config from users settings
-        $aUserConfig = Config::Get('skin.' . $this->sSkin . '.config');
+        $aUserConfig = Config::Get('skin.' . $this->sViewSkin . '.config');
         if ($aUserConfig) {
             if (!$aConfig) {
                 $aConfig = $aUserConfig;
@@ -424,7 +432,7 @@ class ModuleViewer extends Module {
         E::ModuleHook()->Run('render_init_start', array('bLocal' => $this->bLocal));
 
         // If skin not initialized (or it was changed) then init one
-        if ($this->sSkin != $this->GetConfigSkin()) {
+        if ($this->sViewSkin != $this->GetConfigSkin()) {
             $this->_initSkin($this->bLocal);
         } else {
             // Level could be changed after skin initialization
@@ -800,6 +808,56 @@ class ModuleViewer extends Module {
     }
 
     /**
+     * Sets forced skin
+     *
+     * @param string $sSkin
+     */
+    public function SetViewSkin($sSkin) {
+
+        $this->sForcedSkin = $sSkin;
+    }
+
+    /**
+     * Sets forced theme
+     *
+     * @param string $sTheme
+     */
+    public function SetViewTheme($sTheme) {
+
+        $this->sForcedTheme = $sTheme;
+    }
+
+    /**
+     * Returns theme of current skin from forced settings or config
+     *
+     * @param  bool $bSiteSkin - if true then returns skin for site (ignore LEVEL_ACTION)
+     *
+     * @return string
+     */
+    public function GetViewSkin($bSiteSkin = false) {
+
+        if ($this->sForcedSkin && !$bSiteSkin) {
+            return $this->sForcedSkin;
+        }
+        return $this->GetConfigSkin($bSiteSkin);
+    }
+
+    /**
+     * Returns theme of current theme from forced settings or config
+     *
+     * @param  bool $bSiteSkin - if true then returns theme for site (ignore LEVEL_ACTION)
+     *
+     * @return string
+     */
+    public function GetViewTheme($bSiteSkin = false) {
+
+        if ($this->sForcedTheme && !$bSiteSkin) {
+            return $this->sForcedTheme;
+        }
+        return $this->GetConfigTheme($bSiteSkin);
+    }
+
+    /**
      * Возвращает скин
      *
      * @param bool $bSiteSkin - если задано, то возвращает скин, установленный для сайта (игнорирует скин экшена)
@@ -816,7 +874,7 @@ class ModuleViewer extends Module {
     }
 
     /**
-     * Returns theme of current skin
+     * Returns theme of current skin from config
      *
      * @param  bool $bSiteSkin - if true then returns theme for site (ignore LEVEL_ACTION)
      *
