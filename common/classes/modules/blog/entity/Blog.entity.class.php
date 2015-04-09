@@ -691,7 +691,7 @@ class ModuleBlog_EntityBlog extends Entity {
      */
     public function CanEditedBy($oUser) {
 
-        return E::ModuleACL()->IsAllowEditBlog($this, $oUser);
+        return $oUser && E::ModuleACL()->IsAllowEditBlog($this, $oUser);
     }
 
     /**
@@ -703,7 +703,7 @@ class ModuleBlog_EntityBlog extends Entity {
      */
     public function CanAdminBy($oUser) {
 
-        return E::ModuleACL()->IsAllowAdminBlog($this, $oUser);
+        return $oUser && E::ModuleACL()->IsAllowAdminBlog($this, $oUser);
     }
 
     /**
@@ -715,8 +715,25 @@ class ModuleBlog_EntityBlog extends Entity {
      */
     public function CanDeletedBy($oUser) {
 
-        return E::ModuleACL()->IsAllowDeleteBlog($this, $oUser);
+        return $oUser && E::ModuleACL()->IsAllowDeleteBlog($this, $oUser);
     }
+
+    /**
+     * Can this blog be read by the user?
+     *
+     * @param ModuleUser_EntityUser $oUser
+     *
+     * @return bool
+     */
+    public function CanReadBy($oUser) {
+
+        if ($this->GetBlogType() && $this->GetAclRead(ModuleBlog::BLOG_USER_ACL_GUEST)) {
+            // anybody can read blog
+            return true;
+        }
+        return $oUser && E::ModuleACL()->IsAllowShowBlog($this, $oUser);
+    }
+
 }
 
 // EOF

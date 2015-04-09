@@ -789,12 +789,6 @@ class ActionBlog extends Action {
             return parent::EventNotFound();
         }
 
-        // Определяем права на отображение записи из закрытого блога
-        if (!E::ModuleACL()->IsAllowShowBlog($oTopic->getBlog(), $this->oUserCurrent)) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('acl_cannot_show_content'), E::ModuleLang()->Get('not_access'));
-            return R::Action('error');
-        }
-
         // Если номер топика правильный, но URL блога неверный, то корректируем его и перенаправляем на нужный адрес
         if ($sBlogUrl != '' && $oTopic->getBlog()->getUrl() != $sBlogUrl) {
             R::Location($oTopic->getUrl());
@@ -818,6 +812,12 @@ class ActionBlog extends Action {
             && $oTopic->getUrl() != R::GetPathWebCurrent() . (substr($oTopic->getUrl(), -1) == '/' ? '/' : '')
         ) {
             R::Location($oTopic->getUrl());
+        }
+
+        // Checks rights to show content from the blog
+        if (!$oTopic->getBlog()->CanReadBy($this->oUserCurrent)) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('acl_cannot_show_content'), E::ModuleLang()->Get('not_access'));
+            return R::Action('error');
         }
 
         // Обрабатываем добавление коммента
@@ -1083,11 +1083,11 @@ class ActionBlog extends Action {
         /**
          * Определяем права на отображение закрытого блога
          */
-        if ($oBlog->getBlogType() && $oBlog->GetBlogType()->IsPrivate()
-            && (!$this->oUserCurrent || !in_array($oBlog->getId(), E::ModuleBlog()->GetAccessibleBlogsByUser($this->oUserCurrent)))
-        ) {
-            $bCloseBlog = true;
+        $oBlogType = $oBlog->GetBlogType();
+        if ($oBlogType) {
+            $bCloseBlog = !$oBlog->CanReadBy($this->oUserCurrent);
         } else {
+            // if blog type not defined then it' open blog
             $bCloseBlog = false;
         }
 

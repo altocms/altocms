@@ -608,12 +608,12 @@ class ModuleACL extends Module {
                         'delete_comment' => true,
                     ),
                     'moderator'     => array(
-                        'control_users' => false,
-                        'edit_blog'     => false,
-                        'edit_content'  => true,
-                        'del_content'   => false,
-                        'edit_comment'  => true,
-                        'delete_comment'   => true,
+                        'control_users'  => false,
+                        'edit_blog'      => false,
+                        'edit_content'   => true,
+                        'del_content'    => false,
+                        'edit_comment'   => true,
+                        'delete_comment' => true,
                     ),
                 ),
             );
