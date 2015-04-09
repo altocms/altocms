@@ -788,7 +788,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function isAdministrator() {
 
-        return E::ModuleUser()->HasRole($this, ModuleUser::USER_ROLE_ADMINISTRATOR);
+        return $this->HasRole(ModuleUser::USER_ROLE_ADMINISTRATOR);
     }
 
     /**
@@ -798,7 +798,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function isModerator() {
 
-        return E::ModuleUser()->HasRole($this, ModuleUser::USER_ROLE_MODERATOR);
+        return $this->HasRole(ModuleUser::USER_ROLE_MODERATOR);
     }
 
     /**
@@ -1294,13 +1294,25 @@ class ModuleUser_EntityUser extends Entity {
     }
 
     /**
-     * Устанавливает рль пользователя
+     * Устанавливает роль пользователя
      *
      * @param $data
      */
     public function setRole($data) {
 
         $this->setProp('user_role', $data);
+    }
+
+    /**
+     * Checks role of user
+     *
+     * @param int $iRole
+     *
+     * @return bool
+     */
+    public function hasRole($iRole) {
+
+        return (bool)$this->getPropMask('user_role', $iRole);
     }
 
 }

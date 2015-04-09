@@ -109,18 +109,6 @@ class ModuleUser extends Module {
     }
 
     /**
-     * Проверяет, есть ли у пользователя указанная роль
-     *
-     * @param ModuleUser_EntityUser $oUser
-     * @param int $iRole
-     * @return int
-     */
-    public function HasRole($oUser, $iRole) {
-
-        return (bool)($oUser->getRole() & $iRole);
-    }
-
-    /**
      * Compares user's password and passed password
      *
      * @param ModuleUser_EntityUser $oUser
