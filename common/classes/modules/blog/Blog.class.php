@@ -20,9 +20,8 @@
  * @since   1.0
  */
 class ModuleBlog extends Module {
-    /**
-     * Возможные роли пользователя в блоге
-     */
+
+    //  Возможные роли пользователя в блоге
     const BLOG_USER_ROLE_GUEST = 0;
     const BLOG_USER_ROLE_MEMBER = 1;
     const BLOG_USER_ROLE_MODERATOR = 2;
@@ -43,18 +42,13 @@ class ModuleBlog extends Module {
     const BLOG_USER_ACL_USER = 2;
     const BLOG_USER_ACL_MEMBER = 4;
 
-    /**
-     * Пользователь, приглашенный админом блога в блог
-     */
+    //  Пользователь, приглашенный админом блога в блог
     const BLOG_USER_ROLE_INVITE = -1;
 
-    /**
-     * Пользователь, отклонивший приглашение админа
-     */
+    //  Пользователь, отклонивший приглашение админа
     const BLOG_USER_ROLE_REJECT = -2;
-    /**
-     * Забаненный в блоге пользователь
-     */
+
+    //  Забаненный в блоге пользователь
     const BLOG_USER_ROLE_BAN = -4;
     const BLOG_USER_ROLE_WISHES = -6;
 
@@ -88,9 +82,7 @@ class ModuleBlog extends Module {
         $this->oMapper = E::GetMapper(__CLASS__);
         $this->oUserCurrent = E::ModuleUser()->GetUserCurrent();
 
-        /**
-         * LS-compatible
-         */
+        //  LS-compatible
         $this->oMapperBlog = $this->oMapper;
     }
 
@@ -549,7 +541,6 @@ class ModuleBlog extends Module {
         $oBlog->setDateEdit(F::Now());
         $bResult = $this->oMapper->UpdateBlog($oBlog);
         if ($bResult) {
-            //чистим зависимые кеши
             $aTags = array('blog_update', "blog_update_{$oBlog->getId()}", 'topic_update');
             if ($oBlog->getOldType() && $oBlog->getOldType() != $oBlog->getType()) {
                 // Списк авторов блога
@@ -558,6 +549,7 @@ class ModuleBlog extends Module {
                     $aTags[] = 'topic_update_user_' . $nUserId;
                 }
             }
+            //чистим зависимые кеши
             E::ModuleCache()->CleanByTags($aTags);
             E::ModuleCache()->Delete("blog_{$oBlog->getId()}");
             return true;
@@ -746,18 +738,14 @@ class ModuleBlog extends Module {
                 $aBlogUserRels, $sCacheKey, array('blog_update', "blog_relation_change_{$iUserId}"), 60 * 60 * 24 * 3
             );
         }
-        /**
-         * Достаем дополнительные данные, для этого формируем список блогов и делаем мульти-запрос
-         */
+        //  Достаем дополнительные данные, для этого формируем список блогов и делаем мульти-запрос
         $aBlogId = array();
         $aResult = array();
         if ($aBlogUserRels) {
             foreach ($aBlogUserRels as $oBlogUser) {
                 $aBlogId[] = $oBlogUser->getBlogId();
             }
-            /**
-             * Если указано возвращать полные объекты
-             */
+            //  Если указано возвращать полные объекты
             if (!$bReturnIdOnly) {
                 $aUsers = E::ModuleUser()->GetUsersAdditionalData($iUserId);
                 $aBlogs = E::ModuleBlog()->GetBlogsAdditionalData($aBlogId);
@@ -1189,14 +1177,11 @@ class ModuleBlog extends Module {
             return $this->GetBlogs(true);
         }
         if (false === ($aOpenBlogsUser = E::ModuleCache()->Get("blog_accessible_user_{$oUser->getId()}"))) {
-            /**
-             * Заносим блоги, созданные пользователем
-             */
+            //  Заносим блоги, созданные пользователем
             $aOpenBlogsUser = $this->GetBlogsByOwnerId($oUser->getId(), true);
-            /**
-             * Добавляем блоги, в которых состоит пользователь
-             * (читателем, модератором, или администратором)
-             */
+
+            // Добавляем блоги, в которых состоит пользователь
+            // (читателем, модератором, или администратором)
             $aOpenBlogsUser = array_merge($aOpenBlogsUser, $this->GetBlogUsersByUserId($oUser->getId(), null, true));
             E::ModuleCache()->Set(
                 $aOpenBlogsUser, "blog_accessible_user_{$oUser->getId()}",
