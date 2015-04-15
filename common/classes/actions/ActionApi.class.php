@@ -126,7 +126,7 @@ class ActionApi extends Action {
         /**
          * Установим шаблон вывода
          */
-        $this->SetTemplateAction('/../../../api/answer.tpl');
+        $this->SetTemplate('api/answer.tpl');
 
         /**
          * Возможно это PUT-запрос, получим его данные
@@ -208,10 +208,6 @@ class ActionApi extends Action {
                 }
             }
         }
-
-
-
-
 
         return TRUE;
 
