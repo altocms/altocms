@@ -54,9 +54,11 @@
                            onclick="$('.js-alto-multi-uploader').altoMultiUploader({ remove: '{$oPhoto->getMResourceId()}' }); return false;"
                            class="link link-lead link-red-blue js-uploader-item-delete"><i class="fa fa-times"></i>&nbsp;{$aLang.topic_photoset_photo_delete}</a>
                     <span class="photo-preview-state">
-                        <a href="#" onclick="$('.js-alto-multi-uploader').altoMultiUploader({ cover: '{$oPhoto->getMResourceId()}' }); return false;"
-                           class="link link-lead link-blue js-uploader-item-cover">
-                            {if $oPhoto->IsCover()}{$aLang.topic_photoset_is_preview}{else}{$aLang.topic_photoset_mark_as_preview}{/if}
+                        <a href="#"
+                           onclick="$('.js-alto-multi-uploader').altoMultiUploader({ cover: '{$oPhoto->getMResourceId()}' }); return false;"
+                           class="link link-lead link-blue js-uploader-item-cover {if $oPhoto->IsCover()}photoset-is-cover{/if}">
+                            <span class="marked-as-cover"><i class="fa fa-check-square-o"></i> {$aLang.topic_photoset_is_preview}</span>
+                            <span class="mark-as-cover"><i class="fa fa-square-o"></i> {$aLang.topic_photoset_mark_as_preview}</span>
                         </a>
                     </span>
                     </div>

@@ -351,3 +351,15 @@ li.active.category-show {
 .topic-text img, .topic-text a[data-url] {
     max-width: 100%;
 }
+.photo-preview-state .marked-as-cover {
+    display: none;
+}
+.photo-preview-state .mark-as-cover {
+    display: inline-block;
+}
+.photo-preview-state .photoset-is-cover .marked-as-cover {
+    display: inline-block;
+}
+.photo-preview-state .photoset-is-cover .mark-as-cover {
+    display: none;
+}

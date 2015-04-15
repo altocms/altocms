@@ -34,9 +34,17 @@
                 <img src="{$oPhoto->getWebPath('100crop')}" width="100px" alt="image"/>
                 <textarea class="form-control" onblur="$('.js-alto-multi-uploader').altoMultiUploader({ description: '{$oPhoto->getMResourceId()}' }); return false;">{$oPhoto->getDescription()}</textarea>
                 <a href="#" class="js-uploader-item-delete" onclick="$('.js-alto-multi-uploader').altoMultiUploader({ remove: '{$oPhoto->getMResourceId()}' }); return false;">{$aLang.topic_photoset_photo_delete}</a>
-                <a href="#" class="js-uploader-item-cover" onclick="$('.js-alto-multi-uploader').altoMultiUploader({ cover: '{$oPhoto->getMResourceId()}' }); return false;">
-                    {if $oPhoto->IsCover()}{$aLang.topic_photoset_is_preview}{else}{$aLang.topic_photoset_mark_as_preview}{/if}
-                </a>
+                {*<a href="#" class="js-uploader-item-cover" onclick="$('.js-alto-multi-uploader').altoMultiUploader({ cover: '{$oPhoto->getMResourceId()}' }); return false;">*}
+                    {*{if $oPhoto->IsCover()}{$aLang.topic_photoset_is_preview}{else}{$aLang.topic_photoset_mark_as_preview}{/if}*}
+                {*</a>*}
+                <span class="photo-preview-state">
+                    <a href="#"
+                       onclick="$('.js-alto-multi-uploader').altoMultiUploader({ cover: '{$oPhoto->getMResourceId()}' }); return false;"
+                       class="js-uploader-item-cover {if $oPhoto->IsCover()}photoset-is-cover{/if}">
+                        <span class="marked-as-cover">{$aLang.topic_photoset_is_preview}</span>
+                        <span class="mark-as-cover">{$aLang.topic_photoset_mark_as_preview}</span>
+                    </a>
+                </span>
             </li>
         {/var}
         {$ImagesList="$ImagesList $sPhotosetItem"}
@@ -56,7 +64,7 @@
     </div>
     <div id="topic-field-photoset" class="panel-collapse collapse {if $ImagesList}in{/if}">
         <div class="panel-body topic-photo-upload">
-            {* БЛОК ЗАГРУЗКИ ИЗОБРАЖЕНИЯ *}
+            {* БЛОК ЗАГРУЗК�? �?ЗОБРАЖЕН�?Я *}
 
             <div class="js-alto-multi-uploader js-topic-photoset"
                  data-target="{$sTargetType}"

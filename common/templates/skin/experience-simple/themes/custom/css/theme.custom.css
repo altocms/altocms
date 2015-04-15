@@ -1836,6 +1836,18 @@ fieldset[disabled] .btn-gray.active {
 .comment-subscribe label {
   font-weight: normal;
 }
+.photo-preview-state .marked-as-cover {
+  display: none;
+}
+.photo-preview-state .mark-as-cover {
+  display: inline-block;
+}
+.photo-preview-state .photoset-is-cover .marked-as-cover {
+  display: inline-block;
+}
+.photo-preview-state .photoset-is-cover .mark-as-cover {
+  display: none;
+}
 .comment-text {
   font-size: 13px !important;
 }
