@@ -411,6 +411,10 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function IsAllowEditTopic($oTopic, $oUser) {
+
+        if (!$oTopic || $oUser) {
+            return false;
+        }
         // * Разрешаем если это админ сайта или автор топика
         if ($oTopic->getUserId() == $oUser->getId() || $oUser->isAdministrator() || $oUser->isModerator()) {
             return true;
@@ -433,6 +437,10 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function IsAllowDeleteTopic($oTopic, $oUser) {
+
+        if (!$oTopic || $oUser) {
+            return false;
+        }
         // * Разрешаем если это админ сайта или автор топика
         if ($oTopic->getUserId() == $oUser->getId() || $oUser->isAdministrator() || $oUser->isModerator()) {
             return true;
