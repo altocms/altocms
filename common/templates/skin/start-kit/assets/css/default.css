@@ -689,7 +689,7 @@ a.user-friends:hover { color: #ff4136; text-decoration: none; }
 }
 
 
-/* СНИППЕТЫ
+/* СН�?ППЕТЫ
 ____________________________________________________________*/
 .snippet-menu {
     width: 20px;
@@ -785,7 +785,7 @@ ______________________________________________________________*/
 
 
 
-/* ДОБАВЛЕНИЕ КАРТИНКИ В РЕДАКТОР
+/* ДОБАВЛЕН�?Е КАРТ�?НК�? В РЕДАКТОР
 ____________________________________________________________*/
 .editor-insert-picture {
     width: 20px;
@@ -953,4 +953,17 @@ li.active.category-show {
 
 .js-userfeed-userlist li:nth-child(2){
     margin-top: 10px;
+}
+
+.photo-preview-state .marked-as-cover {
+    display: none;
+}
+.photo-preview-state .mark-as-cover {
+    display: inline-block;
+}
+.photo-preview-state .photoset-is-cover .marked-as-cover {
+    display: inline-block;
+}
+.photo-preview-state .photoset-is-cover .mark-as-cover {
+    display: none;
 }

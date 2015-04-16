@@ -217,9 +217,9 @@
                         ls.msg.error(null, result.sMsg);
                     } else {
                         ls.msg.notice(null, result.sMsg);
-                        $this.$photoset.find('.js-uploader-item-cover').text($this.options.langCoverNeed);
+                        $this.$photoset.find('.js-uploader-item-cover').removeClass('photoset-is-cover');
                         if (result.bPreview) {
-                            $('#uploader_item_' + id).find('.js-uploader-item-cover').text($this.options.langCoverDone);
+                            $('#uploader_item_' + id).find('.js-uploader-item-cover').addClass('photoset-is-cover');
                         }
                         ls.hook.run('uploader_set_cover_after', [$this.options, result]);
                     }
