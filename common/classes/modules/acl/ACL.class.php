@@ -412,7 +412,7 @@ class ModuleACL extends Module {
      */
     public function IsAllowEditTopic($oTopic, $oUser) {
 
-        if (!$oTopic || $oUser) {
+        if (!$oTopic || !$oUser) {
             return false;
         }
         // * Разрешаем если это админ сайта или автор топика
@@ -438,7 +438,7 @@ class ModuleACL extends Module {
      */
     public function IsAllowDeleteTopic($oTopic, $oUser) {
 
-        if (!$oTopic || $oUser) {
+        if (!$oTopic || !$oUser) {
             return false;
         }
         // * Разрешаем если это админ сайта или автор топика

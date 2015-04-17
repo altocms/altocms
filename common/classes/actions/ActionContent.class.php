@@ -481,8 +481,8 @@ class ActionContent extends Action {
     protected function EventEdit() {
 
         // * Получаем номер топика из URL и проверяем существует ли он
-        $sTopicId = $this->GetParam(0);
-        if (!($oTopic = E::ModuleTopic()->GetTopicById($sTopicId))) {
+        $iTopicId = intval($this->GetParam(0));
+        if (!$iTopicId || !($oTopic = E::ModuleTopic()->GetTopicById($iTopicId))) {
             return parent::EventNotFound();
         }
 
