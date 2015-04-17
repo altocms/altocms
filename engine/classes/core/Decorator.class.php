@@ -9,7 +9,7 @@
  */
 
 /**
- * Application class of CMS
+ * Class Decorator
  *
  * @package engine
  * @since 1.1
@@ -42,22 +42,30 @@ class Decorator extends LsObject {
         $this->oModuleHook->AddObserver($this->sHookPrefix, array($this, 'HookObserver'));
     }
 
+    /**
+     * Hook register which registers hooks
+     *
+     * @param $sHookName
+     */
     public function HookObserver($sHookName) {
 
         $this->aRegisteredHooks[$sHookName] = true;
     }
 
     /**
-     * Проверяет, есть ли метод в декорируемом объекте
-     * @param $sMethodName
+     * Checks whether there is a method in decorated object
+     *
+     * @param string $sMethodName
+     *
      * @return bool
      */
     public function MethodExists($sMethodName) {
+
         return method_exists($this->oComponent, $sMethodName);
     }
 
     /**
-     * Calls method of injected object
+     * Calls method of decorated object
      *
      * @param string $sMethod
      * @param array $aArgs
@@ -119,7 +127,7 @@ class Decorator extends LsObject {
                 $xResult = $this->oComponent->$sMethod($aArgs[0], $aArgs[1], $aArgs[2], $aArgs[3], $aArgs[4], $aArgs[5], $aArgs[6], $aArgs[7], $aArgs[8]);
                 break;
             default:
-                $xResult = call_user_func_array(array($this->oComponent, $sMethod), $aArgsRef);
+                $xResult = call_user_func_array(array($this->oComponent, $sMethod), $aArgs);
         }
 
         if ($this->bHookEnable) {
@@ -189,6 +197,8 @@ class Decorator extends LsObject {
     }
 
     /**
+     * Enables/disables hooks for methods of decorated hook
+     *
      * @param bool $bHookEnable
      */
     public function setHookEnable($bHookEnable) {
@@ -197,6 +207,8 @@ class Decorator extends LsObject {
     }
 
     /**
+     * Creates decorator
+     *
      * @param object $oComponent
      * @param bool   $bHookEnable
      *
