@@ -207,6 +207,7 @@ class ActionBlog extends Action {
         }
 
         //  Если всё ок то пытаемся создать блог
+        /** @var ModuleBlog_EntityBlog $oBlog */
         $oBlog = E::GetEntity('Blog');
         $oBlog->setOwnerId($this->oUserCurrent->getId());
 
@@ -241,7 +242,7 @@ class ActionBlog extends Action {
 
             // Читаем блог - это для получения полного пути блога,
             // если он в будущем будет зависит от других сущностей (компании, юзер и т.п.)
-            $oBlog->Blog_GetBlogById($oBlog->getId());
+            $oBlog = E::ModuleBlog()->GetBlogById($oBlog->getId());
 
             // Добавляем событие в ленту
             E::ModuleStream()->Write($oBlog->getOwnerId(), 'add_blog', $oBlog->getId());
@@ -253,6 +254,7 @@ class ActionBlog extends Action {
         } else {
             E::ModuleMessage()->AddError(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
         }
+        return true;
     }
 
     /**
@@ -824,6 +826,7 @@ class ActionBlog extends Action {
         if ($this->oUserCurrent) {
             $oTopicRead = E::ModuleTopic()->GetTopicRead($oTopic->getId(), $this->oUserCurrent->getid());
             if (!$oTopicRead) {
+                /** @var ModuleTopic_EntityTopicRead $oTopicRead */
                 $oTopicRead = E::GetEntity('Topic_TopicRead');
                 $oTopicRead->setTopicId($oTopic->getId());
                 $oTopicRead->setUserId($this->oUserCurrent->getId());
@@ -1018,10 +1021,17 @@ class ActionBlog extends Action {
         if (!in_array($sShowType, array('discussed', 'top'))) {
             $sPeriod = 'all';
         }
-        //  Проверяем есть ли блог с таким УРЛ
-        if (!($oBlog = E::ModuleBlog()->GetBlogByUrl($sBlogUrl))) {
+
+        //  Try to get blog by URL
+        $oBlog = E::ModuleBlog()->GetBlogByUrl($sBlogUrl);
+        if (!$oBlog && (intval($sBlogUrl) == $sBlogUrl)) {
+            // Try to get blog by ID
+            $oBlog = E::ModuleBlog()->GetBlogById($sBlogUrl);
+        }
+        if (!$oBlog) {
             return parent::EventNotFound();
         }
+
         //  Определяем права на отображение закрытого блога
         $oBlogType = $oBlog->GetBlogType();
         if ($oBlogType) {
@@ -1236,6 +1246,7 @@ class ActionBlog extends Action {
         }
 
         // * Создаём коммент
+        /** @var ModuleComment_EntityComment $oCommentNew */
         $oCommentNew = E::GetEntity('Comment');
         $oCommentNew->setTargetId($oTopic->getId());
         $oCommentNew->setTargetType('topic');
@@ -1263,6 +1274,7 @@ class ActionBlog extends Action {
             if ($oTopic->getPublish()) {
 
                 // * Добавляем коммент в прямой эфир если топик не в черновиках
+                /** @var ModuleComment_EntityCommentOnline $oCommentOnline */
                 $oCommentOnline = E::GetEntity('Comment_CommentOnline');
                 $oCommentOnline->setTargetId($oCommentNew->getTargetId());
                 $oCommentOnline->setTargetType($oCommentNew->getTargetType());
@@ -1389,6 +1401,7 @@ class ActionBlog extends Action {
         }
         $iMaxIdComment = $aReturn['iMaxIdComment'];
 
+        /** @var ModuleTopic_EntityTopicRead $oTopicRead */
         $oTopicRead = E::GetEntity('Topic_TopicRead');
         $oTopicRead->setTopicId($oTopic->getId());
         $oTopicRead->setUserId($this->oUserCurrent->getId());
@@ -1593,6 +1606,7 @@ class ActionBlog extends Action {
 
             if (!isset($aBlogUsers[$oUser->getId()])) {
                 // * Создаем нового блог-пользователя со статусом INVITED
+                /** @var ModuleBlog_EntityBlogUser $oBlogUserNew */
                 $oBlogUserNew = E::GetEntity('Blog_BlogUser');
                 $oBlogUserNew->setBlogId($oBlog->getId());
                 $oBlogUserNew->setUserId($oUser->getId());
@@ -1604,7 +1618,7 @@ class ActionBlog extends Action {
                         'sMsgTitle'     => E::ModuleLang()->Get('attention'),
                         'sMsg'          => E::ModuleLang()->Get('blog_user_invite_add_ok', array('login' => htmlspecialchars($sUser))),
                         'sUserLogin'    => htmlspecialchars($sUser),
-                        'sUserWebPath'  => $oUser->getUserWebPath(),
+                        'sUserWebPath'  => $oUser->getProfileUrl(),
                         'sUserAvatar48' => $oUser->getAvatarUrl(48),
                     );
                     $this->SendBlogInvite($oBlog, $oUser);
@@ -1825,7 +1839,7 @@ class ActionBlog extends Action {
         );
 
 
-        $sText = $this->Lang_Get(
+        $sText = E::ModuleLang()->Get(
             'blog_user_invite_text',
             array(
                  'login'       => $this->oUserCurrent->getLogin(),
@@ -2105,15 +2119,16 @@ class ActionBlog extends Action {
 
         //  Устанавливаем формат Ajax ответа
         E::ModuleViewer()->SetResponseAjax('json');
-        $sBlogId = F::GetRequestStr('idBlog', null, 'post');
+        $iBlogId = intval(F::GetRequestStr('idBlog', null, 'post'));
         //  Определяем тип блога и получаем его
-        if ($sBlogId == 0) {
-            if ($this->oUserCurrent) {
-                $oBlog = E::ModuleBlog()->GetPersonalBlogByUserId($this->oUserCurrent->getId());
-            }
+        if (($iBlogId == 0) && $this->oUserCurrent) {
+            $oBlog = E::ModuleBlog()->GetPersonalBlogByUserId($this->oUserCurrent->getId());
+        } elseif ($iBlogId) {
+            $oBlog = E::ModuleBlog()->GetBlogById($iBlogId);
         } else {
-            $oBlog = E::ModuleBlog()->GetBlogById($sBlogId);
+            $oBlog = null;
         }
+
         //  если блог найден, то возвращаем описание
         if ($oBlog) {
             $sText = $oBlog->getDescription();
@@ -2161,7 +2176,8 @@ class ActionBlog extends Action {
                         $oBlogUser->setUserRole(ModuleBlog::BLOG_USER_ROLE_USER);
                         $bResult = E::ModuleBlog()->UpdateRelationBlogUser($oBlogUser);
                     } elseif ($oBlogType->GetMembership(ModuleBlog::BLOG_USER_JOIN_FREE)) {
-                        // User can free subsribe to blog
+                        // User can free subscribe to blog
+                        /** @var ModuleBlog_EntityBlogUser $oBlogUserNew */
                         $oBlogUserNew = E::GetEntity('Blog_BlogUser');
                         $oBlogUserNew->setBlogId($oBlog->getId());
                         $oBlogUserNew->setUserId($this->oUserCurrent->getId());
@@ -2203,6 +2219,7 @@ class ActionBlog extends Action {
                     }
 
                     // Подписки ещё не было - оформим ее
+                    /** @var ModuleBlog_EntityBlogUser $oBlogUserNew */
                     $oBlogUserNew = E::GetEntity('Blog_BlogUser');
                     $oBlogUserNew->setBlogId($oBlog->getId());
                     $oBlogUserNew->setUserId($this->oUserCurrent->getId());
