@@ -94,6 +94,16 @@ class ModuleMresource_EntityMresource extends Entity {
     }
 
     /**
+     * Checks if resource is image
+     *
+     * @return bool
+     */
+    public function IsGraphicFile() {
+
+        return $this->IsType(ModuleMresource::TYPE_IMAGE | ModuleMresource::TYPE_PHOTO | ModuleMresource::TYPE_PHOTO_PRIMARY);
+    }
+
+    /**
      * Checks if resource can be deleted
      *
      * @return bool
