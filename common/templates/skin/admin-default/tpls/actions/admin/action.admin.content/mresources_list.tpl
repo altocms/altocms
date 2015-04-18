@@ -65,7 +65,7 @@
                                 {$oMresource->GetPathUrl()}
                             </td>
                             <td>
-                                {if $oMresource->GetImgUrl(100)}
+                                {if $oMresource->IsGraphicFile() && $oMresource->GetImgUrl(100)}
                                     <img src="{$oMresource->GetImgUrl(100)}" alt="" class="i-img-preview-100x100"/>
                                 {/if}
                             </td>

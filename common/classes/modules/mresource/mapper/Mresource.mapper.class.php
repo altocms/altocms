@@ -984,13 +984,18 @@ class ModuleMresource_MapperMresource extends Mapper {
                   ?_mresource_target as t, ?_mresource as m
                 WHERE
                   t.mresource_id = m.mresource_id
+                  AND (m.type & (?d | ?d | ?d))
                   AND m.user_id = ?d
 
                 GROUP  BY
                   ttype                ORDER BY
                  m.date_add desc";
 
-        return $this->oDb->select($sql, $iUserId);
+        return $this->oDb->select($sql,
+            ModuleMresource::TYPE_IMAGE,
+            ModuleMresource::TYPE_PHOTO,
+            ModuleMresource::TYPE_PHOTO_PRIMARY,
+            $iUserId);
 
     }
 
@@ -1007,9 +1012,14 @@ class ModuleMresource_MapperMresource extends Mapper {
                 FROM
                   ?_mresource
                 WHERE
-                  user_id = ?d";
+                  user_id = ?d
+                  AND (type & (?d | ?d | ?d))";
 
-        if ($aRow = $this->oDb->selectRow($sql, $iUserId)) {
+        if ($aRow = $this->oDb->selectRow($sql,
+            $iUserId,
+            ModuleMresource::TYPE_IMAGE,
+            ModuleMresource::TYPE_PHOTO,
+            ModuleMresource::TYPE_PHOTO_PRIMARY)) {
             return intval($aRow['count']);
         }
         return 0;
@@ -1029,12 +1039,18 @@ class ModuleMresource_MapperMresource extends Mapper {
                   t.mresource_id
 
                 FROM ?_mresource_target AS t, ?_mresource AS m
-                WHERE t.mresource_id = m.mresource_id AND m.user_id = ?d
+                WHERE t.mresource_id = m.mresource_id
+                      AND (m.type & (?d | ?d | ?d))
+                      AND m.user_id = ?d
                       AND ({1 = ?d AND t.target_tmp IS NOT NULL}{1 = ?d AND t.target_tmp IS NULL} AND ((t.target_type in ( ?a ) || t.target_type LIKE 'single-image-uploader%')  AND t.target_id = ?d))
 
                 GROUP BY t.mresource_id  ORDER BY
                  m.date_add desc) as r";
-        $aData = $this->oDb->selectCol($sql, $iUserId,
+        $aData = $this->oDb->selectCol($sql,
+            ModuleMresource::TYPE_IMAGE,
+            ModuleMresource::TYPE_PHOTO,
+            ModuleMresource::TYPE_PHOTO_PRIMARY,
+            $iUserId,
             $sTopicId == FALSE ? 1 : DBSIMPLE_SKIP,
             $sTopicId != FALSE ? 1 : DBSIMPLE_SKIP,
             array(
@@ -1063,6 +1079,7 @@ class ModuleMresource_MapperMresource extends Mapper {
                 FROM ?_mresource_target t, ?_mresource m
                 WHERE
                   m.mresource_id = t.mresource_id
+                  AND (m.type & (?d | ?d | ?d))
                   AND m.user_id = ?d
                   AND t.target_id <> 0
                   AND (t.target_type IN (?a) OR t.target_type LIKE 'single-image-uploader%')
@@ -1072,7 +1089,11 @@ class ModuleMresource_MapperMresource extends Mapper {
 
         $aResult = array();
 
-        if ($aRows = $this->oDb->selectPage($iCount, $sql, $iUserId, array(
+        if ($aRows = $this->oDb->selectPage($iCount, $sql,
+            ModuleMresource::TYPE_IMAGE,
+            ModuleMresource::TYPE_PHOTO,
+            ModuleMresource::TYPE_PHOTO_PRIMARY,
+            $iUserId, array(
             'photoset',
             'topic'
         ), ($iCurrPage - 1) * $iPerPage, $iPerPage)) {
