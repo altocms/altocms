@@ -516,8 +516,8 @@ class Router extends LsObject {
 
         $this->DefineActionClass();
 
-        // * Сначала запускаем инициализирующий евент
-        E::ModuleHook()->Run('init_action');
+        // Hook before action
+        E::ModuleHook()->Run('action_before');
 
         $sActionClass = $this->DefineActionClass();
 
@@ -534,9 +534,7 @@ class Router extends LsObject {
         $this->oAction = new $sActionClass(static::$sAction);
 
         // * Инициализируем экшен
-        E::ModuleHook()->Run('action_init_' . strtolower($sActionClass) . '_before');
         $sInitResult = $this->oAction->Init();
-        E::ModuleHook()->Run('action_init_' . strtolower($sActionClass) . '_after');
 
         if ($sInitResult === 'next') {
             $this->ExecAction();
@@ -547,9 +545,7 @@ class Router extends LsObject {
                 $res = $this->oAction->ExecEvent();
                 static::$sActionEventName = $this->oAction->GetCurrentEventName();
 
-                E::ModuleHook()->Run('action_shutdown_' . strtolower($sActionClass) . '_before');
                 $this->oAction->EventShutdown();
-                E::ModuleHook()->Run('action_shutdown_' . strtolower($sActionClass) . '_after');
 
                 if ($res === 'next') {
                     $this->ExecAction();
@@ -560,6 +556,8 @@ class Router extends LsObject {
                 $this->ExecAction();
             }
         }
+        // Hook after action
+        E::ModuleHook()->Run('action_after');
     }
 
     /**

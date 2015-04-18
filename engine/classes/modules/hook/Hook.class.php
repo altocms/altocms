@@ -241,6 +241,10 @@ class ModuleHook extends Module {
     public function Add($sHookName, $sType, $sCallBack, $iPriority = 1, $aParams = array()) {
 
         $sHookName = strtolower($sHookName);
+        // LS-compatibility
+        if ($sHookName == 'init_action') {
+            $sHookName = 'action_before';
+        }
         $sType = strtolower($sType);
         if (!in_array($sType, array('module', 'hook', 'function', 'template'))) {
             return false;
