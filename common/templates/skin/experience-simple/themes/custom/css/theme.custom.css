@@ -1688,6 +1688,12 @@ fieldset[disabled] .btn-gray.active {
 .tags_and_share .topic-tags a {
   text-decoration: underline !important;
 }
+.tags_and_share .pluso {
+  margin: 18px 0;
+}
+.tags_and_share .pluso span {
+  display: inline !important;
+}
 .topic-text {
   margin-bottom: 6px !important;
   font-size: 13px !important;
