@@ -1183,6 +1183,22 @@ class ModuleTopic_EntityTopic extends Entity {
      */
     public function getPhotosetMainPhotoId() {
 
+        // Топика ещё нет, вернём дефолтное значение (null)
+        if (!$this->getId()) {
+            return NULL;
+        }
+
+        $aResult = E::ModuleMresource()->GetMresourcesByFilter(array(
+            'target_type' => 'photoset',
+            'target_id'   => $this->getId(),
+            'type'        => ModuleMresource::TYPE_PHOTO_PRIMARY
+        ), 1, 1);
+
+        if ($aResult && ($oMresource = array_shift($aResult['collection']))) {
+            /** @var ModuleMresource_EntityMresource $oMresource */
+            return $oMresource->getMresourceId();
+        }
+
         return $this->getExtraValue('main_photo_id');
     }
 
@@ -1191,14 +1207,26 @@ class ModuleTopic_EntityTopic extends Entity {
      *
      * @return ModuleTopic_EntityTopicPhoto|null
      */
-    public function getPhotosetMainPhoto($bFirst = false) {
+    public function getPhotosetMainPhoto($bFirst = FALSE) {
 
-        $iMresourceId = $this->getPhotosetMainPhotoId();
-        if ($iMresourceId || $bFirst) {
-            $aPhotos = $this->getPhotosetPhotos($iMresourceId, 1);
-            return array_shift($aPhotos);
+        // Топика ещё нет, вернём дефолтное значение (null)
+        if (!$this->getId()) {
+            return NULL;
         }
-        return null;
+
+        $aResult = E::ModuleMresource()->GetMresourcesByFilter(array(
+            'target_type' => 'photoset',
+            'target_id'   => $this->getId(),
+            'type'        => ModuleMresource::TYPE_PHOTO_PRIMARY
+        ), 1, 1);
+
+        if ($aResult && ($oMresource = array_shift($aResult['collection']))) {
+            /** @var ModuleMresource_EntityMresource $oMresource */
+            return $oMresource;
+        }
+
+        return NULL;
+
     }
 
     public function getPhotosetMainPhotoUrl($bFirst = false, $sSize='' ) {
