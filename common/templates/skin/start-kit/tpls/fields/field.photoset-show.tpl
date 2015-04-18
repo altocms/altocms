@@ -11,13 +11,15 @@
         }
 
         function setRowGrid() {
-            $('.js-topic-photoset-list').rowGrid({
-                itemSelector: '.topic-photoset-item',
-                minMargin: 10,
-                maxMargin: 15,
-                resize: false,
-                lastRowClass: 'topic-photoset-last_row',
-                firstItemClass: "first-item"
+            $('.js-topic-photoset-list img').load(function () {
+                $('.js-topic-photoset-list').rowGrid({
+                    itemSelector: '.topic-photoset-item',
+                    minMargin: 10,
+                    maxMargin: 15,
+                    resize: false,
+                    lastRowClass: 'topic-photoset-last_row',
+                    firstItemClass: "first-item"
+                });
             });
         }
 
