@@ -394,7 +394,10 @@ class ModuleBlog extends Module {
                 E::ModuleCache()->Set(null, $sCacheKey, array('blog_update', 'blog_new'), 'P30D');
             }
         }
-        return $this->GetBlogById($iBlogId);
+        if ($iBlogId) {
+            return $this->GetBlogById($iBlogId);
+        }
+        return null;
     }
 
     /**

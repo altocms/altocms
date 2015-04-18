@@ -584,6 +584,36 @@ class ModuleComment_EntityComment extends Entity {
         return strtotime($this->getDate()) < time() - F::ToSeconds($nTimeLimit);
     }
 
+    /**
+     * Creates RSS item for the comment
+     *
+     * @return ModuleRss_EntityRssItem
+     */
+    public function CreateRssItem() {
+
+        $oTopic = $this->getTarget();
+        if (!$oTopic) {
+            return null;
+        }
+        if ($oTopic && $this->getTarget()->getTitle()) {
+            $sTitle = $oTopic->getTitle() . ' (comment #' . $this->getId() . ')';
+        } else {
+            $sTitle = 'Comment #' . $this->getId();
+        }
+        $aRssItemData = array(
+            'title' => $sTitle,
+            'description' => $this->getText(),
+            'link' => $oTopic->getUrl() . '#comment' . $this->getId(),
+            'author' => $this->getUser() ? $this->getUser()->getMail() : '',
+            'guid' => $oTopic->getUrlShort() . '#comment' . $this->getId(),
+            'pub_date' => $this->getDate() ? date('r', strtotime($this->getDate())) : '',
+        );
+        $oRssItem = E::GetEntity('ModuleRss_EntityRssItem', $aRssItemData);
+
+        return $oRssItem;
+    }
+
+
 }
 
 // EOF

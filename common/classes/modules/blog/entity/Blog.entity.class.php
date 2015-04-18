@@ -731,7 +731,29 @@ class ModuleBlog_EntityBlog extends Entity {
             // anybody can read blog
             return true;
         }
-        return $oUser && E::ModuleACL()->IsAllowShowBlog($this, $oUser);
+        return E::ModuleACL()->IsAllowShowBlog($this, $oUser);
+    }
+
+    /**
+     * Creates RSS channel for the blog (without items)
+     *
+     * @return ModuleRss_EntityRssChannel
+     */
+    public function CreateRssChannel() {
+
+        $aRssChannelData = array(
+            'title' => C::Get('view.name') . '/' . $this->getTitle(),
+            'description' => $this->getDescription(),
+            'link' => $this->getLink(),
+            'language' => C::Get('lang.current'),
+            'managing_editor' => $this->getOwner() ? $this->getOwner()->getMail() : '',
+            'web_master' => C::Get('general.rss_editor_mail'),
+            'generator' => 'Alto CMS v.' . ALTO_VERSION,
+        );
+
+        $oRssChannel = E::GetEntity('ModuleRss_EntityRssChannel', $aRssChannelData);
+
+        return $oRssChannel;
     }
 
 }

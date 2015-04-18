@@ -522,6 +522,8 @@ class ModuleTopic extends Module {
         $aBlogId = array();
         $aTopicId = array();
         $aPhotoMainId = array();
+
+        /** @var ModuleTopic_EntityTopic $oTopic */
         foreach ($aTopics as $oTopic) {
             if (isset($aAllowData['user'])) {
                 $aUserId[] = $oTopic->getUserId();

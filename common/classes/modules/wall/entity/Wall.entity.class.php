@@ -135,9 +135,38 @@ class ModuleWall_EntityWall extends Entity {
      *
      * @return string
      */
+    public function getLink() {
+
+        return $this->getWallUser()->getProfileUrl() . 'wall/';
+    }
+
+    /**
+     * @deprecated
+     * @return string
+     */
     public function getUrlWall() {
 
-        return $this->getWallUser()->getUserWebPath() . 'wall/';
+        return $this->getLink();
+    }
+
+    /**
+     * Creates RSS item for the wall record
+     *
+     * @return ModuleRss_EntityRssItem
+     */
+    public function CreateRssItem() {
+
+        $aRssItemData = array(
+            'title' => 'Wall of ' . $this->getWallUser()->getDisplayName() . ' (record #' . $this->getId() . ')',
+            'description' => $this->getText(),
+            'link' => $this->getLink(),
+            'author' => $this->getWallUser() ? $this->getWallUser()->getMail() : '',
+            'guid' => $this->getLink(),
+            'pub_date' => $this->getDateAdd() ? date('r', strtotime($this->getDateAdd())) : '',
+        );
+        $oRssItem = E::GetEntity('ModuleRss_EntityRssItem', $aRssItemData);
+
+        return $oRssItem;
     }
 
 }

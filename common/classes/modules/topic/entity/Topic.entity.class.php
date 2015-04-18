@@ -1687,6 +1687,28 @@ class ModuleTopic_EntityTopic extends Entity {
 
         return E::ModuleACL()->IsAllowDeleteTopic($this, $oUser);
     }
+
+    /**
+     * Creates RSS item for the topic
+     *
+     * @return ModuleRss_EntityRssItem
+     */
+    public function CreateRssItem() {
+
+        $aRssItemData = array(
+            'title' => $this->getTitle(),
+            'description' => $this->getText(),
+            'link' => $this->getUrl(),
+            'author' => $this->getUser() ? $this->getUser()->getMail() : '',
+            'guid' => $this->getUrlShort(),
+            'comments' => $this->getUrl() . '#comments',
+            'pub_date' => $this->getDateShow() ? date('r', strtotime($this->getDateShow())) : '',
+        );
+        $oRssItem = E::GetEntity('ModuleRss_EntityRssItem', $aRssItemData);
+
+        return $oRssItem;
+    }
+
 }
 
 // EOF
