@@ -130,6 +130,36 @@ abstract class Entity extends LsObject {
     }
 
     /**
+     * Appends value into property
+     *
+     * @param string $sKey
+     * @param string $sSubKey
+     * @param mixed  $xVal
+     *
+     * @return  object
+     */
+    public function appendProp($sKey, $sSubKey, $xVal = null) {
+
+        if (func_num_args() == 2) {
+            $xVal = $sSubKey;
+            $sSubKey = null;
+        }
+        $xData = $this->getProp($sKey);
+        if (!is_null($xData) && !is_array($xData)) {
+            $this->_aData[$sKey] = array($xData);
+        } elseif (is_null($xData)) {
+            $this->_aData[$sKey] = array();
+        }
+        if (is_null($sSubKey)) {
+            $this->_aData[$sKey][] = $xVal;
+        } else {
+            $this->_aData[$sKey][$sSubKey] = $xVal;
+        }
+
+        return $this;
+    }
+
+    /**
      * Gets property of entity
      *
      * @param   string $sKey
