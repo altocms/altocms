@@ -222,6 +222,8 @@ class ModuleViewer extends Module {
 
     protected $nMuteErrorsCnt = 0;
 
+    protected $aResponseHeaders = array();
+
     /**
      * Константа для компиляции LESS-файлов
      */
@@ -285,6 +287,9 @@ class ModuleViewer extends Module {
         E::ModuleMessage()->IsInit();
 
         $this->sCacheDir = Config::Get('path.runtime.dir');
+
+        $this->SetResponseHeader('X-Powered-By', 'Alto CMS');
+        $this->SetResponseHeader('Content-Type', 'text/html; charset=utf-8');
     }
 
     /**
@@ -457,6 +462,71 @@ class ModuleViewer extends Module {
     }
 
     /**
+     * Add HTTP header
+     *
+     * @param string $sHeader
+     */
+    public function AddResponseHeader($sHeader) {
+
+        if (preg_match('/^([^:]+)\s+:(.+)$/', $sHeader, $aM)) {
+            $sHeader = $aM[1] . ': ' . $aM[2];
+        }
+        $this->aResponseHeaders[] = $sHeader;
+    }
+
+    /**
+     * Sets HTTP header as "<key>: <value>"
+     *
+     * @param string $sHeaderKey
+     * @param string $sHeaderValue
+     */
+    public function SetResponseHeader($sHeaderKey, $sHeaderValue) {
+
+        $sSeekKey = strtolower($sHeaderKey) . ':';
+        foreach($this->aResponseHeaders as $iIndex => $sHeader) {
+            if (strpos(strtolower($sHeader), $sSeekKey) === 0) {
+                unset($this->aResponseHeaders[$iIndex]);
+                break;
+            }
+        }
+        $this->AddResponseHeader($sHeaderKey . ': ' . $sHeaderValue);
+    }
+
+    /**
+     * Clears HTTP Headers
+     */
+    public function ClearResponseHeaders() {
+
+        $this->aResponseHeaders[] = array();
+    }
+
+    /**
+     * Returns HTTP headers
+     *
+     * @return array
+     */
+    public function GetResponseHeaders() {
+
+        return $this->aResponseHeaders;
+    }
+
+    /**
+     * Send HTTP headers
+     *
+     * @return bool
+     */
+    public function SendResponseHeaders() {
+
+        if (headers_sent()) {
+            return false;
+        }
+        foreach($this->aResponseHeaders as $sHeader) {
+            header($sHeader);
+        }
+        return true;
+    }
+
+    /**
      * Возвращает локальную копию модуля
      *
      * @return ModuleViewer
@@ -598,9 +668,7 @@ class ModuleViewer extends Module {
             $this->DisplayAjax($this->sResponseAjax);
         }
 
-        header('Content-Type: text/html; charset=utf-8');
-        header('X-Powered-By: Alto CMS');
-
+        $this->SendResponseHeaders();
         /*
          * Если шаблон найден то выводим, иначе - ошибка
          * Но предварительно проверяем наличие делегата
@@ -739,7 +807,6 @@ class ModuleViewer extends Module {
      */
     public function DisplayAjax($sType = 'json') {
 
-        $aHeaders = array();
         $sOutput = '';
 
         // * Загружаем статус ответа и сообщение
@@ -760,29 +827,20 @@ class ModuleViewer extends Module {
         $this->AssignAjax('sMsg', $sMsg);
         $this->AssignAjax('bStateError', $bStateError);
         if ($sType == 'json') {
-            if ($this->bResponseSpecificHeader && !headers_sent()) {
-                $aHeaders[] = 'Content-type: application/json';
-            }
+            $this->SetResponseHeader('Content-type', 'application/json');
             $sOutput = F::jsonEncode($this->aVarsAjax);
         } elseif ($sType == 'jsonIframe') {
             // Оборачивает json в тег <textarea>, это не дает браузеру выполнить HTML, который вернул iframe
-            if ($this->bResponseSpecificHeader && !headers_sent()) {
-                $aHeaders[] = 'Content-type: application/json';
-            }
+            $this->SetResponseHeader('Content-type', 'application/json');
 
             // * Избавляемся от бага, когда в возвращаемом тексте есть &quot;
             $sOutput = '<textarea>' . htmlspecialchars(F::jsonEncode($this->aVarsAjax)) . '</textarea>';
         } elseif ($sType == 'jsonp') {
-            if ($this->bResponseSpecificHeader && !headers_sent()) {
-                $aHeaders[] = 'Content-type: application/json';
-            }
+            $this->SetResponseHeader('Content-type', 'application/json');
             $sOutput = F::GetRequest('jsonpCallback', 'callback') . '(' . F::jsonEncode($this->aVarsAjax) . ');';
         }
-        if ($aHeaders) {
-            foreach ($aHeaders as $sHeader) {
-                header($sHeader);
-            }
-        }
+        $this->SendResponseHeaders();
+
         echo $sOutput;
         exit();
     }
