@@ -7,20 +7,19 @@
 {/if}
 
 {if $aTags OR $aFavouriteTags}
-    <table class="tags_and_share">
-        <tr>
-            <td>
-                <ul class="topic-tags js-favourite-insert-after-form js-favourite-tags-topic-{$oTopic->getId()}">
-                    <li class="tags-title"><i class="fa fa-tags"></i></li>
-                    {if $aTags}
-                        {foreach $aTags as $sTag}
-                            <li>
-                                <a class="link link-lead link-light-gray link-clear" href="{router page='tag'}{$sTag|escape:'url'}/">{$sTag|escape:'html'}</a>{if !$sTag@last}, {/if}
-                            </li>
-                        {/foreach}
-                    {else}
-                        <li>{$aLang.topic_tags_empty}</li>
-                    {/if}
+    <div class="row tags_and_share">
+        <div class="col-md-15">
+            <ul class="topic-tags js-favourite-insert-after-form js-favourite-tags-topic-{$oTopic->getId()}">
+                <li class="tags-title"><i class="fa fa-tags"></i></li>
+                {if $aTags}
+                    {foreach $aTags as $sTag}
+                        <li>
+                            <a class="link link-lead link-light-gray link-clear" href="{router page='tag'}{$sTag|escape:'url'}/">{$sTag|escape:'html'}</a>{if !$sTag@last}, {/if}
+                        </li>
+                    {/foreach}
+                {else}
+                    <li>{$aLang.topic_tags_empty}</li>
+                {/if}
 
 
                     {if E::IsUser()}
@@ -40,8 +39,8 @@
                         </li>
                     {/if}
                 </ul>
-            </td>
-            <td>
+        </div>
+        <div class="col-md-9">
                 <div class="pull-right">
                     <script type="text/javascript">(function() {
                             if (window.pluso)if (typeof window.pluso.start == "function") return;
@@ -54,7 +53,6 @@
                             }})();</script>
                     <div class="pluso" data-background="transparent" data-options="medium,round,line,horizontal,counter,theme=04" data-services="facebook,twitter,vkontakte,odnoklassniki,google"></div>
                 </div>
-            </td>
-        </tr>
-    </table>
+        </div>
+    </div>
 {/if}
