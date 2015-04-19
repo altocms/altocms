@@ -1791,7 +1791,7 @@ class ModuleViewer extends Module {
             ),
             'assets' => E::ModuleViewerAsset()->GetPreparedAssetLinks(),
             'lang' => Config::Get('lang.current'),
-            'wysiwyg' => Config::Get('view.wysiwyg'),
+            'wysiwyg' => Config::Get('view.wysiwyg') ? true : false,
         );
 
         $sScript = 'var ls = ls || { };' . PHP_EOL;
