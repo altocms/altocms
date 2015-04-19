@@ -364,6 +364,7 @@ $config['module']['uploader']['images']['default'] = array(
 
 $config['module']['uploader']['images']['profile_avatar'] = array(
     '$extends$' => '___module.uploader.images.default___',
+    'size' => array('large' => '96x96crop', 'medium' => '64x64crop', 'small' => '32x32crop'),
     'transform' => array(
         'max_width'  => 250,        // максимальная ширина сохраняемой аватары
         'max_height' => 250,        // максимальная высота сохраняемой аватары

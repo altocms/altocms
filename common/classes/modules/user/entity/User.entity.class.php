@@ -599,6 +599,9 @@ class ModuleUser_EntityUser extends Entity {
         $sPropKey = '_avatar_url_' . $xSize;
         $sUrl = $this->getProp($sPropKey);
         if (is_null($sUrl)) {
+            if ($sRealSize = C::Get('module.uploader.images.profile_avatar.size.' . $xSize)) {
+                $xSize = $sRealSize;
+            }
             $sUrl = $this->_getProfileImageUrl('profile_avatar', $xSize);
             if (!$sUrl) {
                 // Old version compatibility
@@ -636,6 +639,9 @@ class ModuleUser_EntityUser extends Entity {
             }
         }
 
+        if ($sRealSize = C::Get('module.uploader.images.profile_avatar.size.' . $xSize)) {
+            $xSize = $sRealSize;
+        }
         if (is_string($xSize) && strpos($xSize, 'x')) {
             list($nW, $nH) = array_map('intval', explode('x', $xSize));
         } else {

@@ -292,6 +292,9 @@ class ModuleBlog_EntityBlog extends Entity {
         $sPropKey = '_avatar_url_' . $xSize;
         $sUrl = $this->getProp($sPropKey);
         if (is_null($sUrl)) {
+            if ($sRealSize = C::Get('module.uploader.images.profile_avatar.size.' . $xSize)) {
+                $xSize = $sRealSize;
+            }
             $aImages = $this->getMediaResources('blog_avatar');
             if (!empty($aImages)) {
 
@@ -336,6 +339,9 @@ class ModuleBlog_EntityBlog extends Entity {
 
         $sPath = E::ModuleUploader()->GetUserAvatarDir(0) . 'avatar_blog_' . Config::Get('view.skin', Config::LEVEL_CUSTOM) . '.png';
         if ($xSize) {
+            if ($sRealSize = C::Get('module.uploader.images.profile_avatar.size.' . $xSize)) {
+                $xSize = $sRealSize;
+            }
             if (is_string($xSize) && $xSize[0] == 'x') {
                 $xSize = substr($xSize, 1);
             }
