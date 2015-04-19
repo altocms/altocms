@@ -586,6 +586,7 @@ CREATE TABLE IF NOT EXISTS `prefix_topic` (
   KEY `blog_id` (`blog_id`),
   KEY `topic_count_comment` (`topic_count_comment`),
   KEY `topic_date_add` (`topic_date_add`),
+  KEY `topic_date_show` (`topic_date_show`),
   KEY `topic_publish` (`topic_publish`),
   KEY `topic_rating` (`topic_rating`),
   KEY `topic_text_hash` (`topic_text_hash`),

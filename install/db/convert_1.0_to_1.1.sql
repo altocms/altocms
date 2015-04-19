@@ -86,3 +86,10 @@ WHERE
 
 -- Приведение полей к одному типу
 ALTER TABLE  `prefix_topic_read` CHANGE  `comment_count_last`  `comment_count_last` INT( 11 ) UNSIGNED NOT NULL DEFAULT  '0';
+
+-- Обновление поля prefix_topic.topic_date_show
+UPDATE prefix_topic SET topic_date_show=topic_date_add
+WHERE topic_publish=1 AND topic_date_show IS NULL;
+
+ALTER TABLE  `prefix_topic` ADD INDEX (  `topic_date_show` );
+

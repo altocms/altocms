@@ -1423,7 +1423,7 @@ class ModuleTopic extends Module {
         if ($sPeriod) {
             $aFilter['topic_date_more'] = $sPeriod;
         }
-        $aFilter['order'] = ' t.topic_count_comment desc, t.topic_id desc ';
+        $aFilter['order'] = array('t.topic_count_comment DESC', 't.topic_date_show DESC', 't.topic_id DESC');
 
         // If a user is authorized then adds blogs on which it is subscribed
         if ($this->oUserCurrent && $bAddAccessible) {
@@ -1461,7 +1461,7 @@ class ModuleTopic extends Module {
         if ($sPeriod) {
             $aFilter['topic_date_more'] = $sPeriod;
         }
-        $aFilter['order'] = array('t.topic_rating desc', 't.topic_id desc');
+        $aFilter['order'] = array('t.topic_rating DESC', 't.topic_date_show DESC', 't.topic_id DESC');
 
         // If a user is authorized then adds blogs on which it is subscribed
         if ($this->oUserCurrent && $bAddAccessible) {
@@ -1572,10 +1572,10 @@ class ModuleTopic extends Module {
                 // нет доп фильтра
                 break;
             case 'discussed':
-                $aFilter['order'] = array('t.topic_count_comment desc', 't.topic_id desc');
+                $aFilter['order'] = array('t.topic_count_comment DESC', 't.topic_date_show DESC', 't.topic_id DESC');
                 break;
             case 'top':
-                $aFilter['order'] = array('t.topic_rating desc', 't.topic_id desc');
+                $aFilter['order'] = array('t.topic_rating DESC', 't.topic_date_show DESC', 't.topic_id DESC');
                 break;
             default:
                 break;
@@ -1730,10 +1730,10 @@ class ModuleTopic extends Module {
                 // нет доп фильтра
                 break;
             case 'discussed':
-                $aFilter['order'] = array('t.topic_count_comment desc', 't.topic_id desc');
+                $aFilter['order'] = array('t.topic_count_comment DESC', 't.topic_date_show DESC', 't.topic_id DESC');
                 break;
             case 'top':
-                $aFilter['order'] = array('t.topic_rating desc', 't.topic_id desc');
+                $aFilter['order'] = array('t.topic_rating DESC', 't.topic_date_show DESC', 't.topic_id DESC');
                 break;
             default:
                 break;
@@ -1852,10 +1852,10 @@ class ModuleTopic extends Module {
                 // нет доп фильтра
                 break;
             case 'discussed':
-                $aFilter['order'] = array('t.topic_count_comment desc', 't.topic_id desc');
+                $aFilter['order'] = array('t.topic_count_comment DESC', 't.topic_date_show DESC', 't.topic_id DESC');
                 break;
             case 'top':
-                $aFilter['order'] = array('t.topic_rating desc', 't.topic_id desc');
+                $aFilter['order'] = array('t.topic_rating DESC', 't.topic_date_show DESC', 't.topic_id DESC');
                 break;
             default:
                 break;
