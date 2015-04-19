@@ -1619,7 +1619,7 @@ class ModuleViewer extends Module {
             ),
             'assets' => $this->ViewerAsset_GetPreparedAssetLinks(),
             'lang' => Config::Get('lang.current'),
-            'wysiwyg' => Config::Get('view.wysiwyg'),
+            'wysiwyg' => Config::Get('view.wysiwyg') ? true : false,
         );
 
         $sScript = 'var ls = ls || { };' . PHP_EOL;

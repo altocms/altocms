@@ -1264,8 +1264,14 @@ class ActionBlog extends Action {
 
         // * Проверяем текст комментария
         $sText = $this->Text_Parser(F::GetRequestStr('comment_text'));
-        if (!F::CheckVal($sText, 'text', Config::Val('module.comment.min_length', 2), Config::Val('module.comment.max_length', 10000))) {
-            $this->Message_AddErrorSingle($this->Lang_Get('topic_comment_add_text_error'), $this->Lang_Get('error'));
+        $iMin = Config::Val('module.comment.min_length', 2);
+        $iMax = Config::Val('module.comment.max_length', 0);
+        if (!F::CheckVal($sText, 'text', $iMin, $iMax)) {
+            if ($iMax) {
+                $this->Message_AddErrorSingle($this->Lang_Get('topic_comment_text_len', array('min'=>$iMin, 'max'=>$iMax)), $this->Lang_Get('error'));
+            } else {
+                $this->Message_AddErrorSingle($this->Lang_Get('topic_comment_text_min', array('min'=>$iMin)), $this->Lang_Get('error'));
+            }
             return;
         }
 
@@ -1535,8 +1541,14 @@ class ActionBlog extends Action {
 
         // * Проверяем текст комментария
         $sNewText = $this->Text_Parser($this->GetPost('comment_text'));
-        if (!F::CheckVal($sNewText, 'text', Config::Val('module.comment.min_length', 2), Config::Val('module.comment.max_length', 10000))) {
-            $this->Message_AddErrorSingle($this->Lang_Get('topic_comment_add_text_error'), $this->Lang_Get('error'));
+        $iMin = Config::Val('module.comment.min_length', 2);
+        $iMax = Config::Val('module.comment.max_length', 0);
+        if (!F::CheckVal($sNewText, 'text', $iMin, $iMax)) {
+            if ($iMax) {
+                $this->Message_AddErrorSingle($this->Lang_Get('topic_comment_text_len', array('min'=>$iMin, 'max'=>$iMax)), $this->Lang_Get('error'));
+            } else {
+                $this->Message_AddErrorSingle($this->Lang_Get('topic_comment_text_min', array('min'=>$iMin)), $this->Lang_Get('error'));
+            }
             return;
         }
 
