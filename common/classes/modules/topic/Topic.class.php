@@ -666,7 +666,10 @@ class ModuleTopic extends Module {
         if ($bResult = $this->oMapper->DeleteTopic($nTopicId)) {
             $bResult = $this->DeleteTopicAdditionalData($nTopicId);
             $this->DeleteMresources($oTopic);
-            $this->Blog_RecalculateCountTopicByBlogId($oBlog->GetId());
+            if ($oBlog) {
+                // Блог может быть удален до удаления топика
+                $this->Blog_RecalculateCountTopicByBlogId($oBlog->GetId());
+            }
         }
 
         // * Чистим зависимые кеши
