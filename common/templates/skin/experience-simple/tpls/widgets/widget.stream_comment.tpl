@@ -29,7 +29,7 @@
                     data-cache="true"
                     class="user-block">
                     <img src="{$oUser->getAvatarUrl('32x32crop')}" alt="{$oUser->getDisplayName()}"/>
-                    <a class="userlogo link link-dual link-lead link-clear" href="{$oUser->getProfileUrl()}">
+                    <a class="userlogo link link-dual link-lead link-clear mal0" href="{$oUser->getProfileUrl()}">
                         {$oUser->getDisplayName()}
                     </a>
                 </li>

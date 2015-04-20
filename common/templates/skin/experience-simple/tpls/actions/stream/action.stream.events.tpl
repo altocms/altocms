@@ -29,7 +29,7 @@
                 <div style="">
                     <div class="stream-body">
 
-                        <a class="user" data-alto-role="popover"
+                        <a class="userlogo link link-dual link-lead link-clear" data-alto-role="popover"
                            data-api="user/{$oUser->getId()}/info"
                            data-api-param-tpl="default"
                            data-trigger="hover"
