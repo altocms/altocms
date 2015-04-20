@@ -1259,27 +1259,99 @@ class Router extends LsObject {
      *
      * @see GetControllerPath
      *
-     * @param $aPaths - array of compared paths
+     * @param string|array $aPaths   - array of compared paths
+     * @param bool         $bDefault - default value if $aPaths is empty
      *
      * @return string
      */
-    static public function CompareWithLocalPath($aPaths) {
+    static public function CompareWithLocalPath($aPaths, $bDefault = null) {
 
-        $sControllerPath = static::GetControllerPath();
-        $aPaths = F::Val2Array($aPaths);
         if ($aPaths) {
-            foreach($aPaths as $nKey => $sPath) {
-                if ($sPath == '*') {
-                    $aPaths[$nKey] = Config::Get('router.config.action_default') . '/*';
-                } elseif($sPath == '/') {
-                    $aPaths[$nKey] = Config::Get('router.config.action_default') . '/';
-                } elseif (!in_array(substr($sPath, -1), array('/', '*'))) {
-                    $aPaths[$nKey] = $sPath . '/*';
+            $sControllerPath = static::GetControllerPath();
+            $aPaths = F::Val2Array($aPaths);
+            if ($aPaths) {
+                foreach($aPaths as $nKey => $sPath) {
+                    if ($sPath == '*') {
+                        $aPaths[$nKey] = Config::Get('router.config.action_default') . '/*';
+                    } elseif($sPath == '/') {
+                        $aPaths[$nKey] = Config::Get('router.config.action_default') . '/';
+                    } elseif (!in_array(substr($sPath, -1), array('/', '*'))) {
+                        $aPaths[$nKey] = $sPath . '/*';
+                    }
+                }
+                return F::File_InPath($sControllerPath, $aPaths);
+            }
+        }
+        return $bDefault;
+    }
+
+    /**
+     * Check the local path by allow/disallow rules
+     *
+     * @param string|array|null $aAllowPaths
+     * @param string|array|null $aDisallowPaths
+     *
+     * @return bool
+     */
+    static public function AllowLocalPath($aAllowPaths, $aDisallowPaths) {
+
+        if (static::CompareWithLocalPath($aAllowPaths, true) && !static::CompareWithLocalPath($aDisallowPaths, false)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check the current action and event by rules
+     *
+     * @param $aActions
+     *
+     * @return bool
+     */
+    static public function AllowAction($aActions) {
+
+        $bResult = false;
+        if ($aActions) {
+            $aActions = F::Val2Array($aActions);
+
+            $sCurrentAction = strtolower(static::GetAction());
+            $sCurrentEvent = strtolower(static::GetActionEvent());
+            $sCurrentEventName = strtolower(static::GetActionEventName());
+
+            foreach ($aActions as $sAction => $aEvents) {
+                // приводим к виду action=>array(events)
+                if (is_int($sAction) && !is_array($aEvents)) {
+                    $sAction = (string)$aEvents;
+                    $aEvents = array();
+                }
+                if ($sAction == $sCurrentAction) {
+                    if (!$aEvents) {
+                        $bResult = true;
+                        break;
+                    }
+                }
+                $aEvents = (array)$aEvents;
+                foreach ($aEvents as $sEventPreg) {
+                    if ($sEventPreg == $sCurrentEvent) {
+                        // * Это название event`a
+                        $bResult = true;
+                        break 2;
+                    } elseif ((substr($sEventPreg, 0, 1) == '{') && (trim($sEventPreg, '{}') == $sCurrentEventName)) {
+                        // * Это имя event'a (именованный евент, если его нет, то совпадает с именем метода евента в экшене)
+                        $bResult = true;
+                        break 2;
+                    } elseif ((substr($sEventPreg, 0, 1) == '[')
+                        && (substr($sEventPreg, -1) == ']')
+                        && preg_match(substr($sEventPreg, 1, strlen($sEventPreg) - 2), $sCurrentEvent)) {
+                        // * Это регулярное выражение
+                        $bResult = true;
+                        break 2;
+                    }
                 }
             }
-            return F::File_InPath($sControllerPath, $aPaths);
         }
-        return null;
+
+        return $bResult;
     }
 
 }
