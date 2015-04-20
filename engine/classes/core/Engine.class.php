@@ -187,9 +187,17 @@ class Engine extends LsObject {
      */
     const CI_OBJECT = 863;
 
+    const CI_AREA_ENGINE = 1;
+    const CI_AREA_COMMON = 2;
+    const CI_AREA_WITHOUT_PLUGINS = 3;
+    const CI_AREA_ACTIVE_PLUGINS = 4;
+    const CI_AREA_ACTUAL = 7;
+    const CI_AREA_ALL_PLUGINS = 8;
+    const CI_AREA_ANYWHERE = 15;
+
     const STAGE_INIT = 1;
     const STAGE_RUN = 2;
-    const STAGE_SHUDOWN = 3;
+    const STAGE_SHUTDOWN = 3;
     const STAGE_DONE = 4;
 
     /** @var int - Stage of Engine */
@@ -337,8 +345,8 @@ class Engine extends LsObject {
      */
     public function Shutdown() {
 
-        if (self::$nStage < self::STAGE_SHUDOWN) {
-            self::$nStage = self::STAGE_SHUDOWN;
+        if (self::$nStage < self::STAGE_SHUTDOWN) {
+            self::$nStage = self::STAGE_SHUTDOWN;
             $this->ShutdownModules();
             self::$nStage = self::STAGE_DONE;
         }
@@ -1176,16 +1184,17 @@ class Engine extends LsObject {
      * @static
      *
      * @param LsObject|string $oObject Объект - модуль, экшен, плагин, хук, сущность
+     * @param int             $iArea   В какой области проверять (классы движка, общие классы, плагины)
      *
      * @return null|string
      */
-    public static function GetClassPath($oObject) {
+    public static function GetClassPath($oObject, $iArea = self::CI_AREA_ACTUAL) {
 
         $aInfo = static::GetClassInfo($oObject, self::CI_OBJECT);
         $sPluginDir = '';
         if ($aInfo[self::CI_PLUGIN]) {
             $sPlugin = F::StrUnderscore($aInfo[self::CI_PLUGIN]);
-            $aPlugins = F::GetPluginsList(true, false);
+            $aPlugins = F::GetPluginsList($iArea & self::CI_AREA_ALL_PLUGINS, false);
             if (isset($aPlugins[$sPlugin]['dirname'])) {
                 $sPluginDir = $aPlugins[$sPlugin]['dirname'];
             } else {
