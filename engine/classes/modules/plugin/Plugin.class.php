@@ -606,7 +606,8 @@ class ModulePlugin extends Module {
     public function IsActivePlugin($sPlugin) {
 
         $aPlugins = $this->GetActivePlugins();
-        return in_array($sPlugin, $aPlugins);
+
+        return isset($aPlugins[$sPlugin]);
     }
 
     /**
