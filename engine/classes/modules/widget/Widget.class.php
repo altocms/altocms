@@ -144,9 +144,10 @@ class ModuleWidget extends Module {
         if (!$aWidgets || $bAll) {
             return $aWidgets;
         }
+        /** @var ModuleWidget_EntityWidget $oWidget */
         foreach ($aWidgets as $oWidget) {
             if ($oWidget->isDisplay()) {
-                if ($this->_checkPath($oWidget->GetIncludePaths(), true) && !$this->_checkPath($oWidget->GetExcludePaths(), false)) {
+                if (R::AllowLocalPath($oWidget->GetIncludePaths(), $oWidget->GetExcludePaths())) {
                     $this->aWidgets[$oWidget->GetId()] = $oWidget;
                 }
             }

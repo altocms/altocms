@@ -8,6 +8,17 @@
  *----------------------------------------------------------------------------
  */
 
+/**
+ * Class ModuleWidget_EntityWidget
+ *
+ * @method setPriority()
+ * @method setName()
+ * @method setType()
+ * @method setTemplate()
+ *
+ * @method getType()
+ * @method getCondition()
+ */
 class ModuleWidget_EntityWidget extends Entity {
 
     public function __construct($aParam = null) {
@@ -69,6 +80,11 @@ class ModuleWidget_EntityWidget extends Entity {
 
     /**
      * Преобразует значение свойства в массив
+     *
+     * @param string $sKey
+     * @param string $sSeparateChar
+     *
+     * @return array
      */
     protected function getPropArray($sKey, $sSeparateChar = ',') {
 
@@ -262,6 +278,7 @@ class ModuleWidget_EntityWidget extends Entity {
     public function GetIncludePaths() {
 
         $xResult = $this->getPropArray('on');
+
         return $xResult;
     }
 
@@ -273,6 +290,7 @@ class ModuleWidget_EntityWidget extends Entity {
     public function GetExcludePaths() {
 
         $xResult = $this->getPropArray('off');
+
         return $xResult;
     }
 
@@ -397,45 +415,11 @@ class ModuleWidget_EntityWidget extends Entity {
 
         $bResult = $this->getProp('_is_action');
         if (is_null($bResult)) {
-            $bResult = false;
             $aActions = $this->getActions();
-            // если экшены не заданны, то соответствует любому экшену
             if (!$aActions) {
-                $bResult = true;
-            } else {
-                $sCurrentAction = strtolower(R::GetAction());
-                $sCurrentEvent = strtolower(R::GetActionEvent());
-                $sCurrentEventName = strtolower(R::GetActionEventName());
-
-                foreach ($aActions as $sAction => $aEvents) {
-                    // приводим к виду action=>array(events)
-                    if (is_int($sAction) && !is_array($aEvents)) {
-                        $sAction = (string)$aEvents;
-                        $aEvents = array();
-                    }
-                    if ($sAction == $sCurrentAction) {
-                        if (!$aEvents) {
-                            $bResult = true;
-                            break;
-                        }
-                    }
-                    foreach ($aEvents as $sEventPreg) {
-                        if ($sEventPreg == $sCurrentEvent) {
-                            // * Это название event`a
-                            $bResult = true;
-                            break 2;
-                        } elseif ((substr($sEventPreg, 0, 1) == '{') && (trim($sEventPreg, '{}') == $sCurrentEventName)) {
-                            // * Это имя event'a (именованный евент, если его нет, то совпадает с именем метода евента в экшене)
-                            $bResult = true;
-                            break 2;
-                        } elseif ((substr($sEventPreg, 0, 1) == '/') && preg_match($sEventPreg, $sCurrentEvent)) {
-                            // * Это регулярное выражение
-                            $bResult = true;
-                            break 2;
-                        }
-                    }
-                }
+                return true;
             }
+            $bResult = R::AllowAction($aActions);
             $this->setProp('_is_action', $bResult);
         }
 
@@ -457,7 +441,7 @@ class ModuleWidget_EntityWidget extends Entity {
                 try {
                     extract($this->GetParams(), EXTR_SKIP);
                     $bResult = (bool)eval('return ' . $sCondition . ';');
-                } catch (Exceprion $oException) {
+                } catch (Exception $oException) {
                     $bResult = false;
                 }
             }
