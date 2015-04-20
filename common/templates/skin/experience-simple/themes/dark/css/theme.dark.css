@@ -3351,6 +3351,21 @@ li.active.category-show {
 .top0 {
   top: 0 !important;
 }
+@media (min-width: 772px) and (max-width: 1199px) {
+  .container {
+    width: 100%;
+    padding-right: 36px;
+    padding-left: 36px;
+  }
+  .container > .row {
+    margin-right: 26px;
+  }
+}
+@media (max-width: 900px) {
+  .container > .row {
+    margin-right: 0;
+  }
+}
 .navbar-main .navbar-brand span {
   color: #ffffff;
 }
