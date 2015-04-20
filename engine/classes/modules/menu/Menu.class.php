@@ -238,7 +238,7 @@ class ModuleMenu extends Module {
      * @return string
      */
     public function CreateMenu($sMenuId, $aMenu) {
-        return $this->Prepare($sMenuId, $sMenuId);
+        return $this->Prepare($sMenuId, $aMenu);
     }
 
     /**

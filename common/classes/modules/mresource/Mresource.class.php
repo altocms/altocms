@@ -999,7 +999,8 @@ class ModuleMresource extends Module {
      * с разбивкой по типу контента
      *
      * @param int $iUserId
-     * @return bool
+     *
+     * @return array
      */
     public function GetTopicsImageCategory($iUserId) {
 
@@ -1025,7 +1026,7 @@ class ModuleMresource extends Module {
                     }
                 }
             } else {
-                return FALSE;
+                return array();
             }
 
             if ($aResultTmp) {
@@ -1048,7 +1049,7 @@ class ModuleMresource extends Module {
 
         }
 
-        return FALSE;
+        return array();
     }
 
     /**
