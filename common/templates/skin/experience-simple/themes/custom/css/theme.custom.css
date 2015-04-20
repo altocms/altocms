@@ -2563,6 +2563,18 @@ span.counter {
 .user-toggle-publication-block a {
   width: 100%;
 }
+@media screen {
+  body {
+    overflow-y: scroll;
+  }
+  body.modal-open {
+    overflow-y: scroll;
+    margin: 0;
+  }
+  .modal {
+    overflow: auto;
+  }
+}
 .modal-header button {
   position: relative;
   opacity: 1;

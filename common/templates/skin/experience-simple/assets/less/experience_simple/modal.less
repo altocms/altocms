@@ -2,6 +2,20 @@
 @import "../bootstrap/mixins";
 @import "mixins";
 
+// Исправление ошибки сдвига страницы при открытии
+// модального окна
+@media screen {
+    body {
+        overflow-y: scroll;
+    }
+    body.modal-open {
+        overflow-y: scroll;
+        margin: 0;
+    }
+    .modal {
+        overflow: auto;
+    }
+}
 
 
 .modal-header {
