@@ -37,11 +37,15 @@
                </a>
             </td>
          </tr>
+         <tr>
+             <td colspan="2">
+                 <div class="blog-description-container">
+                     {$oBlog->getDescription()|strip_tags|trim|truncate:100:'...'|escape:'html'}
+                 </div>
+             </td>
+         </tr>
          </tbody>
       </table>
    </div>
-
-   <div class="col-md-24 blog-description">{$oBlog->getDescription()|strip_tags|trim|truncate:250:'...'|escape:'html'}</div>
-
 </div>
 
