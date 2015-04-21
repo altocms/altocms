@@ -6,7 +6,7 @@
     <div id="wall-reply-item-{$oReplyWall->getId()}" class="js-wall-reply-item comment wall-comment-reply wall-level-1">
         <a class="wall-user-logo js-popup-user-{$oReplyUser->getId()}"
            href="{$oReplyUser->getProfileUrl()}">
-            <img src="{$oReplyUser->getAvatarUrl(50)}" alt="user-logo"/>
+            <img src="{$oReplyUser->getAvatarUrl('medium')}" alt="user-logo"/>
         </a>
 
         <div class="wall-content">

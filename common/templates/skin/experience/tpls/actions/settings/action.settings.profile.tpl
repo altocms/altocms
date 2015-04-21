@@ -47,7 +47,7 @@
 
                             {* Картинка фона блога *}
                             <img style="width: 100%; display: block; margin-bottom: 8px;"
-                                 src="{E::User()->getAvatarUrl(100)}"
+                                 src="{E::User()->getAvatarUrl('large')}"
                                  id="profile-avatar-image"
                                  class="profile-avatar js-uploader-image"/>
 

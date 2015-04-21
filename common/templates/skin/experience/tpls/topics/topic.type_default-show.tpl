@@ -109,7 +109,7 @@
         <div class="topic-footer">
             <ul>
                 <li class="topic-user">
-                    <img src="{$oUser->getAvatarUrl(20)}" alt="{$oUser->getDisplayName()}"/>
+                    <img src="{$oUser->getAvatarUrl('small')}" alt="{$oUser->getDisplayName()}"/>
                     <a class="userlogo link link-dual link-lead link-clear js-popup-{$oUser->getId()}" href="{$oUser->getProfileUrl()}">
                         {$oUser->getDisplayName()}
                     </a>

@@ -81,7 +81,7 @@
                                     {$oUser=$oTalkUser->getUser()}
                                     {if !$oTalkUser@first}, {/if}
                                     <span class="nowrap">
-                                        <img src="{$oUser->getAvatarUrl(16)}" alt="{$oUser->getDisplayName()}"/>&nbsp;
+                                        <img src="{$oUser->getAvatarUrl('mini')}" alt="{$oUser->getDisplayName()}"/>&nbsp;
                                     <a href="{$oUser->getProfileUrl()}" class="user {if $oTalkUser->getUserActive()!=$TALK_USER_ACTIVE}inactive{/if}">{$oUser->getDisplayName()}</a>
                                     </span>
                                 {/foreach}

@@ -31,7 +31,7 @@
          <div class="topic-footer">
              <ul class="text-muted list-unstyled list-inline topic-footer-info">
                  <li class="topic-user">
-                     <img src="{$oUser->getAvatarUrl(16)}" alt="{$oUser->getDisplayName()}"/>
+                     <img src="{$oUser->getAvatarUrl('mini')}" alt="{$oUser->getDisplayName()}"/>
                      <a class="userlogo link link-dual link-lead link-clear js-popup-{$oUser->getId()}" href="{$oUser->getProfileUrl()}">
                          {$oUser->getDisplayName()}
                      </a>

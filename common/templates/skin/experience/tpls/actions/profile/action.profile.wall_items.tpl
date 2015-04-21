@@ -8,7 +8,7 @@
         <div class="comment">
             <a class="wall-user-logo js-popup-user-{$oWallUser->getId()}"
                href="{$oWallUser->getProfileUrl()}">
-                <img src="{$oWallUser->getAvatarUrl(50)}" alt="user-logo"/>
+                <img src="{$oWallUser->getAvatarUrl('medium')}" alt="user-logo"/>
             </a>
 
             <div class="wall-content">

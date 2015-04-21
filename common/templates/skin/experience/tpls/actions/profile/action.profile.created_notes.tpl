@@ -22,7 +22,7 @@
                         <td class="tac pab6 pat6">
                             <span>
                               <a href="{$oNote->getTargetUser()->getProfileUrl()}">
-                                  <img src="{$oNote->getTargetUser()->getAvatarUrl(64)}" alt="{$oNote->getTargetUser()->getDisplayName()}" />
+                                  <img src="{$oNote->getTargetUser()->getAvatarUrl('big')}" alt="{$oNote->getTargetUser()->getDisplayName()}" />
                               </a>
                               <a class="link link-lead" href="{$oNote->getTargetUser()->getProfileUrl()}">{$oNote->getTargetUser()->getDisplayName()}</a>
                             </span>
