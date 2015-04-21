@@ -2,7 +2,7 @@
     {$oReplyUser=$oReplyWall->getUser()}
     <div id="wall-reply-item-{$oReplyWall->getId()}" class="js-wall-reply-item comment wall-comment-reply">
         <a href="{$oReplyUser->getProfileUrl()}" class="comment-avatar js-popup-user-{$oReplyUser->getId()}">
-            <img src="{$oReplyUser->getAvatarUrl(48)}" alt="{$oReplyUser->getDisplayName()}" />
+            <img src="{$oReplyUser->getAvatarUrl('medium')}" alt="{$oReplyUser->getDisplayName()}" />
         </a>
 
         <ul class="list-unstyled list-inline small comment-info">

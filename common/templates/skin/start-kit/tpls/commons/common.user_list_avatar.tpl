@@ -4,7 +4,7 @@
             {$oSession=$oUserList->getSession()}
             <li>
                 <a href="{$oUserList->getProfileUrl()}" title="{$oUserList->getDisplayName()}"><img
-                            src="{$oUserList->getAvatarUrl(48)}" alt="{$oUserList->getDisplayName()}"
+                            src="{$oUserList->getAvatarUrl('medium')}" alt="{$oUserList->getDisplayName()}"
                             class="avatar"/></a>
             </li>
         {/foreach}

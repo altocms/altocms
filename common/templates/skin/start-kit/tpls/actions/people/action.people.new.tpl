@@ -29,7 +29,7 @@
                 {$oUserNote=$oUserList->getUserNote()}
                 <tr>
                     <td class="cell-name">
-                        <a href="{$oUserList->getProfileUrl()}"><img src="{$oUserList->getAvatarUrl(48)}" alt="avatar"
+                        <a href="{$oUserList->getProfileUrl()}"><img src="{$oUserList->getAvatarUrl('medium')}" alt="avatar"
                                                                      class="avatar"/></a>
 
                         <div class="name {if !$oUserList->getProfileName()}no-realname{/if}">

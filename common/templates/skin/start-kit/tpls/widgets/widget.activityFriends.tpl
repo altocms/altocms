@@ -22,7 +22,7 @@
                                         {if isset($aStreamSubscribedUsers.$iUserId)} checked="checked"{/if}
                                        onClick="if (jQuery(this).prop('checked')) { ls.stream.subscribe({$iUserId}) } else { ls.stream.unsubscribe({$iUserId}, false) } "/>
                                 <a href="{$oUser->getProfileUrl()}" title="{$oUser->getDisplayName()}"><img
-                                            src="{$oUser->getAvatarUrl(24)}" alt="avatar"
+                                            src="{$oUser->getAvatarUrl('mini')}" alt="avatar"
                                             class="avatar"/></a>
                                 <a href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
                             </label>

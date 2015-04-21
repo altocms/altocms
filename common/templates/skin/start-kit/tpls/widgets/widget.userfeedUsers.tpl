@@ -35,7 +35,7 @@
                                         <label>
                                             <input type="checkbox" checked="checked" />
                                             <a href="{$oUser->getProfileUrl()}" title="{$oUser->getDisplayName()}"><img
-                                                        src="{$oUser->getAvatarUrl(24)}" alt="avatar"
+                                                        src="{$oUser->getAvatarUrl('mini')}" alt="avatar"
                                                         class="avatar"/></a>
                                             <a href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
                                         </label>
@@ -72,7 +72,7 @@
                                 <label>
                                     <input type="checkbox" {if isset($aUserfeedSubscribedUsers.$iUserId)} checked="checked"{/if}/>
                                     <a href="{$oUser->getProfileUrl()}" title="{$oUser->getDisplayName()}"><img
-                                                src="{$oUser->getAvatarUrl(24)}" alt="avatar"
+                                                src="{$oUser->getAvatarUrl('mini')}" alt="avatar"
                                                 class="avatar"/></a>
                                     <a href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>
                                 </label>

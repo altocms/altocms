@@ -19,7 +19,7 @@
 		{$oUser=$oStreamEvent->getUser()}
 
 		<li class="stream-item stream-item-type-{$oStreamEvent->getEventType()}">
-			<a href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl(48)}" alt="{$oUser->getDisplayName()}" class="avatar" /></a>
+			<a href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl('medium')}" alt="{$oUser->getDisplayName()}" class="avatar" /></a>
 			<span class="small text-muted date" title="{date_format date=$oStreamEvent->getDateAdded()}">{date_format date=$oStreamEvent->getDateAdded() hours_back="12" minutes_back="60" now="60" day="day H:i" format="j F Y, H:i"}</span> 
 
 			<a href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>

@@ -35,7 +35,7 @@
             {$oUserNote=$oUserList->getUserNote()}
             <tr>
                 <td class="cell-name">
-                    <a href="{$oUserList->getProfileUrl()}"><img src="{$oUserList->getAvatarUrl(48)}"
+                    <a href="{$oUserList->getProfileUrl()}"><img src="{$oUserList->getAvatarUrl('medium')}"
                                                                  alt="{$oUserList->getDisplayName()}"
                                                                  class="avatar visible-lg"/></a>
 

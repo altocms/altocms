@@ -14,7 +14,7 @@
 
         <section class="comment">
             <a href="{$oUser->getProfileUrl()}" class="comment-avatar js-popup-user-{$oUser->getId()}">
-                <img src="{$oUser->getAvatarUrl(48)}" alt="avatar"  />
+                <img src="{$oUser->getAvatarUrl('medium')}" alt="avatar"  />
             </a>
 
             <ul class="list-unstyled list-inline small comment-info">

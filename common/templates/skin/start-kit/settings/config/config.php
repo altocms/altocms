@@ -64,6 +64,14 @@ $config['head']['default']['css'] = array(
     ),
 );
 
+C::Set('module.uploader.images.profile_avatar.size', array(
+    'large'  => 100,
+    'big'    => 64,
+    'medium' => 48,
+    'small'  => 36,
+    'mini'   => 24,
+));
+
 return $config;
 
 // EOF
