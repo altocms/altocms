@@ -41,7 +41,6 @@
                         <a class="userlogo link link-dual link-lead link-clear js-popup-{$oUser->getId()}"
                            href="{$oUser->getProfileUrl()}">
                             {$oUser->getDisplayName()}
-                            <span class="caret"></span>
                         </a>
                     </li>
                     <li class="topic-blog">
