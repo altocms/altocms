@@ -2563,6 +2563,58 @@ span.counter {
 .user-toggle-publication-block a {
   width: 100%;
 }
+.table-talk {
+  table-layout: fixed;
+}
+.table-talk td {
+  width: auto;
+}
+.table-talk .cell-checkbox {
+  padding-top: 12px;
+  width: 40px;
+  text-align: left;
+}
+.table-talk .cell-favourite {
+  padding-top: 14px;
+  width: 40px;
+  text-align: center;
+}
+.table-talk .table-talk-addressee,
+.table-talk .cell-recipients {
+  vertical-align: middle;
+  width: 120px;
+}
+.table-talk .table-talk-content {
+  vertical-align: middle;
+}
+.table-talk .table-talk-content > div {
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  position: relative;
+  text-overflow: ellipsis;
+  /* Градиент */
+}
+.table-talk .table-talk-count {
+  vertical-align: middle;
+  width: 64px;
+  text-align: right;
+}
+.table-talk .cell-date {
+  width: 120px;
+  vertical-align: middle;
+}
+.table-talk .date {
+  color: #1c374c !important;
+  font-size: 12px;
+}
+.table-talk .time {
+  font-size: 12px;
+  color: #1499cb !important;
+}
+.table-talk .new-talk {
+  background-color: #f2f6f7;
+}
 @media screen {
   body {
     overflow-y: scroll;
