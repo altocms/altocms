@@ -285,6 +285,7 @@ return array(
     'topic_menu_add_link'                       => 'Ссылка',
     'topic_menu_add_photoset'                   => 'Фотосет',
     'topic_menu_drafts'                         => 'Черновики',
+    'topic_menu_draft'                          => 'Черновик',
     'topic_menu_published'                      => 'Опубликованные',
 
     /***

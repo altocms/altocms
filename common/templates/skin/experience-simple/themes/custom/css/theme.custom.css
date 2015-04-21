@@ -2744,6 +2744,18 @@ span.counter {
 .modal h5 {
   font-weight: bold;
 }
+.modal-write .link-dark.link-clear:hover {
+  color: #333333 !important;
+}
+.modal-write .link-dark.link-clear:hover i {
+  color: #333333 !important;
+}
+.modal-write li a {
+  margin-bottom: 6px;
+}
+.modal-write .modal-dialog {
+  width: 446px !important;
+}
 /* ----------------------------------
     Light Square Theme
 ----------------------------------- */
