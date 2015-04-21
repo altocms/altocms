@@ -37,7 +37,7 @@
                         data-animation="true"
                         data-cache="true"
                         class="topic-user">
-                        <img src="{$oUser->getAvatarUrl('32x32crop')}" alt="{$oUser->getDisplayName()}"/>
+                        <img src="{$oUser->getAvatarUrl('small')}" alt="{$oUser->getDisplayName()}"/>
                         <a class="userlogo link link-dual link-lead link-clear js-popup-{$oUser->getId()}"
                            href="{$oUser->getProfileUrl()}">
                             {$oUser->getDisplayName()}

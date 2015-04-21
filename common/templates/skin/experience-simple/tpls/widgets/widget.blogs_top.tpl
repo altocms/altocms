@@ -19,9 +19,9 @@
                data-cache="false">
              <a href="{$oBlog->getUrlFull()}" class="blog-name link link-dual link-lead link-clear">
                 <span class="blog-line-image">
-                    {$sPath = $oBlog->getAvatarPath('32x32crop')}
+                    {$sPath = $oBlog->getAvatarPath('small')}
                     {if $sPath}
-                        <img src="{$oBlog->getAvatarPath('32x32crop')}" class="avatar uppercase"/>
+                        <img src="{$oBlog->getAvatarPath('small')}" class="avatar uppercase"/>
                 {else}
                     <i class="fa fa-folder"></i>
                     {/if}

@@ -67,6 +67,18 @@ $config['view']['header']['logo']['name'] = Config::Get('view.name');
 
 $config['module']['user']['profile_photo_size'] = '222x';
 
+C::Set('module.uploader.images.profile_avatar.size', array(
+    'great'  => '224x224crop', // Виджет "О блоге"
+    'huge'   => '150x150crop', // Блог в выпадающем тултипе
+    'large'  => '128x128crop', // Шапка профиля блога/пользователя
+    'big'    => '85x85crop',   // Список пользователей list_avatar
+    'medium' => '48x48crop',
+    'small'  => '32x32crop',
+    'mini'   => '24x24crop',
+    'micro'  => '16x16crop',   // Не используется
+));
+
+
 // Настройка css- и js-наборов
 require 'assets.php';
 

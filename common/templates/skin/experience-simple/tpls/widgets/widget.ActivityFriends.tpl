@@ -45,7 +45,7 @@
                                        onchange="if (jQuery(this).prop('checked')) { ls.stream.subscribe({$iUserId}) } else { ls.stream.unsubscribe({$iUserId}, false) } "/>&nbsp;
                                 <a
                                    href="{$oUser->getProfileUrl()}" title="{$oUser->getDisplayName()}"><img
-                                            src="{$oUser->getAvatarUrl('24x24crop')}" alt="avatar"
+                                            src="{$oUser->getAvatarUrl('mini')}" alt="avatar"
                                             class="avatar"/></a>
                                 <a
                                    href="{$oUser->getProfileUrl()}">{$oUser->getDisplayName()}</a>

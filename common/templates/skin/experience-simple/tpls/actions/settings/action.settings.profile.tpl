@@ -40,14 +40,14 @@
                              data-target-id     ="{E::User()->getId()}"
                              data-title         ="{$aLang.settings_profile_avatar_resize_title}"
                              data-help          ="{$aLang.settings_profile_avatar_resize_text}"
-                             data-aspect-ratio  = "{E::ModuleUploader()->GetConfigAspectRatio('*', 'profile_avatar')}"
-                             data-empty         ="{E::User()->getDefaultAvatarUrl('100x100crop')}"
-                             data-preview-crop  ="100x100crop"
+                             data-aspect-ratio  ="{E::ModuleUploader()->GetConfigAspectRatio('*', 'profile_avatar')}"
+                             data-empty         ="{E::User()->getAvatarUrl('large')}"
+                             data-preview-crop  ="128x128crop"
                              data-crop          ="yes">
 
                             {* Картинка фона блога *}
                             <img style="width: 100%; display: block; margin-bottom: 8px;"
-                                 src="{E::User()->getAvatarUrl('100x100crop')}"
+                                 src="{E::User()->getAvatarUrl('large')}"
                                  id="profile-avatar-image"
                                  class="profile-avatar js-uploader-image"/>
 

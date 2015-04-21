@@ -22,7 +22,7 @@
                         <td class="pab6 pat6 vac fs-small text-left">
                             <span>
                               <a href="{$oNote->getTargetUser()->getProfileUrl()}" class="tdn">
-                                  <img class="bor32" src="{$oNote->getTargetUser()->getAvatarUrl(32)}" alt="{$oNote->getTargetUser()->getDisplayName()}" />
+                                  <img class="bor32" src="{$oNote->getTargetUser()->getAvatarUrl('small')}" alt="{$oNote->getTargetUser()->getDisplayName()}" />
                               </a>
                               <a class="link link-lead" href="{$oNote->getTargetUser()->getProfileUrl()}">{$oNote->getTargetUser()->getDisplayName()}</a>
                             </span>

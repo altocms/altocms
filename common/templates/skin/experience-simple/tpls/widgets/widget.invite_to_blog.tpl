@@ -41,7 +41,7 @@
                                     id="blog-invite-remove-item-{$oBlogEdit->getId()}-{$oUser->getId()}">
                                 <span>
                                     <a class="link-clear" href="{$oUser->getProfileUrl()}" title="{$oUser->getDisplayName()}"><img
-                                                src="{$oUser->getAvatarUrl(16)}" alt="{$oUser->getDisplayName()}"
+                                                src="{$oUser->getAvatarUrl('mini')}" alt="{$oUser->getDisplayName()}"
                                                 class="avatar"/></a>
                                     <a href="{$oUser->getProfileUrl()}" class="user">{$oUser->getDisplayName()}</a>
                                 </span>

@@ -39,7 +39,7 @@
                         <td class="cell-name wi30">
                             <span>
                             <a href="{$oUser->getProfileUrl()}">
-                                <img src="{$oUser->getAvatarUrl(24)}" alt="avatar" class="avatar"/>
+                                <img src="{$oUser->getAvatarUrl('mini')}" alt="avatar" class="avatar"/>
                             </a>
                             <a data-alto-role="popover"
                                data-api="user/{$oUser->getId()}/info"

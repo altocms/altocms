@@ -27,7 +27,7 @@
              <div class="row user-info-block">
                  <div class="col-lg-20">
                      {$oBlogType=$oBlog->getBlogType()}
-                     <img class="user-logo bor100" src="{$oBlog->getAvatarPath('90x90crop')}"  alt="avatar"/>
+                     <img class="user-logo bor100" src="{$oBlog->getAvatarPath('large')}"  alt="avatar"/>
                      <div class="user-name">
                          <div class="user-login-block">
                             <span class="user-login">
@@ -99,7 +99,7 @@
                                        data-animation="true"
                                        data-cache="true"
                                        class="link link-clear" href="{$oUserOwner->getProfileUrl()}">
-                                        <img src="{$oUserOwner->getAvatarUrl('24x24crop')}" class="bor32" alt="avatar"/>
+                                        <img src="{$oUserOwner->getAvatarUrl('mini')}" class="bor32" alt="avatar"/>
                                     </a>
                                     <a href="{$oUserOwner->getProfileUrl()}">{$oUserOwner->getDisplayName()}</a>
                                 </span>
@@ -108,7 +108,7 @@
                                              {$oUser=$oBlogUser->getUser()}
                                              <br/>
                                              <span class="user-avatar">
-                                            <a class="link link-clear" href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl('24x24crop')}"  class="bor32" alt="avatar"/></a>
+                                            <a class="link link-clear" href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl('mini')}"  class="bor32" alt="avatar"/></a>
                                             <a data-alto-role="popover"
                                                data-api="user/{$oUser->getId()}/info"
                                                data-api-param-tpl="default"
@@ -131,7 +131,7 @@
                                          {foreach $aBlogModerators as $oBlogUser}
                                              {$oUser=$oBlogUser->getUser()}
                                              <span class="user-avatar">
-                                                <a href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl('24x24crop')}"  class="bor32" alt="avatar"/></a>
+                                                <a href="{$oUser->getProfileUrl()}"><img src="{$oUser->getAvatarUrl('mini')}"  class="bor32" alt="avatar"/></a>
                                                 <a data-alto-role="popover"
                                                    data-api="user/{$oUser->getId()}/info"
                                                    data-api-param-tpl="default"

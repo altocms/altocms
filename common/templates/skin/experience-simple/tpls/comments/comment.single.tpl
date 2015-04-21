@@ -41,7 +41,7 @@
                             data-cache="true"
                             class="comment-user">
                             <a href="{$oUser->getProfileUrl()}" class="mal0 js-popup-user-{$oUser->getId()}">
-                                <img src="{$oUser->getAvatarUrl(32)}" alt="{$oUser->getDisplayName()}"/>
+                                <img src="{$oUser->getAvatarUrl('small')}" alt="{$oUser->getDisplayName()}"/>
                             </a>
                             <a class="userlogo link link-blue link-lead link-clear {if $iAuthorId == $oUser->getId()}comment-topic-author{/if}"
                                href="{$oUser->getProfileUrl()}">

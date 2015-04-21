@@ -9,7 +9,7 @@
             <ul>
                 <li class="comment-user">
                     <a href="{$oWallUser->getProfileUrl()}" class="mal0 js-popup-user-{$oWallUser->getId()}">
-                        <img src="{$oWallUser->getAvatarUrl(32)}" alt="{$oWallUser->getDisplayName()}"/>
+                        <img src="{$oWallUser->getAvatarUrl('small')}" alt="{$oWallUser->getDisplayName()}"/>
                     </a>
                     <a class="userlogo link link-blue link-lead link-clear"
                        href="{$oWallUser->getProfileUrl()}">
