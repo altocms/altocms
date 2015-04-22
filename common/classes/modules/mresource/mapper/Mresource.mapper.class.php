@@ -1105,6 +1105,40 @@ class ModuleMresource_MapperMresource extends Mapper {
         return $aResult;
     }
 
+    public function GetCountImagesByTopicType($aFilter) {
+
+        $sql = "SELECT
+                  t.topic_type AS id,
+                  count(DISTINCT m.mresource_id) AS count
+                FROM
+                  ?_mresource m
+                  LEFT JOIN ?_mresource_target mt ON m.mresource_id = mt.mresource_id
+                  LEFT JOIN ?_topic t ON t.topic_id = mt.target_id
+                  LEFT JOIN ?_blog b ON b.blog_id = t.blog_id
+                WHERE
+                  (m.user_id = ?d)
+                  {AND (m.type & ?d)}
+                  AND (mt.target_id <> 0)
+                  {AND (mt.target_type IN (?a) OR mt.target_type LIKE 'single-image-uploader%')}
+                  {AND (t.topic_publish = ?d) AND (t.topic_date_show <= NOW())}
+                  {AND b.blog_type = 'personal' OR t.blog_id IN ( ?a )}
+                  {AND t.topic_index_ignore = ?d}
+                GROUP BY t.topic_type
+                ";
+        $aRows = $this->oDb->select($sql,
+            $aFilter['user_id'],
+            isset($aFilter['mresource_type']) ? $aFilter['mresource_type'] : DBSIMPLE_SKIP,
+            isset($aFilter['target_type']) ? $aFilter['target_type'] : DBSIMPLE_SKIP,
+            isset($aFilter['topic_publish']) ? $aFilter['topic_publish'] : DBSIMPLE_SKIP,
+            isset($aFilter['blog_id']) ? $aFilter['blog_id'] : DBSIMPLE_SKIP,
+            isset($aFilter['topic_index_ignore']) ? $aFilter['topic_index_ignore'] : DBSIMPLE_SKIP
+        );
+        if ($aRows) {
+            return $aRows;
+        }
+        return array();
+    }
+
     /**
      * Получает ид. писем пользователя
      *

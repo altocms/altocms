@@ -1004,52 +1004,31 @@ class ModuleMresource extends Module {
      */
     public function GetTopicsImageCategory($iUserId) {
 
-        $aTopicInfo = $this->oMapper->GetTopicInfo($iUserId, $iCount, 1, 100000);
-        if ($aTopicInfo) {
-
-            // Получим все топики
-            /** @var ModuleTopic_EntityTopic[] $aTopics */
-            $aTopics = E::ModuleTopic()->GetTopicsAdditionalData(array_keys($aTopicInfo));
-
-            // Проверим топики на доступность и раскидаем их по виду контента
-            $aResultTmp = array();
-            $aTopicTypes = array();
-            if ($aTopics) {
-                foreach ($aTopics as $oTopic) {
-                    if (E::ModuleACL()->IsAllowShowBlog($oTopic->getBlog(), E::IsUser() ? E::User() : FALSE) && $oTopic->getPublish()) {
-                        if (isset($aResultTmp[$oTopic->getType()])) {
-                            $aResultTmp[$oTopic->getType()] += 1;
-                        } else {
-                            $aResultTmp[$oTopic->getType()] = 1;
-                            $aTopicTypes[$oTopic->getType()] = $oTopic->getContentType();
-                        }
-                    }
-                }
-            } else {
-                return array();
-            }
-
-            if ($aResultTmp) {
-                $aResult = array();
-                foreach ($aResultTmp as $sTopicType => $iTopicCount) {
-                    /** @var ModuleTopic_EntityContentType $oContentType */
-                    $oContentType = isset($aTopicTypes[$sTopicType]) ? $aTopicTypes[$sTopicType] : FALSE;
-                    if ($oContentType && $oContentType->isAccessible()) {
-                        $aResult[] = E::GetEntity('Mresource_MresourceCategory', array(
-                            'id'    => $sTopicType,
-                            'count' => $iTopicCount,
-                            'label' => $oContentType ? $oContentType->getContentTitleDecl() : mb_strtoupper($sTopicType)
-                        ));
-                    }
-
-                }
-
-                return $aResult;
-            }
-
+        $aFilter = array(
+            'user_id' => $iUserId,
+            'mresource_type' => ModuleMresource::TYPE_IMAGE | ModuleMresource::TYPE_PHOTO | ModuleMresource::TYPE_PHOTO_PRIMARY,
+            'target_type' => array('photoset', 'topic'),
+        );
+        if (E::IsUser() && E::User() !== $iUserId) {
+            // Если текущий юзер не совпадает с запрашиваемым, то получаем список доступных блогов
+            $aFilter['blogs_id'] = E::ModuleBlog()->GetAccessibleBlogsByUser(E::User());
+            // И топики должны быть опубликованы
+            $aFilter['topic_publish'] = 1;
         }
-
-        return array();
+        if (!E::IsUser()) {
+            // Если юзер не авторизован, то считаем все доступные для индексации топики
+            $aFilter['topic_index_ignore'] = 0;
+        }
+        $aData = $this->oMapper->GetCountImagesByTopicType($aFilter);
+        if ($aData) {
+            foreach ($aData as $xIndex => $aRow) {
+                $aData[$xIndex]['label'] = E::ModuleLang()->Get('target_type_' . $aRow['id']);
+            }
+            $aResult = E::GetEntityRows('Mresource_MresourceCategory', $aData);
+        } else {
+            $aResult = array();
+        }
+        return $aResult;
     }
 
     /**
