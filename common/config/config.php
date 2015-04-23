@@ -576,6 +576,7 @@ $config['db']['table']['user']                  = '___db.table.prefix___user';
 */
 
 $config['db']['tables']['engine'] = 'InnoDB';  // InnoDB или MyISAM
+
 /**
  * Настройка memcache
  */
@@ -587,9 +588,23 @@ $config['memcache']['compression'] = true;
 /**
  * Настройки роутинга
  */
-$config['router']['domain'] = array();
+// Redirection
+$config['router']['redirect'] = array(
+    //'http://*' => 'https://*', // simple matching, redirect from HTTP to HTTPS
+    //'http://site.com/perm-path/*.html' => array('http://site.com/temp-path/*.html', 302), // redirect with code 302
+    //'[~(.+/)blabla/(\d+).html$~]' => '$1$2.html', // regular expression in brackets
+);
 
-$config['router']['rewrite'] = array();
+// Domain mapping
+$config['router']['domain'] = array(
+    //'*.site.com' => 'blog/*',
+    //'public.site.com' => 'blog/public',
+);
+
+// Rewrite rules
+$config['router']['rewrite'] = array(
+    //'secret-admin' => 'admin',
+);
 
 // Правила реврайта для REQUEST_URI
 // Регулярные выражения необходимо заключать в квадратные скобки

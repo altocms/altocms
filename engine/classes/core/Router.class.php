@@ -299,7 +299,52 @@ class Router extends LsObject {
             static::$sCurrentFullUrl = strtolower(F::File_RootUrl() . join('/', $this->GetRequestArray($sReq)));
         }
 
+        $this->CheckRedirectionRules();
+
         return $sReq . $sLastChar;
+    }
+
+    /**
+     * Checks redirection rules and redirects if there is compliance
+     */
+    protected function CheckRedirectionRules() {
+
+        if ($this->aConfigRoute['redirect'] && is_array($this->aConfigRoute['redirect'])) {
+            $sUrl = static::$sCurrentFullUrl;
+
+            $iHttpResponse = 301;
+            foreach($this->aConfigRoute['redirect'] as $sRule => $xTarget) {
+                if ($xTarget) {
+                    if (!is_array($xTarget)) {
+                        $sTarget = $xTarget;
+                        $iCode = 301;
+                    } elseif (sizeof($xTarget) == 1) {
+                        $sTarget = reset($xTarget);
+                        $iCode = 301;
+                    } else {
+                        $sTarget = reset($xTarget);
+                        $iCode = intval(next($xTarget));
+                    }
+                    if ((substr($sRule, 0, 1) == '[') && (substr($sRule, -1) == ']')) {
+                        $sPattern = substr($sRule, 1, strlen($sRule) - 2);
+                        if (preg_match($sPattern, $sUrl)) {
+                            $sUrl = preg_replace($sPattern, $sTarget, $sUrl);
+                            $iHttpResponse = $iCode;
+                        }
+                    } else {
+                        $sPattern = F::StrMatch($sRule, $sUrl, true, $aMatches);
+                        if ($sPattern && isset($aMatches[1])) {
+                            $sUrl = str_replace('*', $aMatches[1], $sTarget);
+                            $iHttpResponse = $iCode;
+                        }
+                    }
+                }
+            }
+            if ($sUrl && ($sUrl != static::$sCurrentFullUrl)) {
+                F::HttpHeader($iHttpResponse, null, $sUrl);
+                exit;
+            }
+        }
     }
 
     /**
