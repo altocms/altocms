@@ -1064,44 +1064,49 @@ class ModuleMresource_MapperMresource extends Mapper {
     /**
      * Получает ид. топиков с картинками
      *
-     * @param int $iUserId
+     * @param array $aFilter
      * @param int $iCount
      * @param int $iCurrPage
      * @param int $iPerPage
      *
      * @return array
      */
-    public function GetTopicInfo($iUserId, &$iCount, $iCurrPage, $iPerPage) {
+    public function GetTopicInfo($aFilter, &$iCount, $iCurrPage, $iPerPage) {
 
         $sql = "SELECT
-                  t.target_id        AS topic_id,
-                  count(DISTINCT t.mresource_id) AS count
-                FROM ?_mresource_target t, ?_mresource m
+                  t.topic_id AS id,
+                  count(DISTINCT m.mresource_id) AS count
+                FROM
+                  ?_mresource m
+                  LEFT JOIN ?_mresource_target mt ON m.mresource_id = mt.mresource_id
+                  LEFT JOIN ?_topic t ON t.topic_id = mt.target_id
+                  LEFT JOIN ?_blog b ON b.blog_id = t.blog_id
                 WHERE
-                  m.mresource_id = t.mresource_id
-                  AND (m.type & (?d | ?d | ?d))
-                  AND m.user_id = ?d
-                  AND t.target_id <> 0
-                  AND (t.target_type IN (?a) OR t.target_type LIKE 'single-image-uploader%')
-                GROUP BY topic_id
-                ORDER BY m.date_add desc
-                LIMIT ?d, ?d";
+                  (m.user_id = ?d)
+                  {AND (m.type & ?d)}
+                  AND (mt.target_id <> 0)
+                  {AND (mt.target_type IN (?a) OR mt.target_type LIKE 'single-image-uploader%')}
+                  {AND (t.topic_publish = ?d) AND (t.topic_date_show <= NOW())}
+                  {AND b.blog_type = 'personal' OR t.blog_id IN ( ?a )}
+                  {AND t.topic_index_ignore = ?d}
+                GROUP BY t.topic_id
+                ";
+        $aRows = $this->oDb->selectPage($iCount, $sql,
+            $aFilter['user_id'],
+            isset($aFilter['mresource_type']) ? $aFilter['mresource_type'] : DBSIMPLE_SKIP,
+            isset($aFilter['target_type']) ? $aFilter['target_type'] : DBSIMPLE_SKIP,
+            isset($aFilter['topic_publish']) ? $aFilter['topic_publish'] : DBSIMPLE_SKIP,
+            isset($aFilter['blog_id']) ? $aFilter['blog_id'] : DBSIMPLE_SKIP,
+            isset($aFilter['topic_index_ignore']) ? $aFilter['topic_index_ignore'] : DBSIMPLE_SKIP,
+            ($iCurrPage - 1) * $iPerPage, $iPerPage
+        );
 
         $aResult = array();
-
-        if ($aRows = $this->oDb->selectPage($iCount, $sql,
-            ModuleMresource::TYPE_IMAGE,
-            ModuleMresource::TYPE_PHOTO,
-            ModuleMresource::TYPE_PHOTO_PRIMARY,
-            $iUserId, array(
-            'photoset',
-            'topic'
-        ), ($iCurrPage - 1) * $iPerPage, $iPerPage)) {
+        if ($aRows) {
             foreach ($aRows as $aRow) {
-                $aResult[$aRow['topic_id']] = $aRow['count'];
+                $aResult[$aRow['id']] = $aRow['count'];
             }
         }
-
         return $aResult;
     }
 

@@ -302,6 +302,10 @@ $config['data']['image_insert'] = array(
             'insert_image' => array()
         ),
     ),
+    'actions' => array('ajax' => array(
+        'image-manager-load-images',
+        'image-manager-load-tree',
+    )),
     'description' => '{{menu_image_insert_description}}',
     'list' => array(
         'insert_from_pc' => array(
@@ -345,6 +349,10 @@ $config['data']['profile_images'] = array(
             'insert_image' => array()
         ),
     ),
+    'actions' => array('ajax' => array(
+        'image-manager-load-images',
+        'image-manager-load-tree',
+    )),
     'protect' => true,
     'description' => '{{user_menu_publication_photos}}',
     'list' => array(

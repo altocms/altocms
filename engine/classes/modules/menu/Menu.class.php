@@ -54,6 +54,11 @@ class ModuleMenu extends Module {
      */
     public function Prepare($sMenuId, $aMenu) {
 
+        // Проверим меню на разрешённые экшены
+        if (isset($aMenu['actions']) && !R::AllowAction($aMenu['actions'])) {
+            return array();
+        }
+
         // Если тип меню не находится в списке разрешенных, то его не обрабатываем
         // Плагины же могут расширить этот список и переопределить данный метод.
 //        if (!in_array($sMenuId, Config::Get('menu.allowed'))) {

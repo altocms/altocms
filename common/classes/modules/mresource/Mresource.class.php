@@ -875,6 +875,23 @@ class ModuleMresource extends Module {
     public function GetTopicsPage($iUserId, $iPage, $iPerPage)  {
 
         $iCount = 0;
+        $aFilter = array(
+            'user_id' => $iUserId,
+            'mresource_type' => ModuleMresource::TYPE_IMAGE | ModuleMresource::TYPE_PHOTO | ModuleMresource::TYPE_PHOTO_PRIMARY,
+            'target_type' => array('photoset', 'topic'),
+        );
+        if (E::IsUser() && E::User() !== $iUserId) {
+            // Если текущий юзер не совпадает с запрашиваемым, то получаем список доступных блогов
+            $aFilter['blogs_id'] = E::ModuleBlog()->GetAccessibleBlogsByUser(E::User());
+            // И топики должны быть опубликованы
+            $aFilter['topic_publish'] = 1;
+        }
+        if (!E::IsUser()) {
+            // Если юзер не авторизован, то считаем все доступные для индексации топики
+            $aFilter['topic_index_ignore'] = 0;
+        }
+
+        $aTopicInfo = $this->oMapper->GetTopicInfo($aFilter, $iCount, $iPage, $iPerPage);
         $aResult = array(
             'collection' => array(),
             'count' => 0
@@ -1044,12 +1061,23 @@ class ModuleMresource extends Module {
     public function GetTopicsPageByType($iUserId, $sType, $iPage, $iPerPage)  {
 
         $iCount = 0;
-        $aResult = array(
-            'collection' => array(),
-            'count' => 0
+        $aFilter = array(
+            'user_id' => $iUserId,
+            'mresource_type' => ModuleMresource::TYPE_IMAGE | ModuleMresource::TYPE_PHOTO | ModuleMresource::TYPE_PHOTO_PRIMARY,
+            'target_type' => array('photoset', 'topic'),
         );
+        if (E::IsUser() && E::User() !== $iUserId) {
+            // Если текущий юзер не совпадает с запрашиваемым, то получаем список доступных блогов
+            $aFilter['blogs_id'] = E::ModuleBlog()->GetAccessibleBlogsByUser(E::User());
+            // И топики должны быть опубликованы
+            $aFilter['topic_publish'] = 1;
+        }
+        if (!E::IsUser()) {
+            // Если юзер не авторизован, то считаем все доступные для индексации топики
+            $aFilter['topic_index_ignore'] = 0;
+        }
 
-        $aTopicInfo = $this->oMapper->GetTopicInfo($iUserId, $iCount, $iPage, $iPerPage);
+        $aTopicInfo = $this->oMapper->GetTopicInfo($aFilter, $iCount, $iPage, $iPerPage);
         if ($aTopicInfo) {
 
             $aTopics = E::ModuleTopic()->GetTopicsByFilter(array(
@@ -1068,7 +1096,7 @@ class ModuleMresource extends Module {
             return $aTopics;
         }
 
-        return $aResult;
+        return array();
     }
 
     /**
