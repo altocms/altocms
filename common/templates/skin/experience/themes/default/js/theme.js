@@ -548,9 +548,9 @@ $(function () {
     };
 
     $('.spoiler-slider')
-        .on('click', function(){
+        .live('click', function(){
             $(this).parent().next().slideToggle();
-        })
+        });
 
 
 });

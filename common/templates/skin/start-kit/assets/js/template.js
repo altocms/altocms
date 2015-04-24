@@ -314,6 +314,11 @@
         });
     };
 
+    $('.spoiler-slider')
+        .live('click', function(){
+            $(this).parent().next().slideToggle();
+        });
+
     ls.photoset.prepareLastImages($('.alto-photoset'));
 
 
