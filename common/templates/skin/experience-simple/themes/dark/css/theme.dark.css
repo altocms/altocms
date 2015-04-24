@@ -2750,11 +2750,33 @@ span.counter {
 .modal-write .link-dark.link-clear:hover i {
   color: #1c374c !important;
 }
+.modal-write .write-item-type-topic {
+  max-width: 102px;
+  text-align: center;
+}
 .modal-write li a {
   margin-bottom: 6px;
 }
 .modal-write .modal-dialog {
   width: 446px !important;
+}
+.modal-write .modal-write-list li:nth-child(5) {
+  margin-top: 0;
+}
+.modal-write .modal-write-list li:nth-child(6) {
+  margin-top: 0;
+}
+.modal-write .modal-write-list li:nth-child(7) {
+  margin-top: 0;
+}
+.modal-write .modal-write-list li:nth-child(8) {
+  margin-top: 0;
+}
+.modal-write .modal-write-list li:nth-child(9) {
+  margin-top: 0;
+}
+.modal-write .modal-write-list li:nth-child(10) {
+  margin-top: 0;
 }
 /* ----------------------------------
     Light Square Theme
