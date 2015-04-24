@@ -955,7 +955,6 @@ return array(
     'talk_inbox_delete'                         => 'Удалить выделенное',
     'talk_inbox_delete_confirm'                 => 'Действительно удалить переписку?',
     'talk_comments'                             => 'Переписка',
-    'talk_comment_add_text_error'               => 'Текст комментария должен быть от 2 до 3000 символов',
     'talk_create'                               => 'Новое письмо',
     'talk_create_users'                         => 'Кому',
     'talk_create_users_error'                   => 'Необходимо указать, кому вы хотите отправить сообщение',

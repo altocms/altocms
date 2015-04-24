@@ -659,9 +659,15 @@ class ActionTalk extends Action {
          * Проверяем текст комментария
          */
         $sText = $this->Text_Parser(F::GetRequestStr('comment_text'));
-        if (!F::CheckVal($sText, 'text', 2, 3000)) {
-            $this->Message_AddErrorSingle($this->Lang_Get('talk_comment_add_text_error'), $this->Lang_Get('error'));
-            return;
+        $iMin = intval(Config::Get('module.talk.min_length'));
+        $iMax = intval(Config::Get('module.talk.max_length'));
+        if (!F::CheckVal($sText, 'text', $iMin, $iMax)) {
+            if ($iMax) {
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get('talk_create_text_error_len', array('min'=>$iMin, 'max'=>$iMax)), E::ModuleLang()->Get('error'));
+            } else {
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get('talk_create_text_error_min', array('min'=>$iMin)), E::ModuleLang()->Get('error'));
+            }
+            return false;
         }
         /**
          * Проверям на какой коммент отвечаем
