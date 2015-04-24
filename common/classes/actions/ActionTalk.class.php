@@ -473,9 +473,9 @@ class ActionTalk extends Action {
         $iMax = intval(Config::Get('module.talk.max_length'));
         if (!F::CheckVal(F::GetRequestStr('talk_text'), 'text', $iMin, $iMax)) {
             if ($iMax) {
-                E::ModuleMessage()->AddError(E::ModuleLang()->Get('talk_create_text_error_min', array('min'=>$iMin)), E::ModuleLang()->Get('error'));
-            } else {
                 E::ModuleMessage()->AddError(E::ModuleLang()->Get('talk_create_text_error_len', array('min'=>$iMin, 'max'=>$iMax)), E::ModuleLang()->Get('error'));
+            } else {
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get('talk_create_text_error_min', array('min'=>$iMin)), E::ModuleLang()->Get('error'));
             }
             $bOk = false;
         }
@@ -610,17 +610,17 @@ class ActionTalk extends Action {
         // * Проверям авторизован ли пользователь
         if (!E::ModuleUser()->IsAuthorization()) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('need_authorization'), E::ModuleLang()->Get('error'));
-            return;
+            return false;
         }
 
         // * Проверяем разговор
         if (!($oTalk = E::ModuleTalk()->GetTalkById(F::GetRequestStr('cmt_target_id')))) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
-            return;
+            return false;
         }
         if (!($oTalkUser = E::ModuleTalk()->GetTalkUser($oTalk->getId(), $this->oUserCurrent->getId()))) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
-            return;
+            return false;
         }
 
         // * Проверяем разрешено ли отправлять инбокс по времени
@@ -631,16 +631,22 @@ class ActionTalk extends Action {
 
         // * Проверяем текст комментария
         $sText = E::ModuleText()->Parser(F::GetRequestStr('comment_text'));
-        if (!F::CheckVal($sText, 'text', 2, 3000)) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('talk_comment_add_text_error'), E::ModuleLang()->Get('error'));
-            return;
+        $iMin = intval(Config::Get('module.talk.min_length'));
+        $iMax = intval(Config::Get('module.talk.max_length'));
+        if (!F::CheckVal($sText, 'text', $iMin, $iMax)) {
+            if ($iMax) {
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get('talk_create_text_error_len', array('min'=>$iMin, 'max'=>$iMax)), E::ModuleLang()->Get('error'));
+            } else {
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get('talk_create_text_error_min', array('min'=>$iMin)), E::ModuleLang()->Get('error'));
+            }
+            return false;
         }
 
         // * Проверям на какой коммент отвечаем
         $sParentId = (int)F::GetRequest('reply');
         if (!F::CheckVal($sParentId, 'id')) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
-            return;
+            return false;
         }
         $oCommentParent = null;
         if ($sParentId != 0) {
@@ -648,13 +654,13 @@ class ActionTalk extends Action {
             // * Проверяем существует ли комментарий на который отвечаем
             if (!($oCommentParent = E::ModuleComment()->GetCommentById($sParentId))) {
                 E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
-                return;
+                return false;
             }
 
             // * Проверяем из одного топика ли новый коммент и тот на который отвечаем
             if ($oCommentParent->getTargetId() != $oTalk->getId()) {
                 E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
-                return;
+                return false;
             }
         } else {
 
@@ -665,7 +671,7 @@ class ActionTalk extends Action {
         // * Проверка на дублирующий коммент
         if (E::ModuleComment()->GetCommentUnique($oTalk->getId(), 'talk', $this->oUserCurrent->getId(), $sParentId, md5($sText))) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_comment_spam'), E::ModuleLang()->Get('error'));
-            return;
+            return false;
         }
 
         // * Создаём комментарий
@@ -710,9 +716,11 @@ class ActionTalk extends Action {
 
             // * Увеличиваем число новых комментов
             E::ModuleTalk()->IncreaseCountCommentNew($oTalk->getId(), $oCommentNew->getUserId());
+            return true;
         } else {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
         }
+        return false;
     }
 
     /**

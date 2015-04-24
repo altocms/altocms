@@ -1214,6 +1214,20 @@ class ActionBlog extends Action {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_comment_add_text_error'), E::ModuleLang()->Get('error'));
             return;
         }
+        $iMin = Config::Val('module.comment.min_length', 2);
+        $iMax = Config::Val('module.comment.max_length', 0);
+        if (!F::CheckVal($sText, 'text', $iMin, $iMax)) {
+            if ($iMax) {
+                $this->Message_AddErrorSingle(
+                    $this->Lang_Get('topic_comment_text_len', array('min' => $iMin, 'max' => $iMax)), $this->Lang_Get('error')
+                );
+            } else {
+                $this->Message_AddErrorSingle(
+                    $this->Lang_Get('topic_comment_text_min', array('min' => $iMin)), $this->Lang_Get('error')
+                );
+            }
+            return;
+        }
 
         // * Проверям на какой коммент отвечаем
         if (!$this->isPost('reply')) {
@@ -1486,8 +1500,18 @@ class ActionBlog extends Action {
 
         // * Проверяем текст комментария
         $sNewText = E::ModuleText()->Parser($this->GetPost('comment_text'));
-        if (!F::CheckVal($sNewText, 'text', Config::Val('module.comment.min_length', 2), Config::Val('module.comment.max_length', 10000))) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_comment_add_text_error'), E::ModuleLang()->Get('error'));
+        $iMin = Config::Val('module.comment.min_length', 2);
+        $iMax = Config::Val('module.comment.max_length', 0);
+        if (!F::CheckVal($sNewText, 'text', $iMin, $iMax)) {
+            if ($iMax) {
+                $this->Message_AddErrorSingle(
+                    $this->Lang_Get('topic_comment_text_len', array('min' => $iMin, 'max' => $iMax)), $this->Lang_Get('error')
+                );
+            } else {
+                $this->Message_AddErrorSingle(
+                    $this->Lang_Get('topic_comment_text_min', array('min' => $iMin)), $this->Lang_Get('error')
+                );
+            }
             return;
         }
 
