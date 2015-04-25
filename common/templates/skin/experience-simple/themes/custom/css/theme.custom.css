@@ -2628,12 +2628,12 @@ span.counter {
   }
 }
 .modal-header button {
-  position: relative;
+  position: absolute;
   opacity: 1;
   font-size: 1px;
   width: 40px;
   height: 40px;
-  right: -64px;
+  right: -48px;
   cursor: pointer;
   color: #f0f0f0;
 }
@@ -2681,6 +2681,9 @@ span.counter {
 .modal-header li {
   padding-left: 8px !important;
   padding-right: 8px !important;
+}
+.modal-header h4 {
+  padding: 0;
 }
 #image-categories-tree-container .image-categories-tree li.active a {
   background: #ffffff !important;
@@ -2804,7 +2807,7 @@ div.pp_experience .pp_contract {
   font-size: 1px;
   width: 40px;
   height: 40px;
-  right: -52px;
+  right: -48px;
   top: 20px;
   cursor: pointer;
   color: transparent;
@@ -2837,12 +2840,12 @@ div.pp_experience .pp_close {
   position: absolute !important;
   text-indent: 0;
   top: -20px;
-  position: relative;
+  position: absolute;
   opacity: 1;
   font-size: 1px;
   width: 40px;
   height: 40px;
-  right: -40px;
+  right: -38px;
   cursor: pointer;
   color: #f0f0f0;
 }
