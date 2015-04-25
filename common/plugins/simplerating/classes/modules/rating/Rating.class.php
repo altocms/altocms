@@ -54,7 +54,7 @@ class PluginSimplerating_ModuleRating extends PluginSimplerating_Inherit_ModuleR
          */
         if (C::Get('plugin.simplerating.comment.user_add')) {
             $oUserComment = $this->User_GetUserById($oComment->getUserId());
-            $oUserComment->setRating((float)$oUserComment->getRating() + (float)C::Get('plugin.simplerating.comment.user_add'));
+            $oUserComment->setRating((float)$oUserComment->getRating() + $iValue * (float)C::Get('plugin.simplerating.comment.user_add'));
             $this->User_Update($oUserComment);
         }
         /**
@@ -88,7 +88,7 @@ class PluginSimplerating_ModuleRating extends PluginSimplerating_Inherit_ModuleR
          * Устанавливаем рейтинг топика
          */
         if (C::Get('plugin.simplerating.topic.add')) {
-            $oTopic->setRating((float)$oTopic->getRating() + (float)C::Get('plugin.simplerating.topic.add'));
+            $oTopic->setRating((float)$oTopic->getRating() + $iValue * (float)C::Get('plugin.simplerating.topic.add'));
         }
 
         /**
@@ -96,7 +96,7 @@ class PluginSimplerating_ModuleRating extends PluginSimplerating_Inherit_ModuleR
          */
         if (C::Get('plugin.simplerating.topic.user_add')) {
             $oUserTopic = $this->User_GetUserById($oTopic->getUserId());
-            $oUserTopic->setRating((float)$oUserTopic->getRating() + (float)C::Get('plugin.simplerating.topic.user_add'));
+            $oUserTopic->setRating((float)$oUserTopic->getRating() + $iValue * (float)C::Get('plugin.simplerating.topic.user_add'));
             $this->User_Update($oUserTopic);
         }
 
@@ -131,7 +131,7 @@ class PluginSimplerating_ModuleRating extends PluginSimplerating_Inherit_ModuleR
         /**
          * Устанавливаем рейтинг блога
          */
-        $oBlog->setRating((float)$oBlog->getRating() + (float)C::Get('plugin.simplerating.blog.add'));
+        $oBlog->setRating((float)$oBlog->getRating() + $iValue * (float)C::Get('plugin.simplerating.blog.add'));
         /**
          * Убавляем рейтинг голосующего, если нужно
          */
@@ -164,7 +164,7 @@ class PluginSimplerating_ModuleRating extends PluginSimplerating_Inherit_ModuleR
         /**
          * Начисляем рейтинг пользователя
          */
-        $oUserTarget->setRating((float)$oUserTarget->getRating() + (float)C::Get('plugin.simplerating.user.add'));
+        $oUserTarget->setRating((float)$oUserTarget->getRating() + $iValue * (float)C::Get('plugin.simplerating.user.add'));
         /**
          * Убавляем рейтинг голосующего, если нужно
          */
