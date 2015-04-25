@@ -1442,7 +1442,15 @@ class ActionAdmin extends Action {
             if (strpos($sMode, 'plugin.') === 0) {
                 $sMode = E::ModuleLang()->Get($sMode);
             } else {
-                $sMode = E::ModuleLang()->Get('target_type_' . $sMode);
+                $sLabelKey = 'target_type_' . $sMode;
+                if (($sLabel = E::ModuleLang()->Get($sLabelKey)) == mb_strtoupper($sLabelKey)) {
+                    /** @var ModuleTopic_EntityContentType $oContentType */
+                    $oContentType = E::ModuleTopic()->GetContentTypeByUrl($sMode);
+                    if ($oContentType) {
+                        $sLabel = $oContentType->getContentTitleDecl();
+                    }
+                }
+                $sMode = $sLabel;
             }
 
         }

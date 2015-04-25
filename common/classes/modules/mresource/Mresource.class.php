@@ -1039,7 +1039,15 @@ class ModuleMresource extends Module {
         $aData = $this->oMapper->GetCountImagesByTopicType($aFilter);
         if ($aData) {
             foreach ($aData as $xIndex => $aRow) {
-                $aData[$xIndex]['label'] = E::ModuleLang()->Get('target_type_' . $aRow['id']);
+                $sLabelKey = 'target_type_' . $aRow['id'];
+                if (($sLabel = E::ModuleLang()->Get($sLabelKey)) == mb_strtoupper($sLabelKey)) {
+                    /** @var ModuleTopic_EntityContentType $oContentType */
+                    $oContentType = E::ModuleTopic()->GetContentTypeByUrl($aRow['id']);
+                    if ($oContentType) {
+                        $sLabel = $oContentType->getContentTitleDecl();
+                    }
+                }
+                $aData[$xIndex]['label'] = E::ModuleLang()->Get($sLabel);
             }
             $aResult = E::GetEntityRows('Mresource_MresourceCategory', $aData);
         } else {
