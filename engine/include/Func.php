@@ -839,6 +839,7 @@ class Func {
                             $aPluginInfo['id'] = $sDirName;
                         }
                         $aPluginInfo['dirname'] = $sDirName;
+                        $aPluginInfo['path'] = dirname($sXmlFile) . '/';
                         $aPluginInfo['manifest'] = $sXmlFile;
                         $aPlugins[$aPluginInfo['id']] = $aPluginInfo;
                     }
@@ -865,6 +866,7 @@ class Func {
                             }
                             $sXmlFile = $sCommonPluginsDir . '/' . $aPluginInfo['dirname'] . '/plugin.xml';
                             if (is_file($sXmlFile)) {
+                                $aPluginInfo['path'] = dirname($sXmlFile) . '/';
                                 $aPluginInfo['manifest'] = $sXmlFile;
                                 $aPlugins[$aPluginInfo['id']] = $aPluginInfo;
                             }

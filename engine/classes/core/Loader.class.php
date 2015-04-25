@@ -78,6 +78,12 @@ class Loader {
             Config::Set('path.root.subdir', $sPathSubdir);
         }
 
+        // Paths to dirs of plugins
+        $aPluginsList = F::GetPluginsList(false, false);
+        foreach ($aPluginsList as $aPlugin) {
+            Config::Set('path.dir.plugin.' . $aPlugin['id'], $aPlugin['path']);
+        }
+
         // Подгружаем конфиг из файлового кеша, если он есть
         Config::ResetLevel(Config::LEVEL_CUSTOM);
         $aConfig = Config::ReadCustomConfig(null, true);
@@ -351,7 +357,7 @@ class Loader {
                 return self::_includeFile($aInfo[E::CI_CLASSPATH], $sClassName);
             }
         }
-        if (self::_autoloadPSR0($sClassName)) {
+        if (self::_autoloadPSR($sClassName)) {
             return true;
         }
         return false;
@@ -395,7 +401,7 @@ class Loader {
                             $sFile = $sPath . '/' . $aOptions['classmap'][$sClassName];
                             return self::_includeFile($sFile, $sClassName);
                         }
-                        return self::_autoloadPSR0($sClassName, $sPath);
+                        return self::_autoloadPSR($sClassName, $sPath);
                     }
                 }
             }
@@ -404,6 +410,11 @@ class Loader {
     }
 
     static protected $_aFailedClasses = array();
+
+    static protected function _autoloadPSR($sClassName, $xPath = null) {
+
+        return self::_autoloadPSR4($sClassName) || self::_autoloadPSR0($sClassName, $xPath);
+    }
 
     /**
      * Try to load class using PRS-0 naming standard
@@ -416,27 +427,70 @@ class Loader {
     static protected function _autoloadPSR0($sClassName, $xPath = null) {
 
         if (!$xPath) {
-            $xPath = Config::Get('path.dir.libs');
+            $xPath = C::Get('path.dir.libs');
         }
 
         $sCheckKey = serialize(array($sClassName, $xPath));
         if (!isset(self::$_aFailedClasses[$sCheckKey])) {
             if (strpos($sClassName, '\\')) {
                 // Namespaces
-                $sClassName = str_replace('\\', DIRECTORY_SEPARATOR, $sClassName);
+                $sFileName = str_replace('\\', DIRECTORY_SEPARATOR, $sClassName);
             } elseif (strpos($sClassName, '_')) {
                 // Old style with '_'
-                $sClassName = str_replace('_', DIRECTORY_SEPARATOR, $sClassName);
+                $sFileName = str_replace('_', DIRECTORY_SEPARATOR, $sClassName);
             } else {
-                return false;
+                $sFileName = $sClassName . '\\' . $sClassName;
             }
-            if ($sFile = F::File_Exists($sClassName . '.php', $xPath)) {
+            if ($sFile = F::File_Exists($sFileName . '.php', $xPath)) {
                 return self::_includeFile($sFile, $sClassName);
-            } elseif ($sFile = F::File_Exists($sClassName . '.class.php', $xPath)) {
+            } elseif ($sFile = F::File_Exists($sFileName . '.class.php', $xPath)) {
                 return self::_includeFile($sFile, $sClassName);
             }
         }
         self::$_aFailedClasses[$sCheckKey] = false;
+        return false;
+    }
+
+    /**
+     * Try load class using PSR-4 standards
+     * Used code from http://www.php-fig.org/psr/psr-4/examples/
+     *
+     * @param string $sClassName
+     *
+     * @return bool
+     */
+    static protected function _autoloadPSR4($sClassName) {
+
+        // An associative array where the key is a namespace prefix and the value
+        // is an array of base directories for classes in that namespace.
+        $aVendorNamespaces = C::Get('classes.namespace');
+        if (!strpos($sClassName, '\\') || !$aVendorNamespaces) {
+            return false;
+
+        }
+        // the current namespace prefix
+        $sPrefix = $sClassName;
+
+        // work backwards through the namespace names of the fully-qualified
+        // class name to find a mapped file name
+        while (false !== $iPos = strrpos($sPrefix, '\\')) {
+
+            // seeking namespace prefix
+            $sPrefix = substr($sClassName, 0, $iPos);
+
+            // the rest is the relative class name
+            $sRelativeClass = substr($sClassName, $iPos + 1);
+            $sFileName = str_replace('\\', DIRECTORY_SEPARATOR, $sRelativeClass) . '.php';
+
+            // try to load a mapped file for the prefix and relative class
+            if (isset($aVendorNamespaces[$sPrefix])) {
+                if ($sFile = F::File_Exists($sFileName, $aVendorNamespaces[$sPrefix])) {
+                    return self::_includeFile($sFile, $sClassName);
+                }
+            }
+        }
+
+        // файл так и не был найден
         return false;
     }
 
