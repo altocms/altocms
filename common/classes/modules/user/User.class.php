@@ -1949,7 +1949,9 @@ class ModuleUser extends Module {
                     array(
                          'oUser'       => $oUser,
                          'oChangemail' => $oChangemail,
-                    )
+                    ),
+                    null,
+                    true
                 );
 
             } else {
@@ -1961,7 +1963,9 @@ class ModuleUser extends Module {
                     array(
                          'oUser'       => $oUser,
                          'oChangemail' => $oChangemail,
-                    )
+                    ),
+                    null,
+                    true
                 );
             }
             return $oChangemail;

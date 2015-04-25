@@ -1397,7 +1397,9 @@ class ActionProfile extends Action {
             array(
                  'oUser'       => $oUser,
                  'oChangemail' => $oChangemail,
-            )
+            ),
+            null,
+            true
         );
 
         E::ModuleViewer()->Assign('sText', E::ModuleLang()->Get('settings_profile_mail_change_to_notice'));
