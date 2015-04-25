@@ -482,6 +482,9 @@ class ActionUploader extends Action {
         $sTarget = F::GetRequest('target', FALSE);
         $sTargetId = F::GetRequest('target_id', FALSE);
         $oTarget = E::ModuleUploader()->CheckAccessAndGetTarget($sTarget, $sTargetId);
+        $bTmp = F::GetRequest('tmp', FALSE);
+        $bTmp = ($bTmp == 'true') ? true : false;
+
 
         // Проверяем, целевой объект и права на его редактирование
         if (!$oTarget) {
@@ -523,7 +526,7 @@ class ActionUploader extends Action {
             }
 
             // Определим, существует ли объект или он будет создан позже
-            if (!($sTmpKey = E::ModuleSession()->GetCookie(ModuleUploader::COOKIE_TARGET_TMP)) && $sTargetId == '0') {
+            if (!($sTmpKey = E::ModuleSession()->GetCookie(ModuleUploader::COOKIE_TARGET_TMP)) && $sTargetId == '0' && $bTmp) {
                 E::ModuleMessage()->AddError(E::ModuleLang()->Get('error_upload_image'), E::ModuleLang()->Get('error'));
 
                 return FALSE;

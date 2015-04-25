@@ -87,6 +87,7 @@
                     'target': $this.options.target,
                     'target_id': $this.options.targetId,
                     'multi': true,
+                    'tmp': $this.options.tmp,
                     'crop_size': $this.options.previewCrop
                 },
                 multiple: true,
@@ -414,7 +415,8 @@
             cover: ls.routerUrl('uploader') + 'cover/',
             sort: ls.routerUrl('uploader') + 'sort/'
         },
-        previewCrop: '400fit'
+        previewCrop: '400fit',
+        tmp: true
     };
 
 }(window.jQuery, ls));

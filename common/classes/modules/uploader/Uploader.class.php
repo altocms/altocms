@@ -799,9 +799,17 @@ class ModuleUploader extends Module {
             if ($oStoredFile = $this->Store($sTmpFile, $sImageFile)) {
 
                 $oResource = E::ModuleMresource()->GetMresourcesByUuid($oStoredFile->getUuid());
-                if (!$this->AddRelationResourceTarget($oResource, $sTarget, $sTargetId, $bMulti)) {
-                    // TODO Возможная ошибка
+                $aTmpTarget = array(
+                    'topic_comment',
+                    'talk_comment',
+                    'talk',
+                );
+                if (!(in_array($sTarget, $aTmpTarget) && !$sTargetId)) {
+                    if (!$this->AddRelationResourceTarget($oResource, $sTarget, $sTargetId, $bMulti)) {
+                        // TODO Возможная ошибка
+                    }
                 }
+
                 return $oStoredFile;
             }
         }
@@ -923,6 +931,18 @@ class ModuleUploader extends Module {
             return TRUE;
         }
 
+        if ($sTargetType == 'topic_comment') {
+            return TRUE;
+        }
+
+        if ($sTargetType == 'talk_comment') {
+            return TRUE;
+        }
+
+        if ($sTargetType == 'talk') {
+            return TRUE;
+        }
+
         return FALSE;
     }
 
@@ -1017,6 +1037,63 @@ class ModuleUploader extends Module {
             return '';
         }
 
+        if ($sTarget == 'topic_comment') {
+            if (!E::IsUser()) {
+                return false;
+            }
+            /** @var ModuleComment_EntityComment $oComment */
+            $oComment = E::ModuleComment()->GetCommentById($iTargetId);
+
+            if (!$oComment) {
+                // Комментарий еще не создан
+                return TRUE;
+            }
+
+            if ($oComment && ((E::ModuleACL()->CanPostComment(E::User()) && E::ModuleAcl()->CanPostCommentTime(E::User())) || E::IsAdminOrModerator())) {
+                return $oComment;
+            }
+
+            return '';
+        }
+
+        if ($sTarget == 'talk_comment') {
+            if (!E::IsUser()) {
+                return false;
+            }
+            /** @var ModuleComment_EntityComment $oComment */
+            $oComment = E::ModuleComment()->GetCommentById($iTargetId);
+
+            if (!$oComment) {
+                // Комментарий еще не создан
+                return TRUE;
+            }
+
+            if ($oComment && (E::ModuleAcl()->CanPostTalkCommentTime(E::User()) || E::IsAdminOrModerator())) {
+                return $oComment;
+            }
+
+            return '';
+        }
+
+        if ($sTarget == 'talk') {
+            if (!E::IsUser()) {
+                return false;
+            }
+            /** @var ModuleComment_EntityComment $oTalk */
+            $oTalk = E::ModuleTalk()->GetTalkById($iTargetId);
+
+            if (!$oTalk) {
+                // Комментарий еще не создан
+                return TRUE;
+            }
+
+            if ($oTalk && ((E::ModuleAcl()->CanSendTalkTime()) || E::IsAdminOrModerator())) {
+                return $oTalk;
+            }
+
+            return '';
+        }
+
         return FALSE;
     }
 
@@ -1029,6 +1106,17 @@ class ModuleUploader extends Module {
      * @return string
      */
     public function GetUploadDir($sTargetType, $sTargetId) {
+
+        // Изображения комментариев сохраняем в папку пользователя
+        if (in_array($sTargetType, array(
+                'topic_comment',
+                'talk_comment',
+                'talk',
+        ))) {
+            $sResult = E::ModuleUploader()->GetUserImageDir(E::UserId(), true, false);
+            F::File_CheckDir($sResult, TRUE);
+            return $sResult;
+        }
 
         if ($sTargetId == "0") {
             $sPath = '_tmp/';

@@ -1,5 +1,5 @@
 {include file='modals/modal.upload_photoset.tpl'}
-{include file='commons/common.editor.tpl'}
+{include file='commons/common.editor.tpl' sTargetType='topic'}
 
 {if $sMode!='add'}
     <div class="page-header">

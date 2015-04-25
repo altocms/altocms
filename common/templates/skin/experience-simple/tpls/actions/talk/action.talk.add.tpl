@@ -24,7 +24,12 @@
             <br/>
         </div>
 
-        {include file='commons/common.editor.tpl' sImgToLoad='talk_text' sSettingsTinymce='ls.settings.getTinymceComment()' sSettingsMarkitup='ls.settings.getMarkitupComment()'}
+        {include file='commons/common.editor.tpl'
+                 sTargetType='talk'
+                 bTmp='false'
+                 sImgToLoad='talk_text'
+                 sSettingsTinymce='ls.settings.getTinymceComment()'
+                 sSettingsMarkitup='ls.settings.getMarkitupComment()'}
 
         <form action="" method="POST" enctype="multipart/form-data" class="wrapper-content">
 

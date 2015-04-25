@@ -132,7 +132,12 @@
     {$sNoticeNotAllow}
 {else}
     {if E::IsUser()}
-        {include file='commons/common.editor.tpl' sImgToLoad='form_comment_text' sSettingsTinymce='ls.settings.getTinymceComment()' sSettingsMarkitup='ls.settings.getMarkitupComment()'}
+        {include file='commons/common.editor.tpl'
+                 sTargetType="{$sTargetType}_comment"
+                 bTmp='false'
+                 sImgToLoad='form_comment_text'
+                 sSettingsTinymce='ls.settings.getTinymceComment()'
+                 sSettingsMarkitup='ls.settings.getMarkitupComment()'}
 
         <div class="topic-comment-controls reply-header" id="comment_id_0">
             <a class="btn btn-blue btn-big corner-no" href="#" onclick="ls.comments.toggleCommentForm(0); return false;">{$sNoticeCommentAdd}</a>

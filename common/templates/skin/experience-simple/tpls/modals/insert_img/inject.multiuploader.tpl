@@ -1,4 +1,4 @@
-{$sTargetType="topic"}
+{*{$sTargetType="topic"}*}
 <script>
     $(function () {
         $('.js-alto-topic-uploader')
@@ -8,6 +8,7 @@
                     list: '>.js-files-tpl',
                     upload: '.js-upload-topic',
                     form: '.js-alto-topic-uploader-form',
+                    tmp: '{if isset($bTmp)}{$bTmp}{else}true{/if}',
                     preview_width: 60,
                     preview_height: 60,
                     onComplete: function (evt, uiEvt) {

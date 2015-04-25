@@ -3107,11 +3107,18 @@ class ModuleTopic extends Module {
         }
     }
 
+    /**
+     * @param ModuleTopic_EntityTopic $oTopic
+     * @param null $sTargetTmp
+     * @return bool
+     */
     public function AttachTmpPhotoToTopic($oTopic, $sTargetTmp = null) {
 
         if (is_null($sTargetTmp)) {
-            $sTargetTmp = $oTopic->getTargetTmp();
+            $sTargetTmp = E::ModuleSession()->GetCookie(ModuleUploader::COOKIE_TARGET_TMP);
         }
+
+        E::ModuleMresource()->ResetTmpRelById($sTargetTmp, $oTopic->getId());
         return $this->oMapper->attachTmpPhotoToTopic($oTopic, $sTargetTmp);
     }
 

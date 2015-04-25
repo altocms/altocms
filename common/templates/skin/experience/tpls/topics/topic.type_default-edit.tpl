@@ -2,7 +2,7 @@
  {* @licence     CC Attribution-ShareAlike   *}
 
 {include file='modals/modal.upload_photoset.tpl'}
-{include file='commons/common.editor.tpl'}
+{include file='commons/common.editor.tpl' sTargetType='topic'}
 
 <!-- Блок создания -->
 <div class="panel panel-default content-write raised">
