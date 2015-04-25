@@ -642,6 +642,13 @@ class ModuleComment extends Module {
                       "comment_new_{$oComment->getTargetType()}_{$oComment->getTargetId()}")
             );
             $oComment->setId($nId);
+
+            $this->Mresource_CheckTargetTextForImages(
+                $oComment->getTargetType() . '_comment',
+                $oComment->getId(),
+                $oComment->getText()
+            );
+
             return $oComment;
         }
         return false;
