@@ -439,7 +439,7 @@ class Loader {
                 // Old style with '_'
                 $sFileName = str_replace('_', DIRECTORY_SEPARATOR, $sClassName);
             } else {
-                $sFileName = $sClassName . '\\' . $sClassName;
+                $sFileName = $sClassName . DIRECTORY_SEPARATOR . $sClassName;
             }
             if ($sFile = F::File_Exists($sFileName . '.php', $xPath)) {
                 return self::_includeFile($sFile, $sClassName);
