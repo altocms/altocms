@@ -3231,6 +3231,15 @@ div.pp_experience .pp_loaderIcon {
 [data-alto-role="popover"] + .popover .blog-info-default-container table tr:last-child td {
   border-bottom: 0;
 }
+.topic-info .blog-info-default-container a,
+[data-alto-role="popover"] + .popover .blog-info-default-container a {
+  text-decoration: none;
+  color: #1499cb;
+}
+.topic-info .blog-info-default-container a.link-light-gray,
+[data-alto-role="popover"] + .popover .blog-info-default-container a.link-light-gray {
+  color: #0d0d0d;
+}
 [data-alto-role="popover"][data-placement="bottom"] + .popover {
   left: 17px !important;
 }
