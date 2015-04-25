@@ -1375,7 +1375,9 @@ class ActionProfile extends Action {
             array(
                  'oUser'       => $oUser,
                  'oChangemail' => $oChangemail,
-            )
+            ),
+            null,
+            true
         );
 
         $this->Viewer_Assign('sText', $this->Lang_Get('settings_profile_mail_change_to_notice'));
