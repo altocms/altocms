@@ -99,7 +99,7 @@
     {/if}
 
     <li class="topic-rating js-vote marr0" data-target-type="topic" data-target-id="{$oTopic->getId()}">
-        {if C::Get('plugin.rating.topic.dislike')}
+        {if C::Get('plugin.simplerating.topic.dislike')}
         <a href="#" onclick="return false;" class="vote-down link link-gray link-clear js-vote-down"><i class="fa fa-thumbs-o-down"></i></a>
         {/if}
         {if $bVoteInfoShow}
@@ -113,7 +113,7 @@
             <div id="vote-info-topic-{$oTopic->getId()}" style="display: none;">
                 <ul class="list-unstyled vote-topic-info">
                     <li><span class="glyphicon glyphicon-thumbs-up"></span>{$oTopic->getCountVoteUp()}</li>
-                    {if C::Get('plugin.rating.topic.dislike')}
+                    {if C::Get('plugin.simplerating.topic.dislike')}
                         <li><span class="glyphicon glyphicon-thumbs-down"></span>{$oTopic->getCountVoteDown()}
                     {/if}
                     </li>
@@ -147,7 +147,7 @@
         {/if}
 
         <li class="topic-rating js-vote" data-target-type="topic" data-target-id="{$oTopic->getId()}">
-        {if C::Get('plugin.rating.topic.dislike')}
+        {if C::Get('plugin.simplerating.topic.dislike')}
             <a href="#" onclick="return false;" class="{$sVoteClass} vote-down link link-gray link-clear js-vote-down"><i class="fa fa-thumbs-o-down"></i></a>
         {/if}
                             <span class="vote-popover vote-total js-vote-rating {$sVoteClass} {if $oTopic->getRating() >= 0}green{else}red{/if}"
@@ -167,7 +167,7 @@
                                         <div id="vote-info-topic-{$oTopic->getId()}">
                                             <ul class="vote-topic-info list-unstyled mal0 clearfix">
                                                 <li class="positive">{if $oTopic->getCountVoteUp()>0}+{/if}{$oTopic->getCountVoteUp()}</li>
-                                                {if C::Get('plugin.rating.topic.dislike')}
+                                                {if C::Get('plugin.simplerating.topic.dislike')}
                                                     <li class="negative">{if $oTopic->getCountVoteDown()>0}-{/if}{$oTopic->getCountVoteDown()}</li>
                                                 {/if}
                                                 <li class="abstain">{$oTopic->getCountVoteAbstain()}</li>
