@@ -405,13 +405,16 @@ class ActionApi extends Action {
      */
     protected function _Fetch($sCmd, $aData, $sTemplate) {
 
+        /** @var ModuleViewer $oLocalViewer */
+        $oLocalViewer = E::ModuleViewer()->GetLocalViewer();
+
         $sHtml = '';
         if ($sTpl = $sCmd . '/' . str_replace('/', '.', $sCmd . '.' . (is_string($sTemplate) ? $sTemplate : 'default') . '.tpl')) {
-            if (!E::ModuleViewer()->TemplateExists($sTpl)) {
+            if (!$oLocalViewer->TemplateExists($sTpl)) {
                 $sTpl = $sCmd . '/' . str_replace('/', '.', $sCmd . '.' . 'default.tpl');
             }
-            E::ModuleViewer()->Assign($aData);
-            $sHtml = E::ModuleViewer()->Fetch($sTpl);
+            $oLocalViewer->Assign($aData);
+            $sHtml = $oLocalViewer->Fetch($sTpl);
         }
 
         return $sHtml;
