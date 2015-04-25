@@ -682,6 +682,10 @@ class ModuleMenu extends Module {
      */
     public function TopicKind($sTopicType) {
 
+        if (R::GetAction() != 'index') {
+            return false;
+        }
+
         if (is_null(R::GetActionEvent())) {
             return 'good' == $sTopicType;
         }
