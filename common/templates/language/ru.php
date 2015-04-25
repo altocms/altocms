@@ -113,13 +113,13 @@ return array(
     'blog_join_leave'                           => 'Подписаться/Отписаться',
     'blog_join_request_already'                 => 'Вы уже отправляли запрос на подписку, подождите, пока модераторы блога ее одобрят.',
     'blog_join_request_leave'                   => 'Ваш запрос на подписку на рассмотрении, подождите, пока модераторы блога ее одобрят и после этого сможете отписаться от блога.',
-    'blog_join_request_send'                    => 'Запрос на вступление в блог отправлен, скоро модераторы блога ее рассмотрят',
-    'blog_user_request_title'                   => 'Запрос на вступление в блог "%%blog_title%%"',
-    'blog_user_request_text'                    => 'Пользователь <a href="%%user_profile%%">%%login%%</a> отправил запрос на вступление в блог "%%blog_title%%".<br/><br/><a href="%%accept_path%%">Принять</a> - <a href="%%reject_path%%">Отклонить</a>',
+    'blog_join_request_send'                    => 'Запрос на подписку на блог отправлен, скоро модераторы блога ее рассмотрят',
+    'blog_user_request_title'                   => 'Запрос на подписку на блог "%%blog_title%%"',
+    'blog_user_request_text'                    => 'Пользователь <a href="%%user_profile%%">%%login%%</a> отправил запрос на подписку на блог "%%blog_title%%".<br/><br/><a href="%%accept_path%%">Принять</a> - <a href="%%reject_path%%">Отклонить</a>',
     'blog_user_request_already_done'            => 'Пользователь уже является подписчиком блога',
     'blog_user_request_accept'                  => 'Пользователь стал читателем блога',
     'blog_user_request_no_accept'               => 'Просьба пользователя отклонена',
-    'notify_subject_blog_request_new'           => 'Запрос на вступление в блог',
+    'notify_subject_blog_request_new'           => 'Запрос на подписку на блог',
 
     /***
      * Меню блогов
@@ -298,7 +298,7 @@ return array(
     'topic_create_blog'                         => 'В какой блог публикуем?',
     'topic_create_blog_personal'                => 'мой персональный блог',
     'topic_create_blog_error_unknown'           => 'Пытаетесь разместить статью в неизвестный блог?',
-    'topic_create_blog_error_nojoin'            => 'Вы не состоите в этом блоге!',
+    'topic_create_blog_error_nojoin'            => 'Вы не подписаны на этот блоге!',
     'topic_create_blog_error_noacl'             => 'Вы еще недостаточно окрепли, чтобы постить в этот блог',
     'topic_create_blog_error_noallow'           => 'Вы не можете писать в этот блог',
     'topic_create_blog_notice'                  => 'Выберите блог, в который будете писать',
@@ -687,7 +687,7 @@ return array(
     'profile_invite_from'                       => 'Пригласил',
     'profile_invite_to'                         => 'Приглашенные',
     'profile_blogs_self'                        => 'Создал',
-    'profile_blogs_join'                        => 'Состоит в',
+    'profile_blogs_join'                        => 'Подписан',
     'profile_blogs_moderation'                  => 'Модерирует',
     'profile_blogs_administration'              => 'Администрирует',
     'profile_date_registration'                 => 'Зарегистрирован',
@@ -937,7 +937,7 @@ return array(
 
     'block_blogs'                               => 'Блоги',
     'block_blogs_top'                           => 'Топ',
-    'block_blogs_join'                          => 'Подключенные',
+    'block_blogs_join'                          => 'Читаемые',
     'block_blogs_join_error'                    => 'Вы не подписаны на блоги',
     'block_blogs_self'                          => 'Мои',
     'block_blogs_self_error'                    => 'У вас нет своих блогов',
@@ -1070,7 +1070,7 @@ return array(
     'userfeed_settings_note_follow_user'        => 'Добавьте людей, статьи которых вы хотели бы читать',
     'userfeed_settings_note_follow_friend'      => 'Выберите друзей, статьи которых вы хотели бы читать',
     'userfeed_no_subscribed_users'              => 'Вы ещё не подписались на пользователей, чьи статьи хотите видеть',
-    'userfeed_no_blogs'                         => 'Вы не вступили ни в один блог',
+    'userfeed_no_blogs'                         => 'Вы не подписаны ни на один блог',
     'userfeed_error_subscribe_to_yourself'      => 'Вы не можете подписаться на себя',
 
     /***
@@ -1116,7 +1116,7 @@ return array(
     'stream_list_event_vote_blog_female'        => 'оценила блог',
     'stream_list_event_vote_user_female'        => 'оценила пользователя',
     'stream_list_event_vote_comment_female'     => 'оценила комментарий к статье',
-    'stream_list_event_join_blog_female'        => 'вступила в блог',
+    'stream_list_event_join_blog_female'        => 'подписалась в блог',
     'stream_list_event_add_friend_female'       => 'добавила в друзья пользователя',
 
     'stream_menu'                               => 'Активность',
