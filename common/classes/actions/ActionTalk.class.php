@@ -663,9 +663,9 @@ class ActionTalk extends Action {
         $iMax = intval(Config::Get('module.talk.max_length'));
         if (!F::CheckVal($sText, 'text', $iMin, $iMax)) {
             if ($iMax) {
-                E::ModuleMessage()->AddError(E::ModuleLang()->Get('talk_create_text_error_len', array('min'=>$iMin, 'max'=>$iMax)), E::ModuleLang()->Get('error'));
+                $this->Message_AddErrorSingle($this->Lang_Get('talk_create_text_error_len', array('min'=>$iMin, 'max'=>$iMax)), $this->Lang_Get('error'));
             } else {
-                E::ModuleMessage()->AddError(E::ModuleLang()->Get('talk_create_text_error_min', array('min'=>$iMin)), E::ModuleLang()->Get('error'));
+                $this->Message_AddErrorSingle($this->Lang_Get('talk_create_text_error_min', array('min'=>$iMin)), $this->Lang_Get('error'));
             }
             return false;
         }
