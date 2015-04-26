@@ -258,18 +258,29 @@ class Loader {
      */
     static protected function _checkRequiredDirs() {
 
-        if (!F::File_CheckDir(Config::Get('path.dir.app'), false)) {
-            die('Application folder "' . F::File_LocalDir(Config::Get('path.dir.app')) . '" does not exist');
+        $sDir = Config::Get('path.dir.app');
+        if (!$sDir) {
+            die('Application directory not defined');
+        } elseif (!F::File_CheckDir($sDir, false)) {
+            die('Application directory "' . F::File_LocalDir(Config::Get('path.dir.app')) . '" does not exist');
         }
-        if (!F::File_CheckDir(Config::Get('path.tmp.dir'), true)) {
-            die('Required folder "' . F::File_LocalDir(Config::Get('path.tmp.dir')) . '" does not exist');
-        } elseif (!is_writeable(Config::Get('path.tmp.dir'))) {
-            die('Required folder "' . F::File_LocalDir(Config::Get('path.tmp.dir')) . '" does not writeable');
+
+        $sDir = Config::Get('path.tmp.dir');
+        if (!$sDir) {
+            die('Directory for temporary files not defined');
+        } elseif (!F::File_CheckDir($sDir, true)) {
+            die('Directory for temporary files "' . $sDir . '" does not exist');
+        } elseif (!is_writeable($sDir)) {
+            die('Directory for temporary files "' . F::File_LocalDir($sDir) . '" does not writeable');
         }
-        if (!F::File_CheckDir(Config::Get('path.runtime.dir'), true)) {
-            die('Required folder "' . F::File_LocalDir(Config::Get('path.runtime.dir')) . '" does not exist');
-        } elseif (!is_writeable(Config::Get('path.runtime.dir'))) {
-            die('Required folder "' . F::File_LocalDir(Config::Get('path.runtime.dir')) . '" does not writeable');
+
+        $sDir = Config::Get('path.runtime.dir');
+        if (!$sDir) {
+            die('Directory for runtime files not defined');
+        } elseif (!F::File_CheckDir($sDir, true)) {
+            die('Directory for runtime files "' . $sDir . '" does not exist');
+        } elseif (!is_writeable($sDir)) {
+            die('Directory for runtime files "' . F::File_LocalDir($sDir) . '" does not writeable');
         }
     }
 

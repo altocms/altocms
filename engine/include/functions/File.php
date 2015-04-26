@@ -69,7 +69,7 @@ class AltoFunc_File {
      */
     static public function RootDir() {
 
-        if (class_exists('Config', false)) {
+        if (class_exists('Config', false) && Config::Get('path.root.dir')) {
             $sDir = Config::Get('path.root.dir');
         } elseif (defined('ALTO_DIR')) {
             $sDir = ALTO_DIR;
