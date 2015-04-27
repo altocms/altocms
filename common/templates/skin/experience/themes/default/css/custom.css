@@ -363,3 +363,22 @@ li.active.category-show {
 .photo-preview-state .photoset-is-cover .mark-as-cover {
     display: none;
 }
+
+@media (min-width: 768px) and (max-width: 900px) {
+    #content-container.col-sm-17 {
+        width: 58%;
+    }
+    #content-container.col-sm-24 {
+        width: 100%;
+    }
+}
+
+@media (min-width: 900px) and (max-width: 1200px) {
+    #content-container.col-sm-17 {
+        width: 65%;
+    }
+    #content-container.col-sm-24 {
+        width: 100%;
+    }
+}
+
