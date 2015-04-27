@@ -21,6 +21,8 @@ F::IncludeFile('DataArray.class.php');
  *
  * @package engine.lib
  * @since   1.0
+ *
+ * @method static Config getInstance
  */
 class Config extends Storage {
 
@@ -341,10 +343,11 @@ class Config extends Storage {
      * @param string $sKey     - Ключ
      * @param string $sRootKey - Корневой ключ конфига
      * @param int    $nLevel
+     * @param bool   $bRaw
      *
      * @return mixed
      */
-    static public function Get($sKey = '', $sRootKey = null, $nLevel = null) {
+    static public function Get($sKey = '', $sRootKey = null, $nLevel = null, $bRaw = false) {
 
         if (is_integer($sRootKey) && is_null($nLevel)) {
             $nLevel = $sRootKey;
@@ -355,10 +358,10 @@ class Config extends Storage {
             return static::getInstance()->GetConfig($sRootKey, $nLevel);
         }
 
-        $xResult = static::getInstance()->GetValue($sKey, $sRootKey, $nLevel);
+        $xResult = static::getInstance()->GetValue($sKey, $sRootKey, $nLevel, $bRaw);
 
         // LS-compatibility
-        if (is_null($xResult) && strpos($sKey, 'db.table.') === 0) {
+        if (!$bRaw && is_null($xResult) && strpos($sKey, 'db.table.') === 0) {
             $xResult = str_replace('db.table.', static::Get('db.table.prefix'), $sKey);
         }
         return $xResult;
@@ -395,13 +398,14 @@ class Config extends Storage {
      * @param string $sKey     - Ключ
      * @param string $sRootKey - Корневой ключ конфига
      * @param int    $nLevel
+     * @param bool   $bRaw
      *
      * @return mixed
      */
-    public function GetValue($sKey, $sRootKey = null, $nLevel = null) {
+    public function GetValue($sKey, $sRootKey = self::DEFAULT_CONFIG_ROOT, $nLevel = null, $bRaw = false) {
 
         $sKeyMap = $sRootKey . '.' . (is_null($nLevel) ? '' : ($nLevel . '.')) . $sKey;
-        if (!isset($this->aQuickMap[$sKeyMap])) {
+        if (!isset($this->aQuickMap[$sKeyMap]) || $bRaw) {
             // Return config by path (separator=".")
             $aKeys = explode('.', $sKey);
 
@@ -412,6 +416,10 @@ class Config extends Storage {
                 } else {
                     return null;
                 }
+            }
+
+            if ($bRaw) {
+                return $xConfigData;
             }
 
             if (is_array($xConfigData) || (is_string($xConfigData) && strpos($xConfigData, self::KEY_LINK_STR) !== false)) {
@@ -438,21 +446,34 @@ class Config extends Storage {
         return static::getInstance()->_keyReplace($xConfigData, $sRoot);
     }
 
+    /**
+     * Replace all placeholders and extend config sections from parent data
+     *
+     * @param array|string $xConfigData
+     * @param string $sRoot
+     *
+     * @return array|mixed
+     */
     public function _keyReplace($xConfigData, $sRoot = self::DEFAULT_CONFIG_ROOT) {
 
         $xResult = $xConfigData;
+
         if (is_array($xConfigData)) {
+            // $xConfigData is array
             $xResult = array();
             if (isset($xConfigData[self::KEY_EXTENDS])) {
                 $aParentData = $this->_keyReplace($xConfigData[self::KEY_EXTENDS]);
                 unset($xConfigData[self::KEY_EXTENDS]);
                 $xConfigData = F::Array_MergeCombo($aParentData, $xConfigData);
             }
-            foreach ($xConfigData as $xKey => $xData) {
-                if (is_string($xKey) && strpos($xKey, self::KEY_LINK_STR) !== false) {
-                    $sNewKey = $this->_keyReplace($xKey, $sRoot);
+            foreach ($xConfigData as $sKey => $xData) {
+                if (is_string($sKey) && !is_numeric($sKey) && strpos($sKey, self::KEY_LINK_STR) !== false) {
+                    $sNewKey = $this->_keyReplace($sKey, $sRoot);
+                    if (!is_scalar($sNewKey)) {
+                        $sNewKey = $sKey;
+                    }
                 } else {
-                    $sNewKey = $xKey;
+                    $sNewKey = $sKey;
                 }
                 // Changes placeholders for array or string only
                 if (is_array($xData) || (is_string($xData) && strpos($xData, self::KEY_LINK_STR) !== false)) {
@@ -462,6 +483,7 @@ class Config extends Storage {
                 }
             }
         } elseif (is_string($xConfigData) && !is_numeric($xConfigData)) {
+            // $xConfigData is string
             if (strpos($xConfigData, self::KEY_LINK_STR) !== false && preg_match_all(self::KEY_LINK_PREG, $xConfigData, $aMatch, PREG_SET_ORDER)) {
                 if (count($aMatch) == 1 && $aMatch[0][0] == $xConfigData) {
                     $xResult = $this->GetValue($aMatch[0][1], $sRoot);
@@ -536,7 +558,7 @@ class Config extends Storage {
                 unset($xValue[self::KEY_ROOT]);
                 foreach ($aRoot as $sRootKey => $xVal) {
                     if (static::isExist($sRootKey)) {
-                        static::Set($sRootKey, F::Array_MergeCombo(Config::Get($sRootKey, $sRoot), $xVal), $sRoot, $nLevel, $sSource);
+                        static::Set($sRootKey, F::Array_MergeCombo(Config::Get($sRootKey, $sRoot, null, true), $xVal), $sRoot, $nLevel, $sSource);
                     } else {
                         static::Set($sRootKey, $xVal, $sRoot, $nLevel, $sSource);
                     }
