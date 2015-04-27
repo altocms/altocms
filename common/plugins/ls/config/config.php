@@ -20,6 +20,10 @@ $config['$root$']['view']['img_max_height']   = '___module.uploader.images.defau
 $config['$root$']['module']['topic']['max_filesize_limit'] = '___module.uploader.files.default.file_maxsize___';
 $config['$root$']['module']['topic']['upload_mime_types'] = '___module.uploader.files.default.file_extensions___';
 
+$config['$root$']['classes']['class'] = array(
+    'LS' => '___path.dir.plugin.ls___libs/Ls.class.php',
+);
+
 return $config;
 
 
