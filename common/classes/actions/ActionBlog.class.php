@@ -1183,19 +1183,14 @@ class ActionBlog extends Action {
         }
 
         // * Проверяем разрешено ли постить комменты
-        if(!$this->oUserCurrent->isAdministrator() && !$this->oUserCurrent->isModerator()){
-            switch (E::ModuleACL()->CanPostComment($this->oUserCurrent, $oTopic)) {
-                case ModuleACL::CAN_TOPIC_COMMENT_ERROR_BAN:
-                    E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_comment_banned'), E::ModuleLang()->Get('attention'));
-                    return;
-                    break;
-
-                case ModuleACL::CAN_TOPIC_COMMENT_FALSE:
-                    E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_comment_acl'), E::ModuleLang()->Get('error'));
-                    return;
-                    break;
+        switch (E::ModuleACL()->CanPostComment($this->oUserCurrent, $oTopic)) {
+            case ModuleACL::CAN_TOPIC_COMMENT_ERROR_BAN:
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_comment_banned'), E::ModuleLang()->Get('attention'));
+                return;
+            case ModuleACL::CAN_TOPIC_COMMENT_FALSE:
+                E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_comment_acl'), E::ModuleLang()->Get('error'));
+                return;
             }
-        }
 
         // * Проверяем разрешено ли постить комменты по времени
         if (!E::ModuleACL()->CanPostCommentTime($this->oUserCurrent)) {

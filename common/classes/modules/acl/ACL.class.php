@@ -119,6 +119,10 @@ class ModuleACL extends Module {
      */
     public function CanPostComment(ModuleUser_EntityUser $oUser, $oTopic = null) {
 
+        if ($oUser && ($oUser->isAdministrator() || $oUser->isModerator())) {
+            return self::CAN_TOPIC_COMMENT_TRUE;
+        }
+
         $oBlog = $oTopic->getBlog();
         if ($oBlog && $oBlog->getBlogType()) {
             $oBlogUser = E::ModuleBlog()->GetBlogUserByBlogIdAndUserId($oBlog->getId(), $oUser->getId());
