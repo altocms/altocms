@@ -1203,7 +1203,7 @@ class ModuleBlog extends Module {
      */
     public function GetInaccessibleBlogsByUser($oUser = null) {
 
-        if ($oUser && $oUser->isAdministrator()) {
+        if ($oUser && ($oUser->isAdministrator() || $oUser->isModerator())) {
             return array();
         }
         $nUserId = $oUser ? $oUser->getId() : 0;
