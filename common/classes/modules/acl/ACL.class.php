@@ -152,7 +152,7 @@ class ModuleACL extends Module {
      */
     public function CanPostCommentTime(ModuleUser_EntityUser $oUser) {
 
-        if ($this->oUserCurrent->isAdministrator() || $this->oUserCurrent->isModerator()) {
+        if ($oUser->isAdministrator() || $oUser->isModerator()) {
             return true;
         }
         if (Config::Get('acl.create.comment.limit_time') > 0 && $oUser->getDateCommentLast()) {
