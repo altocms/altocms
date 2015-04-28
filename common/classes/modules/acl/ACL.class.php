@@ -73,6 +73,10 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CanCreateBlog(ModuleUser_EntityUser $oUser) {
+
+        if ($oUser->isAdministrator() || $oUser->isModerator()) {
+            return true;
+        }
         if ($oUser->getRating() >= Config::Get('acl.create.blog.rating')) {
             return true;
         }
@@ -88,13 +92,14 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CanAddTopic(ModuleUser_EntityUser $oUser, $oBlog) {
+
         // Если у пользователя нет ни одного блога, то в эту переменную
         // передаётся null, соответственно, постинг в никуда запрещаем
         if (is_null($oBlog)) {
             return false;
         }
         // * Если юзер является создателем блога то разрешаем ему постить
-        if ($oUser->isAdministrator() || ($oUser->getId() == $oBlog->getOwnerId())) {
+        if ($oUser->isAdministrator() || $oUser->isModerator() || ($oUser->getId() == $oBlog->getOwnerId())) {
             return true;
         }
         // * Если рейтинг юзера больше либо равен порогу постинга в блоге то разрешаем постинг
@@ -113,6 +118,7 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CanPostComment(ModuleUser_EntityUser $oUser, $oTopic = null) {
+
         $oBlog = $oTopic->getBlog();
         if ($oBlog && $oBlog->getBlogType()) {
             $oBlogUser = E::ModuleBlog()->GetBlogUserByBlogIdAndUserId($oBlog->getId(), $oUser->getId());
@@ -142,6 +148,9 @@ class ModuleACL extends Module {
      */
     public function CanPostCommentTime(ModuleUser_EntityUser $oUser) {
 
+        if ($this->oUserCurrent->isAdministrator() || $this->oUserCurrent->isModerator()) {
+            return true;
+        }
         if (Config::Get('acl.create.comment.limit_time') > 0 && $oUser->getDateCommentLast()) {
             $sDateCommentLast = strtotime($oUser->getDateCommentLast());
             if ($oUser->getRating() < Config::Get('acl.create.comment.limit_time_rating')
@@ -161,8 +170,10 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CanPostTopicTime(ModuleUser_EntityUser $oUser) {
+
         // Для администраторов ограничение по времени не действует
         if ($oUser->isAdministrator()
+            || $oUser->isModerator()
             || Config::Get('acl.create.topic.limit_time') == 0
             || $oUser->getRating() >= Config::Get('acl.create.topic.limit_time_rating')
         ) {
@@ -185,8 +196,10 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CanSendTalkTime(ModuleUser_EntityUser $oUser) {
+
         // Для администраторов ограничение по времени не действует
         if ($oUser->isAdministrator()
+            || $oUser->isModerator()
             || Config::Get('acl.create.talk.limit_time') == 0
             || $oUser->getRating() >= Config::Get('acl.create.talk.limit_time_rating')
         ) {
@@ -209,8 +222,10 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CanPostTalkCommentTime(ModuleUser_EntityUser $oUser) {
+
         // * Для администраторов ограничение по времени не действует
         if ($oUser->isAdministrator()
+            || $oUser->isModerator()
             || Config::Get('acl.create.talk_comment.limit_time') == 0
             || $oUser->getRating() >= Config::Get('acl.create.talk_comment.limit_time_rating')
         ) {
@@ -242,6 +257,7 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CanUseHtmlInComment(ModuleUser_EntityUser $oUser) {
+
         return true;
     }
 
@@ -254,6 +270,7 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CanVoteComment(ModuleUser_EntityUser $oUser, ModuleComment_EntityComment $oComment) {
+
         if (!C::Get('rating.enabled')) {
             return self::CAN_VOTE_COMMENT_FALSE;
         }
@@ -279,6 +296,7 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CanVoteBlog(ModuleUser_EntityUser $oUser, ModuleBlog_EntityBlog $oBlog) {
+
         if (!C::Get('rating.enabled')) {
             return self::CAN_VOTE_BLOG_FALSE;
         }
@@ -307,6 +325,7 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CanVoteTopic(ModuleUser_EntityUser $oUser, ModuleTopic_EntityTopic $oTopic) {
+
         if (!C::Get('rating.enabled')) {
             return self::CAN_VOTE_TOPIC_FALSE;
         }
@@ -335,6 +354,7 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CanVoteUser(ModuleUser_EntityUser $oUser, ModuleUser_EntityUser $oUserTarget) {
+
         if (!C::Get('rating.enabled')) {
             return false;
         }
@@ -462,7 +482,8 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function CanDeleteComment($oUser) {
-        if (!$oUser || !$oUser->isAdministrator()) {
+
+        if (!$oUser || !($oUser->isAdministrator() && $oUser->isModerator())) {
             return false;
         }
         return true;
@@ -476,6 +497,7 @@ class ModuleACL extends Module {
      * @return bool
      */
     public function IsAllowPublishIndex(ModuleUser_EntityUser $oUser) {
+
         if ($oUser->isAdministrator() || $oUser->isModerator()) {
             return true;
         }
@@ -535,6 +557,7 @@ class ModuleACL extends Module {
      * @return bool|int
      */
     public function IsAllowDeleteBlog($oBlog, $oUser) {
+
         // * Разрешаем если это админ сайта
         if ($oUser->isAdministrator() || $oUser->isModerator()) {
             return self::CAN_DELETE_BLOG_WITH_TOPICS;
@@ -563,6 +586,7 @@ class ModuleACL extends Module {
 
         // * Для администраторов ограничение по времени не действует
         if ($oUser->isAdministrator()
+            || $oUser->isModerator()
             || Config::Get('acl.create.wall.limit_time') == 0
             || $oUser->getRating() >= Config::Get('acl.create.wall.limit_time_rating')
         ) {

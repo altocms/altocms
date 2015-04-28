@@ -191,8 +191,8 @@ class ActionBlog extends Action {
             return R::Action('error');
         }
 
-        //  Проверяем хватает ли рейтинга юзеру чтоб создать блог
-        if (!E::ModuleACL()->CanCreateBlog($this->oUserCurrent) && !$this->oUserCurrent->isAdministrator()) {
+        //  check whether the user can create a blog?
+        if (!E::ModuleACL()->CanCreateBlog($this->oUserCurrent)) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('blog_create_acl'), E::ModuleLang()->Get('error'));
             return R::Action('error');
         }
@@ -341,7 +341,8 @@ class ActionBlog extends Action {
             }
             $oBlog->setType(F::GetRequestStr('blog_type'));
             $oBlog->setLimitRatingTopic(F::GetRequestStr('blog_limit_rating_topic'));
-            if ($this->oUserCurrent->isAdministrator()) {
+
+            if ($this->oUserCurrent->isAdministrator() || $this->oUserCurrent->isModerator()) {
                 $oBlog->setUrl(F::GetRequestStr('blog_url')); // разрешаем смену URL блога только админу
             }
 
@@ -704,7 +705,7 @@ class ActionBlog extends Action {
         }
 
         // Trusted user is admin or owner of topic
-        if ($this->oUserCurrent && ($this->oUserCurrent->isAdministrator() || ($this->oUserCurrent->getId() == $oTopic->getUserId()))) {
+        if ($this->oUserCurrent && ($this->oUserCurrent->isAdministrator() || $this->oUserCurrent->isModerator() || ($this->oUserCurrent->getId() == $oTopic->getUserId()))) {
             $bTrustedUser = true;
         } else {
             $bTrustedUser = false;
@@ -1113,7 +1114,7 @@ class ActionBlog extends Action {
         $aBlogAdministrators = $aBlogAdministratorsResult['collection'];
 
         //  Для админов проекта получаем список блогов и передаем их во вьювер
-        if ($this->oUserCurrent && $this->oUserCurrent->isAdministrator()) {
+        if ($this->oUserCurrent && ($this->oUserCurrent->isAdministrator() || $this->oUserCurrent->isModerator())) {
             $aBlogs = E::ModuleBlog()->GetBlogs();
             unset($aBlogs[$oBlog->getId()]);
 
@@ -1182,7 +1183,7 @@ class ActionBlog extends Action {
         }
 
         // * Проверяем разрешено ли постить комменты
-        if(!$this->oUserCurrent->isAdministrator()){
+        if(!$this->oUserCurrent->isAdministrator() && !$this->oUserCurrent->isModerator()){
             switch (E::ModuleACL()->CanPostComment($this->oUserCurrent, $oTopic)) {
                 case ModuleACL::CAN_TOPIC_COMMENT_ERROR_BAN:
                     E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_comment_banned'), E::ModuleLang()->Get('attention'));
@@ -1197,7 +1198,7 @@ class ActionBlog extends Action {
         }
 
         // * Проверяем разрешено ли постить комменты по времени
-        if (!E::ModuleACL()->CanPostCommentTime($this->oUserCurrent) && !$this->oUserCurrent->isAdministrator()) {
+        if (!E::ModuleACL()->CanPostCommentTime($this->oUserCurrent)) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_comment_limit'), E::ModuleLang()->Get('error'));
             return;
         }
@@ -1575,7 +1576,7 @@ class ActionBlog extends Action {
         // * Проверяем, имеет ли право текущий пользователь добавлять invite в blog
         $oBlogUser = E::ModuleBlog()->GetBlogUserByBlogIdAndUserId($oBlog->getId(), $this->oUserCurrent->getId());
         $bBlogAdministrator = ($oBlogUser ? $oBlogUser->IsBlogAdministrator() : false);
-        if ($oBlog->getOwnerId() != $this->oUserCurrent->getId() && !$this->oUserCurrent->isAdministrator() && !$bBlogAdministrator) {
+        if ($oBlog->getOwnerId() != $this->oUserCurrent->getId() && !$this->oUserCurrent->isAdministrator() && !$this->oUserCurrent->isModerator() && !$bBlogAdministrator) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
@@ -1722,7 +1723,7 @@ class ActionBlog extends Action {
         //  Проверяем, имеет ли право текущий пользователь добавлять invite в blog
         $oBlogUser = E::ModuleBlog()->GetBlogUserByBlogIdAndUserId($oBlog->getId(), $this->oUserCurrent->getId());
         $bBlogAdministrator = ($oBlogUser ? $oBlogUser->IsBlogAdministrator() : false);
-        if ($oBlog->getOwnerId() != $this->oUserCurrent->getId() && !$this->oUserCurrent->isAdministrator() && !$bBlogAdministrator) {
+        if ($oBlog->getOwnerId() != $this->oUserCurrent->getId() && !$this->oUserCurrent->isAdministrator() && !$this->oUserCurrent->isModerator() && !$bBlogAdministrator) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }
@@ -1770,7 +1771,7 @@ class ActionBlog extends Action {
         //  Проверяем, имеет ли право текущий пользователь добавлять invite в blog
         $oBlogUser = E::ModuleBlog()->GetBlogUserByBlogIdAndUserId($oBlog->getId(), $this->oUserCurrent->getId());
         $bBlogAdministrator = ($oBlogUser ? $oBlogUser->IsBlogAdministrator() : false);
-        if ($oBlog->getOwnerId() != $this->oUserCurrent->getId() && !$this->oUserCurrent->isAdministrator() && !$bBlogAdministrator) {
+        if ($oBlog->getOwnerId() != $this->oUserCurrent->getId() && !$this->oUserCurrent->isAdministrator() && !$this->oUserCurrent->isModerator() && !$bBlogAdministrator) {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
         }

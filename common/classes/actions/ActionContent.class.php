@@ -637,7 +637,7 @@ class ActionContent extends Action {
 
         $oTopic->setUserIp(F::GetUserIp());
 
-        if ($this->oUserCurrent && $this->oUserCurrent->isAdministrator()) {
+        if ($this->oUserCurrent && ($this->oUserCurrent->isAdministrator() || $this->oUserCurrent->isModerator())) {
             if (F::GetRequestStr('topic_url') && $oTopic->getTopicUrl() != F::GetRequestStr('topic_url')) {
                 $sTopicUrl = E::ModuleTopic()->CorrectTopicUrl(F::TranslitUrl(F::GetRequestStr('topic_url')));
                 $oTopic->setTopicUrl($sTopicUrl);
@@ -776,7 +776,9 @@ class ActionContent extends Action {
             if ($bSendNotify) {
                 E::ModuleTopic()->SendNotifyTopicNew($oBlog, $oTopic, $oTopic->getUser());
             }
-            if (!$oTopic->getPublish() && !$this->oUserCurrent->isAdministrator()
+            if (!$oTopic->getPublish()
+                && !$this->oUserCurrent->isAdministrator()
+                && !$this->oUserCurrent->isModerator()
                 && $this->oUserCurrent->getId() != $oTopic->getUserId()
             ) {
                 R::Location($oBlog->getUrlFull());
