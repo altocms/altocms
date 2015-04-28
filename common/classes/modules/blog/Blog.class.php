@@ -1422,7 +1422,7 @@ class ModuleBlog extends Module {
             } elseif ($sAction == 'list') {
                 $aFilter['allow_list'] = true;
             }
-        } elseif ($oUser && !$oUser->IsAdministrator()) {
+        } elseif ($oUser && !$oUser->IsAdministrator() && !$oUser->isModerator()) {
             // Если пользователь задан и он не админ, то надо учитывать рейтинг
             if ($sAction == 'add') {
                 $aFilter['allow_add'] = true;
