@@ -87,6 +87,8 @@ class ModuleCache extends Module {
     const DISABLED_GET      = 2;
     const DISABLED_ALL      = 3;
 
+    const CHECK_FILENAME = 'cache.chk';
+
     /** @var int Запрет кеширования */
     protected $iDisabled = 0;
 
@@ -114,7 +116,7 @@ class ModuleCache extends Module {
     /**
      * Массив объектов движков кеширования
      *
-     * @var array
+     * @var ICacheBackend[]
      */
     protected $aBackends = array();
 
@@ -145,22 +147,6 @@ class ModuleCache extends Module {
             'count_get' => 0,
             'count_set' => 0,
         );
-    /**
-     * Хранилище для кеша на время сессии
-     * @see SetLife
-     * @see GetLife
-     *
-     * @var array
-     */
-    protected $aStoreLife = array();
-    /**
-     * Префикс для "умного" кеширования
-     * @see SmartSet
-     * @see SmartGet
-     *
-     * @var string
-     */
-    protected $sPrefixSmartCache = 'for-smart-cache-';
 
     /**
      * Коэффициент вероятности удаления старого кеша
@@ -218,6 +204,14 @@ class ModuleCache extends Module {
                 $this->Clean(Zend_Cache::CLEANING_MODE_OLD);
             }
         }
+
+        $sCheckFile = C::Get('sys.cache.dir') . self::CHECK_FILENAME;
+        if (F::File_CheckDir(C::Get('sys.cache.dir'), true)) {
+            // If the control file is not present, then we need to clear cache and create
+            if (!F::File_Exists($sCheckFile)) {
+                $this->Clean();
+            }
+        }
         return $this->nCacheMode;
     }
 
@@ -243,9 +237,9 @@ class ModuleCache extends Module {
     /**
      * Инициализация бэкенда кеширования
      *
-     * @param $sCacheType
+     * @param string $sCacheType
      *
-     * @return Dklab_Cache_Backend_Profiler|Dklab_Cache_Backend_TagEmuWrapper
+     * @return string
      * @throws Exception
      */
     protected function _backendInit($sCacheType) {
@@ -258,9 +252,8 @@ class ModuleCache extends Module {
         if ($sCacheType) {
             if (!isset($this->aBackends[$sCacheType])) {
                 if (!in_array($sCacheType, $this->aCacheTypesAvailable)) {
-                    /*
-                     * Неизвестный тип кеша
-                     */
+
+                    // Unknown cache type
                     throw new Exception('Wrong type of caching: ' . $this->sCacheType);
                 } else {
                     $aCacheTypes = (array)Config::Get('sys.cache.backends');
@@ -279,7 +272,7 @@ class ModuleCache extends Module {
                             if ($sCacheType == $this->sCacheType) {
                                 $this->oBackendCache = $oBackendCache;
                             }
-                            $oBackendCache = null;
+                            //$oBackendCache = null;
                             return $sCacheType;
                         }
                     }
@@ -290,6 +283,13 @@ class ModuleCache extends Module {
         }
     }
 
+    /**
+     * The cache type is available
+     *
+     * @param string $sCacheType
+     *
+     * @return bool
+     */
     protected function _backendIsAvailable($sCacheType) {
 
         if (is_null($sCacheType) || $sCacheType === true) {
@@ -298,14 +298,21 @@ class ModuleCache extends Module {
         return $sCacheType && in_array($sCacheType, $this->aCacheTypesAvailable);
     }
 
+    /**
+     * @param string $sCacheType
+     *
+     * @return bool
+     * @throws Exception
+     */
     protected function _backendIsMultiLoad($sCacheType) {
 
         if ($sCacheType = $this->_backendInit($sCacheType)) {
             return $this->aBackends[$sCacheType]->IsMultiLoad();
         }
+        return false;
     }
 
-    protected function _backendIsConcurent($sCacheType) {
+    protected function _backendIsConcurrent($sCacheType) {
 
         if (is_null($sCacheType) || $sCacheType === true) {
             $sCacheType = $this->sCacheType;
@@ -335,27 +342,27 @@ class ModuleCache extends Module {
     /**
      * Внутренний метод сохранения данных в конкретном виде кеша
      *
-     * @param $sCacheType
-     * @param $data
-     * @param $sHash
-     * @param $aTags
-     * @param $nTimeLife
+     * @param string   $sCacheType
+     * @param mixed    $xData
+     * @param string   $sHash
+     * @param string[] $aTags
+     * @param int      $nTimeLife
      *
      * @return bool
      */
-    protected function _backendSave($sCacheType, $data, $sHash, $aTags, $nTimeLife) {
+    protected function _backendSave($sCacheType, $xData, $sHash, $aTags, $nTimeLife) {
 
         if ($sCacheType = $this->_backendInit($sCacheType)) {
-            return $this->aBackends[$sCacheType]->Save($data, $sHash, $aTags, $nTimeLife ? $nTimeLife : false);
+            return $this->aBackends[$sCacheType]->Save($xData, $sHash, $aTags, $nTimeLife ? $nTimeLife : false);
         }
         return false;
     }
 
     /**
-     * Внутренний метод сброса кеша по коючу
+     * Внутренний метод сброса кеша по ключу
      *
-     * @param $sCacheType
-     * @param $sHash
+     * @param string $sCacheType
+     * @param string $sHash
      *
      * @return bool
      */
@@ -371,7 +378,6 @@ class ModuleCache extends Module {
             }
             return true;
         }
-        return false;
     }
 
     /**
@@ -395,13 +401,12 @@ class ModuleCache extends Module {
             }
             return true;
         }
-        return false;
     }
 
     /**
      * Хеширование имени кеш-ключа
      *
-     * @param $sKey
+     * @param string $sKey
      *
      * @return string
      */
@@ -410,6 +415,11 @@ class ModuleCache extends Module {
         return md5(Config::Get('sys.cache.prefix') . $sKey);
     }
 
+    /**
+     * @param string $sCacheType
+     *
+     * @return bool
+     */
     public function CacheTypeAvailable($sCacheType) {
 
         return $this->_backendIsAvailable($sCacheType);
@@ -486,13 +496,13 @@ class ModuleCache extends Module {
         }
 
         // Если необходимо разрешение конкурирующих запросов к кешу, то реальное время жизни кеша увеличиваем
-        if ($nTimeLife && ($nConcurentDaley = $this->_backendIsConcurent($sCacheType))) {
+        if ($nTimeLife && ($nConcurrentDaley = $this->_backendIsConcurrent($sCacheType))) {
             $aData = array(
                 'time' => time() + $nTimeLife,  // контрольное время жизни кеша
                 'tags' => $aTags,               // теги, чтобы можно было пересохранить данные
                 'data' => $xData,               // сами данные
             );
-            $nTimeLife += $nConcurentDaley;
+            $nTimeLife += $nConcurrentDaley;
         } else {
             $aData = array(
                 'time' => false,   // контрольное время не сохраняем, конкурирующие запросы к кешу игнорируем
@@ -534,12 +544,12 @@ class ModuleCache extends Module {
             $aData = $this->_backendLoad($sCacheType, $this->_hash($xCacheKey));
             if (is_array($aData) && array_key_exists('data', $aData)) {
                 // Если необходимо разрешение конкурирующих запросов...
-                if (isset($aData['time']) && ($nConcurentDaley = $this->_backendIsConcurent($sCacheType))) {
+                if (isset($aData['time']) && ($nConcurrentDaley = $this->_backendIsConcurrent($sCacheType))) {
                     if ($aData['time'] < time()) {
                         // Если данные кеша по факту "протухли", то пересохраняем их с доп.задержкой и без метки времени
                         // За время задержки кеш должен пополниться свежими данными
                         $aData['time'] = false;
-                        $this->_backendSave($sCacheType, $aData, $this->_hash($xCacheKey), $aData['tags'], $nConcurentDaley);
+                        $this->_backendSave($sCacheType, $aData, $this->_hash($xCacheKey), $aData['tags'], $nConcurrentDaley);
                         return false;
                     }
                 }
@@ -617,10 +627,10 @@ class ModuleCache extends Module {
     /**
      * LS-compatible
      *
-     * @param   string      $sCacheKey      - Имя ключа
-     * @param   string|null $sCacheType     - Механизм используемого кеширования
+     * @param  string      $sCacheKey      - Имя ключа
+     * @param  string|null $sCacheType     - Механизм используемого кеширования
      *
-     * @return  bool|mixed
+     * @return bool|mixed
      */
     public function SmartGet($sCacheKey, $sCacheType = null) {
 
@@ -662,8 +672,8 @@ class ModuleCache extends Module {
     /**
      * Clear cache
      *
-     * @param   string    $sMode
-     * @param   array     $aTags
+     * @param string      $sMode
+     * @param array       $aTags
      * @param string|null $sCacheType - Type of cache (if null then clear in all cache types)
      *
      * @return  bool
@@ -671,10 +681,14 @@ class ModuleCache extends Module {
     public function Clean($sMode = Zend_Cache::CLEANING_MODE_ALL, $aTags = array(), $sCacheType = null) {
 
         // Проверим разрешено ли кэширование
-        if (!$this->_cacheOn($sCacheType)) {
-            return false;
+        if ($this->_cacheOn($sCacheType)) {
+            $bResult = $this->_backendClean($sCacheType, $sMode, $aTags);
+        } else {
+            $bResult = false;
         }
-        return $this->_backendClean($sCacheType, $sMode, $aTags);
+        F::File_PutContents(C::Get('sys.cache.dir') . self::CHECK_FILENAME, microtime(true));
+
+        return $bResult;
     }
 
     /**
