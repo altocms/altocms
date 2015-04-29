@@ -1621,14 +1621,11 @@ class ModuleTopic extends Module {
         $aFilter = array(
             'topic_publish' => $iPublish,
             'user_id'       => $nUserId,
-            'blog_type'     => E::ModuleBlog()->GetOpenBlogTypes(),
         );
-        /**
-         * Если пользователь смотрит свой профиль, то добавляем в выдачу
-         * закрытые блоги в которых он состоит
-         */
-        if ($this->oUserCurrent && $this->oUserCurrent->getId() == $nUserId) {
-            $aFilter['blog_type'][] = 'close';
+
+        // Если запрос от постороннего юзера, то смотрим только открытые типы
+        if (!E::IsUser() || E::UserId() != $nUserId) {
+            $aFilter['blog_type'] = E::ModuleBlog()->GetOpenBlogTypes();
         }
         return $this->GetTopicsByFilter($aFilter, $iPage, $iPerPage);
     }
