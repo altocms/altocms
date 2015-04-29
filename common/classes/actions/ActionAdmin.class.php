@@ -99,6 +99,7 @@ class ActionAdmin extends Action {
         $this->AddEvent('settings-contenttypes-fieldadd', 'EventAddField');
         $this->AddEvent('settings-contenttypes-fieldedit', 'EventEditField');
         $this->AddEvent('settings-contenttypes-fielddelete', 'EventDeleteField');
+
         $this->AddEvent('ajaxchangeordertypes', 'EventAjaxChangeOrderTypes');
         $this->AddEvent('ajaxchangeorderfields', 'EventAjaxChangeOrderFields');
 
@@ -4360,16 +4361,25 @@ class ActionAdmin extends Action {
         $this->sMainMenuItem = 'settings';
 
         E::ModuleSecurity()->ValidateSendForm();
-        if (!$oField = E::ModuleTopic()->GetContentFieldById($this->GetParam(0))) {
-            return parent::EventNotFound();
-        }
-        if (!$oContentType = E::ModuleTopic()->GetContentTypeById($oField->getContentId())) {
+        $iContentFieldId = intval($this->GetParam(0));
+        if (!$iContentFieldId) {
             return parent::EventNotFound();
         }
 
-        if (E::ModuleTopic()->DeleteField($oField)) {
+        $oField = E::ModuleTopic()->GetContentFieldById($iContentFieldId);
+        if ($oField) {
+            $oContentType = E::ModuleTopic()->GetContentTypeById($oField->getContentId());
+        } else {
+            $oContentType = null;
+        }
+
+        if (E::ModuleTopic()->DeleteField($iContentFieldId)) {
             E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('action.admin.contenttypes_success_fielddelete'), null, true);
-            R::Location('admin/settings-contenttypes/edit/' . $oContentType->getContentId() . '/');
+            if ($oContentType) {
+                R::Location('admin/settings-contenttypes/edit/' . $oContentType->getContentId() . '/');
+            } else {
+                R::Location('admin/settings-contenttypes/');
+            }
         }
         return false;
     }

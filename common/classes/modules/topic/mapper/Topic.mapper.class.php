@@ -1770,13 +1770,14 @@ class ModuleTopic_MapperTopic extends Mapper {
      *
      * @return bool
      */
-    public function DeleteField($oField) {
+    public function DeleteField($iContentFieldId) {
 
-        $sql = "DELETE FROM ?_content_field
+        $sql = "
+            DELETE FROM ?_content_field
 			WHERE
 				field_id = ?d
 		";
-        return $this->oDb->query($sql, $oField->getFieldId()) !== false;
+        return $this->oDb->query($sql, $iContentFieldId) !== false;
     }
 
 

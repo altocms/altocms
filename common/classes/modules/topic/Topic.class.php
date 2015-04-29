@@ -368,18 +368,23 @@ class ModuleTopic extends Module {
     /**
      * Удаляет поле
      *
-     * @param $oField
+     * @param $xField
      *
      * @return bool
      */
-    public function DeleteField($oField) {
+    public function DeleteField($xField) {
 
+        if (is_object($xField)) {
+            $iContentFieldId = $xField->getFieldId();
+        } else {
+            $iContentFieldId = intval($xField);
+        }
         // * Если топик успешно удален, удаляем связанные данные
-        if ($bResult = $this->oMapper->DeleteField($oField)) {
+        if ($bResult = $this->oMapper->DeleteField($iContentFieldId)) {
 
             // * Чистим зависимые кеши
             E::ModuleCache()->CleanByTags(array('field_update'));
-            E::ModuleCache()->Delete("content_field_{$oField->getFieldId()}");
+            E::ModuleCache()->Delete("content_field_{$iContentFieldId}");
 
             return true;
         }
