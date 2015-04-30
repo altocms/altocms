@@ -31,10 +31,17 @@ define('ALTO_DEBUG_FILES', 2);
 if (is_file(__DIR__ . '/config.defines.php')) {
     include(__DIR__ . '/config.defines.php');
 }
+
+// load basic config with paths
 $config = include(__DIR__ . '/config.php');
+if (!$config) {
+    die('Fatal error: Cannot load file "' . __DIR__ . '/config.php"');
+}
 
 // load system functions
-include($config['path']['dir']['engine'] . '/include/Func.php');
+if (!@include($config['path']['dir']['engine'] . 'include/Func.php')) {
+    die('Fatal error: Cannot load file "' . $config['path']['dir']['engine'] . 'include/Func.php"');
+}
 
 // load Storage class
 F::IncludeFile($config['path']['dir']['engine'] . '/classes/core/Storage.class.php');

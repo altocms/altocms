@@ -699,7 +699,6 @@ class Func {
             $sFile = $sRealPath;
         }
         if (isset(static::$aExtensions['File']) && is_callable($sFunc = static::$aExtensions['File'] . '::IncludeFile')) {
-            //return call_user_func_array($sFunc, array($sFile, $bOnce, $bConfig));
             $sFuncClass = static::$aExtensions['File'];
             return $sFuncClass::IncludeFile($sFile, $bOnce, $bConfig);
         } else {

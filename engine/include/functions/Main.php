@@ -156,7 +156,11 @@ class AltoFunc_Main {
     static public function JsonEncode($xData) {
 
         if (function_exists('json_encode')) {
-            return json_encode($xData);
+            $iOptions = 0;
+            if (defined('JSON_NUMERIC_CHECK')) {
+                $iOptions = $iOptions | JSON_NUMERIC_CHECK;
+            }
+            return json_encode($xData, $iOptions);
         }
         if (is_null($xData)) {
             return 'null';
