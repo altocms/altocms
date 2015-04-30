@@ -1387,15 +1387,14 @@ class ActionBlog extends Action {
         // * Если используется постраничность, возвращаем только добавленный комментарий
         if (F::GetRequest('bUsePaging', null, 'post') && $selfIdComment) {
             $oComment = E::ModuleComment()->GetCommentById($selfIdComment);
-            if ($oComment && ($oComment->getTargetId() == $oTopic->getId())
-                && ($oComment->getTargetType() == 'topic')
-            ) {
-                $oViewerLocal = E::ModuleViewer()->GetLocalViewer();
-                $oViewerLocal->Assign('oUserCurrent', $this->oUserCurrent);
-                $oViewerLocal->Assign('bOneComment', true);
+            if ($oComment && ($oComment->getTargetId() == $oTopic->getId()) && ($oComment->getTargetType() == 'topic')) {
 
-                $oViewerLocal->Assign('oComment', $oComment);
-                $sText = $oViewerLocal->Fetch(E::ModuleComment()->GetTemplateCommentByTarget($oTopic->getId(), 'topic'));
+                $aVars = array(
+                    'oUserCurrent' => $this->oUserCurrent,
+                    'bOneComment' => true,
+                    'oComment' => $oComment,
+                );
+                $sText = E::ModuleViewer()->Fetch(E::ModuleComment()->GetTemplateCommentByTarget($oTopic->getId(), 'topic'));
                 $aCmt = array();
                 $aCmt[] = array(
                     'html' => $sText,

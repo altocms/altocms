@@ -45,11 +45,9 @@ class HookSnippet extends Hook {
         }
 
         // Получим html-код сниппета
-        /** @var ModuleViewer $oLocalViewer */
-        $oLocalViewer = E::ModuleViewer()->GetLocalViewer();
-        $oLocalViewer->Assign('aParams', isset($aData['params']) ? $aData['params'] : array());
+        $aVars = array('aParams' => isset($aData['params']) ? $aData['params'] : array());
 
-        $aData['result'] = trim($oLocalViewer->Fetch("tpls/snippets/snippet.{$aData['params']['snippet_name']}.tpl"));
+        $aData['result'] = trim(E::ModuleViewer()->Fetch("tpls/snippets/snippet.{$aData['params']['snippet_name']}.tpl", $aVars));
 
         return $aData['result'];
     }
@@ -72,11 +70,9 @@ class HookSnippet extends Hook {
         // Если пользователь найден, то вернём ссылку на него
         if (is_string($sUserLogin) && ($oUser = E::ModuleUser()->GetUserByLogin($sUserLogin))) {
             // Получим html-код сниппета
-            /** @var ModuleViewer $oLocalViewer */
-            $oLocalViewer = E::ModuleViewer()->GetLocalViewer();
-            $oLocalViewer->Assign('oUser', $oUser);
+            $aVars = array('oUser' => $oUser);
 
-            $aData['result'] = trim($oLocalViewer->Fetch('tpls/snippets/snippet.user.tpl'));
+            $aData['result'] = trim(E::ModuleViewer()->Fetch('tpls/snippets/snippet.user.tpl', $aVars));
 
             return $aData['result'];
         }
@@ -168,14 +164,14 @@ class HookSnippet extends Hook {
             }
 
             // Получим html-код сниппета
-            /** @var ModuleViewer $oLocalViewer */
-            $oLocalViewer = E::ModuleViewer()->GetLocalViewer();
-            $oLocalViewer->Assign('oTopic', $oTopic);
-            $oLocalViewer->Assign('aPhotos', $aPhotos);
-            $oLocalViewer->Assign('sPosition', $sPosition);
-            $oLocalViewer->Assign('sPhotosetHash', md5(serialize($aData['params'])));
+            $aVars = array(
+                'oTopic'        => $oTopic,
+                'aPhotos'       => $aPhotos,
+                'sPosition'     => $sPosition,
+                'sPhotosetHash' => md5(serialize($aData['params']))
+            );
 
-            $aData['result'] = trim($oLocalViewer->Fetch('tpls/snippets/snippet.photoset.tpl'));
+            $aData['result'] = trim(E::ModuleViewer()->Fetch('tpls/snippets/snippet.photoset.tpl', $aVars));
 
             return $aData['result'];
         }

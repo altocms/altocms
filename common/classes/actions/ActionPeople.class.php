@@ -107,11 +107,12 @@ class ActionPeople extends Action {
         /**
          * Формируем ответ
          */
-        $oViewer = E::ModuleViewer()->GetLocalViewer();
-        $oViewer->Assign('aUsersList', $aResult['collection']);
-        $oViewer->Assign('oUserCurrent', E::ModuleUser()->GetUserCurrent());
-        $oViewer->Assign('sUserListEmpty', E::ModuleLang()->Get('user_search_empty'));
-        E::ModuleViewer()->AssignAjax('sText', $oViewer->Fetch('commons/common.user_list.tpl'));
+        $aVars = array(
+            'aUsersList'     => $aResult['collection'],
+            'oUserCurrent'   => E::ModuleUser()->GetUserCurrent(),
+            'sUserListEmpty' => E::ModuleLang()->Get('user_search_empty'),
+        );
+        E::ModuleViewer()->AssignAjax('sText', E::ModuleViewer()->Fetch('commons/common.user_list.tpl', $aVars));
     }
 
     /**

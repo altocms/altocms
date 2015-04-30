@@ -233,22 +233,37 @@ class ModuleViewer extends Module {
     static protected $_renderTime = 0;
     static protected $_renderStart = 0;
     static protected $_preprocessTime = 0;
+    static protected $_inRender = 0;
 
+    static protected $_renderOptionsStack = array();
+
+    /**
+     * @return int
+     */
     static public function GetRenderCount() {
 
         return self::$_renderCount;
     }
 
+    /**
+     * @return int
+     */
     static public function GetRenderTime() {
 
         return self::$_renderTime + (self::$_renderStart ? microtime(true) - self::$_renderStart : 0);
     }
 
+    /**
+     * @return int
+     */
     static public function GetPreprocessingTime() {
 
         return self::$_preprocessTime + self::GetRenderTime();
     }
 
+    /**
+     * @return int
+     */
     static public function GetTotalTime() {
 
         return self::GetPreprocessingTime() + self::GetRenderTime();
@@ -293,10 +308,47 @@ class ModuleViewer extends Module {
     }
 
     /**
+     * Создает и возвращает объект Smarty
+     *
+     * @return Smarty
+     */
+    public function CreateSmartyObject() {
+
+        return new Smarty();
+    }
+
+    /**
+     * Get templator Smarty
+     *
+     * @param array|null $aVariables
+     *
+     * @return Smarty
+     */
+    public function GetSmartyObject($aVariables = null) {
+
+        $oSmarty = $this->oSmarty;
+        if ($aVariables) {
+            $oSmarty->assign($aVariables);
+        }
+        return $oSmarty;
+    }
+
+    protected function _initTemplator() {
+
+        if (!$this->oSmarty) {
+            $this->_tplInit();
+        }
+    }
+
+    /**
      * Инициализация шаблонизатора
      *
      */
-    protected function _initTemplator() {
+    protected function _tplInit() {
+
+        if ($this->oSmarty) {
+            return;
+        }
 
         // * Создаём объект Smarty
         $this->oSmarty = $this->CreateSmartyObject();
@@ -341,11 +393,6 @@ class ModuleViewer extends Module {
             $this->oSmarty->cache_lifetime = F::ToSeconds(Config::Get('smarty.cache_lifetime'));
         }
 
-        // Переносим накопленные переменные в шаблон
-        foreach ($this->aVarsTemplate as $sName => $xValue) {
-            $this->_assignTpl($sName, $xValue);
-            unset($this->aVarsTemplate[$sName]);
-        }
         // Settings for Smarty 3.1.16 and more
         $this->oSmarty->inheritance_merge_compiled_includes = false;
 
@@ -355,6 +402,121 @@ class ModuleViewer extends Module {
         // Mutes expected Smarty minor errors
         $this->oSmarty->muteExpectedErrors();
     }
+
+    /**
+     * @param string $sTemplate
+     * @param bool $bException
+     *
+     * @return bool|void
+     * @throws Exception
+     */
+    protected function _tplTemplateExists($sTemplate, $bException = false) {
+
+        if (!$this->oSmarty) {
+            $this->_tplInit();
+        }
+
+        $bResult = $this->oSmarty->templateExists($sTemplate);
+
+        if (!$bResult && $bException) {
+            $sSkin = $this->GetConfigSkin();
+            $sMessage = 'Can not find the template "' . $sTemplate . '" in skin "' . $sSkin . '"';
+            if ($aTpls = $this->GetSmartyObject()->template_objects) {
+                if (is_array($aTpls)) {
+                    $sMessage .= ' (from: ';
+                    foreach($aTpls as $oTpl) {
+                        $sMessage .= $oTpl->template_resource . '; ';
+                    }
+                    $sMessage .= ')';
+                }
+            }
+            $sMessage .= '. ';
+            $oSkin = E::ModuleSkin()->GetSkin($sSkin);
+            if ((!$oSkin || $oSkin->GetCompatible() != 'alto') && !E::ActivePlugin('ls')) {
+                $sMessage .= 'Probably you need to activate plugin "Ls".';
+            }
+
+            // записываем доп. информацию - пути к шаблонам Smarty
+            $sErrorInfo = 'Template Dirs: ' . implode('; ', $this->oSmarty->getTemplateDir());
+            return $this->_error($sMessage, $sErrorInfo);
+        }
+        return $bResult ? $sTemplate : $bResult;
+    }
+
+    /**
+     * @param string $sTemplate
+     * @param array  $aVariables
+     *
+     * @return object
+     */
+    protected function _tplCreateTemplate($sTemplate, $aVariables = null) {
+
+        $oTemplate = $this->oSmarty->createTemplate($sTemplate, $this->oSmarty);
+        if ($aVariables && is_array($aVariables)) {
+            $oTemplate->assign($aVariables);
+        }
+        return $oTemplate;
+    }
+
+    /**
+     * Set templator options
+     *
+     * @param array $aOptions
+     */
+    protected function _tplSetOptions($aOptions) {
+
+        self::$_renderOptionsStack[] = array(
+            'caching'        => $this->oSmarty->caching,
+            'cache_lifetime' => $this->oSmarty->cache_lifetime,
+        );
+        if (isset($aOptions['cache'])) {
+            $this->oSmarty->caching = Smarty::CACHING_LIFETIME_SAVED;
+            if ($aOptions['cache'] === false) {
+                // Отключаем кеширование
+                $this->oSmarty->cache_lifetime = 0;
+            } elseif (isset($aOptions['cache']['time'])) {
+                if ($aOptions['cache']['time'] == -1) {
+                    // Задаем бессрочное кеширование
+                    $this->oSmarty->cache_lifetime = -1;
+                } elseif ($aOptions['cache']['time']) {
+                    // Задаем время кеширования
+                    $this->oSmarty->cache_lifetime = F::ToSeconds($aOptions['cache']['time']);
+                } else {
+                    // Отключаем кеширование
+                    $this->oSmarty->cache_lifetime = 0;
+                }
+            }
+        }
+
+    }
+
+    /**
+     * Restore templator options
+     */
+    protected function _tplRestoreOptions() {
+
+        if (self::$_renderOptionsStack) {
+            $aOptions = array_pop(self::$_renderOptionsStack);
+            if (isset($aOptions['caching'])) {
+                $this->oSmarty->caching = $aOptions['caching'];
+            }
+            if (isset($aOptions['cache_lifetime'])) {
+                $this->oSmarty->cache_lifetime = $aOptions['cache_lifetime'];
+            }
+        }
+    }
+
+    /**
+     * Загружает переменную в шаблон
+     *
+     * @param string $sName  - Имя переменной в шаблоне
+     * @param mixed  $xValue - Значение переменной
+     */
+    protected function _tplAssign($sName, $xValue) {
+
+        $this->oSmarty->assign($sName, $xValue);
+    }
+
 
     /**
      * Initialization of skin
@@ -444,18 +606,16 @@ class ModuleViewer extends Module {
             Config::SetLevel(Config::LEVEL_SKIN);
         }
 
+        // init templator if not yet
+        $this->_initTemplator();
+
         // Loads localized texts
         $this->Assign('aLang', E::ModuleLang()->GetLangMsg());
         $this->Assign('oLang', E::ModuleLang()->Dictionary());
 
-        if (!$this->bLocal) {
+        if (!$this->bLocal && !$this->GetResponseAjax()) {
             // Initialization of assets (JS-, CSS-files)
             $this->InitAssetFiles();
-        }
-
-        // init templator if not yet
-        if (!$this->oSmarty) {
-            $this->_initTemplator();
         }
 
         E::ModuleHook()->Run('render_init_done', array('bLocal' => $this->bLocal));
@@ -540,6 +700,10 @@ class ModuleViewer extends Module {
         $oViewerLocal->Init(true);
         $oViewerLocal->_initRender();
         $oViewerLocal->VarAssign();
+
+        $oSmarty = $oViewerLocal->GetSmartyObject();
+        $oSmarty->assign($oViewerLocal->getTemplateVars());
+
         return $oViewerLocal;
     }
 
@@ -562,24 +726,15 @@ class ModuleViewer extends Module {
      */
     public function VarAssign() {
 
-        if (!$this->oSmarty) {
-            $this->_initTemplator();
-        }
-
-        foreach ($this->aVarsTemplate as $sName => $xValue) {
-            $this->_assignTpl($sName, $xValue);
-            unset($this->aVarsTemplate[$sName]);
-        }
-
         // * Загружаем весь $_REQUEST, предварительно обработав его функцией F::HtmlSpecialChars()
         $aRequest = $_REQUEST;
         F::HtmlSpecialChars($aRequest);
-        $this->_assignTpl('_aRequest', $aRequest);
+        $this->Assign('_aRequest', $aRequest);
 
         // * Параметры стандартной сессии
         // TODO: Убрать! Не должно этого быть на страницах сайта
-        $this->_assignTpl('_sPhpSessionName', session_name());
-        $this->_assignTpl('_sPhpSessionId', session_id());
+        $this->Assign('_sPhpSessionName', session_name());
+        $this->Assign('_sPhpSessionId', session_id());
 
         // * Загружаем объект доступа к конфигурации
         // * Перенесено в PluginLs_Viewer
@@ -596,26 +751,26 @@ class ModuleViewer extends Module {
         foreach ($aPages as $sPage => $aAction) {
             $aRouter[$sPage] = R::GetPath($sPage);
         }
-        $this->_assignTpl('aRouter', $aRouter);
+        $this->Assign('aRouter', $aRouter);
 
         // * Загружаем виджеты
-        $this->_assignTpl('aWidgets', $this->GetWidgets());
+        $this->Assign('aWidgets', $this->GetWidgets());
 
         // * Загружаем HTML заголовки
-        $this->_assignTpl('sHtmlTitle', $this->GetHtmlTitle());
-        $this->_assignTpl('sHtmlKeywords', $this->GetHtmlKeywords());
-        $this->_assignTpl('sHtmlDescription', $this->GetHtmlDescription());
+        $this->Assign('sHtmlTitle', $this->GetHtmlTitle());
+        $this->Assign('sHtmlKeywords', $this->GetHtmlKeywords());
+        $this->Assign('sHtmlDescription', $this->GetHtmlDescription());
 
-        $this->_assignTpl('aHtmlHeadFiles', $this->aHtmlHeadFiles);
-        $this->_assignTpl('aHtmlRssAlternate', $this->aHtmlRssAlternate);
-        $this->_assignTpl('sHtmlCanonical', $this->sHtmlCanonical);
-        $this->_assignTpl('aHtmlHeadTags', $this->aHtmlHeadTags);
+        $this->Assign('aHtmlHeadFiles', $this->aHtmlHeadFiles);
+        $this->Assign('aHtmlRssAlternate', $this->aHtmlRssAlternate);
+        $this->Assign('sHtmlCanonical', $this->sHtmlCanonical);
+        $this->Assign('aHtmlHeadTags', $this->aHtmlHeadTags);
 
-        $this->_assignTpl('aJsAssets', E::ModuleViewerAsset()->GetPreparedAssetLinks());
+        $this->Assign('aJsAssets', E::ModuleViewerAsset()->GetPreparedAssetLinks());
 
         // * Загружаем список активных плагинов
         $aPlugins = E::GetActivePlugins();
-        $this->_assignTpl('aPluginActive', array_fill_keys(array_keys($aPlugins), true));
+        $this->Assign('aPluginActive', array_fill_keys(array_keys($aPlugins), true));
 
         // * Загружаем пути до шаблонов плагинов
         $aPluginsTemplateUrl = array();
@@ -630,8 +785,8 @@ class ModuleViewer extends Module {
         }
         if (E::ActivePlugin('ls')) {
             // LS-compatible //
-            $this->_assignTpl('aTemplateWebPathPlugin', $aPluginsTemplateUrl);
-            $this->_assignTpl('aTemplatePathPlugin', $aPluginsTemplateDir);
+            $this->Assign('aTemplateWebPathPlugin', $aPluginsTemplateUrl);
+            $this->Assign('aTemplatePathPlugin', $aPluginsTemplateDir);
         }
 
         $sSkinTheme = $this->GetConfigTheme();
@@ -642,7 +797,7 @@ class ModuleViewer extends Module {
         if ($this->CheckTheme($sSkinTheme)) {
             $this->oSmarty->compile_id = $sSkinTheme;
         }
-        $this->_assignTpl('sSkinTheme', $sSkinTheme);
+        $this->Assign('sSkinTheme', $sSkinTheme);
     }
 
     /**
@@ -674,87 +829,67 @@ class ModuleViewer extends Module {
          * Но предварительно проверяем наличие делегата
          */
         if ($sTemplate) {
-            if (!$this->oSmarty) {
-                $this->_initTemplator();
-            }
-            // Подавляем обработку ошибок
-            //$this->_muteErrors();
+            $this->_initTemplator();
 
             $sTemplate = E::ModulePlugin()->GetDelegate('template', $sTemplate);
             if ($this->TemplateExists($sTemplate, true)) {
                 // Установка нового secret key непосредственно перед рендерингом
                 E::ModuleSecurity()->SetSecurityKey();
 
+                $oTpl = $this->_tplCreateTemplate($sTemplate, $this->getTemplateVars());
+
                 self::$_renderCount++;
                 self::$_renderStart = microtime(true);
-                $this->oSmarty->display($sTemplate);
+                self::$_inRender += 1;
+
+                $oTpl->display();
+
+                self::$_inRender -= 1;
                 self::$_renderTime += (microtime(true) - self::$_renderStart);
                 self::$_renderStart = 0;
             }
-            //$this->_unmuteErrors();
         }
     }
 
     /**
      * Возвращает отрендеренный шаблон
      *
-     * @param   string $sTemplate    - Шаблон для рендеринга
-     * @param   array  $aOptions     - Опции рендеринга
+     * @param string $sTemplate - Шаблон для рендеринга
+     * @param array  $aVars     - Переменные для локального рендеринга
+     * @param array  $aOptions  - Опции рендеринга
      *
      * @return  string
      */
-    public function Fetch($sTemplate, $aOptions = array()) {
+    public function Fetch($sTemplate, $aVars = array(), $aOptions = array()) {
 
-        if (!$this->oSmarty) {
-            $this->_initTemplator();
-        }
+        $this->_initTemplator();
 
         // * Проверяем наличие делегата
         $sTemplate = E::ModulePlugin()->GetDelegate('template', $sTemplate);
         if ($this->TemplateExists($sTemplate, true)) {
             // Если задаются локальные параметры кеширования, то сохраняем общие
-            if (isset($aOptions['cache'])) {
-                $nOldCaching = $this->oSmarty->caching;
-                $nOldCacheLifetime = $this->oSmarty->cache_lifetime;
+            $this->_tplSetOptions($aOptions);
 
-                $this->oSmarty->caching = Smarty::CACHING_LIFETIME_SAVED;
-                if ($aOptions['cache'] === false) {
-                    // Отключаем кеширование
-                    $this->oSmarty->cache_lifetime = 0;
-                } elseif (isset($aOptions['cache']['time'])) {
-                    if ($aOptions['cache']['time'] == -1) {
-                        // Задаем бессрочное кеширование
-                        $this->oSmarty->cache_lifetime = -1;
-                    } elseif ($aOptions['cache']['time']) {
-                        // Задаем время кеширования
-                        $this->oSmarty->cache_lifetime = F::ToSeconds($aOptions['cache']['time']);
-                    } else {
-                        // Отключаем кеширование
-                        $this->oSmarty->cache_lifetime = 0;
-                    }
-                }
+            $oTpl = $this->_tplCreateTemplate($sTemplate);
+            if ($aVars) {
+                $oTpl->assign($aVars);
             }
-
-            // * Подавляем вывод ошибок
-            //$this->_muteErrors();
 
             self::$_renderCount++;
             self::$_renderStart = microtime(true);
+            self::$_inRender += 1;
 
-            $sContent = $this->oSmarty->fetch($sTemplate);
+            $sContent = $oTpl->fetch($sTemplate);
 
+            self::$_inRender -= 1;
             self::$_renderTime += (microtime(true) - self::$_renderStart);
             self::$_renderStart = 0;
 
-            if (isset($aOptions['cache'])) {
-                $this->oSmarty->caching = $nOldCaching;
-                $this->oSmarty->cache_lifetime = $nOldCacheLifetime;
-            }
-
-            //$this->_unmuteErrors();
+            $this->_tplRestoreOptions();
 
             return $sContent;
         }
+        return null;
     }
 
     /**
@@ -794,10 +929,8 @@ class ModuleViewer extends Module {
         if (!$sRenderTemplate) {
             $sRenderTemplate = $sDelegateTemplate;
         }
-        $oSmarty = $this->GetSmartyObject();
-        $oTpl = $oSmarty->createTemplate($sRenderTemplate, $oSmarty);
-        $oTpl->assign($aVars);
-        return $oTpl->Fetch();
+
+        return $this->Fetch($sRenderTemplate, $aVars, $aOptions);
     }
 
     /**
@@ -843,26 +976,6 @@ class ModuleViewer extends Module {
 
         echo $sOutput;
         exit();
-    }
-
-    /**
-     * Создает и возвращает объект Smarty
-     *
-     * @return Smarty
-     */
-    public function CreateSmartyObject() {
-
-        return new Smarty();
-    }
-
-    /**
-     * Возвращает объект Smarty
-     *
-     * @return Smarty
-     */
-    public function GetSmartyObject() {
-
-        return $this->oSmarty;
     }
 
     /**
@@ -1003,17 +1116,6 @@ class ModuleViewer extends Module {
     }
 
     /**
-     * Загружает переменную в шаблон
-     *
-     * @param string $sName  - Имя переменной в шаблоне
-     * @param mixed  $xValue - Значение переменной
-     */
-    protected function _assignTpl($sName, $xValue) {
-
-        $this->oSmarty->assign($sName, $xValue);
-    }
-
-    /**
      * Sets value(s) to template variable(s)
      *
      * @param string|array $xParam - Name of template variable or associate array
@@ -1026,10 +1128,9 @@ class ModuleViewer extends Module {
                 $this->Assign($sName, $xValue);
             }
         } else {
-            if ($this->oSmarty) {
-                $this->_assignTpl($xParam, $xValue);
-            } else {
-                $this->aVarsTemplate[$xParam] = $xValue;
+            $this->aVarsTemplate[$xParam] = $xValue;
+            if (self::$_inRender || $this->bLocal) {
+                $this->_tplAssign($xParam, $xValue);
             }
         }
     }
@@ -1044,16 +1145,12 @@ class ModuleViewer extends Module {
     public function getTemplateVars($sVarName = null) {
 
         $xResult = null;
-        if ($this->oSmarty) {
-            $xResult = $this->oSmarty->getTemplateVars($sVarName);
-        } else {
-            if ($sVarName) {
-                if (isset($this->aVarsTemplate[$sVarName])) {
-                    $xResult = $this->aVarsTemplate[$sVarName];
-                }
-            } else {
-                $xResult = $this->aVarsTemplate;
+        if ($sVarName) {
+            if (isset($this->aVarsTemplate[$sVarName])) {
+                $xResult = $this->aVarsTemplate[$sVarName];
             }
+        } else {
+            $xResult = $this->aVarsTemplate;
         }
         return $xResult;
     }
@@ -1084,35 +1181,7 @@ class ModuleViewer extends Module {
      */
     public function TemplateExists($sTemplate, $bException = false) {
 
-        if (!$this->oSmarty) {
-            $this->_initTemplator();
-        }
-        //$this->_muteErrors();
-        $bResult = $this->oSmarty->templateExists($sTemplate);
-        //$this->_unmuteErrors();
-        if (!$bResult && $bException) {
-            $sSkin = $this->GetConfigSkin();
-            $sMessage = 'Can not find the template "' . $sTemplate . '" in skin "' . $sSkin . '"';
-            if ($aTpls = $this->GetSmartyObject()->template_objects) {
-                if (is_array($aTpls)) {
-                    $sMessage .= ' (from: ';
-                    foreach($aTpls as $oTpl) {
-                        $sMessage .= $oTpl->template_resource . '; ';
-                    }
-                    $sMessage .= ')';
-                }
-            }
-            $sMessage .= '. ';
-            $oSkin = E::ModuleSkin()->GetSkin($sSkin);
-            if ((!$oSkin || $oSkin->GetCompatible() != 'alto') && !E::ActivePlugin('ls')) {
-                $sMessage .= 'Probably you need to activate plugin "Ls".';
-            }
-
-            // записываем доп. информацию - пути к шаблонам Smarty
-            $sErrorInfo = 'Template Dirs: ' . implode('; ', $this->oSmarty->getTemplateDir());
-            return $this->_error($sMessage, $sErrorInfo);
-        }
-        return $bResult ? $sTemplate : $bResult;
+        return $this->_tplTemplateExists($sTemplate, $bException);
     }
 
     /**
@@ -1154,7 +1223,8 @@ class ModuleViewer extends Module {
                 // записываем доп. информацию - пути к шаблонам Smarty
                 $sErrorInfo = 'Skin dir: ' . $sCheckDir;
             }
-            return $this->_error($sMessage, $sErrorInfo);
+            $this->_error($sMessage, $sErrorInfo);
+            return false;
         }
         return $bResult;
     }
@@ -1452,14 +1522,6 @@ class ModuleViewer extends Module {
             }
         }
         return $iCount;
-    }
-
-    /**
-     * view InitAssetFiles()
-     */
-    protected function InitFileParams() {
-
-        $this->InitAssetFiles();
     }
 
     /**

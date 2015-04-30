@@ -173,9 +173,10 @@ class ActionUserfeed extends Action {
         E::ModuleHook()->Run('topics_list_show', array('aTopics' => $aTopics));
 
         // * Загружаем данные в ajax ответ
-        $oViewer = E::ModuleViewer()->GetLocalViewer();
-        $oViewer->Assign('aTopics', $aTopics);
-        E::ModuleViewer()->AssignAjax('result', $oViewer->Fetch('topics/topic.list.tpl'));
+        $aVars = array(
+            'aTopics' => $aTopics,
+        );
+        E::ModuleViewer()->AssignAjax('result', E::ModuleViewer()->Fetch('topics/topic.list.tpl', $aVars));
         E::ModuleViewer()->AssignAjax('topics_count', count($aTopics));
 
         if (count($aTopics)) {

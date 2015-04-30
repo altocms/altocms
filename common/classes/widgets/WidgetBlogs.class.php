@@ -27,9 +27,7 @@ class WidgetBlogs extends Widget {
 
         // * Получаем список блогов
         if ($aResult = E::ModuleBlog()->GetBlogsRating(1, Config::Get('widgets.blogs.params.limit'))) {
-            $aBlogs = $aResult['collection'];
-
-            $aVars = array('aBlogs' => $aBlogs);
+            $aVars = array('aBlogs' => $aResult['collection']);
 
             // * Формируем результат в виде шаблона и возвращаем
             $sTextResult = E::ModuleViewer()->FetchWidget('blogs_top.tpl', $aVars);

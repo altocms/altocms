@@ -198,9 +198,10 @@ class ActionStream extends Action {
          */
         $aEvents = E::ModuleStream()->Read(null, $iFromId);
 
-        $oViewer = E::ModuleViewer()->GetLocalViewer();
-        $oViewer->Assign('aStreamEvents', $aEvents);
-        $oViewer->Assign('sDateLast', F::GetRequestStr('sDateLast'));
+        $aVars = array();
+
+        $aVars['aStreamEvents'] = $aEvents;
+        $aVars['sDateLast'] = F::GetRequestStr('sDateLast');
         if (count($aEvents)) {
             $oEvenLast = end($aEvents);
             E::ModuleViewer()->AssignAjax('iStreamLastId', $oEvenLast->getId());
@@ -208,7 +209,7 @@ class ActionStream extends Action {
         /**
          * Возвращаем данные в ajax ответе
          */
-        E::ModuleViewer()->AssignAjax('result', $oViewer->Fetch('actions/stream/action.stream.events.tpl'));
+        E::ModuleViewer()->AssignAjax('result', E::ModuleViewer()->Fetch('actions/stream/action.stream.events.tpl', $aVars));
         E::ModuleViewer()->AssignAjax('events_count', count($aEvents));
     }
 
@@ -240,9 +241,10 @@ class ActionStream extends Action {
          */
         $aEvents = E::ModuleStream()->ReadAll(null, $iFromId);
 
-        $oViewer = E::ModuleViewer()->GetLocalViewer();
-        $oViewer->Assign('aStreamEvents', $aEvents);
-        $oViewer->Assign('sDateLast', F::GetRequestStr('sDateLast'));
+        $aVars = array(
+            'aStreamEvents' => $aEvents,
+            'sDateLast'     => F::GetRequestStr('sDateLast'),
+        );
         if (count($aEvents)) {
             $oEvenLast = end($aEvents);
             E::ModuleViewer()->AssignAjax('iStreamLastId', $oEvenLast->getId());
@@ -250,7 +252,7 @@ class ActionStream extends Action {
         /**
          * Возвращаем данные в ajax ответе
          */
-        E::ModuleViewer()->AssignAjax('result', $oViewer->Fetch('actions/stream/action.stream.events.tpl'));
+        E::ModuleViewer()->AssignAjax('result', E::ModuleViewer()->Fetch('actions/stream/action.stream.events.tpl', $aVars));
         E::ModuleViewer()->AssignAjax('events_count', count($aEvents));
     }
 
@@ -286,9 +288,10 @@ class ActionStream extends Action {
          */
         $aEvents = E::ModuleStream()->ReadByUserId($oUser->getId(), null, $iFromId);
 
-        $oViewer = E::ModuleViewer()->GetLocalViewer();
-        $oViewer->Assign('aStreamEvents', $aEvents);
-        $oViewer->Assign('sDateLast', F::GetRequestStr('sDateLast'));
+        $aVars = array(
+            'aStreamEvents' => $aEvents,
+            'sDateLast'     => F::GetRequestStr('sDateLast'),
+        );
         if (count($aEvents)) {
             $oEvenLast = end($aEvents);
             E::ModuleViewer()->AssignAjax('iStreamLastId', $oEvenLast->getId());
@@ -296,7 +299,7 @@ class ActionStream extends Action {
         /**
          * Возвращаем данные в ajax ответе
          */
-        E::ModuleViewer()->AssignAjax('result', $oViewer->Fetch('actions/stream/action.stream.events.tpl'));
+        E::ModuleViewer()->AssignAjax('result', E::ModuleViewer()->Fetch('actions/stream/action.stream.events.tpl', $aVars));
         E::ModuleViewer()->AssignAjax('events_count', count($aEvents));
     }
 

@@ -129,28 +129,23 @@ class ActionAjax extends Action {
             return;
         }
 
-        /** @var ModuleViewer $oLocalViewer */
-        $oLocalViewer = E::ModuleViewer()->GetLocalViewer();
-
         // Страница загрузки картинки с компьютера
         if ($sCategory == 'insert-from-pc') {
-            $sImages = $oLocalViewer->Fetch("modals/insert_img/inject.pc.tpl");
+            $sImages = E::ModuleViewer()->Fetch('modals/insert_img/inject.pc.tpl');
             E::ModuleViewer()->AssignAjax('images', $sImages);
             return;
         }
 
         // Страница загрузки из интернета
         if ($sCategory == 'insert-from-link') {
-            $sImages = $oLocalViewer->Fetch("modals/insert_img/inject.link.tpl");
+            $sImages = E::ModuleViewer()->Fetch("modals/insert_img/inject.link.tpl");
             E::ModuleViewer()->AssignAjax('images', $sImages);
             return;
         }
 
         $sTemplateName = 'inject.images.tpl';
 
-        /** @var ModuleViewer $oLocalViewer */
-        $oLocalViewer = E::ModuleViewer()->GetLocalViewer();
-
+        $aTplVariables = array();
         if ($sCategory == 'user') {       //ок
             /**
              * Аватар и фото пользователя
@@ -178,7 +173,8 @@ class ActionAjax extends Action {
                     ), $sPage, Config::Get('module.topic.images_per_page'));
                     $aResources['count'] = count($aResourcesId);
                     $iPages = ceil($aResources['count'] / Config::Get('module.topic.images_per_page'));
-                    $oLocalViewer->Assign('oTopic', $oTopic);
+
+                    $aTplVariables['oTopic'] = $oTopic;
                 } else {
                     $aResources = array();
                     $iPages = 0;
@@ -205,8 +201,8 @@ class ActionAjax extends Action {
                 ), $sPage, Config::Get('module.topic.images_per_page'));
                 $aResources['count'] = E::ModuleMresource()->GetMresourcesCountByTargetIdAndUserId('talk', $sTopicId, $iUserId);
                 $iPages = ceil($aResources['count'] / Config::Get('module.topic.images_per_page'));
-                $oLocalViewer->Assign('oTopic', $oTopic);
 
+                $aTplVariables['oTopic'] = $oTopic;
             } else {
                 $aResources = array();
                 $iPages = 0;
@@ -271,7 +267,7 @@ class ActionAjax extends Action {
             }
             if ($aBlogsId) {
                 $aBlogs = E::ModuleBlog()->GetBlogsAdditionalData($aBlogsId);
-                $oLocalViewer->Assign('aBlogs', $aBlogs);
+                $aTplVariables['aBlogs'] = $aBlogs;
             }
 
             $sTemplateName = 'inject.images.blog.tpl';
@@ -284,7 +280,8 @@ class ActionAjax extends Action {
              */
             $aTopicsData = E::ModuleMresource()->GetTopicsPage($iUserId, $sPage, Config::Get('module.topic.group_images_per_page'));
 
-            $oLocalViewer->Assign('aTopics', $aTopicsData['collection']);
+            $aTplVariables['aTopics'] = $aTopicsData['collection'];
+
             $sTemplateName = 'inject.images.topic.tpl';
             $iPages = ceil($aTopicsData['count'] / Config::Get('module.topic.group_images_per_page'));
             $aResources= array('collection'=>array());
@@ -295,7 +292,8 @@ class ActionAjax extends Action {
              */
             $aTopicsData = E::ModuleMresource()->GetTopicsPageByType($iUserId, $sCategory, $sPage, Config::Get('module.topic.group_images_per_page'));
 
-            $oLocalViewer->Assign('aTopics', $aTopicsData['collection']);
+            $aTplVariables['aTopics'] = $aTopicsData['collection'];
+
             $sTemplateName = 'inject.images.topic.tpl';
             $iPages = ceil($aTopicsData['count'] / Config::Get('module.topic.group_images_per_page'));
             $aResources= array('collection'=>array());
@@ -306,7 +304,7 @@ class ActionAjax extends Action {
              */
             $aTalksData = E::ModuleMresource()->GetTalksPage($iUserId, $sPage, Config::Get('module.topic.group_images_per_page'));
 
-            $oLocalViewer->Assign('aTalks', $aTalksData['collection']);
+            $aTplVariables['aTalks'] = $aTalksData['collection'];
             $sTemplateName = 'inject.images.talk.tpl';
             $iPages = ceil($aTalksData['count'] / Config::Get('module.topic.group_images_per_page'));
             $aResources= array('collection'=>array());
@@ -325,10 +323,10 @@ class ActionAjax extends Action {
 
 
 
-        $oLocalViewer->Assign('aResources', $aResources['collection']);
+        $aTplVariables['aResources'] = $aResources['collection'];
 
         $sPath = getRequest('profile', FALSE) ? 'actions/profile/created_photos/' : 'modals/insert_img/';
-        $sImages = $oLocalViewer->Fetch($sPath . $sTemplateName);
+        $sImages = E::ModuleViewer()->Fetch($sPath . $sTemplateName, $aTplVariables);
 
         E::ModuleViewer()->AssignAjax('images', $sImages);
         E::ModuleViewer()->AssignAjax('category', $sCategory);
@@ -357,13 +355,11 @@ class ActionAjax extends Action {
             $iUserId = false;
         }
 
-        /** @var ModuleViewer $oLocalViewer */
-        $oLocalViewer = E::ModuleViewer()->GetLocalViewer();
         if ($iUserId) {
-            $oLocalViewer->Assign('iUserId', $iUserId);
-            $sCategories = $oLocalViewer->Fetch("{$sPath}inject.categories.tpl");
+            $aVars = array('iUserId' => $iUserId);
+            $sCategories = E::ModuleViewer()->Fetch("{$sPath}inject.categories.tpl", $aVars);
         } else {
-            $sCategories = $oLocalViewer->Fetch( "{$sPath}inject.categories.tpl");
+            $sCategories = E::ModuleViewer()->Fetch( "{$sPath}inject.categories.tpl");
         }
 
         E::ModuleViewer()->AssignAjax('categories', $sCategories);
@@ -388,20 +384,17 @@ class ActionAjax extends Action {
             return;
         }
 
-        // * Получаем локальный вьюер для рендеринга шаблона
-        $oViewer = E::ModuleViewer()->GetLocalViewer();
+        $aVars = array('oBlog' => $oBlog);
 
-        $oViewer->Assign('oBlog', $oBlog);
         // Тип блога может быть не определен
         if (!$oBlog->getBlogType() || !$oBlog->getBlogType()->IsPrivate() || $oBlog->getUserIsJoin()) {
             // * Получаем последний топик
             $aResult = E::ModuleTopic()->GetTopicsByFilter(array('blog_id' => $oBlog->getId(), 'topic_publish' => 1), 1, 1);
-            $oViewer->Assign('oTopicLast', reset($aResult['collection']));
+            $aVars['oTopicLast'] = reset($aResult['collection']);
         }
-        $oViewer->Assign('oUserCurrent', $this->oUserCurrent);
 
         // * Устанавливаем переменные для ajax ответа
-        E::ModuleViewer()->AssignAjax('sText', $oViewer->Fetch('commons/common.infobox_blog.tpl'));
+        E::ModuleViewer()->AssignAjax('sText', E::ModuleViewer()->Fetch('commons/common.infobox_blog.tpl', $aVars));
     }
 
     /**
@@ -868,9 +861,8 @@ class ActionAjax extends Action {
 
         if (E::ModuleTopic()->AddTopicQuestionVote($oTopicQuestionVote) && E::ModuleTopic()->UpdateTopic($oTopic)) {
             E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('topic_question_vote_ok'), E::ModuleLang()->Get('attention'));
-            $oViewer = E::ModuleViewer()->GetLocalViewer();
-            $oViewer->Assign('oTopic', $oTopic);
-            E::ModuleViewer()->AssignAjax('sText', $oViewer->Fetch('fields/field.poll-show.tpl'));
+            $aVars = array('oTopic' => $oTopic);
+            E::ModuleViewer()->AssignAjax('sText', E::ModuleViewer()->Fetch('fields/field.poll-show.tpl', $aVars));
         } else {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
             return;
@@ -1136,11 +1128,11 @@ class ActionAjax extends Action {
      */
     protected function EventStreamComment() {
 
-        $oViewer = E::ModuleViewer()->GetLocalViewer();
+        $aVars = array();
         if ($aComments = E::ModuleComment()->GetCommentsOnline('topic', Config::Get('widgets.stream.params.limit'))) {
-            $oViewer->Assign('aComments', $aComments);
+            $aVars['aComments'] = $aComments;
         }
-        $sTextResult = $oViewer->FetchWidget('stream_comment.tpl');
+        $sTextResult = E::ModuleViewer()->FetchWidget('stream_comment.tpl', $aVars);
         E::ModuleViewer()->AssignAjax('sText', $sTextResult);
     }
 
@@ -1151,13 +1143,13 @@ class ActionAjax extends Action {
      */
     protected function EventStreamTopic() {
 
-        $oViewer = E::ModuleViewer()->GetLocalViewer();
+        $aVars = array();
         if ($aTopics = E::ModuleTopic()->GetTopicsLast(Config::Get('widgets.stream.params.limit'))) {
-            $oViewer->Assign('aTopics', $aTopics);
+            $aVars['aTopics'] = $aTopics;
             // LS-compatibility
-            $oViewer->Assign('oTopics', $aTopics);
+            $aVars['oTopics'] = $aTopics;
         }
-        $sTextResult = $oViewer->FetchWidget('stream_topic.tpl');
+        $sTextResult = E::ModuleViewer()->FetchWidget('stream_topic.tpl', $aVars);
         E::ModuleViewer()->AssignAjax('sText', $sTextResult);
     }
 
@@ -1168,15 +1160,13 @@ class ActionAjax extends Action {
      */
     protected function EventStreamWall() {
 
-        /** @var ModuleViewer $oViewer */
-        $oViewer = E::ModuleViewer()->GetLocalViewer();
-
+        $aVars = array();
         $aResult = E::ModuleWall()->GetWall(array(), array('date_add' => 'DESC'), 1, Config::Get('widgets.stream.params.limit'));
         if ($aResult['count'] != 0) {
-            $oViewer->Assign('aWall', $aResult['collection']);
+            $aVars['aWall'] = $aResult['collection'];
         }
 
-        $sTextResult = $oViewer->FetchWidget('stream_wall.tpl');
+        $sTextResult = E::ModuleViewer()->FetchWidget('stream_wall.tpl', $aVars);
         E::ModuleViewer()->AssignAjax('sText', $sTextResult);
     }
 
@@ -1189,12 +1179,10 @@ class ActionAjax extends Action {
 
         // * Получаем список блогов и формируем ответ
         if ($aResult = E::ModuleBlog()->GetBlogsRating(1, Config::Get('widgets.blogs.params.limit'))) {
-            $aBlogs = $aResult['collection'];
-            $oViewer = E::ModuleViewer()->GetLocalViewer();
-            $oViewer->Assign('aBlogs', $aBlogs);
+            $aVars = array('aBlogs' => $aResult['collection']);
 
             // Рендерим шаблон виджета
-            $sTextResult = $oViewer->FetchWidget('blogs_top.tpl');
+            $sTextResult = E::ModuleViewer()->FetchWidget('blogs_top.tpl', $aVars);
             E::ModuleViewer()->AssignAjax('sText', $sTextResult);
         } else {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('system_error'), E::ModuleLang()->Get('error'));
@@ -1216,9 +1204,9 @@ class ActionAjax extends Action {
         }
         // * Получаем список блогов и формируем ответ
         if ($aBlogs = E::ModuleBlog()->GetBlogsRatingSelf($this->oUserCurrent->getId(), Config::Get('widgets.blogs.params.limit'))) {
-            $oViewer = E::ModuleViewer()->GetLocalViewer();
-            $oViewer->Assign('aBlogs', $aBlogs);
-            $sTextResult = $oViewer->FetchWidget('blogs_top.tpl');
+            $aVars = array('aBlogs' => $aBlogs);
+
+            $sTextResult = E::ModuleViewer()->FetchWidget('blogs_top.tpl', $aVars);
             E::ModuleViewer()->AssignAjax('sText', $sTextResult);
         } else {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('widget_blogs_self_error'), E::ModuleLang()->Get('attention'));
@@ -1240,11 +1228,10 @@ class ActionAjax extends Action {
         }
         // * Получаем список блогов и формируем ответ
         if ($aBlogs = E::ModuleBlog()->GetBlogsRatingJoin($this->oUserCurrent->getId(), Config::Get('widgets.blogs.params.limit'))) {
-            $oViewer = E::ModuleViewer()->GetLocalViewer();
-            $oViewer->Assign('aBlogs', $aBlogs);
+            $aVars = array('aBlogs' => $aBlogs);
 
             // Рендерим шаблон виджета
-            $sTextResult = $oViewer->FetchWidget('blogs_top.tpl');
+            $sTextResult = E::ModuleViewer()->FetchWidget('blogs_top.tpl', $aVars);
             E::ModuleViewer()->AssignAjax('sText', $sTextResult);
         } else {
             E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('widget_blogs_join_error'), E::ModuleLang()->Get('attention'));

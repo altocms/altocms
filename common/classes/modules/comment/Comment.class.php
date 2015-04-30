@@ -814,11 +814,12 @@ class ModuleComment extends Module {
 
         $iMaxIdComment = max($aCommentsId);
 
-        $oViewerLocal = E::ModuleViewer()->GetLocalViewer();
-        $oViewerLocal->Assign('oUserCurrent', E::ModuleUser()->GetUserCurrent());
-        $oViewerLocal->Assign('bOneComment', true);
+        $aVars = array(
+            'oUserCurrent' => E::ModuleUser()->GetUserCurrent(),
+            'bOneComment'  => true,
+        );
         if ($sTargetType != 'topic') {
-            $oViewerLocal->Assign('bNoCommentFavourites', true);
+            $aVars['bNoCommentFavourites'] = true;
         }
         $aCommentsHtml = array();
 
@@ -832,10 +833,10 @@ class ModuleComment extends Module {
                 $bAllowToComment = E::ModuleBlog()->GetBlogsAllowTo('comment', $oUserCurrent, $iBlogId, TRUE);
             }
         }
+        $aVars['bAllowToComment'] = $bAllowToComment;
         foreach ($aComments as $oComment) {
-            $oViewerLocal->Assign('oComment', $oComment);
-            $oViewerLocal->Assign('bAllowToComment', $bAllowToComment);
-            $sText = $oViewerLocal->Fetch($this->GetTemplateCommentByTarget($nTargetId, $sTargetType));
+            $aVars['oComment'] = $oComment;
+            $sText = E::ModuleViewer()->Fetch($this->GetTemplateCommentByTarget($nTargetId, $sTargetType), $aVars);
             $aCommentsHtml[] = array(
                 'html' => $sText,
                 'obj'  => $oComment,

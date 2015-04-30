@@ -80,11 +80,12 @@ class ActionBlogs extends Action {
         $aResult = E::ModuleBlog()->GetBlogsByFilter($aFilter, array('blog_title' => 'asc'), 1, 100);
 
         // * Формируем и возвращает ответ
-        $oViewer = E::ModuleViewer()->GetLocalViewer();
-        $oViewer->Assign('aBlogs', $aResult['collection']);
-        $oViewer->Assign('oUserCurrent', E::ModuleUser()->GetUserCurrent());
-        $oViewer->Assign('sBlogsEmptyList', E::ModuleLang()->Get('blogs_search_empty'));
-        E::ModuleViewer()->AssignAjax('sText', $oViewer->Fetch('commons/common.blog_list.tpl'));
+        $aVars = array(
+            'aBlogs'          => $aResult['collection'],
+            'oUserCurrent'    => E::ModuleUser()->GetUserCurrent(),
+            'sBlogsEmptyList' => E::ModuleLang()->Get('blogs_search_empty'),
+        );
+        E::ModuleViewer()->AssignAjax('sText', E::ModuleViewer()->Fetch('commons/common.blog_list.tpl', $aVars));
     }
 
     protected function EventIndex() {
