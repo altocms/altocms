@@ -383,7 +383,7 @@ class ModuleTopic extends Module {
         if ($bResult = $this->oMapper->DeleteField($iContentFieldId)) {
 
             // * Чистим зависимые кеши
-            E::ModuleCache()->CleanByTags(array('field_update'));
+            E::ModuleCache()->CleanByTags(array('field_update', 'content_update'));
             E::ModuleCache()->Delete("content_field_{$iContentFieldId}");
 
             return true;
