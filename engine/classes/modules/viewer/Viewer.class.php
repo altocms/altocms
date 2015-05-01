@@ -438,7 +438,8 @@ class ModuleViewer extends Module {
 
             // записываем доп. информацию - пути к шаблонам Smarty
             $sErrorInfo = 'Template Dirs: ' . implode('; ', $this->oSmarty->getTemplateDir());
-            return $this->_error($sMessage, $sErrorInfo);
+            $this->_error($sMessage, $sErrorInfo);
+            return false;
         }
         return $bResult ? $sTemplate : $bResult;
     }
@@ -451,7 +452,8 @@ class ModuleViewer extends Module {
      */
     protected function _tplCreateTemplate($sTemplate, $aVariables = null) {
 
-        $oTemplate = $this->oSmarty->createTemplate($sTemplate, $this->oSmarty);
+        $oSmarty = $this->GetSmartyObject($this->getTemplateVars());
+        $oTemplate = $oSmarty->createTemplate($sTemplate, $oSmarty);
         if ($aVariables && is_array($aVariables)) {
             $oTemplate->assign($aVariables);
         }
@@ -1435,20 +1437,21 @@ class ModuleViewer extends Module {
      *  - потом те, у кого выше приоритет
      *  - потом те, которые были раньше добавлены
      *
-     * @param  array $a
-     * @param  array $b
+     * @param  ModuleWidget_EntityWidget $oW1
+     * @param  ModuleWidget_EntityWidget $oW2
+     *
      * @return int
      */
-    protected function _SortWidgetsCompare($a, $b) {
+    protected function _SortWidgetsCompare($oW1, $oW2) {
 
-        if ($a->getPriority() === $b->getPriority()) {
-            return $a->getOrder() - $b->getOrder();
-        } elseif ($a->isTop()) {
+        if ($oW1->getPriority() === $oW2->getPriority()) {
+            return $oW1->getOrder() - $oW2->getOrder();
+        } elseif ($oW1->isTop()) {
             return 1;
-        } elseif ($b->isTop()) {
+        } elseif ($oW2->isTop()) {
             return -1;
         }
-        if ($a->getPriority() < $b->getPriority()) {
+        if ($oW1->getPriority() < $oW2->getPriority()) {
             return -1;
         }
         return 1;

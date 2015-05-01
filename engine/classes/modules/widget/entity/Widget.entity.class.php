@@ -15,6 +15,7 @@
  * @method setName()
  * @method setType()
  * @method setTemplate()
+ * @method setOrder()
  *
  * @method getType()
  * @method getCondition()
