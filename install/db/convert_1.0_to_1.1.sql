@@ -1,4 +1,9 @@
--- Уменьшение длины поля (было DATETIME)
+-- --------------------------------------------------------
+-- Patch from 1.0.+ upto 1.1.+
+
+-- --------------------------------------------------------
+
+--  Уменьшение длины поля (было DATETIME)
 ALTER TABLE  prefix_user CHANGE  `user_profile_birthday`  `user_profile_birthday` DATE NULL DEFAULT NULL ;
 
 -- Таблица связей типов блогов и типов контента

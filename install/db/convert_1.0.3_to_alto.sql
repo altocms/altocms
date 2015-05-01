@@ -273,8 +273,17 @@ CREATE TABLE IF NOT EXISTS `prefix_mresource_target` (
 ALTER TABLE `prefix_topic` ADD `topic_index_ignore` TINYINT( 2 ) NULL DEFAULT '0',
 ADD INDEX ( `topic_index_ignore` );
 
+ALTER TABLE `prefix_topic` ADD `topic_date_show` datetime DEFAULT NULL AFTER `topic_date_edit`;
+
 ALTER TABLE `prefix_topic_photo` ADD `date_add` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ,
 ADD INDEX ( `date_add` );
+
+ALTER TABLE  `prefix_blog_user` ADD `blog_user_id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+
+ALTER TABLE  `prefix_vote` DROP PRIMARY KEY;
+ALTER TABLE  `prefix_vote` ADD  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+ALTER TABLE  `prefix_vote` ADD INDEX  `target_id_type` (  `target_id` ,  `target_type` );
+ALTER TABLE  `prefix_user` CHANGE  `user_password`  `user_password` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ;
 
 UPDATE `prefix_topic` SET topic_date_show=topic_date_add WHERE topic_publish=1 AND topic_date_show IS NULL;
 

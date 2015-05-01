@@ -761,7 +761,7 @@ class Install {
              */
             if ($this->GetSessionVar('INSTALL_DATABASE_DONE', '') != md5(serialize(array($aParams['server'], $aParams['name'])))) {
 
-				// * Отдельным файлом запускаем создание GEO-базы
+                // * Отдельным файлом запускаем создание GEO-базы
                 $bResult = $this->CreateTables('geo_base.sql', array_merge($aParams, array('check_table' => 'geo_city')));
                 if (!$bResult && $this->aErrors) {
                     foreach ($this->aErrors as $sError) {
@@ -772,7 +772,7 @@ class Install {
                 }
 
                 if (!$aParams['convert_from_097'] && !$aParams['convert_to_alto'] && !$aParams['convert_to_alto_11']) {
-					$bResult = $this->CreateTables('sql.sql', array_merge($aParams, array('check_table' => 'topic')));
+                    $bResult = $this->CreateTables('sql.sql', array_merge($aParams, array('check_table' => 'topic')));
                     if (!$bResult) {
                         foreach ($this->aErrors as $sError) {
                             $this->aMessages[] = array('type' => 'error', 'text' => $sError);
@@ -789,6 +789,11 @@ class Install {
                     list($bResult, $aErrors) = array_values(
                         $this->ConvertDatabaseToAlto('convert_1.0.3_to_alto.sql', $aParams)
                     );
+                    if ($bResult) {
+                        list($bResult, $aErrors) = array_values(
+                            $this->ConvertDatabaseToAlto('convert_1.0_to_1.1.sql', $aParams)
+                        );
+                    }
                     if (!$bResult) {
                         foreach ($aErrors as $sError) {
                             $this->aMessages[] = array('type' => 'error', 'text' => $sError);
