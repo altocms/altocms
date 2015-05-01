@@ -225,7 +225,7 @@ class Router extends LsObject {
             $aLangs = (array)Config::Get('lang.allow');
 
             // Проверка языка в URL
-            if ($aLangs && Config::Get('lang.in_url')) {
+            if ($aRequestUrl && $aLangs && Config::Get('lang.in_url')) {
                 if (sizeof($aLangs) && sizeof($aRequestUrl) && in_array($aRequestUrl[0], $aLangs)) {
                     static::$sLang = array_shift($aRequestUrl);
                 }
@@ -355,7 +355,7 @@ class Router extends LsObject {
      */
     protected function GetRequestArray($sReq) {
 
-        $aRequestUrl = ($sReq == '') ? array() : explode('/', trim($sReq, '/'));
+        $aRequestUrl = ($sReq == '' || $sReq == '/') ? array() : explode('/', trim($sReq, '/'));
         for ($i = 0; $i < Config::Get('path.offset_request_url'); $i++) {
             array_shift($aRequestUrl);
         }
@@ -397,6 +397,11 @@ class Router extends LsObject {
      */
     protected function RewriteRequest($aRequestUrl) {
 
+        if (!$aRequestUrl) {
+            return $aRequestUrl;
+        }
+
+        // STAGE 1: Rewrite rules for domains
         if (!empty($this->aConfigRoute['domains']['forward']) && !F::AjaxRequest()) {
             // если в запросе есть контроллер и он есть в списке страниц, то доменный маппинг не выполняется
             if (empty($aRequestUrl[0]) || empty($this->aConfigRoute['page'][$aRequestUrl[0]])) {
@@ -417,7 +422,7 @@ class Router extends LsObject {
             }
         }
 
-        // * Правила Rewrite для REQUEST_URI
+        // STAGE 2: Rewrite rules for REQUEST_URI
         $sRequest = implode('/', $aRequestUrl);
 
         $aRouterUriRules = $this->GetRouterUriRules();
@@ -448,7 +453,13 @@ class Router extends LsObject {
             }
         }
 
+        // STAGE 3: Internal rewriting (topic URLs etc.)
         $aRequestUrl = (trim($sRequest, '/') == '') ? array() : explode('/', $sRequest);
+        if ($aRequestUrl) {
+            $aRequestUrl = $this->RewriteInternal($aRequestUrl);
+        }
+
+        // STAGE 4: Rules for actions rewriting
         if (isset($aRequestUrl[0])) {
             $sRequestAction = $aRequestUrl[0];
             if (isset($this->aConfigRoute['rewrite'][$sRequestAction])) {
@@ -479,7 +490,7 @@ class Router extends LsObject {
                 $aRewrite = array_merge($aRewrite, array($sUserUrlPattern => 'profile/login-$1'));
             }
         }
-        // * Правила Rewrite для REQUEST_URI
+        // * Internal rewrite rules for REQUEST_URI
         if ($aRewrite) {
             $sReq = implode('/', $aRequestUrl);
             foreach($aRewrite as $sPattern => $sReplace) {
@@ -634,6 +645,7 @@ class Router extends LsObject {
             static::$sActionClass = $this->aDefinedClasses[static::$sAction][static::$sActionEvent];
         } else {
             $sActionClass = $this->FindActionClass();
+            /*
             if (!$sActionClass && static::$aRequestURI) {
                 //Если не находим нужного класса, то проверяем внутренний реврайтинг по паттернам, напр., топики
                 $aRequestUrl = $this->RewriteInternal(static::$aRequestURI);
@@ -645,6 +657,7 @@ class Router extends LsObject {
                     $sActionClass = $this->FindActionClass();
                 }
             }
+            */
             if (!$sActionClass) {
                 //Если не находим нужного класса, то определяем класс экшена-обработчика ошибки
                 static::$sAction = $this->aConfigRoute['config']['action_not_found'];
