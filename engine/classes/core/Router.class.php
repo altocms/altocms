@@ -309,7 +309,7 @@ class Router extends LsObject {
      */
     protected function CheckRedirectionRules() {
 
-        if ($this->aConfigRoute['redirect'] && is_array($this->aConfigRoute['redirect'])) {
+        if (isset($this->aConfigRoute['redirect']) && is_array($this->aConfigRoute['redirect'])) {
             $sUrl = static::$sCurrentFullUrl;
 
             $iHttpResponse = 301;
