@@ -1707,7 +1707,7 @@ fieldset[disabled] .btn-gray.active {
   clear: both;
 }
 .topic-text * {
-  font-size: 13px !important;
+  font-size: 13px;
 }
 .content .topic .topic-footer ul,
 .content .panel .panel-footer ul {
