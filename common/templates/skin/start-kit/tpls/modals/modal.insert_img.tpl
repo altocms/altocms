@@ -26,11 +26,6 @@
                                     <i class="glyphicon glyphicon-refresh"></i>
                                 </a>
                             </li>
-                            <li>
-                                <a class="image-categories-nav-trigger" href="#">
-                                    <i class="glyphicon glyphicon-eye-close"></i>
-                                </a>
-                            </li>
                             <li id="backTopics" style="display: none;">
                                 <a class="image-categories-nav-back-topics" href="#">
                                     <i class="glyphicon glyphicon-arrow-left"></i>
@@ -39,6 +34,12 @@
                             <li id="backTalks" style="display: none;">
                                 <a class="image-categories-nav-back-talks" href="#">
                                     <i class="glyphicon glyphicon-arrow-left"></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="image-categories-nav-trigger hidden-options" href="#">
+                                    <span class="options-show">{$aLang.uploadimg_show}</span>
+                                    <span class="options-hide">{$aLang.uploadimg_hide}</span>
                                 </a>
                             </li>
                         </ul>

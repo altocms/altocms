@@ -19,6 +19,12 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
                 <h4 class="modal-title">{$aLang.insertimg} <span id="aim-pages-container"></span></h4>
                 <ul class="image-categories-nav list-unstyled list-inline list-no-border pull-right">
+                    <li>
+                        <a class="image-categories-nav-trigger hidden-options" href="#">
+                            <span class="options-show">{$aLang.uploadimg_show}&nbsp;<span class="caret"></span></span>
+                            <span class="options-hide">{$aLang.uploadimg_hide}&nbsp;<span class="caret"></span></span>
+                        </a>
+                    </li>
                     <li id="backTopics" style="display: none;">
                         <a class="image-categories-nav-back-topics" href="#">
                             <i class="fa fa-chevron-left"></i>
@@ -32,11 +38,6 @@
                     <li>
                         <a class="image-categories-nav-refresh" href="#">
                             <i class="fa fa-refresh"></i>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="image-categories-nav-trigger" href="#">
-                            <i class="fa fa-eye-slash"></i>
                         </a>
                     </li>
                 </ul>

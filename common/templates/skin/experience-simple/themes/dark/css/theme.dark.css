@@ -3455,6 +3455,22 @@ li.active.category-show {
 #js-alto-image-manager .fileinput .form-control {
   width: 234px;
 }
+.image-categories-nav-trigger {
+  font-size: 13px;
+  color: #93a6ad !important;
+}
+.image-categories-nav-trigger .options-show {
+  display: inline-block;
+}
+.image-categories-nav-trigger .options-hide {
+  display: none;
+}
+.image-categories-nav-trigger.hidden-options .options-show {
+  display: none;
+}
+.image-categories-nav-trigger.hidden-options .options-hide {
+  display: inline-block;
+}
 .mce-snippets button > span {
   font-size: 18px !important;
   font-weight: bold;

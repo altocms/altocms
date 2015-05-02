@@ -689,7 +689,7 @@ a.user-friends:hover { color: #ff4136; text-decoration: none; }
 }
 
 
-/* СН�?ППЕТЫ
+/* СН�?ППЕТЫ
 ____________________________________________________________*/
 .snippet-menu {
     width: 20px;
@@ -785,7 +785,7 @@ ______________________________________________________________*/
 
 
 
-/* ДОБАВЛЕН�?Е КАРТ�?НК�? В РЕДАКТОР
+/* ДОБАВЛЕН�?Е КАРТ�?НК�? В РЕДАКТОР
 ____________________________________________________________*/
 .editor-insert-picture {
     width: 20px;
@@ -855,6 +855,22 @@ ____________________________________________________________*/
 #image-categories-tree-container .image-categories-nav {
 
  }
+.image-categories-nav-trigger {
+    font-size: 13px;
+    line-height: 12px;
+}
+.image-categories-nav-trigger .options-show {
+    display: inline-block;
+}
+.image-categories-nav-trigger .options-hide {
+    display: none;
+}
+.image-categories-nav-trigger.hidden-options .options-show {
+    display: none;
+}
+.image-categories-nav-trigger.hidden-options .options-hide {
+    display: inline-block;
+}
 .glyphicon-spin {
     -webkit-animation: gspin 2s infinite linear;
     -moz-animation: gspin 2s infinite linear;

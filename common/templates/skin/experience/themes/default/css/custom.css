@@ -147,7 +147,7 @@
 }
 
 
-/* СН�?ППЕТЫ
+/* СН�?ППЕТЫ
 ____________________________________________________________*/
 .snippet-menu {
     width: 20px;
@@ -223,7 +223,7 @@ ____________________________________________________________*/
     padding: 12px;
 }
 
-/* ФОТОСЕТ
+/* Р¤РћРўРћРЎР•Рў
 ______________________________________________________________*/
 .am-wrapper {
     float: left;
@@ -241,7 +241,7 @@ ______________________________________________________________*/
     padding: 0;
 }
 
-/* ДОБАВЛЕН�?Е КАРТ�?НК�? В РЕДАКТОР
+/* ДОБАВЛЕН�?Е КАРТ�?НК�? В РЕДАКТОР
 ____________________________________________________________*/
 .editor-insert-picture {
     width: 20px;
@@ -320,6 +320,22 @@ li.active.category-show {
     width: 234px;
 }
 
+.image-categories-nav-trigger {
+    font-size: 13px;
+    line-height: 12px;
+}
+.image-categories-nav-trigger .options-show {
+    display: inline-block;
+}
+.image-categories-nav-trigger .options-hide {
+    display: none;
+}
+.image-categories-nav-trigger.hidden-options .options-show {
+    display: none;
+}
+.image-categories-nav-trigger.hidden-options .options-hide {
+    display: inline-block;
+}
 
 .mce-snippets button>span {
     font-size: 18px !important;
