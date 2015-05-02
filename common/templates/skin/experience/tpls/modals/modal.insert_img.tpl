@@ -1,6 +1,14 @@
 <script>
     jQuery(function () {
-        jQuery('#js-alto-image-manager').altoImageManager(false);
+        jQuery('#js-alto-image-manager')
+                .altoImageManager(false)
+                .on('hidden.bs.modal', function () {
+                    $('#js-alto-image-manager')
+                            .find('select')
+                            .find(':first').attr("selected", "selected").end()
+                            .selecter("destroy")
+                            .selecter();
+                });
     });
 </script>
 <div id="js-alto-image-manager" class="modal fade in">
