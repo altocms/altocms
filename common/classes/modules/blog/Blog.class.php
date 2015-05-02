@@ -523,6 +523,12 @@ class ModuleBlog extends Module {
                         $oResource = array($oResource);
                         E::ModuleMresource()->UnlinkFile($sTargetType, 0, E::UserId());
                         E::ModuleMresource()->AddTargetRel($oResource, $sTargetType, $sTargetId);
+
+                        // 4. Обновим сведения об аватаре у блога для обеспечения обратной
+                        // совместимости. Могут быть плагины которые берут картинку непосредственно
+                        // из свойства блога, а не через модуль uploader
+                        $oBlog->setAvatar($oBlog->getAvatar());
+                        $this->UpdateBlog($oBlog);
                     }
                 }
             }
