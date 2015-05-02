@@ -131,14 +131,14 @@ class ActionAjax extends Action {
 
         // Страница загрузки картинки с компьютера
         if ($sCategory == 'insert-from-pc') {
-            $sImages = E::ModuleViewer()->Fetch('modals/insert_img/inject.pc.tpl');
+            $sImages = E::ModuleViewer()->GetLocalViewer()->Fetch('modals/insert_img/inject.pc.tpl');
             E::ModuleViewer()->AssignAjax('images', $sImages);
             return;
         }
 
         // Страница загрузки из интернета
         if ($sCategory == 'insert-from-link') {
-            $sImages = E::ModuleViewer()->Fetch("modals/insert_img/inject.link.tpl");
+            $sImages = E::ModuleViewer()->GetLocalViewer()->Fetch("modals/insert_img/inject.link.tpl");
             E::ModuleViewer()->AssignAjax('images', $sImages);
             return;
         }
@@ -320,13 +320,10 @@ class ActionAjax extends Action {
             $iPages = ceil($aResources['count'] / Config::Get('module.topic.images_per_page'));
         }
 
-
-
-
         $aTplVariables['aResources'] = $aResources['collection'];
 
         $sPath = getRequest('profile', FALSE) ? 'actions/profile/created_photos/' : 'modals/insert_img/';
-        $sImages = E::ModuleViewer()->Fetch($sPath . $sTemplateName, $aTplVariables);
+        $sImages = E::ModuleViewer()->GetLocalViewer()->Fetch($sPath . $sTemplateName, $aTplVariables);
 
         E::ModuleViewer()->AssignAjax('images', $sImages);
         E::ModuleViewer()->AssignAjax('category', $sCategory);
@@ -357,9 +354,9 @@ class ActionAjax extends Action {
 
         if ($iUserId) {
             $aVars = array('iUserId' => $iUserId);
-            $sCategories = E::ModuleViewer()->Fetch("{$sPath}inject.categories.tpl", $aVars);
+            $sCategories = E::ModuleViewer()->GetLocalViewer()->Fetch("{$sPath}inject.categories.tpl", $aVars);
         } else {
-            $sCategories = E::ModuleViewer()->Fetch( "{$sPath}inject.categories.tpl");
+            $sCategories = E::ModuleViewer()->GetLocalViewer()->Fetch( "{$sPath}inject.categories.tpl");
         }
 
         E::ModuleViewer()->AssignAjax('categories', $sCategories);
