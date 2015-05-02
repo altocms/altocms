@@ -2907,6 +2907,7 @@ div.pp_experience .pp_details {
 }
 div.pp_experience .pp_description {
   margin-right: 85px;
+  line-height: 28px;
 }
 div.pp_experience #pp_full_res .pp_inline {
   color: #000;
