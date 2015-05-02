@@ -1220,6 +1220,22 @@ ____________________________*/
 .form-control {
   box-shadow: none !important;
 }
+table.form-control {
+  table-layout: fixed;
+  line-height: 20px;
+}
+table.form-control .input-container {
+  width: 100%;
+}
+table.form-control .input-container input {
+  width: 100%;
+  border-bottom: 1px dotted #1c374c;
+  white-space: nowrap;
+  overflow: hidden;
+  position: relative;
+  text-overflow: ellipsis;
+  /* Градиент */
+}
 /** Цвет иконок
 ____________________________*/
 .input-group-addon .fa {

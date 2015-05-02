@@ -157,24 +157,24 @@
                         </div>
                     </div>
                 {else}
-    <script>
-        $(function(){
-            function resizeInput() {
-                $(this).attr('size', $(this).val().length-2);
-            }
+    {*<script>*}
+        {*$(function(){*}
+            {*function resizeInput() {*}
+                {*$(this).attr('size', $(this).val().length-2);*}
+            {*}*}
 
-            $('.auto-input')
-                    .keyup(resizeInput)
-                    .each(resizeInput);
-        })
-    </script>
+            {*$('.auto-input')*}
+                    {*.keyup(resizeInput)*}
+                    {*.each(resizeInput);*}
+        {*})*}
+    {*</script>*}
                     <div class="form-group has-feedback"">
                         <div class="input-group">
                             <span class="input-group-addon">{$aLang.topic_create_url}</span>
                             <table class="form-control">
                                 <tr>
                                     <td>{$aEditTopicUrl.before}</td>
-                                    <td><input class="auto-input" type="text" id="topic_url" name="topic_url" value="{$aEditTopicUrl.input}"  /></td>
+                                    <td class="input-container"><input class="auto-input" type="text" id="topic_url" name="topic_url" value="{$aEditTopicUrl.input}"  /></td>
                                     <td>{$aEditTopicUrl.after}</td>
                                 </tr>
                             </table>
