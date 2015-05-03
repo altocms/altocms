@@ -792,6 +792,8 @@ _________________________________________________________________*/
 }
 .panel .panel-footer,
 .panel .topic-footer {
+  background: #e6ebee;
+  padding: 0 20px;
   border-radius: 0;
   height: 40px;
   line-height: 40px;
@@ -811,9 +813,6 @@ _________________________________________________________________*/
 _________________________________________________________________*/
 .panel.widget {
   border-radius: 0;
-}
-.panel.widget * {
-  font-family: tahoma, verdana, arial, sans-serif;
 }
 .panel.widget * .fa {
   font-family: "FontAwesome", serif;
@@ -856,6 +855,7 @@ _________________________________________________________________*/
 .panel.widget .user-block img {
   border-radius: 16px;
   margin-top: 0;
+  margin-right: 6px;
 }
 .panel.widget .date-block {
   font-size: 13px;
@@ -1775,6 +1775,10 @@ fieldset[disabled] .btn-gray.active {
 .topic-text * {
   font-size: 13px;
 }
+.content .topic .topic-footer,
+.content .panel .panel-footer {
+  background: #e6ebee;
+}
 .content .topic .topic-footer ul,
 .content .panel .panel-footer ul {
   padding-right: 0;
@@ -1864,6 +1868,7 @@ fieldset[disabled] .btn-gray.active {
 }
 .topic-info ul li.topic-user img {
   border-radius: 16px;
+  margin-right: 6px;
 }
 .topic-info ul li.topic-user a {
   color: #ca6924;
@@ -1930,6 +1935,13 @@ fieldset[disabled] .btn-gray.active {
 .comment-reply * {
   white-space: normal;
 }
+.comment-self *,
+.comment-new * {
+  background-color: #FFFEF1;
+}
+.comment-current * {
+  background-color: #F9FFF4 !important;
+}
 .comment-tools {
   margin-bottom: 8px;
 }
@@ -1984,6 +1996,7 @@ fieldset[disabled] .btn-gray.active {
 }
 .comment-tools ul li.comment-user img {
   border-radius: 16px;
+  margin-right: 6px;
 }
 .comment-tools ul li.comment-user a {
   color: #ca6924;
@@ -2125,13 +2138,14 @@ fieldset[disabled] .btn-gray.active {
 /** САМЫЙ НИЖНИЙ ПОДВАЛ
 __________________________________________________*/
 .footer-2-container {
-  background-color: #d9d9d9;
+  background-color: #dae2e5;
 }
 .footer-2-container * {
   font-size: 13px !important;
 }
 .footer-2-container .left-copyright img {
-  top: 9px;
+  top: 6px;
+  max-height: 32px;
 }
 .footer-2-container .right-copyright span {
   margin-right: 0 !important;
@@ -2149,7 +2163,7 @@ __________________________________________________*/
   font-size: 18px !important;
 }
 .footer-container .footer ul.social-icons i {
-  font-size: 16px !important;
+  font-size: 24px !important;
 }
 .footer-container .footer .footer-column a {
   font-size: 13px !important;
