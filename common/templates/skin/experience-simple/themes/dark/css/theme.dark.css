@@ -1212,6 +1212,21 @@ _________________________________________________________________*/
 .toolbar-user > .popover .arrow::after {
   border-left-color: #e6ebee;
 }
+@media (max-width: 767px) {
+  .toolbar {
+    left: auto !important;
+    bottom: 40px !important;
+    right: 20px !important;
+    position: fixed;
+    height: 40px;
+    z-index: 9000;
+    top: auto !important;
+  }
+  .toolbar > div {
+    display: none;
+    opacity: .7;
+  }
+}
 input,
 textarea,
 .input-group-addon {
