@@ -684,8 +684,37 @@ _________________________________________________________________*/
 .panel.flat {
   position: relative;
 }
+.panel .panel-footer {
+  padding: 0 18px;
+}
+.panel .panel-footer ul {
+  padding-left: 0 !important;
+}
 .panel .panel-footer .btn-gray {
   vertical-align: bottom;
+}
+.panel .dual-footer {
+  position: relative;
+  height: auto !important;
+  min-height: 40px;
+}
+.panel .dual-footer ul.pull-right {
+  height: 40px !important;
+  position: absolute;
+  right: 0;
+}
+.panel .dual-footer ul.pull-right li {
+  margin: 0;
+  padding: 0 !important;
+  height: 40px;
+}
+.panel .dual-footer ul.pull-left {
+  margin-right: 120px;
+}
+.panel .dual-footer ul.pull-left li {
+  padding-left: 0 !important;
+  padding-right: 12px !important;
+  float: none;
 }
 .panel .panel-body {
   padding: 18px;
