@@ -448,14 +448,23 @@ class ModuleBlog_MapperBlog extends Mapper {
      */
     public function GetBlogsIdByOwnerId($iUserId) {
 
+        $aFilter = E::ModuleBlog()->GetNamedFilter('default');
+        $aFilter['user_id'] = intval($iUserId);
         $aCriteria = array(
-            'filter' => array(
-                'user_id'       => intval($iUserId),
-                'not_blog_type' => 'personal',
-            ),
+            'filter' => $aFilter,
         );
         $aResult = $this->GetBlogsIdByCriteria($aCriteria);
         return $aResult['data'];
+    }
+
+    /**
+     * @deprecated
+     *
+     * LS-compatibility
+     */
+    public function GetBlogs() {
+
+        return $this->GetBlogsId();
     }
 
     /**
@@ -463,12 +472,11 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @return  array
      */
-    public function GetBlogs() {
+    public function GetBlogsId() {
 
+        $aFilter = E::ModuleBlog()->GetNamedFilter('default');
         $aCriteria = array(
-            'filter' => array(
-                'not_blog_type' => 'personal',
-            ),
+            'filter' => $aFilter,
         );
         $aResult = $this->GetBlogsIdByCriteria($aCriteria);
         return $aResult['data'];
@@ -517,10 +525,9 @@ class ModuleBlog_MapperBlog extends Mapper {
      */
     public function GetBlogsRating(&$iCount, $iCurrPage, $iPerPage) {
 
+        $aFilter = E::ModuleBlog()->GetNamedFilter('default');
         $aCriteria = array(
-            'filter' => array(
-                'not_blog_type' => 'personal',
-            ),
+            'filter' => $aFilter,
             'order'  => array(
                 'blog_rating' => 'DESC',
             ),
@@ -708,13 +715,19 @@ class ModuleBlog_MapperBlog extends Mapper {
      *
      * @return array
      */
-    public function GetBlogsIdByFilterPerPage($aFilter, $aOrder, &$iCount, $iCurrPage, $iPerPage) {
+    public function GetBlogsIdByFilterPerPage($aFilter, $aOrder, &$iCount, $iCurrPage = null, $iPerPage = null) {
 
         $aCriteria = array(
             'filter' => array(),
             'order'  => array(),
-            'limit'  => array(($iCurrPage - 1) * $iPerPage, $iPerPage),
         );
+        if (!is_null($iPerPage)) {
+            $iCurrPage = intval($iCurrPage);
+            if ($iCurrPage < 1) {
+                $iCurrPage = 1;
+            }
+            $aCriteria['limit'] = array(($iCurrPage - 1) * $iPerPage, $iPerPage);
+        }
 
         if (isset($aFilter['type']) && !isset($aFilter['include_type'])) {
             $aCriteria['filter']['blog_type'] = $aFilter['type'];

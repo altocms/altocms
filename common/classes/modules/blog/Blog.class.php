@@ -73,6 +73,8 @@ class ModuleBlog extends Module {
 
     protected $aAdditionalData = array('vote', 'owner' => array(), 'relation_user', 'media');
 
+    protected $aBlogsFilter = array('exclude_type' => 'personal');
+
     /**
      * Инициализация
      *
@@ -925,19 +927,43 @@ class ModuleBlog extends Module {
         return array();
     }
 
+    public function SetBlogsFilter($aFilter) {
+
+        $this->aBlogsFilter = $aFilter;
+    }
+
+    public function GetBlogsFilter() {
+
+        return $this->aBlogsFilter;
+    }
+
     /**
      * Возвращает список блогов по фильтру
      *
      * @param array $aFilter    Фильтр выборки блогов
-     * @param array $aOrder     Сортировка блогов
      * @param int   $iPage      Номер текущей страницы
      * @param int   $iPerPage   Количество элементов на одну страницу
      * @param array $aAllowData Список типов данных, которые нужно подтянуть к списку блогов
      *
      * @return array('collection'=>array,'count'=>int)
+     *
+     * Old interface: GetBlogsByFilter($aFilter, $aOrder, $iPage, $iPerPage, $aAllowData = null)
      */
-    public function GetBlogsByFilter($aFilter, $aOrder, $iPage, $iPerPage, $aAllowData = null) {
+    public function GetBlogsByFilter($aFilter, $iPage, $iPerPage, $aAllowData = null) {
 
+        // Old interface compatibility
+        if (!isset($aFilter['order']) && is_numeric($iPerPage) && is_numeric($aAllowData)) {
+            $aOrder = $iPage;
+            $iPage = $iPerPage;
+            $iPerPage = $aAllowData;
+            if (func_num_args() == 5) {
+                $aAllowData = func_get_arg(4);
+            } else {
+                $aAllowData = null;
+            }
+        } else {
+            $aOrder = (isset($aFilter['order']) ? (array)$aFilter['order'] : array());
+        }
         if (is_null($aAllowData)) {
             $aAllowData = array('owner' => array(), 'relation_user');
         }
@@ -956,6 +982,35 @@ class ModuleBlog extends Module {
     }
 
     /**
+     * Return filter for blog list by name and params
+     *
+     * @param string $sFilterName
+     * @param array  $aParams
+     *
+     * @return array
+     */
+    public function GetNamedFilter($sFilterName, $aParams = array()) {
+
+        $aFilter = $this->GetBlogsFilter();
+        $aFilter['include_type'] = $this->GetAllowBlogTypes(E::User(), 'list', true);
+        switch ($sFilterName) {
+            case 'top':
+                $aFilter['order'] = array('blog_rating' => 'desc');
+                break;
+            default:
+                break;
+        }
+        if (!empty($aParams['exclude_type'])) {
+            $aFilter['exclude_type'] = $aParams['exclude_type'];
+        }
+        if (!empty($aParams['owner_id'])) {
+            $aFilter['user_owner_id'] = $aParams['owner_id'];
+        }
+
+        return $aFilter;
+    }
+
+    /**
      * Получает список блогов по рейтингу
      *
      * @param int $iPage       Номер текущей страницы
@@ -965,12 +1020,8 @@ class ModuleBlog extends Module {
      */
     public function GetBlogsRating($iPage, $iPerPage) {
 
-        return $this->GetBlogsByFilter(
-            array('include_type' => $this->GetAllowBlogTypes($this->oUserCurrent, 'list', true)),
-            array('blog_rating' => 'desc'),
-            $iPage,
-            $iPerPage
-        );
+        $aFilter = $this->GetNamedFilter('top');
+        return $this->GetBlogsByFilter($aFilter, $iPage, $iPerPage);
     }
 
     /**
@@ -1001,10 +1052,9 @@ class ModuleBlog extends Module {
      */
     public function GetBlogsRatingSelf($iUserId, $iLimit) {
 
-        $aResult = $this->GetBlogsByFilter(
-            array('exclude_type' => 'personal', 'user_owner_id' => $iUserId),
-            array('blog_rating' => 'desc'), 1, $iLimit
-        );
+        $aFilter = $this->GetNamedFilter('top', array('owner_id' => $iUserId));
+        $aResult = $this->GetBlogsByFilter($aFilter, 1, $iLimit);
+
         return $aResult['collection'];
     }
 
