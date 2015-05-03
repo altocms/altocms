@@ -70,6 +70,8 @@ class ModuleTopic extends Module {
 
     protected $aAdditionalDataContentType = array('fields' => array());
 
+    protected $aTopicsFilter = array('topic_publish' => 1);
+
     /**
      * Инициализация
      *
@@ -1310,37 +1312,119 @@ class ModuleTopic extends Module {
         );
     }
 
+    public function SetTopicsFilter($aFilter) {
+
+        $this->aTopicsFilter = $aFilter;
+    }
+
+    public function GetTopicsFilter() {
+
+        return $this->aTopicsFilter;
+    }
+
     /**
-     * Получает список хороших топиков для вывода на главную страницу(из всех блогов, как коллективных так и персональных)
+     * Return filter for topic list by name and params
+     *
+     * @param string $sFilterName
+     * @param array  $aParams
+     *
+     * @return array
+     */
+    public function GetNamedFilter($sFilterName, $aParams = array()) {
+
+        $aFilter = $this->GetTopicsFilter();
+        switch ($sFilterName) {
+            case 'good': // Filter for good topics
+                $aFilter['topic_rating']  = array(
+                        'value'         => empty($aParams['rating']) ? 0 : intval($aParams['rating']),
+                        'type'          => 'top',
+                        'publish_index' => 1,
+                    );
+                break;
+            case 'bad': // Filter for good topics
+                $aFilter['topic_rating']  = array(
+                        'value'         => empty($aParams['rating']) ? 0 : intval($aParams['rating']),
+                        'type'          => 'down',
+                        'publish_index' => 1,
+                    );
+                break;
+            case 'new': // Filter for new topics
+                $sDate = date('Y-m-d H:00:00', time() - Config::Get('module.topic.new_time'));
+                $aFilter['topic_new'] = $sDate;
+                break;
+            case 'new_all': // Filter for ALL new topics
+                // Nothing others
+                break;
+            case 'discussed': //
+                if (!empty($aParams['period'])) {
+                    if (is_numeric($aParams['period'])) {
+                        // количество последних секунд
+                        $sPeriod = date('Y-m-d H:00:00', time() - intval($aParams['period']));
+                    } else {
+                        $sPeriod = $aParams['period'];
+                    }
+                    $aFilter['topic_date_more'] = $sPeriod;
+                }
+                $aFilter['order'] = array('t.topic_count_comment DESC', 't.topic_date_show DESC', 't.topic_id DESC');
+                break;
+            case 'top':
+                if (!empty($aParams['period'])) {
+                    if (is_numeric($aParams['period'])) {
+                        // количество последних секунд
+                        $sPeriod = date('Y-m-d H:00:00', time() - intval($aParams['period']));
+                    } else {
+                        $sPeriod = $aParams['period'];
+                    }
+                    $aFilter['topic_date_more'] = $sPeriod;
+                }
+                $aFilter['order'] = array('t.topic_rating DESC', 't.topic_date_show DESC', 't.topic_id DESC');
+                break;
+            default:
+                // Nothing others
+        }
+
+        if (!empty($aParams['blog_id'])) {
+            $aFilter['blog_id'] = intval($aParams['blog_id']);
+        } else {
+            $aFilter['blog_type'] = empty($aParams['personal']) ? E::ModuleBlog()->GetOpenBlogTypes() : 'personal';
+
+            // If a user is authorized then adds blogs on which it is subscribed
+            if (E::IsUser() && !empty($aParams['accessible']) && empty($aParams['personal'])) {
+                $aOpenBlogs = E::ModuleBlog()->GetAccessibleBlogsByUser(E::User());
+                if (count($aOpenBlogs)) {
+                    $aFilter['blog_type']['*'] = $aOpenBlogs;
+                }
+            }
+        }
+        if (isset($aParams['personal']) && $aParams['personal'] === false && $aFilter['blog_type'] && is_array($aFilter['blog_type'])) {
+            if (false !== ($iKey = array_search('personal', $aFilter['blog_type']))) {
+                unset($aFilter['blog_type'][$iKey]);
+            }
+        }
+        if (!empty($aParams['topic_type'])) {
+            $aFilter['topic_type'] = $aParams['topic_type'];
+        }
+        if (!empty($aParams['user_id'])) {
+            $aFilter['user_id'] = $aParams['user_id'];
+        }
+
+        return $aFilter;
+    }
+
+    /**
+     * Получает список хороших топиков для вывода на главную страницу (из всех блогов, как коллективных так и персональных)
      *
      * @param  int  $iPage          Номер страницы
      * @param  int  $iPerPage       Количество элементов на страницу
      * @param  bool $bAddAccessible Указывает на необходимость добавить в выдачу топики,
-     *                                из блогов доступных пользователю. При указании false,
-     *                                в выдачу будут переданы только топики из общедоступных блогов.
+     *                              из блогов доступных пользователю. При указании false,
+     *                              в выдачу будут переданы только топики из общедоступных блогов.
      *
      * @return array
      */
     public function GetTopicsGood($iPage, $iPerPage, $bAddAccessible = true) {
 
-        $aFilter = array(
-            'blog_type'     => E::ModuleBlog()->GetOpenBlogTypes(),
-            'topic_publish' => 1,
-            'topic_rating'  => array(
-                'value'         => Config::Get('module.blog.index_good'),
-                'type'          => 'top',
-                'publish_index' => 1,
-            )
-        );
-
-        // If a user is authorized then adds blogs on which it is subscribed
-        if ($this->oUserCurrent && $bAddAccessible) {
-            $aOpenBlogs = E::ModuleBlog()->GetAccessibleBlogsByUser($this->oUserCurrent);
-            if (count($aOpenBlogs)) {
-                $aFilter['blog_type']['*'] = $aOpenBlogs;
-            }
-        }
-
+        $aFilter = $this->GetNamedFilter('good', array('accessible' => $bAddAccessible, 'rating' => Config::Get('module.blog.index_good')));
         return $this->GetTopicsByFilter($aFilter, $iPage, $iPerPage);
     }
 
@@ -1350,27 +1434,14 @@ class ModuleTopic extends Module {
      * @param  int  $iPage          Номер страницы
      * @param  int  $iPerPage       Количество элементов на страницу
      * @param  bool $bAddAccessible Указывает на необходимость добавить в выдачу топики,
-     *                                из блогов доступных пользователю. При указании false,
-     *                                в выдачу будут переданы только топики из общедоступных блогов.
+     *                              из блогов доступных пользователю. При указании false,
+     *                              в выдачу будут переданы только топики из общедоступных блогов.
      *
      * @return array
      */
     public function GetTopicsNew($iPage, $iPerPage, $bAddAccessible = true) {
 
-        $sDate = date('Y-m-d H:00:00', time() - Config::Get('module.topic.new_time'));
-        $aFilter = array(
-            'blog_type'     => E::ModuleBlog()->GetOpenBlogTypes(),
-            'topic_publish' => 1,
-            'topic_new'     => $sDate,
-        );
-
-        // If a user is authorized then adds blogs on which it is subscribed
-        if ($this->oUserCurrent && $bAddAccessible) {
-            $aOpenBlogs = E::ModuleBlog()->GetAccessibleBlogsByUser($this->oUserCurrent);
-            if (count($aOpenBlogs)) {
-                $aFilter['blog_type']['*'] = $aOpenBlogs;
-            }
-        }
+        $aFilter = $this->GetNamedFilter('new', array('accessible' => $bAddAccessible));
         return $this->GetTopicsByFilter($aFilter, $iPage, $iPerPage);
     }
 
@@ -1380,25 +1451,14 @@ class ModuleTopic extends Module {
      * @param  int  $iPage          Номер страницы
      * @param  int  $iPerPage       Количество элементов на страницу
      * @param  bool $bAddAccessible Указывает на необходимость добавить в выдачу топики,
-     *                                из блогов доступных пользователю. При указании false,
-     *                                в выдачу будут переданы только топики из общедоступных блогов.
+     *                              из блогов доступных пользователю. При указании false,
+     *                              в выдачу будут переданы только топики из общедоступных блогов.
      *
      * @return array
      */
     public function GetTopicsNewAll($iPage, $iPerPage, $bAddAccessible = true) {
 
-        $aFilter = array(
-            'blog_type'     => E::ModuleBlog()->GetOpenBlogTypes(),
-            'topic_publish' => 1,
-        );
-
-        // If a user is authorized then adds blogs on which it is subscribed
-        if ($this->oUserCurrent && $bAddAccessible) {
-            $aSubscribedBlogs = E::ModuleBlog()->GetAccessibleBlogsByUser($this->oUserCurrent);
-            if (count($aSubscribedBlogs)) {
-                $aFilter['blog_type']['*'] = $aSubscribedBlogs;
-            }
-        }
+        $aFilter = $this->GetNamedFilter('new_all', array('accessible' => $bAddAccessible));
         return $this->GetTopicsByFilter($aFilter, $iPage, $iPerPage);
     }
 
@@ -1409,34 +1469,14 @@ class ModuleTopic extends Module {
      * @param  int        $iPerPage       Количество элементов на страницу
      * @param  int|string $sPeriod        Период в виде секунд или конкретной даты
      * @param  bool       $bAddAccessible Указывает на необходимость добавить в выдачу топики,
-     *                                из блогов доступных пользователю. При указании false,
-     *                                в выдачу будут переданы только топики из общедоступных блогов.
+     *                                    из блогов доступных пользователю. При указании false,
+     *                                    в выдачу будут переданы только топики из общедоступных блогов.
      *
      * @return array
      */
     public function GetTopicsDiscussed($iPage, $iPerPage, $sPeriod = null, $bAddAccessible = true) {
 
-        if (is_numeric($sPeriod)) {
-            // количество последних секунд
-            $sPeriod = date('Y-m-d H:00:00', time() - $sPeriod);
-        }
-
-        $aFilter = array(
-            'blog_type'     => E::ModuleBlog()->GetOpenBlogTypes(),
-            'topic_publish' => 1
-        );
-        if ($sPeriod) {
-            $aFilter['topic_date_more'] = $sPeriod;
-        }
-        $aFilter['order'] = array('t.topic_count_comment DESC', 't.topic_date_show DESC', 't.topic_id DESC');
-
-        // If a user is authorized then adds blogs on which it is subscribed
-        if ($this->oUserCurrent && $bAddAccessible) {
-            $aOpenBlogs = E::ModuleBlog()->GetAccessibleBlogsByUser($this->oUserCurrent);
-            if (count($aOpenBlogs)) {
-                $aFilter['blog_type']['*'] = $aOpenBlogs;
-            }
-        }
+        $aFilter = $this->GetNamedFilter('discussed', array('period' => $sPeriod, 'accessible' => $bAddAccessible));
         return $this->GetTopicsByFilter($aFilter, $iPage, $iPerPage);
     }
 
@@ -1447,34 +1487,14 @@ class ModuleTopic extends Module {
      * @param  int        $iPerPage       Количество элементов на страницу
      * @param  int|string $sPeriod        Период в виде секунд или конкретной даты
      * @param  bool       $bAddAccessible Указывает на необходимость добавить в выдачу топики,
-     *                                из блогов доступных пользователю. При указании false,
-     *                                в выдачу будут переданы только топики из общедоступных блогов.
+     *                                    из блогов доступных пользователю. При указании false,
+     *                                    в выдачу будут переданы только топики из общедоступных блогов.
      *
      * @return array
      */
     public function GetTopicsTop($iPage, $iPerPage, $sPeriod = null, $bAddAccessible = true) {
 
-        if (is_numeric($sPeriod)) {
-            // количество последних секунд
-            $sPeriod = date('Y-m-d H:00:00', time() - $sPeriod);
-        }
-
-        $aFilter = array(
-            'blog_type'     => E::ModuleBlog()->GetOpenBlogTypes(),
-            'topic_publish' => 1
-        );
-        if ($sPeriod) {
-            $aFilter['topic_date_more'] = $sPeriod;
-        }
-        $aFilter['order'] = array('t.topic_rating DESC', 't.topic_date_show DESC', 't.topic_id DESC');
-
-        // If a user is authorized then adds blogs on which it is subscribed
-        if ($this->oUserCurrent && $bAddAccessible) {
-            $aOpenBlogs = E::ModuleBlog()->GetAccessibleBlogsByUser($this->oUserCurrent);
-            if (count($aOpenBlogs)) {
-                $aFilter['blog_type']['*'] = $aOpenBlogs;
-            }
-        }
+        $aFilter = $this->GetNamedFilter('top', array('period' => $sPeriod, 'accessible' => $bAddAccessible));
         return $this->GetTopicsByFilter($aFilter, $iPage, $iPerPage);
     }
 
@@ -1487,49 +1507,8 @@ class ModuleTopic extends Module {
      */
     public function GetTopicsLast($nCount) {
 
-        $aOpenBlogTypes = E::ModuleBlog()->GetOpenBlogTypes();
-        $aFilter = array(
-            'blog_type'     => $aOpenBlogTypes,
-            'topic_publish' => 1,
-        );
-        $aOpenTopics = $this->GetTopicsByFilter($aFilter, 1, $nCount);
-        /**
-         * Если пользователь авторизирован, то добавляем в выдачу
-         * закрытые блоги в которых он состоит
-         */
-        $aCloseTopics = array();
-        if ($this->oUserCurrent) {
-            $aBlogsId = E::ModuleBlog()->GetAccessibleBlogsByUser($this->oUserCurrent);
-            if (count($aBlogsId)) {
-                $aFilter = array(
-                    'blog_id'     => $aBlogsId,
-                    'topic_publish' => 1,
-                );
-                $aCloseTopics = $this->GetTopicsByFilter($aFilter, 1, $nCount);
-            }
-        }
-        $aResult = array();
-        if (isset($aOpenTopics['collection'])) {
-            $aResult = $aOpenTopics['collection'];
-        }
-        if (isset($aCloseTopics['collection'])) {
-            $aResult = F::Array_Merge($aResult, $aCloseTopics['collection']);
-        }
-        if ($aResult) {
-            uasort($aResult, array($this, '_compareByDate'));
-            if (sizeof($aResult) > $nCount) {
-                $aResult = array_slice($aResult, 0, $nCount, true);
-            }
-        }
-        return $aResult;
-    }
-
-    public function _compareByDate($oTopics1, $oTopic2) {
-
-        if ($oTopics1->getDate() == $oTopic2->getDate()) {
-            return ($oTopics1->getId() > $oTopic2->getId()) ? -1 : 1;
-        }
-        return ($oTopics1->getDate() > $oTopic2->getDate()) ? -1 : 1;
+        $aFilter = $this->GetNamedFilter('default', array('accessible' => true));
+        return $this->GetTopicsByFilter($aFilter, 1, $nCount);
     }
 
     /**
@@ -1544,45 +1523,27 @@ class ModuleTopic extends Module {
      */
     public function GetTopicsPersonal($iPage, $iPerPage, $sShowType = 'good', $sPeriod = null) {
 
-        if (is_numeric($sPeriod)) {
-            // количество последних секунд
-            $sPeriod = date('Y-m-d H:00:00', time() - $sPeriod);
-        }
-        $aFilter = array(
-            'blog_type'     => array(
-                'personal',
-            ),
-            'topic_publish' => 1,
-        );
-        if ($sPeriod) {
-            $aFilter['topic_date_more'] = $sPeriod;
-        }
         switch ($sShowType) {
             case 'good':
-                $aFilter['topic_rating'] = array(
-                    'value' => Config::Get('module.blog.personal_good'),
-                    'type'  => 'top',
-                );
+                $aFilter = $this->GetNamedFilter('good', array('personal' => true, 'rating' => Config::Get('module.blog.personal_good'), 'period' => $sPeriod));
                 break;
             case 'bad':
-                $aFilter['topic_rating'] = array(
-                    'value' => Config::Get('module.blog.personal_good'),
-                    'type'  => 'down',
-                );
+                $aFilter = $this->GetNamedFilter('bad', array('personal' => true, 'rating' => Config::Get('module.blog.personal_good'), 'period' => $sPeriod));
                 break;
             case 'new':
-                $aFilter['topic_new'] = date('Y-m-d H:00:00', time() - Config::Get('module.topic.new_time'));
+                $aFilter = $this->GetNamedFilter('new', array('personal' => true, 'period' => $sPeriod));
                 break;
             case 'newall':
-                // нет доп фильтра
+                $aFilter = $this->GetNamedFilter('new_all', array('personal' => true, 'period' => $sPeriod));
                 break;
             case 'discussed':
-                $aFilter['order'] = array('t.topic_count_comment DESC', 't.topic_date_show DESC', 't.topic_id DESC');
+                $aFilter = $this->GetNamedFilter('discussed', array('personal' => true, 'period' => $sPeriod));
                 break;
             case 'top':
-                $aFilter['order'] = array('t.topic_rating DESC', 't.topic_date_show DESC', 't.topic_id DESC');
+                $aFilter = $this->GetNamedFilter('top', array('personal' => true, 'period' => $sPeriod));
                 break;
             default:
+                $aFilter = $this->GetNamedFilter('default', array('personal' => true, 'period' => $sPeriod));
                 break;
         }
         return $this->GetTopicsByFilter($aFilter, $iPage, $iPerPage);
@@ -1595,68 +1556,47 @@ class ModuleTopic extends Module {
      */
     public function GetCountTopicsPersonalNew() {
 
-        $sDate = date('Y-m-d H:00:00', time() - Config::Get('module.topic.new_time'));
-        $aFilter = array(
-            'blog_type'     => array(
-                'personal',
-            ),
-            'topic_publish' => 1,
-            'topic_new'     => $sDate,
-        );
+        $aFilter = $this->GetNamedFilter('new', array('personal' => true));
         return $this->GetCountTopicsByFilter($aFilter);
     }
 
     /**
      * Получает список топиков по юзеру
      *
-     * @param int $nUserId     ID пользователя
-     * @param int $iPublish    Флаг публикации топика
-     * @param int $iPage       Номер страницы
-     * @param int $iPerPage    Количество элементов на страницу
+     * @param int|object $xUser Пользователь
+     * @param int $bPublished   Флаг публикации топика
+     * @param int $iPage        Номер страницы
+     * @param int $iPerPage     Количество элементов на страницу
      *
      * @return array
      */
-    public function GetTopicsPersonalByUser($nUserId, $iPublish, $iPage, $iPerPage) {
+    public function GetTopicsPersonalByUser($xUser, $bPublished, $iPage, $iPerPage) {
 
-        $aFilter = array(
-            'topic_publish' => $iPublish,
-            'user_id'       => $nUserId,
-        );
+        $iUserId = (is_object($xUser) ? $xUser->getId() : intval($xUser));
+        $aFilter = $this->GetNamedFilter('default', array('user_id' => $iUserId));
+        $aFilter['topic_publish'] = ($bPublished ? 1 : 0);
 
-        // Если запрос от постороннего юзера, то смотрим только открытые типы
-        if (!E::IsUser() || E::UserId() != $nUserId) {
-            $aFilter['blog_type'] = E::ModuleBlog()->GetOpenBlogTypes();
-        }
         return $this->GetTopicsByFilter($aFilter, $iPage, $iPerPage);
     }
 
     /**
      * Возвращает количество топиков которые создал юзер
      *
-     * @param int  $nUserId     ID пользователя
-     * @param bool $bPublish    Флаг публикации топика
+     * @param int|object $xUser Пользователь
+     * @param bool $bPublished  Флаг публикации топика
      *
      * @return array
      */
-    public function GetCountTopicsPersonalByUser($nUserId, $bPublish) {
+    public function GetCountTopicsPersonalByUser($xUser, $bPublished) {
 
-        $aFilter = array(
-            'topic_publish' => $bPublish ? 1 : 0,
-            'user_id'       => $nUserId,
-            'blog_type'     => E::ModuleBlog()->GetOpenBlogTypes(),
-        );
-        /**
-         * Если пользователь смотрит свой профиль, то добавляем в выдачу
-         * закрытые блоги в которых он состоит
-         */
-        if ($this->oUserCurrent && $this->oUserCurrent->getId() == $nUserId) {
-            $aFilter['blog_type'][] = 'close';
-        }
+        $iUserId = (is_object($xUser) ? $xUser->getId() : intval($xUser));
+        $aFilter = $this->GetNamedFilter('default', array('user_id' => $iUserId));
+        $aFilter['topic_publish'] = ($bPublished ? 1 : 0);
 
         $sCacheKey = 'topic_count_user_' . serialize($aFilter);
         if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
             $data = $this->oMapper->GetCountTopics($aFilter);
-            E::ModuleCache()->Set($data, $sCacheKey, array("topic_update_user_{$nUserId}"), 'P1D');
+            E::ModuleCache()->Set($data, $sCacheKey, array("topic_update_user_{$iUserId}"), 'P1D');
         }
         return $data;
     }
@@ -1697,59 +1637,30 @@ class ModuleTopic extends Module {
      */
     public function GetTopicsCollective($iPage, $iPerPage, $sShowType = 'good', $sPeriod = null) {
 
-        if (is_numeric($sPeriod)) {
-            // количество последних секунд
-            $sPeriod = date('Y-m-d H:00:00', time() - $sPeriod);
-        }
-        $aOpenBlogTypes = E::ModuleBlog()->GetOpenBlogTypes();
-        if (false !== ($nKey = array_search('personal', $aOpenBlogTypes))) {
-            unset($aOpenBlogTypes[$nKey]);
-        }
-        $aFilter = array(
-            'blog_type'     => $aOpenBlogTypes,
-            'topic_publish' => 1,
-        );
-        if ($sPeriod) {
-            $aFilter['topic_date_more'] = $sPeriod;
-        }
         switch ($sShowType) {
             case 'good':
-                $aFilter['topic_rating'] = array(
-                    'value' => Config::Get('module.blog.collective_good'),
-                    'type'  => 'top',
-                );
+                $aFilter = $this->GetNamedFilter('good', array('accessible' => true, 'personal' => false, 'rating' => Config::Get('module.blog.collective_good'), 'period' => $sPeriod));
                 break;
             case 'bad':
-                $aFilter['topic_rating'] = array(
-                    'value' => Config::Get('module.blog.collective_good'),
-                    'type'  => 'down',
-                );
+                $aFilter = $this->GetNamedFilter('bad', array('accessible' => true, 'personal' => false, 'rating' => Config::Get('module.blog.collective_good'), 'period' => $sPeriod));
                 break;
             case 'new':
-                $aFilter['topic_new'] = date('Y-m-d H:00:00', time() - Config::Get('module.topic.new_time'));
+                $aFilter = $this->GetNamedFilter('new', array('accessible' => true, 'personal' => false, 'period' => $sPeriod));
                 break;
             case 'newall':
-                // нет доп фильтра
+                $aFilter = $this->GetNamedFilter('new_all', array('accessible' => true, 'personal' => false, 'period' => $sPeriod));
                 break;
             case 'discussed':
-                $aFilter['order'] = array('t.topic_count_comment DESC', 't.topic_date_show DESC', 't.topic_id DESC');
+                $aFilter = $this->GetNamedFilter('discussed', array('accessible' => true, 'personal' => false, 'period' => $sPeriod));
                 break;
             case 'top':
-                $aFilter['order'] = array('t.topic_rating DESC', 't.topic_date_show DESC', 't.topic_id DESC');
+                $aFilter = $this->GetNamedFilter('top', array('accessible' => true, 'personal' => false, 'period' => $sPeriod));
                 break;
             default:
+                $aFilter = $this->GetNamedFilter('default', array('accessible' => true, 'personal' => false, 'period' => $sPeriod));
                 break;
         }
-        /**
-         * Если пользователь авторизирован, то добавляем в выдачу
-         * закрытые блоги в которых он состоит
-         */
-        if ($this->oUserCurrent) {
-            $aOpenBlogs = E::ModuleBlog()->GetAccessibleBlogsByUser($this->oUserCurrent);
-            if (count($aOpenBlogs)) {
-                $aFilter['blog_type']['*'] = $aOpenBlogs;
-            }
-        }
+
         return $this->GetTopicsByFilter($aFilter, $iPage, $iPerPage);
     }
 
@@ -1760,26 +1671,7 @@ class ModuleTopic extends Module {
      */
     public function GetCountTopicsCollectiveNew() {
 
-        $sDate = date('Y-m-d H:00:00', time() - Config::Get('module.topic.new_time'));
-        $aOpenBlogTypes = E::ModuleBlog()->GetOpenBlogTypes();
-        if (false !== ($nKey = array_search('personal', $aOpenBlogTypes))) {
-            unset($aOpenBlogTypes[$nKey]);
-        }
-        $aFilter = array(
-            'blog_type'     => $aOpenBlogTypes,
-            'topic_publish' => 1,
-            'topic_new'     => $sDate,
-        );
-        /**
-         * Если пользователь авторизирован, то добавляем в выдачу
-         * закрытые блоги в которых он состоит
-         */
-        if ($this->oUserCurrent) {
-            $aOpenBlogs = E::ModuleBlog()->GetAccessibleBlogsByUser($this->oUserCurrent);
-            if (count($aOpenBlogs)) {
-                $aFilter['blog_type']['*'] = $aOpenBlogs;
-            }
-        }
+        $aFilter = $this->GetNamedFilter('new', array('accessible' => true, 'personal' => false));
         return $this->GetCountTopicsByFilter($aFilter);
     }
 
@@ -1823,43 +1715,28 @@ class ModuleTopic extends Module {
      */
     public function GetTopicsByBlog($oBlog, $iPage, $iPerPage, $sShowType = 'good', $sPeriod = null) {
 
-        if (is_numeric($sPeriod)) {
-            // количество последних секунд
-            $sPeriod = date('Y-m-d H:00:00', time() - $sPeriod);
-        }
-        $aFilter = array(
-            'topic_publish' => 1,
-            'blog_id'       => $oBlog->getId(),
-        );
-        if ($sPeriod) {
-            $aFilter['topic_date_more'] = $sPeriod;
-        }
+        $iBlogId = (is_object($oBlog) ? $oBlog->getId() : intval($oBlog));
         switch ($sShowType) {
             case 'good':
-                $aFilter['topic_rating'] = array(
-                    'value' => Config::Get('module.blog.collective_good'),
-                    'type'  => 'top',
-                );
+                $aFilter = $this->GetNamedFilter('good', array('blog_id' => $iBlogId, 'rating' => Config::Get('module.blog.collective_good'), 'period' => $sPeriod));
                 break;
             case 'bad':
-                $aFilter['topic_rating'] = array(
-                    'value' => Config::Get('module.blog.collective_good'),
-                    'type'  => 'down',
-                );
+                $aFilter = $this->GetNamedFilter('bad', array('blog_id' => $iBlogId, 'rating' => Config::Get('module.blog.collective_good'), 'period' => $sPeriod));
                 break;
             case 'new':
-                $aFilter['topic_new'] = date('Y-m-d H:00:00', time() - Config::Get('module.topic.new_time'));
+                $aFilter = $this->GetNamedFilter('new', array('blog_id' => $iBlogId, 'period' => $sPeriod));
                 break;
             case 'newall':
-                // нет доп фильтра
+                $aFilter = $this->GetNamedFilter('new_all', array('blog_id' => $iBlogId, 'period' => $sPeriod));
                 break;
             case 'discussed':
-                $aFilter['order'] = array('t.topic_count_comment DESC', 't.topic_date_show DESC', 't.topic_id DESC');
+                $aFilter = $this->GetNamedFilter('discussed', array('blog_id' => $iBlogId, 'period' => $sPeriod));
                 break;
             case 'top':
-                $aFilter['order'] = array('t.topic_rating DESC', 't.topic_date_show DESC', 't.topic_id DESC');
+                $aFilter = $this->GetNamedFilter('top', array('blog_id' => $iBlogId, 'period' => $sPeriod));
                 break;
             default:
+                $aFilter = $this->GetNamedFilter('default', array('blog_id' => $iBlogId, 'period' => $sPeriod));
                 break;
         }
         return $this->GetTopicsByFilter($aFilter, $iPage, $iPerPage);
@@ -1874,13 +1751,8 @@ class ModuleTopic extends Module {
      */
     public function GetCountTopicsByBlogNew($oBlog) {
 
-        $sDate = date('Y-m-d H:00:00', time() - Config::Get('module.topic.new_time'));
-        $aFilter = array(
-            'topic_publish' => 1,
-            'blog_id'       => $oBlog->getId(),
-            'topic_new'     => $sDate,
-
-        );
+        $iBlogId = (is_object($oBlog) ? $oBlog->getId() : intval($oBlog));
+        $aFilter = $this->GetNamedFilter('new', array('blog_id' => $iBlogId));
         return $this->GetCountTopicsByFilter($aFilter);
     }
 
@@ -1930,20 +1802,7 @@ class ModuleTopic extends Module {
      */
     public function GetTopicsByType($iPage, $iPerPage, $sType, $bAddAccessible = true) {
 
-        $aTypes = E::ModuleBlog()->GetAllowBlogTypes($this->oUserCurrent, 'list', true);
-        $aFilter = array(
-            'blog_type'     => $aTypes,
-            'topic_publish' => 1,
-            'topic_type'    => $sType
-        );
-
-        // If a user is authorized then adds blogs on which it is subscribed
-        if ($this->oUserCurrent && $bAddAccessible) {
-            $aOpenBlogs = E::ModuleBlog()->GetAccessibleBlogsByUser($this->oUserCurrent);
-            if (count($aOpenBlogs)) {
-                $aFilter['blog_type']['*'] = $aOpenBlogs;
-            }
-        }
+        $aFilter = $this->GetNamedFilter('default', array('accessible' => $bAddAccessible, 'topic_type' => $sType));
         return $this->GetTopicsByFilter($aFilter, $iPage, $iPerPage);
     }
 
