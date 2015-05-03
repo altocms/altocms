@@ -79,7 +79,7 @@ if (E::IsUser()) {
             'userbar' => array(
                 'text'    => array(
                     'user_name' => array(),
-                    'new_talk'  => array($sTemplate = '<span class="badge badge-danger badge-mail-counter">+{{new_talk_count}}</span>'),
+                    'count_messages'  => array($sTemplate = '<span class="badge badge-danger badge-mail-counter">+{{count_messages}}</span>'),
                     '&nbsp;<span class="caret"></span>'
                 ),
                 'options' => array(
@@ -116,7 +116,7 @@ if (E::IsUser()) {
             'userbar' => array(
                 'text'    => array(
                     'user_name' => array(),
-                    'new_talk'  => array('<span class="badge badge-danger badge-mail-counter">+{{new_talk_count}}</span>'),
+                    'count_messages'  => array('<span class="badge badge-danger badge-mail-counter">+{{count_messages}}</span>'),
                 ),
                 'link' => E::User()->getProfileUrl(),
                 'options' => array(
