@@ -3073,7 +3073,22 @@ div.pp_experience .pp_loaderIcon {
 }
 [data-alto-role="popover"][data-type="blog"] + .popover .alto-popover-content,
 .alto-popover.type-blog .alto-popover-content {
-  height: 184px !important;
+  height: 202px !important;
+}
+[data-alto-role="popover"][data-type="blog"] + .popover .alto-popover-content .blog-description-container,
+.alto-popover.type-blog .alto-popover-content .blog-description-container {
+  background: #e6ebee;
+  margin: 0;
+  width: 338px;
+  height: 32px;
+  top: -48px;
+  position: relative;
+  line-height: 32px;
+  padding: 0 12px;
+}
+[data-alto-role="popover"][data-type="blog"] + .popover .arrow:after,
+.alto-popover.type-blog .arrow:after {
+  border-top-color: #e6ebee !important;
 }
 .topic-info .popover-content,
 [data-alto-role="popover"] + .popover .popover-content,
@@ -3290,7 +3305,7 @@ div.pp_experience .pp_loaderIcon {
 [data-alto-role="popover"] + .popover .blog-info-default-container,
 .alto-popover .blog-info-default-container {
   padding: 12px;
-  height: 180px !important;
+  height: 218px !important;
   max-height: 280px !important;
 }
 .topic-info .blog-info-default-container h1.popover-header,
@@ -3334,6 +3349,8 @@ div.pp_experience .pp_loaderIcon {
 [data-alto-role="popover"] + .popover .blog-info-default-container table,
 .alto-popover .blog-info-default-container table {
   margin-bottom: 18px;
+  margin-top: 18px;
+  width: 100%;
 }
 .topic-info .blog-info-default-container table *,
 [data-alto-role="popover"] + .popover .blog-info-default-container table *,
@@ -3344,6 +3361,11 @@ div.pp_experience .pp_loaderIcon {
 [data-alto-role="popover"] + .popover .blog-info-default-container table tr:last-child td,
 .alto-popover .blog-info-default-container table tr:last-child td {
   border-bottom: 0;
+}
+.topic-info .blog-info-default-container table tr,
+[data-alto-role="popover"] + .popover .blog-info-default-container table tr,
+.alto-popover .blog-info-default-container table tr {
+  border-bottom: 1px solid #e6ebee;
 }
 .topic-info .blog-info-default-container a,
 [data-alto-role="popover"] + .popover .blog-info-default-container a,
