@@ -2,7 +2,7 @@
 @import "../bootstrap/mixins";
 @import "mixins";
 
-[data-alto-role="popover"] + .popover {
+[data-alto-role="popover"] + .popover, .alto-popover {
     max-width: 340px !important;
     border-radius: 0 !important;
     //        border: 0 !important;
@@ -11,10 +11,10 @@
         font-weight: normal !important;
     }
 }
-[data-alto-role="popover"][data-type="blog"] + .popover .alto-popover-content{
+[data-alto-role="popover"][data-type="blog"] + .popover .alto-popover-content, .alto-popover.type-blog  .alto-popover-content{
     height: 184px !important;
 }
-.topic-info, [data-alto-role="popover"] + .popover {
+.topic-info, [data-alto-role="popover"] + .popover, .alto-popover {
 //    .popover {
 //        left: 17px !important;
 //        max-width: 340px !important;
@@ -205,13 +205,13 @@
 
 }
 
-[data-alto-role="popover"][data-placement="bottom"] + .popover {
+[data-alto-role="popover"][data-placement="bottom"] + .popover, .alto-popover.placement-bottom {
     left: 17px !important;
     .arrow {
         left: 50px !important;
     }
 }
-[data-alto-role="popover"][data-placement="left"] + .popover {
+[data-alto-role="popover"][data-placement="left"] + .popover, .alto-popover.placement-left {
     //top: 124px !important;
     max-width: 341px !important;
     .arrow {
@@ -220,12 +220,12 @@
 
     }
 }
-[data-alto-role="popover"][data-placement="right"] + .popover {
+[data-alto-role="popover"][data-placement="right"] + .popover, .alto-popover.placement-right {
     max-width: 340px !important;
     .arrow {
     }
 }
-[data-alto-role="popover"][data-placement="top"] + .popover {
+[data-alto-role="popover"][data-placement="top"] + .popover, .alto-popover.placement-top {
     .arrow:after {
         border-top-color: @lighten-gray !important;;
     }

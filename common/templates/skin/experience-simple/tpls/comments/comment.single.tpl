@@ -39,6 +39,8 @@
                             data-placement="top"
                             data-animation="true"
                             data-cache="true"
+                            data-selector="placement-top"
+                            data-container="body"
                             class="comment-user">
                             <a href="{$oUser->getProfileUrl()}" class="mal0 js-popup-user-{$oUser->getId()}">
                                 <img src="{$oUser->getAvatarUrl('small')}" alt="{$oUser->getDisplayName()}"/>
