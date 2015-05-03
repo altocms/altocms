@@ -71,6 +71,12 @@ ________________________________________________________________________________
   /** ПОДМЕНЮ ПОЛЬЗОВАТЕЛЯ
     __________________________________________________*/
 }
+.navbar-main li.search form {
+  padding: 0 16px;
+}
+.navbar-main li.search form input {
+  width: 100%;
+}
 .navbar-main .navbar-brand {
   padding: 15px 16px;
   height: 52px;
