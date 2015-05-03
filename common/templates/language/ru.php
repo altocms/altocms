@@ -1152,6 +1152,8 @@ return array(
      * Загрузка изображений
      */
     'uploadimg'                                 => 'Вставка изображения',
+    'uploadimg_show'                            => 'скрыть опции',
+    'uploadimg_hide'                            => 'показать опции',
     'uploadimg_from_pc'                         => 'С компьютера',
     'uploadimg_from_link'                       => 'Из интернета',
     'uploadimg_choose_file'                     => 'Выберите файл изображения для вставки',

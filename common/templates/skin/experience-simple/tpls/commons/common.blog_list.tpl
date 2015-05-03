@@ -62,6 +62,8 @@
                                data-api-param-tpl="default"
                                data-trigger="hover"
                                data-placement="top"
+                               data-container="body"
+                               data-selector="type-blog"
                                data-animation="true"
                                data-cache="false"
                                href="{$oBlog->getUrlFull()}" class="blog-name">

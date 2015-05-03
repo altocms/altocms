@@ -302,3 +302,21 @@
         }
     }
 }
+
+
+@media (max-width: 767px) {
+    .toolbar {
+        left: auto !important;
+        bottom: 40px !important;
+        right: 20px !important;
+        position: fixed;
+        height: 40px;
+        z-index: 9000;
+        top: auto !important;
+
+        & > div {
+            display: none;
+            opacity: .7;
+        }
+    }
+}

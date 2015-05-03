@@ -2,16 +2,16 @@
  {* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
 {if $oTalk}
  <div class="talk-search talk-recipients pab0">
-     <h4>
-         {$aLang.talk_speaker_title}
+
+
          {if $oTalk->getUserId()==E::UserId() OR E::IsAdmin()}
-             &nbsp;&nbsp;&nbsp;
+         <h4>{$aLang.talk_speaker_title}&nbsp;&nbsp;&nbsp;
              <a href="#" class="link link-blue link-lead link-clear small" onclick="jQuery('#talk_recipients').toggle(); return false;">&nbsp;
                  {$aLang.talk_speaker_edit}
-             </a>
+             </a></h4>
          {/if}
 
-     </h4>
+
 
      {*<header class="talk-recipients-header">*}
      {*{foreach $oTalk->getTalkUsers() as $oTalkUser}*}

@@ -20,8 +20,36 @@ _________________________________________________________________*/
     }
 
     .panel-footer {
+        padding: 0 18px;
+        ul {
+            padding-left: 0 !important;
+        }
         .btn-gray {
             vertical-align: bottom;
+        }
+    }
+
+    .dual-footer {
+        position: relative;
+        height: auto !important;
+        min-height: 40px;
+        ul.pull-right {
+            height: 40px !important;
+            position: absolute;
+            right: 0;
+            li {
+                margin: 0;
+                padding: 0 !important;
+                height: 40px;
+            }
+        }
+        ul.pull-left {
+            margin-right: 120px;
+            li {
+                padding-left: 0 !important;
+                padding-right: 12px !important;
+                float: none;
+            }
         }
     }
 
@@ -100,6 +128,8 @@ _________________________________________________________________*/
     }
 
     .panel-footer, .topic-footer {
+        background: #e6ebee;
+        padding: 0 20px;
         a, a i.fa {
             font-size: @panel-footer-font-size !important;
             color: @main-gray;
@@ -124,7 +154,7 @@ _________________________________________________________________*/
 
     // В виджетах шрифт tahoma
     * {
-        font-family: @font-family-serif;
+        //font-family: @font-family-serif;
         .fa {
             font-family: "FontAwesome", serif;
         }
@@ -172,6 +202,7 @@ _________________________________________________________________*/
         img {
             border-radius: 16px;
             margin-top: 0;
+            margin-right: 6px;
         }
     }
 

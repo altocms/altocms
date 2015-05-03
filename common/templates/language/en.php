@@ -1125,6 +1125,8 @@ return array(
      * Loading Images
      */
     'uploadimg' => 'Upload image',
+    'uploadimg_show' => 'show options',
+    'uploadimg_hide' => 'hide options',
     'uploadimg_from_pc' => 'From PC',
     'uploadimg_from_link' => 'From internet',
     'uploadimg_choose_file' => 'Select an image file to be inserted',

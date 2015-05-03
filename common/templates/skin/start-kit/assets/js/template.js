@@ -305,7 +305,7 @@
                     });
                     $("a[rel^='prettyPhoto']").prettyPhoto({
                         social_tools:'',
-                        show_title: false,
+                        show_title: true,
                         slideshow:true,
                         deeplinking: false
                     });

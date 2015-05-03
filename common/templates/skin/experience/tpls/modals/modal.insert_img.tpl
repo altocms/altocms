@@ -34,11 +34,6 @@
                                     <i class="fa fa-refresh"></i>
                                 </a>
                             </li>
-                            <li>
-                                <a class="image-categories-nav-trigger" href="#">
-                                    <i class="fa fa-eye-slash"></i>
-                                </a>
-                            </li>
                             <li id="backTopics" style="display: none;">
                                 <a class="image-categories-nav-back-topics" href="#">
                                     <i class="fa fa-chevron-left"></i>
@@ -47,6 +42,12 @@
                             <li id="backTalks" style="display: none;">
                                 <a class="image-categories-nav-back-talks" href="#">
                                     <i class="fa fa-chevron-left"></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="image-categories-nav-trigger hidden-options" href="#">
+                                    <span class="options-show">{$aLang.uploadimg_show}</span>
+                                    <span class="options-hide">{$aLang.uploadimg_hide}</span>
                                 </a>
                             </li>
                         </ul>

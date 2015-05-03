@@ -801,4 +801,34 @@ class ModuleMenu extends Module {
 
     }
 
+    /**
+     * Возвращает количество сообщений для пользователя
+     *
+     * @param bool $sTemplate
+     * @return int|mixed|string
+     */
+    public function CountMessages($sTemplate = false) {
+
+        if (!E::IsUser()) {
+            return '';
+        }
+
+        $sKeyString = 'menu_count_messages_' . E::UserId() . '_' . (string)$sTemplate;
+
+        if (FALSE === ($sData = E::ModuleCache()->GetTmp($sKeyString))) {
+
+            $iValue = (int)$this->CountTrack() + (int)$this->NewTalk();
+            if ($sTemplate && $iValue) {
+                $sData = str_replace('{{count_messages}}', $iValue, $sTemplate);
+            } else {
+                $sData = $iValue ? $iValue : '';
+            }
+
+            E::ModuleCache()->SetTmp($sData, $sKeyString);
+        }
+
+        return $sData;
+
+    }
+
 }

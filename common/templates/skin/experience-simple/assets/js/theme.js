@@ -473,7 +473,7 @@ $(function () {
                     });
                     $("a[rel^='prettyPhoto']").prettyPhoto({
                         social_tools:'',
-                        show_title: false,
+                        show_title: true,
                         theme: 'pp_experience',
                         markup: pretty_markup,
                         slideshow:true,

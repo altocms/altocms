@@ -225,15 +225,15 @@ class ActionBlog extends Action {
         $oBlog->setUrl(F::GetRequestStr('blog_url'));
         $oBlog->setAvatar(null);
 
-        // * Загрузка аватара блога
-        if ($aUploadedFile = $this->GetUploadedFile('avatar')) {
-            if ($sPath = E::ModuleBlog()->UploadBlogAvatar($aUploadedFile, $oBlog)) {
-                $oBlog->setAvatar($sPath);
-            } else {
-                E::ModuleMessage()->AddError(E::ModuleLang()->Get('blog_create_avatar_error'), E::ModuleLang()->Get('error'));
-                return false;
-            }
-        }
+        // * Загрузка аватара блога перенесена в модуль
+//        if ($aUploadedFile = $this->GetUploadedFile('avatar')) {
+//            if ($sPath = E::ModuleBlog()->UploadBlogAvatar($aUploadedFile, $oBlog)) {
+//                $oBlog->setAvatar($sPath);
+//            } else {
+//                E::ModuleMessage()->AddError(E::ModuleLang()->Get('blog_create_avatar_error'), E::ModuleLang()->Get('error'));
+//                return false;
+//            }
+//        }
 
         // * Создаём блог
         E::ModuleHook()->Run('blog_add_before', array('oBlog' => $oBlog));
@@ -347,14 +347,14 @@ class ActionBlog extends Action {
             }
 
             // Загрузка аватара, делаем ресайзы
-            if ($aUploadedFile = $this->GetUploadedFile('avatar')) {
-                if ($sPath = E::ModuleBlog()->UploadBlogAvatar($aUploadedFile, $oBlog)) {
-                    $oBlog->setAvatar($sPath);
-                } else {
-                    E::ModuleMessage()->AddError(E::ModuleLang()->Get('blog_create_avatar_error'), E::ModuleLang()->Get('error'));
-                    return false;
-                }
-            }
+//            if ($aUploadedFile = $this->GetUploadedFile('avatar')) {
+//                if ($sPath = E::ModuleBlog()->UploadBlogAvatar($aUploadedFile, $oBlog)) {
+//                    $oBlog->setAvatar($sPath);
+//                } else {
+//                    E::ModuleMessage()->AddError(E::ModuleLang()->Get('blog_create_avatar_error'), E::ModuleLang()->Get('error'));
+//                    return false;
+//                }
+//            }
 
             // Удалить аватар
             if (isset($_REQUEST['avatar_delete'])) {

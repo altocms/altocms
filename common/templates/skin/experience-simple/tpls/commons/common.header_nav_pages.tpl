@@ -35,6 +35,11 @@
         <div class="collapse navbar-collapse" id="navbar-main">
             <ul class="main nav navbar-nav nav-content">
                 {hook run='header_top_begin'}
+                <li class="search visible-xs hidden-sm hidden-md hidden-lg">
+                    <form action="{router page='search'}topics/" class="form">
+                        <input placeholder="{$aLang.search|mb_strtolower}" class="form-control" type="text" maxlength="255" name="q"/>
+                    </form>
+                </li>
                 {menu id='main' class='nav navbar-nav' hideul=true}
                 {hook run='header_top_end'}
                 <li class="dropdown right menu-hidden-container hidden">

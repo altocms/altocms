@@ -141,8 +141,8 @@
     {hook run='profile_header_end'}
 
 </div>
-<div class="panel-footer">
-    <ul>
+<div class="panel-footer dual-footer clearfix">
+    <ul class="pull-left">
         {if $oUserCurrent && $oUserProfile->getId() != $oUserCurrent->getId()}
             <li>
                 <a href="{router page='talk'}add/?talk_users={$oUserProfile->getLogin()}"
@@ -164,7 +164,8 @@
         {else}
             <li></li>
         {/if}
-
+    </ul>
+    <ul class="pull-right">
         <li class="user-info-show-button pa0">
             <a href="#"
                onclick="

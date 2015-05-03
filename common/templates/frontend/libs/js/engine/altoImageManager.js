@@ -478,11 +478,7 @@
                 .off('click')
                 .on('click', function () {
                     $this.$btnTriggerParams
-                        .find('i')
-                        .toggleClass('glyphicon-eye-close')
-                        .toggleClass('glyphicon-eye-open')
-                        .toggleClass('fa-eye')
-                        .toggleClass('fa-eye-slash');
+                        .toggleClass('hidden-options');
 
                     $this.$blockParams.slideToggle('fast');
 
@@ -491,11 +487,7 @@
             $this.$btnTriggerParams.setReset = function () {
 
                 $this.$btnTriggerParams
-                    .find('i')
-                    .addClass('glyphicon-eye-close')
-                    .removeClass('glyphicon-eye-open')
-                    .removeClass('fa-eye')
-                    .addClass('fa-eye-slash');
+                    .addClass('hidden-options');
 
                 return $this.$btnTriggerParams;
             };

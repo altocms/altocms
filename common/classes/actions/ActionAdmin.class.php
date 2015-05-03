@@ -3279,8 +3279,6 @@ class ActionAdmin extends Action {
         /** @var ModuleMenu_EntityMenu $oMenu */
         $oMenu = E::ModuleMenu()->GetMenu(F::GetRequest('menu_id'));
 
-        $sItemsKey = "menu.data.{$oMenu->getId()}.init.fill.list";
-
         if (is_array(F::GetRequest('order')) && $oMenu) {
 
             $aData = array();
@@ -3296,8 +3294,10 @@ class ActionAdmin extends Action {
             }
 
             if ($aData) {
-                Config::WriteCustomConfig(array($sItemsKey=> $aData));
-                Config::Set($sItemsKey, $aData);
+                $sMenuKey = "menu.data.{$oMenu->getId()}";
+                $aMenu = C::Get($sMenuKey);
+                $aMenu['init']['fill']['list'] = $aData;
+                Config::WriteCustomConfig(array($sMenuKey => $aMenu), false);
             }
 
 
@@ -3347,11 +3347,10 @@ class ActionAdmin extends Action {
         $oItem = $oMenu->GetItemById(F::GetRequest('item_id'));
         if ($oItem) {
             // Удалим старую текстовку из конфига
-            $sMenuListKey = 'menu.data.' . F::GetRequest('menu_id') . '.list';
+            $sMenuListKey = 'menu.data.' . F::GetRequest('menu_id');
             $aMenu = C::Get($sMenuListKey);
-            if ($aMenu && isset($aMenu[F::GetRequest('item_id')]['text']) && ($sText = trim(F::GetRequest('text')))) {
-                $sItemTextKey = "menu.data.{$oMenu->getId()}.list.{$oItem->getId()}.text"; // Ключ конфига текстовки меню
-                $aMenu[F::GetRequest('item_id')]['text'] = $sText;
+            if ($aMenu && isset($aMenu['list'][F::GetRequest('item_id')]['text']) && ($sText = trim(F::GetRequest('text')))) {
+                $aMenu['list'][F::GetRequest('item_id')]['text'] = $sText;
                 C::WriteCustomConfig(array($sMenuListKey => $aMenu), false);
                 E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('action.admin.menu_manager_save_text_ok'));
                 E::ModuleViewer()->AssignAjax('text', $sText);
@@ -3402,11 +3401,10 @@ class ActionAdmin extends Action {
 
         if ($oItem) {
             // Удалим старую текстовку из конфига
-            $sMenuListKey = 'menu.data.' . F::GetRequest('menu_id') . '.list';
+            $sMenuListKey = 'menu.data.' . F::GetRequest('menu_id');
             $aMenu = C::Get($sMenuListKey);
-            if ($aMenu && isset($aMenu[F::GetRequest('item_id')]['link']) && ($sText = trim(F::GetRequest('text')))) {
-                $sItemTextKey = "menu.data.{$oMenu->getId()}.list.{$oItem->getId()}.link"; // Ключ конфига текстовки меню
-                $aMenu[F::GetRequest('item_id')]['link'] = $sText;
+            if ($aMenu && isset($aMenu['list'][F::GetRequest('item_id')]['link']) && ($sText = trim(F::GetRequest('text')))) {
+                $aMenu['list'][F::GetRequest('item_id')]['link'] = $sText;
                 C::WriteCustomConfig(array($sMenuListKey => $aMenu), false);
                 E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('action.admin.menu_manager_save_link_ok'));
                 E::ModuleViewer()->AssignAjax('text', $sText);
@@ -3466,14 +3464,13 @@ class ActionAdmin extends Action {
                 if (!$aAllowedData) {
                     $aAllowedData = array(F::RandomStr(12));
                 }
-                Config::WriteCustomConfig(array("menu.data.{$oMenu->getId()}.init.fill.list"=> $aAllowedData));
-//                Config::Set("menu.data.{$oMenu->getId()}.init.fill.list", $aAllowedData);
+
+                $sMenuKey = "menu.data.{$oMenu->getId()}";
+                $aMenu = C::Get($sMenuKey);
+                $aMenu['init']['fill']['list'] = $aAllowedData;
+                Config::WriteCustomConfig(array($sMenuKey => $aMenu), false);
+
                 E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('action.admin.menu_manager_remove_link_ok'));
-
-
-                // Если это подменю, то удал
-
-
                 return;
             }
 
@@ -3541,7 +3538,10 @@ class ActionAdmin extends Action {
                     E::ModuleViewer()->AssignAjax('class', 'icon-eye-close');
                 }
 
-                Config::WriteCustomConfig(array("menu.data.{$oMenu->getId()}.list.{$oItem->getId()}.display"=> $bDisplay));
+                $sMenuKey = "menu.data.{$oMenu->getId()}";
+                $aMenu = C::Get($sMenuKey);
+                $aMenu['list'][$oItem->getId()]['display'] = $bDisplay;
+                Config::WriteCustomConfig(array($sMenuKey => $aMenu), false);
 
                 E::ModuleMessage()->AddNoticeSingle(E::ModuleLang()->Get('action.admin.menu_manager_display_link_ok'));
 
@@ -3600,8 +3600,10 @@ class ActionAdmin extends Action {
                     $aAllowedData,
                     array($sItemName)
                 );
-                Config::WriteCustomConfig(array("menu.data.{$oMenu->getId()}.init.fill.list" => $aNewItems));
-                Config::Set("menu.data.{$oMenu->getId()}.init.fill.list", $aNewItems);
+
+                $sMenuKey = "menu.data.{$oMenu->getId()}";
+                $aMenu = C::Get($sMenuKey);
+                $aMenu['init']['fill']['list'] = $aNewItems;
 
                 // Добавим имя в список
                 $aNewItemConfig = array(
@@ -3615,8 +3617,9 @@ class ActionAdmin extends Action {
                     Config::Get("menu.data.{$oMenu->getId()}.list"),
                     $aNewItemConfig
                 );
-                Config::WriteCustomConfig(array("menu.data.{$oMenu->getId()}.list" => $aNewItemConfig));
-                Config::Set("menu.data.{$oMenu->getId()}.list", $aNewItemConfig);
+
+                $aMenu['list'] = $aNewItemConfig;
+                Config::WriteCustomConfig(array($sMenuKey => $aMenu), false);
 
 
                 R::Location("admin/settings-menumanager/edit/{$sMenuId}");
@@ -3643,10 +3646,10 @@ class ActionAdmin extends Action {
                 if (!$sSubMenuName) {
                     $sSubMenuName = 'submenu_' . F::RandomStr(10);
                     // Сохраним указатель на подменю
-                    $sMenuListKey = "menu.data.{$oMenu->getId()}.list";
+                    $sMenuListKey = "menu.data.{$oMenu->getId()}";
                     $aMenu = C::Get($sMenuListKey);
                     if ($aMenu) {
-                        $aMenu[$sRoot]['submenu'] = $sSubMenuName;
+                        $aMenu['list'][$sRoot]['submenu'] = $sSubMenuName;
                         C::WriteCustomConfig(array($sMenuListKey => $aMenu), false);
                     }
                     // Сохраним само пордменю
@@ -3658,17 +3661,19 @@ class ActionAdmin extends Action {
                         ),
                         'list'        => array(),
                     );
-                    Config::WriteCustomConfig(array("menu.data.{$sSubMenuName}" => $aSubmenu));
-                    Config::Set("menu.data.{$sSubMenuName}", $aSubmenu);
+                    Config::WriteCustomConfig(array("menu.data.{$sSubMenuName}" => $aSubmenu), false);
                 }
 
                 // Добавим новый элемент в подменю
                 $sItemName = F::RandomStr(10);
 
                 // Добавим имя в объявление
-                $aAllowedData = array_values(Config::Get("menu.data.{$sSubMenuName}.init.fill.list"));
+                $sMenuKey = "menu.data.{$sSubMenuName}";
+                $aMenu = C::Get($sMenuKey);
+
+                $aAllowedData = isset($aMenu['init']['fill']['list']) ? array_values($aMenu['init']['fill']['list']) : array();
                 if (is_array($aAllowedData) && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
-                    $aAllowedData = array_keys(Config::Get("menu.data.{$sSubMenuName}.list"));
+                    $aAllowedData = isset($aMenu['list']) ? array_keys($aMenu['list']) : array();
                 }
                 if (count($aAllowedData) > 1 && isset($aAllowedData[0]) && $aAllowedData[0] == '*') {
                     unset($aAllowedData[0]);
@@ -3677,8 +3682,9 @@ class ActionAdmin extends Action {
                     $aAllowedData,
                     array($sItemName)
                 );
-                Config::WriteCustomConfig(array("menu.data.{$sSubMenuName}.init.fill.list" => $aNewItems));
-                Config::Set("menu.data.{$sSubMenuName}.init.fill.list", $aNewItems);
+
+
+                $aMenu['init']['fill']['list'] = $aNewItems;
 
                 // Добавим имя в список
                 $aNewItemConfig = array(
@@ -3689,11 +3695,11 @@ class ActionAdmin extends Action {
                     )
                 );
                 $aNewItemConfig = array_merge(
-                    Config::Get("menu.data.{$sSubMenuName}.list"),
+                    isset($aMenu['list']) ? $aMenu['list'] : array(),
                     $aNewItemConfig
                 );
-                Config::WriteCustomConfig(array("menu.data.{$sSubMenuName}.list" => $aNewItemConfig));
-                Config::Set("menu.data.{$sSubMenuName}.list", $aNewItemConfig);
+                $aMenu['list'] = $aNewItemConfig;
+                Config::WriteCustomConfig(array($sMenuKey => $aMenu), false);
 
 
                 R::Location("admin/settings-menumanager/edit/{$sMenuId}");
@@ -3728,10 +3734,10 @@ class ActionAdmin extends Action {
             foreach ($aMenus as $k=>$v) {
                 foreach ($v['list'] as $sItemKey => $aItemData) {
                     if (isset($aItemData['submenu']) && $aItemData['submenu'] == $sMenuId) {
-                        $sMenuListKey = 'menu.data.' . $k . '.list';
+                        $sMenuListKey = 'menu.data.' . $k;
                         $aMenu = C::Get($sMenuListKey);
-                        if ($aMenu && isset($aMenu[$sItemKey]['submenu'])) {
-                            $aMenu[$sItemKey]['submenu'] = '';
+                        if ($aMenu && isset($aMenu['list'][$sItemKey]['submenu'])) {
+                            $aMenu['list'][$sItemKey]['submenu'] = '';
                             C::WriteCustomConfig(array($sMenuListKey => $aMenu), false);
                             $bFound = true;
                             break;

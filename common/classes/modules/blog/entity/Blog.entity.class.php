@@ -185,6 +185,13 @@ class ModuleBlog_EntityBlog extends Entity {
     public function getAvatar() {
 
 //        return $this->getProp('blog_avatar');
+
+        // Если объект ещё не создан, то через него нельзя получить аватар,
+        // работа с временными изображениями только через модуль Mresource.
+        if (!$this->getId()) {
+            return null;
+        }
+
         return E::ModuleUploader()->GetTargetImageUrl('blog_avatar', $this->getId());
     }
 

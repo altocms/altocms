@@ -114,12 +114,14 @@
                             }
                         });
                         $this._preparePopover();
-                        $this.$element.popover('show');
+                        if (!$this.$element.data('bs.popover').tip().is(':visible')) {
+                            $this.$element.popover('show');
+                        }
                     }
                 );
 
                 hidePopover = function () {
-                    if ($this.cachedData) {
+                    if ($this.cachedData && !$this.over) {
                         $this.$element.popover('hide');
                     }
                 };
@@ -127,10 +129,6 @@
                     hidePopover();
                 });
 
-                //$this.$element.next('.popover').mouseout(function () {
-                //    event.stopImmediatePropagation();
-                //    hidePopover();
-                //});
             }
 
             return $this;
@@ -159,8 +157,13 @@
                     html: true,
                     placement: $this.options.placement,
                     title: '',
-                    trigger: 'manual'
-                });
+                    trigger: 'manual',
+                    container: $this.options.container
+                })
+                .data('bs.popover')
+                .tip()
+                .addClass($this.options.selector)
+                .addClass('alto-popover');
 
             $this.$element.data('bs.popover').tip().mouseenter(function () {
                 $this.over = true;
@@ -352,7 +355,9 @@
         placement: 'top', // Положение поповера, может быть top|left|bottom|right
         animation: true,  // Анимация при отображении true|false
         cache: true,      // Кэширвоать ли данные и отображать только полученный при первом вызове результат true|false
-        api: false        // Вызываемое API
+        api: false,       // Вызываемое API,
+        selector: '',     // Произвольный селектор
+        container: false  // Контейнер
     };
 
 }(window.jQuery, ls));
