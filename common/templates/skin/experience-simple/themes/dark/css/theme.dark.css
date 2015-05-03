@@ -2649,6 +2649,8 @@ span.counter {
 .table-talk .cell-recipients {
   vertical-align: middle;
   width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .table-talk .table-talk-content {
   vertical-align: middle;
