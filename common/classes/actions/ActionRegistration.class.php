@@ -25,18 +25,14 @@ class ActionRegistration extends Action {
      *
      */
     public function Init() {
-        /**
-         * Проверяем аторизован ли юзер
-         */
+        //  Проверяем аторизован ли юзер
         if (E::ModuleUser()->IsAuthorization()) {
             E::ModuleMessage()->AddErrorSingle(
                 E::ModuleLang()->Get('registration_is_authorization'), E::ModuleLang()->Get('attention')
             );
             return R::Action('error');
         }
-        /**
-         * Если включены инвайты то перенаправляем на страницу регистрации по инвайтам
-         */
+        //  Если включены инвайты то перенаправляем на страницу регистрации по инвайтам
         if (!E::ModuleUser()->IsAuthorization() && Config::Get('general.reg.invite')
             && !in_array(R::GetActionEvent(), array('invite', 'activate', 'confirm'))
             && !$this->CheckInviteRegister()
@@ -44,9 +40,7 @@ class ActionRegistration extends Action {
             return R::Action('registration', 'invite');
         }
         $this->SetDefaultEvent('index');
-        /**
-         * Устанавливаем title страницы
-         */
+        //  Устанавливаем title страницы
         E::ModuleViewer()->AddHtmlTitle(E::ModuleLang()->Get('registration'));
     }
 
@@ -83,9 +77,7 @@ class ActionRegistration extends Action {
         /** @var ModuleUser_EntityUser $oUser */
         $oUser = E::GetEntity('ModuleUser_EntityUser');
         $oUser->_setValidateScenario('registration');
-        /**
-         * Пробегаем по переданным полям/значениям и валидируем их каждое в отдельности
-         */
+        //  Пробегаем по переданным полям/значениям и валидируем их каждое в отдельности
         $aFields = F::GetRequest('fields');
         if (is_array($aFields)) {
             foreach ($aFields as $aField) {
@@ -94,9 +86,7 @@ class ActionRegistration extends Action {
 
                     $sField = $aField['field'];
                     $sValue = $aField['value'];
-                    /**
-                     * Список полей для валидации
-                     */
+                    //  Список полей для валидации
                     switch ($sField) {
                         case 'login':
                             $oUser->setLogin($sValue);
@@ -120,20 +110,14 @@ class ActionRegistration extends Action {
                             continue;
                             break;
                     }
-                    /**
-                     * Валидируем поле
-                     */
+                    //  Валидируем поле
                     $oUser->_Validate(array($sField), false);
                 }
             }
         }
-        /**
-         * Возникли ошибки?
-         */
+        //  Возникли ошибки?
         if ($oUser->_hasValidateErrors()) {
-            /**
-             * Получаем ошибки
-             */
+            //  Получаем ошибки
             E::ModuleViewer()->AssignAjax('aErrors', $oUser->_getValidateErrors());
         }
     }
@@ -165,10 +149,10 @@ class ActionRegistration extends Action {
         // * Если используется активация, то генерим код активации
         if (Config::Get('general.reg.activation')) {
             $oUser->setActivate(0);
-            $oUser->setActivateKey(F::RandomStr());
+            $oUser->setActivationKey(F::RandomStr());
         } else {
             $oUser->setActivate(1);
-            $oUser->setActivateKey(null);
+            $oUser->setActivationKey(null);
         }
         E::ModuleHook()->Run('registration_validate_before', array('oUser' => $oUser));
 
@@ -179,7 +163,7 @@ class ActionRegistration extends Action {
 
             E::ModuleHook()->Run('registration_validate_after', array('oUser' => $oUser));
             $oUser->setPassword($oUser->getPassword(), true);
-            if (E::ModuleUser()->Add($oUser)) {
+            if ($this->_addUser($oUser)) {
                 E::ModuleHook()->Run('registration_after', array('oUser' => $oUser));
 
                 // * Подписываем пользователя на дефолтные события в ленте активности
@@ -225,6 +209,18 @@ class ActionRegistration extends Action {
     }
 
     /**
+     * Add new user
+     *
+     * @param ModuleUser_EntityUser $oUser
+     *
+     * @return bool|ModuleUser_EntityUser
+     */
+    protected function _addUser($oUser) {
+
+        return E::ModuleUser()->Add($oUser);
+    }
+
+    /**
      * Показывает страничку регистрации
      * Просто вывод шаблона
      */
@@ -238,46 +234,36 @@ class ActionRegistration extends Action {
     protected function EventActivate() {
 
         $bError = false;
-        /**
-         * Проверяет передан ли код активации
-         */
+
+        // * Проверяет передан ли код активации
         $sActivateKey = $this->GetParam(0);
         if (!F::CheckVal($sActivateKey, 'md5')) {
             $bError = true;
         }
-        /**
-         * Проверяет верный ли код активации
-         */
-        if (!($oUser = E::ModuleUser()->GetUserByActivateKey($sActivateKey))) {
+
+        // * Проверяет верный ли код активации
+        if (!($oUser = E::ModuleUser()->GetUserByActivationKey($sActivateKey))) {
             $bError = true;
         }
-        /**
-         *
-         */
-        if ($oUser && $oUser->getActivate()) {
+
+        // * User is already activated
+        if ($oUser && $oUser->isActivated()) {
             E::ModuleMessage()->AddErrorSingle(
                 E::ModuleLang()->Get('registration_activate_error_reactivate'), E::ModuleLang()->Get('error')
             );
             return R::Action('error');
         }
-        /**
-         * Если что то не то
-         */
+
+        // * Если что то не то
         if ($bError) {
             E::ModuleMessage()->AddErrorSingle(
                 E::ModuleLang()->Get('registration_activate_error_code'), E::ModuleLang()->Get('error')
             );
             return R::Action('error');
         }
-        /**
-         * Активируем
-         */
-        $oUser->setActivate(1);
-        $oUser->setDateActivate(F::Now());
-        /**
-         * Сохраняем юзера
-         */
-        if (E::ModuleUser()->Update($oUser)) {
+
+        // * Активируем
+        if ($this->_activateUser($oUser)) {
             $this->DropInviteRegister();
             E::ModuleViewer()->Assign('bRefreshToHome', true);
             E::ModuleUser()->Authorization($oUser, false);
@@ -289,6 +275,18 @@ class ActionRegistration extends Action {
     }
 
     /**
+     * Activate user
+     *
+     * @param ModuleUser_EntityUser $oUser
+     *
+     * @return bool
+     */
+    protected function _activateUser($oUser) {
+
+        return E::ModuleUser()->Activate($oUser);
+    }
+
+    /**
      * Обработка кода приглашения при включеном режиме инвайтов
      *
      */
@@ -297,22 +295,18 @@ class ActionRegistration extends Action {
         if (!Config::Get('general.reg.invite')) {
             return parent::EventNotFound();
         }
-        /**
-         * Обработка отправки формы с кодом приглашения
-         */
+        //  Обработка отправки формы с кодом приглашения
         if (F::isPost('submit_invite')) {
-            /**
-             * проверяем код приглашения на валидность
-             */
+            //  проверяем код приглашения на валидность
             if ($this->CheckInviteRegister()) {
                 $sInviteCode = $this->GetInviteRegister();
             } else {
                 $sInviteCode = trim(F::GetRequestStr('invite_code'));
             }
-            $oInvate = E::ModuleUser()->GetInviteByCode($sInviteCode);
-            if ($oInvate) {
+            $oInvite = E::ModuleUser()->GetInviteByCode($sInviteCode);
+            if ($oInvite) {
                 if (!$this->CheckInviteRegister()) {
-                    E::ModuleSession()->Set('invite_code', $oInvate->getCode());
+                    E::ModuleSession()->Set('invite_code', $oInvite->getCode());
                 }
                 return R::Action('registration');
             } else {

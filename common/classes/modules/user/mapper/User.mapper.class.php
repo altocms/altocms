@@ -43,7 +43,7 @@ class ModuleUser_MapperUser extends Mapper {
 		";
         $nUserId = $this->oDb->query(
             $sql, $oUser->getLogin(), $oUser->getPassword(), $oUser->getMail(), $oUser->getDateRegister(),
-            $oUser->getIpRegister(), $oUser->getActivate(), $oUser->getActivateKey()
+            $oUser->getIpRegister(), $oUser->getActivate(), $oUser->getActivationKey()
         );
         return $nUserId ? $nUserId : false;
     }
@@ -99,7 +99,7 @@ class ModuleUser_MapperUser extends Mapper {
             $oUser->getRating(),
             $oUser->getCountVote(),
             $oUser->getActivate(),
-            $oUser->getActivateKey(),
+            $oUser->getActivationKey(),
             $oUser->getProfileName(),
             $oUser->getProfileSex(),
             $oUser->getProfileCountry(),
@@ -355,13 +355,23 @@ class ModuleUser_MapperUser extends Mapper {
     }
 
     /**
+     * LS-compatibility
+     * @deprecated
+     * @see GetUserByActivationKey()
+     */
+    public function GetUserByActivateKey($sKey) {
+
+        return $this->GetUserByActivationKey($sKey);
+    }
+
+    /**
      * Получить юзера по ключу активации
      *
      * @param string $sKey    Ключ активации
      *
      * @return int|null
      */
-    public function GetUserByActivateKey($sKey) {
+    public function GetUserByActivationKey($sKey) {
 
         $sql
             = "

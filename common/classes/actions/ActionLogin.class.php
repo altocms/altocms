@@ -136,7 +136,7 @@ class ActionLogin extends Action {
                 E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('registration_activate_error_reactivate'));
                 return;
             } else {
-                $oUser->setActivateKey(F::RandomStr());
+                $oUser->setActivationKey(F::RandomStr());
                 if (E::ModuleUser()->Update($oUser)) {
                     E::ModuleMessage()->AddNotice(E::ModuleLang()->Get('reactivation_send_link'));
                     E::ModuleNotify()->SendReactivationCode($oUser);

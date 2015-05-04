@@ -532,15 +532,38 @@ class ModuleUser extends Module {
     }
 
     /**
+     * @param ModuleUser_EntityUser $oUser
+     *
+     * @return bool
+     */
+    public function Activate($oUser) {
+
+        $oUser->setActivate(1);
+        $oUser->setDateActivate(F::Now());
+
+        return E::ModuleUser()->Update($oUser);
+    }
+
+    /**
+     * LS-compatibility
+     * @deprecated
+     * @see GetUserByActivationKey()
+     */
+    public function GetUserByActivateKey($sKey) {
+
+        return $this->GetUserByActivationKey($sKey);
+    }
+
+    /**
      * Получить юзера по ключу активации
      *
      * @param string $sKey    Ключ активации
      *
      * @return ModuleUser_EntityUser|null
      */
-    public function GetUserByActivateKey($sKey) {
+    public function GetUserByActivationKey($sKey) {
 
-        $id = $this->oMapper->GetUserByActivateKey($sKey);
+        $id = $this->oMapper->GetUserByActivationKey($sKey);
         return $this->GetUserById($id);
     }
 

@@ -284,11 +284,21 @@ class ModuleUser_EntityUser extends Entity {
     }
 
     /**
-     * Возвращает ключ активации
+     * LS-compatibility
+     * @deprecated since 1.1
+     * @see getActivationKey()
+     */
+    public function getActivateKey() {
+
+        return $this->getActivationKey();
+    }
+
+    /**
+     * Return activation key
      *
      * @return string|null
      */
-    public function getActivateKey() {
+    public function getActivationKey() {
 
         return $this->getProp('user_activate_key');
     }
@@ -807,6 +817,11 @@ class ModuleUser_EntityUser extends Entity {
         return $this->HasRole(ModuleUser::USER_ROLE_MODERATOR);
     }
 
+    public function isActivated() {
+
+        return (bool)$this->getProp('user_activate');
+    }
+
     /**
      * Возвращает веб путь до профиля пользователя
      *
@@ -1085,11 +1100,21 @@ class ModuleUser_EntityUser extends Entity {
     }
 
     /**
-     * Устанавливает ключ активации
+     * LS-compatibility
+     * @deprecated since 1.1
+     * @see setActivationKey()
+     */
+    public function setActivateKey($data) {
+
+        $this->setActivationKey($data);
+    }
+
+    /**
+     * Set activation key
      *
      * @param string $data
      */
-    public function setActivateKey($data) {
+    public function setActivationKey($data) {
 
         $this->setProp('user_activate_key', $data);
     }
