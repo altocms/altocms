@@ -33,6 +33,8 @@ class ModuleViewerAsset_EntityPackage extends Entity {
 
     protected $aMapDir = array();
 
+    protected $sMarker;
+
     public function __construct($aParams = array()) {
 
         if (isset($aParams['out_type'])) {
@@ -45,6 +47,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
             $this->bMerge = (bool)Config::Get('compress.' . $this->sOutType . '.merge');
             $this->bCompress = (bool)Config::Get('compress.' . $this->sOutType . '.use');
         }
+        $this->sMarker = uniqid('alto-asset-marker-', true);
     }
 
     /**
@@ -350,7 +353,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
         if (!isset($aFileParams['compress'])) {
             // Dont need to minify minified files
             if (substr($aFileParams['info']['filename'], -4) == '.min') {
-                $aFileParams['compress'] = false;
+                //$aFileParams['compress'] = false;
             } else {
                 $aFileParams['compress'] = $this->bCompress;
             }

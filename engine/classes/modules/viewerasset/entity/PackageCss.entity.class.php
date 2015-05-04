@@ -59,10 +59,35 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
 
     public function Compress($sContents) {
 
+        /*
         $nErrorReporting = F::ErrorIgnored(E_NOTICE, true);
         $this->oCompressor->parse($sContents);
         $sContents = $this->oCompressor->print->plain();
         F::ErrorReporting($nErrorReporting);
+        */
+
+        $nErrorReporting = F::ErrorIgnored(E_NOTICE, true);
+        if (strpos($sContents, $this->sMarker)) {
+            $oCompressor = $this->oCompressor;
+            $sContents = preg_replace_callback(
+                '|\/\*\[' . preg_quote($this->sMarker) . '\s(?P<file>[\w\-\.\/]+)\sbegin\]\*\/(?P<content>.+)\/\*\[' . preg_quote($this->sMarker) . '\send\]\*\/\s*|sU',
+                function($aMatches) use($oCompressor) {
+                    if (substr($aMatches['file'], -8) != '.min.css') {
+                        $oCompressor->parse($aMatches['content']);
+                        $sResult = $oCompressor->print->plain();
+                    } else {
+                        $sResult = $aMatches['content'];
+                    }
+                    return $sResult;
+                },
+                $sContents
+            );
+        } else {
+            $this->oCompressor->parse($sContents);
+            $sContents = $this->oCompressor->print->plain();
+        }
+        F::ErrorReporting($nErrorReporting);
+
         return $sContents;
     }
 
@@ -91,7 +116,7 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
 
         $bResult = true;
         foreach ($this->aLinks as $nIdx => $aLinkData) {
-            if ((!isset($aLinkData['throw']) || !$aLinkData['throw']) && $aLinkData['compress']) {
+            if (empty($aLinkData['throw']) && !empty($aLinkData['compress'])) {
                 $sAssetFile = $aLinkData['asset_file'];
                 $sExtension = 'min.' . F::File_GetExtension($sAssetFile);
                 $sCompressedFile = F::File_SetExtension($sAssetFile, $sExtension);
@@ -121,13 +146,21 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
             }
         }
         F::SysWarning('Can not prepare asset file "' . $sFile . '"');
+        return null;
     }
 
     public function PrepareContents($sContents, $sSource) {
 
         if ($sContents) {
             $sContents = $this->_convertUrlsInCss($sContents, dirname($sSource) . '/');
+            if (C::Get('compress.css.use')) {
+                $sFile = F::File_LocalDir($sSource);
+                $sContents = '/*[' . $this->sMarker . ' ' . $sFile . ' begin]*/' . PHP_EOL
+                    . $sContents
+                    . PHP_EOL . '/*[' . $this->sMarker . ' end]*/' . PHP_EOL;
+            }
         }
+
         return $sContents;
     }
 

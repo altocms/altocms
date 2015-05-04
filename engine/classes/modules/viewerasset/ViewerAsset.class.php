@@ -474,7 +474,7 @@ class ModuleViewerAsset extends Module {
      */
     public function ClearJs() {
 
-        return $this->Clear('js');
+        $this->Clear('js');
     }
 
     /**
@@ -482,7 +482,7 @@ class ModuleViewerAsset extends Module {
      */
     public function ClearCss() {
 
-        return $this->Clear('css');
+        $this->Clear('css');
     }
 
     /**
@@ -679,6 +679,7 @@ class ModuleViewerAsset extends Module {
 
             $nStage = 0;
             $bDone = true;
+            // PreProcess
             foreach($this->aAssets as $oAssetPackage) {
                 if ($oAssetPackage->PreProcessBegin()) {
                     $bDone = ($bDone && $oAssetPackage->PreProcess());
@@ -688,6 +689,7 @@ class ModuleViewerAsset extends Module {
             if ($bDone) {
                 $nStage += 1;
             }
+            // Process
             foreach($this->aAssets as $oAssetPackage) {
                 if ($oAssetPackage->ProcessBegin()) {
                     $bDone = ($bDone && $oAssetPackage->Process());
@@ -697,6 +699,7 @@ class ModuleViewerAsset extends Module {
             if ($bDone) {
                 $nStage += 1;
             }
+            // PostProcess
             foreach($this->aAssets as $oAssetPackage) {
                 if ($oAssetPackage->PostProcessBegin()) {
                     $bDone = ($bDone && $oAssetPackage->PostProcess());

@@ -40,7 +40,23 @@ class ModuleViewerAsset_EntityPackageJs extends ModuleViewerAsset_EntityPackage 
 
     public function Compress($sContents) {
 
-        $sContents = \JShrink\Minifier::minify($sContents);
+        if (strpos($sContents, $this->sMarker)) {
+            $sContents = preg_replace_callback(
+                '|\/\*\[' . preg_quote($this->sMarker) . '\s(?P<file>[\w\-\.\/]+)\sbegin\]\*\/(?P<content>.+)\/\*\[' . preg_quote($this->sMarker) . '\send\]\*\/\s*|sU',
+                function($aMatches){
+                    if (substr($aMatches['file'], -7) != '.min.js') {
+                        $sResult = \JShrink\Minifier::minify($aMatches['content']);
+                    } else {
+                        $sResult = $aMatches['content'];
+                    }
+                    return $sResult;
+                },
+                $sContents
+            );
+        } else {
+            $sContents = \JShrink\Minifier::minify($sContents);
+        }
+
         return $sContents;
     }
 
@@ -81,7 +97,7 @@ class ModuleViewerAsset_EntityPackageJs extends ModuleViewerAsset_EntityPackage 
 
         $bResult = true;
         foreach ($this->aLinks as $nIdx => $aLinkData) {
-            if ((!isset($aLinkData['throw']) || !$aLinkData['throw']) && $aLinkData['compress']) {
+            if (empty($aLinkData['throw']) && !empty($aLinkData['compress'])) {
                 $sAssetFile = $aLinkData['asset_file'];
                 $sExtension = 'min.' . F::File_GetExtension($sAssetFile);
                 $sCompressedFile = F::File_SetExtension($sAssetFile, $sExtension);
@@ -99,6 +115,26 @@ class ModuleViewerAsset_EntityPackageJs extends ModuleViewerAsset_EntityPackage 
             }
         }
         return $bResult;
+    }
+
+    /**
+     * Обработка контента
+     *
+     * @param string $sContents
+     * @param string $sSource
+     *
+     * @return string
+     */
+    public function PrepareContents($sContents, $sSource) {
+
+        if (C::Get('compress.js.use')) {
+            $sFile = F::File_LocalDir($sSource);
+            $sContents = '/*[' . $this->sMarker . ' ' . $sFile . ' begin]*/' . PHP_EOL
+                . $sContents
+                . PHP_EOL . '/*[' . $this->sMarker . ' end]*/' . PHP_EOL;
+        }
+
+        return $sContents;
     }
 
 
