@@ -91,8 +91,8 @@ class ModuleBlog extends Module {
     /**
      * Спавнение по наименованию, но персональные вперед
      *
-     * @param $oBlog1
-     * @param $oBlog2
+     * @param object $oBlog1
+     * @param object $oBlog2
      *
      * @return int
      */
@@ -101,7 +101,7 @@ class ModuleBlog extends Module {
         if (($oBlog1->GetType() == 'personal' && $oBlog2->GetType() == 'personal')
             || ($oBlog1->GetType() != 'personal' && $oBlog2->GetType() != 'personal')
         ) {
-            return $this->_compareByTitle($oBlog1, $oBlog2);
+            return strcasecmp($oBlog1->GetTitle(), $oBlog2->GetTitle());
         }
         if ($oBlog1->GetType() == 'personal') {
             return -1;
@@ -113,19 +113,14 @@ class ModuleBlog extends Module {
     /**
      * Спавнение по наименованию
      *
-     * @param $oBlog1
-     * @param $oBlog2
+     * @param object $oBlog1
+     * @param object $oBlog2
      *
      * @return int
      */
     public function _compareByTitle($oBlog1, $oBlog2) {
 
-        $sTitle1 = mb_strtolower($oBlog1->GetTitle());
-        $sTitle2 = mb_strtolower($oBlog2->GetTitle());
-        if ($sTitle1 == $sTitle2) {
-            return 0;
-        }
-        return ($sTitle1 < $sTitle2) ? -1 : 1;
+        return strcasecmp($oBlog1->GetTitle(), $oBlog2->GetTitle());
     }
 
     /**
