@@ -1365,7 +1365,12 @@ class ModuleTopic extends Module {
                     }
                     $aFilter['topic_date_more'] = $sPeriod;
                 }
-                $aFilter['order'] = array('t.topic_count_comment DESC', 't.topic_date_show DESC', 't.topic_id DESC');
+                if (!isset($aFilter['order'])) {
+                    $aFilter['order'] = array();
+                }
+                $aFilter['order'][] = 't.topic_count_comment DESC';
+                $aFilter['order'][] = 't.topic_date_show DESC';
+                $aFilter['order'][] = 't.topic_id DESC';
                 break;
             case 'top':
                 if (!empty($aParams['period'])) {
@@ -1377,7 +1382,12 @@ class ModuleTopic extends Module {
                     }
                     $aFilter['topic_date_more'] = $sPeriod;
                 }
-                $aFilter['order'] = array('t.topic_rating DESC', 't.topic_date_show DESC', 't.topic_id DESC');
+                if (!isset($aFilter['order'])) {
+                    $aFilter['order'] = array();
+                }
+                $aFilter['order'][] = 't.topic_rating DESC';
+                $aFilter['order'][] = 't.topic_date_show DESC';
+                $aFilter['order'][] = 't.topic_id DESC';
                 break;
             default:
                 // Nothing others
