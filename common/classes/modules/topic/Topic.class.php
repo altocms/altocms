@@ -120,6 +120,8 @@ class ModuleTopic extends Module {
 
     /*
      * Возвращает доступные типы контента
+     *
+     * @return ModuleTopic_EntityContentType
      */
     public function getContentType($sType) {
 
@@ -505,7 +507,7 @@ class ModuleTopic extends Module {
      * @param array|int  $aTopicId    Список ID топиков
      * @param array|null $aAllowData  Список типов дополнительных данных, которые нужно подключать к топикам
      *
-     * @return array
+     * @return ModuleTopic_EntityTopic[]
      */
     public function GetTopicsAdditionalData($aTopicId, $aAllowData = null) {
 
@@ -650,6 +652,7 @@ class ModuleTopic extends Module {
             if ($oTopic->getPublish() && $oTopic->getTags()) {
                 $aTags = explode(',', $oTopic->getTags());
                 foreach ($aTags as $sTag) {
+                    /** @var ModuleTopic_EntityTopicTag $oTag */
                     $oTag = E::GetEntity('Topic_TopicTag');
                     $oTag->setTopicId($oTopic->getId());
                     $oTag->setUserId($oTopic->getUserId());
@@ -915,6 +918,7 @@ class ModuleTopic extends Module {
                 if ($oTopic->getPublish() && $oTopic->getTags()) {
                     $aTags = explode(',', $oTopic->getTags());
                     foreach ($aTags as $sTag) {
+                        /** @var ModuleTopic_EntityTopicTag $oTag */
                         $oTag = E::GetEntity('Topic_TopicTag');
                         $oTag->setTopicId($oTopic->getId());
                         $oTag->setUserId($oTopic->getUserId());
@@ -1023,7 +1027,7 @@ class ModuleTopic extends Module {
      *
      * @param string $sUrl
      *
-     * @return array
+     * @return ModuleTopic_EntityTopic[]
      */
     public function GetTopicsLikeUrl($sUrl) {
 
@@ -1134,7 +1138,7 @@ class ModuleTopic extends Module {
      *
      * @param array $aTopicsId    Список ID топиков
      *
-     * @return array
+     * @return ModuleTopic_EntityTopic[]
      */
     public function GetTopicsByArrayIdSolid($aTopicsId) {
 
@@ -2072,7 +2076,7 @@ class ModuleTopic extends Module {
      * @param array $aTopicsId    - Список ID топиков
      * @param int   $iUserId      - ID пользователя
      *
-     * @return array
+     * @return ModuleTopic_EntityTopicRead[]
      */
     public function GetTopicsReadByArray($aTopicsId, $iUserId) {
 
@@ -2740,7 +2744,7 @@ class ModuleTopic extends Module {
     /**
      * Обработка дополнительных полей топика
      *
-     * @param        $oTopic
+     * @param ModuleTopic_EntityTopic $oTopic
      * @param string $sType
      *
      * @return bool
@@ -2907,6 +2911,7 @@ class ModuleTopic extends Module {
 
                         //Добавляем поле к топику.
                         if ($sData) {
+                            /** @var ModuleTopic_EntityContentValues $oValue */
                             $oValue = E::GetEntity('Topic_ContentValues');
                             $oValue->setTargetId($oTopic->getId());
                             $oValue->setTargetType('topic');
@@ -2966,13 +2971,14 @@ class ModuleTopic extends Module {
     /**
      * Delete MResources associated with topic(s)
      *
-     * @param $aTopics
+     * @param ModuleTopic_EntityTopic[] $aTopics
      */
     public function DeleteMresources($aTopics) {
 
         if (!is_array($aTopics)) {
             $aTopics = array($aTopics);
         }
+        /** @var ModuleTopic_EntityTopic $oTopic */
         foreach ($aTopics as $oTopic) {
             E::ModuleMresource()->DeleteMresourcesRelByTarget('topic', $oTopic->GetId());
         }

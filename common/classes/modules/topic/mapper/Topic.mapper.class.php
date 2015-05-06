@@ -262,7 +262,7 @@ class ModuleTopic_MapperTopic extends Mapper {
      *
      * @param array $aTopicsId    Список ID топиков
      *
-     * @return array
+     * @return ModuleTopic_EntityTopic[]
      */
     public function GetTopicsByArrayId($aTopicsId) {
 
@@ -1431,7 +1431,7 @@ class ModuleTopic_MapperTopic extends Mapper {
      *
      * @param  array $aFilter    Фильтр
      *
-     * @return array
+     * @return ModuleTopic_EntityContentType[]
      */
     public function getContentTypes($aFilter) {
 

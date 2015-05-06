@@ -14,7 +14,12 @@
  */
 
 /**
- * Объект сущности топика
+ * Class ModuleTopic_EntityTopic Entity of topic/article
+ *
+ *
+ * @method int getTopicIndexIgnore()
+ * @method int getFavourite()
+ * @method string GetTopicUrl()
  *
  * @package modules.topic
  * @since   1.0
@@ -38,7 +43,7 @@ class ModuleTopic_EntityTopic extends Entity {
     protected $aValues = null;
 
     /**
-     * Определяем правила валидации
+     * Define of validation rule
      */
     public function Init() {
 
@@ -1296,6 +1301,16 @@ class ModuleTopic_EntityTopic extends Entity {
 
         $oContentType = $this->getContentType();
         return $oContentType->getTemplate($sMode);
+    }
+
+    /**
+     * If the topic is published
+     *
+     * @return bool
+     */
+    public function isPublished() {
+
+        return (bool)$this->getPublish();
     }
 
     public function isVoteInfoShow() {

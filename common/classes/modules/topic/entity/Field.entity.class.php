@@ -9,7 +9,10 @@
  */
 
 /**
- * Объект поля контента
+ * Class ModuleTopic_EntityField
+ *
+ * @method int getFieldId()
+ * @method string getFieldType
  *
  * @package modules.topic
  * @since   1.0

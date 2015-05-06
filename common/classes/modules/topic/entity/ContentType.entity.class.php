@@ -25,6 +25,9 @@ class ModuleTopic_EntityContentType extends Entity {
         return $this->getContentId();
     }
 
+    /**
+     * @return ModuleTopic_EntityField[]
+     */
     public function getFields() {
 
         if (is_null($this->aFields)) {
