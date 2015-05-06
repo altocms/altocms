@@ -52,7 +52,7 @@ $config['head']['default']['css'] = array(
 
     /* Theme */
     '___path.skin.dir___/themes/___view.theme___/style.css',
-    '___path.skin.dir___/themes/___view.theme___/style.css.map',
+    //'___path.skin.dir___/themes/___view.theme___/style.css.map',
     /* Themer Icons */
     '___path.skin.dir___/assets/icons/css/fontello.css',
 

@@ -50,9 +50,9 @@ $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/hoverintent/
 
 $config['head']['default']['css'] = array(
     '___path.skin.dir___/assets/css/style.bootstrap.min.css',
-    '___path.skin.dir___/assets/css/style.bootstrap.min.map',
+    //'___path.skin.dir___/assets/css/style.bootstrap.min.map',
     '___path.skin.dir___/assets/css/style.experience.min.css',
-    '___path.skin.dir___/assets/css/style.experience.min.map',
+    //'___path.skin.dir___/assets/css/style.experience.min.map',
     '___path.skin.dir___/assets/css/animate.min.css',
     '___path.skin.dir___/assets/css/hover.min.css',
     '___path.frontend.dir___/libs/vendor/prettyphoto/css/prettyphoto.css',
@@ -68,7 +68,7 @@ $config['head']['default']['css'] = array(
 
     /* Theme */
     '___path.skin.dir___/themes/___view.theme___/css/theme.___view.theme___.css',
-    '___path.skin.dir___/themes/___view.theme___/css/theme.___view.theme___.css.map',
+    //'___path.skin.dir___/themes/___view.theme___/css/theme.___view.theme___.css.map',
     '___path.skin.dir___/themes/___view.theme___/css/custom.___view.theme___.css',
 );
 
