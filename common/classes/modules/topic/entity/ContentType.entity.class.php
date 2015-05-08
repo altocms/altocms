@@ -26,6 +26,8 @@ class ModuleTopic_EntityContentType extends Entity {
     }
 
     /**
+     * Get all additional fields of the content type
+     *
      * @return ModuleTopic_EntityField[]
      */
     public function getFields() {
@@ -36,6 +38,20 @@ class ModuleTopic_EntityContentType extends Entity {
             $this->aFields = E::ModuleTopic()->GetContentFields($aFilter);
         }
         return $this->aFields;
+    }
+
+    /**
+     * Get additional field by ID
+     *
+     * @param $iFieldId
+     *
+     * @return ModuleTopic_EntityField|null
+     */
+    public function getField($iFieldId) {
+
+        $aFields = $this->getFields();
+
+        return isset($aFields[$iFieldId]) ? $aFields[$iFieldId] : null;
     }
 
     public function setFields($data) {
