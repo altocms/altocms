@@ -324,10 +324,11 @@ class ModuleViewer extends Module {
      *
      * @return Smarty
      */
-    public function GetSmartyObject($aVariables = null) {
+    public function GetSmartyObject() {
 
         $oSmarty = $this->oSmarty;
-        if ($aVariables) {
+        // For LS interface compatibility
+        if (func_num_args() && ($aVariables = func_get_arg(0)) && is_array($aVariables)) {
             $oSmarty->assign($aVariables);
         }
         return $oSmarty;
