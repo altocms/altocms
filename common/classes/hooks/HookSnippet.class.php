@@ -47,7 +47,7 @@ class HookSnippet extends Hook {
         // Получим html-код сниппета
         $aVars = array('aParams' => isset($aData['params']) ? $aData['params'] : array());
 
-        $aData['result'] = trim(E::ModuleViewer()->Fetch("tpls/snippets/snippet.{$aData['params']['snippet_name']}.tpl", $aVars));
+        $aData['result'] = trim(E::ModuleViewer()->GetLocalViewer()->Fetch("tpls/snippets/snippet.{$aData['params']['snippet_name']}.tpl", $aVars));
 
         return $aData['result'];
     }
