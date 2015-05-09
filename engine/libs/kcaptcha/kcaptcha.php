@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 # KCAPTCHA PROJECT VERSION 2.0
 

@@ -5,9 +5,6 @@
  * Dual License - BSD and GNU GPL v.2
  * See details on license.txt
  * --------------------------------------------------------
- * Engine based on LiveStreet v.0.4.1 by Maxim Mzhelskiy
- * from http://www.livestreetcms.com/
- * --------------------------------------------------------
  * @link www.aloha-cms.com
  * @version v.0.5
  * @copyright Copyright: 2010 Aloha-CMS Team
@@ -23,7 +20,7 @@
  */
 class Curl {
 
-    const VERSION = '1.2.1';
+    const VERSION = '1.2.2';
 
     const CACHE_ENABLE = 1;
     const CACHE_TIME = 2;
@@ -56,7 +53,7 @@ class Curl {
     protected $_aCacheOptions = array();
 
     /**
-     * Class conetructor
+     * Class constructor
      *
      * @param string|null $sUrl
      * @param array       $aOptions
@@ -196,12 +193,12 @@ class Curl {
             if ($bCache) {
                 $this->_setCache(
                     $aOptions, array(
-                                    'version'  => self::VERSION,
-                                    'header'   => $this->_aResponseHeader,
-                                    'response' => $sResponse,
-                                    'error'    => $this->_nError,
-                                    'info'     => $this->_aInfo,
-                               )
+                        'version'  => self::VERSION,
+                        'header'   => $this->_aResponseHeader,
+                        'response' => $sResponse,
+                        'error'    => $this->_nError,
+                        'info'     => $this->_aInfo,
+                    )
                 );
             }
             if (!$this->_bKeepAlive) {
@@ -355,6 +352,7 @@ class Curl {
      * @param $aParams
      */
     public function setParams($aParams) {
+
         $this->_aHttpParams = (array)$aParams;
     }
 
@@ -455,8 +453,8 @@ class Curl {
     /**
      * Sets external cache function and turns on caching
      *
-     * @param $xCallbackSet
-     * @param $xCallbackGet
+     * @param callable $xCallbackSet
+     * @param callable $xCallbackGet
      */
     public function setCacheFunc($xCallbackSet = null, $xCallbackGet = null) {
 
@@ -507,11 +505,11 @@ class Curl {
         if (!$sMethod) {
             $sMethod = $this->_sHttpMethod;
         }
-        // Если запрос не совпадает с предыдущим, то закрываем соединение
+        // If the request is not the same as the previous one, then close the connection
         if ($this->_sLastRequest && $this->_sLastRequest != $this->_sHttpMethod . ' ' . $sUrl) {
             $this->close();
         }
-        // Если соединение закрыто, то инициализируем его
+        // If the connection is closed, then initialize it
         if (!$this->_hPointer) {
             $this->init($sUrl);
         }
@@ -523,6 +521,8 @@ class Curl {
             if ($aParams) {
                 if (!is_string($aParams)) {
                     $sParams = http_build_query((array)$aParams);
+                } else {
+                    $sParams = (string)$aParams;
                 }
                 $sUrl = trim($sUrl, '?&');
                 if (strpos($sUrl, '?')) {
@@ -542,7 +542,7 @@ class Curl {
     }
 
     /**
-     * POST-запрос по переданному (или по ранее заданному) адресу
+     * POST-request to the transferred (or previously given) URL
      *
      * @param null  $sUrl
      * @param array $aParams
@@ -556,7 +556,7 @@ class Curl {
     }
 
     /**
-     * GET-запрос по переданному (или по ранее заданному) адресу
+     * GET-request to the transferred (or previously given) URL
      *
      * @param null  $sUrl
      * @param array $aParams
@@ -570,7 +570,7 @@ class Curl {
     }
 
     /**
-     * Возвращает curl-информацию
+     * Get curl-information
      *
      * @return array
      */
@@ -584,7 +584,33 @@ class Curl {
     }
 
     /**
-     * Возвращает код ошибки
+     * Get response header
+     *
+     * @param bool $bAsArray If true then return as an array otherwise returns as a plain text
+     *
+     * @return array|string
+     */
+    public function getResponseHeader($bAsArray = false) {
+
+        $xResult = $this->_aResponseHeader;
+        if ($bAsArray && $xResult) {
+            $aLines = array_map('trim', explode("\n", $xResult));
+            $aHeaders = array();
+            foreach($aLines as $sLine) {
+                if (strpos($sLine, ':')) {
+                    list($sKey, $sVal) = array_map('trim', explode(':', $sLine, 2));
+                    $aHeaders[$sKey] = $sVal;
+                } else {
+                    $aHeaders[] = $sLine;
+                }
+            }
+            $xResult = $aHeaders;
+        }
+        return $xResult;
+    }
+
+    /**
+     * Get error code
      *
      * @return int
      */
@@ -594,7 +620,7 @@ class Curl {
     }
 
     /**
-     * Возвращает текст ошибки
+     * Get error text
      *
      * @return string
      */
@@ -604,7 +630,7 @@ class Curl {
     }
 
     /**
-     * Закрывает соединение
+     * Close connection
      */
     public function close() {
 
