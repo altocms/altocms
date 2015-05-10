@@ -1142,9 +1142,9 @@ class ActionAjax extends Action {
 
         $aVars = array();
         if ($aTopics = E::ModuleTopic()->GetTopicsLast(Config::Get('widgets.stream.params.limit'))) {
-            $aVars['aTopics'] = $aTopics;
+            $aVars['aTopics'] = $aTopics['collection'];
             // LS-compatibility
-            $aVars['oTopics'] = $aTopics;
+            $aVars['oTopics'] = $aTopics['collection'];
         }
         $sTextResult = E::ModuleViewer()->FetchWidget('stream_topic.tpl', $aVars);
         E::ModuleViewer()->AssignAjax('sText', $sTextResult);
