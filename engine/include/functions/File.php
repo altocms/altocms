@@ -943,6 +943,17 @@ class AltoFunc_File {
         }
         try {
             self::$_time = microtime(true);
+            if (F::IsDebug()) {
+                $bCheckUtf8 = (class_exists('Config', false) ? Config::Get('sys.include.check_utf8') : false);
+                if ($bCheckUtf8) {
+                    $sBom = file_get_contents($sFile, true, null, 0, 5);
+                    if (!$sBom) {
+                        F::SysWarning('Error in including file "' . $sFile . '" - file is empty');
+                    } elseif ($sBom != '<?php') {
+                        F::SysWarning('Error in including file "' . $sFile . '" - BOM or other wrong symbols detected');
+                    }
+                }
+            }
             if ($bOnce) {
                 self::$_temp = include_once($sFile);
             } else {
@@ -957,7 +968,7 @@ class AltoFunc_File {
             if ($oException->getFile() !== __FILE__) {
                 // Ошибка в подключённом файле
                 //throw $oException;
-                F::SysWarning('Error in include file "' . $sFile . '"');
+                F::SysWarning('Error in including file "' . $sFile . '"');
                 return false;
             } else {
                 // Файл не был подключён.

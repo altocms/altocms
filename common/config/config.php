@@ -246,6 +246,8 @@ $config['sys']['ip']['exclude_server']  = true;
 $config['sys']['ip']['exclude_private'] = true;
 $config['sys']['ip']['default']         = '127.0.0.1';
 
+$config['sys']['include']['check_file'] = false; // Проверка подключаемых файлов на "UTF-8 without BOM"
+
 /**
  * Общие настройки
  */
