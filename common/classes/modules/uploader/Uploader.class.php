@@ -924,8 +924,13 @@ class ModuleUploader extends Module {
     public function GetAllowedCount($sTargetType, $sTargetId = FALSE) {
 
         if ($sTargetType == 'photoset') {
-            $aPhotoSetData = E::ModuleMresource()->GetPhotosetData($sTargetType, (int)$sTargetId);
-            return $aPhotoSetData['count'] < Config::Get('module.topic.photoset.count_photos_max');
+            if ($iMaxCount = intval(Config::Get('module.topic.photoset.count_photos_max'))) {
+                $aPhotoSetData = E::ModuleMresource()->GetPhotosetData($sTargetType, (int)$sTargetId);
+                return $aPhotoSetData['count'] < $iMaxCount;
+            } else {
+                // If max number is not defined then without limitations
+                return TRUE;
+            }
         }
         if ($sTargetType == 'topic') {
             return TRUE;
