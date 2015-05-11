@@ -607,9 +607,11 @@ class Router extends LsObject {
                     $this->ExecAction();
                 }
             } else {
-                static::$sAction = $this->aConfigRoute['config']['action_not_found'];
-                static::$sActionEvent = '404';
-                $this->ExecAction();
+                if (!F::AjaxRequest()) {
+                    static::$sAction = $this->aConfigRoute['config']['action_not_found'];
+                    static::$sActionEvent = '404';
+                    $this->ExecAction();
+                }
             }
         }
         // Hook after action
