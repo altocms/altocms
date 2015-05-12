@@ -10,9 +10,8 @@
     <version>1.1</version>
     <requires>
         <alto>
-            <version>1.0</version>
+            <version>1.1.0b</version>
         </alto>
-        <plugins></plugins>
         <system>
             <php>5.3.0</php>
         </system>

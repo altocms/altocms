@@ -683,10 +683,39 @@ class ModuleViewer extends Module {
         if (headers_sent()) {
             return false;
         }
-        foreach($this->aResponseHeaders as $sHeader) {
+        foreach($this->aResponseHeaders as $iIndex => $sHeader) {
             header($sHeader);
+            unset($this->aResponseHeaders[$iIndex]);
         }
         return true;
+    }
+
+    /**
+     * Return content type from HTTP headers
+     *
+     * @param bool $bSystemHeadersOnly
+     *
+     * @return string
+     */
+    public function GetContentType($bSystemHeadersOnly = false) {
+
+        $aHeaders = headers_list();
+        if (!$bSystemHeadersOnly) {
+            if ($aHeaders) {
+                $aHeaders = array_merge($aHeaders, $this->aResponseHeaders);
+            } else {
+                $aHeaders = $this->aResponseHeaders;
+            }
+        }
+        $sResult = null;
+        if ($aHeaders) {
+            foreach ($aHeaders as $sHeader) {
+                if (preg_match('/content-type:\s*([a-z0-9\-\/]+)/i', $sHeader, $aM)) {
+                    $sResult = $aM[1];
+                }
+            }
+        }
+        return $sResult;
     }
 
     /**
@@ -738,11 +767,6 @@ class ModuleViewer extends Module {
         // TODO: Убрать! Не должно этого быть на страницах сайта
         $this->Assign('_sPhpSessionName', session_name());
         $this->Assign('_sPhpSessionId', session_id());
-
-        // * Загружаем объект доступа к конфигурации
-        // * Перенесено в PluginLs_Viewer
-        // TODO: Пока здесь, но надо убирать - незачем таскать в шаблоны объект, если можно в них к стат.классу напрямую обращаться
-        $this->Assign('oConfig', Config::getInstance());
 
         // * Загружаем роутинг с учетом правил rewrite
         $aRouter = array();
@@ -801,6 +825,13 @@ class ModuleViewer extends Module {
             $this->oSmarty->compile_id = $sSkinTheme;
         }
         $this->Assign('sSkinTheme', $sSkinTheme);
+
+        $oSkin = E::ModuleSkin()->GetSkin($this->sViewSkin);
+        if (!$oSkin->GetCompatible() || $oSkin->SkinCompatible('1.1', '<')) {
+            // Для старых скинвов загружаем объект доступа к конфигурации
+            $this->Assign('oConfig', Config::getInstance());
+
+        }
     }
 
     /**
@@ -975,10 +1006,22 @@ class ModuleViewer extends Module {
             $this->SetResponseHeader('Content-type', 'application/json');
             $sOutput = F::GetRequest('jsonpCallback', 'callback') . '(' . F::jsonEncode($this->aVarsAjax) . ');';
         }
+
+        $this->Flush($sOutput);
+
+        exit();
+    }
+
+    /**
+     * Flush output string to client
+     *
+     * @param string $sOutput
+     */
+    public function Flush($sOutput) {
+
         $this->SendResponseHeaders();
 
         echo $sOutput;
-        exit();
     }
 
     /**

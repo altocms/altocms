@@ -334,6 +334,43 @@ class ModuleSkin_EntitySkin extends Entity {
         }
         return false;
     }
+
+    /**
+     * Check the skin compatibility
+     *
+     * @param string|null $sVersion
+     * @param string|null $sOperator
+     *
+     * @return bool
+     */
+    public function SkinCompatible($sVersion = null, $sOperator = null) {
+
+        $sValue = $this->GetCompatible();
+        if ($sValue) {
+            // version of skin edition
+            if (!strpos($sValue, '-')) {
+                $sAlto = $sValue;
+                $sModVersion = null;
+            } else {
+                list($sAlto, $sModVersion) = explode('-', $sValue, 2);
+            }
+            if ($sAlto == 'alto') {
+                if (!$sModVersion) {
+                    $sModVersion = '1.0';
+                }
+                if (!$sVersion) {
+                    return true;
+                } elseif (!$sOperator && version_compare($sModVersion, $sVersion, '==')) {
+                    return true;
+                } elseif ($sOperator) {
+                    return version_compare($sModVersion, $sVersion, $sOperator);
+                }
+            }
+        }
+        return false;
+    }
+
+
 }
 
 // EOF
