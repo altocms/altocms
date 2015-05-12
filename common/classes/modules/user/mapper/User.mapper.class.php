@@ -465,7 +465,7 @@ class ModuleUser_MapperUser extends Mapper {
     public function GetUsersByDateLast($iLimit) {
 
         $sql
-            = "SELECT
+            = "SELECT	distinct
 			user_id
 			FROM
 				?_session
