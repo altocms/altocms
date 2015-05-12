@@ -71,13 +71,13 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
     }
 
     /**
-     * Возвращает полный веб путь до фото определенного размера
+     * Возвращает ссылку фото определенного размера
      *
      * @param string|null $xSize    Размер фото, например, '100' или '150crop' или '150x100' или 'x100'
      *
      * @return null|string
      */
-    public function getUrl($xSize = null) {
+    public function getLink($xSize = null) {
 
         if ($sUrl = $this->getPath()) {
             if ($xSize) {
@@ -118,13 +118,25 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
         return $sUrl;
     }
 
+    /**
+     * Alias for getLink()
+     *
+     * @param null $xSize
+     *
+     * @return null|string
+     */
+    public function getUrl($xSize = null) {
+
+        return $this->getLink($xSize);
+    }
+
     public function getImgSize($sSize = null) {
 
         $aSize = $this->getProp('_size-' . $sSize . '-imgsize');
         if (!$aSize) {
             $sFile = $this->getProp('_size-' . $sSize . '-file');
             if (!$sFile) {
-                $sUrl = $this->getUrl($sSize);
+                $sUrl = $this->getLink($sSize);
                 $sFile = E::ModuleUploader()->Url2Dir($sUrl);
                 $this->setProp('_size-' . $sSize . '-file', $sFile);
             }
@@ -160,9 +172,14 @@ class ModuleTopic_EntityTopicPhoto extends Entity {
         }
     }
 
+    /**
+     * LS-compatibility
+     *
+     * @deprecated
+     */
     public function getWebPath($sWidth = null) {
 
-        return $this->getUrl($sWidth);
+        return $this->getLink($sWidth);
     }
 
     /**

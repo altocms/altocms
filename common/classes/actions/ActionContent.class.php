@@ -569,7 +569,7 @@ class ActionContent extends Action {
         if (strpos($sUrlMask, '%topic_url%') === false) {
             // Нет в маске URL
             $aEditTopicUrl = array(
-                'before' => $oTopic->getUrl($sUrlMask),
+                'before' => $oTopic->getLink($sUrlMask),
                 'input' => '',
                 'after' => '',
             );
@@ -577,9 +577,9 @@ class ActionContent extends Action {
             // В маске есть URL, вместо него нужно вставить <input>
             $aUrlMaskParts = explode('%topic_url%', $sUrlMask);
             $aEditTopicUrl = array(
-                'before' => $aUrlMaskParts[0] ? $oTopic->getUrl($aUrlMaskParts[0]) : F::File_RootUrl(),
+                'before' => $aUrlMaskParts[0] ? $oTopic->getLink($aUrlMaskParts[0]) : F::File_RootUrl(),
                 'input' => $oTopic->getTopicUrl() ? $oTopic->getTopicUrl() : $oTopic->MakeTopicUrl(),
-                'after' => (isset($aUrlMaskParts[1]) && $aUrlMaskParts[1]) ? $oTopic->getUrl($aUrlMaskParts[1], false) : '',
+                'after' => (isset($aUrlMaskParts[1]) && $aUrlMaskParts[1]) ? $oTopic->getLink($aUrlMaskParts[1], false) : '',
             );
         }
         if (!isset($_REQUEST['topic_url_input'])) {
@@ -1072,8 +1072,8 @@ class ActionContent extends Action {
             foreach ($aPhotos as $oPhoto) {
                 $aResult[] = array(
                     'id'          => $oPhoto->getMresourceId(),
-                    'path_thumb'  => $oPhoto->getUrl($sThumbSize),
-                    'path'        => $oPhoto->getUrl(),
+                    'path_thumb'  => $oPhoto->getLink($sThumbSize),
+                    'path'        => $oPhoto->getLink(),
                     'description' => $oPhoto->getDescription(),
                 );
             }

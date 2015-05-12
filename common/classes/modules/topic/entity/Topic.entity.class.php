@@ -200,7 +200,7 @@ class ModuleTopic_EntityTopic extends Entity {
     }
 
     /**
-     * @return mixed|null
+     * @return ModuleTopic_EntityContentType
      */
     public function getContentType() {
 
@@ -586,7 +586,7 @@ class ModuleTopic_EntityTopic extends Entity {
      *
      * @return  string
      */
-    public function getUrl($sUrlMask = null, $bFullUrl = true) {
+    public function getLink($sUrlMask = null, $bFullUrl = true) {
 
         $sKey = '_url-' . ($sUrlMask ? $sUrlMask : '') . ($bFullUrl ? '-1' : '-0');
         $sUrl = $this->getProp($sKey);
@@ -630,6 +630,19 @@ class ModuleTopic_EntityTopic extends Entity {
         $this->setProp($sKey, $sUrl);
 
         return $sUrl;
+    }
+
+    /**
+     * Alias for getLink()
+     *
+     * @param string $sUrlMask
+     * @param bool   $bFullUrl
+     *
+     * @return mixed
+     */
+    public function getUrl($sUrlMask = null, $bFullUrl = true) {
+
+        return $this->getLink($sUrlMask, $bFullUrl);
     }
 
     /**
@@ -1142,7 +1155,7 @@ class ModuleTopic_EntityTopic extends Entity {
      * @param int|null $iFromId    ID с которого начинать  выборку
      * @param int|null $iCount     Количество
      *
-     * @return array
+     * @return ModuleTopic_EntityTopicPhoto[]
      */
     public function getPhotosetPhotos($iFromId = null, $iCount = null) {
 
