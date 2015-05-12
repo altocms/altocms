@@ -721,6 +721,26 @@ class ModulePlugin extends Module {
     }
 
     /**
+     * Return all inheritance rules
+     *
+     * @return array
+     */
+    public function GetInheritances() {
+
+        return $this->aInherits;
+    }
+
+    /**
+     * Return all delegation rules
+     *
+     * @return array
+     */
+    public function GetDelegations() {
+
+        return $this->aDelegates;
+    }
+
+    /**
      * Получает следующего родителя у наследника.
      * ВНИМАНИЕ! Данный метод нужно вызвать только из __autoload()
      *
@@ -850,7 +870,7 @@ class ModulePlugin extends Module {
      * Составляет цепочку делегатов
      *
      * @param string $sType
-     * @param string $aDelegates
+     * @param array  $aDelegates
      *
      * @return array
      */
