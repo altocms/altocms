@@ -944,7 +944,7 @@ class AltoFunc_File {
         try {
             self::$_time = microtime(true);
             if (F::IsDebug()) {
-                $bCheckUtf8 = (class_exists('Config', false) ? Config::Get('sys.include.check_utf8') : false);
+                $bCheckUtf8 = (class_exists('Config', false) ? Config::Get('sys.include.check_file') : false);
                 if ($bCheckUtf8) {
                     $sBom = file_get_contents($sFile, true, null, 0, 5);
                     if (!$sBom) {
@@ -968,7 +968,7 @@ class AltoFunc_File {
             if ($oException->getFile() !== __FILE__) {
                 // Ошибка в подключённом файле
                 //throw $oException;
-                F::SysWarning('Error in including file "' . $sFile . '"');
+                F::SysWarning('Error in including file "' . $sFile . '" - ' . $oException->getMessage());
                 return false;
             } else {
                 // Файл не был подключён.
