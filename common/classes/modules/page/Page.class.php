@@ -293,7 +293,7 @@ class ModulePage extends Module {
     public function getListOfActivePages(&$iCount, $iCurrPage, $iPerPage) {
 
         return $this->oMapper->getListOfActivePages(
-            $iCount, $iCurrPage, Config::Get('plugin.sitemap.objects_per_page')
+            $iCount, $iCurrPage, Config::Get('plugin.sitemap.items_per_page')
         );
     }
 
