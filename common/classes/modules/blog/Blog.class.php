@@ -1761,9 +1761,9 @@ class ModuleBlog extends Module {
      */
     public function DeleteBlogType($oBlogType) {
 
-        $iCount = $this->oMapper->GetBlogCountsByTypes($oBlogType->GetTypeCode());
+        $aInfo = $this->oMapper->GetBlogCountsByTypes($oBlogType->GetTypeCode());
         // Если есть блоги такого типа, то НЕ удаляем тип
-        if (!$iCount) {
+        if (!empty($aInfo[$oBlogType->GetTypeCode()])) {
             $bResult = $this->oMapper->DeleteBlogType($oBlogType->GetTypeCode());
             if ($bResult) {
                 //чистим зависимые кеши

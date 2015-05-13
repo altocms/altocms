@@ -765,7 +765,7 @@ class ModuleBlog_MapperBlog extends Mapper {
     /**
      * Возвращает объекты типов блогов
      *
-     * @return  array(ModuleBlog_BlogType)
+     * @return  ModuleBlog_BlogType[]
      */
     public function GetBlogTypes() {
 
@@ -809,16 +809,15 @@ class ModuleBlog_MapperBlog extends Mapper {
 
                 $oBlogType->setBlogsCount(
                     isset($aStat[$oBlogType->getTypeCode()])
-                        ? $aStat[$oBlogType->getTypeCode()]['blogs_count']
+                        ? intval($aStat[$oBlogType->getTypeCode()])
                         : 0
                 );
             }
 
         }
 
-            return $aResult;
-
-        }
+        return $aResult;
+    }
 
     /**
      * Получает массив типов контента для укзанных в параметре типов блогов
@@ -952,7 +951,7 @@ class ModuleBlog_MapperBlog extends Mapper {
             GROUP BY blog_type
             ORDER BY blog_type
             ";
-        $aRows = $this->oDb->select($sql, $aTypes ? $aTypes : DBSIMPLE_SKIP);
+        $aRows = $this->oDb->selectCol($sql, $aTypes ? $aTypes : DBSIMPLE_SKIP);
         return $aRows;
     }
 
