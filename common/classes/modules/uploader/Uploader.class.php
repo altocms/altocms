@@ -1054,7 +1054,7 @@ class ModuleUploader extends Module {
                 return TRUE;
             }
 
-            if ($oComment && ((E::ModuleACL()->CanPostComment(E::User()) && E::ModuleAcl()->CanPostCommentTime(E::User())) || E::IsAdminOrModerator())) {
+            if ($oComment && ((E::ModuleACL()->CanPostComment(E::User(), $oComment->getTarget()) && E::ModuleAcl()->CanPostCommentTime(E::User())) || E::IsAdminOrModerator())) {
                 return $oComment;
             }
 
@@ -1092,7 +1092,7 @@ class ModuleUploader extends Module {
                 return TRUE;
             }
 
-            if ($oTalk && ((E::ModuleAcl()->CanSendTalkTime()) || E::IsAdminOrModerator())) {
+            if ($oTalk && (E::ModuleAcl()->CanSendTalkTime(E::User()) || E::IsAdminOrModerator())) {
                 return $oTalk;
             }
 
