@@ -128,11 +128,12 @@ class ActionContent extends Action {
         $sContentTypeName = (isset($aFilter['content_type']) ? $aFilter['content_type'] : null);
 
         $aBlogs = E::ModuleBlog()->GetBlogsAllowByUser($oUser);
+
+        $aAllowBlogs = array();
         // Добавим персональный блог пользователю
         if ($oUser) {
-            $aBlogs[] = E::ModuleBlog()->GetPersonalBlogByUserId($oUser->getId());
+            $aAllowBlogs[] = E::ModuleBlog()->GetPersonalBlogByUserId($oUser->getId());
         }
-        $aAllowBlogs = array();
 
         /** @var ModuleBlog_EntityBlog $oBlog */
         foreach($aBlogs as $oBlog) {
@@ -201,10 +202,15 @@ class ActionContent extends Action {
         foreach ($aBlogsAllow as $oAllowedBlog) {
             // Нашли среди разрешенных персональный блог
             if ($oAllowedBlog->getType() == 'personal') {
-                foreach ($oAllowedBlog->getBlogType()->getContentTypes() as $oContentType) {
-                    if ($oContentType->getId() == $this->oContentType->getId()) {
-                        $this->bPersonalBlogEnabled = TRUE;
-                        break;
+                if (!$oAllowedBlog->getBlogType()->getContentTypes()) {
+                    // типы контента не определены, значит, разрешен любой
+                    $this->bPersonalBlogEnabled = TRUE;
+                } else {
+                    foreach ($oAllowedBlog->getBlogType()->getContentTypes() as $oContentType) {
+                        if ($oContentType->getId() == $this->oContentType->getId()) {
+                            $this->bPersonalBlogEnabled = TRUE;
+                            break;
+                        }
                     }
                 }
                 break;

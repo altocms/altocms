@@ -1254,6 +1254,12 @@ class ModuleBlog_MapperBlog extends Mapper {
                 $aFilter['blog_title_like'] .= '%';
             }
         }
+        if (isset($aFilter['exclude_type']) && !isset($aFilter['not_blog_type'])) {
+            $aFilter['not_blog_type'] = $aFilter['exclude_type'];
+        }
+        if (isset($aFilter['include_type']) && !isset($aFilter['blog_type'])) {
+            $aFilter['blog_type'] = $aFilter['include_type'];
+        }
 
         // Сортировка
         $sSqlOrder = '';
