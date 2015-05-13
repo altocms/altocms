@@ -627,7 +627,11 @@ class ActionContent extends Action {
         $iBlogIdOld = $oTopic->getBlogId();
 
         // * Заполняем поля для валидации
-        $oTopic->setBlogId(F::GetRequestStr('blog_id'));
+        $iBlogId = F::GetRequestStr('blog_id');
+        // if blog_id is empty then save blog not changed
+        if (is_numeric($iBlogId)) {
+            $oTopic->setBlogId($iBlogId);
+        }
 
         // issue 151 (https://github.com/altocms/altocms/issues/151)
         // Некорректная обработка названия блога
