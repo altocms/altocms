@@ -419,7 +419,7 @@ class ModuleBlog_EntityBlog extends Entity {
     }
 
     /**
-     * Возвращает полный URL блога
+     * Alias of getLink()
      *
      * @return string
      */

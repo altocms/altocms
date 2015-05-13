@@ -645,7 +645,7 @@ class ModuleBlog extends Module {
 
         $sCacheKey = 'Blog_GetBlogsId';
         if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
-            $data = $this->oMapper->GetBlogs();
+            $data = $this->oMapper->GetBlogsId();
             E::ModuleCache()->Set($data, $sCacheKey, array('blog_update', 'blog_new'), 'P1D');
         }
 
