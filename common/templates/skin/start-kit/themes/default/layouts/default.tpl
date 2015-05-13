@@ -55,7 +55,7 @@
         var SESSION_ID          = '{$_sPhpSessionId}';
 
 
-        var tinymce = false;
+        var tinyMCE = tinymce = false;
         var TINYMCE_LANG = {if Config::Get('lang.current') == 'ru'}'ru'{else}'en'{/if};
 
         var aRouter = [];

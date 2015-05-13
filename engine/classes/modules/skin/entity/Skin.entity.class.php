@@ -268,6 +268,11 @@ class ModuleSkin_EntitySkin extends Entity {
         }
     }
 
+    /**
+     * Return list of themes
+     *
+     * @return array
+     */
     public function GetThemes() {
 
         $aResult = array();
@@ -283,6 +288,11 @@ class ModuleSkin_EntitySkin extends Entity {
         return $aResult;
     }
 
+    /**
+     * Return value of attribute "compatible" of skin
+     *
+     * @return string
+     */
     public function GetCompatible() {
 
         $sResult = '';
@@ -293,6 +303,11 @@ class ModuleSkin_EntitySkin extends Entity {
         return $sResult;
     }
 
+    /**
+     * What minimal version Alto CMS required
+     *
+     * @return string
+     */
     public function RequiredAltoVersion() {
 
         $oRequires = $this->Requires();
@@ -302,22 +317,38 @@ class ModuleSkin_EntitySkin extends Entity {
         return $sAltoVersion;
     }
 
+    /**
+     * What version of PHP required
+     *
+     * @return string
+     */
     public function RequiredPhpVersion() {
 
         $oRequires = $this->Requires();
         if ($oRequires->system && $oRequires->system->php) {
             return (string)$oRequires->system->php;
         }
+        return null;
     }
 
+    /**What plugins required
+     *
+     * @return null
+     */
     public function RequiredPlugins() {
 
         $oRequires = $this->Requires();
         if ($oRequires->Plugins) {
             return $oRequires->Plugins->children();
         }
+        return null;
     }
 
+    /**
+     * Check compatibility of skin with current version of Alto CMS
+     *
+     * @return mixed
+     */
     public function EngineCompatible() {
 
         $oRequires = $this->Requires();
@@ -332,7 +363,6 @@ class ModuleSkin_EntitySkin extends Entity {
         } else {
             return version_compare($sLsVersion, LS_VERSION, '<=');
         }
-        return false;
     }
 
     /**
