@@ -188,7 +188,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
         $sDestination = F::File_GetAssetDir() . md5($sAsset . serialize($aFiles)) . '.' . $this->sOutType;
         if (!$this->CheckDestination($sDestination)) {
             $sContents = '';
-            $bCompress = true;
+            $bCompress = $this->bCompress;
             $bPrepare = null;
             foreach ($aFiles as $aFileParams) {
                 $sFileContents = F::File_GetContents($aFileParams['file']);
