@@ -64,6 +64,8 @@ class ModulePlugin extends Module {
      */
     protected $aInherits = array();
 
+    protected $aReverseMap = array();
+
     /**
      * Инициализация модуля
      */
@@ -687,14 +689,17 @@ class ModulePlugin extends Module {
         if (!is_string($sSign) || !strlen($sSign)) {
             return;
         }
+        $sFrom = trim($sFrom);
+        $sTo = trim($sTo);
         if (!in_array($sType, array_keys($this->aDelegates)) || !$sFrom || !$sTo) {
             return;
         }
 
-        $this->aDelegates[$sType][trim($sFrom)] = array(
-            'delegate' => trim($sTo),
+        $this->aDelegates[$sType][$sFrom] = array(
+            'delegate' => $sTo,
             'sign'     => $sSign
         );
+        $this->aReverseMap['delegates'][$sTo] = $sFrom;
     }
 
     /**
@@ -709,15 +714,18 @@ class ModulePlugin extends Module {
         if (!is_string($sSign) || !strlen($sSign)) {
             return;
         }
+        $sFrom = trim($sFrom);
+        $sTo = trim($sTo);
         if (!$sFrom || !$sTo) {
             return;
         }
 
-        $this->aInherits[trim($sFrom)]['items'][] = array(
-            'inherit' => trim($sTo),
+        $this->aInherits[$sFrom]['items'][] = array(
+            'inherit' => $sTo,
             'sign'    => $sSign
         );
         $this->aInherits[trim($sFrom)]['position'] = count($this->aInherits[trim($sFrom)]['items']) - 1;
+        $this->aReverseMap['inherits'][$sTo][] = $sFrom;
     }
 
     /**
@@ -854,16 +862,19 @@ class ModulePlugin extends Module {
      */
     public function GetRootDelegater($sType, $sTo) {
 
-        $sItem = $sTo;
-        $sItemDelegater = $this->GetDelegater($sType, $sTo);
-        while (empty($sRootDelegater)) {
-            if ($sItem == $sItemDelegater) {
-                $sRootDelegater = $sItem;
+        if ($sTo) {
+            $sItem = $sTo;
+            $sItemDelegater = $this->GetDelegater($sType, $sTo);
+            while (empty($sRootDelegater)) {
+                if ($sItem == $sItemDelegater) {
+                    $sRootDelegater = $sItem;
+                }
+                $sItem = $sItemDelegater;
+                $sItemDelegater = $this->GetDelegater($sType, $sItemDelegater);
             }
-            $sItem = $sItemDelegater;
-            $sItemDelegater = $this->GetDelegater($sType, $sItemDelegater);
+            return $sRootDelegater;
         }
-        return $sRootDelegater;
+        return $sTo;
     }
 
     /**
@@ -895,24 +906,24 @@ class ModulePlugin extends Module {
     public function GetDelegater($sType, $sTo) {
 
         $aDelegateMapper = array();
-        foreach ($this->aDelegates[$sType] as $kk => $vv) {
-            if ($vv['delegate'] == $sTo) {
-                $aDelegateMapper[$kk] = $vv;
+        foreach ($this->aDelegates[$sType] as $sFrom => $aInfo) {
+            if ($aInfo['delegate'] == $sTo) {
+                $aDelegateMapper[$sFrom] = $aInfo;
             }
         }
-        if (is_array($aDelegateMapper) && count($aDelegateMapper)) {
+        if ($aDelegateMapper) {
             $aKeys = array_keys($aDelegateMapper);
-            return array_shift($aKeys);
+            return reset($aKeys);
         }
-        foreach ($this->aInherits as $k => $v) {
+        foreach ($this->aInherits as $sFrom => $aInfo) {
             $aInheritMapper = array();
-            foreach ($v['items'] as $kk => $vv) {
-                if ($vv['inherit'] == $sTo) {
-                    $aInheritMapper[$kk] = $vv;
+            foreach ($aInfo['items'] as $iOrder => $aData) {
+                if ($aData['inherit'] == $sTo) {
+                    $aInheritMapper[$iOrder] = $aData;
                 }
             }
-            if (is_array($aInheritMapper) && count($aInheritMapper)) {
-                return $k;
+            if ($aInheritMapper) {
+                return $sFrom;
             }
         }
         return $sTo;
