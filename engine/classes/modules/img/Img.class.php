@@ -471,14 +471,16 @@ class ModuleImg extends Module {
             }
             if ($aOptions['watermark.enable'] && $aOptions['watermark.image']) {
                 $sMarkImg = F::File_Exists($aOptions['watermark.image.file'], $aOptions['watermark.image.path']);
-                $bTopLeft = (bool)$aOptions['watermark.image.topleft'];
-                if ($aOptions['watermark.image.position']) {
-                    list($iCoordX, $iCoordY) = explode(',', $aOptions['watermark.image.position']);
-                } else {
-                    $iCoordX = $iCoordY = 0;
-                }
-                if ($oImg = $this->WatermarkImg($oImg, $iCoordX, $iCoordY, $sMarkImg, $bTopLeft)) {
-                    $bChanged = true;
+                if ($sMarkImg) {
+                    $bTopLeft = (bool)$aOptions['watermark.image.topleft'];
+                    if ($aOptions['watermark.image.position']) {
+                        list($iCoordX, $iCoordY) = explode(',', $aOptions['watermark.image.position']);
+                    } else {
+                        $iCoordX = $iCoordY = 0;
+                    }
+                    if ($oImg = $this->WatermarkImg($oImg, $iCoordX, $iCoordY, $sMarkImg, $bTopLeft)) {
+                        $bChanged = true;
+                    }
                 }
             }
         }
