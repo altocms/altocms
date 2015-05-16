@@ -1138,39 +1138,9 @@ class AltoFunc_File {
     static protected $nMimeTypeSignaturesMax = 0;
     static protected $aMimeFiles = array();
 
-    /**
-     * Defines of MimeType of the file
-     *
-     * @param string $sFile
-     *
-     * @return string
-     */
-    static public function MimeType($sFile) {
-
-        if (isset(self::$aMimeFiles[$sFile])) {
-            return self::$aMimeFiles[$sFile];
-        }
+    static public function MimeTypeBySignature($sFile) {
 
         $sMimeType = '';
-        if (function_exists('finfo_fopen')) {
-            $hFinfo = finfo_open(FILEINFO_MIME_TYPE);
-        } else {
-            $hFinfo = null;
-        }
-        if ($hFinfo) {
-            $sMimeType = finfo_file($hFinfo, $sFile);
-            finfo_close($hFinfo);
-        } elseif (function_exists('mime_content_type')) {
-            $sMimeType = mime_content_type($sFile);
-        }
-        if ($sMimeType) {
-            if ($n = strpos($sMimeType, ';')) {
-                $sMimeType = substr($sMimeType, 0, $n);
-            }
-            self::$aMimeFiles[$sFile] = $sMimeType;
-            return $sMimeType;
-        }
-
         // Defines max signature length
         if (!self::$nMimeTypeSignaturesMax) {
             foreach (self::$aMimeTypeSignatures as $sMimeType => $aSignsCollect) {
@@ -1200,17 +1170,54 @@ class AltoFunc_File {
         if ($hFile = fopen($sFile, 'r')) {
             $sBuffer = fgets($hFile, self::$nMimeTypeSignaturesMax);
             fclose($hFile);
-            foreach (self::$aMimeTypeSignatures as $sMimeType => $aSignsCollect) {
-                foreach ($aSignsCollect as $aSign) {
-                    if (substr($sBuffer, $aSign['offset'], strlen($aSign['signature'])) == $aSign['signature']) {
-                        self::$aMimeFiles[$sFile] = $sMimeType;
-                        return $sMimeType;
+            if ($sBuffer) {
+                foreach (self::$aMimeTypeSignatures as $sMimeType => $aSignsCollect) {
+                    foreach ($aSignsCollect as $aSign) {
+                        if (substr($sBuffer, $aSign['offset'], strlen($aSign['signature'])) == $aSign['signature']) {
+                            return $sMimeType;
+                        }
                     }
                 }
             }
         }
-        self::$aMimeFiles[$sFile] = '';
-        return '';
+        return $sMimeType;
+    }
+    /**
+     * Defines of MimeType of the file
+     *
+     * @param string $sFile
+     *
+     * @return string
+     */
+    static public function MimeType($sFile) {
+
+        if (isset(self::$aMimeFiles[$sFile])) {
+            return self::$aMimeFiles[$sFile];
+        }
+
+        $sMimeType = '';
+        if (function_exists('finfo_fopen')) {
+            $hFinfo = finfo_open(FILEINFO_MIME_TYPE);
+        } else {
+            $hFinfo = null;
+        }
+        if ($hFinfo) {
+            $sMimeType = finfo_file($hFinfo, $sFile);
+            finfo_close($hFinfo);
+        } else {
+            $sMimeType = self::MimeTypeBySignature($sFile);
+            if (!$sMimeType && function_exists('mime_content_type')) {
+                $sMimeType = mime_content_type($sFile);
+            }
+        }
+        if ($sMimeType) {
+            if ($n = strpos($sMimeType, ';')) {
+                $sMimeType = substr($sMimeType, 0, $n);
+            }
+            self::$aMimeFiles[$sFile] = $sMimeType;
+        }
+
+        return self::$aMimeFiles[$sFile];
     }
 
     /**
