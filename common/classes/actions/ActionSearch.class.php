@@ -34,6 +34,7 @@ class ActionSearch extends Action {
     protected $bSearchStrict = true; // Строгий поиск
     protected $bSkipAllTags = true; // Не искать в тегах
 
+    /** @var Jevix */
     protected $oJevix = null; // придется выборочно "чистить" HTML-текст
 
     protected $bLogEnable = false;
@@ -328,6 +329,8 @@ class ActionSearch extends Action {
                 }
             }
 
+            $aFragments = array();
+            $nPos = 0;
             foreach ($aFragmentSets as $aSet) {
                 $nLen = 0;
                 foreach ($aSet as $aWord) {
@@ -643,8 +646,17 @@ class ActionSearch extends Action {
             }
         }
 
+        $aSubst = array(array(), array());
         // * Если все нормально, формируем выражение для поиска
         if ($aReq['regexp']) {
+            if (preg_match_all('/"([^"]+)"/', $aReq['regexp'], $aMatches)) {
+                foreach($aMatches[1] as $sStr) {
+                    $sSubstKey = 'begin-' . md5($sStr) . '-end';
+                    $aSubst[0][] = $sSubstKey;
+                    $aSubst[1][] = $sStr;
+                }
+                $aReq['regexp'] = str_replace($aSubst[1], $aSubst[0], $aReq['regexp']);
+            }
             if ($this->bSearchStrict) {
                 $aReq['regexp'] = str_replace('\\*', '*', $aReq['regexp']);
                 /*
@@ -676,6 +688,9 @@ class ActionSearch extends Action {
                 $aReq['regexp'] = preg_replace('/' . $this->sPatternXA . '/uU', '', $aReq['regexp']);
                 $aReq['regexp'] = trim(preg_replace('/(\s{2,})/', ' ', $aReq['regexp']));
                 $aReq['regexp'] = str_replace(' ', '|', $aReq['regexp']);
+            }
+            if (!empty($aSubst[0])) {
+                $aReq['regexp'] = str_replace($aSubst[0], $aSubst[1], $aReq['regexp']);
             }
         }
 
