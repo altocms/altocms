@@ -42,6 +42,6 @@
    </div>
 </div>
 <div class="blog-description-container">
-    {$oBlog->getDescription()|strip_tags|trim|truncate:100:'...'|escape:'html'}
+    {$oBlog->getDescription()|strip_tags|trim|truncate:50:'...'|escape:'html'}
 </div>
 

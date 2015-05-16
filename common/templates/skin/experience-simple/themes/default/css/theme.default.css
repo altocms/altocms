@@ -3105,6 +3105,7 @@ div.pp_experience .pp_loaderIcon {
   position: relative;
   line-height: 32px;
   padding: 0 12px;
+  text-overflow: ellipsis;
 }
 [data-alto-role="popover"][data-type="blog"] + .popover .arrow:after,
 .alto-popover.type-blog .arrow:after {
