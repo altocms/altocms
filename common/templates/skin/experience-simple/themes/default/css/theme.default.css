@@ -641,7 +641,7 @@ _________________________________________________________*/
 .dropdown-menu.dropdown-content-menu > li > a {
   width: 100%;
   color: #1c374c;
-  font-size: 14px !important;
+  font-size: 12px !important;
   line-height: 2 !important;
 }
 .dropdown-menu.dropdown-content-menu > li > a:hover,
@@ -652,6 +652,9 @@ _________________________________________________________*/
 .dropdown-menu.dropdown-content-menu a {
   margin: 0 !important;
   border-bottom: 0 !important;
+}
+.navbar-main .dropdown-menu.dropdown-content-menu > li > a {
+  font-size: 14px !important;
 }
 .right-placed-menu .dropdown-menu {
   left: auto;
@@ -666,7 +669,7 @@ _________________________________________________________*/
   .navbar-default .navbar-nav .open .dropdown-menu > li > a {
     width: 100%;
     color: #1c374c;
-    font-size: 14px !important;
+    font-size: 12px !important;
     line-height: 2 !important;
   }
   .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover,
@@ -3102,6 +3105,7 @@ div.pp_experience .pp_loaderIcon {
   position: relative;
   line-height: 32px;
   padding: 0 12px;
+  text-overflow: ellipsis;
 }
 [data-alto-role="popover"][data-type="blog"] + .popover .arrow:after,
 .alto-popover.type-blog .arrow:after {

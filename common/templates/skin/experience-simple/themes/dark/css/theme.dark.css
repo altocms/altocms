@@ -642,7 +642,7 @@ _________________________________________________________*/
   width: 100%;
   color: #1c374c;
   font-size: 12px !important;
-  line-height: 1.7 !important;
+  line-height: 2 !important;
 }
 .dropdown-menu.dropdown-content-menu > li > a:hover,
 .dropdown-menu.dropdown-content-menu > li > a:focus {
@@ -652,6 +652,9 @@ _________________________________________________________*/
 .dropdown-menu.dropdown-content-menu a {
   margin: 0 !important;
   border-bottom: 0 !important;
+}
+.navbar-main .dropdown-menu.dropdown-content-menu > li > a {
+  font-size: 14px !important;
 }
 .right-placed-menu .dropdown-menu {
   left: auto;
@@ -667,7 +670,7 @@ _________________________________________________________*/
     width: 100%;
     color: #1c374c;
     font-size: 12px !important;
-    line-height: 1.7 !important;
+    line-height: 2 !important;
   }
   .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover,
   .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
@@ -776,7 +779,7 @@ _________________________________________________________________*/
   color: #2a5271 !important;
 }
 .panel .right-placed-menu li a:hover i.fa {
-  color: #2a5271 !important;
+  color: #93a6ad !important;
 }
 .panel .right-placed-menu li a:hover {
   border-bottom: 1px dashed #2a5271;
@@ -1094,7 +1097,7 @@ _________________________________________________________________*/
   color: #2a5271 !important;
 }
 .toolbar-write li a:hover i.fa {
-  color: #2a5271 !important;
+  color: #93a6ad !important;
 }
 .toolbar-write .popover {
   min-width: 208px;
@@ -1140,7 +1143,7 @@ _________________________________________________________________*/
   color: #2a5271 !important;
 }
 .toolbar-user .toolbar-menu-user a:hover i.fa {
-  color: #2a5271 !important;
+  color: #93a6ad !important;
 }
 .toolbar-user .toolbar-menu-user a img {
   border-radius: 16px;
@@ -1224,7 +1227,7 @@ _________________________________________________________________*/
   color: #2a5271 !important;
 }
 .toolbar-user li.fixed-item a:hover i.fa {
-  color: #2a5271 !important;
+  color: #93a6ad !important;
 }
 .toolbar-user .popover.left > .arrow {
   border-left-color: #93a6ad;
@@ -1775,6 +1778,9 @@ fieldset[disabled] .btn-gray.active {
 .topic-text * {
   font-size: 13px;
 }
+.content .topic .topic-footer {
+  padding-right: 0;
+}
 .content .topic .topic-footer,
 .content .panel .panel-footer {
   background: #e6ebee;
@@ -1782,7 +1788,7 @@ fieldset[disabled] .btn-gray.active {
 .content .topic .topic-footer ul,
 .content .panel .panel-footer ul {
   padding-right: 0;
-  padding-left: 18px;
+  padding-left: 0;
 }
 .content .topic .topic-footer ul li,
 .content .panel .panel-footer ul li {
@@ -2502,7 +2508,7 @@ ______________________________________________________*/
   font-size: 13px !important;
 }
 .panel-wall .topic-date {
-  color: #93a6ad !important;
+  color: #1c374c !important;
 }
 .wall-footer .comment-reply {
   margin-left: 0;
@@ -2546,7 +2552,7 @@ span.counter {
   color: #2a5271 !important;
 }
 .panel-table table th a:hover i.fa {
-  color: #2a5271 !important;
+  color: #93a6ad !important;
 }
 .panel-table table th a:hover {
   border-bottom: 1px dashed #2a5271;
@@ -2572,7 +2578,7 @@ span.counter {
   color: #2a5271 !important;
 }
 .panel-table .blog-name:hover i.fa {
-  color: #2a5271 !important;
+  color: #93a6ad !important;
 }
 .panel-table .blog-name-container {
   white-space: nowrap;
@@ -2800,7 +2806,7 @@ span.counter {
   color: #2a5271 !important;
 }
 #image-categories-tree-container .image-categories-tree a:hover i.fa {
-  color: #2a5271 !important;
+  color: #93a6ad !important;
 }
 #image-categories-tree-container .image-categories-tree a:hover {
   color: #1499cb !important;
@@ -3099,6 +3105,7 @@ div.pp_experience .pp_loaderIcon {
   position: relative;
   line-height: 32px;
   padding: 0 12px;
+  text-overflow: ellipsis;
 }
 [data-alto-role="popover"][data-type="blog"] + .popover .arrow:after,
 .alto-popover.type-blog .arrow:after {
@@ -3180,7 +3187,7 @@ div.pp_experience .pp_loaderIcon {
 .topic-info .user-info-default-container > div.user-info-default-top ul a:hover i.fa,
 [data-alto-role="popover"] + .popover .user-info-default-container > div.user-info-default-top ul a:hover i.fa,
 .alto-popover .user-info-default-container > div.user-info-default-top ul a:hover i.fa {
-  color: #2a5271 !important;
+  color: #93a6ad !important;
 }
 .topic-info .user-info-default-container > div.user-info-default-top .user-info-default-rss,
 [data-alto-role="popover"] + .popover .user-info-default-container > div.user-info-default-top .user-info-default-rss,
@@ -3300,7 +3307,7 @@ div.pp_experience .pp_loaderIcon {
 .topic-info .user-info-default-container > div.user-info-default-bottom ul a:hover i.fa,
 [data-alto-role="popover"] + .popover .user-info-default-container > div.user-info-default-bottom ul a:hover i.fa,
 .alto-popover .user-info-default-container > div.user-info-default-bottom ul a:hover i.fa {
-  color: #2a5271 !important;
+  color: #93a6ad !important;
 }
 .topic-info .user-info-default-container > div.user-info-default-bottom ul a i,
 [data-alto-role="popover"] + .popover .user-info-default-container > div.user-info-default-bottom ul a i,
