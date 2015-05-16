@@ -82,7 +82,6 @@
                         </li>
                         {hook run='write_item' isPopup=true}
                         {if $iUserCurrentCountTopicDraft}
-                            <li class="divider"></li>
                             <li {if Router::GetActionEvent() == 'drafts'} class="active" {/if}>
                                 <a href="{router page='content'}drafts/"
                                    class="write-item-link">
