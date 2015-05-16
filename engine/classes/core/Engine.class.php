@@ -484,18 +484,20 @@ class Engine extends LsObject {
     protected function LoadModules() {
 
         $this->LoadConfig();
-        foreach ($this->aConfigModule['_autoLoad_'] as $sModuleName) {
-            $sModuleClass = 'Module' . $sModuleName;
-            if ($sModuleName !== 'Plugin' && $sModuleName !== 'Hook') {
-                //$sModuleClass = E::ModulePlugin()->GetDelegate('module', $sModuleClass);
-                $sModuleClass = $this->GetModule('Plugin')->GetDelegate('module', $sModuleClass);
-            }
+        if (!empty($this->aConfigModule['_autoLoad_'])) {
+            foreach ($this->aConfigModule['_autoLoad_'] as $sModuleName) {
+                $sModuleClass = 'Module' . $sModuleName;
+                if ($sModuleName !== 'Plugin' && $sModuleName !== 'Hook') {
+                    //$sModuleClass = E::ModulePlugin()->GetDelegate('module', $sModuleClass);
+                    $sModuleClass = $this->GetModule('Plugin')->GetDelegate('module', $sModuleClass);
+                }
 
-            if (!isset($this->aModules[$sModuleClass])) {
-                $this->LoadModule($sModuleClass);
-                if (isset($this->aModules[$sModuleClass])) {
-                    // Устанавливаем для модуля признак предзагрузки
-                    $this->aModules[$sModuleClass]->SetPreloaded(true);
+                if (!isset($this->aModules[$sModuleClass])) {
+                    $this->LoadModule($sModuleClass);
+                    if (isset($this->aModules[$sModuleClass])) {
+                        // Устанавливаем для модуля признак предзагрузки
+                        $this->aModules[$sModuleClass]->SetPreloaded(true);
+                    }
                 }
             }
         }

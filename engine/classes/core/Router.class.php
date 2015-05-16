@@ -535,14 +535,18 @@ class Router extends LsObject {
 
         //Конфиг роутинга, содержит соответствия URL и классов экшенов
         $this->aConfigRoute = Config::Get('router');
+
         // Переписываем конфиг согласно правилу rewrite
-        foreach ((array)$this->aConfigRoute['rewrite'] as $sRequest => $sTarget) {
-            if (isset($this->aConfigRoute['page'][$sTarget])) {
-                $this->aConfigRoute['page'][$sRequest] = $this->aConfigRoute['page'][$sTarget];
-                unset($this->aConfigRoute['page'][$sTarget]);
+        if (!empty($this->aConfigRoute['rewrite'])) {
+            foreach ((array)$this->aConfigRoute['rewrite'] as $sRequest => $sTarget) {
+                if (isset($this->aConfigRoute['page'][$sTarget])) {
+                    $this->aConfigRoute['page'][$sRequest] = $this->aConfigRoute['page'][$sTarget];
+                    unset($this->aConfigRoute['page'][$sTarget]);
+                }
             }
         }
-        if ($this->aConfigRoute['domain']) {
+
+        if (!empty($this->aConfigRoute['domain'])) {
             $aDomains = $this->aConfigRoute['domain'];
             $this->aConfigRoute['domains']['forward'] = $aDomains;
             $this->aConfigRoute['domains']['forward_keys'] = array_keys($aDomains);
