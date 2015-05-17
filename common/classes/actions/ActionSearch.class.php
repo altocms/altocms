@@ -24,7 +24,6 @@ class ActionSearch extends Action {
     protected $nModeOutList;
     protected $nShippetLength;
     protected $nShippetMaxLength;
-    protected $nShippetOffset;
     protected $sSnippetBeforeMatch;
     protected $sSnippetAfterMatch;
     protected $sSnippetBeforeFragment;
@@ -179,9 +178,26 @@ class ActionSearch extends Action {
 
         if ($this->bSearchStrict) {
             $sRegexp = $this->aReq['regexp'];
-            $sRegexp = str_replace('[[:>:]]', $this->sPatternB, $sRegexp);
-            $sRegexp = str_replace('[[:<:]]', $this->sPatternB, $sRegexp);
+            $aWords = explode('|', $sRegexp);
+            foreach($aWords as $iIndex => $sWord) {
+                if (substr($sWord, 0, 7) == '[[:<:]]') {
+                    $sWord = substr($sWord, 7);
+                } else {
+                    $sWord = '[\p{L}\p{Nd}]+' . $sWord;
+                }
+                if (substr($sWord, -7) == '[[:>:]]') {
+                    $sWord = substr($sWord, 0, strlen($sWord) - 7);
+                } else {
+                    $sWord = $sWord . '[\p{L}\p{Nd}]+';
+                }
+                $aWords[$iIndex] = $sWord;
+            }
 
+            if (sizeof($aWords) == 1) {
+                $sRegexp = reset($aWords);
+            } else {
+                $sRegexp = implode('|', $aWords);
+            }
             $sRegexp = '/' . $sRegexp . '/iusxSU';
         } else {
             $sRegexp = '/' . $this->aReq['regexp'] . '/iusxSU';
@@ -224,35 +240,39 @@ class ActionSearch extends Action {
         $nLenWord = $nLen;
         $nLenText = mb_strlen($sText);
 
-        $this->nShippetOffset = floor(($this->nShippetLength - $nLenWord) / 2);
+        $nShippetOffset = floor(($this->nShippetLength - $nLenWord) / 2);
 
         // начало фрагмена
-        if ($nPos < $this->nShippetOffset) {
+        if ($nPos < $nShippetOffset) {
             $nFragBegin = 0;
         } else {
-            $nFragBegin = $nPos - $this->nShippetOffset;
+            $nFragBegin = $nPos - $nShippetOffset;
         }
 
         // конец фрагмента
-        if ($nPos + $nLenWord + $this->nShippetOffset > $nLenText) {
+        if ($nPos + $nLenWord + $nShippetOffset > $nLenText) {
             $nFragEnd = $nLenText;
         } else {
-            $nFragEnd = $nPos + $nLenWord + $this->nShippetOffset;
+            $nFragEnd = $nPos + $nLenWord + $nShippetOffset;
         }
 
         // Выравнивание по границе слов
         $sPattern = '/' . $this->sPatternW . '+$/uisxSXU';
-        if (($nFragBegin > 0) && preg_match($sPattern, mb_substr($sText, 0, $nFragBegin), $m, PREG_OFFSET_CAPTURE)) {
+        if (($nFragBegin > 0) && mb_preg_match($sPattern, mb_substr($sText, 0, $nFragBegin), $m, PREG_OFFSET_CAPTURE)) {
             $nFragBegin -= mb_strlen($m[0][0]);
         }
 
-        if (($nFragEnd < $nLenText) && preg_match($sPattern, mb_substr($sText, $nFragEnd), $m, PREG_OFFSET_CAPTURE)) {
+        $sPattern = '/^' . $this->sPatternW . '+/uisxSXU';
+        if (($nFragEnd < $nLenText) && mb_preg_match($sPattern, mb_substr($sText, $nFragEnd), $m, PREG_OFFSET_CAPTURE)) {
             $nFragEnd += mb_strlen($m[0][0]) + $m[0][1];
         }
 
         // Обрезание по максимальной длине
         if (($this->nShippetMaxLength > 0) && (($nOver = $nFragEnd - $nFragBegin - $this->nShippetMaxLength) > 0)) {
             $nFragBegin -= floor($nOver / 2);
+            if ($nFragBegin < 0) {
+                $nFragBegin = 0;
+            }
             if ($nFragBegin > $nPos) {
                 $nFragBegin = $nPos;
             }
@@ -265,14 +285,14 @@ class ActionSearch extends Action {
         $sFragment = '';
 
         // * Укладываем слова из одного сета в один фрагмент
-        $begin = $nFragBegin;
-        foreach ($aSet as $word) {
-            $pos = $word['pos'];
-            $sFragment .= str_replace('>', '&gt;', str_replace('<', '&lt;', mb_substr($sText, $begin, $pos - $begin)));
-            $sFragment .= $this->sSnippetBeforeMatch . $word['txt'] . $this->sSnippetAfterMatch;
-            $begin = $pos + $word['len'];
+        $iBegin = $nFragBegin;
+        foreach ($aSet as $aWord) {
+            $iWordPos = $aWord['pos'];
+            $sFragment .= str_replace('>', '&gt;', str_replace('<', '&lt;', mb_substr($sText, $iBegin, $iWordPos - $iBegin)));
+            $sFragment .= $this->sSnippetBeforeMatch . $aWord['txt'] . $this->sSnippetAfterMatch;
+            $iBegin = $iWordPos + $aWord['len'];
         }
-        $sFragment .= str_replace('>', '&gt;', str_replace('<', '&lt;', mb_substr($sText, $begin, $nFragEnd - $begin)));
+        $sFragment .= str_replace('>', '&gt;', str_replace('<', '&lt;', mb_substr($sText, $iBegin, $nFragEnd - $iBegin)));
 
         $sFragment = (($nFragBegin > 0) ? '&hellip;' : '') . $sFragment . (($nFragEnd < $nLenText) ? '&hellip;' : '');
         $sFragment = str_replace('&lt;br/&gt;', '', $sFragment);
@@ -298,8 +318,8 @@ class ActionSearch extends Action {
             $sText = str_replace('<br/>', '', $sText);
         }
 
-        $sText = str_replace(' ', '  ', $sText);
-        if (mb_preg_match_all($sRegexp, $sText, $matches, PREG_OFFSET_CAPTURE)) {
+        //$sText = str_replace(' ', '  ', $sText);
+        if (mb_preg_match_all($sRegexp, $sText, $aMatches, PREG_OFFSET_CAPTURE)) {
             // * Создаем набор фрагментов текста
             $sSnippet = '';
             $aFragmentSets = array();
@@ -307,9 +327,9 @@ class ActionSearch extends Action {
             $nCount = 0;
             $aLastSet = array();
             $nLastLen = 0;
-            foreach ($matches[0] as $match) {
-                $sFrTxt = $match[0];
-                $nFrPos = $match[1];
+            foreach ($aMatches[0] as $aMatch) {
+                $sFrTxt = $aMatch[0];
+                $nFrPos = $aMatch[1];
                 $nFrLen = mb_strlen($sFrTxt);
                 // Создаем сеты фрагментов, чтобы близлежащие слова попали в один сет
                 if (($nFragmentSetsCount == -1) || $nLastLen == 0) {
@@ -318,8 +338,11 @@ class ActionSearch extends Action {
                     $aFragmentSets[++$nFragmentSetsCount][] = $aLastSet;
                 } else {
                     if (($nFrPos + $nFrLen - $aLastSet['pos']) < $this->nShippetLength) {
-                        $aFragmentSets[$nFragmentSetsCount][] = array('txt' => $sFrTxt, 'pos' => $nFrPos,
-                                                                      'len' => $nFrLen);
+                        $aFragmentSets[$nFragmentSetsCount][] = array(
+                            'txt' => $sFrTxt,
+                            'pos' => $nFrPos,
+                            'len' => $nFrLen,
+                            );
                         $nLastLen = $nFrPos + $nFrLen - $aLastSet['pos'];
                     } else {
                         $aLastSet = array('txt' => $sFrTxt, 'pos' => $nFrPos, 'len' => $nFrLen);
@@ -610,6 +633,16 @@ class ActionSearch extends Action {
             $aReq['regexp'] = '';
         }
 
+        // Save quoted substrings
+        $aQuoted = array();
+        if (preg_match_all('/"([^"]+)"/U', $aReq['regexp'], $aMatches)) {
+            foreach($aMatches[1] as $sStr) {
+                $sSubstKey = 'begin-' . md5($sStr) . '-end';
+                $aQuoted[0][] = $sSubstKey;
+                $aQuoted[1][] = $sStr;
+            }
+            $aReq['regexp'] = str_replace($aQuoted[1], $aQuoted[0], $aReq['regexp']);
+        }
         /*
          * Проверка длины каждого слова в запросе
          * Хотя бы одно слово должно быть больше минимальной длины
@@ -646,17 +679,8 @@ class ActionSearch extends Action {
             }
         }
 
-        $aSubst = array(array(), array());
         // * Если все нормально, формируем выражение для поиска
         if ($aReq['regexp']) {
-            if (preg_match_all('/"([^"]+)"/', $aReq['regexp'], $aMatches)) {
-                foreach($aMatches[1] as $sStr) {
-                    $sSubstKey = 'begin-' . md5($sStr) . '-end';
-                    $aSubst[0][] = $sSubstKey;
-                    $aSubst[1][] = $sStr;
-                }
-                $aReq['regexp'] = str_replace($aSubst[1], $aSubst[0], $aReq['regexp']);
-            }
             if ($this->bSearchStrict) {
                 $aReq['regexp'] = str_replace('\\*', '*', $aReq['regexp']);
                 /*
@@ -689,9 +713,11 @@ class ActionSearch extends Action {
                 $aReq['regexp'] = trim(preg_replace('/(\s{2,})/', ' ', $aReq['regexp']));
                 $aReq['regexp'] = str_replace(' ', '|', $aReq['regexp']);
             }
-            if (!empty($aSubst[0])) {
-                $aReq['regexp'] = str_replace($aSubst[0], $aSubst[1], $aReq['regexp']);
-            }
+        }
+
+        // Restore quoted substrings
+        if ($aReq['regexp'] && !empty($aQuoted[0])) {
+            $aReq['regexp'] = str_replace($aQuoted[0], $aQuoted[1], $aReq['regexp']);
         }
 
         $aReq['params']['bSkipTags'] = false;
