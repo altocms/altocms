@@ -212,7 +212,7 @@
 
             {* ФОТОСЕТ *}
             {if $oContentType->isAllow('photoset')}
-                {include file="fields/field.photoset-edit.tpl"}
+                {include file="fields/field.photoset-edit.tpl" sFormId='#form-topic-add'}
             {/if}
 
             {if $oContentType}

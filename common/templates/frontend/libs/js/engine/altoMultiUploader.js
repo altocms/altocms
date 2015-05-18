@@ -12,6 +12,8 @@
 // пропуска проверки параметров этой функции они внесены как заранее
 // предопределённые
 
+/*global jQuery, ls, FileAPI, window */
+
 (function ($, ls) {
 
     "use strict";
@@ -34,6 +36,8 @@
         this.$list = this.$element.find('.js-alto-multi-uploader-list');
         this.$preview = this.$element.find('.js-alto-multi-uploader-target-preview');
         this.uploaded = [];
+        this.descriptionQueue = [];
+        this.descriptionTimerId = [];
 
 
         this.init();
@@ -52,6 +56,7 @@
          */
         init: function () {
 
+            /*jslint unparam: true*/// Для onCheckFiles поскольку первый параметр не используется
             var $this = this,
                 previewConfig = {
                     el: '.js-file-preview',
@@ -72,6 +77,7 @@
                         }
                     }
                 };
+            /*jslint unparam: false*/
 
             $($this.options.form).fileapi({
                 url: $this.options.url.upload,
@@ -92,7 +98,9 @@
                 },
                 multiple: true,
                 onFileComplete: function (evt, uiEvt) {
+                    /*jslint nomen: true*/// Специфическое поле FileAPI
                     evt.widget.remove(evt.widget.__fileId);
+                    /*jslint nomen: false*/
                     $this.addPhoto(uiEvt.result);
                 },
                 onComplete: $this.options.onComplete,
@@ -116,25 +124,27 @@
                 onDrop: onCheckFiles,
                 onSelect: onCheckFiles
             }).on('click', this.$element.attr('class') + ' ' + '.js-file-reload', function (evt) {
-                    var tpl = $($this.options.from),
-                        uid = $(evt.currentTarget).parents($this.options.tpl).data('id'),
-                        file = tpl.fileapi("_getFile", uid);
-                    tpl.fileapi("_makeFilePreview", uid, file, previewConfig);
-                }
-            );
+                var tpl = $($this.options.from),
+                    uid = $(evt.currentTarget).parents($this.options.tpl).data('id'),
+                    file = tpl.fileapi("_getFile", uid);
+                tpl.fileapi("_makeFilePreview", uid, file, previewConfig);
+            });
 
             // Добавим сортировку изображений в фотосете
             $this.$list
                 .sortable({
                     stop: function () {
 
-                        var elements = $this.$list.find('li');
+                        var elements = $this.$list.find('li'),
+                            order = [];
                         if (elements.length > 0) {
-                            var order = [];
+                            /*jslint unparam: true*/
                             $.each(elements.get().reverse(), function (index, value) {
                                 order.push($(value).attr('id').replace('uploader_item_', ''));
                             });
-                            ls.ajax($this.options.url.sort, {
+                            /*jslint unparam: false*/
+                            ls.ajax($this.options.url.sort,
+                                {
                                     target: $this.options.target,
                                     target_id: $this.options.targetId,
                                     order: order
@@ -147,26 +157,50 @@
                                     return result.bStateError
                                         ? ls.msg.error(result.sMsgTitle, result.sMsg)
                                         : ls.msg.notice(result.sMsgTitle, result.sMsg);
-
-                                }
-                            );
+                                });
                         }
                     }
-                })
-                //.disableSelection(); // issue#349, в firefox текстовое поле описания не было доступно
+                });
+            //.disableSelection(); // issue#349, в firefox текстовое поле описания не было доступно
+
+            $this.initDescription();
 
             return $this;
         },
 
+        initDescription: function () {
+            var $this = this,
+                submitForm;
+
+            // Добавим детектор изменения описания изображения
+            $this.$element.find('textarea').live('change', function () {
+                $(this).data('change', true);
+            });
+
+            // Установим обработчик submit. При нажатии на них нужно сначала обработать
+            // очередь установки описания, а затем выполнить submit;
+            if (this.options.submitForm) {
+                submitForm = $(this.options.submitForm);
+                submitForm.on('submit', function () {
+                    ls.progressStart();
+                    // Обработаем принудительно
+                    $this.processDescriptionQueue(function () {
+                        submitForm.off('submit').submit();
+                    });
+                });
+            }
+        },
+
         addPhoto: function (data) {
-            var $this = this;
+            var $this = this,
+                html;
 
             if (!data) {
                 ls.msg.error(null, 'System error #1001');
             } else if (data.bStateError) {
                 ls.msg.error(data.sMsgTitle, data.sMsg);
             } else {
-                var html = this.templateHTML;
+                html = this.templateHTML;
                 if (html) {
                     html = $(html.replace(/ID/g, data.id).replace(/MARK_AS_PREVIEW/g, $this.options.langCoverNeed)).show();
                     html.find('img').prop('src', data.file);
@@ -198,7 +232,8 @@
             ls.progressStart();
             $this.blockButtons = true;
             ls.hook.run('uploader_cover_start', [$this.options]);
-            ls.ajax($this.options.url.cover, {
+            ls.ajax($this.options.url.cover,
+                {
                     target: $this.options.target,
                     target_id: $this.options.targetId,
                     resource_id: id
@@ -245,7 +280,8 @@
             ls.progressStart();
             $this.blockButtons = true;
             ls.hook.run('uploader_progress_start', [$this.options]);
-            ls.ajax($this.options.url.remove, {
+            ls.ajax($this.options.url.remove,
+                {
                     target: $this.options.target,
                     target_id: $this.options.targetId,
                     resource_id: id
@@ -276,6 +312,52 @@
         },
 
         /**
+         * Выполняет очередь заданий по установке описания изображения
+         */
+        processDescriptionQueue: function (callback) {
+
+            if (this.blockButtons) {
+                return this;
+            }
+
+            var $this = this,
+                data = $this.descriptionQueue.pop();
+
+            if (data === undefined) {
+                if (callback !== false) {
+                    callback();
+                }
+                return false;
+            }
+
+            ls.progressStart();
+            $this.blockButtons = true;
+            ls.hook.run('uploader_description_start', [$this.options]);
+            ls.ajax($this.options.url.description, data,
+                /**
+                 * Обработчик результата, пришедшего от сервера
+                 * @param {{bStateError: {boolean}, sMsg: {string}}} result
+                 */
+                function (result) {
+                    ls.progressDone();
+                    ls.hook.run('uploader_description_stop', [$this.options]);
+                    $this.blockButtons = false;
+                    $this.processDescriptionQueue(callback); // Рекурсивно следующий элемент очереди
+                    if (!result) {
+                        ls.msg.error(null, 'System error #1001');
+                    } else if (result.bStateError) {
+                        ls.msg.error(null, result.sMsg);
+                    } else {
+                        if (callback === false) {
+                            ls.msg.notice(null, result.sMsg);
+                        }
+                        ls.hook.run('uploader_add_description_after', [$this.options, result]);
+                    }
+
+                });
+        },
+
+        /**
          * Устанавливает описание изображения
          *
          * @param {int} id Ид. ресурса
@@ -283,44 +365,36 @@
          */
         setDescription: function (id) {
 
-            var $this = this;
-            if ($this.blockButtons) {
+            var $this = this,
+                $textarea = $('#uploader_item_' + id).find('textarea'),
+                data;
+
+            // Текстовку устанавливаем только если есть изменения
+            if ($textarea.data('change') !== true) {
                 return $this;
             }
-            ls.progressStart();
-            $this.blockButtons = true;
-            ls.hook.run('uploader_description_start', [$this.options]);
-            ls.ajax($this.options.url.description, {
-                    target: $this.options.target,
-                    target_id: $this.options.targetId,
-                    description: $('#uploader_item_' + id).find('textarea').val(),
-                    resource_id: id
-                },
-                /**
-                 * Обработчик результата, пришедшего от сервера
-                 * @param {{bStateError: {boolean}, sMsg: {string}}} result
-                 */
-                function (result) {
+            $textarea.data('change', false);
 
-                    ls.progressDone();
-                    $this.blockButtons = false;
-                    ls.hook.run('uploader_description_stop', [$this.options]);
-                    if (!result) {
-                        ls.msg.error(null, 'System error #1001');
-                    } else if (result.bStateError) {
-                        ls.msg.error(null, result.sMsg);
-                    } else {
-                        ls.msg.notice(null, result.sMsg);
-                        ls.hook.run('uploader_add_description_after', [$this.options, result]);
-                    }
+            // Сформируем набор данных для передачи
+            data = {
+                target: $this.options.target,
+                target_id: $this.options.targetId,
+                description: $textarea.val(),
+                resource_id: id
+            };
 
-                });
+            // И добавим его в очередь
+            $this.descriptionQueue.push(data);
+
+            // Очередь будет содержать либо один элемент, либо ещё и те, которые
+            // не успели обработаться из-за наложения ajax-запросов к серверу
+            $this.processDescriptionQueue(false);
 
             return $this;
 
         },
 
-        getUploaded: function(){
+        getUploaded: function () {
             var uploaded = this.uploaded;
             this.uploaded = [];
             return uploaded;
@@ -340,6 +414,11 @@
      */
     $.fn.altoMultiUploader = function (option) {
 
+        var $this = $(this),
+            data = $this.data('alto.altoMultiUploader'),
+            options = typeof option === 'object' && option,
+            funcResult = false;
+
         if (typeof option === 'boolean') {
             option = {};
         }
@@ -348,14 +427,9 @@
             data[option]();
         }
 
-
-        var $this = $(this);
-        var data = $this.data('alto.altoMultiUploader');
-        var options = typeof option === 'object' && option;
-        var funcResult = false;
-
         if (!data) {
-            $this.data('alto.altoMultiUploader', (data = new altoMultiUploader(this, options)));
+            data = new altoMultiUploader(this, options);
+            $this.data('alto.altoMultiUploader', data);
         }
 
         if (typeof option === 'string') {
@@ -363,14 +437,14 @@
         }
 
         if (typeof option === 'object') {
-            if (typeof option['cover'] === 'string') {
-                return data.setCover(option['cover']);
+            if (typeof option.cover === 'string') {
+                return data.setCover(option.cover);
             }
-            if (typeof option['remove'] === 'string') {
-                return data.remove(option['remove']);
+            if (typeof option.remove === 'string') {
+                return data.remove(option.remove);
             }
-            if (typeof option['description'] === 'string') {
-                return data.setDescription(option['description']);
+            if (typeof option.description === 'string') {
+                return data.setDescription(option.description);
             }
         }
 
@@ -386,6 +460,7 @@
      */
     $.fn.altoMultiUploader.Constructor = altoMultiUploader;
 
+    /*jslint unparam: true*/
     /**
      * Параметры плагина
      *
@@ -416,7 +491,10 @@
             sort: ls.routerUrl('uploader') + 'sort/'
         },
         previewCrop: '400fit',
-        tmp: true
+        tmp: true,
+        submitForm: ''
     };
+    /*jslint unparam: false*/
+
 
 }(window.jQuery, ls));

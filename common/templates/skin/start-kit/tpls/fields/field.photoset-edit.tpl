@@ -2,6 +2,7 @@
     $(function () {
         $('.js-alto-multi-uploader')
                 .altoMultiUploader({
+                    {if isset($sFormId)}submitForm: "{$sFormId}",{/if}
                     photoset: '.js-alto-multi-photoset-list',
                     maxSize: '{C::Get("module.topic.photoset.photo_max_size")/1024}',
                     maxWidth: '{C::Get("module.uploader.images.default.max_width")}',
