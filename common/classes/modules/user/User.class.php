@@ -883,10 +883,12 @@ class ModuleUser extends Module {
     }
 
     /**
-     * Удаляет лишние старые сессии пользователя
+     * Remove old session of user
      *
      * @param $oUser
      * @param $nSessionLimit
+     *
+     * @return bool|void
      */
     protected function LimitSession($oUser, $nSessionLimit) {
 

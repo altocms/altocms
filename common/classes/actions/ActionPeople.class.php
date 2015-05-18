@@ -137,7 +137,7 @@ class ActionPeople extends Action {
          */
         $iPage = $this->GetParamEventMatch(1, 2) ? $this->GetParamEventMatch(1, 2) : 1;
         /**
-         * Получаем список вязей пользователей со страной
+         * Получаем список связей пользователей со страной
          */
         $aResult = E::ModuleGeo()->GetTargets(
             array('country_id' => $oCountry->getId(), 'target_type' => 'user'), $iPage,
@@ -224,7 +224,7 @@ class ActionPeople extends Action {
         /**
          * Последние по визиту на сайт
          */
-        $aUsersLast = E::ModuleUser()->GetUsersByDateLast(15);
+        $aUsersLast = E::ModuleUser()->GetUsersByDateLast(C::Get('module.user.per_page'));
         E::ModuleViewer()->Assign('aUsersLast', $aUsersLast);
         /**
          * Получаем статистику

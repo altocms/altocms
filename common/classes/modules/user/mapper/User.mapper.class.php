@@ -240,6 +240,7 @@ class ModuleUser_MapperUser extends Mapper {
             ";
             $this->oDb->query($sql, $nUserId, $sDate);
         }
+        return true;
     }
 
     /**
@@ -465,12 +466,12 @@ class ModuleUser_MapperUser extends Mapper {
     public function GetUsersByDateLast($iLimit) {
 
         $sql
-            = "SELECT	distinct
-			user_id
+            = "SELECT u.user_id
 			FROM
-				?_session
+			    ?_user AS u
+				INNER JOIN ?_session AS s ON s.session_key = u.user_last_session
 			ORDER BY
-				session_date_last DESC
+				s.session_date_last DESC
 			LIMIT 0, ?d
 				";
         $aResult = $this->oDb->selectCol($sql, $iLimit);
