@@ -241,7 +241,7 @@ class ActionPeople extends Action {
         /**
          * Последние по регистрации
          */
-        $aUsersRegister = $this->User_GetUsersByDateRegister(15);
+        $aUsersRegister = $this->User_GetUsersByDateRegister(Config::Get('module.user.per_page'));
         $this->Viewer_Assign('aUsersRegister', $aUsersRegister);
         /**
          * Получаем статистику
