@@ -459,22 +459,34 @@ class ModuleUser_MapperUser extends Mapper {
     /**
      * Получить список юзеров по дате последнего визита
      *
-     * @param int $iLimit Количество
+     * @param int $iLimit
+     * @param bool|null $bSessionExit
+     * @param string|null $sSessionTime
      *
      * @return array
      */
-    public function GetUsersByDateLast($iLimit) {
+    public function GetUsersByDateLast($iLimit, $bSessionExit = null, $sSessionTime = null) {
 
         $sql
             = "SELECT u.user_id
 			FROM
 			    ?_user AS u
-				INNER JOIN ?_session AS s ON s.session_key = u.user_last_session
+				INNER JOIN ?_session AS s
+				  ON s.session_key = u.user_last_session
+				  {AND session_exit IS ?}
+				  {AND session_exit IS NOT ?}
+				  {AND session_date_last >= ?}
 			ORDER BY
 				s.session_date_last DESC
 			LIMIT 0, ?d
 				";
-        $aResult = $this->oDb->selectCol($sql, $iLimit);
+        $aResult = $this->oDb->selectCol(
+            $sql,
+            ($bSessionExit === false) ? NULL : DBSIMPLE_SKIP,
+            ($bSessionExit === true) ? NULL : DBSIMPLE_SKIP,
+            $sSessionTime ? $sSessionTime : DBSIMPLE_SKIP,
+            $iLimit
+        );
         return $aResult ? $aResult : array();
     }
 

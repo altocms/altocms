@@ -551,7 +551,7 @@ class ModuleUser_EntityUser extends Entity {
     }
 
     /**
-     * Возвращает статус онлайн пользователь или нет
+     * Return online status of user
      *
      * @return bool
      */
@@ -559,12 +559,16 @@ class ModuleUser_EntityUser extends Entity {
 
         if ($oSession = $this->getSession()) {
             if ($oSession->GetSessionExit()) {
-                // был выход пользователя
+                // User has logout
                 return false;
             }
-            if (time() - strtotime($oSession->getDateLast()) < 60 * 10) {
-                // не прошло 10 минут
-                return true;
+            if ($iTime = C::Get('module.user.online_time')) {
+                if (time() - strtotime($oSession->getDateLast()) < $iTime) {
+                    // Last session time less then $iTime seconds ago
+                    return true;
+                }
+            } else {
+                return false;
             }
         }
         return false;
