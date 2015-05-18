@@ -146,7 +146,12 @@ class Imagick extends Driver{
 
 		if ($format == 'gif' && $this->multiframe()) {
             $image = $image->deconstructImages();
-			$image->writeImages($file, true);
+			//$image->writeImages($file, true);
+            // Resolve bug with animated gif
+            // @see https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=682858
+            $fd = fopen($file, 'w');
+            $image->writeImagesFile($fd);
+            fclose($fd);
 		} else {
 			$this->set_quality($quality);
 			if ($this->output_resulution) {
@@ -338,7 +343,7 @@ class Imagick extends Driver{
 	 */
 	protected function multiframe() {
 		if ($this->image) {
-			return (bool)$this->image->getImageIterations();
+            return $this->image->getNumberImages() > 1;
 		}
 	}
 

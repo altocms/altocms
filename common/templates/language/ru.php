@@ -1483,14 +1483,13 @@ return array(
     'uploader_image_change'               => 'Изменить изображение',
     'uploader_image_upload'               => 'Загрузить изображение',
     'uploader_image_delete'               => 'Удалить изображение',
-    'error_upload_image'                  => 'Ошибка загрузки изображения',
     'uploader_upload_success'             => 'Изображение загружено',
     'uploader_photoset_error_count_photos'         => 'Разрешено загружать до %%MAX%% изображений',
     'uploader_picker'               => '- Перенесите нужные изображения в это область',
     'uploader_sort_notice'          => '- Порядок изображений можно изменить просто <br>переместив мышью изображение на нужное место.',
     'uploader_sort_changed'         => 'Очерёдность изображений изменена',
-
-
+    'error_upload_image'            => 'Ошибка загрузки изображения',
+    'error_upload_wrong_image_type' => 'Неверный тип изображения (MIME)',
 
     'target_type_blog_avatar'           => 'Блоги',
     'target_type_profile_avatar'        => 'Аватары',

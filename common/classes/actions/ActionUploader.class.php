@@ -277,26 +277,29 @@ class ActionUploader extends Action {
         E::ModuleHook()->Run('uploader_upload_before', array('oTarget' => $oTarget, 'sTmpFile' => $sTmpFile, 'sTarget' => $sTarget, 'sTargetId' => $sTargetId));
 
         // Если все ок, и по миме проходит, то
-        if ($sTmpFile && E::ModuleImg()->MimeType($sTmpFile)) {
+        if ($sTmpFile) {
+            if (E::ModuleImg()->MimeType($sTmpFile)) {
+                // Ресайзим и сохраняем уменьшенную копию
+                // Храним две копии - мелкую для показа пользователю и крупную в качестве исходной для ресайза
+                $sPreviewFile = E::ModuleUploader()->GetUploadDir($sTarget, $sTargetId) . '_preview.' . F::File_GetExtension($sTmpFile);
 
-            // Ресайзим и сохраняем уменьшенную копию
-            // Храним две копии - мелкую для показа пользователю и крупную в качестве исходной для ресайза
-            $sPreviewFile = E::ModuleUploader()->GetUploadDir($sTarget, $sTargetId) . '_preview.' . F::File_GetExtension($sTmpFile);
+                if ($sPreviewFile = E::ModuleImg()->Copy($sTmpFile, $sPreviewFile, self::PREVIEW_RESIZE, self::PREVIEW_RESIZE)) {
 
-            if ($sPreviewFile = E::ModuleImg()->Copy($sTmpFile, $sPreviewFile, self::PREVIEW_RESIZE, self::PREVIEW_RESIZE)) {
+                    // * Сохраняем в сессии временный файл с изображением
+                    E::ModuleSession()->Set('sTarget', $sTarget);
+                    E::ModuleSession()->Set('sTargetId', $sTargetId);
+                    E::ModuleSession()->Set("sTmp-{$sTarget}-{$sTargetId}", $sTmpFile);
+                    E::ModuleSession()->Set("sPreview-{$sTarget}-{$sTargetId}", $sPreviewFile);
+                    E::ModuleViewer()->AssignAjax('sPreview', E::ModuleUploader()->Dir2Url($sPreviewFile));
 
-                // * Сохраняем в сессии временный файл с изображением
-                E::ModuleSession()->Set('sTarget', $sTarget);
-                E::ModuleSession()->Set('sTargetId', $sTargetId);
-                E::ModuleSession()->Set("sTmp-{$sTarget}-{$sTargetId}", $sTmpFile);
-                E::ModuleSession()->Set("sPreview-{$sTarget}-{$sTargetId}", $sPreviewFile);
-                E::ModuleViewer()->AssignAjax('sPreview', E::ModuleUploader()->Dir2Url($sPreviewFile));
+                    if (getRequest('direct', FALSE)) {
+                        $this->EventDirectImage();
+                    }
 
-                if (getRequest('direct', FALSE)) {
-                    $this->EventDirectImage();
+                    return;
                 }
-
-                return;
+            } else {
+                $sError = E::ModuleLang()->Get('error_upload_wrong_image_type');
             }
         } else {
 

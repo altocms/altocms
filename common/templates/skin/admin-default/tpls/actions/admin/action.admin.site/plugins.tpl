@@ -32,6 +32,7 @@
                             <input type="checkbox" name="" onclick="admin.selectAllRows(this);"/>
                         </th>
                         <th class="name">{$aLang.action.admin.plugin_name}</th>
+                        <th class="name"></th>
                         <th class="version">{$aLang.action.admin.plugin_version}</th>
                         <th class="author">{$aLang.action.admin.plugin_author}</th>
                         <th class="action">{$aLang.action.admin.plugin_action}</th>
@@ -50,7 +51,7 @@
                             <td class="name">
                                 <div class="i-title">{$oPlugin->GetName()|escape:'html'}</div>
                                 <div class="description">
-                                    <b>{$oPlugin->GetId()} ({$oPlugin->GetDirname()})</b>
+                                    <b>{$oPlugin->GetId()}</b>
                                     - {$oPlugin->GetDescription()}
                                 </div>
                                 {if ($oPlugin->GetHomepage()>'')}
@@ -59,6 +60,7 @@
                                     </div>
                                 {/if}
                             </td>
+                            <td class="version">/{$oPlugin->GetDirname()|escape:'html'}</td>
                             <td class="version">{$oPlugin->GetVersion()|escape:'html'}</td>
                             <td class="author">{$oPlugin->GetAuthor()|escape:'html'}</td>
                             <td class="action">
