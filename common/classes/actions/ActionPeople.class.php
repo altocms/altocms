@@ -223,7 +223,7 @@ class ActionPeople extends Action {
         /**
          * Последние по визиту на сайт
          */
-        $aUsersLast = $this->User_GetUsersByDateLast(15);
+        $aUsersLast = $this->User_GetUsersByDateLast(Config::Get('module.user.per_page'));
         $this->Viewer_Assign('aUsersLast', $aUsersLast);
         /**
          * Получаем статистику
