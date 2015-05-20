@@ -545,6 +545,9 @@ class ModuleComment_EntityComment extends Entity {
             if ($bByAuthor === true || is_null($bByAuthor)) {
                 // author of comment can edit comment in time limit
                 if (($oUser->GetId() == $this->getUserId()) && Config::Get('module.comment.edit.enable') && !$this->getDelete()) {
+                    if (Config::Get('module.comment.edit.enable') === true) {
+                        return true;
+                    }
                     return $this->getEditTime() ? true : false;
                 }
             }
