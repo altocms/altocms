@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 # KCAPTCHA PROJECT VERSION 2.0
 
@@ -16,10 +16,10 @@
 
 # See kcaptcha_config.php for customization
 
-class KCAPTCHA{
+class KCAPTCHA {
 
 	// generates keystring and image
-	function KCAPTCHA(){
+	function KCAPTCHA() {
 
 		require(dirname(__FILE__).'/kcaptcha_config.php');
 		$fonts=array();
