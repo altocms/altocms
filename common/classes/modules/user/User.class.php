@@ -777,7 +777,7 @@ class ModuleUser extends Module {
         }
         if ($oUser) {
             $this->oMapper->CloseSession($oSession);
-            E::ModuleCache()->CleanByTags(array('user_session_update'));
+            $this->Cache_CleanByTags(array('user_session_update'));
         }
     }
 
