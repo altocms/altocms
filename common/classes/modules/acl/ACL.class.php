@@ -304,6 +304,7 @@ class ModuleACL extends Module {
         if (!C::Get('rating.enabled')) {
             return self::CAN_VOTE_COMMENT_FALSE;
         }
+        /** @var ModuleBlog_EntityBlog $oBlog */
         $oBlog = $oComment->getTargetBlog();
         if ($oBlog && $oBlog->getBlogType()) {
             $oBlogUser = E::ModuleBlog()->GetBlogUserByBlogIdAndUserId($oBlog->getId(), $oUser->getId());
@@ -439,14 +440,15 @@ class ModuleACL extends Module {
      */
     public function IsAllowShowBlog($oBlog, $oUser) {
 
-        if (!$oBlog->getBlogType() || !$oBlog->getBlogType()->IsPrivate()) {
-            return true;
-        }
-        if (!$oUser && !$oBlog->getBlogType()->GetAclRead(ModuleBlog::BLOG_USER_ACL_GUEST)) {
-            return false;
-        }
         if ($oUser && ($oUser->isModerator() ||$oUser->isAdministrator() || $oBlog->getOwnerId() == $oUser->getId())) {
             return true;
+        }
+        if ($oBlogType = $oBlog->getBlogType()) {
+            if ($oBlogType->GetAclRead(ModuleBlog::BLOG_USER_ACL_GUEST)) {
+                return true;
+            } elseif ($oBlogType->GetAclRead(ModuleBlog::BLOG_USER_ACL_USER)) {
+                return $oUser ? true : false;
+            }
         }
 
         return (bool)E::ModuleBlog()->GetBlogsAllowTo('read', $oUser, $oBlog->getId(), true);
