@@ -740,7 +740,7 @@ class ModuleBlog_EntityBlog extends Entity {
      */
     public function CanReadBy($oUser) {
 
-        if ($this->GetBlogType() && $this->GetAclRead(ModuleBlog::BLOG_USER_ACL_GUEST)) {
+        if ($this->GetBlogType() && $this->GetBlogType()->GetAclRead(ModuleBlog::BLOG_USER_ACL_GUEST)) {
             // anybody can read blog
             return true;
         }
