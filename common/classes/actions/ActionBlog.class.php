@@ -783,12 +783,6 @@ class ActionBlog extends Action {
             return parent::EventNotFound();
         }
 
-        // Определяем права на отображение записи из закрытого блога
-        if (!$this->ACL_IsAllowShowBlog($oTopic->getBlog(), $this->oUserCurrent)) {
-            $this->Message_AddErrorSingle($this->Lang_Get('acl_cannot_show_content'), $this->Lang_Get('not_access'));
-            return Router::Action('error');
-        }
-
         // Если номер топика правильный, но URL блога неверный, то корректируем его и перенаправляем на нужный адрес
         if ($sBlogUrl != '' && $oTopic->getBlog()->getUrl() != $sBlogUrl) {
             Router::Location($oTopic->getUrl());
@@ -812,6 +806,24 @@ class ActionBlog extends Action {
             && $oTopic->getUrl() != Router::GetPathWebCurrent() . (substr($oTopic->getUrl(), -1) == '/' ? '/' : '')
         ) {
             Router::Location($oTopic->getUrl());
+        }
+
+        /** @var ModuleBlog_EntityBlogType $oBlogType */
+        $oBlogType = $oTopic->getBlog()->GetBlogType();
+        if ($oBlogType && $oBlogType->GetAclRead(ModuleBlog::BLOG_USER_ACL_GUEST)) {
+            // anybody can read blog
+            $bCloseBlog = false;
+        } else {
+            $bCloseBlog = E::ACL_IsAllowShowBlog($oTopic->getBlog(), $this->oUserCurrent);
+        }
+
+        // Определяем права на отображение записи из закрытого блога
+        if ($bCloseBlog) {
+            if ($oBlogType && $oBlogType->IsHidden()) {
+                return parent::EventNotFound();
+            }
+            $this->Message_AddErrorSingle($this->Lang_Get('acl_cannot_show_content'), $this->Lang_Get('not_access'));
+            return Router::Action('error');
         }
 
         // Обрабатываем добавление коммента
@@ -1060,22 +1072,24 @@ class ActionBlog extends Action {
         /**
          * Проверяем есть ли блог с таким УРЛ
          */
+        /** @var ModuleBlog_EntityBlog $oBlog */
         if (!($oBlog = $this->Blog_GetBlogByUrl($sBlogUrl))) {
             return parent::EventNotFound();
         }
         /**
          * Определяем права на отображение закрытого блога
          */
-        if ($oBlog->getBlogType() && $oBlog->GetBlogType()->IsPrivate()
-            && (!$this->oUserCurrent || !in_array($oBlog->getId(), $this->Blog_GetAccessibleBlogsByUser($this->oUserCurrent)))
-        ) {
-            $bCloseBlog = true;
-        } else {
+        /** @var ModuleBlog_EntityBlogType $oBlogType */
+        $oBlogType = $oBlog->GetBlogType();
+        if ($oBlogType && $oBlogType->GetAclRead(ModuleBlog::BLOG_USER_ACL_GUEST)) {
+            // anybody can read blog
             $bCloseBlog = false;
+        } else {
+            $bCloseBlog = E::ACL_IsAllowShowBlog($oBlog, $this->oUserCurrent);
         }
 
         // В скрытый блог посторонних совсем не пускам
-        if ($bCloseBlog && $oBlog->getBlogType() && $oBlog->GetBlogType()->IsHidden()) {
+        if ($bCloseBlog && $oBlogType && $oBlogType->IsHidden()) {
             return parent::EventNotFound();
         }
 

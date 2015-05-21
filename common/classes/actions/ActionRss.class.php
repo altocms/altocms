@@ -332,6 +332,10 @@ class ActionRss extends Action {
         if (!$sBlogUrl || !($oBlog = $this->Blog_GetBlogByUrl($sBlogUrl)) || $oBlog->getType() == "close") {
             return parent::EventNotFound();
         } else {
+            $aOpenBlogTypes = $this->Blog_GetOpenBlogTypes();
+            if (!in_array($oBlog->getType(), $aOpenBlogTypes)) {
+                return parent::EventNotFound();
+            }
             $aResult = $this->Topic_GetTopicsByBlog($oBlog, 1, Config::Get('module.topic.per_page') * 2, 'good');
         }
         $aTopics = $aResult['collection'];
