@@ -267,6 +267,25 @@ class ModuleUser_MapperUser extends Mapper {
     }
 
     /**
+     * Close session of user
+     *
+     * @param $oSession
+     *
+     * @return bool
+     */
+    public function CloseSession($oSession) {
+
+        $sql
+            = "
+            UPDATE ?_session
+            SET
+                session_exit = ?
+            WHERE session_key = ? AND (session_exit IS NULL OR session_exit = '')
+            ";
+        return ($this->oDb->query($sql, F::Now(), $oSession->getSessionKey()) !== false);
+    }
+
+    /**
      * Closes all sessions of specifier user
      *
      * @param   object|int $oUser
