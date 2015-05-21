@@ -810,12 +810,15 @@ class ActionBlog extends Action {
 
         /** @var ModuleBlog_EntityBlogType $oBlogType */
         $oBlogType = $oTopic->getBlog()->GetBlogType();
-        if ($oBlogType && $oBlogType->GetAclRead(ModuleBlog::BLOG_USER_ACL_GUEST)) {
+        /*
+        if ($oBlogType && ($oBlogType->GetAclRead(ModuleBlog::BLOG_USER_ACL_GUEST) || (E::IsUser() && $oBlogType->GetAclRead(ModuleBlog::BLOG_USER_ACL_GUEST)))) {
             // anybody can read blog
             $bCloseBlog = false;
         } else {
-            $bCloseBlog = E::ACL_IsAllowShowBlog($oTopic->getBlog(), $this->oUserCurrent);
+            $bCloseBlog = !E::ACL_IsAllowShowBlog($oTopic->getBlog(), $this->oUserCurrent);
         }
+        */
+        $bCloseBlog = !E::ACL_IsAllowShowBlog($oTopic->getBlog(), $this->oUserCurrent);
 
         // Определяем права на отображение записи из закрытого блога
         if ($bCloseBlog) {
@@ -1081,12 +1084,15 @@ class ActionBlog extends Action {
          */
         /** @var ModuleBlog_EntityBlogType $oBlogType */
         $oBlogType = $oBlog->GetBlogType();
-        if ($oBlogType && $oBlogType->GetAclRead(ModuleBlog::BLOG_USER_ACL_GUEST)) {
+        /*
+        if ($oBlogType && ($oBlogType->GetAclRead(ModuleBlog::BLOG_USER_ACL_GUEST) || (E::IsUser() && $oBlogType->GetAclRead(ModuleBlog::BLOG_USER_ACL_GUEST)))) {
             // anybody can read blog
             $bCloseBlog = false;
         } else {
-            $bCloseBlog = E::ACL_IsAllowShowBlog($oBlog, $this->oUserCurrent);
+            $bCloseBlog = !E::ACL_IsAllowShowBlog($oBlog, $this->oUserCurrent);
         }
+        */
+        $bCloseBlog = !E::ACL_IsAllowShowBlog($oBlog, $this->oUserCurrent);
 
         // В скрытый блог посторонних совсем не пускам
         if ($bCloseBlog && $oBlogType && $oBlogType->IsHidden()) {
