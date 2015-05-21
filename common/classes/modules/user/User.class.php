@@ -716,9 +716,8 @@ class ModuleUser extends Module {
             $this->oMapper->UpdateSession($this->oSession);
         }
         if ($this->oUserCurrent) {
-            // И закрываем все сессии текущего юзера
-            // TODO: разделить закрытие всех сессий и закрытие текущей
-            $this->CloseAllSessions();
+            // И закрываем текущую сессию текущего юзера
+            $this->CloseSession();
         }
         $this->Cache_CleanByTags(array('user_session_update'));
 
@@ -759,6 +758,27 @@ class ModuleUser extends Module {
             $this->oMapper->UpdateSession($this->oSession);
         }
         $this->Cache_Set($data, $sCacheKey, array('user_session_update'), 'PT20M', true);
+    }
+
+    /**
+     * Close current session of the user
+     *
+     * @param ModuleUser_EntityUser|null $oUser
+     */
+    public function CloseSession($oUser = null) {
+
+        if (!$oUser) {
+            $oUser = $this->oUserCurrent;
+        }
+        if (!$this->oSession) {
+            $oSession = $oUser->getSession();
+        } else {
+            $oSession = $this->oSession;
+        }
+        if ($oUser) {
+            $this->oMapper->CloseSession($oSession);
+            E::ModuleCache()->CleanByTags(array('user_session_update'));
+        }
     }
 
     /**
