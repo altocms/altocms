@@ -897,7 +897,6 @@ class ModuleMresource extends Module {
             'count' => 0
         );
 
-        $aTopicInfo = $this->oMapper->GetTopicInfo($iUserId, $iCount, $iPage, $iPerPage);
         if ($aTopicInfo) {
 
             $aTopics = E::ModuleTopic()->GetTopicsAdditionalData(array_keys($aTopicInfo));
@@ -1088,23 +1087,27 @@ class ModuleMresource extends Module {
         $aTopicInfo = $this->oMapper->GetTopicInfo($aFilter, $iCount, $iPage, $iPerPage);
         if ($aTopicInfo) {
 
-            $aTopics = E::ModuleTopic()->GetTopicsByFilter(array(
+            // Результат в формате array('collection'=>..., 'count'=>...)
+            $aResult = E::ModuleTopic()->GetTopicsByFilter(array(
                 'topic_id' => array_keys($aTopicInfo),
                 'topic_type' => $sType
             ));
 
-            if ($aTopics) {
+            if ($aResult) {
                 /** @var ModuleTopic_EntityTopic $oTopic */
-                foreach ($aTopics['collection'] as $sTopicId => $oTopic) {
+                foreach ($aResult['collection'] as $sTopicId => $oTopic) {
                     $oTopic->setImagesCount($aTopicInfo[$sTopicId]);
-                    $aTopics[$sTopicId] = $oTopic;
+                    $aResult['collection'][$sTopicId] = $oTopic;
                 }
             }
 
-            return $aTopics;
+            return $aResult;
         }
 
-        return array();
+        return array(
+            'collection' => array(),
+            'count' => 0
+        );
     }
 
     /**

@@ -127,12 +127,15 @@
                 {/if}
 
                 <li class="pull-right read-more">
-                    <a href="{$oTopic->getUrl()}#cut" title="{$aLang.topic_read_more}" class="btn btn-gray">
+                    <a href="{$oTopic->getUrl()}#cut" title="{$aLang.topic_read_more}" class="btn btn-gray hidden-xxs">
                         {if $oTopic->getCutText()}
                             {$oTopic->getCutText()}
                         {else}
                             {$aLang.topic_read_more}
                         {/if}
+                    </a>
+                    <a href="{$oTopic->getUrl()}#cut" title="{$aLang.topic_read_more}" class="fa-btn btn btn-gray visible-xxs">
+                        <i class="fa fa-chevron-right"></i>
                     </a>
                 </li>
 

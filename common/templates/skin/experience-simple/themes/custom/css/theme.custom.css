@@ -517,6 +517,12 @@ _______________________________________________________________*/
 .par0 {
   padding-right: 0 !important;
 }
+.fa-btn i.fa {
+  margin: 0 2px;
+}
+.fa-btn:hover i.fa {
+  color: #1c374c !important;
+}
 .transition3 {
   -webkit-transition: .3s;
   transition: .3s;
@@ -3425,6 +3431,22 @@ div.pp_experience .pp_loaderIcon {
 }
 .logo-img {
   max-height: 64px;
+}
+@media (max-width: 400px) {
+  .hidden-xxs {
+    display: none;
+  }
+  .visible-xxs {
+    display: inline-block;
+  }
+}
+@media (min-width: 400px) {
+  .hidden-xxs {
+    display: inline-block;
+  }
+  .visible-xxs {
+    display: none;
+  }
 }
 @media (min-width: 768px) {
   .container {
