@@ -791,10 +791,11 @@ class Func {
     static protected function ExcludeByEnabledMask($aPlugins) {
 
         $aResult = array();
+        $sRequestUri = $_SERVER['REQUEST_URI'] == '/' ? '__MAIN_PAGE__' : $_SERVER['REQUEST_URI'];
         foreach ($aPlugins as $sPluginName => $aPluginData) {
             $sXmlText = F::File_GetContents($aPluginData['manifest']);
             if (preg_match('~<enabled\>(.*)<\/enabled\>~', $sXmlText, $aMatches)) {
-                $sReq = preg_replace('/\/+/', '/', $_SERVER['REQUEST_URI']);
+                $sReq = preg_replace('/\/+/', '/', $sRequestUri);
                 $sReq = preg_replace('/^\/(.*)\/?$/U', '$1', $sReq);
                 $sReq = preg_replace('/^(.*)\?.*$/U', '$1', $sReq);
                 if (preg_match($aMatches[1], $sReq)) {
