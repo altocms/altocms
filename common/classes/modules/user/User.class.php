@@ -23,6 +23,11 @@ class ModuleUser extends Module {
 
     const USER_SESSION_KEY = 'user_key';
 
+    const USER_LOGIN_ERR_MIN        = 1;
+    const USER_LOGIN_ERR_LEN        = 2;
+    const USER_LOGIN_ERR_CHARS      = 4;
+    const USER_LOGIN_ERR_DISABLED   = 8;
+
     /**
      * Статусы дружбы между пользователями
      */
@@ -31,10 +36,6 @@ class ModuleUser extends Module {
     const USER_FRIEND_DELETE    = 4;
     const USER_FRIEND_REJECT    = 8;
     const USER_FRIEND_NULL      = 16;
-
-    const USER_LOGIN_ERR_MIN    = 1;
-    const USER_LOGIN_ERR_LEN    = 2;
-    const USER_LOGIN_ERR_CHARS  = 4;
 
     /**
      * Права
@@ -1545,8 +1546,10 @@ class ModuleUser extends Module {
         // проверка на допустимость логина
         $aDisabledLogins = F::Array_Str2Array(Config::Get('module.user.login.disabled'));
         if (F::Array_StrInArray($sLogin, $aDisabledLogins)) {
+            $nError = self::USER_LOGIN_ERR_DISABLED;
             return false;
         } elseif(strpos(strtolower($sLogin), 'id-') === 0 || strpos(strtolower($sLogin), 'login-') === 0) {
+            $nError = self::USER_LOGIN_ERR_DISABLED;
             return false;
         }
 

@@ -121,6 +121,8 @@ class ModuleUser_EntityUser extends Entity {
                         ));
                 } elseif ($nError == ModuleUser::USER_LOGIN_ERR_CHARS) {
                     $xResult = E::ModuleLang()->Get('registration_login_error_chars');
+                } elseif ($nError == ModuleUser::USER_LOGIN_ERR_DISABLED) {
+                    $xResult = E::ModuleLang()->Get('registration_login_error_used');
                 } else {
                     $xResult = E::ModuleLang()->Get('registration_login_error');
                 }
