@@ -14,8 +14,6 @@
  */
 
 /**
- * Маппер комментариев, работа с базой данных
- *
  * @package modules.comment
  * @since   1.0
  */
@@ -32,9 +30,8 @@ class ModuleComment_MapperComment extends Mapper {
      *
      * @return array
      */
-    public function GetCommentsRatingByDate(
-        $sDate, $sTargetType, $iLimit, $aExcludeTarget = array(), $aExcludeParentTarget = array()
-    ) {
+    public function GetCommentsRatingByDate($sDate, $sTargetType, $iLimit, $aExcludeTarget = array(), $aExcludeParentTarget = array()) {
+
         $sql = "SELECT
 					comment_id
 				FROM 
@@ -82,7 +79,8 @@ class ModuleComment_MapperComment extends Mapper {
     public function GetCommentUnique($iTargetId, $sTargetType, $iUserId, $iCommentPId, $sHash) {
 
         $sql = "
-            SELECT comment_id FROM ?_comment
+            SELECT comment_id
+            FROM ?_comment
 			WHERE 
 				target_id = ?d 
 				AND
@@ -95,15 +93,13 @@ class ModuleComment_MapperComment extends Mapper {
 				comment_text_hash =?
 			LIMIT 1
 				";
-        if ($aRow = $this->oDb->selectRow($sql, $iTargetId, $sTargetType, $iUserId, $iCommentPId, $iCommentPId, $sHash)
-        ) {
-            return $aRow['comment_id'];
-        }
-        return null;
+        $iCommentId = $this->oDb->selectCell($sql, $iTargetId, $sTargetType, $iUserId, $iCommentPId, $iCommentPId, $sHash);
+
+        return $iCommentId ? $iCommentId : null;
     }
 
     /**
-     * Получить все комменты
+     * @deprecated since 1.1
      *
      * @param string $sTargetType             Тип владельца комментария
      * @param int    $iCount                  Возвращает общее количество элементов
@@ -114,36 +110,19 @@ class ModuleComment_MapperComment extends Mapper {
      *
      * @return array
      */
-    public function GetCommentsAll(
-        $sTargetType, &$iCount, $iCurrPage, $iPerPage, $aExcludeTarget = array(), $aExcludeParentTarget = array()
-    ) {
-        $sql = "SELECT
-					comment_id
-				FROM 
-					?_comment
-				WHERE
-					target_type = ?
-					AND
-					comment_delete = 0
-					AND
-					comment_publish = 1
-					{ AND target_id NOT IN(?a) }
-					{ AND target_parent_id NOT IN(?a) }
-				ORDER by comment_id desc
-				LIMIT ?d, ?d ";
-        $aComments = array();
-        if ($aRows = $this->oDb->selectPage(
-            $iCount, $sql, $sTargetType,
-            (count($aExcludeTarget) ? $aExcludeTarget : DBSIMPLE_SKIP),
-            (count($aExcludeParentTarget) ? $aExcludeParentTarget : DBSIMPLE_SKIP),
-            ($iCurrPage - 1) * $iPerPage, $iPerPage
-        )
-        ) {
-            foreach ($aRows as $aRow) {
-                $aComments[] = $aRow['comment_id'];
-            }
+    public function GetCommentsAll($sTargetType, &$iCount, $iCurrPage, $iPerPage, $aExcludeTarget = array(), $aExcludeParentTarget = array()) {
+
+        $aFilter = array(
+            'target_type' => $sTargetType,
+        );
+        if (!empty($aExcludeTarget)) {
+            $aFilter['not_target_id'] = $aExcludeTarget;
         }
-        return $aComments;
+        if (!empty($aExcludeParentTarget)) {
+            $aFilter['not_target_parent_id'] = $aExcludeParentTarget;
+        }
+
+        return $this->GetCommentsIdByFilter($aFilter, $iCount, $iCurrPage, $iPerPage);
     }
 
     /**
@@ -162,7 +141,7 @@ class ModuleComment_MapperComment extends Mapper {
             $aCommentId = array(intval($aCommentId));
         }
 
-        $nLimit = sizeof($aCommentId);
+        $iLimit = sizeof($aCommentId);
         $sql = "
             SELECT
                 c.comment_id AS ARRAY_KEYS,
@@ -171,7 +150,7 @@ class ModuleComment_MapperComment extends Mapper {
                 ?_comment AS c
             WHERE
                 c.comment_id IN(?a)
-            LIMIT $nLimit
+            LIMIT $iLimit
             ";
         $aComments = array();
         if ($aRows = $this->oDb->select($sql, $aCommentId)) {
@@ -201,17 +180,12 @@ class ModuleComment_MapperComment extends Mapper {
 				ORDER by comment_online_id DESC
 				LIMIT 0, ?d ;";
 
-        $aComments = array();
-        $aRows = $this->oDb->select($sql,
+        $aCommentsId = $this->oDb->selectCol($sql,
             $sTargetType,
-            (count($aExcludeTargets) ? $aExcludeTargets : DBSIMPLE_SKIP),
+            (!empty($aExcludeTargets) ? $aExcludeTargets : DBSIMPLE_SKIP),
             $iLimit);
-        if ($aRows) {
-            foreach ($aRows as $aRow) {
-                $aComments[] = $aRow['comment_id'];
-            }
-        }
-        return $aComments;
+
+        return $aCommentsId ? $aCommentsId : array();
     }
 
     /**
@@ -306,9 +280,7 @@ class ModuleComment_MapperComment extends Mapper {
      */
     public function GetCommentsTreePageByTargetId($sId, $sTargetType, &$iCount, $iPage, $iPerPage) {
 
-        /**
-         * Сначала получаем корни и определяем границы выборки веток
-         */
+        // * Сначала получаем корни и определяем границы выборки веток
         $sql = "SELECT
 					comment_left,
 					comment_right 
@@ -334,9 +306,7 @@ class ModuleComment_MapperComment extends Mapper {
             return array();
         }
 
-        /**
-         * Теперь получаем полный список комментов
-         */
+        // * Теперь получаем полный список комментов
         $sql = "SELECT
 					comment_id 
 				FROM 
@@ -397,8 +367,9 @@ class ModuleComment_MapperComment extends Mapper {
      * @return int
      */
     public function GetCountCommentsAfterByTargetId($iTargetId, $sTargetType, $iLeft) {
+
         $sql = "SELECT
-					count(comment_id) as c
+					COUNT(comment_id) AS cnt
 				FROM 
 					?_comment
 				WHERE 
@@ -410,9 +381,9 @@ class ModuleComment_MapperComment extends Mapper {
 					AND 
 					comment_left >= ?d ;";
 
-        if ($aRow = $this->oDb->selectRow($sql, $iTargetId, $sTargetType, $iLeft)) {
-            return $aRow['c'];
-        }
+        $iCnt = $this->oDb->selectCell($sql, $iTargetId, $sTargetType, $iLeft);
+
+        return $iCnt ? $iCnt : 0;
     }
 
     /**
@@ -481,6 +452,24 @@ class ModuleComment_MapperComment extends Mapper {
     }
 
     /**
+     * @deprecated since 1.1
+     *
+     * @param       $iTargetId
+     * @param       $sTargetType
+     * @param       $iCount
+     * @param       $iCurrPage
+     * @param       $iPerPage
+     * @param array $aExcludeTarget
+     * @param array $aExcludeParentTarget
+     *
+     * @return mixed
+     */
+    public function GetCommentsByUserId($iTargetId, $sTargetType, &$iCount, $iCurrPage, $iPerPage, $aExcludeTarget = array(), $aExcludeParentTarget = array()) {
+
+        return $this->GetCommentsIdByUserId($iTargetId, $sTargetType, $iCount, $iCurrPage, $iPerPage, $aExcludeTarget, $aExcludeParentTarget);
+    }
+
+    /**
      * Получить комменты по юзеру
      *
      * @param  int    $iTargetId                     ID пользователя
@@ -493,39 +482,21 @@ class ModuleComment_MapperComment extends Mapper {
      *
      * @return array
      */
-    public function GetCommentsByUserId(
-        $iTargetId, $sTargetType, &$iCount, $iCurrPage, $iPerPage, $aExcludeTarget = array(), $aExcludeParentTarget = array()
-    ) {
-        $sql = "SELECT
-					comment_id
-				FROM 
-					?_comment
-				WHERE 
-					user_id = ?d 
-					AND
-					target_type= ? 
-					AND
-					comment_delete = 0
-					AND
-					comment_publish = 1 
-					{ AND target_id NOT IN (?a) }
-					{ AND target_parent_id NOT IN (?a) }
-				ORDER BY comment_id DESC
-				LIMIT ?d, ?d ";
-        $aComments = array();
-        if ($aRows = $this->oDb->selectPage(
-            $iCount, $sql, $iTargetId,
-            $sTargetType,
-            (count($aExcludeTarget) ? $aExcludeTarget : DBSIMPLE_SKIP),
-            (count($aExcludeParentTarget) ? $aExcludeParentTarget : DBSIMPLE_SKIP),
-            ($iCurrPage - 1) * $iPerPage, $iPerPage
-        )
-        ) {
-            foreach ($aRows as $aRow) {
-                $aComments[] = $aRow['comment_id'];
-            }
+    public function GetCommentsIdByUserId($iTargetId, $sTargetType, &$iCount, $iCurrPage, $iPerPage, $aExcludeTarget = array(), $aExcludeParentTarget = array()) {
+
+        $aFilter = array(
+            'target_id' => $iTargetId,
+            'target_type' => $sTargetType,
+            'delete' => 0,
+            'publish' => 1,
+        );
+        if (!empty($aExcludeTarget)) {
+            $aFilter['not_target_id'] = $aExcludeTarget;
         }
-        return $aComments;
+        if (!empty($aExcludeTarget)) {
+            $aFilter['not_target_parent_id'] = $aExcludeParentTarget;
+        }
+        return $this->GetCommentsIdByFilter($aFilter, $iCount, $iCurrPage, $iPerPage);
     }
 
     /**
@@ -675,8 +646,7 @@ class ModuleComment_MapperComment extends Mapper {
     public function AddCommentOnline(ModuleComment_EntityCommentOnline $oCommentOnline) {
 
         $this->DeleteCommentOnlineByTargetId($oCommentOnline->getTargetId(), $oCommentOnline->getTargetType());
-        $sql
-            = "
+        $sql = "
                 INSERT INTO ?_comment_online
                 (
                   target_id, target_type, target_parent_id, comment_id
@@ -925,13 +895,14 @@ class ModuleComment_MapperComment extends Mapper {
 
         $iRgt = $iLft + 1;
         $iLevel++;
-        $sql = "SELECT comment_id FROM ?_comment WHERE target_id = ? AND target_type = ? { AND comment_pid = ?  } { AND comment_pid IS NULL AND 1=?d}
-				ORDER BY  comment_id ASC";
+        $sql = "
+            SELECT comment_id
+            FROM ?_comment
+            WHERE target_id = ? AND target_type = ? { AND comment_pid = ?  } { AND comment_pid IS NULL AND 1=?d}
+            ORDER BY comment_id ASC";
 
-        if ($aRows = $this->oDb->select(
-            $sql, $aTargetId, $sTargetType, !is_null($iPid) ? $iPid : DBSIMPLE_SKIP, is_null($iPid) ? 1 : DBSIMPLE_SKIP
-        )
-        ) {
+        $aRows = $this->oDb->select($sql, $aTargetId, $sTargetType, !is_null($iPid) ? $iPid : DBSIMPLE_SKIP, is_null($iPid) ? 1 : DBSIMPLE_SKIP);
+        if ($aRows) {
             foreach ($aRows as $aRow) {
                 $iRgt = $this->RestoreTree($aRow['comment_id'], $iRgt, $iLevel, $aTargetId, $sTargetType);
             }
@@ -954,15 +925,14 @@ class ModuleComment_MapperComment extends Mapper {
      */
     public function GetCommentTypes() {
 
-        $sql = "SELECT target_type FROM ?_comment
+        $sql = "
+            SELECT target_type
+            FROM ?_comment
 			GROUP BY target_type ";
-        $aTypes = array();
-        if ($aRows = $this->oDb->select($sql)) {
-            foreach ($aRows as $aRow) {
-                $aTypes[] = $aRow['target_type'];
-            }
-        }
-        return $aTypes;
+
+        $aTypes = $this->oDb->selectCol($sql);
+
+        return $aTypes ? $aTypes : array();
     }
 
     /**
@@ -976,8 +946,13 @@ class ModuleComment_MapperComment extends Mapper {
      */
     public function GetTargetIdByType($sTargetType, $iPage, $iPerPage) {
 
-        $sql = "SELECT target_id FROM ?_comment
-			WHERE  target_type = ? GROUP BY target_id ORDER BY target_id LIMIT ?d, ?d ";
+        $sql = "
+            SELECT target_id
+            FROM ?_comment
+			WHERE  target_type = ?
+			GROUP BY target_id
+			ORDER BY target_id
+			LIMIT ?d, ?d ";
         if ($aRows = $this->oDb->select($sql, $sTargetType, ($iPage - 1) * $iPerPage, $iPerPage)) {
             return $aRows;
         }
@@ -992,9 +967,9 @@ class ModuleComment_MapperComment extends Mapper {
     public function RecalculateFavourite() {
 
         $sql = "
-            UPDATE ?_comment c
+            UPDATE ?_comment AS c
             SET c.comment_count_favourite = (
-                SELECT count(f.user_id)
+                SELECT COUNT(f.user_id)
                 FROM ?_favourite f
                 WHERE 
                     f.target_id = c.comment_id
@@ -1005,23 +980,41 @@ class ModuleComment_MapperComment extends Mapper {
             )
 		";
         $bResult = $this->oDb->query($sql);
+
         return $bResult !== false;
+    }
+
+    /**
+     * @deprecated since 1.1
+     *
+     * @param $aFilter
+     * @param $aOrder
+     * @param $iCount
+     * @param $iCurrPage
+     * @param $iPerPage
+     *
+     * @return array
+     */
+    public function GetCommentsByFilter($aFilter, $aOrder, &$iCount, $iCurrPage, $iPerPage) {
+
+        $aFilter['order'] = $aOrder;
+        return $this->GetCommentsIdByFilter($aFilter, $iCount, $iCurrPage, $iPerPage);
     }
 
     /**
      * Получает список комментариев по фильтру
      *
      * @param array $aFilter         Фильтр выборки
-     * @param array $aOrder          Сортировка
      * @param int   $iCount          Возвращает общее количество элментов
      * @param int   $iCurrPage       Номер текущей страницы
      * @param int   $iPerPage        Количество элементов на одну страницу
      *
      * @return array
      */
-    public function GetCommentsByFilter($aFilter, $aOrder, &$iCount, $iCurrPage, $iPerPage) {
+    public function GetCommentsIdByFilter($aFilter, &$iCount, $iCurrPage, $iPerPage) {
 
         $aOrderAllow = array('comment_id', 'comment_pid', 'comment_rating', 'comment_date');
+        $aOrder = (!empty($aFilter['order']) ? $aFilter['order'] : array());
         $sOrder = '';
         if (is_array($aOrder) && $aOrder) {
             foreach ($aOrder as $key => $value) {
@@ -1034,11 +1027,17 @@ class ModuleComment_MapperComment extends Mapper {
             $sOrder = trim($sOrder, ',');
         }
         if ($sOrder == '') {
-            $sOrder = ' comment_id desc ';
+            $sOrder = ' comment_id DESC ';
         }
 
         if (isset($aFilter['target_type']) && !is_array($aFilter['target_type'])) {
             $aFilter['target_type'] = array($aFilter['target_type']);
+        }
+
+        if ($iPerPage) {
+            $sLimit = ' LIMIT ' . (($iCurrPage - 1) * $iPerPage) . ', ' . intval($iPerPage);
+        } else {
+            $sLimit = '';
         }
 
         $sql = "SELECT
@@ -1049,23 +1048,34 @@ class ModuleComment_MapperComment extends Mapper {
 					1 = 1
 					{ AND comment_id = ?d }
 					{ AND user_id = ?d }
+					{ AND user_id IN (?a) }
 					{ AND target_parent_id = ?d }
+					{ AND target_parent_id IN (?a) }
+					{ AND target_parent_id NOT IN(?a) }
 					{ AND target_id = ?d }
+					{ AND target_id IN (?a) }
+					{ AND target_id NOT IN(?a) }
 					{ AND target_type IN (?a) }
 					{ AND comment_delete = ?d }
 					{ AND comment_publish = ?d }
-				ORDER by {$sOrder}
-				LIMIT ?d, ?d ;
+				ORDER BY {$sOrder}
 					";
+        if ($sLimit) {
+            $sql .= $sLimit;
+        }
         $aResult = array();
         $aRows = $this->oDb->selectPage(
             $iCount, $sql,
             isset($aFilter['id']) ? $aFilter['id'] : DBSIMPLE_SKIP,
-            isset($aFilter['user_id']) ? $aFilter['user_id'] : DBSIMPLE_SKIP,
-            isset($aFilter['target_parent_id']) ? $aFilter['target_parent_id'] : DBSIMPLE_SKIP,
-            isset($aFilter['target_id']) ? $aFilter['target_id'] : DBSIMPLE_SKIP,
-            (isset($aFilter['target_type']) && count($aFilter['target_type'])) ? $aFilter['target_type']
-                : DBSIMPLE_SKIP,
+            (isset($aFilter['user_id']) && !is_array($aFilter['user_id'])) ? $aFilter['user_id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['user_id']) && is_array($aFilter['user_id'])) ? $aFilter['user_id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['target_parent_id']) && !is_array($aFilter['target_parent_id'])) ? $aFilter['target_parent_id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['target_parent_id']) && is_array($aFilter['target_parent_id'])) ? $aFilter['target_parent_id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['not_target_parent_id']) && is_array($aFilter['not_target_parent_id'])) ? $aFilter['not_target_parent_id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['target_id']) && !is_array($aFilter['target_id'])) ? $aFilter['target_id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['target_id']) && is_array($aFilter['target_id'])) ? $aFilter['target_id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['not_target_id']) && is_array($aFilter['not_target_id'])) ? $aFilter['not_target_id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['target_type']) && count($aFilter['target_type'])) ? $aFilter['target_type'] : DBSIMPLE_SKIP,
             isset($aFilter['delete']) ? $aFilter['delete'] : DBSIMPLE_SKIP,
             isset($aFilter['publish']) ? $aFilter['publish'] : DBSIMPLE_SKIP,
             ($iCurrPage - 1) * $iPerPage, $iPerPage

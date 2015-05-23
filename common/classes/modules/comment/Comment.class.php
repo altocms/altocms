@@ -98,8 +98,13 @@ class ModuleComment extends Module {
 
         $sCacheKey = "comment_all_" . serialize(func_get_args());
         if (false === ($data = $this->Cache_Get($sCacheKey))) {
+            $aFilter = array(
+                'target_type' => $sTargetType,
+                'not_target_id' => !empty($aExcludeTarget) ? $aExcludeTarget : array(),
+                'not_target_parent_id' => !empty($aExcludeParentTarget) ? $aExcludeParentTarget : array(),
+            );
             $data = array(
-                'collection' => $this->oMapper->GetCommentsAll($sTargetType, $iCount, $iPage, $iPerPage, $aExcludeTarget, $aExcludeParentTarget),
+                'collection' => $this->oMapper->GetCommentsIdByFilter($aFilter, $iCount, $iPage, $iPerPage),
                 'count'      => $iCount,
             );
             $this->Cache_Set($data, $sCacheKey, array("comment_new_{$sTargetType}", "comment_update_status_{$sTargetType}"), 'P1D');
@@ -347,9 +352,8 @@ class ModuleComment extends Module {
      * @return array
      */
     public function GetCommentsByUserId($iUserId, $sTargetType, $iPage, $iPerPage) {
-        /**
-         * Исключаем из выборки идентификаторы закрытых блогов
-         */
+
+        // * Исключаем из выборки идентификаторы закрытых блогов
         $aCloseBlogs = ($this->oUserCurrent && $iUserId == $this->oUserCurrent->getId())
             ? array()
             : $this->Blog_GetInaccessibleBlogsByUser();
@@ -357,7 +361,7 @@ class ModuleComment extends Module {
         $sCacheKey = "comment_user_{$iUserId}_{$sTargetType}_{$iPage}_{$iPerPage}_" . serialize($aCloseBlogs);
         if (false === ($data = $this->Cache_Get($sCacheKey))) {
             $data = array(
-                'collection' => $this->oMapper->GetCommentsByUserId($iUserId, $sTargetType, $iCount, $iPage, $iPerPage, array(), $aCloseBlogs),
+                'collection' => $this->oMapper->GetCommentsIdByUserId($iUserId, $sTargetType, $iCount, $iPage, $iPerPage, array(), $aCloseBlogs),
                 'count'      => $iCount,
             );
             $this->Cache_Set(
@@ -1257,7 +1261,8 @@ class ModuleComment extends Module {
         if (is_null($aAllowData)) {
             $aAllowData = array('target', 'user' => array());
         }
-        $aCollection = $this->oMapper->GetCommentsByFilter($aFilter, $aOrder, $iCount, $iCurrPage, $iPerPage);
+        $aFilter['order'] = $aOrder;
+        $aCollection = $this->oMapper->GetCommentsIdByFilter($aFilter, $iCount, $iCurrPage, $iPerPage);
         if ($aCollection) {
             $aCollection = $this->GetCommentsAdditionalData($aCollection, $aAllowData);
         }
