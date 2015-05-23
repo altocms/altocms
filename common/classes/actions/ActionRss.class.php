@@ -164,14 +164,16 @@ class ActionRss extends Action {
          */
         $comments = array();
         foreach ($aComments as $oComment) {
-            $item['title'] = 'Comments: ' . $oComment->getTarget()->getTitle();
-            $item['guid'] = $oComment->getTarget()->getUrl() . '#comment' . $oComment->getId();
-            $item['link'] = $oComment->getTarget()->getUrl() . '#comment' . $oComment->getId();
-            $item['description'] = $oComment->getText();
-            $item['pubDate'] = $oComment->getDate();
-            $item['author'] = $oComment->getUser()->getLogin();
-            $item['category'] = 'comments';
-            $comments[] = $item;
+            if ($oComment->getTarget()) {
+                $item['title'] = 'Comments: ' . $oComment->getTarget()->getTitle();
+                $item['guid'] = $oComment->getTarget()->getUrl() . '#comment' . $oComment->getId();
+                $item['link'] = $oComment->getTarget()->getUrl() . '#comment' . $oComment->getId();
+                $item['description'] = $oComment->getText();
+                $item['pubDate'] = $oComment->getDate();
+                $item['author'] = $oComment->getUser()->getLogin();
+                $item['category'] = 'comments';
+                $comments[] = $item;
+            }
         }
         /**
          * Формируем ответ
