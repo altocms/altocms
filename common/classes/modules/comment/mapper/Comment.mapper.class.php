@@ -14,27 +14,40 @@
  */
 
 /**
- * Маппер комментариев, работа с базой данных
- *
  * @package modules.comment
  * @since   1.0
  */
 class ModuleComment_MapperComment extends Mapper {
 
     /**
-     * Получить комменты по рейтингу и дате
+     * @deprecated  since 1.1
+     *
+     * @param       $sDate
+     * @param       $sTargetType
+     * @param       $iLimit
+     * @param array $aExcludeTarget
+     * @param array $aExcludeParentTarget
+     *
+     * @return array
+     */
+    public function GetCommentsRatingByDate($sDate, $sTargetType, $iLimit, $aExcludeTarget = array(), $aExcludeParentTarget = array()) {
+
+        return $this->GetCommentsIdByRatingAndDate($sDate, $sTargetType, $iLimit, $aExcludeTarget, $aExcludeParentTarget);
+    }
+
+    /**
+     * Получить ID комментатриев по рейтингу и дате
      *
      * @param  string   $sDate                   Дата за которую выводить рейтинг
      * @param  string   $sTargetType             Тип владельца комментария
      * @param  int      $iLimit                  Количество элементов
-     * @param  array    $aExcludeTarget          Список ID владельцев, которые необходимо исключить из выдачи
-     * @param  array    $aExcludeParentTarget    Список ID родителей владельцев, которые необходимо исключить из выдачи
+     * @param  int[]    $aExcludeTarget          Список ID владельцев, которые необходимо исключить из выдачи
+     * @param  int[]    $aExcludeParentTarget    Список ID родителей владельцев, которые необходимо исключить из выдачи
      *
-     * @return array
+     * @return int[]
      */
-    public function GetCommentsRatingByDate(
-        $sDate, $sTargetType, $iLimit, $aExcludeTarget = array(), $aExcludeParentTarget = array()
-    ) {
+    public function GetCommentsIdByRatingAndDate($sDate, $sTargetType, $iLimit, $aExcludeTarget = array(), $aExcludeParentTarget = array()) {
+
         $sql = "SELECT
 					comment_id
 				FROM 
@@ -53,19 +66,15 @@ class ModuleComment_MapperComment extends Mapper {
 					{ AND target_parent_id NOT IN (?a) }
 				ORDER by comment_rating desc, comment_id desc
 				LIMIT 0, ?d ";
-        $aComments = array();
-        if ($aRows = $this->oDb->select(
-            $sql, $sTargetType, $sDate,
+
+        $aCommentsId = $this->oDb->selectCol($sql,
+            $sTargetType,
+            $sDate,
             (is_array($aExcludeTarget) && count($aExcludeTarget)) ? $aExcludeTarget : DBSIMPLE_SKIP,
             (count($aExcludeParentTarget) ? $aExcludeParentTarget : DBSIMPLE_SKIP),
             $iLimit
-        )
-        ) {
-            foreach ($aRows as $aRow) {
-                $aComments[] = $aRow['comment_id'];
-            }
-        }
-        return $aComments;
+        );
+        return $aCommentsId ? $aCommentsId : array();
     }
 
     /**
@@ -82,7 +91,8 @@ class ModuleComment_MapperComment extends Mapper {
     public function GetCommentUnique($iTargetId, $sTargetType, $iUserId, $iCommentPId, $sHash) {
 
         $sql = "
-            SELECT comment_id FROM ?_comment
+            SELECT comment_id
+            FROM ?_comment
 			WHERE 
 				target_id = ?d 
 				AND
@@ -95,15 +105,29 @@ class ModuleComment_MapperComment extends Mapper {
 				comment_text_hash =?
 			LIMIT 1
 				";
-        if ($aRow = $this->oDb->selectRow($sql, $iTargetId, $sTargetType, $iUserId, $iCommentPId, $iCommentPId, $sHash)
-        ) {
-            return $aRow['comment_id'];
-        }
-        return null;
+        $iCommentId = $this->oDb->selectCell($sql, $iTargetId, $sTargetType, $iUserId, $iCommentPId, $iCommentPId, $sHash);
+        return $iCommentId ? $iCommentId : null;
     }
 
     /**
-     * Получить все комменты
+     * @deprecated  since 1.1
+     *
+     * @param       $sTargetType
+     * @param       $iCount
+     * @param       $iCurrPage
+     * @param       $iPerPage
+     * @param array $aExcludeTarget
+     * @param array $aExcludeParentTarget
+     *
+     * @return array
+     */
+    public function GetCommentsAll($sTargetType, &$iCount, $iCurrPage, $iPerPage, $aExcludeTarget = array(), $aExcludeParentTarget = array()) {
+
+        return $this->GetCommentsIdByTargetType($sTargetType, $iCount, $iCurrPage, $iPerPage, $aExcludeTarget, $aExcludeParentTarget);
+    }
+
+    /**
+     * Получить ID комментариев по типу
      *
      * @param string $sTargetType             Тип владельца комментария
      * @param int    $iCount                  Возвращает общее количество элементов
@@ -112,57 +136,37 @@ class ModuleComment_MapperComment extends Mapper {
      * @param array  $aExcludeTarget          Список ID владельцев, которые необходимо исключить из выдачи
      * @param array  $aExcludeParentTarget    Список ID родителей владельцев, которые необходимо исключить из выдачи, например, исключить комментарии топиков к определенным блогам(закрытым)
      *
-     * @return array
+     * @return int[]
      */
-    public function GetCommentsAll(
-        $sTargetType, &$iCount, $iCurrPage, $iPerPage, $aExcludeTarget = array(), $aExcludeParentTarget = array()
-    ) {
-        $sql = "SELECT
-					comment_id
-				FROM 
-					?_comment
-				WHERE
-					target_type = ?
-					AND
-					comment_delete = 0
-					AND
-					comment_publish = 1
-					{ AND target_id NOT IN(?a) }
-					{ AND target_parent_id NOT IN(?a) }
-				ORDER by comment_id desc
-				LIMIT ?d, ?d ";
-        $aComments = array();
-        if ($aRows = $this->oDb->selectPage(
-            $iCount, $sql, $sTargetType,
-            (count($aExcludeTarget) ? $aExcludeTarget : DBSIMPLE_SKIP),
-            (count($aExcludeParentTarget) ? $aExcludeParentTarget : DBSIMPLE_SKIP),
-            ($iCurrPage - 1) * $iPerPage, $iPerPage
-        )
-        ) {
-            foreach ($aRows as $aRow) {
-                $aComments[] = $aRow['comment_id'];
-            }
-        }
-        return $aComments;
+    public function GetCommentsIdByTargetType($sTargetType, &$iCount, $iCurrPage, $iPerPage, $aExcludeTarget = array(), $aExcludeParentTarget = array()) {
+
+        $aFilter = array(
+            'target_type' => $sTargetType,
+            'delete' => 0,
+            'publish' => 1,
+            'target_id' => $aExcludeTarget,
+            'target_parent_id' => $aExcludeParentTarget,
+        );
+        return $this->GetCommentsIdByFilter($aFilter, $iCount, $iCurrPage, $iPerPage);
     }
 
     /**
      * Список комментов по ID
      *
-     * @param array $aCommentId    Список ID комментариев
+     * @param array $aCommentsId    Список ID комментариев
      *
-     * @return array
+     * @return ModuleComment_EntityComment[]
      */
-    public function GetCommentsByArrayId($aCommentId) {
+    public function GetCommentsByArrayId($aCommentsId) {
 
-        if (!$aCommentId) {
+        if (!$aCommentsId) {
             return array();
         }
-        if (!is_array($aCommentId)) {
-            $aCommentId = array(intval($aCommentId));
+        if (!is_array($aCommentsId)) {
+            $aCommentsId = array(intval($aCommentsId));
         }
 
-        $nLimit = sizeof($aCommentId);
+        $iLimit = sizeof($aCommentsId);
         $sql = "
             SELECT
                 c.comment_id AS ARRAY_KEYS,
@@ -171,25 +175,39 @@ class ModuleComment_MapperComment extends Mapper {
                 ?_comment AS c
             WHERE
                 c.comment_id IN(?a)
-            LIMIT $nLimit
+            LIMIT $iLimit
             ";
         $aComments = array();
-        if ($aRows = $this->oDb->select($sql, $aCommentId)) {
-            $aComments = E::GetEntityRows('Comment', $aRows, $aCommentId);
+        if ($aRows = $this->oDb->select($sql, $aCommentsId)) {
+            $aComments = E::GetEntityRows('Comment', $aRows, $aCommentsId);
         }
         return $aComments;
     }
 
     /**
-     * Получить все комменты сгрупированные по типу(для вывода прямого эфира)
+     * @deprecated  since 1.1
+     *
+     * @param $sTargetType
+     * @param $aExcludeTargets
+     * @param $iLimit
+     *
+     * @return array
+     */
+    public function GetCommentsOnline($sTargetType, $aExcludeTargets, $iLimit) {
+
+        return $this->GetCommentsIdOnline($sTargetType, $aExcludeTargets, $iLimit);
+    }
+
+    /**
+     * Получить ID комментариев, сгрупированных по типу (для вывода прямого эфира)
      *
      * @param string $sTargetType        Тип владельца комментария
      * @param array  $aExcludeTargets    Список ID владельцев для исключения
      * @param int    $iLimit             Количество элементов
      *
-     * @return array
+     * @return int[]
      */
-    public function GetCommentsOnline($sTargetType, $aExcludeTargets, $iLimit) {
+    public function GetCommentsIdOnline($sTargetType, $aExcludeTargets, $iLimit) {
 
         $sql = "SELECT
 					comment_id
@@ -201,17 +219,12 @@ class ModuleComment_MapperComment extends Mapper {
 				ORDER by comment_online_id DESC
 				LIMIT 0, ?d ;";
 
-        $aComments = array();
-        $aRows = $this->oDb->select($sql,
+        $aCommentsId = $this->oDb->selectCol($sql,
             $sTargetType,
             (count($aExcludeTargets) ? $aExcludeTargets : DBSIMPLE_SKIP),
             $iLimit);
-        if ($aRows) {
-            foreach ($aRows as $aRow) {
-                $aComments[] = $aRow['comment_id'];
-            }
-        }
-        return $aComments;
+
+        return $aCommentsId ? $aCommentsId : array();
     }
 
     /**
@@ -220,7 +233,7 @@ class ModuleComment_MapperComment extends Mapper {
      * @param   array   $aTargetsId     ID владельца коммента
      * @param   string  $sTargetType    Тип владельца комментария
      *
-     * @return  array
+     * @return  int[]
      */
     public function GetCommentsIdByTargetsId($aTargetsId, $sTargetType) {
 
@@ -228,12 +241,12 @@ class ModuleComment_MapperComment extends Mapper {
         $sql = "
             SELECT comment_id
             FROM ?_comment
-            WHERE   target_id IN (?a) AND target_type = ?
+            WHERE target_id IN (?a) AND target_type = ?
         ";
 
-        // issue 257. Ид. не получались, кэш не чистился {@link https://github.com/altocms/altocms/issues/257}
-//      return ($this->oDb->selectCol($sql, $aTargetsId, $sTargetType) !== false);
-        return ($this->oDb->selectCol($sql, $aTargetsId, $sTargetType));
+        $aCommentsId = $this->oDb->selectCol($sql, $aTargetsId, $sTargetType);
+
+        return $aCommentsId ? $aCommentsId : array();
     }
 
     /**
@@ -270,7 +283,7 @@ class ModuleComment_MapperComment extends Mapper {
      * @param int    $sId            ID владельца коммента
      * @param string $sTargetType    Тип владельца комментария
      *
-     * @return array
+     * @return int[]
      */
     public function GetCommentsTreeByTargetId($sId, $sTargetType) {
 
@@ -284,13 +297,10 @@ class ModuleComment_MapperComment extends Mapper {
 					target_type = ?
 				ORDER BY comment_left ASC;
 					";
-        $aComments = array();
-        if ($aRows = $this->oDb->select($sql, $sId, $sTargetType)) {
-            foreach ($aRows as $aRow) {
-                $aComments[] = $aRow['comment_id'];
-            }
-        }
-        return $aComments;
+
+        $aCommentsId = $this->oDb->selectCol($sql, $sId, $sTargetType);
+
+        return $aCommentsId;
     }
 
     /**
@@ -299,16 +309,14 @@ class ModuleComment_MapperComment extends Mapper {
      * @param int    $sId            ID владельца коммента
      * @param string $sTargetType    Тип владельца комментария
      * @param int    $iCount         Возвращает общее количество элементов
-     * @param  int   $iPage          Номер страницы
-     * @param  int   $iPerPage       Количество элементов на страницу
+     * @param int    $iPage          Номер страницы
+     * @param int    $iPerPage       Количество элементов на страницу
      *
-     * @return array
+     * @return int[]
      */
     public function GetCommentsTreePageByTargetId($sId, $sTargetType, &$iCount, $iPage, $iPerPage) {
 
-        /**
-         * Сначала получаем корни и определяем границы выборки веток
-         */
+        // * Сначала получаем корни и определяем границы выборки веток
         $sql = "SELECT
 					comment_left,
 					comment_right 
@@ -334,9 +342,7 @@ class ModuleComment_MapperComment extends Mapper {
             return array();
         }
 
-        /**
-         * Теперь получаем полный список комментов
-         */
+        // * Теперь получаем полный список комментов
         $sql = "SELECT
 					comment_id 
 				FROM 
@@ -351,14 +357,10 @@ class ModuleComment_MapperComment extends Mapper {
 					comment_right <= ?d
 				ORDER BY comment_left ASC;
 					";
-        $aComments = array();
-        if ($aRows = $this->oDb->select($sql, $sId, $sTargetType, $iLeft, $iRight)) {
-            foreach ($aRows as $aRow) {
-                $aComments[] = $aRow['comment_id'];
-            }
-        }
 
-        return $aComments;
+        $aCommentsId = $this->oDb->selectCol($sql, $sId, $sTargetType, $iLeft, $iRight);
+
+        return $aCommentsId ? $aCommentsId : array();
     }
 
     /**
@@ -372,7 +374,7 @@ class ModuleComment_MapperComment extends Mapper {
     public function GetCountCommentsRootByTargetId($iTargetId, $sTargetType) {
 
         $sql = "SELECT
-					COUNT(comment_id) AS c
+					COUNT(comment_id) AS cnt
 				FROM 
 					?_comment
 				WHERE 
@@ -382,9 +384,9 @@ class ModuleComment_MapperComment extends Mapper {
 					AND
 					comment_pid IS NULL;";
 
-        if ($aRow = $this->oDb->selectRow($sql, $iTargetId, $sTargetType)) {
-            return $aRow['c'];
-        }
+        $iCount = $this->oDb->selectCell($sql, $iTargetId, $sTargetType);
+
+        return $iCount ? $iCount : 0;
     }
 
     /**
@@ -397,8 +399,9 @@ class ModuleComment_MapperComment extends Mapper {
      * @return int
      */
     public function GetCountCommentsAfterByTargetId($iTargetId, $sTargetType, $iLeft) {
+
         $sql = "SELECT
-					count(comment_id) as c
+					COUNT(comment_id) AS cnt
 				FROM 
 					?_comment
 				WHERE 
@@ -410,9 +413,9 @@ class ModuleComment_MapperComment extends Mapper {
 					AND 
 					comment_left >= ?d ;";
 
-        if ($aRow = $this->oDb->selectRow($sql, $iTargetId, $sTargetType, $iLeft)) {
-            return $aRow['c'];
-        }
+        $iCount = $this->oDb->selectCell($sql, $iTargetId, $sTargetType, $iLeft);
+
+        return $iCount ? $iCount : 0;
     }
 
     /**
@@ -449,15 +452,29 @@ class ModuleComment_MapperComment extends Mapper {
     }
 
     /**
+     * @deprecated  since 1.1
+     *
+     * @param $iTargetId
+     * @param $sTargetType
+     * @param $sIdCommentLast
+     *
+     * @return array
+     */
+    public function GetCommentsNewByTargetId($iTargetId, $sTargetType, $sIdCommentLast) {
+
+        return $this->GetCommentsIdNewByTargetId($iTargetId, $sTargetType, $sIdCommentLast);
+    }
+
+    /**
      * Получить новые комменты для владельца
      *
      * @param int    $iTargetId      ID владельца коммента
      * @param string $sTargetType    Тип владельца комментария
      * @param int    $sIdCommentLast ID последнего прочитанного комментария
      *
-     * @return array
+     * @return int[]
      */
-    public function GetCommentsNewByTargetId($iTargetId, $sTargetType, $sIdCommentLast) {
+    public function GetCommentsIdNewByTargetId($iTargetId, $sTargetType, $sIdCommentLast) {
 
         $sql = "SELECT
 					comment_id
@@ -471,19 +488,34 @@ class ModuleComment_MapperComment extends Mapper {
 					comment_id > ?d
 				ORDER BY comment_id ASC;
 					";
-        $aComments = array();
-        if ($aRows = $this->oDb->select($sql, $iTargetId, $sTargetType, $sIdCommentLast)) {
-            foreach ($aRows as $aRow) {
-                $aComments[] = $aRow['comment_id'];
-            }
-        }
-        return $aComments;
+
+        $aCommentsId = $this->oDb->selectCol($sql, $iTargetId, $sTargetType, $sIdCommentLast);
+
+        return $aCommentsId ? $aCommentsId : array();
+    }
+
+    /**
+     * @deprecated  since 1.1
+     *
+     * @param       $iTargetId
+     * @param       $sTargetType
+     * @param       $iCount
+     * @param       $iCurrPage
+     * @param       $iPerPage
+     * @param array $aExcludeTarget
+     * @param array $aExcludeParentTarget
+     *
+     * @return array
+     */
+    public function GetCommentsByUserId($iTargetId, $sTargetType, &$iCount, $iCurrPage, $iPerPage, $aExcludeTarget = array(), $aExcludeParentTarget = array()) {
+
+        return $this->GetCommentsIdByUserId($iTargetId, $sTargetType, $iCount, $iCurrPage, $iPerPage, $aExcludeTarget, $aExcludeParentTarget);
     }
 
     /**
      * Получить комменты по юзеру
      *
-     * @param  int    $iTargetId                     ID пользователя
+     * @param  int    $iUserId                 ID пользователя
      * @param  string $sTargetType             Тип владельца комментария
      * @param  int    $iCount                  Возращает общее количество элементов
      * @param  int    $iCurrPage               Номер страницы
@@ -491,11 +523,10 @@ class ModuleComment_MapperComment extends Mapper {
      * @param array   $aExcludeTarget          Список ID владельцев, которые необходимо исключить из выдачи
      * @param array   $aExcludeParentTarget    Список ID родителей владельцев, которые необходимо исключить из выдачи
      *
-     * @return array
+     * @return int[]
      */
-    public function GetCommentsByUserId(
-        $iTargetId, $sTargetType, &$iCount, $iCurrPage, $iPerPage, $aExcludeTarget = array(), $aExcludeParentTarget = array()
-    ) {
+    public function GetCommentsIdByUserId($iUserId, $sTargetType, &$iCount, $iCurrPage, $iPerPage, $aExcludeTarget = array(), $aExcludeParentTarget = array()) {
+
         $sql = "SELECT
 					comment_id
 				FROM 
@@ -512,20 +543,21 @@ class ModuleComment_MapperComment extends Mapper {
 					{ AND target_parent_id NOT IN (?a) }
 				ORDER BY comment_id DESC
 				LIMIT ?d, ?d ";
-        $aComments = array();
-        if ($aRows = $this->oDb->selectPage(
-            $iCount, $sql, $iTargetId,
+
+        $aCommentsId = array();
+        $aRows = $this->oDb->selectPage($iCount, $sql,
+            $iUserId,
             $sTargetType,
-            (count($aExcludeTarget) ? $aExcludeTarget : DBSIMPLE_SKIP),
-            (count($aExcludeParentTarget) ? $aExcludeParentTarget : DBSIMPLE_SKIP),
+            (!empty($aExcludeTarget) ? $aExcludeTarget : DBSIMPLE_SKIP),
+            (!empty($aExcludeParentTarget) ? $aExcludeParentTarget : DBSIMPLE_SKIP),
             ($iCurrPage - 1) * $iPerPage, $iPerPage
-        )
-        ) {
+        );
+        if ($aRows) {
             foreach ($aRows as $aRow) {
-                $aComments[] = $aRow['comment_id'];
+                $aCommentsId[] = $aRow['comment_id'];
             }
         }
-        return $aComments;
+        return $aCommentsId;
     }
 
     /**
@@ -541,7 +573,7 @@ class ModuleComment_MapperComment extends Mapper {
     public function GetCountCommentsByUserId($iUserId, $sTargetType, $aExcludeTarget = array(), $aExcludeParentTarget = array()) {
 
         $sql = "SELECT
-					COUNT(comment_id) as cnt
+					COUNT(comment_id) AS cnt
 				FROM 
 					?_comment
 				WHERE 
@@ -555,13 +587,13 @@ class ModuleComment_MapperComment extends Mapper {
 					{ AND target_id NOT IN (?a) }
 					{ AND target_parent_id NOT IN (?a) }
 					";
-        $nCnt = $this->oDb->selectCell($sql,
+        $iCount = $this->oDb->selectCell($sql,
             $iUserId,
             $sTargetType,
-            (count($aExcludeTarget) ? $aExcludeTarget : DBSIMPLE_SKIP),
-            (count($aExcludeParentTarget) ? $aExcludeParentTarget : DBSIMPLE_SKIP)
+            (!empty($aExcludeTarget) ? $aExcludeTarget : DBSIMPLE_SKIP),
+            (!empty($aExcludeParentTarget) ? $aExcludeParentTarget : DBSIMPLE_SKIP)
         );
-        return $nCnt;
+        return $iCount ? $iCount : 0;
     }
 
     /**
@@ -590,10 +622,17 @@ class ModuleComment_MapperComment extends Mapper {
               ?, ?d, ?, ?d, ?d, ?, ?, ?, ?d, ?
           )
         ";
-        $iId = $this->oDb->query(
-            $sql, $oComment->getPid(), $oComment->getTargetId(), $oComment->getTargetType(),
-            $oComment->getTargetParentId(), $oComment->getUserId(), $oComment->getText(), $oComment->getDate(),
-            $oComment->getUserIp(), $oComment->getPublish(), $oComment->getTextHash()
+        $iId = $this->oDb->query($sql,
+            $oComment->getPid(),
+            $oComment->getTargetId(),
+            $oComment->getTargetType(),
+            $oComment->getTargetParentId(),
+            $oComment->getUserId(),
+            $oComment->getText(),
+            $oComment->getDate(),
+            $oComment->getUserIp(),
+            $oComment->getPublish(),
+            $oComment->getTextHash()
         );
         return $iId ? $iId : false;
     }
@@ -616,6 +655,7 @@ class ModuleComment_MapperComment extends Mapper {
 
             $sql = "UPDATE ?_comment SET comment_left=comment_left+2 WHERE target_id=?d AND target_type=? AND comment_left>? ;";
             $this->oDb->query($sql, $oComment->getTargetId(), $oComment->getTargetType(), $iLeft - 1);
+
             $sql = "UPDATE ?_comment SET comment_right=comment_right+2 WHERE target_id=?d AND target_type=? AND comment_right>? ;";
             $this->oDb->query($sql, $oComment->getTargetId(), $oComment->getTargetType(), $iLeft - 1);
         } else {
@@ -651,7 +691,9 @@ class ModuleComment_MapperComment extends Mapper {
      */
     public function GetCommentLast($iTargetId, $sTargetType) {
 
-        $sql = "SELECT * FROM ?_comment
+        $sql = "
+            SELECT *
+            FROM ?_comment
 			WHERE 
 				target_id = ?d 
 				AND
@@ -675,8 +717,7 @@ class ModuleComment_MapperComment extends Mapper {
     public function AddCommentOnline(ModuleComment_EntityCommentOnline $oCommentOnline) {
 
         $this->DeleteCommentOnlineByTargetId($oCommentOnline->getTargetId(), $oCommentOnline->getTargetType());
-        $sql
-            = "
+        $sql = "
                 INSERT INTO ?_comment_online
                 (
                   target_id, target_type, target_parent_id, comment_id
@@ -685,8 +726,7 @@ class ModuleComment_MapperComment extends Mapper {
                   ?d, ?, ?d, ?d
                 )
             ";
-        $xResult = $this->oDb->query(
-            $sql,
+        $xResult = $this->oDb->query($sql,
             $oCommentOnline->getTargetId(),
             $oCommentOnline->getTargetType(),
             $oCommentOnline->getTargetParentId(),
@@ -925,13 +965,19 @@ class ModuleComment_MapperComment extends Mapper {
 
         $iRgt = $iLft + 1;
         $iLevel++;
-        $sql = "SELECT comment_id FROM ?_comment WHERE target_id = ? AND target_type = ? { AND comment_pid = ?  } { AND comment_pid IS NULL AND 1=?d}
-				ORDER BY  comment_id ASC";
+        $sql = "
+              SELECT comment_id
+              FROM ?_comment
+              WHERE target_id = ? AND target_type = ? { AND comment_pid = ?  } { AND comment_pid IS NULL AND 1=?d}
+              ORDER BY  comment_id ASC";
 
-        if ($aRows = $this->oDb->select(
-            $sql, $aTargetId, $sTargetType, !is_null($iPid) ? $iPid : DBSIMPLE_SKIP, is_null($iPid) ? 1 : DBSIMPLE_SKIP
-        )
-        ) {
+        $aRows = $this->oDb->select($sql,
+            $aTargetId,
+            $sTargetType,
+            !is_null($iPid) ? $iPid : DBSIMPLE_SKIP,
+            is_null($iPid) ? 1 : DBSIMPLE_SKIP
+        );
+        if ($aRows) {
             foreach ($aRows as $aRow) {
                 $iRgt = $this->RestoreTree($aRow['comment_id'], $iRgt, $iLevel, $aTargetId, $sTargetType);
             }
@@ -950,11 +996,13 @@ class ModuleComment_MapperComment extends Mapper {
     /**
      * Возвращает список всех используемых типов владельца
      *
-     * @return array
+     * @return string[]
      */
     public function GetCommentTypes() {
 
-        $sql = "SELECT target_type FROM ?_comment
+        $sql = "
+            SELECT target_type
+            FROM ?_comment
 			GROUP BY target_type ";
         $aTypes = array();
         if ($aRows = $this->oDb->select($sql)) {
@@ -972,12 +1020,17 @@ class ModuleComment_MapperComment extends Mapper {
      * @param int    $iPage          Номер страницы
      * @param int    $iPerPage       Количество элементов на одну старницу
      *
-     * @return array
+     * @return int[]
      */
     public function GetTargetIdByType($sTargetType, $iPage, $iPerPage) {
 
-        $sql = "SELECT target_id FROM ?_comment
-			WHERE  target_type = ? GROUP BY target_id ORDER BY target_id LIMIT ?d, ?d ";
+        $sql = "
+            SELECT target_id
+            FROM ?_comment
+			WHERE  target_type = ?
+			GROUP BY target_id
+			ORDER BY target_id LIMIT ?d, ?d ";
+
         if ($aRows = $this->oDb->select($sql, $sTargetType, ($iPage - 1) * $iPerPage, $iPerPage)) {
             return $aRows;
         }
@@ -1005,36 +1058,70 @@ class ModuleComment_MapperComment extends Mapper {
             )
 		";
         $bResult = $this->oDb->query($sql);
+
         return $bResult !== false;
+    }
+
+    /**
+     * @deprecated  since 1.1
+     *
+     * @param $aFilter
+     * @param $aOrder
+     * @param $iCount
+     * @param $iCurrPage
+     * @param $iPerPage
+     *
+     * @return int[]
+     */
+    public function GetCommentsByFilter($aFilter, $aOrder, &$iCount, $iCurrPage, $iPerPage) {
+
+        $aFilter['order'] = $aOrder;
+        return $this->GetCommentsIdByFilter($aFilter, $iCount, $iCurrPage, $iPerPage);
     }
 
     /**
      * Получает список комментариев по фильтру
      *
      * @param array $aFilter         Фильтр выборки
-     * @param array $aOrder          Сортировка
      * @param int   $iCount          Возвращает общее количество элментов
      * @param int   $iCurrPage       Номер текущей страницы
      * @param int   $iPerPage        Количество элементов на одну страницу
      *
-     * @return array
+     * @return int[]
      */
-    public function GetCommentsByFilter($aFilter, $aOrder, &$iCount, $iCurrPage, $iPerPage) {
+    public function GetCommentsIdByFilter($aFilter, &$iCount, $iCurrPage, $iPerPage) {
 
         $aOrderAllow = array('comment_id', 'comment_pid', 'comment_rating', 'comment_date');
         $sOrder = '';
-        if (is_array($aOrder) && $aOrder) {
-            foreach ($aOrder as $key => $value) {
-                if (!in_array($key, $aOrderAllow)) {
-                    unset($aOrder[$key]);
-                } elseif (in_array($value, array('asc', 'desc'))) {
-                    $sOrder .= " {$key} {$value},";
+        if (!empty($aFilter['order'])) {
+            if (is_string($aFilter['order'])) {
+                $sOrder = $aFilter['order'];
+            } elseif (is_array($aFilter['order'])) {
+                $aOrders = array();
+                foreach ($aFilter['order'] as $key => $value) {
+                    if (is_numeric($key)) {
+                        if (strpos($value, ' ')) {
+                            list($key, $value) = explode(' ', $value);
+                        } else {
+                            $key = $value;
+                            $value = 'asc';
+                        }
+                    }
+                    if (in_array($key, $aOrderAllow)) {
+                        if (!$value) {
+                            $aOrders[] = $key;
+                        } elseif (in_array($value, array('asc', 'desc'))) {
+                            $aOrders[] = $key . ' ' . $value;
+                        }
+                    }
+                }
+                if ($aOrders) {
+                    $sOrder = join(',', $aOrders);
                 }
             }
-            $sOrder = trim($sOrder, ',');
         }
         if ($sOrder == '') {
-            $sOrder = ' comment_id desc ';
+            $sOrder = ' comment_id DESC ';
         }
 
         if (isset($aFilter['target_type']) && !is_array($aFilter['target_type'])) {
@@ -1049,23 +1136,31 @@ class ModuleComment_MapperComment extends Mapper {
 					1 = 1
 					{ AND comment_id = ?d }
 					{ AND user_id = ?d }
-					{ AND target_parent_id = ?d }
-					{ AND target_id = ?d }
+					{ AND target_type = ? }
 					{ AND target_type IN (?a) }
+					{ AND target_id = ?d }
+					{ AND target_id IN (?a) }
+					{ AND target_id NOT IN (?a) }
+					{ AND target_parent_id = ?d }
+					{ AND target_parent_id IN (?a) }
+					{ AND target_parent_id NOT IN (?a) }
 					{ AND comment_delete = ?d }
 					{ AND comment_publish = ?d }
-				ORDER by {$sOrder}
+				ORDER BY {$sOrder}
 				LIMIT ?d, ?d ;
 					";
         $aResult = array();
-        $aRows = $this->oDb->selectPage(
-            $iCount, $sql,
+        $aRows = $this->oDb->selectPage($iCount, $sql,
             isset($aFilter['id']) ? $aFilter['id'] : DBSIMPLE_SKIP,
             isset($aFilter['user_id']) ? $aFilter['user_id'] : DBSIMPLE_SKIP,
-            isset($aFilter['target_parent_id']) ? $aFilter['target_parent_id'] : DBSIMPLE_SKIP,
-            isset($aFilter['target_id']) ? $aFilter['target_id'] : DBSIMPLE_SKIP,
-            (isset($aFilter['target_type']) && count($aFilter['target_type'])) ? $aFilter['target_type']
-                : DBSIMPLE_SKIP,
+            (isset($aFilter['target_type']) && !is_array($aFilter['target_type'])) ? $aFilter['target_type'] : DBSIMPLE_SKIP,
+            (isset($aFilter['target_type']) && is_array($aFilter['target_type'])) ? $aFilter['target_type'] : DBSIMPLE_SKIP,
+            (isset($aFilter['target_id']) && !is_array($aFilter['target_id'])) ? $aFilter['target_id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['target_id']) && is_array($aFilter['target_id'])) ? $aFilter['target_id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['not_target_id']) && is_array($aFilter['not_target_id'])) ? $aFilter['not_target_id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['target_parent_id']) && !is_array($aFilter['target_parent_id'])) ? $aFilter['target_parent_id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['target_parent_id']) && is_array($aFilter['target_parent_id'])) ? $aFilter['target_parent_id'] : DBSIMPLE_SKIP,
+            (isset($aFilter['not_target_parent_id']) && is_array($aFilter['not_target_parent_id'])) ? $aFilter['not_target_parent_id'] : DBSIMPLE_SKIP,
             isset($aFilter['delete']) ? $aFilter['delete'] : DBSIMPLE_SKIP,
             isset($aFilter['publish']) ? $aFilter['publish'] : DBSIMPLE_SKIP,
             ($iCurrPage - 1) * $iPerPage, $iPerPage

@@ -99,7 +99,7 @@ class ModuleComment extends Module {
         $sCacheKey = "comment_all_" . serialize(func_get_args());
         if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
             $data = array(
-                'collection' => $this->oMapper->GetCommentsAll($sTargetType, $iCount, $iPage, $iPerPage, $aExcludeTarget, $aExcludeParentTarget),
+                'collection' => $this->oMapper->GetCommentsIdByTargetType($sTargetType, $iCount, $iPage, $iPerPage, $aExcludeTarget, $aExcludeParentTarget),
                 'count'      => $iCount,
             );
             E::ModuleCache()->Set($data, $sCacheKey, array("comment_new_{$sTargetType}", "comment_update_status_{$sTargetType}"), 'P1D');
@@ -320,7 +320,7 @@ class ModuleComment extends Module {
 
         $sCacheKey = "comment_online_{$sTargetType}_{$s}_{$iLimit}";
         if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
-            $data = $this->oMapper->GetCommentsOnline($sTargetType, $aCloseBlogs, $iLimit);
+            $data = $this->oMapper->GetCommentsIdOnline($sTargetType, $aCloseBlogs, $iLimit);
             E::ModuleCache()->Set($data, $sCacheKey, array("comment_online_update_{$sTargetType}"), 'P1D');
         }
         if ($data) {
@@ -415,7 +415,7 @@ class ModuleComment extends Module {
          * Т.к. время передаётся с точностью 1 час то можно по нему замутить кеширование
          */
         if (false === ($data = E::ModuleCache()->Get($sCacheKey))) {
-            $data = $this->oMapper->GetCommentsRatingByDate($sDate, $sTargetType, $iLimit, array(), $aCloseBlogs);
+            $data = $this->oMapper->GetCommentsIdByRatingAndDate($sDate, $sTargetType, $iLimit, array(), $aCloseBlogs);
             E::ModuleCache()->Set(
                 $data, $sCacheKey,
                 array("comment_new_{$sTargetType}", "comment_update_status_{$sTargetType}",
@@ -801,7 +801,7 @@ class ModuleComment extends Module {
 
         $sCacheKey = "comment_target_{$nTargetId}_{$sTargetType}_{$nIdCommentLast}";
         if (false === ($aCommentsId = E::ModuleCache()->Get($sCacheKey))) {
-            $aCommentsId = $this->oMapper->GetCommentsNewByTargetId($nTargetId, $sTargetType, $nIdCommentLast);
+            $aCommentsId = $this->oMapper->GetCommentsIdNewByTargetId($nTargetId, $sTargetType, $nIdCommentLast);
             E::ModuleCache()->Set($aCommentsId, $sCacheKey, array("comment_new_{$sTargetType}_{$nTargetId}"), 'P1D');
         }
         $aComments = array();
@@ -1260,7 +1260,7 @@ class ModuleComment extends Module {
         if (is_null($aAllowData)) {
             $aAllowData = array('target', 'user' => array());
         }
-        $aCollection = $this->oMapper->GetCommentsByFilter($aFilter, $aOrder, $iCount, $iCurrPage, $iPerPage);
+        $aCollection = $this->oMapper->GetCommentsIdByFilter($aFilter, $aOrder, $iCount, $iCurrPage, $iPerPage);
         if ($aCollection) {
             $aCollection = $this->GetCommentsAdditionalData($aCollection, $aAllowData);
         }
