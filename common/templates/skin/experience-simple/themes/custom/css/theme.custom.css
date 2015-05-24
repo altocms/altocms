@@ -64,7 +64,7 @@ ________________________________________________________________________________
 .navbar-main {
   z-index: 3;
   margin-bottom: 0;
-  min-height: 52px;
+  min-height: 48px;
   border: 0;
   border-radius: 0;
   background-color: #333333;
@@ -78,8 +78,8 @@ ________________________________________________________________________________
   width: 100%;
 }
 .navbar-main .navbar-brand {
-  padding: 15px 16px;
-  height: 52px;
+  padding: 8px 16px;
+  height: 48px;
   line-height: 30px;
 }
 .navbar-main .navbar-brand .logo-img {
@@ -93,7 +93,7 @@ ________________________________________________________________________________
   margin-left: 2px;
 }
 .navbar-main .navbar-nav > li > a {
-  padding: 18px 15px;
+  padding: 16px 15px;
   line-height: 24px;
 }
 .navbar-main .navbar-nav li a {
@@ -114,7 +114,7 @@ ________________________________________________________________________________
   opacity: 1;
 }
 .navbar-main .navbar-nav .user-button {
-  padding: 14px 15px;
+  padding: 12px 15px;
   line-height: 24px;
   color: #ffffff;
   min-width: 200px;
@@ -442,11 +442,8 @@ h5.accent a,
 h6.accent a {
   font-family: tahoma, verdana, arial, sans-serif !important;
 }
-h1,
-h1 a {
-  color: #333333;
-  font-size: 24px;
-  line-height: 26px;
+h1 {
+  margin: 4px 0;
 }
 h2,
 h2 a {
@@ -820,6 +817,15 @@ _________________________________________________________________*/
 }
 /** ВИДЖЕТЫ
 _________________________________________________________________*/
+.panel-header {
+  text-align: left;
+  font-size: 22px;
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.panel-header i {
+  margin-right: 6px;
+}
 .panel.widget {
   border-radius: 0;
 }
@@ -828,12 +834,8 @@ _________________________________________________________________*/
 }
 .panel.widget .panel-header {
   text-align: center;
-  font-size: 22px;
   border-bottom: 0;
   padding-bottom: 0;
-}
-.panel.widget .panel-header i {
-  margin-right: 6px;
 }
 .panel.widget .panel-navigation {
   text-align: center;
@@ -3335,9 +3337,9 @@ div.pp_experience .pp_loaderIcon {
   height: 218px !important;
   max-height: 280px !important;
 }
-.topic-info .blog-info-default-container h1.popover-header,
-[data-alto-role="popover"] + .popover .blog-info-default-container h1.popover-header,
-.alto-popover .blog-info-default-container h1.popover-header {
+.topic-info .blog-info-default-container h2.popover-header,
+[data-alto-role="popover"] + .popover .blog-info-default-container h2.popover-header,
+.alto-popover .blog-info-default-container h2.popover-header {
   white-space: nowrap;
   overflow: hidden;
   position: relative;

@@ -21,10 +21,10 @@
 
                 <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}">
 
-                <h2 class="panel-header">
+                <div class="panel-header">
                     {*<i class="fa fa-envelope-o"></i>&nbsp;*}
                     {$aLang.settings_account}
-                </h2>
+                </div>
 
                 <div class="form-group">
                     <div class="input-group">

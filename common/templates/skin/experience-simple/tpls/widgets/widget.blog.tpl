@@ -6,10 +6,10 @@
     {if $oBlog->getType()!='personal'}
         <div class="panel panel-default sidebar flat widget widget-blog-about">
             <div class="panel-body">
-                <h6 class="panel-header">
+                <div class="panel-header">
                     <i class="fa fa-folder"></i>
                     <a href="{$oBlog->getUrlFull()}">{$oBlog->getTitle()|escape:'html'}</a>
-                </h6>
+                </div>
                 <div class="panel-navigation">
                     <ul>
                         <li>

@@ -5,10 +5,10 @@
 <!-- Блок сайдбара -->
 <div class="panel panel-default sidebar flat widget widget-blogs-invite">
     <div class="panel-body">
-        <h4 class="panel-header">
+        <div class="panel-header">
             <i class="fa fa-gift"></i>
             {$aLang.blog_admin_user_add_header}
-        </h4>
+        </div>
 
         <div class="panel-content">
             <form onsubmit="return ls.blog.addInvite({$oBlogEdit->getId()});">

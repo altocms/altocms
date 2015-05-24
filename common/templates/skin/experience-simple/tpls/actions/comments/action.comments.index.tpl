@@ -6,9 +6,9 @@
 {block name="layout_pre_content"}
     <div class="panel panel-default panel-search flat">
         <div class="panel-body">
-            <h2 class="panel-header">
+            <div class="panel-header">
                 {$aLang.comments_all}
-            </h2>
+            </div>
         </div>
     </div>
 {/block}

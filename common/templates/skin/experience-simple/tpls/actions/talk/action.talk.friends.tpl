@@ -5,9 +5,9 @@
 
     <div class="panel-body">
 
-        <h2 class="panel-header">
+        <div class="panel-header">
             <i class="fa fa-users"></i>&nbsp;{$aLang.widget_friends}
-        </h2>
+        </div>
 
         <script>
             $(function(){

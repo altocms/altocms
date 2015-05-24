@@ -13,7 +13,7 @@
 <div class="panel panel-default panel-table flat">
     <div class="panel-body">
 
-            <h2 class="widget-title">{$aLang.talk_blacklist_title}</h2>
+            <div class="widget-title">{$aLang.talk_blacklist_title}</div>
         <br/>
             <div class="widget-content">
 

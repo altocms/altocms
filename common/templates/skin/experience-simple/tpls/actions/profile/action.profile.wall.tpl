@@ -23,9 +23,9 @@
             });
         </script>
 
-        <h2 class="panel-header">
+        <div class="panel-header">
             {$aLang.wall_add_title}
-        </h2>
+        </div>
 
         {if E::IsUser()}
             <form class="wall-submit">

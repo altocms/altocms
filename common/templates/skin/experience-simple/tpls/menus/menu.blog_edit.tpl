@@ -4,9 +4,9 @@
 <div class="panel panel-default panel-search flat">
 
     <div class="panel-body">
-        <h2 class="panel-header">
+        <div class="panel-header">
             {$aLang.blog_admin}: <a class="link link-lead link-dark link-clear" href="{$oBlogEdit->getUrlFull()}">{$oBlogEdit->getTitle()|escape:'html'}</a>
-        </h2>
+        </div>
 
     </div>
 

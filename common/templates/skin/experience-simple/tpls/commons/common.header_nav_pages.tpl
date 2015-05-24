@@ -16,6 +16,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
+            <h1>
             <a class="logo navbar-brand" href="{Config::Get('path.root.url')}">
                 {if Config::Get('view.header.logo.file')}
                     {$sFile = Config::Get('view.header.logo.file')}
@@ -27,6 +28,7 @@
                     <span class="logo-name" >{Config::Get('view.header.logo.name')}</span>
                 {/if}
             </a>
+            </h1>
         </div>
 
 

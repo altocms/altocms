@@ -6,9 +6,9 @@
 
 <div class="panel panel-default panel-statistic sidebar flat widget">
     <div class="panel-body pab24">
-        <h4 class="panel-header">
+        <div class="panel-header">
             <i class="fa fa-bar-chart-o"></i>{$aLang.user_stats}
-        </h4>
+        </div>
 
         <div class="panel-content">
             <ul class="marked-list no-images">

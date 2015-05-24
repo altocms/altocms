@@ -15,10 +15,10 @@
 
 <div class="panel panel-default sidebar flat widget widget-userfeed widget-userfeed-friends">
     <div class="panel-body pab24">
-        <h4 class="panel-header">
+        <div class="panel-header">
             <i class="fa fa-users"></i>
             {$aLang.stream_block_users_friends}
-        </h4>
+        </div>
 
         <div class="widget-content">
             <p class="text-muted">

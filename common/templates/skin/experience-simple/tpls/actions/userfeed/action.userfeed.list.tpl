@@ -13,9 +13,9 @@
 
         <div class="panel-body">
 
-            <h2 class="panel-header">
+            <div class="panel-header">
                 {$aLang.activity}
-            </h2>
+            </div>
 
         </div>
 

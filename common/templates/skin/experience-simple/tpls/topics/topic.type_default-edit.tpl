@@ -26,13 +26,13 @@
 
         <div class="panel-header-container">
             <div class="col-md-{if $sMenuType=='select'}12{else}6{/if}">
-                <h2 class="panel-header">
+                <div class="panel-header">
                     {if $sMode == 'add'}
                         {$aLang.topic_add}
                     {else}
                         {$aLang.blog_edit}
                     {/if}
-                </h2>
+                </div>
             </div>
             <div class="js-content-type-menu-container col-md-{if $sMenuType=='select'}12{else}18{/if}">
                 {if $sMenuType=='select'}

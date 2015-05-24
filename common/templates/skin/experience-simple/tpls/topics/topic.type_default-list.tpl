@@ -15,7 +15,7 @@
 
     <div class="panel-body">
         {block name="topic_header"}
-            <h3 class="topic-title accent">
+            <h2 class="topic-title accent">
                 <a class="link link-lead link-clear link-dark" href="{$oTopic->getUrl()}">{$oTopic->getTitle()|escape:'html'}</a>
 
                 {if $oTopic->getPublish() == 0}
@@ -25,7 +25,7 @@
                 {if $oTopic->getType() == 'link'}
                     &nbsp;<span class="fa fa-globe" title="{$aLang.topic_link}"></span>
                 {/if}
-            </h3>
+            </h2>
 
             <div class="topic-info">
                 <ul>

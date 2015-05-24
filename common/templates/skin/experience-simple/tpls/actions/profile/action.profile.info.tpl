@@ -13,7 +13,7 @@
 
         <div class="panel-body">
 
-            <h2 class="panel-header">{$aLang.profile_activity}</h2>
+            <div class="panel-header">{$aLang.profile_activity}</div>
 
             <table class="table-profile-info">
 
@@ -112,9 +112,9 @@
 
         <div class="panel-body">
 
-            <h2 class="panel-header">
+            <div class="panel-header">
                 <a href="{$oUserProfile->getProfileUrl()}friends/" class="user-friends link link-lead link-clear link-dark">{$aLang.profile_friends}</a>
-            </h2>
+            </div>
 
             {include file='commons/common.user_list_avatar.tpl' aUsersList=$aUsersFriend}
         </div>

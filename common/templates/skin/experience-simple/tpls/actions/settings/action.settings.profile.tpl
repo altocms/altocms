@@ -29,7 +29,7 @@
 
                 <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}">
 
-                <h2 class="panel-header">{$aLang.settings_profile_section_base}</h2>
+                <div class="panel-header">{$aLang.settings_profile_section_base}</div>
 
                 <div class="row">
                     <div class="col-md-4">
@@ -224,7 +224,7 @@
                     </div>
                 </div>
 
-                <h2 class="panel-header">{$aLang.settings_profile_section_base}</h2>
+                <div class="panel-header">{$aLang.settings_profile_section_base}</div>
 
                 <div class="mab12">
                     {$aUserFieldContactValues=E::User()->getUserFieldValues(true,array('contact','social'))}
