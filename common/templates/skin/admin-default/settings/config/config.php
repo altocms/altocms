@@ -35,7 +35,36 @@ $config['head']['default']['js'] = array(
     '___path.frontend.dir___/libs/vendor/jquery-ui/js/jquery.ui.autocomplete.html.js',
     '___path.frontend.dir___/libs/vendor/markitup/jquery.markitup.js' => array('name' => 'markitup'),
     '___path.frontend.dir___/libs/vendor/autosize/jquery.autosize.min.js' => array('asset' => 'mini'),
-    '___path.frontend.dir___/libs/vendor/tinymce_4/tinymce.min.js' => array('name' => 'tinymce', 'asset' => 'mini'),
+    '___path.frontend.dir___/libs/vendor/tinymce_4/tinymce.min.js'       => array(
+        'dir_from' => '___path.frontend.dir___/libs/vendor/tinymce_4/',
+        'name'     => 'tinymce_4',
+        'compress' => false,
+        'merge'    => false
+    ),
+    '___path.frontend.dir___/libs/vendor/tinymce_4/plugins/*'       => array(
+        'dir_from'  => '___path.frontend.dir___/libs/vendor/tinymce_4/',
+        'prepare'   => true,
+        'compress'  => false,
+        'merge'     => false
+    ),
+    '___path.frontend.dir___/libs/vendor/tinymce_4/langs/*'       => array(
+        'dir_from' => '___path.frontend.dir___/libs/vendor/tinymce_4/',
+        'prepare'  => true,
+        'compress' => false,
+        'merge'    => false
+    ),
+    '___path.frontend.dir___/libs/vendor/tinymce_4/skins/*'       => array(
+        'dir_from' => '___path.frontend.dir___/libs/vendor/tinymce_4/',
+        'prepare'  => true,
+        'compress' => false,
+        'merge'    => false
+    ),
+    '___path.frontend.dir___/libs/vendor/tinymce_4/themes/*'       => array(
+        'dir_from' => '___path.frontend.dir___/libs/vendor/tinymce_4/',
+        'prepare'  => true,
+        'compress' => false,
+        'merge'    => false
+    ),
 
     '___path.frontend.dir___/bootstrap-3/js/bootstrap.min.js' => array('name' => 'bootstrap'),
 
