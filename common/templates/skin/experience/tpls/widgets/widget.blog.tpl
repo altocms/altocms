@@ -6,10 +6,10 @@
     {if $oBlog->getType()!='personal'}
         <div class="panel panel-default sidebar raised widget widget-blog">
             <div class="panel-body">
-                <h4 class="panel-header">
+                <div class="panel-header">
                     <i class="fa fa-folder-o"></i>
                     <a href="{$oBlog->getUrlFull()}">{$oBlog->getTitle()|escape:'html'}</a>
-                </h4>
+                </div>
 
                 <div class="panel-content">
                     <ul class="marked-list no-images">

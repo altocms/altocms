@@ -5,13 +5,13 @@
 
     <div class="panel-body">
 
-        <h2 class="panel-header">
+        <div class="panel-header">
             {if $header}
                 {$header}
             {else}
                 {$aLang.people}
             {/if}
-        </h2>
+        </div>
 
         <ul id="user-prefix-filter" class="abc">
             <li class="active">

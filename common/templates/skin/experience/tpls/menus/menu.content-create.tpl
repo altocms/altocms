@@ -6,15 +6,15 @@
     <div class="panel-body">
         {if $sMode!='add'}
             {if $sMenuItemSelect == 'blog'}
-                <h2 class="panel-header">{$aLang.block_create_new_blog}</h2>
+                <div class="panel-header">{$aLang.block_create_new_blog}</div>
             {else}
-                <h2 class="panel-header">{$aLang.block_edit_topic}</h2>
+                <div class="panel-header">{$aLang.block_edit_topic}</div>
             {/if}
 
         {else}
-            <h2 class="panel-header">
+            <div class="panel-header">
                 {$aLang.block_create_topic}
-            </h2>
+            </div>
         {/if}
 
 

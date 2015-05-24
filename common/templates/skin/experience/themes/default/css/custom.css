@@ -413,3 +413,17 @@ table.form-control .input-container input {
     position: relative;
     text-overflow: ellipsis;
 }
+
+
+h1 { margin: 0; }
+h2, h2 a { font-size: 20px; }
+.panel-header {
+    font-size: 20px;
+    font-weight: normal;
+    height: 36px;
+    line-height: 20px;
+    margin-bottom: 14px;
+    margin-top: 0;
+    padding-bottom: 16px;
+}
+.panel-header i { margin-right: 6px; }

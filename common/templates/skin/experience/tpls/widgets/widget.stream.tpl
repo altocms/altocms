@@ -5,7 +5,7 @@
 <!-- Блок сайдбара -->
 <div class="panel panel-default sidebar raised widget widget-type-stream">
     <div class="panel-body">
-        <h4 class="panel-header">
+        <div class="panel-header">
             <i class="fa fa-microphone"></i>
             <a class="link link-lead link-clear link-dark"
                href="{router page='comments'}"
@@ -24,7 +24,7 @@
                "
                class="link link-lead link-clear link-dark pull-right"><i class="fa fa-repeat large"></i></a>
 
-        </h4>
+        </div>
         <div class="panel-navigation">
             <ul class="js-widget-stream-navs">
                 {foreach $aWidgetParams.items as $sKey=>$aItem}

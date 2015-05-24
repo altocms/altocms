@@ -4,9 +4,9 @@
 {if $aCountryList AND count($aCountryList)>0}
     <div class="panel panel-default sidebar raised widget widget-tag-country">
         <div class="panel-body">
-            <h4 class="panel-header">
+            <div class="panel-header">
                 <i class="fa fa-tag"></i>{$aLang.widget_country_tags}
-            </h4>
+            </div>
 
             <div class="panel-content">
                 <ul class="list-unstyled list-inline tag-cloud word-wrap">

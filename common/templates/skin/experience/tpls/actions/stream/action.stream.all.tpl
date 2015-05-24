@@ -13,9 +13,9 @@
 
         <div class="panel-body">
 
-            <h2 class="panel-header">
+            <div class="panel-header">
                 {$aLang.stream_menu}
-            </h2>
+            </div>
 
             {if count($aStreamEvents) == 0}
                 <div class="bg-warning">

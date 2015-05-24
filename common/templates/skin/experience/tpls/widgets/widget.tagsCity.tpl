@@ -4,9 +4,9 @@
 {if $aCityList AND count($aCityList)>0}
     <div class="panel panel-default sidebar raised widget widget-tag-city">
         <div class="panel-body">
-            <h4 class="panel-header">
+            <div class="panel-header">
                 <i class="fa fa-tag"></i>{$aLang.widget_city_tags}
-            </h4>
+            </div>
 
             <div class="panel-content">
                 <ul class="list-unstyled list-inline tag-cloud word-wrap">

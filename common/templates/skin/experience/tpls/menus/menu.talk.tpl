@@ -5,9 +5,9 @@
 
     <div class="panel-body">
 
-        <h2 class="panel-header">
+        <div class="panel-header">
             <i class="fa fa-envelope-o"></i>&nbsp;{$aLang.talk_menu_inbox}
-        </h2>
+        </div>
 
         {include file='actions/talk/action.talk.filter.tpl'}
         {include file='actions/talk/action.talk.speakers.tpl'}

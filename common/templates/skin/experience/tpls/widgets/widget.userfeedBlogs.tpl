@@ -12,10 +12,10 @@
 
 <div class="panel panel-default sidebar raised widget widget-blogfeed">
     <div class="panel-body">
-        <h4 class="panel-header">
+        <div class="panel-header">
             <i class="fa fa-users"></i>
             {$aLang.userfeed_widget_blogs_title}
-        </h4>
+        </div>
 
             <div class="widget-content">
                 <p class="text-muted">
