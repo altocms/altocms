@@ -160,15 +160,16 @@ ls.comments = (function ($) {
         ls.ajax(this.options.type[targetType].urlAdd, form.serializeJSON(), function (result) {
             ls.progressDone();
             form.find('.js-button-submit').removeAttr('disabled');
-            this.formCommentWait();
             if (!result) {
                 ls.msg.error(null, 'System error #1001');
+                this.enableFormComment();
                 return;
             } else if (result.bStateError) {
+                this.enableFormComment();
                 ls.msg.error(null, result.sMsg);
             } else {
                 this.formCommentText('');
-
+                this.formCommentWait();
                 // Load new comments
                 this.load(targetId, targetType, result.sCommentId, true);
                 ls.hook.run('ls_comments_add_after', [form, targetId, targetType, result]);
