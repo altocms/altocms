@@ -237,7 +237,6 @@ return array(
     'topic_comment_read' => 'Read comments',
     'topic_comment_add' => 'Add comment',
     'topic_comment_add_title' => 'Add comment',
-    'topic_comment_add_text_error' => 'Comments should consist of 2 upto 3000 chars of decent content',
     'topic_comment_text_min'  => 'Comment cannot be less then %%min%% chars',
     'topic_comment_text_len' => 'Comments should consist of %%min%% upto %%max%% chars',
     'topic_comment_acl' => 'Your rating is too low, you can\'t add comments yet',

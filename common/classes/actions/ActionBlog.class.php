@@ -1207,7 +1207,10 @@ class ActionBlog extends Action {
         // * Проверяем текст комментария
         $sText = E::ModuleText()->Parser(F::GetRequestStr('comment_text'));
         if (!F::CheckVal($sText, 'text', Config::Val('module.comment.min_length', 2), Config::Val('module.comment.max_length', 10000))) {
-            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_comment_add_text_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('topic_comment_text_len', array(
+                'min' => 2,
+                'max' => Config::Val('module.comment.max_length', 10000)
+            )), E::ModuleLang()->Get('error'));
             return;
         }
         $iMin = Config::Val('module.comment.min_length', 2);
