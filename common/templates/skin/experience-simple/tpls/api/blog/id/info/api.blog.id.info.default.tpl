@@ -1,6 +1,6 @@
 <div class="blog-info-default-container row">
 
-   <div class="col-md-24"><h1 class="popover-header">{$oBlog->getTitle()}</h1></div>
+   <div class="col-md-24"><div class="popover-header">{$oBlog->getTitle()}</div></div>
 
    <div class="col-md-9">
       <img width="100%" src="{$oBlog->getAvatarPath('huge')}" alt="{$oBlog->getTitle()}"/>

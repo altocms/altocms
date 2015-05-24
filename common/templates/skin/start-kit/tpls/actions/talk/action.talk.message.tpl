@@ -8,7 +8,7 @@
 
     <article class="topic topic-type-talk">
         <header class="topic-header">
-            <h1 class="topic-header-title">{$oTalk->getTitle()|escape:'html'}</h1>
+            <div class=" header topic-header-title">{$oTalk->getTitle()|escape:'html'}</div>
 
             <div class="topic-header-info">
                 <ul class="list-unstyled list-inline small pull-right actions">

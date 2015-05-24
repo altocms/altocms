@@ -24,7 +24,7 @@
 
             <input type="hidden" name="security_key" value="{$ALTO_SECURITY_KEY}">
 
-            <h2 class="panel-header">{$aLang.settings_tuning_notice}</h2>
+            <div class="panel-header">{$aLang.settings_tuning_notice}</div>
 
 
         <fieldset>
@@ -69,7 +69,7 @@
         <br/>
         <br/>
 
-            <h2 class="panel-header">{$aLang.settings_tuning_general}</h2>
+            <div class="panel-header">{$aLang.settings_tuning_general}</div>
 
         <fieldset>
 

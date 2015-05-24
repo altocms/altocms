@@ -13,9 +13,9 @@
 
         <div class="panel-body">
 
-            <h2 class="panel-header">
+            <div class="panel-header">
                 {$aLang.blogs}
-            </h2>
+            </div>
 
             <form action="" method="POST" id="form-blogs-search" onsubmit="return false;" class="search-item">
                 <label>

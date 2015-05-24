@@ -14,9 +14,9 @@
 
         <div class="panel-body">
 
-            <h2 class="panel-header">
+            <div class="panel-header">
                 {$aLang.search}
-            </h2>
+            </div>
 
             {hook run='search_begin'}
             <form action="" method="GET" class="js-tag-search-form search-tags">

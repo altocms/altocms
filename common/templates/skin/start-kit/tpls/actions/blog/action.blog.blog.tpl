@@ -21,7 +21,7 @@
         {$oBlogType=$oBlog->getBlogType()}
         <img src="{$oBlog->getAvatarUrl('big')}" class="avatar"/>
 
-        <h1>
+        <h1 class=" header">
             {$oBlog->getTitle()|escape:'html'}
             {if $oBlogType}
                 {if $oBlogType->IsHidden()}

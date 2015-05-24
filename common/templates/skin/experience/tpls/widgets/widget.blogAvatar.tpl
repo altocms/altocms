@@ -5,10 +5,10 @@
 
 <div class="panel panel-default sidebar raised widget widget-blog">
     <div class="panel-body">
-        <h4 class="panel-header">
+        <div class="panel-header">
             <i class="fa fa-image"></i>
             {$aLang.widget_blog_avatar_block}
-        </h4>
+        </div>
 
         <div class="panel-content">
             {* БЛОК ЗАГРУЗКИ ИЗОБРАЖЕНИЯ *}

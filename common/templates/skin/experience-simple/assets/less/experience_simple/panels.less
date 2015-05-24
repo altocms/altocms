@@ -149,6 +149,18 @@ _________________________________________________________________*/
 
 /** ВИДЖЕТЫ
 _________________________________________________________________*/
+// Заголовок виджета
+.panel-header {
+    text-align: left;
+    font-size: @panel-header-font-size;
+    border-bottom: 0;
+    padding-bottom: 0;
+    //        margin-bottom: 3px !important;
+    i {
+        margin-right: 6px;
+    }
+}
+
 .panel.widget {
     border-radius: 0;
 
@@ -159,17 +171,10 @@ _________________________________________________________________*/
             font-family: "FontAwesome", serif;
         }
     }
-
-    // Заголовок виджета
     .panel-header {
         text-align: center;
-        font-size: @panel-header-font-size;
         border-bottom: 0;
         padding-bottom: 0;
-//        margin-bottom: 3px !important;
-        i {
-            margin-right: 6px;
-        }
     }
 
     // Панель навигации

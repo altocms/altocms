@@ -7,7 +7,7 @@
 
     <div class="container">
         <div class="b-header-banner-inner jumbotron" style="{$aWidgetParams.style}">
-            <h1><a href="{Config::Get('path.root.url')}">{$aWidgetParams.title}</a></h1>
+            <div><a href="{Config::Get('path.root.url')}">{$aWidgetParams.title}</a></div>
         </div>
     </div>
 

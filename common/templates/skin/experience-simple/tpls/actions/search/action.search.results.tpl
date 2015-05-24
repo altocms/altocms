@@ -14,7 +14,7 @@
 
         <div class="panel-body">
 
-            <h2 class="panel-header">{$aLang.search_results}</h2>
+            <div class="panel-header">{$aLang.search_results}</div>
             <form action="{router page='search'}topics/" class="search">
                 {hook run='search_form_begin'}
                 <input type="text" value="{$aReq.q|escape:'html'}" placeholder="{$aLang.search}" maxlength="255" name="q"
@@ -68,12 +68,5 @@
             {hook run='search_result' sType=$aReq.sType}
         {/if}
     {/if}
-
-
-    <div class="page-header">
-        <h1></h1>
-    </div>
-
-
 
 {/block}

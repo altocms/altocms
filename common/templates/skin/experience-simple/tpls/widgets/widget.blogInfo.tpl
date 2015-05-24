@@ -5,9 +5,9 @@
 <div class="panel panel-default sidebar flat widget widget-blog-info">
     <div class="panel-body">
         <div class="panel-header-container">
-            <h4 class="panel-header">
+            <div class="panel-header">
                 <i class="fa fa-comment-o"></i>{$aLang.widget_blog_info}
-            </h4>
+            </div>
         </div>
 
         <div class="panel-content" id="widget_blog_info">
@@ -25,9 +25,9 @@
 <div class="panel panel-default sidebar flat widget widget-blog-info-mark">
     <div class="panel-body">
         <div class="panel-header-container">
-        <h4 class="panel-header">
+        <div class="panel-header">
             <i class="fa fa-exclamation"></i>{$aLang.widget_blog_info_note}
-        </h4>
+        </div>
         </div>
 
         <div class="panel-content">

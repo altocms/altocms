@@ -12,7 +12,7 @@
 
     <div class="panel-body">
         {block name="topic_header"}
-            <h3 class="topic-title accent">
+            <h2 class="topic-title accent">
                 {$oTopic->getTitle()|escape:'html'}
 
                 {if $oTopic->getPublish() == 0}
@@ -22,7 +22,7 @@
                 {if $oTopic->getType() == 'link'}
                     &nbsp;<span class="fa fa-globe" title="{$aLang.topic_link}"></span>
                 {/if}
-            </h3>
+            </h2>
 
             <div class="topic-info">
                 <span class="topic-blog">

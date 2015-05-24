@@ -3,9 +3,9 @@
 
 <div class="panel panel-default sidebar flat widget widget-type-tags">
     <div class="panel-body">
-        <h4 class="panel-header">
+        <div class="panel-header">
             <i class="fa fa-tag"></i>{$aLang.widget_tags}
-        </h4>
+        </div>
 
         {if E::IsUser()}
             <div class="panel-navigation">

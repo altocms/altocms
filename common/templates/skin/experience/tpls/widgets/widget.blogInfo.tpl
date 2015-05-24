@@ -4,9 +4,9 @@
 <!-- Блок сайдбара -->
 <div class="panel panel-default sidebar raised widget-blog-info">
     <div class="panel-body">
-        <h4 class="panel-header">
+        <div class="panel-header">
             <i class="fa fa-comment-o"></i>{$aLang.widget_blog_info}
-        </h4>
+        </div>
 
         <div class="panel-content" id="widget_blog_info">
 
@@ -22,9 +22,9 @@
 <!-- Блок сайдбара -->
 <div class="panel panel-default sidebar raised widget-blog-info-mark">
     <div class="panel-body">
-        <h4 class="panel-header">
+        <div class="panel-header">
             <i class="fa fa-exclamation"></i>{$aLang.widget_blog_info_note}
-        </h4>
+        </div>
 
         <div class="panel-content">
             {$aLang.widget_blog_info_note_text}

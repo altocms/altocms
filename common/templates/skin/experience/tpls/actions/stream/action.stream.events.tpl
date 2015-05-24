@@ -9,13 +9,13 @@
 			{assign var=sDateLast value={date_format date=$oStreamEvent->getDateAdded() format="j F Y"}}
 
 			<li class="stream-header-date">
-                <h2 class="panel-header">
+                <div class="panel-header">
                     {if {date_format date=$smarty.now format="j F Y"} == $sDateLast}
                         {$aLang.today}
                     {else}
                         {date_format date=$oStreamEvent->getDateAdded() format="j F Y"}
                     {/if}
-                </h2>
+                </div>
 			</li>
 		{/if}
 

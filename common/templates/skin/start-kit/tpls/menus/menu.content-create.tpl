@@ -25,7 +25,7 @@
 
 <div class="dropdown-create">
         <div class="page-header">
-            <h1>{$aLang.block_create}:
+            <div class=" header">{$aLang.block_create}:
                 <a href="#" class="dropdown-create-trigger link-dashed" id="dropdown-create-trigger">
                     {if $sMenuItemSelect!='blog'}
                         {$aLang.topic_menu_add}
@@ -35,7 +35,7 @@
                         {hook run='menu_create_item_select' sMenuItemSelect=$sMenuItemSelect}
                     {/if}
                 </a>
-            </h1>
+            </div>
         </div>
 
     <ul class="dropdown-menu" id="dropdown-create-menu" style="display: none">

@@ -38,10 +38,10 @@
 
 <div class="panel panel-default sidebar flat widget widget-userfeed widget-userfeed-activity">
     <div class="panel-body pab24">
-        <h4 class="panel-header">
+        <div class="panel-header">
             <i class="fa fa-users"></i>
             {$aLang.stream_block_users_title}
-        </h4>
+        </div>
 
 
         <div class="widget-content">

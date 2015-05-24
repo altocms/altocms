@@ -11,9 +11,9 @@
     {if $aMsgError[0].title}
         <div class="panel panel-default panel-search raised">
             <div class="panel-body">
-                <h2 class="panel-header">
+                <div class="panel-header">
                     {$aLang.error}: {$aMsgError[0].title}
-                </h2>
+                </div>
             </div>
         </div>
     {/if}

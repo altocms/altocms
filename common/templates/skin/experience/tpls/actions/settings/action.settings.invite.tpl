@@ -13,7 +13,7 @@
 
     <div class="panel-body">
 
-        <h2 class="panel-header">{$aLang.settings_menu_invite}</h2>
+        <div class="panel-header">{$aLang.settings_menu_invite}</div>
 
         <div class="bg-warning">{$aLang.settings_invite_notice} "{$aLang.settings_invite_submit}"</div>
 

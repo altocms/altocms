@@ -13,10 +13,10 @@
 
 <div class="panel panel-default sidebar raised widget widget-userfeed">
     <div class="panel-body">
-        <h4 class="panel-header">
+        <div class="panel-header">
             <i class="fa fa-comment-o"></i>
             {$aLang.userfeed_block_users_title}
-        </h4>
+        </div>
 
         <div class="widget-content">
             <p class="text-muted">
@@ -68,10 +68,10 @@
     {if count($aUserfeedFriends)}
         <div class="panel panel-default sidebar raised widget widget-userfeed">
             <div class="panel-body">
-                <h4 class="panel-header">
+                <div class="panel-header">
                     <i class="fa fa-users"></i>
                     {$aLang.userfeed_block_users_friends}
-                </h4>
+                </div>
 
                 <div class="widget-content">
                     <p class="text-muted">
