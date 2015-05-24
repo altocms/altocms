@@ -2,7 +2,7 @@
 
 {block name="layout_content"}
     <div class="page-header">
-        <h1>{$aLang.search}</h1>
+        <div class=" header">{$aLang.search}</div>
     </div>
     {hook run='search_begin'}
     <form action="{router page='search'}topics/" class="search">

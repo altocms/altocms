@@ -3,7 +3,7 @@
 {block name="layout_content"}
 
     <div class="page-header">
-        <h1>{$aLang.comments_all}</h1>
+        <div class=" header">{$aLang.comments_all}</div>
     </div>
     {include file='comments/comment.list.tpl'}
 

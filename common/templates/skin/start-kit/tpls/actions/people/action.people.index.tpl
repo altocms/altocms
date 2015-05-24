@@ -7,7 +7,7 @@
 {block name="layout_content"}
     <div class="content-inner-panel">
         <div class="page-header">
-            <h1>{$aLang.people}</h1>
+            <div class=" header">{$aLang.people}</div>
         </div>
         <form action="" method="POST" id="form-users-search" onsubmit="return false;" class="search-item">
             <input id="search-user-login" type="text" placeholder="{$aLang.user_search_title_hint}" autocomplete="off"

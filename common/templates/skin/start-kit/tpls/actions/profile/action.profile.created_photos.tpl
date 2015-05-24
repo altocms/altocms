@@ -22,7 +22,7 @@
 
             <div class="row">
                 <div class="col-sm-10">
-                    <h2 class="modal-title">Фотографии <span id="aim-pages-container"></span></h2>
+                    <h3 class="modal-title">Фотографии <span id="aim-pages-container"></span></h3>
                 </div>
                 <div class="col-sm-2">
                     <ul class="image-categories-nav list-unstyled list-inline list-no-border pull-right">

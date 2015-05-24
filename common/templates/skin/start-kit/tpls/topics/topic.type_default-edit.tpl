@@ -3,7 +3,7 @@
 
 {if $sMode!='add'}
     <div class="page-header">
-        <h1>{$aLang.topic_topic_edit}</h1>
+        <div class=" header">{$aLang.topic_topic_edit}</div>
     </div>
 {/if}
 

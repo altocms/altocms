@@ -30,7 +30,7 @@
                 </ul>
             {/if}
             {/if}
-            <h1 class="topic-header-title">
+            <h2 class=" header topic-header-title">
                 {$oTopic->getTitle()|escape:'html'}
 
                 {if $oTopic->getPublish() == 0}
@@ -40,7 +40,7 @@
                 {if $oTopic->getType() == 'link'}
                     <span class="glyphicon glyphicon-globe text-muted" title="{$aLang.topic_link}"></span>
                 {/if}
-            </h1>
+            </h2>
 
             <div class="topic-header-info">
                 <a href="{$oBlog->getUrlFull()}" class="topic-blog">{$oBlog->getTitle()|escape:'html'}</a>

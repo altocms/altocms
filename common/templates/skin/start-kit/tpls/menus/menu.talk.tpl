@@ -1,5 +1,5 @@
 <div class="page-header">
-	<h1>{$aLang.talk_menu_inbox}</h1>
+	<div class=" header">{$aLang.talk_menu_inbox}</div>
 </div>
 
 <ul class="nav nav-pills nav-filter-wrapper">					

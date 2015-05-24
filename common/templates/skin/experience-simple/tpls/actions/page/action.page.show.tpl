@@ -10,9 +10,9 @@
 {block name="layout_pre_content"}
     <div class="panel panel-default panel-search flat">
         <div class="panel-body">
-            <div class="panel-header">
+            <h2 class="panel-header">
                 {$oPage->getTitle()|escape:'html'}
-            </div>
+            </h2>
         </div>
     </div>
 {/block}

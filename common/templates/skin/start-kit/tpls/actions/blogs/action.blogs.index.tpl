@@ -7,7 +7,7 @@
 {block name="layout_content"}
     <div class="content-inner-panel">
         <div class="page-header">
-            <h1>{$aLang.blogs}</h1>
+            <div class=" header">{$aLang.blogs}</div>
         </div>
         <form action="" method="POST" id="form-blogs-search" onsubmit="return false;" class="search-item">
             <input type="text" placeholder="{$aLang.blogs_search_title_hint}" autocomplete="off" name="blog_title"

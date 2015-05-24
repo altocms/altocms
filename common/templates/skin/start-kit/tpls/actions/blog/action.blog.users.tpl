@@ -2,8 +2,8 @@
 
 {block name="layout_content"}
     <div class="page-header">
-        <h1>{$aLang.blog_user_readers_all} ({$iCountBlogUsers}):
-            <a href="{$oBlog->getUrlFull()}">{$oBlog->getTitle()|escape:'html'}</a></h1>
+        <div class=" header">{$aLang.blog_user_readers_all} ({$iCountBlogUsers}):
+            <a href="{$oBlog->getUrlFull()}">{$oBlog->getTitle()|escape:'html'}</a></div>
     </div>
     {if $aBlogUsers}
         {$aUsersList=[]}

@@ -7,7 +7,7 @@
 
 {block name="layout_content"}
     <div class="page-header">
-        <h1>{$aLang.stream_menu}</h1>
+        <div class=" header">{$aLang.stream_menu}</div>
     </div>
     {if count($aStreamEvents)}
         <ul class="list-unstyled stream-list" id="activity-event-list">

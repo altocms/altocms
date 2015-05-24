@@ -1,5 +1,5 @@
 <div class="page-header">
-	<h1>{$aLang.settings_menu}</h1>
+	<div class=" header">{$aLang.settings_menu}</div>
 </div>
 
 

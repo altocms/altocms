@@ -1,5 +1,5 @@
 <div class="page-header">
-	<h1>{$aLang.blog_admin}: <a href="{$oBlogEdit->getUrlFull()}">{$oBlogEdit->getTitle()|escape:'html'}</a></h1>
+	<div class=" header">{$aLang.blog_admin}: <a href="{$oBlogEdit->getUrlFull()}">{$oBlogEdit->getTitle()|escape:'html'}</a></div>
 </div>
 
 <ul class="nav nav-pills nav-filter-wrapper">

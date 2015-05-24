@@ -18,8 +18,8 @@
 
                     {hook run='profile_header' oUserProfile=$oUserProfile oVote=$oVote}
 
-                    <h1 class="user-login word-wrap {if !$oUserProfile->getProfileName()}no-user-name{/if}"
-                        itemprop="nickname">{$oUserProfile->getDisplayName()}</h1>
+                    <div class=" header user-login word-wrap {if !$oUserProfile->getProfileName()}no-user-name{/if}"
+                        itemprop="nickname">{$oUserProfile->getDisplayName()}</div>
 
                     {if $oUserProfile->getProfileName()}
                         <p class="text-muted user-name" itemprop="name">{$oUserProfile->getProfileName()|escape:'html'}</p>
