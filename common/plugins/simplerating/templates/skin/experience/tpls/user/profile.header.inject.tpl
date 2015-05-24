@@ -1,7 +1,7 @@
 <div class="col-lg-4 col-lg-offset-3 user-rating-container">
-    <h4 class="user-rating-header">
+    <div class="user-rating-header">
         {$aLang.user_rating}
-    </h4>
+    </div>
     {$sClasses = ''}
     {if $oUserProfile->getRating()>=0}
         {$sClasses = "$sClasses vote-count-positive "}

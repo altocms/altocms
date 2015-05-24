@@ -1,17 +1,17 @@
 <div class="col-lg-3 user-power-container">
     <div>
-        <h4 class="user-power-header">
+        <div class="user-power-header">
             {$aLang.user_skill}
-        </h4>
+        </div>
         <div class="user-power" id="user_skill_{$oUserProfile->getId()}">
             {$oUserProfile->getSkill()|number_format:{Config::Get('view.skill_length')}}
         </div>
     </div>
 </div>
 <div class="col-lg-4 user-rating-container">
-    <h4 class="user-rating-header">
+    <div class="user-rating-header">
         {$aLang.user_rating}
-    </h4>
+    </div>
     {$sClasses = ''}
     {if $oUserProfile->getRating()>=0}
         {$sClasses = "$sClasses vote-count-positive "}

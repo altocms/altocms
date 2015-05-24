@@ -1,7 +1,7 @@
 <div class="col-lg-4 user-rating-container">
-    <h4 class="user-rating-header">
+    <div class="user-rating-header">
         Рейтинг
-    </h4>
+    </div>
     {$sClasses = ''}
     {if $oBlog->getRating() > 0}
         {$sClasses = "$sClasses vote-count-positive"}
