@@ -250,7 +250,7 @@ class ModuleSubscribe_MapperSubscribe extends Mapper {
 					                         ?_topic as t
 					                  WHERE   t.topic_id = trc.target_id
 					                  AND t.topic_id = tr.topic_id
-					                  AND (t.topic_count_comment - tr.comment_count_last) > 0
+					                  AND (t.topic_count_comment > tr.comment_count_last)
 					                  AND  tr.user_id = trc.user_id
 					                  ) }
 				ORDER by {$sOrder}
