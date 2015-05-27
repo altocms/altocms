@@ -26,7 +26,7 @@
                         <span class="topic-time">{$oReplyWall->getDateAdd()|date_format:'H:i'}</span>
                     </a>
                 </li>
-                {if $oWall->isAllowDelete()}
+                {if $oReplyWall->isAllowDelete()}
                     <li class="bordered">
                         <a class="link link-clear link-gray"
                            onclick="return ls.wall.remove({$oReplyWall->getId()});"
