@@ -1,5 +1,5 @@
 /*!
- * jAltoUploader.js
+ * altoMultiUploader.js
  * Файл jquery-плагина для мультизагрузки изображений Alto
  *
  * @author      Андрей Воронов <andreyv@gladcode.ru>
@@ -56,7 +56,8 @@
          */
         init: function () {
 
-            /*jslint unparam: true*/// Для onCheckFiles поскольку первый параметр не используется
+            /*jslint unparam: true*/
+            // Для onCheckFiles поскольку первый параметр не используется
             var $this = this,
                 previewConfig = {
                     el: '.js-file-preview',
@@ -98,7 +99,8 @@
                 },
                 multiple: true,
                 onFileComplete: function (evt, uiEvt) {
-                    /*jslint nomen: true*/// Специфическое поле FileAPI
+                    /*jslint nomen: true*/
+                    // Специфическое поле FileAPI
                     evt.widget.remove(evt.widget.__fileId);
                     /*jslint nomen: false*/
                     $this.addPhoto(uiEvt.result);
