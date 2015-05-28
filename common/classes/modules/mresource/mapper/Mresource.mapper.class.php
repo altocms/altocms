@@ -785,12 +785,18 @@ class ModuleMresource_MapperMresource extends Mapper {
     public function GetMresourcesCountByTarget($sTargetType) {
 
         if ($sTargetType == 'all') {
-            $aRow =  $this->oDb->selectRow("select count(target_type) as count from ?_mresource_target");
+            $aRow =  $this->oDb->selectRow("SELECT COUNT(*) AS COUNT FROM ?_mresource");
         } else {
             if (!is_array($sTargetType)) {
                 $sTargetType = array($sTargetType);
             }
-            $aRow =  $this->oDb->selectRow("select count(target_type) as count from ?_mresource_target where target_type IN ( ?a )", $sTargetType);
+            $aRow =  $this->oDb->selectRow("
+              SELECT
+                COUNT(*) AS COUNT
+              FROM ?_mresource_target t, ?_mresource m
+                WHERE
+              m.mresource_id = t.mresource_id
+              AND t.target_type IN ( ?a )", $sTargetType);
         }
 
 
