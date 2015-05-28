@@ -621,7 +621,7 @@ class ModuleMresource_MapperMresource extends Mapper {
     public function GetMresourcesCountByTarget() {
 
 
-        $aRow = $this->oDb->selectRow("select count(target_type) as count from ?_mresource_target");
+        $aRow = $this->oDb->selectRow("select count(target_type) as count from ?_mresource");
 
         return isset($aRow['count']) ? $aRow['count'] : 0;
     }
