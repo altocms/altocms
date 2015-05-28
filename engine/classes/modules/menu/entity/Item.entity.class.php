@@ -64,20 +64,7 @@ class ModuleMenu_EntityItem extends Entity {
      * @return int|null
      */
     public function getUrl() {
-//        if (isset($this->_aData['item_url'])) {
-//            if (strpos($this->_aData['item_url'], '___') === FALSE) {
-//                return $this->_aData['item_url'];
-//            }
-//
-//            return Config::Get($this->_aData['item_url']);
-//        }
-//
-//        return '';
-
-        $sLink = Config::Get(isset($this->_aData['item_url']) ? $this->_aData['item_url'] : NULL);
-//        if ($sLink && is_array($sLink)) {
-//            $sLink = array_pop($sLink);
-//        }
+        $sLink = isset($this->_aData['item_url']) ? Config::Get($this->_aData['item_url']) : NULL;
         if (!$sLink) {
             return isset($this->_aData['item_url']) ? $this->_aData['item_url'] : NULL;
         }
