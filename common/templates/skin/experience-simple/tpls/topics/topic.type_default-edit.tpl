@@ -147,7 +147,7 @@
             {* ПОЛУЧЕНИЕ КОРОТКОЙ ССЫЛКИ НА ТОПИК *}
             {if $sMode != 'add' AND E::IsAdmin()}
                 {if $aEditTopicUrl.input == ''}
-                    <div class="form-group has-feedback"">
+                    <div class="form-group has-feedback">
                         <div class="input-group">
                             <span class="input-group-addon">{$aLang.topic_create_url}</span>
                             <input type="text" id="topic_url" name="topic_url" value="{$aEditTopicUrl.before}{$aEditTopicUrl.input}{$aEditTopicUrl.after}" class="form-control" readonly/>
@@ -167,7 +167,7 @@
                     {*.each(resizeInput);*}
         {*})*}
     {*</script>*}
-                    <div class="form-group has-feedback"">
+                    <div class="form-group has-feedback">
                         <div class="input-group">
                             <span class="input-group-addon">{$aLang.topic_create_url}</span>
                             <table class="form-control">
