@@ -1688,19 +1688,19 @@ class ModuleTopic_MapperTopic extends Mapper {
      *
      * @param  array $aFilter    Фильтр
      *
-     * @return array
+     * @return ModuleTopic_EntityField[]
      */
     public function getContentFields($aFilter) {
 
         $sql
             = "SELECT
-						*
+						cf.field_id AS ARRAY_KEY, cf.*
 					FROM
-						?_content_field
+						?_content_field AS cf
 					WHERE
 						1=1
-						{ AND content_id = ?d }
-					ORDER BY field_sort desc
+						{ AND cf.content_id = ?d }
+					ORDER BY cf.field_sort DESC
 					";
         $aResult = array();
         $aRows = $this->oDb->select($sql, (isset($aFilter['content_id']) ? $aFilter['content_id'] : DBSIMPLE_SKIP));

@@ -4429,12 +4429,12 @@ class ActionAdmin extends Action {
         $bOk = true;
 
         if (!F::CheckVal(F::GetRequest('field_name', null, 'post'), 'text', 2, 100)) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('field_name_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.contenttypes_field_name_error'), E::ModuleLang()->Get('error'));
             $bOk = false;
         }
 
         if (!F::CheckVal(F::GetRequest('field_description', null, 'post'), 'text', 2, 200)) {
-            E::ModuleMessage()->AddError(E::ModuleLang()->Get('field_description_error'), E::ModuleLang()->Get('error'));
+            E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.contenttypes_field_description_error'), E::ModuleLang()->Get('error'));
             $bOk = false;
         }
 
@@ -4445,7 +4445,7 @@ class ActionAdmin extends Action {
             }
 
             if (!in_array(F::GetRequest('field_type', null, 'post'), E::ModuleTopic()->GetAvailableFieldTypes())) {
-                E::ModuleMessage()->AddError(E::ModuleLang()->Get('field_type_error'), E::ModuleLang()->Get('error'));
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get('action.admin.contenttypes_field_type_error'), E::ModuleLang()->Get('error'));
                 $bOk = false;
             }
         }

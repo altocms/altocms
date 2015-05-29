@@ -2941,6 +2941,10 @@ class ModuleTopic extends Module {
 
         $this->AttachTmpPhotoToTopic($oTopic);
 
+        /** Следующий блок не работает поскольку $aList получает список фотосета и $aMresources весь
+         * фотосет и доп.поля, фотосеты остаются, а доп.поля удаляются, потому закомментирован */
+
+        /*
         // Получаем список ресурсов (хеш-таблицу)
         $aList = $oTopic->BuildMresourcesList();
 
@@ -2966,6 +2970,7 @@ class ModuleTopic extends Module {
             E::ModuleMresource()->DeleteMresources(array_values($aDeleteResources));
             E::ModuleMresource()->DeleteMresourcesRel(array_keys($aDeleteResources));
         }
+        */
     }
 
     /**
