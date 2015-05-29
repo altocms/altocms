@@ -89,6 +89,7 @@ SET
 WHERE
   mt.target_type != 'photoset';
 
+-- 1.1.0b2 --
 -- Приведение полей к одному типу
 ALTER TABLE  `prefix_topic_read` CHANGE  `comment_count_last`  `comment_count_last` INT( 11 ) UNSIGNED NOT NULL DEFAULT  '0';
 
