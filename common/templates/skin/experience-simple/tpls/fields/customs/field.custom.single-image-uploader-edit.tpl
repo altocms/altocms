@@ -24,7 +24,7 @@
          data-preview-crop  ="400fit"
          data-crop          ="yes">
 
-        {* Картинка фона блога *}
+        {* Картинка *}
         {img attr=[
                 'src'           => "{asset file="images/empty_image.png" theme=true}",
                 'alt'           => "image",
@@ -34,18 +34,22 @@
                 'target-id'     => "{if $oTarget}{$oTarget->getId()}{else}0{/if}"
         ]}
 
-        {* Меню управления картинкой фона блога *}
+        {* Меню управления картинкой*}
         <div class="info-container"><i class="fa fa-info-circle pull-right js-title-topic" data-original-title="{$oField->getFieldDescription()}"></i></div>
         <div class="uploader-actions">
 
             {* Кнопка загрузки картинки *}
-            <a class="js-uploader-button-upload" href="#" onclick="return false">
-                <i class="fa fa-upload"></i>&nbsp;
-                {$aLang.uploader_image_upload}
+            <a href="#" onclick="return false;" class="link link-lead link-blue no-corner js-uploader-button-upload">
+                <i class="fa fa-upload"></i>&nbsp;{$aLang.uploader_image_upload}
             </a>
+            {* Файл для загрузки *}
+            <input type="file" name="uploader-upload-image" class="uploader-actions-file js-uploader-file">
 
-            {* Кнопка удаления картинки *}
-            <a href="#" onclick="return false;" class="js-uploader-button-remove"
+        </div>
+
+        {* Кнопка удаления картинки *}
+        <div class="uploader-actions">
+            <a href="#" class="link link-lead link-clear link-red-blue js-uploader-button-remove"
                {if !($oTarget && $oTarget->getImageUrlByType($sTargetType)) && !$bImageIsTemporary}style="display: none;"{/if}>
                 <i class="fa fa-times"></i>&nbsp;{$aLang.uploader_image_delete}
             </a>
