@@ -366,8 +366,8 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
                 }
 
                 if (!$sResult) {
-                    if (preg_match('~^actions/([^/]+)/action\.(\w+)\.(.+)$~', $sName, $aMatches)) {
-                        $sLsTemplate = 'actions/Action' . ucfirst($aMatches[1]) . '/' . $aMatches[3];
+                    if (preg_match('~^(tpls/)?actions/([^/]+)/action\.(\w+)\.(.+)$~', $sName, $aMatches)) {
+                        $sLsTemplate = 'actions/Action' . ucfirst($aMatches[2]) . '/' . $aMatches[4];
                         if ($this->TemplateExists($sLsTemplate, false)) {
                             $sResult = F::File_Exists($sLsTemplate, $this->oSmarty->getTemplateDir());
                         } else {
