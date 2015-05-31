@@ -362,7 +362,7 @@ class ModuleACL extends Module {
             return false;
         }
 
-        return (bool)$this->Blog_GetBlogsAllowTo('write', $oUser, $oBlog->getId(), true) && $this->CanAddTopic($oUser, $oBlog);
+        return $oUser && $this->Blog_GetBlogsAllowTo('write', $oUser, $oBlog->getId(), true) && $this->CanAddTopic($oUser, $oBlog);
     }
 
     /**
@@ -386,7 +386,7 @@ class ModuleACL extends Module {
             }
         }
 
-        return (bool)$this->Blog_GetBlogsAllowTo('read', $oUser, $oBlog->getId(), true);
+        return $oUser && $this->Blog_GetBlogsAllowTo('read', $oUser, $oBlog->getId(), true);
     }
 
     /**
