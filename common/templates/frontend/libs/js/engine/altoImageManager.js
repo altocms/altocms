@@ -535,6 +535,7 @@
             // Нажатие кнопки
             $this.$btnRefreshTree.live('click', function () {
                 $this._refreshCategories($this.$btnRefreshTree.startSpin());
+                return false;
             });
 
             // Управление вращением иконки
