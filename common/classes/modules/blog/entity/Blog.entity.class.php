@@ -744,7 +744,7 @@ class ModuleBlog_EntityBlog extends Entity {
             // anybody can read blog
             return true;
         }
-        return E::ModuleACL()->IsAllowShowBlog($this, $oUser);
+        return $oUser && E::ModuleACL()->IsAllowShowBlog($this, $oUser);
     }
 
     /**
