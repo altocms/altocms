@@ -476,7 +476,7 @@ $(function () {
                         show_title: true,
                         theme: 'pp_experience',
                         markup: pretty_markup,
-                        slideshow:true,
+                        slideshow: 5000,
                         deeplinking: false
                     });
                 }

@@ -306,7 +306,7 @@
                     $("a[rel^='prettyPhoto']").prettyPhoto({
                         social_tools:'',
                         show_title: true,
-                        slideshow:true,
+                        slideshow:5000,
                         deeplinking: false
                     });
                 }
