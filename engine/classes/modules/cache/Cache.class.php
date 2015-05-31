@@ -457,6 +457,10 @@ class ModuleCache extends Module {
             $aCacheTypes = explode(',', $sCacheType);
             $bResult = false;
             foreach($aCacheTypes as $sCacheType) {
+                if (!$sCacheType && in_array($this->sCacheType, $aCacheTypes)) {
+                    // skip double cache
+                    continue;
+                }
                 $bResult = $bResult || $this->Set($xData, $sCacheKey, $aTags, $nTimeLife, $sCacheType ? $sCacheType : null);
             }
             return $bResult;
