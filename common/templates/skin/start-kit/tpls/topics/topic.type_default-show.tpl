@@ -129,7 +129,8 @@
                 </div>
             {/if}
 
-            {hook run='topic_show_end' topic=$oTopic}
         </footer>
     {/block}
 </article> <!-- /.topic -->
+
+{hook run='topic_show_end' topic=$oTopic}

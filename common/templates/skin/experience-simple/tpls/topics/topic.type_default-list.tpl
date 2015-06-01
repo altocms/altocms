@@ -1,5 +1,5 @@
- {* Тема оформления Experience v.1.0  для Alto CMS      *}
- {* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
+{* Тема оформления Experience v.1.0  для Alto CMS      *}
+{* @licence     CC Attribution-ShareAlike  http://site.creatime.org/experience/*}
 
 {if Config::Get('view.masonry') == true}
     {include file="topics/masonry_sidebar.tpl"}
@@ -100,7 +100,9 @@
         {if !$bPreview}
             <div class="topic-footer">
             <ul>
+
                 {hook run='topic_show_info' topic=$oTopic bTopicList=true oVote=$oVote}
+
                 <li class="topic-favourite">
                     <a class="link link-dark link-lead link-clear {if E::IsUser() AND $oTopic->getIsFavourite()}active{/if}"
                        onclick="return ls.favourite.toggle({$oTopic->getId()},this,'topic');"
@@ -160,8 +162,9 @@
             </ul>
         {/if}
 
-        {hook run='topic_show_end' topic=$oTopic bTopicList=true}
         </div>
     {/block}
 </div> <!-- /.topic -->
 {/if}
+
+{hook run='topic_list_end,topic_show_end' topic=$oTopic bTopicList=true}

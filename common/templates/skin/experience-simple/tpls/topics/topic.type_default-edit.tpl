@@ -283,5 +283,5 @@
     </div>
 </div>
 
-{hook run='add_topic_end'}
+{hook run='topic_edit_end,add_topic_end'}
 

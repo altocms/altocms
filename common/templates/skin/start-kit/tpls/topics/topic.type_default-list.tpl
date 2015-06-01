@@ -129,8 +129,11 @@
                 </li>
 
                 {hook run='topic_show_info' topic=$oTopic oVote=$oVote}
+
             </ul>
 
         </footer>
     {/block}
 </article> <!-- /.topic -->
+
+{hook run='topic_list_end,topic_show_end' topic=$oTopic bTopicList=true}

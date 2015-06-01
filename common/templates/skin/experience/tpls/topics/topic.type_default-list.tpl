@@ -1,5 +1,5 @@
- {* Тема оформления Experience v.1.0  для Alto CMS      *}
- {* @licence     CC Attribution-ShareAlike   *}
+{* Тема оформления Experience v.1.0  для Alto CMS      *}
+{* @licence     CC Attribution-ShareAlike   *}
 
 {if Config::Get('view.masonry') == true}
     {include file="topics/masonry_sidebar.tpl"}
@@ -142,11 +142,13 @@
                 {/if}
 
                 {hook run='topic_show_info' topic=$oTopic bTopicList=true oVote=$oVote}
+
             </ul>
         {/if}
 
-        {hook run='topic_show_end' topic=$oTopic bTopicList=true}
         </div>
     {/block}
 </div> <!-- /.topic -->
 {/if}
+
+{hook run='topic_list_end,topic_show_end' topic=$oTopic bTopicList=true}

@@ -155,7 +155,8 @@
             </ul>
             {/if}
 
-            {hook run='topic_show_end' topic=$oTopic bTopicList=false}
         </div>
     {/block}
 </div> <!-- /.topic -->
+
+ {hook run='topic_show_end' topic=$oTopic bTopicList=false}
