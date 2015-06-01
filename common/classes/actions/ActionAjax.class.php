@@ -146,10 +146,13 @@ class ActionAjax extends Action {
         $sTemplateName = 'inject.images.tpl';
 
         $aTplVariables = array();
+
+        $aResources = array('collection'=>array());
+        $iPages = 0;
         if ($sCategory == 'user') {       //ок
-            /**
-             * Аватар и фото пользователя
-             */
+
+            // * Аватар и фото пользователя
+
             $aResources = E::ModuleMresource()->GetMresourcesByFilter(array(
                 'target_type' => array(
                     'profile_avatar',
@@ -160,9 +163,9 @@ class ActionAjax extends Action {
             $sTemplateName = 'inject.images.user.tpl';
             $iPages = 0;
         } elseif ($sCategory == '_topic') {
-            /**
-             * конкретный топик
-             */
+
+            // * Конкретный топик
+
             $oTopic = E::ModuleTopic()->GetTopicById($sTopicId);
             if ($oTopic && E::ModuleACL()->IsAllowEditTopic($oTopic, E::User())) {
                 $aResourcesId = E::ModuleMresource()->GetCurrentTopicResourcesId($iUserId, $sTopicId);
@@ -175,21 +178,15 @@ class ActionAjax extends Action {
                     $iPages = ceil($aResources['count'] / Config::Get('module.topic.images_per_page'));
 
                     $aTplVariables['oTopic'] = $oTopic;
-                } else {
-                    $aResources = array();
-                    $iPages = 0;
                 }
-            } else {
-                $aResources = array();
-                $iPages = 0;
             }
 
             $sTemplateName = 'inject.images.tpl';
 
         } elseif ($sCategory == 'talk') {
-            /**
-             * Письмо
-             */
+
+            // * Письмо
+
             /** @var ModuleTalk_EntityTalk $oTopic */
             $oTopic = E::ModuleTalk()->GetTalkById($sTopicId);
             if ($oTopic && E::ModuleTalk()->GetTalkUser($sTopicId, $iUserId)) {
@@ -203,17 +200,13 @@ class ActionAjax extends Action {
                 $iPages = ceil($aResources['count'] / Config::Get('module.topic.images_per_page'));
 
                 $aTplVariables['oTopic'] = $oTopic;
-            } else {
-                $aResources = array();
-                $iPages = 0;
             }
 
             $sTemplateName = 'inject.images.tpl';
 
         } elseif ($sCategory == 'comments') {
-            /**
-             * Комментарии
-             */
+
+            // * Комментарии
 
             $aResources = E::ModuleMresource()->GetMresourcesByFilter(array(
                 'user_id'     => $iUserId,
@@ -231,9 +224,9 @@ class ActionAjax extends Action {
             $sTemplateName = 'inject.images.tpl';
 
         } elseif ($sCategory == 'current') {       //ок
-            /**
-             * Картинки текущего топика (текст, фотосет, одиночные картинки)
-             */
+
+            // * Картинки текущего топика (текст, фотосет, одиночные картинки)
+
             $aResourcesId = E::ModuleMresource()->GetCurrentTopicResourcesId($iUserId, $sTopicId);
             if ($aResourcesId) {
                 $aResources = E::ModuleMresource()->GetMresourcesByFilter(array(
@@ -243,23 +236,21 @@ class ActionAjax extends Action {
                 $aResources['count'] = count($aResourcesId);
                 $iPages = ceil($aResources['count'] / Config::Get('module.topic.images_per_page'));
 
-            } else {
-                $aResources = array();
-                $iPages = 0;
             }
 
             $sTemplateName = 'inject.images.tpl';
 
 
         } elseif ($sCategory == 'blog_avatar') { // ок
-            /**
-             * Аватары созданных блогов
-             */
+
+            // * Аватары созданных блогов
+
             $aResources = E::ModuleMresource()->GetMresourcesByFilter(array(
                 'target_type' => 'blog_avatar',
                 'user_id' => $iUserId,
             ), $sPage, Config::Get('module.topic.group_images_per_page'));
             $aResources['count'] = E::ModuleMresource()->GetMresourcesCountByTargetAndUserId('blog_avatar', $iUserId);
+
             // Получим блоги
             $aBlogsId = array();
             foreach ($aResources['collection'] as $oResource) {
@@ -275,9 +266,9 @@ class ActionAjax extends Action {
 
 
         } elseif ($sCategory == 'topics') { // ок
-            /**
-             * Страница топиков
-             */
+
+            // * Страница топиков
+
             $aTopicsData = E::ModuleMresource()->GetTopicsPage($iUserId, $sPage, Config::Get('module.topic.group_images_per_page'));
 
             $aTplVariables['aTopics'] = $aTopicsData['collection'];
@@ -287,9 +278,9 @@ class ActionAjax extends Action {
             $aResources= array('collection'=>array());
 
         }  elseif (in_array($sCategory, E::ModuleTopic()->GetTopicTypes())) { // ок
-            /**
-             * Страница топиков
-             */
+
+            // * Страница топиков
+
             $aTopicsData = E::ModuleMresource()->GetTopicsPageByType($iUserId, $sCategory, $sPage, Config::Get('module.topic.group_images_per_page'));
 
             $aTplVariables['aTopics'] = $aTopicsData['collection'];
@@ -299,9 +290,9 @@ class ActionAjax extends Action {
             $aResources= array('collection'=>array());
 
         } elseif ($sCategory == 'talks') { // ок
-            /**
-             * Страница писем
-             */
+
+            // * Страница писем
+
             $aTalksData = E::ModuleMresource()->GetTalksPage($iUserId, $sPage, Config::Get('module.topic.group_images_per_page'));
 
             $aTplVariables['aTalks'] = $aTalksData['collection'];
@@ -310,9 +301,9 @@ class ActionAjax extends Action {
             $aResources= array('collection'=>array());
 
         } else {
-            /**
-             * Прочие изображения
-             */
+
+            // * Прочие изображения
+
             $aResources = E::ModuleMresource()->GetMresourcesByFilter(array(
                 'target_type' => $sCategory,
                 'user_id' => $iUserId,
