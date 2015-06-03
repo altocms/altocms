@@ -184,20 +184,12 @@
                 {if E::IsUser()}
                     <ul class="list-unstyled footer-list">
                         <li class="footer-list-header word-wrap">{E::User()->getDisplayName()}</li>
-                        <li><a href="{E::User()->getProfileUrl()}">{$aLang.footer_menu_user_profile}</a></li>
-                        <li><a href="{router page='settings'}profile/">{$aLang.user_settings}</a></li>
-                        <li><a href="{router page='content'}topic/add/" class="js-write-window-show">{$aLang.block_create}</a>
-                        </li>
-                        {hook run='footer_menu_user_item' oUser=$oUserCurrent}
-                        <li><a href="{router page='login'}exit/?security_key={$ALTO_SECURITY_KEY}">{$aLang.exit}</a>
-                        </li>
+                        {menu id='footer_user_actions' hideul=true}
                     </ul>
                 {else}
                     <ul class="list-unstyled footer-list">
                         <li class="footer-list-header word-wrap">{$aLang.footer_menu_user_quest_title}</li>
-                        <li><a class="js-modal-auth-registration" href="{router page='registration'}">{$aLang.registration_submit}</a></li>
-                        <li><a class="js-modal-auth-login" href="{router page='login'}">{$aLang.user_login_submit}</a></li>
-                        {hook run='footer_menu_user_item' isGuest=true}
+                        {menu id='footer_user_auth' hideul=true}
                     </ul>
                 {/if}
             </div>
@@ -205,22 +197,14 @@
             <div class="col-sm-4 col-md-4 col-lg-3">
                 <ul class="list-unstyled footer-list">
                     <li class="footer-list-header">{$aLang.footer_menu_navigate_title}</li>
-                    <li><a href="{Config::Get('path.root.url')}">{$aLang.topic_title}</a></li>
-                    <li><a href="{router page='blogs'}">{$aLang.blogs}</a></li>
-                    <li><a href="{router page='people'}">{$aLang.people}</a></li>
-                    <li><a href="{router page='stream'}">{$aLang.stream_menu}</a></li>
-                    {hook run='footer_menu_navigate_item'}
+                    {menu id='footer_site_menu' hideul=true}
                 </ul>
             </div>
 
             <div class="col-sm-4 col-md-4 col-lg-3">
                 <ul class="list-unstyled footer-list">
                     <li class="footer-list-header">{$aLang.footer_menu_navigate_info}</li>
-                    <li><a href="#">{$aLang.footer_menu_project_about}</a></li>
-                    <li><a href="#">{$aLang.footer_menu_project_rules}</a></li>
-                    <li><a href="#">{$aLang.footer_menu_project_advert}</a></li>
-                    <li><a href="#">{$aLang.footer_menu_project_help}</a></li>
-                    {hook run='footer_menu_project_item'}
+                    {menu id='footer_info' hideul=true}
                 </ul>
             </div>
 

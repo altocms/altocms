@@ -310,3 +310,87 @@ $config['menu']['data']['blog_list'] = array(
 
     )
 );
+
+$config['menu']['data']['footer_user_actions'] = array(
+    'class' => 'footer-column',
+    'list'  => array(
+        'profile' => array(
+            'options' => array(
+                'link_class' => 'link link-dual link-lead link-clear',
+            ),
+            'link' => E::User()->getProfileUrl(),
+        ),
+        'settings'              => array(
+            'options' => array(
+                'link_class' => 'link link-dual link-lead link-clear',
+            ),
+
+        ),
+        'create'                => array(
+            'options' => array(
+                'link_class' => 'link link-dual link-lead link-clear',
+            ),
+
+        ),
+        'logout'  => array(
+            'options' => array(
+                'link_class' => 'link link-dual link-lead link-clear',
+            ),
+            'link' => Router::GetPath('login') . 'exit/?security_key=' . E::Security_GetSecurityKey(),
+        ),
+    )
+);
+
+
+$config['menu']['data']['footer_site_menu'] = array(
+    'class' => 'footer-column',
+    'list'        => array(
+        'topic'                     => array(
+            'options' => array(
+                'link_class' => 'link link-dual link-lead link-clear',
+            )
+        ),
+        'blogs'                     => array(
+            'options' => array(
+                'link_class' => 'link link-dual link-lead link-clear',
+            )
+        ),
+        'people'                    => array(
+            'options' => array(
+                'link_class' => 'link link-dual link-lead link-clear',
+            )
+        ),
+        'stream_menu'               => array(
+            'options' => array(
+                'link_class' => 'link link-dual link-lead link-clear',
+            )
+        ),
+    )
+);
+
+// Третья колонка, информация
+$config['menu']['data']['footer_info'] = array(
+    'class' => 'footer-column',
+    'list'        => array(
+        'about'                    => array(
+            'options' => array(
+                'link_class' => 'link link-dual link-lead link-clear',
+            )
+        ),
+        'rules'                    => array(
+            'options' => array(
+                'link_class' => 'link link-dual link-lead link-clear',
+            )
+        ),
+        'advert'                   => array(
+            'options' => array(
+                'link_class' => 'link link-dual link-lead link-clear',
+            )
+        ),
+        'help'                     => array(
+            'options' => array(
+                'link_class' => 'link link-dual link-lead link-clear',
+            )
+        ),
+    )
+);

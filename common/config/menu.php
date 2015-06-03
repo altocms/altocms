@@ -16,6 +16,8 @@ $config['allowed'] = array(
     'top',      // Подменю популярных топиков
     'image_insert',  // Меню добавления изображений
     'profile_images',  // Меню изображений в профиле пользователя
+    'footer_user_auth',  // Первая колонка, авторизация на сайте
+    'footer_user_actions',  // Первая колонка меню подвала, действия пользователя
 );
 
 // Настройки подменю, созданных в админке
@@ -160,7 +162,7 @@ $config['data']['userbar'] = array(
         'userbar_item' => '',
         'logout'       => array(
             'text' => '{{exit}}',
-            'link' => '___path.root.url___/talk/',
+            'link' => '___path.root.url___/login/exit/?security_key=',
         ),
     )
 );
@@ -357,5 +359,118 @@ $config['data']['profile_images'] = array(
     'description' => '{{user_menu_publication_photos}}',
     'list' => array(
         'menu_image_insert_item' => '',
+    )
+);
+
+/**
+ * Меню подвала
+ */
+// Первая колонка, авторизация на сайте
+$config['data']['footer_user_auth'] = array(
+    'init'        => array(
+        'fill' => array(
+            'list' => array('*'),
+        ),
+    ),
+    'description' => '{{menu_footer_user_auth_description}}',
+    'list'        => array(
+        'login'        => array(
+            'text' => '{{user_login_submit}}',
+            'link' => '___path.root.url___/login/',
+        ),
+        'registration' => array(
+            'text' => '{{registration_submit}}',
+            'link' => '___path.root.url___/registration/',
+        ),
+    )
+);
+// Первая колонка меню подвала, действия пользователя
+$config['data']['footer_user_actions'] = array(
+    'init'        => array(
+        'fill' => array(
+            'list' => array('*'),
+        ),
+    ),
+    'description' => '{{menu_footer_user_actions_description}}',
+    'list'        => array(
+        'profile'               => array(
+            'text' => '{{user_menu_profile}}',
+            'link' => '___path.root.url___/',
+        ),
+        'settings'              => array(
+            'text' => '{{user_settings}}',
+            'link' => '___path.root.url___/settings/',
+        ),
+        'create'                => array(
+            'text'    => '{{block_create}}',
+            'link'    => '#',
+            'options' => array(
+                'data' => array(
+                    'toggle' => 'modal',
+                    'target' => '#modal-write',
+                ),
+            ),
+        ),
+        'footer_menu_user_item' => '',
+        'logout'                => array(
+            'text' => '{{exit}}',
+            'link' => '___path.root.url___/login/exit/?security_key=',
+        ),
+    )
+);
+// Вторая колонка, меню сайта
+$config['data']['footer_site_menu'] = array(
+    'init'        => array(
+        'fill' => array(
+            'list' => array('*'),
+        ),
+    ),
+    'description' => '{{menu_footer_site_menu}}',
+    'list'        => array(
+        'topic'                     => array(
+            'text' => '{{topic_title}}',
+            'link' => '___path.root.url___/',
+        ),
+        'blogs'                     => array(
+            'text' => '{{blogs}}',
+            'link' => '___path.root.url___/blogs/',
+        ),
+        'people'                    => array(
+            'text' => '{{people}}',
+            'link' => '___path.root.url___/people/',
+        ),
+        'stream_menu'               => array(
+            'text' => '{{stream_menu}}',
+            'link' => '___path.root.url___/stream/',
+        ),
+        'footer_menu_navigate_item' => '',
+    )
+);
+// Третья колонка, информация
+$config['data']['footer_info'] = array(
+    'init'        => array(
+        'fill' => array(
+            'list' => array('*'),
+        ),
+    ),
+    'description' => '{{menu_footer_info}}',
+    'list'        => array(
+        'about'                    => array(
+            'text' => '{{footer_menu_project_about}}',
+            'link' => '#',
+        ),
+        'rules'                    => array(
+            'text' => '{{footer_menu_project_rules}}',
+            'link' => '#',
+        ),
+        'advert'                   => array(
+            'text' => '{{footer_menu_project_advert}}',
+            'link' => '#',
+        ),
+        'help'                     => array(
+            'text' => '{{footer_menu_project_help}}',
+            'link' => '#',
+        ),
+        'footer_menu_project_item' => '',
     )
 );

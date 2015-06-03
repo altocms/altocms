@@ -190,3 +190,14 @@ if (C::Get('rating.enabled')) {
         'class' => 'dropdown-menu',
     );
 }
+
+$config['menu']['data']['footer_user_actions'] = array(
+    'list'  => array(
+        'profile' => array(
+            'link' => E::User()->getProfileUrl(),
+        ),
+        'logout'  => array(
+            'link' => Router::GetPath('login') . 'exit/?security_key=' . E::Security_GetSecurityKey(),
+        ),
+    )
+);
