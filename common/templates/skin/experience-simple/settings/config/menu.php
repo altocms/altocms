@@ -420,38 +420,6 @@ $config['menu']['data']['image_insert'] = array(
     )
 );
 
-
-$config['menu']['data']['footer_user_actions'] = array(
-    'class' => 'footer-column',
-    'list'  => array(
-        'profile' => array(
-            'options' => array(
-                'link_class' => 'link link-dual link-lead link-clear',
-            ),
-            'link' => E::User()->getProfileUrl(),
-        ),
-        'settings'              => array(
-            'options' => array(
-                'link_class' => 'link link-dual link-lead link-clear',
-            ),
-
-        ),
-        'create'                => array(
-            'options' => array(
-                'link_class' => 'link link-dual link-lead link-clear',
-            ),
-
-        ),
-        'logout'  => array(
-            'options' => array(
-                'link_class' => 'link link-dual link-lead link-clear',
-            ),
-            'link' => Router::GetPath('login') . 'exit/?security_key=' . E::Security_GetSecurityKey(),
-        ),
-    )
-);
-
-
 $config['menu']['data']['footer_site_menu'] = array(
     'class' => 'footer-column',
     'list'        => array(
@@ -478,7 +446,6 @@ $config['menu']['data']['footer_site_menu'] = array(
     )
 );
 
-// Третья колонка, информация
 $config['menu']['data']['footer_info'] = array(
     'class' => 'footer-column',
     'list'        => array(

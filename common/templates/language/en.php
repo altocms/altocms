@@ -1442,10 +1442,8 @@ return array(
     'menu_main_people_description' => 'Users\' list page',
     'menu_main_stream_description' => 'Site feed',
     'menu_user_description' => 'Authorized user\'s menu',
-    'menu_footer_user_auth_description' => 'The first column of footer menu, user authorization',
-    'menu_footer_user_actions_description' => 'The first column of footer menu, user actions',
-    'menu_footer_site_menu' => 'The second column of footer menu, site menu',
-    'menu_footer_info' => 'The third column of footer menu, site info',
+    'menu_footer_site_menu' => 'The first column of footer menu, site menu',
+    'menu_footer_info' => 'The second column of footer menu, site info',
 
     'footer_menu_project_about' => 'About',
     'footer_menu_project_rules' => 'Rules',

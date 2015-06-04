@@ -181,20 +181,6 @@
         <div class="row">
 
             <div class="col-sm-4 col-md-4 col-lg-3">
-                {if E::IsUser()}
-                    <ul class="list-unstyled footer-list">
-                        <li class="footer-list-header word-wrap">{E::User()->getDisplayName()}</li>
-                        {menu id='footer_user_actions' hideul=true}
-                    </ul>
-                {else}
-                    <ul class="list-unstyled footer-list">
-                        <li class="footer-list-header word-wrap">{$aLang.footer_menu_user_quest_title}</li>
-                        {menu id='footer_user_auth' hideul=true}
-                    </ul>
-                {/if}
-            </div>
-
-            <div class="col-sm-4 col-md-4 col-lg-3">
                 <ul class="list-unstyled footer-list">
                     <li class="footer-list-header">{$aLang.footer_menu_navigate_title}</li>
                     {menu id='footer_site_menu' hideul=true}
@@ -206,6 +192,10 @@
                     <li class="footer-list-header">{$aLang.footer_menu_navigate_info}</li>
                     {menu id='footer_info' hideul=true}
                 </ul>
+            </div>
+
+            <div class="col-sm-4 col-md-4 col-lg-3">
+
             </div>
 
         </div>

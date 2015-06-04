@@ -1428,10 +1428,8 @@ return array(
     'menu_main_blogs_description' => 'Страница списков блогов',
     'menu_main_people_description' => 'Страница списка пользователей сайта',
     'menu_main_stream_description' => 'Лента событий сайта',
-    'menu_footer_user_auth_description' => 'Первая колонка меню подвала, авторизация на сайте',
-    'menu_footer_user_actions_description' => 'Первая колонка меню подвала, действия пользователя',
-    'menu_footer_site_menu' => 'Вторая колонка меню подвала, меню сайта',
-    'menu_footer_info' => 'Третья колонка меню подвала, информация о сайте',
+    'menu_footer_site_menu' => 'Первая колонка меню подвала, меню сайта',
+    'menu_footer_info' => 'Вторая колонка меню подвала, информация о сайте',
 
     'footer_menu_project_about' => 'О проекте',
     'footer_menu_project_rules' => 'Правила',

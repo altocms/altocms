@@ -176,16 +176,6 @@
 
                         <div class="row">
                             <div class="col-sm-8">
-                                {if E::IsUser()}
-                                    <h4>{E::User()->getDisplayName()}</h4>
-                                    {menu id='footer_user_actions'}
-                                {else}
-                                    <h4>{$aLang.footer_menu_user_quest_title}</h4>
-                                    {menu id='footer_user_auth'}
-                                {/if}
-                            </div>
-
-                            <div class="col-sm-8">
                                 <h4>{$aLang.footer_menu_navigate_title}</h4>
                                 {menu id='footer_site_menu'}
                             </div>
@@ -193,6 +183,10 @@
                             <div class="col-sm-8">
                                 <h4>{$aLang.footer_menu_navigate_info}</h4>
                                 {menu id='footer_info'}
+                            </div>
+
+                            <div class="col-sm-8">
+
                             </div>
                         </div>
 
