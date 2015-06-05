@@ -46,7 +46,7 @@
         <echo>ОЧИЩАЕМ ДИРЕКТОРИЮ СЖАТЫХ СКРИПТОВ ТЕМЫ</echo>
         <delete includeemptydirs="true">
             <fileset dir="${build.dir}/${theme.name}/assets/js/minify/" includes="**/**"/>
-            <fileset dir="${build.dir}/${theme.name}/assets/js/" includes="script.min.js" />
+            <fileset dir="${build.dir}/${theme.name}/assets/js/" includes="script.js" />
         </delete>
 
         <mkdir dir="${build.dir}/${theme.name}/assets/js/minify/" />
@@ -60,7 +60,7 @@
 
         <echo>ОБЪЕДИНЯЕМ СЖАТЫЕ ФАЙЛЫ В ОДИН</echo>
         <echo msg="Combining all js files into one…" />
-        <append destFile="${src.dir}/${theme.name}/assets/js/script.min.js">
+        <append destFile="${src.dir}/${theme.name}/assets/js/script.js">
             <fileset dir="${build.dir}/${theme.name}/assets/js/minify/" includes="**/**"/>
         </append>
 

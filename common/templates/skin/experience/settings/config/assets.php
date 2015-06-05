@@ -16,9 +16,9 @@
 
 $config['head']['default']['js'] = Config::Get('head.default.js');
 $config['head']['default']['js']["___path.skin.dir___/assets/js/experience/dropdown.min.js"] = array('name' => 'bootstrap');
-$config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/menu.min.js";
-$config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/menu-l2.min.js";
-$config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/script.min.js";
+$config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/menu.js";
+$config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/menu-l2.js";
+$config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/script.js";
 $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/toolbar.min.js";
 if (isset($config['view']['fix_menu']) && $config['view']['fix_menu']) {
     $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/fix-menu.min.js";
