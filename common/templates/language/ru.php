@@ -1190,8 +1190,8 @@ return array(
     'prev_page'           => 'Предыдущая страница',
     'insertimg_page'      => 'страница',
     'insertimg_from'      => 'из',
-    'insertimg_not_found'      => 'Изображения не найдены',
-    'insertimg_images'      => 'Изображения',
+    'insertimg_not_found' => 'Изображения не найдены или не доступны для просмотра',
+    'insertimg_images'    => 'Изображения',
 
     'aim_target_type_blog_avatar'            => 'Блоги',
     'aim_target_type_user'                   => 'Аватары',
