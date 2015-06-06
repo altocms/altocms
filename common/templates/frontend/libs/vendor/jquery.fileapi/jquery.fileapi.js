@@ -12,6 +12,7 @@
 		  noop = $.noop
 		, oldJQ = !$.fn.prop
 		, propFn = oldJQ ? 'attr' : 'prop'
+		, removePropFn = oldJQ ? 'removeAttr' : 'removeProp'
 
 		, _dataAttr = 'data-fileapi'
 		, _dataFileId = 'data-fileapi-id'
@@ -22,7 +23,7 @@
 
 		, _bind		= function (ctx, fn) {
 			var args = _slice.call(arguments, 2);
-			return	function (){
+			return	fn.bind ? fn.bind.apply(fn, [ctx].concat(args)) : function (){
 				return fn.apply(ctx, args.concat(_slice.call(arguments)));
 			};
 		}
@@ -419,13 +420,16 @@
 		},
 
 		_getUploadEvent: function (xhr, extra){
+			xhr = this.xhr || xhr;
+
 			var evt = {
 				  xhr: xhr
 				, file: this.xhr.currentFile
 				, files: this.xhr.files
 				, widget: this
 			};
-			return	_extend(evt, extra);
+
+			return _extend(evt, extra);
 		},
 
 		_emitUploadEvent: function (prefix, file, xhr){
@@ -862,11 +866,12 @@
 			switch( name ){
 				case 'accept':
 				case 'multiple':
+						this.$(':file')[nVal ? propFn : removePropFn](name, nVal);
+					break;
+
+
 				case 'paramName':
-						if( name == 'paramName' ){ name = 'name'; }
-						if( nVal ){
-							this.$(':file')[propFn](name, nVal);
-						}
+						nVal && this.$(':file')[propFn]('name', nVal);
 					break;
 			}
 		},
@@ -1199,7 +1204,7 @@
 	};
 
 
-	$.fn.fileapi.version = '0.4.7';
+	$.fn.fileapi.version = '0.4.9';
 	$.fn.fileapi.tpl = function (text){
 		var index = 0;
 		var source = "__b+='";

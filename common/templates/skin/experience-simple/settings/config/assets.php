@@ -20,10 +20,10 @@ $config['head']['default']['js'] = Config::Get('head.default.js');
 //$config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/menu-l2.min.js";
 $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/selecter/jquery.fs.selecter.min.js";
 $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/icheck/icheck.min.js";
-$config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/script.min.js";
-$config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/toolbar.min.js";
+$config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/script.js";
+$config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/toolbar.js";
 if (isset($config['view']['fix_menu']) && $config['view']['fix_menu']) {
-    $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/fix-menu.min.js";
+    $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/fix-menu.js";
 }
 
 $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/userinfo.min.js";
@@ -44,7 +44,7 @@ $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/e
 //$config['head']['default']['js'][] = "___path.skin.dir___/assets/js/jquery/jquery.bootstrap-dropdown-on-hover.js";
 $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/jquery/pulse/jquery.pulse.js";
 $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/theme.js";
-$config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/menu.min.js";
+$config['head']['default']['js'][] = "___path.skin.dir___/assets/js/experience/menu.js";
 $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/bootstrap/dropdowns-enhancement.js";
 $config['head']['default']['js'][] = "___path.skin.dir___/assets/js/hoverintent/jquery.hoverIntent.js";
 
@@ -54,7 +54,7 @@ $config['head']['default']['css'] = array(
     '___path.skin.dir___/assets/css/style.experience.min.css',
     //'___path.skin.dir___/assets/css/style.experience.min.map',
     '___path.skin.dir___/assets/css/animate.min.css',
-    '___path.skin.dir___/assets/css/hover.min.css',
+    '___path.skin.dir___/assets/css/hover.css',
     '___path.frontend.dir___/libs/vendor/prettyphoto/css/prettyphoto.css',
     '___path.frontend.dir___/libs/vendor/jcrop/jquery.Jcrop.css',
 
