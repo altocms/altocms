@@ -167,7 +167,9 @@ class ActionAjax extends Action {
             // * Конкретный топик
 
             $oTopic = E::ModuleTopic()->GetTopicById($sTopicId);
-            if ($oTopic && E::ModuleACL()->IsAllowEditTopic($oTopic, E::User())) {
+            if ($oTopic
+                && ($oTopic->isPublished() || $oTopic->getUserId() == E::UserId())
+                && E::ModuleACL()->IsAllowShowBlog($oTopic->getBlog(), E::User())) {
                 $aResourcesId = E::ModuleMresource()->GetCurrentTopicResourcesId($iUserId, $sTopicId);
                 if ($aResourcesId) {
                     $aResources = E::ModuleMresource()->GetMresourcesByFilter(array(

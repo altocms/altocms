@@ -392,11 +392,11 @@ class ModuleMenu extends Module {
         }
 
         // Временные изображения
-        if ($oTmpTopicCategory = E::ModuleMresource()->GetCurrentTopicImageCategory(isset($aMenu['uid']) ? $aMenu['uid'] : E::UserId(), false)) {
-            $aCategories[] = $oTmpTopicCategory;
-        }
+//        if ($oTmpTopicCategory = E::ModuleMresource()->GetCurrentTopicImageCategory(isset($aMenu['uid']) ? $aMenu['uid'] : E::UserId(), false)) {
+//            $aCategories[] = $oTmpTopicCategory;
+//        }
 
-        if ($oCurrentTopicCategory = E::ModuleMresource()->GetCurrentTopicImageCategory(isset($aMenu['uid']) ? $aMenu['uid'] : E::UserId(), $sTopicId)) {
+        if ($sTopicId && $oCurrentTopicCategory = E::ModuleMresource()->GetCurrentTopicImageCategory(isset($aMenu['uid']) ? $aMenu['uid'] : E::UserId(), $sTopicId)) {
             $aCategories[] = $oCurrentTopicCategory;
         }
 
