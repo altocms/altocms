@@ -114,7 +114,7 @@
                                             &nbsp;
 
                                             {if $oTalkUserAuthor->getCommentCountNew() OR !$oTalkUserAuthor->getDateLast()}
-                                                <strong>{$oTalk->getTitle()|escape:'html'}</strong>drther hertherth rehr
+                                                <strong>{$oTalk->getTitle()|escape:'html'}</strong>
                                             {else}
                                                 {$oTalk->getTitle()|escape:'html'}
                                             {/if}
