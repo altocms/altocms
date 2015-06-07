@@ -93,6 +93,18 @@ class ModuleViewerAsset_EntityPackageJs extends ModuleViewerAsset_EntityPackage 
         return parent::CheckDestination($sDestination);
     }
 
+    public function BuildLink($aLink) {
+
+        if (C::Get('compress.js.gzip') && C::Get('compress.js.merge') && C::Get('compress.js.use')) {
+            $aLink['link'] = $aLink['link']
+                . ((isset($_SERVER['HTTP_ACCEPT_ENCODING']) && stripos($_SERVER['HTTP_ACCEPT_ENCODING'], 'GZIP') !== FALSE) ? '.gz.js' : '');
+        }
+
+        return parent::BuildLink($aLink);
+
+    }
+
+
     public function Process() {
 
         $bResult = true;
@@ -107,6 +119,11 @@ class ModuleViewerAsset_EntityPackageJs extends ModuleViewerAsset_EntityPackage 
                         if (F::File_PutContents($sCompressedFile, $sContents)) {
                             F::File_Delete($sAssetFile);
                             $this->aLinks[$nIdx]['link'] = F::File_SetExtension($this->aLinks[$nIdx]['link'], $sExtension);
+                        }
+                        if (C::Get('compress.js.gzip') && C::Get('compress.js.merge') && C::Get('compress.js.use')) {
+                            // Сохраним gzip
+                            $sCompressedContent = gzencode($sContents, 9);
+                            F::File_PutContents($sCompressedFile . '.gz.js', $sCompressedContent);
                         }
                     }
                 } else {

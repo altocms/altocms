@@ -328,6 +328,12 @@ $config['cssjs'] =
             'config' => 'compress.css.use',
         ),
         array(
+            'label' => 'action.admin.set_css_gzip',
+            'help' => 'action.admin.set_css_gzip_notice',
+            'type' => 'checkbox',
+            'config' => 'compress.css.gzip',
+        ),
+        array(
             'label' => 'action.admin.set_csscompress_force',
             'help' => 'action.admin.set_csscompress_force_notice',
             'type' => 'checkbox',
@@ -348,6 +354,12 @@ $config['cssjs'] =
             'help' => 'action.admin.set_jscompress_use_notice',
             'type' => 'checkbox',
             'config' => 'compress.js.use',
+        ),
+        array(
+            'label' => 'action.admin.set_js_gzip',
+            'help' => 'action.admin.set_js_gzip_notice',
+            'type' => 'checkbox',
+            'config' => 'compress.js.gzip',
         ),
         array(
             'label' => 'action.admin.set_jscompress_force',

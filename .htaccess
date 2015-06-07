@@ -2,6 +2,15 @@ AddDefaultCharset UTF-8
 Options -Indexes
 RewriteEngine On
 
+<FilesMatch "\.gz\.css$">
+        ForceType "text/css"
+        Header set Content-Encoding: gzip
+</FilesMatch>
+<FilesMatch "\.gz\.js$">
+        ForceType "text/javascript"
+        Header set Content-Encoding: gzip
+</FilesMatch>
+
 # Rule for redirect from www.sitecom to site.com
 # If you want to turn on this rule then delete symbol # in two next lines
 #RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]

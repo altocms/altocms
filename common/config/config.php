@@ -837,6 +837,7 @@ $config['head']['default']['css'] = array(
  * Параметры компрессии css-файлов
  */
 $config['compress']['css']['merge'] = true;         // указывает на необходимость слияния файлов по указанным блокам.
+$config['compress']['css']['gzip'] = false;         // указывает на необходимость отдачи css в виде gzip
 $config['compress']['css']['use']   = false;        // указывает на необходимость компрессии файлов. Компрессия используется только в активированном режиме слияния файлов.
 $config['compress']['css']['force']  = false;       // если заданно 'compress.css.merge', то слияние выполняется, даже если результирующий файл есть
 $config['compress']['css']['csstidy']['case_properties']     = 1;
@@ -849,6 +850,7 @@ $config['compress']['css']['csstidy']['template']            = 'highest_compress
  * Параметры компрессии js-файлов
  */
 $config['compress']['js']['merge']  = false;         // указывает на необходимость слияния файлов по указанным блокам.
+$config['compress']['js']['gzip']  = false;         // указывает на необходимость отдачи js в виде gzip
 $config['compress']['js']['use']    = false;         // указывает на необходимость компрессии файлов. Компрессия используется только в активированном режиме слияния файлов.
 $config['compress']['js']['force']  = false;        // если заданно 'compress.js.merge', то слияние выполняется, даже если результирующий файл есть
 
