@@ -191,7 +191,7 @@ class ModuleViewerAsset_EntityPackage extends Entity {
             $bCompress = $this->bCompress;
             $bPrepare = null;
             foreach ($aFiles as $aFileParams) {
-                $sFileContents = F::File_GetContents($aFileParams['file']);
+                $sFileContents = trim(F::File_GetContents($aFileParams['file']));
                 $sContents .= $this->PrepareContents($sFileContents, $aFileParams['file']) . PHP_EOL;
                 if (isset($aFileParams['compress'])) {
                     $bCompress = $bCompress && (bool)$aFileParams['compress'];

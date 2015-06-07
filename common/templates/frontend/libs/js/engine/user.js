@@ -16,7 +16,7 @@ ls.user = (function ($) {
     this.init = function() {
 
         // Authorization
-        ls.ajaxForm(ls.routerUrl('login') + 'ajax-login', '.js-form-login', function (result, status, xhr, form) {
+        ls.ajaxForm(ls.routerUrl('login') + 'ajax-login/', '.js-form-login', function (result, status, xhr, form) {
             if (result && result.sUrlRedirect) {
                 ls.progressStart();
                 window.location.href = result.sUrlRedirect
@@ -24,7 +24,7 @@ ls.user = (function ($) {
         });
 
         /* Registration */
-        ls.ajaxForm(ls.routerUrl('registration') + 'ajax-registration', '.js-form-registration', function (result, status, xhr, form) {
+        ls.ajaxForm(ls.routerUrl('registration') + 'ajax-registration/', '.js-form-registration', function (result, status, xhr, form) {
             if (result && result.sUrlRedirect) {
                 ls.progressStart();
                 window.location.href = result.sUrlRedirect
@@ -32,7 +32,7 @@ ls.user = (function ($) {
         });
 
         /* Password reset */
-        ls.ajaxForm(ls.routerUrl('login') + 'ajax-reminder', '.js-form-reminder', function (result, status, xhr, form) {
+        ls.ajaxForm(ls.routerUrl('login') + 'ajax-reminder/', '.js-form-reminder', function (result, status, xhr, form) {
             if (result && result.sUrlRedirect) {
                 ls.progressStart();
                 window.location.href = result.sUrlRedirect
@@ -40,7 +40,7 @@ ls.user = (function ($) {
         });
 
         /* Request for activation link */
-        ls.ajaxForm(ls.routerUrl('login') + 'ajax-reactivation', '.js-form-reactivation', function (result, status, xhr, form) {
+        ls.ajaxForm(ls.routerUrl('login') + 'ajax-reactivation/', '.js-form-reactivation', function (result, status, xhr, form) {
             form.find('input').val('');
             ls.hook.run('ls_user_reactivation_after', [form, result]);
         });
