@@ -947,6 +947,8 @@ return array(
     'search_err_minword' => 'Search query too short (minimum 3 characters)',
     'search_err_length' => 'Search query length must be less %%min%% and more %%max%% characters',
     'search_err_length_word' => 'Word length in query must be from %%min%% to %%max%% characters',
+    'search_err_frequency' => 'You can do not more than %%num%% queries per %%sec%% seconds',
+    'search_err_interval' => 'Interval between queries could not be less than %%sec%% seconds',
 
     /***
      * Mail

@@ -38,6 +38,7 @@ class ActionSearch extends Action {
 
     protected $bLogEnable = false;
     protected $oUser = null;
+    /** @var ModuleLogger_EntityLog */
     protected $oLogs = null;
 
     protected $aConfig = array();
@@ -67,8 +68,7 @@ class ActionSearch extends Action {
         $this->sPatternW = Config::Get('module.search.char_pattern');
         $this->sPatternB = '[^' . mb_substr($this->sPatternW, 1); // '[^\wа-яА-Я\.\*-]';    // граница слова
         $this->sPatternX = '[^\s' . mb_substr($this->sPatternW, 1); // '[^\s\wа-яА-Я\*-]';  // запрещеные символы без *
-        $this->sPatternXA
-            = '[^\s\*' . mb_substr($this->sPatternW, 1); // '[^\s\wа-яА-Я-]';               // запрещеные символы, в т.ч. *
+        $this->sPatternXA = '[^\s\*' . mb_substr($this->sPatternW, 1); // '[^\s\wа-яА-Я-]';               // запрещеные символы, в т.ч. *
 
         $this->bSearchStrict = Config::Get('module.search.strict_search');
         $this->bSkipAllTags = Config::Get('module.search.skip_all_tags');
@@ -129,6 +129,59 @@ class ActionSearch extends Action {
         $this->AddEvent('blogs', 'EventBlogs');
     }
 
+    protected function _checkLimits() {
+
+        $iLimitQueries = intval(C::Get('module.search.limit.queries'));
+        $iLimitPeriod = F::ToSeconds(C::Get('module.search.limit.period'));
+        $iLimitInterval = F::ToSeconds(C::Get('module.search.limit.interval'));
+
+        if (!F::GetRequest('q') || !$iLimitQueries || !$iLimitPeriod) {
+            return true;
+        }
+
+        $sLastSearchQueries = E::ModuleSession()->Get('last_search_queries');
+        if (empty($sLastSearchQueries)) {
+            $aLastSearchQueries = array();
+        } else {
+            $aLastSearchQueries = F::Unserialize($sLastSearchQueries);
+        }
+        $iCount = 0;
+        if (!empty($aLastSearchQueries)) {
+            $iTimeLimit = time() - $iLimitPeriod;
+            //echo date('H:i:s', time()), '--', date('H:i:s', $iTimeLimit), '<br>';
+            foreach($aLastSearchQueries as $iIndex => $aQuery) {
+                //echo $iIndex, ' - ', date('H:i:s', $aQuery['time']);
+                if ($aQuery['time'] >= $iTimeLimit) {
+                    $iCount += 1;
+                    //echo ' * ';
+                }
+                //echo '<br>';
+            }
+            $aLastQuery = end($aLastSearchQueries);
+        } else {
+            $aLastQuery = null;
+        }
+        if (count($aLastSearchQueries) > $iLimitQueries) {
+            $aLastSearchQueries = array_slice($aLastSearchQueries, -$iLimitQueries);
+        }
+        $aLastSearchQueries[] = array(
+            'time' => time(),
+            'query' => F::GetRequest('q'),
+        );
+        E::ModuleSession()->Set('last_search_queries', F::Serialize($aLastSearchQueries));
+        //die('iCount:' . $iCount);
+        if ($iCount > $iLimitQueries) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('search_err_frequency', array('num' => $iLimitQueries, 'sec' => $iLimitPeriod)));
+            return false;
+        }
+        if (!empty($aLastQuery['time']) && $iLimitInterval && ($aLastQuery['time'] > time() - $iLimitInterval)) {
+            E::ModuleMessage()->AddErrorSingle(E::ModuleLang()->Get('search_err_interval', array('sec' => $iLimitInterval)));
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * Протоколирование запросов
      *
@@ -174,7 +227,7 @@ class ActionSearch extends Action {
      *
      * @return string
      */
-    protected function PreparePattern() {
+    protected function _preparePattern() {
 
         if ($this->bSearchStrict) {
             $sRegexp = $this->aReq['regexp'];
@@ -212,9 +265,9 @@ class ActionSearch extends Action {
      *
      * @return string
      */
-    protected function TextHighlite($sText) {
+    protected function _textHighlite($sText) {
 
-        $sRegexp = $this->PreparePattern();
+        $sRegexp = $this->_preparePattern();
         if ($this->bSearchStrict) {
             $sText = preg_replace($sRegexp, $this->sSnippetBeforeMatch . '\\0' . $this->sSnippetAfterMatch, $sText);
         } else {
@@ -235,7 +288,7 @@ class ActionSearch extends Action {
      *
      * @return string
      */
-    protected function MakeSnippetFragment($sText, $aSet, $nPos, $nLen) {
+    protected function _makeSnippetFragment($sText, $aSet, $nPos, $nLen) {
 
         $nLenWord = $nLen;
         $nLenText = mb_strlen($sText);
@@ -306,10 +359,10 @@ class ActionSearch extends Action {
      *
      * @return string
      */
-    protected function MakeSnippet($sText) {
+    protected function _makeSnippet($sText) {
 
         $aError = array();
-        $sRegexp = $this->PreparePattern();
+        $sRegexp = $this->_preparePattern();
         // * Если задано, то вырезаем все теги
         if ($this->bSkipAllTags) {
             $sText = strip_tags($sText);
@@ -365,7 +418,7 @@ class ActionSearch extends Action {
                     }
                 }
 
-                $aFragments[] = $this->MakeSnippetFragment($sText, $aSet, $nPos, $nLen);
+                $aFragments[] = $this->_makeSnippetFragment($sText, $aSet, $nPos, $nLen);
                 if (($this->nSnippetMaxFragments > 0) && ((++$nCount) >= $this->nSnippetMaxFragments)) {
                     break;
                 }
@@ -381,6 +434,14 @@ class ActionSearch extends Action {
             }
         }
         return $sSnippet;
+    }
+
+    public function ExecEvent() {
+
+        if (!$this->_checkLimits()) {
+            return $this->OverLimit();
+        }
+        return parent::ExecEvent();
     }
 
     /**
@@ -419,7 +480,7 @@ class ActionSearch extends Action {
      */
     public function EventTopics() {
 
-        $this->aReq = $this->PrepareRequest('topics');
+        $this->aReq = $this->_prepareRequest('topics');
         $this->OutLog();
         if ($this->aReq['regexp']) {
             $aResult = E::ModuleSearch()->GetTopicsIdByRegexp(
@@ -435,11 +496,11 @@ class ActionSearch extends Action {
                 foreach ($aTopicsFound AS $oTopic) {
                     if ($oTopic && $oTopic->getBlog()) {
                         if ($this->nModeOutList == 'short') {
-                            $oTopic->setTextShort($this->TextHighlite($oTopic->getTextShort()));
+                            $oTopic->setTextShort($this->_textHighlite($oTopic->getTextShort()));
                         } elseif ($this->nModeOutList == 'full') {
-                            $oTopic->setTextShort($this->TextHighlite($oTopic->getText()));
+                            $oTopic->setTextShort($this->_textHighlite($oTopic->getText()));
                         } else {
-                            $oTopic->setTextShort($this->MakeSnippet($oTopic->getText()));
+                            $oTopic->setTextShort($this->_makeSnippet($oTopic->getText()));
                         }
                         $oTopic->setBlogTitle($oTopic->getBlog()->getTitle());
                         $aTopics[] = $oTopic;
@@ -468,7 +529,6 @@ class ActionSearch extends Action {
         // *  Отправляем данные в шаблон
         E::ModuleViewer()->AddHtmlTitle($this->aReq['q']);
         E::ModuleViewer()->Assign('bIsResults', $aResult['count']);
-        E::ModuleViewer()->Assign('aReq', $this->aReq);
         E::ModuleViewer()->Assign('aRes', $aResult);
         E::ModuleViewer()->Assign('aTopics', $aTopics);
         E::ModuleViewer()->Assign('aPaging', $aPaging);
@@ -479,7 +539,7 @@ class ActionSearch extends Action {
      */
     public function EventComments() {
 
-        $this->aReq = $this->PrepareRequest('comments');
+        $this->aReq = $this->_prepareRequest('comments');
 
         $this->OutLog();
         if ($this->aReq['regexp']) {
@@ -498,9 +558,9 @@ class ActionSearch extends Action {
                 //подсветка поисковой фразы
                 foreach ($aComments AS $oComment) {
                     if ($this->nModeOutList != 'snippet') {
-                        $oComment->setText($this->TextHighlite($oComment->getText()));
+                        $oComment->setText($this->_textHighlite($oComment->getText()));
                     } else {
-                        $oComment->setText($this->MakeSnippet($oComment->getText()));
+                        $oComment->setText($this->_makeSnippet($oComment->getText()));
                     }
                 }
             }
@@ -527,7 +587,6 @@ class ActionSearch extends Action {
         // *  Отправляем данные в шаблон
         E::ModuleViewer()->AddHtmlTitle($this->aReq['q']);
         E::ModuleViewer()->Assign('bIsResults', $aResult['count']);
-        E::ModuleViewer()->Assign('aReq', $this->aReq);
         E::ModuleViewer()->Assign('aRes', $aResult);
         E::ModuleViewer()->Assign('aComments', $aComments);
         E::ModuleViewer()->Assign('aPaging', $aPaging);
@@ -538,7 +597,7 @@ class ActionSearch extends Action {
      */
     public function EventBlogs() {
 
-        $this->aReq = $this->PrepareRequest('blogs');
+        $this->aReq = $this->_prepareRequest('blogs');
 
         $this->OutLog();
         if ($this->aReq['regexp']) {
@@ -554,9 +613,9 @@ class ActionSearch extends Action {
                 //подсветка поисковой фразы
                 foreach ($aBlogs AS $oBlog) {
                     if ($this->nModeOutList != 'snippet') {
-                        $oBlog->setDescription($this->TextHighlite($oBlog->getDescription()));
+                        $oBlog->setDescription($this->_textHighlite($oBlog->getDescription()));
                     } else {
-                        $oBlog->setDescription($this->MakeSnippet($oBlog->getDescription()));
+                        $oBlog->setDescription($this->_makeSnippet($oBlog->getDescription()));
                     }
                 }
             }
@@ -584,7 +643,6 @@ class ActionSearch extends Action {
         // *  Отправляем данные в шаблон
         E::ModuleViewer()->AddHtmlTitle($this->aReq['q']);
         E::ModuleViewer()->Assign('bIsResults', $aResult['count']);
-        E::ModuleViewer()->Assign('aReq', $this->aReq);
         E::ModuleViewer()->Assign('aRes', $aResult);
         E::ModuleViewer()->Assign('aBlogs', $aBlogs);
         E::ModuleViewer()->Assign('aPaging', $aPaging);
@@ -592,8 +650,12 @@ class ActionSearch extends Action {
 
     /**
      * Разбор запроса
+     *
+     * @param null $sType
+     *
+     * @return mixed
      */
-    protected function PrepareRequest($sType = null) {
+    protected function _prepareRequest($sType = null) {
 
         $sRequest = trim(F::GetRequest('q'));
 
@@ -731,13 +793,20 @@ class ActionSearch extends Action {
         if (!$aReq['iPage']) {
             $aReq['iPage'] = 1;
         }
-        // *  Передача данных в шаблонизатор
-        E::ModuleViewer()->Assign('aReq', $aReq);
 
         return $aReq;
     }
 
+    public function OverLimit() {
+
+        $this->aReq = $this->_prepareRequest();
+
+        return null;
+    }
+
     public function EventShutdown() {
+        // *  Передача данных в шаблонизатор
+        E::ModuleViewer()->Assign('aReq', $this->aReq);
     }
 
 }
