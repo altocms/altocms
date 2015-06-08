@@ -129,6 +129,55 @@ class ActionSearch extends Action {
         $this->AddEvent('blogs', 'EventBlogs');
     }
 
+    protected function CheckLimits() {
+
+        $iLimitQueries = intval(Config::Get('module.search.limit.queries'));
+        $iLimitPeriod = F::ToSeconds(Config::Get('module.search.limit.period'));
+        $iLimitInterval = F::ToSeconds(Config::Get('module.search.limit.interval'));
+
+        if (!F::GetRequest('q') || !$iLimitQueries || !$iLimitPeriod) {
+            return true;
+        }
+
+        $sLastSearchQueries = E::Session_Get('last_search_queries');
+        if (empty($sLastSearchQueries)) {
+            $aLastSearchQueries = array();
+        } else {
+            $aLastSearchQueries = F::Unserialize($sLastSearchQueries);
+        }
+        $iCount = 0;
+        if (!empty($aLastSearchQueries)) {
+            $iTimeLimit = time() - $iLimitPeriod;
+            foreach($aLastSearchQueries as $iIndex => $aQuery) {
+                if ($aQuery['time'] >= $iTimeLimit) {
+                    $iCount += 1;
+                }
+            }
+            $aLastQuery = end($aLastSearchQueries);
+        } else {
+            $aLastQuery = null;
+        }
+        if (count($aLastSearchQueries) > $iLimitQueries) {
+            $aLastSearchQueries = array_slice($aLastSearchQueries, -$iLimitQueries);
+        }
+        $aLastSearchQueries[] = array(
+            'time' => time(),
+            'query' => F::GetRequest('q'),
+        );
+        E::Session_Set('last_search_queries', F::Serialize($aLastSearchQueries));
+
+        if ($iCount > $iLimitQueries) {
+            E::Message_AddErrorSingle(E::Lang_Get('search_err_frequency', array('num' => $iLimitQueries, 'sec' => $iLimitPeriod)));
+            return false;
+        }
+        if (!empty($aLastQuery['time']) && $iLimitInterval && ($aLastQuery['time'] > time() - $iLimitInterval)) {
+            E::Message_AddErrorSingle(E::Lang_Get('search_err_interval', array('sec' => $iLimitInterval)));
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * Протоколирование запросов
      *
@@ -355,6 +404,14 @@ class ActionSearch extends Action {
             }
         }
         return $sSnippet;
+    }
+
+    public function ExecEvent() {
+
+        if (!$this->CheckLimits()) {
+            return $this->OverLimit();
+        }
+        return parent::ExecEvent();
     }
 
     /**
@@ -696,7 +753,16 @@ class ActionSearch extends Action {
         return $aReq;
     }
 
+    public function OverLimit() {
+
+        $this->aReq = $this->PrepareRequest();
+
+        return null;
+    }
+
     public function EventShutdown() {
+        // *  Передача данных в шаблонизатор
+        E::Viewer_Assign('aReq', $this->aReq);
     }
 
 }

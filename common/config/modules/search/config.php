@@ -130,6 +130,13 @@ $config['logs']['max_size'] = 0;
  */
 $config['logs']['max_files'] = 10;
 
+/***
+ * Ограничения против флуда
+ */
+$config['limit']['queries']  = 10; // максимум 10 запросов...
+$config['limit']['period']   = 180; // ... в 180 секунд (0 - без ограничений)
+$config['limit']['interval'] = 10; // минимальный интервал между запросами в сек.
+
 return $config;
 
 // EOF
