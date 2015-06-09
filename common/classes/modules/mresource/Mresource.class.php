@@ -726,6 +726,18 @@ class ModuleMresource extends Module {
     }
 
     /**
+     * Обновляет url ресурса
+     *
+     * @param ModuleMresource_EntityMresource $oResource
+     *
+     * @return bool
+     */
+    public function UpdateMresouceUrl($oResource){
+
+        return $this->oMapper->UpdateMresouceUrl($oResource);
+    }
+
+    /**
      * Обновляет тип ресурса
      *
      * @param ModuleMresource_EntityMresource $oResource

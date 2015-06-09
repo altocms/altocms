@@ -697,10 +697,11 @@ class ModuleUploader extends Module {
      *
      * @param string $sFile
      * @param string $sDestination
+     * @param bool $bAddMresource
      *
-     * @return ModuleUploader_EntityItem|bool
+     * @return bool|ModuleUploader_EntityItem
      */
-    public function Store($sFile, $sDestination = null) {
+    public function Store($sFile, $sDestination = null, $bAddMresource = TRUE) {
 
         if (!$sDestination) {
             $sDriverName = $this->sDefaultDriver;
@@ -715,7 +716,9 @@ class ModuleUploader extends Module {
                     $oStoredItem->SetUuid($sDriverName);
                 }
                 $oMresource = E::GetEntity('Mresource', $oStoredItem);
-                E::ModuleMresource()->Add($oMresource);
+                if ($bAddMresource) {
+                    E::ModuleMresource()->Add($oMresource);
+                }
                 return $oStoredItem;
             }
         }

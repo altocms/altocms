@@ -868,6 +868,28 @@ class ModuleMresource_MapperMresource extends Mapper {
     }
 
     /**
+     * @param ModuleMresource_EntityMresource $oResource
+     * @return mixed
+     */
+    public function UpdateMresouceUrl($oResource){
+        $sql = "UPDATE ?_mresource SET
+                  uuid = ?,
+                  path_url = ?,
+                  hash_url = ?,
+                  path_file = ?,
+                  hash_file = ?
+                WHERE mresource_id = ?d";
+        return $this->oDb->query($sql,
+            $oResource->getUuid(),
+            $oResource->getPathUrl(),
+            $oResource->getHashUrl(),
+            $oResource->getPathFile(),
+            $oResource->getHashFile(),
+            $oResource->getMresourceId()
+        );
+    }
+
+    /**
      * Обновляет тип ресурса
      *
      * @param ModuleMresource_EntityMresource $oResource

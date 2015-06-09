@@ -432,22 +432,17 @@ class ActionContent extends Action {
                 $iTargetId = $oTopic->getId();
 
                 $sNewPath = E::ModuleUploader()->GetUploadDir($sTargetType, $iTargetId) . '/';
-                $aMresourceRel = E::ModuleMresource()->GetMresourcesRelByTargetAndUser($sTargetType, 0, E::UserId());
+                $aMresourceRel = E::ModuleMresource()->GetMresourcesRelByTargetAndUser($sTargetType, $iTargetId, E::UserId());
 
                 if ($aMresourceRel) {
+                    /** @var ModuleMresource_EntityMresource $oResource */
                     foreach ($aMresourceRel as $oResource) {
                         $sOldPath = $oResource->GetFile();
-
-                        $oStoredFile = E::ModuleUploader()->Store($sOldPath, $sNewPath);
-                        /** @var ModuleMresource_EntityMresource $oResource */
-                        $oResource = E::ModuleMresource()->GetMresourcesByUuid($oStoredFile->getUuid());
-                        if ($oResource) {
-                            $oResource->setUrl(E::ModuleMresource()->NormalizeUrl(E::ModuleUploader()->GetTargetUrl($sTargetType, $iTargetId)));
-                            $oResource->setType($sTargetType);
-                            $oResource->setUserId(E::UserId());
-                            $oResource = array($oResource);
-                            E::ModuleMresource()->AddTargetRel($oResource, $sTargetType, $iTargetId);
-                        }
+                        $oStoredFile = E::ModuleUploader()->Store($sOldPath, $sNewPath, FALSE);
+                        $oResource->setUuid($oStoredFile->GetUuid());
+                        $oResource->setUrl($oStoredFile->GetUrl());
+                        $oResource->setFile($oStoredFile->GetFile());
+                        E::ModuleMresource()->UpdateMresouceUrl($oResource);
                     }
                     E::ModuleMresource()->UnlinkFile($sTargetType, 0, $oTopic->getUserId());
                 }
