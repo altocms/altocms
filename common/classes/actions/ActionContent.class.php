@@ -423,32 +423,9 @@ class ActionContent extends Action {
 
             // Обработаем фотосет
             if ($this->oContentType->isAllow('photoset') && ($sTargetTmp = E::ModuleSession()->GetCookie(ModuleUploader::COOKIE_TARGET_TMP))) {
-                // А вот здесь ничего сохранять не будем,
-                // 1. Просто уберем у ресурса флаг временного размещения и удалим из куки target_tmp
+                // Уберем у ресурса флаг временного размещения и удалим из куки target_tmp
                 E::ModuleSession()->DelCookie(ModuleUploader::COOKIE_TARGET_TMP);
-
-                // 2. Переместим фото из временной папки в рабочую
-                $sTargetType = 'photoset';
-                $iTargetId = $oTopic->getId();
-
-                $sNewPath = E::ModuleUploader()->GetUploadDir($sTargetType, $iTargetId) . '/';
-                $aMresourceRel = E::ModuleMresource()->GetMresourcesRelByTargetAndUser($sTargetType, $iTargetId, E::UserId());
-
-                if ($aMresourceRel) {
-                    /** @var ModuleMresource_EntityMresource $oResource */
-                    foreach ($aMresourceRel as $oResource) {
-                        $sOldPath = $oResource->GetFile();
-                        $oStoredFile = E::ModuleUploader()->Store($sOldPath, $sNewPath, FALSE);
-                        $oResource->setUuid($oStoredFile->GetUuid());
-                        $oResource->setUrl($oStoredFile->GetUrl());
-                        $oResource->setFile($oStoredFile->GetFile());
-                        E::ModuleMresource()->UpdateMresouceUrl($oResource);
-                    }
-                    E::ModuleMresource()->UnlinkFile($sTargetType, 0, $oTopic->getUserId());
-                }
             }
-
-
 
             // * Добавляем событие в ленту
             E::ModuleStream()->Write(

@@ -2871,7 +2871,7 @@ class ModuleTopic extends Module {
 
                                 // 3. Переместить фото
 
-                                $sNewPath = E::ModuleUploader()->GetUploadDir($sTargetType, $iTargetId) . '/';
+                                $sNewPath = E::ModuleUploader()->GetUserImageDir(E::UserId(), true, false);
                                 $aMresourceRel = E::ModuleMresource()->GetMresourcesRelByTargetAndUser($sTargetType, 0, E::UserId());
 
                                 if ($aMresourceRel) {
