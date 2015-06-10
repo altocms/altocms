@@ -7,6 +7,8 @@
  * @License: GNU GPL v2 & MIT
  *----------------------------------------------------------------------------
  */
+if (!defined('ALTO_DIR')) die('');
+
 /*
  *  ALTO_DIR    - root directory of current site
  *  ALTO_CORE   - root directory of Alto CMS scripts
