@@ -22,7 +22,6 @@
                     <th>Date</th>
                     <th>Votes</th>
                     <th>Deleted</th>
-                    <th class="span2"></th>
                 </tr>
                 </thead>
 
@@ -52,16 +51,6 @@
                         <td class="center">{$oComment->GetCommentDate()}</td>
                         <td class="number">{$oComment->GetCommentCountVote()}</td>
                         <td class="number">{if $oComment->GetCommentDeleted()}{$aLang.action.admin.word_yes}{/if}</td>
-                        <td class="center">
-                            <!--
-                            <a href="{router page='topic'}edit/{$oComment->GetId()}/"
-                               title="{$aLang.action.admin.topic_edit}">
-                                <i class="icon icon-note"></i></a>
-                            <a href="#" title="{$aLang.action.admin.topic_delete}"
-                               onclick="admin.comment.del('{$aLang.action.admin.topic_del_confirm}','{$oComment->GetTitle}','{$aTopic.topic_id}'); return false;">
-                                <i class="icon icon-trash"></i></a>
-                                -->
-                        </td>
                     </tr>
                     {/foreach}
                 </tbody>

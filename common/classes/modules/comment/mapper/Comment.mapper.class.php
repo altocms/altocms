@@ -1089,7 +1089,7 @@ class ModuleComment_MapperComment extends Mapper {
      *
      * @return int[]
      */
-    public function GetCommentsIdByFilter($aFilter, &$iCount, $iCurrPage, $iPerPage) {
+    public function GetCommentsIdByFilter($aFilter, &$iCount, $iCurrPage = 0, $iPerPage = 0) {
 
         $aOrderAllow = array('comment_id', 'comment_pid', 'comment_rating', 'comment_date');
         $sOrder = '';
@@ -1128,6 +1128,17 @@ class ModuleComment_MapperComment extends Mapper {
             $aFilter['target_type'] = array($aFilter['target_type']);
         }
 
+        if ($iPerPage) {
+            if ($iCurrPage < 1) {
+                $iCurrPage = 1;
+            }
+            $iLimitOffset = ($iCurrPage - 1) * $iPerPage;
+            $iLimitCount = $iPerPage;
+            $sLimit = " LIMIT $iLimitOffset, $iLimitCount";
+        } else {
+            $sLimit = '';
+        }
+
         $sql = "SELECT
 					comment_id
 				FROM
@@ -1147,7 +1158,7 @@ class ModuleComment_MapperComment extends Mapper {
 					{ AND comment_delete = ?d }
 					{ AND comment_publish = ?d }
 				ORDER BY {$sOrder}
-				LIMIT ?d, ?d ;
+				$sLimit;
 					";
         $aResult = array();
         $aRows = $this->oDb->selectPage($iCount, $sql,
@@ -1162,8 +1173,7 @@ class ModuleComment_MapperComment extends Mapper {
             (isset($aFilter['target_parent_id']) && is_array($aFilter['target_parent_id'])) ? $aFilter['target_parent_id'] : DBSIMPLE_SKIP,
             (isset($aFilter['not_target_parent_id']) && is_array($aFilter['not_target_parent_id'])) ? $aFilter['not_target_parent_id'] : DBSIMPLE_SKIP,
             isset($aFilter['delete']) ? $aFilter['delete'] : DBSIMPLE_SKIP,
-            isset($aFilter['publish']) ? $aFilter['publish'] : DBSIMPLE_SKIP,
-            ($iCurrPage - 1) * $iPerPage, $iPerPage
+            isset($aFilter['publish']) ? $aFilter['publish'] : DBSIMPLE_SKIP
         );
         if ($aRows) {
             foreach ($aRows as $aRow) {

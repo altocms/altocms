@@ -1260,7 +1260,8 @@ class ModuleComment extends Module {
         if (is_null($aAllowData)) {
             $aAllowData = array('target', 'user' => array());
         }
-        $aCollection = $this->oMapper->GetCommentsIdByFilter($aFilter, $aOrder, $iCount, $iCurrPage, $iPerPage);
+        $aFilter['order'] = $aOrder;
+        $aCollection = $this->oMapper->GetCommentsIdByFilter($aFilter, $iCount, $iCurrPage, $iPerPage);
         if ($aCollection) {
             $aCollection = $this->GetCommentsAdditionalData($aCollection, $aAllowData);
         }
