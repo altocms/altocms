@@ -1867,10 +1867,10 @@ class ActionBlog extends Action {
      * (по внутренней почте и на email)
      *
      * @param ModuleBlog_EntityBlog $oBlog Блог, в который хочет вступить пользователь
-     * @param ModuleUser_EntityUser[] $oBlogOwnerUser Модератор/админ, которому отправляем письмо
+     * @param ModuleUser_EntityUser[] $aBlogModerators Модератор/админ, которому отправляем письмо
      * @param ModuleUser_EntityUser $oGuestUser Пользователь, который хочет вступить в блог
      */
-    protected function SendBlogRequest($oBlog, $oBlogOwnerUser, $oGuestUser) {
+    protected function SendBlogRequest($oBlog, $aBlogModerators, $oGuestUser) {
 
         $sTitle = $this->Lang_Get('blog_user_request_title', array('blog_title' => $oBlog->getTitle()));
 
@@ -1896,12 +1896,16 @@ class ActionBlog extends Action {
                 'blog_title'   => $oBlog->getTitle()
             )
         );
-        $oTalk = $this->Talk_SendTalk($sTitle, $sText, $oGuestUser, $oBlogOwnerUser, FALSE, FALSE);
+        $oTalk = $this->Talk_SendTalk($sTitle, $sText, $oGuestUser, $aBlogModerators, FALSE, FALSE);
 
-        $this->Notify_SendBlogUserRequest(
-            $oBlogOwnerUser, $this->oUserCurrent, $oBlog,
-            Router::GetPath('talk') . 'read/' . $oTalk->getId() . '/'
-        );
+        foreach ($aBlogModerators as $oUserTo) {
+            $this->Notify_SendBlogUserRequest(
+                $oUserTo,
+                $this->oUserCurrent,
+                $oBlog,
+                Router::GetPath('talk') . 'read/' . $oTalk->getId() . '/'
+            );
+        }
         /**
          * Удаляем отправляющего юзера из переписки
          */
