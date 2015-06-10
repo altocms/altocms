@@ -1084,7 +1084,7 @@ class Install {
      */
     protected function ValidateDBConnection($aParams) {
 
-        $oDb = @mysqli_connect($aParams['server'] . ':' . $aParams['port'], $aParams['user'], $aParams['password']);
+        $oDb = @mysqli_connect($aParams['server'], $aParams['user'], $aParams['password'], '', $aParams['port']);
         if ($oDb) {
             // * Валидация версии MySQL сервера
             if (!version_compare(mysqli_get_server_info($oDb), ALTO_MYSQL_REQUIRED, '>')) {
