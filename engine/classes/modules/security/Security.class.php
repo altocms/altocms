@@ -177,11 +177,11 @@ class ModuleSecurity extends Module {
         } elseif (substr($sSalted, 0, 3) == 'Jx:' && $sType == 'pass') {
             list($sHash, $sSalt) = explode(':', substr($sSalted, 3), 2);
             if ($sHash && $sSalt && is_string($sData)) {
-                return $sHash == md5($sData . $sSalt);
+                return $sHash === md5($sData . $sSalt);
             }
             return false;
         } else {
-            return $sSalted == md5($sData);
+            return $sSalted === md5($sData);
         }
     }
 
