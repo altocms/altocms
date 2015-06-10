@@ -5,8 +5,8 @@
 {$oVote=$oComment->getVote()}
 
 {if $sDateReadLast==''}
-    {$sTargrtType = $oComment->getTargetType()}
-    {if $sTargrtType == 'topic'}
+    {$sTargetType = $oComment->getTargetType()}
+    {if $sTargetType == 'topic'}
         {assign var="sDateReadLast" value="{$oComment->getTarget()->getDateRead()}"}
     {/if}
 {/if}
