@@ -281,7 +281,7 @@ class ActionUploader extends Action {
             if (E::ModuleImg()->MimeType($sTmpFile)) {
                 // Ресайзим и сохраняем уменьшенную копию
                 // Храним две копии - мелкую для показа пользователю и крупную в качестве исходной для ресайза
-                $sPreviewFile = E::ModuleUploader()->GetUploadDir($sTarget, $sTargetId) . '_preview.' . F::File_GetExtension($sTmpFile);
+                $sPreviewFile = E::ModuleUploader()->GetUserImageDir(E::UserId(), true, false) . '_preview.' . F::File_GetExtension($sTmpFile);
 
                 if ($sPreviewFile = E::ModuleImg()->Copy($sTmpFile, $sPreviewFile, self::PREVIEW_RESIZE, self::PREVIEW_RESIZE)) {
 

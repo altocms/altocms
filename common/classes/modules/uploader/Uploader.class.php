@@ -796,7 +796,7 @@ class ModuleUploader extends Module {
         if ($sTmpFile = $oImg->Save(F::File_UploadUniqname($sExtension))) {
 
             // Файл, куда будет записано изображение
-            $sImageFile = $this->Uniqname($this->GetUploadDir($sTarget, $sTargetId), $sExtension);
+            $sImageFile = $this->Uniqname(E::ModuleUploader()->GetUserImageDir(E::UserId(), true, false), $sExtension);
 
             // Окончательная запись файла
             if ($oStoredFile = $this->Store($sTmpFile, $sImageFile)) {
@@ -1103,44 +1103,6 @@ class ModuleUploader extends Module {
         }
 
         return FALSE;
-    }
-
-    /**
-     * Получает путь к картинкам брендинга
-     *
-     * @param string $sTargetType Что за картинка
-     * @param int    $sTargetId   Идентификатор целевого объекта
-     *
-     * @return string
-     */
-    public function GetUploadDir($sTargetType, $sTargetId) {
-
-        // Изображения комментариев сохраняем в папку пользователя
-        if (in_array($sTargetType, array(
-                'topic_comment',
-                'talk_comment',
-                'talk',
-        ))) {
-            $sResult = E::ModuleUploader()->GetUserImageDir(E::UserId(), true, false);
-            F::File_CheckDir($sResult, TRUE);
-            return $sResult;
-        }
-
-        if ($sTargetId == "0") {
-            $sPath = '_tmp/';
-
-        } else {
-            $nMaxLen = 6;
-            $nSplitLen = 2;
-            $sPath = join('/', str_split(str_pad($sTargetId, $nMaxLen, '0', STR_PAD_LEFT), $nSplitLen));
-        }
-
-
-        $sResult = F::File_NormPath(F::File_RootDir() . Config::Get('path.uploads.root') . "/{$sTargetType}/" . $sPath);
-        F::File_CheckDir($sResult, TRUE);
-
-        return $sResult;
-
     }
 
     /**

@@ -685,7 +685,7 @@ class ModuleMresource extends Module {
 
         if ($sTargetTmp && E::IsUser()) {
 
-            $sNewPath = E::ModuleUploader()->GetUploadDir($sTargetType, $sTargetId) . '/';
+            $sNewPath = E::ModuleUploader()->GetUserImageDir(E::UserId(), true, false);
             $aMresourceRel = $this->GetMresourcesRelByTargetAndUser($sTargetType, 0, E::UserId());
 
             if ($aMresourceRel) {
