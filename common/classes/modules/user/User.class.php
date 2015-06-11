@@ -88,7 +88,7 @@ class ModuleUser extends Module {
         // * Проверяем есть ли у юзера сессия, т.е. залогинен или нет
         $iUserId = intval(E::ModuleSession()->Get('user_id'));
         if ($iUserId && ($oUser = $this->GetUserById($iUserId)) && $oUser->getActivate()) {
-            if ($this->oSession = $oUser->getSession()) {
+            if ($this->oSession = $oUser->getCurrentSession()) {
                 if ($this->oSession->GetSessionExit()) {
                     // Сессия была закрыта
                     $this->Logout();
@@ -467,17 +467,25 @@ class ModuleUser extends Module {
     }
 
     /**
-     * Получает сессию юзера
+     * Return user's session
      *
-     * @param int $sUserId    ID пользователя
+     * @param int    $iUserId     User ID
+     * @param string $sSessionKey Session ID
      *
      * @return ModuleUser_EntitySession|null
      */
-    public function GetSessionByUserId($sUserId) {
+    public function GetSessionByUserId($iUserId, $sSessionKey = null) {
 
-        $aSessions = $this->GetSessionsByArrayId($sUserId);
-        if (isset($aSessions[$sUserId])) {
-            return $aSessions[$sUserId];
+        if ($sSessionKey) {
+            $aSessions = $this->oMapper->GetSessionsByArrayId(array($iUserId), $sSessionKey);
+            if ($aSessions) {
+                return reset($aSessions);
+            }
+        } else {
+            $aSessions = $this->GetSessionsByArrayId($iUserId);
+            if (isset($aSessions[$iUserId])) {
+                return $aSessions[$iUserId];
+            }
         }
         return null;
     }

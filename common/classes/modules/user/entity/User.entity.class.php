@@ -543,6 +543,19 @@ class ModuleUser_EntityUser extends Entity {
     }
 
     /**
+     * Returns current session of user
+     *
+     * @return ModuleUser_EntitySession|null
+     */
+    public function getCurrentSession() {
+
+        if (!$this->getProp('_current_session')) {
+            $this->_aData['_current_session'] = E::ModuleUser()->GetSessionByUserId($this->getId(), E::ModuleSession()->GetKey());
+        }
+        return $this->getProp('_current_session');
+    }
+
+    /**
      * Возвращает роль пользователя
      *
      * @return int|null
@@ -911,6 +924,7 @@ class ModuleUser_EntityUser extends Entity {
         if ($oUserCurrent = E::ModuleUser()->GetUserCurrent()) {
             return E::ModuleStream()->IsSubscribe($oUserCurrent->getId(), $this->getId());
         }
+        return false;
     }
 
     /**
@@ -955,12 +969,18 @@ class ModuleUser_EntityUser extends Entity {
         return $this->GetProp('bancomment');
     }
 
+    /**
+     * @return bool
+     */
     public function IsBannedByLogin() {
         $dBanline = $this->getBanLine();
         return ($this->IsBannedUnlim()
             || ($dBanline && ($dBanline > date('Y-m-d H:i:s')) && $this->GetProp('banactive')));
     }
 
+    /**
+     * @return bool
+     */
     public function IsBannedByIp() {
 
         // return ($this->GetProp('ban_ip'));
@@ -974,6 +994,9 @@ class ModuleUser_EntityUser extends Entity {
         return $bResult;
     }
 
+    /**
+     * @return bool
+     */
     public function IsBanned() {
 
         return ($this->IsBannedByLogin() || $this->IsBannedByIp());

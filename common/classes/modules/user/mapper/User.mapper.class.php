@@ -311,31 +311,43 @@ class ModuleUser_MapperUser extends Mapper {
     }
 
     /**
-     * Список сессий юзеров по ID
+     * Return list of session by user ID and (optionally) by session ID
      *
-     * @param   array $aUserId    Список ID пользователей
+     * @param array  $aUserId     Список ID пользователей
+     * @param string $sSessionKey Список ID пользователей
      *
-     * @return  array
+     * @return ModuleUser_EntitySession[]
      */
-    public function GetSessionsByArrayId($aUserId) {
+    public function GetSessionsByArrayId($aUserId, $sSessionKey = null) {
 
         if (!is_array($aUserId) || count($aUserId) == 0) {
             return array();
         }
 
+        if ($sSessionKey) {
+            $iLimit = count($aUserId) * 2;
+        } else {
+            $iLimit = count($aUserId);
+        }
         $sql
             = "
             SELECT
 				s.*
 			FROM
-			    ?_user as u
-				INNER JOIN ?_session as s ON s.session_key=u.user_last_session
+			    ?_session AS s
+				INNER JOIN ?_user AS u ON s.user_id=u.user_id
 			WHERE
-				u.user_id IN(?a)
-			LIMIT " . count($aUserId) . "
+				s.user_id IN(?a)
+				{AND s.session_key=u.user_last_session AND 1=?d}
+				{AND s.session_key=?}
+			LIMIT " . $iLimit . "
 			";
         $aResult = array();
-        if ($aRows = $this->oDb->select($sql, $aUserId)) {
+        $aRows = $this->oDb->select($sql,
+            $aUserId,
+            !$sSessionKey ? 1 : DBSIMPLE_SKIP,
+            $sSessionKey ? $sSessionKey : DBSIMPLE_SKIP);
+        if ($aRows) {
             $aResult = E::GetEntityRows('User_Session', $aRows);
         }
         return $aResult;
