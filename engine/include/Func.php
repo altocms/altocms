@@ -857,7 +857,7 @@ class Func {
                             $sPluginStr = trim(substr($sPluginStr, 0, $n));
                         }
                         if ($sPluginStr) {
-                            $aPluginInfo = str_word_count($sPluginStr, 1, '/_');
+                            $aPluginInfo = str_word_count($sPluginStr, 1, '0..9/_');
                             $aPluginInfo['id'] = $aPluginInfo[0];
                             if (empty($aPluginInfo[1])) {
                                 $aPluginInfo['dirname'] = $aPluginInfo[0];
