@@ -137,6 +137,12 @@ class PluginLs_ModuleViewer extends PluginLs_Inherit_ModuleViewer {
         if (!$this->oSmarty) {
             $this->_initTemplator();
         }
+
+        // For LS interface compatibility
+        if (func_num_args() && ($aVariables = func_get_arg(0)) && is_array($aVariables)) {
+            $this->oSmarty->assign($aVariables);
+        }
+
         return $this->oSmarty;
     }
 
