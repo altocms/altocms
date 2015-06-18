@@ -114,7 +114,7 @@ class ModuleViewerAsset_EntityPackageCss extends ModuleViewerAsset_EntityPackage
 
     public function BuildLink($aLink) {
 
-        if (C::Get('compress.css.gzip') && C::Get('compress.css.merge') && C::Get('compress.css.use')) {
+        if (empty($aLink['throw']) && !empty($aLink['compress']) && C::Get('compress.css.merge') && C::Get('compress.css.use')) {
             $aLink['link'] = $aLink['link']
                 . ((isset($_SERVER['HTTP_ACCEPT_ENCODING']) && stripos($_SERVER['HTTP_ACCEPT_ENCODING'], 'GZIP') !== FALSE) ? '.gz.css' : '');
         }
