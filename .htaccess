@@ -29,7 +29,7 @@ RewriteRule ^(.*)$ ./index.php
     Deny from all
 </Files>
 
-<IfModule mod_headers>
+<IfModule headers_module>
     <FilesMatch "\.gz\.css$">
             ForceType "text/css"
             Header set Content-Encoding: gzip
