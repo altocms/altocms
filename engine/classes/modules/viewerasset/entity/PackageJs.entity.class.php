@@ -95,7 +95,7 @@ class ModuleViewerAsset_EntityPackageJs extends ModuleViewerAsset_EntityPackage 
 
     public function BuildLink($aLink) {
 
-        if (C::Get('compress.js.gzip') && C::Get('compress.js.merge') && C::Get('compress.js.use')) {
+        if (empty($aLink['throw']) && !empty($aLink['compress']) && C::Get('compress.js.gzip') && C::Get('compress.js.merge') && C::Get('compress.js.use')) {
             $aLink['link'] = $aLink['link']
                 . ((isset($_SERVER['HTTP_ACCEPT_ENCODING']) && stripos($_SERVER['HTTP_ACCEPT_ENCODING'], 'GZIP') !== FALSE) ? '.gz.js' : '');
         }

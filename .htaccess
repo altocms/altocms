@@ -29,13 +29,17 @@ RewriteRule ^(.*)$ ./index.php
     Deny from all
 </Files>
 
-<IfModule mod_headers>
+<IfModule headers_module>
     <FilesMatch "\.gz\.css$">
-            ForceType "text/css"
-            Header set Content-Encoding: gzip
+        ForceType "text/css"
+        Header set Content-Encoding: gzip
+        # сервер автоматически пытается сжать уже пожатый css-файл.
+        # Из-за этого файл не может корректно обработаться браузером.
+        # Отключаем отдачу ответа в gzip
+        SetEnv no-gzip 1
     </FilesMatch>
     <FilesMatch "\.gz\.js$">
-            ForceType "text/javascript"
-            Header set Content-Encoding: gzip
+        ForceType "text/javascript"
+        Header set Content-Encoding: gzip
     </FilesMatch>
 </IfModule>
