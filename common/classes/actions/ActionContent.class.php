@@ -131,8 +131,11 @@ class ActionContent extends Action {
 
         $aAllowBlogs = array();
         // Добавим персональный блог пользователю
-        if ($oUser) {
-            $aAllowBlogs[] = E::ModuleBlog()->GetPersonalBlogByUserId($oUser->getId());
+        // Если персональные блоги отключены, то $oPersonalBlog будет равно null и добавлять
+        // его в список догступных блогов не стоит, иначе будет ошибка при итерации по
+        // массиву $aAllowBlogs.
+        if ($oUser && $oPersonalBlog = E::ModuleBlog()->GetPersonalBlogByUserId($oUser->getId())) {
+            $aAllowBlogs[] = $oPersonalBlog;
         }
 
         /** @var ModuleBlog_EntityBlog $oBlog */
