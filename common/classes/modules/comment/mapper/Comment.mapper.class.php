@@ -144,8 +144,8 @@ class ModuleComment_MapperComment extends Mapper {
             'target_type' => $sTargetType,
             'delete' => 0,
             'publish' => 1,
-            'target_id' => $aExcludeTarget,
-            'target_parent_id' => $aExcludeParentTarget,
+            'not_target_id' => $aExcludeTarget,
+            'not_target_parent_id' => $aExcludeParentTarget,
         );
         return $this->GetCommentsIdByFilter($aFilter, $iCount, $iCurrPage, $iPerPage);
     }
