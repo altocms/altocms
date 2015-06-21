@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /*---------------------------------------------------------------------------
  * @Project: Alto CMS
  * @Project URI: http://altocms.com
@@ -504,6 +504,7 @@ return array(
     'set_csscompress_force' => 'Forcibly to process CSS',
     'set_csscompress_force_notice' => 'If merge of CSS files is set, it\'s carried out even if there is resultant file',
     'set_css_gzip' => 'Archive CSS in gzip',
+    'set_css_gzip_alert' => 'CSS gzipping is possible only when a Web server apache used and module mod_headers is installed.',
     'set_css_gzip_notice' => 'CSS files will be archived in gzip format in which a given client browser (only in compress and merge mode)',
     'set_section_js' => 'Settings of js-files\' processing',
     'set_jscompress_merge' => 'Merge js-files',
@@ -513,6 +514,7 @@ return array(
     'set_jscompress_force' => 'Forcibly to process javascript',
     'set_jscompress_force_notice' => 'If merge of js-files is set, it\'s carried out even if there is resultant file',
     'set_js_gzip' => 'Archive js in gzip',
+    'set_js_gzip_alert' => 'CSS gzipping is possible only when a Web server apache used and module mod_headers is installed.',
     'set_js_gzip_notice' => 'Js files will be archived in gzip format in which a given client browser (only in compress and merge mode)',
     'set_section_acl' => 'Settings of access control',
     'set_acl_create_blog_rating' => 'A threshold of a rating at which the user can create the collective blog',

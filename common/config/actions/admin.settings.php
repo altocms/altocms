@@ -309,6 +309,11 @@ $config['acl'] =
         ),
     );
 
+// Проверим, стоит ли выводить настройки gzip для ресурсов,
+// если ипользуется апач, то эти настройки также не актуальны
+$bApacheHasModHeaders = function_exists('apache_get_modules') && in_array('mod_headers', apache_get_modules());
+
+
 $config['cssjs'] =
     array(
         array(
@@ -327,12 +332,19 @@ $config['cssjs'] =
             'type' => 'checkbox',
             'config' => 'compress.css.use',
         ),
-        array(
-            'label' => 'action.admin.set_css_gzip',
-            'help' => 'action.admin.set_css_gzip_notice',
-            'type' => 'checkbox',
-            'config' => 'compress.css.gzip',
-        ),
+        $bApacheHasModHeaders
+            ? array(
+                'label'  => 'action.admin.set_css_gzip',
+                'help'   => 'action.admin.set_css_gzip_notice',
+                'type'   => 'checkbox',
+                'config' => 'compress.css.gzip',
+            )
+            : array(
+                'type'   => 'alert',
+                'label'  => 'action.admin.set_css_gzip_alert',
+                'config' => 'compress.css.gzip',
+                'value' => 0,
+            ),
         array(
             'label' => 'action.admin.set_csscompress_force',
             'help' => 'action.admin.set_csscompress_force_notice',
@@ -355,12 +367,19 @@ $config['cssjs'] =
             'type' => 'checkbox',
             'config' => 'compress.js.use',
         ),
-        array(
-            'label' => 'action.admin.set_js_gzip',
-            'help' => 'action.admin.set_js_gzip_notice',
-            'type' => 'checkbox',
-            'config' => 'compress.js.gzip',
-        ),
+        $bApacheHasModHeaders ?
+            array(
+                'label'  => 'action.admin.set_js_gzip',
+                'help'   => 'action.admin.set_js_gzip_notice',
+                'type'   => 'checkbox',
+                'config' => 'compress.js.gzip',
+            )
+            : array(
+                'type'   => 'alert',
+                'label'  => 'action.admin.set_js_gzip_alert',
+                'config' => 'compress.css.gzip',
+                'value' => 0,
+            ),
         array(
             'label' => 'action.admin.set_jscompress_force',
             'help' => 'action.admin.set_jscompress_force_notice',

@@ -7,6 +7,14 @@
         <div class="b-wbox-header">
             <div class="b-wbox-header-title">{$aItem.text}</div>
         </div>
+    {elseif $aItem.type=='alert'}
+        <div class="control-group">
+            <label class="control-label">{$aLang.attention}</label>
+            <div class="controls">
+                <span class="help-inline">{$aItem.text}</span>
+            </div>
+            <input type="hidden" name="{$aItem.config}" value="{$aItem.value}"/>
+        </div>
     {elseif $aItem.config}
         <div class="control-group">
             <label for="{$aItem.label}" class="control-label">{$aItem.text}</label>
