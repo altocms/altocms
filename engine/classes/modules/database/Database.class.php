@@ -48,7 +48,7 @@ class ModuleDatabase extends Module {
 
     protected $aInitSql
         = array(
-            "set character_set_client='utf8', character_set_results='utf8', collation_connection='utf8_bin' ",
+            "set character_set_client='%%charset%%', character_set_results='%%charset%%', collation_connection='utf8_bin' ",
         );
 
     /**
@@ -57,6 +57,11 @@ class ModuleDatabase extends Module {
      */
     public function Init() {
 
+        $sCharset = C::Get('db.params.charset');
+        if (!$sCharset) {
+            $sCharset = 'utf8';
+        }
+        $this->aInitSql = str_replace('%%charset%%', $sCharset, $this->aInitSql);
     }
 
     protected function _getDbConnect($sDsn) {
