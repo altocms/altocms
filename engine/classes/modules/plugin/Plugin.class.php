@@ -355,18 +355,18 @@ class ModulePlugin extends Module {
 
             // * Проверяем наличие require-плагинов
             if ($aRequiredPlugins = $oPluginEntity->RequiredPlugins()) {
-                $aActivePlugins = $this->GetActivePlugins();
+                $aActivePlugins = array_keys($this->GetActivePlugins());
                 $iError = 0;
-                foreach ($aRequiredPlugins as $sReqPlugin) {
+                foreach ($aRequiredPlugins as $oReqPlugin) {
 
                     // * Есть ли требуемый активный плагин
-                    if (!in_array($sReqPlugin, $aActivePlugins)) {
+                    if (!in_array((string)$oReqPlugin, $aActivePlugins)) {
                         $iError++;
                         E::ModuleMessage()->AddError(
                             E::ModuleLang()->Get(
                                 'action.admin.plugin_activation_requires_error',
                                 array(
-                                     'plugin' => ucfirst($sReqPlugin),
+                                     'plugin' => ucfirst($oReqPlugin),
                                 )
                             ),
                             E::ModuleLang()->Get('error'),
@@ -374,26 +374,26 @@ class ModulePlugin extends Module {
                         );
                     } // * Проверка требуемой версии, если нужно
                     else {
-                        if (isset($sReqPlugin['name'])) {
-                            $sReqPluginName = (string)$sReqPlugin['name'];
+                        if (isset($oReqPlugin['name'])) {
+                            $sReqPluginName = (string)$oReqPlugin['name'];
                         }
                         else {
-                            $sReqPluginName = ucfirst($sReqPlugin);
+                            $sReqPluginName = ucfirst($oReqPlugin);
                         }
 
-                        if (isset($sReqPlugin['version'])) {
-                            $sReqVersion = $sReqPlugin['version'];
-                            if (isset($sReqPlugin['condition']) && array_key_exists((string)$sReqPlugin['condition'], $aConditions)) {
-                                $sReqCondition = $aConditions[(string)$sReqPlugin['condition']];
+                        if (isset($oReqPlugin['version'])) {
+                            $sReqVersion = $oReqPlugin['version'];
+                            if (isset($oReqPlugin['condition']) && array_key_exists((string)$oReqPlugin['condition'], $aConditions)) {
+                                $sReqCondition = $aConditions[(string)$oReqPlugin['condition']];
                             } else {
                                 $sReqCondition = 'eq';
                             }
-                            $sClassName = "Plugin{$sReqPlugin}";
-                            /** @var ModulePlugin_EntityPlugin $oReqPlugin */
-                            $oReqPlugin = new $sClassName;
+                            $sClassName = "Plugin{$oReqPlugin}";
+                            /** @var ModulePlugin_EntityPlugin $oReqPluginInstance */
+                            $oReqPluginInstance = new $sClassName;
 
                             // Получаем версию требуемого плагина
-                            $sReqPluginVersion = $oReqPlugin->GetVersion();
+                            $sReqPluginVersion = $oReqPluginInstance->GetVersion();
 
                             if (!$sReqPluginVersion) {
                                 $iError++;

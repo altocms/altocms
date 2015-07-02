@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin>
-	<id>example</id>
+    <id>example</id>
     <name>
         <lang name="default">Example</lang>
         <lang name="russian">Example</lang>
@@ -9,16 +9,21 @@
         <lang name="default">author</lang>
         <lang name="russian">автор</lang>
     </author>
-    <homepage>http://livestreet.ru</homepage>
+    <homepage>http://altocms.ru</homepage>
     <version>1.0.0</version>
     <dirname>example</dirname>
     <requires>
         <alto>
              <version>1.0.0</version>
         </alto>
-		<system>
+        <system>
             <php>5.3.0</php>
         </system>
+        <plugins>
+            <!-- Атрибуты name, version и condition необязательны -->
+            <!-- Возможные значения атрибута condition соответствуют описанию параметра «operator» на странице http://php.net/manual/ru/function.version-compare.php  -->
+            <!-- <plugin name="plugin_name" version="1.0.0" condition="eq">plugin_id</plugin> -->
+        </plugins>
     </requires>
     <description>
         <lang name="default">Description of plugin Example</lang>
