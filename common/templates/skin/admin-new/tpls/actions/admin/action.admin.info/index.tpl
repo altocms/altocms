@@ -1,1 +1,0 @@
-{extends file='./dashboard.tpl'}
