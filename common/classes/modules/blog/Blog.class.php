@@ -1362,13 +1362,13 @@ class ModuleBlog extends Module {
      */
     public function UploadBlogAvatar($aFile, $oBlog) {
 
-        $sFileTmp = E::ModuleUploader()->UploadLocal($aFile);
-        if ($sFileTmp && ($oImg = E::ModuleImg()->CropSquare($sFileTmp))) {
-            $sFile = E::ModuleUploader()->Uniqname(E::ModuleUploader()->GetUserImageDir(), strtolower(pathinfo($sFileTmp, PATHINFO_EXTENSION)));
-            if ($oImg->Save($sFile)) {
-                return E::ModuleUploader()->Dir2Url($sFile);
+        $sTmpFile = E::ModuleUploader()->UploadLocal($aFile);
+        if ($sTmpFile && ($oImg = E::ModuleImg()->CropSquare($sTmpFile))) {
+            if ($sTmpFile = $oImg->Save($sTmpFile)) {
+                if ($oStoredFile = E::ModuleUploader()->StoreImage($sTmpFile, 'blog_avatar', $oBlog->getId())) {
+                    return $oStoredFile->GetUrl();
+                }
             }
-            F::File_Delete($sFile);
         }
 
         // * В случае ошибки, возвращаем false
@@ -1382,9 +1382,13 @@ class ModuleBlog extends Module {
      */
     public function DeleteBlogAvatar($oBlog) {
 
-        // * Если аватар есть, удаляем его и его рейсайзы
-        if ($sUrl = $oBlog->getAvatar()) {
-            E::ModuleImg()->Delete(E::ModuleUploader()->Url2Dir($sUrl));
+        if ($oBlog) {
+            // * Если аватар есть, удаляем его и его рейсайзы (старая схема)
+            if ($sUrl = $oBlog->getAvatar()) {
+                E::ModuleImg()->Delete(E::ModuleUploader()->Url2Dir($sUrl));
+            }
+            // Deletes blog avatar from media resources
+            E::ModuleMresource()->DeleteMresourcesRelByTarget('blog_avatar', $oBlog->getid());
         }
     }
 
@@ -1399,8 +1403,8 @@ class ModuleBlog extends Module {
         if ($bResult) {
             //чистим зависимые кеши
             E::ModuleCache()->CleanByTags(array('blog_update'));
-            return $bResult;
         }
+        return $bResult;
     }
 
     /**

@@ -346,22 +346,6 @@ class ActionBlog extends Action {
                 $oBlog->setUrl(F::GetRequestStr('blog_url')); // разрешаем смену URL блога только админу
             }
 
-            // Загрузка аватара, делаем ресайзы
-//            if ($aUploadedFile = $this->GetUploadedFile('avatar')) {
-//                if ($sPath = E::ModuleBlog()->UploadBlogAvatar($aUploadedFile, $oBlog)) {
-//                    $oBlog->setAvatar($sPath);
-//                } else {
-//                    E::ModuleMessage()->AddError(E::ModuleLang()->Get('blog_create_avatar_error'), E::ModuleLang()->Get('error'));
-//                    return false;
-//                }
-//            }
-
-            // Удалить аватар
-            if (isset($_REQUEST['avatar_delete'])) {
-                E::ModuleBlog()->DeleteBlogAvatar($oBlog);
-                $oBlog->setAvatar(null);
-            }
-
             // Обновляем блог
             E::ModuleHook()->Run('blog_edit_before', array('oBlog' => $oBlog));
             if ($this->_updateBlog($oBlog)) {
@@ -392,7 +376,25 @@ class ActionBlog extends Action {
      */
     protected function _updateBlog($oBlog) {
 
-        return E::ModuleBlog()->UpdateBlog($oBlog);
+        // Удалить аватар (для старых шаблонов)
+        if (isset($_REQUEST['avatar_delete'])) {
+            E::ModuleBlog()->DeleteBlogAvatar($oBlog);
+            $oBlog->setAvatar(null);
+        }
+
+        $bResult = E::ModuleBlog()->UpdateBlog($oBlog);
+
+        // Загрузка аватара (для старых шаблонов)
+        if ($bResult && ($aUploadedFile = $this->GetUploadedFile('avatar'))) {
+            if ($sUrl = E::ModuleBlog()->UploadBlogAvatar($aUploadedFile, $oBlog)) {
+                $oBlog->setAvatar($sUrl);
+            } else {
+                E::ModuleMessage()->AddError(E::ModuleLang()->Get('blog_create_avatar_error'), E::ModuleLang()->Get('error'));
+                return false;
+            }
+        }
+
+        return $bResult;
     }
 
     /**

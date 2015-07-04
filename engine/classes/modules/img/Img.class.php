@@ -334,7 +334,7 @@ class ModuleImg extends Module {
      * @param string|object $xImage
      * @param bool          $bCenter
      *
-     * @return bool
+     * @return ModuleImg_EntityImage
      */
     public function CropSquare($xImage, $bCenter = true) {
 

@@ -270,7 +270,7 @@ class ActionUploader extends Action {
         // Ошибок пока нет
         $sError = '';
 
-        // Сделаем временный файд
+        // Загружаем временный файл
         $sTmpFile = E::ModuleUploader()->UploadLocal($aUploadedFile, $sTarget);
 
         // Вызовем хук перед началом загрузки картинки
