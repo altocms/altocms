@@ -24,10 +24,10 @@ class WidgetTags extends Widget {
      * Запуск обработки
      */
     public function Exec() {
-        /**
-         * Получаем список тегов
-         */
-        $aTags = E::ModuleTopic()->GetOpenTopicTags(Config::Get('widgets.tags.params.limit'));
+
+        $iLimit = C::Val('widgets.tags.params.limit', 70);
+        // * Получаем список тегов
+        $aTags = E::ModuleTopic()->GetOpenTopicTags($iLimit);
 
         // * Расчитываем логарифмическое облако тегов
         if ($aTags) {
@@ -39,7 +39,7 @@ class WidgetTags extends Widget {
 
         // * Теги пользователя
         if ($oUserCurrent = E::ModuleUser()->GetUserCurrent()) {
-            $aTags = E::ModuleTopic()->GetOpenTopicTags(Config::Get('widgets.tags.params.limit'), $oUserCurrent->getId());
+            $aTags = E::ModuleTopic()->GetOpenTopicTags($iLimit, $oUserCurrent->getId());
 
             // * Расчитываем логарифмическое облако тегов
             if ($aTags) {
