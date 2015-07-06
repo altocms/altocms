@@ -38,8 +38,12 @@ function smarty_function_widget($aParams, $oSmartyTemplate) {
         }
         return smarty_function_wgroup($aParams, $oSmartyTemplate);
     }
+
+    /** @var ModuleWidget_EntityWidget $oWidget */
     $oWidget = null;
     $sWidgetType = '';
+    $sWidgetName = '';
+    $aWidgetParams = array();
 
     if (isset($aParams['name'])) {
         $sWidgetName = $aParams['name'];
@@ -64,27 +68,38 @@ function smarty_function_widget($aParams, $oSmartyTemplate) {
         $aWidgetParams = $oWidget->getParams();
         $sWidgetType = $oWidget->getType();
     }
+
+    $sResult = '';
+    $aSavedVars = array(
+        'aWidgetParams' => $oSmartyTemplate->getTemplateVars('aWidgetParams'),
+        'oWidget' => $oSmartyTemplate->getTemplateVars('oWidget'),
+    );
+    $oSmartyTemplate->assign('aWidgetParams', $aWidgetParams);
+    $oSmartyTemplate->assign('oWidget', $oWidget);
+
     if ($sWidgetType == 'exec') {
         if (!function_exists('smarty_function_widget_exec')) {
             F::IncludeFile('function.widget_exec.php');
         }
-        return smarty_function_widget_exec(array('name' => $sWidgetName, 'params' => $aWidgetParams), $oSmartyTemplate);
+        $sResult = smarty_function_widget_exec(array('name' => $sWidgetName, 'params' => $aWidgetParams, 'widget' => $oWidget), $oSmartyTemplate);
     } elseif ($sWidgetType == 'block') {
         // * LS-compatible * //
         if (!function_exists('smarty_function_widget_exec')) {
             F::IncludeFile('function.widget_exec.php');
         }
-        return smarty_function_widget_exec(array('name' => $sWidgetName, 'params' => $aWidgetParams), $oSmartyTemplate);
+        $sResult = smarty_function_widget_exec(array('name' => $sWidgetName, 'params' => $aWidgetParams, 'widget' => $oWidget), $oSmartyTemplate);
     } elseif ($sWidgetType == 'template') {
         if (!function_exists('smarty_function_widget_template')) {
             F::IncludeFile('function.widget_template.php');
         }
-        return smarty_function_widget_template(
-            array('name' => ($sWidgetTemplate ? $sWidgetTemplate : $sWidgetName), 'params' => $aWidgetParams),
+        $sResult = smarty_function_widget_template(
+            array('name' => (!empty($sWidgetTemplate) ? $sWidgetTemplate : $sWidgetName), 'params' => $aWidgetParams, 'widget' => $oWidget),
             $oSmartyTemplate
         );
     }
-    return '';
+    $oSmartyTemplate->assign($aSavedVars);
+
+    return $sResult;
 }
 
 

@@ -64,7 +64,7 @@ function smarty_function_asset($aParams, $oSmartyTemplate) {
                 $oLocalViewerAsset->Prepare();
                 $sUrl = $oLocalViewerAsset->AssetFileUrl(F::File_NormPath($sFile));
             } else {
-                $sUrl = E::ViewerAsset_File2Link($sFile, 'skin/' . $sSkin . '/');
+                $sUrl = E::ModuleViewerAsset()->File2Link($sFile, 'skin/' . $sSkin . '/');
             }
         }
     } else {

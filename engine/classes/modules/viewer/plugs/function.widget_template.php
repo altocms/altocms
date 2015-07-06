@@ -33,7 +33,7 @@ function smarty_function_widget_template($aParams, $oSmartyTemplate) {
     $oEngine = Engine::getInstance();
 
     // Проверяем делигирование
-    $sTemplate = $oEngine->Plugin_GetDelegate('template', $sWidgetName);
+    $sTemplate = E::ModulePlugin()->GetDelegate('template', $sWidgetName);
 
     if ($sTemplate) {
         if ($aWidgetParams) {
