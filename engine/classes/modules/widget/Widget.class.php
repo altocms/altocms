@@ -108,10 +108,12 @@ class ModuleWidget extends Module {
         $aResult = array();
         if ($aWidgets) {
             // формируем окончательный список виджетов
-            foreach($aWidgets as $sKey=>$aWidgetData) {
-                // Если ID виджета не задан, то он формируется автоматически
-                $oWidget = $this->MakeWidget($aWidgetData);
-                $aResult[$oWidget->getId()] = $oWidget;
+            foreach ($aWidgets as $sKey => $aWidgetData) {
+                if ($aWidgetData) {
+                    // Если ID виджета не задан, то он формируется автоматически
+                    $oWidget = $this->MakeWidget($aWidgetData);
+                    $aResult[$oWidget->getId()] = $oWidget;
+                }
             }
         }
         return $aResult;
