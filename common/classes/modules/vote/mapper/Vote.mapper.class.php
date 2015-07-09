@@ -87,7 +87,7 @@ class ModuleVote_MapperVote extends Mapper {
     public function GetUserVoteStats($sUserId) {
 
         $sql = "SELECT
-                  target_type, vote_direction, count(id) as cnt, sum(vote_value) as sum
+                  target_type, vote_direction, count(target_id) as cnt, sum(vote_value) as sum
                 FROM
                   ?_vote
                 WHERE

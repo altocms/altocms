@@ -34,9 +34,9 @@ class ModulePlugin_EntityPlugin extends Entity {
                 'id' => (string)$aParams,
             );
         }
-        if (is_array($aParams)) {
-            $this->setProps($aParams);
-        }
+
+        $this->setProps($aParams);
+
         if(empty($aParams['manifest']) && !empty($aParams['id'])) {
             $aParams['manifest'] = E::ModulePlugin()->GetPluginManifestFile($aParams['id']);
         }
@@ -344,7 +344,7 @@ class ModulePlugin_EntityPlugin extends Entity {
     }
 
     /**
-     * @return array
+     * @return array|SimpleXmlElement
      */
     public function RequiredPlugins() {
 
