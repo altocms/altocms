@@ -856,7 +856,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setLogin($data) {
 
-        $this->setProp('user_login', $data);
+        $this->setProp('user_login', trim($data));
     }
 
     /**
@@ -881,7 +881,7 @@ class ModuleUser_EntityUser extends Entity {
      */
     public function setMail($data) {
 
-        $this->setProp('user_mail', $data);
+        $this->setProp('user_mail', trim($data));
     }
 
     /**
