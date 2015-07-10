@@ -354,7 +354,7 @@ class ModuleDatabase extends Module {
      */
     public function isTableExists($sTableName, $aConfig = null) {
 
-        $sTableName = str_replace('prefix_', Config::Get('db.table.prefix'), $sTableName);
+        $sTableName = $this->TableNameTransformer($sTableName);
         $sQuery = "SHOW TABLES LIKE '{$sTableName}'";
         if ($aRows = $this->GetConnect($aConfig)->select($sQuery)) {
             return true;
@@ -374,7 +374,7 @@ class ModuleDatabase extends Module {
      */
     public function isFieldExists($sTableName, $sFieldName, $aConfig = null) {
 
-        $sTableName = str_replace('prefix_', Config::Get('db.table.prefix'), $sTableName);
+        $sTableName = $this->TableNameTransformer($sTableName);
         $sQuery = "SHOW FIELDS FROM {$sTableName}";
         if ($aRows = $this->GetConnect($aConfig)->select($sQuery)) {
             foreach ($aRows as $aRow) {
