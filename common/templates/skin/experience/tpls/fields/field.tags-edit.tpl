@@ -11,13 +11,5 @@
         <div class="col-xs-{if !Config::Get('view.wysiwyg')}18{else}24{/if}">
             <small class="control-notice control-twice">{$aLang.topic_create_tags_notice}</small>
         </div>
-        {if !Config::Get('view.wysiwyg')}
-            <div class="col-xs-6">
-                <a class="link link-lead link-blue control-twice" href="#"
-                   onclick="$('.tags-about').slideToggle(100);
-                   $(this).toggleClass('active');
-                   return false;">{$aLang.topic_create_text_notice}</a>
-            </div>
-        {/if}
     </div>
 </div>
