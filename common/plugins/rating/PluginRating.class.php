@@ -18,7 +18,7 @@ class PluginRating extends Plugin {
     /** @var array $aDelegates Объявление делегирований */
     public $aDelegates = array(
         'template' => array(
-            'widgets/widget.blogs_top.tpl' => 'blog/widget.blogs_top.tpl',
+            'widgets/widget.blogs_top.tpl' => '_blog/widget.blogs_top.tpl',
         )
     );
 
