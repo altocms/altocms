@@ -79,10 +79,10 @@
                         </li>
                         {if E::IsUser() AND !$bNoCommentFavourites}
                             <li class="comment-favourite">
-                                <a class="link link-light-gray link-lead link-clear"
+                                <a class="link link-light-gray link-lead link-clear {if $oComment->getIsFavourite()}active{/if}"
                                    onclick="return ls.favourite.toggle({$oComment->getId()},this,'comment');"
                                    href="#">
-                                    <i class="fa fa-star"></i>
+                                    {if $oComment->getIsFavourite()}<i class="fa fa-star"></i>{else}<i class="fa fa-star-o"></i>{/if}
                                     <span class="small text-muted favourite-count"
                                           id="fav_count_comment_{$oComment->getId()}">{if $oComment->getCountFavourite() > 0}{$oComment->getCountFavourite()}{/if}</span>
                                 </a>
