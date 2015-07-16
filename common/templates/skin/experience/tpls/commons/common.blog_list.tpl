@@ -150,7 +150,7 @@
                         </td>
                     {/if}
                     {if Router::GetActionEvent()!='personal'}
-                        <td class="blog-peoples hidden-xxs last-td">
+                        <td id="blog_user_count_{$oBlog->getId()}" class="blog-peoples hidden-xxs last-td">
                             {$oBlog->getCountUser()}
                         </td>
                     {/if}
